@@ -1,7 +1,7 @@
-
+<!-- dashboard.component.html -->
 <div class="dashboard-container">
   <!-- Mobile Header -->
-    @if (isMobile()) {
+  @if (isMobile()) {
     <mat-toolbar class="mobile-header">
       <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
@@ -15,9 +15,7 @@
           <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn" [matBadgeHidden]="unreadNotifications() === 0">notifications</mat-icon>
         </button>
         <button mat-icon-button (click)="openCartDialog()">
-          <!-- <mat-icon>keyboard_arrow_down</mat-icon> -->
-          <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName ">
-          
+          <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName "> 
         </button>
       </div>
     </mat-toolbar>
@@ -96,20 +94,16 @@
             <mat-icon>campaign</mat-icon>
             View Campaign
           </button>
-          <!--  <button mat-stroked-button class="action-btn" (click)="fundWallet()">
-            <mat-icon>account_balance_wallet</mat-icon>
-            Fund Wallet
-          </button> -->
         </div>
       }
+
       <!-- Logout -->
-        <div class="quick-actions">
-          <h4 class="section-title">Sign Out</h4>
-          <button mat-stroked-button class="action-btn logout" (click)="logout()">
-            <mat-icon>exit_to_app</mat-icon>
-            Logout
-          </button>
-        </div>
+      <div class="quick-actions">
+        <button mat-stroked-button class="action-btn logout" (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          Logout
+        </button>
+      </div>
     </mat-sidenav>
 
     <!-- Main Content -->
@@ -135,17 +129,12 @@
             <!-- Profile Menu -->
             <button mat-icon-button (click)="openCartDialog()">
               <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName">
-              <!-- <mat-icon>keyboard_arrow_down</mat-icon> -->
             </button>
           </div>
         </mat-toolbar>
       }
 
-      <!-- Main content display area -->
-      <!-- <main-container [user]="user"/> -->
-       <router-outlet/>
-
-
+      <router-outlet/>
     </mat-sidenav-content>
   </mat-sidenav-container>
 
@@ -188,10 +177,6 @@
     }
   </mat-menu>
 </div>
-
-
-
-
 
 <!-- Premium Cart Dialog Template -->
 <ng-template #cartDialogTemplate>
