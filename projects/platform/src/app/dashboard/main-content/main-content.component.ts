@@ -19,11 +19,14 @@ import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Subscription } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserInterface, UserService } from '../common/services/user.service';
-import { DashboardService } from './dashboard.service';
+import { User as FirebaseAuthUser } from '@angular/fire/auth'; // Import the Firebase User type
+import { UserInterface, UserService } from '../../common/services/user.service';
+import { DashboardService } from './../dashboard.service';
+
 
 // Interfaces
 export interface Campaign {
@@ -78,11 +81,14 @@ export interface UserProfile {
   completedCampaigns?: number;
 }
 
+
+
+/**
+ * @title Dashboard Main content displayer
+ */
 @Component({
-  selector: 'app-dashboard',
-  providers: [DashboardService],
-  standalone: true,
-  imports: [
+  selector: 'main-container',
+    imports: [
     CommonModule,
     RouterModule,
     MatToolbarModule,
@@ -100,12 +106,13 @@ export interface UserProfile {
     MatTabsModule,
     MatTableModule,
     MatDialogModule,
-    MatTooltipModule,
-],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+    MatTooltipModule
+  ],
+  templateUrl: './main-content.component.html',
+  styleUrls: ['./main-content.component.scss'],
+  
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardMainContainer {
   private router = inject(Router);
   private breakpointObserver = inject(BreakpointObserver);
   private dialog = inject(MatDialog);
@@ -117,11 +124,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Add ViewChild for sidenav
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
-  // Required input that expects a signal of type UserInterface or undefined
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
   activeTab: 'cart' | 'quick-actions' = 'cart';
   @ViewChild('cartDialogTemplate') cartDialogTemplate!: TemplateRef<any>;
   private cartDialogRef?: MatDialogRef<any>;
+
+
+  // Expose the signal directly to the template
+  public user: Signal<UserInterface | null> = this.userService.user;
 
 
   // Signals for reactive state management
@@ -502,6 +511,4 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     )
   }
-
-  
 }

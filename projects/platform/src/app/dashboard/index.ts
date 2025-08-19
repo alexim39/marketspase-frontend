@@ -25,7 +25,7 @@ interface AuthState {
 }
 
 @Component({
-  selector: 'dashboard-index',
+  selector: 'index',
   standalone: true,
   imports: [CommonModule, DashboardComponent],
   template: `
@@ -285,7 +285,7 @@ interface AuthState {
     }
   `]
 })
-export class DashboardIndex implements OnInit, OnDestroy {
+export class Index implements OnInit, OnDestroy {
   // Injected services using modern inject function
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);

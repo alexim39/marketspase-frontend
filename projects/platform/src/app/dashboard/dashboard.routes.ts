@@ -1,6 +1,7 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "./guard.service";
-import { DashboardIndex } from "./index";
+import { Index } from "./index";
+import { DashboardMainContainer } from "./main-content/main-content.component";
 
 export const dashboardRoutes: Routes = [
     {
@@ -8,12 +9,12 @@ export const dashboardRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: DashboardIndex,
+        component: Index,
         canActivate: [AuthGuard],
         children: [
             {
                 path: '',
-               // component: DashboardIndexComponent,
+               component: DashboardMainContainer,
                 children: [
                    /*  { path: '', 
                         component: GetStartedComponent, 
