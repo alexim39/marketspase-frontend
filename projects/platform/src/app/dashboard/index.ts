@@ -332,7 +332,20 @@ export class DashboardIndex implements OnInit, OnDestroy {
                     this.user.set(response.data as UserInterface);
                     // get current user to user service
                     this.userService.setCurrentUser(this.user())
-                  } 
+                  } else {
+                    // User is not authenticated - redirect to login
+                    this.authState.set({
+                      isAuthenticated: false,
+                      isLoading: false,
+                      user: null
+                    });
+                    // Reset the user signal when not authenticated
+                    this.user.set(null);
+                    this.router.navigate(['/'], { 
+                      replaceUrl: true,
+                      state: { message: 'Please log in to access the dashboard' }
+                    });
+                  }
                 }         
               })
             );

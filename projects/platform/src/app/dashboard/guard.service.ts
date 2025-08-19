@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
-import { Router, CanActivateFn, UrlTree } from '@angular/router'; // Import CanActivateFn and UrlTree for functional guards
+import { Router, CanActivateFn } from '@angular/router'; // Import CanActivateFn and UrlTree for functional guards
 import { Auth, authState } from '@angular/fire/auth'; // Import Auth service and authState observable
-import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 /**

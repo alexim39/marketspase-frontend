@@ -96,6 +96,7 @@ export class UserService {
    * @returns An Observable that emits the API response or an error.
    */
   getUser(uid: string): Observable<any> {
+    console.log('uid', uid)
     return this.apiService.get<any>(`auth/${uid}`, undefined, undefined, true);
   }
 

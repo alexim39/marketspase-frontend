@@ -1,0 +1,606 @@
+
+    <div class="dashboard-container">
+      <!-- Mobile Header -->
+       @if (isMobile()) {
+        <mat-toolbar class="mobile-header">
+          <button mat-icon-button (click)="toggleSidenav()">
+            <mat-icon>menu</mat-icon>
+          </button>
+          <div class="mobile-logo">
+            <mat-icon class="logo-icon">campaign</mat-icon>
+            <span class="logo-text">MarketSpase</span>
+          </div>
+          <div class="mobile-actions">
+            <button mat-icon-button [matMenuTriggerFor]="notificationMenu" class="notification-btn">
+              <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn" [matBadgeHidden]="unreadNotifications() === 0">notifications</mat-icon>
+            </button>
+            <button mat-icon-button (click)="openCartDialog()">
+              <!-- <mat-icon>keyboard_arrow_down</mat-icon> -->
+              <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName ">
+              
+            </button>
+          </div>
+        </mat-toolbar>
+      }
+
+      <mat-sidenav-container class="sidenav-container" [hasBackdrop]="isMobile()">
+        <!-- Side Navigation -->
+        <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()" class="sidenav">
+          <!-- Desktop Header in Sidenav -->
+           @if (!isMobile()) {
+            <div class="sidenav-header">
+              <div class="logo-section">
+                <mat-icon class="logo-icon">campaign</mat-icon>
+                <h1 class="logo-text">MarketSpase</h1>
+              </div>
+            </div>
+           }
+
+          <!-- User Profile Card -->
+          <div class="profile-card">
+            <div class="profile-info">
+              <img [src]="user()!.avatar" class="profile-avatar" [alt]="user()!.displayName">
+              <div class="profile-details">
+                <h3 class="profile-name">{{user()!.displayName}}</h3>
+                <div class="profile-meta">
+                  <mat-chip class="role-chip" [class]="user()!.role">
+                    {{user()!.role | titlecase}}
+                  </mat-chip>
+                  @if (user()!.verified) {
+                    <mat-icon class="verified-badge" matTooltip="Verified Account">verified</mat-icon>
+                  }
+                </div>
+                <div class="profile-stats">
+                  @if (user()!.role === 'promoter') {
+                    ⭐ {{user()!.rating}}/5 • ₦{{currentUser().totalEarnings | number}} earned
+                  }
+                  @if (user()!.role === 'advertiser') {
+                    {{currentUser().activeCampaigns}} active • ₦{{currentUser().totalSpent | number}} spent
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Menu -->
+          <mat-nav-list class="nav-list">
+          @for (item of navigationItems(); track item) {
+            <mat-list-item [routerLink]="item.route" routerLinkActive="active-nav-item" (click)="isMobile() && sidenav.close()">
+              <mat-icon matListItemIcon>{{item.icon}}</mat-icon>
+              <span matListItemTitle>{{item.label}}</span>
+            @if (item.badge) {
+              <mat-icon matListItemMeta class="badge-icon" [matBadge]="item.badge" matBadgeColor="warn" matBadgeSize="small"></mat-icon>
+            }
+            </mat-list-item>
+          }
+          </mat-nav-list>
+
+          <!-- Quick Actions -->
+          @if (user()!.role === 'advertiser') {
+            <div class="quick-actions">
+              <h4 class="section-title">Quick Actions</h4>
+              <button mat-stroked-button class="action-btn" (click)="createCampaign()">
+                <mat-icon>add_circle_outline</mat-icon>
+                Create Campaign
+              </button>
+              <button mat-stroked-button class="action-btn" (click)="fundWallet()">
+                <mat-icon>account_balance_wallet</mat-icon>
+                Fund Wallet
+              </button>
+            </div>
+          }
+          @if (user()!.role === 'promoter') {
+            <div class="quick-actions">
+              <h4 class="section-title">Quick Actions</h4>
+              <button mat-stroked-button class="action-btn" (click)="createCampaign()">
+                <mat-icon>campaign</mat-icon>
+                View Campaign
+              </button>
+             <!--  <button mat-stroked-button class="action-btn" (click)="fundWallet()">
+                <mat-icon>account_balance_wallet</mat-icon>
+                Fund Wallet
+              </button> -->
+            </div>
+          }
+          <!-- Logout -->
+           <div class="quick-actions">
+              <h4 class="section-title">Sign Out</h4>
+              <button mat-stroked-button class="action-btn logout" (click)="logout()">
+                <mat-icon>exit_to_app</mat-icon>
+                Logout
+              </button>
+            </div>
+        </mat-sidenav>
+
+        <!-- Main Content -->
+        <mat-sidenav-content class="main-content">
+          <!-- Desktop Header -->
+          @if (!isMobile()) {
+            <mat-toolbar class="desktop-header">
+              <span class="page-title">{{getPageTitle()}}</span>
+              <div class="header-spacer"></div>
+              <div class="header-actions">
+                <!-- Wallet Balance -->
+                <div class="wallet-display" (click)="openWallet()">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <span class="wallet-amount">₦{{walletBalance() | number}}</span>
+                </div>
+                
+                <!-- Notifications -->
+                <button mat-icon-button [matMenuTriggerFor]="notificationMenu" class="notification-btn">
+                  <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn" 
+                            [matBadgeHidden]="unreadNotifications() === 0">notifications</mat-icon>
+                </button>
+
+                <!-- Profile Menu -->
+                <button mat-icon-button (click)="openCartDialog()">
+                  <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName">
+                  <!-- <mat-icon>keyboard_arrow_down</mat-icon> -->
+                </button>
+              </div>
+            </mat-toolbar>
+          }
+
+          <!-- Dashboard Content -->
+          <div class="dashboard-content">
+            <!-- Overview Cards -->
+            <div class="overview-section">
+              <div class="stats-grid">
+                @for (stat of dashboardStats(); track stat) {
+                <mat-card class="stat-card" [class]="stat.trend + '-trend'">
+                  <mat-card-content>
+                    <div class="stat-header">
+                      <mat-icon class="stat-icon" [style.color]="stat.color">{{stat.icon}}</mat-icon>
+                      <div class="stat-trend" [class]="stat.trend">
+                        <mat-icon>{{stat.trend === 'up' ? 'trending_up' : 'trending_down'}}</mat-icon>
+                        <span>{{stat.change}}%</span>
+                      </div>
+                    </div>
+                    <div class="stat-content">
+                      <h2 class="stat-value">{{stat.value}}</h2>
+                      <p class="stat-label">{{stat.label}}</p>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+                }
+              </div>
+            </div>
+
+            <!-- Quick Actions Bar (Mobile) -->
+             @if (isMobile() && user()!.role === 'advertiser') {
+              <div class="mobile-quick-actions">
+                <button mat-fab extended color="primary" (click)="createCampaign()">
+                  <mat-icon>add</mat-icon>
+                  Create Campaign
+                </button>
+              </div>
+             }
+
+            <!-- Main Dashboard Content -->
+            <div class="content-sections">
+              <!-- Advertiser Dashboard -->
+              @if (user()!.role === 'advertiser') {
+                <div>
+                  <mat-tab-group class="dashboard-tabs" animationDuration="300ms">
+                    <!-- Active Campaigns Tab -->
+                    <mat-tab label="Active Campaigns" class="tab-content">
+                      <div class="campaigns-section">
+                        <div class="section-header">
+                          <h3>Your Campaigns</h3>
+                          <button mat-stroked-button (click)="createCampaign()">
+                            <mat-icon>add</mat-icon>
+                            New Campaign
+                          </button>
+                        </div>
+                        
+                        <div class="campaigns-grid">
+                          @for (campaign of campaigns(); track campaign) {
+                          <mat-card class="campaign-card" [class]="'status-' + campaign.status">
+                            <div class="campaign-image">
+                              <img [src]="campaign.imageUrl" [alt]="campaign.title">
+                              <div class="campaign-status">
+                                <mat-chip [class]="'status-' + campaign.status">
+                                  {{campaign.status | titlecase}}
+                                </mat-chip>
+                              </div>
+                            </div>
+                            
+                            <mat-card-content>
+                              <div class="campaign-header">
+                                <h4 class="campaign-title">{{campaign.title}}</h4>
+                                <button mat-icon-button [matMenuTriggerFor]="campaignMenu">
+                                  <mat-icon>more_vert</mat-icon>
+                                </button>
+                              </div>
+                              
+                              <p class="campaign-description">{{campaign.description}}</p>
+                              
+                              <div class="campaign-metrics">
+                                <div class="metric">
+                                  <span class="metric-label">Reach</span>
+                                  <span class="metric-value">{{campaign.reach | number}}</span>
+                                </div>
+                                <div class="metric">
+                                  <span class="metric-label">Budget</span>
+                                  <span class="metric-value">₦{{campaign.budget | number}}</span>
+                                </div>
+                                <div class="metric">
+                                  <span class="metric-label">Spent</span>
+                                  <span class="metric-value">₦{{campaign.spent | number}}</span>
+                                </div>
+                              </div>
+                              
+                              <div class="campaign-progress">
+                                <div class="progress-info">
+                                  <span class="progress-label">Progress</span>
+                                  <span class="progress-text">{{campaign.currentViews}}/{{campaign.viewsRequired}} views</span>
+                                </div>
+                                <mat-progress-bar mode="determinate" [value]="(campaign.currentViews / campaign.viewsRequired) * 100">
+                                </mat-progress-bar>
+                              </div>
+                            </mat-card-content>
+                            
+                            <mat-card-actions>
+                              <button mat-button (click)="viewCampaign(campaign.id)">View Details</button>
+                              <button mat-button (click)="viewProofs(campaign.id)">View Proofs</button>
+                            </mat-card-actions>
+                          </mat-card>
+                          }
+                        </div>
+                      </div>
+                    </mat-tab>
+
+                    <!-- Analytics Tab -->
+                    <mat-tab label="Analytics">
+                      <div class="analytics-section">
+                        <h3>Campaign Analytics</h3>
+                        <!-- Add charts and analytics here -->
+                        <div class="analytics-placeholder">
+                          <mat-icon>analytics</mat-icon>
+                          <p>Detailed analytics coming soon</p>
+                        </div>
+                      </div>
+                    </mat-tab>
+
+                    <!-- History Tab -->
+                    <mat-tab label="History">
+                      <div class="history-section">
+                        <h3>Campaign History</h3>
+                        <!-- Add campaign history table here -->
+                        <div class="history-placeholder">
+                          <mat-icon>history</mat-icon>
+                          <p>Campaign history will be displayed here</p>
+                        </div>
+                      </div>
+                    </mat-tab>
+                  </mat-tab-group>
+                </div>
+              }
+
+              <!-- Promoter Dashboard -->
+               @if (user()!.role === 'promoter') {
+              <div>
+                <mat-tab-group class="dashboard-tabs" animationDuration="300ms">
+                  <!-- Available Campaigns Tab -->
+                  <mat-tab label="Available Campaigns">
+                    <div class="available-campaigns-section">
+                      <div class="section-header">
+                        <h3>Available Campaigns</h3>
+                        <div class="filters">
+                          <button mat-stroked-button>
+                            <mat-icon>filter_list</mat-icon>
+                            Filter
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div class="campaigns-grid">
+                        @for (campaign of campaigns(); track campaign) {
+                          <mat-card class="campaign-card available" (click)="viewCampaignDetails(campaign.id)">
+                            <div class="campaign-image">
+                              <img [src]="campaign.imageUrl" [alt]="campaign.title">
+                              <div class="campaign-reward">
+                                <mat-chip color="primary">₦{{campaign.budget / campaign.promoters | number}}</mat-chip>
+                              </div>
+                            </div>
+                            
+                            <mat-card-content>
+                              <h4 class="campaign-title">{{campaign.title}}</h4>
+                              <p class="campaign-description">{{campaign.description}}</p>
+                              
+                              <div class="campaign-info">
+                                <div class="info-item">
+                                  <mat-icon>schedule</mat-icon>
+                                  <span>{{campaign.deadline | date:'short'}}</span>
+                                </div>
+                                <div class="info-item">
+                                  <mat-icon>people</mat-icon>
+                                  <span>{{campaign.promoters}} promoters needed</span>
+                                </div>
+                              </div>
+                            </mat-card-content>
+                            
+                            <mat-card-actions>
+                              <button mat-stroked-button color="primary" (click)="acceptCampaign(campaign.id)">
+                                Accept Campaign
+                              </button>
+                            </mat-card-actions>
+                          </mat-card>
+                        }
+                      </div>
+                    </div>
+                  </mat-tab>
+
+                  <!-- My Campaigns Tab -->
+                  <mat-tab label="My Campaigns">
+                    <div class="my-campaigns-section">
+                      <h3>Your Active Campaigns</h3>
+                      
+                      <div class="campaigns-list">
+                        @for (earning of earnings(); track earning) {
+                        <mat-card class="campaign-item">
+                          <mat-card-content>
+                            <div class="campaign-summary">
+                              <div class="campaign-info">
+                                <h4>{{earning.campaignTitle}}</h4>
+                                <p>{{earning.advertiser}}</p>
+                              </div>
+                              <div class="campaign-status">
+                                <mat-chip [class]="'status-' + earning.status">
+                                  {{earning.status | titlecase}}
+                                </mat-chip>
+                                <span class="earning-amount">₦{{earning.amount | number}}</span>
+                              </div>
+                            </div>
+                            
+                            @if (earning.status === 'pending') {
+                              <div class="proof-status">
+                                @if (!earning.proofSubmitted) {
+                                  <button mat-stroked-button color="primary" (click)="uploadProof(earning.id)">
+                                    <mat-icon>upload</mat-icon>
+                                    Upload Proof
+                                  </button>
+                                }
+                                @if (earning.proofSubmitted) {
+                                  <div class="proof-submitted">
+                                    <mat-icon color="primary">check_circle</mat-icon>
+                                    <span>Proof submitted, awaiting verification</span>
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </mat-card-content>
+                        </mat-card>
+                        }
+                      </div>
+                    </div>
+                  </mat-tab>
+
+                  <!-- Earnings Tab -->
+                  <mat-tab label="Earnings">
+                    <div class="earnings-section">
+                      <div class="earnings-header">
+                        <h3>Your Earnings</h3>
+                        <button mat-raised-button color="primary" (click)="withdraw()">
+                          <mat-icon>money</mat-icon>
+                          Withdraw
+                        </button>
+                      </div>
+                      
+                      <div class="earnings-summary">
+                        <mat-card class="earning-stat">
+                          <mat-card-content>
+                            <h3>₦{{currentUser().totalEarnings | number}}</h3>
+                            <p>Total Earnings</p>
+                          </mat-card-content>
+                        </mat-card>
+                        
+                        <mat-card class="earning-stat">
+                          <mat-card-content>
+                            <h3>₦{{pendingEarnings() | number}}</h3>
+                            <p>Pending</p>
+                          </mat-card-content>
+                        </mat-card>
+                        
+                        <mat-card class="earning-stat">
+                          <mat-card-content>
+                            <h3>₦{{availableBalance() | number}}</h3>
+                            <p>Available</p>
+                          </mat-card-content>
+                        </mat-card>
+                      </div>
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
+              </div>
+              }
+            </div>
+          </div>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
+
+      <!-- Notification Menu -->
+      <mat-menu #notificationMenu="matMenu" class="notification-menu">
+        <div class="notification-header">
+          <h4>Notifications</h4>
+          <button mat-icon-button (click)="markAllAsRead()">
+            <mat-icon>done_all</mat-icon>
+          </button>
+        </div>
+        <mat-divider></mat-divider>
+        @if (notifications().length > 0) {
+        <div class="notification-list">
+          <button mat-menu-item 
+                  *ngFor="let notification of notifications().slice(0, 5)" 
+                  class="notification-item"
+                  [class.unread]="!notification.read"
+                  (click)="markAsRead(notification.id)">
+            <div class="notification-content">
+              <div class="notification-title">{{notification.title}}</div>
+              <div class="notification-message">{{notification.message}}</div>
+              <div class="notification-time">{{notification.timestamp | date:'short'}}</div>
+            </div>
+          </button>
+        </div>
+        } @else {
+          <div class="no-notifications">
+            <mat-icon>notifications_none</mat-icon>
+            <p>No new notifications</p>
+          </div>
+        }
+        @if (notifications().length > 5) {
+          <mat-divider></mat-divider>
+        }
+        @if (notifications().length > 5) {
+          <button mat-menu-item (click)="viewAllNotifications()">
+            View all notifications
+          </button>
+        }
+      </mat-menu>
+
+      <!-- Profile Menu -->
+      <!-- <mat-menu #profileMenu="matMenu">
+        <button mat-menu-item (click)="viewProfile()">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+        </button>
+        <button mat-menu-item (click)="openSettings()">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu> -->
+
+      <!-- Campaign Menu -->
+      <mat-menu #campaignMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>edit</mat-icon>
+          <span>Edit Campaign</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>pause</mat-icon>
+          <span>Pause Campaign</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>analytics</mat-icon>
+          <span>View Analytics</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon>delete</mat-icon>
+          <span>Delete Campaign</span>
+        </button>
+      </mat-menu>
+    </div>
+
+    <!-- Premium Cart Dialog Template -->
+    <ng-template #cartDialogTemplate>
+      <mat-card class="cart-dialog-card">
+        <!-- Header with cart summary -->
+        <div class="cart-header">
+          <div class="cart-title">
+            <mat-icon class="cart-icon">shopping_bag</mat-icon>
+            <h3>Your Shopping</h3>
+            <button mat-icon-button class="close-btn" (click)="closeCartDialog()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="cart-summary">
+            <span class="items-count">1 item</span>
+            <span class="total-price">₦40</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="cart-tabs">
+          <button 
+            class="tab-btn" 
+            [class.active]="activeTab === 'cart'"
+            (click)="setActiveTab('cart')">
+            <mat-icon>shopping_cart</mat-icon>
+            Cart
+            <span class="badge">2</span>
+          </button>
+          <button 
+            class="tab-btn" 
+            [class.active]="activeTab === 'quick-actions'"
+            (click)="setActiveTab('quick-actions')">
+            <mat-icon>menu</mat-icon>
+            Quick Actions
+          </button>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Cart Content -->
+        <div class="cart-content" *ngIf="activeTab === 'cart'">
+          <!-- Cart items preview -->
+          <div class="cart-items-section">
+            <div class="empty-cart">
+              <div class="empty-cart-icon">
+                <mat-icon>shopping_bag</mat-icon>
+              </div>
+              <h4>Your cart is empty</h4>
+              <p>Looks like you haven't added anything to your cart yet</p>
+              <button 
+                mat-flat-button 
+                color="primary" 
+                class="shop-btn"
+                routerLink="/store" 
+                (click)="closeCartDialog()">
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+
+          <!-- Checkout section -->
+          <div class="checkout-section">
+            <mat-divider></mat-divider>
+            <div class="checkout-total">
+              <span>Estimated Total</span>
+              <span class="amount">₦40</span>
+            </div>
+            <button 
+              mat-flat-button 
+              color="primary" 
+              class="checkout-btn"
+              routerLink="/store/checkout"
+              (click)="closeCartDialog()">
+              Proceed to Checkout
+            </button>
+            <div class="secure-checkout">
+              <mat-icon>lock</mat-icon>
+              <span>Secure checkout</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Content -->
+         @if (activeTab === 'quick-actions') {
+          <div class="quick-actions-content">
+            <div class="quick-actions-grid">
+              <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('promoter')" [disabled]="user()!.role === 'promoter'">
+                <mat-icon>attach_money</mat-icon>
+                <span>Switch to Promoter</span>
+              </button>
+              <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('advertiser')" [disabled]="user()!.role === 'advertiser'">
+                <mat-icon>campaign</mat-icon>
+                <span>Switch to Advertiser</span>
+              </button>
+            </div>
+
+            <div class="account-section">
+              <mat-divider></mat-divider>
+              <button matRipple class="account-action" routerLink="/settings/account" (click)="closeCartDialog()">
+                <mat-icon>person</mat-icon>
+                <span>Account Settings</span>
+              </button>
+            </div>
+          </div>
+        }
+      </mat-card>
+    </ng-template>

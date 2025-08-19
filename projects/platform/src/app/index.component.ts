@@ -650,6 +650,8 @@ export class IndexComponent implements OnInit, OnDestroy {
               //console.log('response ',response)
               // Navigate to dashboard
               this.router.navigateByUrl('/dashboard');
+            } else {
+              this.router.navigateByUrl('/');
             }
           },
           error: (error: HttpErrorResponse) => {
@@ -670,9 +672,9 @@ export class IndexComponent implements OnInit, OnDestroy {
       errorMessage = `Authentication failed: ${ (error as AuthError).message }`;
       // You might want to map specific Firebase Auth error codes to user-friendly messages here
       // For example:
-      // if ((error as AuthError).code === 'auth/popup-closed-by-user') {
-      //   errorMessage = 'Sign-in window was closed. Please try again.';
-      // }
+      if ((error as AuthError).code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in window was closed. Please try again.';
+      }
     } else if (error instanceof HttpErrorResponse) { // Existing HTTP error handling
       if (error.error && error.error.message) {
         errorMessage = error.error.message;
