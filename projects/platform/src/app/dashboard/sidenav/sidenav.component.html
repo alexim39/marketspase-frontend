@@ -90,7 +90,7 @@
       @if (user()!.role === 'promoter') {
         <div class="quick-actions">
           <h4 class="section-title">Quick Actions</h4>
-          <button mat-stroked-button class="action-btn" (click)="createCampaign()">
+          <button mat-stroked-button class="action-btn" (click)="viewCampaign()">
             <mat-icon>campaign</mat-icon>
             View Campaign
           </button>
@@ -117,7 +117,12 @@
             <!-- Wallet Balance -->
             <div class="wallet-display" (click)="openWallet()">
               <mat-icon>account_balance_wallet</mat-icon>
-              <span class="wallet-amount">₦{{walletBalance() | number}}</span>
+              @if (user()!.role === 'promoter') {
+                <span class="wallet-amount">₦{{user()?.wallets?.promoter?.balance || 0 | number}}</span>
+              }
+              @if (user()!.role === 'advertiser') {
+                <span class="wallet-amount">₦{{user()?.wallets?.advertiser?.balance || 0 | number}}</span>
+              }
             </div>
             
             <!-- Notifications -->
@@ -128,13 +133,15 @@
 
             <!-- Profile Menu -->
             <button mat-icon-button (click)="openCartDialog()">
-              <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName">
+              <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()?.displayName">
             </button>
           </div>
         </mat-toolbar>
       }
 
+      <!-- Router -->
       <router-outlet/>
+
     </mat-sidenav-content>
   </mat-sidenav-container>
 
@@ -261,7 +268,7 @@
     </div>
 
     <!-- Quick Actions Content -->
-      @if (activeTab === 'quick-actions') {
+    @if (activeTab === 'quick-actions') {
       <div class="quick-actions-content">
         <div class="quick-actions-grid">
           <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('promoter')" [disabled]="user()!.role === 'promoter'">

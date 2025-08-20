@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, Signal, TemplateRef, } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,18 +15,15 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
-import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Observable, Subscription } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { AuthService } from '../../auth/auth.service';
+import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { User as FirebaseAuthUser } from '@angular/fire/auth'; // Import the Firebase User type
+import { AuthService } from '../../auth/auth.service';
 import { UserInterface, UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
-
 
 // Interfaces
 export interface Campaign {
@@ -36,13 +33,9 @@ export interface Campaign {
   budget: number;
   spent: number;
   reach: number;
-  engagement: number;
   status: 'active' | 'pending' | 'completed' | 'paused';
-  category: string;
   deadline: Date;
   imageUrl: string;
-  targetAudience: string;
-  createdAt: Date;
   promoters: number;
   viewsRequired: number;
   currentViews: number;
@@ -62,7 +55,6 @@ export interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'success' | 'error';
   timestamp: Date;
   read: boolean;
 }
@@ -81,14 +73,9 @@ export interface UserProfile {
   completedCampaigns?: number;
 }
 
-
-
-/**
- * @title Dashboard Main content displayer
- */
 @Component({
   selector: 'main-container',
-    imports: [
+  imports: [
     CommonModule,
     RouterModule,
     MatToolbarModule,
@@ -110,9 +97,8 @@ export interface UserProfile {
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
-  
 })
-export class DashboardMainContainer {
+export class DashboardMainContainer implements OnInit, OnDestroy {
   private router = inject(Router);
   private breakpointObserver = inject(BreakpointObserver);
   private dialog = inject(MatDialog);
@@ -124,14 +110,8 @@ export class DashboardMainContainer {
   // Add ViewChild for sidenav
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
-  activeTab: 'cart' | 'quick-actions' = 'cart';
-  @ViewChild('cartDialogTemplate') cartDialogTemplate!: TemplateRef<any>;
-  private cartDialogRef?: MatDialogRef<any>;
-
-
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
-
 
   // Signals for reactive state management
   currentUser = signal<UserProfile>({
@@ -139,7 +119,7 @@ export class DashboardMainContainer {
     name: 'John Doe',
     email: 'john.doe@example.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-    role: 'advertiser', // Change to 'promoter' to test promoter view
+    role: 'advertiser',
     verified: true,
     rating: 4.8,
     totalEarnings: 85000,
@@ -147,8 +127,6 @@ export class DashboardMainContainer {
     activeCampaigns: 5,
     completedCampaigns: 23
   });
-
-  walletBalance = signal(125000);
 
   campaigns = signal<Campaign[]>([
     {
@@ -158,13 +136,9 @@ export class DashboardMainContainer {
       budget: 50000,
       spent: 32000,
       reach: 15000,
-      engagement: 2400,
       status: 'active',
-      category: 'Fashion',
       deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
-      targetAudience: 'Young Adults 18-35',
-      createdAt: new Date(),
       promoters: 20,
       viewsRequired: 25000,
       currentViews: 15000
@@ -176,13 +150,9 @@ export class DashboardMainContainer {
       budget: 75000,
       spent: 45000,
       reach: 22000,
-      engagement: 3800,
       status: 'active',
-      category: 'Technology',
       deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
       imageUrl: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400',
-      targetAudience: 'Tech Enthusiasts',
-      createdAt: new Date(),
       promoters: 30,
       viewsRequired: 35000,
       currentViews: 22000
@@ -215,7 +185,6 @@ export class DashboardMainContainer {
       id: '1',
       title: 'Campaign Approved',
       message: 'Your campaign "Summer Fashion" has been approved and is now live',
-      type: 'success',
       timestamp: new Date(),
       read: false
     },
@@ -223,7 +192,6 @@ export class DashboardMainContainer {
       id: '2',
       title: 'Proof Required',
       message: 'Please upload proof for your campaign participation',
-      type: 'warning',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
       read: false
     }
@@ -314,32 +282,6 @@ export class DashboardMainContainer {
     }
   });
 
-  navigationItems = computed(() => {
-    const baseItems = [
-      { icon: 'dashboard', label: 'Dashboard', route: '/dashboard' },
-      { icon: 'notifications', label: 'Notifications', route: '/notifications', badge: this.unreadNotifications() }
-    ];
-
-    if (this.currentUser().role === 'advertiser') {
-      return [
-        ...baseItems,
-        { icon: 'campaign', label: 'My Campaigns', route: '/campaigns' },
-        { icon: 'analytics', label: 'Analytics', route: '/analytics' },
-        { icon: 'account_balance_wallet', label: 'Wallet', route: '/wallet' },
-        { icon: 'people', label: 'Promoters', route: '/promoters' },
-        { icon: 'help', label: 'Support', route: '/support' }
-      ];
-    } else {
-      return [
-        ...baseItems,
-        { icon: 'work', label: 'Available Campaigns', route: '/browse' },
-        { icon: 'assignment', label: 'My Campaigns', route: '/my-campaigns' },
-        { icon: 'monetization_on', label: 'Earnings', route: '/earnings' },
-        { icon: 'help', label: 'Support', route: '/support' }
-      ];
-    }
-  });
-
   pendingEarnings = computed(() => {
     return this.earnings()
       .filter(e => e.status === 'pending')
@@ -355,9 +297,7 @@ export class DashboardMainContainer {
   ngOnInit(): void {
     // Subscribe to breakpoint changes
     this.subscriptions.push(
-      this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).subscribe(() => {
-        // Trigger change detection if needed
-      })
+      this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).subscribe()
     );
   }
 
@@ -369,10 +309,6 @@ export class DashboardMainContainer {
     if (this.sidenav) {
       this.sidenav.toggle();
     }
-  }
-
-  getPageTitle(): string {
-    return this.user()!.role === 'advertiser' ? 'Advertiser Dashboard' : 'Promoter Dashboard';
   }
 
   // Campaign Actions
@@ -400,15 +336,6 @@ export class DashboardMainContainer {
     this.snackBar.open('Proof upload feature coming soon!', 'OK', { duration: 3000 });
   }
 
-  // Wallet Actions
-  fundWallet(): void {
-    this.snackBar.open('Fund Wallet feature coming soon!', 'OK', { duration: 3000 });
-  }
-
-  openWallet(): void {
-    this.router.navigate(['/wallet']);
-  }
-
   withdraw(): void {
     this.snackBar.open('Withdrawal feature coming soon!', 'OK', { duration: 3000 });
   }
@@ -432,61 +359,18 @@ export class DashboardMainContainer {
     this.router.navigate(['/notifications']);
   }
 
-  // Profile Actions
-  viewProfile(): void {
-    this.router.navigate(['/profile']);
-  }
-
-  openSettings(): void {
-    this.router.navigate(['/settings']);
-  }
-
-
-  /**
-  * Method to handle the sign-out process.
-  * This is typically called from a button click event.
-  */
   logout(): void {
     this.subscriptions.push(
       this.authService.signOut().subscribe({
         next: () => {
-          // Handle successful sign-out
-          //console.log('Sign-out successful. Navigating to login...');
-          // Navigate the user to the login page or home page
-          this.router.navigate(['/']); // Change '/login' to your desired route
+          this.router.navigate(['/']);
         },
         error: (error: HttpErrorResponse) => {
-          // Handle sign-out error
           console.error('Sign-out failed:', error.error.message);
-          // Display an error message to the user, e.g., using a toast or snackbar
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
       })
     )
-  }
-
-  closeCartDialog(): void {
-    if (this.cartDialogRef) {
-      this.cartDialogRef.close();
-    }
-  }
-
-  setActiveTab(tab: 'cart' | 'quick-actions'): void {
-    this.activeTab = tab;
-  }
-
-  openCartDialog(): void {
-    // Method 1: Using template reference (after fixing the template)
-    this.cartDialogRef = this.dialog.open(this.cartDialogTemplate, {
-      position: { 
-        top: '72px',
-        right: '24px'
-      },
-      hasBackdrop: true,
-      backdropClass: 'cart-dialog-backdrop',
-      panelClass: 'cart-dialog-panel',
-      autoFocus: false
-    });
   }
 
   switchUser(role: string) {
@@ -502,9 +386,9 @@ export class DashboardMainContainer {
           }
         },
         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.'; // default error message.
+          let errorMessage = 'Server error occurred, please try again.';
           if (error.error && error.error.message) {
-            errorMessage = error.error.message; // Use backend's error message if available.
+            errorMessage = error.error.message;
           }  
           this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
         }

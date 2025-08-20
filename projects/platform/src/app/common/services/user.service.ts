@@ -1,9 +1,6 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
-import { Observable, BehaviorSubject, of } from 'rxjs'; // Import BehaviorSubject and of for reactive state
+import { Observable } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from './api.service';
-import { Auth, authState } from '@angular/fire/auth'; // Import Auth and authState from AngularFire
-import { switchMap, catchError, take } from 'rxjs/operators'; // Add necessary RxJS operators
-import { HttpErrorResponse } from '@angular/common/http';
 
 // Your UserInterface definition
 export interface UserInterface {
@@ -69,7 +66,32 @@ export interface UserInterface {
     accountNumber: string;
     accountName: string;
   }[];
-  balance?: number;
+  wallets?: {
+    advertiser: {
+      balance: number;
+      reserved: number;
+      transactions: {
+        amount: number;
+        category: string;
+        createdAt: Date;
+        description: string;
+        status: string;
+        type: string;
+      };
+    };
+    promoter: {
+      balance: number;
+      reserved: number;
+      transactions: {
+        amount: number;
+        category: string;
+        createdAt: Date;
+        description: string;
+        status: string;
+        type: string;
+      };
+    }
+  };
 }
 
 @Injectable({ providedIn: 'root' })

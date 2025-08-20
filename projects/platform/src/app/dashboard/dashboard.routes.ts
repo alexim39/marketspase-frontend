@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "./guard.service";
-import { Index } from "./index";
+import { DashboardIndex } from "./index";
 import { DashboardMainContainer } from "./main-content/main-content.component";
 
 export const dashboardRoutes: Routes = [
@@ -9,17 +9,17 @@ export const dashboardRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: Index,
+        component: DashboardIndex,
         canActivate: [AuthGuard],
         children: [
             {
                 path: '',
                component: DashboardMainContainer,
                 children: [
-                   /*  { path: '', 
-                        component: GetStartedComponent, 
-                        title: "Diamond Project Online - Get trained to get financially free",
-                    }, */
+                  /*  { path: 'campaign', 
+                        component: CampaignIndex, 
+                        title: "Campaign Management Page - Create, modify and manage campaign",
+                    } */
                    /*  {   path: 'search',
                         component: SearchResultContainerComponent, 
                         title: "Partners Search - Partners result details"
@@ -32,7 +32,7 @@ export const dashboardRoutes: Routes = [
                 ]
             }, 
                    
-            // { path: 'payment', loadChildren: () => import('./payments/payment-routes').then(r => r.PaymentRoutes) },            
+            { path: 'campaign', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

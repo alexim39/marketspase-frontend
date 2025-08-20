@@ -5,18 +5,16 @@ import {
   OnDestroy, 
   signal,
   computed,
-  effect,
-  Input, // Added to show the receiving component's input
-  Signal // Added to show the type of the incoming signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DeviceService } from '../common/services/device.service';
-import { DashboardComponent } from './dashboard.component';
+import { DashboardComponent } from './sidenav/sidenav.component';
 import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { UserInterface, UserService } from '../common/services/user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -25,7 +23,7 @@ interface AuthState {
 }
 
 @Component({
-  selector: 'index',
+  selector: 'dashboard-index',
   standalone: true,
   imports: [CommonModule, DashboardComponent],
   template: `
@@ -285,7 +283,7 @@ interface AuthState {
     }
   `]
 })
-export class Index implements OnInit, OnDestroy {
+export class DashboardIndex implements OnInit, OnDestroy {
   // Injected services using modern inject function
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -327,13 +325,15 @@ export class Index implements OnInit, OnDestroy {
               this.userService.getUser(user.uid).subscribe({
                 next: (response) => {
                   if (response.success) {
-                    console.log('Returned User:', response.data);
+                    //console.log('Returned User:', response.data);
                    // UPDATED: Use `set()` to update the signal's value.
                     this.user.set(response.data as UserInterface);
                     // get current user to user service
                     this.userService.setCurrentUser(this.user())
-                  } else {
-                    // User is not authenticated - redirect to login
+                  }
+                },
+                error: (error: HttpErrorResponse) => {
+                   // User is not authenticated - redirect to login
                     this.authState.set({
                       isAuthenticated: false,
                       isLoading: false,
@@ -345,8 +345,7 @@ export class Index implements OnInit, OnDestroy {
                       replaceUrl: true,
                       state: { message: 'Please log in to access the dashboard' }
                     });
-                  }
-                }         
+                }    
               })
             );
 

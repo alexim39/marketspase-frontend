@@ -16,10 +16,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserInterface } from '../common/services/user.service';
-import { DashboardService } from './dashboard.service';
+import { UserInterface } from '../../common/services/user.service';
+import { DashboardService } from '../dashboard.service';
+import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 
 // Interfaces
 export interface Earning {
@@ -74,8 +75,8 @@ export interface UserProfile {
     MatDialogModule,
     MatTooltipModule,
   ],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  templateUrl: './sidenav.component.html',
+  styleUrls: ['./sidenav.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -94,6 +95,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('cartDialogTemplate') cartDialogTemplate!: TemplateRef<any>;
   private cartDialogRef?: MatDialogRef<any>;
 
+
   // Signals for reactive state management
   currentUser = signal<UserProfile>({
     id: '1',
@@ -109,7 +111,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     completedCampaigns: 23
   });
 
-  walletBalance = signal(125000);
+  //walletBalance = signal(125000);
 
   earnings = signal<Earning[]>([
     {
@@ -168,61 +170,76 @@ export class DashboardComponent implements OnInit, OnDestroy {
       { icon: 'notifications', label: 'Notifications', route: '/notifications', badge: this.unreadNotifications() }
     ];
 
-    if (this.currentUser().role === 'advertiser') {
+    if (this.user()?.role === 'advertiser') {
       return [
         ...baseItems,
-        { icon: 'campaign', label: 'My Campaigns', route: '/campaigns' },
+        { icon: 'campaign', label: 'Campaigns', route: '/campaigns' },
         { icon: 'analytics', label: 'Analytics', route: '/analytics' },
-        { icon: 'account_balance_wallet', label: 'Wallet', route: '/wallet' },
-        { icon: 'people', label: 'Promoters', route: '/promoters' },
+        //{ icon: 'account_balance_wallet', label: 'Wallet', route: '/wallet' },
+        //{ icon: 'people', label: 'Promoters', route: '/promoters' },
         { icon: 'help', label: 'Support', route: '/support' }
       ];
     } else {
       return [
         ...baseItems,
-        { icon: 'work', label: 'Available Campaigns', route: '/browse' },
-        { icon: 'assignment', label: 'My Campaigns', route: '/my-campaigns' },
+        { icon: 'work', label: 'Campaigns', route: '/browse' },
+        //{ icon: 'assignment', label: 'My Campaigns', route: '/my-campaigns' },
         { icon: 'monetization_on', label: 'Earnings', route: '/earnings' },
         { icon: 'help', label: 'Support', route: '/support' }
       ];
     }
   });
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     // Subscribe to breakpoint changes
     this.subscriptions.push(
       this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).subscribe()
     );
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  toggleSidenav(): void {
+  public toggleSidenav(): void {
     this.sidenav?.toggle();
   }
 
-  getPageTitle(): string {
+  public getPageTitle(): string {
     return this.user()!.role === 'advertiser' ? 'Advertiser Dashboard' : 'Promoter Dashboard';
   }
 
   // Campaign Actions
-  createCampaign(): void {
-    this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
+  public createCampaign(): void {
+    //this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
+    this.router.navigate(['dashboard/campaign/new']);
+  }
+
+  public viewCampaign(): void {
+    //this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
+    //this.router.navigate(['/campaign/new']);
   }
 
   // Wallet Actions
-  fundWallet(): void {
-    this.snackBar.open('Fund Wallet feature coming soon!', 'OK', { duration: 3000 });
+  public fundWallet(): void {
+    //this.snackBar.open('Fund Wallet feature coming soon!', 'OK', { duration: 3000 });
+
+    this.dialog.open(WalletFundingComponent, {
+      data: {
+        currentBalance: 5000,
+        campaignBudget: 15000
+      },
+      panelClass: 'custom-dialog-container',
+    });
+    
   }
 
-  openWallet(): void {
+  public openWallet(): void {
     this.router.navigate(['/wallet']);
   }
 
   // Notification Actions
-  markAsRead(notificationId: string): void {
+  public markAsRead(notificationId: string): void {
     this.notifications.update(notifications =>
       notifications.map(n =>
         n.id === notificationId ? { ...n, read: true } : n
@@ -230,20 +247,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  markAllAsRead(): void {
+  public markAllAsRead(): void {
     this.notifications.update(notifications =>
       notifications.map(n => ({ ...n, read: true }))
     );
   }
 
-  viewAllNotifications(): void {
+  public viewAllNotifications(): void {
     this.router.navigate(['/notifications']);
   }
 
   /**
   * Method to handle the sign-out process.
   */
-  logout(): void {
+  public logout(): void {
     this.subscriptions.push(
       this.authService.signOut().subscribe({
         next: () => {
@@ -257,15 +274,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     )
   }
 
-  closeCartDialog(): void {
+  public closeCartDialog(): void {
     this.cartDialogRef?.close();
   }
 
-  setActiveTab(tab: 'cart' | 'quick-actions'): void {
+  public setActiveTab(tab: 'cart' | 'quick-actions'): void {
     this.activeTab = tab;
   }
 
-  openCartDialog(): void {
+  public openCartDialog(): void {
     this.cartDialogRef = this.dialog.open(this.cartDialogTemplate, {
       position: { 
         top: '72px',
@@ -278,7 +295,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  switchUser(role: string) {
+  public switchUser(role: string) {
     const roleObject = {
       role,
       userId: this.user()?._id
