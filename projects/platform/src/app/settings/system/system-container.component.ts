@@ -1,9 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, inject, Signal } from '@angular/core';
 import { SystemSettingComponent } from './system.component';
 import { UserInterface, UserService } from '../../common/services/user.service';
-import { Router } from '@angular/router';
 
 /**
  * System settings container component
@@ -15,38 +13,16 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, SystemSettingComponent],
   template: `
-    <async-system-setting *ngIf="user" [user]="user"/>
+  @if (user()) {
+    <async-system-setting [user]="user"/>
+  }
+    
   `,
 })
-export class SystemSettingContainerComponent implements OnInit, OnDestroy {
+export class SystemSettingContainerComponent {
   private userService = inject(UserService);
-  private subscriptions: Subscription = new Subscription();
 
-  user: UserInterface | null = null;
-  private router = inject(Router);
+  // Expose the signal directly to the template
+  public user: Signal<UserInterface | null> = this.userService.user;
 
-  ngOnInit(): void {
-    this.subscribeToCurrentUser();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  private subscribeToCurrentUser(): void {
-    const userSubscription = this.userService.getCurrentUser$.subscribe({
-      next: (user: UserInterface | null) => {
-       // console.log('current user ',user)
-        this.user = user;
-      },
-      error: (error) => {
-        console.error('Error fetching user:', error);
-        this.user = null;
-        this.router.navigate(['/'], { replaceUrl: true });
-        
-      }
-    });
-
-    this.subscriptions.add(userSubscription);
-  }
 }

@@ -126,7 +126,7 @@
               <div class="form-section">
                 <h3>Campaign Details</h3>
 
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Campaign Title</mat-label>
                   <input matInput formControlName="title" placeholder="Enter a catchy title for your campaign">
                   <mat-hint align="end">{{contentForm.get('title')?.value?.length || 0}}/100</mat-hint>
@@ -138,7 +138,7 @@
                   }
                 </mat-form-field>
 
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Campaign Description</mat-label>
                   <textarea matInput rows="4" formControlName="description"
                             placeholder="Describe your campaign and what you're promoting"></textarea>
@@ -148,7 +148,7 @@
                   }
                 </mat-form-field>
 
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Category</mat-label>
                   <mat-select formControlName="category">
                     @for (category of categories; track category.value) {
@@ -163,7 +163,7 @@
 
               <div class="form-section">
                 <h3>WhatsApp Status Content</h3>
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Status Caption</mat-label>
                   <textarea matInput rows="3" formControlName="caption"
                             placeholder="Write the content that will appear to the viewers on WhatsApp Status"></textarea>
@@ -173,7 +173,7 @@
                   }
                 </mat-form-field>
 
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Call-to-Action Link (Optional)</mat-label>
                   <input matInput type="url" formControlName="link" placeholder="https://example.com">
                   <mat-hint>Add a link for users to visit (optional)</mat-hint>
@@ -215,7 +215,7 @@
               </div>
 
               <div class="budget-grid">
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Total Campaign Budget (NGN)</mat-label>
                   <input matInput type="number" formControlName="budget" placeholder="e.g., 5000">
                   @if (budgetForm.get('budget')?.errors?.['required']) {
@@ -227,7 +227,7 @@
                   }
                 </mat-form-field>
 
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Payout Per Promotion (NGN)</mat-label>
                   <input matInput type="number" formControlName="payoutPerPromotion" readonly="true" value="200" placeholder="e.g., 50">
                   @if (budgetForm.get('payoutPerPromotion')?.errors?.['required']) {
@@ -237,7 +237,7 @@
                   }
                 </mat-form-field>
 
-                <mat-form-field class="full-width">
+                <mat-form-field class="full-width" appearance="outline">
                   <mat-label>Number of Promoters</mat-label>
                   <input matInput type="number" formControlName="maxPromoters" placeholder="e.g., 100">
                   <mat-hint>Max promoters: {{maxPossiblePromoters()}}</mat-hint>
@@ -303,7 +303,7 @@
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="scheduleForm" class="schedule-form">
-              <mat-form-field class="full-width">
+              <mat-form-field class="full-width" appearance="outline" style="margin-right: 1em;">
                 <mat-label>Start Date</mat-label>
                 <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" readonly>
                 <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
@@ -313,7 +313,7 @@
                 }
               </mat-form-field>
 
-              <mat-form-field class="full-width">
+              <mat-form-field class="full-width" appearance="outline" style="margin-right: 1em;">
                 <mat-label>End Date</mat-label>
                 <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" readonly [min]="scheduleForm.get('startDate')?.value">
                 <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
@@ -325,7 +325,7 @@
                 }
               </mat-form-field>
 
-              <mat-form-field class="full-width">
+              <mat-form-field class="full-width" appearance="outline">
                 <mat-label>Campaign Duration (Days)</mat-label>
                 <input matInput type="number" formControlName="duration" readonly>
                 <mat-hint>Duration is auto-calculated based on start and end dates</mat-hint>
@@ -351,7 +351,7 @@
               <div class="review-panel">
                 <div class="preview-item">
                   <div class="preview-header">
-                    <mat-icon class="preview-icon">text_fields</mat-icon>
+                    <mat-icon class="preview-icon">campaign</mat-icon>
                     <h4>Campaign Content</h4>
                   </div>
                   <mat-divider></mat-divider>

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, Signal} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { HelpDialogComponent } from '../../common/help-dialog.component';
 import { MatCardModule } from '@angular/material/card';
 import { Subscription } from 'rxjs';
 import { AppReviewService } from './app-review.service';
-import { TestimonialInterface } from '../../home/home.service';
+//import { TestimonialInterface } from '../../home/home.service';
 
 @Component({
   selector: 'async-review-setting',
@@ -35,13 +35,16 @@ import { TestimonialInterface } from '../../home/home.service';
           <mat-tab-group animationDuration="200ms">
             <mat-tab label="Testimonial">
               <div class="tab-content">
-                <async-testimonial-writeup-settings 
-                  *ngIf="user" 
-                  [user]="user" 
-                  [testimonial]="testimonial"
-                  [isLoading]="isLoading"
-                  [error]="error"
-                />
+                @if (user()) {
+
+                  <async-testimonial-writeup-settings 
+                    [user]="user" 
+                    [testimonial]="testimonial"
+                    [isLoading]="isLoading"
+                    [error]="error"
+                  />
+                }
+                
               </div>
             </mat-tab>
           </mat-tab-group>
@@ -147,12 +150,13 @@ import { TestimonialInterface } from '../../home/home.service';
   `]
 })
 export class AppReviewSettingComponent implements OnInit, OnDestroy {
-  @Input() user!: UserInterface;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   readonly dialog = inject(MatDialog);
   subscriptions: Subscription[] = [];
   private cdr = inject(ChangeDetectorRef);
   
-  testimonial: TestimonialInterface | null = null;
+  testimonial: any; //TestimonialInterface | null = null;
   isLoading = false;
   error: string | null = null;
 
@@ -162,7 +166,7 @@ export class AppReviewSettingComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    if (this.user) this.getUserTestimonial();
+    if (this.user()) this.getUserTestimonial();
   }
 
   getUserTestimonial() {
@@ -170,7 +174,7 @@ export class AppReviewSettingComponent implements OnInit, OnDestroy {
     this.error = null;
     
     this.subscriptions.push(
-      this.appReview.getTestimonial(this.user._id).subscribe({
+      this.appReview.getTestimonial(this.user()?._id).subscribe({
         next: (response) => {
           this.testimonial = response.data || null;
           this.isLoading = false;

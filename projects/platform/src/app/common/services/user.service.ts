@@ -37,8 +37,8 @@ export interface UserInterface {
     jobTitle: string;
     educationBackground?: string;
   };
-  professionalInfo: {
-    skills: string[];
+  professionalInfo?: {
+    skills?: string[];
     experience: {
       company: string;
       startDate: Date;
@@ -46,7 +46,7 @@ export interface UserInterface {
       description: string;
       current: boolean;
     };
-    education: {
+    education?: {
       institution: string;
       degree: string;
       fieldOfStudy: string;
@@ -55,9 +55,9 @@ export interface UserInterface {
       description: string;
     };
   };
-  interests: {
-    hobbies: string[];
-    favoriteTopics: string[];
+  interests?: {
+    hobbies?: string[];
+    favoriteTopics?: string[];
   };
   savedAccounts?: {
     _id: string;
@@ -90,6 +90,10 @@ export interface UserInterface {
         status: string;
         type: string;
       };
+    };
+    preferences?: {
+      notification: boolean;
+      theme: string;
     }
   };
 }

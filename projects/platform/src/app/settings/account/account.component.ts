@@ -1,12 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDialog } from '@angular/material/dialog';
 import { PersonalInfoComponent } from './personal/personal.component';
 import { ProfessionalInfoComponent } from './professional/professional.component';
 import { UsernameInfoComponent } from './username/username.component';
-import { PasswordChangeComponent } from './password/password.component';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { UserInterface } from '../../common/services/user.service';
@@ -20,7 +19,6 @@ import { MatCardModule } from '@angular/material/card';
     PersonalInfoComponent,
     ProfessionalInfoComponent,
     UsernameInfoComponent,
-    PasswordChangeComponent,
     CommonModule,  
     MatExpansionModule,  
     MatIconModule,
@@ -38,7 +36,10 @@ import { MatCardModule } from '@angular/material/card';
                 <mat-icon>person</mat-icon> Personal Information
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <async-personal-infor *ngIf="user" [user]="user"/>
+            @if (user()) {
+              <async-personal-infor [user]="user"/>
+            }
+            
           </mat-expansion-panel>
 
           <mat-expansion-panel>
@@ -47,7 +48,10 @@ import { MatCardModule } from '@angular/material/card';
                 <mat-icon>work</mat-icon> Professional Information
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <async-professional-info *ngIf="user" [user]="user"/>
+            @if (user()) {
+               <async-professional-info [user]="user"/>
+            }
+           
           </mat-expansion-panel>
         
           <mat-expansion-panel>
@@ -56,17 +60,12 @@ import { MatCardModule } from '@angular/material/card';
                 <mat-icon>alternate_email</mat-icon> Username
               </mat-panel-title>
             </mat-expansion-panel-header>
-            <async-username-info *ngIf="user" [user]="user"/>
+            @if (user()) {
+              <async-username-info [user]="user"/>
+            }
+            
           </mat-expansion-panel>
         
-          <mat-expansion-panel>
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon>lock</mat-icon> Password
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <async-password-changer *ngIf="user" [user]="user"/>
-          </mat-expansion-panel>
         </mat-accordion>
       </mat-card>
     </div>
@@ -124,7 +123,8 @@ import { MatCardModule } from '@angular/material/card';
   `]
 })
 export class AccountComponent {
-  @Input() user!: UserInterface;
+ // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });

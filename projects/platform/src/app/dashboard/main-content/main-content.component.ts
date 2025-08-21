@@ -104,12 +104,12 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
-  private userService = inject(UserService);
   private dashboardService = inject(DashboardService);
 
   // Add ViewChild for sidenav
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
+  private userService = inject(UserService);
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
 

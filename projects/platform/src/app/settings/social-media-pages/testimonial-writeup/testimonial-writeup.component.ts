@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, Signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
-import { TestimonialInterface } from '../../../home/home.service';
+//import { TestimonialInterface } from '../../../home/home.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -354,8 +354,9 @@ import { MatIconModule } from '@angular/material/icon';
   `]
 })
 export class TestimonialWriteupSettingsComponent implements OnInit, OnDestroy {
-  @Input() user!: UserInterface;
-  @Input() testimonial: TestimonialInterface | null = null;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
+  @Input() testimonial: any; //TestimonialInterface | null = null;
   @Input() isLoading = false;
   @Input() error: string | null = null;
   
@@ -383,11 +384,11 @@ export class TestimonialWriteupSettingsComponent implements OnInit, OnDestroy {
         validators: [Validators.required],
         asyncValidators: []
       }],
-      country: [this.user?.personalInfo?.address?.country, {
+      country: [this.user()?.personalInfo?.address?.country, {
         //validators: [Validators.required],
         asyncValidators: []
       }],
-      state: [this.user?.personalInfo?.address?.state, {
+      state: [this.user()?.personalInfo?.address?.state, {
         //validators: [Validators.required],
         asyncValidators: []
       }],
@@ -396,7 +397,7 @@ export class TestimonialWriteupSettingsComponent implements OnInit, OnDestroy {
 
   // Check if profile is complete (has country and state)
   isProfileComplete(): boolean {
-    return !!this.user?.personalInfo?.address?.country && !!this.user?.personalInfo?.address?.state;
+    return !!this.user()?.personalInfo?.address?.country && !!this.user()?.personalInfo?.address?.state;
   }
 
   // Navigate to profile page
@@ -431,7 +432,7 @@ export class TestimonialWriteupSettingsComponent implements OnInit, OnDestroy {
     if (this.testimonialForm.valid) {  
         const updateObject = {
             message: this.testimonialForm.value.message,
-            userId: this.user._id,
+            userId: this.user()?._id,
         };
 
         // Always use updateTestimonial (it can handle both create and update)
@@ -442,7 +443,7 @@ export class TestimonialWriteupSettingsComponent implements OnInit, OnDestroy {
                     this.isEditing = false;
                     this.snackBar.open(response.message, 'Ok', {duration: 3000});
                     // Update the testimonial with the new data
-                    this.testimonial = response.data;
+                    //this.testimonial = response.data;
                     this.cdr.markForCheck();
                 },
                 error: (error: HttpErrorResponse) => {

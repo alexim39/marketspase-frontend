@@ -13,7 +13,7 @@ export class AppReviewService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-  updateTestimonial(formObject: {message: string; userId: string}): Observable<any> {
+  updateTestimonial(formObject: {message: string; userId: string | undefined}): Observable<any> {
     return this.apiService.put<any>(`user/testimonial`, formObject);
   }
 

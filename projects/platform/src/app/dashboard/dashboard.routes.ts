@@ -33,6 +33,7 @@ export const dashboardRoutes: Routes = [
             }, 
                    
             { path: 'campaign', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
+            { path: 'settings', loadChildren: () => import('../settings/settings.routes').then(r => r.SettingsRoutes) },           
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

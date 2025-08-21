@@ -304,8 +304,8 @@ export class DashboardIndex implements OnInit, OnDestroy {
   protected readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
 
   subscriptions: Subscription[] = [];
+  
   private userService: UserService = inject(UserService);
-
   // CONVERTED TO A SIGNAL: User data is now a signal.
   // It holds the value of the user and allows for reactivity.
   public user = signal<UserInterface | null>(null);

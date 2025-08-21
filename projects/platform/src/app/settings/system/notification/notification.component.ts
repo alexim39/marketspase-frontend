@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -169,7 +169,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   providers: [SettingsService],
 })
 export class NotificationSettingsComponent implements OnInit, OnDestroy {
-  @Input() user!: UserInterface;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   subscriptions: Array<Subscription> = [];
   isTurnedOn: boolean = false;
   private snackBar = inject(MatSnackBar);
@@ -179,16 +180,16 @@ export class NotificationSettingsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.isTurnedOn = this.user.preferences.notification;
+    //this.isTurnedOn = this.user()?.preferences.notification;
   }
 
   toggleNotification(event: MatSlideToggleChange): void {
     this.isTurnedOn = event.checked;
     const formObject = {
       state: this.isTurnedOn,
-      userId: this.user._id 
+      userId: this.user()?._id 
     }
-    this.sendNotificationStateToBackend(formObject);
+    //this.sendNotificationStateToBackend(formObject);
   }
 
   private sendNotificationStateToBackend(formObject: NotificationInterface): void {

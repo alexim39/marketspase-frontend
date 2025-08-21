@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, Signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -43,7 +43,8 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   private settingsService = inject(SettingsService);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
-  @Input() user!: UserInterface;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   professionalForm!: FormGroup;
   isLoading = false;
 
@@ -71,25 +72,21 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeForm();
     // Initialize with existing data if available
-    if (this.user?.professionalInfo?.skills) {
-      this.skills = Array.isArray(this.user.professionalInfo.skills) 
-        ? this.user.professionalInfo.skills 
-        : [this.user.professionalInfo.skills];
+    if (this.user()?.professionalInfo?.skills) {
+      //this.skills = Array.isArray(this.user()?.professionalInfo?.skills) ? this.user()?.professionalInfo?.skills : [this.user()?.professionalInfo?.skills];
     }
-    if (this.user?.interests?.hobbies) {
-      this.hobbies = Array.isArray(this.user.interests.hobbies)
-        ? this.user.interests.hobbies
-        : [this.user.interests.hobbies];
+    if (this.user()?.interests?.hobbies) {
+      //this.hobbies = Array.isArray(this.user()?.interests?.hobbies) ? this.user()?.interests?.hobbies : [this.user()?.interests?.hobbies];
     }
   }
 
   private initializeForm(): void {
       this.professionalForm = new FormGroup({
-        jobTitle: new FormControl(this.user?.personalInfo?.jobTitle || '', [
+        jobTitle: new FormControl(this.user()?.personalInfo?.jobTitle || '', [
           Validators.required,
           Validators.maxLength(50)
         ]),
-        educationBackground: new FormControl(this.user?.personalInfo?.educationBackground || '', [
+        educationBackground: new FormControl(this.user()?.personalInfo?.educationBackground || '', [
           Validators.required
         ]),
         hobbies: new FormControl(this.hobbies || [], [  // Changed to use array
@@ -100,7 +97,7 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.maxLength(50)
         ]),
-        userId: new FormControl(this.user?._id || '')
+        userId: new FormControl(this.user()?._id || '')
       });
     }
 

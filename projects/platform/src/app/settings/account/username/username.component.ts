@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, OnInit, Signal, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,7 +45,8 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
   // List of restricted words
   private restrictedWords = ['davido', 'davidotv', '30gb', 'obo'];
 
-  @Input() user!: UserInterface;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   usernameForm!: FormGroup;
   isLoading = false;
 
@@ -72,7 +73,7 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
     });
 
     // Update form if user data is already available
-    if (this.user) {
+    if (this.user()) {
       this.updateFormWithUserData();
     }
   }
@@ -91,8 +92,8 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
 
   private updateFormWithUserData(): void {
     this.usernameForm.patchValue({
-      username: this.user?.username || '',
-      id: this.user?._id || ''
+      username: this.user()?.username || '',
+      id: this.user()?._id || ''
     });
     this.cdr.markForCheck(); // Ensure UI updates with new data
   }

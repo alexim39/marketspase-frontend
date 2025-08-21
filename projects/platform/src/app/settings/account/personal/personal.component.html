@@ -13,7 +13,6 @@
 
   <mat-card-content>
     <form [formGroup]="profileForm" class="profile-form">
-      <async-profile-image-uploader [user]="user"/>
 
       <!-- Basic Information Section -->
       <div class="form-section">
@@ -24,8 +23,8 @@
         
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="name" required>
+            <mat-label>Display Name</mat-label>
+            <input matInput formControlName="name">
             <mat-icon matSuffix>person</mat-icon>
             <mat-error *ngIf="profileForm.get('name')?.hasError('required')">
               First name is required
@@ -34,20 +33,12 @@
               Minimum 2 characters
             </mat-error>
           </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastname" required>
-            <mat-error *ngIf="profileForm.get('lastname')?.hasError('required')">
-              Last name is required
-            </mat-error>
-          </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email" [disabled]="true">
+            <input matInput type="email" formControlName="email">
             <mat-icon matSuffix>email</mat-icon>
             <mat-error *ngIf="profileForm.get('email')?.hasError('email')">
               Please enter a valid email
@@ -81,7 +72,6 @@
             <mat-datepicker #dobPicker></mat-datepicker>
             <mat-hint>MM/DD/YYYY</mat-hint>
           </mat-form-field>
-
         </div>
 
         <!-- Replace the current address textarea with these fields -->
@@ -170,13 +160,13 @@
         <div class="account-status">
           <mat-slide-toggle 
             color="primary"
-            [checked]="user.isActive" 
-            [disabled]="user.isActive || isLoading"
+            [checked]="user()?.isActive" 
+            [disabled]="user()?.isActive || isLoading"
             (change)="onAccountStatusChange($event)">
-            {{ user.isActive ? 'Account Active' : 'Activate Account' }}
+            {{ user()?.isActive ? 'Account Active' : 'Activate Account' }}
           </mat-slide-toggle>
           <span class="status-message">
-            Your account is currently {{ user.isActive ? 'active' : 'inactive' }}
+            Your account is currently {{ user()?.isActive ? 'active' : 'inactive' }}
           </span>
         </div>
       </div>

@@ -68,7 +68,7 @@ export class SettingsService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-  activateAccount(formObject: {state: boolean, partnerId: string}): Observable<any> {
+  activateAccount(formObject: {state: boolean, userId: string | undefined}): Observable<any> {
     return this.apiService.post<any>('partners/activate', formObject);
   }
 

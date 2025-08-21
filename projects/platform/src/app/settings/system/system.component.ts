@@ -1,4 +1,4 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, inject, Input, Signal} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +26,9 @@ import { MatCardModule } from '@angular/material/card';
             <async-dark-theme-settings *ngIf="user" [user]="user"/>
           </mat-tab> -->
           <mat-tab label="Notifications"> 
-            <async-notification *ngIf="user" [user]="user"/>
+            @if (user()) {
+              <!-- <async-notification [user]="user"/> -->
+            }
           </mat-tab>
         </mat-tab-group>
       </mat-card>
@@ -116,7 +118,8 @@ import { MatCardModule } from '@angular/material/card';
   `]
 })
 export class SystemSettingComponent {
-  @Input() user!: UserInterface;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   readonly dialog = inject(MatDialog);
 
   constructor(

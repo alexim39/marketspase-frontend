@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, OnInit, Signal, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,10 +18,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { SettingsService } from '../../settings.service';
 import { UserInterface } from '../../../common/services/user.service';
-import { ProfileImageUploaderComponent } from '../profile-image.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { DAVIDO_FAN_COUNTRIES } from '../../../common/utils/countries';
+import { COUNTRIES } from '../../../common/utils/countries';
 
 
 // Nigerian states
@@ -53,7 +52,6 @@ const NIGERIAN_STATES = [
     MatCardModule,
     MatDividerModule,
     MatTooltipModule,
-    ProfileImageUploaderComponent,
     MatProgressSpinnerModule,
     MatSelectModule,
     MatAutocompleteModule
@@ -67,11 +65,12 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
   private settingsService = inject(SettingsService);
   private cdr = inject(ChangeDetectorRef);
 
-  @Input() user!: UserInterface;
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   profileForm!: FormGroup;
 
   // Country and state data
-  countries = DAVIDO_FAN_COUNTRIES;
+  countries = COUNTRIES;
   nigerianStates = NIGERIAN_STATES;
   filteredCountries: string[] = [];
   showStateAutocomplete = false;
@@ -117,21 +116,12 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
 
   private initializeForm(): void {
     this.profileForm = new FormGroup({
-      name: new FormControl('', [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(50)
-      ]),
-      lastname: new FormControl('', [
-        Validators.required,
-        Validators.minLength(2),
-        Validators.maxLength(50)
-      ]),
+      name: new FormControl({ value: '', disabled: true }),
       email: new FormControl(
         { value: '', disabled: true }, 
-        [Validators.required, Validators.email]
+        [Validators.email]
       ),
-      phone: new FormControl(this.user?.personalInfo?.phone || '', [
+      phone: new FormControl(this.user()?.personalInfo?.phone || '', [
         Validators.required,
         Validators.pattern(/^(\+?\d{1,3}[- ]?)?\d{6,14}$/)
       ]),
@@ -143,7 +133,7 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.maxLength(50)
       ]),
-      state: new FormControl(this.user?.personalInfo?.address?.state, [
+      state: new FormControl(this.user()?.personalInfo?.address?.state, [
         Validators.required,
         Validators.maxLength(50)
       ]),
@@ -164,7 +154,7 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
     });
 
     // Update form if user data is already available
-    if (this.user) {
+    if (this.user()) {
       this.updateFormWithUserData();
     }
   }
@@ -182,20 +172,20 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
   }
 
   private updateFormWithUserData(): void {
-    const userCountry = this.user?.personalInfo?.address?.country || '';
+    const userCountry = this.user()?.personalInfo?.address?.country || '';
     
     this.profileForm.patchValue({
-      name: this.user?.name || '',
-      lastname: this.user?.lastname || '',
-      email: this.user?.email || '',
-      phone: this.user?.personalInfo?.phone || '',
-      street: this.user?.personalInfo?.address?.street || '',
-      city: this.user?.personalInfo?.address?.city || '',
-      state: this.user?.personalInfo?.address?.state || '',
+      name: this.user()?.displayName || '',
+      //lastname: this.user?.lastname || '',
+      email: this.user()?.email || '',
+      phone: this.user()?.personalInfo?.phone || '',
+      street: this.user()?.personalInfo?.address?.street || '',
+      city: this.user()?.personalInfo?.address?.city || '',
+      state: this.user()?.personalInfo?.address?.state || '',
       country: userCountry,
-      bio: this.user?.personalInfo?.bio || '',
-      dob: this.user?.personalInfo?.dob || null,
-      userId: this.user?._id || ''
+      bio: this.user()?.personalInfo?.bio || '',
+      dob: this.user()?.personalInfo?.dob || null,
+      userId: this.user()?._id || ''
     });
 
     // Handle the state field based on the country
@@ -208,7 +198,7 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       const formData = {
         state: event.checked,
-        partnerId: this.user._id 
+        userId: this.user()?._id 
       };
 
       this.subscriptions.push(
