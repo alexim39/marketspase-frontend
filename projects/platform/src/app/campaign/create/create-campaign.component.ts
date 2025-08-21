@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,10 +18,13 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Subscription } from 'rxjs';
 import { DeviceService } from '../../common/services/device.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
+import { UserInterface, UserService } from '../../common/services/user.service';
+import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 
 interface CampaignPreview {
   title: string;
@@ -30,9 +33,9 @@ interface CampaignPreview {
   caption: string;
   link: string;
   budget: number;
-  payoutPerPromotion: number;
-  maxPromoters: number;
-  endDate: Date;
+  //payoutPerPromotion: number;
+  //maxPromoters: number;
+  endDate: Date | null;
   startDate: Date
 }
 
@@ -64,7 +67,9 @@ interface MediaFile {
     MatProgressBarModule,
     MatChipsModule,
     MatToolbarModule,
-    DragDropModule
+    MatSlideToggleModule, // Added this import to fix the error
+    DragDropModule,
+    ShortNumberPipe
   ],
   templateUrl: './create-campaign.component.html',
   styleUrls: ['./create-campaign.component.scss']
@@ -76,8 +81,13 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
 
   private readonly deviceService = inject(DeviceService);
-  // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
+  
+  // Public property to set the minimum date for the date picker
+  public today: Date = new Date();
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('mediaPreview') mediaPreview!: ElementRef<HTMLVideoElement | HTMLImageElement>;
@@ -92,7 +102,8 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   isLoading = signal(false);
   uploadProgress = signal(0);
   selectedMedia = signal<MediaFile | null>(null);
-  walletBalance = signal(125000); // This should come from your service
+  // Make walletBalance a computed signal that depends on the user signal.
+  walletBalance = computed(() => this.user()?.wallets?.advertiser?.balance ?? 0);
   
   // Form validation signals
   isContentValid = signal(false);
@@ -104,10 +115,15 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   // Campaign preview data
   campaignPreview = computed(() => this.generatePreview());
   
-  // New computed signals for template
-  estimatedCost = computed(() => this.calculateEstimatedCost());
-  estimatedReach = computed(() => this.calculateEstimatedReach());
-  maxPossiblePromoters = computed(() => this.calculateMaxPossiblePromoters());
+  estimatedReach() {
+     const budget = this.budgetForm.get('budget')?.value || 0;
+     if (budget) {
+      // Minimum number of views per promoter is 25
+      return (budget/200) * 30;
+     } else {
+      return 0;
+     }
+  };
   campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid());
 
   // Media constraints
@@ -149,27 +165,17 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
     // Step 2: Budget Form
     this.budgetForm = this.fb.group({
-      budget: [1000, [
-        Validators.required,
-        Validators.min(500),
-        Validators.max(1000000)
-      ]],
-      payoutPerPromotion: [50, [
-        Validators.required,
-        Validators.min(25),
-        Validators.max(1000)
-      ]],
-      maxPromoters: [20, [
-        Validators.required,
-        Validators.min(5),
-      ]]
+      budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
     });
 
     // Step 3: Schedule Form
     this.scheduleForm = this.fb.group({
       startDate: [new Date(), Validators.required],
-      endDate: [this.getDefaultEndDate(), Validators.required],
-      duration: [{ value: 7, disabled: true }, [Validators.required, Validators.min(1), Validators.max(30)]]
+      // New form control to allow an "open-ended" campaign
+      hasEndDate: [true],
+      // End date and duration are now optional by default
+      endDate: [null],
+      duration: [{ value: 7, disabled: true }]
     });
   }
 
@@ -181,18 +187,39 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Monitor budget form validity and wallet balance
+    // Monitor budget form validity
     this.subscriptions.push(
       this.budgetForm.statusChanges.subscribe(status => {
-        const cost = this.estimatedCost();
-        this.isBudgetValid.set(status === 'VALID' && cost > 0 && cost <= this.walletBalance());
+        this.isBudgetValid.set(status === 'VALID');
       })
     );
-
     // Monitor schedule form validity
     this.subscriptions.push(
       this.scheduleForm.statusChanges.subscribe(status => {
         this.isScheduleValid.set(status === 'VALID');
+      })
+    );
+    
+    // Add logic to toggle required validation for endDate based on hasEndDate
+    this.subscriptions.push(
+      this.scheduleForm.get('hasEndDate')!.valueChanges.subscribe(hasEndDate => {
+        const endDateControl = this.scheduleForm.get('endDate');
+        const durationControl = this.scheduleForm.get('duration');
+        if (hasEndDate) {
+          endDateControl?.setValidators(Validators.required);
+          durationControl?.setValidators(Validators.required);
+          // Set a default value if one isn't present
+          if (!endDateControl?.value) {
+            endDateControl?.setValue(this.getDefaultEndDate());
+          }
+        } else {
+          endDateControl?.clearValidators();
+          durationControl?.clearValidators();
+          endDateControl?.setValue(null);
+          durationControl?.setValue(null);
+        }
+        endDateControl?.updateValueAndValidity();
+        durationControl?.updateValueAndValidity();
       })
     );
   }
@@ -208,20 +235,23 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   }
 
   private updateDurationAndEndDate(): void {
-    const startDate = this.scheduleForm.get('startDate')?.value;
-    const endDate = this.scheduleForm.get('endDate')?.value;
+    // Only update if an end date is selected
+    if (this.scheduleForm.get('hasEndDate')?.value) {
+      const startDate = this.scheduleForm.get('startDate')?.value;
+      const endDate = this.scheduleForm.get('endDate')?.value;
 
-    if (startDate && endDate) {
-      if (endDate < startDate) {
-        this.scheduleForm.get('endDate')?.setErrors({ dateRange: true });
-        this.scheduleForm.get('duration')?.setValue(0, { emitEvent: false });
-        this.isScheduleValid.set(false);
-      } else {
-        const diffInMs = endDate.getTime() - startDate.getTime();
-        const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
-        this.scheduleForm.get('duration')?.setValue(diffInDays, { emitEvent: false });
-        this.scheduleForm.get('endDate')?.setErrors(null);
-        this.isScheduleValid.set(true);
+      if (startDate && endDate) {
+        if (endDate < startDate) {
+          this.scheduleForm.get('endDate')?.setErrors({ dateRange: true });
+          this.scheduleForm.get('duration')?.setValue(0, { emitEvent: false });
+          this.isScheduleValid.set(false);
+        } else {
+          const diffInMs = endDate.getTime() - startDate.getTime();
+          const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+          this.scheduleForm.get('duration')?.setValue(diffInDays, { emitEvent: false });
+          this.scheduleForm.get('endDate')?.setErrors(null);
+          this.isScheduleValid.set(true);
+        }
       }
     }
   }
@@ -410,29 +440,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Calculation helpers
-  private calculateEstimatedCost(): number {
-    const values = this.budgetForm.value;
-    if (!values.payoutPerPromotion || !values.maxPromoters) return 0;
-    
-    return values.payoutPerPromotion * values.maxPromoters;
-  }
-
-  private calculateEstimatedReach(): number {
-    const maxPromoters = this.budgetForm.get('maxPromoters')?.value || 0;
-    // Estimate 25-75 views per promoter (average 50)
-    return maxPromoters * 50;
-  }
-  
-  private calculateMaxPossiblePromoters(): number {
-    const budget = this.budgetForm.get('budget')?.value;
-    const payout = this.budgetForm.get('payoutPerPromotion')?.value;
-    if (budget && payout && payout > 0) {
-      return Math.floor(budget / payout);
-    }
-    return 0;
-  }
-
   private getDefaultEndDate(): Date {
     const date = new Date();
     date.setDate(date.getDate() + 7);
@@ -447,10 +454,8 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
       caption: this.contentForm.get('caption')?.value || 'N/A',
       link: this.contentForm.get('link')?.value || 'N/A',
       budget: this.budgetForm.get('budget')?.value || 0,
-      payoutPerPromotion: this.budgetForm.get('payoutPerPromotion')?.value || 0,
-      maxPromoters: this.budgetForm.get('maxPromoters')?.value || 0,
       startDate: this.scheduleForm.get('startDate')?.value || new Date(),
-      endDate: this.scheduleForm.get('endDate')?.value || new Date()
+      endDate: this.scheduleForm.get('endDate')?.value || this.scheduleForm.get('hasEndDate')?.value ? new Date() : null
     };
   }
 
@@ -490,7 +495,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
   // Navigation helpers
   goBack(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard/campaigns']);
   }
 
   saveDraft(): void {
@@ -515,12 +520,11 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
    // Wallet Actions
   public fundWallet(): void {
-    //this.snackBar.open('Fund Wallet feature coming soon!', 'OK', { duration: 3000 });
     this.dialog.open(WalletFundingComponent, {
-      data: {
-        currentBalance: 5000,
-        campaignBudget: 15000
-      },
+      // data: {
+      //   currentBalance: 5000,
+      //   campaignBudget: 15000
+      // },
       panelClass: 'custom-dialog-container',
     });
   }

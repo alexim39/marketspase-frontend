@@ -222,12 +222,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Wallet Actions
   public fundWallet(): void {
-    //this.snackBar.open('Fund Wallet feature coming soon!', 'OK', { duration: 3000 });
     this.dialog.open(WalletFundingComponent, {
-      data: {
-        currentBalance: 5000,
-        campaignBudget: 15000
-      },
+      // data: {
+      //   currentBalance: 5000,
+      //   campaignBudget: 15000
+      // },
       panelClass: 'custom-dialog-container',
     });
   }

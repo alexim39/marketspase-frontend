@@ -50,10 +50,10 @@
             </div>
             <div class="profile-stats">
               @if (user()!.role === 'promoter') {
-                ⭐ {{user()!.rating}}/5 • ₦{{currentUser().totalEarnings | number}} earned
+                ⭐ {{user()!.rating}}/5 • ₦{{currentUser().totalEarnings | currency: '₦':'symbol':'1.0-2'}} earned
               }
               @if (user()!.role === 'advertiser') {
-                {{currentUser().activeCampaigns}} active • ₦{{currentUser().totalSpent | number}} spent
+                {{currentUser().activeCampaigns}} active • ₦{{currentUser().totalSpent | currency: '₦':'symbol':'1.0-2'}} spent
               }
             </div>
           </div>
@@ -118,10 +118,10 @@
             <div class="wallet-display" (click)="openWallet()">
               <mat-icon>account_balance_wallet</mat-icon>
               @if (user()!.role === 'promoter') {
-                <span class="wallet-amount">₦{{user()?.wallets?.promoter?.balance || 0 | number}}</span>
+                <span class="wallet-amount">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.0-2'}}</span>
               }
               @if (user()!.role === 'advertiser') {
-                <span class="wallet-amount">₦{{user()?.wallets?.advertiser?.balance || 0 | number}}</span>
+                <span class="wallet-amount">{{user()?.wallets?.advertiser?.balance || 0 | currency: '₦':'symbol':'1.0-2'}}</span>
               }
             </div>
             
