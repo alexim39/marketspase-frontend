@@ -1,15 +1,8 @@
-import { 
-  Component, 
-  inject, 
-  OnInit, 
-  OnDestroy, 
-  computed,
-  Signal // Added to show the type of the incoming signal
-} from '@angular/core';
+import { Component, inject, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceService } from '../common/services/device.service';
 import { UserInterface, UserService } from '../common/services/user.service';
-import { CampaignComponent } from './campain.compnent';
+import { CampaignComponent } from './campaign.component';
 
 
 @Component({
@@ -27,7 +20,7 @@ import { CampaignComponent } from './campain.compnent';
             <!-- Dashboard Content -->
             <main class="page-main" role="main">
               @if (user()) {
-                <campaign />
+                <campaign [user]="user"/>
               }              
             </main>
           }
@@ -37,7 +30,7 @@ import { CampaignComponent } from './campain.compnent';
             <!-- Dashboard Content -->
              <main class="page-main" role="main">
               @if (user()) {
-                <campaign />
+                <campaign [user]="user"/>
               }              
             </main>
           }
@@ -47,7 +40,7 @@ import { CampaignComponent } from './campain.compnent';
             <!-- Dashboard Content -->
             <main class="page-main" role="main">
               @if (user()) {
-                <campaign />
+                <campaign [user]="user"/>
               }              
             </main>
           }

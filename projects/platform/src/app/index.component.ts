@@ -6,7 +6,6 @@ import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { RouterOutlet } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from './auth/auth.service';
 import { UserCredential } from '@angular/fire/auth'; // Import UserCredential for type safety
@@ -44,9 +43,10 @@ export interface SocialProvider {
           <h1 class="brand-title">MarketSpase</h1>
         </div>
         <div class="welcome-section">
-          <h2 class="welcome-title">Where WhatsApp Status Turns into Income!</h2>
+          <h2 class="welcome-title">WhatsApp Status Ads Marketspace</h2>
           <p class="welcome-subtitle">
-            Connect with advertisers and promoters on WhatsApp Status
+            Where WhatsApp Status becomes a source of income by connecting advertisers and promoters in a unified marketplace.
+            <!-- Connect with advertisers and promoters on WhatsApp Status -->
           </p>
         </div>
       </div>

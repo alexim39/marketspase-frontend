@@ -15,24 +15,8 @@ export const dashboardRoutes: Routes = [
             {
                 path: '',
                component: DashboardMainContainer,
-                children: [
-                  /*  { path: 'campaign', 
-                        component: CampaignIndex, 
-                        title: "Campaign Management Page - Create, modify and manage campaign",
-                    } */
-                   /*  {   path: 'search',
-                        component: SearchResultContainerComponent, 
-                        title: "Partners Search - Partners result details"
-                    }, */
-                    /* { path: 'get-involved', 
-                        component: GettingInvolvedComponent, 
-                        title: "Project Summary - Get involved as a member"
-                    }, */
-        
-                ]
-            }, 
-                   
-            { path: 'campaign', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
+            },                    
+            { path: 'campaigns', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
             { path: 'settings', loadChildren: () => import('../settings/settings.routes').then(r => r.SettingsRoutes) },           
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            

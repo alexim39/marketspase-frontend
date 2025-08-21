@@ -173,7 +173,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.user()?.role === 'advertiser') {
       return [
         ...baseItems,
-        { icon: 'campaign', label: 'Campaigns', route: '/campaigns' },
+        { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
         { icon: 'analytics', label: 'Analytics', route: '/analytics' },
         //{ icon: 'account_balance_wallet', label: 'Wallet', route: '/wallet' },
         //{ icon: 'people', label: 'Promoters', route: '/promoters' },
@@ -182,7 +182,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       return [
         ...baseItems,
-        { icon: 'work', label: 'Campaigns', route: '/browse' },
+        { icon: 'work', label: 'Promotions', route: './campaigns' },
         //{ icon: 'assignment', label: 'My Campaigns', route: '/my-campaigns' },
         { icon: 'monetization_on', label: 'Earnings', route: '/earnings' },
         { icon: 'help', label: 'Support', route: '/support' }
@@ -212,7 +212,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Campaign Actions
   public createCampaign(): void {
     //this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
-    this.router.navigate(['dashboard/campaign/new']);
+    this.router.navigate(['dashboard/campaigns/create']);
   }
 
   public viewCampaign(): void {

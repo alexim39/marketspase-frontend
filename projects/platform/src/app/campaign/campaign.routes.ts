@@ -9,26 +9,12 @@ export const CampaignRoutes: Routes = [
         pathMatch: 'full' */
         path: '',
         component: Index,
-        children: [
-            {
-                path: '',
-                //component: DashboardMainContainer,
-                children: [
-                    { path: 'new', 
-                        component: CreateCampaignComponent, 
-                        title: "Create New Campaign",
-                    },
-                   /*  {   path: 'search',
-                        component: SearchResultContainerComponent, 
-                        title: "Partners Search - Partners result details"
-                    }, */
-                    /* { path: 'get-involved', 
-                        component: GettingInvolvedComponent, 
-                        title: "Project Summary - Get involved as a member"
-                    }, */
-        
-                ]
-            }, 
-        ]
+        title: "Advertiser Campaign Dashboard",
     },
+    {
+        path: 'create',
+        component: CreateCampaignComponent,
+        title: "Create New Campaign",
+    }, 
+    
 ]
