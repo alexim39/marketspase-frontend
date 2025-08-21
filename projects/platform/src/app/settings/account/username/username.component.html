@@ -1,0 +1,80 @@
+<mat-card class="username-card">
+  <mat-card-header>
+    <mat-card-title class="username-title">
+      <mat-icon class="username-icon">alternate_email</mat-icon>
+      Customize Your Profile URL
+    </mat-card-title>
+    <mat-card-subtitle class="username-subtitle">
+      Choose a unique username that will be part of your profile link
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-divider></mat-divider>
+
+  <mat-card-content>
+    <form [formGroup]="usernameForm" class="username-form">
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Username</mat-label>
+          <input 
+            matInput 
+            formControlName="username" 
+            required
+            placeholder="Enter your unique username">
+          <button 
+            mat-icon-button 
+            matSuffix 
+            (click)="showHelp()" 
+            matTooltip="Username guidelines"
+            type="button">
+            <mat-icon>help_outline</mat-icon>
+          </button>
+          <mat-hint>3-30 characters, letters, numbers and underscores only</mat-hint>
+          <mat-error *ngIf="usernameForm.get('username')?.hasError('required')">
+            Username is required
+          </mat-error>
+          <mat-error *ngIf="usernameForm.get('username')?.hasError('pattern')">
+            Only letters, numbers and underscores allowed
+          </mat-error>
+          <mat-error *ngIf="usernameForm.get('username')?.hasError('minlength')">
+            Minimum 3 characters required
+          </mat-error>
+          <mat-error *ngIf="usernameForm.get('username')?.hasError('maxlength')">
+            Maximum 30 characters allowed
+          </mat-error>
+        </mat-form-field>
+
+        <div class="url-preview">
+          <div class="preview-label">
+            <mat-icon>link</mat-icon>
+            <span>Your profile URL will be:</span>
+          </div>
+          <div class="preview-value">
+            davidotv.com/{{usernameForm.get('username')?.value || 'yourname' | lowercase}}
+          </div>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+
+  <mat-divider></mat-divider>
+
+  <mat-card-actions class="form-actions">
+    <button 
+      mat-flat-button 
+      color="warn" 
+      class="cancel-button"
+      routerLink="/profile">
+      Cancel
+    </button>
+    <button 
+      mat-flat-button 
+      color="primary" 
+      class="save-button"
+      [disabled]="usernameForm.invalid || isLoading"
+      (click)="onSubmit()">
+      <span *ngIf="!isLoading">Update Username</span>
+      <mat-spinner diameter="20" *ngIf="isLoading"/>
+    </button>
+  </mat-card-actions>
+</mat-card>

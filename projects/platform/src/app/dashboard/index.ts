@@ -59,9 +59,11 @@ interface AuthState {
           <!-- Tablet Notice (Optional) -->
           @if (deviceType() === 'tablet') {
             <!-- Dashboard Content -->
-            <!-- <main class="dashboard-main" role="main">
-              <app-dashboard [user]="user()" />
-            </main> -->
+           <main class="dashboard-main" role="main">
+              @if (user()) {
+                <app-dashboard [user]="user" />
+              }              
+            </main>
           }
 
           <!-- Desktop Notice (Optional) -->

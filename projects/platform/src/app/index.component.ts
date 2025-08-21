@@ -60,22 +60,22 @@ export interface SocialProvider {
 
         <div class="auth-providers">
           <!-- Social Login Buttons -->
-          <button
-            *ngFor="let provider of socialProviders"
-            mat-stroked-button
-            class="social-btn"
-            [style.border-color]="provider.color"
-            [style.color]="provider.color"
-            (click)="provider.method()"
-            matRipple
-            [matRippleColor]="provider.color + '20'"
-          >
-            <div class="btn-content">
-              <mat-icon [style.color]="provider.color">{{ provider.icon }}</mat-icon>
-              <span>Continue with {{ provider.name }}</span>
-            </div>
-          </button>
-
+          @for (provider of socialProviders; track provider) {
+            <button
+              mat-stroked-button
+              class="social-btn"
+              [style.border-color]="provider.color"
+              [style.color]="provider.color"
+              (click)="provider.method()"
+              matRipple
+              [matRippleColor]="provider.color + '20'"
+            >
+              <div class="btn-content">
+                <mat-icon [style.color]="provider.color">{{ provider.icon }}</mat-icon>
+                <span>Continue with {{ provider.name }}</span>
+              </div>
+            </button>
+          }
           <!-- Loading State -->
            @if (isLoading) {
             <div class="loading-overlay">

@@ -10,29 +10,31 @@
     <div class="header-actions">
       <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn">
         <mat-icon>save</mat-icon>
-        Save Draft
+        @if (deviceType() === 'desktop') {
+          Save Draft
+        }        
       </button>
     </div>
   </mat-toolbar>
 
   <div class="progress-container">
     <div class="step-indicators">
-      <div class="step" [class.active]="isContentValid()" [class.current]="!isContentValid()">
+      <div class="step" [class.active]="isStepActive(1)" [class.current]="isStepCurrent(1)">
         <div class="step-number">1</div>
         <span class="step-label">Content</span>
       </div>
-      <div class="step-connector" [class.completed]="isContentValid()"></div>
-      <div class="step" [class.active]="isBudgetValid()" [class.current]="isContentValid() && !isBudgetValid()">
+      <div class="step-connector" [class.completed]="isStepActive(1)"></div>
+      <div class="step" [class.active]="isStepActive(2)" [class.current]="isStepCurrent(2)">
         <div class="step-number">2</div>
         <span class="step-label">Budget</span>
       </div>
-      <div class="step-connector" [class.completed]="isBudgetValid()"></div>
-      <div class="step" [class.active]="isScheduleValid()" [class.current]="isBudgetValid() && !isScheduleValid()">
+      <div class="step-connector" [class.completed]="isStepActive(2)"></div>
+      <div class="step" [class.active]="isStepActive(3)" [class.current]="isStepCurrent(3)">
         <div class="step-number">3</div>
         <span class="step-label">Schedule</span>
       </div>
-      <div class="step-connector" [class.completed]="isScheduleValid()"></div>
-      <div class="step" [class.active]="campaignIsReady()" [class.current]="isScheduleValid() && !campaignIsReady()">
+      <div class="step-connector" [class.completed]="isStepActive(3)"></div>
+      <div class="step" [class.active]="isStepActive(4)" [class.current]="isStepCurrent(4)">
         <div class="step-number">4</div>
         <span class="step-label">Review</span>
       </div>
@@ -41,356 +43,416 @@
 
   <div class="campaign-content">
     <div class="form-container">
-      <mat-card class="step-card" [class.completed]="isContentValid()">
-        <mat-card-header>
-          <div class="card-header">
-            <mat-icon class="step-icon">create</mat-icon>
-            <div>
-              <mat-card-title>Campaign Content</mat-card-title>
-              <mat-card-subtitle>Create engaging content for your WhatsApp Status campaign</mat-card-subtitle>
+      @if (currentStep() === 1) {
+        <mat-card class="step-card" [class.completed]="isContentValid()">
+          <mat-card-header>
+            <div class="card-header">
+              <mat-icon class="step-icon">create</mat-icon>
+              <div>
+                <mat-card-title>Campaign Content</mat-card-title>
+                <mat-card-subtitle>Create engaging content for your WhatsApp Status promotion</mat-card-subtitle>
+              </div>
             </div>
-          </div>
-        </mat-card-header>
+          </mat-card-header>
 
-        <mat-card-content>
-          <form [formGroup]="contentForm" class="content-form">
-            <div class="media-upload-section">
-              <h3>Upload Media</h3>
-              <p class="upload-description">Choose an image or video for your WhatsApp Status post</p>
+          <mat-card-content>
+            <form [formGroup]="contentForm" class="content-form">
+              <div class="media-upload-section">
+                <h3>Upload Media</h3>
+                <p class="upload-description">Choose an image or video for your WhatsApp Status post (Optional)</p>
 
-              @if (!selectedMedia()) {
-                <div class="upload-area"
-                     (dragover)="onDragOver($event)"
-                     (dragleave)="onDragLeave($event)"
-                     (drop)="onDrop($event)"
-                     (click)="fileInput.click()">
-                  <div class="upload-content">
-                    <mat-icon class="upload-icon">cloud_upload</mat-icon>
-                    <h4>Drop your media here or click to browse</h4>
-                    <p>Supports: JPG, PNG, WebP, MP4, WebM, MOV</p>
-                    <p class="file-limits">Max size: 50MB • Max video duration: 30s</p>
+                @if (!selectedMedia()) {
+                  <div class="upload-area"
+                       (dragover)="onDragOver($event)"
+                       (dragleave)="onDragLeave($event)"
+                       (drop)="onDrop($event)"
+                       (click)="fileInput.click()">
+                    <div class="upload-content">
+                      <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                      <h4>Drop your media here or click to browse</h4>
+                      <p>Supports: JPG, PNG, WebP, MP4, WebM, MOV</p>
+                      <p class="file-limits">Max size: 50MB • Max video duration: 30s</p>
+                    </div>
+                  </div>
+                }
+
+                @if (selectedMedia()) {
+                  <div class="media-preview-container">
+                    <div class="media-preview">
+                      @if (selectedMedia()!.type === 'image') {
+                        <img [src]="selectedMedia()!.url" alt="Preview" class="preview-media">
+                      }
+                      @if (selectedMedia()!.type === 'video') {
+                        <video [src]="selectedMedia()!.url" controls class="preview-media">
+                        </video>
+                      }
+                      <button mat-icon-button class="remove-media-btn" (click)="removeMedia()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+
+                    <div class="media-info">
+                      <div class="info-item">
+                        <mat-icon>file_present</mat-icon>
+                        <span>{{selectedMedia()!.file.name}}</span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>data_usage</mat-icon>
+                        <span>{{(selectedMedia()!.size / 1024 / 1024).toFixed(2)}} MB</span>
+                      </div>
+                      @if (selectedMedia()!.type === 'video' && selectedMedia()!.duration) {
+                        <div class="info-item">
+                          <mat-icon>schedule</mat-icon>
+                          <span>{{selectedMedia()!.duration!.toFixed(1)}}s</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <input #fileInput type="file"
+                       [accept]="ACCEPTED_IMAGE_TYPES.concat(ACCEPTED_VIDEO_TYPES).join(',')"
+                       (change)="onFileSelected($event)"
+                       style="display: none;">
+
+                @if (isLoading()) {
+                  <div class="upload-progress">
+                    <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+                    <p>Uploading... {{uploadProgress().toFixed(0)}}%</p>
+                  </div>
+                }
+              </div>
+
+              <div class="form-section">
+                <h3>Campaign Details</h3>
+
+                <mat-form-field class="full-width">
+                  <mat-label>Campaign Title</mat-label>
+                  <input matInput formControlName="title" placeholder="Enter a catchy title for your campaign">
+                  <mat-hint align="end">{{contentForm.get('title')?.value?.length || 0}}/100</mat-hint>
+                  @if (contentForm.get('title')?.errors?.['required']) {
+                    <mat-error>Campaign title is required</mat-error>
+                  }
+                  @if (contentForm.get('title')?.errors?.['minlength']) {
+                    <mat-error>Title must be at least 5 characters</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                  <mat-label>Campaign Description</mat-label>
+                  <textarea matInput rows="4" formControlName="description"
+                            placeholder="Describe your campaign and what you're promoting"></textarea>
+                  <mat-hint align="end">{{contentForm.get('description')?.value?.length || 0}}/500</mat-hint>
+                  @if (contentForm.get('description')?.errors?.['required']) {
+                    <mat-error>Campaign description is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                  <mat-label>Category</mat-label>
+                  <mat-select formControlName="category">
+                    @for (category of categories; track category.value) {
+                      <mat-option [value]="category.value">{{category.label}}</mat-option>
+                    }
+                  </mat-select>
+                  @if (contentForm.get('category')?.errors?.['required']) {
+                    <mat-error>Please select a category</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-section">
+                <h3>WhatsApp Status Content</h3>
+                <mat-form-field class="full-width">
+                  <mat-label>Status Caption</mat-label>
+                  <textarea matInput rows="3" formControlName="caption"
+                            placeholder="Write the content that will appear to the viewers on WhatsApp Status"></textarea>
+                  <mat-hint align="end">{{contentForm.get('caption')?.value?.length || 0}}/300</mat-hint>
+                  @if (contentForm.get('caption')?.errors?.['required']) {
+                    <mat-error>Status caption is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                  <mat-label>Call-to-Action Link (Optional)</mat-label>
+                  <input matInput type="url" formControlName="link" placeholder="https://example.com">
+                  <mat-hint>Add a link for users to visit (optional)</mat-hint>
+                  @if (contentForm.get('link')?.errors?.['invalidUrl']) {
+                    <mat-error>Please enter a valid URL</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (currentStep() === 2) {
+        <mat-card class="step-card" [class.completed]="isBudgetValid()">
+          <mat-card-header>
+            <div class="card-header">
+              <mat-icon class="step-icon">paid</mat-icon>
+              <div>
+                <mat-card-title>Budget & Targeting</mat-card-title>
+                <mat-card-subtitle>Set your budget and define your campaign's reach</mat-card-subtitle>
+              </div>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="budgetForm" class="budget-form">
+              <div class="wallet-info">
+                <mat-card class="balance-card">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <div>
+                    <h4>Your Wallet Balance</h4>
+                    <p class="balance-amount">{{walletBalance() | currency: 'NGN':'symbol':'1.0-2'}}</p>
+                  </div>
+                  <button mat-stroked-button class="fund-btn" (click)="fundWallet()">
+                    <mat-icon>add</mat-icon>
+                    Fund Wallet
+                  </button>
+                </mat-card>
+              </div>
+
+              <div class="budget-grid">
+                <mat-form-field class="full-width">
+                  <mat-label>Total Campaign Budget (NGN)</mat-label>
+                  <input matInput type="number" formControlName="budget" placeholder="e.g., 5000">
+                  @if (budgetForm.get('budget')?.errors?.['required']) {
+                    <mat-error>Budget is required</mat-error>
+                  } @else if (budgetForm.get('budget')?.errors?.['min']) {
+                    <mat-error>Budget must be at least NGN 500</mat-error>
+                  } @else if (budgetForm.get('budget')?.errors?.['max']) {
+                    <mat-error>Budget cannot exceed NGN 1,000,000</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                  <mat-label>Payout Per Promotion (NGN)</mat-label>
+                  <input matInput type="number" formControlName="payoutPerPromotion" readonly="true" value="200" placeholder="e.g., 50">
+                  @if (budgetForm.get('payoutPerPromotion')?.errors?.['required']) {
+                    <mat-error>Payout is required</mat-error>
+                  } @else if (budgetForm.get('payoutPerPromotion')?.errors?.['min']) {
+                    <mat-error>Payout must be at least NGN 25</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field class="full-width">
+                  <mat-label>Number of Promoters</mat-label>
+                  <input matInput type="number" formControlName="maxPromoters" placeholder="e.g., 100">
+                  <mat-hint>Max promoters: {{maxPossiblePromoters()}}</mat-hint>
+                  @if (budgetForm.get('maxPromoters')?.errors?.['required']) {
+                    <mat-error>Number of promoters is required</mat-error>
+                  } @else if (budgetForm.get('maxPromoters')?.errors?.['min']) {
+                    <mat-error>At least 5 promoters are required</mat-error>
+                  } @else if (budgetForm.get('maxPromoters')?.value > maxPossiblePromoters()) {
+                    <mat-error>Cannot exceed {{maxPossiblePromoters()}} promoters</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+              
+              <div class="budget-summary">
+                <h3>Campaign Summary</h3>
+                <div class="summary-grid">
+                  <div class="summary-item">
+                    <span class="summary-label">Estimated Cost</span>
+                    <span class="summary-value" [class.primary]="estimatedCost() <= walletBalance()" [class.negative]="estimatedCost() > walletBalance()">
+                      {{estimatedCost() | currency: 'NGN':'symbol':'1.0-2'}}
+                    </span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">Estimated Promoters</span>
+                    <span class="summary-value">{{budgetForm.get('maxPromoters')?.value}}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">Views per Promoter</span>
+                    <span class="summary-value">~50</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label">Estimated Total Views</span>
+                    <span class="summary-value">{{estimatedReach()}}</span>
+                  </div>
+                </div>
+              </div>
+
+              @if (estimatedCost() > walletBalance()) {
+                <div class="insufficient-funds-warning">
+                  <mat-icon>warning</mat-icon>
+                  <div>
+                    <h4>Insufficient Funds</h4>
+                    <p>Your campaign budget exceeds your wallet balance. Please fund your wallet to launch this campaign.</p>
                   </div>
                 </div>
               }
 
-              @if (selectedMedia()) {
-                <div class="media-preview-container">
-                  <div class="media-preview">
-                    @if (selectedMedia()!.type === 'image') {
-                      <img [src]="selectedMedia()!.url" alt="Preview" class="preview-media">
-                    }
-                    @if (selectedMedia()!.type === 'video') {
-                      <video [src]="selectedMedia()!.url" controls class="preview-media">
-                      </video>
-                    }
-                    <button mat-icon-button class="remove-media-btn" (click)="removeMedia()">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
 
-                  <div class="media-info">
-                    <div class="info-item">
-                      <mat-icon>file_present</mat-icon>
-                      <span>{{selectedMedia()!.file.name}}</span>
+      @if (currentStep() === 3) {
+        <mat-card class="step-card" [class.completed]="isScheduleValid()">
+          <mat-card-header>
+            <div class="card-header">
+              <mat-icon class="step-icon">schedule</mat-icon>
+              <div>
+                <mat-card-title>Campaign Schedule</mat-card-title>
+                <mat-card-subtitle>Set the duration for your campaign to run</mat-card-subtitle>
+              </div>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="scheduleForm" class="schedule-form">
+              <mat-form-field class="full-width">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" readonly>
+                <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #startDatePicker></mat-datepicker>
+                @if (scheduleForm.get('startDate')?.errors?.['required']) {
+                  <mat-error>Start date is required</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field class="full-width">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" readonly [min]="scheduleForm.get('startDate')?.value">
+                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #endDatePicker></mat-datepicker>
+                @if (scheduleForm.get('endDate')?.errors?.['required']) {
+                  <mat-error>End date is required</mat-error>
+                } @else if (scheduleForm.get('endDate')?.errors?.['dateRange']) {
+                  <mat-error>End date must be after start date</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field class="full-width">
+                <mat-label>Campaign Duration (Days)</mat-label>
+                <input matInput type="number" formControlName="duration" readonly>
+                <mat-hint>Duration is auto-calculated based on start and end dates</mat-hint>
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (currentStep() === 4) {
+        <mat-card class="step-card" [class.completed]="campaignIsReady()">
+          <mat-card-header>
+            <div class="card-header">
+              <mat-icon class="step-icon">visibility</mat-icon>
+              <div>
+                <mat-card-title>Review & Launch</mat-card-title>
+                <mat-card-subtitle>Review your campaign details before launching</mat-card-subtitle>
+              </div>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            @if (campaignPreview(); as preview) {
+              <div class="review-panel">
+                <div class="preview-item">
+                  <div class="preview-header">
+                    <mat-icon class="preview-icon">text_fields</mat-icon>
+                    <h4>Campaign Content</h4>
+                  </div>
+                  <mat-divider></mat-divider>
+                  <div class="preview-content-grid">
+                    <div class="content-detail">
+                      <span class="detail-label">Title</span>
+                      <span class="detail-value">{{preview.title}}</span>
                     </div>
-                    <div class="info-item">
-                      <mat-icon>data_usage</mat-icon>
-                      <span>{{(selectedMedia()!.size / 1024 / 1024).toFixed(2)}} MB</span>
+                    <div class="content-detail">
+                      <span class="detail-label">Description</span>
+                      <span class="detail-value">{{preview.description}}</span>
                     </div>
-                    @if (selectedMedia()!.type === 'video' && selectedMedia()!.duration) {
-                      <div class="info-item">
-                        <mat-icon>schedule</mat-icon>
-                        <span>{{selectedMedia()!.duration!.toFixed(1)}}s</span>
+                    <div class="content-detail">
+                      <span class="detail-label">Caption</span>
+                      <span class="detail-value">{{preview.caption}}</span>
+                    </div>
+                    @if (preview.link) {
+                      <div class="content-detail">
+                        <span class="detail-label">Link</span>
+                        <a class="detail-value link" [href]="preview.link" target="_blank">{{preview.link}}</a>
                       </div>
                     }
                   </div>
                 </div>
-              }
 
-              <input #fileInput type="file"
-                     [accept]="ACCEPTED_IMAGE_TYPES.concat(ACCEPTED_VIDEO_TYPES).join(',')"
-                     (change)="onFileSelected($event)"
-                     style="display: none;">
-
-              @if (isLoading()) {
-                <div class="upload-progress">
-                  <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
-                  <p>Uploading... {{uploadProgress().toFixed(0)}}%</p>
+                <div class="preview-item">
+                  <div class="preview-header">
+                    <mat-icon class="preview-icon">paid</mat-icon>
+                    <h4>Budget & Targeting</h4>
+                  </div>
+                  <mat-divider></mat-divider>
+                  <div class="preview-content-grid">
+                    <div class="content-detail">
+                      <span class="detail-label">Total Budget</span>
+                      <span class="detail-value">{{preview.budget | currency: 'NGN':'symbol':'1.0-2'}}</span>
+                    </div>
+                    <div class="content-detail">
+                      <span class="detail-label">Payout per Promotion</span>
+                      <span class="detail-value">{{preview.payoutPerPromotion | currency: 'NGN':'symbol':'1.0-2'}}</span>
+                    </div>
+                    <div class="content-detail">
+                      <span class="detail-label">Number of Promoters</span>
+                      <span class="detail-value">{{preview.maxPromoters}}</span>
+                    </div>
+                    <div class="content-detail">
+                      <span class="detail-label">Estimated Total Views</span>
+                      <span class="detail-value">{{estimatedReach()}}</span>
+                    </div>
+                  </div>
                 </div>
-              }
-            </div>
 
-            <div class="form-section">
-              <h3>Campaign Details</h3>
-
-              <mat-form-field class="full-width">
-                <mat-label>Campaign Title</mat-label>
-                <input matInput formControlName="title" placeholder="Enter a catchy title for your campaign">
-                <mat-hint align="end">{{contentForm.get('title')?.value?.length || 0}}/100</mat-hint>
-                @if (contentForm.get('title')?.errors?.['required']) {
-                  <mat-error>Campaign title is required</mat-error>
-                }
-                @if (contentForm.get('title')?.errors?.['minlength']) {
-                  <mat-error>Title must be at least 10 characters</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field class="full-width">
-                <mat-label>Campaign Description</mat-label>
-                <textarea matInput rows="4" formControlName="description"
-                          placeholder="Describe your campaign and what you're promoting"></textarea>
-                <mat-hint align="end">{{contentForm.get('description')?.value?.length || 0}}/500</mat-hint>
-                @if (contentForm.get('description')?.errors?.['required']) {
-                  <mat-error>Campaign description is required</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field class="full-width">
-                <mat-label>Category</mat-label>
-                <mat-select formControlName="category">
-                  @for (category of categories; track category.value) {
-                    <mat-option [value]="category.value">{{category.label}}</mat-option>
-                  }
-                </mat-select>
-                @if (contentForm.get('category')?.errors?.['required']) {
-                  <mat-error>Please select a category</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-section">
-              <h3>WhatsApp Status Content</h3>
-              <mat-form-field class="full-width">
-                <mat-label>Status Caption</mat-label>
-                <textarea matInput rows="3" formControlName="caption"
-                          placeholder="Write the caption that will appear with your media on WhatsApp Status"></textarea>
-                <mat-hint align="end">{{contentForm.get('caption')?.value?.length || 0}}/300</mat-hint>
-                @if (contentForm.get('caption')?.errors?.['required']) {
-                  <mat-error>Status caption is required</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field class="full-width">
-                <mat-label>Call-to-Action Link (Optional)</mat-label>
-                <input matInput type="url" formControlName="link" placeholder="https://example.com">
-                <mat-hint>Add a link for users to visit (optional)</mat-hint>
-                @if (contentForm.get('link')?.errors?.['invalidUrl']) {
-                  <mat-error>Please enter a valid URL</mat-error>
-                }
-              </mat-form-field>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="step-card" [class.completed]="isBudgetValid()">
-        <mat-card-header>
-          <div class="card-header">
-            <mat-icon class="step-icon">paid</mat-icon>
-            <div>
-              <mat-card-title>Budget & Targeting</mat-card-title>
-              <mat-card-subtitle>Set your budget and define your campaign's reach</mat-card-subtitle>
-            </div>
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="budgetForm" class="budget-form">
-            <div class="wallet-info">
-              <mat-card class="balance-card">
-                <mat-icon>account_balance_wallet</mat-icon>
-                <div>
-                  <h4>Your Wallet Balance</h4>
-                  <p class="balance-amount">{{walletBalance() | currency: 'NGN':'symbol':'1.0-2'}}</p>
+                <div class="preview-item">
+                  <div class="preview-header">
+                    <mat-icon class="preview-icon">schedule</mat-icon>
+                    <h4>Schedule</h4>
+                  </div>
+                  <mat-divider></mat-divider>
+                  <div class="preview-content-grid">
+                    <div class="content-detail">
+                      <span class="detail-label">Start Date</span>
+                      <span class="detail-value">{{preview.startDate | date}}</span>
+                    </div>
+                    <div class="content-detail">
+                      <span class="detail-label">End Date</span>
+                      <span class="detail-value">{{preview.endDate | date}}</span>
+                    </div>
+                    <div class="content-detail">
+                      <span class="detail-label">Duration</span>
+                      <span class="detail-value">{{scheduleForm.get('duration')?.value}} days</span>
+                    </div>
+                  </div>
                 </div>
-                <button mat-stroked-button class="fund-btn">
-                  <mat-icon>add</mat-icon>
-                  Fund Wallet
-                </button>
-              </mat-card>
-            </div>
 
-            <div class="budget-grid">
-              <mat-form-field class="full-width">
-                <mat-label>Total Campaign Budget (NGN)</mat-label>
-                <input matInput type="number" formControlName="budget" placeholder="e.g., 5000">
-                @if (budgetForm.get('budget')?.errors?.['required']) {
-                  <mat-error>Budget is required</mat-error>
-                } @else if (budgetForm.get('budget')?.errors?.['min']) {
-                  <mat-error>Budget must be at least NGN 500</mat-error>
-                } @else if (budgetForm.get('budget')?.errors?.['max']) {
-                  <mat-error>Budget cannot exceed NGN 1,000,000</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field class="full-width">
-                <mat-label>Payout Per Promotion (NGN)</mat-label>
-                <input matInput type="number" formControlName="payoutPerPromotion" readonly="true" value="200" placeholder="e.g., 50">
-                @if (budgetForm.get('payoutPerPromotion')?.errors?.['required']) {
-                  <mat-error>Payout is required</mat-error>
-                } @else if (budgetForm.get('payoutPerPromotion')?.errors?.['min']) {
-                  <mat-error>Payout must be at least NGN 25</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field class="full-width">
-                <mat-label>Number of Promoters</mat-label>
-                <input matInput type="number" formControlName="maxPromoters" placeholder="e.g., 100">
-                <mat-hint>Max promoters: {{maxPossiblePromoters()}}</mat-hint>
-                @if (budgetForm.get('maxPromoters')?.errors?.['required']) {
-                  <mat-error>Number of promoters is required</mat-error>
-                } @else if (budgetForm.get('maxPromoters')?.errors?.['min']) {
-                  <mat-error>At least 5 promoters are required</mat-error>
-                } @else if (budgetForm.get('maxPromoters')?.errors?.['max']) {
-                  <mat-error>Cannot exceed {{maxPossiblePromoters()}} promoters</mat-error>
-                }
-              </mat-form-field>
-            </div>
-            
-            <div class="budget-summary">
-              <h3>Campaign Summary</h3>
-              <div class="summary-grid">
-                <div class="summary-item">
-                  <span class="summary-label">Estimated Cost</span>
-                  <span class="summary-value primary">{{estimatedCost() | currency: 'NGN':'symbol':'1.0-2'}}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label">Estimated Promoters</span>
-                  <span class="summary-value">{{budgetForm.get('maxPromoters')?.value}}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label">Views per Promoter</span>
-                  <span class="summary-value">~25</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label">Estimated Total Views</span>
-                  <span class="summary-value">{{estimatedReach()}}</span>
-                </div>
-              </div>
-            </div>
-
-            @if (estimatedCost() > walletBalance()) {
-              <div class="insufficient-funds-warning">
-                <mat-icon>warning</mat-icon>
-                <div>
-                  <h4>Insufficient Funds</h4>
-                  <p>Your campaign budget exceeds your wallet balance. Please fund your wallet to launch this campaign.</p>
+                <div class="final-cost-summary">
+                  <mat-icon class="summary-icon">info</mat-icon>
+                  <p class="summary-text">
+                    Your total campaign cost is
+                    <span class="cost-value">{{estimatedCost() | currency: 'NGN':'symbol':'1.0-2'}}</span>,
+                    which will be deducted from your wallet upon launch.
+                  </p>
                 </div>
               </div>
             }
-
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="step-card" [class.completed]="isScheduleValid()">
-        <mat-card-header>
-          <div class="card-header">
-            <mat-icon class="step-icon">schedule</mat-icon>
-            <div>
-              <mat-card-title>Campaign Schedule</mat-card-title>
-              <mat-card-subtitle>Set the duration for your campaign to run</mat-card-subtitle>
-            </div>
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="scheduleForm" class="schedule-form">
-            <mat-form-field class="full-width">
-              <mat-label>Start Date</mat-label>
-              <input matInput [matDatepicker]="startDatePicker" formControlName="startDate" readonly>
-              <mat-datepicker-toggle matIconSuffix [for]="startDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #startDatePicker></mat-datepicker>
-              @if (scheduleForm.get('startDate')?.errors?.['required']) {
-                <mat-error>Start date is required</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="full-width">
-              <mat-label>End Date</mat-label>
-              <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" readonly>
-              <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-              <mat-datepicker #endDatePicker></mat-datepicker>
-              @if (scheduleForm.get('endDate')?.errors?.['required']) {
-                <mat-error>End date is required</mat-error>
-              } @else if (scheduleForm.get('endDate')?.errors?.['dateRange']) {
-                <mat-error>End date must be after start date</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="full-width">
-              <mat-label>Campaign Duration (Days)</mat-label>
-              <input matInput type="number" formControlName="duration" readonly>
-              <mat-hint>Duration is auto-calculated based on start and end dates</mat-hint>
-            </mat-form-field>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="step-card" [class.completed]="campaignIsReady()">
-        <mat-card-header>
-          <div class="card-header">
-            <mat-icon class="step-icon">visibility</mat-icon>
-            <div>
-              <mat-card-title>Review & Launch</mat-card-title>
-              <mat-card-subtitle>Review your campaign details before launching</mat-card-subtitle>
-            </div>
-          </div>
-        </mat-card-header>
-        <mat-card-content>
-          @if (campaignPreview(); as preview) {
-            <div class="review-details">
-              <div class="detail-section">
-                <h3>Campaign Content</h3>
-                <div class="detail-grid">
-                  <p><strong>Title:</strong> {{preview.title}}</p>
-                  <p><strong>Description:</strong> {{preview.description}}</p>
-                  <p><strong>Caption:</strong> {{preview.caption}}</p>
-                  @if (preview.link) {
-                    <p><strong>Link:</strong> <a [href]="preview.link" target="_blank">{{preview.link}}</a></p>
-                  }
-                </div>
-              </div>
-
-              <mat-divider></mat-divider>
-
-              <div class="detail-section">
-                <h3>Budget & Targeting</h3>
-                <div class="detail-grid">
-                  <p><strong>Total Budget:</strong> {{preview.budget | currency: 'NGN':'symbol':'1.0-2'}}</p>
-                  <p><strong>Payout per Promotion:</strong> {{preview.payoutPerPromotion | currency: 'NGN':'symbol':'1.0-2'}}</p>
-                  <p><strong>Number of Promoters:</strong> {{preview.maxPromoters}}</p>
-                  <p><strong>Estimated Total Views:</strong> {{estimatedReach()}}</p>
-                </div>
-              </div>
-
-              <mat-divider></mat-divider>
-
-              <div class="detail-section">
-                <h3>Schedule</h3>
-                <div class="detail-grid">
-                  <p><strong>Start Date:</strong> {{preview.startDate | date}}</p>
-                  <p><strong>End Date:</strong> {{preview.endDate | date}}</p>
-                  <p><strong>Duration:</strong> {{scheduleForm.get('duration')?.value}} days</p>
-                </div>
-              </div>
-
-              <div class="actions">
-                <p class="final-cost-note">Your total campaign cost is <strong>{{estimatedCost() | currency: 'NGN':'symbol':'1.0-2'}}</strong>, which will be deducted from your wallet upon launch.</p>
-              </div>
-            </div>
-          }
-        </mat-card-content>
-      </mat-card>
-
+          </mat-card-content>
+        </mat-card>
+      }
+      
       <div class="action-buttons">
-        <button mat-stroked-button (click)="goToPreviousStep()">
+        <button mat-stroked-button (click)="goToPreviousStep()" [disabled]="currentStep() === 1">
           <mat-icon>arrow_back</mat-icon> Previous
         </button>
-        <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!canGoToNextStep()">
-          Next Step <mat-icon>arrow_forward</mat-icon>
-        </button>
-        <button mat-flat-button color="primary" (click)="submitCampaign()" [disabled]="!campaignIsReady()">
-          <mat-icon>launch</mat-icon> Launch Campaign
-        </button>
+        @if (currentStep() < 4) {
+          <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!isStepActive(currentStep())">
+            Next Step <mat-icon>arrow_forward</mat-icon>
+          </button>
+        }
+        @if (currentStep() === 4) {
+          <button mat-flat-button color="primary" (click)="submitCampaign()" [disabled]="!campaignIsReady()">
+            <mat-icon>launch</mat-icon> Launch Campaign
+          </button>
+        }
       </div>
     </div>
   </div>

@@ -313,7 +313,8 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
 
   // Campaign Actions
   createCampaign(): void {
-    this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
+    //this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
+    this.router.navigate(['dashboard/campaign/new']);
   }
 
   viewCampaign(campaignId: string): void {

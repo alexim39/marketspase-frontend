@@ -35,10 +35,11 @@ import { CampaignComponent } from './campain.compnent';
           <!-- Tablet Notice (Optional) -->
           @if (deviceType() === 'tablet') {
             <!-- Dashboard Content -->
-            <!-- <main class="page-main" role="main">
-              <app-dashboard [user]="user()" />
-            </main> -->
-            tablet
+             <main class="page-main" role="main">
+              @if (user()) {
+                <campaign />
+              }              
+            </main>
           }
 
           <!-- Desktop Notice (Optional) -->
@@ -262,7 +263,6 @@ import { CampaignComponent } from './campain.compnent';
 })
 export class Index {
   private readonly deviceService = inject(DeviceService);
-
   // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());
 

@@ -20,6 +20,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Subscription } from 'rxjs';
+import { DeviceService } from '../../common/services/device.service';
+import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 
 interface CampaignPreview {
   title: string;
@@ -73,6 +75,10 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
+  private readonly deviceService = inject(DeviceService);
+  // Computed properties for better performance
+  protected readonly deviceType = computed(() => this.deviceService.type());
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('mediaPreview') mediaPreview!: ElementRef<HTMLVideoElement | HTMLImageElement>;
 
@@ -103,13 +109,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   estimatedReach = computed(() => this.calculateEstimatedReach());
   maxPossiblePromoters = computed(() => this.calculateMaxPossiblePromoters());
   campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid());
-  canGoToNextStep = computed(() => {
-    const step = this.currentStep();
-    if (step === 1) return this.isContentValid();
-    if (step === 2) return this.isBudgetValid();
-    if (step === 3) return this.isScheduleValid();
-    return false;
-  });
 
   // Media constraints
   readonly MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -120,6 +119,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeForms();
     this.setupFormValidation();
+    this.setupDateCalculation();
   }
 
   ngOnDestroy(): void {
@@ -131,12 +131,12 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     this.contentForm = this.fb.group({
       title: ['', [
         Validators.required,
-        Validators.minLength(10),
+        Validators.minLength(5),
         Validators.maxLength(100)
       ]],
       description: ['', [
         Validators.required,
-        Validators.minLength(20),
+        Validators.minLength(10),
         Validators.maxLength(500)
       ]],
       caption: ['', [
@@ -162,7 +162,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
       maxPromoters: [20, [
         Validators.required,
         Validators.min(5),
-        Validators.max(500)
       ]]
     });
 
@@ -170,54 +169,99 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     this.scheduleForm = this.fb.group({
       startDate: [new Date(), Validators.required],
       endDate: [this.getDefaultEndDate(), Validators.required],
-      duration: [7, [Validators.required, Validators.min(1), Validators.max(30)]]
-    }, { validators: this.dateRangeValidator });
+      duration: [{ value: 7, disabled: true }, [Validators.required, Validators.min(1), Validators.max(30)]]
+    });
   }
 
   private setupFormValidation(): void {
-    // Monitor form validity
+    // Monitor content form validity (media upload is now optional)
     this.subscriptions.push(
       this.contentForm.statusChanges.subscribe(status => {
-        this.isContentValid.set(status === 'VALID' && !!this.selectedMedia());
+        this.isContentValid.set(status === 'VALID');
       })
     );
 
+    // Monitor budget form validity and wallet balance
     this.subscriptions.push(
       this.budgetForm.statusChanges.subscribe(status => {
-        this.isBudgetValid.set(status === 'VALID' && this.estimatedCost() <= this.walletBalance());
+        const cost = this.estimatedCost();
+        this.isBudgetValid.set(status === 'VALID' && cost > 0 && cost <= this.walletBalance());
       })
     );
 
+    // Monitor schedule form validity
     this.subscriptions.push(
       this.scheduleForm.statusChanges.subscribe(status => {
         this.isScheduleValid.set(status === 'VALID');
       })
     );
+  }
 
-    // Auto-calculate max promoters based on budget
+  private setupDateCalculation(): void {
     this.subscriptions.push(
-      this.budgetForm.valueChanges.subscribe(values => {
-        if (values.budget && values.payoutPerPromotion) {
-          const maxPossible = Math.floor(values.budget / values.payoutPerPromotion);
-          const currentMax = values.maxPromoters;
-          
-          if (currentMax > maxPossible) {
-            this.budgetForm.patchValue({ maxPromoters: maxPossible }, { emitEvent: false });
-          }
-        }
-      })
+      this.scheduleForm.get('startDate')!.valueChanges.subscribe(() => this.updateDurationAndEndDate())
     );
+
+    this.subscriptions.push(
+      this.scheduleForm.get('endDate')!.valueChanges.subscribe(() => this.updateDurationAndEndDate())
+    );
+  }
+
+  private updateDurationAndEndDate(): void {
+    const startDate = this.scheduleForm.get('startDate')?.value;
+    const endDate = this.scheduleForm.get('endDate')?.value;
+
+    if (startDate && endDate) {
+      if (endDate < startDate) {
+        this.scheduleForm.get('endDate')?.setErrors({ dateRange: true });
+        this.scheduleForm.get('duration')?.setValue(0, { emitEvent: false });
+        this.isScheduleValid.set(false);
+      } else {
+        const diffInMs = endDate.getTime() - startDate.getTime();
+        const diffInDays = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+        this.scheduleForm.get('duration')?.setValue(diffInDays, { emitEvent: false });
+        this.scheduleForm.get('endDate')?.setErrors(null);
+        this.isScheduleValid.set(true);
+      }
+    }
   }
 
   // --- Step Navigation Methods ---
   goToNextStep(): void {
-    if (this.canGoToNextStep()) {
-      this.currentStep.update(step => step + 1);
+    const current = this.currentStep();
+    if (current === 1 && this.isContentValid()) {
+      this.currentStep.set(2);
+    } else if (current === 2 && this.isBudgetValid()) {
+      this.currentStep.set(3);
+    } else if (current === 3 && this.isScheduleValid()) {
+      this.currentStep.set(4);
     }
   }
 
   goToPreviousStep(): void {
-    this.currentStep.update(step => step - 1);
+    const current = this.currentStep();
+    if (current > 1) {
+      this.currentStep.set(current - 1);
+    }
+  }
+  
+  isStepActive(step: number): boolean {
+    if (step === 1) return this.isContentValid();
+    if (step === 2) return this.isBudgetValid();
+    if (step === 3) return this.isScheduleValid();
+    if (step === 4) return this.campaignIsReady();
+    return false;
+  }
+
+  isStepCurrent(step: number): boolean {
+    return this.currentStep() === step;
+  }
+
+  isStepCompleted(step: number): boolean {
+    if (step === 1) return this.isContentValid();
+    if (step === 2) return this.isBudgetValid();
+    if (step === 3) return this.isScheduleValid();
+    return false;
   }
 
   submitCampaign(): void {
@@ -366,17 +410,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     }
   }
 
-  private dateRangeValidator(group: AbstractControl): {[key: string]: any} | null {
-    const startDate = group.get('startDate')?.value;
-    const endDate = group.get('endDate')?.value;
-    if (startDate && endDate && endDate < startDate) {
-      group.get('endDate')?.setErrors({ dateRange: true });
-      return { dateRange: true };
-    }
-    group.get('endDate')?.setErrors(null);
-    return null;
-  }
-
   // Calculation helpers
   private calculateEstimatedCost(): number {
     const values = this.budgetForm.value;
@@ -408,15 +441,15 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
   private generatePreview(): CampaignPreview {
     return {
-      title: this.contentForm.get('title')?.value || '',
-      description: this.contentForm.get('description')?.value || '',
+      title: this.contentForm.get('title')?.value || 'N/A',
+      description: this.contentForm.get('description')?.value || 'N/A',
       mediaUrl: this.selectedMedia()?.url || '',
-      caption: this.contentForm.get('caption')?.value || '',
-      link: this.contentForm.get('link')?.value || '',
+      caption: this.contentForm.get('caption')?.value || 'N/A',
+      link: this.contentForm.get('link')?.value || 'N/A',
       budget: this.budgetForm.get('budget')?.value || 0,
       payoutPerPromotion: this.budgetForm.get('payoutPerPromotion')?.value || 0,
       maxPromoters: this.budgetForm.get('maxPromoters')?.value || 0,
-      startDate: this.scheduleForm.get('endDate')?.value || new Date(),
+      startDate: this.scheduleForm.get('startDate')?.value || new Date(),
       endDate: this.scheduleForm.get('endDate')?.value || new Date()
     };
   }
@@ -479,4 +512,17 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
       { value: 'other', label: 'Other' }
     ];
   }
+
+   // Wallet Actions
+  public fundWallet(): void {
+    //this.snackBar.open('Fund Wallet feature coming soon!', 'OK', { duration: 3000 });
+    this.dialog.open(WalletFundingComponent, {
+      data: {
+        currentBalance: 5000,
+        campaignBudget: 15000
+      },
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
 }

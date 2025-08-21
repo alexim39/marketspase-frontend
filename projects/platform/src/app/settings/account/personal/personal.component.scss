@@ -1,0 +1,151 @@
+
+.profile-card {
+  //max-width: 800px;
+  margin: 24px auto;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+
+  .profile-title {
+    font-size: 24px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    //color: #202124;
+
+    .profile-icon {
+      margin-right: 12px;
+      //color: mat-color($mat-blue, 600);
+    }
+  }
+
+  .profile-subtitle {
+    font-size: 14px;
+    color: #5f6368;
+    margin-top: 8px;
+  }
+
+  .profile-form {
+    padding: 24px;
+
+    .profile-picture-section {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+
+      .picture-instructions {
+        margin-left: 24px;
+
+        p {
+          margin: 0 0 4px;
+          font-size: 16px;
+          //color: #202124;
+        }
+
+        small {
+          color: #5f6368;
+          font-size: 13px;
+        }
+      }
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 500;
+        //color: #202124;
+        margin: 0 0 16px;
+
+        mat-icon {
+          margin-right: 12px;
+          //color: mat-color($mat-blue, 600);
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+        }
+      }
+
+      .form-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+
+        .form-field {
+          flex: 1;
+        }
+      }
+
+      .full-width {
+        width: 100%;
+      }
+
+      .account-status {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+
+        .status-message {
+          margin-left: 16px;
+          font-size: 14px;
+          color: #5f6368;
+        }
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 24px;
+    //background-color: #f8f9fa;
+
+    .cancel-button {
+      margin-right: 16px;
+    }
+
+    .save-button {
+      min-width: 120px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .profile-card {
+    margin: 0;
+    border-radius: 0;
+
+    .profile-form {
+      padding: 16px;
+
+      .form-row {
+        flex-direction: column;
+        gap: 16px !important;
+      }
+
+      .profile-picture-section {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .picture-instructions {
+          margin-left: 0;
+          margin-top: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Snackbar styles
+.snackbar-success {
+  background-color: green // mat-color($mat-green, 600);
+}
+
+.snackbar-error {
+  background-color: red; //mat-color($mat-red, 600);
+}
