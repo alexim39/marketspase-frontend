@@ -163,16 +163,32 @@
       pointer-events: none;
     }
     
+    .loader-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    
     .loader-logo {
-      width: 64px;
-      height: 64px;
+      width: 34px;
+      height: 34px;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 24px;
+      margin-bottom: 10px;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .loader-brand-name {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      text-align: center;
     }
     
     .loader-spinner {
@@ -187,15 +203,15 @@
     
     .loader-text {
       color: white;
-      font-size: 18px;
-      font-weight: 500;
-      span {
-        display: block;
-        margin-top: 5px;
-        font-size: 12px;
-        color: rgb(0, 0, 0);
-        text-align: center;
-      }
+      font-size: 12px !important;
+      text-align: center;
+    }
+    
+    .loader-text span {
+      display: block;
+      margin-top: 8px;
+      font-size: 18px !important;
+      color: rgba(255, 255, 255, 0.8);
     }
     
     @keyframes spin {
@@ -207,6 +223,21 @@
     app-root:not(:empty) + .initial-loader {
       display: none;
     }
+    
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .loader-brand-name {
+        font-size: 20px;
+      }
+      
+      .loader-text {
+        font-size: 16px;
+      }
+      
+      .loader-text span {
+        font-size: 12px;
+      }
+    }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
@@ -214,12 +245,16 @@
 <body>
   <!-- Initial loading screen -->
   <div class="initial-loader" id="initialLoader">
-    <div class="loader-logo">
-     <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32">
-        <path d="M0 0h24v24H0z" fill="none"/>
-        <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.96-.69 2.8l1.46 1.46C19.54 15.06 20 13.57 20 12c0-4.42-3.58-8-8-8zm-6.77.73L3.77 6.19C2.46 7.94 2 9.43 2 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6 0-1.01.25-1.96.69-2.8z" fill="white"/>
-      </svg>
+    <div class="loader-brand">
+      <div class="loader-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.96-.69 2.8l1.46 1.46C19.54 15.06 20 13.57 20 12c0-4.42-3.58-8-8-8zm-6.77.73L3.77 6.19C2.46 7.94 2 9.43 2 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6 0-1.01.25-1.96.69-2.8z" fill="white"/>
+        </svg>
+      </div>
+      <div class="loader-brand-name">Async MarketSpase</div>
     </div>
+    
     <div class="loader-spinner"></div>
     <div class="loader-text">
       Loading MarketSpase...

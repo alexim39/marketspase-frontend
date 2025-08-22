@@ -192,6 +192,7 @@
                   <mat-icon class="alert-icon">account_balance_wallet</mat-icon>
                   <div class="alert-content">
                     <p class="alert-text">Insufficient wallet balance to cover this campaign budget.</p>
+                    <br>
                     <button mat-flat-button color="primary" (click)="fundWallet()">
                       <mat-icon>add</mat-icon>
                       Fund Wallet
@@ -338,6 +339,11 @@
           </mat-card-content>
         </mat-card>
       }
+
+      @if (isSubmitting()) {
+          <mat-progress-bar mode="indeterminate"/>
+      }
+      
       
       <div class="action-buttons">
         <button mat-stroked-button (click)="goToPreviousStep()" [disabled]="currentStep() === 1">
@@ -349,7 +355,7 @@
           </button>
         }
         @if (currentStep() === 4) {
-          <button mat-flat-button color="primary" (click)="submitCampaign()" [disabled]="!campaignIsReady()">
+          <button mat-flat-button color="primary" (click)="submitCampaign()" [disabled]="!campaignIsReady() || isSubmitting()">
             <mat-icon>launch</mat-icon> Launch Campaign
           </button>
         }

@@ -35,8 +35,8 @@
 
       .title-section {
         h1 {
-          font-size: 32px;
-          font-weight: 700;
+          font-size: 20px;
+          //font-weight: 700;
           margin: 0 0 8px 0;
           background: linear-gradient(45deg, #ffffff 0%, #f1f5f9 100%);
           -webkit-background-clip: text;
@@ -45,7 +45,7 @@
         }
 
         p {
-          font-size: 16px;
+          font-size: 15px;
           opacity: 0.9;
           margin: 0;
           font-weight: 400;
@@ -80,10 +80,10 @@
       .header-content {
         .title-section {
           h1 {
-            font-size: 24px;
+            font-size: 18px;
           }
           p {
-            font-size: 14px;
+            font-size: 12px;
           }
         }
 

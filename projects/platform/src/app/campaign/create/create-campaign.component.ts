@@ -25,6 +25,8 @@ import { DeviceService } from '../../common/services/device.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { UserInterface, UserService } from '../../common/services/user.service';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
+import { CampaingService } from '../campaign.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface CampaignPreview {
   title: string;
@@ -47,6 +49,7 @@ interface MediaFile {
 @Component({
   selector: 'app-create-campaign',
   standalone: true,
+  providers: [CampaingService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -106,8 +109,11 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   isContentValid = signal(false);
   isBudgetValid = signal(false);
   isScheduleValid = signal(false);
+  isSubmitting = signal(false);
 
   private subscriptions: Subscription[] = [];
+
+  private campaingService = inject(CampaingService);
 
   // Campaign preview data
   campaignPreview = computed(() => this.generatePreview());
@@ -287,20 +293,44 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   }
 
   submitCampaign(): void {
+    this.isSubmitting.set(true);
+
     if (this.campaignIsReady()) {
       const campaignData = {
         ...this.contentForm.value,
         ...this.budgetForm.value,
         ...this.scheduleForm.value,
         mediaUrl: this.selectedMedia()?.url,
-        currency: 'NGN'
+        currency: 'NGN',
+        owner: this.user()?._id
       };
 
       console.log('Campaign Submitted:', campaignData);
-      this.snackBar.open('Campaign created successfully!', 'OK', { duration: 3000 });
-      this.router.navigate(['/dashboard']);
+
+      this.subscriptions.push(
+        this.campaingService.create(campaignData).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.isSubmitting.set(false);
+              console.log('Campaign Submitted:', response);
+              this.snackBar.open(response.message, 'OK', { duration: 3000 });
+              this.router.navigate(['/dashboard/campaigns']);
+              
+            }
+          },
+          error: (error: HttpErrorResponse) => {
+            let errorMessage = 'Server error occurred, please try again.';
+            if (error.error && error.error.message) {
+              errorMessage = error.error.message;
+            }  
+            this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
+            this.isSubmitting.set(false);
+          }
+        })
+      )
     } else {
       this.snackBar.open('Please complete all required fields.', 'OK', { duration: 3000 });
+      this.isSubmitting.set(false);
     }
   }
 

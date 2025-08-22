@@ -313,7 +313,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
 
   // Campaign Actions
   createCampaign(): void {
-    this.router.navigate(['dashboard/campaign/create']);
+    this.router.navigate(['dashboard/campaigns/create']);
   }
 
   viewCampaign(campaignId: string): void {
