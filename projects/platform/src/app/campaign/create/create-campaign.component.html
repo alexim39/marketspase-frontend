@@ -48,7 +48,7 @@
           <mat-card-header>
             <mat-card-title>Campaign Content</mat-card-title>
             <mat-card-subtitle>
-              Tell us about your campaign. The title and description will be used to attract promoters.
+               Set campagin details. The title will help you understand about your campaign
             </mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
@@ -64,22 +64,6 @@
                       Title must be at least 5 characters long.
                     } @else if (contentForm.get('title')?.errors?.['maxlength']) {
                       Title cannot exceed 100 characters.
-                    }
-                  </mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Campaign Description</mat-label>
-                <textarea matInput formControlName="description" placeholder="Describe what the campaign is about and what promoters need to do." rows="4"></textarea>
-                @if (contentForm.get('description')?.invalid && (contentForm.get('description')?.dirty || contentForm.get('description')?.touched)) {
-                  <mat-error>
-                    @if (contentForm.get('description')?.errors?.['required']) {
-                      Description is required.
-                    } @else if (contentForm.get('description')?.errors?.['minlength']) {
-                      Description must be at least 10 characters long.
-                    } @else if (contentForm.get('description')?.errors?.['maxlength']) {
-                      Description cannot exceed 500 characters.
                     }
                   </mat-error>
                 }
@@ -173,34 +157,31 @@
             <form [formGroup]="budgetForm" class="budget-form">
               <div class="wallet-balance-info">
                 <span>Wallet Balance:</span>
-                <span class="balance-value">{{walletBalance() | currency: 'NGN':'symbol':'1.0-2'}}</span>
+                <span class="balance-value">{{walletBalance() | currency: '₦':'symbol':'1.0-2'}}</span>
               </div>
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Total Campaign Budget</mat-label>
                 <span matTextPrefix>₦&nbsp;</span>
                 <input matInput type="number" formControlName="budget" placeholder="e.g., 5000">
-                <mat-error *ngIf="budgetForm.get('budget')?.errors?.['required']">
-                  Budget is required.
-                </mat-error>
-                <mat-error *ngIf="budgetForm.get('budget')?.errors?.['min']">
-                  Minimum budget is ₦500.
-                </mat-error>
-                <mat-error *ngIf="budgetForm.get('budget')?.errors?.['max']">
-                  Maximum budget is ₦1,000,000.
-                </mat-error>
+                @if (budgetForm.get('budget')?.errors?.['required']) {
+                  <mat-error>
+                    Budget is required.
+                  </mat-error>
+                }
+                @if (budgetForm.get('budget')?.errors?.['min']) {
+                  <mat-error>
+                    Minimum budget is ₦500.
+                  </mat-error>
+                }
+                @if (budgetForm.get('budget')?.errors?.['max']) {
+                  <mat-error>
+                    Maximum budget is ₦1,000,000.
+                  </mat-error>
+                }
+                
+                
               </mat-form-field>
-              <div class="slider-info">
-                <!-- <mat-slider
-                  min="500"
-                  max="1000000"
-                  step="500"
-                  discrete
-                  [displayWith]="estimatedReach"
-                  showTickMarks
-                  thumbLabel
-                  [formControl]="budgetForm.get('budget')">
-                  <input matSliderThumb>
-                </mat-slider> -->
+             <div class="slider-info">
                 <span class="estimated-reach">Estimated Reach: ~{{estimatedReach() | shortNumber}} views</span>
               </div>
 
@@ -264,8 +245,12 @@
                         End date cannot be before the start date.
                       }
                     </mat-error>
-                  }
+                  } 
                 </mat-form-field>
+              } @else {
+                <span>
+                  The campaign will end when the budget is exhausted
+                </span>
               }
             </form>
           </mat-card-content>
@@ -289,7 +274,7 @@
                   <p class="sender-name">Your Ad</p>
                 </div>
                 <div class="whatsapp-body">
-                  @if (campaignPreview()?.mediaUrl) {
+                  @if (campaignPreview().mediaUrl) {
                     <div class="media-preview-container">
                       @if (selectedMedia()?.type === 'image') {
                         <img [src]="campaignPreview()!.mediaUrl" alt="Campaign Media" class="preview-media-image">
@@ -299,9 +284,9 @@
                     </div>
                   }
                   <div class="caption-container">
-                    <p class="caption">{{campaignPreview()?.caption}}</p>
-                    @if (campaignPreview()?.link !== 'N/A') {
-                      <a [href]="campaignPreview()?.link" target="_blank" class="preview-link">{{campaignPreview()?.link}}</a>
+                    <p class="caption">{{campaignPreview().caption}}</p>
+                    @if (campaignPreview().link !== 'N/A') {
+                      <a [href]="campaignPreview().link" target="_blank" class="preview-link">{{campaignPreview().link}}</a>
                     }
                   </div>
                 </div>
@@ -314,11 +299,7 @@
               <h4>Campaign Details</h4>
               <div class="detail-item">
                 <span class="detail-label">Title</span>
-                <span class="detail-value">{{campaignPreview()?.title}}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">Description</span>
-                <span class="detail-value">{{campaignPreview()?.description}}</span>
+                <span class="detail-value">{{campaignPreview().title}}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Category</span>
@@ -326,15 +307,15 @@
               </div>
               <div class="detail-item">
                 <span class="detail-label">Budget</span>
-                <span class="detail-value">{{campaignPreview()?.budget | currency: 'NGN':'symbol':'1.0-2'}}</span>
+                <span class="detail-value">{{campaignPreview().budget | currency: '₦':'symbol':'1.0-2'}}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Start Date</span>
-                <span class="detail-value">{{campaignPreview()?.startDate | date:'shortDate'}}</span>
+                <span class="detail-value">{{campaignPreview().startDate | date:'shortDate'}}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">End Date</span>
-                <span class="detail-value">{{campaignPreview()?.endDate ? (campaignPreview()?.endDate | date:'shortDate') : 'No end date'}}</span>
+                <span class="detail-value">{{campaignPreview().endDate ? (campaignPreview().endDate | date:'shortDate') : 'No end date'}}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Duration</span>
@@ -350,7 +331,7 @@
               <mat-icon class="summary-icon">info</mat-icon>
               <p class="summary-text">
                 Your total campaign cost is
-                <span class="cost-value">{{budgetForm.get('budget')?.value | currency: 'NGN':'symbol':'1.0-2'}}</span>,
+                <span class="cost-value">{{budgetForm.get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
                 which will be deducted from your wallet upon launch.
               </p>
             </div>

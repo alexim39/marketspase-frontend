@@ -28,13 +28,10 @@ import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 
 interface CampaignPreview {
   title: string;
-  description: string;
   mediaUrl: string;
   caption: string;
   link: string;
   budget: number;
-  //payoutPerPromotion: number;
-  //maxPromoters: number;
   endDate: Date | null;
   startDate: Date
 }
@@ -149,11 +146,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(100)
-      ]],
-      description: ['', [
-        Validators.required,
-        Validators.minLength(10),
-        Validators.maxLength(500)
       ]],
       caption: ['', [
         Validators.required,
@@ -449,7 +441,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   private generatePreview(): CampaignPreview {
     return {
       title: this.contentForm.get('title')?.value || 'N/A',
-      description: this.contentForm.get('description')?.value || 'N/A',
       mediaUrl: this.selectedMedia()?.url || '',
       caption: this.contentForm.get('caption')?.value || 'N/A',
       link: this.contentForm.get('link')?.value || 'N/A',
