@@ -7,14 +7,15 @@ export interface UserInterface {
   _id: string;
   status: boolean;
   displayName: string;
-  //lastname: string;
   email: string;
   username: string;
   biography?: string;
   role?: string;
   avatar?: string;
   createdAt?: Date;
-  notification?: boolean;
+  preferences?: {
+    notification?: boolean;
+  };
   darkMode?: boolean;
   testimonial?: {
     message?: string;
@@ -33,12 +34,11 @@ export interface UserInterface {
     email: string;
     phone: string;
     dob: Date;
-    bio: string;
-    jobTitle: string;
-    educationBackground?: string;
+    biography: string;
   };
   professionalInfo?: {
     skills?: string[];
+    jobTitle: string;
     experience: {
       company: string;
       startDate: Date;
@@ -48,7 +48,7 @@ export interface UserInterface {
     };
     education?: {
       institution: string;
-      degree: string;
+      certificate: string;
       fieldOfStudy: string;
       startDate: Date;
       endDate: Date;
@@ -91,10 +91,7 @@ export interface UserInterface {
         type: string;
       };
     };
-    preferences?: {
-      notification: boolean;
-      theme: string;
-    }
+   
   };
 }
 

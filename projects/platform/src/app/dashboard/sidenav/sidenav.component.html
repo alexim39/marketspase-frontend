@@ -185,6 +185,8 @@
   </mat-menu>
 </div>
 
+
+
 <!-- Premium Cart Dialog Template -->
 <ng-template #cartDialogTemplate>
   <mat-card class="cart-dialog-card">
@@ -192,13 +194,13 @@
     <div class="cart-header">
       <div class="cart-title">
         <mat-icon class="cart-icon">shopping_bag</mat-icon>
-        <h3>Your Shopping</h3>
+        <h3>Your Campaigns</h3>
         <button mat-icon-button class="close-btn" (click)="closeCartDialog()">
           <mat-icon>close</mat-icon>
         </button>
       </div>
       <div class="cart-summary">
-        <span class="items-count">1 item</span>
+        <span class="items-count">1 Active</span>
         <span class="total-price">₦40</span>
       </div>
     </div>
@@ -209,8 +211,8 @@
         class="tab-btn" 
         [class.active]="activeTab === 'cart'"
         (click)="setActiveTab('cart')">
-        <mat-icon>shopping_cart</mat-icon>
-        Cart
+        <mat-icon>campaign</mat-icon>
+        Campaigns
         <span class="badge">2</span>
       </button>
       <button 
@@ -226,30 +228,30 @@
 
     <!-- Cart Content -->
     <div class="cart-content" *ngIf="activeTab === 'cart'">
-      <!-- Cart items preview -->
+      <!-- Campaign preview -->
       <div class="cart-items-section">
         <div class="empty-cart">
           <div class="empty-cart-icon">
-            <mat-icon>shopping_bag</mat-icon>
+            <mat-icon>campaign</mat-icon>
           </div>
-          <h4>Your cart is empty</h4>
-          <p>Looks like you haven't added anything to your cart yet</p>
+          <h4>No active campaigns</h4>
+          <p>You haven't created or joined any campaigns yet</p>
           <button 
             mat-flat-button 
             color="primary" 
             class="shop-btn"
-            routerLink="/store" 
+            routerLink="/campaigns" 
             (click)="closeCartDialog()">
-            Continue Shopping
+            Start a Campaign
           </button>
         </div>
       </div>
 
-      <!-- Checkout section -->
+       <!-- Launch / Payout section -->
       <div class="checkout-section">
         <mat-divider></mat-divider>
         <div class="checkout-total">
-          <span>Estimated Total</span>
+          <span>Estimated Budget</span>
           <span class="amount">₦40</span>
         </div>
         <button 
@@ -258,11 +260,11 @@
           class="checkout-btn"
           routerLink="/store/checkout"
           (click)="closeCartDialog()">
-          Proceed to Checkout
+          Launch Campaign
         </button>
         <div class="secure-checkout">
           <mat-icon>lock</mat-icon>
-          <span>Secure checkout</span>
+          <span>Funds secured in escrow</span>
         </div>
       </div>
     </div>
@@ -273,12 +275,20 @@
         <div class="quick-actions-grid">
           <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('promoter')" [disabled]="user()!.role === 'promoter'">
             <mat-icon>attach_money</mat-icon>
-            <span>Switch to Promoter</span>
+            <span>
+              Switch to Promoter
+              <small>Earn by posting ads on your WhatsApp status</small>
+            </span>
           </button>
+
           <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('advertiser')" [disabled]="user()!.role === 'advertiser'">
             <mat-icon>campaign</mat-icon>
-            <span>Switch to Advertiser</span>
+            <span>
+              Switch to Advertiser
+              <small>Pay promoters to post ads on WhatsApp</small>
+            </span>
           </button>
+          
         </div>
 
         <div class="account-section">

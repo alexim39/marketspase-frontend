@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, Input, OnInit, ViewChild, HostListener } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
@@ -10,6 +10,12 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'settings-index',
@@ -21,7 +27,13 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
     RouterModule,
     MatListModule,
     MatSidenavModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatBadgeModule,
+    MatTooltipModule,
+    MatSlideToggleModule,
+    MatMenuModule,
+    MatProgressBarModule,
+    MatDividerModule
   ],
   template: `
     <div class="settings-container">
@@ -45,10 +57,9 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
               <mat-icon>help_outline</mat-icon>
             </button>
           </h1>
-          <p>Manage your Davidotv account information</p>
+          <p>Manage your MarketSpase account information</p>
         </div>
       </header>
-
 
       <!-- Main Content Area -->
       <div class="settings-wrapper">
@@ -58,7 +69,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
             <span class="toolbar-spacer"></span>
             <button mat-stroked-button (click)="drawer.toggle()" class="menu-toggle" aria-label="Toggle menu">
               <mat-icon>menu</mat-icon>
-              Menu
+              Settings Menu
+              <mat-icon class="notification-dot" *ngIf="hasNotifications" matBadge="!" matBadgeColor="warn" matBadgeSize="small">notifications</mat-icon>
             </button>
           </mat-toolbar>
 
@@ -67,644 +79,142 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
             <router-outlet/>
           </main>
 
-          <!-- Side Navigation -->
+          <!-- Enhanced Side Navigation -->
           <mat-sidenav #drawer mode="side" position="end" class="settings-sidenav" 
                      [opened]="!isMobile" [fixedInViewport]="isMobile" 
-                     [fixedTopGap]="isMobile ? 56 : 0">
+                     [fixedTopGap]="isMobile ? 64 : 0">
+            
+            <!-- Sidenav Header with User Profile -->
             <div class="sidenav-header">
               <div class="sidenav-title-container">
-                <h3>Quick Settings</h3>
-                <button mat-icon-button class="close-button" (click)="drawer.toggle()" *ngIf="isMobile" aria-label="Close menu">
-                  <mat-icon>close</mat-icon>
+                <div class="title-with-status">
+                  <h3>Quick Settings</h3>
+                  <div class="status-indicator" [class.online]="isOnline" matTooltip="{{isOnline ? 'Online' : 'Offline'}}">
+                    <div class="status-dot"></div>
+                    <span class="status-text">{{isOnline ? 'Online' : 'Offline'}}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Quick Actions Bar -->
+            <div class="quick-actions-bar">
+              <button mat-mini-fab class="quick-action-btn theme-toggle" 
+                      (click)="toggleTheme()" 
+                      matTooltip="Toggle Theme"
+                      [class.dark]="isDarkMode">
+                <mat-icon>{{isDarkMode ? 'light_mode' : 'dark_mode'}}</mat-icon>
+              </button>
+              <button mat-mini-fab class="quick-action-btn notifications-toggle" 
+                      (click)="toggleNotifications()" 
+                      matTooltip="Toggle Notifications"
+                      [matBadge]="unreadNotifications" 
+                      [matBadgeHidden]="unreadNotifications === 0"
+                      matBadgeColor="warn"
+                      matBadgeSize="small">
+                <mat-icon>{{notificationsEnabled ? 'notifications' : 'notifications_off'}}</mat-icon>
+              </button>
+              <button mat-mini-fab class="quick-action-btn sync-btn" 
+                      (click)="syncData()" 
+                      matTooltip="Sync Data"
+                      [class.syncing]="isSyncing">
+                <mat-icon>{{isSyncing ? 'sync' : 'cloud_sync'}}</mat-icon>
+              </button>
+              <button mat-mini-fab class="quick-action-btn backup-btn" 
+                      (click)="createBackup()" 
+                      matTooltip="Create Backup">
+                <mat-icon>backup</mat-icon>
+              </button>
+            </div>
+
+            <!-- Navigation List -->
+            <div class="nav-content">
+              <mat-nav-list class="settings-nav-list">
+                <!-- Account Section -->
+                <div class="nav-section">
+                  <div class="nav-section-header">
+                    <a class="nav-section-label" routerLink="./account" routerLinkActive="active" (click)="closeMobileMenu()">
+                      <mat-icon>account_circle</mat-icon>
+                      ACCOUNT
+                    </a>
+                  </div>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <!-- System Section -->
+                <div class="nav-section">
+                  <div class="nav-section-header">
+                    <a class="nav-section-label" routerLink="./system" routerLinkActive="active" (click)="closeMobileMenu()">
+                      <mat-icon>tune</mat-icon>
+                      SYSTEM
+                    </a>
+                  </div>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <!-- Support Section -->
+                <div class="nav-section">
+                  <div class="nav-section-header">
+                    <a class="nav-section-label" routerLink="./share" routerLinkActive="active" (click)="closeMobileMenu()">
+                      <mat-icon>support</mat-icon>
+                      SUPPORT
+                    </a>
+                  </div>
+                </div>
+              </mat-nav-list>
+
+              <!-- Recent Activity -->
+              <div class="recent-activity">
+                <div class="activity-header">
+                  <mat-icon>history</mat-icon>
+                  <span>Recent Activity</span>
+                </div>
+                <div class="activity-list">
+                  <div class="activity-item" *ngFor="let activity of recentActivities">
+                    <div class="activity-icon">
+                      <mat-icon>{{activity.icon}}</mat-icon>
+                    </div>
+                    <div class="activity-content">
+                      <div class="activity-title">{{activity.title}}</div>
+                      <div class="activity-time">{{activity.time}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="sidenav-footer">
+              <div class="footer-stats">
+                <div class="stat-item">
+                  <mat-icon>storage</mat-icon>
+                  <span>{{storageUsed}}GB / {{storageTotal}}GB</span>
+                  <div class="stat-bar">
+                    <div class="stat-fill" [style.width.%]="(storageUsed/storageTotal)*100"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="footer-actions">
+                <button mat-stroked-button class="export-button" (click)="exportSettings()" matTooltip="Export Settings">
+                  <mat-icon>download</mat-icon>
+                  Export
+                </button>
+                <button mat-raised-button class="logout-button" (click)="logout()">
+                  <mat-icon>logout</mat-icon>
+                  Sign Out
                 </button>
               </div>
-              <!-- <div class="user-profile">
-                <div class="avatar">
-                  <mat-icon>account_circle</mat-icon>
-                </div>
-                <div class="user-info">
-                  <div class="name">{{'User'}}</div>
-                  <div class="email">{{ 'user@example.com'}}</div>
-                </div>
-              </div> -->
-            </div>
-            <mat-nav-list>
-              <div class="nav-section">
-                <div class="nav-section-label">ACCOUNT</div>
-                <a mat-list-item routerLink="./account" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">manage_accounts</mat-icon>
-                    </div>
-                    <span class="nav-label">Profile Settings</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a>
-               <!--  <a mat-list-item routerLink="./security" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">lock</mat-icon>
-                    </div>
-                    <span class="nav-label">Security</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a> -->
-              </div>
-
-              <div class="nav-section">
-                <div class="nav-section-label">SYSTEM</div>
-                <a mat-list-item routerLink="./system" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">tune</mat-icon>
-                    </div>
-                    <span class="nav-label">Preferences</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a>
-                <!-- <a mat-list-item routerLink="./notifications" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">notifications</mat-icon>
-                    </div>
-                    <span class="nav-label">Notifications</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a> -->
-              </div>
-
-              <div class="nav-section">
-                <div class="nav-section-label">SUPPORT</div>
-                <a mat-list-item routerLink="./share-reviews" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">reviews</mat-icon>
-                    </div>
-                    <span class="nav-label">Share Feedback</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a>
-                <!-- <a mat-list-item routerLink="/privacy" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">privacy_tip</mat-icon>
-                    </div>
-                    <span class="nav-label">Privacy Policy</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a> -->
-                <!-- <a mat-list-item routerLink="/support" routerLinkActive="active" (click)="closeMobileMenu()">
-                  <div class="nav-item-content">
-                    <div class="nav-icon-container">
-                      <mat-icon class="nav-icon">support_agent</mat-icon>
-                    </div>
-                    <span class="nav-label">Help Center</span>
-                  </div>
-                  <mat-icon class="nav-chevron">chevron_right</mat-icon>
-                </a> -->
-              </div>
-            </mat-nav-list>
-            <div class="sidenav-footer">
-              <button mat-stroked-button class="logout-button" (click)="logout()">
-                <mat-icon>home</mat-icon>
-                <!-- Sign Out -->Home
-              </button>
             </div>
           </mat-sidenav>
         </mat-sidenav-container>
       </div>
     </div>
   `,
-  styles: [`
-
-.settings-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
- .settings-header {
-     //margin-bottom: -50px;
-      padding: 16px;
-      padding-left: 100px;
-  }
-
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .breadcrumb a {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      text-decoration: none;
-      color: #8f0045;
-      transition: color 0.2s;
-    }
-
-    .breadcrumb a:hover {
-      color: #8f0045;
-    }
-
-    .breadcrumb .current {
-      color: #333;
-      font-weight: 500;
-    }
-
-    .header-main h1 {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 0 0 8px 0;
-      font-size: 28px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .transactions-icon {
-      color: #8f0045;
-      font-size: 32px;
-    }
-
-    .help {
-      margin-left: auto;
-    }
-
-    .header-main p {
-      margin: 0;
-      color: #666;
-      font-size: 16px;
-    }
-
-.header-content {
-  h1 {
-    display: flex;
-    align-items: center;
-    margin: 0;
-    font-size: 28px;
-    font-weight: 600;
-
-    .header-icon {
-      color: #8f0045;
-      margin-right: 16px;
-      font-size: 32px;
-      height: 32px;
-      width: 32px;
-    }
-
-    .help-button {
-      margin-left: 16px;
-      transition: all 0.2s ease;
-
-      &:hover {
-        color: #8f0045;
-        transform: scale(1.1);
-      }
-    }
-  }
-
-  p {
-    margin: 12px 0 0;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-}
-
-.settings-wrapper {
-  flex: 1;
-  max-width: 1600px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 32px;
-}
-
-.sidenav-container {
-  height: calc(100vh - 180px);
-  min-height: 500px;
-  background: transparent;
-  border-radius: 12px;
-}
-
-.mobile-toolbar {
-  display: none;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-  padding: 0 16px;
-  border-radius: 8px 8px 0 0;
-
-  .toolbar-spacer {
-    flex: 1;
-  }
-
-  .menu-toggle {
-    color: #8f0045;
-    border-color: #e2e8f0;
-    font-weight: 500;
-    transition: all 0.2s ease;
-
-    &:hover {
-      transform: translateY(-1px);
-    }
-
-    mat-icon {
-      margin-right: 8px;
-    }
-  }
-}
-
-.main-content {
-  flex: 1;
-  padding-right: 32px;
-  overflow-y: auto;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  padding: 24px;
-}
-
-.settings-sidenav {
-  width: 320px;
-  border: 1px solid #e2e8f0;
-  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.05);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidenav-header {
-  padding: 24px 24px 16px;
-  border-bottom: 1px solid #e2e8f0;
-
-  .sidenav-title-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-
-    h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: #8f0045;
-      letter-spacing: 0.5px;
-    }
-
-    .close-button {
-      transition: all 0.2s ease;
-
-      &:hover {
-        color: #8f0045;
-        transform: rotate(90deg);
-      }
-    }
-  }
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  padding: 12px 0;
-  margin-bottom: 8px;
-
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: rgba(143, 0, 69, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-
-    mat-icon {
-      color: #8f0045;
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-    }
-  }
-
-  .user-info {
-    .name {
-      font-weight: 600;
-      //color: #2d3748;
-      margin-bottom: 4px;
-    }
-
-    .email {
-      font-size: 13px;
-      color: #718096;
-    }
-  }
-}
-
-.mat-nav-list {
-  padding: 8px 16px;
-  flex: 1;
-
-  a.mat-list-item {
-    height: 52px;
-    transition: all 0.2s ease;
-    margin: 4px 0;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .nav-item-content {
-      display: flex;
-      align-items: center;
-    }
-
-    .nav-icon {
-      margin-right: 16px;
-      color: #8f0045;
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
-
-    .nav-label {
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .nav-chevron {
-      font-size: 20px;
-      opacity: 0;
-      transition: all 0.2s ease;
-    }
-
-    &:hover {
-      color: #8f0045;
-      transform: translateX(4px);
-
-      .nav-chevron {
-        opacity: 1;
-        transform: translateX(4px);
-      }
-    }
-
-    &.active {
-      color: #8f0045;
-      font-weight: 500;
-      box-shadow: inset 4px 0 0 #8f0045;
-
-      .nav-chevron {
-        opacity: 1;
-      }
-    }
-  }
-}
-
-.nav-divider {
-  height: 1px;
-  margin: 12px 16px;
-}
-
-.sidenav-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e2e8f0;
-
-  .logout-button {
-    width: 100%;
-    border-color: #e2e8f0;
-    font-weight: 500;
-    transition: all 0.2s ease;
-
-    mat-icon {
-      margin-right: 8px;
-    }
-
-    &:hover {
-      color: #8f0045;
-      border-color: #8f0045;
-    }
-  }
-}
-
-/* Add these styles to your existing CSS */
-.nav-section {
-  margin-bottom: 24px;
-  
-  &:last-child {
-    margin-bottom: 16px;
-  }
-}
-
-.nav-section-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 8px 24px;
-  margin-top: 8px;
-}
-
-.nav-item-content {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0; /* Prevent overflow */
-}
-
-.nav-icon-container {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 16px;
-  
-  .nav-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-    //color: #4a5568;
-  }
-}
-
-.nav-label {
-  font-size: 14px;
-  font-weight: 500;
-  //color: #2d3748;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.nav-chevron {
-  font-size: 18px;
-  opacity: 0;
-  transition: all 0.2s ease;
-  margin-left: 8px;
-}
-
-.mat-nav-list {
-  padding: 8px 0;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  
-  a.mat-list-item {
-    height: 48px;
-    padding: 0 16px;
-    margin: 2px 8px;
-    border-radius: 6px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    &:hover {
-      
-      .nav-chevron {
-        opacity: 1;
-        transform: translateX(2px);
-      }
-      
-      .nav-icon {
-        color: #8f0045;
-      }
-    }
-    
-    &.active {
-      background-color: rgba(143, 0, 69, 0.08);
-      
-      .nav-label {
-        color: #8f0045;
-        font-weight: 500;
-      }
-      
-      .nav-icon {
-        color: #8f0045;
-      }
-      
-      .nav-chevron {
-        opacity: 1;
-        color: #8f0045;
-      }
-    }
-  }
-}
-
-/* Responsive Styles */
-@media (max-width: 1280px) {
-  .settings-wrapper {
-    padding: 24px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .settings-wrapper {
-    padding: 20px;
-  }
-
-  .settings-sidenav {
-    width: 280px;
-  }
-
-  .main-content {
-    padding-right: 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  .settings-header {
-    padding: 20px;
-  }
-
-  .header-content h1 {
-    font-size: 24px;
-  }
-
-  .settings-wrapper {
-    padding: 16px;
-  }
-
-  .mobile-toolbar {
-    display: flex;
-  }
-
-  .main-content {
-    padding-right: 0;
-    padding: 16px;
-  }
-
-  .settings-sidenav {
-    width: 85%;
-    max-width: 320px;
-    border-radius: 0;
-    border-left: 1px solid #e2e8f0;
-  }
-
-  .nav-section-label {
-    padding: 8px 20px;
-  }
-  
-  .mat-nav-list a.mat-list-item {
-    padding: 0 12px;
-    margin: 2px 4px;
-  }
-  
-  .nav-icon-container {
-    margin-right: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .settings-header {
-    padding: 16px;
-  }
-
-  .breadcrumb {
-    font-size: 13px;
-    
-    > mat-icon {
-      margin: 0 6px;
-    }
-  }
-
-  .header-content {
-    h1 {
-      font-size: 20px;
-
-      .header-icon {
-        font-size: 24px;
-        height: 24px;
-        width: 24px;
-        margin-right: 12px;
-      }
-    }
-
-    p {
-      font-size: 14px;
-    }
-  }
-
-  .settings-wrapper {
-    padding: 12px;
-  }
-
-  .user-profile {
-    .avatar {
-      width: 40px;
-      height: 40px;
-      margin-right: 12px;
-    }
-
-    .name {
-      font-size: 14px;
-    }
-
-    .email {
-      font-size: 12px;
-    }
-  }
-}
-
-  `]
+  styleUrls: ['./index.component.scss']
 })
 export class SettingsIndexComponent implements OnInit {
   readonly dialog = inject(MatDialog);
@@ -713,7 +223,64 @@ export class SettingsIndexComponent implements OnInit {
   @ViewChild('drawer') drawer!: MatSidenav;
   private router = inject(Router);
 
+  // Enhanced Properties
   isMobile = false;
+  isOnline = true;
+  showSearch = false;
+  isDarkMode = false;
+  notificationsEnabled = true;
+  isSyncing = false;
+  hasNotifications = true;
+  unreadNotifications = 3;
+  connectedIntegrations = 5;
+  currentRating = 4;
+  securityScore = 85;
+  storageUsed = 2.4;
+  storageTotal = 15;
+  defaultAvatar = 'assets/images/default-avatar.png';
+
+  // Completion Status
+  completionStatus = {
+    profile: 85,
+    security: 92,
+    billing: 100
+  };
+
+  // Expandable Sections
+  expandedSections = {
+    account: true,
+    system: true,
+    support: false
+  };
+
+  // Recent Activities
+  recentActivities = [
+    {
+      icon: 'security',
+      title: 'Password updated',
+      time: '2 hours ago'
+    },
+    {
+      icon: 'notifications',
+      title: 'Notifications enabled',
+      time: '1 day ago'
+    },
+    {
+      icon: 'payment',
+      title: 'Billing updated',
+      time: '3 days ago'
+    }
+  ];
+
+  @HostListener('window:online', ['$event'])
+  onOnline(event: Event) {
+    this.isOnline = true;
+  }
+
+  @HostListener('window:offline', ['$event'])
+  onOffline(event: Event) {
+    this.isOnline = false;
+  }
 
   ngOnInit() {
     this.breakpointObserver.observe([
@@ -722,13 +289,103 @@ export class SettingsIndexComponent implements OnInit {
     ]).subscribe(result => {
       this.isMobile = result.matches;
     });
+
+    // Initialize online status
+    this.isOnline = navigator.onLine;
   }
 
   showDescription() {
     this.dialog.open(HelpDialogComponent, {
-      data: { help: 'In this section, you can set up your profile details' },
+      data: { help: 'In this section, you can set up your profile details and manage your account settings with our enhanced interface.' },
       panelClass: 'help-dialog'
     });
+  }
+
+  toggleSearch() {
+    this.showSearch = !this.showSearch;
+    if (this.showSearch) {
+      setTimeout(() => {
+        const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 300);
+    }
+  }
+
+
+
+  toggleSection(section: string) {
+    this.expandedSections = {
+      ...this.expandedSections,
+      [section]: !this.expandedSections[section as keyof typeof this.expandedSections]
+    };
+  }
+
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    // Implement theme toggle logic
+    document.body.classList.toggle('dark-mode', this.isDarkMode);
+  }
+
+  toggleNotifications() {
+    this.notificationsEnabled = !this.notificationsEnabled;
+    // Implement notification toggle logic
+  }
+
+  syncData() {
+    this.isSyncing = true;
+    // Simulate sync process
+    setTimeout(() => {
+      this.isSyncing = false;
+    }, 2000);
+  }
+
+  createBackup() {
+    // Implement backup functionality
+    console.log('Creating backup...');
+  }
+
+  getCompletionCircle(percentage: number): string {
+    const circumference = 2 * Math.PI * 15.9155;
+    const offset = circumference - (percentage / 100) * circumference;
+    return `${circumference} ${circumference}`;
+  }
+
+  getSecurityIcon(): string {
+    if (this.securityScore >= 80) return 'shield';
+    if (this.securityScore >= 60) return 'verified_user';
+    return 'warning';
+  }
+
+  contactSupport() {
+    // Implement contact support functionality
+    console.log('Opening support chat...');
+  }
+
+  exportSettings() {
+    // Implement settings export functionality
+    console.log('Exporting settings...');
+  }
+
+  editProfile() {
+    this.router.navigate(['/settings/account']);
+    this.closeMobileMenu();
+  }
+
+  changeAvatar() {
+    // Implement avatar change functionality
+    console.log('Changing avatar...');
+  }
+
+  viewProfile() {
+    // Implement view profile functionality
+    console.log('Viewing public profile...');
+  }
+
+  accountSettings() {
+    this.router.navigate(['/settings/account']);
+    this.closeMobileMenu();
   }
 
   closeMobileMenu() {
@@ -739,7 +396,6 @@ export class SettingsIndexComponent implements OnInit {
 
   logout() {
     // Implement logout functionality
-    //console.log('Logout clicked');
     this.router.navigate(['/']);
   }
 

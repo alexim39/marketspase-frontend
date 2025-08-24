@@ -1,20 +1,15 @@
-import {Component, inject, Input, Signal} from '@angular/core';
+import {Component, inject, Signal} from '@angular/core';
 import {MatTabsModule} from '@angular/material/tabs';
-import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-//import { DarkThemeSettingsComponent } from './dark-theme/dark-theme.component';
 import { CommonModule } from '@angular/common';
 import { NotificationSettingsComponent } from './notification/notification.component';
-import { HelpDialogComponent } from '../../common/help-dialog.component';
-import { UserInterface } from '../../common/services/user.service';
+import { UserInterface, UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'async-system-setting',
   standalone: true,
-  imports: [MatTabsModule, RouterModule, MatCardModule, CommonModule, MatIconModule, MatButtonModule, NotificationSettingsComponent],
+  imports: [MatTabsModule, MatCardModule, CommonModule, MatIconModule,  NotificationSettingsComponent],
   template: `
   <div class="settings-container">
 
@@ -27,7 +22,7 @@ import { MatCardModule } from '@angular/material/card';
           </mat-tab> -->
           <mat-tab label="Notifications"> 
             @if (user()) {
-              <!-- <async-notification [user]="user"/> -->
+              <async-notification [user]="user"/>
             }
           </mat-tab>
         </mat-tab-group>
@@ -51,7 +46,7 @@ import { MatCardModule } from '@angular/material/card';
 
     button {
       //background-color: white;
-      color: #8f0045;
+      color: #667eea;
       border: 1px solid #e5e5e5;
       border-radius: 4px;
       padding: 8px 16px;
@@ -118,22 +113,7 @@ import { MatCardModule } from '@angular/material/card';
   `]
 })
 export class SystemSettingComponent {
-  // Required input that expects a signal of type UserInterface or undefined
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
-  readonly dialog = inject(MatDialog);
-
-  constructor(
-      private router: Router,
-  ) { }
-  
-  scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  showDescription() {
-    this.dialog.open(HelpDialogComponent, {
-      data: {help: 'In this section, you can set up your page look and feel'},
-      panelClass: 'help-dialog'
-    });
-  }
+  private userService = inject(UserService);
+  // Expose the signal directly to the template
+  public user: Signal<UserInterface | null> = this.userService.user;
 }

@@ -1,12 +1,11 @@
-import { ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, Signal } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject, Input, signal, Signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';  
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
-import { AppReviewService } from '../app-review.service';
-import { Subscription } from 'rxjs';
+import { CommonModule, DatePipe } from '@angular/common';
+import { SupportService } from '../support.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSelectModule } from '@angular/material/select';
 import { UserInterface } from '../../../common/services/user.service';
@@ -14,16 +13,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
-//import { TestimonialInterface } from '../../../home/home.service';
 import { MatDividerModule } from '@angular/material/divider';
-import { DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'async-testimonial-writeup-settings',
   standalone: true,
   imports: [
-    MatExpansionModule, 
+   MatExpansionModule, 
     CommonModule, 
     MatSelectModule, 
     MatInputModule, 
@@ -36,80 +33,97 @@ import { MatIconModule } from '@angular/material/icon';
     DatePipe,
     MatIconModule,
   ],
-  providers: [AppReviewService],
+  providers: [SupportService],
   template: `
   <div class="testimonial-settings">
     <h3 class="section-title">Share Your Experience</h3>
-    <p class="section-description">Write a testimonial about your experience with Davidotv</p>
+    <p class="section-description">Write a testimonial about your experience with MarketSpase</p>
 
     <!-- Loading state -->
-    <mat-card *ngIf="isLoading" class="loading-state">
-      <mat-card-content>
-        <div class="loading-content">
-          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-          <p>Loading your testimonial...</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
+     @if (isLoading()) {
+      <mat-card class="loading-state">
+        <mat-card-content>
+          <div class="loading-content">
+            <mat-progress-bar mode="indeterminate"/>
+            <p>Loading your testimonial...</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+     }
+    
 
     <!-- Error state -->
-    <mat-card *ngIf="error && !isLoading" class="error-state">
-      <mat-card-content>
-        <div class="error-content">
-          <mat-icon>error_outline</mat-icon>
-          <p>{{ error }}</p>
-        </div>
-      </mat-card-content>
-    </mat-card>
+     @if (error() && !isLoading()) {
+      <mat-card class="error-state">
+        <mat-card-content>
+          <div class="error-content">
+            <mat-icon>error_outline</mat-icon>
+            <p>{{ error() }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+     }
+    
 
-    <mat-card *ngIf="isProfileComplete() && !testimonial?.message && !isLoading" class="write-testimonial-prompt">
-    <mat-card-content>
-      <div class="prompt-content">
-        <mat-icon>edit</mat-icon>
-        <div class="prompt-text">
-          <h4>Share Your Experience</h4>
-          <p>You haven't written a testimonial yet. Let others know about your experience with Davidotv!</p>
-        </div>
-        <button mat-flat-button color="primary" (click)="writeTestimonial()">
-          Write Testimonial
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    <!-- No testimonial yet -->
+     @if (isProfileComplete() && !testimonial()?.message && !isLoading()) {
+        <mat-card class="write-testimonial-prompt">
+        <mat-card-content>
+          <div class="prompt-content">
+            <mat-icon>edit</mat-icon>
+            <div class="prompt-text">
+              <h4>Share Your Experience</h4>
+              <p>You haven't written a testimonial yet. Let others know about your experience with Davidotv!</p>
+            </div>
+            <button mat-flat-button color="primary" (click)="writeTestimonial()">
+              Write Testimonial
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+     }
+
 
     <!-- Profile completion notification -->
-    <mat-card *ngIf="!isProfileComplete() && !isLoading" class="profile-completion-notification">
-      <mat-card-content>
-        <div class="notification-content">
-          <span class="notification-icon">⚠️</span>
-          <div class="notification-text">
-            <h4>Complete Your Profile</h4>
-            <p>Please complete your profile information (country and region) before posting a testimonial.</p>
+     @if (!isProfileComplete() && !isLoading()) {
+      <mat-card class="profile-completion-notification">
+        <mat-card-content>
+          <div class="notification-content">
+            <span class="notification-icon">⚠️</span>
+            <div class="notification-text">
+              <h4>Complete Your Profile</h4>
+              <p>Please complete your profile information (country and region) before posting a testimonial.</p>
+            </div>
+            <button mat-stroked-button color="primary" (click)="navigateToProfile()">
+              Go to Profile
+            </button>
           </div>
-          <button mat-stroked-button color="primary" (click)="navigateToProfile()">
-            Go to Profile
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-content>
+      </mat-card>
+     }
+    
 
     <!-- Existing testimonial display -->
-    <mat-card *ngIf="testimonial && !isLoading && !error" class="existing-testimonial">
-      <mat-card-header>
-        <mat-card-title>Your Current Testimonial</mat-card-title>
-        <mat-card-subtitle>Posted on {{testimonial.createdAt | date}}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p class="testimonial-content">{{ testimonial.message }}</p>
-      </mat-card-content>
-      <mat-divider></mat-divider>
-      <mat-card-actions>
-        <button mat-button color="primary" (click)="editTestimonial()">Edit Testimonial</button>
-      </mat-card-actions>
-    </mat-card>
+     @if (testimonial() && !isLoading() && !error()) {
+      <mat-card class="existing-testimonial">
+        <mat-card-header>
+          <mat-card-title>Your Current Testimonial</mat-card-title>
+          <mat-card-subtitle>Posted on {{ testimonial().createdAt | date }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="testimonial-content">{{ testimonial().message }}</p>
+        </mat-card-content>
+        <mat-divider></mat-divider>
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="editTestimonial()">Edit Testimonial</button>
+        </mat-card-actions>
+      </mat-card>
+     }
+    
 
-    <!-- Testimonial form (shown when editing or no testimonial exists) -->
-    <mat-card *ngIf="isEditing && !isLoading" class="testimonial-form-card">
+    <!-- Testimonial form -->
+     @if (isEditing() && !isLoading()) {
+      <mat-card class="testimonial-form-card">
       <form [formGroup]="testimonialForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Your Testimonial</mat-label>
@@ -119,11 +133,11 @@ import { MatIconModule } from '@angular/material/icon';
             #message 
             maxlength="500" 
             rows="6"
-            placeholder="Share your thoughts about Davidotv..."
+            placeholder="Share your thoughts about MarketSpase..."
             [disabled]="!isProfileComplete()">
           </textarea>
           <mat-hint align="start"><strong>Inspire others with your experience</strong></mat-hint>
-          <mat-hint align="end">{{message.value.length}} / 500</mat-hint>
+          <mat-hint align="end">{{ message.value.length }} / 500</mat-hint>
           <mat-error *ngIf="testimonialForm.get('message')?.hasError('required')">
             Testimonial is required
           </mat-error>
@@ -145,12 +159,14 @@ import { MatIconModule } from '@angular/material/icon';
 
         <div class="form-actions">
           <button mat-flat-button color="primary" type="submit" [disabled]="testimonialForm.invalid || !isProfileComplete()">
-            {{ testimonial ? 'Update' : 'Publish' }} Testimonial
+            {{ testimonial() ? 'Update' : 'Publish' }} Testimonial
           </button>
-          <button *ngIf="testimonial && isEditing" mat-button (click)="cancelEdit()">Cancel</button>
+          <button *ngIf="testimonial() && isEditing" mat-button (click)="cancelEdit()">Cancel</button>
         </div>
       </form>
     </mat-card>
+     }
+    
   </div>
   `,
   styles: [`
@@ -179,10 +195,12 @@ import { MatIconModule } from '@angular/material/icon';
       .loading-content, .error-content {
         display: flex;
         align-items: center;
-        gap: 16px;
+        flex-direction: column;
+        gap: 6px;
 
         p {
           margin: 0;
+          color: gray;
         }
       }
 
@@ -353,116 +371,93 @@ import { MatIconModule } from '@angular/material/icon';
 
   `]
 })
-export class TestimonialWriteupSettingsComponent implements OnInit, OnDestroy {
-  // Required input that expects a signal of type UserInterface or undefined
+export class TestimonialWriteupSettingsComponent{
+// Inputs: pass signals directly from parent
   @Input({ required: true }) user!: Signal<UserInterface | null>;
-  @Input() testimonial: any; //TestimonialInterface | null = null;
-  @Input() isLoading = false;
-  @Input() error: string | null = null;
-  
-  subscriptions: Array<Subscription> = [];
-  private snackBar = inject(MatSnackBar);
-  isSpinning = false;
-  isEditing = false;
-  
+  @Input({ required: true }) testimonial!: Signal<any | null>;
+  @Input({ required: true }) isLoading!: Signal<boolean>;
+  @Input({ required: true }) error!: Signal<string | null>;
+
+  // Local state as signals
+  readonly isSpinning = signal(false);
+  readonly isEditing = signal(false);
+
   testimonialForm!: FormGroup;  
-  private cdr = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private supportService = inject(SupportService);
 
-  constructor(
-    private fb: FormBuilder,
-    private socialPageService: AppReviewService,
-  ) {}
-
-  ngOnInit(): void {
-    this.initForm();
-  }
-
-  initForm(): void {
-    this.testimonialForm = this.fb.group({  
-      message: [this.testimonial?.message || '', {
-        validators: [Validators.required],
-        asyncValidators: []
-      }],
-      country: [this.user()?.personalInfo?.address?.country, {
-        //validators: [Validators.required],
-        asyncValidators: []
-      }],
-      state: [this.user()?.personalInfo?.address?.state, {
-        //validators: [Validators.required],
-        asyncValidators: []
-      }],
+  constructor() {
+    // reactively rebuild form whenever testimonial or user changes
+    effect(() => {
+      this.initForm();
     });
   }
 
-  // Check if profile is complete (has country and state)
-  isProfileComplete(): boolean {
-    return !!this.user()?.personalInfo?.address?.country && !!this.user()?.personalInfo?.address?.state;
+  private initForm(): void {
+    const user = this.user();
+    const testimonial = this.testimonial();
+
+    this.testimonialForm = this.fb.group({  
+      message: [testimonial?.message || '', [Validators.required]],
+      country: [user?.personalInfo?.address?.country || ''],
+      state: [user?.personalInfo?.address?.state || ''],
+    });
   }
 
-  // Navigate to profile page
+  // Derived signal for profile completion
+  readonly isProfileComplete = signal(() => {
+    const user = this.user();
+    return !!user?.personalInfo?.address?.country && !!user?.personalInfo?.address?.state;
+  });
+
   navigateToProfile(): void {
-    this.router.navigate(['/settings/account']);
+    this.router.navigate(['dashboard/settings/account']);
   }
 
-  // Edit existing testimonial
   editTestimonial(): void {
-    this.isEditing = true;
-    this.initForm(); // Reinitialize form with current testimonial
+    this.isEditing.set(true);
   }
 
-  // write testimonial
   writeTestimonial(): void {
-    this.isEditing = true;
-    this.initForm(); // Reinitialize form with current testimonial
+    this.isEditing.set(true);
   }
 
-  // Cancel editing
   cancelEdit(): void {
-    this.isEditing = false;
+    this.isEditing.set(false);
   }
 
-  onSubmit() {  
+  onSubmit(): void {
     if (!this.isProfileComplete()) {
-        this.snackBar.open('Please complete your profile information first', 'Ok', {duration: 3000});
-        return;
+      this.snackBar.open('Please complete your profile information first', 'Ok', { duration: 3000 });
+      return;
     }
 
-    this.isSpinning = true;
-    if (this.testimonialForm.valid) {  
-        const updateObject = {
-            message: this.testimonialForm.value.message,
-            userId: this.user()?._id,
-        };
+    if (this.testimonialForm.invalid) return;
 
-        // Always use updateTestimonial (it can handle both create and update)
-        this.subscriptions.push(
-            this.socialPageService.updateTestimonial(updateObject).subscribe({
-                next: (response) => {
-                    this.isSpinning = false;
-                    this.isEditing = false;
-                    this.snackBar.open(response.message, 'Ok', {duration: 3000});
-                    // Update the testimonial with the new data
-                    //this.testimonial = response.data;
-                    this.cdr.markForCheck();
-                },
-                error: (error: HttpErrorResponse) => {
-                    this.isSpinning = false;
-                    let errorMessage = 'Server error occurred, please try again.';
-                    if (error.error && error.error.message) {
-                        errorMessage = error.error.message;
-                    }  
-                    this.snackBar.open(errorMessage, 'Ok', {duration: 3000});
-                    this.cdr.markForCheck();
-                }
-            })
-        );
-    }  
-} 
+    this.isSpinning.set(true);
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(subscription => {
-      subscription.unsubscribe();
+    const updateObject = {
+      message: this.testimonialForm.value.message,
+      userId: this.user()?._id,
+    };
+
+    this.supportService.updateTestimonial(updateObject).subscribe({
+      next: (response) => {
+        this.isSpinning.set(false);
+        this.isEditing.set(false);
+        this.snackBar.open(response.message, 'Ok', { duration: 3000 });
+        // parent will refresh testimonial signal automatically
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSpinning.set(false);
+        let errorMessage = 'Server error occurred, please try again.';
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
+      }
     });
   }
 }

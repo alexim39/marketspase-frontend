@@ -27,13 +27,13 @@ import { MatDividerModule } from '@angular/material/divider';
         </button>
       </div>
 
-      <mat-divider></mat-divider>
+      <mat-divider/>
 
       <mat-dialog-content class="dialog-content">
         <div [innerHTML]="data.content"></div>
       </mat-dialog-content>
 
-      <mat-divider></mat-divider>
+      <mat-divider/>
 
       <mat-dialog-actions align="end">
         <button mat-flat-button color="primary" (click)="onClose()">Got It</button>
@@ -60,7 +60,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
           .header-icon {
             margin-right: 12px;
-            color: #8f0045;
+            color: #667eea;
           }
         }
 
@@ -76,7 +76,7 @@ import { MatDividerModule } from '@angular/material/divider';
         color: #333;
 
         h4 {
-          color: #8f0045;
+          color: #667eea;
           margin: 20px 0 10px;
           font-size: 16px;
         }

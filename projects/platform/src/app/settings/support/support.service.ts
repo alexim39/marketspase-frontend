@@ -4,7 +4,7 @@ import { ApiService } from '../../common/services/api.service';
 
 
 @Injectable()
-export class AppReviewService {
+export class SupportService {
   constructor(private apiService: ApiService) {}
 
 
@@ -17,8 +17,11 @@ export class AppReviewService {
     return this.apiService.put<any>(`user/testimonial`, formObject);
   }
 
-
-  getTestimonial(userId: string | undefined): Observable<any> {
+   /**
+   * Get data from the backend.
+   * @returns An observable of the submitted form data.
+   */
+  getTestimonial(userId: string): Observable<any> {
     return this.apiService.get<any>(`user/testimonial/getOne/${userId}`, undefined, undefined, true);
   }
 

@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { SystemSettingContainerComponent } from './system/system-container.component';
-import { AccountContainerComponent } from './account/account-container.component';
-import { AppReveiwSettingContainerComponent } from './social-media-pages/app-review-container.component';
 import { SettingsIndexComponent } from './account/index.component';
+import { AccountComponent } from './account/account.component';
+import { AppReviewSettingComponent } from './support/support.component';
+import { SystemSettingComponent } from './system/system.component';
 
 export const SettingsRoutes: Routes = [
   // {
@@ -15,24 +15,24 @@ export const SettingsRoutes: Routes = [
     component: SettingsIndexComponent,
     title: 'Settings - Configure your account and system settings',
     children: [
-       {
+      {
         path: '',
         redirectTo: 'account',
         pathMatch: 'full',
       },
       {
         path: 'system',
-        component: SystemSettingContainerComponent,
+        component: SystemSettingComponent,
         title: "System Setting - Configure the look and feel",
       },
       {
         path: 'account',
-        component: AccountContainerComponent,
+        component: AccountComponent,
         title: "Account Setting - Configure your profile settings",
       },
       {
-        path: 'share-reviews',
-        component: AppReveiwSettingContainerComponent,
+        path: 'share',
+        component: AppReviewSettingComponent,
         title: "App Review - Reveiw and testify about DavidoTV",
       },
     ],

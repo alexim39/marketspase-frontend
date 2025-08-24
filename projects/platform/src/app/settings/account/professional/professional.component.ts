@@ -1,5 +1,19 @@
-import { ChangeDetectorRef, Component, inject, Input, OnDestroy, OnInit, Signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  computed,
+  DestroyRef,
+  Signal
+} from '@angular/core';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,19 +23,20 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
-
-import { SettingsService } from '../../settings.service';
-import { UserInterface } from '../../../common/services/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import { UserInterface } from '../../../common/services/user.service';
+import { ProfileService } from '../profile.service';
 
 @Component({
   selector: 'async-professional-info',
   standalone: true,
-  providers: [SettingsService],
+  changeDetection: ChangeDetectionStrategy.OnPush, // Use OnPush with signals for performance
+  providers: [ProfileService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -33,22 +48,40 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
     MatIconModule,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatChipsModule
+    MatChipsModule,
   ],
   templateUrl: './professional.component.html',
-  styleUrls: ['./professional.component.scss']
+  styleUrls: ['./professional.component.scss'],
 })
-export class ProfessionalInfoComponent implements OnInit, OnDestroy {
-  private subscriptions: Subscription[] = [];
-  private settingsService = inject(SettingsService);
+export class ProfessionalInfoComponent implements OnInit {
+  // Services are injected via the `inject` function
+  private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
-  private cdr = inject(ChangeDetectorRef);
-  // Required input that expects a signal of type UserInterface or undefined
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
-  professionalForm!: FormGroup;
-  isLoading = false;
+  private destroyRef = inject(DestroyRef);
+  private fb = inject(FormBuilder);
 
-  educationOptions = [
+  // Input is a signal, which is a key part of the component's reactivity
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
+
+  // Component state is managed via signals
+  public isLoading = signal<boolean>(false);
+  private skillsSig = signal<string[]>([]);
+  private hobbiesSig = signal<string[]>([]);
+
+  // Computed signals provide a read-only, memoized view of the private signals
+  public skills = computed(() => this.skillsSig());
+  public hobbies = computed(() => this.hobbiesSig());
+
+  // Use FormBuilder for a cleaner form group definition
+  public professionalForm = this.fb.group({
+    jobTitle: ['', [Validators.required, Validators.maxLength(50)]],
+    certificate: ['', [Validators.required]],
+    skills: [[] as string[], [Validators.required]],
+    hobbies: [[] as string[], [Validators.required]],
+    userId: [''],
+  });
+
+  public readonly educationOptions = [
     'Basic Education Certificate (Primary School)',
     'WASSCE',
     'NECO',
@@ -59,47 +92,39 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
     'M.Sc., M.A., M.B.A.',
     'Ph.D.',
     'NCE',
-    'None'
+    'None',
   ];
 
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
-  skills: string[] = [];
-  //skills: string[] = ['JavaScript', 'Angular', 'TypeScript'];
-  hobbies: string[] = [];
-  //hobbies: string[] = ['Reading', 'Hiking', 'Photography'];
-
+  public readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
   ngOnInit(): void {
-    this.initializeForm();
-    // Initialize with existing data if available
-    if (this.user()?.professionalInfo?.skills) {
-      //this.skills = Array.isArray(this.user()?.professionalInfo?.skills) ? this.user()?.professionalInfo?.skills : [this.user()?.professionalInfo?.skills];
-    }
-    if (this.user()?.interests?.hobbies) {
-      //this.hobbies = Array.isArray(this.user()?.interests?.hobbies) ? this.user()?.interests?.hobbies : [this.user()?.interests?.hobbies];
-    }
+    // Call the initializer method to set form values from the input signal
+    this.initializeFormWithUserData();
   }
 
-  private initializeForm(): void {
-      this.professionalForm = new FormGroup({
-        jobTitle: new FormControl(this.user()?.personalInfo?.jobTitle || '', [
-          Validators.required,
-          Validators.maxLength(50)
-        ]),
-        educationBackground: new FormControl(this.user()?.personalInfo?.educationBackground || '', [
-          Validators.required
-        ]),
-        hobbies: new FormControl(this.hobbies || [], [  // Changed to use array
-          Validators.required,
-          Validators.maxLength(50)
-        ]),
-        skills: new FormControl(this.skills || [], [  // Changed to use array
-          Validators.required,
-          Validators.maxLength(50)
-        ]),
-        userId: new FormControl(this.user()?._id || '')
+  private initializeFormWithUserData(): void {
+    // Access the signal's value with the `()` syntax
+    const userData = this.user();
+    if (userData) {
+      // Use patchValue to set form controls based on available data
+      this.professionalForm.patchValue({
+        jobTitle: userData.professionalInfo?.jobTitle || '',
+        certificate: userData.professionalInfo?.education?.certificate || '',
+        userId: userData._id || '',
       });
+
+      // Initialize the skills and hobbies signals with user data
+      if (userData.professionalInfo?.skills) {
+        this.skillsSig.set(userData.professionalInfo.skills);
+      }
+      if (userData.interests?.hobbies) {
+        this.hobbiesSig.set(userData.interests.hobbies);
+      }
+      // Update form controls with the new signal values
+      this.professionalForm.get('skills')?.setValue(this.skillsSig());
+      this.professionalForm.get('hobbies')?.setValue(this.hobbiesSig());
     }
+  }
 
   onSubmit(): void {
     if (this.professionalForm.invalid) {
@@ -108,79 +133,61 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isLoading = true;
-    this.cdr.markForCheck();
+    this.isLoading.set(true); // Update the loading signal
     const professionalData = this.professionalForm.value;
 
-    this.subscriptions.push(
-      this.settingsService.updateProfession(professionalData).subscribe({
-        next: (response) => {
-          this.showNotification(response.message, 'success');
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        },
-        error: (error) => {
-          this.handleError(error);
-          //this.showNotification('Failed to update professional information. Please try again.');
-          this.isLoading = false;
-          this.cdr.markForCheck();
-        }
-      })
-    );
+    this.profileService.updateProfession(professionalData).pipe(
+      // The takeUntilDestroyed operator automatically handles unsubscription
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (response) => {
+        this.showNotification(response.message, 'success');
+        this.isLoading.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.handleError(error);
+        this.isLoading.set(false);
+      },
+    });
   }
 
-   private showNotification(message: string, panelClass: string = 'error'): void {
-    this.snackBar.open(message, 'Close', { 
+  private showNotification(message: string, panelClass: string = 'error'): void {
+    this.snackBar.open(message, 'Close', {
       duration: 5000,
-      panelClass: [`snackbar-${panelClass}`]
+      panelClass: [`snackbar-${panelClass}`],
     });
   }
 
   private handleError(error: HttpErrorResponse): void {
     const errorMessage = error.error?.message || 'Server error occurred, please try again.';
     this.showNotification(errorMessage);
-    this.cdr.markForCheck();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   addSkill(event: MatChipInputEvent): void {
-      const value = (event.value || '').trim();
-      if (value) {
-        this.skills.push(value);
-        this.professionalForm.get('skills')?.setValue([...this.skills]);
-        this.professionalForm.get('skills')?.updateValueAndValidity();
-      }
-      event.chipInput!.clear();
+    const value = (event.value || '').trim();
+    if (value) {
+      this.skillsSig.update(currentSkills => [...currentSkills, value]);
+      this.professionalForm.get('skills')?.setValue(this.skillsSig());
     }
+    event.chipInput!.clear();
+  }
 
-   removeSkill(skill: string): void {
-    const index = this.skills.indexOf(skill);
-    if (index >= 0) {
-      this.skills.splice(index, 1);
-      this.professionalForm.get('skills')?.setValue([...this.skills]);
-      this.professionalForm.get('skills')?.updateValueAndValidity();
-    }
+  removeSkill(skill: string): void {
+    this.skillsSig.update(currentSkills => currentSkills.filter(s => s !== skill));
+    this.professionalForm.get('skills')?.setValue(this.skillsSig());
   }
 
   addHobby(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
     if (value) {
-      this.hobbies.push(value);
-      this.professionalForm.get('hobbies')?.setValue([...this.hobbies]);
-      this.professionalForm.get('hobbies')?.updateValueAndValidity();
+      this.hobbiesSig.update(currentHobbies => [...currentHobbies, value]);
+      this.professionalForm.get('hobbies')?.setValue(this.hobbiesSig());
     }
     event.chipInput!.clear();
   }
 
- removeHobby(hobby: string): void {
-    const index = this.hobbies.indexOf(hobby);
-    if (index >= 0) {
-      this.hobbies.splice(index, 1);
-      this.professionalForm.get('hobbies')?.setValue([...this.hobbies]);
-      this.professionalForm.get('hobbies')?.updateValueAndValidity();
-    }
+  removeHobby(hobby: string): void {
+    this.hobbiesSig.update(currentHobbies => currentHobbies.filter(h => h !== hobby));
+    this.professionalForm.get('hobbies')?.setValue(this.hobbiesSig());
   }
 }

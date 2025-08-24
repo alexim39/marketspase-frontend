@@ -1,5 +1,22 @@
-import { ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, OnInit, Signal, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  Component,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  computed,
+  effect,
+  DestroyRef,
+  Signal,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  ValidationErrors,
+  AbstractControl,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,19 +25,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { SettingsService } from '../../settings.service';
 import { UserInterface } from '../../../common/services/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsernameDialogComponent } from './help-dialog.component';
+import { ProfileService } from '../profile.service';
 
 @Component({
   selector: 'async-username-info',
   standalone: true,
-  providers: [SettingsService],
+  providers: [ProfileService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -30,107 +47,334 @@ import { UsernameDialogComponent } from './help-dialog.component';
     MatIconModule,
     MatCardModule,
     MatDividerModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
-  templateUrl: './username.component.html',
-  styleUrls: ['./username.component.scss']
+  template: `
+    <mat-card class="username-card">
+      <mat-card-header>
+        <mat-card-title class="username-title">
+          <mat-icon class="username-icon">alternate_email</mat-icon>
+          Customize Your Profile URL
+        </mat-card-title>
+        <mat-card-subtitle class="username-subtitle">
+          Choose a unique username that will be part of your profile link
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-content>
+        <form [formGroup]="usernameForm" class="username-form">
+          <div class="form-section">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Username</mat-label>
+              <input
+                matInput
+                formControlName="username"
+                required
+                placeholder="Enter your unique username"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="showHelp()"
+                matTooltip="Username guidelines"
+                type="button"
+              >
+                <mat-icon>help_outline</mat-icon>
+              </button>
+              <mat-hint>3-30 characters, letters, numbers and underscores only</mat-hint>
+              @if (usernameForm.get('username')?.hasError('required')) {
+                <mat-error >
+                  Username is required
+                </mat-error>
+              }
+              @if (usernameForm.get('username')?.hasError('pattern')) {
+                <mat-error>
+                  Only letters, numbers and underscores allowed
+                </mat-error>
+              }
+              @if (usernameForm.get('username')?.hasError('minlength')) {
+                 <mat-error>
+                  Minimum 3 characters required
+                </mat-error>
+              }
+              @if (usernameForm.get('username')?.hasError('maxlength')) {
+                <mat-error>
+                  Maximum 30 characters allowed
+                </mat-error>
+              }
+              @if (usernameForm.get('username')?.hasError('restrictedWord')) {
+                <mat-error>
+                  This username contains a restricted word.
+                </mat-error>
+              }
+            </mat-form-field>
+
+            <div class="url-preview">
+              <div class="preview-label">
+                <mat-icon>link</mat-icon>
+                <span>Your profile URL will be:</span>
+              </div>
+              <div class="preview-value">
+                marketspase.com/{{ username() | lowercase }}
+              </div>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-actions class="form-actions">
+        <button
+          mat-flat-button
+          color="primary"
+          class="save-button"
+          [disabled]="usernameForm.invalid || isLoading()"
+          (click)="onSubmit()"
+        >
+        @if (!isLoading()) {
+          <span>Save Changes</span>
+        } @else {
+          <mat-spinner diameter="20"/>
+        }
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  `,
+  styles: [`
+  
+    
+.username-card {
+  margin: 24px auto;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+
+  .username-title {
+    font-size: 24px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+
+    .username-icon {
+      margin-right: 12px;
+    }
+  }
+
+  .username-subtitle {
+    font-size: 14px;
+    color: #5f6368;
+    margin-top: 8px;
+  }
+
+  .username-form {
+    padding: 24px;
+
+    .form-section {
+      .form-field {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .url-preview {
+        margin: 24px 0;
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid #666;
+
+        .preview-label {
+          display: flex;
+          align-items: center;
+          font-size: 14px;
+          margin-bottom: 8px;
+
+          mat-icon {
+            margin-right: 8px;
+          }
+        }
+
+        .preview-value {
+          font-size: 16px;
+          font-weight: 500;
+          word-break: break-all;
+        }
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 24px;
+
+    .cancel-button {
+      margin-right: 16px;
+    }
+
+    .save-button {
+      min-width: 160px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .username-card {
+    margin: 0;
+    border-radius: 0;
+
+    .username-form {
+      padding: 16px;
+    }
+  }
+}
+
+// Snackbar styles
+.snackbar-success {
+  background-color: green;  //mat-color($mat-green, 600);
+}
+
+.snackbar-error {
+  background-color: red; //mat-color($mat-red, 600);
+}
+
+// Help dialog styles
+.help-dialog {
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    border-radius: 12px !important;
+  }
+
+  h4 {
+    margin: 16px 0 8px;
+  }
+
+  ul {
+    padding-left: 24px;
+    margin: 8px 0;
+  }
+}
+    
+  `]
 })
-export class UsernameInfoComponent implements OnInit, OnDestroy {
-  private subscriptions: Subscription[] = [];
-  private settingsService = inject(SettingsService);
+export class UsernameInfoComponent implements OnInit {
+  // Services are now injected directly in the class
+  private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
-  private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
-  // List of restricted words
-  private restrictedWords = ['davido', 'davidotv', '30gb', 'obo'];
-
-  // Required input that expects a signal of type UserInterface or undefined
+  // Input is now a required signal
   @Input({ required: true }) user!: Signal<UserInterface | null>;
+
+  // State management with signals
+  isLoading = signal(false);
   usernameForm!: FormGroup;
-  isLoading = false;
+
+  // Use a computed signal for the username preview
+  // This automatically updates whenever the username form control value changes
+  username = computed(() => {
+    return this.usernameForm?.get('username')?.value || 'yourname';
+  });
+
+  private restrictedWords = ['async', 'marketspase', 'alexim39', 'alex_imenwo'];
+
+  constructor() {
+    // Create an effect to react to changes in the 'user' input signal
+    // This replaces `ngOnChanges` and provides a more reactive approach
+    effect(
+      () => {
+        const userData = this.user();
+        if (userData) {
+          this.updateFormWithUserData(userData);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   ngOnInit(): void {
     this.initializeForm();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['user'] && !changes['user'].firstChange) {
-      this.updateFormWithUserData();
-    }
-  }
-
   private initializeForm(): void {
     this.usernameForm = new FormGroup({
-      username: new FormControl('', [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(30),
-        Validators.pattern(/^[a-zA-Z0-9_]+$/),
-        this.restrictedWordsValidator.bind(this) // Add custom validator
-      ]),
-      id: new FormControl('')
+      username: new FormControl('', {
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(30),
+          Validators.pattern(/^[a-zA-Z0-9_]+$/),
+          this.restrictedWordsValidator.bind(this),
+        ],
+        nonNullable: true,
+      }),
+      userId: new FormControl<string | null>(null),
     });
 
-    // Update form if user data is already available
+    // Update form with initial user data if available
     if (this.user()) {
-      this.updateFormWithUserData();
+      this.updateFormWithUserData(this.user());
     }
   }
 
-  // Custom validator for restricted words
-  private restrictedWordsValidator(control: FormControl): { [key: string]: any } | null {
-    const value = control.value?.toLowerCase();
-    if (!value) return null;
+  private restrictedWordsValidator(
+    control: AbstractControl
+  ): ValidationErrors | null {
+    const value = (control.value as string)?.toLowerCase();
+    if (!value) {
+      return null;
+    }
 
-    const isRestricted = this.restrictedWords.some(word => 
+    const isRestricted = this.restrictedWords.some((word) =>
       value.includes(word.toLowerCase())
     );
 
-    return isRestricted ? { 'restrictedWord': true } : null;
+    return isRestricted ? { restrictedWord: true } : null;
   }
 
-  private updateFormWithUserData(): void {
+  private updateFormWithUserData(user: UserInterface | null): void {
     this.usernameForm.patchValue({
-      username: this.user()?.username || '',
-      id: this.user()?._id || ''
+      username: this.user()?.username,
+      userId: this.user()?._id,
     });
-    this.cdr.markForCheck(); // Ensure UI updates with new data
   }
 
   onSubmit(): void {
     if (this.usernameForm.invalid) {
-      if (this.usernameForm.get('username')?.errors?.['restrictedWord']) {
-        this.showNotification('This username contains a restricted word. Please choose another one.');
-      } else {
-        this.showNotification('Please enter a valid username');
-      }
       this.usernameForm.markAllAsTouched();
+      this.showNotification(
+        'Please correct the form errors.',
+        'error'
+      );
       return;
     }
 
-    this.isLoading = true;
-    const usernameData = this.usernameForm.value;
+    this.isLoading.set(true);
+    const usernameData = this.usernameForm.getRawValue();
 
-    this.subscriptions.push(
-      this.settingsService.updateUsername(usernameData).subscribe({
+    this.profileService
+      .updateUsername(usernameData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
         next: (response) => {
-          this.showNotification('Username updated successfully!', 'success');
-          this.isLoading = false;
-          this.cdr.detectChanges(); // Trigger change detection after async operation
+          this.showNotification(response.message, 'success');
+          this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
-          const errorMessage = error.error?.message || 'Failed to update username. Please try again.';
-          this.showNotification(errorMessage);
-          this.isLoading = false;
-          this.cdr.detectChanges(); // Trigger change detection after error
-        }
-      })
-    );
+          const errorMessage =
+            error.error?.message || 'Failed to update username. Please try again.';
+          this.showNotification(errorMessage, 'error');
+          this.isLoading.set(false);
+        },
+      });
   }
 
   showHelp(): void {
-    const dialogRef = this.dialog.open(UsernameDialogComponent, {
+    this.dialog.open(UsernameDialogComponent, {
       width: '450px',
       data: {
         title: 'Username Guidelines',
@@ -142,38 +386,26 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
             <li>3-30 characters long</li>
             <li>Only letters, numbers and underscores (_)</li>
             <li>No spaces or special characters</li>
-            <li>Cannot contain restricted words (davido, davidotv, 30gb)</li>
+            <li>Cannot contain restricted words (async, davidotv)</li>
           </ul>
 
           <h4>Good Examples:</h4>
           <ul>
-            <li>davidotv.com/superfan</li>
-            <li>davidotv.com/davido_forever</li>
-            <li>davidotv.com/music_lover_2023</li>
+            <li>davidotv.com/alexim39</li>
+            <li>davidotv.com/alex_imenwo</li>
           </ul>
 
-          <p>Choose something memorable that represents you in the Davidotv community!</p>
-        `
+          <p>Choose something memorable that represents you in the davidotv community!</p>
+        `,
       },
-      panelClass: 'help-dialog'
-    });
-
-    // Handle dialog closing if needed
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe(() => {
-        // Any cleanup or post-dialog logic
-      })
-    );
-  }
-
-  private showNotification(message: string, panelClass: string = 'error'): void {
-    this.snackBar.open(message, 'Close', { 
-      duration: 5000,
-      panelClass: [`snackbar-${panelClass}`]
+      panelClass: 'help-dialog',
     });
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  private showNotification(message: string, type: 'success' | 'error'): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: [`snackbar-${type}`],
+    });
   }
 }

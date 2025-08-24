@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit, Signal } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatDialog } from '@angular/material/dialog';
 import { PersonalInfoComponent } from './personal/personal.component';
 import { ProfessionalInfoComponent } from './professional/professional.component';
 import { UsernameInfoComponent } from './username/username.component';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
-import { UserInterface } from '../../common/services/user.service';
-import { HelpDialogComponent } from '../../common/help-dialog.component';
+import { UserInterface, UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -101,7 +99,7 @@ import { MatCardModule } from '@angular/material/card';
         }
 
         mat-icon {
-          color: #8f0045;
+          color: #667eea;
           margin-right: 16px;
         }
 
@@ -123,8 +121,9 @@ import { MatCardModule } from '@angular/material/card';
   `]
 })
 export class AccountComponent {
- // Required input that expects a signal of type UserInterface or undefined
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
+ private userService = inject(UserService);
+   // Expose the signal directly to the template
+   public user: Signal<UserInterface | null> = this.userService.user;
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });

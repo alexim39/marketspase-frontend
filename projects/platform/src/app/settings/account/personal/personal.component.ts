@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, Input, OnChanges, OnDestroy, OnInit, Signal, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, OnInit, Signal, effect, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,14 +13,15 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
-import { startWith, Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { computed, signal } from '@angular/core';
 
-import { SettingsService } from '../../settings.service';
 import { UserInterface } from '../../../common/services/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COUNTRIES } from '../../../common/utils/countries';
+import { ProfileService } from '../profile.service';
+import { Subscription } from 'rxjs';
 
 
 // Nigerian states
@@ -37,7 +38,7 @@ const NIGERIAN_STATES = [
 
 @Component({
   selector: 'async-personal-infor',
-  providers: [SettingsService],
+  providers: [ProfileService],
   standalone: true,
   imports: [
     CommonModule,
@@ -60,191 +61,149 @@ const NIGERIAN_STATES = [
   styleUrls: ['./personal.component.scss']
 })
 export class PersonalInfoComponent implements OnInit, OnDestroy {
-  private subscriptions: Subscription[] = [];
-  private snackBar = inject(MatSnackBar);
-  private settingsService = inject(SettingsService);
-  private cdr = inject(ChangeDetectorRef);
 
-  // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
-  profileForm!: FormGroup;
+
+  private snackBar = inject(MatSnackBar);
+  private profileService = inject(ProfileService);
+
+  // Reactive state using signals
+  isLoading = signal(false);
 
   // Country and state data
-  countries = COUNTRIES;
-  nigerianStates = NIGERIAN_STATES;
-  filteredCountries: string[] = [];
-  showStateAutocomplete = false;
-  showStateSelect = false;
+  readonly countries = COUNTRIES;
+  readonly nigerianStates = NIGERIAN_STATES;
 
-  minDate = new Date(1900, 0, 1);
-  maxDate = new Date();
-  isLoading = false;
+  // The form is declared here
+  profileForm!: FormGroup;
 
-  ngOnInit(): void {
-    this.initializeForm();
-    this.maxDate = new Date();
-    this.filteredCountries = this.countries;
-    
-    // Set up the country filter subscription
-    this.setupCountryFilter();
-  }
+  // Signal for the country control's value.
+  private countryValue = signal<string | null | undefined>(undefined);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['user'] && !changes['user'].firstChange) {
-      this.updateFormWithUserData();
-    }
-  }
+  // Computed signals for UI logic
+  showStateSelect = computed(() => this.countryValue() === 'Nigeria');
+  showStateAutocomplete = computed(() => this.countryValue() !== 'Nigeria');
+  filteredCountries = computed(() => {
+    const filterValue = (this.countryValue() || '').toLowerCase();
+    return this.countries.filter(country => country.toLowerCase().includes(filterValue));
+  });
 
-  private setupCountryFilter(): void {
-    this.profileForm.get('country')?.valueChanges.pipe(
-      // You could add debounceTime here if you want to delay the filtering
-      // debounceTime(300),
-      startWith('') // Start with empty string to show all countries
-    ).subscribe(value => {
-      if (typeof value === 'string') {
-        this.filterCountries(value);
+  readonly minDate = new Date(1900, 0, 1);
+  readonly maxDate = new Date();
+
+  private subscriptions: Subscription[] = [];
+
+  constructor() {
+    // We can use `effect` here because the constructor is an injection context.
+    effect(() => {
+      // Create the form here, where `this.user` is available
+      const userData = this.user();
+      if (userData) {
+        // Corrected: Determine the initial state validators based on the initial country value.
+        // This is the fix for the form being invalid from the start.
+        const initialCountry = userData?.personalInfo?.address?.country || '';
+        const stateValidators = initialCountry === 'Nigeria' ? [Validators.required, Validators.maxLength(50)] : [Validators.maxLength(50)];
+
+        // check if user's account has email or not
+        let isEmailSet: boolean;
+        if (userData?.email) {
+          isEmailSet = true
+        } else {
+          isEmailSet = false
+        }
+
+        this.profileForm = new FormGroup({
+          displayName: new FormControl({ value: userData?.displayName, disabled: true }),
+          email: new FormControl({ value: userData?.email, disabled: isEmailSet }, [Validators.email]),
+          phone: new FormControl(userData?.personalInfo?.phone || '', [
+            Validators.required,
+            Validators.pattern(/^(\+?\d{1,3}[- ]?)?\d{6,14}$/)
+          ]),
+          street: new FormControl(userData?.personalInfo?.address?.street || '', [Validators.required, Validators.maxLength(100)]),
+          city: new FormControl(userData?.personalInfo?.address?.city || '', [Validators.required, Validators.maxLength(50)]),
+          // Apply the correct initial validators here
+          state: new FormControl(userData?.personalInfo?.address?.state || '', stateValidators),
+          country: new FormControl(initialCountry, [Validators.required, Validators.maxLength(50)]),
+          biography: new FormControl(userData?.personalInfo?.biography || '', [Validators.maxLength(500)]),
+          dob: new FormControl<Date | null>(userData?.personalInfo?.dob || null),
+          userId: new FormControl(userData?._id)
+        });
+
+        // Use toSignal() within this effect's injection context
+        this.countryValue.set(this.profileForm.controls['country'].value);
+        this.profileForm.controls['country'].valueChanges.subscribe(value => {
+            this.countryValue.set(value);
+        });
+
+        // Add a subscription to handle the state field's validation and status dynamically
+        // after the form has been initialized.
+        this.profileForm.controls['country'].valueChanges.subscribe(country => {
+          const stateControl = this.profileForm.get('state');
+          if (stateControl) {
+            if (country === 'Nigeria') {
+              // Set 'required' validator for Nigerian states
+              stateControl.setValidators([Validators.required, Validators.maxLength(50)]);
+              stateControl.enable(); // Ensure it's enabled for selection
+            } else {
+              // Clear 'required' validator for other countries
+              stateControl.clearValidators();
+              stateControl.setValue(''); // Clear the value for a new entry
+              stateControl.enable(); // Ensure it's enabled for typing
+            }
+            stateControl.updateValueAndValidity();
+          }
+        });
       }
-    });
+    }, { allowSignalWrites: true });
   }
 
-  filterCountries(value: string): void {
-    const filterValue = value.toLowerCase();
-    this.filteredCountries = this.countries.filter(country => 
-      country.toLowerCase().includes(filterValue)
-    );
-  }
+  // ngOnInit is now optional as the form initialization and effect are in the constructor
+  // However, it's still a good place for other setup logic.
+  ngOnInit(): void {}
 
-  private initializeForm(): void {
-    this.profileForm = new FormGroup({
-      name: new FormControl({ value: '', disabled: true }),
-      email: new FormControl(
-        { value: '', disabled: true }, 
-        [Validators.email]
-      ),
-      phone: new FormControl(this.user()?.personalInfo?.phone || '', [
-        Validators.required,
-        Validators.pattern(/^(\+?\d{1,3}[- ]?)?\d{6,14}$/)
-      ]),
-      street: new FormControl('', [
-        Validators.required,
-        Validators.maxLength(100)
-      ]),
-      city: new FormControl('', [
-        Validators.required,
-        Validators.maxLength(50)
-      ]),
-      state: new FormControl(this.user()?.personalInfo?.address?.state, [
-        Validators.required,
-        Validators.maxLength(50)
-      ]),
-      country: new FormControl('', [
-        Validators.required,
-        Validators.maxLength(50)
-      ]),
-      bio: new FormControl('', [
-        Validators.maxLength(500)
-      ]),
-      dob: new FormControl(null),
-      userId: new FormControl('')
-    });
-
-    // Watch country changes to handle state field appropriately
-    this.profileForm.get('country')?.valueChanges.subscribe(country => {
-      this.handleCountryChange(country);
-    });
-
-    // Update form if user data is already available
-    if (this.user()) {
-      this.updateFormWithUserData();
-    }
-  }
-
-  private handleCountryChange(country: string): void {
-    if (country === 'Nigeria') {
-      this.showStateSelect = true;
-      this.showStateAutocomplete = false;
-      // Reset state value when switching to Nigeria
-      this.profileForm.get('state')?.setValue('');
-    } else {
-      this.showStateSelect = false;
-      this.showStateAutocomplete = true;
-    }
-  }
-
-  private updateFormWithUserData(): void {
-    const userCountry = this.user()?.personalInfo?.address?.country || '';
-    
-    this.profileForm.patchValue({
-      name: this.user()?.displayName || '',
-      //lastname: this.user?.lastname || '',
-      email: this.user()?.email || '',
-      phone: this.user()?.personalInfo?.phone || '',
-      street: this.user()?.personalInfo?.address?.street || '',
-      city: this.user()?.personalInfo?.address?.city || '',
-      state: this.user()?.personalInfo?.address?.state || '',
-      country: userCountry,
-      bio: this.user()?.personalInfo?.bio || '',
-      dob: this.user()?.personalInfo?.dob || null,
-      userId: this.user()?._id || ''
-    });
-
-    // Handle the state field based on the country
-    this.handleCountryChange(userCountry);
-    this.cdr.markForCheck();
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   onAccountStatusChange(event: MatSlideToggleChange): void {
     if (event.checked) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       const formData = {
         state: event.checked,
-        userId: this.user()?._id 
+        userId: this.user()?._id
       };
-
-      this.subscriptions.push(
-        this.settingsService.activateAccount(formData).subscribe({
-          next: (response) => {
-            this.showNotification(response.message);
-            this.isLoading = false;
-          },
-          error: (error: HttpErrorResponse) => {
-            this.handleError(error);
-            this.isLoading = false;
-            this.cdr.markForCheck();
-          }
-        })
-      );
     }
   }
 
   onSubmit(): void {
-    if (this.profileForm.invalid) {
-      this.profileForm.markAllAsTouched();
+    // Check if the form is initialized before checking its validity
+    if (!this.profileForm || this.profileForm.invalid) {
+      if (this.profileForm) {
+        this.profileForm.markAllAsTouched();
+      }
       this.showNotification('Please fill all required fields correctly');
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     const formValue = this.profileForm.value;
-    
+
     this.subscriptions.push(
-      this.settingsService.updateProfile(formValue).subscribe({
+      this.profileService.updateProfile(formValue).subscribe({
         next: (response) => {
           this.showNotification(response.message, 'success');
-          this.isLoading = false;
-          this.cdr.markForCheck();
+          this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
           this.handleError(error);
-          this.isLoading = false;
-          this.cdr.markForCheck();
+          this.isLoading.set(false);
         }
       })
-    );
+    )   
   }
 
   private showNotification(message: string, panelClass: string = 'error'): void {
-    this.snackBar.open(message, 'Close', { 
+    this.snackBar.open(message, 'Close', {
       duration: 5000,
       panelClass: [`snackbar-${panelClass}`]
     });
@@ -253,9 +212,5 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
   private handleError(error: HttpErrorResponse): void {
     const errorMessage = error.error?.message || 'Server error occurred, please try again.';
     this.showNotification(errorMessage);
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
