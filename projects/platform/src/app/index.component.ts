@@ -529,9 +529,9 @@ export class IndexComponent implements OnInit, OnDestroy {
     {
       name: 'Google',
       icon: 'account_circle',
-      color: '#4285f4',
+      color: '#FBBC04',
       backgroundColor: '#f8f9ff',
-      hoverColor: '#3367d6',
+      hoverColor: '#4285F4',
       method: () => this.signInWithGoogle(),
     },
     {

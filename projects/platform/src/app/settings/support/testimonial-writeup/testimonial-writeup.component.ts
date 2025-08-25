@@ -66,14 +66,14 @@ import { MatIconModule } from '@angular/material/icon';
     
 
     <!-- No testimonial yet -->
-     @if (isProfileComplete() && !testimonial()?.message && !isLoading()) {
+     @if (isProfileComplete() && !isLoading() && !testimonial()?.message) {
         <mat-card class="write-testimonial-prompt">
         <mat-card-content>
           <div class="prompt-content">
             <mat-icon>edit</mat-icon>
             <div class="prompt-text">
               <h4>Share Your Experience</h4>
-              <p>You haven't written a testimonial yet. Let others know about your experience with Davidotv!</p>
+              <p>You haven't written a testimonial yet. Let others know about your experience with MarketSpase!</p>
             </div>
             <button mat-flat-button color="primary" (click)="writeTestimonial()">
               Write Testimonial
@@ -134,13 +134,15 @@ import { MatIconModule } from '@angular/material/icon';
             maxlength="500" 
             rows="6"
             placeholder="Share your thoughts about MarketSpase..."
-            [disabled]="!isProfileComplete()">
+            >
           </textarea>
           <mat-hint align="start"><strong>Inspire others with your experience</strong></mat-hint>
           <mat-hint align="end">{{ message.value.length }} / 500</mat-hint>
-          <mat-error *ngIf="testimonialForm.get('message')?.hasError('required')">
-            Testimonial is required
-          </mat-error>
+          @if (testimonialForm.get('message')?.hasError('required')) {
+            <mat-error>
+              Testimonial is required
+            </mat-error>
+          }
         </mat-form-field>
 
         <div class="form-row">
@@ -155,13 +157,15 @@ import { MatIconModule } from '@angular/material/icon';
           </mat-form-field>
         </div>
 
-        <mat-progress-bar mode="indeterminate" *ngIf="isSpinning"/>
+        @if (isSpinning()) {
+          <mat-progress-bar mode="indeterminate"/>
+        }        
 
         <div class="form-actions">
           <button mat-flat-button color="primary" type="submit" [disabled]="testimonialForm.invalid || !isProfileComplete()">
             {{ testimonial() ? 'Update' : 'Publish' }} Testimonial
           </button>
-          <button *ngIf="testimonial() && isEditing" mat-button (click)="cancelEdit()">Cancel</button>
+          
         </div>
       </form>
     </mat-card>
@@ -332,7 +336,7 @@ import { MatIconModule } from '@angular/material/icon';
       gap: 16px;
 
       mat-icon {
-        color: #8f0045;
+        color: #667eea;
         font-size: 32px;
         height: 32px;
         width: 32px;
@@ -388,10 +392,22 @@ export class TestimonialWriteupSettingsComponent{
   private router = inject(Router);
   private supportService = inject(SupportService);
 
+
+   // Local state signal
+  private _isProfileComplete = signal(false);
+  readonly isProfileComplete = this._isProfileComplete.asReadonly();
+
   constructor() {
-    // reactively rebuild form whenever testimonial or user changes
     effect(() => {
+      // reactively rebuild form whenever testimonial or user changes
       this.initForm();
+    });  
+    
+    effect(() => {
+      const user = this.user();
+      const value = !!user?.personalInfo?.address?.country && !!user?.personalInfo?.address?.state;
+      this._isProfileComplete.set(value); // Manually update the signal
+      console.log('Profile complete (from effect):', value);
     });
   }
 
@@ -400,17 +416,13 @@ export class TestimonialWriteupSettingsComponent{
     const testimonial = this.testimonial();
 
     this.testimonialForm = this.fb.group({  
-      message: [testimonial?.message || '', [Validators.required]],
+      message: [{value: testimonial?.message || '',  disabled: !this.isProfileComplete(), }, [Validators.required]],
       country: [user?.personalInfo?.address?.country || ''],
       state: [user?.personalInfo?.address?.state || ''],
     });
   }
 
-  // Derived signal for profile completion
-  readonly isProfileComplete = signal(() => {
-    const user = this.user();
-    return !!user?.personalInfo?.address?.country && !!user?.personalInfo?.address?.state;
-  });
+
 
   navigateToProfile(): void {
     this.router.navigate(['dashboard/settings/account']);
@@ -422,10 +434,6 @@ export class TestimonialWriteupSettingsComponent{
 
   writeTestimonial(): void {
     this.isEditing.set(true);
-  }
-
-  cancelEdit(): void {
-    this.isEditing.set(false);
   }
 
   onSubmit(): void {

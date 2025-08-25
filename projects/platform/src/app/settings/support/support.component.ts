@@ -168,8 +168,11 @@ export class AppReviewSettingComponent {
 
       this.support.getTestimonial(user._id).subscribe({
         next: (response) => {
-          this.testimonial.set(response.data || null);
-          this.isLoading.set(false);
+          if (response.success) {
+            //console.log('Fetched testimonial:', response);
+            this.testimonial.set(response.data || null);
+            this.isLoading.set(false);
+          }
         },
         error: (err) => {
           this.error.set('Failed to load testimonial.');
