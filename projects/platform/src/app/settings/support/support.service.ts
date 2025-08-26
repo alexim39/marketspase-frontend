@@ -25,6 +25,15 @@ export class SupportService {
     return this.apiService.get<any>(`settings/testimonial/${userId}`, undefined, undefined, true);
   }
 
+    /**
+   * Submits the contact form data to the backend.
+   * @param formObject The contact form data.
+   * @returns An observable of the submitted form data.
+   */
+  submit(formObject: any): Observable<any> {
+    return this.apiService.post<any>('contact/submit', formObject);
+  }
+
 
 
    

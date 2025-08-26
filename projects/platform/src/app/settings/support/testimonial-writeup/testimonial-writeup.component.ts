@@ -376,7 +376,7 @@ import { MatIconModule } from '@angular/material/icon';
   `]
 })
 export class TestimonialWriteupSettingsComponent{
-// Inputs: pass signals directly from parent
+  // Inputs: pass signals directly from parent
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   @Input({ required: true }) testimonial!: Signal<any | null>;
   @Input({ required: true }) isLoading!: Signal<boolean>;
@@ -407,7 +407,6 @@ export class TestimonialWriteupSettingsComponent{
       const user = this.user();
       const value = !!user?.personalInfo?.address?.country && !!user?.personalInfo?.address?.state;
       this._isProfileComplete.set(value); // Manually update the signal
-      console.log('Profile complete (from effect):', value);
     });
   }
 

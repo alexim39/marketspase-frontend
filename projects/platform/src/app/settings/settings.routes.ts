@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { SettingsIndexComponent } from './account/index.component';
 import { AccountComponent } from './account/account.component';
-import { AppReviewSettingComponent } from './support/support.component';
+import { SupportComponent } from './support/support.component';
 import { SystemSettingComponent } from './system/system.component';
 
 export const SettingsRoutes: Routes = [
@@ -32,8 +32,8 @@ export const SettingsRoutes: Routes = [
       },
       {
         path: 'share',
-        component: AppReviewSettingComponent,
-        title: "App Review - Reveiw and testify about DavidoTV",
+        component: SupportComponent,
+        title: "Support & Testimonial - Get support and testify about MarketSpase",
       },
     ],
   },

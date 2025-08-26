@@ -100,32 +100,24 @@ import { MatDividerModule } from '@angular/material/divider';
 
             <!-- Quick Actions Bar -->
             <div class="quick-actions-bar">
-              <button mat-mini-fab class="quick-action-btn theme-toggle" 
-                      (click)="toggleTheme()" 
-                      matTooltip="Toggle Theme"
-                      [class.dark]="isDarkMode">
-                <mat-icon>{{isDarkMode ? 'light_mode' : 'dark_mode'}}</mat-icon>
-              </button>
-              <button mat-mini-fab class="quick-action-btn notifications-toggle" 
-                      (click)="toggleNotifications()" 
-                      matTooltip="Toggle Notifications"
-                      [matBadge]="unreadNotifications" 
-                      [matBadgeHidden]="unreadNotifications === 0"
-                      matBadgeColor="warn"
-                      matBadgeSize="small">
-                <mat-icon>{{notificationsEnabled ? 'notifications' : 'notifications_off'}}</mat-icon>
-              </button>
-              <button mat-mini-fab class="quick-action-btn sync-btn" 
+               <a mat-mini-fab class="quick-action-btn theme-toggle" routerLink="./account">
+                <mat-icon>account_box</mat-icon>
+              </a>
+
+               <a mat-mini-fab class="quick-action-btn notifications-toggle" routerLink="./system">
+                <mat-icon>notifications</mat-icon>
+              </a>
+
+              <!-- <a mat-mini-fab class="quick-action-btn sync-btn" 
                       (click)="syncData()" 
                       matTooltip="Sync Data"
                       [class.syncing]="isSyncing">
                 <mat-icon>{{isSyncing ? 'sync' : 'cloud_sync'}}</mat-icon>
-              </button>
-              <button mat-mini-fab class="quick-action-btn backup-btn" 
-                      (click)="createBackup()" 
-                      matTooltip="Create Backup">
-                <mat-icon>backup</mat-icon>
-              </button>
+              </a> -->
+
+              <a mat-mini-fab class="quick-action-btn backup-btn" routerLink="./share">
+                <mat-icon>share</mat-icon>
+              </a>
             </div>
 
             <!-- Navigation List -->
@@ -167,7 +159,7 @@ import { MatDividerModule } from '@angular/material/divider';
               </mat-nav-list>
 
               <!-- Recent Activity -->
-              <div class="recent-activity">
+              <!-- <div class="recent-activity">
                 <div class="activity-header">
                   <mat-icon>history</mat-icon>
                   <span>Recent Activity</span>
@@ -183,11 +175,11 @@ import { MatDividerModule } from '@angular/material/divider';
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
 
             <!-- Footer -->
-            <div class="sidenav-footer">
+            <!-- <div class="sidenav-footer">
               <div class="footer-stats">
                 <div class="stat-item">
                   <mat-icon>storage</mat-icon>
@@ -208,7 +200,7 @@ import { MatDividerModule } from '@angular/material/divider';
                   Sign Out
                 </button>
               </div>
-            </div>
+            </div> -->
           </mat-sidenav>
         </mat-sidenav-container>
       </div>
@@ -227,9 +219,9 @@ export class SettingsIndexComponent implements OnInit {
   isMobile = false;
   isOnline = true;
   showSearch = false;
-  isDarkMode = false;
-  notificationsEnabled = true;
-  isSyncing = false;
+  //isDarkMode = false;
+  //notificationsEnabled = true;
+  //isSyncing = false;
   hasNotifications = true;
   unreadNotifications = 3;
   connectedIntegrations = 5;
@@ -322,29 +314,29 @@ export class SettingsIndexComponent implements OnInit {
     };
   }
 
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-    // Implement theme toggle logic
-    document.body.classList.toggle('dark-mode', this.isDarkMode);
-  }
+  // toggleTheme() {
+  //   this.isDarkMode = !this.isDarkMode;
+  //   // Implement theme toggle logic
+  //   document.body.classList.toggle('dark-mode', this.isDarkMode);
+  // }
 
-  toggleNotifications() {
-    this.notificationsEnabled = !this.notificationsEnabled;
-    // Implement notification toggle logic
-  }
+  // toggleNotifications() {
+  //   this.notificationsEnabled = !this.notificationsEnabled;
+  //   // Implement notification toggle logic
+  // }
 
-  syncData() {
-    this.isSyncing = true;
-    // Simulate sync process
-    setTimeout(() => {
-      this.isSyncing = false;
-    }, 2000);
-  }
+  // syncData() {
+  //   this.isSyncing = true;
+  //   // Simulate sync process
+  //   setTimeout(() => {
+  //     this.isSyncing = false;
+  //   }, 2000);
+  // }
 
-  createBackup() {
-    // Implement backup functionality
-    console.log('Creating backup...');
-  }
+  // createBackup() {
+  //   // Implement backup functionality
+  //   console.log('Creating backup...');
+  // }
 
   getCompletionCircle(percentage: number): string {
     const circumference = 2 * Math.PI * 15.9155;

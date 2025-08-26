@@ -7,6 +7,7 @@ import { UserInterface, UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { SupportService } from './support.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ContactComponent } from './contact/contact.component';
 
 @Component({
   selector: 'async-review-setting',
@@ -18,6 +19,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     MatButtonModule,
     TestimonialWriteupSettingsComponent,
     MatCardModule,
+    ContactComponent
   ],
   template: `
     <div class="social-settings-container">
@@ -28,7 +30,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
               <mat-tab label="Contact Support">
                 <div class="tab-content">
                   @if (user()) {
-                    <!-- Future: Add contact support form here -->
+                    <async-contact [user]="user" />
                   }
                 </div>
               </mat-tab>
@@ -145,7 +147,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   }
   `],
 })
-export class AppReviewSettingComponent {
+export class SupportComponent {
   private userService = inject(UserService);
   private support = inject(SupportService);
 
