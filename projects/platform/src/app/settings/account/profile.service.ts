@@ -22,7 +22,7 @@ export class ProfileService {
  * @returns An observable of the submitted form data.
  */
   updateProfession(dataObject: any): Observable<any> {
-    return this.apiService.put<any>(`user/profile/profession`, dataObject);
+    return this.apiService.put<any>(`user/profile/profession`, dataObject, undefined, true);
   }
 
     /**
@@ -31,7 +31,7 @@ export class ProfileService {
  * @returns An observable of the submitted form data.
  */
   updateUsername(dataObject: any): Observable<any> {
-    return this.apiService.put<any>(`user/profile/username`, dataObject);
+    return this.apiService.put<any>(`user/profile/username`, dataObject, undefined, true);
   }
    
 }

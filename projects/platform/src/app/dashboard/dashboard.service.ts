@@ -2,7 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from '../common/services/api.service';
 
-
+export interface TestimonialInterface {
+  name: string;
+  location: string;
+  message: string;
+  avatar: string;
+}
 
 @Injectable()
 export class DashboardService {
@@ -16,6 +21,14 @@ export class DashboardService {
    */
   switchUser(roleObject: {role: string, userId: string | undefined}): Observable<any> {
     return this.apiService.post<any>(`user/switch-user`, roleObject, undefined, true);
+  }
+
+  /**
+   * Get the form data to the backend.
+   * @returns An observable of the submitted form data.
+  */
+    getRandomTestimonials(): Observable<any> {
+    return this.apiService.get<any>(`settings/testimonial/dashboard`, undefined, undefined, true);
   }
 
 }

@@ -14,7 +14,7 @@ export class SupportService {
    * @returns An observable of the submitted form data.
    */
   updateTestimonial(formObject: {message: string; userId: string | undefined}): Observable<any> {
-    return this.apiService.put<any>(`settings/testimonial`, formObject);
+    return this.apiService.put<any>(`settings/testimonial`, formObject, undefined, true);
   }
 
    /**
@@ -31,7 +31,7 @@ export class SupportService {
    * @returns An observable of the submitted form data.
    */
   submit(formObject: any): Observable<any> {
-    return this.apiService.post<any>('contact/submit', formObject);
+    return this.apiService.post<any>('contact/submit', formObject, undefined, true);
   }
 
 

@@ -327,7 +327,7 @@ export class DashboardIndex implements OnInit, OnDestroy {
               this.userService.getUser(user.uid).subscribe({
                 next: (response) => {
                   if (response.success) {
-                    //console.log('Returned User:', response.data);
+                    console.log('Returned User:', response.data);
                    // UPDATED: Use `set()` to update the signal's value.
                     this.user.set(response.data as UserInterface);
                     // get current user to user service

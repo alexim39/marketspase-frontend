@@ -1,6 +1,7 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
 import { Observable } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from './api.service';
+import { Campaign } from '../models/campaigns';
 
 // Your UserInterface definition
 export interface UserInterface {
@@ -93,6 +94,7 @@ export interface UserInterface {
     };
    
   };
+  campaigns?: [Campaign]; // Adjust the type as per your Campaign model
 }
 
 @Injectable({ providedIn: 'root' })

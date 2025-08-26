@@ -24,6 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth/auth.service';
 import { UserInterface, UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
+import { TestimonialsComponent } from '../testimonial/testimonial.component';
 
 // Interfaces
 export interface Campaign {
@@ -93,7 +94,8 @@ export interface UserProfile {
     MatTabsModule,
     MatTableModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    TestimonialsComponent
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],

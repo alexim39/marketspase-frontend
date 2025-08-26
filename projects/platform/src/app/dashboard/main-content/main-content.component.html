@@ -35,6 +35,13 @@
 
   <!-- Main Dashboard Content -->
   <div class="content-sections">
+
+    <!-- Testimonial animation -->
+     @if (user()) {
+      <async-dashboard-testimonials [user]="user" />
+     }
+     
+
     <!-- Advertiser Dashboard -->
     @if (user()!.role === 'advertiser') {
       <div>

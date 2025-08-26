@@ -514,7 +514,7 @@ export interface SocialProvider {
     }
   `],
 })
-export class IndexComponent implements OnInit, OnDestroy {
+export class IndexComponent implements OnDestroy {
   subscriptions: Subscription[] = [];
   isLoading: boolean = false;
   currentProvider: string = '';
@@ -564,10 +564,6 @@ export class IndexComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
   ) {}
-
-  ngOnInit(): void {
-    // Initialize any required setup
-  }
 
   private setLoadingState(provider: string, loading: boolean): void {
     this.isLoading = loading;
