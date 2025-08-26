@@ -274,21 +274,8 @@ export class ContactComponent implements OnInit, OnDestroy {
     { value: 'other', label: 'Other', icon: 'more_horiz', description: 'Something else' }
   ]);
 
-  // signals for counts
-  subjectLength = signal(0);
-  messageLength = signal(0);
-
   ngOnInit(): void {
     this.initializeForm();
-
-    // Update signals when form values change
-    effect(() => {
-      const subject = this.contactForm().get('subject')?.value || '';
-      this.subjectLength.set(subject.length);
-
-      const message = this.contactForm().get('message')?.value || '';
-      this.messageLength.set(message.length);
-    });
   }
 
   ngOnDestroy(): void {
