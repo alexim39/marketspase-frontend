@@ -8,7 +8,7 @@
       <p>Launch your WhatsApp Status promotion</p>
     </div>
     <div class="header-actions">
-      <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn">
+      <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campagin for later">
         <mat-icon>save</mat-icon>
         @if (deviceType() === 'desktop') {
           Save Draft
@@ -157,7 +157,7 @@
             <form [formGroup]="budgetForm" class="budget-form">
               <div class="wallet-balance-info">
                 <span>Wallet Balance:</span>
-                <span class="balance-value">{{walletBalance() | currency: '₦':'symbol':'1.0-2'}}</span>
+                <span class="balance-value">{{walletBalance() | currency: '₦':'symbol':'1.2-2'}}</span>
               </div>
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Total Campaign Budget</mat-label>
@@ -185,7 +185,7 @@
                 <span class="estimated-reach">Estimated Reach: ~{{estimatedReach() | shortNumber}} views</span>
               </div>
 
-              <mat-divider class="form-divider"></mat-divider>
+              <mat-divider class="form-divider"/>
 
               @if (walletBalance() < budgetForm.get('budget')?.value) {
                 <div class="insufficient-funds-alert">
@@ -350,7 +350,7 @@
           <mat-icon>arrow_back</mat-icon> Previous
         </button>
         @if (currentStep() < 4) {
-          <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!isStepActive(currentStep())">
+          <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!isStepActive(currentStep()) || (walletBalance() < budgetForm.get('budget')?.value)">
             Next Step <mat-icon>arrow_forward</mat-icon>
           </button>
         }

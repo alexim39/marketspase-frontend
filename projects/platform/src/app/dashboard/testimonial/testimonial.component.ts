@@ -4,9 +4,11 @@ import {
   computed, 
   DestroyRef, 
   inject, 
+  Input, 
   input, 
   OnDestroy,
   OnInit, 
+  Signal, 
   signal 
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -580,7 +582,8 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
 
   // Inputs
-  readonly user = input.required<UserInterface | null>();
+  //readonly user = input.required<UserInterface | null>();
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   // State management
   readonly state = signal<TestimonialState>({

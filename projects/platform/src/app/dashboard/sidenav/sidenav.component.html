@@ -210,7 +210,7 @@
       </div>
       <div class="cart-summary">
         @if(user()!.role === 'advertiser') {
-          <span class="items-count">You have {{ activeCampaignsCount }} pending campaign(s)</span>
+          <span class="items-count">You have {{ pendingCampaignsCount }} pending campaign(s)</span>
           <span class="total-price">{{user()?.wallets?.advertiser?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
         }
         @if(user()!.role === 'promoter') {

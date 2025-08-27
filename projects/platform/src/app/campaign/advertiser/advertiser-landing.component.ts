@@ -471,7 +471,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit {
 
   // Navigation methods
   createCampaign(): void {
-    this.router.navigate(['/campaigns/create']);
+    this.router.navigate(['/dashboard/campaigns/create']);
   }
 
   viewAnalytics(): void {

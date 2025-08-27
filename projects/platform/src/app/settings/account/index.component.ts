@@ -179,8 +179,8 @@ import { MatDividerModule } from '@angular/material/divider';
             </div>
 
             <!-- Footer -->
-            <!-- <div class="sidenav-footer">
-              <div class="footer-stats">
+            <div class="sidenav-footer">
+              <!-- <div class="footer-stats">
                 <div class="stat-item">
                   <mat-icon>storage</mat-icon>
                   <span>{{storageUsed}}GB / {{storageTotal}}GB</span>
@@ -188,19 +188,19 @@ import { MatDividerModule } from '@angular/material/divider';
                     <div class="stat-fill" [style.width.%]="(storageUsed/storageTotal)*100"></div>
                   </div>
                 </div>
-              </div>
+              </div> -->
               
-              <div class="footer-actions">
-                <button mat-stroked-button class="export-button" (click)="exportSettings()" matTooltip="Export Settings">
+              <!-- <div class="footer-actions">
+                <button mat-stroked-button class="export-button" matTooltip="Export Settings">
                   <mat-icon>download</mat-icon>
                   Export
                 </button>
-                <button mat-raised-button class="logout-button" (click)="logout()">
+                <button mat-raised-button class="logout-button">
                   <mat-icon>logout</mat-icon>
                   Sign Out
                 </button>
-              </div>
-            </div> -->
+              </div> -->
+            </div>
           </mat-sidenav>
         </mat-sidenav-container>
       </div>
@@ -314,30 +314,6 @@ export class SettingsIndexComponent implements OnInit {
     };
   }
 
-  // toggleTheme() {
-  //   this.isDarkMode = !this.isDarkMode;
-  //   // Implement theme toggle logic
-  //   document.body.classList.toggle('dark-mode', this.isDarkMode);
-  // }
-
-  // toggleNotifications() {
-  //   this.notificationsEnabled = !this.notificationsEnabled;
-  //   // Implement notification toggle logic
-  // }
-
-  // syncData() {
-  //   this.isSyncing = true;
-  //   // Simulate sync process
-  //   setTimeout(() => {
-  //     this.isSyncing = false;
-  //   }, 2000);
-  // }
-
-  // createBackup() {
-  //   // Implement backup functionality
-  //   console.log('Creating backup...');
-  // }
-
   getCompletionCircle(percentage: number): string {
     const circumference = 2 * Math.PI * 15.9155;
     const offset = circumference - (percentage / 100) * circumference;
@@ -353,11 +329,6 @@ export class SettingsIndexComponent implements OnInit {
   contactSupport() {
     // Implement contact support functionality
     console.log('Opening support chat...');
-  }
-
-  exportSettings() {
-    // Implement settings export functionality
-    console.log('Exporting settings...');
   }
 
   editProfile() {
@@ -384,11 +355,6 @@ export class SettingsIndexComponent implements OnInit {
     if (this.isMobile && this.drawer) {
       this.drawer.close();
     }
-  }
-
-  logout() {
-    // Implement logout functionality
-    this.router.navigate(['/']);
   }
 
   scrollToTop() {

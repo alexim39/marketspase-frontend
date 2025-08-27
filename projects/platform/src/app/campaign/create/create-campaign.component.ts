@@ -27,6 +27,7 @@ import { UserInterface, UserService } from '../../common/services/user.service';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CampaingService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 interface CampaignPreview {
   title: string;
@@ -67,9 +68,10 @@ interface MediaFile {
     MatProgressBarModule,
     MatChipsModule,
     MatToolbarModule,
-    MatSlideToggleModule, // Added this import to fix the error
+    MatSlideToggleModule, 
     DragDropModule,
-    ShortNumberPipe
+    ShortNumberPipe,
+    MatTooltipModule
   ],
   templateUrl: './create-campaign.component.html',
   styleUrls: ['./create-campaign.component.scss']
@@ -119,14 +121,15 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   campaignPreview = computed(() => this.generatePreview());
   
   estimatedReach() {
-     const budget = this.budgetForm.get('budget')?.value || 0;
-     if (budget) {
+    const budget = this.budgetForm.get('budget')?.value || 0;
+    if (budget) {
       // Minimum number of views per promoter is 25
-      return (budget/200) * 30;
-     } else {
+      return Math.floor((budget / 200) * 30);
+    } else {
       return 0;
-     }
+    }
   };
+
   campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid());
 
   // Media constraints
@@ -292,7 +295,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  submitCampaign(): void {
+/*   submitCampaign(): void {
     this.isSubmitting.set(true);
 
     if (this.campaignIsReady()) {
@@ -332,7 +335,60 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
       this.snackBar.open('Please complete all required fields.', 'OK', { duration: 3000 });
       this.isSubmitting.set(false);
     }
-  }
+  } */
+
+
+    submitCampaign(): void {
+      this.isSubmitting.set(true);
+
+      if (this.campaignIsReady()) {
+        const formData = new FormData();
+
+        // Append all fields
+        formData.append('title', this.contentForm.get('title')?.value);
+        formData.append('caption', this.contentForm.get('caption')?.value);
+        formData.append('link', this.contentForm.get('link')?.value);
+        formData.append('category', this.contentForm.get('category')?.value);
+        formData.append('budget', this.budgetForm.get('budget')?.value);
+        formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
+        formData.append('currency', 'NGN');
+        formData.append('owner', this.user()?._id ?? '');
+
+        // Optional end date
+        if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
+          formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
+        }
+
+        // Append file if selected
+        const selected = this.selectedMedia();
+        if (selected && selected.file) {
+          formData.append('media', selected.file);
+        }
+
+        this.subscriptions.push(
+          this.campaingService.create(formData).subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.isSubmitting.set(false);
+                this.snackBar.open(response.message, 'OK', { duration: 3000 });
+                this.router.navigate(['/dashboard/campaigns']);
+              }
+            },
+            error: (error: HttpErrorResponse) => {
+              let errorMessage = 'Server error occurred, please try again.';
+              if (error.error && error.error.message) {
+                errorMessage = error.error.message;
+              }
+              this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
+              this.isSubmitting.set(false);
+            }
+          })
+        );
+      } else {
+        this.snackBar.open('Please complete all required fields.', 'OK', { duration: 3000 });
+        this.isSubmitting.set(false);
+      }
+    }
 
   // File upload handling
   onFileSelected(event: Event): void {
