@@ -2,20 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from '../common/services/api.service';
 
-export interface CampaignData {
-  title: string;
-  caption: string;
-  link?: string;
-  category: string;
-  budget: number;
-  startDate: Date;
-  endDate?: Date;
-  hasEndDate: boolean;
-  mediaUrl: string;
-  currency: string;
-  owner: string; // The user ID
-}
-
 
 @Injectable()
 export class CampaingService {
@@ -43,6 +29,15 @@ export class CampaingService {
     // };
 
     return this.apiService.post<any>(`campaign/create`, campaignData, undefined, true);
+  }
+
+
+  /**
+   * Get the form data to the backend.
+   * @returns An observable of the submitted form data.
+  */
+  getAdvertiserCampaign(userId: string): Observable<any> {
+    return this.apiService.get<any>(`campaign/${userId}`, undefined, undefined, true);
   }
 
 }

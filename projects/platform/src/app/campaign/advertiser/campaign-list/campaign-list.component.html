@@ -1,0 +1,230 @@
+<div class="container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="header-title">
+          <h1>Promotion Campaigns</h1>
+          <p>Connect with promoters to share your content on WhatsApp Status</p>
+        </div>
+        <div class="header-actions">
+          <!-- <button class="btn btn-outline" mat-raised-button (click)="exportCampaigns()">
+            <mat-icon>file_download</mat-icon>
+            Export
+          </button> -->
+          <button class="btn btn-primary" mat-flat-button (click)="createCampaign()">
+            <mat-icon>add</mat-icon>
+            Create Campaign
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters Section -->
+  <section class="filters">
+    <div class="container">
+      <div class="filters-content">
+        <div class="search-container">
+          <div class="search-box">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Search campaigns..."
+              [formControl]="searchControl">
+          </div>
+        </div>
+
+        <div class="quick-filters">
+          @for (status of statusOptions; track status.value) {
+            <div 
+              class="filter-chip" 
+              [class.active]="currentFilters().status === status.value"
+              (click)="updateFilter('status', status.value)">
+              <mat-icon>{{status.icon}}</mat-icon>
+              {{status.label}}
+              <span class="count">{{getCampaignCountByStatus(status.value)}}</span>
+            </div>
+          }
+        </div>
+
+        <div class="filter-controls">
+          <div class="results-count">Showing {{filteredCampaigns().length}} of {{campaigns().length}} campaigns</div>
+          <div class="view-toggle">
+            <button class="view-btn" [class.active]="currentView() === 'grid'" (click)="setView('grid')">
+              <mat-icon>view_module</mat-icon>
+            </button>
+            <button class="view-btn" [class.active]="currentView() === 'list'" (click)="setView('list')">
+              <mat-icon>view_list</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Campaigns Grid -->
+  <main class="container main">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <div class="loading-grid">
+          @for (item of [1,2,3,4]; track item) {
+            <div class="campaign-card-skeleton">
+              <div class="skeleton-header"></div>
+              <div class="skeleton-media"></div>
+              <div class="skeleton-content">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-metrics"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (filteredCampaigns().length > 0) {
+      <div class="campaigns-grid">
+        @for (campaign of filteredCampaigns(); track campaign._id) {
+          <div class="campaign-card" [class]="'status-' + campaign.status">
+            <div class="card-header">
+              <div class="status-badge" [class]="'status-' + campaign.status">
+                {{campaign.status | titlecase}}
+              </div>
+              <button class="icon-btn" [matMenuTriggerFor]="campaignMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #campaignMenu="matMenu">
+                <button mat-menu-item (click)="viewCampaignDetails(campaign._id)">
+                  <mat-icon>visibility</mat-icon>
+                  View Details
+                </button>
+                <button mat-menu-item (click)="editCampaign(campaign._id)">
+                  <mat-icon>edit</mat-icon>
+                  Edit Campaign
+                </button>
+                <button mat-menu-item (click)="duplicateCampaign(campaign._id)">
+                  <mat-icon>content_copy</mat-icon>
+                  Duplicate
+                </button>
+                @if (campaign.status === 'active') {
+                  <button mat-menu-item (click)="pauseCampaign(campaign._id)">
+                    <mat-icon>pause</mat-icon>
+                    Pause
+                  </button>
+                }
+                @if (campaign.status === 'paused') {
+                  <button mat-menu-item (click)="resumeCampaign(campaign._id)">
+                    <mat-icon>play_arrow</mat-icon>
+                    Resume
+                  </button>
+                }
+                <button mat-menu-item (click)="deleteCampaign(campaign._id)" class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </mat-menu>
+            </div>
+
+            <div class="card-media">
+              @if (campaign.mediaType === "image") {
+                 <div class="media-placeholder">
+                    <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                </div>
+                }
+              @if (campaign.mediaType === "video") {
+                    <div class="media-placeholder">
+                        <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
+                    </div>
+                }
+            </div>
+
+            <div class="card-content">
+              <h3 class="card-title" (click)="viewCampaignDetails(campaign._id)">{{campaign.title}}</h3>
+              <p class="card-description">{{campaign.caption}}</p>
+              
+              <div class="card-meta">
+                <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
+                <span><mat-icon>calendar_today</mat-icon> 
+                 @if (campaign.endDate) {
+                      @if (campaign.remainingDays === 'Expired') {
+                          <span>{{campaign.remainingDays}}</span>
+                      } @else {
+                          <span>{{campaign.remainingDays}} left</span>
+                      }
+                  } @else {
+                  <span>{{campaign.remainingDays}}</span>
+                  }
+                </span>
+              </div>
+
+              <div class="metrics">
+                <div class="metric">
+                  <div class="metric-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</div>
+                  <div class="metric-label">Promoters</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">{{campaign.views || 0 | shortNumber}}</div>
+                  <div class="metric-label">Views</div>
+                </div>
+              </div>
+
+              <div class="progress-container">
+                <div class="progress-header">
+                  <span>Progress</span>
+                  <span>{{campaign.progress}}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor(campaign.progress)" 
+                    [style.width]="campaign.progress + '%'"></div>
+                </div>
+              </div>
+
+              <div class="budget-info">
+                <div class="budget-amount">
+                  <span class="spent">{{formatCurrency(campaign.spent)}}</span>
+                  <span class="total">/ {{formatCurrency(campaign.budget)}}</span>
+                </div>
+                <div class="budget-label">Budget Spent</div>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <button class="view-details-btn" (click)="viewCampaignDetails(campaign._id)">
+                <mat-icon>analytics</mat-icon>
+                View Details
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="empty-state">
+        <div class="empty-icon">
+          <mat-icon>search_off</mat-icon>
+        </div>
+        <h3 class="empty-title">No campaigns found</h3>
+        @if (hasActiveFilters() || searchControl.value) {
+          <p class="empty-description">Try adjusting your search criteria or filters</p>
+          <button class="btn btn-primary" (click)="clearAllFilters()">
+            <mat-icon>clear</mat-icon>
+            Clear Filters
+          </button>
+        } @else {
+          <p class="empty-description">Create your first campaign to get started</p>
+          <button class="btn btn-primary" (click)="createCampaign()">
+            <mat-icon>add</mat-icon>
+            Create Campaign
+          </button>
+        }
+      </div>
+    }
+  </main>
+
+  <!-- Mobile FAB -->
+  @if (deviceType() !== 'desktop') {
+    <div class="mobile-fab" (click)="createCampaign()">
+      <mat-icon>add</mat-icon>
+    </div>
+  }
+</div>

@@ -24,3 +24,35 @@ export function timeAgo(dateStr: string | Date): string {
 
   return 'Just now';
 }
+
+
+// Utility functions (can be placed here or in a separate file)
+export function isDatePast(date: Date): boolean {
+  const now = new Date();
+  return date.getTime() < now.getTime();
+}
+
+export function formatRemainingDays(endDate: Date): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+
+  const timeDifferenceMs = endDate.getTime() - today.getTime();
+  const oneDayInMs = 1000 * 60 * 60 * 24;
+  const daysDifference = Math.ceil(timeDifferenceMs / oneDayInMs);
+
+  if (daysDifference === 1) {
+    return '1 day';
+  } else {
+    return `${daysDifference} days`;
+  }
+}
+
+export interface CampaignStats {
+  totalCampaigns: number;
+  activeCampaigns: number;
+  totalSpent: number;
+  totalViews: number;
+  avgCTR: number;
+  totalPromoters: number;
+}

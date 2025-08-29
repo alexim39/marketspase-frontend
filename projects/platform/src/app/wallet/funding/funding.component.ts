@@ -91,7 +91,7 @@ interface PaymentStatusData {
           <div class="balance-card">
             <div class="balance-info">
               <div class="balance-label">Current Balance</div>
-              <div class="balance-amount">{{ data.currentBalance | currency: 'NGN':'symbol':'1.0-2' }}</div>
+              <div class="balance-amount">{{ data.currentBalance | currency: '₦':'symbol':'1.0-2' }}</div>
             </div>
             <div class="balance-icon">
               <mat-icon>account_balance</mat-icon>
@@ -104,7 +104,7 @@ interface PaymentStatusData {
               <div>
                 <p class="requirement-title">Additional Funding Required</p>
                 <p class="requirement-amount">
-                  You need {{ getFundingShortfall() | currency: 'NGN':'symbol':'1.0-2' }} more to fund your campaign
+                  You need {{ getFundingShortfall() | currency: '₦':'symbol':'1.0-2' }} more to fund your campaign
                 </p>
               </div>
             </div>
@@ -128,7 +128,7 @@ interface PaymentStatusData {
                 @if (amount.popular) {
                   <span class="popular-badge">Popular</span>
                 }
-                <div class="amount-value">{{ amount.value | currency: 'NGN':'symbol':'1.0-0' }}</div>
+                <div class="amount-value">{{ amount.value | currency: '₦':'symbol':'1.0-0' }}</div>
                 <div class="amount-label">{{ amount.label }}</div>
               </button>
             }
@@ -140,7 +140,7 @@ interface PaymentStatusData {
           <h3>Or Enter Custom Amount</h3>
           <form [formGroup]="fundingForm" class="funding-form">
             <mat-form-field class="amount-field" appearance="outline">
-              <mat-label>Amount (NGN)</mat-label>
+              <mat-label>Amount (₦)</mat-label>
               <span matTextPrefix>₦ </span>
               <input 
                 matInput 
@@ -178,19 +178,19 @@ interface PaymentStatusData {
             <div class="summary-card">
               <div class="summary-row">
                 <span>Amount to Fund</span>
-                <span class="amount">{{ selectedAmount() | currency: 'NGN':'symbol':'1.0-2' }}</span>
+                <span class="amount">{{ selectedAmount() | currency: '₦':'symbol':'1.0-2' }}</span>
               </div>
               <div class="summary-row">
                 <span>Processing Fee ({{ (processingFeeRate * 100) | number:'1.1-1' }}%)</span>
-                <span class="fee">{{ processingFee() | currency: 'NGN':'symbol':'1.0-2' }}</span>
+                <span class="fee">{{ processingFee() | currency: '₦':'symbol':'1.0-2' }}</span>
               </div>
               <div class="summary-row total">
                 <span>Total to Pay</span>
-                <span class="amount">{{ totalAmount() | currency: 'NGN':'symbol':'1.0-2' }}</span>
+                <span class="amount">{{ totalAmount() | currency: '₦':'symbol':'1.0-2' }}</span>
               </div>
               <div class="summary-row">
                 <span>New Wallet Balance</span>
-                <span class="new-balance">{{ newBalance() | currency: 'NGN':'symbol':'1.0-2' }}</span>
+                <span class="new-balance">{{ newBalance() | currency: '₦':'symbol':'1.0-2' }}</span>
               </div>
             </div>
           </div>
@@ -252,7 +252,7 @@ interface PaymentStatusData {
               
               @if (paymentStatus()!.success) {
                 <div class="success-details">
-                  <p><strong>Amount Added:</strong> {{ selectedAmount() | currency: 'NGN':'symbol':'1.0-2' }}</p>
+                  <p><strong>Amount Added:</strong> {{ selectedAmount() | currency: '₦':'symbol':'1.0-2' }}</p>
                   <p><strong>Transaction Reference:</strong> {{ paymentStatus()!.reference }}</p>
                   <p><strong>Date:</strong> {{ paymentStatus()!.timestamp | date:'medium' }}</p>
                   <div class="celebration-animation">🎉</div>
@@ -310,7 +310,7 @@ interface PaymentStatusData {
               Processing...
             } @else {
               <mat-icon>payment</mat-icon>
-              Pay {{ totalAmount() | currency: 'NGN':'symbol':'1.0-2' }}
+              Pay {{ totalAmount() | currency: '₦':'symbol':'1.0-2' }}
             }
           </button>
         } @else {

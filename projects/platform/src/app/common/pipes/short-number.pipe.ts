@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class ShortNumberPipe implements PipeTransform {
   transform(value: number | string): string {
-    if (!value) return '0';
+    if (!value ||  value === undefined || value === null) return '0';
     const num = Number(value); // keep it as a number
 
     if (num >= 1_000_000_000) {

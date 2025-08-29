@@ -1,0 +1,319 @@
+<div class="campaign-landing-container">
+    <!-- Header Section -->
+    <header class="header">
+    <div class="container">
+        <div class="header-content">
+        <div class="header-title">
+            <h1>Campaign Dashboard</h1>
+            <p>Manage your WhatsApp Status promotions</p>
+        </div>
+        <div class="header-actions">
+            <!-- <button class="btn btn-outline" mat-raised-button>
+            <mat-icon>file_download</mat-icon>
+            Export
+            </button> -->
+            <button class="btn btn-primary" mat-flat-button (click)="allCampaigns()">
+            <mat-icon>list_alt</mat-icon>
+            View Campaigns
+            </button>
+        </div>
+        </div>
+    </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-card total-campaigns">
+        <div class="stat-icon">
+            <mat-icon>campaign</mat-icon>
+        </div>
+        <div class="stat-content">
+            <h3>{{campaignStats().totalCampaigns}}</h3>
+            <p>Total Campaigns</p>
+            <div class="stat-change positive">
+            <mat-icon>trending_up</mat-icon>
+            <span>+12% this month</span>
+            </div>
+        </div>
+        </div>
+
+        <div class="stat-card active-campaigns">
+        <div class="stat-icon">
+            <mat-icon>play_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+            <h3>{{campaignStats().activeCampaigns}}</h3>
+            <p>Active Campaigns</p>
+            <div class="stat-change">
+            <mat-icon>radio_button_checked</mat-icon>
+            <span>Running now</span>
+            </div>
+        </div>
+        </div>
+
+        <div class="stat-card total-spent">
+        <div class="stat-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="stat-content">
+            <h3>{{campaignStats().totalSpent | currency:'₦':'symbol':'1.2-2'}}</h3>
+            <p>Total Spent</p>
+            <div class="stat-change neutral">
+            <mat-icon>remove</mat-icon>
+            <span>This month</span>
+            </div>
+        </div>
+        </div>
+
+        <div class="stat-card total-views">
+        <div class="stat-icon">
+            <mat-icon>visibility</mat-icon>
+        </div>
+        <div class="stat-content">
+            <h3>{{campaignStats().totalViews | shortNumber}}</h3>
+            <p>Total Views</p>
+            <div class="stat-change positive">
+            <mat-icon>trending_up</mat-icon>
+            <span>+24% reach</span>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+        <div class="action-card create-action" (click)="createCampaign()">
+        <div class="action-icon">
+            <mat-icon>add_circle</mat-icon>
+        </div>
+        <h3>Create Campaign</h3>
+        <p>Launch a new WhatsApp Status promotion</p>
+        </div>
+
+        <div class="action-card analytics-action" (click)="viewAnalytics()">
+        <div class="action-icon">
+            <mat-icon>analytics</mat-icon>
+        </div>
+        <h3>View Analytics</h3>
+        <p>Detailed insights and performance metrics</p>
+        </div>
+
+        <div class="action-card templates-action" (click)="viewTemplates()">
+        <div class="action-icon">
+            <mat-icon>library_books</mat-icon>
+        </div>
+        <h3>Campaign Templates</h3>
+        <p>Pre-made templates for quick setup</p>
+        </div>
+
+        <div class="action-card history-action" (click)="viewHistory()">
+        <div class="action-icon">
+            <mat-icon>history</mat-icon>
+        </div>
+        <h3>Campaign History</h3>
+        <p>View all past and completed campaigns</p>
+        </div>
+    </div>
+    </div>
+
+    <!-- Active Campaigns -->
+    <div class="campaigns-section">
+    <div class="section-header">
+        <h2>Active Campaigns</h2>
+        <div class="header-controls">
+        <button mat-stroked-button [matMenuTriggerFor]="filterMenu">
+            <mat-icon>filter_list</mat-icon>
+            Filter
+        </button>
+        <mat-menu #filterMenu="matMenu">
+            <button mat-menu-item (click)="filterCampaigns('all')">All Campaigns</button>
+            <button mat-menu-item (click)="filterCampaigns('active')">Active Only</button>
+            <button mat-menu-item (click)="filterCampaigns('pending')">Pending</button>
+            <button mat-menu-item (click)="filterCampaigns('paused')">Paused</button>
+            <button mat-menu-item (click)="filterCampaigns('draft')">Drafts</button>
+        </mat-menu>
+        
+        <button mat-stroked-button (click)="viewAllCampaigns()">
+            View All
+            <mat-icon>arrow_forward</mat-icon>
+        </button>
+        </div>
+    </div>
+
+    @if (filteredCampaigns().length > 0) {
+        <div class="campaigns-grid">
+        @for (campaign of filteredCampaigns().slice(0, 6); track campaign._id) {
+            <div class="campaign-card" [class]="'status-' + campaign.status">
+            <div class="campaign-header">
+                <div class="campaign-status">
+                    <mat-chip class="status-chip" [class]="'status-' + campaign.status">
+                        <mat-icon>{{getStatusIcon(campaign.status)}}</mat-icon>
+                        {{campaign.status | titlecase}}
+                    </mat-chip>
+                </div>
+                <button mat-icon-button [matMenuTriggerFor]="campaignMenu">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #campaignMenu="matMenu">
+                <button mat-menu-item (click)="editCampaign(campaign._id)">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                </button>
+                <button mat-menu-item (click)="viewCampaignDetails(campaign._id)">
+                    <mat-icon>visibility</mat-icon>
+                    View Details
+                </button>
+                @if (campaign.status === 'active') {
+                    <button mat-menu-item (click)="pauseCampaign(campaign._id)">
+                    <mat-icon>pause</mat-icon>
+                    Pause
+                    </button>
+                }
+                @if (campaign.status === 'paused') {
+                    <button mat-menu-item (click)="resumeCampaign(campaign._id)">
+                    <mat-icon>play_arrow</mat-icon>
+                    Resume
+                    </button>
+                }
+                </mat-menu>
+            </div>
+
+            @if (campaign.mediaType === "image") {
+                 <div class="campaign-media">
+                    <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                </div>
+            }
+           @if (campaign.mediaType === "video") {
+                <div class="campaign-media">
+                     <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
+                </div>
+            }
+
+            <div class="campaign-content">
+                <h3 class="campaign-title">{{campaign.title}}</h3>
+                <p class="campaign-description">{{campaign.caption}}</p>
+                @if (campaign.category) {
+                    <h5 class="campaign-category">
+                        <span class="category-badge">{{campaign.category | titlecase}}</span>
+                    </h5>
+                }
+                <div class="campaign-metrics">
+                <div class="metric">
+                    <mat-icon>group</mat-icon>
+                    <span>{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}} promoters</span>
+                </div>
+                <div class="metric">
+                    <mat-icon>visibility</mat-icon>
+                    <span>{{campaign.views || 0 | shortNumber}}</span>
+                </div>
+               <div class="metric">
+                    <mat-icon>schedule</mat-icon>
+                    @if (campaign.endDate) {
+                        @if (campaign.remainingDays === 'Expired') {
+                            <span>{{campaign.remainingDays}}</span>
+                        } @else {
+                            <span>{{campaign.remainingDays}} left</span>
+                        }
+                    } @else {
+                    <span>{{campaign.remainingDays}}</span>
+                    }
+                </div>
+            </div>
+
+            <div class="campaign-progress">
+                <div class="progress-header">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-value">{{campaign.progress}}%</span>
+                </div>
+                <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="campaign.progress"
+                    [class]="'progress-' + getProgressColor(campaign.progress)">
+                </mat-progress-bar>
+            </div>
+
+            <div class="campaign-budget">
+                <div class="budget-info">
+                    <span class="spent">{{campaign.spent | currency:'₦':'symbol':'1.0-0'}}</span>
+                    <span class="separator">/</span>
+                    <span class="total">{{campaign.budget | currency:'₦':'symbol':'1.0-0'}}</span>
+                </div>
+                <span class="budget-label">Budget Used</span>
+                </div>
+            </div>
+
+            <div class="campaign-actions">
+                <button mat-stroked-button (click)="viewCampaignDetails(campaign._id)" class="view-details-btn">
+                <mat-icon>analytics</mat-icon>
+                View Details
+                </button>
+            </div>
+            </div>
+        }
+        </div>
+    } @else {
+        <div class="empty-state">
+        <div class="empty-illustration">
+            <mat-icon>campaign</mat-icon>
+        </div>
+        <h3>No Active Campaigns</h3>
+        <p>Create your first campaign to start promoting on WhatsApp Status</p>
+        <button mat-flat-button color="primary" (click)="createCampaign()">
+            <mat-icon>add</mat-icon>
+            Create Campaign
+        </button>
+        </div>
+    }
+    </div>
+
+    <!-- Recent Activity -->
+    @if (deviceType() === 'desktop') {
+    <div class="activity-section">
+        <h2>Recent Activity</h2>
+        <div class="activity-list">
+        <div class="activity-item">
+            <div class="activity-icon success">
+            <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="activity-content">
+            <p><strong>Summer Sale Campaign</strong> reached 1,000 views</p>
+            <span class="activity-time">2 hours ago</span>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-icon info">
+            <mat-icon>person_add</mat-icon>
+            </div>
+            <div class="activity-content">
+            <p><strong>Product Launch</strong> gained 5 new promoters</p>
+            <span class="activity-time">4 hours ago</span>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-icon warning">
+            <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="activity-content">
+            <p><strong>Brand Awareness</strong> campaign expires in 2 days</p>
+            <span class="activity-time">6 hours ago</span>
+            </div>
+        </div>
+        </div>
+    </div>
+    }
+
+    <!-- Mobile FAB for quick actions -->
+    @if (deviceType() !== 'desktop') {
+    <div class="mobile-fab-container">
+        <button mat-fab color="primary" class="main-fab" (click)="createCampaign()">
+        <mat-icon>add</mat-icon>
+        </button>
+    </div>
+    }
+</div>

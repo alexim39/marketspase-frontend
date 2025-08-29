@@ -91,7 +91,7 @@
                 </div>
                 @if (isLoading()) {
                   <div class="progress-bar-container">
-                    <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+                    <mat-progress-bar mode="determinate" [value]="uploadProgress()"/>
                     <p>{{uploadProgress() | number:'1.0-0'}}%</p>
                   </div>
                 }

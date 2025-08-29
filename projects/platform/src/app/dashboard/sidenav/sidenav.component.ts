@@ -179,7 +179,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return [
         ...baseItems,
         { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
-        { icon: 'analytics', label: 'Analytics', route: '/analytics' },
+        //{ icon: 'analytics', label: 'Analytics', route: '/analytics' },
         //{ icon: 'account_balance_wallet', label: 'Wallet', route: '/wallet' },
         //{ icon: 'people', label: 'Promoters', route: '/promoters' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }

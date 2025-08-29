@@ -365,8 +365,7 @@ export class UsernameInfoComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
-          const errorMessage =
-            error.error?.message || 'Failed to update username. Please try again.';
+          const errorMessage = error.error?.message || 'Failed to update username. Please try again.';
           this.showNotification(errorMessage, 'error');
           this.isLoading.set(false);
         },

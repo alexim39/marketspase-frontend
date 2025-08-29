@@ -60,7 +60,7 @@ const NIGERIAN_STATES = [
   templateUrl: './personal.component.html',
   styleUrls: ['./personal.component.scss']
 })
-export class PersonalInfoComponent implements OnInit, OnDestroy {
+export class PersonalInfoComponent implements OnDestroy {
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -156,10 +156,6 @@ export class PersonalInfoComponent implements OnInit, OnDestroy {
       }
     }, { allowSignalWrites: true });
   }
-
-  // ngOnInit is now optional as the form initialization and effect are in the constructor
-  // However, it's still a good place for other setup logic.
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());

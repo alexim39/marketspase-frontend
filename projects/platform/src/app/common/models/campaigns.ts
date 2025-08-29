@@ -27,7 +27,8 @@ export enum CampaignStatus {
   PAUSED = 'paused',
   COMPLETED = 'completed',
   EXHAUSTED = 'exhausted',
-  EXPIRED = 'expired'
+  EXPIRED = 'expired',
+  DRAFT = 'draft'
 }
 //enum: ["active", "paused", "completed", "exhausted", "expired", "pending"],
 /**
@@ -36,26 +37,45 @@ export enum CampaignStatus {
  * This interface provides strong typing for campaign data, ensuring consistency
  * and type safety throughout the application.
  */
-export interface Campaign {
-  _id: string;
-  owner: string;
-  title: string;
-  caption: string;
-  link: string;
-  budget: number;
-  payoutPerPromotion: number;
+export interface CampaignInterface {
+  hasEndDate: boolean;
+  link?: string;
+  caption: string; // Short description or caption for the campaign
   currency: string;
-  maxPromoters: number;
-  minViewsPerPromotion: number;
-  totalPromotions: number;
-  validatedPromotions: number;
-  paidPromotions: number;
-  spentBudget: number;
-  startDate: string;
-  endDate: string | null;
-  status: CampaignStatus;
+  owner: string; // The user ID
   activityLog: ActivityLogItem[];
-  createdAt: string;
+
+  _id: string;
+  title: string;
+  //description: string; // checked for removal
+  status: CampaignStatus;
+  budget: number;
+  spent: number;
+  payoutPerPromotion: number;
+  maxPromoters: number;
+  currentPromoters: number;
+  views: number;
+  estimatedReach: number;
+  startDate: Date;
+  endDate?: Date | null; // It can be null or undefined
+  createdAt: Date;
+  mediaUrl?: string;
+  mediaType?: string;
+  category: string;
+  progress: number;
+  remainingDays?: number | string | 'N/A' | 'Expired' | 'Budget Exhausted' | 'Budget-based';
+  campaignType: 'standard' | 'premium' | 'boost';
+  targetAudience: string;
+  minViews: number;
+  isApproved: boolean;
+  priority: 'low' | 'medium' | 'high';
+
   updatedAt: string;
-  __v: number;
+  spentBudget: number; // This is a key from your provided object
+  paidPromotions: number;
+  minViewsPerPromotion: number;
+  validatedPromotions: number;
+  totalPromotions: number;
 }
+
+

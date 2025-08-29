@@ -294,51 +294,8 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     if (step === 3) return this.isScheduleValid();
     return false;
   }
-
-/*   submitCampaign(): void {
-    this.isSubmitting.set(true);
-
-    if (this.campaignIsReady()) {
-      const campaignData = {
-        ...this.contentForm.value,
-        ...this.budgetForm.value,
-        ...this.scheduleForm.value,
-        mediaUrl: this.selectedMedia()?.url,
-        currency: 'NGN',
-        owner: this.user()?._id
-      };
-
-      console.log('Campaign Submitted:', campaignData);
-
-      this.subscriptions.push(
-        this.campaingService.create(campaignData).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.isSubmitting.set(false);
-              console.log('Campaign Submitted:', response);
-              this.snackBar.open(response.message, 'OK', { duration: 3000 });
-              this.router.navigate(['/dashboard/campaigns']);
-              
-            }
-          },
-          error: (error: HttpErrorResponse) => {
-            let errorMessage = 'Server error occurred, please try again.';
-            if (error.error && error.error.message) {
-              errorMessage = error.error.message;
-            }  
-            this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
-            this.isSubmitting.set(false);
-          }
-        })
-      )
-    } else {
-      this.snackBar.open('Please complete all required fields.', 'OK', { duration: 3000 });
-      this.isSubmitting.set(false);
-    }
-  } */
-
-
-    submitCampaign(): void {
+  
+  submitCampaign(): void {
       this.isSubmitting.set(true);
 
       if (this.campaignIsReady()) {
