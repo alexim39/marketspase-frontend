@@ -25,6 +25,8 @@ import { AuthService } from '../../auth/auth.service';
 import { UserInterface, UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
+import { AdvertiserTabComponent } from './advertiser/advertiser-tab.component';
+import { PromoterTabComponent } from './promoter/promoter-tab.component';
 
 // Interfaces
 export interface Campaign {
@@ -95,7 +97,9 @@ export interface UserProfile {
     MatTableModule,
     MatDialogModule,
     MatTooltipModule,
-    TestimonialsComponent
+    TestimonialsComponent,
+    AdvertiserTabComponent,
+    PromoterTabComponent
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],

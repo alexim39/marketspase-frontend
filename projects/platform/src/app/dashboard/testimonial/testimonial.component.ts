@@ -581,7 +581,6 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Inputs
   //readonly user = input.required<UserInterface | null>();
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 

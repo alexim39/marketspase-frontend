@@ -187,10 +187,10 @@
                     <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
                 </div>
             }
-           @if (campaign.mediaType === "video") {
-                <div class="campaign-media">
-                     <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
-                </div>
+            @if (campaign.mediaType === "video") {
+                    <div class="campaign-media">
+                        <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
+                    </div>
             }
 
             <div class="campaign-content">

@@ -1,0 +1,179 @@
+<div>
+  <mat-tab-group class="dashboard-tabs" animationDuration="300ms">
+    <!-- Available Campaigns Tab -->
+    <mat-tab label="Available Campaigns">
+      <div class="available-campaigns-section">
+        <div class="section-header">
+          <h3>Available Campaigns</h3>
+          <div class="filters">
+            <button mat-stroked-button>
+              <mat-icon>filter_list</mat-icon>
+              Filter
+            </button>
+          </div>
+        </div>
+        
+        <div class="campaigns-grid">
+          @if (isLoading()) {
+            <!-- Loading Spinner -->
+            <div class="loading-spinner">
+              <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+              <div class="loading-text">Loading campaigns…</div>
+            </div>
+          }@else if (campaigns().length > 0) {
+              @for (campaign of campaigns(); track campaign) {
+                <mat-card class="campaign-card available" (click)="viewCampaignDetails(campaign._id)">
+                  <div class="campaign-image">
+
+                    @if (campaign.mediaType === "image") {
+                        <div class="campaign-media">
+                            <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                        </div>
+                    }
+                    @if (campaign.mediaType === "video") {
+                            <div class="campaign-media">
+                                <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
+                            </div>
+                    }
+
+                    <div class="campaign-reward">
+                      <mat-chip color="primary">₦{{campaign.budget / campaign.currentPromoters | number}}</mat-chip>
+                    </div>
+                  </div>
+                  
+                  <mat-card-content>
+                    <h4 class="campaign-title">{{campaign.title}}</h4>
+                    <p class="campaign-description">{{campaign.caption}}</p>
+                    
+                    <div class="campaign-info">
+                      <div class="info-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span>
+                          @if (campaign.endDate) {
+                              @if (campaign.remainingDays === 'Expired') {
+                                  <span>{{campaign.remainingDays}}</span>
+                              } @else {
+                                  <span>{{campaign.remainingDays}} left</span>
+                              }
+                          } @else {
+                    <span>{{campaign.remainingDays}}</span>
+                    }
+                        </span>
+                      </div>
+                      <div class="info-item">
+                        <mat-icon>people</mat-icon>
+                        <span>{{campaign.maxPromoters}} promoters needed</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                  
+                  <mat-card-actions>
+                    <button mat-stroked-button color="primary" (click)="acceptCampaign(campaign._id)">
+                      Accept Campaign
+                    </button>
+                  </mat-card-actions>
+                </mat-card>
+            }
+        } @if (!isLoading() && campaigns().length === 0) {
+           <!-- No Campaigns -->
+          <div class="no-campaigns">
+            <div class="no-campaigns-illustration">
+              <mat-icon>campaign</mat-icon>
+            </div>
+            <div class="no-campaigns-title">No Campaigns Available</div>
+            <div class="no-campaigns-desc">
+              There are currently no campaigns available for you.<br>
+              Please check back later or refresh the page.
+            </div>
+            <button mat-stroked-button class="refresh-btn" >
+              <mat-icon>refresh</mat-icon>
+              Refresh
+            </button>
+          </div>
+        }
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- My Campaigns Tab -->
+    <mat-tab label="My Campaigns">
+      <div class="my-campaigns-section">
+        <h3>Your Active Campaigns</h3>
+        
+        <div class="campaigns-list">
+          @for (earning of earnings(); track earning) {
+          <mat-card class="campaign-item">
+            <mat-card-content>
+              <div class="campaign-summary">
+                <div class="campaign-info">
+                  <h4>{{earning.campaignTitle}}</h4>
+                  <p>{{earning.advertiser}}</p>
+                </div>
+                <div class="campaign-status">
+                  <mat-chip [class]="'status-' + earning.status">
+                    {{earning.status | titlecase}}
+                  </mat-chip>
+                  <span class="earning-amount">₦{{earning.amount | number}}</span>
+                </div>
+              </div>
+              
+              @if (earning.status === 'pending') {
+                <div class="proof-status">
+                  @if (!earning.proofSubmitted) {
+                    <button mat-stroked-button color="primary" (click)="uploadProof(earning.id)">
+                      <mat-icon>upload</mat-icon>
+                      Upload Proof
+                    </button>
+                  }
+                  @if (earning.proofSubmitted) {
+                    <div class="proof-submitted">
+                      <mat-icon color="primary">check_circle</mat-icon>
+                      <span>Proof submitted, awaiting verification</span>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Earnings Tab -->
+    <mat-tab label="Earnings">
+      <div class="earnings-section">
+        <div class="earnings-header">
+          <h3>Your Earnings</h3>
+          <button mat-raised-button color="primary" (click)="withdraw()">
+            <mat-icon>money</mat-icon>
+            Withdraw
+          </button>
+        </div>
+        
+        <div class="earnings-summary">
+          <mat-card class="earning-stat">
+            <mat-card-content>
+              <h3>₦{{34 | number}}</h3>
+              <p>Total Earnings</p>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="earning-stat">
+            <mat-card-content>
+              <h3>₦{{pendingEarnings() | number}}</h3>
+              <p>Pending</p>
+            </mat-card-content>
+          </mat-card>
+          
+          <mat-card class="earning-stat">
+            <mat-card-content>
+              <h3>₦{{availableBalance() | number}}</h3>
+              <p>Available</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

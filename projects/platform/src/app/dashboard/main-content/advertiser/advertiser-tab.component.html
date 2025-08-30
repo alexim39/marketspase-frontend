@@ -1,0 +1,116 @@
+<div>
+  <mat-tab-group class="dashboard-tabs" animationDuration="300ms">
+    <!-- Active Campaigns Tab -->
+    <mat-tab label="Active Campaigns" class="tab-content">
+      <div class="campaigns-section">
+        <div class="section-header">
+          <h3>Your Campaigns</h3>
+          <button mat-stroked-button (click)="createCampaign()">
+            <mat-icon>add</mat-icon>
+            New Campaign
+          </button>
+        </div>
+        
+        <div class="campaigns-grid">
+          @for (campaign of campaigns(); track campaign) {
+          <mat-card class="campaign-card" [class]="'status-' + campaign.status">
+            <div class="campaign-image">
+              <img [src]="campaign.imageUrl" [alt]="campaign.title">
+              <div class="campaign-status">
+                <mat-chip [class]="'status-' + campaign.status">
+                  {{campaign.status | titlecase}}
+                </mat-chip>
+              </div>
+            </div>
+            
+            <mat-card-content>
+              <div class="campaign-header">
+                <h4 class="campaign-title">{{campaign.title}}</h4>
+                <button mat-icon-button [matMenuTriggerFor]="campaignMenu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </div>
+              
+              <p class="campaign-description">{{campaign.description}}</p>
+              
+              <div class="campaign-metrics">
+                <div class="metric">
+                  <span class="metric-label">Reach</span>
+                  <span class="metric-value">{{campaign.reach | number}}</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Budget</span>
+                  <span class="metric-value">₦{{campaign.budget | number}}</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Spent</span>
+                  <span class="metric-value">₦{{campaign.spent | number}}</span>
+                </div>
+              </div>
+              
+              <div class="campaign-progress">
+                <div class="progress-info">
+                  <span class="progress-label">Progress</span>
+                  <span class="progress-text">{{campaign.currentViews}}/{{campaign.viewsRequired}} views</span>
+                </div>
+                <mat-progress-bar mode="determinate" [value]="(campaign.currentViews / campaign.viewsRequired) * 100">
+                </mat-progress-bar>
+              </div>
+            </mat-card-content>
+            
+            <mat-card-actions>
+              <button mat-button (click)="viewCampaign(campaign.id)">View Details</button>
+              <button mat-button (click)="viewProofs(campaign.id)">View Proofs</button>
+            </mat-card-actions>
+          </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Analytics Tab -->
+    <mat-tab label="Analytics">
+      <div class="analytics-section">
+        <h3>Campaign Analytics</h3>
+        <!-- Add charts and analytics here -->
+        <div class="analytics-placeholder">
+          <mat-icon>analytics</mat-icon>
+          <p>Detailed analytics coming soon</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- History Tab -->
+    <mat-tab label="History">
+      <div class="history-section">
+        <h3>Campaign History</h3>
+        <!-- Add campaign history table here -->
+        <div class="history-placeholder">
+          <mat-icon>history</mat-icon>
+          <p>Campaign history will be displayed here</p>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<!-- Campaign Menu -->
+<mat-menu #campaignMenu="matMenu">
+  <button mat-menu-item>
+    <mat-icon>edit</mat-icon>
+    <span>Edit Campaign</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>pause</mat-icon>
+    <span>Pause Campaign</span>
+  </button>
+  <button mat-menu-item>
+    <mat-icon>analytics</mat-icon>
+    <span>View Analytics</span>
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item>
+    <mat-icon>delete</mat-icon>
+    <span>Delete Campaign</span>
+  </button>
+</mat-menu>
