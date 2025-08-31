@@ -25,6 +25,7 @@ import { CampaingService } from '../../../campaign/campaign.service';
 import { CampaignInterface } from '../../../common/models/campaigns';
 import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';
 import { formatRemainingDays, isDatePast } from '../../../common/utils/time.util';
+import { DeviceService } from '../../../common/services/device.service';
 
 
 export interface Earning {
@@ -70,6 +71,9 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
 
   private campaingService = inject(CampaingService);
+  private readonly deviceService = inject(DeviceService);
+  // Computed properties for better performance
+  protected readonly deviceType = computed(() => this.deviceService.type());
 
 
   //readonly user = input.required<UserInterface | null>();
@@ -153,7 +157,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
       this.subscriptions.push(
-        this.campaingService.getAdvertiserCampaign(this.user()!._id!).subscribe({
+        this.campaingService.getCampaignsByStatus('active').subscribe({
           next: (response) => {
              const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             this.campaigns.set(campaignsWithMetrics);

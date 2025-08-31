@@ -2,11 +2,11 @@
   flex: 1;
   padding: 24px;
   overflow: auto;
+  
 }
 
 /* Dashboard Tabs */
 .dashboard-tabs {
-  background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -33,6 +33,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
+ 
 }
 
 .campaign-card {
@@ -49,7 +50,7 @@
 
 .campaign-image {
   position: relative;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
 }
 
@@ -106,7 +107,7 @@
 
 /* Available Campaigns */
 .available-campaigns-section {
-  min-height: 400px;
+  min-height: 500px;
 }
 
 .campaign-card.available {
@@ -287,7 +288,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin: 24px 0;
+  max-width: 420px;
+  margin: 24px auto; // Center horizontally
   padding: 32px 16px;
 
   .no-campaigns-illustration {
@@ -369,4 +371,101 @@
   .no-campaigns-desc { 
     font-size: 0.95rem; 
   }
+}
+
+
+
+// Skeleton Loading Styles
+.skeleton-loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px !important;
+  width: 100em;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden !important;
+}
+
+.skeleton-card {
+  border-radius: 16px;
+  overflow: hidden !important;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  /* Add these to ensure proper card behavior */
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 340px;
+}
+
+.skeleton-media {
+  height: 180px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.skeleton-title {
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  width: 70%;
+}
+
+.skeleton-text {
+  height: 14px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  
+  &.short {
+    width: 85%;
+  }
+}
+
+.skeleton-icon {
+  width: 16px;
+  height: 16px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.skeleton-small-text {
+  height: 12px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  width: 100px;
+}
+
+.skeleton-button {
+  height: 36px;
+  background-color: #e0e0e0;
+  border-radius: 18px;
+  width: 100%;
+}
+
+// Animation for skeleton loading
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Make sure the skeleton cards don't have any conflicting styles */
+@media (max-width: 768px) {
+  .skeleton-loading {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Add this to ensure the skeleton cards work properly in the grid */
+.campaigns-grid .skeleton-card {
+  margin: 0; /* Remove any default margins */
 }

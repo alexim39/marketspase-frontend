@@ -91,9 +91,13 @@
       @if (user()!.role === 'promoter') {
         <div class="quick-actions">
           <h4 class="section-title">Quick Actions</h4>
-          <button mat-stroked-button class="action-btn" (click)="viewCampaign()">
+          <button mat-stroked-button class="action-btn" (click)="viewPromotion()">
             <mat-icon>campaign</mat-icon>
-            View Campaign
+            View Promotion
+          </button>
+          <button mat-stroked-button class="action-btn" (click)="viewPromotion()">
+            <mat-icon>loyalty</mat-icon>
+            My Promotion
           </button>
         </div>
       }

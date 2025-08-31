@@ -45,6 +45,18 @@ export interface CampaignInterface {
   owner: string; // The user ID
   activityLog: ActivityLogItem[];
 
+
+  filledSlots: number;
+  totalSlots: number;
+  isBookmarked: boolean;
+  difficulty: 'easy' | 'medium' | 'hard';
+  tags: string[];
+  advertiserName: string;
+  advertiserRating: number;
+  requirements: string[];
+  estimatedViews: number;
+  duration: string;
+
   _id: string;
   title: string;
   //description: string; // checked for removal

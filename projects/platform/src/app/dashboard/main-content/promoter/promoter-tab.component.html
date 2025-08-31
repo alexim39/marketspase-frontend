@@ -1,4 +1,4 @@
-<div>
+<div class="dashboard-main-content">
   <mat-tab-group class="dashboard-tabs" animationDuration="300ms">
     <!-- Available Campaigns Tab -->
     <mat-tab label="Available Campaigns">
@@ -15,25 +15,76 @@
         
         <div class="campaigns-grid">
           @if (isLoading()) {
-            <!-- Loading Spinner -->
-            <div class="loading-spinner">
-              <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-              <div class="loading-text">Loading campaigns…</div>
-            </div>
+           <div class="skeleton-loading">
+            @if (deviceType() === 'mobile') {
+              @for (item of [1]; track item) {
+                <mat-card class="campaign-card skeleton-card">
+                  <div class="skeleton-media"></div>
+                  
+                  <mat-card-content>
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-text short"></div>
+                    
+                    <div class="campaign-info">
+                      <div class="info-item">
+                        <div class="skeleton-icon"></div>
+                        <div class="skeleton-small-text"></div>
+                      </div>
+                      <div class="info-item">
+                        <div class="skeleton-icon"></div>
+                        <div class="skeleton-small-text"></div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                  
+                  <mat-card-actions>
+                    <div class="skeleton-button"></div>
+                  </mat-card-actions>
+                </mat-card>
+              }
+            }
+            @for (item of [1,2,3]; track item) {
+              <mat-card class="campaign-card skeleton-card">
+                <div class="skeleton-media"></div>
+                
+                <mat-card-content>
+                  <div class="skeleton-title"></div>
+                  <div class="skeleton-text"></div>
+                  <div class="skeleton-text short"></div>
+                  
+                  <div class="campaign-info">
+                    <div class="info-item">
+                      <div class="skeleton-icon"></div>
+                      <div class="skeleton-small-text"></div>
+                    </div>
+                    <div class="info-item">
+                      <div class="skeleton-icon"></div>
+                      <div class="skeleton-small-text"></div>
+                    </div>
+                  </div>
+                </mat-card-content>
+                
+                <mat-card-actions>
+                  <div class="skeleton-button"></div>
+                </mat-card-actions>
+              </mat-card>
+            }
+          </div>
           }@else if (campaigns().length > 0) {
               @for (campaign of campaigns(); track campaign) {
                 <mat-card class="campaign-card available" (click)="viewCampaignDetails(campaign._id)">
                   <div class="campaign-image">
 
                     @if (campaign.mediaType === "image") {
-                        <div class="campaign-media">
-                            <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
-                        </div>
+                      <div class="campaign-media">
+                          <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                      </div>
                     }
                     @if (campaign.mediaType === "video") {
-                            <div class="campaign-media">
-                                <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
-                            </div>
+                      <div class="campaign-media">
+                          <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
+                      </div>
                     }
 
                     <div class="campaign-reward">
@@ -56,8 +107,8 @@
                                   <span>{{campaign.remainingDays}} left</span>
                               }
                           } @else {
-                    <span>{{campaign.remainingDays}}</span>
-                    }
+                          <span>{{campaign.remainingDays}}</span>
+                          }
                         </span>
                       </div>
                       <div class="info-item">
