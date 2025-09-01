@@ -6,9 +6,9 @@
         <div class="section-header">
           <h3>Available Campaigns</h3>
           <div class="filters">
-            <button mat-stroked-button>
-              <mat-icon>filter_list</mat-icon>
-              Filter
+            <button mat-stroked-button (click)="viewAllCampaigns()">
+              <mat-icon>list</mat-icon>
+              View All
             </button>
           </div>
         </div>
@@ -88,12 +88,12 @@
                     }
 
                     <div class="campaign-reward">
-                      <mat-chip color="primary">₦{{campaign.budget / campaign.currentPromoters | number}}</mat-chip>
+                      <mat-chip color="primary">₦{{campaign.budget / campaign.currentPromoters || 0 | number}}</mat-chip>
                     </div>
                   </div>
                   
                   <mat-card-content>
-                    <h4 class="campaign-title">{{campaign.title}}</h4>
+                    <h4 class="campaign-title">{{campaign.title | titlecase}}</h4>
                     <p class="campaign-description">{{campaign.caption}}</p>
                     
                     <div class="campaign-info">
@@ -113,7 +113,7 @@
                       </div>
                       <div class="info-item">
                         <mat-icon>people</mat-icon>
-                        <span>{{campaign.maxPromoters}} promoters needed</span>
+                        <span>{{campaign.maxPromoters - campaign.currentPromoters}}  promoter(s) needed</span>
                       </div>
                     </div>
                   </mat-card-content>

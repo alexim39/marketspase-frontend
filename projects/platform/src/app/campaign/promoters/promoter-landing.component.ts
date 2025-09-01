@@ -20,30 +20,17 @@ import { CampaingService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
-import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
-interface PromoterStats {
+interface CampaignMetrics {
   totalEarnings: number;
-  completedCampaigns: number;
-  activeCampaigns: number;
+  rating: number;
+  completedPromotions: number;
   pendingEarnings: number;
-  averageRating: number;
-  totalViews: number;
-  thisMonthEarnings: number;
+  activePromotions: number;
   successRate: number;
-}
-
-interface ActivePromotion {
-  _id: string;
-  campaignTitle: string;
-  status: 'posted' | 'pending' | 'verified' | 'expired';
-  postedAt: Date;
-  expiresAt: Date;
-  currentViews: number;
-  requiredViews: number;
-  payout: number;
-  proofSubmitted: boolean;
-  timeRemaining: string;
+  totalViews: number;
+  expiringSoon: number;
 }
 
 @Component({
@@ -63,8 +50,7 @@ interface ActivePromotion {
     MatTooltipModule,
     MatBottomSheetModule,
     MatSliderModule,
-    CategoryPlaceholderPipe,
-    ShortNumberPipe
+    CategoryPlaceholderPipe
   ],
   templateUrl: './promoter-landing.component.html',
   styleUrls: ['./promoter-landing.component.scss']
@@ -74,29 +60,73 @@ export class PromoterLandingComponent implements OnInit {
   private deviceService = inject(DeviceService);
 
   // Signals for reactive state management
-  availableCampaigns = signal<CampaignInterface[]>([]);
-  filteredCampaigns = signal<CampaignInterface[]>([]);
-  activePromotions = signal<ActivePromotion[]>([]);
-  minPayoutFilter = signal<number>(200);
-  currentCategoryFilter = signal<string>('all');
   isLoading = signal(false);
-
-  // Computed properties
-  deviceType = computed(() => this.deviceService.type());
-  promoterStats = computed(() => this.calculateStats());
-
-  // Required input that expects a signal of type UserInterface or undefined
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
-  // Signals for reactive state management
+  isApplying = signal(false);
   campaigns = signal<CampaignInterface[]>([]);
   subscriptions: Subscription[] = [];
   private campaingService = inject(CampaingService);
 
-  ngOnInit(): void {
-    //this.loadAvailableCampaigns();
-    //this.loadActivePromotions();
-    this.filterCampaigns();
+  // Computed properties
+  deviceType = computed(() => this.deviceService.type());
 
+  searchTerm = signal(''); 
+
+  private snackBar = inject(MatSnackBar);
+
+   // Computed filtered campaigns
+  filteredCampaigns = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.campaigns();
+    return this.campaigns().filter(c =>
+      c.title?.toLowerCase().includes(term) ||
+      c.caption?.toLowerCase().includes(term) ||
+      c.category?.toLowerCase().includes(term)
+    );
+  });
+
+  
+  // Metrics computed from campaigns data
+  metrics = computed<CampaignMetrics>(() => {
+    const campaigns = this.campaigns();
+    
+    // Calculate metrics from campaigns data
+    const totalEarnings = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0) * campaign.payoutPerPromotion, 0);
+    const pendingEarnings = campaigns.reduce((sum, campaign) => sum + ((campaign.validatedPromotions || 0) - (campaign.paidPromotions || 0)) * campaign.payoutPerPromotion, 0);
+    const activePromotions = campaigns.filter(campaign => campaign.status === 'active').length;
+    const completedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0), 0);
+    const totalViews = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0) * (campaign.minViewsPerPromotion || 0), 0);
+    
+    // Calculate success rate (validated promotions / total promotions)
+    const totalPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0), 0);
+    const validatedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.validatedPromotions || 0), 0);
+    const successRate = totalPromotions > 0 ? (validatedPromotions / totalPromotions) * 100 : 0;
+    
+    // Count campaigns expiring soon (within 3 days)
+    const expiringSoon = campaigns.filter(campaign => {
+      if (!campaign.endDate) return false;
+      const endDate = new Date(campaign.endDate);
+      const today = new Date();
+      const diffTime = endDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays <= 3 && diffDays > 0;
+    }).length;
+
+    return {
+      totalEarnings,
+      rating: 4.8, // This would ideally come from user profile
+      completedPromotions,
+      pendingEarnings,
+      activePromotions,
+      successRate,
+      totalViews,
+      expiringSoon
+    };
+  });
+
+  // Required input that expects a signal of type UserInterface or undefined
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
+
+  ngOnInit(): void {
     this.loadCampaigns();
   }
 
@@ -108,12 +138,6 @@ export class PromoterLandingComponent implements OnInit {
           next: (response) => {
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             this.campaigns.set(campaignsWithMetrics);
-            
-            // Transform backend campaigns to AvailableCampaign format
-            const availableCampaigns = this.transformToAvailableCampaigns(response.data);
-            this.availableCampaigns.set(availableCampaigns);
-            this.filterCampaigns();
-            
             this.isLoading.set(false);
           },
           error: (error: HttpErrorResponse) => {
@@ -124,80 +148,15 @@ export class PromoterLandingComponent implements OnInit {
       );
     }
   }
-
-  private transformToAvailableCampaigns(campaigns: CampaignInterface[]): CampaignInterface[] {
-    return campaigns.map(campaign => {
-      // Determine difficulty based on payout
-      let difficulty: 'easy' | 'medium' | 'hard';
-      if (campaign.payoutPerPromotion <= 300) {
-        difficulty = 'easy';
-      } else if (campaign.payoutPerPromotion <= 600) {
-        difficulty = 'medium';
-      } else {
-        difficulty = 'hard';
-      }
-      
-      // Create requirements array
-      const requirements = [
-        `${campaign.minViewsPerPromotion}+ status views`,
-        'Active for 24 hours',
-        'Include provided hashtags'
-      ];
-      
-      // Create tags from category and other attributes
-      const tags = [campaign.category, 'promotion'];
-      if (campaign.payoutPerPromotion > 400) {
-        tags.push('high-payout');
-      }
-      
-      // Calculate filled slots (assuming some logic here)
-      const filledSlots = Math.floor(campaign.totalPromotions || 0);
-      
-      // Calculate estimated views (assuming 1.5x the minimum views requirement)
-      const estimatedViews = Math.floor(campaign.minViewsPerPromotion * 1.5);
-      
-      // Create end date (assuming campaign runs for 7 days from start)
-      const endDate = new Date(campaign.startDate);
-      endDate.setDate(endDate.getDate() + 7);
-      
-       return {
-        ...campaign, // copies all properties from the original campaign
-        requirements,
-        tags,
-        difficulty,
-        filledSlots,
-        estimatedViews,
-        isBookmarked: false // add/override as needed
-      };
-
-      // return {
-      //   _id: campaign._id,
-      //   title: campaign.title,
-      //   caption: campaign.caption || 'Promote this campaign on your WhatsApp status',
-      //   category: campaign.category,
-      //   payoutPerPromotion: campaign.payoutPerPromotion,
-      //   requirements,
-      //   duration: '24 hours',
-      //   mediaUrl: campaign.mediaUrl,
-      //   advertiserName: 'Advertiser', // You might want to get this from campaign.owner
-      //   advertiserRating: 4.5, // Default rating
-      //   totalSlots: campaign.maxPromoters,
-      //   filledSlots,
-      //   estimatedViews,
-      //   difficulty,
-      //   tags,
-      //   endDate,
-      //   isBookmarked: false
-      // };
-    });
-  }
-
+ 
   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
     return campaigns.map(campaign => {
       const updatedCampaign = { ...campaign };
 
-      updatedCampaign.progress = (campaign.spentBudget / campaign.budget) * 100;
+      // Calculate progress based on spent budget
+      updatedCampaign.progress = campaign.budget > 0 ? (campaign.spentBudget / campaign.budget) * 100 : 0;
 
+      // Calculate remaining days or budget status
       if (campaign.endDate) {
         const endDate = new Date(campaign.endDate);
         if (isDatePast(endDate)) {
@@ -210,7 +169,7 @@ export class PromoterLandingComponent implements OnInit {
         if (budgetRemaining <= 0) {
           updatedCampaign.remainingDays = 'Budget Exhausted';
         } else {
-          updatedCampaign.remainingDays = 'Budget-based';
+          updatedCampaign.remainingDays = 'Ongoing';
         }
       }
 
@@ -218,171 +177,191 @@ export class PromoterLandingComponent implements OnInit {
     });
   }
 
-  // private loadActivePromotions(): void {
-  //   // This would ideally come from your backend
-  //   // For now, we'll keep the mock data or you can implement a service call
-  //   const mockActivePromotions: ActivePromotion[] = [
-  //     {
-  //       _id: '1',
-  //       campaignTitle: 'Fashion Summer Sale 2024',
-  //       status: 'posted',
-  //       postedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-  //       expiresAt: new Date(Date.now() + 22 * 60 * 60 * 1000),
-  //       currentViews: 18,
-  //       requiredViews: 25,
-  //       payout: 300,
-  //       proofSubmitted: false,
-  //       timeRemaining: '22h remaining'
-  //     }
-  //   ];
-
-  //   this.activePromotions.set(mockActivePromotions);
-  // }
-
-  private calculateStats(): PromoterStats {
-    // These values should ideally come from your backend API
-    // For now, we'll calculate based on available data
-    const campaigns = this.availableCampaigns();
-    const totalEarnings = campaigns.reduce((sum, campaign) => sum + campaign.payoutPerPromotion, 0);
-    const completedCampaigns = campaigns.filter(c => c.filledSlots >= c.totalSlots).length;
+  getStatusBadgeClass(campaign: CampaignInterface): string {
+    if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
+      return 'status-completed';
+    }
     
-    return {
-      totalEarnings,
-      completedCampaigns,
-      activeCampaigns: campaigns.length - completedCampaigns,
-      pendingEarnings: totalEarnings * 0.2, // Assuming 20% is pending
-      averageRating: 4.6,
-      totalViews: campaigns.reduce((sum, campaign) => sum + 70, 0),
-      thisMonthEarnings: totalEarnings * 0.3, // Assuming 30% earned this month
-      successRate: Math.min(100, Math.floor((completedCampaigns / campaigns.length) * 100)) || 0
+    const slotsFilled = campaign.totalPromotions || 0;
+    const maxSlots = campaign.maxPromoters || 0;
+    
+    if (slotsFilled >= maxSlots) {
+      return 'status-paused';
+    }
+    
+    return 'status-active';
+  }
+
+  getStatusBadgeText(campaign: CampaignInterface): string {
+    if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
+      return 'Completed';
+    }
+    
+    const slotsFilled = campaign.totalPromotions || 0;
+    const maxSlots = campaign.maxPromoters || 0;
+    
+    if (slotsFilled >= maxSlots) {
+      return 'Full';
+    }
+    
+    if (slotsFilled === 0) {
+      return 'New';
+    }
+    
+    if (slotsFilled / maxSlots > 0.7) {
+      return 'Popular';
+    }
+    
+    return 'Active';
+  }
+
+  getDifficultyLevel(campaign: CampaignInterface): string {
+    const minViews = campaign.minViewsPerPromotion || 0;
+    
+    if (minViews <= 25) return 'Easy';
+    if (minViews <= 35) return 'Medium';
+    return 'Hard';
+  }
+
+  getDifficultyDots(campaign: CampaignInterface): number {
+    const minViews = campaign.minViewsPerPromotion || 0;
+    
+    if (minViews <= 25) return 1;
+    if (minViews <= 35) return 2;
+    return 3;
+  }
+
+  getCategoryIcon(category: string): string {
+    const categoryIcons: {[key: string]: string} = {
+      'fashion': 'category',
+      'food': 'restaurant',
+      'tech': 'smartphone',
+      'entertainment': 'music_note',
+      'health': 'fitness_center',
+      'beauty': 'face',
+      'travel': 'flight',
+      'business': 'business',
+      'other': 'category'
     };
+    
+    return categoryIcons[category] || 'category';
   }
 
-  // Navigation methods
-  browseCampaigns(): void {
-    this.router.navigate(['/promoter/campaigns/browse']);
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  viewEarnings(): void {
-    this.router.navigate(['/promoter/earnings']);
+  // Add these methods to the component class
+  getHighPayoutCount(): number {
+    return this.campaigns().filter(campaign => campaign.payoutPerPromotion >= 500).length;
   }
 
-  viewHistory(): void {
-    this.router.navigate(['/promoter/history']);
+  getQuickTasksCount(): number {
+    return this.campaigns().filter(campaign => campaign.minViewsPerPromotion <= 25).length;
   }
 
-  getSupport(): void {
-    this.router.navigate(['/promoter/support']);
-  }
+  // Add these methods to your PromoterLandingComponent
 
-  viewActivePromotions(): void {
-    this.router.navigate(['/promoter/active']);
-  }
+  applyForCampaign(campaign: CampaignInterface): void {
+    if (!this.user() || !this.user()?._id) {
+      //alert('Please log in to apply for campaigns');
+      this.snackBar.open('Please log in to apply for campaigns', 'OK', { 
+          duration: 3000,
+      });
+      return;
+    }
 
-  viewAllCampaigns(): void {
-    this.router.navigate(['/promoter/campaigns/all']);
-  }
+    // Check if user can apply
+    if (!this.canApplyForCampaign(campaign)) {
+      //alert('Cannot apply for this campaign. It may be full, expired, or you may have already applied.');
+      this.snackBar.open('Cannot apply for this campaign. It may be full, expired, or you may have already applied.', 'OK', { 
+          duration: 3000,
+      });
+      return;
+    }
 
-  // Campaign actions
-  applyCampaign(campaignId: string): void {
-    console.log('Applying for campaign:', campaignId);
-    this.router.navigate(['/promoter/campaigns', campaignId, 'apply']);
-  }
-
-  toggleBookmark(campaignId: string): void {
-    const campaigns = this.availableCampaigns();
-    const updatedCampaigns = campaigns.map(campaign => 
-      campaign._id === campaignId 
-        ? { ...campaign, isBookmarked: !campaign.isBookmarked }
-        : campaign
+    this.isApplying.set(true);
+    
+    this.subscriptions.push(
+      this.campaingService.applyForCampaign(campaign._id, this.user()!._id).subscribe({
+        next: (response) => {
+          // Update local campaign data
+          const updatedCampaigns = this.campaigns().map(c => {
+            if (c._id === campaign._id) {
+              return {
+                ...c,
+                totalPromotions: (c.totalPromotions || 0) + 1,
+                spentBudget: (c.spentBudget || 0) + c.payoutPerPromotion
+              };
+            }
+            return c;
+          });
+          
+          this.campaigns.set(updatedCampaigns);
+          this.isApplying.set(false);
+          //alert('Successfully applied for the campaign!');
+          this.snackBar.open(response.message, 'OK', { 
+              duration: 3000,
+          });
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Failed to apply for campaign:', error);
+          this.isApplying.set(false);
+          //alert('Failed to apply for campaign: ' + (error.error?.message || 'Unknown error'));
+           this.snackBar.open('Failed to apply for campaign: ' + (error.error?.message || 'Unknown error'), 'OK', { 
+              duration: 3000,
+          });
+        }
+      })
     );
-    this.availableCampaigns.set(updatedCampaigns);
-    this.filterCampaigns();
   }
 
-  previewMedia(campaignId: string): void {
-    console.log('Previewing media for campaign:', campaignId);
-    // Implement media preview modal
+  canApplyForCampaign(campaign: CampaignInterface): boolean {
+    // Check if campaign is active
+    if (campaign.status !== 'active') {
+      return false;
+    }
+
+    // Check if campaign has expired
+    if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
+      return false;
+    }
+
+    // Check if there are available slots
+    const slotsFilled = campaign.totalPromotions || 0;
+    if (slotsFilled >= campaign.maxPromoters) {
+      return false;
+    }
+
+    // Check if there's enough budget
+    const remainingBudget = campaign.budget - (campaign.spentBudget || 0);
+    if (remainingBudget < campaign.payoutPerPromotion) {
+      return false;
+    }
+
+    // TODO: Check if user has already applied for this campaign
+    // This would require checking against a separate API endpoint
+
+    return true;
   }
 
-  // Filter methods
-  updatePayoutFilter(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.minPayoutFilter.set(parseInt(target.value));
-    this.filterCampaigns();
-  }
-
-  toggleCategoryFilter(): void {
-    // Implement category filter logic
-    console.log('Toggle category filter');
-  }
-
-  resetFilters(): void {
-    this.minPayoutFilter.set(200);
-    this.currentCategoryFilter.set('all');
-    this.filterCampaigns();
-  }
-
-  private filterCampaigns(): void {
-    const campaigns = this.availableCampaigns();
-    const minPayout = this.minPayoutFilter();
+  getApplyButtonText(campaign: CampaignInterface): string {
+    if (!this.canApplyForCampaign(campaign)) {
+      if (campaign.status !== 'active') return 'Not Available';
+      if (campaign.remainingDays === 'Expired') return 'Expired';
+      if (campaign.remainingDays === 'Budget Exhausted') return 'Budget Full';
+      
+      const slotsFilled = campaign.totalPromotions || 0;
+      if (slotsFilled >= campaign.maxPromoters) return 'Full';
+      
+      return 'Cannot Apply';
+    }
     
-    const filtered = campaigns.filter(campaign => 
-      campaign.payoutPerPromotion >= minPayout
-    );
-    
-    this.filteredCampaigns.set(filtered);
+    return 'Accept Campaign';
   }
 
-  // Utility methods
-  // formatNumber(num: number): string {
-  //   if (num >= 1000000) {
-  //     return (num / 1000000).toFixed(1) + 'M';
-  //   }
-  //   if (num >= 1000) {
-  //     return (num / 1000).toFixed(1) + 'K';
-  //   }
-  //   return num.toString();
-  // }
-
-  getStars(rating: number): Array<{icon: string, class: string}> {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push({ icon: 'star', class: 'star-full' });
-    }
-
-    if (hasHalfStar) {
-      stars.push({ icon: 'star_half', class: 'star-half' });
-    }
-
-    const remainingStars = 5 - Math.ceil(rating);
-    for (let i = 0; i < remainingStars; i++) {
-      stars.push({ icon: 'star_border', class: 'star-empty' });
-    }
-
-    return stars;
+  isApplyButtonDisabled(campaign: CampaignInterface): boolean {
+    return !this.canApplyForCampaign(campaign);
   }
 
-  getDifficultyDots(difficulty: string): boolean[] {
-    switch (difficulty) {
-      case 'easy': return [true, false, false];
-      case 'medium': return [true, true, false];
-      case 'hard': return [true, true, true];
-      default: return [false, false, false];
-    }
-  }
-
-  // getTimeUntilEnd(endDate: Date): string {
-  //   const now = new Date();
-  //   const timeDiff = endDate.getTime() - now.getTime();
-  //   const days = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    
-  //   if (days <= 0) return 'ended';
-  //   if (days === 1) return 'tomorrow';
-  //   if (days <= 7) return `in ${days} days`;
-  //   return 'soon';
-  // }
 }

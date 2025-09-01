@@ -1,397 +1,311 @@
-    <div class="promoter-landing-container">
-      <!-- Header Section -->
-      <div class="promoter-header">
-        <div class="header-content">
-          <div class="profile-section">
-            <div class="user-info">
-              <h1>Welcome, {{user()?.displayName}}!</h1>
-              <p>Ready to earn from your WhatsApp Status?</p>
-              <div class="rating-display">
-                <div class="stars">
-                  @for (star of getStars(promoterStats().averageRating); track $index) {
-                    <i class="material-icons" [class]="star.class">{{star.icon}}</i>
-                  }
-                </div>
-                <span class="rating-text">{{promoterStats().averageRating}}/5.0</span>
-              </div>
-            </div>
+<div class="promoter-landing-container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="user-greeting">
+          <div class="avatar">{{user()?.displayName?.charAt(0) || 'U'}}</div>
+          <div class="greeting-text">
+            <h1>Welcome, {{user()?.displayName}}!</h1>
+            <p>Ready to earn from your WhatsApp Status?</p>
           </div>
-          
-          <div class="earnings-quick-view">
-            <div class="earnings-card">
-              <div class="earnings-amount">
-                <span class="currency">₦</span>
-                <span class="amount">{{promoterStats().totalEarnings | number:'1.0-0'}}</span>
-              </div>
-              <p class="earnings-label">Total Earnings</p>
-              <div class="earnings-change positive">
-                <i class="material-icons">trending_up</i>
-                <span>+₦{{promoterStats().thisMonthEarnings | number:'1.0-0'}} this month</span>
-              </div>
-            </div>
+        </div>
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-value">₦{{metrics().totalEarnings | number:'1.0-0'}}</span>
+            <span class="stat-label">Total Earnings</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{metrics().rating}}</span>
+            <span class="stat-label">Rating</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">{{metrics().completedPromotions}}</span>
+            <span class="stat-label">Completed</span>
           </div>
         </div>
       </div>
+    </div>
+  </header>
 
-      <!-- Stats Overview -->
-      <div class="stats-section">
-        <div class="stats-grid">
-          <div class="stat-card active-campaigns">
+  <!-- Quick Stats -->
+  <section class="quick-stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card earnings">
+          <div class="stat-card-header">
+            <div class="stat-icon">
+              <i class="material-icons">account_balance_wallet</i>
+            </div>
+          </div>
+          <h3>₦{{metrics().pendingEarnings | number:'1.0-0'}}</h3>
+          <p>Pending Earnings</p>
+          <div class="stat-trend">
+            <i class="material-icons">schedule</i>
+            Processing verification
+          </div>
+        </div>
+
+        <div class="stat-card campaigns">
+          <div class="stat-card-header">
             <div class="stat-icon">
               <i class="material-icons">play_circle_filled</i>
             </div>
-            <div class="stat-content">
-              <h3>{{campaigns().length}}</h3>
-              <p>Active Promotions</p>
-              <div class="stat-progress">
-                <div class="progress-bar" [style.width.%]="(campaigns().length / 10) * 100"></div>
-              </div>
-            </div>
           </div>
-
-          <div class="stat-card pending-earnings">
-            <div class="stat-icon">
-              <i class="material-icons">hourglass_empty</i>
+          <h3>{{metrics().activePromotions}}</h3>
+          <p>Active Promotions</p>
+          @if (metrics().expiringSoon > 0) {
+            <div class="stat-trend">
+              <i class="material-icons">trending_up</i>
+              {{metrics().expiringSoon}} expiring soon
             </div>
-            <div class="stat-content">
-              <h3>₦{{promoterStats().pendingEarnings | number:'1.0-0'}}</h3>
-              <p>Pending Earnings</p>
-              <div class="stat-note">
-                <i class="material-icons">schedule</i>
-                <span>Processing verification</span>
-              </div>
+          }
+          @if (metrics().expiringSoon === 0) {
+            <div class="stat-trend">
+              <i class="material-icons">check_circle</i>
+              All campaigns active
             </div>
-          </div>
+          }
+        </div>
 
-          <div class="stat-card success-rate">
+        <div class="stat-card success">
+          <div class="stat-card-header">
             <div class="stat-icon">
               <i class="material-icons">verified</i>
             </div>
-            <div class="stat-content">
-              <h3>{{promoterStats().successRate}}%</h3>
-              <p>Success Rate</p>
-              <div class="stat-change positive">
-                <i class="material-icons">thumb_up</i>
-                <span>Great performance!</span>
-              </div>
-            </div>
           </div>
+          <h3>{{metrics().successRate | number:'1.0-0'}}%</h3>
+          <p>Success Rate</p>
+          <div class="stat-trend">
+            <i class="material-icons">thumb_up</i>
+            {{metrics().successRate >= 80 ? 'Great performance!' : 'Good performance'}}
+          </div>
+        </div>
 
-          <div class="stat-card total-views">
+        <div class="stat-card views">
+          <div class="stat-card-header">
             <div class="stat-icon">
               <i class="material-icons">visibility</i>
             </div>
-            <div class="stat-content">
-              <h3>{{promoterStats().totalViews | shortNumber}}</h3>
-              <p>Total Views Generated</p>
-              <div class="stat-change neutral">
-                <i class="material-icons">insights</i>
-                <span>Lifetime reach</span>
+          </div>
+          <h3>{{metrics().totalViews | number:'1.0-0'}}</h3>
+          <p>Total Views</p>
+          <div class="stat-trend">
+            <i class="material-icons">insights</i>
+            Lifetime reach
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Active Promotions Alert -->
+   @if (metrics().activePromotions > 0) {
+    <div class="container">
+      <div class="active-alert">
+        <div class="alert-content">
+          <div class="alert-icon">
+            <i class="material-icons">notification_important</i>
+          </div>
+          <div class="alert-text">
+            <h3>You have {{metrics().activePromotions}} active promotions</h3>
+            <p>Don't forget to submit your proof screenshots before expiry</p>
+          </div>
+          <button class="alert-btn">
+            View Active
+            <i class="material-icons">arrow_forward</i>
+          </button>
+        </div>
+      </div>
+    </div>
+   }
+
+
+  <!-- Filters Section -->
+  <section class="filters">
+    <div class="container">
+      <div class="filters-content">
+        <div class="search-box">
+          <i class="material-icons search-icon">search</i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search campaigns..."
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+          >
+        </div>
+
+        <div class="quick-filters">
+          <div class="filter-chip active">
+            <i class="material-icons">all_inclusive</i>
+            All
+            <span class="count">{{campaigns().length}}</span>
+          </div>
+          <div class="filter-chip">
+            <i class="material-icons">trending_up</i>
+            High Payout
+            <span class="count">{{getHighPayoutCount()}}</span>
+          </div>
+          <div class="filter-chip">
+            <i class="material-icons">schedule</i>
+            Ending Soon
+            <span class="count">{{metrics().expiringSoon}}</span>
+          </div>
+          <div class="filter-chip">
+            <i class="material-icons">flash_on</i>
+            Quick Tasks
+            <span class="count">{{getQuickTasksCount()}}</span>
+          </div>
+        </div>
+
+        <div class="view-controls">
+          <div class="results-count">Showing {{campaigns().length}} available campaigns</div>
+          <div class="view-toggle">
+            <button class="view-btn active">
+              <i class="material-icons">view_module</i>
+            </button>
+            <button class="view-btn">
+              <i class="material-icons">view_list</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Campaigns Grid -->
+  <main class="main">
+    <div class="container">
+      <div class="campaigns-grid">
+        <!-- Campaign Cards -->
+        @for (campaign of filteredCampaigns(); track campaign._id) {
+          <div class="campaign-card">
+            <div class="card-header">
+              <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
+                {{getStatusBadgeText(campaign)}}
               </div>
+              <button class="icon-btn">
+                <i class="material-icons">bookmark_border</i>
+              </button>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Active Promotions Alert -->
-      @if (campaigns().length > 0) {
-        <div class="active-promotions-alert">
-          <div class="alert-content">
-            <div class="alert-icon">
-              <i class="material-icons">notification_important</i>
-            </div>
-            <div class="alert-text">
-              <h3>You have {{campaigns().length}} active promotion(s)</h3>
-              <p>Don't forget to submit your proof screenshots before expiry</p>
-            </div>
-            <button class="view-active-btn" (click)="viewActivePromotions()">
-              View Active
-              <i class="material-icons">arrow_forward</i>
-            </button>
-          </div>
-        </div>
-      }
-
-      <!-- Quick Actions -->
-      <div class="quick-actions-section">
-        <h2>Quick Actions</h2>
-        <div class="actions-grid">
-          <div class="action-card browse-action" (click)="browseCampaigns()">
-            <div class="action-icon">
-              <i class="material-icons">search</i>
-            </div>
-            <h3>Browse Campaigns</h3>
-            <p>Find new campaigns to promote</p>
-            <div class="action-badge">
-              <span>{{availableCampaigns().length}} Available</span>
-            </div>
-          </div>
-
-          <div class="action-card earnings-action" (click)="viewEarnings()">
-            <div class="action-icon">
-              <i class="material-icons">account_balance_wallet</i>
-            </div>
-            <h3>My Earnings</h3>
-            <p>Track payments and withdrawals</p>
-            <div class="action-badge pending">
-              <span>₦{{promoterStats().pendingEarnings | number:'1.0-0'}} Pending</span>
-            </div>
-          </div>
-
-          <div class="action-card history-action" (click)="viewHistory()">
-            <div class="action-icon">
-              <i class="material-icons">history</i>
-            </div>
-            <h3>Promotion History</h3>
-            <p>View past campaigns and performance</p>
-          </div>
-
-          <div class="action-card support-action" (click)="getSupport()">
-            <div class="action-icon">
-              <i class="material-icons">help_center</i>
-            </div>
-            <h3>Help & Support</h3>
-            <p>Get assistance and tips</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Available Campaigns -->
-      <div class="campaigns-section">
-        <div class="section-header">
-          <h2>Available Campaigns</h2>
-          <div class="header-controls">
-            <div class="payout-filter">
-              <label>Min Payout:</label>
-              <input type="range" 
-                     min="100" 
-                     max="1000" 
-                     step="50" 
-                     [value]="minPayoutFilter()" 
-                     (input)="updatePayoutFilter($event)"
-                     class="payout-slider">
-              <span class="filter-value">₦{{minPayoutFilter()}}</span>
-            </div>
-            
-            <button class="filter-btn" [class.active]="currentCategoryFilter() !== 'all'" (click)="toggleCategoryFilter()">
-              <i class="material-icons">filter_list</i>
-              Filter
-              @if (currentCategoryFilter() !== 'all') {
-                <span class="filter-indicator">1</span>
-              }
-            </button>
-            
-            <button class="view-all-btn" (click)="viewAllCampaigns()">
-              View All
-              <i class="material-icons">arrow_forward</i>
-            </button>
-          </div>
-        </div>
-
-        @if (filteredCampaigns().length > 0) {
-          <div class="campaigns-grid">
-            @for (campaign of filteredCampaigns().slice(0, 6); track campaign._id) {
-              <div class="campaign-card" [class]="'difficulty-' + campaign.difficulty">
-                <div class="campaign-header">
-                  <div class="campaign-category">
-                    <span class="category-chip">{{campaign.category | titlecase}}</span>
-                  </div>
-                  
-                  <div class="campaign-actions">
-                    <button class="bookmark-btn" 
-                            [class.bookmarked]="campaign.isBookmarked"
-                            (click)="toggleBookmark(campaign._id)">
-                      <i class="material-icons">{{campaign.isBookmarked ? 'bookmark' : 'bookmark_border'}}</i>
-                    </button>
-                    
-                    <button class="menu-btn">
-                      <i class="material-icons">more_vert</i>
-                    </button>
-                  </div>
-                </div>
-
-                @if (campaign.mediaUrl) {
-                  <div class="campaign-media">
-                     @if (campaign.mediaType === "image") {
-                      <div class="campaign-media">
-                          <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
-                      </div>
-                    }
-                    @if (campaign.mediaType === "video") {
-                      <div class="campaign-media">
-                          <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.category + ' video placeholder'" class="media-preview placeholder-img">
-                      </div>
-                    }
-                    <div class="media-overlay">
-                      <button class="preview-btn" (click)="previewMedia(campaign._id)">
-                        <i class="material-icons">play_circle_filled</i>
-                      </button>
-                    </div>
-                  </div>
-                }
-
-                <div class="campaign-content">
-                  <div class="advertiser-info">
-                    <div class="advertiser-name">{{campaign.advertiserName}}</div>
-                    <div class="advertiser-rating">
-                      <i class="material-icons">star</i>
-                      <span>{{campaign.advertiserRating}}</span>
-                    </div>
-                  </div>
-
-                  <h3 class="campaign-title">{{campaign.title}}</h3>
-                  <p class="campaign-description">{{campaign.caption}}</p>
-
-                  <div class="campaign-requirements">
-                    <h4>Requirements:</h4>
-                    <ul class="requirements-list">
-                      @for (requirement of campaign.requirements.slice(0, 2); track requirement) {
-                        <li>{{requirement}}</li>
-                      }
-                      @if (campaign.requirements.length > 2) {
-                        <li class="more-requirements">+{{campaign.requirements.length - 2}} more...</li>
-                      }
-                    </ul>
-                  </div>
-
-                  <div class="campaign-metrics">
-                    <div class="metric">
-                      <i class="material-icons">people</i>
-                      <span>{{campaign.filledSlots}}/{{campaign.totalSlots}}</span>
-                    </div>
-                    <div class="metric">
-                      <i class="material-icons">schedule</i>
-                      <span>
-                         @if (campaign.endDate) {
-                              @if (campaign.remainingDays === 'Expired') {
-                                  <span>{{campaign.remainingDays}}</span>
-                              } @else {
-                                  <span>{{campaign.remainingDays}} left</span>
-                              }
-                          } @else {
-                          <span>{{campaign.remainingDays}}</span>
-                          }
-                      </span>
-                    </div>
-                    <div class="metric">
-                      <i class="material-icons">visibility</i>
-                      <span>~{{campaign.estimatedViews}} views</span>
-                    </div>
-                  </div>
-
-                  <div class="campaign-tags">
-                    @for (tag of campaign.tags.slice(0, 3); track tag) {
-                      <span class="tag">{{tag}}</span>
-                    }
-                  </div>
-
-                  <div class="campaign-payout">
-                    <div class="payout-amount">
-                      <span class="amount">₦{{campaign.payoutPerPromotion}}</span>
-                      <span class="per-post">per post</span>
-                    </div>
-                    <div class="difficulty-indicator">
-                      <span class="difficulty-label">{{campaign.difficulty | titlecase}}</span>
-                      <div class="difficulty-dots">
-                        @for (dot of getDifficultyDots(campaign.difficulty); track $index) {
-                          <div class="dot" [class.active]="dot"></div>
-                        }
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="campaign-urgency">
-                    <i class="material-icons">schedule</i>
-                    <span>
-                         @if (campaign.endDate) {
-                              @if (campaign.remainingDays === 'Expired') {
-                                  <span>{{campaign.remainingDays}}</span>
-                              } @else {
-                                  <span>{{campaign.remainingDays}} left</span>
-                              }
-                          } @else {
-                          <span>{{campaign.remainingDays}}</span>
-                          }
+            <div class="card-media">
+              @if (campaign.mediaType === 'video') {
+                <div class="video-placeholder">
+                  <div class="video-play-btn">
+                    <!-- -->
+                     <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+                    <span class="video-play-btn">
+                      <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg> 
                     </span>
                   </div>
                 </div>
+              }
+              @if (campaign.mediaType === 'image') {
+                <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+              }
+            </div>
 
-                <div class="campaign-footer">
-                  <div class="slots-progress">
-                    <div class="progress-label">
-                      <span>{{campaign.totalSlots - campaign.filledSlots}} slots left</span>
-                    </div>
-                    <div class="progress-bar-container">
-                      <div class="progress-bar" [style.width.%]="(campaign.filledSlots / campaign.totalSlots) * 100"></div>
-                    </div>
-                  </div>
-                  
-                  <button class="apply-btn" 
-                          [disabled]="campaign.filledSlots >= campaign.totalSlots"
-                          (click)="applyCampaign(campaign._id)">
-                    @if (campaign.filledSlots >= campaign.totalSlots) {
-                      <i class="material-icons">block</i>
-                      Full
-                    } @else {
-                      <i class="material-icons">add_circle</i>
-                      Apply Now
-                    }
-                  </button>
+            <div class="card-content">
+              <h3 class="card-title">{{campaign.title | titlecase}}</h3>
+              <p class="card-description">{{campaign.caption}}</p>
+              
+              <div class="card-meta">
+                <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
+                <span><i class="material-icons">schedule</i> {{campaign.remainingDays}}</span>
+              </div>
+
+              <div class="metrics">
+                <div class="metric">
+                  <div class="metric-value">{{campaign.totalPromotions || 0}}/{{campaign.maxPromoters}}</div>
+                  <div class="metric-label">Slots Filled</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">{{campaign.minViewsPerPromotion}}+</div>
+                  <div class="metric-label">Min Views</div>
                 </div>
               </div>
-            }
-          </div>
-        } @else {
-          <div class="empty-state">
-            <div class="empty-illustration">
-              <i class="material-icons">search_off</i>
+
+              <div class="payout-section">
+                <div class="payout-amount">
+                  <span class="currency">₦</span>
+                  <span class="amount">{{campaign.payoutPerPromotion}}</span>
+                </div>
+                <div class="difficulty-indicator">
+                  <span class="difficulty-label">{{getDifficultyLevel(campaign)}}</span>
+                  <div class="difficulty-dots">
+                    <div class="dot" [class.active]="getDifficultyDots(campaign) >= 1"></div>
+                    <div class="dot" [class.active]="getDifficultyDots(campaign) >= 2"></div>
+                    <div class="dot" [class.active]="getDifficultyDots(campaign) >= 3"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3>No Campaigns Found</h3>
-            <p>Try adjusting your filters or check back later for new opportunities</p>
-            <button class="reset-filters-btn" (click)="resetFilters()">
-              <i class="material-icons">clear_all</i>
-              Reset Filters
+
+            <!-- In your campaign card template -->
+          <div class="card-footer">
+            <button 
+              class="apply-btn" 
+              [class.disabled]="isApplyButtonDisabled(campaign)"
+              (click)="applyForCampaign(campaign)"
+              [disabled]="isApplyButtonDisabled(campaign)"
+              >
+              @if (isApplying()) {
+                <span class="loading-spinner"></span> Applying...
+              }@else {
+                <i class="material-icons">add_circle</i>
+                {{getApplyButtonText(campaign)}}
+              }
             </button>
+          </div>
           </div>
         }
       </div>
 
-      <!-- Performance Tips -->
-      <div class="tips-section">
-        <h2>Performance Tips</h2>
-        <div class="tips-grid">
-          <div class="tip-card">
-            <div class="tip-icon">
-              <i class="material-icons">camera_alt</i>
-            </div>
-            <h4>Quality Screenshots</h4>
-            <p>Always submit clear, high-quality proof screenshots to ensure quick verification</p>
-          </div>
-          
-          <div class="tip-card">
-            <div class="tip-icon">
-              <i class="material-icons">schedule</i>
-            </div>
-            <h4>Post at Peak Hours</h4>
-            <p>Share status updates during 6-9 PM for maximum views and engagement</p>
-          </div>
-          
-          <div class="tip-card">
-            <div class="tip-icon">
-              <i class="material-icons">groups</i>
-            </div>
-            <h4>Engage Your Audience</h4>
-            <p>Build an active contact list for consistent views on your status updates</p>
-          </div>
+      <!-- View All Button -->
+       @if (campaigns().length > 0) {
+        <div style="text-align: center; margin-top: 32px;">
+          <button class="btn btn-primary" style="padding: 16px 32px; font-size: 16px;">
+            <i class="material-icons">apps</i>
+            View All Campaigns
+          </button>
         </div>
-      </div>
+       }
+      
+      <!-- Empty State -->
+       @if (filteredCampaigns().length === 0 && !isLoading()) {
+        <div class="empty-state">
+          <i class="material-icons">campaign</i>
+          <h3>No campaigns available</h3>
+          <p>Check back later for new promotion opportunities</p>
+        </div>
+       }
+      
 
-    <!-- Mobile FAB -->
-    @if (deviceType() !== 'desktop') {
-    <div class="mobile-fab-container">
-        <button class="main-fab" (click)="browseCampaigns()">
-        <i class="material-icons">search</i>
-        </button>
-    </div>
+     <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="loading-grid">
+        @for (item of [1,2,3,4]; track $index) {
+          <div class="campaign-card-skeleton">
+            <div class="skeleton-header"></div>
+            <div class="skeleton-media"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-line" style="width: 70%"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line short"></div>
+              <div class="skeleton-metrics"></div>
+              <div class="skeleton-line" style="width: 40%; height: 24px; margin-top: 16px;"></div>
+            </div>
+          </div>
+        }
+      </div>
     }
+    </div>
+  </main>
+
+  <!-- Mobile FAB -->
+  <div class="mobile-fab">
+    <i class="material-icons">search</i>
+  </div>
 </div>

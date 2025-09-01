@@ -215,6 +215,10 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     this.router.navigate(['/campaign', campaignId, 'details']);
   }
 
+  viewAllCampaigns(): void {
+    this.router.navigate(['/dashboard/campaigns']);
+  }
+
   uploadProof(earningId: string): void {
     this.snackBar.open('Proof upload feature coming soon!', 'OK', { duration: 3000 });
   }

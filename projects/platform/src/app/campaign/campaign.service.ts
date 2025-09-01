@@ -45,8 +45,13 @@ export class CampaingService {
  * @param status The campaign status to filter by.
  * @returns An observable of the filtered campaigns.
  */
-getCampaignsByStatus(status: string): Observable<any> {
-  return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true);
-}
+  getCampaignsByStatus(status: string): Observable<any> {
+    return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true);
+  }
+
+  // In your campaign.service.ts
+  applyForCampaign(campaignId: string, userId: string): Observable<any> {
+    return this.apiService.post<any>(`campaign/${campaignId}/apply`, { userId }, undefined, true);
+  }
 
 }

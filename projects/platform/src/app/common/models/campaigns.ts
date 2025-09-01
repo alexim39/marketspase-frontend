@@ -62,7 +62,7 @@ export interface CampaignInterface {
   //description: string; // checked for removal
   status: CampaignStatus;
   budget: number;
-  spent: number;
+  //spent: number;
   payoutPerPromotion: number;
   maxPromoters: number;
   currentPromoters: number;
