@@ -9,7 +9,7 @@ export class ApiService {
   //private readonly baseUrl = 'https://marketspase-96hm2qxb.b4a.run';
   private readonly baseUrl = 'http://localhost:8080'; // For local testing
 
-  getBaseUrl(): string {
+  public getBaseUrl(): string {
     return this.baseUrl; 
   }
 

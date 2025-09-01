@@ -128,7 +128,7 @@
             <div class="card-media">
               @if (campaign.mediaType === "image") {
                  <div class="media-placeholder">
-                    <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                    <img [src]="api + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
                 </div>
               }
               @if (campaign.mediaType === "video") {
@@ -166,7 +166,7 @@
                   <div class="metric-label">Promoters</div>
                 </div>
                 <div class="metric">
-                  <div class="metric-value">{{campaign.views || 0 | shortNumber}}</div>
+                  <div class="metric-value">{{getViewCount(campaign.promotions) | shortNumber}}</div>
                   <div class="metric-label">Views</div>
                 </div>
               </div>

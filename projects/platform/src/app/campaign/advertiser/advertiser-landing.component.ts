@@ -16,11 +16,12 @@ import { DeviceService } from '../../common/services/device.service';
 import { UserInterface, UserService } from '../../common/services/user.service';
 import { CampaignInterface } from '../../common/models/campaigns';
 import { Subscription } from 'rxjs';
-import { CampaingService } from '../campaign.service';
+import { CampaignService } from '../campaign.service';
 import { CampaignStats, formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
+import { PromotionInterface } from '../../common/models/promotions';
 
 interface FilterOptions {
   status: string;
@@ -41,7 +42,7 @@ interface StatusOption {
 @Component({
   selector: 'advertiser-campaign-landing',
   standalone: true,
-  providers: [CampaingService],
+  providers: [CampaignService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -67,8 +68,9 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
   // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   private subscriptions: Subscription[] = [];
-  private campaingService = inject(CampaingService);
+  private campaignService = inject(CampaignService);
   campaignStats = computed(() => this.calculateStats());
+  public readonly api = this.campaignService.api;
   
   // Form controls
   searchControl = new FormControl('');
@@ -201,7 +203,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
      if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
       this.subscriptions.push(
-        this.campaingService.getAdvertiserCampaign(this.user()!._id!).subscribe({
+        this.campaignService.getAdvertiserCampaign(this.user()!._id!).subscribe({
           next: (response) => {
             //console.log('Campaigns without metrics:', response.data);
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
@@ -435,5 +437,13 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
   formatCurrency(amount: number): string {
     if (!amount || isNaN(amount)) return '₦0';
     return `₦${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
+  }
+
+  getViewCount(promotion: PromotionInterface[]): number {
+    let totalViews = 0;
+    promotion.forEach(promotion => {
+      totalViews += promotion.proofViews || 0;
+    });
+    return totalViews;
   }
 }

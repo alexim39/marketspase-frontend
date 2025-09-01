@@ -5,6 +5,8 @@
  * including details about its status, budget, and promotional activity.
  */
 
+import { PromotionInterface } from "./promotions";
+
 /**
  * Interface representing a single entry in the activity log of a campaign.
  * This is a nested interface used within the main Campaign interface.
@@ -88,6 +90,8 @@ export interface CampaignInterface {
   minViewsPerPromotion: number;
   validatedPromotions: number;
   totalPromotions: number;
+
+  promotions: PromotionInterface[]
 }
 
 

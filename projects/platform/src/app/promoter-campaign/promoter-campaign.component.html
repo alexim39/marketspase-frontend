@@ -1,0 +1,237 @@
+<div class="promoter-campaigns-container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="back-nav">
+          <button mat-icon-button routerLink="../campaigns">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <h1>My Promotions</h1>
+        </div>
+        <div class="header-actions">
+          <button mat-button class="btn-help">
+            <mat-icon>help_outline</mat-icon>
+            Help
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Overview -->
+  <section class="stats-overview">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <mat-icon>campaign</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats().total }}</h3>
+            <p>Total Promotions</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon pending">
+            <mat-icon>pending_actions</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats().pending }}</h3>
+            <p>Pending Submission</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon earnings">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>₦{{ stats().totalEarnings | number }}</h3>
+            <p>Total Earnings</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon pending-earnings">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="stat-content">
+            <h3>₦{{ stats().pendingEarnings | number }}</h3>
+            <p>Pending Payout</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabs Navigation -->
+  <section class="tabs-section">
+    <div class="container">
+      <mat-tab-group (selectedIndexChange)="onTabChange($event)" [selectedIndex]="selectedTab()">
+        <mat-tab label="All"></mat-tab>
+        <mat-tab label="Pending"></mat-tab>
+        <mat-tab label="Submitted"></mat-tab>
+        <mat-tab label="Validated"></mat-tab>
+        <mat-tab label="Paid"></mat-tab>
+      </mat-tab-group>
+    </div>
+  </section>
+
+  <!-- Campaigns List -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Loading State -->
+       @if (isLoading()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading your promotions...</p>
+        </div>
+       }
+      
+
+      <!-- Empty State -->
+       @if (!isLoading() && filteredPromotions().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <mat-icon>inbox</mat-icon>
+          </div>
+          <h3>No promotions found</h3>
+          <p>You haven't accepted any promotions yet. Start earning by applying to campaigns.</p>
+          <button mat-flat-button color="primary" routerLink="../../campaigns">
+            Browse Campaigns
+          </button>
+        </div>
+       }
+      
+
+      <!-- Promotions Grid -->
+       @if (!isLoading() && filteredPromotions().length > 0) {
+          <div class="promotions-grid">
+            @for (promotion of filteredPromotions(); track promotion) {
+                <div class="promotion-card" [class.expired]="isSubmissionExpired(promotion)">
+              
+              <div class="card-header">
+                <div class="status-badge" [class]="'status-' + promotion.status">
+                  <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
+                  <span>{{ promotion.status | titlecase }}</span>
+                </div>
+                <div class="card-actions">
+                  <button mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="openSubmitProofDialog(promotion)" 
+                            *ngIf="promotion.status === 'pending'">
+                      <mat-icon>cloud_upload</mat-icon>
+                      <span>Submit Proof</span>
+                    </button>
+                    <button mat-menu-item>
+                      <mat-icon>visibility</mat-icon>
+                      <span>View Details</span>
+                    </button>
+                    <button mat-menu-item>
+                      <mat-icon>chat</mat-icon>
+                      <span>Contact Support</span>
+                    </button>
+                  </mat-menu>
+                </div>
+              </div>
+
+              <div class="card-content">
+                <div class="campaign-media">
+                  <!-- <img 
+                    [src]="promotion.campaign.mediaUrl" 
+                    [alt]="promotion.campaign.title"
+                    >
+                    @if (promotion.campaign.mediaType === 'video') {
+                      <div class="media-overlay">
+                        <mat-icon>play_circle</mat-icon>
+                      </div>
+                    } -->
+                    @if (promotion.campaign.mediaType === "image") {
+                      <img [src]="api+promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
+                    }
+                    @if (promotion.campaign.mediaType === "video") {
+                      <div class="media-overlay">
+                          <img [src]="promotion.campaign.category | categoryPlaceholder" [alt]="promotion.campaign.category + ' video placeholder'" class="media-preview placeholder-img">
+                      </div>
+                    }
+                </div>
+
+                <div class="campaign-info">
+                  <h3 class="campaign-title">{{ promotion.campaign.title }}</h3>
+                  <p class="campaign-description">{{ promotion.campaign.caption }}</p>
+
+                  <div class="campaign-meta">
+                    <div class="meta-item">
+                      <mat-icon>category</mat-icon>
+                      <span>{{ promotion.campaign.category | titlecase }}</span>
+                    </div>
+                    <div class="meta-item" *ngIf="promotion.campaign.endDate">
+                      <mat-icon>schedule</mat-icon>
+                      <span>{{ getDaysRemaining(promotion.campaign.endDate) }} days left</span>
+                    </div>
+                  </div>
+
+                  <div class="payout-section">
+                    <div class="payout-amount">
+                      <span class="currency">₦</span>
+                      <span class="amount">{{ promotion.payoutAmount | number }}</span>
+                      <span class="payout-label">Payout</span>
+                    </div>
+                    <div class="views-requirement">
+                      <mat-icon>visibility</mat-icon>
+                      <span>Min {{ promotion.campaign.minViewsPerPromotion }} views</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <div class="footer-content">
+                  <div class="deadline-warning" *ngIf="isSubmissionExpired(promotion)">
+                    <mat-icon>warning</mat-icon>
+                    <span>Submission expired</span>
+                  </div>
+                  <div class="action-buttons">
+                    <button mat-flat-button color="primary" 
+                            (click)="openSubmitProofDialog(promotion)"
+                            *ngIf="promotion.status === 'pending' && !isSubmissionExpired(promotion)">
+                      <mat-icon>cloud_upload</mat-icon>
+                      Submit Proof
+                    </button>
+                    <button mat-stroked-button 
+                            *ngIf="promotion.status === 'submitted' || promotion.status === 'validated'">
+                      <mat-icon>visibility</mat-icon>
+                      View Status
+                    </button>
+                    <button mat-stroked-button color="primary" 
+                            *ngIf="promotion.status === 'paid'">
+                      <mat-icon>paid</mat-icon>
+                      Paid
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+
+
+          </div>
+       }
+
+
+      <!-- Load More Button -->
+       @if (filteredPromotions().length > 0) {
+        <div class="load-more">
+          <button mat-stroked-button>
+            <mat-icon>expand_more</mat-icon>
+            Load More
+          </button>
+        </div>
+       }
+    </div>
+  </main>
+</div>

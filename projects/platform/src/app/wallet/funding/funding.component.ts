@@ -358,12 +358,12 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private paystackService = inject(PaystackService);
-  private userService = inject(UserService);
   private dialogRef = inject(MatDialogRef<WalletFundingComponent>);
 
   fundingForm!: FormGroup;
   private subscriptions: Subscription[] = [];
 
+  private userService = inject(UserService);
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
   private router = inject(Router);

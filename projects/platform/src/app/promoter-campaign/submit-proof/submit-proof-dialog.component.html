@@ -1,0 +1,145 @@
+<div class="submit-proof-dialog">
+  <h2 mat-dialog-title>Submit Proof of Promotion</h2>
+
+  <mat-dialog-content>
+    <!-- Campaign Info -->
+    <div class="campaign-info">
+      <h3>{{ campaign.title | titlecase}}</h3>
+      <p class="caption">{{ campaign.caption }}</p>
+      
+      <div class="campaign-details">
+        <div class="detail-item">
+          <mat-icon>paid</mat-icon>
+          <span>Payout: ₦{{ campaign.payoutPerPromotion | number }}</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon>visibility</mat-icon>
+          <span>Min Views: {{ campaign.minViewsPerPromotion }}</span>
+        </div>
+        @if (daysRemaining > 0) {
+          <div class="detail-item">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ daysRemaining }} days remaining</span>
+          </div>
+        }
+        @if (daysRemaining <= 0) {
+           <div class="detail-item">
+            <mat-icon class="expired">warning</mat-icon>
+            <span class="expired">Submission expired</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Requirements -->
+    <div class="requirements">
+      <h4>Proof Requirements:</h4>
+      <ul>
+        <li>Screenshot showing your WhatsApp status with the campaign content</li>
+        <li>Clear view of the watermark/campaign ID</li>
+        <li>Timestamp showing the status was active</li>
+        <li>Clear view showing numbers of status view. Minimum {{ campaign.minViewsPerPromotion }} views</li>
+      </ul>
+    </div>
+
+    <!-- Proof Form -->
+    <form [formGroup]="proofForm" class="proof-form">
+      <!-- Views Count -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Number of Views</mat-label>
+        <input matInput type="number" formControlName="viewsCount" min="25" max="1000">
+        <mat-icon matSuffix>visibility</mat-icon>
+        @if (proofForm.get('viewsCount')?.hasError('required')) {
+          <mat-error>
+          Views count is required
+        </mat-error>
+        }
+        @if (proofForm.get('viewsCount')?.hasError('min')) {
+          <mat-error>
+            Minimum 25 views required
+          </mat-error>
+        }
+        @if (proofForm.get('viewsCount')?.hasError('max')) {
+          <mat-error>
+            Maximum 1000 views allowed
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Notes -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Additional Notes (Optional)</mat-label>
+        <textarea matInput formControlName="notes" rows="3" placeholder="Any additional information about your promotion..."></textarea>
+      </mat-form-field>
+
+      <!-- File Upload -->
+      <div class="file-upload-section">
+        <h4>Upload Proof Screenshots (Max 3 images)</h4>
+        
+        <div class="upload-area" [class.has-files]="selectedFiles.length > 0">
+          <input 
+            type="file" 
+            #fileInput 
+            multiple 
+            accept="image/*" 
+            (change)="onFileSelected($event)"
+            [disabled]="selectedFiles.length >= maxFiles"
+          >
+          @if (selectedFiles.length === 0) {
+             <div class="upload-placeholder">
+              <mat-icon>cloud_upload</mat-icon>
+              <p>Click to upload or drag and drop</p>
+              <span>PNG, JPG up to 5MB each</span>
+            </div>
+          }
+         
+          @if (selectedFiles.length > 0) {
+            <div class="file-previews">
+              @for (url of previewUrls; track url; let i = $index) {
+              <div class="file-preview">
+                <img [src]="url" alt="Proof screenshot">
+                <button mat-icon-button class="remove-btn" (click)="removeFile(i)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+              }
+              @if (selectedFiles.length < maxFiles) {
+                <div class="upload-more">
+                  <mat-icon>add</mat-icon>
+                  <span>Add more</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="upload-info">
+          <span>{{ selectedFiles.length }}/{{ maxFiles }} files selected</span>
+        </div>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="isSubmitting">Cancel</button>
+    <button 
+      mat-flat-button 
+      color="primary" 
+      (click)="onSubmit()" 
+      [disabled]="proofForm.invalid || selectedFiles.length === 0 || isSubmitting"
+    >
+      @if (isSubmitting) {
+        <mat-progress-bar 
+          mode="indeterminate" 
+          *ngIf="" 
+          class="progress-bar"
+        />
+      }
+      @if (!isSubmitting) {
+        <span>Submit Proof</span>
+      } @else {
+        <span>Submitting...</span>
+      }
+    </button>
+  </mat-dialog-actions>
+</div>

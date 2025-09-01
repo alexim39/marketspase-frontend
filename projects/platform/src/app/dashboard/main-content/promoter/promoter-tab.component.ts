@@ -21,7 +21,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserInterface } from '../../../common/services/user.service';
-import { CampaingService } from '../../../campaign/campaign.service';
+import { CampaignService } from '../../../campaign/campaign.service';
 import { CampaignInterface } from '../../../common/models/campaigns';
 import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';
 import { formatRemainingDays, isDatePast } from '../../../common/utils/time.util';
@@ -41,7 +41,7 @@ export interface Earning {
 
 @Component({
   selector: 'promoter-tab',
-  providers: [CampaingService],
+  providers: [CampaignService],
   imports: [
     CommonModule,
     RouterModule,
@@ -70,10 +70,11 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
-  private campaingService = inject(CampaingService);
+  private campaignService = inject(CampaignService);
   private readonly deviceService = inject(DeviceService);
   // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());
+  public readonly api = this.campaignService.api;
 
 
   //readonly user = input.required<UserInterface | null>();
@@ -157,7 +158,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
       this.subscriptions.push(
-        this.campaingService.getCampaignsByStatus('active').subscribe({
+        this.campaignService.getCampaignsByStatus('active').subscribe({
           next: (response) => {
              const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             this.campaigns.set(campaignsWithMetrics);

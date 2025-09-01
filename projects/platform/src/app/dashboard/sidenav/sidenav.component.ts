@@ -229,6 +229,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/campaigns']);
   }
 
+  public viewMyPromotion(): void {
+    //this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
+    this.router.navigate(['/dashboard/campaigns/my-promotions']);
+  }
+
   // Wallet Actions
   public fundWallet(): void {
     this.dialog.open(WalletFundingComponent, {

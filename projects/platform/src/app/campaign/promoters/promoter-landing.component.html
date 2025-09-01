@@ -203,7 +203,7 @@
                 </div>
               }
               @if (campaign.mediaType === 'image') {
-                <img [src]="'http://localhost:8080'+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                <img [src]="api+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
               }
             </div>
 

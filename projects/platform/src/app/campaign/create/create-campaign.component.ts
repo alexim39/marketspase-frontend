@@ -25,7 +25,7 @@ import { DeviceService } from '../../common/services/device.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { UserInterface, UserService } from '../../common/services/user.service';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
-import { CampaingService } from '../campaign.service';
+import { CampaignService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
 
@@ -50,7 +50,7 @@ interface MediaFile {
 @Component({
   selector: 'app-create-campaign',
   standalone: true,
-  providers: [CampaingService],
+  providers: [CampaignService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -115,7 +115,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  private campaingService = inject(CampaingService);
+  private campaignService = inject(CampaignService);
 
   // Campaign preview data
   campaignPreview = computed(() => this.generatePreview());
@@ -323,7 +323,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
         }
 
         this.subscriptions.push(
-          this.campaingService.create(formData).subscribe({
+          this.campaignService.create(formData).subscribe({
             next: (response) => {
               if (response.success) {
                 this.isSubmitting.set(false);

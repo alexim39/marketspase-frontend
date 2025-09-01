@@ -4,8 +4,9 @@ import { ApiService } from '../common/services/api.service';
 
 
 @Injectable()
-export class CampaingService {
+export class CampaignService {
   private apiService: ApiService = inject(ApiService);
+  public api = this.apiService.getBaseUrl();
   
 
   /**
@@ -52,6 +53,22 @@ export class CampaingService {
   // In your campaign.service.ts
   applyForCampaign(campaignId: string, userId: string): Observable<any> {
     return this.apiService.post<any>(`campaign/${campaignId}/apply`, { userId }, undefined, true);
+  }
+
+  // In your campaign.service.ts
+  getUserPromotions(userId: string): Observable<any> {
+    return this.apiService.get<any>(`campaign/promotions/user/${userId}`, undefined, undefined, true);
+  }
+
+  // submit promotion proofs
+  submitProof(formData: FormData): Observable<any> {
+    console.log(formData)
+    return this.apiService.post<any>(`campaign/promotions/submit-proof`, formData, undefined, true);
+  }
+
+  // get submitted proofs
+  getProofDetails(promotionId: string): Observable<any> {
+    return this.apiService.get<any>(`campaign/promotions/proof/${promotionId}`, undefined, undefined, true);
   }
 
 }

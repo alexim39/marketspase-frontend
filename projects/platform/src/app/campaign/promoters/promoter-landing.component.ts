@@ -16,7 +16,7 @@ import { DeviceService } from '../../common/services/device.service';
 import { UserInterface } from '../../common/services/user.service';
 import { CampaignInterface } from '../../common/models/campaigns';
 import { Subscription } from 'rxjs';
-import { CampaingService } from '../campaign.service';
+import { CampaignService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
@@ -36,7 +36,7 @@ interface CampaignMetrics {
 @Component({
   selector: 'promoter-landing',
   standalone: true,
-  providers: [CampaingService],
+  providers: [CampaignService],
   imports: [
     CommonModule,
     MatButtonModule,
@@ -64,7 +64,8 @@ export class PromoterLandingComponent implements OnInit {
   isApplying = signal(false);
   campaigns = signal<CampaignInterface[]>([]);
   subscriptions: Subscription[] = [];
-  private campaingService = inject(CampaingService);
+  private campaignService = inject(CampaignService);
+  public readonly api = this.campaignService.api;
 
   // Computed properties
   deviceType = computed(() => this.deviceService.type());
@@ -134,7 +135,7 @@ export class PromoterLandingComponent implements OnInit {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
       this.subscriptions.push(
-        this.campaingService.getCampaignsByStatus('active').subscribe({
+        this.campaignService.getCampaignsByStatus('active').subscribe({
           next: (response) => {
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             this.campaigns.set(campaignsWithMetrics);
@@ -283,7 +284,7 @@ export class PromoterLandingComponent implements OnInit {
     this.isApplying.set(true);
     
     this.subscriptions.push(
-      this.campaingService.applyForCampaign(campaign._id, this.user()!._id).subscribe({
+      this.campaignService.applyForCampaign(campaign._id, this.user()!._id).subscribe({
         next: (response) => {
           // Update local campaign data
           const updatedCampaigns = this.campaigns().map(c => {
