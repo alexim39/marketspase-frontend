@@ -346,6 +346,9 @@ body {
   flex-direction: column;
   overflow: hidden;
   margin-left: 20em; overflow-y: auto;
+  @media (max-width: 768px) {
+    margin-left: 100px;
+  }
 }
 
 /* Header */

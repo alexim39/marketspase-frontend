@@ -28,62 +28,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { CampaignService } from './campaign.service';
 import { Router } from '@angular/router';
 import { AdminService } from '../common/services/user.service';
-
-// Interfaces
-export interface Campaign {
-  _id: string;
-  title: string;
-  owner: {
-    _id: string;
-    username: string;
-    displayName: string;
-    email: string;
-  };
-  mediaUrl: string;
-  caption: string;
-  link: string;
-  category: string;
-  mediaType: string;
-  budget: number;
-  payoutPerPromotion: number;
-  currency: string;
-  maxPromoters: number;
-  currentPromoters: number;
-  minViewsPerPromotion: number;
-  totalPromotions: number;
-  validatedPromotions: number;
-  paidPromotions: number;
-  spentBudget: number;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'paused' | 'completed' | 'exhausted' | 'expired' | 'pending';
-  activityLog: ActivityLog[];
-  promotions: Promotion[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Promotion {
-  _id: string;
-  campaign: string;
-  promoter: {
-    _id: string;
-    username: string;
-    displayName: string;
-    email: string;
-  };
-  status: 'pending' | 'submitted' | 'validated' | 'rejected' | 'paid';
-  submittedAt: string;
-  validatedAt: string;
-  paidAt: string;
-  proofMedia: string[];
-  proofViews: number;
-  payoutAmount: number;
-  rejectionReason: string;
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { CampaignInterface } from '../../../../shared-services/src/public-api';
 
 export interface ActivityLog {
   action: string;
@@ -192,19 +137,26 @@ export interface ActivityLog {
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>Status</mat-label>
               <mat-select [formControl]="filtersForm.controls.status" multiple>
-                <mat-option value="active">Active</mat-option>
-                <mat-option value="paused">Paused</mat-option>
-                <mat-option value="completed">Completed</mat-option>
-                <mat-option value="exhausted">Exhausted</mat-option>
-                <mat-option value="expired">Expired</mat-option>
-                <mat-option value="pending">Pending</mat-option>
+                <div style="background-color: black;">
+                  <mat-option value="active">Active</mat-option>
+                  <mat-option value="paused">Paused</mat-option>
+                  <mat-option value="rejected">Rejected</mat-option>
+                  <mat-option value="completed">Completed</mat-option>
+                  <mat-option value="exhausted">Exhausted</mat-option>
+                  <mat-option value="expired">Expired</mat-option>
+                  <mat-option value="pending">Pending</mat-option>
+                </div>
               </mat-select>
             </mat-form-field>
             
             <mat-form-field appearance="outline" class="filter-field">
               <mat-label>Category</mat-label>
               <mat-select [formControl]="filtersForm.controls.category" multiple>
-                <mat-option *ngFor="let category of categories()" [value]="category">{{ category }}</mat-option>
+                <div style="background-color: black;">
+                  @for (category of categories(); track category) {
+                    <mat-option [value]="category">{{ category }}</mat-option>
+                  }
+                </div>
               </mat-select>
             </mat-form-field>
             
@@ -315,7 +267,8 @@ export interface ActivityLog {
                         <mat-icon>more_vert</mat-icon>
                       </button>
                       
-                      <mat-menu #menu="matMenu">
+                      <mat-menu #menu="matMenu" >
+                      <div style="background-color: black !important;">
                         @if (campaign.status === 'pending') {
                           <button mat-menu-item (click)="approveCampaign(campaign)">
                             <mat-icon>check_circle</mat-icon>
@@ -346,7 +299,9 @@ export interface ActivityLog {
                           <mat-icon>history</mat-icon>
                           <span>Activity Log</span>
                         </button>
+                      </div>
                       </mat-menu>
+                      
                     </div>
                   </td>
                 </ng-container>
@@ -579,6 +534,11 @@ export interface ActivityLog {
         background-color: #ffebee;
         color: #c62828;
       }
+
+      &.rejected {
+        background-color: #ffebee;
+        color: #591a1aff;
+      }
       
       &.pending {
         background-color: #e3f2fd;
@@ -727,7 +687,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
   // Table properties
   displayedColumns: string[] = ['title', 'owner', 'budget', 'promoters', 'status', 'dates', 'actions'];
-  dataSource: MatTableDataSource<Campaign> = new MatTableDataSource<Campaign>([]);
+  dataSource: MatTableDataSource<CampaignInterface> = new MatTableDataSource<CampaignInterface>([]);
 
   // Filters form
   filtersForm = this.fb.group({
@@ -773,13 +733,13 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
             this.extractCategories(response.data);
             this.isLoading.set(false);
           } else {
-            console.error('Failed to fetch campaigns:', response.message);
+            //console.error('Failed to fetch campaigns:', response.message);
             this.snackBar.open('Failed to load campaigns', 'Close', { duration: 3000 });
             this.isLoading.set(false);
           }
         },
         error: (error) => {
-          console.error('Error fetching campaigns:', error);
+          //console.error('Error fetching campaigns:', error);
           this.snackBar.open('Error loading campaigns', 'Close', { duration: 3000 });
           this.isLoading.set(false);
         }
@@ -787,7 +747,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     );
   }
 
-  calculateStats(campaigns: Campaign[]): void {
+  calculateStats(campaigns: CampaignInterface[]): void {
     this.totalCampaigns.set(campaigns.length);
     this.activeCampaigns.set(campaigns.filter(c => c.status === 'active').length);
     this.pendingCampaigns.set(campaigns.filter(c => c.status === 'pending').length);
@@ -796,7 +756,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     );
   }
 
-  extractCategories(campaigns: Campaign[]): void {
+  extractCategories(campaigns: CampaignInterface[]): void {
     const categories = new Set(campaigns.map(c => c.category).filter(Boolean));
     this.categories.set(Array.from(categories) as string[]);
   }
@@ -815,8 +775,8 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     }
   }
 
-  createFilter(): (data: Campaign, filter: string) => boolean {
-    return (data: Campaign, filter: string): boolean => {
+  createFilter(): (data: CampaignInterface, filter: string) => boolean {
+    return (data: CampaignInterface, filter: string): boolean => {
       // If the filter is empty, return true for all items
       if (!filter) return true;
       
@@ -849,19 +809,19 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     });
   }
 
-  viewCampaignDetails(campaign: Campaign): void {
+  viewCampaignDetails(campaign: CampaignInterface): void {
     this.router.navigate(['dashboard/campaigns', campaign._id]);
   }
 
-  viewPromotions(campaign: Campaign): void {
+  viewPromotions(campaign: CampaignInterface): void {
     this.router.navigate(['dashboard/campaigns', campaign._id, 'promotions']);
   }
 
-  viewActivityLog(campaign: Campaign): void {
+  viewActivityLog(campaign: CampaignInterface): void {
     this.router.navigate(['dashboard/campaigns', campaign._id, 'activity']);
   }
 
-  approveCampaign(campaign: Campaign): void {
+  approveCampaign(campaign: CampaignInterface): void {
     this.subscriptions.add(
       this.campaignService.updateCampaignStatus(campaign._id, 'active').subscribe({
         next: (response) => {
@@ -880,9 +840,9 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     );
   }
 
-  rejectCampaign(campaign: Campaign): void {
+  rejectCampaign(campaign: CampaignInterface): void {
     this.subscriptions.add(
-      this.campaignService.updateCampaignStatus(campaign._id, 'paused').subscribe({
+      this.campaignService.updateCampaignStatus(campaign._id, 'rejected').subscribe({
         next: (response) => {
           if (response.success) {
             this.snackBar.open('Campaign rejected successfully', 'Close', { duration: 3000 });
@@ -899,7 +859,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     );
   }
 
-  pauseCampaign(campaign: Campaign): void {
+  pauseCampaign(campaign: CampaignInterface): void {
     this.subscriptions.add(
       this.campaignService.updateCampaignStatus(campaign._id, 'paused').subscribe({
         next: (response) => {
@@ -918,7 +878,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     );
   }
 
-  resumeCampaign(campaign: Campaign): void {
+  resumeCampaign(campaign: CampaignInterface): void {
     this.subscriptions.add(
       this.campaignService.updateCampaignStatus(campaign._id, 'active').subscribe({
         next: (response) => {

@@ -367,7 +367,7 @@ export interface User {
     }
 
     .back-button {
-      background-color: #f5f5f5;
+      background-color: #7e7e7eff;
     }
 
     .page-title {
@@ -383,7 +383,7 @@ export interface User {
     }
 
     .status-button, .edit-button {
-      background-color: #f5f5f5;
+      background-color: #7e7e7eff;
     }
 
     .loading-spinner {

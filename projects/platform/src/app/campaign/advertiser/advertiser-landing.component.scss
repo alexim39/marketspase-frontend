@@ -260,6 +260,11 @@
     color: #92400e;
   }
 
+  &.status-rejected {
+    background: #8a1010;
+    color: #fef3c7;
+  }
+
   &.status-draft {
     background: #e0e7ff;
     color: #3730a3;
@@ -700,6 +705,10 @@
 
   &.status-paused {
     border-left: 4px solid #92400e;
+  }
+
+  &.status-rejected {
+    border-left: 4px solid #8a1010;
   }
 
   &.status-draft {

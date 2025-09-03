@@ -416,6 +416,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
     const icons: Record<string, string> = {
       'active': 'play_circle',
       'paused': 'pause_circle',
+      'rejected': 'block',
       'draft': 'edit',
       'completed': 'check_circle',
       'expired': 'schedule',

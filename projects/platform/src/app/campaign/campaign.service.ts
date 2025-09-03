@@ -38,7 +38,7 @@ export class CampaignService {
    * @returns An observable of the submitted form data.
   */
   getAdvertiserCampaign(userId: string): Observable<any> {
-    return this.apiService.get<any>(`campaign/${userId}`, undefined, undefined, true);
+    return this.apiService.get<any>(`campaign/user/${userId}`, undefined, undefined, true);
   }
 
  /**

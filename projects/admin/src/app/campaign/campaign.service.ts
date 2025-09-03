@@ -33,11 +33,15 @@ export class CampaignService {
   }
 
   getCampaignById(id: string): Observable<ApiResponse<any>> {
-    return this.apiService.get<ApiResponse<any>>(`campaign/${id}`);
+    return this.apiService.get<ApiResponse<any>>(`campaign/${id}`, undefined, undefined, true);
   }
 
-  updateCampaignStatus(id: string, isActive: string): Observable<ApiResponse<any>> {
-    return this.apiService.patch<ApiResponse<any>>(`campaign/${id}/status`, { isActive });
+  updateCampaignStatus(id: string, status: string): Observable<ApiResponse<any>> {
+    return this.apiService.patch<ApiResponse<any>>(`campaign/${id}/status`, { status }, undefined, true);
+  }
+
+  updatePromotionStatus(id: string, status: string): Observable<ApiResponse<any>> {
+    return this.apiService.patch<ApiResponse<any>>(`campaign/promotion/${id}/status`, { status });
   }
 
 }

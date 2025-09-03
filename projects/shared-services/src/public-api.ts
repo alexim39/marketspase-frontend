@@ -3,3 +3,5 @@
  */
 
 export * from './lib/api-service';
+export * from './lib/campaign.interface';
+export * from './lib/promotion.interface';
