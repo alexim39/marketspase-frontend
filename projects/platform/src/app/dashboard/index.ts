@@ -15,6 +15,7 @@ import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
 import { UserInterface, UserService } from '../common/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -290,6 +291,7 @@ export class DashboardIndex implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly deviceService = inject(DeviceService);
+  private snackBar = inject(MatSnackBar);
 
   // Reactive state using signals
   protected readonly authState = signal<AuthState>({
@@ -335,6 +337,9 @@ export class DashboardIndex implements OnInit, OnDestroy {
                   }
                 },
                 error: (error: HttpErrorResponse) => {
+                   this.snackBar.open(error.error.message, 'Close', {
+                    duration: 8000,
+                  });
                    // User is not authenticated - redirect to login
                     this.authState.set({
                       isAuthenticated: false,

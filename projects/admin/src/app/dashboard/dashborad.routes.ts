@@ -1,0 +1,36 @@
+import { Routes } from "@angular/router";
+import { AuthGuard } from "./guard.service";
+import { AdminDashboardComponent } from "./index.component";
+import { DashboardMainComponent } from "./dashboard-main.component";
+
+export const dashboardRoutes: Routes = [
+    {
+        /* path: '',
+        redirectTo: 'partner',
+        pathMatch: 'full' */
+        path: '',
+        component: AdminDashboardComponent,
+        canActivate: [AuthGuard],
+        children: [
+            {
+                path: '',
+               component: DashboardMainComponent,
+            },   
+            {   path: 'users', 
+                loadComponent: () => import('../users/users.component').then(c => c.UserMgtComponent),
+                title: 'User Management - Admin Dashboard'
+            },  
+            { path: 'users/:id', 
+                loadComponent: () => import('../users/user-details.component').then(c => c.UserDetailsComponent),
+                title: 'User Details - Admin Dashboard'
+            },
+            {   path: 'campaigns', 
+                loadComponent: () => import('../campaign/campaign.component').then(c => c.CampaignMgtComponent),
+                title: 'Campaign Management - Admin Dashboard'
+            },                       
+            // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  
+            // { path: 'analytics', loadChildren: () => import('./business/analytics/analytics-routes').then(r => r.AnalyticsRoutes) },  
+               
+        ]
+    },
+]
