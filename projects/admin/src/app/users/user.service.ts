@@ -2,11 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from '../../../../shared-services/src/public-api';
 
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-}
 
 @Injectable()
 export class UserService {
@@ -32,12 +27,12 @@ export class UserService {
     return this.apiService.get<any>(`user/users`, undefined, undefined, true);
   }
 
-  getUserById(id: string): Observable<ApiResponse<any>> {
-    return this.apiService.get<ApiResponse<any>>(`user/${id}`);
+  getUserById(id: string): Observable<any> {
+    return this.apiService.get<any>(`user/${id}`);
   }
 
-  updateUserStatus(id: string, isActive: boolean): Observable<ApiResponse<any>> {
-    return this.apiService.patch<ApiResponse<any>>(`user/${id}/status`, { isActive });
+  updateUserStatus(id: string, isActive: boolean): Observable<any> {
+    return this.apiService.patch<any>(`user/${id}/status`, { isActive });
   }
 
 }
