@@ -14,10 +14,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subscription, timer } from 'rxjs';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
 import { Router } from '@angular/router';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 export interface WalletDialogData {
   currentBalance: number;

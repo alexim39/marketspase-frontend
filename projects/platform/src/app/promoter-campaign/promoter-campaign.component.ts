@@ -10,17 +10,15 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { CampaignService } from '../campaign/campaign.service';
-import { UserInterface, UserService } from '../common/services/user.service';
+import { UserService } from '../common/services/user.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { PromotionInterface } from '../common/models/promotions';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoryPlaceholderPipe } from '../common/pipes/category-placeholder.pipe';
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
-// import { CampaignService } from '../services/campaign.service';
-// import { UserInterface } from '../../models/user.model';
-// import { PromotionInterface } from '../../models/promotion.model';
-// import { SubmitProofDialogComponent } from '../../components/submit-proof-dialog/submit-proof-dialog.component';
+import { UserInterface } from '../../../../shared-services/src/public-api';
+
 
 interface PromotionStats {
   total: number;

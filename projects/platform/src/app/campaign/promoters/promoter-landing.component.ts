@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSliderModule } from '@angular/material/slider';
 import { DeviceService } from '../../common/services/device.service';
-import { UserInterface } from '../../common/services/user.service';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { CampaignInterface } from '../../common/models/campaigns';
 import { Subscription } from 'rxjs';
 import { CampaignService } from '../campaign.service';

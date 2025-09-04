@@ -4,10 +4,10 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { MatExpansionModule } from '@angular/material/expansion';
 import { SettingsService, NotificationInterface } from '../system.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserInterface } from '../../../common/services/user.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'async-notification',

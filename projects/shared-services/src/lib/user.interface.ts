@@ -1,26 +1,94 @@
+import { CampaignInterface } from "./campaign.interface";
+
 export interface UserInterface {
   _id: string;
-  uid: string;
-  username: string;
+  status: boolean;
   displayName: string;
   email: string;
-  role: 'advertiser' | 'promoter';
-  avatar: string;
+  username: string;
+  biography?: string;
+  role?: string;
+  avatar?: string;
+  createdAt?: Date;
+  preferences?: {
+    notification?: boolean;
+  };
+  darkMode?: boolean;
+  testimonial?: {
+    message?: string;
+  };
+  dob?: Date;
+  isActive?: boolean;
+  verified?: boolean;
   rating: number;
-  ratingCount: number;
-  isActive: boolean;
-  isVerified: boolean;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  wallets: {
+  personalInfo: {
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      country: string;
+    }
+    email: string;
+    phone: string;
+    dob: Date;
+    biography: string;
+  };
+  professionalInfo?: {
+    skills?: string[];
+    jobTitle: string;
+    experience: {
+      company: string;
+      startDate: Date;
+      endDate: Date;
+      description: string;
+      current: boolean;
+    };
+    education?: {
+      institution: string;
+      certificate: string;
+      fieldOfStudy: string;
+      startDate: Date;
+      endDate: Date;
+      description: string;
+    };
+  };
+  interests?: {
+    hobbies?: string[];
+    favoriteTopics?: string[];
+  };
+  savedAccounts?: {
+    _id: string;
+    bank: string;
+    bankCode: string;
+    accountNumber: string;
+    accountName: string;
+  }[];
+  wallets?: {
     advertiser: {
       balance: number;
       reserved: number;
+      transactions: {
+        amount: number;
+        category: string;
+        createdAt: Date;
+        description: string;
+        status: string;
+        type: string;
+      };
     };
     promoter: {
       balance: number;
       reserved: number;
+      transactions: {
+        amount: number;
+        category: string;
+        createdAt: Date;
+        description: string;
+        status: string;
+        type: string;
+      };
     };
+   
   };
+  campaigns?: [CampaignInterface]; // Adjust the type as per your Campaign model
 }

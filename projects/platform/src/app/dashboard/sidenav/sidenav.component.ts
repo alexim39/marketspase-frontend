@@ -18,10 +18,10 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserInterface } from '../../common/services/user.service';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 // Interfaces
 export interface Earning {

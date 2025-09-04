@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Signal, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, Signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,15 +15,11 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../../auth/auth.service';
-import { UserInterface, UserService } from '../../../common/services/user.service';
-import { DashboardService } from './../../dashboard.service';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
+
 
 // Interfaces
 export interface Campaign {

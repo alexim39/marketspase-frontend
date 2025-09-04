@@ -20,7 +20,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserInterface } from '../../../common/services/user.service';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { CampaignService } from '../../../campaign/campaign.service';
 import { CampaignInterface } from '../../../common/models/campaigns';
 import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';

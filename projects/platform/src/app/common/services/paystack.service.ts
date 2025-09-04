@@ -1,6 +1,6 @@
 import { Injectable, Inject, Optional } from '@angular/core';
 import { Observable, Subject, throwError } from 'rxjs';
-import { UserInterface } from './user.service';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 // Configuration interface for better type safety
 export interface PaystackConfig {

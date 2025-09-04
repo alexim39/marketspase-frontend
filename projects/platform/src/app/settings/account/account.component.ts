@@ -7,8 +7,9 @@ import { ProfessionalInfoComponent } from './professional/professional.component
 import { UsernameInfoComponent } from './username/username.component';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'async-account',

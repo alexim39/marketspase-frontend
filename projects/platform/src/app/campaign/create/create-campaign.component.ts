@@ -23,11 +23,12 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Subscription } from 'rxjs';
 import { DeviceService } from '../../common/services/device.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CampaignService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 interface CampaignPreview {
   title: string;

@@ -3,8 +3,10 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { NotificationSettingsComponent } from './notification/notification.component';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
+
 
 @Component({
   selector: 'async-system-setting',

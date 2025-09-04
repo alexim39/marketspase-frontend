@@ -3,7 +3,6 @@ import { Component, inject, Input, OnInit, ViewChild, HostListener } from '@angu
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
-import { UserInterface } from '../../common/services/user.service';
 import { HelpDialogComponent } from '../../common/help-dialog.component';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -16,6 +15,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'settings-index',

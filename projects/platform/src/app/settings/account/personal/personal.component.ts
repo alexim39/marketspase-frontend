@@ -16,7 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, signal } from '@angular/core';
 
-import { UserInterface } from '../../../common/services/user.service';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COUNTRIES } from '../../../common/utils/countries';

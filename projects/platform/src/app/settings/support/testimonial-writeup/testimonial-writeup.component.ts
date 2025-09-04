@@ -8,13 +8,13 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { SupportService } from '../support.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSelectModule } from '@angular/material/select';
-import { UserInterface } from '../../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'async-testimonial-writeup-settings',

@@ -3,11 +3,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { TestimonialWriteupSettingsComponent } from './testimonial-writeup/testimonial-writeup.component';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { SupportService } from './support.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ContactComponent } from './contact/contact.component';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'async-review-setting',

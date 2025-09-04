@@ -1,7 +1,7 @@
 // src/app/common/services/transaction.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../common/services/api.service';
+import { ApiService } from '../../../../shared-services/src/public-api';
 
 export interface RecordPaymentPayload {
   userId: string;

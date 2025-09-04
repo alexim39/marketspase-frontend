@@ -28,8 +28,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-import { UserInterface } from '../../../common/services/user.service';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsernameDialogComponent } from './help-dialog.component';
 import { ProfileService } from '../profile.service';

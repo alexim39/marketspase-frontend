@@ -5,7 +5,6 @@ import {
   DestroyRef, 
   inject, 
   Input, 
-  input, 
   OnDestroy,
   OnInit, 
   Signal, 
@@ -13,7 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService, TestimonialInterface } from '../dashboard.service';
-import { UserInterface } from '../../common/services/user.service';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 interface TestimonialState {
   testimonials: TestimonialInterface[];

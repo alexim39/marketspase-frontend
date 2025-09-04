@@ -22,11 +22,12 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth/auth.service';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
 import { AdvertiserTabComponent } from './advertiser/advertiser-tab.component';
 import { PromoterTabComponent } from './promoter/promoter-tab.component';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 // Interfaces
 export interface Campaign {

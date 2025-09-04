@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ApiService } from '../common/services/api.service';
-import { FormGroup } from '@angular/forms';
-import { UserInterface } from '../common/services/user.service';
+import { ApiService } from '../../../../shared-services/src/public-api';
 
   
 export interface ProfessionalInfoInterface {

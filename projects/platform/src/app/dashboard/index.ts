@@ -13,9 +13,10 @@ import { DeviceService } from '../common/services/device.service';
 import { DashboardComponent } from './sidenav/sidenav.component';
 import { AuthService } from '../auth/auth.service';
 import { Subscription } from 'rxjs';
-import { UserInterface, UserService } from '../common/services/user.service';
+import { UserService } from '../common/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserInterface } from '../../../../shared-services/src/public-api';
 
 interface AuthState {
   isAuthenticated: boolean;

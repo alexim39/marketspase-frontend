@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeviceService } from '../../common/services/device.service';
-import { UserInterface, UserService } from '../../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { CampaignInterface } from '../../common/models/campaigns';
 import { Subscription } from 'rxjs';
 import { CampaignService } from '../campaign.service';
@@ -22,6 +22,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { PromotionInterface } from '../../common/models/promotions';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 interface FilterOptions {
   status: string;
