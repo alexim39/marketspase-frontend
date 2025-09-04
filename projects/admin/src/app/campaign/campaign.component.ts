@@ -82,6 +82,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   activeCampaigns = signal(0);
   pendingCampaigns = signal(0);
   completedCampaigns = signal(0);
+  rejectedCampaigns = signal(0);
   categories = signal<string[]>([]);
 
   // Table properties
@@ -150,8 +151,9 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     this.totalCampaigns.set(campaigns.length);
     this.activeCampaigns.set(campaigns.filter(c => c.status === 'active').length);
     this.pendingCampaigns.set(campaigns.filter(c => c.status === 'pending').length);
+    this.rejectedCampaigns.set(campaigns.filter(c => c.status === 'rejected').length);
     this.completedCampaigns.set(
-      campaigns.filter(c => ['completed', 'exhausted', 'expired'].includes(c.status)).length
+      campaigns.filter(c => ['completed', 'exhausted', 'expired', 'rejected'].includes(c.status)).length
     );
   }
 

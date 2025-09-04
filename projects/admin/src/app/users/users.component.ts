@@ -22,34 +22,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AdminService } from '../common/services/user.service';
 import { UserService } from './user.service';
 import { Router } from '@angular/router';
-
-// Interfaces
-export interface User {
-  _id: string;
-  uid: string;
-  username: string;
-  displayName: string;
-  email: string;
-  role: 'advertiser' | 'promoter';
-  avatar: string;
-  rating: number;
-  ratingCount: number;
-  isActive: boolean;
-  isVerified: boolean;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  wallets: {
-    advertiser: {
-      balance: number;
-      reserved: number;
-    };
-    promoter: {
-      balance: number;
-      reserved: number;
-    };
-  };
-}
+import { UserInterface } from '../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'admin-user-mgt',
@@ -83,7 +56,7 @@ export class UserMgtComponent implements OnInit, OnDestroy {
 
   // Table properties
   displayedColumns: string[] = ['avatar', 'displayName', 'email', 'role', 'balance', 'status', 'createdAt', 'actions'];
-  dataSource: MatTableDataSource<User> = new MatTableDataSource<User>([]);
+  dataSource: MatTableDataSource<UserInterface> = new MatTableDataSource<UserInterface>([]);
   isLoading = true;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -132,8 +105,8 @@ export class UserMgtComponent implements OnInit, OnDestroy {
     }
   }
 
-  createFilter(): (data: User, filter: string) => boolean {
-    return (data: User, filter: string): boolean => {
+  createFilter(): (data: UserInterface, filter: string) => boolean {
+    return (data: UserInterface, filter: string): boolean => {
       // If the filter is empty, return true for all items
       if (!filter) return true;
       
@@ -145,31 +118,31 @@ export class UserMgtComponent implements OnInit, OnDestroy {
     };
   }
 
-  viewUserDetails(user: User) {
+  viewUserDetails(user: UserInterface) {
     this.router.navigate(['dashboard/users', user._id]);
   }
 
-  editUser(user: User) {
+  editUser(user: UserInterface) {
     console.log('Edit user:', user);
     // Implement edit user functionality
   }
 
-  activateUser(user: User) {
+  activateUser(user: UserInterface) {
     console.log('Activate user:', user);
     // Implement activate user functionality
   }
 
-  deactivateUser(user: User) {
+  deactivateUser(user: UserInterface) {
     console.log('Deactivate user:', user);
     // Implement deactivate user functionality
   }
 
-  deleteUser(user: User) {
+  deleteUser(user: UserInterface) {
     console.log('Delete user:', user);
     // Implement delete user functionality
   }
 
-  restoreUser(user: User) {
+  restoreUser(user: UserInterface) {
     console.log('Restore user:', user);
     // Implement restore user functionality
   }
