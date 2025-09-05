@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Subject, Subscription, takeUntil } from 'rxjs';
@@ -23,6 +23,7 @@ import { AdminService } from '../common/services/user.service';
 import { UserService } from './user.service';
 import { Router } from '@angular/router';
 import { UserInterface } from '../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'admin-user-mgt',
@@ -62,7 +63,7 @@ export class UserMgtComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     // Initialize the data source with the correct filter predicate
@@ -73,7 +74,7 @@ export class UserMgtComponent implements OnInit, OnDestroy {
     this.adminService.fetchAdmin();
 
       this.userService.getAppUsers()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -148,7 +149,7 @@ export class UserMgtComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 }

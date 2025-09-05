@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, Signal, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, Signal, Input, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -24,6 +24,7 @@ import { CampaignInterface, DeviceService, UserInterface } from '../../../../../
 import { CampaignService } from '../../../campaign/campaign.service';
 import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';
 import { formatRemainingDays, isDatePast } from '../../../common/utils/time.util';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 export interface Earning {
@@ -133,7 +134,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     }
   ]);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   pendingEarnings = computed(() => {
     return this.earnings()
@@ -156,7 +157,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
         this.campaignService.getCampaignsByStatus('active')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
              const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
@@ -203,8 +204,8 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 

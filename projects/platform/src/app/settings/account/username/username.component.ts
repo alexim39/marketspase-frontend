@@ -266,7 +266,7 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
   private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Input is now a required signal
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -274,7 +274,6 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
   // State management with signals
   isLoading = signal(false);
   usernameForm!: FormGroup;
-  private destroy$ = new Subject<void>();
 
   // Use a computed signal for the username preview
   // This automatically updates whenever the username form control value changes
@@ -303,8 +302,8 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -367,7 +366,6 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
     this.profileService
       .updateUsername(usernameData)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.showNotification(response.message, 'success');

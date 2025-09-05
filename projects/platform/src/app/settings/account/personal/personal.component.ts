@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, Signal, effect, OnDestroy } from '@angular/core';
+import { Component, inject, Input, OnInit, Signal, effect, OnDestroy, DestroyRef } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,6 +22,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COUNTRIES } from '../../../common/utils/countries';
 import { ProfileService } from '../profile.service';
 import { Subject, Subscription, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 // Nigerian states
@@ -66,7 +67,7 @@ export class PersonalInfoComponent implements OnDestroy {
 
   private snackBar = inject(MatSnackBar);
   private profileService = inject(ProfileService);
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Reactive state using signals
   isLoading = signal(false);
@@ -131,7 +132,7 @@ export class PersonalInfoComponent implements OnDestroy {
         // Use toSignal() within this effect's injection context
         this.countryValue.set(this.profileForm.controls['country'].value);
         this.profileForm.controls['country'].valueChanges
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(value => {
             this.countryValue.set(value);
         });
@@ -139,7 +140,7 @@ export class PersonalInfoComponent implements OnDestroy {
         // Add a subscription to handle the state field's validation and status dynamically
         // after the form has been initialized.
         this.profileForm.controls['country'].valueChanges
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(country => {
           const stateControl = this.profileForm.get('state');
           if (stateControl) {
@@ -162,8 +163,8 @@ export class PersonalInfoComponent implements OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -191,7 +192,7 @@ export class PersonalInfoComponent implements OnDestroy {
     const formValue = this.profileForm.value;
 
       this.profileService.updateProfile(formValue)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.showNotification(response.message, 'success');

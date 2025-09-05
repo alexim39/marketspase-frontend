@@ -59,9 +59,8 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   // Services are injected via the `inject` function
   private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Input is a signal, which is a key part of the component's reactivity
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -107,8 +106,8 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -151,7 +150,6 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
       // The takeUntilDestroyed operator automatically handles unsubscription
       takeUntilDestroyed(this.destroyRef)
     )
-    .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response) => {
         this.showNotification(response.message, 'success');

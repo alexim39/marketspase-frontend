@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, Inject, Optional, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -19,6 +19,7 @@ import { PaymentResult, PaymentRequest, PaystackService } from '../../common/ser
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
 import { Router } from '@angular/router';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface WalletDialogData {
   currentBalance: number;
@@ -362,7 +363,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
   private dialogRef = inject(MatDialogRef<WalletFundingComponent>);
 
   fundingForm!: FormGroup;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   private userService = inject(UserService);
   // Expose the signal directly to the template
@@ -437,8 +438,8 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
 
  
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -455,7 +456,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
 
     // Subscribe to form changes with debouncing
       this.fundingForm.get('amount')!.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         const numValue = parseFloat(value) || 0;
         if (numValue >= this.minFundingAmount && numValue <= this.maxFundingAmount) {
@@ -554,7 +555,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
 
       // Subscribe to payment result
         this.paystackService.initiatePayment(paymentRequest)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (result) => this.handlePaymentResult(result),
           error: (error) => this.handlePaymentError(error.message || 'Payment failed'),
@@ -570,7 +571,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
   private startProcessingTimer(): void {
     this.processingTime.set(0);
       timer(0, 1000)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(seconds => {
         this.processingTime.set(seconds);
       })
@@ -628,7 +629,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
 
       // Step 2: Call the backend endpoint to verify and record the payment
         this.walletService.recordPayment(payload)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
            if (response.success) {

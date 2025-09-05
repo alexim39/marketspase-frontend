@@ -1,5 +1,5 @@
 // dashboard.component.ts
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -22,6 +22,7 @@ import { DashboardService } from '../dashboard.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Interfaces
 export interface Earning {
@@ -99,7 +100,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Signals for reactive state management
   currentUser = signal<UserProfile>({
@@ -201,8 +202,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -269,7 +270,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   */
   public logout(): void {
       this.authService.signOut()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.router.navigate(['/']);
@@ -308,7 +309,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       userId: this.user()?._id
     }
       this.dashboardService.switchUser(roleObject)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -426,12 +427,12 @@ duplicateCampaign(campaignId: string): void {
   // });
 
   // dialogRef.afterClosed()
-  //.pipe(takeUntil(this.destroy$))
+  //.pipe(takeUntilDestroyed(this.destroyRef))
   // .subscribe(result => {
   //   if (result) {
   //     // Call API to duplicate campaign
   //     this.campaignService.duplicateCampaign(campaignId)
-  //.pipe(takeUntil(this.destroy$))
+  //.pipe(takeUntilDestroyed(this.destroyRef))
   // .subscribe({
   //       next: (duplicatedCampaign) => {
   //         this.snackBar.open('Campaign duplicated successfully', 'Close', {

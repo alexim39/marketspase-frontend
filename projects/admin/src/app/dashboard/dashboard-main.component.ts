@@ -1,4 +1,4 @@
-import { Component, signal, computed, OnInit, inject, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, inject, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,6 +6,7 @@ import { CampaignService } from '../campaign/campaign.service';
 import { Subject, takeUntil } from 'rxjs';
 import { CampaignInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { UserService } from '../users/user.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface PromotionPost {
   id: string;
@@ -43,7 +44,7 @@ interface StatusPromotion {
 })
 export class DashboardMainComponent implements OnInit, OnDestroy {
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   readonly campaignService = inject(CampaignService);
   readonly userService = inject(UserService);
   isCampaignLoading = signal(true);
@@ -226,8 +227,8 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
   Math = Math;
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
   ngOnInit(): void {
@@ -239,7 +240,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     this.isCampaignLoading.set(true);
     
     this.campaignService.getAppCampaigns()
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         if (response.success) {
@@ -258,7 +259,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     this.isUserLoading.set(true);
 
      this.userService.getAppUsers()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {

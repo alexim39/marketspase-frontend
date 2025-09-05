@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -28,6 +28,7 @@ import { TestimonialsComponent } from '../testimonial/testimonial.component';
 import { AdvertiserTabComponent } from './advertiser/advertiser-tab.component';
 import { PromoterTabComponent } from './promoter/promoter-tab.component';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Interfaces
 export interface Campaign {
@@ -119,7 +120,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
   private userService = inject(UserService);
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   // Signals for reactive state management
   currentUser = signal<UserProfile>({
     id: '1',
@@ -303,14 +304,14 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Subscribe to breakpoint changes
     this.breakpointObserver.observe([Breakpoints.HandsetPortrait])
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe()
   }
 
  
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -370,7 +371,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
 
   logout(): void {
       this.authService.signOut()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.router.navigate(['/']);
@@ -388,7 +389,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
       userId: this.user()?._id
     }
       this.dashboardService.switchUser(roleObject)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {

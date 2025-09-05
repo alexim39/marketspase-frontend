@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, signal, DestroyRef } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, Subscription, takeUntil } from 'rxjs';
@@ -31,6 +31,7 @@ import { AdminService } from '../common/services/user.service';
 // Components
 import { ProofViewDialogComponent } from './proof-view-dialog/proof-view-dialog.component';
 import { CampaignInterface, PromotionInterface } from '../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'admin-campaign-promotions',
@@ -66,7 +67,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   readonly router = inject(Router);
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Signals for state management
   isLoading = signal(true);
@@ -102,7 +103,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     
       this.campaignService.getCampaignById(campaignId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -186,7 +187,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
   validatePromotion(promotion: PromotionInterface): void {
       this.campaignService.updatePromotionStatus(promotion._id, 'validated')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -205,7 +206,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
   rejectPromotion(promotion: PromotionInterface): void {
       this.campaignService.updatePromotionStatus(promotion._id, 'rejected')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -224,7 +225,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
   markAsPaid(promotion: PromotionInterface): void {
       this.campaignService.updatePromotionStatus(promotion._id, 'paid')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -243,7 +244,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
   reopenPromotion(promotion: PromotionInterface): void {
       this.campaignService.updatePromotionStatus(promotion._id, 'submitted')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -266,8 +267,8 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
  
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 }

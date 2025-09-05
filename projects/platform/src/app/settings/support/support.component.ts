@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, OnDestroy, Signal, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnDestroy, Signal, signal } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,7 @@ import { SupportService } from './support.service';
 import { ContactComponent } from './contact/contact.component';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'async-review-setting',
@@ -159,7 +160,7 @@ export class SupportComponent implements OnDestroy {
   readonly testimonial = signal<any | null>(null);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     // Reactively fetch testimonials whenever user changes
@@ -171,7 +172,7 @@ export class SupportComponent implements OnDestroy {
       this.error.set(null);
 
       this.support.getTestimonial(user._id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -191,8 +192,8 @@ export class SupportComponent implements OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 

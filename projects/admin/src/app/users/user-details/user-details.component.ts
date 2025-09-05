@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -17,6 +17,7 @@ import { MatListModule } from '@angular/material/list';
 import { UserService } from '../user.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Interfaces
 export interface User {
@@ -113,15 +114,15 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   });
 
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.loadUserDetails();
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
   loadUserDetails(): void {
@@ -134,7 +135,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading.set(true);
-    this.userService.getUserById(userId).pipe(takeUntil(this.destroy$))
+    this.userService.getUserById(userId).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         if (response.success) {
@@ -172,7 +173,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
     if (!userId) return;
 
-    this.userService.updateUserStatus(userId, newStatus).pipe(takeUntil(this.destroy$))
+    this.userService.updateUserStatus(userId, newStatus).pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         if (response.success) {

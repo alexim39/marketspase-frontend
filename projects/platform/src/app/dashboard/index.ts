@@ -5,6 +5,7 @@ import {
   OnDestroy, 
   signal,
   computed,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -305,7 +306,7 @@ export class DashboardIndex implements OnDestroy {
   protected readonly isLoading = computed(() => this.authState().isLoading);
   protected readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   
   private userService: UserService = inject(UserService);
   // CONVERTED TO A SIGNAL: User data is now a signal.
@@ -316,7 +317,7 @@ export class DashboardIndex implements OnDestroy {
     // Set up auth state subscription with automatic cleanup
     this.authService.getAuthState()
       .pipe(takeUntilDestroyed())
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user) => {
           if (user) {
@@ -327,7 +328,7 @@ export class DashboardIndex implements OnDestroy {
               user: user
             });
               this.userService.getUser(user.uid)
-              .pipe(takeUntil(this.destroy$))
+              .pipe(takeUntilDestroyed(this.destroyRef))
               .subscribe({
                 next: (response) => {
                   if (response.success) {
@@ -403,8 +404,8 @@ export class DashboardIndex implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 }

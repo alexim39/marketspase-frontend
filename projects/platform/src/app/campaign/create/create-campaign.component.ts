@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, Signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -28,6 +28,7 @@ import { CampaignService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface CampaignPreview {
   title: string;
@@ -113,7 +114,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   isScheduleValid = signal(false);
   isSubmitting = signal(false);
 
-  private destroy$ = new Subject<void>()
+  private readonly destroyRef = inject(DestroyRef);
 
   private campaignService = inject(CampaignService);
 
@@ -146,8 +147,8 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -186,14 +187,14 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   private setupFormValidation(): void {
     // Monitor content form validity (media upload is now optional)
       this.contentForm.statusChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(status => {
         this.isContentValid.set(status === 'VALID');
       })
 
     // Monitor budget form validity
       this.budgetForm.statusChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(status => {
         this.isBudgetValid.set(status === 'VALID');
       })
@@ -201,7 +202,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     // Monitor schedule form validity
 
     this.scheduleForm.statusChanges
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe(status => {
         this.isScheduleValid.set(status === 'VALID');
       })
@@ -209,7 +210,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
       
     // Add logic to toggle required validation for endDate based on hasEndDate
       this.scheduleForm.get('hasEndDate')!.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(hasEndDate => {
         const endDateControl = this.scheduleForm.get('endDate');
         const durationControl = this.scheduleForm.get('duration');
@@ -233,11 +234,11 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
   private setupDateCalculation(): void {
       this.scheduleForm.get('startDate')!.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateDurationAndEndDate())
 
       this.scheduleForm.get('endDate')!.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateDurationAndEndDate())
   }
 
@@ -330,7 +331,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
 
         this.campaignService.create(formData)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
             next: (response) => {
               if (response.success) {

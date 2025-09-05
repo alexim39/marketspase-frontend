@@ -580,7 +580,6 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
   // Dependencies
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
-  private destroy$ = new Subject<void>();
 
   //readonly user = input.required<UserInterface | null>();
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -618,11 +617,6 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearTimers();
-
-    
-    this.destroy$.next();
-    this.destroy$.complete();
-
   }
 
   loadTestimonials(): void {
@@ -632,7 +626,6 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
     .pipe(
       takeUntilDestroyed(this.destroyRef)
     )
-    .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response) => {
         const testimonials = Array.isArray(response.data) && response.data.length > 0 

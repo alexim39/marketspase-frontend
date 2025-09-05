@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, Input, signal, computed, OnInit, OnDestroy, Signal, effect } from '@angular/core';
+import { Component, inject, Input, signal, computed, OnInit, OnDestroy, Signal, effect, DestroyRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -19,6 +19,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { SupportService } from '../support.service';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface ContactReason {
   value: string;
@@ -250,7 +251,7 @@ export class ContactComponent implements OnInit, OnDestroy {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   
   // Modern Angular signals
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -279,8 +280,8 @@ export class ContactComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
   getSelectedReason() {
@@ -314,7 +315,7 @@ export class ContactComponent implements OnInit, OnDestroy {
     const formData = this.contactForm().value;
 
     this.supportService.submit(formData)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: any) => {
           this.isSpinning.set(false);

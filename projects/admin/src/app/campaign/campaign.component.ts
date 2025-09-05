@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, signal, DestroyRef } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, Subscription, takeUntil } from 'rxjs';
@@ -29,6 +29,7 @@ import { CampaignService } from './campaign.service';
 import { Router } from '@angular/router';
 import { AdminService } from '../common/services/user.service';
 import { CampaignInterface } from '../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface ActivityLog {
   action: string;
@@ -74,7 +75,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   readonly router = inject(Router);
   readonly snackBar = inject(MatSnackBar);
   readonly fb = inject(FormBuilder);
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Signals for state management
   isLoading = signal(true);
@@ -110,7 +111,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
     // Subscribe to filter changes
       this.filtersForm.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.applyFormFilters();
       })
@@ -125,7 +126,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     
       this.campaignService.getAppCampaigns()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -224,7 +225,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
   approveCampaign(campaign: CampaignInterface): void {
       this.campaignService.updateCampaignStatus(campaign._id, 'active')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -243,7 +244,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
   rejectCampaign(campaign: CampaignInterface): void {
       this.campaignService.updateCampaignStatus(campaign._id, 'rejected')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -262,7 +263,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
   pauseCampaign(campaign: CampaignInterface): void {
       this.campaignService.updateCampaignStatus(campaign._id, 'paused')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -281,7 +282,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
   resumeCampaign(campaign: CampaignInterface): void {
       this.campaignService.updateCampaignStatus(campaign._id, 'active')
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -300,8 +301,8 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
 
  
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 }

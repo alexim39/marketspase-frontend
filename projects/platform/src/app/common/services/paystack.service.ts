@@ -1,6 +1,7 @@
-import { Injectable, Inject, Optional, OnDestroy } from '@angular/core';
+import { Injectable, Inject, Optional, OnDestroy, DestroyRef, inject } from '@angular/core';
 import { Observable, Subject, takeUntil, throwError } from 'rxjs';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Configuration interface for better type safety
 export interface PaystackConfig {
@@ -47,7 +48,7 @@ export class PaystackService implements OnDestroy {
   };
 
   private config: PaystackConfig;
-  private destroy$ = new Subject<void>()
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     @Optional() @Inject(PAYSTACK_CONFIG) injectedConfig: PaystackConfig | null
@@ -57,8 +58,8 @@ export class PaystackService implements OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -137,7 +138,7 @@ export class PaystackService implements OnDestroy {
     onClose?: () => void
   ): void {
     this.initiatePayment(request)
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (result) => {
         if (result.success && result.response) {

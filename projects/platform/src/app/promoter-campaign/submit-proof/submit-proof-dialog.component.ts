@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CampaignService } from '../../campaign/campaign.service';
 import { PromotionInterface } from '../../../../../shared-services/src/public-api';
 import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface SubmitProofDialogData {
   promotion: PromotionInterface;
@@ -42,7 +43,7 @@ export class SubmitProofDialogComponent implements OnInit, OnDestroy {
   maxFiles = 3;
   maxFileSize = 5 * 1024 * 1024; // 5MB
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
@@ -63,8 +64,8 @@ export class SubmitProofDialogComponent implements OnInit, OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -126,7 +127,7 @@ export class SubmitProofDialogComponent implements OnInit, OnDestroy {
     });
 
     this.campaignService.submitProof(formData)
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         this.isSubmitting = false;

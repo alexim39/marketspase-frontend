@@ -1,4 +1,4 @@
-import { Component, effect, inject, Input, OnDestroy, signal, Signal, WritableSignal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, Input, OnDestroy, signal, Signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'async-notification',
@@ -176,8 +177,7 @@ export class NotificationSettingsComponent implements OnDestroy {
 
   private readonly snackBar = inject(MatSnackBar);
   private readonly settingsService = inject(SettingsService);
-
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     // Use an effect to react to changes in the user signal
@@ -189,8 +189,8 @@ export class NotificationSettingsComponent implements OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -217,7 +217,7 @@ export class NotificationSettingsComponent implements OnDestroy {
     // A simpler and often preferred approach is to just use the `subscribe` call
     // directly and let the component lifecycle manage it, especially for short-lived subscriptions.
     this.settingsService.toggleNotification(formObject)
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         this.snackBar.open(response.message, 'Ok', { duration: 3000 });

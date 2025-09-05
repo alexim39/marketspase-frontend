@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Input, Signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Input, Signal, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface FilterOptions {
   status: string;
@@ -64,7 +65,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
 
   // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
   private campaignService = inject(CampaignService);
   campaignStats = computed(() => this.calculateStats());
   public readonly api = this.campaignService.api;
@@ -121,8 +122,8 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
 
   
  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -132,7 +133,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
         debounceTime(300),
         distinctUntilChanged()
       )
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.applyFilters();
       });
@@ -204,7 +205,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
      if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
         this.campaignService.getAdvertiserCampaign(this.user()!._id!)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
             //console.log('Campaigns without metrics:', response.data);

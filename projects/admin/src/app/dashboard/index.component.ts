@@ -1,10 +1,11 @@
-import { Component, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject, takeUntil } from 'rxjs';
 import {  AdminService } from '../common/services/user.service';
 import { AuthService } from '../auth/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-whatsapp-admin-dashboard',
@@ -27,7 +28,7 @@ export class AdminDashboardComponent implements OnInit {
   notificationCount = signal(5);
   messageCount = signal(12);
 
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Use a computed signal for the page title for better performance
   pageTitle = computed(() => {
@@ -75,7 +76,7 @@ export class AdminDashboardComponent implements OnInit {
   // Refactored logout to use a one-off subscription
   logout() {
       this.authService.signOut({})
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -92,8 +93,8 @@ export class AdminDashboardComponent implements OnInit {
 
  
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 

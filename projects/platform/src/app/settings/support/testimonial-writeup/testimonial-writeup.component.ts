@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, signal, Signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, effect, inject, Input, OnDestroy, signal, Signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'async-testimonial-writeup-settings',
@@ -392,8 +393,7 @@ export class TestimonialWriteupSettingsComponent implements OnDestroy{
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private supportService = inject(SupportService);
-
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
    // Local state signal
   private _isProfileComplete = signal(false);
@@ -424,8 +424,8 @@ export class TestimonialWriteupSettingsComponent implements OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
   navigateToProfile(): void {
@@ -456,7 +456,7 @@ export class TestimonialWriteupSettingsComponent implements OnDestroy{
     };
 
     this.supportService.updateTestimonial(updateObject)
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         this.isSpinning.set(false);

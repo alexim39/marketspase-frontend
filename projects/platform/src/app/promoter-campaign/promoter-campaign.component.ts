@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,7 @@ import { CategoryPlaceholderPipe } from '../common/pipes/category-placeholder.pi
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
 import { PromotionInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 interface PromotionStats {
@@ -65,7 +66,7 @@ export class PromoterCampaignsComponent implements OnInit,OnDestroy {
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
   public readonly api = this.campaignService.api;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Computed values
   filteredPromotions = computed(() => {
@@ -101,15 +102,15 @@ export class PromoterCampaignsComponent implements OnInit,OnDestroy {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
   private loadUserPromotions(): void {
     this.isLoading.set(true);
     this.campaignService.getUserPromotions(this.user()!._id)
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
         this.promotions.set(response.data);
@@ -143,7 +144,7 @@ export class PromoterCampaignsComponent implements OnInit,OnDestroy {
     });
 
     dialogRef.afterClosed()
-    .pipe(takeUntil(this.destroy$))
+    .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe(result => {
       if (result === 'submitted') {
         this.loadUserPromotions(); // Refresh data

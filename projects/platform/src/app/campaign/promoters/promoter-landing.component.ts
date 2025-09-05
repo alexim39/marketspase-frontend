@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, Input } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -63,7 +64,7 @@ export class PromoterLandingComponent implements OnInit {
   campaigns = signal<CampaignInterface[]>([]);
   private campaignService = inject(CampaignService);
   public readonly api = this.campaignService.api;
-  private destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   // Computed properties
   deviceType = computed(() => this.deviceService.type());
@@ -131,8 +132,8 @@ export class PromoterLandingComponent implements OnInit {
 
   
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // this.destroy$.next();
+    // this.destroy$.complete();
   }
 
 
@@ -140,7 +141,7 @@ export class PromoterLandingComponent implements OnInit {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
         this.campaignService.getCampaignsByStatus('active')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
@@ -285,7 +286,7 @@ export class PromoterLandingComponent implements OnInit {
     this.isApplying.set(true);
     
       this.campaignService.applyForCampaign(campaign._id, this.user()!._id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           // Update local campaign data
