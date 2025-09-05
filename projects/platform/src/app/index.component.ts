@@ -3,7 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { Router, RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -515,7 +515,6 @@ export interface SocialProvider {
   `],
 })
 export class IndexComponent implements OnDestroy {
-  subscriptions: Subscription[] = [];
   isLoading: boolean = false;
   currentProvider: string = '';
 
@@ -524,6 +523,7 @@ export class IndexComponent implements OnDestroy {
   private authService: AuthService = inject(AuthService);
   private userService: UserService = inject(UserService);
 
+  private destroy$ = new Subject<void>();
 
   socialProviders: SocialProvider[] = [
     {
@@ -574,8 +574,9 @@ export class IndexComponent implements OnDestroy {
   signInWithGoogle(): void {
     this.setLoadingState('Google', true);
 
-    this.subscriptions.push(
-      this.authService.signInWithGoogle().subscribe({
+      this.authService.signInWithGoogle()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (userCredential: UserCredential) => {
           //console.log('Authenticated Firebase User:', userCredential.user);
           this.handleAuthSuccess({ success: true, user: userCredential.user });
@@ -587,14 +588,14 @@ export class IndexComponent implements OnDestroy {
           this.setLoadingState('', false);
         }
       })
-    );
   }
 
   signInWithFacebook(): void {
     this.setLoadingState('Facebook', true);
 
-    this.subscriptions.push(
-      this.authService.signInWithFacebook().subscribe({
+      this.authService.signInWithFacebook()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (userCredential: UserCredential) => {
           //console.log('Authenticated Firebase User:', userCredential.user);
           this.handleAuthSuccess({ success: true, user: userCredential.user });
@@ -606,7 +607,6 @@ export class IndexComponent implements OnDestroy {
           this.setLoadingState('', false);
         }
       })
-    );
   }
 
   signInWithApple(): void {
@@ -620,8 +620,9 @@ export class IndexComponent implements OnDestroy {
   signInWithTwitter(): void {
     this.setLoadingState('Twitter', true);
     
-    this.subscriptions.push(
-      this.authService.signInWithTwitter().subscribe({
+      this.authService.signInWithTwitter()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (userCredential: UserCredential) => {
           //console.log('Authenticated Firebase User:', userCredential.user);
           this.handleAuthSuccess({ success: true, user: userCredential.user });
@@ -633,14 +634,14 @@ export class IndexComponent implements OnDestroy {
           this.setLoadingState('', false);
         }
       })
-    );
   }
   // --- END NEW ---
 
   private handleAuthSuccess(response: any): void {
     if (response.success) {
-      this.subscriptions.push(
-        this.userService.auth(response.user).subscribe({
+        this.userService.auth(response.user)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (response) => {
             if (response.success) {
               //console.log('response ',response)
@@ -655,9 +656,7 @@ export class IndexComponent implements OnDestroy {
             this.setLoadingState('', false);
             this.cdr.markForCheck(); 
           }
-        })
-      )
-      
+        })      
     }
   }
 
@@ -688,7 +687,10 @@ export class IndexComponent implements OnDestroy {
     this.cdr.markForCheck(); // Mark for change detection to ensure error message is shown
   }
 
+  
   ngOnDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 }

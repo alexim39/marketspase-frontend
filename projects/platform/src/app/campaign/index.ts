@@ -1,9 +1,8 @@
 import { Component, inject, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceService } from '../common/services/device.service';
 import { UserService } from '../common/services/user.service';
 import { CampaignComponent } from './campaign.component';
-import { UserInterface } from '../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 
 
 @Component({

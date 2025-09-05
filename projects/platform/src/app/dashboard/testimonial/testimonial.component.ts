@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService, TestimonialInterface } from '../dashboard.service';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { Subject, takeUntil } from 'rxjs';
 
 interface TestimonialState {
   testimonials: TestimonialInterface[];
@@ -579,6 +580,7 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
   // Dependencies
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private destroy$ = new Subject<void>();
 
   //readonly user = input.required<UserInterface | null>();
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -616,14 +618,22 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearTimers();
+
+    
+    this.destroy$.next();
+    this.destroy$.complete();
+
   }
 
   loadTestimonials(): void {
     this.updateState({ isLoading: true, error: null });
 
-    this.dashboardService.getRandomTestimonials().pipe(
+    this.dashboardService.getRandomTestimonials()
+    .pipe(
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (response) => {
         const testimonials = Array.isArray(response.data) && response.data.length > 0 
           ? response.data 

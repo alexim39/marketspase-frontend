@@ -1,4 +1,4 @@
-import { Component, effect, inject, Input, signal, Signal, WritableSignal } from '@angular/core';
+import { Component, effect, inject, Input, OnDestroy, signal, Signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'async-notification',
@@ -166,7 +167,7 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
   imports: [MatExpansionModule, CommonModule, MatSlideToggleModule, MatIconModule, MatCardModule],
   providers: [SettingsService],
 })
-export class NotificationSettingsComponent {
+export class NotificationSettingsComponent implements OnDestroy {
  // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -176,6 +177,8 @@ export class NotificationSettingsComponent {
   private readonly snackBar = inject(MatSnackBar);
   private readonly settingsService = inject(SettingsService);
 
+  private destroy$ = new Subject<void>();
+
   constructor() {
     // Use an effect to react to changes in the user signal
     effect(() => {
@@ -183,6 +186,13 @@ export class NotificationSettingsComponent {
       this.isTurnedOn.set(this.user()?.preferences?.notification || false);
     });
   }
+
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 
   toggleNotification(event: MatSlideToggleChange): void {
     const isChecked = event.checked;
@@ -206,7 +216,9 @@ export class NotificationSettingsComponent {
 
     // A simpler and often preferred approach is to just use the `subscribe` call
     // directly and let the component lifecycle manage it, especially for short-lived subscriptions.
-    this.settingsService.toggleNotification(formObject).subscribe({
+    this.settingsService.toggleNotification(formObject)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (response) => {
         this.snackBar.open(response.message, 'Ok', { duration: 3000 });
       },

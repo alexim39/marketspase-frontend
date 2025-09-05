@@ -18,14 +18,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
 import { CampaignService } from '../../../campaign/campaign.service';
-import { CampaignInterface } from '../../../common/models/campaigns';
 import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';
 import { formatRemainingDays, isDatePast } from '../../../common/utils/time.util';
-import { DeviceService } from '../../../common/services/device.service';
 
 
 export interface Earning {
@@ -135,7 +133,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     }
   ]);
 
-  subscriptions: Subscription[] = [];
+  private destroy$ = new Subject<void>();
 
   pendingEarnings = computed(() => {
     return this.earnings()
@@ -157,8 +155,9 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
   private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-      this.subscriptions.push(
-        this.campaignService.getCampaignsByStatus('active').subscribe({
+        this.campaignService.getCampaignsByStatus('active')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (response) => {
              const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             this.campaigns.set(campaignsWithMetrics);
@@ -172,7 +171,6 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
             this.isLoading.set(false);
           }
         })
-      );
     }
   }
 
@@ -203,9 +201,12 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
   }
 
 
+
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
 
   acceptCampaign(campaignId: string): void {

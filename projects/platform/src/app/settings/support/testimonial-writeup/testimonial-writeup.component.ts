@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, effect, inject, Input, signal, Signal } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, signal, Signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'async-testimonial-writeup-settings',
@@ -375,7 +376,7 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
 
   `]
 })
-export class TestimonialWriteupSettingsComponent{
+export class TestimonialWriteupSettingsComponent implements OnDestroy{
   // Inputs: pass signals directly from parent
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   @Input({ required: true }) testimonial!: Signal<any | null>;
@@ -392,6 +393,7 @@ export class TestimonialWriteupSettingsComponent{
   private router = inject(Router);
   private supportService = inject(SupportService);
 
+  private destroy$ = new Subject<void>();
 
    // Local state signal
   private _isProfileComplete = signal(false);
@@ -421,7 +423,10 @@ export class TestimonialWriteupSettingsComponent{
     });
   }
 
-
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   navigateToProfile(): void {
     this.router.navigate(['dashboard/settings/account']);
@@ -450,7 +455,9 @@ export class TestimonialWriteupSettingsComponent{
       userId: this.user()?._id,
     };
 
-    this.supportService.updateTestimonial(updateObject).subscribe({
+    this.supportService.updateTestimonial(updateObject)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (response) => {
         this.isSpinning.set(false);
         this.isEditing.set(false);

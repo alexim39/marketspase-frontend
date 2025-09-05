@@ -210,7 +210,6 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
 })
 export class SettingsIndexComponent implements OnInit {
   readonly dialog = inject(MatDialog);
-  private breakpointObserver = inject(BreakpointObserver);
   @Input() user!: UserInterface;
   @ViewChild('drawer') drawer!: MatSidenav;
   private router = inject(Router);
@@ -275,15 +274,9 @@ export class SettingsIndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.breakpointObserver.observe([
-      Breakpoints.Handset,
-      Breakpoints.TabletPortrait
-    ]).subscribe(result => {
-      this.isMobile = result.matches;
-    });
 
     // Initialize online status
-    this.isOnline = navigator.onLine;
+   // this.isOnline = navigator.onLine;
   }
 
   showDescription() {

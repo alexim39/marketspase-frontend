@@ -8,6 +8,7 @@ import {
   effect,
   DestroyRef,
   Signal,
+  OnDestroy,
 } from '@angular/core';
 import {
   FormControl,
@@ -32,6 +33,7 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsernameDialogComponent } from './help-dialog.component';
 import { ProfileService } from '../profile.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'async-username-info',
@@ -259,7 +261,7 @@ import { ProfileService } from '../profile.service';
     
   `]
 })
-export class UsernameInfoComponent implements OnInit {
+export class UsernameInfoComponent implements OnInit, OnDestroy {
   // Services are now injected directly in the class
   private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
@@ -272,6 +274,7 @@ export class UsernameInfoComponent implements OnInit {
   // State management with signals
   isLoading = signal(false);
   usernameForm!: FormGroup;
+  private destroy$ = new Subject<void>();
 
   // Use a computed signal for the username preview
   // This automatically updates whenever the username form control value changes
@@ -298,6 +301,12 @@ export class UsernameInfoComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 
   private initializeForm(): void {
     this.usernameForm = new FormGroup({
@@ -358,6 +367,7 @@ export class UsernameInfoComponent implements OnInit {
     this.profileService
       .updateUsername(usernameData)
       .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.showNotification(response.message, 'success');

@@ -21,7 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COUNTRIES } from '../../../common/utils/countries';
 import { ProfileService } from '../profile.service';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 
 
 // Nigerian states
@@ -66,6 +66,7 @@ export class PersonalInfoComponent implements OnDestroy {
 
   private snackBar = inject(MatSnackBar);
   private profileService = inject(ProfileService);
+  private destroy$ = new Subject<void>();
 
   // Reactive state using signals
   isLoading = signal(false);
@@ -90,8 +91,6 @@ export class PersonalInfoComponent implements OnDestroy {
 
   readonly minDate = new Date(1900, 0, 1);
   readonly maxDate = new Date();
-
-  private subscriptions: Subscription[] = [];
 
   constructor() {
     // We can use `effect` here because the constructor is an injection context.
@@ -131,13 +130,17 @@ export class PersonalInfoComponent implements OnDestroy {
 
         // Use toSignal() within this effect's injection context
         this.countryValue.set(this.profileForm.controls['country'].value);
-        this.profileForm.controls['country'].valueChanges.subscribe(value => {
+        this.profileForm.controls['country'].valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(value => {
             this.countryValue.set(value);
         });
 
         // Add a subscription to handle the state field's validation and status dynamically
         // after the form has been initialized.
-        this.profileForm.controls['country'].valueChanges.subscribe(country => {
+        this.profileForm.controls['country'].valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(country => {
           const stateControl = this.profileForm.get('state');
           if (stateControl) {
             if (country === 'Nigeria') {
@@ -157,9 +160,12 @@ export class PersonalInfoComponent implements OnDestroy {
     }, { allowSignalWrites: true });
   }
 
+  
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
   onAccountStatusChange(event: MatSlideToggleChange): void {
     if (event.checked) {
@@ -184,8 +190,9 @@ export class PersonalInfoComponent implements OnDestroy {
     this.isLoading.set(true);
     const formValue = this.profileForm.value;
 
-    this.subscriptions.push(
-      this.profileService.updateProfile(formValue).subscribe({
+      this.profileService.updateProfile(formValue)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
           this.showNotification(response.message, 'success');
           this.isLoading.set(false);
@@ -195,7 +202,6 @@ export class PersonalInfoComponent implements OnDestroy {
           this.isLoading.set(false);
         }
       })
-    )   
   }
 
   private showNotification(message: string, panelClass: string = 'error'): void {

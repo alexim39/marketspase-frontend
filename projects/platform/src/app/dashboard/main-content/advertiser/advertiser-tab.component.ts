@@ -17,7 +17,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 
 
@@ -62,7 +62,7 @@ export interface Campaign {
   templateUrl: './advertiser-tab.component.html',
   styleUrls: ['./advertiser-tab.component.scss'],
 })
-export class AdvertiserTabComponent implements OnInit, OnDestroy {
+export class AdvertiserTabComponent {
   private router = inject(Router);
 
   //readonly user = input.required<UserInterface | null>();
@@ -98,18 +98,6 @@ export class AdvertiserTabComponent implements OnInit, OnDestroy {
       currentViews: 22000
     }
   ]);
-
-
-  subscriptions: Subscription[] = [];
-
-  ngOnInit(): void {
-   
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
 
   // Campaign Actions
   createCampaign(): void {

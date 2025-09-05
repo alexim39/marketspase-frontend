@@ -12,10 +12,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSliderModule } from '@angular/material/slider';
-import { DeviceService } from '../../common/services/device.service';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
-import { CampaignInterface } from '../../common/models/campaigns';
-import { Subscription } from 'rxjs';
+import { CampaignInterface, DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { CampaignService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
@@ -63,9 +61,9 @@ export class PromoterLandingComponent implements OnInit {
   isLoading = signal(false);
   isApplying = signal(false);
   campaigns = signal<CampaignInterface[]>([]);
-  subscriptions: Subscription[] = [];
   private campaignService = inject(CampaignService);
   public readonly api = this.campaignService.api;
+  private destroy$ = new Subject<void>();
 
   // Computed properties
   deviceType = computed(() => this.deviceService.type());
@@ -131,11 +129,19 @@ export class PromoterLandingComponent implements OnInit {
     this.loadCampaigns();
   }
 
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+
   private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-      this.subscriptions.push(
-        this.campaignService.getCampaignsByStatus('active').subscribe({
+        this.campaignService.getCampaignsByStatus('active')
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (response) => {
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             this.campaigns.set(campaignsWithMetrics);
@@ -146,7 +152,6 @@ export class PromoterLandingComponent implements OnInit {
             this.isLoading.set(false);
           }
         })
-      );
     }
   }
  
@@ -248,10 +253,6 @@ export class PromoterLandingComponent implements OnInit {
     return categoryIcons[category] || 'category';
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
   // Add these methods to the component class
   getHighPayoutCount(): number {
     return this.campaigns().filter(campaign => campaign.payoutPerPromotion >= 500).length;
@@ -283,8 +284,9 @@ export class PromoterLandingComponent implements OnInit {
 
     this.isApplying.set(true);
     
-    this.subscriptions.push(
-      this.campaignService.applyForCampaign(campaign._id, this.user()!._id).subscribe({
+      this.campaignService.applyForCampaign(campaign._id, this.user()!._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
           // Update local campaign data
           const updatedCampaigns = this.campaigns().map(c => {
@@ -314,7 +316,6 @@ export class PromoterLandingComponent implements OnInit {
           });
         }
       })
-    );
   }
 
   canApplyForCampaign(campaign: CampaignInterface): boolean {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,12 +12,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { CampaignService } from '../campaign/campaign.service';
 import { UserService } from '../common/services/user.service';
 import { MatMenuModule } from '@angular/material/menu';
-import { PromotionInterface } from '../common/models/promotions';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoryPlaceholderPipe } from '../common/pipes/category-placeholder.pipe';
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
-import { UserInterface } from '../../../../shared-services/src/public-api';
+import { PromotionInterface, UserInterface } from '../../../../shared-services/src/public-api';
+import { Subject, takeUntil } from 'rxjs';
 
 
 interface PromotionStats {
@@ -51,7 +51,7 @@ interface PromotionStats {
   templateUrl: './promoter-campaign.component.html',
   styleUrls: ['./promoter-campaign.component.scss']
 })
-export class PromoterCampaignsComponent implements OnInit {
+export class PromoterCampaignsComponent implements OnInit,OnDestroy {
   private campaignService = inject(CampaignService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
@@ -65,6 +65,7 @@ export class PromoterCampaignsComponent implements OnInit {
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
   public readonly api = this.campaignService.api;
+  private destroy$ = new Subject<void>();
 
   // Computed values
   filteredPromotions = computed(() => {
@@ -98,9 +99,18 @@ export class PromoterCampaignsComponent implements OnInit {
     this.loadUserPromotions();
   }
 
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+
   private loadUserPromotions(): void {
     this.isLoading.set(true);
-    this.campaignService.getUserPromotions(this.user()!._id).subscribe({
+    this.campaignService.getUserPromotions(this.user()!._id)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (response) => {
         this.promotions.set(response.data);
         this.isLoading.set(false);
@@ -132,7 +142,9 @@ export class PromoterCampaignsComponent implements OnInit {
       data: { promotion }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(result => {
       if (result === 'submitted') {
         this.loadUserPromotions(); // Refresh data
       }

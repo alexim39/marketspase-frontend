@@ -13,7 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Subscription, timer } from 'rxjs';
+import { Subject, Subscription, takeUntil, timer } from 'rxjs';
 import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
@@ -362,7 +362,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
   private dialogRef = inject(MatDialogRef<WalletFundingComponent>);
 
   fundingForm!: FormGroup;
-  private subscriptions: Subscription[] = [];
+  private destroy$ = new Subject<void>();
 
   private userService = inject(UserService);
   // Expose the signal directly to the template
@@ -435,9 +435,12 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
     this.setupFormValidation();
   }
 
+ 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
 
   private initializeForm(): void {
@@ -451,8 +454,9 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
     });
 
     // Subscribe to form changes with debouncing
-    this.subscriptions.push(
-      this.fundingForm.get('amount')!.valueChanges.subscribe(value => {
+      this.fundingForm.get('amount')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
         const numValue = parseFloat(value) || 0;
         if (numValue >= this.minFundingAmount && numValue <= this.maxFundingAmount) {
           this.selectedAmount.set(numValue);
@@ -460,7 +464,6 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
           this.selectedAmount.set(0);
         }
       })
-    );
   }
 
   private setupFormValidation(): void {
@@ -550,13 +553,13 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
       };
 
       // Subscribe to payment result
-      this.subscriptions.push(
-        this.paystackService.initiatePayment(paymentRequest).subscribe({
+        this.paystackService.initiatePayment(paymentRequest)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (result) => this.handlePaymentResult(result),
           error: (error) => this.handlePaymentError(error.message || 'Payment failed'),
           complete: () => this.stopProcessingTimer()
         })
-      );
 
     } catch (error) {
       this.handlePaymentError('Failed to initiate payment');
@@ -566,11 +569,11 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
 
   private startProcessingTimer(): void {
     this.processingTime.set(0);
-    this.subscriptions.push(
-      timer(0, 1000).subscribe(seconds => {
+      timer(0, 1000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(seconds => {
         this.processingTime.set(seconds);
       })
-    );
   }
 
   private stopProcessingTimer(): void {
@@ -624,8 +627,9 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
       };
 
       // Step 2: Call the backend endpoint to verify and record the payment
-      this.subscriptions.push(
-        this.walletService.recordPayment(payload).subscribe({
+        this.walletService.recordPayment(payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (response) => {
            if (response.success) {
               // The backend has confirmed and updated the wallet
@@ -643,7 +647,6 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
             //console.error('Backend recording error:', backendError);
           }
         })
-      );
 
     } else {
       this.handlePaymentError(paystackResult.error || 'Payment was cancelled or failed');

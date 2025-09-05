@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -9,7 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CampaignService } from '../../campaign/campaign.service';
-import { PromotionInterface } from '../../common/models/promotions';
+import { PromotionInterface } from '../../../../../shared-services/src/public-api';
+import { Subject, takeUntil } from 'rxjs';
 
 export interface SubmitProofDialogData {
   promotion: PromotionInterface;
@@ -33,13 +34,15 @@ export interface SubmitProofDialogData {
   templateUrl: './submit-proof-dialog.component.html',
   styleUrls: ['./submit-proof-dialog.component.scss']
 })
-export class SubmitProofDialogComponent implements OnInit {
+export class SubmitProofDialogComponent implements OnInit, OnDestroy {
   proofForm: FormGroup;
   isSubmitting = false;
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
   maxFiles = 3;
   maxFileSize = 5 * 1024 * 1024; // 5MB
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -57,6 +60,13 @@ export class SubmitProofDialogComponent implements OnInit {
   ngOnInit(): void {
     console.log('Dialog opened for promotion:', this.data.promotion);
   }
+
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
@@ -115,7 +125,9 @@ export class SubmitProofDialogComponent implements OnInit {
       formData.append('proofImages', file);
     });
 
-    this.campaignService.submitProof(formData).subscribe({
+    this.campaignService.submitProof(formData)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (response) => {
         this.isSubmitting = false;
         this.snackBar.open('Proof submitted successfully!', 'Close', { duration: 3000 });

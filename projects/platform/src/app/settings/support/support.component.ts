@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, Signal, signal } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { SupportService } from './support.service';
 import { ContactComponent } from './contact/contact.component';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'async-review-setting',
@@ -147,7 +148,7 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
   }
   `],
 })
-export class SupportComponent {
+export class SupportComponent implements OnDestroy {
   private userService = inject(UserService);
   private support = inject(SupportService);
 
@@ -158,6 +159,7 @@ export class SupportComponent {
   readonly testimonial = signal<any | null>(null);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     // Reactively fetch testimonials whenever user changes
@@ -168,7 +170,9 @@ export class SupportComponent {
       this.isLoading.set(true);
       this.error.set(null);
 
-      this.support.getTestimonial(user._id).subscribe({
+      this.support.getTestimonial(user._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
           if (response.success) {
             //console.log('Fetched testimonial:', response);
@@ -184,6 +188,13 @@ export class SupportComponent {
       });
     });
   }
+
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -19,7 +19,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../common/services/user.service';
@@ -119,7 +119,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
   private userService = inject(UserService);
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
-
+  private destroy$ = new Subject<void>();
   // Signals for reactive state management
   currentUser = signal<UserProfile>({
     id: '1',
@@ -204,7 +204,6 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
     }
   ]);
 
-  subscriptions: Subscription[] = [];
 
   // Computed signals
   isMobile = computed(() => {
@@ -303,14 +302,17 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Subscribe to breakpoint changes
-    this.subscriptions.push(
-      this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).subscribe()
-    );
+    this.breakpointObserver.observe([Breakpoints.HandsetPortrait])
+    .pipe(takeUntil(this.destroy$))
+    .subscribe()
   }
 
+ 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
   toggleSidenav(): void {
     if (this.sidenav) {
@@ -367,8 +369,9 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.subscriptions.push(
-      this.authService.signOut().subscribe({
+      this.authService.signOut()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: () => {
           this.router.navigate(['/']);
         },
@@ -377,7 +380,6 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
       })
-    )
   }
 
   switchUser(role: string) {
@@ -385,8 +387,9 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
       role,
       userId: this.user()?._id
     }
-    this.subscriptions.push(
-      this.dashboardService.switchUser(roleObject).subscribe({
+      this.dashboardService.switchUser(roleObject)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
           if (response.success) {
             window.location.reload()
@@ -400,6 +403,5 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
           this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
         }
       })
-    )
   }
 }

@@ -9,14 +9,13 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeviceService } from '../common/services/device.service';
 import { DashboardComponent } from './sidenav/sidenav.component';
 import { AuthService } from '../auth/auth.service';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { UserService } from '../common/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserInterface } from '../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -287,7 +286,7 @@ interface AuthState {
     }
   `]
 })
-export class DashboardIndex implements OnInit, OnDestroy {
+export class DashboardIndex implements OnDestroy {
   // Injected services using modern inject function
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -306,7 +305,7 @@ export class DashboardIndex implements OnInit, OnDestroy {
   protected readonly isLoading = computed(() => this.authState().isLoading);
   protected readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
 
-  subscriptions: Subscription[] = [];
+  private destroy$ = new Subject<void>();
   
   private userService: UserService = inject(UserService);
   // CONVERTED TO A SIGNAL: User data is now a signal.
@@ -317,6 +316,7 @@ export class DashboardIndex implements OnInit, OnDestroy {
     // Set up auth state subscription with automatic cleanup
     this.authService.getAuthState()
       .pipe(takeUntilDestroyed())
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user) => {
           if (user) {
@@ -326,8 +326,9 @@ export class DashboardIndex implements OnInit, OnDestroy {
               isLoading: false,
               user: user
             });
-            this.subscriptions.push(
-              this.userService.getUser(user.uid).subscribe({
+              this.userService.getUser(user.uid)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
                 next: (response) => {
                   if (response.success) {
                     console.log('Returned User:', response.data);
@@ -355,7 +356,6 @@ export class DashboardIndex implements OnInit, OnDestroy {
                     });
                 }    
               })
-            );
 
           } else {
             // User is not authenticated - redirect to login
@@ -402,12 +402,9 @@ export class DashboardIndex implements OnInit, OnDestroy {
     }); */
   }
 
-  ngOnInit(): void {
-    // Additional initialization logic can go here
-    // The auth subscription is already set up in the constructor
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
-  }
 }

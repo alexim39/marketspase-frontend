@@ -1,5 +1,5 @@
-import { Injectable, Inject, Optional } from '@angular/core';
-import { Observable, Subject, throwError } from 'rxjs';
+import { Injectable, Inject, Optional, OnDestroy } from '@angular/core';
+import { Observable, Subject, takeUntil, throwError } from 'rxjs';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 // Configuration interface for better type safety
@@ -39,7 +39,7 @@ export interface PaymentResult {
 export const PAYSTACK_CONFIG = 'PAYSTACK_CONFIG';
 
 @Injectable()
-export class PaystackService {
+export class PaystackService implements OnDestroy {
   private readonly defaultConfig: PaystackConfig = {
     publicKey: 'pk_test_1d5627d8d06cb2c937cee6ce4b0ed56c7fe2159a',
     currency: 'NGN',
@@ -47,12 +47,20 @@ export class PaystackService {
   };
 
   private config: PaystackConfig;
+  private destroy$ = new Subject<void>()
 
   constructor(
     @Optional() @Inject(PAYSTACK_CONFIG) injectedConfig: PaystackConfig | null
   ) {
     this.config = { ...this.defaultConfig, ...injectedConfig };
   }
+
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 
   /**
    * Initiates the payment process using Paystack.
@@ -128,7 +136,9 @@ export class PaystackService {
     onError?: (error: string) => void,
     onClose?: () => void
   ): void {
-    this.initiatePayment(request).subscribe({
+    this.initiatePayment(request)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (result) => {
         if (result.success && result.response) {
           onSuccess(result.response, result.amount || request.amount);

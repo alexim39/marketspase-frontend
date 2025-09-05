@@ -11,18 +11,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { DeviceService } from '../../common/services/device.service';
-import { UserService } from '../../common/services/user.service';
-import { CampaignInterface } from '../../common/models/campaigns';
-import { Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
 import { CampaignService } from '../campaign.service';
 import { CampaignStats, formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
-import { PromotionInterface } from '../../common/models/promotions';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 
 interface FilterOptions {
   status: string;
@@ -68,7 +64,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
 
   // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
-  private subscriptions: Subscription[] = [];
+  private destroy$ = new Subject<void>();
   private campaignService = inject(CampaignService);
   campaignStats = computed(() => this.calculateStats());
   public readonly api = this.campaignService.api;
@@ -123,9 +119,12 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
     this.setupSearch();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  
+ ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
   private setupSearch(): void {
     this.searchControl.valueChanges
@@ -133,6 +132,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
         debounceTime(300),
         distinctUntilChanged()
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.applyFilters();
       });
@@ -203,8 +203,9 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
 
      if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-      this.subscriptions.push(
-        this.campaignService.getAdvertiserCampaign(this.user()!._id!).subscribe({
+        this.campaignService.getAdvertiserCampaign(this.user()!._id!)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
           next: (response) => {
             //console.log('Campaigns without metrics:', response.data);
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
@@ -223,7 +224,6 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
             this.isLoading.set(false);
           }
         })
-      );
     }
   }
 

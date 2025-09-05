@@ -7,7 +7,8 @@ import {
   signal,
   computed,
   DestroyRef,
-  Signal
+  Signal,
+  OnDestroy
 } from '@angular/core';
 import {
   FormBuilder,
@@ -31,6 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { ProfileService } from '../profile.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'async-professional-info',
@@ -53,12 +55,13 @@ import { ProfileService } from '../profile.service';
   templateUrl: './professional.component.html',
   styleUrls: ['./professional.component.scss'],
 })
-export class ProfessionalInfoComponent implements OnInit {
+export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   // Services are injected via the `inject` function
   private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private fb = inject(FormBuilder);
+  private destroy$ = new Subject<void>();
 
   // Input is a signal, which is a key part of the component's reactivity
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -102,6 +105,13 @@ export class ProfessionalInfoComponent implements OnInit {
     this.initializeFormWithUserData();
   }
 
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+
   private initializeFormWithUserData(): void {
     // Access the signal's value with the `()` syntax
     const userData = this.user();
@@ -136,10 +146,13 @@ export class ProfessionalInfoComponent implements OnInit {
     this.isLoading.set(true); // Update the loading signal
     const professionalData = this.professionalForm.value;
 
-    this.profileService.updateProfession(professionalData).pipe(
+    this.profileService.updateProfession(professionalData)
+    .pipe(
       // The takeUntilDestroyed operator automatically handles unsubscription
       takeUntilDestroyed(this.destroyRef)
-    ).subscribe({
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: (response) => {
         this.showNotification(response.message, 'success');
         this.isLoading.set(false);

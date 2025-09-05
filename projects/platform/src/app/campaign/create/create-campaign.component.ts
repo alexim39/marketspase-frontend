@@ -20,15 +20,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { Subscription } from 'rxjs';
-import { DeviceService } from '../../common/services/device.service';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { UserService } from '../../common/services/user.service';
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CampaignService } from '../campaign.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
 
 interface CampaignPreview {
   title: string;
@@ -114,7 +113,7 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
   isScheduleValid = signal(false);
   isSubmitting = signal(false);
 
-  private subscriptions: Subscription[] = [];
+  private destroy$ = new Subject<void>()
 
   private campaignService = inject(CampaignService);
 
@@ -145,9 +144,12 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
     this.setupDateCalculation();
   }
 
+  
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
   private initializeForms(): void {
     // Step 1: Content Form
@@ -183,28 +185,32 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
 
   private setupFormValidation(): void {
     // Monitor content form validity (media upload is now optional)
-    this.subscriptions.push(
-      this.contentForm.statusChanges.subscribe(status => {
+      this.contentForm.statusChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
         this.isContentValid.set(status === 'VALID');
       })
-    );
 
     // Monitor budget form validity
-    this.subscriptions.push(
-      this.budgetForm.statusChanges.subscribe(status => {
+      this.budgetForm.statusChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
         this.isBudgetValid.set(status === 'VALID');
       })
-    );
+
     // Monitor schedule form validity
-    this.subscriptions.push(
-      this.scheduleForm.statusChanges.subscribe(status => {
+
+    this.scheduleForm.statusChanges
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(status => {
         this.isScheduleValid.set(status === 'VALID');
       })
-    );
-    
+
+      
     // Add logic to toggle required validation for endDate based on hasEndDate
-    this.subscriptions.push(
-      this.scheduleForm.get('hasEndDate')!.valueChanges.subscribe(hasEndDate => {
+      this.scheduleForm.get('hasEndDate')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(hasEndDate => {
         const endDateControl = this.scheduleForm.get('endDate');
         const durationControl = this.scheduleForm.get('duration');
         if (hasEndDate) {
@@ -223,17 +229,16 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
         endDateControl?.updateValueAndValidity();
         durationControl?.updateValueAndValidity();
       })
-    );
   }
 
   private setupDateCalculation(): void {
-    this.subscriptions.push(
-      this.scheduleForm.get('startDate')!.valueChanges.subscribe(() => this.updateDurationAndEndDate())
-    );
+      this.scheduleForm.get('startDate')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.updateDurationAndEndDate())
 
-    this.subscriptions.push(
-      this.scheduleForm.get('endDate')!.valueChanges.subscribe(() => this.updateDurationAndEndDate())
-    );
+      this.scheduleForm.get('endDate')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.updateDurationAndEndDate())
   }
 
   private updateDurationAndEndDate(): void {
@@ -323,8 +328,10 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
           formData.append('media', selected.file);
         }
 
-        this.subscriptions.push(
-          this.campaignService.create(formData).subscribe({
+
+        this.campaignService.create(formData)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
             next: (response) => {
               if (response.success) {
                 this.isSubmitting.set(false);
@@ -341,7 +348,6 @@ export class CreateCampaignComponent implements OnInit, OnDestroy {
               this.isSubmitting.set(false);
             }
           })
-        );
       } else {
         this.snackBar.open('Please complete all required fields.', 'OK', { duration: 3000 });
         this.isSubmitting.set(false);

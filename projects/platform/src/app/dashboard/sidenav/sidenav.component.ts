@@ -15,7 +15,7 @@ import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
@@ -99,7 +99,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
-
+  private destroy$ = new Subject<void>();
 
   // Signals for reactive state management
   currentUser = signal<UserProfile>({
@@ -158,7 +158,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   ]);
 
-  subscriptions: Subscription[] = [];
 
   // Computed signals
   isMobile = computed(() => {
@@ -196,19 +195,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   });
 
   public ngOnInit(): void {
-    // Subscribe to breakpoint changes
-    // this.subscriptions.push(
-    //   this.breakpointObserver.observe([Breakpoints.HandsetPortrait]).subscribe()
-    // );
-
-    
     this.calculateActiveCampaigns();
     this.calculatePendingCampaigns();
   }
 
-  public ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
+
 
   public toggleSidenav(): void {
     this.sidenav?.toggle();
@@ -272,8 +268,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   * Method to handle the sign-out process.
   */
   public logout(): void {
-    this.subscriptions.push(
-      this.authService.signOut().subscribe({
+      this.authService.signOut()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: () => {
           this.router.navigate(['/']);
         },
@@ -282,7 +279,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
       })
-    )
   }
 
   public closeCartDialog(): void {
@@ -311,8 +307,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       role,
       userId: this.user()?._id
     }
-    this.subscriptions.push(
-      this.dashboardService.switchUser(roleObject).subscribe({
+      this.dashboardService.switchUser(roleObject)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (response) => {
           if (response.success) {
             window.location.reload()
@@ -326,7 +323,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
         }
       })
-    )
   }
 
   // get user active campaign
@@ -429,10 +425,14 @@ duplicateCampaign(campaignId: string): void {
   //   }
   // });
 
-  // dialogRef.afterClosed().subscribe(result => {
+  // dialogRef.afterClosed()
+  //.pipe(takeUntil(this.destroy$))
+  // .subscribe(result => {
   //   if (result) {
   //     // Call API to duplicate campaign
-  //     this.campaignService.duplicateCampaign(campaignId).subscribe({
+  //     this.campaignService.duplicateCampaign(campaignId)
+  //.pipe(takeUntil(this.destroy$))
+  // .subscribe({
   //       next: (duplicatedCampaign) => {
   //         this.snackBar.open('Campaign duplicated successfully', 'Close', {
   //           duration: 3000,
