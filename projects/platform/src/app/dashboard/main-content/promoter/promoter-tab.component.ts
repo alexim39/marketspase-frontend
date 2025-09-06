@@ -18,13 +18,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject, Subscription, takeUntil } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CampaignInterface, DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
-import { CampaignService } from '../../../campaign/campaign.service';
 import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';
 import { formatRemainingDays, isDatePast } from '../../../common/utils/time.util';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PromoterService } from '../../../promoter/promoter.service';
 
 
 export interface Earning {
@@ -40,7 +39,7 @@ export interface Earning {
 
 @Component({
   selector: 'promoter-tab',
-  providers: [CampaignService],
+  providers: [PromoterService],
   imports: [
     CommonModule,
     RouterModule,
@@ -69,11 +68,11 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
-  private campaignService = inject(CampaignService);
+  private promoterService = inject(PromoterService);
   private readonly deviceService = inject(DeviceService);
   // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());
-  public readonly api = this.campaignService.api;
+  public readonly api = this.promoterService.api;
 
 
   //readonly user = input.required<UserInterface | null>();
@@ -156,7 +155,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
   private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-        this.campaignService.getCampaignsByStatus('active')
+        this.promoterService.getCampaignsByStatus('active')
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {

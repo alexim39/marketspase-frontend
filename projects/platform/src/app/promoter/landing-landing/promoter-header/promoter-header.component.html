@@ -1,0 +1,27 @@
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <div class="user-greeting">
+        <div class="avatar">{{user()?.displayName?.charAt(0) || 'U'}}</div>
+        <div class="greeting-text">
+          <h1>Welcome, {{user()?.displayName}}!</h1>
+          <p>Ready to earn from your WhatsApp Status?</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-value">₦{{metrics.totalEarnings | number:'1.0-0'}}</span>
+          <span class="stat-label">Total Earnings</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{metrics.rating}}</span>
+          <span class="stat-label">Rating</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{metrics.completedPromotions}}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

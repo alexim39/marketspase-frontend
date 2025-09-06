@@ -8,10 +8,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CampaignService } from '../../campaign/campaign.service';
-import { PromotionInterface } from '../../../../../shared-services/src/public-api';
-import { Subject, takeUntil } from 'rxjs';
+import { PromotionInterface } from '../../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PromoterService } from '../../../promoter/promoter.service';
 
 export interface SubmitProofDialogData {
   promotion: PromotionInterface;
@@ -20,7 +19,7 @@ export interface SubmitProofDialogData {
 @Component({
   selector: 'app-submit-proof-dialog',
   standalone: true,
-  providers: [CampaignService],
+  providers: [PromoterService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -49,7 +48,7 @@ export class SubmitProofDialogComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<SubmitProofDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: SubmitProofDialogData,
-    private campaignService: CampaignService,
+    private promoterService: PromoterService,
     private snackBar: MatSnackBar
   ) {
     this.proofForm = this.fb.group({
@@ -126,7 +125,7 @@ export class SubmitProofDialogComponent implements OnInit, OnDestroy {
       formData.append('proofImages', file);
     });
 
-    this.campaignService.submitProof(formData)
+    this.promoterService.submitProof(formData)
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {

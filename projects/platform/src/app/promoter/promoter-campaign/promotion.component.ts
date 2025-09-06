@@ -9,16 +9,15 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
-import { CampaignService } from '../campaign/campaign.service';
-import { UserService } from '../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CategoryPlaceholderPipe } from '../common/pipes/category-placeholder.pipe';
+import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
-import { PromotionInterface, UserInterface } from '../../../../shared-services/src/public-api';
-import { Subject, takeUntil } from 'rxjs';
+import { PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PromoterService } from '../../promoter/promoter.service';
 
 
 interface PromotionStats {
@@ -33,9 +32,9 @@ interface PromotionStats {
 }
 
 @Component({
-  selector: 'app-promoter-campaigns',
+  selector: 'app-promoter-promotion',
   standalone: true,
-  providers: [CampaignService],
+  providers: [PromoterService],
   imports: [
     CommonModule,
     RouterModule,
@@ -49,11 +48,11 @@ interface PromotionStats {
     MatMenuModule,
     CategoryPlaceholderPipe
   ],
-  templateUrl: './promoter-campaign.component.html',
-  styleUrls: ['./promoter-campaign.component.scss']
+  templateUrl: './promotion.component.html',
+  styleUrls: ['./promotion.component.scss']
 })
-export class PromoterCampaignsComponent implements OnInit,OnDestroy {
-  private campaignService = inject(CampaignService);
+export class PromoterPromotionComponent implements OnInit,OnDestroy {
+  private promoterService = inject(PromoterService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
@@ -65,7 +64,7 @@ export class PromoterCampaignsComponent implements OnInit,OnDestroy {
   private userService = inject(UserService);
   // Expose the signal directly to the template
   public user: Signal<UserInterface | null> = this.userService.user;
-  public readonly api = this.campaignService.api;
+  public readonly api = this.promoterService.api;
   private readonly destroyRef = inject(DestroyRef);
 
   // Computed values
@@ -109,7 +108,7 @@ export class PromoterCampaignsComponent implements OnInit,OnDestroy {
 
   private loadUserPromotions(): void {
     this.isLoading.set(true);
-    this.campaignService.getUserPromotions(this.user()!._id)
+    this.promoterService.getUserPromotions(this.user()!._id)
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {

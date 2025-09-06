@@ -12,7 +12,6 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardComponent } from './sidenav/sidenav.component';
 import { AuthService } from '../auth/auth.service';
-import { Subject, Subscription, takeUntil } from 'rxjs';
 import { UserService } from '../common/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';

@@ -14,14 +14,12 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { Subject, Subscription, takeUntil } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface, DeviceService } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Interfaces
@@ -83,11 +81,11 @@ export interface UserProfile {
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private router = inject(Router);
-  private breakpointObserver = inject(BreakpointObserver);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
+  private readonly deviceService = inject(DeviceService);
 
   // Add ViewChild for sidenav
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -162,7 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Computed signals
   isMobile = computed(() => {
-    return this.breakpointObserver.isMatched('(max-width: 768px)');
+    return this.deviceService.deviceState().isMobile;
   });
 
   unreadNotifications = computed(() => {

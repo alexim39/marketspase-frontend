@@ -11,15 +11,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { Subject, Subscription } from 'rxjs';
-import { CampaignService } from '../campaign.service';
-import { CampaignStats, formatRemainingDays, isDatePast } from '../../common/utils/time.util';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { CampaignStats, formatRemainingDays, isDatePast } from '../common/utils/time.util';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
-import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
-import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { ShortNumberPipe } from '../common/pipes/short-number.pipe';
+import { CategoryPlaceholderPipe } from '../common/pipes/category-placeholder.pipe';
+import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AdvertiserService } from './advertiser.service';
 
 interface FilterOptions {
   status: string;
@@ -40,7 +39,7 @@ interface StatusOption {
 @Component({
   selector: 'advertiser-campaign-landing',
   standalone: true,
-  providers: [CampaignService],
+  providers: [AdvertiserService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -66,9 +65,9 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
   // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   private readonly destroyRef = inject(DestroyRef);
-  private campaignService = inject(CampaignService);
+  private advertiserService = inject(AdvertiserService);
   campaignStats = computed(() => this.calculateStats());
-  public readonly api = this.campaignService.api;
+  public readonly api = this.advertiserService.api;
   
   // Form controls
   searchControl = new FormControl('');
@@ -204,7 +203,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
 
      if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-        this.campaignService.getAdvertiserCampaign(this.user()!._id!)
+        this.advertiserService.getAdvertiserCampaign(this.user()!._id!)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {

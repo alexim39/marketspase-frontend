@@ -1,0 +1,68 @@
+<div class="promoter-landing-container">
+  <promoter-header [user]="user" [metrics]="metrics()"></promoter-header>
+
+  <promoter-quick-stats [metrics]="metrics()"></promoter-quick-stats>
+
+  @if (metrics().activePromotions > 0) {
+    <div class="container">
+      <div class="active-alert">
+        <div class="alert-content">
+          <div class="alert-icon">
+            <i class="material-icons">notification_important</i>
+          </div>
+          <div class="alert-text">
+            <h3>You have {{metrics().activePromotions}} running promotions</h3>
+            <p>Don't forget to submit your initial and final proof screenshots before expiry</p>
+          </div>
+          <button class="alert-btn">
+            View Active
+            <i class="material-icons">arrow_forward</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <campaign-filters
+    [searchTerm]="searchTerm()"
+    [allCampaignsCount]="campaigns().length"
+    [highPayoutCount]="getHighPayoutCount()"
+    [expiringSoonCount]="metrics().expiringSoon"
+    [quickTasksCount]="getQuickTasksCount()"
+    (searchTermChange)="searchTerm.set($event)"
+  ></campaign-filters>
+
+  <main class="main">
+    <div class="container">
+      @if (isLoading()) {
+        <loading-state></loading-state>
+      } @else if (filteredCampaigns().length === 0) {
+        <empty-state></empty-state>
+      } @else {
+        <div class="campaigns-grid">
+          @for (campaign of filteredCampaigns(); track campaign._id) {
+            <campaign-card
+              [campaign]="campaign"
+              [api]="api"
+              [isApplying]="isApplying()"
+              (applyForCampaign)="applyForCampaign($event)"
+            ></campaign-card>
+          }
+        </div>
+      }
+
+      @if (campaigns().length > 0) {
+        <div style="text-align: center; margin-top: 32px;">
+          <button class="btn btn-primary" style="padding: 16px 32px; font-size: 16px;">
+            <i class="material-icons">apps</i>
+            View All Campaigns
+          </button>
+        </div>
+      }
+    </div>
+  </main>
+
+  <div class="mobile-fab">
+    <i class="material-icons">search</i>
+  </div>
+</div>

@@ -70,10 +70,12 @@
     
     .remove-media-btn {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      background-color: rgba(0, 0, 0, 0.5);
+      top: 1px;
+      right: 1px;
+      background-color: rgba(206, 44, 44, 0.5);
       color: white;
+      border-radius: 100%;
+      
     }
   }
 

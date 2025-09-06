@@ -693,7 +693,7 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
       reference: this.paymentStatus()?.reference,
       timestamp: this.paymentStatus()?.timestamp
     });
-    this.router.navigate(['dashboard/campaign/new']);
+    this.router.navigate(['dashboard/campaign/create']);
   }
 
   closeDialog(): void {
