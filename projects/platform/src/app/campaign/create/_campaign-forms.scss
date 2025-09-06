@@ -1,0 +1,41 @@
+// Shared styles for form cards, buttons, and inputs
+
+.form-card {
+  margin-top: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 24px;
+
+  mat-card-header {
+    margin-bottom: 24px;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+
+  button {
+    min-width: 120px;
+    height: 48px;
+    font-weight: 600;
+  }
+}
+
+.insufficient-funds-alert {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+}

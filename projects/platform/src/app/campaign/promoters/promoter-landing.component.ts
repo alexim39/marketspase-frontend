@@ -285,7 +285,7 @@ export class PromoterLandingComponent implements OnInit {
 
     this.isApplying.set(true);
     
-      this.campaignService.applyForCampaign(campaign._id, this.user()!._id)
+      this.campaignService.acceptCampaign(campaign._id, this.user()!._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -305,14 +305,13 @@ export class PromoterLandingComponent implements OnInit {
           this.isApplying.set(false);
           //alert('Successfully applied for the campaign!');
           this.snackBar.open(response.message, 'OK', { 
-              duration: 3000,
+              duration: 9000,
           });
         },
         error: (error: HttpErrorResponse) => {
-          console.error('Failed to apply for campaign:', error);
+          //console.error('Failed to apply for campaign:', error);
           this.isApplying.set(false);
-          //alert('Failed to apply for campaign: ' + (error.error?.message || 'Unknown error'));
-           this.snackBar.open('Failed to apply for campaign: ' + (error.error?.message || 'Unknown error'), 'OK', { 
+           this.snackBar.open((error.error?.message || 'Unknown error'), 'OK', { 
               duration: 3000,
           });
         }

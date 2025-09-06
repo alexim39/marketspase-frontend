@@ -816,3 +816,43 @@
   70% { opacity: 0; transform: translate(-50%, -50%) scale(1.4);}
   100% { opacity: 0; transform: translate(-50%, -50%) scale(1.4);}
 }
+
+
+
+.media-type-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(4px);
+  
+  .material-icons {
+    font-size: 14px;
+  }
+  
+  // Video overlay styling
+  &.video {
+    background: rgba(219, 39, 119, 0.85);
+    color: white;
+  }
+  
+  // Image overlay styling
+  &.image {
+    background: rgba(37, 99, 235, 0.85);
+    color: white;
+  }
+}
+
+.card-media {
+  position: relative;
+  // ... existing styles
+}

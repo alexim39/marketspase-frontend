@@ -1,4 +1,3 @@
-// Campaign Creation Component Styles
 .campaign-creation-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -6,7 +5,6 @@
   flex-direction: column;
   font-family: 'Inter', sans-serif;
 
-  // Header Styles
   .campaign-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -16,6 +14,8 @@
     z-index: 100;
     min-height: 80px;
     padding: 1.5rem 0;
+    transition: all 0.3s ease;
+    border-radius: 0 0 16px 16px;
 
     .back-btn {
       color: white;
@@ -36,565 +36,131 @@
       }
 
       p {
-        margin: 4px 0 0 0;
-        font-size: 14px;
-        opacity: 0.9;
-        font-weight: 400;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.8);
       }
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
 
       .save-draft-btn {
         color: white;
-        border-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        background-color: transparent;
+        transition: all 0.3s ease;
 
         &:hover {
           background-color: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      padding: 0 12px;
-      min-height: 64px;
-
-      .header-title h1 {
-        font-size: 20px;
-      }
-
-      .header-actions .save-draft-btn {
-        .mat-icon {
-          margin-right: 0;
-        }
-
-        span {
-          display: none;
+          border-color: rgba(255, 255, 255, 0.8);
         }
       }
     }
   }
 
-  // Progress Indicator
   .progress-container {
-    background: white;
+    padding: 2rem 1.5rem 0 1.5rem;
+  }
+
+  .step-indicators {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #d1d1d1;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .step-label {
+        font-size: 14px;
+        color: #666;
+        white-space: nowrap;
+        text-align: center;
+      }
+
+      &.active .step-number {
+        background-color: #4CAF50;
+      }
+      &.current .step-number {
+        background-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transform: scale(1.1);
+      }
+    }
+
+    .step-connector {
+      flex: 1;
+      height: 4px;
+      background-color: #d1d1d1;
+      position: absolute;
+      width: calc(100% - 10%);
+      left: 5%;
+      top: 20px;
+      z-index: 0;
+      transition: all 0.3s ease;
+      
+      &.completed {
+        background: linear-gradient(90deg, #4CAF50 0%, #4CAF50 100%);
+      }
+    }
+  }
+
+  .form-stepper-container {
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+  }
+
+  .form-content {
+    max-width: 800px;
+    width: 100%;
+
+    .action-buttons {
+      margin-top: 1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .campaign-header {
+      .header-title {
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    }
 
     .step-indicators {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 800px;
-      margin: 0 auto;
-
-      .step {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-        flex: 1;
-        text-align: center;
-
-        .step-number {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          font-size: 16px;
-          background-color: #f0f0f0;
-          color: #999;
-          transition: all 0.3s ease;
-        }
-
-        .step-label {
-          font-size: 12px;
-          font-weight: 500;
-          color: #666;
-          transition: color 0.3s ease;
-          text-transform: uppercase;
-        }
-
-        &.current .step-number {
-          background-color: #667eea;
-          color: white;
-          transform: scale(1.1);
-        }
-
-        &.active {
-          .step-number {
-            background-color: #4caf50;
-            color: white;
-          }
-
-          .step-label {
-            color: #4caf50;
-          }
-        }
-
-        &.current .step-label {
-          color: #667eea;
-          font-weight: 600;
-        }
+      padding: 0 10px;
+      .step-label {
+        display: none;
       }
-
-      .step-connector {
-        width: 100%;
-        height: 2px;
-        background-color: #e0e0e0;
-        margin: 0 8px;
-        transition: background-color 0.3s ease;
-
-        &.completed {
-          background-color: #4caf50;
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      padding: 16px 12px;
-
-      .step-indicators {
-        .step {
-          .step-number {
-            width: 32px;
-            height: 32px;
-            font-size: 14px;
-          }
-
-          .step-label {
-            font-size: 10px;
-          }
-        }
-        .step-connector {
-          margin: 0 4px;
-        }
-      }
-    }
-  }
-
-  // Main Form Area
-  .form-stepper-container {
-    display: flex;
-    justify-content: center;
-    padding: 32px 24px;
-
-    .form-card {
-      max-width: 800px;
-      width: 100%;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      
-      .mat-mdc-card-header {
-        padding: 24px 24px 0;
-      }
-      .mat-mdc-card-content {
-        padding: 24px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      padding: 20px 16px;
-
-      .form-card {
-        border-radius: 12px;
-        .mat-mdc-card-header {
-          padding: 20px 20px 0;
-        }
-        .mat-mdc-card-content {
-          padding: 20px;
-        }
-      }
-    }
-  }
-
-  // Form sections
-  .content-form, .budget-form, .schedule-form {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-  
-  .full-width {
-    width: 100%;
-  }
-
-  .form-divider {
-    margin: 16px 0;
-  }
-
-  // Media Upload Section
-  .media-upload-container {
-    .media-upload-area {
-      border: 2px dashed #d0d7de;
-      border-radius: 12px;
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: linear-gradient(145deg, #fafbfc 0%, #f6f8fa 100%);
-      position: relative;
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        border-color: #667eea;
-        background: linear-gradient(145deg, #f8f9ff 0%, #f0f2ff 100%);
-      }
-
-      .upload-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        color: #667eea;
-        margin-bottom: 16px;
-      }
-
-      .upload-text {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0 0 4px 0;
-        color: #1a1a1a;
-      }
-
-      .upload-subtext {
-        font-size: 14px;
-        color: #666;
-        margin: 0;
-        span {
-          color: #667eea;
-          font-weight: 600;
-        }
-      }
-
-      .media-preview-container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-        overflow: hidden;
-        
-        .media-preview-image, .media-preview-video {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          background-color: #f0f2f5;
-        }
-
-        .remove-media-btn {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          background-color: rgba(0, 0, 0, 0.6);
-          color: white;
-          width: 36px;
-          height: 36px;
-          z-index: 10;
-        }
-      }
-    }
-  }
-  
-  // Budget section styles
-  .wallet-balance-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    .balance-value {
-      color: #4caf50;
-    }
-  }
-
-  .slider-info {
-    .estimated-reach {
-      font-size: 14px;
-      color: #666;
-      text-align: center;
-      display: block;
-      margin-top: 8px;
-    }
-  }
-
-  .insufficient-funds-alert {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: #fff3e0;
-    border-left: 4px solid #ff9800;
-    border-radius: 8px;
-
-    .alert-icon {
-      color: #ff9800;
-    }
-
-    .alert-content {
-      flex: 1;
-      .alert-text {
-        font-size: 14px;
-        color: #666;
-        margin: 0;
-      }
-    }
-  }
-
-  // Schedule section styles
-  .end-date-toggle {
-    margin-bottom: 16px;
-    .mat-slide-toggle {
-      font-size: 14px;
-    }
-  }
-
-  // Summary and Preview Section
-  .preview-card {
-    .whatsapp-preview {
-      background: #f0f2f5;
-      padding: 24px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      
-      .preview-header {
-        font-size: 16px;
-        font-weight: 600;
-        color: #666;
-        text-align: center;
-        margin-bottom: 16px;
-      }
-      .whatsapp-card {
-        max-width: 350px;
-        margin: 0 auto;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #e5ddd5;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-
-        .whatsapp-header {
-          display: flex;
-          align-items: center;
-          padding: 12px;
-          background: #075e54;
-          .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 8px;
-          }
-          .sender-name {
-            color: white;
-            font-weight: 600;
-            margin: 0;
-          }
-        }
-        .whatsapp-body {
-          .media-preview-container {
-            width: 100%;
-            .preview-media-image, .preview-media-video {
-              width: 100%;
-              height: auto;
-              display: block;
-            }
-          }
-          .caption-container {
-            padding: 12px;
-            .caption {
-              font-size: 14px;
-              line-height: 1.4;
-              word-wrap: break-word;
-              margin: 0 0 8px 0;
-            }
-            .preview-link {
-              color: #0d47a1;
-              font-size: 14px;
-              word-break: break-all;
-            }
-          }
-        }
-      }
-    }
-    .campaign-details {
-      h4 {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0 0 16px 0;
-      }
-      .detail-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px dashed #e0e0e0;
-        &:last-child {
-          border-bottom: none;
-        }
-        .detail-label {
-          font-size: 14px;
-          color: #666;
-        }
-        .detail-value {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1a1a1a;
-          text-align: right;
-        }
-      }
-    }
-    .final-cost-summary {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 24px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-      color: #1565c0;
-      border-left: 4px solid #2196f3;
-      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
-      margin-top: 24px;
-
-      .summary-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-        color: #2196f3;
-      }
-
-      .summary-text {
-        font-size: 16px;
-        font-weight: 500;
-        margin: 0;
-        .cost-value {
-          font-size: 20px;
-          font-weight: 700;
-          color: #0d47a1;
-        }
-      }
-    }
-  }
-
-
-  // Action Buttons
-  .action-buttons {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 24px;
-    background: white;
-    border-top: 1px solid #e0e0e0;
-    position: sticky;
-    bottom: 0;
-    gap: 16px;
-    margin-top: 1em;
-    
-    button {
-      min-width: 150px;
-    }
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px;
-
-      button {
-        width: 100%;
-      }
-    }
-  }
-
-  // Loading States
-  .loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-
-    .loading-content {
-      background: white;
-      padding: 32px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-
-      mat-icon {
-        font-size: 48px;
-        width: 48px;
-        height: 48px;
-        color: #667eea;
-        margin-bottom: 16px;
-        animation: spin 2s linear infinite;
-      }
-
-      h4 {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-        color: #1a1a1a;
-      }
-
-      p {
-        font-size: 14px;
-        color: #666;
-        margin: 0;
-      }
-    }
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  // Animation classes
-  .fade-in {
-    animation: fadeIn 0.3s ease-in;
-  }
-
-  .slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  // Accessibility improvements
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
     }
   }
 }

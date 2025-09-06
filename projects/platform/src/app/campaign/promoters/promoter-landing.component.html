@@ -108,8 +108,8 @@
             <i class="material-icons">notification_important</i>
           </div>
           <div class="alert-text">
-            <h3>You have {{metrics().activePromotions}} active promotions</h3>
-            <p>Don't forget to submit your proof screenshots before expiry</p>
+            <h3>You have {{metrics().activePromotions}} running promotions</h3>
+            <p>Don't forget to submit your initial and final proof screenshots before expiry</p>
           </div>
           <button class="alert-btn">
             View Active
@@ -191,6 +191,13 @@
             </div>
 
             <div class="card-media">
+
+              <!-- Media type indicator positioned on the media -->
+              <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+                <i class="material-icons">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+                <span>{{ campaign.mediaType | titlecase }}</span>
+              </div>
+
               @if (campaign.mediaType === 'video') {
                 <div class="video-placeholder">
                   <div class="video-play-btn">

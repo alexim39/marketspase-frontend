@@ -150,6 +150,13 @@
                         <mat-icon>play_circle</mat-icon>
                       </div>
                     } -->
+
+                     <!-- Media type indicator positioned on the media -->
+                    <div class="media-type-overlay" [ngClass]="promotion.campaign.mediaType">
+                      <i class="material-icons">{{ promotion.campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+                      <span>{{ promotion.campaign.mediaType | titlecase }}</span>
+                    </div>
+
                     @if (promotion.campaign.mediaType === "image") {
                       <img [src]="api+promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
                     }

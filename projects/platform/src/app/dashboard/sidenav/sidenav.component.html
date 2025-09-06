@@ -1,13 +1,11 @@
-<!-- dashboard.component.html -->
 <div class="dashboard-container">
-  <!-- Mobile Header -->
   @if (isMobile()) {
     <mat-toolbar class="mobile-header">
       <button mat-icon-button (click)="toggleSidenav()">
         <mat-icon>menu</mat-icon>
       </button>
       <div class="mobile-logo">
-        <mat-icon class="logo-icon">campaign</mat-icon>
+        <mat-icon class="logo-icon">sync</mat-icon>
         <span class="logo-text">MarketSpase</span>
       </div>
       <div class="mobile-actions">
@@ -23,45 +21,36 @@
   }
 
   <mat-sidenav-container class="sidenav-container" [hasBackdrop]="isMobile()">
-    <!-- Side Navigation -->
     <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()" class="sidenav">
-      <!-- Desktop Header in Sidenav -->
-        @if (!isMobile()) {
+      @if (!isMobile()) {
         <div class="sidenav-header">
           <div class="logo-section">
-            <mat-icon class="logo-icon">campaign</mat-icon>
+            <mat-icon class="logo-icon">sync</mat-icon>
             <h1 class="logo-text">MarketSpase</h1>
           </div>
         </div>
         }
 
-      <!-- User Profile Card -->
       <div class="profile-card">
         <div class="profile-info">
           <img [src]="user()!.avatar" class="profile-avatar" [alt]="user()!.displayName">
           <div class="profile-details">
             <h3 class="profile-name">{{user()!.displayName}}</h3>
             <div class="profile-meta">
-              <mat-chip class="role-chip" [class]="user()!.role">
-                {{user()!.role | titlecase}}
-              </mat-chip>
-              @if (user()!.verified) {
+              <div class="role-chip" [class]="user()!.role">
+                {{user()?.role | titlecase}}
+              </div>
+              @if (user()?.verified) {
                 <mat-icon class="verified-badge" matTooltip="Verified Account">verified</mat-icon>
-              }
-            </div>
-            <div class="profile-stats">
-              @if (user()!.role === 'promoter') {
-                ⭐ {{user()!.rating}}/5 • ₦{{currentUser().totalEarnings | currency: '₦':'symbol':'1.0-2'}} earned
-              }
-              @if (user()!.role === 'advertiser') {
-                {{currentUser().activeCampaigns}} active • ₦{{currentUser().totalSpent | currency: '₦':'symbol':'1.0-2'}} spent
               }
             </div>
           </div>
         </div>
+        <button mat-icon-button class="switch-user-btn" (click)="switchUser(user()!.role || 'promoter')" title="Switch user">
+          <mat-icon>swap_horiz</mat-icon>
+        </button>
       </div>
 
-      <!-- Navigation Menu -->
       <mat-nav-list class="nav-list">
       @for (item of navigationItems(); track item) {
         <mat-list-item [routerLink]="item.route" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{exact: true}"  (click)="isMobile() && sidenav.close()">
@@ -74,15 +63,14 @@
       }
       </mat-nav-list>
 
-      <!-- Quick Actions -->
       @if (user()!.role === 'advertiser') {
         <div class="quick-actions">
           <h4 class="section-title">Quick Actions</h4>
-          <button mat-stroked-button class="action-btn" (click)="createCampaign()">
+          <button mat-stroked-button class="action-btn" (click)="createCampaign(); isMobile() && sidenav.close()">
             <mat-icon>add_circle_outline</mat-icon>
             Create Campaign
           </button>
-          <button mat-stroked-button class="action-btn" (click)="fundWallet()">
+          <button mat-stroked-button class="action-btn" (click)="fundWallet(); isMobile() && sidenav.close()">
             <mat-icon>account_balance_wallet</mat-icon>
             Fund Wallet
           </button>
@@ -91,18 +79,17 @@
       @if (user()!.role === 'promoter') {
         <div class="quick-actions">
           <h4 class="section-title">Quick Actions</h4>
-          <button mat-stroked-button class="action-btn" (click)="viewPromotion()">
+          <button mat-stroked-button class="action-btn" (click)="viewPromotion(); isMobile() && sidenav.close()">
             <mat-icon>campaign</mat-icon>
             View Promotion
           </button>
-          <button mat-stroked-button class="action-btn" (click)="viewMyPromotion()">
+          <button mat-stroked-button class="action-btn" (click)="viewMyPromotion(); isMobile() && sidenav.close()">
             <mat-icon>loyalty</mat-icon>
             My Promotion
           </button>
         </div>
       }
 
-      <!-- Logout -->
       <div class="quick-actions">
         <button mat-stroked-button class="action-btn logout" (click)="logout()">
           <mat-icon>exit_to_app</mat-icon>
@@ -111,15 +98,12 @@
       </div>
     </mat-sidenav>
 
-    <!-- Main Content -->
     <mat-sidenav-content class="main-content">
-      <!-- Desktop Header -->
       @if (!isMobile()) {
         <mat-toolbar class="desktop-header">
           <span class="page-title">{{getPageTitle()}}</span>
           <div class="header-spacer"></div>
           <div class="header-actions">
-            <!-- Wallet Balance -->
             <div class="wallet-display" (click)="openWallet()">
               <mat-icon>account_balance_wallet</mat-icon>
               @if (user()!.role === 'promoter') {
@@ -129,14 +113,12 @@
                 <span class="wallet-amount">{{user()?.wallets?.advertiser?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
               }
             </div>
-            
-            <!-- Notifications -->
+
             <button mat-icon-button [matMenuTriggerFor]="notificationMenu" class="notification-btn">
-              <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn" 
+              <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn"
                         [matBadgeHidden]="unreadNotifications() === 0">notifications</mat-icon>
             </button>
 
-            <!-- Profile Menu -->
             <button mat-icon-button (click)="openCartDialog()">
               <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()?.displayName">
               <mat-icon>arrow_drop_down</mat-icon>
@@ -145,13 +127,11 @@
         </mat-toolbar>
       }
 
-      <!-- Router -->
       <router-outlet/>
 
     </mat-sidenav-content>
   </mat-sidenav-container>
 
-  <!-- Notification Menu -->
   <mat-menu #notificationMenu="matMenu" class="notification-menu">
     <div class="notification-header">
       <h4>Notifications</h4>
@@ -163,7 +143,7 @@
     @if (notifications().length > 0) {
     <div class="notification-list">
       @for (notification of notifications().slice(0, 5); track notification) {
-        <button mat-menu-item  
+        <button mat-menu-item
               class="notification-item"
               [class.unread]="!notification.read"
               (click)="markAsRead(notification.id)">
@@ -174,7 +154,7 @@
           </div>
         </button>
       }
-      
+
     </div>
     } @else {
       <div class="no-notifications">
@@ -195,10 +175,8 @@
 
 
 
-<!-- Premium Cart Dialog Template -->
 <ng-template #cartDialogTemplate>
   <mat-card class="cart-dialog-card">
-    <!-- Header with cart summary -->
     <div class="cart-header">
       <div class="cart-title">
         <mat-icon class="cart-icon">shopping_bag</mat-icon>
@@ -224,10 +202,9 @@
       </div>
     </div>
 
-    <!-- Navigation Tabs -->
     <div class="cart-tabs">
-      <button 
-        class="tab-btn" 
+      <button
+        class="tab-btn"
         [class.active]="activeTab === 'cart'"
         (click)="setActiveTab('cart')">
         <mat-icon>campaign</mat-icon>
@@ -240,8 +217,8 @@
         }
         </span>
       </button>
-      <button 
-        class="tab-btn" 
+      <button
+        class="tab-btn"
         [class.active]="activeTab === 'quick-actions'"
         (click)="setActiveTab('quick-actions')">
         <mat-icon>menu</mat-icon>
@@ -251,228 +228,100 @@
 
     <mat-divider/>
 
-    <!-- Cart Content -->
-     @if (activeTab === 'cart') {
+    @if (activeTab === 'cart') {
       <div class="cart-content">
-        <!-- Campaign preview -->
         <div class="cart-items-section">
-          <div class="empty-cart">
-            @if(user()!.role === 'advertiser') { 
-              @if(user()!.campaigns === undefined || user()!.campaigns!.length > 0) { 
-                @for (campaign of user()!.campaigns; track campaign) {
-                  <!-- Enhanced Campaign Summary Card -->
-                  <div class="campaign-card" [class]="campaign.status">
-                    <!-- Campaign Header -->
-                    <div class="campaign-header">
-                      <div class="campaign-title-section">
-                        <div class="campaign-icon-wrapper">
-                          <mat-icon class="campaign-icon">campaign</mat-icon>
-                        </div>
-                        <div class="campaign-title-info">
-                          <h3 class="campaign-title">{{campaign.title}}</h3>
-                          <!-- <div class="campaign-id">ID: {{campaign._id}}</div> -->
-                        </div>
-                      </div>
-                      
-                      <div class="campaign-status-section">
-                        <mat-chip class="status-chip" [ngClass]="campaign.status">
-                          <mat-icon class="status-icon">{{getStatusIcon(campaign.status)}}</mat-icon>
-                          {{campaign.status | titlecase}}
-                        </mat-chip>
-                        <button mat-icon-button class="more-options" [matMenuTriggerFor]="campaignMenu">
-                          <mat-icon>more_vert</mat-icon>
-                        </button>
-                      </div>
+          @if(user()!.role === 'advertiser') {
+            @if(user()!.campaigns && user()!.campaigns!.length > 0) {
+              <div class="campaigns-summary-card">
+                <div class="summary-header">
+                  <div class="summary-title-section">
+                    <mat-icon class="summary-icon">campaign</mat-icon>
+                    <h3 class="summary-title">Campaign Overview</h3>
+                  </div>
+                  <button mat-flat-button color="primary" class="view-all-btn" (click)="closeCartDialog(); viewAllCampaigns()">
+                    View All
+                  </button>
+                </div>
+
+                <mat-divider class="summary-divider"></mat-divider>
+
+                <div class="summary-metrics-grid">
+                  <div class="metric-summary active-campaigns">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">playlist_play</mat-icon>
                     </div>
-
-                    <!-- Campaign Progress -->
-                    <div class="campaign-progress">
-                      <div class="progress-header">
-                        <span class="progress-label">Campaign Progress</span>
-                        <span class="progress-percentage">{{getProgressPercentage(campaign)}}%</span>
-                      </div>
-                      <mat-progress-bar 
-                        mode="determinate" 
-                        [value]="getProgressPercentage(campaign)"
-                        class="progress-bar">
-                      </mat-progress-bar>
-                      <div class="progress-timeline">
-                        <span class="timeline-start">{{campaign.startDate | date:'MMM dd'}}</span>
-                        <span class="timeline-end">{{campaign.endDate ? (campaign.endDate | date:'MMM dd') : 'Ongoing'}}</span>
-                      </div>
-                    </div>
-
-                    <!-- Campaign Metrics Grid -->
-                    <div class="campaign-metrics">
-                      <!-- Budget & Spending -->
-                      <div class="metric-card budget-card">
-                        <div class="metric-header">
-                          <mat-icon class="metric-icon">account_balance_wallet</mat-icon>
-                          <span class="metric-label">Budget & Spending</span>
-                        </div>
-                        <div class="metric-values">
-                          <div class="primary-value">{{campaign.budget | currency: '₦':'symbol':'1.0-0'}}</div>
-                          <div class="secondary-value">
-                            Spent: {{450 | currency: '₦':'symbol':'1.0-0'}}
-                          </div>
-                          <div class="budget-remaining">
-                            <span class="remaining-amount">{{(campaign.budget - 567) | currency: '₦':'symbol':'1.0-0'}}</span>
-                            <span class="remaining-label">remaining</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Promoter Engagement -->
-                      <div class="metric-card promoter-card">
-                        <div class="metric-header">
-                          <mat-icon class="metric-icon">people</mat-icon>
-                          <span class="metric-label">Promoter Engagement</span>
-                        </div>
-                        <div class="metric-values">
-                          <div class="primary-value">{{campaign.totalPromotions}}/{{campaign.maxPromoters}}</div>
-                          <div class="secondary-value">Active Promoters</div>
-                          <div class="engagement-stats">
-                            <div class="stat-item">
-                              <span class="stat-number">{{campaign.validatedPromotions}}</span>
-                              <span class="stat-label">Validated</span>
-                            </div>
-                            <div class="stat-item">
-                              <span class="stat-number">56</span>
-                              <span class="stat-label">Pending</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Performance Metrics -->
-                      <div class="metric-card performance-card">
-                        <div class="metric-header">
-                          <mat-icon class="metric-icon">trending_up</mat-icon>
-                          <span class="metric-label">Performance</span>
-                        </div>
-                        <div class="metric-values">
-                          <div class="primary-value">678</div>
-                          <div class="secondary-value">Total Impressions</div>
-                          <div class="performance-stats">
-                            <div class="stat-item">
-                              <span class="stat-number">56%</span>
-                              <span class="stat-label">CTR</span>
-                            </div>
-                            <div class="stat-item">
-                              <span class="stat-number">45%</span>
-                              <span class="stat-label">CVR</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Payout Information -->
-                      <div class="metric-card payout-card">
-                        <div class="metric-header">
-                          <mat-icon class="metric-icon">payments</mat-icon>
-                          <span class="metric-label">Payout Details</span>
-                        </div>
-                        <div class="metric-values">
-                          <div class="primary-value">{{campaign.payoutPerPromotion | currency: '₦':'symbol':'1.0-0'}}</div>
-                          <div class="secondary-value">Per Promotion</div>
-                          <div class="payout-stats">
-                            <div class="stat-item">
-                              <span class="stat-number">{{campaign.paidPromotions}}</span>
-                              <span class="stat-label">Paid</span>
-                            </div>
-                            <div class="stat-item">
-                              <span class="stat-number">{{(campaign.validatedPromotions - campaign.paidPromotions) || 0}}</span>
-                              <span class="stat-label">Pending</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Campaign Actions -->
-                    <div class="campaign-actions">
-                      <button mat-button class="action-btn secondary" (click)="viewCampaignDetails(campaign._id)">
-                        <mat-icon>visibility</mat-icon>
-                        View Details
-                      </button>
-                      
-                      <button mat-button class="action-btn secondary" (click)="viewAnalytics(campaign._id)">
-                        <mat-icon>analytics</mat-icon>
-                        Analytics
-                      </button>
-
-                      <button mat-raised-button 
-                              color="primary" 
-                              class="action-btn primary"
-                              [disabled]="campaign.status === 'completed' || campaign.status === 'expired' || campaign.status === 'exhausted'"
-                              (click)="manageCampaign(campaign._id)">
-                        <mat-icon>settings</mat-icon>
-                        Manage
-                      </button>
-                    </div>
-
-                    <!-- Status Indicator -->
-                    <div class="status-indicator" [ngClass]="campaign.status">
-                      <div class="status-dot"></div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ getActiveCampaignCount() }}</span>
+                      <span class="metric-label">Active Campaigns</span>
                     </div>
                   </div>
 
-                  <!-- Campaign Options Menu -->
-                  <mat-menu #campaignMenu="matMenu">
-                    <button mat-menu-item (click)="duplicateCampaign(campaign._id)">
-                      <mat-icon>content_copy</mat-icon>
-                      <span>Duplicate Campaign</span>
-                    </button>
-                    <button mat-menu-item (click)="exportCampaignData(campaign._id)">
-                      <mat-icon>download</mat-icon>
-                      <span>Export Data</span>
-                    </button>
-                    <button mat-menu-item (click)="shareReport(campaign._id)">
-                      <mat-icon>share</mat-icon>
-                      <span>Share Report</span>
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item 
-                            class="danger-action" 
-                            (click)="pauseCampaign(campaign._id)"
-                            [disabled]="campaign.status === 'completed' || campaign.status === 'exhausted' || campaign.status === 'expired' || campaign.status === 'paused'">
-                      <mat-icon>pause</mat-icon>
-                      <span>Pause Campaign</span>
-                    </button>
-                  </mat-menu>
-                }               
-               } @else {
+                  <div class="metric-summary total-promotions">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">people</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ getTotalPromotions() }}</span>
+                      <span class="metric-label">Total Promoters</span>
+                    </div>
+                  </div>
+
+                  <div class="metric-summary total-spending">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">trending_up</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ getTotalSpent() | currency: '₦':'symbol':'1.0-0' }}</span>
+                      <span class="metric-label">Total Spent</span>
+                    </div>
+                  </div>
+
+                  <div class="metric-summary budget-remaining">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">account_balance_wallet</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ getTotalRemainingBudget() | currency: '₦':'symbol':'1.0-0' }}</span>
+                      <span class="metric-label">Remaining Budget</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="empty-cart-message">
                 <div class="empty-cart-icon">
                   <mat-icon>campaign</mat-icon>
                 </div>
                 <h4>No active campaigns</h4>
                 <p>You have no active campaign yet</p>
-                <button 
-                  mat-flat-button 
-                  color="primary" 
+                <button
+                  mat-flat-button
+                  color="primary"
                   class="shop-btn"
-                  routerLink="/campaigns" 
+                  routerLink="/campaigns"
                   (click)="closeCartDialog()">
                   Start a Campaign
                 </button>
-              }
+              </div>
             }
-            @if(user()!.role === 'promoter') { 
+          }
+          @if(user()!.role === 'promoter') {
+            <div class="empty-cart-message">
               <h4>No active promotion</h4>
               <p>You have no running promotion yet</p>
-              <button 
-                mat-flat-button 
-                color="primary" 
+              <button
+                mat-flat-button
+                color="primary"
                 class="shop-btn"
-                routerLink="/campaigns" 
+                routerLink="/campaigns"
                 (click)="closeCartDialog()">
                 Start a Promotion
               </button>
-              }
-          </div>
+            </div>
+          }
         </div>
 
-        <!-- Launch / Payout section -->
         <div class="checkout-section">
           <mat-divider/>
           @if(user()!.role === 'advertiser') {
@@ -482,14 +331,6 @@
                 {{user()?.wallets?.advertiser?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}
               </span>
             </div>
-            <!-- <button 
-              mat-flat-button 
-              color="primary" 
-              class="checkout-btn"
-              routerLink="/store/checkout"
-              (click)="closeCartDialog()">
-              Launch Campaign
-            </button> -->
           }
           @if(user()!.role === 'promoter') {
              <div class="checkout-total">
@@ -498,14 +339,6 @@
                 {{user()?.wallets?.promoter?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}
               </span>
             </div>
-            <!-- <button 
-              mat-flat-button 
-              color="primary" 
-              class="checkout-btn"
-              routerLink="/store/checkout"
-              (click)="closeCartDialog()">
-              Launch Campaign
-            </button> -->
           }
           <div class="secure-checkout">
             <mat-icon>lock</mat-icon>
@@ -516,7 +349,6 @@
       </div>
     }
 
-    <!-- Quick Actions Content -->
     @if (activeTab === 'quick-actions') {
       <div class="quick-actions-content">
         <div class="quick-actions-grid">
@@ -535,11 +367,11 @@
               <small>Pay promoters to post ads on WhatsApp</small>
             </span>
           </button>
-          
+
         </div>
 
         <div class="account-section">
-          <mat-divider></mat-divider>
+          <mat-divider/>
           <button matRipple class="account-action" routerLink="./settings" (click)="closeCartDialog()">
             <mat-icon>person</mat-icon>
             <span>Profile & Settings</span>

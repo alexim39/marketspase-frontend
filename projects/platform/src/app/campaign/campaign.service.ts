@@ -50,12 +50,12 @@ export class CampaignService {
     return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true);
   }
 
-  // In your campaign.service.ts
-  applyForCampaign(campaignId: string, userId: string): Observable<any> {
-    return this.apiService.post<any>(`campaign/${campaignId}/apply`, { userId }, undefined, true);
+  // Promoter accept a campaign
+  acceptCampaign(campaignId: string, userId: string): Observable<any> {
+    return this.apiService.post<any>(`campaign/${campaignId}/accept`, { userId }, undefined, true);
   }
 
-  // In your campaign.service.ts
+  // 
   getUserPromotions(userId: string): Observable<any> {
     return this.apiService.get<any>(`campaign/promotions/user/${userId}`, undefined, undefined, true);
   }
