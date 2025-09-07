@@ -73,13 +73,15 @@ export class CreateCampaignComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
-  private userService: UserService = inject(UserService);
   private campaignService = inject(CampaignService);
   private readonly deviceService = inject(DeviceService);
 
   // Public properties for the template
   protected readonly deviceType = computed(() => this.deviceService.type());
+
+  private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
+  
   public today: Date = new Date();
   public currentStep = signal<number>(1);
   public isSubmitting = signal(false);

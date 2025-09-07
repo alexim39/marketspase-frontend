@@ -1,0 +1,73 @@
+.stats-overview {
+  padding: 24px 0;
+
+  .container {
+    padding: 0 10px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+
+    .stat-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+          font-size: 24px;
+          height: 24px;
+          width: 24px;
+        }
+
+        &.total {
+          background: #e3f2fd;
+          color: #2196f3;
+        }
+        &.pending, &.submitted {
+          background: #fff3e0;
+          color: #ff9800;
+        }
+        &.validated {
+          background: #e8f5e9;
+          color: #4caf50;
+        }
+        &.paid {
+          background: #e1f5fe;
+          color: #03a9f4;
+        }
+        &.rejected {
+          background: #ffebee;
+          color: #f44336;
+        }
+      }
+
+      .stat-content {
+        h3 {
+          font-size: 24px;
+          font-weight: 700;
+          margin: 0;
+          color: #333;
+        }
+        p {
+          font-size: 12px;
+          color: #777;
+          margin: 0;
+        }
+      }
+    }
+  }
+}

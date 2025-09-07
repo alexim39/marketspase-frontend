@@ -72,7 +72,7 @@ export interface CampaignInterface {
   views: number;
   estimatedReach: number;
   startDate: Date;
-  endDate?: Date | null; // It can be null or undefined
+  endDate: Date; // It can be null or undefined
   createdAt: Date;
   mediaUrl?: string;
   mediaType?: string;

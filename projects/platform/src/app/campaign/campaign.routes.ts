@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { Index } from "./index";
 import { CreateCampaignComponent } from "./create/create-campaign.component";
-import { PromoterPromotionComponent } from "../promoter/promoter-campaign/promotion.component";
+import { PromotionComponent } from "../promoter/promotion/promotion.component";
 
 export const CampaignRoutes: Routes = [
     {
@@ -19,7 +19,7 @@ export const CampaignRoutes: Routes = [
     }, 
     {
         path: 'my-promotions',
-        component: PromoterPromotionComponent,
+        component: PromotionComponent,
         title: "Promotions - List all accepted promoter promotions",
     }, 
     

@@ -1,0 +1,33 @@
+.promoter-campaigns-container {
+  padding-bottom: 80px;
+  background: #f8f9fa;
+
+  .content-container {
+    .container {
+      padding: 0 10px;
+    }
+  }
+
+  .campaign-list-section {
+    padding-top: 24px;
+  }
+
+  .promotions-list {
+    display: flex;
+    margin: 1em;
+    gap: 16px;
+    @media (max-width: 768px) {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .load-more {
+    text-align: center;
+    margin-top: 32px;
+
+    button {
+      padding: 8px 24px;
+    }
+  }
+}

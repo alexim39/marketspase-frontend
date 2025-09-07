@@ -1,0 +1,55 @@
+<section class="stats-overview">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <mat-icon>campaign</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.total }}</h3>
+          <p>Total Promotions</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon pending">
+          <mat-icon>pending_actions</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.pending }}</h3>
+          <p>Pending Submission</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon submitted">
+          <mat-icon>pending_actions</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.submitted }}</h3>
+          <p>Pending Validation</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon validated">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.validated }}</h3>
+          <p>Validated</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon paid">
+          <mat-icon>paid</mat-icon>
+        </div>
+        <div class="stat-content">
+          <h3>{{ stats.paid }}</h3>
+          <p>Paid</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
