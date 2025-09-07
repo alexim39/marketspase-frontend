@@ -8,17 +8,28 @@
       <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
       <span class="status-text">{{ promotion.status }}</span>
     </div>
-   <!--  <div class="card-actions">
+   <div class="card-actions">
       <button mat-icon-button [matMenuTriggerFor]="cardMenu" aria-label="Promotion actions">
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #cardMenu="matMenu">
-        <button mat-menu-item>
+       
+        <button mat-menu-item (click)="downloadPromotion()">
+          <mat-icon>download_for_offline</mat-icon>
+          <span>Download Promotion</span>
+        </button>
+
+        <button mat-menu-item (click)="onOpenSubmitProofDialog()">
+          <mat-icon>cloud_upload</mat-icon>
+          <span>Submit Proof</span>
+        </button>
+
+         <button mat-menu-item>
           <mat-icon>info</mat-icon>
           <span>View Details</span>
         </button>
       </mat-menu>
-    </div> -->
+    </div>
     @if (promotion.campaign.mediaType === "image") {
       <img [src]="api + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
       }
@@ -38,11 +49,11 @@
           <span class="value">{{ promotion.payoutAmount }}</span>
           <span class="label">Payout</span>
         </div>
-        <div class="detail-item">
-          <mat-icon class="icon-warning">schedule</mat-icon>
-          <span class="value">{{ getDaysRemaining(promotion.campaign.endDate) }}</span>
-          <span class="label">Days Left</span>
-        </div>
+      <div class="detail-item">
+        <mat-icon class="icon-warning">schedule</mat-icon>
+        <span class="value">{{ countdownSignal() }}</span>
+        <span class="label">Time remaining</span>
+      </div>
         <div class="detail-item">
           <mat-icon class="icon-success">visibility</mat-icon>
           <span class="value">{{ promotion.proofViews || 0 }}</span>
@@ -58,10 +69,17 @@
         }
         <div class="action-buttons">
           @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
-            <button mat-flat-button color="primary" (click)="onOpenSubmitProofDialog()">
-              <mat-icon>cloud_upload</mat-icon>
-              Submit Proof
-            </button>
+            @if (promotion.proofMedia.length > 0) {
+              <button mat-flat-button color="primary" (click)="onOpenSubmitProofDialog()">
+                <mat-icon>cloud_upload</mat-icon>
+                Submit Proof
+              </button>
+            } @else {
+              <button mat-flat-button color="primary" (click)="downloadPromotion()">
+                <mat-icon>download_for_offline</mat-icon>
+                Download Promotion
+              </button>
+            }            
           }
           @if (promotion.status === 'submitted' || promotion.status === 'validated') {
             <button mat-stroked-button>

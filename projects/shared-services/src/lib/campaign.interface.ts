@@ -89,7 +89,7 @@ export interface CampaignInterface {
   spentBudget: number; // This is a key from your provided object
   paidPromotions: number;
   minViewsPerPromotion: number;
-  validatedPromotions: number;
+  //validatedPromotions: number;
   totalPromotions: number;
 
   promotions: PromotionInterface[]

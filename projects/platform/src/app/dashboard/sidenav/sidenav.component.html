@@ -196,7 +196,7 @@
           <span class="total-price">{{user()?.wallets?.advertiser?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
         }
         @if(user()!.role === 'promoter') {
-          <span class="items-count">1 Active promotion</span>
+          <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
           <span class="total-price">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
         }
       </div>
@@ -212,9 +212,7 @@
         @if(user()!.role === 'promoter') { Promotions }
         <span class="badge">
         @if(user()!.role === 'advertiser') { {{activeCampaignsCount}} }
-        @if(user()!.role === 'promoter') {
-          7
-        }
+        @if(user()!.role === 'promoter') { {{pendingPromotionsCount}}  }
         </span>
       </button>
       <button
@@ -244,7 +242,7 @@
                   </button>
                 </div>
 
-                <mat-divider class="summary-divider"></mat-divider>
+                <mat-divider class="summary-divider"/>
 
                 <div class="summary-metrics-grid">
                   <div class="metric-summary active-campaigns">
@@ -259,11 +257,11 @@
 
                   <div class="metric-summary total-promotions">
                     <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">people</mat-icon>
+                      <mat-icon class="metric-icon">campaign</mat-icon>
                     </div>
                     <div class="metric-info">
-                      <span class="metric-value">{{ getTotalPromotions() }}</span>
-                      <span class="metric-label">Total Promoters</span>
+                      <span class="metric-value">{{ getTotalCampaigns() }}</span>
+                      <span class="metric-label">Total Campaigns</span>
                     </div>
                   </div>
 
@@ -307,18 +305,77 @@
             }
           }
           @if(user()!.role === 'promoter') {
-            <div class="empty-cart-message">
-              <h4>No active promotion</h4>
-              <p>You have no running promotion yet</p>
-              <button
-                mat-flat-button
-                color="primary"
-                class="shop-btn"
-                routerLink="/campaigns"
-                (click)="closeCartDialog()">
-                Start a Promotion
-              </button>
-            </div>
+
+            @if(user()?.promotion && user()!.promotion!.length > 0) {
+              <div class="campaigns-summary-card">
+                <div class="summary-header">
+                  <div class="summary-title-section">
+                    <mat-icon class="summary-icon">campaign</mat-icon>
+                    <h3 class="summary-title">Promotion Overview</h3>
+                  </div>
+                  <button mat-flat-button color="primary" class="view-all-btn" (click)="closeCartDialog(); viewAllPromotion()">
+                    View All
+                  </button>
+                </div>
+
+                <mat-divider class="summary-divider"/>
+
+                <div class="summary-metrics-grid">
+                  <div class="metric-summary active-campaigns">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">playlist_play</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ user()!.promotion!.length }}</span>
+                      <span class="metric-label">All Promotions</span>
+                    </div>
+                  </div>
+
+                  <div class="metric-summary total-promotions">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">trending_up</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ getValidatedPromotionCount() }}</span>
+                      <span class="metric-label">Validated Promotions</span>
+                    </div>
+                  </div>
+
+                  <div class="metric-summary total-spending">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">trending_down</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ getRejectedPromotionCount() }}</span>
+                      <span class="metric-label">Rejected Promotion</span>
+                    </div>
+                  </div>
+
+                  <div class="metric-summary budget-remaining">
+                    <div class="metric-icon-wrapper">
+                      <mat-icon class="metric-icon">account_balance_wallet</mat-icon>
+                    </div>
+                    <div class="metric-info">
+                      <span class="metric-value">{{ user()?.wallets?.promoter?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+                      <span class="metric-label">Reserved Amount</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            } @else {
+              <div class="empty-cart-message">
+                <h4>No active promotion</h4>
+                <p>You have no running promotion yet</p>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  class="shop-btn"
+                  routerLink="/campaigns"
+                  (click)="closeCartDialog()">
+                  Start a Promotion
+                </button>
+              </div>
+            }
           }
         </div>
 

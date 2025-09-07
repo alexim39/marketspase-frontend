@@ -42,7 +42,7 @@ export interface NotificationItem {
   read: boolean;
 }
 
-export interface UserProfile {
+/* export interface UserProfile {
   id: string;
   name: string;
   email: string;
@@ -55,7 +55,7 @@ export interface UserProfile {
   activeCampaigns?: number;
   completedCampaigns?: number;
 }
-
+ */
 @Component({
   selector: 'app-dashboard',
   providers: [DashboardService],
@@ -98,24 +98,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
+  pendingPromotionsCount: number | undefined = 0;
   private readonly destroyRef = inject(DestroyRef);
-
-  // Signals for reactive state management
-  currentUser = signal<UserProfile>({
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-    role: 'advertiser',
-    verified: true,
-    rating: 4.8,
-    totalEarnings: 85000,
-    totalSpent: 250000,
-    activeCampaigns: 5,
-    completedCampaigns: 23
-  });
-
-  //walletBalance = signal(125000);
 
   earnings = signal<Earning[]>([
     {
@@ -196,6 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
     this.calculateActiveCampaigns();
     this.calculatePendingCampaigns();
+    this.calculatePendingPromotions();
   }
 
 
@@ -230,6 +215,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
   
   public viewAllCampaigns(): void {
+    this.router.navigate(['/dashboard/campaigns']);
+  }
+
+  public viewAllPromotion(): void {
     this.router.navigate(['/dashboard/campaigns']);
   }
 
@@ -344,6 +333,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ).length;
     }
   }
+  // get user pending promotions
+  calculatePendingPromotions(): void {
+    const promotions = this.user()?.promotion;
+
+    if (Array.isArray(promotions)) {
+      this.pendingPromotionsCount = promotions.filter(
+        (p: any) => p.status === 'pending' || p.status === 'submitted'
+      ).length;
+    } else {
+      this.pendingPromotionsCount = 0;
+    }
+  }
+
 
   /**
    * Calculates the total number of active campaigns.
@@ -353,10 +355,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Calculates the total number of validated promotions across all campaigns.
+   * Calculates the total number of rejected campaigns.
    */
-  getTotalPromotions(): number {
-    return this.user()?.campaigns?.reduce((sum, c) => sum + (c.validatedPromotions || 0), 0) || 0;
+  getRejectedPromotionCount(): number {
+    return this.user()?.promotion?.filter(p => p.status === 'rejected')?.length || 0;
+  }
+
+  /**
+   * Calculates the total number of validated campaigns.
+   */
+  getValidatedPromotionCount(): number {
+    return this.user()?.promotion?.filter(p => p.status === 'validated')?.length || 0;
+  }
+
+  /**
+   * Calculates the total number of validated campaign across all campaigns.
+   */
+  getTotalCampaigns(): number {
+    return this.user()?.campaigns?.length || 0;
   }
 
   /**

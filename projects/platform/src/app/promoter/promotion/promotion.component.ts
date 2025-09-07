@@ -17,6 +17,8 @@ import { StatsOverviewComponent } from './stats-overview/stats-overview.componen
 import { PromotionCardComponent } from './promotion-card/promotion-card.component';
 import { EmptyStateComponent } from './empty-state/empty-state.component';
 import { LoadingStateComponent } from './loading-state/loading-state.component';
+import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 interface PromotionStats {
   total: number;
@@ -52,6 +54,7 @@ export class PromotionComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
   private router = inject(Router);
+  readonly dialog = inject(MatDialog);
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
@@ -116,7 +119,7 @@ export class PromotionComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           console.error('Failed to load promotions:', error);
-          this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
+          //this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
           this.isLoading.set(false);
         }
       });
@@ -140,5 +143,11 @@ export class PromotionComponent implements OnInit {
 
   openSubmitProofDialog(promotion: PromotionInterface): void {
     // Dialog logic remains here
+
+     this.dialog.open(SubmitProofDialogComponent, {
+      data: { promotion: promotion } // Wrap the promotion object in the expected data structure
+    });
   }
+
+
 }

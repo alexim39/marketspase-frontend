@@ -34,7 +34,7 @@ export interface SubmitProofDialogData {
   templateUrl: './submit-proof-dialog.component.html',
   styleUrls: ['./submit-proof-dialog.component.scss']
 })
-export class SubmitProofDialogComponent implements OnInit, OnDestroy {
+export class SubmitProofDialogComponent implements OnInit {
   proofForm: FormGroup;
   isSubmitting = false;
   selectedFiles: File[] = [];
@@ -59,12 +59,6 @@ export class SubmitProofDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('Dialog opened for promotion:', this.data.promotion);
-  }
-
-  
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
   }
 
 

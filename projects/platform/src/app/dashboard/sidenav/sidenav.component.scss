@@ -450,6 +450,14 @@ body {
     }
   }
 
+  .empty-cart-message {
+      text-align: center;
+      p {
+        margin: 5px 0;
+        color: gray;
+      }
+  }
+
   .quick-actions-content {
     padding: 24px;
     .quick-actions-grid {
@@ -595,5 +603,8 @@ body {
       &.total-spending .metric-icon { color: #f44336; }
       &.budget-remaining .metric-icon { color: #673ab7; }
     }
+
+    
   }
+  
 }

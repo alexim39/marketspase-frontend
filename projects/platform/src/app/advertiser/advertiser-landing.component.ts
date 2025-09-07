@@ -58,7 +58,7 @@ interface StatusOption {
   templateUrl: './advertiser-landing.component.html',
   styleUrls: ['./advertiser-landing.component.scss']
 })
-export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
+export class AdvertiserCampaignLandingComponent implements OnInit {
   private router = inject(Router);
   private deviceService = inject(DeviceService);
 
@@ -118,13 +118,6 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
     this.loadCampaigns();
     this.setupSearch();
   }
-
-  
- ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 
   private setupSearch(): void {
     this.searchControl.valueChanges
@@ -207,7 +200,7 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            //console.log('Campaigns without metrics:', response.data);
+            console.log('Campaigns without metrics:', response.data);
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             console.log('Campaigns with metrics:', campaignsWithMetrics);
             this.campaigns.set(campaignsWithMetrics);
@@ -245,7 +238,8 @@ export class AdvertiserCampaignLandingComponent implements OnInit, OnDestroy {
       return campaigns.map(campaign => {
         const updatedCampaign = { ...campaign };
   
-        updatedCampaign.progress = (campaign.spentBudget / campaign.budget) * 100;
+        updatedCampaign.progress = ( (campaign.currentPromoters * campaign.payoutPerPromotion) / campaign.budget) * 100;
+        //updatedCampaign.progress = (campaign.spentBudget / campaign.budget) * 100;
   
         if (campaign.endDate) {
           const endDate = new Date(campaign.endDate);

@@ -10,7 +10,7 @@ export interface PromotionInterface {
   submittedAt?: Date;
   validatedAt?: Date;
   paidAt?: Date;
-  proofMedia?: string[];
+  proofMedia: string[];
   proofViews?: number;
   campaign: CampaignInterface;
   promoter: UserInterface;
@@ -18,7 +18,4 @@ export interface PromotionInterface {
   updatedAt: Date;
   rejectionReason?: string;
   notes?: string;
-
-  //submissionDate: Date;
-  //submissionEndDate: Date;
 }

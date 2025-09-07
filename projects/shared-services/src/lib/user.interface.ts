@@ -1,3 +1,4 @@
+import { PromotionInterface } from "../public-api";
 import { CampaignInterface } from "./campaign.interface";
 
 export interface UserInterface {
@@ -90,5 +91,6 @@ export interface UserInterface {
     };
    
   };
-  campaigns?: [CampaignInterface]; // Adjust the type as per your Campaign model
+  campaigns?: [CampaignInterface];
+  promotion?: [PromotionInterface];
 }

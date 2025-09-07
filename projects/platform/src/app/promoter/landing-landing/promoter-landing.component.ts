@@ -82,13 +82,13 @@ export class PromoterLandingComponent implements OnInit {
   metrics = computed<CampaignMetrics>(() => {
     const campaigns = this.campaigns();
     const totalEarnings = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0) * campaign.payoutPerPromotion, 0);
-    const pendingEarnings = campaigns.reduce((sum, campaign) => sum + ((campaign.validatedPromotions || 0) - (campaign.paidPromotions || 0)) * campaign.payoutPerPromotion, 0);
+    //const pendingEarnings = campaigns.reduce((sum, campaign) => sum + ((campaign.validatedPromotions || 0) - (campaign.paidPromotions || 0)) * campaign.payoutPerPromotion, 0);
     const activePromotions = this.promotions().filter((promotion: PromotionInterface) => promotion.status === 'pending' || promotion.status === 'submitted').length;    
     const completedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0), 0);
     const totalViews = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0) * (campaign.minViewsPerPromotion || 0), 0);
     const totalPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0), 0);
-    const validatedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.validatedPromotions || 0), 0);
-    const successRate = totalPromotions > 0 ? (validatedPromotions / totalPromotions) * 100 : 0;
+    //const validatedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.validatedPromotions || 0), 0);
+    //const successRate = totalPromotions > 0 ? (validatedPromotions / totalPromotions) * 100 : 0;
     const expiringSoon = campaigns.filter(campaign => {
       if (!campaign.endDate) return false;
       const endDate = new Date(campaign.endDate);
@@ -102,9 +102,9 @@ export class PromoterLandingComponent implements OnInit {
       totalEarnings,
       rating: 4.8,
       completedPromotions,
-      pendingEarnings,
+      pendingEarnings: 5,
       activePromotions,
-      successRate,
+      successRate: 9,
       totalViews,
       expiringSoon
     };
@@ -145,7 +145,7 @@ export class PromoterLandingComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           console.error('Failed to load promotions:', error);
-          this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
+          //this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
           this.isLoading.set(false);
         }
       });
@@ -238,5 +238,9 @@ export class PromoterLandingComponent implements OnInit {
           });
         }
       });
+  }
+
+  viewPromotions() {
+    this.router.navigate(['/dashboard/campaigns/my-promotions']);
   }
 }
