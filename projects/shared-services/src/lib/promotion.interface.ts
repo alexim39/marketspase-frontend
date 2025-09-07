@@ -1,5 +1,6 @@
 
 import { CampaignInterface } from "./campaign.interface";
+import { UserInterface } from "./user.interface";
 
 
 export interface PromotionInterface {
@@ -12,9 +13,11 @@ export interface PromotionInterface {
   proofMedia?: string[];
   proofViews?: number;
   campaign: CampaignInterface;
+  promoter: UserInterface;
   createdAt: Date;
   updatedAt: Date;
-  promoter?: string | any
+  rejectionReason?: string;
+  notes?: string;
 
   //submissionDate: Date;
   //submissionEndDate: Date;

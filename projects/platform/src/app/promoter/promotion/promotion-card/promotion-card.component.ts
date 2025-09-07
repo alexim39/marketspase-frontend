@@ -65,15 +65,15 @@ export class PromotionCardComponent {
     const diffTime = end.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
-
+  
+  // This is the updated method with the correct logic
   isSubmissionExpired(promotion: PromotionInterface): boolean {
-    console.log('promotion ',promotion)
-    const end = new Date(promotion.campaign.endDate);
-    const now = new Date();
-    const diffTime = end.getTime() - now.getTime();
-    const timeInNumber =  Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (timeInNumber === 0) {
-      return true
+    //console.log('promotion ',promotion)
+    if (promotion.createdAt) {
+      const createdAtDate = new Date(promotion.createdAt);
+      // Add 24 hours to the createdAt timestamp
+      const expirationDate = new Date(createdAtDate.getTime() + 24 * 60 * 60 * 1000);
+      return new Date() > expirationDate;
     }
     return false;
   }

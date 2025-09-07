@@ -19,12 +19,12 @@
         </button>
       </mat-menu>
     </div> -->
-     @if (promotion.campaign.mediaType === "image") {
-       <img [src]="api + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
+    @if (promotion.campaign.mediaType === "image") {
+      <img [src]="api + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
       }
-      @if (promotion.campaign.mediaType === "video") {
-        <img [src]="promotion.campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
-      }
+    @if (promotion.campaign.mediaType === "video") {
+      <img [src]="promotion.campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+    }
     
   </div>
 
@@ -75,7 +75,6 @@
             Paid
           </button>
           }
-          
         </div>
       </div>
     </div>

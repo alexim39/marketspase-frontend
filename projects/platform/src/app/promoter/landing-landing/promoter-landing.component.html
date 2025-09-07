@@ -1,7 +1,7 @@
 <div class="promoter-landing-container">
-  <promoter-header [user]="user" [metrics]="metrics()"></promoter-header>
+  <promoter-header [user]="user" [metrics]="metrics()"/>
 
-  <promoter-quick-stats [metrics]="metrics()"></promoter-quick-stats>
+  <promoter-quick-stats [metrics]="metrics()"/>
 
   @if (metrics().activePromotions > 0) {
     <div class="container">
@@ -30,7 +30,7 @@
     [expiringSoonCount]="metrics().expiringSoon"
     [quickTasksCount]="getQuickTasksCount()"
     (searchTermChange)="searchTerm.set($event)"
-  ></campaign-filters>
+  />
 
   <main class="main">
     <div class="container">
@@ -52,12 +52,12 @@
       }
 
       @if (campaigns().length > 0) {
-        <div style="text-align: center; margin-top: 32px;">
+       <!--  <div style="text-align: center; margin-top: 32px;">
           <button class="btn btn-primary" style="padding: 16px 32px; font-size: 16px;">
             <i class="material-icons">apps</i>
             View All Campaigns
           </button>
-        </div>
+        </div> -->
       }
     </div>
   </main>

@@ -16,7 +16,7 @@ import { EmptyStateComponent } from './empty-state/empty-state.component';
 import { LoadingStateComponent } from './loading-state/loading-state.component';
 
 // Imported types and services
-import { CampaignInterface, DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { PromoterService } from '../promoter.service';
 
@@ -67,6 +67,8 @@ export class PromoterLandingComponent implements OnInit {
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
+  promotions = signal<PromotionInterface[]>([]);
+
   filteredCampaigns = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     if (!term) return this.campaigns();
@@ -81,7 +83,7 @@ export class PromoterLandingComponent implements OnInit {
     const campaigns = this.campaigns();
     const totalEarnings = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0) * campaign.payoutPerPromotion, 0);
     const pendingEarnings = campaigns.reduce((sum, campaign) => sum + ((campaign.validatedPromotions || 0) - (campaign.paidPromotions || 0)) * campaign.payoutPerPromotion, 0);
-    const activePromotions = campaigns.filter(campaign => campaign.status === 'active').length;
+    const activePromotions = this.promotions().filter((promotion: PromotionInterface) => promotion.status === 'pending' || promotion.status === 'submitted').length;    
     const completedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0), 0);
     const totalViews = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0) * (campaign.minViewsPerPromotion || 0), 0);
     const totalPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0), 0);
@@ -110,6 +112,43 @@ export class PromoterLandingComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCampaigns();
+    this.loadUserPromotions();
+  }
+
+   loadUserPromotions(): void {
+    this.isLoading.set(true);
+
+    const userId = this.user()?._id;
+
+    // Check if the user ID exists before making the API call
+    if (!userId) {
+      this.snackBar.open('User not logged in or ID not available.', 'Dismiss', { duration: 3000 });
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.promoterService.getUserPromotions(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          // Add a defensive check for the response data
+          if (response && response.data) {
+            console.log('returned promotions',response.data)
+            this.promotions.set(response.data);
+            //this.stats.set(this.calculateStats(response.data));
+          } else {
+            // Handle case where response is not as expected
+            this.promotions.set([]);
+            //this.stats.set(this.calculateStats([]));
+          }
+          this.isLoading.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Failed to load promotions:', error);
+          this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
+          this.isLoading.set(false);
+        }
+      });
   }
 
   private loadCampaigns(): void {
