@@ -8,7 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   imports: [CommonModule, MatProgressBarModule],
   template: `
     <div class="loading-state">
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <mat-progress-bar mode="indeterminate"/>
       <p>Loading promotions...</p>
     </div>
   `,

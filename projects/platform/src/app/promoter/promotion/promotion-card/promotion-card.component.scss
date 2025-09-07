@@ -147,12 +147,16 @@
       font-weight: 600;
       margin: 0 0 16px;
     }
+    .campaign-caption {
+      margin: 5px 0 10px 0;
+      color: gray;
+    }
     .card-footer {
       margin-top: auto;
     }
     .details {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
       .detail-item {
         display: flex;
@@ -176,6 +180,7 @@
           &.icon-primary { color: #2196f3; }
           &.icon-warning { color: #ff9800; }
           &.icon-success { color: #4caf50; }
+          &.icon-upi { color: #b70d04; }
         }
       }
     }

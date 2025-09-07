@@ -43,6 +43,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     // Initial call on component creation
     this.startCountdownTimer();
+    //console.log('promotion ',this.promotion)
   }
 
   ngOnChanges(changes: SimpleChanges): void {

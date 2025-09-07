@@ -18,4 +18,6 @@ export interface PromotionInterface {
   updatedAt: Date;
   rejectionReason?: string;
   notes?: string;
+  upi: number;
+  isDownloaded: boolean;
 }

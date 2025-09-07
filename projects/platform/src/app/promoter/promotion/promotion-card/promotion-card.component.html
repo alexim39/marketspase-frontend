@@ -49,15 +49,20 @@
           <span class="value">{{ promotion.payoutAmount }}</span>
           <span class="label">Payout</span>
         </div>
-      <div class="detail-item">
-        <mat-icon class="icon-warning">schedule</mat-icon>
-        <span class="value">{{ countdownSignal() }}</span>
-        <span class="label">Time remaining</span>
-      </div>
+        <div class="detail-item">
+          <mat-icon class="icon-warning">schedule</mat-icon>
+          <span class="value">{{ countdownSignal() }}</span>
+          <span class="label">Time remaining</span>
+        </div>
         <div class="detail-item">
           <mat-icon class="icon-success">visibility</mat-icon>
           <span class="value">{{ promotion.proofViews || 0 }}</span>
           <span class="label">View</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="icon-upi">badge</mat-icon>
+          <span class="value">{{ promotion.upi || 0 }}</span>
+          <span class="label">Promotion number</span>
         </div>
       </div>
       <div class="actions">
@@ -69,7 +74,8 @@
         }
         <div class="action-buttons">
           @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
-            @if (promotion.proofMedia.length > 0) {
+            @if (promotion.isDownloaded) {
+            <!-- @if (promotion.proofMedia.length > 0) { -->
               <button mat-flat-button color="primary" (click)="onOpenSubmitProofDialog()">
                 <mat-icon>cloud_upload</mat-icon>
                 Submit Proof
