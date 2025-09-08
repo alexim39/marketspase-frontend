@@ -153,7 +153,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   validatePromotion(promotion: PromotionInterface): void {
-      this.campaignService.updateCampaignStatus(promotion._id, 'validated')
+      this.campaignService.updatePromotionStatus(promotion._id, 'validated')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -172,7 +172,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   rejectPromotion(promotion: PromotionInterface): void {
-      this.campaignService.updateCampaignStatus(promotion._id, 'rejected')
+      this.campaignService.updatePromotionStatus(promotion._id, 'rejected')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -191,7 +191,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   markAsPaid(promotion: PromotionInterface): void {
-      this.campaignService.updateCampaignStatus(promotion._id, 'paid')
+      this.campaignService.updatePromotionStatus(promotion._id, 'paid')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {

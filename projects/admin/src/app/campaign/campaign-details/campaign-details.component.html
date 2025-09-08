@@ -17,34 +17,35 @@
         </button>
         <mat-menu #statusMenu="matMenu">
         <div style="background-color: black !important;">
-        @if (campaign()?.status === 'pending') {
-            <button mat-menu-item (click)="updateCampaignStatus('active')">
-            <mat-icon>check_circle</mat-icon>
-            <span>Approve</span>
+            @if (campaign()?.status === 'pending') {
+                <button mat-menu-item (click)="updateCampaignStatus('active')">
+                <mat-icon>check_circle</mat-icon>
+                <span>Approve</span>
+                </button>
+                <button mat-menu-item (click)="updateCampaignStatus('paused')">
+                <mat-icon>pause_circle</mat-icon>
+                <span>Pause</span>
+                </button>
+            }
+            @if (campaign()?.status === 'active') {
+                <button mat-menu-item (click)="updateCampaignStatus('paused')">
+                <mat-icon>pause_circle</mat-icon>
+                <span>Pause</span>
+                </button>
+            }
+            @if (campaign()?.status === 'paused') {
+                <button mat-menu-item (click)="updateCampaignStatus('active')">
+                <mat-icon>play_circle</mat-icon>
+                <span>Resume</span>
+                </button>
+            }
+            <button mat-menu-item (click)="viewActivityLog()">
+                <mat-icon>history</mat-icon>
+                <span>View Activity Log</span>
             </button>
-            <button mat-menu-item (click)="updateCampaignStatus('paused')">
-            <mat-icon>pause_circle</mat-icon>
-            <span>Pause</span>
-            </button>
-        }
-        @if (campaign()?.status === 'active') {
-            <button mat-menu-item (click)="updateCampaignStatus('paused')">
-            <mat-icon>pause_circle</mat-icon>
-            <span>Pause</span>
-            </button>
-        }
-        @if (campaign()?.status === 'paused') {
-            <button mat-menu-item (click)="updateCampaignStatus('active')">
-            <mat-icon>play_circle</mat-icon>
-            <span>Resume</span>
-            </button>
-        }
-        <button mat-menu-item (click)="viewActivityLog()">
-            <mat-icon>history</mat-icon>
-            <span>View Activity Log</span>
-        </button>
         </div>
         </mat-menu>
+        
     </div>
     </div>
 
@@ -305,26 +306,28 @@
                         </button>
                         
                         <mat-menu #promotionMenu="matMenu">
-                            @if (promotion.status === 'submitted') {
-                            <button mat-menu-item (click)="validatePromotion(promotion)">
-                                <mat-icon>check_circle</mat-icon>
-                                <span>Validate</span>
-                            </button>
-                            <button mat-menu-item (click)="rejectPromotion(promotion)">
-                                <mat-icon>cancel</mat-icon>
-                                <span>Reject</span>
-                            </button>
-                            }
-                            @if (promotion.status === 'validated') {
-                            <button mat-menu-item (click)="markAsPaid(promotion)">
-                                <mat-icon>payments</mat-icon>
-                                <span>Mark as Paid</span>
-                            </button>
-                            }
-                            <button mat-menu-item (click)="viewPromotionDetails(promotion)">
-                            <mat-icon>info</mat-icon>
-                            <span>View Details</span>
-                            </button>
+                            <div style="background-color: black !important;">
+                                @if (promotion.status === 'submitted') {
+                                <button mat-menu-item (click)="validatePromotion(promotion)">
+                                    <mat-icon>check_circle</mat-icon>
+                                    <span>Validate</span>
+                                </button>
+                                <button mat-menu-item (click)="rejectPromotion(promotion)">
+                                    <mat-icon>cancel</mat-icon>
+                                    <span>Reject</span>
+                                </button>
+                                }
+                                @if (promotion.status === 'validated') {
+                                <button mat-menu-item (click)="markAsPaid(promotion)">
+                                    <mat-icon>payments</mat-icon>
+                                    <span>Mark as Paid</span>
+                                </button>
+                                }
+                                <button mat-menu-item (click)="viewPromotionDetails(promotion)">
+                                <mat-icon>info</mat-icon>
+                                <span>View Details</span>
+                                </button>
+                            </div>
                         </mat-menu>
                         </td>
                     </ng-container>
