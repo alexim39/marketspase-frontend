@@ -12,6 +12,8 @@ import { PromoterService } from '../../promoter.service';
 import { interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-promotion-card',
@@ -39,6 +41,11 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   public countdownSignal = signal<string>('');
   private countdownSubscription: Subscription | null = null;
   private readonly destroyRef = inject(DestroyRef);
+  private timeDifferenceInMilliseconds = 0; // New property to store the time difference
+  private snackBar = inject(MatSnackBar);
+
+  // Inject HttpClient
+  private http = inject(HttpClient);
 
   ngOnInit(): void {
     // Initial call on component creation
@@ -67,9 +74,9 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     const creationTime = new Date(this.promotion.campaign.createdAt).getTime();
     const expirationTime = creationTime + (24 * 60 * 60 * 1000);
     const currentTime = new Date().getTime();
-    const timeDifferenceInMilliseconds = expirationTime - currentTime;
+    this.timeDifferenceInMilliseconds = expirationTime - currentTime; // Set the new property
 
-    if (timeDifferenceInMilliseconds <= 0) {
+    if (this.timeDifferenceInMilliseconds <= 0) {
       this.countdownSignal.set('Expired');
       return;
     }
@@ -96,14 +103,14 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     const creationTime = new Date(createdAt).getTime();
     const expirationTime = creationTime + (24 * 60 * 60 * 1000);
     const currentTime = new Date().getTime();
-    const timeDifferenceInMilliseconds = expirationTime - currentTime;
+    this.timeDifferenceInMilliseconds = expirationTime - currentTime; // Update the new property
 
-    if (timeDifferenceInMilliseconds <= 0) {
+    if (this.timeDifferenceInMilliseconds <= 0) {
       this.countdownSignal.set('Expired');
       return;
     }
 
-    const totalSeconds = Math.floor(timeDifferenceInMilliseconds / 1000);
+    const totalSeconds = Math.floor(this.timeDifferenceInMilliseconds / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -140,16 +147,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     };
     return icons[status] || 'help';
   }
-
-/*   isSubmissionExpired(promotion: PromotionInterface): boolean {
-    if (promotion.createdAt) {
-      const createdAtDate = new Date(promotion.createdAt);
-      const expirationDate = new Date(createdAtDate.getTime() + 24 * 60 * 60 * 1000);
-      return new Date() > expirationDate;
-    }
-    return false;
-  } */
-
+  
   isSubmissionExpired(promotion: PromotionInterface): boolean {
     // Always use a universal time for calculations.
     // promotion.campaign.createdAt is already in ISO 8601 format with a UTC offset, so `new Date()` will correctly parse it as a UTC date.
@@ -163,44 +161,61 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
 
     return nowUtc > expiryTimeUtc;
   }
+  
+  // New method to check if the countdown is nearing expiration (30 minutes)
+  isNearingExpiration(): boolean {
+    const thirtyMinutesInMs = 30 * 60 * 1000;
+    return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= thirtyMinutesInMs;
+  }
 
- downloadPromotion(): void {
-    const campaignId = this.promotion.campaign._id;
-    const promoterId = this.promotion.promoter._id;
+  downloadPromotion(): void {
+  const campaignId = this.promotion.campaign._id;
+  const promoterId = this.promotion.promoter._id;
 
-    this.promoterService.downloadPromotion(campaignId, promoterId)
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.campaign) {
-            console.log('Campaign post downloaded successfully:', response.message);
-            // Get the media URL from the response
-            const mediaUrl = response.campaign.mediaUrl;
-            const mediaType = response.campaign.mediaType;
+  this.promoterService.downloadPromotion(campaignId, promoterId)
+  .pipe(takeUntilDestroyed(this.destroyRef))
+  .subscribe({
+  next: (response) => {
+    if (response.success) {
+      const mediaUrl = response.campaign.mediaUrl;
+      const mediaType = response.campaign.mediaType;
+      const fileExtension = mediaType === 'image' ? 'jpg' : 'mp4';
+      const fileName = `campaign_post_${campaignId}.${fileExtension}`;
 
-            // Create a temporary link element to trigger the download
-            const link = document.createElement('a');
-            link.href = mediaUrl;
+      // Fetch the media file as a Blob
+      this.http.get(mediaUrl, { responseType: 'blob' }).subscribe({
+        next: (blob) => {
+          // Create a temporary URL for the Blob
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
 
-            // Set a download attribute with a filename
-            const fileExtension = mediaType === 'image' ? 'jpg' : 'mp4';
-            link.download = `campaign_post_${campaignId}.${fileExtension}`;
-            link.style.display = 'none'; // Hide the link
+          // Set the href to the Blob URL and the download attribute
+          link.href = url;
+          link.download = fileName;
+          link.style.display = 'none';
 
-            // Append the link to the document body and simulate a click
-            document.body.appendChild(link);
-            link.click();
+          document.body.appendChild(link);
+          link.click();
 
-            // Clean up the temporary link
-            document.body.removeChild(link);
-          } else {
-            console.error('Failed to download promotion:', response.message);
-            // Optionally, show an error message to the user
-          }
-        },
+          // Clean up the temporary link and Blob URL
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 
         error: (error) => {
-          console.error('Error calling downloadPromotion API:', error);
-          // Optionally, show a user-friendly error message
+          console.error('Error fetching media file for download:', error);
+          this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
         }
       });
+    } else {
+      console.error('Failed to download promotion:', response.message);
+      this.snackBar.open(response.message, 'OK', { duration: 3000 });
+    }
+  },
+    error: (error) => {
+    console.error('Error calling downloadPromotion API:', error);
+    this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
   }
+  });
+ }
+
 }

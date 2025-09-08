@@ -1,3 +1,4 @@
+
 <div class="promotion-card">
   <div class="card-header">
     <div class="media-type-overlay" [ngClass]="promotion.campaign.mediaType">
@@ -13,16 +14,16 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #cardMenu="matMenu">
-       
-        <button mat-menu-item (click)="downloadPromotion()">
-          <mat-icon>download_for_offline</mat-icon>
-          <span>Download Promotion</span>
-        </button>
-
+        @if (promotion.isDownloaded) {
         <button mat-menu-item (click)="onOpenSubmitProofDialog()">
           <mat-icon>cloud_upload</mat-icon>
           <span>Submit Proof</span>
         </button>
+        }
+         <button mat-menu-item (click)="downloadPromotion()">
+            <mat-icon>download_for_offline</mat-icon>
+            <span>Download Promotion</span>
+          </button>
 
          <button mat-menu-item>
           <mat-icon>info</mat-icon>
@@ -51,7 +52,7 @@
         </div>
         <div class="detail-item">
           <mat-icon class="icon-warning">schedule</mat-icon>
-          <span class="value">{{ countdownSignal() }}</span>
+          <span class="value" [ngClass]="{'nearing-expiration': isNearingExpiration()}">{{ countdownSignal() }}</span>
           <span class="label">Time remaining</span>
         </div>
         <div class="detail-item">
@@ -75,8 +76,7 @@
         <div class="action-buttons">
           @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
             @if (promotion.isDownloaded) {
-            <!-- @if (promotion.proofMedia.length > 0) { -->
-              <button mat-flat-button color="primary" (click)="onOpenSubmitProofDialog()">
+            <button mat-flat-button color="primary" (click)="onOpenSubmitProofDialog()">
                 <mat-icon>cloud_upload</mat-icon>
                 Submit Proof
               </button>
