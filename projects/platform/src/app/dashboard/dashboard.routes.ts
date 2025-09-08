@@ -1,6 +1,6 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "./guard.service";
-import { DashboardIndex } from "./index";
+import { DashboardIndexComponent } from "./index";
 import { DashboardMainContainer } from "./main-content/main-content.component";
 
 export const dashboardRoutes: Routes = [
@@ -9,7 +9,7 @@ export const dashboardRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: DashboardIndex,
+        component: DashboardIndexComponent,
         canActivate: [AuthGuard],
         children: [
             {
@@ -18,6 +18,7 @@ export const dashboardRoutes: Routes = [
             },                    
             { path: 'campaigns', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
             { path: 'settings', loadChildren: () => import('../settings/settings.routes').then(r => r.SettingsRoutes) },           
+            { path: 'transactions', loadChildren: () => import('../transactions/transactions.routes').then(r => r.TransactionsRoutes) },           
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

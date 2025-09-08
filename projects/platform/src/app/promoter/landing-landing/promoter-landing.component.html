@@ -35,9 +35,9 @@
   <main class="main">
     <div class="container">
       @if (isLoading()) {
-        <loading-state></loading-state>
+        <loading-state/>
       } @else if (filteredCampaigns().length === 0) {
-        <empty-state></empty-state>
+        <empty-state/>
       } @else {
         <div class="campaigns-grid">
           @for (campaign of filteredCampaigns(); track campaign._id) {

@@ -1,14 +1,14 @@
 import { Component, inject, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../common/services/user.service';
-import { CampaignComponent } from './campaign.component';
 import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
+import { TransactionComponent } from './transactions.component';
 
 
 @Component({
-  selector: 'campaign-index',
+  selector: 'index',
   standalone: true,
-  imports: [CommonModule, CampaignComponent],
+  imports: [CommonModule, TransactionComponent],
   template: `
     <div class="page-container">
       
@@ -20,7 +20,7 @@ import { DeviceService, UserInterface } from '../../../../shared-services/src/pu
             <!-- Dashboard Content -->
             <main class="page-main" role="main">
               @if (user()) {
-                <campaign [user]="user"/>
+                <app-transactions [user]="user"/>
               }              
             </main>
           }
@@ -30,7 +30,7 @@ import { DeviceService, UserInterface } from '../../../../shared-services/src/pu
             <!-- Dashboard Content -->
              <main class="page-main" role="main">
               @if (user()) {
-                <campaign [user]="user"/>
+                <app-transactions [user]="user"/>
               }              
             </main>
           }
@@ -40,7 +40,7 @@ import { DeviceService, UserInterface } from '../../../../shared-services/src/pu
             <!-- Dashboard Content -->
             <main class="page-main" role="main">
               @if (user()) {
-                <campaign [user]="user"/>
+                <app-transactions [user]="user"/>
               }              
             </main>
           }
@@ -254,7 +254,7 @@ import { DeviceService, UserInterface } from '../../../../shared-services/src/pu
     }
   `]
 })
-export class CampaignIndexComponent {
+export class TransactionsIndexComponent {
   private readonly deviceService = inject(DeviceService);
   // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());

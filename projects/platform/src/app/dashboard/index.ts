@@ -286,7 +286,7 @@ interface AuthState {
     }
   `]
 })
-export class DashboardIndex implements OnDestroy {
+export class DashboardIndexComponent implements OnDestroy {
   // Injected services using modern inject function
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);

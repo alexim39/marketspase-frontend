@@ -164,6 +164,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         //{ icon: 'analytics', label: 'Analytics', route: '/analytics' },
         //{ icon: 'account_balance_wallet', label: 'Wallet', route: '/wallet' },
         //{ icon: 'people', label: 'Promoters', route: '/promoters' },
+        { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
     } else {
@@ -171,7 +172,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...baseItems,
         { icon: 'work', label: 'Promotions', route: './campaigns' },
         //{ icon: 'assignment', label: 'My Campaigns', route: '/my-campaigns' },
-        { icon: 'monetization_on', label: 'Earnings', route: '/earnings' },
+        { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
     }
@@ -234,7 +235,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public openWallet(): void {
-    this.router.navigate(['/wallet']);
+    this.router.navigate(['/dashboard/transactions']);
   }
 
   // Notification Actions

@@ -133,7 +133,7 @@ export class PromoterLandingComponent implements OnInit {
         next: (response) => {
           // Add a defensive check for the response data
           if (response && response.data) {
-            console.log('returned promotions',response.data)
+            //console.log('returned promotions',response.data)
             this.promotions.set(response.data);
             //this.stats.set(this.calculateStats(response.data));
           } else {

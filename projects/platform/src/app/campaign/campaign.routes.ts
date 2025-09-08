@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { Index } from "./index";
+import { CampaignIndexComponent } from "./index";
 import { CreateCampaignComponent } from "./create/create-campaign.component";
 import { PromotionComponent } from "../promoter/promotion/promotion.component";
 
@@ -9,7 +9,7 @@ export const CampaignRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: Index,
+        component: CampaignIndexComponent,
         title: "Advertiser, Promoter Dashboard - Manage all campaign and promotion",
     },
     {
