@@ -1,5 +1,6 @@
 import { Routes } from "@angular/router";
 import { TransactionsIndexComponent } from ".";
+import { WithdrawalComponent } from "../wallet/withdrawal/withdrawal.component";
 
 export const TransactionsRoutes: Routes = [
     {
@@ -7,11 +8,11 @@ export const TransactionsRoutes: Routes = [
         component: TransactionsIndexComponent,
         title: "Advertiser, Promoter Transactions - View all transaction details",
     },
-    // {
-    //     path: 'create',
-    //     component: CreateCampaignComponent,
-    //     title: "Campaign Creation - Create New Campaign",
-    // }, 
+    {
+        path: 'withdrawal',
+        component: WithdrawalComponent,
+        title: "Withfrawl Transanction - Request fund withdrawal",
+    }, 
     // {
     //     path: 'my-promotions',
     //     component: PromotionComponent,

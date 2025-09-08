@@ -223,6 +223,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/campaigns']);
   }
 
+  public viewWithdrawl(): void {
+    this.router.navigate(['/dashboard/transactions/withdrawal']);
+  }
+
   // Wallet Actions
   public fundWallet(): void {
     this.dialog.open(WalletFundingComponent, {
