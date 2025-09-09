@@ -244,6 +244,13 @@
         outline: none;
       }
     }
+
+    @media (max-width: 768px) {
+      .hint {
+        margin: 1em 0;
+      }
+    }
+
   }
 
   .form-actions {
@@ -335,7 +342,10 @@ mat-spinner {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
-
+    
+    mat-slide-toggle {
+      margin-top: 2.5em;
+    }
     button {
       width: 100%;
     }

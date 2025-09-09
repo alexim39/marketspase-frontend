@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../shared-services/src/public-api';
+import { ApiService } from '../../../../../shared-services/src/public-api';
 
 export interface TransactionInterface {
   message: string;
@@ -34,7 +34,7 @@ export interface WithdrawalRequestData {
 }
 
 @Injectable()
-export class PaymentService {
+export class WithdrawalService {
   
   constructor(private apiService: ApiService) {}
   
@@ -52,9 +52,41 @@ export class PaymentService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-  withdrawRequest(formObject: WithdrawalRequestData): Observable<any> {
-    console.log('withdrawRequest', formObject);
-    return this.apiService.post<any>('wallet/withdraw-request', formObject);
+  withdrawRequest(payload: WithdrawalRequestData): Observable<any> {
+    //console.log('withdrawRequest', payload);
+    return this.apiService.post<any>('wallet/withdraw-request', payload, undefined, true);
+  }
+
+
+  test(): Observable<any> {
+  //   const p = {
+  //     "saveAccount": true,
+  //     "bank": "044",
+  //     "accountNumber": "0040342205",
+  //     "accountName": "IMENWO  ALEX  CHINAGO",
+  //     "amount": 1000,
+  //     "userId": "68bde6eb95bec192938fadff",
+  //     "bankName": "Access Bank",
+  //     "bankCode": "044",
+  //     "withdrawalFee": 100,
+  //     "totalDeduction": 100,
+  //     "finalAmount": 1000
+  // }
+    const p = {
+      "saveAccount": true,
+      "bank": "50211",
+      "accountNumber": "1100900300",
+      "accountName": "IMENWO, CHINAGO ALEX",
+      "amount": 1000,
+      "userId": "68bde6eb95bec192938fadff",
+      "bankName": "Kuda Bank",
+      "bankCode": "044",
+      "withdrawalFee": 100,
+      "totalDeduction": 100,
+      "finalAmount": 1000
+  }
+
+    return this.apiService.post<any>('wallet/withdraw-request', p, undefined, true);
   }
 
   
@@ -63,8 +95,8 @@ export class PaymentService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-   removeSavedAccount( accountId: string, userId: string,): Observable<any> {
-    return this.apiService.delete<any>(`wallet/saved-accounts/${userId}/${accountId}`);
+   removeSavedAccount( accountNumber: string, userId: string,): Observable<any> {
+    return this.apiService.delete<any>(`wallet/saved-accounts/${userId}/${accountNumber}`, undefined, undefined, true);
   }
 
 
@@ -74,6 +106,6 @@ export class PaymentService {
    * @returns An observable of the submitted form data.
    */
    getBalance( userId: string,): Observable<any> {
-    return this.apiService.get<any>(`wallet/saved-accounts/${userId}`);
+    return this.apiService.get<any>(`wallet/saved-accounts/${userId}`, undefined, undefined, true);
   }
 }

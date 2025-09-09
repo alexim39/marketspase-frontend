@@ -4,7 +4,6 @@ import {
   Inject, 
   inject, 
   signal,
-  ChangeDetectionStrategy,
   DestroyRef
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,7 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PaymentService, SavedAccountInterface } from '../../payment.service';
+import { WithdrawalService, SavedAccountInterface } from '../withdrawal.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EMPTY, of } from 'rxjs';
@@ -57,7 +56,7 @@ interface ConfirmationDialogData {
     </mat-dialog-actions>
   `,
   standalone: true,
-  providers: [PaymentService],
+  providers: [WithdrawalService],
   imports: [
     CommonModule, 
     MatDialogModule, 
@@ -90,7 +89,7 @@ export class ConfirmationDialogComponent {
     MatProgressSpinnerModule,
     MatTooltipModule
   ],
-  providers: [PaymentService],
+  providers: [WithdrawalService],
   template: `
     <div class="dialog-header">
       <h2 mat-dialog-title>
@@ -125,7 +124,7 @@ export class ConfirmationDialogComponent {
         <article 
           *ngFor="let account of savedAccounts(); trackBy: trackByAccountId" 
           class="saved-account-item"
-          [class.removing]="removingAccountIds().includes(account._id)">
+          [class.removing]="removingAccountIds().includes(account.accountNumber)">
           
           <div class="account-icon">
             <mat-icon>account_balance</mat-icon>
@@ -145,14 +144,14 @@ export class ConfirmationDialogComponent {
               mat-icon-button 
               color="warn" 
               (click)="confirmRemoveAccount(account)" 
-              [disabled]="removingAccountIds().includes(account._id)"
-              [matTooltip]="removingAccountIds().includes(account._id) ? 'Removing...' : 'Remove Account'"
+              [disabled]="removingAccountIds().includes(account.accountNumber)"
+              [matTooltip]="removingAccountIds().includes(account.accountNumber) ? 'Removing...' : 'Remove Account'"
               class="remove-button">
               <mat-spinner 
-                *ngIf="removingAccountIds().includes(account._id)" 
+                *ngIf="removingAccountIds().includes(account.accountNumber)" 
                 diameter="20">
               </mat-spinner>
-              <mat-icon *ngIf="!removingAccountIds().includes(account._id)">delete</mat-icon>
+              <mat-icon *ngIf="!removingAccountIds().includes(account.accountNumber)">delete</mat-icon>
             </button>
           </div>
         </article>
@@ -209,11 +208,11 @@ export class ConfirmationDialogComponent {
       align-items: center;
       gap: 8px;
       margin: 0;
-      color: #8f0045;
+      color: #673ab7;
     }
 
     .dialog-icon {
-      color: #8f0045;
+      color: #673ab7;
     }
 
     .close-button {
@@ -294,7 +293,7 @@ export class ConfirmationDialogComponent {
     }
 
     .account-icon mat-icon {
-      color: #8f0045;
+      color: #673ab7;
     }
 
     .account-details {
@@ -441,14 +440,13 @@ export class ConfirmationDialogComponent {
       }
     }
   `],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SavedAccountsComponent {
   // Injected dependencies
   private readonly dialogRef = inject(MatDialogRef<SavedAccountsComponent>);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly paymentService = inject(PaymentService);
+  private readonly withdrawalService = inject(WithdrawalService);
   private readonly destroyRef = inject(DestroyRef);
 
   // Signals for reactive state management
@@ -477,6 +475,7 @@ export class SavedAccountsComponent {
   }
 
   private loadSavedAccounts(): void {
+    //console.log(this.data)
     if (this.data?.savedAccounts && Array.isArray(this.data.savedAccounts)) {
       // Use provided data first
       this.savedAccounts.set(this.data.savedAccounts);
@@ -537,9 +536,9 @@ export class SavedAccountsComponent {
     }
 
     // Add account ID to removing list
-    this.removingAccountIds.update(ids => [...ids, account._id]);
+    this.removingAccountIds.update(ids => [...ids, account.accountNumber]);
 
-    this.paymentService.removeSavedAccount(account._id, this.data.userId)
+    this.withdrawalService.removeSavedAccount(account.accountNumber, this.data.userId)
       .pipe(
         catchError((error: HttpErrorResponse) => {
           console.error('Error removing account:', error);
@@ -550,7 +549,7 @@ export class SavedAccountsComponent {
         finalize(() => {
           // Remove account ID from removing list
           this.removingAccountIds.update(ids => 
-            ids.filter(id => id !== account._id)
+            ids.filter(accountNumber => accountNumber !== account.accountNumber)
           );
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -558,19 +557,19 @@ export class SavedAccountsComponent {
       .subscribe({
         next: (response: any) => {
           this.showSuccessMessage(response.message || 'Account removed successfully');
-          this.removeAccountFromList(account._id);
+          this.removeAccountFromList(account.accountNumber);
         }
       });
   }
 
-  private removeAccountFromList(accountId: string): void {
+  private removeAccountFromList(accountNumber: string): void {
     this.savedAccounts.update(accounts => 
-      accounts.filter(account => account._id !== accountId)
+      accounts.filter(account => account.accountNumber !== accountNumber)
     );
     
     // Also update the dialog data if it exists
     if (this.data?.savedAccounts) {
-      const index = this.data.savedAccounts.findIndex(account => account._id === accountId);
+      const index = this.data.savedAccounts.findIndex(account => account.accountNumber === accountNumber);
       if (index !== -1) {
         this.data.savedAccounts.splice(index, 1);
       }
@@ -586,7 +585,7 @@ export class SavedAccountsComponent {
   }
 
   trackByAccountId(index: number, account: SavedAccountInterface): string {
-    return account._id;
+    return account.accountNumber;
   }
 
   close(): void {
