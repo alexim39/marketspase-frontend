@@ -121,6 +121,10 @@
     </form>
   </mat-dialog-content>
 
+  @if (isSubmitting) {
+    <mat-progress-bar mode="indeterminate" class="progress-bar"/>
+  }
+
   <mat-dialog-actions align="end">
     <button mat-button (click)="onCancel()" [disabled]="isSubmitting">Cancel</button>
     <button 
@@ -129,18 +133,13 @@
       (click)="onSubmit()" 
       [disabled]="proofForm.invalid || selectedFiles.length === 0 || isSubmitting"
     >
-      @if (isSubmitting) {
-        <mat-progress-bar 
-          mode="indeterminate" 
-          *ngIf="" 
-          class="progress-bar"
-        />
-      }
-      @if (!isSubmitting) {
-        <span>Submit Proof</span>
-      } @else {
-        <span>Submitting...</span>
-      }
+     
+    @if (!isSubmitting) {
+      <span>Submit Proof</span>
+    } @else {
+      <span>Submitting...</span>
+    }
     </button>
+
   </mat-dialog-actions>
 </div>

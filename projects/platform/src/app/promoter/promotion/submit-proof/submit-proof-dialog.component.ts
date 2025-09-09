@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PromotionInterface } from '../../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PromoterService } from '../../../promoter/promoter.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface SubmitProofDialogData {
   promotion: PromotionInterface;
@@ -123,14 +124,17 @@ export class SubmitProofDialogComponent implements OnInit {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
-        this.isSubmitting = false;
-        this.snackBar.open('Proof submitted successfully!', 'Close', { duration: 3000 });
-        this.dialogRef.close('submitted');
+        if (response.success) {
+          this.isSubmitting = false;
+          this.snackBar.open(response.message, 'Close', { duration: 3000 });
+          this.dialogRef.close('submitted');
+        }
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         this.isSubmitting = false;
         console.error('Error submitting proof:', error);
-        this.snackBar.open('Failed to submit proof. Please try again.', 'Close', { duration: 3000 });
+        const errorMessage = error.error?.message || 'Server error occurred, please try again.';
+        this.snackBar.open(errorMessage, 'Ok', { duration: 5000 });
       }
     });
   }
