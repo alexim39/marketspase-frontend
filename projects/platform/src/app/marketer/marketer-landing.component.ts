@@ -37,7 +37,7 @@ interface StatusOption {
 }
 
 @Component({
-  selector: 'advertiser-campaign-landing',
+  selector: 'marketer-campaign-landing',
   standalone: true,
   providers: [AdvertiserService],
   imports: [
@@ -55,10 +55,10 @@ interface StatusOption {
     ShortNumberPipe,
     CategoryPlaceholderPipe
   ],
-  templateUrl: './advertiser-landing.component.html',
-  styleUrls: ['./advertiser-landing.component.scss']
+  templateUrl: './marketer-landing.component.html',
+  styleUrls: ['./marketer-landing.component.scss']
 })
-export class AdvertiserCampaignLandingComponent implements OnInit {
+export class MarketerCampaignLandingComponent implements OnInit {
   private router = inject(Router);
   private deviceService = inject(DeviceService);
 

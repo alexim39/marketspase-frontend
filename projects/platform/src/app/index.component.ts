@@ -45,8 +45,8 @@ export interface SocialProvider {
         <div class="welcome-section">
           <h2 class="welcome-title">WhatsApp Status Ads Marketspace</h2>
           <p class="welcome-subtitle">
-            Where WhatsApp Status becomes a source of income by connecting advertisers and promoters in a unified marketplace.
-            <!-- Connect with advertisers and promoters on WhatsApp Status -->
+            Where WhatsApp Status becomes a source of income by connecting marketers and promoters in a unified marketplace.
+            <!-- Connect with marketers and promoters on WhatsApp Status -->
           </p>
         </div>
       </div>
