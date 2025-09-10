@@ -1168,3 +1168,11 @@
         }
       }
     }
+
+/* Add this to your index.component.scss */
+.sidenav-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1000; // Ensure it's on top of other content
+}

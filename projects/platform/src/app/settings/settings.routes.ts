@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { SettingsIndexComponent } from './account/index.component';
+import { SettingsIndexComponent } from './index.component';
 import { AccountComponent } from './account/account.component';
 import { SupportComponent } from './support/support.component';
 import { SystemSettingComponent } from './system/system.component';
