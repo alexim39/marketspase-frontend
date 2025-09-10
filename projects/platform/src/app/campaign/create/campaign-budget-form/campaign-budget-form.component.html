@@ -37,6 +37,10 @@
 
       <mat-divider class="form-divider"/>
 
+      <mat-slide-toggle formControlName="enableTarget">
+        {{ formGroup.get('enableTarget')?.value ? 'Show Ads to people in my area' : 'Show Ads everywhere' }}
+      </mat-slide-toggle>
+
       @if (walletBalance < formGroup.get('budget')?.value) {
         <div class="insufficient-funds-alert">
           <mat-icon class="alert-icon">account_balance_wallet</mat-icon>

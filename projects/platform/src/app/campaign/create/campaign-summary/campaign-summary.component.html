@@ -74,6 +74,10 @@
         <span class="detail-value">{{budgetForm.get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
       </div>
       <div class="detail-item">
+        <span class="detail-label">Target</span>
+        <span class="detail-value">{{ budgetForm.get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
+      </div>
+      <div class="detail-item">
         <span class="detail-label">Start Date</span>
         <span class="detail-value">{{scheduleForm.get('startDate')?.value | date:'shortDate'}}</span>
       </div>

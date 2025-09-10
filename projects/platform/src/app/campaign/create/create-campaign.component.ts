@@ -115,6 +115,7 @@ export class CreateCampaignComponent implements OnInit {
 
     this.budgetForm = this.fb.group({
       budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
+      enableTarget: [true] 
     });
 
     this.scheduleForm = this.fb.group({
@@ -184,6 +185,7 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('link', this.contentForm.get('link')?.value);
       formData.append('category', this.contentForm.get('category')?.value);
       formData.append('budget', this.budgetForm.get('budget')?.value);
+      formData.append('enableTarget', this.budgetForm.get('enableTarget')?.value);
       formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
       formData.append('currency', 'NGN');
       formData.append('owner', this.user()?._id ?? '');
