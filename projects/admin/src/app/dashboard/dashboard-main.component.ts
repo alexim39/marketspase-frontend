@@ -11,7 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 interface PromotionPost {
   id: string;
   title: string;
-  advertiser: string;
+  marketer: string;
   budget: number;
   rate: number;
   totalSlots: number;
@@ -75,7 +75,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     {
       id: 'POST-001',
       title: 'Nike Air Max Summer Collection Launch',
-      advertiser: 'Nike Nigeria',
+      marketer: 'Nike Nigeria',
       budget: 150000,
       rate: 500,
       totalSlots: 300,
@@ -88,7 +88,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     {
       id: 'POST-002',
       title: 'Tecno Phantom X2 Pro Giveaway',
-      advertiser: 'Tecno Mobile',
+      marketer: 'Tecno Mobile',
       budget: 200000,
       rate: 400,
       totalSlots: 500,
@@ -101,7 +101,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     {
       id: 'POST-003',
       title: 'Dominos Pizza Weekend Special',
-      advertiser: 'Dominos Pizza',
+      marketer: 'Dominos Pizza',
       budget: 75000,
       rate: 300,
       totalSlots: 250,
@@ -114,7 +114,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     {
       id: 'POST-004',
       title: 'Jumia Black Friday Preview',
-      advertiser: 'Jumia Nigeria',
+      marketer: 'Jumia Nigeria',
       budget: 300000,
       rate: 600,
       totalSlots: 500,
@@ -127,7 +127,7 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     {
       id: 'POST-005',
       title: 'Spotify Premium 3-Month Free',
-      advertiser: 'Spotify',
+      marketer: 'Spotify',
       budget: 120000,
       rate: 450,
       totalSlots: 267,

@@ -63,7 +63,7 @@
       }
       </mat-nav-list>
 
-      @if (user()!.role === 'advertiser') {
+      @if (user()!.role === 'marketer') {
         <div class="quick-actions">
           <h4 class="section-title">Quick Actions</h4>
           <button mat-stroked-button class="action-btn" (click)="createCampaign(); isMobile() && sidenav.close()">
@@ -109,8 +109,8 @@
               @if (user()!.role === 'promoter') {
                 <span class="wallet-amount">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
               }
-              @if (user()!.role === 'advertiser') {
-                <span class="wallet-amount">{{user()?.wallets?.advertiser?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+              @if (user()!.role === 'marketer') {
+                <span class="wallet-amount">{{user()?.wallets?.marketer?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
               }
             </div>
 
@@ -180,7 +180,7 @@
     <div class="cart-header">
       <div class="cart-title">
         <mat-icon class="cart-icon">shopping_bag</mat-icon>
-        @if(user()!.role === 'advertiser') {
+        @if(user()!.role === 'marketer') {
           <h3>Your Campaigns</h3>
         }
         @if(user()!.role === 'promoter') {
@@ -191,9 +191,9 @@
         </button>
       </div>
       <div class="cart-summary">
-        @if(user()!.role === 'advertiser') {
+        @if(user()!.role === 'marketer') {
           <span class="items-count">You have {{ pendingCampaignsCount }} pending campaign(s)</span>
-          <span class="total-price">{{user()?.wallets?.advertiser?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+          <span class="total-price">{{user()?.wallets?.marketer?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
         }
         @if(user()!.role === 'promoter') {
           <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
@@ -208,10 +208,10 @@
         [class.active]="activeTab === 'cart'"
         (click)="setActiveTab('cart')">
         <mat-icon>campaign</mat-icon>
-        @if(user()!.role === 'advertiser') { Campaigns }
+        @if(user()!.role === 'marketer') { Campaigns }
         @if(user()!.role === 'promoter') { Promotions }
         <span class="badge">
-        @if(user()!.role === 'advertiser') { {{activeCampaignsCount}} }
+        @if(user()!.role === 'marketer') { {{activeCampaignsCount}} }
         @if(user()!.role === 'promoter') { {{pendingPromotionsCount}}  }
         </span>
       </button>
@@ -229,7 +229,7 @@
     @if (activeTab === 'cart') {
       <div class="cart-content">
         <div class="cart-items-section">
-          @if(user()!.role === 'advertiser') {
+          @if(user()!.role === 'marketer') {
             @if(user()!.campaigns && user()!.campaigns!.length > 0) {
               <div class="campaigns-summary-card">
                 <div class="summary-header">
@@ -390,11 +390,11 @@
 
         <div class="checkout-section">
           <mat-divider/>
-          @if(user()!.role === 'advertiser') {
+          @if(user()!.role === 'marketer') {
             <div class="checkout-total">
               <span>Reserved Balance</span>
               <span class="amount">
-                {{user()?.wallets?.advertiser?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}
+                {{user()?.wallets?.marketer?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}
               </span>
             </div>
           }
@@ -426,10 +426,10 @@
             </span>
           </button>
 
-          <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('advertiser')" [disabled]="user()!.role === 'advertiser'">
+          <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('marketer')" [disabled]="user()!.role === 'marketer'">
             <mat-icon>campaign</mat-icon>
             <span>
-              Switch to Advertiser
+              Switch to marketer
               <small>Pay promoters to post ads on WhatsApp</small>
             </span>
           </button>

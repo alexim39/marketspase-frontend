@@ -33,7 +33,7 @@ export interface Earning {
   status: 'pending' | 'approved' | 'paid';
   date: Date;
   proofSubmitted: boolean;
-  advertiser: string;
+  marketer: string;
 }
 
 
@@ -120,7 +120,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
       status: 'pending',
       date: new Date(),
       proofSubmitted: true,
-      advertiser: 'Fashion Brand Co.'
+      marketer: 'Fashion Brand Co.'
     },
     {
       id: '2',
@@ -129,7 +129,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
       status: 'approved',
       date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       proofSubmitted: true,
-      advertiser: 'Local Restaurant'
+      marketer: 'Local Restaurant'
     }
   ]);
 

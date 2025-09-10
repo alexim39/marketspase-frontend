@@ -65,7 +65,7 @@ export interface UserInterface {
     accountName: string;
   }[];
   wallets?: {
-    advertiser: {
+    marketer: {
       balance: number;
       reserved: number;
       transactions: {

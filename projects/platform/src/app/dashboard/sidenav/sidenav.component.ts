@@ -30,7 +30,7 @@ export interface Earning {
   status: 'pending' | 'approved' | 'paid';
   date: Date;
   proofSubmitted: boolean;
-  advertiser: string;
+  marketer: string;
 }
 
 export interface NotificationItem {
@@ -47,7 +47,7 @@ export interface NotificationItem {
   name: string;
   email: string;
   avatar: string;
-  role: 'advertiser' | 'promoter';
+  role: 'marketer' | 'promoter';
   verified: boolean;
   rating: number;
   totalEarnings?: number;
@@ -109,7 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       status: 'pending',
       date: new Date(),
       proofSubmitted: true,
-      advertiser: 'Fashion Brand Co.'
+      marketer: 'Fashion Brand Co.'
     },
     {
       id: '2',
@@ -118,7 +118,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       status: 'approved',
       date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       proofSubmitted: true,
-      advertiser: 'Local Restaurant'
+      marketer: 'Local Restaurant'
     }
   ]);
 
@@ -157,7 +157,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       { icon: 'notifications', label: 'Notifications', route: '/notifications', badge: this.unreadNotifications() }
     ];
 
-    if (this.user()?.role === 'advertiser') {
+    if (this.user()?.role === 'marketer') {
       return [
         ...baseItems,
         { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
@@ -196,7 +196,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public getPageTitle(): string {
-    return this.user()!.role === 'advertiser' ? 'Advertiser Dashboard' : 'Promoter Dashboard';
+    return this.user()!.role === 'marketer' ? 'marketer Dashboard' : 'Promoter Dashboard';
   }
 
   // Campaign Actions

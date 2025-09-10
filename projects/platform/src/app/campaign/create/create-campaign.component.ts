@@ -98,7 +98,7 @@ export class CreateCampaignComponent implements OnInit {
   selectedMedia = signal<MediaFile | null>(null);
 
   // Computed signals for derived state
-  walletBalance = computed(() => this.user()?.wallets?.advertiser?.balance ?? 0);
+  walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
   campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
 
   ngOnInit(): void {

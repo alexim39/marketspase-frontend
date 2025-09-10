@@ -60,7 +60,7 @@ export class TransactionComponent {
     const userData = this.user();
     if (!userData) return [];
     
-    const walletType = userData.role === 'promoter' ? 'promoter' : 'advertiser';
+    const walletType = userData.role === 'promoter' ? 'promoter' : 'marketer';
     const walletTransactions = userData.wallets?.[walletType]?.transactions;
     
     return Array.isArray(walletTransactions) ? [...walletTransactions].reverse() : [];
@@ -71,7 +71,7 @@ export class TransactionComponent {
     const userData = this.user();
     if (!userData) return 0;
     
-    const walletType = userData.role === 'promoter' ? 'promoter' : 'advertiser';
+    const walletType = userData.role === 'promoter' ? 'promoter' : 'marketer';
     return userData.wallets?.[walletType]?.balance ?? 0;
   });
 
@@ -80,7 +80,7 @@ export class TransactionComponent {
     const userData = this.user();
     if (!userData) return 0;
     
-    const walletType = userData.role === 'promoter' ? 'promoter' : 'advertiser';
+    const walletType = userData.role === 'promoter' ? 'promoter' : 'marketer';
     return userData.wallets?.[walletType]?.reserved ?? 0;
   });
   
@@ -96,7 +96,7 @@ export class TransactionComponent {
         .reduce((sum, transaction) => sum + transaction.amount, 0);
     }
     
-    // For advertisers, calculate total spending (debits)
+    // For marketers, calculate total spending (debits)
     return this.transactions()
       .filter(t => t.type === 'debit')
       .reduce((sum, transaction) => sum + transaction.amount, 0);
@@ -116,7 +116,7 @@ export class TransactionComponent {
         filtered = filtered.filter(t => t.category === 'campaign');
       } else if (this.currentFilter() === 'earnings' && this.user()?.role === 'promoter') {
         filtered = filtered.filter(t => t.type === 'credit' && t.category === 'promotion');
-      } else if (this.currentFilter() === 'spending' && this.user()?.role === 'advertiser') {
+      } else if (this.currentFilter() === 'spending' && this.user()?.role === 'marketer') {
         filtered = filtered.filter(t => t.type === 'debit' && (t.category === 'campaign' || t.category === 'promotion'));
       }
     }

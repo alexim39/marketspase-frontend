@@ -6,7 +6,7 @@
       <div class="toolbar-title-section">
         <mat-icon class="toolbar-icon">account_balance_wallet</mat-icon>
         <h1>Wallet & Transactions</h1>
-        <div class="role-badge" [class.advertiser]="user()?.role === 'advertiser'" 
+        <div class="role-badge" [class.marketer]="user()?.role === 'marketer'" 
              [class.promoter]="user()?.role === 'promoter'">
           {{ user()?.role | titlecase }}
         </div>
@@ -81,7 +81,7 @@
           <mat-tab label="Debits"></mat-tab>
           <mat-tab label="Campaigns"></mat-tab>
           <mat-tab *ngIf="user()?.role === 'promoter'" label="Earnings"></mat-tab>
-          <mat-tab *ngIf="user()?.role === 'advertiser'" label="Spending"></mat-tab>
+          <mat-tab *ngIf="user()?.role === 'marketer'" label="Spending"></mat-tab>
         </mat-tab-group>
       </div>
       

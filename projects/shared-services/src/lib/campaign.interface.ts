@@ -54,8 +54,8 @@ export interface CampaignInterface {
   isBookmarked: boolean;
   difficulty: 'easy' | 'medium' | 'hard';
   tags: string[];
-  advertiserName: string;
-  advertiserRating: number;
+  marketerName: string;
+  marketerRating: number;
   requirements: string[];
   estimatedViews: number;
   duration: string;

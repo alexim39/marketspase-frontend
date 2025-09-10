@@ -11,7 +11,7 @@ import { PromoterLandingComponent } from '../promoter/landing-landing/promoter-l
   imports: [CommonModule, MarketerCampaignLandingComponent, PromoterLandingComponent],
   template: `
       
-    @if (user()?.role === 'advertiser') {
+    @if (user()?.role === 'marketer') {
       <marketer-campaign-landing [user]="user" />
     }
     

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, Signal, Input } from '@angular/core';
+import { Component, inject, signal, Signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,7 +17,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject, Subscription } from 'rxjs';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 
 
@@ -38,7 +37,7 @@ export interface Campaign {
 }
 
 @Component({
-  selector: 'advertiser-tab',
+  selector: 'marketer-tab',
   imports: [
     CommonModule,
     RouterModule,
@@ -59,10 +58,10 @@ export interface Campaign {
     MatDialogModule,
     MatTooltipModule,
   ],
-  templateUrl: './advertiser-tab.component.html',
-  styleUrls: ['./advertiser-tab.component.scss'],
+  templateUrl: './marketer-tab.component.html',
+  styleUrls: ['./marketer-tab.component.scss'],
 })
-export class AdvertiserTabComponent {
+export class MarketerTabComponent {
   private router = inject(Router);
 
   //readonly user = input.required<UserInterface | null>();

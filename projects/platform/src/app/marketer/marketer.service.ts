@@ -4,7 +4,7 @@ import { ApiService } from '../../../../shared-services/src/public-api';
 
 
 @Injectable()
-export class AdvertiserService {
+export class MarketerService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
   

@@ -27,7 +27,7 @@
   </div>
 
   <!-- Quick Actions Bar (Mobile) -->
-  @if (isMobile() && user()?.role === 'advertiser') {
+  @if (isMobile() && user()?.role === 'marketer') {
     <div class="mobile-quick-actions">
       <button mat-fab extended color="primary" (click)="createCampaign()">
         <mat-icon>add</mat-icon>
@@ -45,9 +45,9 @@
     }
      
 
-    <!-- Advertiser Dashboard -->
-    @if (user()?.role === 'advertiser') {
-      <advertiser-tab [user]="user" />
+    <!-- marketer Dashboard -->
+    @if (user()?.role === 'marketer') {
+      <marketer-tab [user]="user" />
     }
 
     <!-- Promoter Dashboard -->

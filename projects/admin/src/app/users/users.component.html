@@ -72,7 +72,7 @@
                 <td mat-cell *matCellDef="let user">
                 <div class="balance-info">
                     <span class="balance-amount">
-                    {{ user.role === 'advertiser' ? (user.wallets.advertiser.balance | currency:'NGN':'₦') : (user.wallets.promoter.balance | currency:'NGN':'₦') }}
+                    {{ user.role === 'marketer' ? (user.wallets.marketer.balance | currency:'NGN':'₦') : (user.wallets.promoter.balance | currency:'NGN':'₦') }}
                     </span>
                 </div>
                 </td>

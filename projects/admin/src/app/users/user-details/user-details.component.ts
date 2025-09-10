@@ -15,7 +15,6 @@ import { MatListModule } from '@angular/material/list';
 
 // Services
 import { UserService } from '../user.service';
-import { Subject, takeUntil } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -27,7 +26,7 @@ export interface User {
   displayName: string;
   email: string;
   authenticationMethod: string;
-  role: 'advertiser' | 'promoter';
+  role: 'marketer' | 'promoter';
   avatar: string;
   rating: number;
   ratingCount: number;
@@ -37,7 +36,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   wallets: {
-    advertiser: {
+    marketer: {
       balance: number;
       reserved: number;
       transactions: any[];
@@ -109,8 +108,8 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
 
   // A computed signal for the transaction data source
   public dataSource = computed(() => {
-    // Return the advertiser transactions if the user exists, otherwise an empty array
-    return this.user()?.wallets?.advertiser?.transactions || [];
+    // Return the marketer transactions if the user exists, otherwise an empty array
+    return this.user()?.wallets?.marketer?.transactions || [];
   });
 
 

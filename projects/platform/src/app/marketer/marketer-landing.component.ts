@@ -18,7 +18,7 @@ import { ShortNumberPipe } from '../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../common/pipes/category-placeholder.pipe';
 import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AdvertiserService } from './advertiser.service';
+import { MarketerService } from './marketer.service';
 
 interface FilterOptions {
   status: string;
@@ -39,7 +39,7 @@ interface StatusOption {
 @Component({
   selector: 'marketer-campaign-landing',
   standalone: true,
-  providers: [AdvertiserService],
+  providers: [MarketerService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,9 +65,9 @@ export class MarketerCampaignLandingComponent implements OnInit {
   // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   private readonly destroyRef = inject(DestroyRef);
-  private advertiserService = inject(AdvertiserService);
+  private marketerService = inject(MarketerService);
   campaignStats = computed(() => this.calculateStats());
-  public readonly api = this.advertiserService.api;
+  public readonly api = this.marketerService.api;
   
   // Form controls
   searchControl = new FormControl('');
@@ -196,7 +196,7 @@ export class MarketerCampaignLandingComponent implements OnInit {
 
      if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-        this.advertiserService.getAdvertiserCampaign(this.user()!._id!)
+        this.marketerService.getAdvertiserCampaign(this.user()!._id!)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {

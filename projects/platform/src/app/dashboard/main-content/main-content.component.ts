@@ -24,7 +24,7 @@ import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
-import { AdvertiserTabComponent } from './advertiser/advertiser-tab.component';
+import { MarketerTabComponent } from './marketer/marketer-tab.component';
 import { PromoterTabComponent } from './promoter/promoter-tab.component';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -53,7 +53,7 @@ export interface Earning {
   status: 'pending' | 'approved' | 'paid';
   date: Date;
   proofSubmitted: boolean;
-  advertiser: string;
+  marketer: string;
 }
 
 export interface NotificationItem {
@@ -69,7 +69,7 @@ export interface UserProfile {
   name: string;
   email: string;
   avatar: string;
-  role: 'advertiser' | 'promoter';
+  role: 'marketer' | 'promoter';
   verified: boolean;
   rating: number;
   totalEarnings?: number;
@@ -100,7 +100,7 @@ export interface UserProfile {
     MatDialogModule,
     MatTooltipModule,
     TestimonialsComponent,
-    AdvertiserTabComponent,
+    MarketerTabComponent,
     PromoterTabComponent,
     NotifyProfileBannerComponent
   ],
@@ -128,7 +128,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
     name: 'John Doe',
     email: 'john.doe@example.com',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-    role: 'advertiser',
+    role: 'marketer',
     verified: true,
     rating: 4.8,
     totalEarnings: 85000,
@@ -176,7 +176,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
       status: 'pending',
       date: new Date(),
       proofSubmitted: true,
-      advertiser: 'Fashion Brand Co.'
+      marketer: 'Fashion Brand Co.'
     },
     {
       id: '2',
@@ -185,7 +185,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
       status: 'approved',
       date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       proofSubmitted: true,
-      advertiser: 'Local Restaurant'
+      marketer: 'Local Restaurant'
     }
   ]);
 
@@ -217,7 +217,7 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
   });
 
   dashboardStats = computed(() => {
-    if (this.currentUser().role === 'advertiser') {
+    if (this.currentUser().role === 'marketer') {
       return [
         {
           icon: 'campaign',

@@ -105,19 +105,19 @@
               </mat-card-header>
               <mat-card-content>
                 <div class="wallet-section">
-                  <h3>Advertiser Wallet</h3>
+                  <h3>Marketer Wallet</h3>
                   <mat-list>
                     <mat-list-item>
                       <span matListItemTitle>Available Balance</span>
-                      <span matListItemLine>{{ user()?.wallets?.advertiser?.balance | currency:'NGN':'₦' }}</span>
+                      <span matListItemLine>{{ user()?.wallets?.marketer?.balance | currency:'NGN':'₦' }}</span>
                     </mat-list-item>
                     <mat-list-item>
                       <span matListItemTitle>Reserved Funds</span>
-                      <span matListItemLine>{{ user()?.wallets?.advertiser?.reserved | currency:'NGN':'₦' }}</span>
+                      <span matListItemLine>{{ user()?.wallets?.marketer?.reserved | currency:'NGN':'₦' }}</span>
                     </mat-list-item>
                     <mat-list-item>
                       <span matListItemTitle>Transactions</span>
-                      <span matListItemLine>{{ user()?.wallets?.advertiser?.transactions?.length || 0 }}</span>
+                      <span matListItemLine>{{ user()?.wallets?.marketer?.transactions?.length || 0 }}</span>
                     </mat-list-item>
                   </mat-list>
                 </div>
