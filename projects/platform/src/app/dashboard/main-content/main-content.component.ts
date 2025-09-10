@@ -28,6 +28,7 @@ import { AdvertiserTabComponent } from './advertiser/advertiser-tab.component';
 import { PromoterTabComponent } from './promoter/promoter-tab.component';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NotifyProfileBannerComponent } from './notification-banner/notify-profile-banner.component';
 
 // Interfaces
 export interface Campaign {
@@ -100,7 +101,8 @@ export interface UserProfile {
     MatTooltipModule,
     TestimonialsComponent,
     AdvertiserTabComponent,
-    PromoterTabComponent
+    PromoterTabComponent,
+    NotifyProfileBannerComponent
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
