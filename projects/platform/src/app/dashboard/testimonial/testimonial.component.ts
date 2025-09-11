@@ -13,7 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService, TestimonialInterface } from '../dashboard.service';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
-import { Subject, takeUntil } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 interface TestimonialState {
   testimonials: TestimonialInterface[];
@@ -27,7 +27,7 @@ interface TestimonialState {
 @Component({
   selector: 'async-dashboard-testimonials',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   providers: [DashboardService],
   template: `
     <article class="testimonials-container" [class.loading]="state().isLoading">
@@ -98,6 +98,18 @@ interface TestimonialState {
               </div>
 
               <div class="testimonial-content">
+                <!-- Rating display -->
+                @if (currentTestimonial().rating) {
+                  <div class="testimonial-rating">
+                    <div class="stars">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <mat-icon>{{ star <= currentTestimonial().rating ? 'star' : 'star_border' }}</mat-icon>
+                      }
+                    </div>
+                    <span class="rating-value">({{ currentTestimonial().rating }}/5)</span>
+                  </div>
+                }
+
                 <blockquote class="testimonial-message">
                   "{{ currentTestimonial().message }}"
                 </blockquote>
@@ -312,6 +324,30 @@ interface TestimonialState {
       flex: 1;
       position: relative;
       z-index: 1;
+    }
+
+    .testimonial-rating {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .stars {
+        display: flex;
+        
+        mat-icon {
+          color: #ffc107;
+          font-size: 20px;
+          height: 20px;
+          width: 20px;
+        }
+      }
+
+      .rating-value {
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+      }
     }
 
     .testimonial-message {
@@ -639,6 +675,8 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
           progress: 0
         });
 
+        console.log('testimonials ',testimonials)
+
         // Start carousel after testimonials are loaded
         if (testimonials.length > 1) {
           this.startCarousel();
@@ -762,10 +800,11 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
 
   private getDefaultTestimonial(): TestimonialInterface {
     return {
-      avatar: '/assets/images/default-avatar.png',
+      avatar: '/img/avatar.png',
       message: 'No testimonials available.',
       name: 'Anonymous',
-      location: ''
+      location: '',
+      rating: 0
     };
   }
 }

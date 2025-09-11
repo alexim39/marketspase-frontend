@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, DestroyRef, effect, inject, Input, OnDestroy, signal, Signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, Input, OnDestroy, signal, Signal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,8 +15,8 @@ import { Router } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
-import { Subject, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'async-testimonial-writeup-settings',
@@ -34,12 +34,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatDividerModule,
     DatePipe,
     MatIconModule,
+    MatRadioModule,
   ],
   providers: [SupportService],
   template: `
   <div class="testimonial-settings">
     <h3 class="section-title">Share Your Experience</h3>
-    <p class="section-description">Write a testimonial about your experience with MarketSpase</p>
+    <p class="section-description">Write a testimonial and rate your experience with MarketSpase</p>
 
     <!-- Loading state -->
      @if (isLoading()) {
@@ -113,6 +114,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
           <mat-card-subtitle>Posted on {{ testimonial().createdAt | date }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
+          <!-- Rating display -->
+          <div class="rating-display">
+            <span class="rating-label">Your Rating:</span>
+            <div class="stars">
+              @for (star of [1,2,3,4,5]; track star) {
+                <mat-icon>{{ star <= testimonial().rating ? 'star' : 'star_border' }}</mat-icon>
+              }
+            </div>
+            <span class="rating-value">({{ testimonial().rating }}/5)</span>
+          </div>
           <p class="testimonial-content">{{ testimonial().message }}</p>
         </mat-card-content>
         <mat-divider></mat-divider>
@@ -127,6 +138,30 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
      @if (isEditing() && !isLoading()) {
       <mat-card class="testimonial-form-card">
       <form [formGroup]="testimonialForm" (ngSubmit)="onSubmit()">
+        <!-- Rating input -->
+        <div class="rating-input">
+          <label>Rate your experience</label>
+          <mat-radio-group formControlName="rating" class="rating-options">
+            @for (option of ratingOptions; track option.value) {
+              <mat-radio-button [value]="option.value" class="rating-option">
+                <div class="option-content">
+                  <span class="stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <mat-icon>{{ star <= option.value ? 'star' : 'star_border' }}</mat-icon>
+                    }
+                  </span>
+                  <span class="label">{{ option.label }}</span>
+                </div>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+          @if (testimonialForm.get('rating')?.hasError('required')) {
+            <mat-error>
+              Please select a rating
+            </mat-error>
+          }
+        </div>
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Your Testimonial</mat-label>
           <textarea 
@@ -254,6 +289,33 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     .existing-testimonial {
       margin-bottom: 24px;
 
+      .rating-display {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        gap: 8px;
+
+        .rating-label {
+          font-weight: 500;
+        }
+
+        .stars {
+          display: flex;
+          
+          mat-icon {
+            color: #ffc107;
+            font-size: 20px;
+            height: 20px;
+            width: 20px;
+          }
+        }
+
+        .rating-value {
+          color: #666;
+          font-size: 14px;
+        }
+      }
+
       .testimonial-content {
         white-space: pre-line;
         line-height: 1.6;
@@ -272,6 +334,46 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         display: flex;
         flex-direction: column;
         gap: 20px;
+      }
+
+      .rating-input {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        label {
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.6);
+        }
+
+        .rating-options {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          .rating-option {
+            .option-content {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+
+              .stars {
+                display: flex;
+                
+                mat-icon {
+                  color: #ffc107;
+                  font-size: 20px;
+                  height: 20px;
+                  width: 20px;
+                }
+              }
+
+              .label {
+                font-size: 14px;
+              }
+            }
+          }
+        }
       }
 
       .full-width {
@@ -377,12 +479,21 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
   `]
 })
-export class TestimonialWriteupSettingsComponent implements OnDestroy{
+export class TestimonialWriteupSettingsComponent {
   // Inputs: pass signals directly from parent
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   @Input({ required: true }) testimonial!: Signal<any | null>;
   @Input({ required: true }) isLoading!: Signal<boolean>;
   @Input({ required: true }) error!: Signal<string | null>;
+
+  // Rating options
+  ratingOptions = [
+    { value: 1, label: 'Poor' },
+    { value: 2, label: 'Fair' },
+    { value: 3, label: 'Good' },
+    { value: 4, label: 'Very Good' },
+    { value: 5, label: 'Excellent' }
+  ];
 
   // Local state as signals
   readonly isSpinning = signal(false);
@@ -407,6 +518,7 @@ export class TestimonialWriteupSettingsComponent implements OnDestroy{
     
     effect(() => {
       const user = this.user();
+      
       const value = !!user?.personalInfo?.address?.country && !!user?.personalInfo?.address?.state;
       this._isProfileComplete.set(value); // Manually update the signal
     });
@@ -414,19 +526,18 @@ export class TestimonialWriteupSettingsComponent implements OnDestroy{
 
   private initForm(): void {
     const user = this.user();
+    
     const testimonial = this.testimonial();
+    //console.log('testimonial ',testimonial)
 
     this.testimonialForm = this.fb.group({  
+      rating: [testimonial?.rating || null, [Validators.required, Validators.min(1), Validators.max(5)]],
       message: [{value: testimonial?.message || '',  disabled: !this.isProfileComplete(), }, [Validators.required]],
       country: [user?.personalInfo?.address?.country || ''],
       state: [user?.personalInfo?.address?.state || ''],
     });
   }
 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
 
   navigateToProfile(): void {
     this.router.navigate(['dashboard/settings/account']);
@@ -452,6 +563,7 @@ export class TestimonialWriteupSettingsComponent implements OnDestroy{
 
     const updateObject = {
       message: this.testimonialForm.value.message,
+      rating: this.testimonialForm.value.rating,
       userId: this.user()?._id,
     };
 

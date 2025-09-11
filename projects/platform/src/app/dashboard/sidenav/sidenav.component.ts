@@ -196,7 +196,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public getPageTitle(): string {
-    return this.user()!.role === 'marketer' ? 'marketer Dashboard' : 'Promoter Dashboard';
+    return this.user()!.role === 'marketer' ? 'Marketer Dashboard' : 'Promoter Dashboard';
   }
 
   // Campaign Actions

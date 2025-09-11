@@ -1,15 +1,13 @@
-import { Component, DestroyRef, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { PromotionInterface } from '../../../../../../shared-services/src/public-api';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PromoterService } from '../../../promoter/promoter.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -29,112 +27,184 @@ export interface SubmitProofDialogData {
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressBarModule,
-    MatSnackBarModule
+    MatProgressBarModule
   ],
   templateUrl: './submit-proof-dialog.component.html',
   styleUrls: ['./submit-proof-dialog.component.scss']
 })
-export class SubmitProofDialogComponent implements OnInit {
+export class SubmitProofDialogComponent {
   proofForm: FormGroup;
-  isSubmitting = false;
-  selectedFiles: File[] = [];
-  previewUrls: string[] = [];
-  maxFiles = 3;
-  maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+  // Using signals for state management
+  selectedFiles = signal<File[]>([]);
+  previewUrls = signal<string[]>([]);
+  isSubmitting = signal(false);
+  submissionStatus = signal<'idle' | 'success' | 'error'>('idle');
+  statusMessage = signal('');
 
-  private readonly destroyRef = inject(DestroyRef);
+  readonly maxFiles = 3;
+  readonly maxFileSize = 5 * 1024 * 1024; // 5MB
+
+  // Computed signals
+  hasFiles = computed(() => this.selectedFiles().length > 0);
+  
+  // Debug computed signal to help identify issues
+  formValidity = computed(() => ({
+    formValid: this.proofForm.valid,
+    viewsCountValid: this.proofForm.get('viewsCount')?.valid,
+    hasFiles: this.hasFiles(),
+    isSubmitting: this.isSubmitting()
+  }));
+
+  canSubmit = computed(() => {
+    const formValid = this.proofForm.valid;
+    const hasFiles = this.selectedFiles().length > 0;
+    const notSubmitting = !this.isSubmitting();
+    
+    console.log('canSubmit check:', { formValid, hasFiles, notSubmitting });
+    
+    return formValid && hasFiles && notSubmitting;
+  });
+
+  daysRemaining = computed(() => {
+    if (!this.campaign().endDate) return 0;
+    const end = new Date(this.campaign().endDate);
+    const now = new Date();
+    const diffTime = end.getTime() - now.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  });
+
+  campaign = computed(() => this.data.promotion.campaign);
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<SubmitProofDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: SubmitProofDialogData,
-    private promoterService: PromoterService,
-    private snackBar: MatSnackBar
+    private promoterService: PromoterService
   ) {
+    // Initialize form with proper validation
     this.proofForm = this.fb.group({
-      viewsCount: ['', [Validators.required, Validators.min(25), Validators.max(1000)]],
+      viewsCount: ['', [Validators.required, Validators.min(1), Validators.max(1000)]],
       notes: ['']
     });
-  }
 
-  ngOnInit(): void {
-    console.log('Dialog opened for promotion:', this.data.promotion);
-  }
+    // Add validation based on campaign requirements
+    effect(() => {
+      const minViews = this.campaign().minViewsPerPromotion;
+      if (minViews) {
+        const viewsControl = this.proofForm.get('viewsCount');
+        if (viewsControl) {
+          // Update validators
+          viewsControl.setValidators([
+            Validators.required,
+            Validators.min(minViews),
+            Validators.max(1000)
+          ]);
+          viewsControl.updateValueAndValidity();
+        }
+      }
+    });
 
+    // Log form changes for debugging
+    this.proofForm.valueChanges.subscribe(() => {
+      console.log('Form changed, validity:', this.proofForm.valid);
+    });
+  }
 
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
     
-    if (this.selectedFiles.length + files.length > this.maxFiles) {
-      this.snackBar.open(`Maximum ${this.maxFiles} files allowed`, 'Close', { duration: 3000 });
+    if (this.selectedFiles().length + files.length > this.maxFiles) {
+      this.showMessage('error', `Maximum ${this.maxFiles} files allowed`);
       return;
     }
+
+    const newFiles: File[] = [];
+    const newPreviewUrls: string[] = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
       if (file.size > this.maxFileSize) {
-        this.snackBar.open('File size must be less than 5MB', 'Close', { duration: 3000 });
+        this.showMessage('error', 'File size must be less than 5MB');
         continue;
       }
 
       if (!file.type.startsWith('image/')) {
-        this.snackBar.open('Only image files are allowed', 'Close', { duration: 3000 });
+        this.showMessage('error', 'Only image files are allowed');
         continue;
       }
 
-      this.selectedFiles.push(file);
+      newFiles.push(file);
       
       // Create preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.previewUrls.push(e.target.result);
+        newPreviewUrls.push(e.target.result);
+        if (newPreviewUrls.length === newFiles.length) {
+          this.previewUrls.update(urls => [...urls, ...newPreviewUrls]);
+        }
       };
       reader.readAsDataURL(file);
     }
 
-    // Clear file input
+    this.selectedFiles.update(current => [...current, ...newFiles]);
+    
+    // Force form validation check after files are added
+    this.proofForm.updateValueAndValidity();
+    
     event.target.value = '';
   }
 
   removeFile(index: number): void {
-    this.selectedFiles.splice(index, 1);
-    this.previewUrls.splice(index, 1);
+    this.selectedFiles.update(files => files.filter((_, i) => i !== index));
+    this.previewUrls.update(urls => urls.filter((_, i) => i !== index));
+    
+    // Force form validation check after files are removed
+    this.proofForm.updateValueAndValidity();
   }
 
   onSubmit(): void {
-    if (this.proofForm.invalid || this.selectedFiles.length === 0) {
-      this.snackBar.open('Please fill all required fields and upload at least one proof image', 'Close', { duration: 3000 });
+    console.log('Submitting form:', {
+      valid: this.proofForm.valid,
+      values: this.proofForm.value,
+      files: this.selectedFiles().length
+    });
+
+    if (this.proofForm.invalid || !this.hasFiles()) {
+      this.showMessage('error', 'Please fill all required fields and upload at least one proof image');
       return;
     }
 
-    this.isSubmitting = true;
+    this.isSubmitting.set(true);
+    this.submissionStatus.set('idle');
 
     const formData = new FormData();
     formData.append('promotionId', this.data.promotion._id);
     formData.append('viewsCount', this.proofForm.get('viewsCount')?.value);
     formData.append('notes', this.proofForm.get('notes')?.value || '');
 
-    this.selectedFiles.forEach((file, index) => {
+    this.selectedFiles().forEach((file) => {
       formData.append('proofImages', file);
     });
 
-    this.promoterService.submitProof(formData)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
+    this.promoterService.submitProof(formData).subscribe({
       next: (response) => {
+        this.isSubmitting.set(false);
         if (response.success) {
-          this.isSubmitting = false;
-          this.snackBar.open(response.message, 'Close', { duration: 3000 });
-          this.dialogRef.close('submitted');
+          this.submissionStatus.set('success');
+          this.showMessage('success', response.message);
+          setTimeout(() => this.dialogRef.close('submitted'), 2000);
+        } else {
+          this.submissionStatus.set('error');
+          this.showMessage('error', response.message || 'Submission failed');
         }
       },
       error: (error: HttpErrorResponse) => {
-        this.isSubmitting = false;
-        console.error('Error submitting proof:', error);
+        this.isSubmitting.set(false);
+        this.submissionStatus.set('error');
         const errorMessage = error.error?.message || 'Server error occurred, please try again.';
-        this.snackBar.open(errorMessage, 'Ok', { duration: 5000 });
+        this.showMessage('error', errorMessage);
       }
     });
   }
@@ -143,15 +213,18 @@ export class SubmitProofDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  get campaign() {
-    return this.data.promotion.campaign;
-  }
-
-  get daysRemaining(): number {
-    if (!this.campaign.endDate) return 0;
-    const end = new Date(this.campaign.endDate);
-    const now = new Date();
-    const diffTime = end.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  private showMessage(status: 'success' | 'error', message: string): void {
+    this.submissionStatus.set(status);
+    this.statusMessage.set(message);
+    
+    // Auto-clear success messages after 5 seconds
+    if (status === 'success') {
+      setTimeout(() => {
+        if (this.submissionStatus() === 'success') {
+          this.submissionStatus.set('idle');
+          this.statusMessage.set('');
+        }
+      }, 5000);
+    }
   }
 }

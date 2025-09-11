@@ -7,6 +7,7 @@ export interface TestimonialInterface {
   location: string;
   message: string;
   avatar: string;
+  rating: number;
 }
 
 @Injectable()

@@ -169,53 +169,72 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   downloadPromotion(): void {
-  const campaignId = this.promotion.campaign._id;
-  const promoterId = this.promotion.promoter._id;
+    const campaignId = this.promotion.campaign._id;
+    const promoterId = this.promotion.promoter._id;
 
-  this.promoterService.downloadPromotion(campaignId, promoterId)
-  .pipe(takeUntilDestroyed(this.destroyRef))
-  .subscribe({
-  next: (response) => {
-    if (response.success) {
-      const mediaUrl = response.campaign.mediaUrl;
-      const mediaType = response.campaign.mediaType;
-      const fileExtension = mediaType === 'image' ? 'jpg' : 'mp4';
-      const fileName = `campaign_post_${campaignId}.${fileExtension}`;
+    this.promoterService.downloadPromotion(campaignId, promoterId)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+    next: (response) => {
+      if (response.success) {
+        const mediaUrl = response.campaign.mediaUrl;
+        const mediaType = response.campaign.mediaType;
+        const fileExtension = mediaType === 'image' ? 'jpg' : 'mp4';
+        const fileName = `campaign_post_${campaignId}.${fileExtension}`;
 
-      // Fetch the media file as a Blob
-      this.http.get(mediaUrl, { responseType: 'blob' }).subscribe({
-        next: (blob) => {
-          // Create a temporary URL for the Blob
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+        // Fetch the media file as a Blob
+        this.http.get(mediaUrl, { responseType: 'blob' }).subscribe({
+          next: (blob) => {
+            // Create a temporary URL for the Blob
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
 
-          // Set the href to the Blob URL and the download attribute
-          link.href = url;
-          link.download = fileName;
-          link.style.display = 'none';
+            // Set the href to the Blob URL and the download attribute
+            link.href = url;
+            link.download = fileName;
+            link.style.display = 'none';
 
-          document.body.appendChild(link);
-          link.click();
+            document.body.appendChild(link);
+            link.click();
 
-          // Clean up the temporary link and Blob URL
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }, 
-        error: (error) => {
-          console.error('Error fetching media file for download:', error);
-          this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
-        }
-      });
-    } else {
-      console.error('Failed to download promotion:', response.message);
-      this.snackBar.open(response.message, 'OK', { duration: 3000 });
+            // Clean up the temporary link and Blob URL
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            // set promotion.isDownloaded to true
+            this.promotion.isDownloaded = true;
+          }, 
+          error: (error) => {
+            console.error('Error fetching media file for download:', error);
+            this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
+          }
+        });
+      } else {
+        console.error('Failed to download promotion:', response.message);
+        this.snackBar.open(response.message, 'OK', { duration: 3000 });
+      }
+    },
+      error: (error) => {
+      console.error('Error calling downloadPromotion API:', error);
+      this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
     }
-  },
-    error: (error) => {
-    console.error('Error calling downloadPromotion API:', error);
-    this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
+    });
   }
-  });
- }
+
+  getCategoryIcon(category: string): string {
+    const categoryIcons: {[key: string]: string} = {
+      'fashion': 'category',
+      'food': 'restaurant',
+      'tech': 'smartphone',
+      'entertainment': 'music_note',
+      'health': 'fitness_center',
+      'beauty': 'face',
+      'travel': 'flight',
+      'business': 'business',
+      'other': 'category'
+    };
+    
+    return categoryIcons[category] || 'category';
+  }
 
 }

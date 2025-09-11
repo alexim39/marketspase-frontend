@@ -111,7 +111,8 @@ export class MarketerCampaignLandingComponent implements OnInit {
     { value: 'paused', label: 'Paused', icon: 'pause_circle' },
     { value: 'completed', label: 'Completed', icon: 'check_circle' },
     { value: 'expired', label: 'Expired', icon: 'schedule' },
-    { value: 'pending', label: 'Pending', icon: 'hourglass_empty' }
+    { value: 'pending', label: 'Pending', icon: 'hourglass_empty' },
+    { value: 'exhausted', label: 'Exhausted', icon: 'assignment_late' }
   ];
 
   ngOnInit(): void {
