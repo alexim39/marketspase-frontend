@@ -151,7 +151,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   isSubmissionExpired(promotion: PromotionInterface): boolean {
     // Always use a universal time for calculations.
     // promotion.campaign.createdAt is already in ISO 8601 format with a UTC offset, so `new Date()` will correctly parse it as a UTC date.
-    const createdAtUtc = new Date(promotion.campaign.createdAt);
+    const createdAtUtc = new Date(promotion.createdAt);
 
     // The expiration time is exactly 24 hours after the createdAt date, in UTC.
     const expiryTimeUtc = createdAtUtc.getTime() + (24 * 60 * 60 * 1000);

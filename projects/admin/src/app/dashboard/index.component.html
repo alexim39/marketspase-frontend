@@ -44,6 +44,16 @@
         <span>Campaigns</span>
         </a>
 
+        <a 
+        class="nav-item" 
+        [class.active]="activeNavItem() === 'testimonials'"
+        (click)="setActiveNavItem('testimonials')"
+        routerLink="/dashboard/testimonials" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        >
+        <mat-icon>reviews</mat-icon>
+        <span>Testimonials</span>
+        </a>
+
        <!--  <a 
         class="nav-item" 
         [class.active]="activeNavItem() === 'proof'"

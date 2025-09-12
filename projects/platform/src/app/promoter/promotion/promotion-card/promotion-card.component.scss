@@ -358,6 +358,10 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  small {
+    text-align: center;
+    color: gray;
+  }
 }
 
 .action-btn {

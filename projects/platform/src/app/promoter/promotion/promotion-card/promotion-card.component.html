@@ -10,7 +10,7 @@
       </button>
       <mat-menu #cardMenu="matMenu">
         @if (promotion.isDownloaded) {
-          <button mat-menu-item (click)="onOpenSubmitProofDialog()">
+          <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">
             <mat-icon>cloud_upload</mat-icon>
             <span>Submit Proof</span>
           </button>
@@ -94,10 +94,14 @@
     <div class="action-buttons">
       @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
         @if (promotion.isDownloaded) {
-          <button class="action-btn primary" (click)="onOpenSubmitProofDialog()">
+          <button class="action-btn primary" (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">
             <i class="material-icons">cloud_upload</i>
             Submit Proof
           </button>
+          @if (!isNearingExpiration()) {
+            <small>Submission will be enabled 30 minutes before expiration.</small>
+          }
+          
         } @else {
           <button class="action-btn primary" (click)="downloadPromotion()">
             <i class="material-icons">download_for_offline</i>

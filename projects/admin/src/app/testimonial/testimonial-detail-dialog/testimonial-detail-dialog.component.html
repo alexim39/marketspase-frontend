@@ -1,0 +1,102 @@
+<div class="testimonial-detail-dialog">
+  <div mat-dialog-title class="dialog-header">
+    <h2>Testimonial Details</h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <!-- User Information -->
+    <div class="user-section">
+      <div class="user-info">
+        <img [src]="data.testimonial.user.avatar" alt="User avatar" class="user-avatar-large">
+        <div class="user-details">
+          <h3 class="user-name">{{ data.testimonial.user.name }}</h3>
+          <p class="user-username">@{{ data.testimonial.user.username }}</p>
+          <p class="user-id">User ID: {{ data.testimonial.user._id }}</p>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Testimonial Content -->
+    <div class="content-section">
+      <h4>Testimonial Message</h4>
+      <div class="message-container">
+        <p class="testimonial-message">{{ data.testimonial.message }}</p>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Rating & Status -->
+    <div class="metrics-section">
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <span class="metric-label">Rating</span>
+          <div class="rating-display">
+            <div class="stars">
+              <mat-icon *ngFor="let star of getStars(data.testimonial.rating)" class="star-filled">star</mat-icon>
+              <mat-icon *ngFor="let star of getEmptyStars(data.testimonial.rating)" class="star-empty">star_border</mat-icon>
+            </div>
+            <span class="rating-value">({{ data.testimonial.rating }}/5)</span>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Status</span>
+          <mat-chip [class]="getStatusClass(data.testimonial.status)" class="status-chip">
+            {{ data.testimonial.status | titlecase }}
+          </mat-chip>
+          <span class="featured-badge" *ngIf="data.testimonial.isFeatured">Featured</span>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Likes</span>
+          <div class="reaction-count">
+            <mat-icon class="like-icon">thumb_up</mat-icon>
+            <span>{{ data.testimonial.likes }}</span>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Dislikes</span>
+          <div class="reaction-count">
+            <mat-icon class="dislike-icon">thumb_down</mat-icon>
+            <span>{{ data.testimonial.dislikes }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Dates -->
+    <div class="dates-section">
+      <h4>Timeline</h4>
+      <div class="dates-grid">
+        <div class="date-item">
+          <span class="date-label">Created</span>
+          <span class="date-value">{{ formatDate(data.testimonial.createdAt) }}</span>
+        </div>
+        <div class="date-item">
+          <span class="date-label">Last Updated</span>
+          <span class="date-value">{{ formatDate(data.testimonial.updatedAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Information -->
+    <div class="additional-info" *ngIf="data.testimonial.reactions && data.testimonial.reactions.length > 0">
+      <mat-divider></mat-divider>
+      <h4>Reaction Details</h4>
+      <p class="info-note">{{ data.testimonial.reactions.length }} total reactions</p>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="onClose()">Close</button>
+  </mat-dialog-actions>
+</div>

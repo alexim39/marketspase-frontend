@@ -36,6 +36,10 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../promotion/promotion.component').then(c => c.CampaignPromotionsComponent),
                 title: 'Promotion Details - Admin Dashboard'
             },  
+            {   path: 'testimonials', 
+                loadComponent: () => import('../testimonial/testimonial.component').then(c => c.TestimonialMgtComponent),
+                title: 'Testimonial Management - Admin Dashboard'
+            }, 
                               
             // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  
             // { path: 'analytics', loadChildren: () => import('./business/analytics/analytics-routes').then(r => r.AnalyticsRoutes) },  
