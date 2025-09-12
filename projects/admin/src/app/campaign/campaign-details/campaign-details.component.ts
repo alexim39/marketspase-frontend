@@ -25,6 +25,8 @@ import { MatListModule } from '@angular/material/list';
 import { CampaignService } from '../campaign.service';
 import { AdminService } from '../../common/services/user.service';
 import { CampaignInterface, PromotionInterface } from '../../../../../shared-services/src/public-api';
+import { PromotionDetailsComponent } from '../../promotion/promotion-details/promotion-details.component';
+import { PromotionProofComponent } from '../../promotion/promotion-proof/promotion-proof.component';
 
 // Interfaces
 //import { Campaign, Promotion, ActivityLog } from '../campaign-mgt/campaign-mgt.component';
@@ -58,6 +60,7 @@ import { CampaignInterface, PromotionInterface } from '../../../../../shared-ser
 })
 export class CampaignDetailsComponent implements OnInit, OnDestroy {
   readonly campaignService = inject(CampaignService);
+  readonly dialog = inject(MatDialog);
   readonly adminService = inject(AdminService);
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
@@ -96,6 +99,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
             this.campaign.set(response.data);
             this.promotions.set(response.data.promotions || []);
             this.promotionsDataSource.data = response.data.promotions || [];
+            //console.log('promotion ', this.promotionsDataSource.data )
           } else {
             this.snackBar.open('Failed to load campaign details', 'Close', { duration: 3000 });
           }
@@ -149,7 +153,13 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
 
   viewPromotionProof(promotion: PromotionInterface): void {
     // This would open a dialog with the proof images
-    this.snackBar.open('View proof feature coming soon', 'Close', { duration: 3000 });
+    //this.snackBar.open('View proof feature coming soon', 'Close', { duration: 3000 });
+
+    this.dialog.open(PromotionProofComponent, {
+      width: '90%',
+      maxWidth: '1200px',
+      data: { promotion: promotion }
+    });
   }
 
   validatePromotion(promotion: PromotionInterface): void {
@@ -211,7 +221,13 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
 
   viewPromotionDetails(promotion: PromotionInterface): void {
     // This could open a dialog with promotion details
-    this.snackBar.open('Promotion details feature coming soon', 'Close', { duration: 3000 });
+    //this.snackBar.open('Promotion details feature coming soon', 'Close', { duration: 3000 });
+
+    this.dialog.open(PromotionDetailsComponent, {
+      width: '90%',
+      maxWidth: '1000px',
+      data: { promotion }
+    });
   }
 
  

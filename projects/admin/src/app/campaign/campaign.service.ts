@@ -12,6 +12,7 @@ interface ApiResponse<T> {
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
+  private readonly apiBase = 'campaign'
   
 
   /**
@@ -29,19 +30,19 @@ export class CampaignService {
    * @returns An observable of the submitted form data.
   */
   getAppCampaigns(): Observable<any> {
-    return this.apiService.get<any>(`campaign/campaigns`, undefined, undefined, true);
+    return this.apiService.get<any>(`${this.apiBase}/campaigns`, undefined, undefined, true);
   }
 
   getCampaignById(id: string): Observable<ApiResponse<any>> {
-    return this.apiService.get<ApiResponse<any>>(`campaign/${id}`, undefined, undefined, true);
+    return this.apiService.get<ApiResponse<any>>(`${this.apiBase}/${id}`, undefined, undefined, true);
   }
 
   updateCampaignStatus(id: string, status: string): Observable<ApiResponse<any>> {
-    return this.apiService.patch<ApiResponse<any>>(`campaign/${id}/status`, { status }, undefined, true);
+    return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/${id}/status`, { status }, undefined, true);
   }
 
-  updatePromotionStatus(id: string, status: string): Observable<ApiResponse<any>> {
-    return this.apiService.patch<ApiResponse<any>>(`campaign/promotion/${id}/status`, { status });
+  updatePromotionStatus(id: string, status: string, rejectionReason: string = ''): Observable<ApiResponse<any>> {
+    return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/promotion/${id}/status`, { status, rejectionReason });
   }
 
 }

@@ -25,11 +25,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { CampaignService } from '../campaign/campaign.service';
 import { AdminService } from '../common/services/user.service';
 
-// Interfaces
-//import { Campaign, Promotion } from '../campaign-mgt/campaign-mgt.component';
-
 // Components
-import { ProofViewDialogComponent } from './proof-view-dialog/proof-view-dialog.component';
+//import { ProofViewDialogComponent } from './proof-view-dialog/proof-view-dialog.component';
 import { CampaignInterface, PromotionInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -76,7 +73,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   statusFilter = signal<string>('all');
 
   // Table properties
-  displayedColumns: string[] = ['promoter', 'status', 'views', 'submitted', 'validated', 'paid', 'actions'];
+  displayedColumns: string[] = ['promoter', 'upi', 'status', 'views', 'submitted', 'validated', 'paid', 'actions'];
   dataSource: MatTableDataSource<PromotionInterface> = new MatTableDataSource<PromotionInterface>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -175,14 +172,14 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.dialog.open(ProofViewDialogComponent, {
-      width: '90%',
-      maxWidth: '800px',
-      data: {
-        promotion: promotion,
-        campaign: this.campaign()
-      }
-    });
+    // this.dialog.open(ProofViewDialogComponent, {
+    //   width: '90%',
+    //   maxWidth: '800px',
+    //   data: {
+    //     promotion: promotion,
+    //     campaign: this.campaign()
+    //   }
+    // });
   }
 
   validatePromotion(promotion: PromotionInterface): void {
