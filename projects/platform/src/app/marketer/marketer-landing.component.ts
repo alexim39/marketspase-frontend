@@ -228,7 +228,7 @@ export class MarketerCampaignLandingComponent implements OnInit {
     return {
       totalCampaigns: campaigns.length,
       activeCampaigns: activeCampaigns.length,
-      totalSpent: campaigns.reduce((sum, c) => sum + (c.spentBudget || 0), 0),
+      totalSpent: campaigns.reduce((sum, c) => sum + ( (c.payoutPerPromotion * c.currentPromoters ) || 0), 0),
       totalViews: campaigns.reduce((sum, c) => sum + (c.views || 0), 0),
       avgCTR: 3.2, // Mock value
       totalPromoters: campaigns.reduce((sum, c) => sum + (c.totalPromotions || 0), 0)
@@ -250,7 +250,8 @@ export class MarketerCampaignLandingComponent implements OnInit {
             updatedCampaign.remainingDays = formatRemainingDays(endDate);
           }
         } else {
-          const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
+          const budgetRemaining = updatedCampaign.budget - (updatedCampaign.payoutPerPromotion * updatedCampaign.currentPromoters );
+          // const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
           if (budgetRemaining <= 0) {
             updatedCampaign.remainingDays = 'Budget Exhausted';
           } else {

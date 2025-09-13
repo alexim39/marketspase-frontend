@@ -62,15 +62,13 @@ export interface CampaignInterface {
 
   _id: string;
   title: string;
-  //description: string; // checked for removal
   status: CampaignStatus;
   budget: number;
-  //spent: number;
   payoutPerPromotion: number;
   maxPromoters: number;
   currentPromoters: number;
   views: number;
-  estimatedReach: number;
+  //estimatedReach: 30; // estimate for each user
   startDate: Date;
   endDate: Date; // It can be null or undefined
   createdAt: Date;
@@ -80,13 +78,12 @@ export interface CampaignInterface {
   progress: number;
   remainingDays?: number | string | 'N/A' | 'Expired' | 'Budget Exhausted' | 'Budget-based';
   campaignType: 'standard' | 'premium' | 'boost';
-  targetAudience: string;
-  minViews: number;
+  enableTarget: boolean;
   isApproved: boolean;
   priority: 'low' | 'medium' | 'high';
 
   updatedAt: string;
-  spentBudget: number; // This is a key from your provided object
+  //spentBudget: number; // This is a key from your provided object
   paidPromotions: number;
   minViewsPerPromotion: number;
   validatedPromotions: number;

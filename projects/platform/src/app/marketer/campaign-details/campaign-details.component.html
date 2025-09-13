@@ -105,7 +105,7 @@
                 <mat-icon>people</mat-icon>
                 <div class="info-content">
                   <span class="info-label">Target Audience</span>
-                  <span class="info-value">{{campaign.targetAudience || 'General'}}</span>
+                  <span class="info-value">{{campaign.enableTarget? 'Local' : 'General'}}</span>
                 </div>
               </div>
               
@@ -124,7 +124,7 @@
                 <mat-icon>visibility</mat-icon>
                 <div class="info-content">
                   <span class="info-label">Minimum Views</span>
-                  <span class="info-value">{{campaign.minViews}} per promotion</span>
+                  <span class="info-value">{{campaign.minViewsPerPromotion}} per promotion</span>
                 </div>
               </div>
             </div>
@@ -151,7 +151,8 @@
               <div class="metric-label">Promoters Engaged</div>
               <div class="metric-progress">
                 <div class="progress-bar">
-                  <div class="progress-fill" [style.width]="(campaign.currentPromoters / campaign.maxPromoters * 100) + '%'"></div>
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor(( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100)" 
+                       [style.width]="( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) + '%'"></div>
                 </div>
                 <span class="progress-percentage">{{(campaign.currentPromoters / campaign.maxPromoters * 100) | number:'1.0-0'}}%</span>
               </div>
@@ -165,7 +166,7 @@
             <div class="metric-content">
               <div class="metric-value">{{getTotalViews(campaign.promotions) | shortNumber}}</div>
               <div class="metric-label">Total Views</div>
-              <div class="metric-subtext">Estimated reach: {{campaign.estimatedReach | shortNumber}}</div>
+              <div class="metric-subtext">Estimated reach: {{ (35 * campaign.maxPromoters ) | shortNumber}}</div>
             </div>
           </div>
           
@@ -174,15 +175,16 @@
               <mat-icon>payments</mat-icon>
             </div>
             <div class="metric-content">
-              <div class="metric-value">{{formatCurrency(campaign.spentBudget)}}</div>
+              <div class="metric-value">{{formatCurrency(campaign.payoutPerPromotion * campaign.currentPromoters )}}</div>
+              <!-- <div class="metric-value">{{formatCurrency(campaign.spentBudget)}}</div> -->
               <div class="metric-label">Budget Spent</div>
               <div class="metric-subtext">of {{formatCurrency(campaign.budget)}} total</div>
               <div class="metric-progress">
                 <div class="progress-bar">
-                  <div class="progress-fill" [class]="'progress-' + getProgressColor((campaign.spentBudget / campaign.budget) * 100)" 
-                       [style.width]="(campaign.spentBudget / campaign.budget * 100) + '%'"></div>
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor(( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100)" 
+                       [style.width]="( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) + '%'"></div>
                 </div>
-                <span class="progress-percentage">{{(campaign.spentBudget / campaign.budget * 100) | number:'1.0-0'}}%</span>
+                <span class="progress-percentage">{{( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) | number:'1.0-0'}}%</span>
               </div>
             </div>
           </div>

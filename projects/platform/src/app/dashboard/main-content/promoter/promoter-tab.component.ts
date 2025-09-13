@@ -64,7 +64,7 @@ export interface Earning {
   templateUrl: './promoter-tab.component.html',
   styleUrls: ['./promoter-tab.component.scss'],
 })
-export class PromoterTabComponent implements OnInit, OnDestroy {
+export class PromoterTabComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
@@ -178,7 +178,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
     return campaigns.map(campaign => {
       const updatedCampaign = { ...campaign };
 
-      updatedCampaign.progress = (campaign.spentBudget / campaign.budget) * 100;
+      updatedCampaign.progress = ( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100;
 
       if (campaign.endDate) {
         const endDate = new Date(campaign.endDate);
@@ -188,7 +188,7 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
           updatedCampaign.remainingDays = formatRemainingDays(endDate);
         }
       } else {
-        const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
+        const budgetRemaining = updatedCampaign.budget - (updatedCampaign.payoutPerPromotion * updatedCampaign.currentPromoters );
         if (budgetRemaining <= 0) {
           updatedCampaign.remainingDays = 'Budget Exhausted';
         } else {
@@ -199,15 +199,6 @@ export class PromoterTabComponent implements OnInit, OnDestroy {
       return updatedCampaign;
     });
   }
-
-
-
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
-
 
   acceptCampaign(campaignId: string): void {
     this.snackBar.open('Campaign accepted! Check your active campaigns.', 'OK', { duration: 3000 });

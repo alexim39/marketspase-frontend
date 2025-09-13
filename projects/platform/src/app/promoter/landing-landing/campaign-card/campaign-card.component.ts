@@ -96,7 +96,7 @@ export class CampaignCardComponent {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
     const slotsFilled = campaign.totalPromotions || 0;
     if (slotsFilled >= campaign.maxPromoters) return false;
-    const remainingBudget = campaign.budget - (campaign.spentBudget || 0);
+    const remainingBudget = campaign.budget - ( (campaign.payoutPerPromotion * campaign.currentPromoters )|| 0);
     if (remainingBudget < campaign.payoutPerPromotion) return false;
     return true;
   }

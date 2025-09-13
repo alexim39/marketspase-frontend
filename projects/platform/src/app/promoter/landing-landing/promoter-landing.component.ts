@@ -173,7 +173,7 @@ export class PromoterLandingComponent implements OnInit {
   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
     return campaigns.map(campaign => {
       const updatedCampaign = { ...campaign };
-      updatedCampaign.progress = campaign.budget > 0 ? (campaign.spentBudget / campaign.budget) * 100 : 0;
+      updatedCampaign.progress = campaign.budget > 0 ? ( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100 : 0;
       if (campaign.endDate) {
         const endDate = new Date(campaign.endDate);
         if (isDatePast(endDate)) {
@@ -182,7 +182,8 @@ export class PromoterLandingComponent implements OnInit {
           updatedCampaign.remainingDays = formatRemainingDays(endDate);
         }
       } else {
-        const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
+        const budgetRemaining = updatedCampaign.budget - (updatedCampaign.payoutPerPromotion * updatedCampaign.currentPromoters );
+        // const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
         if (budgetRemaining <= 0) {
           updatedCampaign.remainingDays = 'Budget Exhausted';
         } else {
@@ -219,7 +220,8 @@ export class PromoterLandingComponent implements OnInit {
               return {
                 ...c,
                 totalPromotions: (c.totalPromotions || 0) + 1,
-                spentBudget: (c.spentBudget || 0) + c.payoutPerPromotion
+                spentBudget: ( (c.payoutPerPromotion * c.currentPromoters ) || 0) + c.payoutPerPromotion
+                // spentBudget: (c.spentBudget || 0) + c.payoutPerPromotion
               };
             }
             return c;

@@ -216,7 +216,8 @@ export class CampaignDetailsComponent implements OnInit {
     if (amount === undefined || amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      //currency: 'USD'
+      currency: 'NGN'
     }).format(amount);
   }
 
