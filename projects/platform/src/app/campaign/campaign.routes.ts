@@ -2,6 +2,7 @@ import { Routes } from "@angular/router";
 import { CampaignIndexComponent } from "./index";
 import { CreateCampaignComponent } from "./create/create-campaign.component";
 import { PromotionComponent } from "../promoter/promotion/promotion.component";
+import { CampaignDetailsComponent } from "../marketer/campaign-details/campaign-details.component";
 
 export const CampaignRoutes: Routes = [
     {
@@ -10,7 +11,7 @@ export const CampaignRoutes: Routes = [
         pathMatch: 'full' */
         path: '',
         component: CampaignIndexComponent,
-        title: "Advertiser, Promoter Dashboard - Manage all campaign and promotion",
+        title: "Marketer, Promoter Dashboard - Manage all campaign and promotion",
     },
     {
         path: 'create',
@@ -22,5 +23,10 @@ export const CampaignRoutes: Routes = [
         component: PromotionComponent,
         title: "Promotions - List all accepted promoter promotions",
     }, 
+    {
+        path: ':id',
+        component: CampaignDetailsComponent,
+        title: "Campaign Details - List all accepted promoter promotions",
+    },
     
 ]

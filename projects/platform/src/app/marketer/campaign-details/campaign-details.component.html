@@ -1,0 +1,434 @@
+<!-- campaign-details.component.html -->
+<div class="campaign-details-container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <button class="back-btn" mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Campaigns
+        </button>
+        <div class="header-title">
+          <h1>Campaign Details</h1>
+          <p>Monitor performance and manage your campaign</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline" mat-raised-button (click)="exportCampaignData()">
+            <mat-icon>file_download</mat-icon>
+            Export Data
+          </button>
+          <button class="btn btn-primary" mat-flat-button (click)="editCampaign()">
+            <mat-icon>edit</mat-icon>
+            Edit Campaign
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" *ngIf="campaign(); let campaign">
+    <div class="container">
+      <!-- Campaign Overview Card -->
+      <div class="overview-card">
+        <div class="overview-header">
+          <div class="campaign-status">
+            <span class="status-badge" [class]="'status-' + campaign.status">
+              {{campaign.status | titlecase}}
+            </span>
+            <span class="campaign-id">ID: {{campaign._id}}</span>
+          </div>
+          <div class="campaign-meta">
+            <span class="created-date">
+              <mat-icon>event</mat-icon>
+              Created: {{campaign.createdAt | date:'mediumDate'}}
+            </span>
+            <button class="icon-btn" [matMenuTriggerFor]="campaignMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #campaignMenu="matMenu">
+              <button mat-menu-item (click)="editCampaign()">
+                <mat-icon>edit</mat-icon>
+                Edit Campaign
+              </button>
+              <button mat-menu-item (click)="duplicateCampaign()">
+                <mat-icon>content_copy</mat-icon>
+                Duplicate
+              </button>
+              <button mat-menu-item (click)="toggleCampaignStatus()">
+                <mat-icon>{{campaign.status === 'active' ? 'pause' : 'play_arrow'}}</mat-icon>
+                {{campaign.status === 'active' ? 'Pause' : 'Resume'}}
+              </button>
+              <button mat-menu-item (click)="deleteCampaign()" class="delete-action">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div class="overview-content">
+          <div class="campaign-media">
+            <div class="media-container">
+              <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+                <i class="material-icons">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+                <span>{{ campaign.mediaType | titlecase }}</span>
+              </div>
+              
+              @if (campaign.mediaType === 'image') {
+                <img [src]="api + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+              } @else if (campaign.mediaType === 'video') {
+                <div class="video-container">
+                  <video controls [poster]="campaign.category | categoryPlaceholder">
+                    <source [src]="api + campaign.mediaUrl" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="campaign-info">
+            <h2 class="campaign-title">{{campaign.title | titlecase}}</h2>
+            <p class="campaign-caption">{{campaign.caption}}</p>
+            
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>category</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Category</span>
+                  <span class="info-value">{{campaign.category | titlecase}}</span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>people</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Target Audience</span>
+                  <span class="info-value">{{campaign.targetAudience || 'General'}}</span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>calendar_today</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Duration</span>
+                  <span class="info-value">
+                    {{campaign.startDate | date:'mediumDate'}} - 
+                    {{campaign.endDate ? (campaign.endDate | date:'mediumDate') : 'Ongoing'}}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>visibility</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Minimum Views</span>
+                  <span class="info-value">{{campaign.minViews}} per promotion</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="campaign-link" *ngIf="campaign.link">
+              <mat-icon>link</mat-icon>
+              <a [href]="campaign.link" target="_blank" class="link-text">{{campaign.link}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Metrics -->
+      <div class="metrics-section">
+        <h3 class="section-title">Performance Metrics</h3>
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{campaign.currentPromoters}}/{{campaign.maxPromoters}}</div>
+              <div class="metric-label">Promoters Engaged</div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width]="(campaign.currentPromoters / campaign.maxPromoters * 100) + '%'"></div>
+                </div>
+                <span class="progress-percentage">{{(campaign.currentPromoters / campaign.maxPromoters * 100) | number:'1.0-0'}}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>visibility</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{getTotalViews(campaign.promotions) | shortNumber}}</div>
+              <div class="metric-label">Total Views</div>
+              <div class="metric-subtext">Estimated reach: {{campaign.estimatedReach | shortNumber}}</div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>payments</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{formatCurrency(campaign.spentBudget)}}</div>
+              <div class="metric-label">Budget Spent</div>
+              <div class="metric-subtext">of {{formatCurrency(campaign.budget)}} total</div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor((campaign.spentBudget / campaign.budget) * 100)" 
+                       [style.width]="(campaign.spentBudget / campaign.budget * 100) + '%'"></div>
+                </div>
+                <span class="progress-percentage">{{(campaign.spentBudget / campaign.budget * 100) | number:'1.0-0'}}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>verified</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{campaign.validatedPromotions || 0}}</div>
+              <div class="metric-label">Validated Promotions</div>
+              <div class="metric-subtext">{{campaign.paidPromotions || 0}} paid out</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promotions Table -->
+      <div class="promotions-section">
+        <div class="section-header">
+          <h3 class="section-title">Promotion Activity</h3>
+          <div class="section-controls">
+            <div class="search-box">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search promotions..."
+                [formControl]="promotionSearchControl">
+            </div>
+            <button class="filter-btn" mat-button [matMenuTriggerFor]="statusFilterMenu">
+              <mat-icon>filter_list</mat-icon>
+              Status: {{selectedStatusFilter() || 'All'}}
+            </button>
+            <mat-menu #statusFilterMenu="matMenu">
+              <button mat-menu-item (click)="updateStatusFilter('')">All</button>
+              <button mat-menu-item (click)="updateStatusFilter('pending')">Pending</button>
+              <button mat-menu-item (click)="updateStatusFilter('submitted')">Submitted</button>
+              <button mat-menu-item (click)="updateStatusFilter('validated')">Validated</button>
+              <button mat-menu-item (click)="updateStatusFilter('paid')">Paid</button>
+              <button mat-menu-item (click)="updateStatusFilter('rejected')">Rejected</button>
+            </mat-menu>
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table class="promotions-table" *ngIf="filteredPromotions().length > 0; else noPromotions">
+            <thead>
+              <tr>
+                <th>Promoter</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Submitted</th>
+                <th>Payout</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let promotion of filteredPromotions()">
+                <td class="promoter-cell">
+                  <div class="promoter-info">
+                    <div class="avatar">{{getInitials(promotion.promoter.displayName)}}</div>
+                    <div class="promoter-details">
+                      <span class="promoter-name">{{promotion.promoter.displayName || 'Unknown'}}</span>
+                      <span class="promoter-rating" *ngIf="promotion.promoter?.rating">
+                        <mat-icon>star</mat-icon>
+                        {{promotion.promoter.rating | number:'1.1-1'}}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="status-badge status-{{promotion.status}}">
+                    {{promotion.status | titlecase}}
+                  </span>
+                </td>
+                <td>{{promotion.proofViews || 0}}</td>
+                <td>{{promotion.submittedAt ? (promotion.submittedAt | date:'short') : 'Not submitted'}}</td>
+                <td>{{promotion.payoutAmount ? formatCurrency(promotion.payoutAmount) : 'N/A'}}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="icon-btn" (click)="viewPromotionDetails(promotion)" matTooltip="View Details">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button class="icon-btn" (click)="validatePromotion(promotion)" *ngIf="promotion.status === 'submitted'" matTooltip="Validate">
+                      <mat-icon>check_circle</mat-icon>
+                    </button>
+                    <button class="icon-btn" (click)="rejectPromotion(promotion)" *ngIf="promotion.status === 'submitted'" matTooltip="Reject">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <ng-template #noPromotions>
+            <div class="empty-state">
+              <mat-icon>assignment</mat-icon>
+              <h4>No promotions yet</h4>
+              <p>This campaign hasn't been picked up by any promoters.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="activity-section" *ngIf="campaign.activityLog && campaign.activityLog.length > 0">
+        <h3 class="section-title">Activity Log</h3>
+        
+        <div class="timeline">
+          <div class="timeline-item" *ngFor="let log of campaign.activityLog">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="log-action">{{log.action}}</span>
+                <span class="log-time">{{log.timestamp | date:'medium'}}</span>
+              </div>
+              <p class="log-details">{{log.details}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading()">
+    <div class="loading-content">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading campaign details...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error()">
+    <div class="error-content">
+      <mat-icon>error_outline</mat-icon>
+      <h3>Failed to load campaign</h3>
+      <p>{{error()}}</p>
+      <button class="btn btn-primary" (click)="loadCampaign()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Promotion Details Dialog -->
+<ng-template #promotionDetailsDialog>
+  <div class="promotion-details-dialog" *ngIf="selectedPromotion(); let promotion">
+    <h2 mat-dialog-title>Promotion Details</h2>
+    <mat-dialog-content>
+      <div class="dialog-section">
+        <h3>Promoter Information</h3>
+        <div class="promoter-info-large">
+          <div class="avatar-large">{{getInitials(promotion.promoter?.name)}}</div>
+          <div class="promoter-details-large">
+            <span class="promoter-name">{{promotion.promoter?.name || 'Unknown'}}</span>
+            <span class="promoter-contact" *ngIf="promotion.promoter?.email">
+              <mat-icon>email</mat-icon>
+              {{promotion.promoter.email}}
+            </span>
+            <span class="promoter-rating" *ngIf="promotion.promoter?.rating">
+              <mat-icon>star</mat-icon>
+              Rating: {{promotion.promoter.rating | number:'1.1-1'}}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dialog-section">
+        <h3>Promotion Status</h3>
+        <div class="status-timeline">
+          <div class="status-step" [class.active]="true">
+            <div class="step-icon">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div class="step-content">
+              <span class="step-title">Assigned</span>
+              <span class="step-time">{{promotion.createdAt | date:'medium'}}</span>
+            </div>
+          </div>
+          
+          <div class="status-step" [class.active]="promotion.status !== 'pending'">
+            <div class="step-icon">
+              <mat-icon>file_upload</mat-icon>
+            </div>
+            <div class="step-content">
+              <span class="step-title">Submitted</span>
+              <span class="step-time" *ngIf="promotion.submittedAt">
+                {{promotion.submittedAt | date:'medium'}}
+              </span>
+            </div>
+          </div>
+          
+          <div class="status-step" [class.active]="['validated', 'paid'].includes(promotion.status)">
+            <div class="step-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="step-content">
+              <span class="step-title">Validated</span>
+              <span class="step-time" *ngIf="promotion.validatedAt">
+                {{promotion.validatedAt | date:'medium'}}
+              </span>
+            </div>
+          </div>
+          
+          <div class="status-step" [class.active]="promotion.status === 'paid'">
+            <div class="step-icon">
+              <mat-icon>payments</mat-icon>
+            </div>
+            <div class="step-content">
+              <span class="step-title">Paid</span>
+              <span class="step-time" *ngIf="promotion.paidAt">
+                {{promotion.paidAt | date:'medium'}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dialog-section" *ngIf="promotion.proofMedia && promotion.proofMedia.length > 0">
+        <h3>Proof Media</h3>
+        <div class="proof-media-grid">
+          <div class="proof-media-item" *ngFor="let media of promotion.proofMedia; let i = index">
+            <img [src]="api + media" [alt]="'Proof ' + (i + 1)" (click)="openMediaDialog(media)">
+          </div>
+        </div>
+      </div>
+      
+      <div class="dialog-section" *ngIf="promotion.rejectionReason">
+        <h3>Rejection Reason</h3>
+        <p class="rejection-reason">{{promotion.rejectionReason}}</p>
+      </div>
+      
+      <div class="dialog-section" *ngIf="promotion.notes">
+        <h3>Notes</h3>
+        <p class="promotion-notes">{{promotion.notes}}</p>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+      <button mat-flat-button color="primary" (click)="validatePromotion(promotion)" *ngIf="promotion.status === 'submitted'">
+        Validate
+      </button>
+      <button mat-flat-button color="warn" (click)="rejectPromotion(promotion)" *ngIf="promotion.status === 'submitted'">
+        Reject
+      </button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>

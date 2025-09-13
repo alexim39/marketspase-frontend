@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService } from '../../../../shared-services/src/public-api';
+import { ApiService, CampaignInterface, PromotionInterface } from '../../../../shared-services/src/public-api';
 
 
 @Injectable()
 export class MarketerService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  
+  private apiUrl = 'campaign';
 
   /**
    * Submits the user data to the backend API.
@@ -62,7 +62,6 @@ export class MarketerService {
 
   // submit promotion proofs
   submitProof(formData: FormData): Observable<any> {
-    console.log(formData)
     return this.apiService.post<any>(`campaign/promotions/submit-proof`, formData, undefined, true);
   }
 
@@ -70,5 +69,34 @@ export class MarketerService {
  /*  getProofDetails(promotionId: string): Observable<any> {
     return this.apiService.get<any>(`campaign/promotions/proof/${promotionId}`, undefined, undefined, true);
   } */
+
+
+
+
+  validatePromotion(id: string): Observable<PromotionInterface> {
+    return this.apiService.patch<PromotionInterface>(`${this.apiUrl}/${id}/validate`, {});
+  }
+
+  rejectPromotion(id: string, reason: string): Observable<PromotionInterface> {
+    return this.apiService.patch<PromotionInterface>(`${this.apiUrl}/${id}/reject`, { reason });
+  }
+
+
+
+  getCampaignById(id: string): Observable<any> {
+    return this.apiService.get<CampaignInterface>(`${this.apiUrl}/${id}`);
+  }
+
+  updateCampaignStatus(id: string, status: string): Observable<CampaignInterface> {
+    return this.apiService.patch<CampaignInterface>(`${this.apiUrl}/${id}/status`, { status });
+  }
+
+  deleteCampaign(id: string): Observable<any> {
+    return this.apiService.delete(`${this.apiUrl}/${id}`);
+  }
+
+  duplicateCampaign(id: string): Observable<CampaignInterface> {
+    return this.apiService.post<CampaignInterface>(`${this.apiUrl}/${id}/duplicate`, {});
+  }
 
 }
