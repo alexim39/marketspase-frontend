@@ -1,5 +1,5 @@
 // campaign-details.component.ts
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -14,9 +14,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CampaignInterface, DeviceService, FormatCurrencyPipe, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
-import { CampaignService } from '../../campaign/campaign.service';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { MarketerService } from '../marketer.service';
+import { PromotionDetailsDialogComponent } from './promotion-details-dialog/promotion-details-dialog.component';
 
 
 export enum CampaignStatus {
@@ -47,8 +47,7 @@ export enum CampaignStatus {
     MatDialogModule,
     MatSnackBarModule,
     ShortNumberPipe,
-    FormatCurrencyPipe,
-    CategoryPlaceholderPipe
+    CategoryPlaceholderPipe,
   ],
   templateUrl: './campaign-details.component.html',
   styleUrls: ['./campaign-details.component.scss']
@@ -57,8 +56,6 @@ export class CampaignDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private marketerService = inject(MarketerService);
-//   private promotionService = inject(PromotionService);
-  //private promotionService = inject(CampaignService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
@@ -70,6 +67,7 @@ export class CampaignDetailsComponent implements OnInit {
   
   // API base URL for media
   public readonly api = this.marketerService.api;
+
   
   // Computed signal for filtered promotions
   filteredPromotions = computed(() => {
@@ -232,39 +230,48 @@ export class CampaignDetailsComponent implements OnInit {
     this.selectedStatusFilter.set(status);
   }
 
+  // Alternative approach in campaign-details.component.ts
   viewPromotionDetails(promotion: PromotionInterface) {
-    // this.dialog.open(this.promotionDetailsDialog, {
-    //   width: '600px',
-    //   maxWidth: '90vw',
-    //   data: { promotion }
-    // });
+    const dialogRef = this.dialog.open(PromotionDetailsDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { promotion }
+    });
+    
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'validated') {
+        this.validatePromotion(promotion);
+      } else if (result === 'rejected') {
+        this.rejectPromotion(promotion);
+      }
+    });
   }
 
   validatePromotion(promotion: PromotionInterface) {
-    // this.promotionService.validatePromotion(promotion._id).subscribe({
-    //   next: (updatedPromotion) => {
-    //     this.updatePromotionInList(updatedPromotion);
-    //     this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
-    //   },
-    //   error: (err) => {
-    //     this.snackBar.open(err.message || 'Failed to validate promotion', 'Close', { duration: 3000 });
-    //   }
-    // });
+    this.marketerService.validatePromotion(promotion._id).subscribe({
+      next: (updatedPromotion) => {
+        this.updatePromotionInList(updatedPromotion);
+        this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        this.snackBar.open(err.message || 'Failed to validate promotion', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   rejectPromotion(promotion: PromotionInterface) {
     const reason = prompt('Please enter the reason for rejection:');
     if (!reason) return;
     
-    // this.promotionService.rejectPromotion(promotion._id, reason).subscribe({
-    //   next: (updatedPromotion) => {
-    //     this.updatePromotionInList(updatedPromotion);
-    //     this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
-    //   },
-    //   error: (err) => {
-    //     this.snackBar.open(err.message || 'Failed to reject promotion', 'Close', { duration: 3000 });
-    //   }
-    // });
+    this.marketerService.rejectPromotion(promotion._id, reason).subscribe({
+      next: (updatedPromotion) => {
+        this.updatePromotionInList(updatedPromotion);
+        this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        this.snackBar.open(err.message || 'Failed to reject promotion', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   private updatePromotionInList(updatedPromotion: PromotionInterface) {
@@ -277,13 +284,5 @@ export class CampaignDetailsComponent implements OnInit {
       this.campaign.set({...campaign});
     }
   }
-
-  openMediaDialog(mediaUrl: string) {
-    // Implementation for media dialog
-    this.snackBar.open('Media viewer coming soon', 'Close', { duration: 3000 });
-  }
-
-  selectedPromotion(): any {
-    
-  }
+  
 }

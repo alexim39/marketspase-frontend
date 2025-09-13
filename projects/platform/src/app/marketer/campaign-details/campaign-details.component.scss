@@ -490,11 +490,12 @@
             background-color: #f8f9fa;
           }
           
-          td {
-            padding: 1rem;
-            font-size: 0.9rem;
+          //td {
+            
             
             .promoter-cell {
+              padding: 1rem;
+              font-size: 0.9rem;
               .promoter-info {
                 display: flex;
                 align-items: center;
@@ -584,7 +585,7 @@
                 }
               }
             }
-          }
+          //}
         }
       }
     }
