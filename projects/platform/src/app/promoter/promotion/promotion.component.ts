@@ -144,8 +144,28 @@ export class PromotionComponent implements OnInit {
   openSubmitProofDialog(promotion: PromotionInterface): void {
     // Dialog logic remains here
 
-     this.dialog.open(SubmitProofDialogComponent, {
+     const dialogRef = this.dialog.open(SubmitProofDialogComponent, {
       data: { promotion: promotion } // Wrap the promotion object in the expected data structure
+    });
+
+    // Handle the dialog result
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'submitted') {
+        // Update the specific promotion's status to 'submitted'
+        this.promotions.update(promotions => 
+          promotions.map(p => 
+            p._id === promotion._id 
+              ? { ...p, status: 'submitted' as any } 
+              : p
+          )
+        );
+        
+        // Recalculate stats with the updated promotions
+        this.stats.set(this.calculateStats(this.promotions()));
+        
+        // Show success message
+        //this.snackBar.open('Proof submitted successfully!', 'Dismiss', { duration: 3000 });
+      }
     });
   }
 

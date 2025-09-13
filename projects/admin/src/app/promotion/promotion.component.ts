@@ -29,6 +29,7 @@ import { AdminService } from '../common/services/user.service';
 //import { ProofViewDialogComponent } from './proof-view-dialog/proof-view-dialog.component';
 import { CampaignInterface, PromotionInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PromotionProofComponent } from './promotion-proof/promotion-proof.component';
 
 @Component({
   selector: 'admin-campaign-promotions',
@@ -172,14 +173,14 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // this.dialog.open(ProofViewDialogComponent, {
-    //   width: '90%',
-    //   maxWidth: '800px',
-    //   data: {
-    //     promotion: promotion,
-    //     campaign: this.campaign()
-    //   }
-    // });
+    this.dialog.open(PromotionProofComponent, {
+      width: '90%',
+      maxWidth: '800px',
+      data: {
+        promotion: promotion,
+        campaign: this.campaign()
+      }
+    });
   }
 
   validatePromotion(promotion: PromotionInterface): void {
