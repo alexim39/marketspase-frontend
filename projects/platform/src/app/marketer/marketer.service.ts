@@ -32,6 +32,30 @@ export class MarketerService {
     return this.apiService.post<any>(`campaign/create`, campaignData, undefined, true);
   }
 
+  /**
+   * Submits the user data to the backend API.
+   * @post campaignObject The user data to be submitted.
+   * @returns An Observable that emits the API response or an error.
+   */
+  updateCampaign(id: string, userId: string, campaignData: FormData): Observable<any> {
+    // We send a stripped-down version of the data to the backend.
+    // const payload = {
+    //   title: campaignData.title,
+    //   caption: campaignData.caption,
+    //   link: campaignData.link,
+    //   category: campaignData.category,
+    //   budget: campaignData.budget,
+    //   startDate: campaignData.startDate,
+    //   endDate: campaignData.hasEndDate ? campaignData.endDate : null,
+    //   mediaUrl: campaignData.mediaUrl,
+    //   currency: campaignData.currency,
+    //   owner: campaignData.owner
+    // };
+    console.log('userid ',userId)
+    console.log('campaignData ',campaignData)
+    return this.apiService.put<any>(`campaign/edit/${id}/${userId}`, campaignData, undefined, true);
+  }
+
 
   /**
    * Get the form data to the backend.

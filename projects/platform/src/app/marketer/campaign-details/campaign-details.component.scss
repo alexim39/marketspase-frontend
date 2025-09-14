@@ -121,13 +121,20 @@
         }
         
         &.status-draft {
-         // background-color: rgba($gray-color, 0.1);
-         // color: $gray-color;
+         background-color: rgba(gray, 0.1);
+         color: black;
+        //  background-color: rgba($gray-color, 0.1);
+        //  color: $gray-color;
         }
         
         &.status-rejected {
           background-color: rgba($error-color, 0.1);
           color: $error-color;
+        }
+
+        &.status-exhausted {
+          background-color: rgba(#7c991b, 0.1);
+          color: #434a2c;
         }
       }
       
@@ -571,6 +578,11 @@
                 background-color: rgba($error-color, 0.1);
                 color: $error-color;
               }
+
+              &.status-exhausted {
+                background-color: rgba(#7c991b, 0.1);
+                color: #434a2c;
+              }
             }
             
             .action-buttons {
@@ -707,6 +719,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  //flex-direction: column;
   min-height: 50vh;
   
   .loading-content, .error-content {
@@ -716,7 +729,6 @@
       font-size: 3rem;
       width: 3rem;
       height: 3rem;
-      margin-bottom: 1rem;
     }
     
     h3 {
@@ -727,7 +739,7 @@
     }
     
     p {
-      margin: 0 0 1.5rem;
+      margin: 1rem;
       color: $text-secondary;
     }
   }

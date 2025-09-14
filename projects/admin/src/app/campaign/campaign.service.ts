@@ -41,8 +41,8 @@ export class CampaignService {
     return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/${id}/status`, { status }, undefined, true);
   }
 
-  updatePromotionStatus(id: string, status: string, rejectionReason: string = ''): Observable<ApiResponse<any>> {
-    return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/promotion/${id}/status`, { status, rejectionReason });
+  updatePromotionStatus(id: string, status: string, performedBy: string, rejectionReason: string = ''): Observable<ApiResponse<any>> {
+    return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/promotion/${id}/status/${performedBy}`, { status, rejectionReason });
   }
 
 }

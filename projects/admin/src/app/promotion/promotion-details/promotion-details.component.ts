@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PromotionInterface, CampaignInterface } from '../../../../../shared-services/src/public-api';
 import { PromotionProofComponent } from '../promotion-proof/promotion-proof.component';
 import { CampaignService } from '../../campaign/campaign.service';
+import { AdminService } from '../../common/services/user.service';
 
 @Component({
   selector: 'admin-promotion-details',
@@ -34,6 +35,7 @@ export class PromotionDetailsComponent implements OnInit {
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
   readonly datePipe = inject(DatePipe);
+  readonly adminService = inject(AdminService);
 
   isLoading = signal(true);
   promotion = signal<PromotionInterface | null>(null);
@@ -41,6 +43,8 @@ export class PromotionDetailsComponent implements OnInit {
   public readonly api = this.campaignService.api;
 
   ngOnInit(): void {
+    this.adminService.fetchAdmin;
+
     this.promotion.set(this.data.promotion);
     this.loadCampaignDetails();
   }
@@ -81,7 +85,7 @@ export class PromotionDetailsComponent implements OnInit {
   validatePromotion(): void {
     if (!this.promotion()) return;
 
-    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'validated')
+    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'validated', this.adminService.adminData()?._id || '')
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -105,7 +109,7 @@ export class PromotionDetailsComponent implements OnInit {
     const rejectionReason = prompt('Please enter rejection reason:');
     if (!rejectionReason) return;
 
-    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'rejected', rejectionReason)
+    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'rejected', rejectionReason, this.adminService.adminData()?._id || '')
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -129,7 +133,7 @@ export class PromotionDetailsComponent implements OnInit {
   markAsPaid(): void {
     if (!this.promotion()) return;
 
-    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'paid')
+    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'paid', this.adminService.adminData()?._id || '')
       .subscribe({
         next: (response) => {
           if (response.success) {

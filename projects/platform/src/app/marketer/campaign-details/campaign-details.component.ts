@@ -17,7 +17,8 @@ import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { MarketerService } from '../marketer.service';
 import { PromotionDetailsDialogComponent } from './promotion-details-dialog/promotion-details-dialog.component';
-
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { TruncateIDPipe } from './truncate-id.pipe';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -48,6 +49,8 @@ export enum CampaignStatus {
     MatSnackBarModule,
     ShortNumberPipe,
     CategoryPlaceholderPipe,
+    MatProgressBarModule,
+    TruncateIDPipe
   ],
   templateUrl: './campaign-details.component.html',
   styleUrls: ['./campaign-details.component.scss']
@@ -192,14 +195,6 @@ export class CampaignDetailsComponent implements OnInit {
     //     }
     //   });
     }
-  }
-
-  exportCampaignData() {
-    const campaign = this.campaign();
-    if (!campaign) return;
-    
-    // In a real implementation, this would generate a CSV or PDF
-    this.snackBar.open('Export functionality coming soon', 'Close', { duration: 3000 });
   }
 
   getInitials(name: string | undefined): string {

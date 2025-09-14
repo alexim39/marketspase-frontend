@@ -3,6 +3,7 @@ import { CampaignIndexComponent } from "./index";
 import { CreateCampaignComponent } from "./create/create-campaign.component";
 import { PromotionComponent } from "../promoter/promotion/promotion.component";
 import { CampaignDetailsComponent } from "../marketer/campaign-details/campaign-details.component";
+import { CampaignEditComponent } from "../marketer/campaign-edit/campaign-edit.component";
 
 export const CampaignRoutes: Routes = [
     {
@@ -23,6 +24,11 @@ export const CampaignRoutes: Routes = [
         component: PromotionComponent,
         title: "Promotions - List all accepted promoter promotions",
     }, 
+    {
+        path: 'edit/:id',
+        component: CampaignEditComponent,
+        title: "Campaign Edit - Edit a campaign",
+    },
     {
         path: ':id',
         component: CampaignDetailsComponent,

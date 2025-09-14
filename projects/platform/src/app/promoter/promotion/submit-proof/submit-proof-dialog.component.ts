@@ -1,4 +1,4 @@
-import { Component, Inject, signal, computed, effect } from '@angular/core';
+import { Component, Inject, signal, computed, effect, inject, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -7,9 +7,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { PromotionInterface } from '../../../../../../shared-services/src/public-api';
+import { PromotionInterface, UserInterface } from '../../../../../../shared-services/src/public-api';
 import { PromoterService } from '../../../promoter/promoter.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UserService } from '../../../common/services/user.service';
 
 export interface SubmitProofDialogData {
   promotion: PromotionInterface;
@@ -33,6 +34,10 @@ export interface SubmitProofDialogData {
   styleUrls: ['./submit-proof-dialog.component.scss']
 })
 export class SubmitProofDialogComponent {
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
+
   proofForm: FormGroup;
   
   // Using signals for state management
@@ -188,7 +193,7 @@ export class SubmitProofDialogComponent {
       formData.append('proofImages', file);
     });
 
-    this.promoterService.submitProof(formData).subscribe({
+    this.promoterService.submitProof(formData, this.user()!._id).subscribe({
       next: (response) => {
         this.isSubmitting.set(false);
         if (response.success) {

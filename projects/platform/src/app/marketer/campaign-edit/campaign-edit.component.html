@@ -1,0 +1,405 @@
+<!-- campaign-edit.component.html -->
+<div class="campaign-edit-container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <button class="back-btn" mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Campaign
+        </button>
+        <div class="header-title">
+          <h1>Edit Campaign</h1>
+          <p>Update your campaign details and settings</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline" mat-raised-button (click)="cancelEdit()">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+          <button class="btn btn-primary" mat-flat-button (click)="saveCampaign()" [disabled]="!campaignForm.valid || isSaving()">
+            <mat-icon>save</mat-icon>
+            {{ isSaving() ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+   @if (campaign() && campaignForm) {
+  <main class="main-content">
+    <div class="container">
+      <form [formGroup]="campaignForm" class="edit-form">
+        <!-- Basic Information Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <h2>Basic Information</h2>
+            <p>Set up your campaign title, description, and category</p>
+          </div>
+          
+          <div class="card-content">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Campaign Title</mat-label>
+                <input matInput formControlName="title" placeholder="Enter a compelling title">
+                @if (campaignForm.get('title')?.hasError('required')) {
+                  <mat-error>
+                  Title is required
+                </mat-error>
+                }
+                @if (campaignForm.get('title')?.hasError('minlength')) {
+                  <mat-error>
+                    Title must be at least 5 characters
+                  </mat-error>
+                }
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Caption/Description</mat-label>
+                <textarea matInput formControlName="caption" rows="3" placeholder="Describe your campaign"></textarea>
+                <mat-hint>{{ campaignForm.get('caption')?.value?.length || 0 }}/250 characters</mat-hint>
+                @if (campaignForm.get('caption')?.hasError('maxlength')) {
+                  <mat-error>
+                    Description cannot exceed 250 characters
+                  </mat-error>
+                }
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Category</mat-label>
+                <mat-select formControlName="category">
+                   @for (category of categories; track category) {
+                    <mat-option [value]="category.value">
+                      {{ category.label }}
+                    </mat-option>
+                   }
+                </mat-select>
+                @if (campaignForm.get('category')?.hasError('required')) {
+                  <mat-error>
+                    Category is required
+                  </mat-error>
+                }
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Link (Optional)</mat-label>
+                <input matInput formControlName="link" placeholder="https://example.com">
+                <mat-icon matSuffix>link</mat-icon>
+                @if (campaignForm.get('link')?.hasError('pattern')) {
+                  <mat-error>
+                    Please enter a valid URL
+                  </mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Media Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <h2>Media</h2>
+            <p>Upload image or video for promoters to share</p>
+          </div>
+          
+          <div class="card-content">
+            <div class="form-row">
+              <div class="media-type-selector">
+                <mat-button-toggle-group formControlName="mediaType" aria-label="Media Type">
+                  <mat-button-toggle value="image">
+                    <mat-icon>image</mat-icon> Image
+                  </mat-button-toggle>
+                  <mat-button-toggle value="video">
+                    <mat-icon>videocam</mat-icon> Video
+                  </mat-button-toggle>
+                </mat-button-toggle-group>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="media-upload-container">
+                @if (campaignForm.get('mediaType')?.value === 'image') {
+                  <div class="image-upload-wrapper">
+                    @if (previewImageUrl()) {
+                      <div class="image-preview">
+                        <img [src]="previewImageUrl()" alt="Campaign media preview">
+                        <button type="button" class="remove-image-btn" mat-icon-button (click)="removeMedia()">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="upload-placeholder" (click)="fileInput.click()">
+                        <mat-icon>cloud_upload</mat-icon>
+                        <p>Click to upload image</p>
+                        <span>JPG, PNG or GIF (Max 5MB)</span>
+                      </div>
+                    }
+                    <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+                  </div>
+                }
+                
+                @if (campaignForm.get('mediaType')?.value === 'video') {
+                  <div class="video-upload-wrapper">
+                    @if (previewVideoUrl()) {
+                      <div class="video-preview">
+                        <video controls>
+                          <source [src]="previewVideoUrl()" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                        <button type="button" class="remove-video-btn" mat-icon-button (click)="removeMedia()">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="upload-placeholder" (click)="fileInput.click()">
+                        <mat-icon>cloud_upload</mat-icon>
+                        <p>Click to upload video</p>
+                        <span>MP4 (Max 20MB)</span>
+                      </div>
+                    }
+                    <input #fileInput type="file" accept="video/*" hidden (change)="onFileSelected($event)">
+                  </div>
+                }
+                
+                @if (uploadProgress() > 0 && uploadProgress() < 100) {
+                  <mat-progress-bar mode="determinate" [value]="uploadProgress()" class="upload-progress"></mat-progress-bar>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget & Promotion Settings Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <h2>Budget & Promotion Settings</h2>
+            <p>Set your budget and promotion requirements</p>
+          </div>
+          
+          <div class="card-content">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-third">
+                <mat-label>Total Budget (₦)</mat-label>
+                <input matInput type="number" formControlName="budget" min="1000" step="100" (change)="calculateMaxPromoters()">
+                <span matPrefix>₦&nbsp;</span>
+                @if (campaignForm.get('budget')?.hasError('required')) {
+                    <mat-error>
+                    Budget is required
+                  </mat-error>
+                }
+                
+                @if (campaignForm.get('budget')?.hasError('min')) {
+                  <mat-error>
+                    Minimum budget is ₦1,000
+                  </mat-error>
+                }
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="form-field-third">
+                <mat-label>Payout Per Promotion (₦)</mat-label>
+                <input matInput type="number" formControlName="payoutPerPromotion" min="100" step="50" (change)="calculateMaxPromoters()">
+                <span matPrefix>₦&nbsp;</span>
+                @if (campaignForm.get('payoutPerPromotion')?.hasError('required')) {
+                  <mat-error>
+                    Payout is required
+                  </mat-error>
+                }
+                @if (campaignForm.get('payoutPerPromotion')?.hasError('min')) {
+                  <mat-error>
+                    Minimum payout is ₦100
+                  </mat-error>
+                }
+              </mat-form-field>
+              @if (campaignForm.get('maxPromoters')) {
+                <mat-form-field appearance="outline" class="form-field-third">
+                  <mat-label>Max Promoters</mat-label>
+                  <input matInput type="number" formControlName="maxPromoters" min="1" [max]="campaignForm.get('maxPromoters')?.value" readonly>
+                  <mat-hint>Calculated based on budget and payout</mat-hint>
+                </mat-form-field>
+              }
+              
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Minimum Views Per Promotion</mat-label>
+                <input matInput type="number" formControlName="minViewsPerPromotion" min="25" value="25">
+                @if (campaignForm.get('minViewsPerPromotion')?.hasError('required')) {
+                  <mat-error>
+                    Minimum views is required
+                  </mat-error>
+                }
+                @if (campaignForm.get('minViewsPerPromotion')?.hasError('min')) {
+                  <mat-error>
+                    Minimum 25 views required
+                  </mat-error>
+                }
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Campaign Type</mat-label>
+                <mat-select formControlName="campaignType">
+                  <mat-option value="standard">Standard</mat-option>
+                  <mat-option value="premium">Premium</mat-option>
+                  <mat-option value="boost">Boost</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row">
+              <mat-slide-toggle formControlName="enableTarget" color="primary">
+                Enable Geographic Targeting
+              </mat-slide-toggle>
+              <span class="toggle-hint">Limit promotions to specific locations</span>
+            </div>
+            
+            @if (campaignForm.get('enableTarget')?.value) {
+              <div class="form-row targeting-options">
+                <!-- Update the mat-autocomplete section in campaign-edit.component.html -->
+                <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Target Locations</mat-label>
+                <mat-chip-grid #chipGrid aria-label="Target locations">
+                    @for (location of targetLocations(); track location) {
+                    <mat-chip-row (removed)="removeLocation(location)">
+                        {{ location }}
+                        <button matChipRemove [attr.aria-label]="'remove ' + location">
+                        <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                    }
+                </mat-chip-grid>
+                <input 
+                    placeholder="Add location..." 
+                    [matChipInputFor]="chipGrid" 
+                    [matAutocomplete]="auto"
+                    [formControl]="locationInputControl"
+                    (matChipInputTokenEnd)="addLocation($event)">
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addLocationFromAutocomplete($event)">
+                    <mat-option *ngFor="let location of filteredLocationSuggestions()" [value]="location">
+                    {{ location }}
+                    </mat-option>
+                </mat-autocomplete>
+                </mat-form-field>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Schedule Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <h2>Schedule</h2>
+            <p>Set when your campaign starts and ends</p>
+          </div>
+          
+          <div class="card-content">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+                @if (campaignForm.get('startDate')?.hasError('required')) {
+                  <mat-error>
+                    Start date is required
+                  </mat-error>
+                }
+              </mat-form-field>
+              
+              @if (campaignForm.get('hasEndDate')?.value) {
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>End Date</mat-label>
+                <input matInput [matDatepicker]="endPicker" formControlName="endDate" [min]="campaignForm.get('startDate')?.value">
+                <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+                @if (campaignForm.get('endDate')?.hasError('required')) {
+                  <mat-error>
+                    End date is required
+                  </mat-error>
+                }
+              </mat-form-field>
+              }
+            </div>
+            
+            <div class="form-row">
+              <mat-slide-toggle formControlName="hasEndDate" color="primary">
+                Set End Date
+              </mat-slide-toggle>
+              <span class="toggle-hint">If disabled, campaign will run until budget is exhausted</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements Card -->
+        <div class="form-card">
+          <div class="card-header">
+            <h2>Promoter Requirements</h2>
+            <p>Set specific requirements for promoters</p>
+          </div>
+          
+          <div class="card-content">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-full">
+                <mat-label>Additional Requirements (Optional)</mat-label>
+                <textarea matInput formControlName="requirements" rows="3" 
+                          placeholder="List any specific requirements for promoters..."></textarea>
+                <mat-hint>Separate requirements with commas</mat-hint>
+              </mat-form-field>
+            </div>
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Minimum Promoter Rating</mat-label>
+                <mat-select formControlName="minRating">
+                  <mat-option value="0">Any rating</mat-option>
+                  <mat-option value="3">3 stars & above</mat-option>
+                  <mat-option value="4">4 stars & above</mat-option>
+                  <mat-option value="4.5">4.5 stars & above</mat-option>
+                </mat-select>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="form-field-half">
+                <mat-label>Campaign Priority</mat-label>
+                <mat-select formControlName="priority">
+                  <mat-option value="low">Low</mat-option>
+                  <mat-option value="medium">Medium</mat-option>
+                  <mat-option value="high">High</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+  }
+
+  <!-- Loading State -->
+   @if (isLoading()) {
+    <div class="loading-container">
+      <div class="loading-content">
+        <mat-progress-bar mode="indeterminate"/>
+        <p>Loading campaign data...</p>
+      </div>
+    </div>
+   }
+
+
+  <!-- Error State -->
+   @if (error()) {
+    <div class="error-container">
+      <div class="error-content">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Failed to load campaign</h3>
+        <p>{{ error() }}</p>
+        <button class="btn btn-primary" (click)="loadCampaign()">Try Again</button>
+      </div>
+    </div>
+   }
+  
+</div>

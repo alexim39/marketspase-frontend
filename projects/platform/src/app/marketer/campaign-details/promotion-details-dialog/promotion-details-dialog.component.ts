@@ -23,14 +23,19 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
           <div class="avatar-large">{{getInitials(data.promotion.promoter.displayName)}}</div>
           <div class="promoter-details-large">
             <span class="promoter-name">{{data.promotion.promoter.displayName || 'Unknown'}}</span>
-            <span class="promoter-contact" *ngIf="data.promotion.promoter.email">
-              <mat-icon>email</mat-icon>
-              {{data.promotion.promoter.email | maskEmail}}
-            </span>
-            <span class="promoter-rating" *ngIf="data.promotion.promoter?.rating">
-              <mat-icon>star</mat-icon>
-              Rating: {{data.promotion.promoter.rating | number:'1.1-1'}}
-            </span>
+            @if (data.promotion.promoter.email) {
+              <span class="promoter-contact" >
+                <mat-icon>email</mat-icon>
+                {{data.promotion.promoter.email | maskEmail}}
+              </span>
+            }
+            @if (data.promotion.promoter.rating) { 
+              <span class="promoter-rating">
+                <mat-icon>star</mat-icon>
+                Rating: {{data.promotion.promoter.rating | number:'1.1-1'}}
+              </span>
+            }
+            
           </div>
         </div>
       </div>
@@ -56,9 +61,12 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
             <div class="step-content">
               <span class="step-title">Submitted</span>
               <br>
-              <span class="step-time" *ngIf="data.promotion.submittedAt">
-                {{data.promotion.submittedAt | date:'medium'}}
-              </span>
+               @if (data.promotion.submittedAt) { 
+                 <span class="step-time">
+                  {{data.promotion.submittedAt | date:'medium'}}
+                </span>
+               }
+             
             </div>
           </div>
           
@@ -69,9 +77,12 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
             <div class="step-content">
               <span class="step-title">Validated</span>
               <br>
-              <span class="step-time" *ngIf="data.promotion.validatedAt">
-                {{data.promotion.validatedAt | date:'medium'}}
-              </span>
+               @if (data.promotion.validatedAt) { 
+                <span class="step-time">
+                  {{data.promotion.validatedAt | date:'medium'}}
+                </span>
+               }
+              
             </div>
           </div>
           
@@ -82,41 +93,61 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
             <div class="step-content">
               <span class="step-title">Paid</span>
               <br>
-              <span class="step-time" *ngIf="data.promotion.paidAt">
-                {{data.promotion.paidAt | date:'medium'}}
-              </span>
+               @if (data.promotion.paidAt) {
+                <span class="step-time" >
+                  {{data.promotion.paidAt | date:'medium'}}
+                </span>
+              }
+              
             </div>
           </div>
         </div>
       </div>
       
-      <div class="dialog-section" *ngIf="data.promotion.proofMedia && data.promotion.proofMedia.length > 0">
-        <h3>Proof Media</h3>
-        <div class="proof-media-grid">
-          <div class="proof-media-item" *ngFor="let media of data.promotion.proofMedia; let i = index">
-            <img [src]="api + media" [alt]="'Proof ' + (i + 1)" (click)="openMediaDialog(media)" class="proof-image">
+       @if (data.promotion.proofMedia && data.promotion.proofMedia.length > 0) {
+        <div class="dialog-section">
+          <h3>Proof Media</h3>
+          <div class="proof-media-grid">
+            @for (media of data.promotion.proofMedia; track media; let i = $index) {
+              <div class="proof-media-item">
+                <img [src]="api + media" [alt]="'Proof ' + (i + 1)" (click)="openMediaDialog(media)" class="proof-image">
+              </div>
+            }
           </div>
         </div>
-      </div>
+       }
       
-      <div class="dialog-section" *ngIf="data.promotion.rejectionReason">
-        <h3>Rejection Reason</h3>
-        <p class="rejection-reason">{{data.promotion.rejectionReason}}</p>
-      </div>
       
-      <div class="dialog-section" *ngIf="data.promotion.notes">
-        <h3>Notes</h3>
-        <p class="promotion-notes">{{data.promotion.notes}}</p>
-      </div>
+       @if (data.promotion.rejectionReason) { 
+        <div class="dialog-section">
+          <h3>Rejection Reason</h3>
+          <p class="rejection-reason">{{data.promotion.rejectionReason}}</p>
+        </div>
+       }
+      
+      
+       @if (data.promotion.notes) {
+        <div class="dialog-section">
+          <h3>Notes</h3>
+          <p class="promotion-notes">{{data.promotion.notes}}</p>
+        </div>
+       }
+      
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Close</button>
-      <button mat-flat-button color="primary" (click)="validatePromotion()" *ngIf="data.promotion.status === 'submitted'">
-        Validate
-      </button>
-      <button mat-flat-button color="warn" (click)="rejectPromotion()" *ngIf="data.promotion.status === 'submitted'">
-        Reject
-      </button>
+      <!--  @if (data.promotion.status === 'submitted') {
+        <button mat-flat-button color="primary" (click)="validatePromotion()">
+          Validate
+        </button>
+       } -->
+      
+      <!--  @if (data.promotion.status === 'submitted') {
+        <button mat-flat-button color="warn" (click)="rejectPromotion()">
+          Reject
+        </button>
+       } -->
+      
     </mat-dialog-actions>
   </div>
   `,

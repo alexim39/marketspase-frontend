@@ -105,6 +105,10 @@ export interface SocialProvider {
             <mat-icon class="feature-icon">payment</mat-icon>
             <span>Automated payments</span>
           </div>
+          <div class="feature-item">
+            <mat-icon class="feature-icon">smart_toy</mat-icon>
+            <span>AI automated verification</span>
+          </div>
         </div>
       </div>
 

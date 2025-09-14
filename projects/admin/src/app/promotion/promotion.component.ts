@@ -73,6 +73,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   promotions = signal<PromotionInterface[]>([]);
   statusFilter = signal<string>('all');
 
+  
   // Table properties
   displayedColumns: string[] = ['promoter', 'upi', 'status', 'views', 'submitted', 'validated', 'paid', 'actions'];
   dataSource: MatTableDataSource<PromotionInterface> = new MatTableDataSource<PromotionInterface>([]);
@@ -81,6 +82,9 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
+    this.adminService.fetchAdmin;
+
+
     this.loadCampaignPromotions();
   }
 
@@ -184,7 +188,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   }
 
   validatePromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'validated')
+      this.campaignService.updatePromotionStatus(promotion._id, 'validated', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -203,7 +207,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   }
 
   rejectPromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'rejected')
+      this.campaignService.updatePromotionStatus(promotion._id, 'rejected', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -222,7 +226,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   }
 
   markAsPaid(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'paid')
+      this.campaignService.updatePromotionStatus(promotion._id, 'paid', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -241,7 +245,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   }
 
   reopenPromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'submitted')
+      this.campaignService.updatePromotionStatus(promotion._id, 'submitted', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

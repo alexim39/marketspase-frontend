@@ -28,8 +28,8 @@ export class PromoterService {
   }
 
   // Submit promotion proofs
-  submitProof(formData: FormData): Observable<any> {
-    return this.apiService.post<any>(`campaign/promotions/submit-proof`, formData, undefined, true);
+  submitProof(formData: FormData, userId: string): Observable<any> {
+    return this.apiService.post<any>(`campaign/promotions/submit-proof/${userId}`, formData, undefined, true);
   }
 
   /**

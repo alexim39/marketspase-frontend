@@ -13,11 +13,11 @@
           <p>Monitor performance and manage your campaign</p>
         </div>
         <div class="header-actions">
-          <button class="btn btn-outline" mat-raised-button (click)="exportCampaignData()">
-            <mat-icon>file_download</mat-icon>
+          <!-- <button class="btn btn-primary" mat-flat-button>
+            <mat-icon>edit</mat-icon>
             Export Data
-          </button>
-          <button class="btn btn-primary" mat-flat-button (click)="editCampaign()">
+          </button> -->
+          <button class="btn btn-outline" mat-raised-button (click)="editCampaign()">
             <mat-icon>edit</mat-icon>
             Edit Campaign
           </button>
@@ -27,7 +27,8 @@
   </header>
 
   <!-- Main Content -->
-  <main class="main-content" *ngIf="campaign(); let campaign">
+  @if (campaign(); as campaign) {
+  <main class="main-content">
     <div class="container">
       <!-- Campaign Overview Card -->
       <div class="overview-card">
@@ -36,7 +37,7 @@
             <span class="status-badge" [class]="'status-' + campaign.status">
               {{campaign.status | titlecase}}
             </span>
-            <span class="campaign-id">ID: {{campaign._id}}</span>
+            <span class="campaign-id">Campaign ID: {{campaign._id | truncateID }}</span>
           </div>
           <div class="campaign-meta">
             <span class="created-date">
@@ -51,10 +52,10 @@
                 <mat-icon>edit</mat-icon>
                 Edit Campaign
               </button>
-              <button mat-menu-item (click)="duplicateCampaign()">
+             <!--  <button mat-menu-item (click)="duplicateCampaign()">
                 <mat-icon>content_copy</mat-icon>
                 Duplicate
-              </button>
+              </button> -->
               <button mat-menu-item (click)="toggleCampaignStatus()">
                 <mat-icon>{{campaign.status === 'active' ? 'pause' : 'play_arrow'}}</mat-icon>
                 {{campaign.status === 'active' ? 'Pause' : 'Resume'}}
@@ -128,11 +129,13 @@
                 </div>
               </div>
             </div>
+            @if (campaign.link) {
+              <div class="campaign-link">
+                <mat-icon>link</mat-icon>
+                <a [href]="campaign.link" target="_blank" class="link-text">{{campaign.link}}</a>
+              </div>
+            }
             
-            <div class="campaign-link" *ngIf="campaign.link">
-              <mat-icon>link</mat-icon>
-              <a [href]="campaign.link" target="_blank" class="link-text">{{campaign.link}}</a>
-            </div>
           </div>
         </div>
       </div>
@@ -166,7 +169,7 @@
             <div class="metric-content">
               <div class="metric-value">{{getTotalViews(campaign.promotions) | shortNumber}}</div>
               <div class="metric-label">Total Views</div>
-              <div class="metric-subtext">Estimated reach: {{ (35 * campaign.maxPromoters ) | shortNumber}}</div>
+              <div class="metric-subtext">Estimated reach: {{ (campaign.estimatedViews ) | shortNumber}}</div>
             </div>
           </div>
           
@@ -231,7 +234,8 @@
         </div>
         
         <div class="table-container">
-          <table class="promotions-table" *ngIf="filteredPromotions().length > 0; else noPromotions">
+          @if (filteredPromotions().length > 0) {
+          <table class="promotions-table">
             <thead>
               <tr>
                 <th>Promoter</th>
@@ -243,16 +247,19 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let promotion of filteredPromotions()">
+              @for (promotion of filteredPromotions(); track promotion) {
+              <tr>
                 <td class="promoter-cell">
                   <div class="promoter-info">
                     <div class="avatar">{{getInitials(promotion.promoter.displayName)}}</div>
                     <div class="promoter-details">
                       <span class="promoter-name">{{promotion.promoter.displayName || 'Unknown'}}</span>
-                      <span class="promoter-rating" *ngIf="promotion.promoter?.rating">
+                     @if (promotion.promoter.rating) {
+                       <span class="promoter-rating">
                         <mat-icon>star</mat-icon>
                         {{promotion.promoter.rating | number:'1.1-1'}}
                       </span>
+                     }
                     </div>
                   </div>
                 </td>
@@ -269,63 +276,78 @@
                     <button mat-button class="icon-btn" (click)="viewPromotionDetails(promotion)" matTooltip="View Details">
                       <mat-icon>visibility</mat-icon>
                     </button>
-                    <button mat-button class="icon-btn" (click)="validatePromotion(promotion)" *ngIf="promotion.status === 'submitted'" matTooltip="Validate">
-                      <mat-icon>check_circle</mat-icon>
-                    </button>
-                    <button mat-button class="icon-btn" (click)="rejectPromotion(promotion)" *ngIf="promotion.status === 'submitted'" matTooltip="Reject">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
+                   <!--  @if (promotion.status === 'submitted') {
+                      <button mat-button class="icon-btn" (click)="validatePromotion(promotion)" matTooltip="Validate">
+                        <mat-icon>check_circle</mat-icon>
+                      </button>
+                    } -->
+                   <!--  @if (promotion.status === 'submitted') {
+                      <button mat-button class="icon-btn" (click)="rejectPromotion(promotion)" matTooltip="Reject">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    } -->
                   </div>
                 </td>
               </tr>
+              }
             </tbody>
           </table>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>assignment</mat-icon>
+            <h4>No promotions yet</h4>
+            <p>This campaign hasn't been picked up by any promoters.</p>
+          </div>
+        }
           
-          <ng-template #noPromotions>
-            <div class="empty-state">
-              <mat-icon>assignment</mat-icon>
-              <h4>No promotions yet</h4>
-              <p>This campaign hasn't been picked up by any promoters.</p>
-            </div>
-          </ng-template>
+          
         </div>
       </div>
 
       <!-- Activity Log -->
-      <div class="activity-section" *ngIf="campaign.activityLog && campaign.activityLog.length > 0">
-        <h3 class="section-title">Activity Log</h3>
-        
-        <div class="timeline">
-          <div class="timeline-item" *ngFor="let log of campaign.activityLog">
-            <div class="timeline-marker"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <span class="log-action">{{log.action}}</span>
-                <span class="log-time">{{log.timestamp | date:'medium'}}</span>
+       @if (campaign.activityLog && campaign.activityLog.length > 0) {
+        <div class="activity-section">
+          <h3 class="section-title">Activity Log</h3>
+          <div class="timeline">
+            @for (log of campaign.activityLog; track log) {
+              <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <span class="log-action">{{log.action}}</span>
+                    <span class="log-time">{{log.timestamp | date:'medium'}}</span>
+                  </div>
+                  <p class="log-details">{{log.details}}</p>
+                </div>
               </div>
-              <p class="log-details">{{log.details}}</p>
-            </div>
+            }
           </div>
         </div>
-      </div>
+       }
     </div>
   </main>
+  }
 
   <!-- Loading State -->
-  <div class="loading-container" *ngIf="isLoading()">
-    <div class="loading-content">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading campaign details...</p>
+   @if (isLoading()) {
+    <div class="loading-container">
+      <div class="loading-content">
+        <mat-progress-bar mode="indeterminate"/>
+        <p>Loading campaign details...</p>
+      </div>
     </div>
-  </div>
+   }
 
   <!-- Error State -->
-  <div class="error-container" *ngIf="error()">
-    <div class="error-content">
-      <mat-icon>error_outline</mat-icon>
-      <h3>Failed to load campaign</h3>
-      <p>{{error()}}</p>
-      <button class="btn btn-primary" (click)="loadCampaign()">Try Again</button>
+   @if (error()) {
+    <div class="error-container">
+      <div class="error-content">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Failed to load campaign</h3>
+        <p>{{error()}}</p>
+        <button class="btn btn-primary" (click)="loadCampaign()">Try Again</button>
+      </div>
     </div>
-  </div>
+   }
+
 </div>

@@ -78,6 +78,8 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   promotionsDataSource: MatTableDataSource<PromotionInterface> = new MatTableDataSource<PromotionInterface>([]);
 
   ngOnInit(): void {
+    this.adminService.fetchAdmin;
+
     this.loadCampaignDetails();
   }
 
@@ -163,7 +165,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   validatePromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'validated')
+      this.campaignService.updatePromotionStatus(promotion._id, 'validated', this.adminService.adminData()?._id || '')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -182,7 +184,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   rejectPromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'rejected')
+      this.campaignService.updatePromotionStatus(promotion._id, 'rejected', this.adminService.adminData()?._id || '')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -201,7 +203,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   markAsPaid(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'paid')
+      this.campaignService.updatePromotionStatus(promotion._id, 'paid', this.adminService.adminData()?._id || '')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {

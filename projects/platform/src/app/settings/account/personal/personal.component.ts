@@ -20,22 +20,10 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COUNTRIES } from '../../../common/utils/countries';
+import { NIGERIAN_STATES } from '../../../common/utils/nigerian-states';
 import { ProfileService } from '../profile.service';
-import { Subject, Subscription, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-
-// Nigerian states
-const NIGERIAN_STATES = [
-  'Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi',
-  'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta',
-  'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'Gombe',
-  'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina',
-  'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa',
-  'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo',
-  'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe',
-  'Zamfara', 'Federal Capital Territory'
-];
 
 @Component({
   selector: 'async-personal-infor',

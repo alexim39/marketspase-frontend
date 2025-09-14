@@ -83,7 +83,7 @@ export interface CampaignInterface {
   priority: 'low' | 'medium' | 'high';
 
   updatedAt: string;
-  //spentBudget: number; // This is a key from your provided object
+  spentBudget: number; // This is a key from your provided object
   paidPromotions: number;
   minViewsPerPromotion: number;
   validatedPromotions: number;
