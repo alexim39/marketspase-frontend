@@ -20,4 +20,9 @@ export interface PromotionInterface {
   notes?: string;
   upi: number;
   isDownloaded: boolean;
+
+
+  // check
+  activityLog: any;
+  targetAudience: any;
 }

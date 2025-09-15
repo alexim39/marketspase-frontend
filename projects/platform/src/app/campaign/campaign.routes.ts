@@ -4,6 +4,7 @@ import { CreateCampaignComponent } from "./create/create-campaign.component";
 import { PromotionComponent } from "../promoter/promotion/promotion.component";
 import { CampaignDetailsComponent } from "../marketer/campaign-details/campaign-details.component";
 import { CampaignEditComponent } from "../marketer/campaign-edit/campaign-edit.component";
+import { PromotionDetailComponent } from "../promoter/promotion/promotion-details/promotion-detail.component";
 
 export const CampaignRoutes: Routes = [
     {
@@ -33,6 +34,11 @@ export const CampaignRoutes: Routes = [
         path: ':id',
         component: CampaignDetailsComponent,
         title: "Campaign Details - List all accepted promoter promotions",
+    },
+    {
+        path: 'my-promotions/:id',
+        component: PromotionDetailComponent,
+        title: "Promotion Details - List all accepted promoter promotions",
     },
     
 ]

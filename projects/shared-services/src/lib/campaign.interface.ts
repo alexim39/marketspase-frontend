@@ -90,6 +90,10 @@ export interface CampaignInterface {
   totalPromotions: number;
 
   promotions: PromotionInterface[]
+
+
+  // check
+  targetAudience: any;
 }
 
 

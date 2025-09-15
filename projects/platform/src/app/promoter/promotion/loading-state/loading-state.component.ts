@@ -19,6 +19,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
       align-items: center;
       justify-content: center;
       padding: 40px 0;
+      mat-progress-bar {
+        width: 20em;
+      }
       p {
         margin-top: 16px;
         color: #777;

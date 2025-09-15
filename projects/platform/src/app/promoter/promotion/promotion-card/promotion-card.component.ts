@@ -14,6 +14,7 @@ import { takeWhile } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-promotion-card',
@@ -43,6 +44,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private timeDifferenceInMilliseconds = 0; // New property to store the time difference
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   // Inject HttpClient
   private http = inject(HttpClient);
@@ -235,6 +237,15 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     };
     
     return categoryIcons[category] || 'category';
+  }
+
+
+  viewDetails() {
+    console.log('clicked')
+    const promotion = this.promotion;
+    if (promotion) {
+      this.router.navigate(['/dashboard/campaigns/my-promotions', promotion._id]);
+    }
   }
 
 }

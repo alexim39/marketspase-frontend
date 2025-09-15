@@ -16,6 +16,15 @@ export class PromoterService {
     return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true);
   }
 
+  /**
+   * Get campaigns by status (e.g., active, paused, completed).
+   * @param id The campaign status to filter by.
+   * @returns An observable of the filtered campaigns.
+   */
+  getPromotionById(id: string, userId: string): Observable<any> {
+    return this.apiService.get<any>(`promotion/${id}/${userId}`, undefined, undefined, true);
+  }
+
   // Promoter accept a campaign (Note: This might be the same as the download function)
   // Re-evaluating this based on your new controller, this function's logic might change.
   acceptCampaign(campaignId: string, userId: string): Observable<any> {
