@@ -21,7 +21,7 @@ export const CampaignRoutes: Routes = [
         title: "Campaign Creation - Create New Campaign",
     }, 
     {
-        path: 'my-promotions',
+        path: 'promotions',
         component: PromotionComponent,
         title: "Promotions - List all accepted promoter promotions",
     }, 
@@ -36,7 +36,7 @@ export const CampaignRoutes: Routes = [
         title: "Campaign Details - List all accepted promoter promotions",
     },
     {
-        path: 'my-promotions/:id',
+        path: 'promotions/:id',
         component: PromotionDetailComponent,
         title: "Promotion Details - List all accepted promoter promotions",
     },

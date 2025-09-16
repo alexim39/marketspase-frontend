@@ -14,7 +14,7 @@ export const TransactionsRoutes: Routes = [
         title: "Withfrawl Transanction - Request fund withdrawal",
     }, 
     // {
-    //     path: 'my-promotions',
+    //     path: 'promotions',
     //     component: PromotionComponent,
     //     title: "Promotions - List all accepted promoter promotions",
     // }, 

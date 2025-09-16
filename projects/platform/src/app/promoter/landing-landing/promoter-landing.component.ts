@@ -243,6 +243,6 @@ export class PromoterLandingComponent implements OnInit {
   }
 
   viewPromotions() {
-    this.router.navigate(['/dashboard/campaigns/my-promotions']);
+    this.router.navigate(['/dashboard/campaigns/promotions']);
   }
 }

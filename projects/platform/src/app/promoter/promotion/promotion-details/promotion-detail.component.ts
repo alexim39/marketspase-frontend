@@ -241,7 +241,7 @@ export class PromotionDetailComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/dashboard/campaigns/my-promotions']);
+    this.router.navigate(['/dashboard/campaigns/promotions']);
   }
 
   getProgressColor(percentage: number): string {

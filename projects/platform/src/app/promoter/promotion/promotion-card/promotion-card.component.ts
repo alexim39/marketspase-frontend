@@ -244,7 +244,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     console.log('clicked')
     const promotion = this.promotion;
     if (promotion) {
-      this.router.navigate(['/dashboard/campaigns/my-promotions', promotion._id]);
+      this.router.navigate(['/dashboard/campaigns/promotions', promotion._id]);
     }
   }
 

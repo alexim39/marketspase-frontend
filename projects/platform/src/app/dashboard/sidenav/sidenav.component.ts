@@ -154,7 +154,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   navigationItems = computed(() => {
     const baseItems = [
       { icon: 'dashboard', label: 'Dashboard', route: '/dashboard' },
-      { icon: 'notifications', label: 'Notifications', route: '/notifications', badge: this.unreadNotifications() }
+      // { icon: 'notifications', label: 'Notifications', route: '/notifications', badge: this.unreadNotifications() }
     ];
 
     if (this.user()?.role === 'marketer') {
@@ -212,7 +212,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   public viewMyPromotion(): void {
     //this.snackBar.open('Create Campaign feature coming soon!', 'OK', { duration: 3000 });
-    this.router.navigate(['/dashboard/campaigns/my-promotions']);
+    this.router.navigate(['/dashboard/campaigns/promotions']);
   }
   
   public viewAllCampaigns(): void {
