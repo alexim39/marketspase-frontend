@@ -1,0 +1,74 @@
+/* Campaign & Promotion Summary Card Styles */
+.campaigns-summary-card {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .summary-title-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .summary-icon {
+        color: #673ab7;
+      }
+      .summary-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+      }
+    }
+    .view-all-btn {
+      font-size: 12px;
+      height: 32px;
+    }
+  }
+
+  .summary-divider {
+    margin: 12px 0;
+  }
+
+  .summary-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
+    .metric-summary {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .metric-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #eceff1;
+        .metric-icon {
+          font-size: 20px;
+        }
+      }
+      .metric-info {
+        display: flex;
+        flex-direction: column;
+        .metric-value {
+          font-size: 18px;
+          font-weight: 600;
+        }
+        .metric-label {
+          font-size: 12px;
+          color: #757575;
+        }
+      }
+    }
+  }
+}

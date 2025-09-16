@@ -29,73 +29,20 @@
             <h1 class="logo-text">MarketSpase</h1>
           </div>
         </div>
-        }
-
-      <div class="profile-card">
-        <div class="profile-info">
-          <img [src]="user()!.avatar" class="profile-avatar" [alt]="user()!.displayName">
-          <div class="profile-details">
-            <h3 class="profile-name">{{user()!.displayName}}</h3>
-            <div class="profile-meta">
-              <div class="role-chip" [class]="user()!.role">
-                {{user()?.role | titlecase}}
-              </div>
-              @if (user()?.verified) {
-                <mat-icon class="verified-badge" matTooltip="Verified Account">verified</mat-icon>
-              }
-            </div>
-          </div>
-        </div>
-        <button mat-icon-button class="switch-user-btn" (click)="switchUser(user()!.role || 'promoter')" title="Switch user">
-          <mat-icon>swap_horiz</mat-icon>
-        </button>
-      </div>
-
-      <mat-nav-list class="nav-list">
-      @for (item of navigationItems(); track item) {
-        <mat-list-item [routerLink]="item.route" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{exact: true}"  (click)="isMobile() && sidenav.close()">
-          <mat-icon matListItemIcon>{{item.icon}}</mat-icon>
-          <span matListItemTitle>{{item.label}}</span>
-        <!-- @if (item.badge) {
-          <mat-icon matListItemMeta class="badge-icon" [matBadge]="item.badge" matBadgeColor="warn" matBadgeSize="small"/>
-        } -->
-        </mat-list-item>
-      }
-      </mat-nav-list>
-
-      @if (user()!.role === 'marketer') {
-        <div class="quick-actions">
-          <h4 class="section-title">Quick Actions</h4>
-          <button mat-stroked-button class="action-btn" (click)="createCampaign(); isMobile() && sidenav.close()">
-            <mat-icon>add_circle_outline</mat-icon>
-            Create Campaign
-          </button>
-          <button mat-stroked-button class="action-btn" (click)="fundWallet(); isMobile() && sidenav.close()">
-            <mat-icon>account_balance_wallet</mat-icon>
-            Fund Wallet
-          </button>
-        </div>
-      }
-      @if (user()!.role === 'promoter') {
-        <div class="quick-actions">
-          <h4 class="section-title">Quick Actions</h4>
-          <button mat-stroked-button class="action-btn" (click)="viewPromotion(); isMobile() && sidenav.close()">
-            <mat-icon>campaign</mat-icon>
-            View Promotion
-          </button>
-          <button mat-stroked-button class="action-btn" (click)="viewMyPromotion(); isMobile() && sidenav.close()">
-            <mat-icon>loyalty</mat-icon>
-            My Promotion
-          </button>
-        </div>
       }
 
-      <div class="quick-actions">
-        <button mat-stroked-button class="action-btn logout" (click)="logout()">
-          <mat-icon>exit_to_app</mat-icon>
-          Logout
-        </button>
-      </div>
+      <app-user-profile-card [user]="user" (switchUser)="switchUser($event)"></app-user-profile-card>
+
+      <app-sidenav-navigation [navigationItems]="navigationItems" (navItemClick)="isMobile() && sidenav.close()"></app-sidenav-navigation>
+
+      <app-quick-actions [user]="user" 
+                         (createCampaign)="createCampaign()"
+                         (fundWallet)="fundWallet()"
+                         (viewPromotion)="viewPromotion()"
+                         (viewMyPromotion)="viewMyPromotion()"
+                         (logout)="logout()"
+                         (mobileAction)="isMobile() && sidenav.close()">
+      </app-quick-actions>
     </mat-sidenav>
 
     <mat-sidenav-content class="main-content">
@@ -127,322 +74,32 @@
       }
 
       <router-outlet/>
-
     </mat-sidenav-content>
   </mat-sidenav-container>
 
   <mat-menu #notificationMenu="matMenu" class="notification-menu">
-    <div class="notification-header">
-      <h4>Notifications</h4>
-      <button mat-icon-button (click)="markAllAsRead()">
-        <mat-icon>done_all</mat-icon>
-      </button>
-    </div>
-    <mat-divider/>
-    @if (notifications().length > 0) {
-    <div class="notification-list">
-      @for (notification of notifications().slice(0, 5); track notification) {
-        <button mat-menu-item
-              class="notification-item"
-              [class.unread]="!notification.read"
-              (click)="markAsRead(notification.id)">
-          <div class="notification-content">
-            <div class="notification-title">{{notification.title}}</div>
-            <div class="notification-message">{{notification.message}}</div>
-            <div class="notification-time">{{notification.timestamp | date:'short'}}</div>
-          </div>
-        </button>
-      }
-
-    </div>
-    } @else {
-      <div class="no-notifications">
-        <mat-icon>notifications_none</mat-icon>
-        <p>No new notifications</p>
-      </div>
-    }
-    @if (notifications().length > 5) {
-      <mat-divider/>
-    }
-    @if (notifications().length > 5) {
-      <button mat-menu-item (click)="viewAllNotifications()">
-        View all notifications
-      </button>
-    }
-  </mat-menu>
+  <app-notifications-menu
+    [notifications]="notifications"
+    (markAsRead)="markAsRead($event)"
+    (markAllAsRead)="markAllAsRead()"
+    (viewAllNotifications)="viewAllNotifications()">
+  </app-notifications-menu>
+</mat-menu>
+  
 </div>
 
-
-
 <ng-template #cartDialogTemplate>
-  <mat-card class="cart-dialog-card">
-    <div class="cart-header">
-      <div class="cart-title">
-        <mat-icon class="cart-icon">shopping_bag</mat-icon>
-        @if(user()!.role === 'marketer') {
-          <h3>Your Campaigns</h3>
-        }
-        @if(user()!.role === 'promoter') {
-          <h3>Your Promotions</h3>
-        }
-        <button mat-icon-button class="close-btn" (click)="closeCartDialog()">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-      <div class="cart-summary">
-        @if(user()!.role === 'marketer') {
-          <span class="items-count">You have {{ pendingCampaignsCount }} pending campaign(s)</span>
-          <span class="total-price">{{user()?.wallets?.marketer?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
-        }
-        @if(user()!.role === 'promoter') {
-          <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
-          <span class="total-price">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
-        }
-      </div>
-    </div>
-
-    <div class="cart-tabs">
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'cart'"
-        (click)="setActiveTab('cart')">
-        <mat-icon>campaign</mat-icon>
-        @if(user()!.role === 'marketer') { Campaigns }
-        @if(user()!.role === 'promoter') { Promotions }
-        <span class="badge">
-        @if(user()!.role === 'marketer') { {{activeCampaignsCount}} }
-        @if(user()!.role === 'promoter') { {{pendingPromotionsCount}}  }
-        </span>
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'quick-actions'"
-        (click)="setActiveTab('quick-actions')">
-        <mat-icon>menu</mat-icon>
-        Quick Actions
-      </button>
-    </div>
-
-    <mat-divider/>
-
-    @if (activeTab === 'cart') {
-      <div class="cart-content">
-        <div class="cart-items-section">
-          @if(user()!.role === 'marketer') {
-            @if(user()!.campaigns && user()!.campaigns!.length > 0) {
-              <div class="campaigns-summary-card">
-                <div class="summary-header">
-                  <div class="summary-title-section">
-                    <mat-icon class="summary-icon">campaign</mat-icon>
-                    <h3 class="summary-title">Campaign Overview</h3>
-                  </div>
-                  <button mat-flat-button color="primary" class="view-all-btn" (click)="closeCartDialog(); viewAllCampaigns()">
-                    View All
-                  </button>
-                </div>
-
-                <mat-divider class="summary-divider"/>
-
-                <div class="summary-metrics-grid">
-                  <div class="metric-summary active-campaigns">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">playlist_play</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ getActiveCampaignCount() }}</span>
-                      <span class="metric-label">Active Campaigns</span>
-                    </div>
-                  </div>
-
-                  <div class="metric-summary total-promotions">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">campaign</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ getTotalCampaigns() }}</span>
-                      <span class="metric-label">Total Campaigns</span>
-                    </div>
-                  </div>
-
-                  <div class="metric-summary total-spending">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">trending_up</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ getTotalSpent() | currency: '₦':'symbol':'1.0-0' }}</span>
-                      <span class="metric-label">Total Spent</span>
-                    </div>
-                  </div>
-
-                  <div class="metric-summary budget-remaining">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">account_balance_wallet</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ getTotalRemainingBudget() | currency: '₦':'symbol':'1.0-0' }}</span>
-                      <span class="metric-label">Remaining Budget</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="empty-cart-message">
-                <div class="empty-cart-icon">
-                  <mat-icon>campaign</mat-icon>
-                </div>
-                <h4>No active campaigns</h4>
-                <p>You have no active campaign yet</p>
-                <button
-                  mat-flat-button
-                  color="primary"
-                  class="shop-btn"
-                  routerLink="/campaigns"
-                  (click)="closeCartDialog()">
-                  Start a Campaign
-                </button>
-              </div>
-            }
-          }
-          @if(user()!.role === 'promoter') {
-
-            @if(user()?.promotion && user()!.promotion!.length > 0) {
-              <div class="campaigns-summary-card">
-                <div class="summary-header">
-                  <div class="summary-title-section">
-                    <mat-icon class="summary-icon">campaign</mat-icon>
-                    <h3 class="summary-title">Promotion Overview</h3>
-                  </div>
-                  <button mat-flat-button color="primary" class="view-all-btn" (click)="closeCartDialog(); viewAllPromotion()">
-                    View All
-                  </button>
-                </div>
-                <div class="summary-header">
-                 <!--  <div class="summary-title-section">
-                    <mat-icon class="summary-icon">campaign</mat-icon>
-                    <h3 class="summary-title">Promotion Overview</h3>
-                  </div> -->
-                  <button mat-stroked-button color="primary" (click)="closeCartDialog(); viewWithdrawl()" style="width: 100%;">
-                    Widthraw Fund
-                  </button>
-                </div>
-
-                <mat-divider class="summary-divider"/>
-
-                <div class="summary-metrics-grid">
-                  <div class="metric-summary active-campaigns">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">playlist_play</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ user()!.promotion!.length }}</span>
-                      <span class="metric-label">All Promotions</span>
-                    </div>
-                  </div>
-
-                  <div class="metric-summary total-promotions">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">trending_up</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ getValidatedPromotionCount() }}</span>
-                      <span class="metric-label">Validated Promotions</span>
-                    </div>
-                  </div>
-
-                  <div class="metric-summary total-spending">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">trending_down</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ getRejectedPromotionCount() }}</span>
-                      <span class="metric-label">Rejected Promotion</span>
-                    </div>
-                  </div>
-
-                  <div class="metric-summary budget-remaining">
-                    <div class="metric-icon-wrapper">
-                      <mat-icon class="metric-icon">account_balance_wallet</mat-icon>
-                    </div>
-                    <div class="metric-info">
-                      <span class="metric-value">{{ user()?.wallets?.promoter?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
-                      <span class="metric-label">Reserved Amount</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            } @else {
-              <div class="empty-cart-message">
-                <h4>No active promotion</h4>
-                <p>You have no running promotion yet</p>
-                <button
-                  mat-flat-button
-                  color="primary"
-                  class="shop-btn"
-                  routerLink="/campaigns"
-                  (click)="closeCartDialog()">
-                  Start a Promotion
-                </button>
-              </div>
-            }
-          }
-        </div>
-
-        <div class="checkout-section">
-          <mat-divider/>
-          @if(user()!.role === 'marketer') {
-            <div class="checkout-total">
-              <span>Reserved Balance</span>
-              <span class="amount">
-                {{user()?.wallets?.marketer?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}
-              </span>
-            </div>
-          }
-          @if(user()!.role === 'promoter') {
-             <div class="checkout-total">
-              <span>Reserved Balance</span>
-              <span class="amount">
-                {{user()?.wallets?.promoter?.reserved || 0 | currency: '₦':'symbol':'1.2-2'}}
-              </span>
-            </div>
-          }
-          <div class="secure-checkout">
-            <mat-icon>lock</mat-icon>
-            <span>Funds secured in escrow</span>
-          </div>
-
-        </div>
-      </div>
-    }
-
-    @if (activeTab === 'quick-actions') {
-      <div class="quick-actions-content">
-        <div class="quick-actions-grid">
-          <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('promoter')" [disabled]="user()!.role === 'promoter'">
-            <mat-icon>attach_money</mat-icon>
-            <span>
-              Switch to Promoter
-              <small>Earn by posting ads on your WhatsApp status</small>
-            </span>
-          </button>
-
-          <button matRipple class="quick-action" (click)="closeCartDialog(); switchUser('marketer')" [disabled]="user()!.role === 'marketer'">
-            <mat-icon>campaign</mat-icon>
-            <span>
-              Switch to Marketer
-              <small>Pay promoters to post your ads on their WhatsApp status</small>
-            </span>
-          </button>
-
-        </div>
-
-        <div class="account-section">
-          <mat-divider/>
-          <button matRipple class="account-action" routerLink="./settings" (click)="closeCartDialog()">
-            <mat-icon>person</mat-icon>
-            <span>Profile & Settings</span>
-          </button>
-        </div>
-      </div>
-    }
-  </mat-card>
+  <app-cart-dialog
+    [user]="user"
+    [activeTab]="activeTab"
+    [pendingCampaignsCount]="pendingCampaignsCount"
+    [pendingPromotionsCount]="pendingPromotionsCount"
+    [activeCampaignsCount]="activeCampaignsCount"
+    (setActiveTab)="setActiveTab($event)"
+    (closeDialog)="closeCartDialog()"
+    (viewAllCampaigns)="closeCartDialog(); viewAllCampaigns()"
+    (viewAllPromotions)="closeCartDialog(); viewAllPromotion()"
+    (viewWithdrawal)="closeCartDialog(); viewWithdrawl()"
+    (switchUser)="closeCartDialog(); switchUser($event)">
+  </app-cart-dialog>
 </ng-template>

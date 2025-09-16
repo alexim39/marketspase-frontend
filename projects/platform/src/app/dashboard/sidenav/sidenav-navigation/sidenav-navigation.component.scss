@@ -1,0 +1,23 @@
+/* Sidenav Navigation Styles */
+.nav-list {
+  padding-top: 0;
+  .mat-list-item {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    color: #555;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    &.active-nav-item {
+      background-color: #673ab7;
+      color: white;
+      .mat-icon {
+        color: white;
+      }
+    }
+    .mat-icon {
+      color: #757575;
+      margin-right: 16px;
+    }
+  }
+}

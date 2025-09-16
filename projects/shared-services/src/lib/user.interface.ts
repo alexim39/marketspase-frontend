@@ -8,7 +8,7 @@ export interface UserInterface {
   email: string;
   username: string;
   biography?: string;
-  role?: string;
+  role: string;
   avatar?: string;
   createdAt?: Date;
   preferences?: {
