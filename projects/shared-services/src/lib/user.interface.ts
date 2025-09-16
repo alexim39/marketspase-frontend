@@ -75,7 +75,7 @@ export interface UserInterface {
         description: string;
         status: string;
         type: string;
-      };
+      }[];
     };
     promoter: {
       balance: number;
@@ -87,8 +87,10 @@ export interface UserInterface {
         description: string;
         status: string;
         type: string;
-      };
+      }[];
     };
+
+    //ratingCount: number;
    
   };
   campaigns?: [CampaignInterface];

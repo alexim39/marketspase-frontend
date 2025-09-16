@@ -1,81 +1,48 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
-import { MarketerTabComponent } from './marketer/marketer-tab.component';
-import { PromoterTabComponent } from './promoter/promoter-tab.component';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotifyProfileBannerComponent } from './notification-banner/notify-profile-banner.component';
+import { MatMenuModule } from '@angular/material/menu';
 
-// Interfaces
-export interface Campaign {
-  id: string;
-  title: string;
-  description: string;
-  budget: number;
-  spent: number;
-  reach: number;
-  status: 'active' | 'pending' | 'completed' | 'paused';
-  deadline: Date;
-  imageUrl: string;
-  promoters: number;
-  viewsRequired: number;
-  currentViews: number;
+interface DashboardStat {
+  icon: string;
+  label: string;
+  value: string;
+  change?: string;
+  trend?: 'up' | 'down';
+  color: string;
+  subtitle?: string;
 }
 
-export interface Earning {
-  id: string;
-  campaignTitle: string;
-  amount: number;
-  status: 'pending' | 'approved' | 'paid';
-  date: Date;
-  proofSubmitted: boolean;
-  marketer: string;
+interface CampaignSummary {
+  active: number;
+  completed: number;
+  totalBudget: number;
+  spentBudget: number;
+  totalPromoters: number;
 }
 
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-}
-
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  role: 'marketer' | 'promoter';
-  verified: boolean;
-  rating: number;
-  totalEarnings?: number;
-  totalSpent?: number;
-  activeCampaigns?: number;
-  completedCampaigns?: number;
+interface PromotionSummary {
+  total: number;
+  pending: number;
+  submitted: number;
+  validated: number;
+  paid: number;
+  totalEarnings: number;
+  pendingEarnings: number;
+  availableEarnings: number;
 }
 
 @Component({
@@ -83,295 +50,246 @@ export interface UserProfile {
   imports: [
     CommonModule,
     RouterModule,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatListModule,
+    MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule,
-    MatGridListModule,
-    MatMenuModule,
-    MatBadgeModule,
-    MatChipsModule,
     MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatTableModule,
-    MatDialogModule,
-    MatTooltipModule,
     TestimonialsComponent,
-    MarketerTabComponent,
-    PromoterTabComponent,
-    NotifyProfileBannerComponent
+    NotifyProfileBannerComponent,
+    MatMenuModule
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
-export class DashboardMainContainer implements OnInit, OnDestroy {
+export class DashboardMainContainer implements OnInit {
   private router = inject(Router);
   private breakpointObserver = inject(BreakpointObserver);
-  private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
-
-  // Add ViewChild for sidenav
-  @ViewChild('sidenav') sidenav!: MatSidenav;
-
   private userService = inject(UserService);
-  // Expose the signal directly to the template
-  public user: Signal<UserInterface | null> = this.userService.user;
   private readonly destroyRef = inject(DestroyRef);
-  // Signals for reactive state management
-  currentUser = signal<UserProfile>({
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-    role: 'marketer',
-    verified: true,
-    rating: 4.8,
-    totalEarnings: 85000,
-    totalSpent: 250000,
-    activeCampaigns: 5,
-    completedCampaigns: 23
-  });
 
-  campaigns = signal<Campaign[]>([
-    {
-      id: '1',
-      title: 'Summer Fashion Collection',
-      description: 'Promote our latest summer fashion collection with vibrant designs',
-      budget: 50000,
-      spent: 32000,
-      reach: 15000,
-      status: 'active',
-      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400',
-      promoters: 20,
-      viewsRequired: 25000,
-      currentViews: 15000
-    },
-    {
-      id: '2',
-      title: 'Tech Gadget Launch',
-      description: 'Launch announcement for our revolutionary smart device',
-      budget: 75000,
-      spent: 45000,
-      reach: 22000,
-      status: 'active',
-      deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-      imageUrl: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400',
-      promoters: 30,
-      viewsRequired: 35000,
-      currentViews: 22000
-    }
-  ]);
+  public user = this.userService.user;
 
-  earnings = signal<Earning[]>([
-    {
-      id: '1',
-      campaignTitle: 'Summer Fashion Collection',
-      amount: 2500,
-      status: 'pending',
-      date: new Date(),
-      proofSubmitted: true,
-      marketer: 'Fashion Brand Co.'
-    },
-    {
-      id: '2',
-      campaignTitle: 'Restaurant Grand Opening',
-      amount: 1500,
-      status: 'approved',
-      date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-      proofSubmitted: true,
-      marketer: 'Local Restaurant'
-    }
-  ]);
-
-  notifications = signal<NotificationItem[]>([
-    {
-      id: '1',
-      title: 'Campaign Approved',
-      message: 'Your campaign "Summer Fashion" has been approved and is now live',
-      timestamp: new Date(),
-      read: false
-    },
-    {
-      id: '2',
-      title: 'Proof Required',
-      message: 'Please upload proof for your campaign participation',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      read: false
-    }
-  ]);
-
-
-  // Computed signals
   isMobile = computed(() => {
     return this.breakpointObserver.isMatched('(max-width: 768px)');
   });
 
-  unreadNotifications = computed(() => {
-    return this.notifications().filter(n => !n.read).length;
+  campaignSummary = computed((): CampaignSummary => {
+    const userData = this.user();
+    if (!userData?.campaigns) {
+      return { active: 0, completed: 0, totalBudget: 0, spentBudget: 0, totalPromoters: 0 };
+    }
+
+    const activeCampaigns = userData.campaigns.filter(c => c.status === 'active');
+    const completedCampaigns = userData.campaigns.filter(c => c.status === 'completed');
+    
+    const totalBudget = userData.campaigns.reduce((sum, c) => sum + c.budget, 0);
+    const spentBudget = userData.campaigns.reduce((sum, c) => sum + c.spentBudget, 0);
+    const totalPromoters = userData.campaigns.reduce((sum, c) => sum + c.currentPromoters, 0);
+
+    return {
+      active: activeCampaigns.length,
+      completed: completedCampaigns.length,
+      totalBudget,
+      spentBudget,
+      totalPromoters
+    };
   });
 
-  dashboardStats = computed(() => {
-    if (this.currentUser().role === 'marketer') {
+  promotionSummary = computed((): PromotionSummary => {
+    const userData = this.user();
+    if (!userData?.promotion) {
+      return { 
+        total: 0, 
+        pending: 0, 
+        submitted: 0, 
+        validated: 0, 
+        paid: 0, 
+        totalEarnings: 0, 
+        pendingEarnings: 0, 
+        availableEarnings: 0 
+      };
+    }
+
+    const promotions = userData.promotion;
+    const wallet = userData.wallets?.promoter;
+    
+    const pending = promotions.filter(p => p.status === 'pending').length;
+    const submitted = promotions.filter(p => p.status === 'submitted').length;
+    const validated = promotions.filter(p => p.status === 'validated').length;
+    const paid = promotions.filter(p => p.status === 'paid').length;
+
+    // Calculate earnings from paid promotions
+    const totalEarnings = promotions
+      .filter(p => p.status === 'paid')
+      .reduce((sum, p) => sum + (p.payoutAmount ?? 0), 0);
+    
+    // Calculate pending earnings (validated but not paid)
+    const pendingEarnings = promotions
+      .filter(p => p.status === 'validated')
+      .reduce((sum, p) => sum + (p.payoutAmount ?? 0), 0);
+
+    return {
+      total: promotions.length,
+      pending,
+      submitted,
+      validated,
+      paid,
+      totalEarnings,
+      pendingEarnings,
+      availableEarnings: wallet?.balance || 0
+    };
+  });
+
+  dashboardStats = computed((): DashboardStat[] => {
+    const userData = this.user();
+    if (!userData) return [];
+
+    if (userData.role === 'marketer') {
+      const summary = this.campaignSummary();
+      const wallet = userData.wallets?.marketer;
+      
       return [
         {
           icon: 'campaign',
           label: 'Active Campaigns',
-          value: this.currentUser().activeCampaigns?.toString() || '0',
-          change: '+12',
-          trend: 'up' as const,
-          color: '#667eea'
-        },
-        {
-          icon: 'visibility',
-          label: 'Total Reach',
-          value: '37K',
-          change: '+25',
-          trend: 'up' as const,
-          color: '#4caf50'
+          value: summary.active.toString(),
+          change: '+2',
+          trend: 'up',
+          color: '#667eea',
+          subtitle: `${summary.totalPromoters} promoters`
         },
         {
           icon: 'account_balance_wallet',
-          label: 'Total Spent',
-          value: `₦${(this.currentUser().totalSpent || 0) / 1000}K`,
+          label: 'Campaign Budget',
+          value: `₦${(summary.totalBudget / 1000).toFixed(0)}K`,
           change: '+8',
-          trend: 'up' as const,
-          color: '#ff9800'
+          trend: 'up',
+          color: '#ff9800',
+          subtitle: `₦${(summary.spentBudget / 1000).toFixed(0)}K spent`
         },
         {
-          icon: 'thumb_up',
-          label: 'Engagement',
-          value: '6.2K',
-          change: '+15',
-          trend: 'up' as const,
-          color: '#e91e63'
+          icon: 'savings',
+          label: 'Available Balance',
+          value: `₦${((wallet?.balance || 0) / 1000).toFixed(0)}K`,
+          color: '#4caf50',
+          subtitle: `₦${((wallet?.reserved || 0) / 1000).toFixed(0)}K reserved`
+        },
+        {
+          icon: 'trending_up',
+          label: 'Total Reach',
+          value: '37K',
+          change: '+25',
+          trend: 'up',
+          color: '#e91e63',
+          subtitle: 'Last 30 days'
         }
       ];
     } else {
+      const summary = this.promotionSummary();
+      const wallet = userData.wallets?.promoter;
+      
       return [
         {
           icon: 'monetization_on',
-          label: 'Total Earnings',
-          value: `₦${(this.currentUser().totalEarnings || 0) / 1000}K`,
-          change: '+18',
-          trend: 'up' as const,
-          color: '#4caf50'
+          label: 'Available Earnings',
+          value: `₦${summary.availableEarnings}`,
+          color: '#4caf50',
+          subtitle: `₦${summary.pendingEarnings} pending`
+        },
+        {
+          icon: 'assignment_turned_in',
+          label: 'Completed Promotions',
+          value: summary.paid.toString(),
+          change: '+3',
+          trend: 'up',
+          color: '#2196f3',
+          subtitle: `${summary.total} total promotions`
+        },
+        {
+          icon: 'pending_actions',
+          label: 'Pending Review',
+          value: summary.submitted.toString(),
+          change: '+1',
+          trend: 'up',
+          color: '#ff9800',
+          subtitle: `${summary.validated} validated`
         },
         {
           icon: 'star',
           label: 'Rating',
-          value: this.currentUser().rating?.toString() || '0',
+          value: userData.rating?.toString() || '0',
           change: '+0.2',
-          trend: 'up' as const,
-          color: '#ff9800'
-        },
-        {
-          icon: 'assignment_turned_in',
-          label: 'Completed',
-          value: this.currentUser().completedCampaigns?.toString() || '0',
-          change: '+3',
-          trend: 'up' as const,
-          color: '#2196f3'
-        },
-        {
-          icon: 'pending_actions',
-          label: 'Pending',
-          value: this.earnings().filter(e => e.status === 'pending').length.toString(),
-          change: '-1',
-          trend: 'down' as const,
-          color: '#ff5722'
+          trend: 'up',
+          color: '#ff5722',
+          subtitle: `${ 0 } reviews`
+          //subtitle: `${userData.ratingCount || 0} reviews`
         }
       ];
     }
   });
 
-  pendingEarnings = computed(() => {
-    return this.earnings()
-      .filter(e => e.status === 'pending')
-      .reduce((sum, e) => sum + e.amount, 0);
-  });
-
-  availableBalance = computed(() => {
-    return this.earnings()
-      .filter(e => e.status === 'approved')
-      .reduce((sum, e) => sum + e.amount, 0);
+  recentActivity = computed(() => {
+    const userData = this.user();
+    if (!userData) return [];
+    
+    // Combine transactions from both wallets if available
+    const transactions = [];
+    
+    if (userData.wallets?.marketer?.transactions) {
+      transactions.push(...userData.wallets.marketer.transactions.map(t => ({
+        ...t,
+        walletType: 'marketer'
+      })));
+    }
+    
+    if (userData.wallets?.promoter?.transactions) {
+      transactions.push(...userData.wallets.promoter.transactions.map(t => ({
+        ...t,
+        walletType: 'promoter'
+      })));
+    }
+    
+    // Sort by date, newest first and take the 5 most recent
+    return transactions
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
   });
 
   ngOnInit(): void {
-    // Subscribe to breakpoint changes
-    this.breakpointObserver.observe([Breakpoints.HandsetPortrait])
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe()
+    this.breakpointObserver.observe(['(max-width: 768px)'])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
- 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
-
-  toggleSidenav(): void {
-    if (this.sidenav) {
-      this.sidenav.toggle();
-    }
-  }
-
-  // Campaign Actions
   createCampaign(): void {
     this.router.navigate(['dashboard/campaigns/create']);
   }
 
-  viewCampaign(campaignId: string): void {
-    this.router.navigate(['/campaign', campaignId]);
+  browseCampaign(): void {
+    this.router.navigate(['dashboard/campaigns']);
   }
 
-  viewProofs(campaignId: string): void {
-    this.router.navigate(['/campaign', campaignId, 'proofs']);
+  viewCampaigns(): void {
+    this.router.navigate(['dashboard/campaigns']);
   }
 
-  acceptCampaign(campaignId: string): void {
-    this.snackBar.open('Campaign accepted! Check your active campaigns.', 'OK', { duration: 3000 });
+  viewPromotions(): void {
+    this.router.navigate(['dashboard/promotions']);
   }
 
-  viewCampaignDetails(campaignId: string): void {
-    this.router.navigate(['/campaign', campaignId, 'details']);
+  viewWallet(): void {
+    this.router.navigate(['dashboard/wallet']);
   }
 
-  uploadProof(earningId: string): void {
-    this.snackBar.open('Proof upload feature coming soon!', 'OK', { duration: 3000 });
-  }
-
-  withdraw(): void {
-    this.snackBar.open('Withdrawal feature coming soon!', 'OK', { duration: 3000 });
-  }
-
-  // Notification Actions
-  markAsRead(notificationId: string): void {
-    this.notifications.update(notifications =>
-      notifications.map(n =>
-        n.id === notificationId ? { ...n, read: true } : n
-      )
-    );
-  }
-
-  markAllAsRead(): void {
-    this.notifications.update(notifications =>
-      notifications.map(n => ({ ...n, read: true }))
-    );
-  }
-
-  viewAllNotifications(): void {
-    this.router.navigate(['/notifications']);
+  formatCurrency(amount: number): string {
+    return `₦${amount.toLocaleString()}`;
   }
 
   logout(): void {
-      this.authService.signOut()
+    this.authService.signOut()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -381,29 +299,27 @@ export class DashboardMainContainer implements OnInit, OnDestroy {
           console.error('Sign-out failed:', error.error.message);
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
-      })
+      });
   }
 
-  switchUser(role: string) {
+  switchUser(role: string): void {
     const roleObject = {
       role,
       userId: this.user()?._id
-    }
-      this.dashboardService.switchUser(roleObject)
+    };
+    
+    this.dashboardService.switchUser(roleObject)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            window.location.reload()
+            window.location.reload();
           }
         },
         error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.';
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message;
-          }  
-          this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
+          const errorMessage = error.error?.message || 'Server error occurred, please try again.';
+          this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
         }
-      })
+      });
   }
 }

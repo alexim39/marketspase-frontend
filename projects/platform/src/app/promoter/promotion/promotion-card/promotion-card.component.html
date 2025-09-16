@@ -95,11 +95,12 @@
     <div class="action-buttons">
       @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
         @if (promotion.isDownloaded) {
-          <button class="action-btn primary" (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">
+          @if (isNearingExpiration()) {
+            <button class="action-btn primary" (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">
             <i class="material-icons">cloud_upload</i>
             Submit Proof
           </button>
-          @if (!isNearingExpiration()) {
+          } @else {
             <small>Submission will be enabled 30 minutes before expiration.</small>
           }
           
@@ -111,10 +112,12 @@
         }            
       }
       @if (promotion.status === 'submitted' || promotion.status === 'validated') {
-        <button class="action-btn secondary" (click)="viewDetails()">
-          <i class="material-icons">visibility</i>
-          View Status
-        </button>
+        @if (!isNearingExpiration()) {
+          <button class="action-btn secondary" (click)="viewDetails()">
+            <i class="material-icons">visibility</i>
+            View Status
+          </button>
+        }
       }
       @if (promotion.status === 'paid') {
         <button class="action-btn success" (click)="viewDetails()">

@@ -57,5 +57,8 @@
 
   .switch-user-btn {
     background-color: #f1f1f1;
+    mat-icon {
+      color: #673ab7;
+    }
   }
 }
