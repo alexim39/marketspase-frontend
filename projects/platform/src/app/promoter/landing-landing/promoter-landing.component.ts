@@ -8,12 +8,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Imported child components
-import { PromoterHeaderComponent } from './promoter-header/promoter-header.component';
-import { PromoterQuickStatsComponent } from './promoter-quick-stats/promoter-quick-stats.component';
-import { CampaignFiltersComponent } from './campaign-filters/campaign-filters.component';
-import { CampaignCardComponent } from './campaign-card/campaign-card.component';
-import { EmptyStateComponent } from './empty-state/empty-state.component';
-import { LoadingStateComponent } from './loading-state/loading-state.component';
+import { PromoterHeaderComponent } from './components/promoter-header/promoter-header.component';
+import { PromoterQuickStatsComponent } from './components/promoter-quick-stats/promoter-quick-stats.component';
+import { CampaignFiltersComponent } from './components/campaign-filters/campaign-filters.component';
+import { CampaignCardComponent } from './components/campaign-card/campaign-card.component';
+import { EmptyStateComponent } from './components/empty-state/empty-state.component';
+import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 
 // Imported types and services
 import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';

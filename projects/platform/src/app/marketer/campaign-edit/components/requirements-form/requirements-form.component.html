@@ -1,0 +1,38 @@
+<div class="form-card" [formGroup]="form">
+  <div class="card-header">
+    <h2>Promoter Requirements</h2>
+    <p>Set specific requirements for promoters</p>
+  </div>
+  
+  <div class="card-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field-full">
+        <mat-label>Additional Requirements (Optional)</mat-label>
+        <textarea matInput formControlName="requirements" rows="3" 
+                  placeholder="List any specific requirements for promoters..."></textarea>
+        <mat-hint>Separate requirements with commas</mat-hint>
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field-half">
+        <mat-label>Minimum Promoter Rating</mat-label>
+        <mat-select formControlName="minRating">
+          <mat-option value="0">Any rating</mat-option>
+          <mat-option value="3">3 stars & above</mat-option>
+          <mat-option value="4">4 stars & above</mat-option>
+          <mat-option value="4.5">4.5 stars & above</mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="form-field-half">
+        <mat-label>Campaign Priority</mat-label>
+        <mat-select formControlName="priority">
+          <mat-option value="low">Low</mat-option>
+          <mat-option value="medium">Medium</mat-option>
+          <mat-option value="high">High</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+</div>

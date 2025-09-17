@@ -1,22 +1,23 @@
 // campaign-edit.component.ts
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+
+// Import all the new components
+import { CampaignEditHeaderComponent } from './components/campaign-edit-header/campaign-edit-header.component';
+import { BasicInfoFormComponent } from './components/basic-info-form/basic-info-form.component';
+import { MediaUploadComponent } from './components/media-upload/media-upload.component';
+import { BudgetSettingsComponent } from './components/budget-settings/budget-settings.component';
+import { TargetingComponent } from './components/targeting/targeting.component';
+import { ScheduleFormComponent } from './components/schedule-form/schedule-form.component';
+import { RequirementsFormComponent } from './components/requirements-form/requirements-form.component';
+import { LoadingStateComponent } from './components/loading-state/loading-state.component';
+import { ErrorStateComponent } from './components/error-state/error-state.component';
 
 import { MarketerService } from '../marketer.service';
 import { CampaignInterface } from '../../../../../shared-services/src/public-api';
@@ -29,20 +30,19 @@ import { NIGERIAN_STATES } from '../../common/utils/nigerian-states';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatProgressBarModule,
-    MatSnackBarModule,
-    MatChipsModule,
-    MatAutocompleteModule,
-    MatProgressSpinnerModule,
-    MatButtonToggleModule
+    CampaignEditHeaderComponent,
+    BasicInfoFormComponent,
+    MediaUploadComponent,
+    BudgetSettingsComponent,
+    TargetingComponent,
+    ScheduleFormComponent,
+    RequirementsFormComponent,
+    LoadingStateComponent,
+    ErrorStateComponent
   ],
   templateUrl: './campaign-edit.component.html',
   styleUrls: ['./campaign-edit.component.scss']
@@ -64,8 +64,8 @@ export class CampaignEditComponent implements OnInit {
   targetLocations = signal<string[]>([]);
 
   campaignForm!: FormGroup;
+  locationInputControl = new FormControl('');
 
-   // API base URL for media
   public readonly api = this.marketerService.api;
 
   categories = [
@@ -83,9 +83,6 @@ export class CampaignEditComponent implements OnInit {
 
   readonly locationSuggestions = NIGERIAN_STATES;
 
-
-  // Add these new properties for location handling
-  locationInputControl = new FormControl('');
   filteredLocationSuggestions = computed(() => {
     const inputValue = this.locationInputControl.value?.toLowerCase() || '';
     return this.locationSuggestions.filter(location => 
@@ -93,7 +90,6 @@ export class CampaignEditComponent implements OnInit {
       !this.targetLocations().includes(location)
     );
   });
-
 
   ngOnInit(): void {
     this.initializeForm();
@@ -122,11 +118,9 @@ export class CampaignEditComponent implements OnInit {
       priority: ['medium']
     });
 
-    // Watch for budget or payout changes to recalculate max promoters
     this.campaignForm.get('budget')?.valueChanges.subscribe(() => this.calculateMaxPromoters());
     this.campaignForm.get('payoutPerPromotion')?.valueChanges.subscribe(() => this.calculateMaxPromoters());
     
-    // Watch for end date toggle changes
     this.campaignForm.get('hasEndDate')?.valueChanges.subscribe(hasEndDate => {
       const endDateControl = this.campaignForm.get('endDate');
       if (hasEndDate) {
@@ -153,12 +147,10 @@ export class CampaignEditComponent implements OnInit {
     this.marketerService.getCampaignById(campaignId).subscribe({
       next: (response) => {
         if (response.success) {
-          console.log('response ',response.data)
           this.campaign.set(response.data);
           this.populateForm(response.data);
           this.isLoading.set(false);
         }
-
       },
       error: (err) => {
         this.error.set(err.message || 'Failed to load campaign');
@@ -182,11 +174,10 @@ export class CampaignEditComponent implements OnInit {
       endDate: campaign.endDate ? new Date(campaign.endDate) : null,
       hasEndDate: campaign.hasEndDate,
       requirements: campaign.requirements?.join(', ') || '',
-      minRating: 0, // Default value, adjust based on your business logic
+      minRating: 0,
       priority: campaign.priority
     });
 
-    // Set media preview if exists
     if (campaign.mediaUrl) {
       if (campaign.mediaType === 'image') {
         this.previewImageUrl.set(this.api + campaign.mediaUrl);
@@ -195,8 +186,6 @@ export class CampaignEditComponent implements OnInit {
       }
     }
 
-    // Set target locations if available
-    // This would need to be implemented based on your data structure
     this.calculateMaxPromoters();
   }
 
@@ -212,11 +201,7 @@ export class CampaignEditComponent implements OnInit {
     }
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file size and type
+  onFileSelected(file: File): void {
     const maxSize = this.campaignForm.get('mediaType')?.value === 'image' ? 5 * 1024 * 1024 : 20 * 1024 * 1024;
     if (file.size > maxSize) {
       this.snackBar.open(
@@ -227,10 +212,8 @@ export class CampaignEditComponent implements OnInit {
       return;
     }
 
-    // Set file in form
     this.campaignForm.patchValue({ mediaFile: file });
     
-    // Create preview
     const reader = new FileReader();
     reader.onload = () => {
       if (this.campaignForm.get('mediaType')?.value === 'image') {
@@ -240,22 +223,7 @@ export class CampaignEditComponent implements OnInit {
       }
     };
     reader.readAsDataURL(file);
-
-    // Simulate upload progress (in a real app, this would be an actual upload)
-    //this.simulateUpload();
   }
-
-  // simulateUpload(): void {
-  //   this.uploadProgress.set(0);
-  //   const interval = setInterval(() => {
-  //     if (this.uploadProgress() < 100) {
-  //       this.uploadProgress.set(this.uploadProgress() + 10);
-  //     } else {
-  //       clearInterval(interval);
-  //       this.snackBar.open('Media uploaded successfully', 'Dismiss', { duration: 3000 });
-  //     }
-  //   }, 200);
-  // }
 
   removeMedia(): void {
     this.previewImageUrl.set(null);
@@ -263,7 +231,6 @@ export class CampaignEditComponent implements OnInit {
     this.campaignForm.patchValue({ mediaFile: null });
     this.uploadProgress.set(0);
   }
-
 
   saveCampaign(): void {
     if (this.campaignForm.invalid) {
@@ -274,16 +241,13 @@ export class CampaignEditComponent implements OnInit {
 
     this.isSaving.set(true);
     
-    // Prepare form data
     const formValue = this.campaignForm.value;
     const campaignData = {
       ...formValue,
       requirements: formValue.requirements ? formValue.requirements.split(',').map((r: string) => r.trim()) : [],
       targetLocations: this.targetLocations(),
-      // Add other necessary fields
     };
 
-    // In a real app, you would call your service to update the campaign
     this.marketerService.updateCampaign(this.campaign()?._id || '', this.campaign()?.owner._id, campaignData).subscribe({
       next: () => {
         this.isSaving.set(false);
@@ -316,7 +280,7 @@ export class CampaignEditComponent implements OnInit {
     this.router.navigate(['/dashboard/campaigns', this.campaign()?._id]);
   }
 
-    addLocation(event: any): void {
+  addLocation(event: any): void {
     const value = (event.value || '').trim();
     this.addLocationValue(value);
     event.chipInput!.clear();
@@ -326,16 +290,7 @@ export class CampaignEditComponent implements OnInit {
   addLocationFromAutocomplete(event: any): void {
     const value = event.option.value.trim();
     this.addLocationValue(value);
-    // Clear the input after selection
     this.locationInputControl.setValue('');
-    
-    // Focus back on the input
-    setTimeout(() => {
-      const inputElement = document.querySelector('input[matChipInputFor]') as HTMLInputElement;
-      if (inputElement) {
-        inputElement.focus();
-      }
-    });
   }
 
   private addLocationValue(value: string): void {
@@ -347,5 +302,4 @@ export class CampaignEditComponent implements OnInit {
   removeLocation(location: string): void {
     this.targetLocations.update(locations => locations.filter(l => l !== location));
   }
-
 }

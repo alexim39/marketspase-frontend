@@ -1,22 +1,23 @@
-// promotion-detail.component.ts
 import { Component, inject, OnInit, signal, DestroyRef, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PromotionInterface, UserInterface } from '../../../../../../shared-services/src/public-api';
-import { CategoryPlaceholderPipe } from '../../../common/pipes/category-placeholder.pipe';
 import { PromoterService } from '../../promoter.service';
 import { interval } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UserService } from '../../../common/services/user.service';
+
+// Import sub-components
+import { PromotionHeaderComponent } from './components/promotion-header/promotion-header.component';
+import { PromotionOverviewComponent } from './components/promotion-overview/promotion-overview.component';
+import { PromotionMetricsComponent } from './components/promotion-metrics/promotion-metrics.component';
+import { PromotionProofComponent } from './components/promotion-proof/promotion-proof.component';
+import { PromotionActivityComponent } from './components/promotion-activity/promotion-activity.component';
+import { PromotionFooterComponent } from './components/promotion-footer/promotion-footer.component';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -24,15 +25,15 @@ import { UserService } from '../../../common/services/user.service';
   providers: [PromoterService],
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatMenuModule,
     MatProgressBarModule,
-    CategoryPlaceholderPipe,
     MatProgressSpinnerModule,
+    PromotionHeaderComponent,
+    PromotionOverviewComponent,
+    PromotionMetricsComponent,
+    PromotionProofComponent,
+    PromotionActivityComponent,
+    PromotionFooterComponent,
+    MatIconModule
   ],
   templateUrl: './promotion-detail.component.html',
   styleUrls: ['./promotion-detail.component.scss']
@@ -81,7 +82,6 @@ export class PromotionDetailComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            console.log('response ',response)
             this.promotion.set(response.promotion);
             this.startCountdownTimer();
           } else {
@@ -164,44 +164,6 @@ export class PromotionDetailComponent implements OnInit {
     return nowUtc > expiryTimeUtc;
   }
 
-  getStatusColor(status: string): string {
-    const colors: { [key: string]: string } = {
-      pending: 'warning',
-      submitted: 'info',
-      validated: 'success',
-      paid: 'primary',
-      rejected: 'error'
-    };
-    return colors[status] || 'default';
-  }
-
-  getStatusIcon(status: string): string {
-    const icons: { [key: string]: string } = {
-      pending: 'schedule',
-      submitted: 'pending_actions',
-      validated: 'check_circle',
-      paid: 'paid',
-      rejected: 'cancel'
-    };
-    return icons[status] || 'help';
-  }
-
-  getCategoryIcon(category: string): string {
-    const categoryIcons: {[key: string]: string} = {
-      'fashion': 'checkroom',
-      'food': 'restaurant',
-      'tech': 'smartphone',
-      'entertainment': 'music_note',
-      'health': 'fitness_center',
-      'beauty': 'spa',
-      'travel': 'flight',
-      'business': 'business_center',
-      'other': 'category'
-    };
-    
-    return categoryIcons[category] || 'category';
-  }
-
   downloadPromotion(): void {
     const promotion = this.promotion();
     if (!promotion) return;
@@ -214,7 +176,6 @@ export class PromotionDetailComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            // Handle download logic here
             this.snackBar.open('Promotion downloaded successfully', 'OK', { duration: 3000 });
           } else {
             this.snackBar.open(response.message, 'OK', { duration: 3000 });
@@ -244,18 +205,8 @@ export class PromotionDetailComponent implements OnInit {
     this.router.navigate(['/dashboard/campaigns/promotions']);
   }
 
-  getProgressColor(percentage: number): string {
-    if (percentage < 50) return 'success';
-    if (percentage < 80) return 'warning';
-    return 'danger';
-  }
-
-   formatCurrency(amount: number | undefined): string {
-    if (amount === undefined || amount === null) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      //currency: 'USD'
-      currency: 'NGN'
-    }).format(amount);
+  contactSupport(): void {
+    // Implement contact support logic
+    this.snackBar.open('Contact support functionality will be implemented soon', 'OK', { duration: 3000 });
   }
 }

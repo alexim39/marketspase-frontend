@@ -1,27 +1,4 @@
-<!-- promotion-detail.component.html -->
 <div class="promotion-detail-container">
-  <!-- Header Section -->
-  <header class="header">
-    <div class="container">
-      <div class="header-content">
-        <button class="back-btn" mat-button (click)="goBack()">
-          <mat-icon>arrow_back</mat-icon>
-          Back to Promotions
-        </button>
-        <div class="header-title">
-          <h1>Promotion Details</h1>
-          <p>Track your promotion progress and earnings</p>
-        </div>
-
-        <div class="header-button">
-          <!-- buttton area -->
-        </div>
-        
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
   @if (loading()) {
     <div class="loading-container">
       <div class="loading-content">
@@ -43,275 +20,41 @@
     </div>
   } @else {
     @if (promotion(); as promotion) {
+      <app-promotion-header (back)="goBack()"></app-promotion-header>
+      
       <main class="main-content">
         <div class="container">
-          <!-- Promotion Overview Card -->
-          <div class="overview-card">
-            <div class="overview-header">
-              <div class="promotion-status">
-                <span class="status-badge" [class]="'status-' + promotion.status">
-                  <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
-                  {{promotion.status | titlecase}}
-                </span>
-                <span class="promotion-id">Promotion ID: {{promotion.upi || 'N/A'}}</span>
-              </div>
-              <div class="promotion-meta">
-                <span class="created-date">
-                  <mat-icon>event</mat-icon>
-                  Created: {{promotion.createdAt | date:'mediumDate'}}
-                </span>
-                <div class="header-actions">
-                  <button matFab class="icon-btn" (click)="downloadPromotion()" matTooltip="Download promotion">
-                    <mat-icon>download_for_offline</mat-icon>
-                  </button>
-                  <button matFab class="icon-btn" (click)="shareToWhatsApp()" matTooltip="Share to WhatsApp">
-                    <mat-icon>share</mat-icon>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="overview-content">
-              <div class="promotion-media">
-                <div class="media-container">
-                  <div class="media-type-overlay" [ngClass]="promotion.campaign.mediaType">
-                    <mat-icon>{{ promotion.campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>
-                    <span>{{ promotion.campaign.mediaType | titlecase }}</span>
-                  </div>
-                  
-                  @if (promotion.campaign.mediaType === 'image') {
-                    <img [src]="api + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
-                  } @else if (promotion.campaign.mediaType === 'video') {
-                    <div class="video-container">
-                      <div class="video-placeholder">
-                        <img [src]="promotion.campaign.category | categoryPlaceholder" class="placeholder-img" />
-                        <div class="video-play-btn">
-                          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-                
-                <div class="media-actions">
-                  <button mat-flat-button class="btn btn-primary" (click)="shareToWhatsApp()">
-                    <mat-icon>share</mat-icon>
-                    WhatsApp
-                  </button>
-                  <button mat-flat-button  class="btn btn-outline" (click)="downloadPromotion()">
-                    <mat-icon>download</mat-icon>
-                    Download
-                  </button>
-                </div>
-              </div>
-
-              <div class="promotion-info">
-                <h2 class="promotion-title">{{promotion.campaign.title}}</h2>
-                <p class="promotion-description">{{promotion.campaign.caption}}</p>
-                
-                <div class="info-grid">
-                  <div class="info-item">
-                    <mat-icon>category</mat-icon>
-                    <div class="info-content">
-                      <span class="info-label">Category</span>
-                      <span class="info-value">
-                        <mat-icon>{{ getCategoryIcon(promotion.campaign.category) }}</mat-icon>
-                        {{promotion.campaign.category | titlecase}}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <mat-icon>trending_up</mat-icon>
-                    <div class="info-content">
-                      <span class="info-label">Difficulty</span>
-                      <span class="info-value">{{promotion.campaign.difficulty | titlecase}}</span>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <mat-icon>schedule</mat-icon>
-                    <div class="info-content">
-                      <span class="info-label">Duration</span>
-                      <span class="info-value">24 hours</span>
-                    </div>
-                  </div>
-                  
-                  <div class="info-item">
-                    <mat-icon>visibility</mat-icon>
-                    <div class="info-content">
-                      <span class="info-label">Minimum Views</span>
-                      <span class="info-value">{{promotion.campaign.minViewsPerPromotion}}</span>
-                    </div>
-                  </div>
-
-                  <div class="info-item">
-                    <mat-icon>timer</mat-icon>
-                    <div class="info-content">
-                      <span class="info-label">Expires In</span>
-                      <span class="info-value" [class.nearing-expiration]="isNearingExpiration()">
-                        {{countdownSignal()}}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="info-item">
-                    <mat-icon>event</mat-icon>
-                    <div class="info-content">
-                      <span class="info-label">Created</span>
-                      <span class="info-value">{{promotion.createdAt | date:'medium'}}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Performance Metrics -->
-          <div class="metrics-section">
-            <h3 class="section-title">Performance Metrics</h3>
-            
-            <div class="metrics-grid">
-              <div class="metric-card">
-                <div class="metric-icon">
-                  <mat-icon>visibility</mat-icon>
-                </div>
-                <div class="metric-content">
-                  <div class="metric-value">{{promotion.proofViews || 0}}/{{promotion.campaign.minViewsPerPromotion}}</div>
-                  <div class="metric-label">Current Views</div>
-                  <div class="metric-progress">
-                    <div class="progress-bar">
-                      <div class="progress-fill" [class]="'progress-' + getProgressColor(progressPercentage())" 
-                           [style.width]="progressPercentage() + '%'"></div>
-                    </div>
-                    <span class="progress-percentage">{{progressPercentage() | number:'1.0-0'}}%</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="metric-card">
-                <div class="metric-icon">
-                  <mat-icon>trending_up</mat-icon>
-                </div>
-                <div class="metric-content">
-                  <div class="metric-value">{{ (promotion.campaign.minViewsPerPromotion || 0) - (promotion.proofViews || 0) }}</div>
-                  <div class="metric-label">Views Needed</div>
-                  <div class="metric-subtext">to qualify for payment</div>
-                </div>
-              </div>
-              
-              <div class="metric-card">
-                <div class="metric-icon">
-                  <mat-icon>payments</mat-icon>
-                </div>
-                <div class="metric-content">
-                  <div class="metric-value">{{formatCurrency(promotion.payoutAmount)}}</div>
-                  <div class="metric-label">Potential Earnings</div>
-                  <div class="metric-subtext">Upon validation</div>
-                </div>
-              </div>
-              
-              <div class="metric-card">
-                <div class="metric-icon">
-                  <mat-icon>badge</mat-icon>
-                </div>
-                <div class="metric-content">
-                  <div class="metric-value">{{promotion.campaign.difficulty | titlecase}}</div>
-                  <div class="metric-label">Difficulty Level</div>
-                  <div class="metric-subtext">Campaign complexity</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Proof Media Section -->
-          @if (promotion.proofMedia && promotion.proofMedia.length > 0) {
-            <div class="proof-section">
-              <div class="section-header">
-                <h3 class="section-title">Proof of Promotion</h3>
-              </div>
-              
-              <div class="proof-grid">
-                @for (media of promotion.proofMedia; track media) {
-                  <div class="proof-item" (click)="viewProofMedia(media)">
-                    <img [src]="api + media" alt="Proof media" class="proof-image">
-                    <div class="proof-actions">
-                      <button class="proof-action-btn">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Activity Log -->
-          @if (promotion.activityLog && promotion.activityLog.length > 0) {
-            <div class="activity-section">
-              <h3 class="section-title">Activity Timeline</h3>
-              <div class="timeline">
-                @for (log of promotion.activityLog; track log._id) {
-                  <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                      <div class="timeline-header">
-                        <span class="log-action">{{log.action}}</span>
-                        <span class="log-time">{{log.timestamp | date:'medium'}}</span>
-                      </div>
-                      <p class="log-details">{{log.details}}</p>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Footer Actions -->
-          <div class="footer-section">
-            @if (isSubmissionExpired()) {
-              <div class="alert alert-error">
-                <mat-icon>warning</mat-icon>
-                <span>This promotion has expired</span>
-              </div>
-            } @else if (isNearingExpiration()) {
-              <div class="alert alert-warning">
-                <mat-icon>schedule</mat-icon>
-                <span>Your status expires soon! Make sure it stays active to reach the required views!</span>
-              </div>
-            }
-            
-            <div class="footer-actions">
-              @if (promotion.status === 'pending' && !isSubmissionExpired()) {
-                @if (promotion.isDownloaded) {
-                  <button mat-flat-button class="btn btn-primary" [disabled]="!isNearingExpiration()">
-                    <mat-icon>cloud_upload</mat-icon>
-                    Submit Proof
-                  </button>
-                  @if (!isNearingExpiration()) {
-                    <p class="footer-note">Submission will be enabled 30 minutes before expiration.</p>
-                  }
-                } @else {
-                  <button mat-flat-button class="btn btn-primary" (click)="downloadPromotion()">
-                    <mat-icon>download_for_offline</mat-icon>
-                    Download Promotion
-                  </button>
-                }            
-              }
-              @if (promotion.status === 'submitted' || promotion.status === 'validated') {
-                <button mat-flat-button class="btn btn-outline">
-                  <mat-icon>support_agent</mat-icon>
-                  Contact Support
-                </button>
-              }
-              @if (promotion.status === 'rejected' && promotion.rejectionReason) {
-                <div class="alert alert-info">
-                  <mat-icon>info</mat-icon>
-                  <span><strong>Rejection Reason:</strong> {{ promotion.rejectionReason }}</span>
-                </div>
-              }
-            </div>
-          </div>
+          <app-promotion-overview 
+            [promotion]="promotion"
+            [countdown]="countdownSignal()"
+            [isNearingExpiration]="isNearingExpiration()"
+            [apiUrl]="api"
+            (share)="shareToWhatsApp()"
+            (download)="downloadPromotion()">
+          </app-promotion-overview>
+          
+          <app-promotion-metrics 
+            [promotion]="promotion"
+            [progressPercentage]="progressPercentage()">
+          </app-promotion-metrics>
+          
+          <app-promotion-proof 
+            [promotion]="promotion"
+            [apiUrl]="api"
+            (viewProof)="viewProofMedia($event)">
+          </app-promotion-proof>
+          
+          <app-promotion-activity 
+            [promotion]="promotion">
+          </app-promotion-activity>
+          
+          <app-promotion-footer 
+            [promotion]="promotion"
+            [isSubmissionExpired]="isSubmissionExpired()"
+            [isNearingExpiration]="isNearingExpiration()"
+            (download)="downloadPromotion()"
+            (contactSupport)="contactSupport()">
+          </app-promotion-footer>
         </div>
       </main>
     }

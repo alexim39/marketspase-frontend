@@ -1,0 +1,25 @@
+<!-- campaign-edit-header.component.html -->
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <button class="back-btn" mat-button (click)="goBack.emit()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Campaign
+      </button>
+      <div class="header-title">
+        <h1>Edit Campaign</h1>
+        <p>Update your campaign details and settings</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline" mat-raised-button (click)="cancel.emit()">
+          <mat-icon>cancel</mat-icon>
+          Cancel
+        </button>
+        <button class="btn btn-primary" mat-flat-button (click)="save.emit()" [disabled]="!isFormValid || isSaving">
+          <mat-icon>save</mat-icon>
+          {{ isSaving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</header>

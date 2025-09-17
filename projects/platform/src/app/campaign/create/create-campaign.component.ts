@@ -28,10 +28,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { CampaignContentFormComponent } from './campaign-content-form/campaign-content-form.component';
-import { CampaignBudgetFormComponent } from './campaign-budget-form/campaign-budget-form.component';
-import { CampaignScheduleFormComponent } from './campaign-schedule-form/campaign-schedule-form.component';
-import { CampaignSummaryComponent } from './campaign-summary/campaign-summary.component';
+import { CampaignContentFormComponent } from './components/campaign-content-form/campaign-content-form.component';
+import { CampaignBudgetFormComponent } from './components/campaign-budget-form/campaign-budget-form.component';
+import { CampaignScheduleFormComponent } from './components/campaign-schedule-form/campaign-schedule-form.component';
+import { CampaignSummaryComponent } from './components/campaign-summary/campaign-summary.component';
 import { MediaFile } from './media-file.model';
 
 @Component({

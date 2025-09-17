@@ -1,0 +1,25 @@
+@import '../../_campaign-forms.scss';
+
+.budget-form {
+  .wallet-balance-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  .slider-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  mat-slide-toggle {
+    margin: 1em 0;
+    color: gray;
+  }
+}

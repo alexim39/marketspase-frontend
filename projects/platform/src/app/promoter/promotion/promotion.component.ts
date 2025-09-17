@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -12,11 +12,11 @@ import { PromotionInterface, UserInterface } from '../../../../../shared-service
 import { PromoterService } from '../../promoter/promoter.service';
 import { UserService } from '../../common/services/user.service';
 
-import { HeaderComponent } from './header/header.component';
-import { StatsOverviewComponent } from './stats-overview/stats-overview.component';
-import { PromotionCardComponent } from './promotion-card/promotion-card.component';
-import { EmptyStateComponent } from './empty-state/empty-state.component';
-import { LoadingStateComponent } from './loading-state/loading-state.component';
+import { HeaderComponent } from './components/header/header.component';
+import { StatsOverviewComponent } from './components/stats-overview/stats-overview.component';
+import { PromotionCardComponent } from './components/promotion-card/promotion-card.component';
+import { EmptyStateComponent } from './components/empty-state/empty-state.component';
+import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 

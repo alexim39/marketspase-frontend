@@ -1,0 +1,66 @@
+// schedule-form.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.form-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  
+  .card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid $border-color;
+    
+    h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    
+    p {
+      margin: 0.5rem 0 0;
+      color: $text-secondary;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .card-content {
+    padding: 1.5rem;
+  }
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-field-half {
+  flex: 1 1 calc(50% - 0.5rem);
+  
+  @include mobile {
+    flex: 1 1 100%;
+  }
+}
+
+.toggle-hint {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+// Responsive adjustments
+@include mobile {
+  .form-card {
+    .card-header,
+    .card-content {
+      padding: 1rem;
+    }
+  }
+}

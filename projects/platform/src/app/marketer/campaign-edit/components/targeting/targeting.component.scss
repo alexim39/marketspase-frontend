@@ -1,0 +1,30 @@
+// targeting.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.toggle-hint {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.targeting-options {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid gray;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-field-full {
+  flex: 1 1 100%;
+}

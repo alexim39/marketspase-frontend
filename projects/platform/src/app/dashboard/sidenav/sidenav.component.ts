@@ -22,11 +22,11 @@ import { UserInterface, DeviceService } from '../../../../../shared-services/src
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Import new components
-import { UserProfileCardComponent } from './user-profile-card/user-profile-card.component';
-import { SidenavNavigationComponent } from './sidenav-navigation/sidenav-navigation.component';
-import { QuickActionsComponent } from './quick-actions/quick-actions.component';
-import { NotificationsMenuComponent, NotificationItem } from './notifications-menu/notifications-menu.component';
-import { CartDialogComponent } from './cart-dialog/cart-dialog.component';
+import { UserProfileCardComponent } from './components/user-profile-card/user-profile-card.component';
+import { SidenavNavigationComponent } from './components/sidenav-navigation/sidenav-navigation.component';
+import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
+import { NotificationsMenuComponent, NotificationItem } from './components/notifications-menu/notifications-menu.component';
+import { CartDialogComponent } from './components/cart-dialog/cart-dialog.component';
 
 
 @Component({

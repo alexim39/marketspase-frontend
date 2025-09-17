@@ -1,0 +1,94 @@
+// media-upload.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.media-type-selector {
+  margin-bottom: 1rem;
+  
+  .mat-button-toggle-group {
+    width: 100%;
+    
+    .mat-button-toggle {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.media-upload-container {
+  width: 100%;
+}
+
+.image-upload-wrapper,
+.video-upload-wrapper {
+  width: 100%;
+  border: 2px dashed $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  
+  &:hover {
+    border-color: $primary-color;
+  }
+}
+
+.upload-placeholder {
+  padding: 3rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  color: $text-secondary;
+  
+  mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    color: lighten($text-secondary, 20%);
+  }
+  
+  p {
+    margin: 0 0 0.5rem;
+    font-weight: 500;
+  }
+  
+  span {
+    font-size: 0.8rem;
+  }
+}
+
+.image-preview,
+.video-preview {
+  position: relative;
+  
+  img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+  }
+  
+  video {
+    width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+  }
+  
+  .remove-image-btn,
+  .remove-video-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  }
+}
+
+.upload-progress {
+  margin-top: 0.5rem;
+}
