@@ -4,8 +4,8 @@ import { ApiService } from '../../../../shared-services/src/public-api';
 
 @Injectable()
 export class PromoterService {
-  private apiService: ApiService = inject(ApiService);
-  public api = this.apiService.getBaseUrl();
+  private readonly apiService: ApiService = inject(ApiService);
+  public readonly api = this.apiService.getBaseUrl();
 
   /**
    * Get campaigns by status (e.g., active, paused, completed).
@@ -33,12 +33,12 @@ export class PromoterService {
 
   // Get user's promotions
   getUserPromotions(userId: string): Observable<any> {
-    return this.apiService.get<any>(`campaign/promotions/user/${userId}`, undefined, undefined, true);
+    return this.apiService.get<any>(`promotion/user/${userId}`, undefined, undefined, true);
   }
 
   // Submit promotion proofs
   submitProof(formData: FormData, userId: string): Observable<any> {
-    return this.apiService.post<any>(`campaign/promotions/submit-proof/${userId}`, formData, undefined, true);
+    return this.apiService.post<any>(`promotion/submit-proof/${userId}`, formData, undefined, true);
   }
 
   /**
@@ -53,11 +53,7 @@ export class PromoterService {
       campaignId,
       promoterId,
     };
-    return this.apiService.post<any>('campaign/promotions/download', payload, undefined, true);
+    return this.apiService.post<any>('promotion/download', payload, undefined, true);
   }
 
-  // The rest of your existing methods
-  /* getProofDetails(promotionId: string): Observable<any> {
-    return this.apiService.get<any>(`campaign/promotions/proof/${promotionId}`, undefined, undefined, true);
-  } */
 }

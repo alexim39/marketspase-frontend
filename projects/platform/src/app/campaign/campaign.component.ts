@@ -1,18 +1,18 @@
 import { Component, Input, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserInterface } from '../../../../shared-services/src/public-api';
-import { MarketerCampaignLandingComponent } from '../marketer/marketer-landing.component';
-import { PromoterLandingComponent } from '../promoter/landing-landing/promoter-landing.component';
+import { MarketerLandingComponent } from '../marketer/marketer-landing.component';
+import { PromoterLandingComponent } from '../promoter/promoter-landing/promoter-landing.component';
 
 
 @Component({
   selector: 'campaign',
   standalone: true,
-  imports: [CommonModule, MarketerCampaignLandingComponent, PromoterLandingComponent],
+  imports: [CommonModule, MarketerLandingComponent, PromoterLandingComponent],
   template: `
       
     @if (user()?.role === 'marketer') {
-      <marketer-campaign-landing [user]="user" />
+      <marketer-landing [user]="user" />
     }
     
     @if (user()?.role === 'promoter') {

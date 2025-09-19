@@ -2,8 +2,8 @@ import { Routes } from "@angular/router";
 import { CampaignIndexComponent } from "./index";
 import { CreateCampaignComponent } from "./create/create-campaign.component";
 import { PromotionComponent } from "../promoter/promotion/promotion.component";
-import { CampaignDetailsComponent } from "../marketer/campaign-details/campaign-details.component";
-import { CampaignEditComponent } from "../marketer/campaign-edit/campaign-edit.component";
+import { CampaignDetailsComponent } from "./campaign-details/campaign-details.component";
+import { CampaignEditComponent } from "./campaign-edit/campaign-edit.component";
 import { PromotionDetailComponent } from "../promoter/promotion/promotion-details/promotion-detail.component";
 
 export const CampaignRoutes: Routes = [

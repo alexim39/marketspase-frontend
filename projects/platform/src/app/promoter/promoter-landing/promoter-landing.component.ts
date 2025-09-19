@@ -18,7 +18,7 @@ import { LoadingStateComponent } from './components/loading-state/loading-state.
 // Imported types and services
 import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
-import { PromoterService } from '../promoter.service';
+import { PromoterLandingService } from './promoter-landing.service';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -34,7 +34,7 @@ interface CampaignMetrics {
 @Component({
   selector: 'promoter-landing',
   standalone: true,
-  providers: [PromoterService],
+  providers: [PromoterLandingService],
   imports: [
     CommonModule,
     MatButtonModule,
@@ -53,11 +53,11 @@ interface CampaignMetrics {
 export class PromoterLandingComponent implements OnInit {
   private router = inject(Router);
   private deviceService = inject(DeviceService);
-  private promoterService = inject(PromoterService);
+  private promoterLandingService = inject(PromoterLandingService);
   private snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   
-  public readonly api = this.promoterService.api;
+  public readonly api = this.promoterLandingService.api;
 
   // Signals for reactive state management
   isLoading = signal(false);
@@ -127,13 +127,13 @@ export class PromoterLandingComponent implements OnInit {
       return;
     }
 
-    this.promoterService.getUserPromotions(userId)
+    this.promoterLandingService.getUserPromotions(userId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           // Add a defensive check for the response data
           if (response && response.data) {
-            //console.log('returned promotions',response.data)
+            console.log('returned promotions',response)
             this.promotions.set(response.data);
             //this.stats.set(this.calculateStats(response.data));
           } else {
@@ -154,7 +154,7 @@ export class PromoterLandingComponent implements OnInit {
   private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-      this.promoterService.getCampaignsByStatus('active')
+      this.promoterLandingService.getCampaignsByStatus('active')
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
@@ -211,7 +211,7 @@ export class PromoterLandingComponent implements OnInit {
     }
     
     this.isApplying.set(true);
-      this.promoterService.acceptCampaign(campaign._id, this.user()!._id)
+      this.promoterLandingService.acceptCampaign(campaign._id, this.user()!._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

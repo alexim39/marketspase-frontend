@@ -22,7 +22,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { UserService } from '../../common/services/user.service';
-import { CampaignService } from '../campaign.service';
+import { CampaignService } from './create.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';

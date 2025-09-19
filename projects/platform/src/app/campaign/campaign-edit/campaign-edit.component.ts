@@ -19,14 +19,14 @@ import { RequirementsFormComponent } from './components/requirements-form/requir
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { ErrorStateComponent } from './components/error-state/error-state.component';
 
-import { MarketerService } from '../marketer.service';
 import { CampaignInterface } from '../../../../../shared-services/src/public-api';
 import { NIGERIAN_STATES } from '../../common/utils/nigerian-states';
+import { CampaignEditService } from './campaign-edit.service';
 
 @Component({
   selector: 'app-campaign-edit',
   standalone: true,
-  providers: [MarketerService],
+  providers: [CampaignEditService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -51,7 +51,7 @@ export class CampaignEditComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private marketerService = inject(MarketerService);
+  private campaignEditService = inject(CampaignEditService);
   private snackBar = inject(MatSnackBar);
 
   campaign = signal<CampaignInterface | null>(null);
@@ -66,7 +66,7 @@ export class CampaignEditComponent implements OnInit {
   campaignForm!: FormGroup;
   locationInputControl = new FormControl('');
 
-  public readonly api = this.marketerService.api;
+  public readonly api = this.campaignEditService.api;
 
   categories = [
     { value: 'fashion', label: 'Fashion & Beauty' },
@@ -144,7 +144,7 @@ export class CampaignEditComponent implements OnInit {
       return;
     }
 
-    this.marketerService.getCampaignById(campaignId).subscribe({
+    this.campaignEditService.getCampaignById(campaignId).subscribe({
       next: (response) => {
         if (response.success) {
           this.campaign.set(response.data);
@@ -248,7 +248,7 @@ export class CampaignEditComponent implements OnInit {
       targetLocations: this.targetLocations(),
     };
 
-    this.marketerService.updateCampaign(this.campaign()?._id || '', this.campaign()?.owner._id, campaignData).subscribe({
+    this.campaignEditService.updateCampaign(this.campaign()?._id || '', this.campaign()?.owner._id, campaignData).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.snackBar.open('Campaign updated successfully', 'Dismiss', { duration: 3000 });

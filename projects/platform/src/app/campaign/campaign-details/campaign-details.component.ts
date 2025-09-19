@@ -15,10 +15,10 @@ import { CampaignInterface, DeviceService, FormatCurrencyPipe, PromotionInterfac
 
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
-import { MarketerService } from '../marketer.service';
 import { PromotionDetailsDialogComponent } from './promotion-details-dialog/promotion-details-dialog.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TruncateIDPipe } from './truncate-id.pipe';
+import { CampaignDetailsService } from './campaign-details.service';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -36,7 +36,7 @@ export enum CampaignStatus {
 @Component({
   selector: 'app-campaign-details',
   standalone: true,
-  providers: [MarketerService],
+  providers: [CampaignDetailsService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -58,7 +58,7 @@ export enum CampaignStatus {
 export class CampaignDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private marketerService = inject(MarketerService);
+  private campaignDetailsService = inject(CampaignDetailsService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
@@ -69,7 +69,7 @@ export class CampaignDetailsComponent implements OnInit {
   selectedStatusFilter = signal<string>('');
   
   // API base URL for media
-  public readonly api = this.marketerService.api;
+  public readonly api = this.campaignDetailsService.api;
 
   
   // Computed signal for filtered promotions
@@ -122,7 +122,7 @@ export class CampaignDetailsComponent implements OnInit {
       return;
     }
     
-    this.marketerService.getCampaignById(campaignId).subscribe({
+    this.campaignDetailsService.getCampaignById(campaignId).subscribe({
       next: (response) => {
         if (response.success) {
             console.log('campaign ',response)
@@ -236,14 +236,14 @@ export class CampaignDetailsComponent implements OnInit {
     
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'validated') {
-        this.validatePromotion(promotion);
+        //this.validatePromotion(promotion);
       } else if (result === 'rejected') {
-        this.rejectPromotion(promotion);
+        //this.rejectPromotion(promotion);
       }
     });
   }
 
-  validatePromotion(promotion: PromotionInterface) {
+ /*  validatePromotion(promotion: PromotionInterface) {
     this.marketerService.validatePromotion(promotion._id).subscribe({
       next: (updatedPromotion) => {
         this.updatePromotionInList(updatedPromotion);
@@ -253,9 +253,9 @@ export class CampaignDetailsComponent implements OnInit {
         this.snackBar.open(err.message || 'Failed to validate promotion', 'Close', { duration: 3000 });
       }
     });
-  }
+  } */
 
-  rejectPromotion(promotion: PromotionInterface) {
+ /*  rejectPromotion(promotion: PromotionInterface) {
     const reason = prompt('Please enter the reason for rejection:');
     if (!reason) return;
     
@@ -268,7 +268,7 @@ export class CampaignDetailsComponent implements OnInit {
         this.snackBar.open(err.message || 'Failed to reject promotion', 'Close', { duration: 3000 });
       }
     });
-  }
+  } */
 
   private updatePromotionInList(updatedPromotion: PromotionInterface) {
     const campaign = this.campaign();

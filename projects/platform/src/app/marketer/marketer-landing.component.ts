@@ -37,7 +37,7 @@ interface StatusOption {
 }
 
 @Component({
-  selector: 'marketer-campaign-landing',
+  selector: 'marketer-landing',
   standalone: true,
   providers: [MarketerService],
   imports: [
@@ -58,7 +58,7 @@ interface StatusOption {
   templateUrl: './marketer-landing.component.html',
   styleUrls: ['./marketer-landing.component.scss']
 })
-export class MarketerCampaignLandingComponent implements OnInit {
+export class MarketerLandingComponent implements OnInit {
   private router = inject(Router);
   private deviceService = inject(DeviceService);
 
@@ -134,70 +134,10 @@ export class MarketerCampaignLandingComponent implements OnInit {
 
   private loadCampaigns(): void {
     this.isLoading.set(true);
-    
-    //Simulate API call with mock data
-    // setTimeout(() => {
-    //   const mockCampaigns: any[] = [
-    //     {
-    //       _id: '1',
-    //       title: 'Summer Fashion Sale 2024',
-    //       description: 'Promote our latest summer collection with exclusive 30% discounts for WhatsApp Status viewers',
-    //       status: 'active',
-    //       budget: 50000,
-    //       spent: 32000,
-    //       payoutPerPromotion: 200,
-    //       maxPromoters: 250,
-    //       currentPromoters: 160,
-    //       views: 8500,
-    //       estimatedReach: 12500,
-    //       startDate: new Date('2024-08-15'),
-    //       endDate: new Date('2024-08-30'),
-    //       createdAt: new Date('2024-08-14'),
-    //       mediaUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop',
-    //       category: 'fashion',
-    //       progress: 64,
-    //       remainingDays: 6,
-    //       campaignType: 'premium',
-    //       targetAudience: 'Women 18-35',
-    //       minViews: 25,
-    //       isApproved: true,
-    //       priority: 'high'
-    //     },
-    //     {
-    //       id: '2',
-    //       title: 'Tech Product Launch - Smartphone X1',
-    //       description: 'Introduce our revolutionary new smartphone with AI-powered features to tech enthusiasts',
-    //       status: 'active',
-    //       budget: 100000,
-    //       spent: 45000,
-    //       payoutPerPromotion: 200,
-    //       maxPromoters: 500,
-    //       currentPromoters: 225,
-    //       views: 15200,
-    //       estimatedReach: 25000,
-    //       startDate: new Date('2024-08-10'),
-    //       endDate: new Date('2024-09-10'),
-    //       createdAt: new Date('2024-08-09'),
-    //       mediaUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop',
-    //       category: 'tech',
-    //       progress: 45,
-    //       remainingDays: 12,
-    //       campaignType: 'standard',
-    //       targetAudience: 'Tech enthusiasts 25-45',
-    //       minViews: 25,
-    //       isApproved: true,
-    //       priority: 'medium'
-    //     }
-    //   ];
-
-    //   this.campaigns.set(mockCampaigns);
-    //   this.filteredCampaigns.set(mockCampaigns);
-    //   this.isLoading.set(false);
-    // }, 1000);
 
      if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-        this.marketerService.getAdvertiserCampaign(this.user()!._id!)
+        this.marketerService.getMarketerCampaign(this.user()!._id!)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {

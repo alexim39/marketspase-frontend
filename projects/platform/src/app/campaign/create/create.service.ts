@@ -1,12 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService } from '../../../../shared-services/src/public-api';
+import { ApiService } from '../../../../../shared-services/src/public-api';
 
 
 @Injectable()
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
-  public api = this.apiService.getBaseUrl();
+  public readonly api = this.apiService.getBaseUrl();
+  private readonly apiUrl = 'campaign';
   
 
   /**
@@ -29,7 +30,7 @@ export class CampaignService {
     //   owner: campaignData.owner
     // };
 
-    return this.apiService.post<any>(`campaign/create`, campaignData, undefined, true);
+    return this.apiService.post<any>(`${this.apiUrl}/create`, campaignData, undefined, true);
   }
 
 }
