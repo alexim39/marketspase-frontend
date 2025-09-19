@@ -1,6 +1,6 @@
 /* Campaign & Promotion Summary Card Styles */
 .campaigns-summary-card {
-  padding: 16px;
+  padding: 10px;
   border-radius: 8px;
   background-color: #fff;
   border: 1px solid #e0e0e0;
@@ -26,6 +26,10 @@
     .view-all-btn {
       font-size: 12px;
       height: 32px;
+    }
+    .withdrawal {
+      width: 100%;
+      margin-top: 1em;
     }
   }
 

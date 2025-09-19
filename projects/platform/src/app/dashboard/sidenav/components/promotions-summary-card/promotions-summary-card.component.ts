@@ -30,7 +30,7 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
           </button>
         </div>
         <div class="summary-header">
-          <button mat-stroked-button color="primary" (click)="viewWithdrawal.emit()" style="width: 100%;">
+          <button class="withdrawal" mat-stroked-button color="primary" (click)="viewWithdrawal.emit()">
             Withdraw Fund
           </button>
         </div>

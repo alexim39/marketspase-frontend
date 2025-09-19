@@ -95,7 +95,7 @@
         <mat-card-content>
           @if (recentActivity().length > 0) {
             <div class="activity-list">
-              @for (activity of recentActivity(); track activity.createdAt) {
+              @for (activity of recentActivity(); track activity) {
                 <div class="activity-item">
                   <div class="activity-icon" [class]="activity.type">
                     <mat-icon>
