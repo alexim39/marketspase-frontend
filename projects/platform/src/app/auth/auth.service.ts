@@ -13,6 +13,7 @@ import {
 import { Observable, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UserService } from '../common/services/user.service';
 
 
 @Injectable({
@@ -21,6 +22,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class AuthService {
   // Inject the Firebase Auth instance
   private firebaseAuth: Auth = inject(Auth);
+  private userService = inject(UserService);
 
   /**
    * Initiates the Google sign-in process using a popup.
@@ -200,6 +202,8 @@ export class AuthService {
     return from(this.firebaseAuth.signOut()).pipe(
       map(() => {
         console.log('User signed out.');
+        // set user to null
+        this.userService.clearUser();
         return;
       }),
       catchError(error => {

@@ -48,10 +48,7 @@ import { CartDialogComponent } from './components/cart-dialog/cart-dialog.compon
     MatDialogModule,
     MatTooltipModule,
     MatProgressBarModule,
-    CurrencyPipe,
-    DatePipe,
-    TitleCasePipe,
-    
+    CurrencyPipe,    
     // New components
     UserProfileCardComponent,
     SidenavNavigationComponent,

@@ -15,6 +15,7 @@ import { TestimonialsComponent } from '../testimonial/testimonial.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotifyProfileBannerComponent } from './notification-banner/notify-profile-banner.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { DeviceService } from '../../../../../shared-services/src/public-api';
 
 interface DashboardStat {
   icon: string;
@@ -61,19 +62,19 @@ interface PromotionSummary {
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
-export class DashboardMainContainer implements OnInit {
+export class DashboardMainContainer {
   private router = inject(Router);
-  private breakpointObserver = inject(BreakpointObserver);
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
   private userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly deviceService = inject(DeviceService);
 
   public user = this.userService.user;
 
-  isMobile = computed(() => {
-    return this.breakpointObserver.isMatched('(max-width: 768px)');
+   isMobile = computed(() => {
+    return this.deviceService.deviceState().isMobile;
   });
 
   campaignSummary = computed((): CampaignSummary => {
@@ -257,12 +258,6 @@ export class DashboardMainContainer implements OnInit {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5);
   });
-
-  ngOnInit(): void {
-    this.breakpointObserver.observe(['(max-width: 768px)'])
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-  }
 
   createCampaign(): void {
     this.router.navigate(['dashboard/campaigns/create']);

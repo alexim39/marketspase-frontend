@@ -675,8 +675,6 @@ export class TestimonialsComponent implements OnInit, OnDestroy {
           progress: 0
         });
 
-        console.log('testimonials ',testimonials)
-
         // Start carousel after testimonials are loaded
         if (testimonials.length > 1) {
           this.startCarousel();

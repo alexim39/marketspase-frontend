@@ -1,5 +1,5 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
-import { Observable } from 'rxjs'; // Import BehaviorSubject and of for reactive state
+import { catchError, Observable, tap, throwError } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from '../../../../../shared-services/src/public-api';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 
@@ -15,7 +15,7 @@ export class UserService {
   public readonly user: Signal<UserInterface | null> = this._user;
 
   /**
-   * Submits the partner signin data to the backend API.
+   * Submits the user signin data to the backend API.
    * @param firebaseUser The signin data to be submitted.
    * @returns An Observable that emits the API response or an error.
    */
@@ -28,17 +28,23 @@ export class UserService {
    * @returns An Observable that emits the API response or an error.
    */
   getUser(uid: string): Observable<any> {
-    return this.apiService.get<any>(`auth/${uid}`, undefined, undefined, true);
+    return this.apiService.get<any>(`auth/${uid}`, undefined, undefined, true)
+    .pipe(
+      tap(response => {
+        if (response.success) {
+          //console.log('Updated user:', response);
+          this._user.set(response.data as UserInterface);
+        }
+      }),
+      catchError(error => {
+        console.error('Error fetching user:', error);
+        // Optionally clear user on error
+        this._user.set(null);
+        return throwError(() => error);
+      })
+    );
   }
-
-  /**
-   * Sets the current user data in the signal.
-   * This is the new way to update the user state.
-   * @param data The user data to set.
-   */
-  setCurrentUser(data: UserInterface | null) { 
-    this._user.set(data); 
-  }
+  
 
   /**
    * Clears the current user.

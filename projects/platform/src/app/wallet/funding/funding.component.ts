@@ -67,7 +67,7 @@ interface PaymentStatusData {
   templateUrl: './funding.component.html',
   styleUrls: ['./funding.component.scss']
 })
-export class WalletFundingComponent implements OnInit, OnDestroy {
+export class WalletFundingComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private paystackService = inject(PaystackService);
@@ -146,13 +146,6 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
     this.setSuggestedAmount();
     this.setupFormValidation();
   }
-
- 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 
 
   private initializeForm(): void {
@@ -351,6 +344,16 @@ export class WalletFundingComponent implements OnInit, OnDestroy {
               });
               this.updateLocalWalletBalance();
               //this.showSuccess(`${response.message} 🎉`);
+
+              // get update user record
+              this.userService.getUser(this.user()?.uid || '')
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                error: (error) => {
+                  console.error('Failed to refresh user:', error);
+                }
+              });
+
            }
           },
           error: (backendError) => {

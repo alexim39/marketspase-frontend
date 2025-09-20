@@ -278,26 +278,26 @@
     });
     
     // Handle Twitter OAuth callback
-    if (window.location.pathname === '/auth/twitter/callback') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const error = urlParams.get('error');
+    // if (window.location.pathname === '/auth/twitter/callback') {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const code = urlParams.get('code');
+    //   const error = urlParams.get('error');
       
-      if (code) {
-        // Store the authorization code for the main window
-        sessionStorage.setItem('twitter_auth_code', code);
-        window.close();
-      } else if (error) {
-        sessionStorage.setItem('twitter_auth_error', error);
-        window.close();
-      }
-    }
+    //   if (code) {
+    //     // Store the authorization code for the main window
+    //     sessionStorage.setItem('twitter_auth_code', code);
+    //     window.close();
+    //   } else if (error) {
+    //     sessionStorage.setItem('twitter_auth_error', error);
+    //     window.close();
+    //   }
+    // }
     
     // Handle Apple OAuth callback
-    if (window.location.pathname === '/auth/apple/callback') {
-      // Apple Sign-In will handle the callback automatically
-      // You might need to implement additional logic here
-    }
+    // if (window.location.pathname === '/auth/apple/callback') {
+    //   // Apple Sign-In will handle the callback automatically
+    //   // You might need to implement additional logic here
+    // }
   </script>
   
   <!-- Google Analytics (optional) -->

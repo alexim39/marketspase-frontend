@@ -331,11 +331,9 @@ export class DashboardIndexComponent implements OnDestroy {
               .subscribe({
                 next: (response) => {
                   if (response.success) {
-                    console.log('Returned User:', response.data);
+                    //console.log('Returned User:', response.data);
                    // UPDATED: Use `set()` to update the signal's value.
                     this.user.set(response.data as UserInterface);
-                    // get current user to user service
-                    this.userService.setCurrentUser(this.user())
                   }
                 },
                 error: (error: HttpErrorResponse) => {

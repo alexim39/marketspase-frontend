@@ -3,6 +3,7 @@ import { CampaignInterface } from "./campaign.interface";
 
 export interface UserInterface {
   _id: string;
+  uid: string;
   status: boolean;
   displayName: string;
   email: string;

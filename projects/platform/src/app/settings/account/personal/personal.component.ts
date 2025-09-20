@@ -23,6 +23,7 @@ import { COUNTRIES } from '../../../common/utils/countries';
 import { NIGERIAN_STATES } from '../../../common/utils/nigerian-states';
 import { ProfileService } from '../profile.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UserService } from '../../../common/services/user.service';
 
 
 @Component({
@@ -56,6 +57,8 @@ export class PersonalInfoComponent implements OnDestroy {
   private snackBar = inject(MatSnackBar);
   private profileService = inject(ProfileService);
   private readonly destroyRef = inject(DestroyRef);
+
+  private userService = inject(UserService);
 
   // Reactive state using signals
   isLoading = signal(false);
@@ -185,6 +188,16 @@ export class PersonalInfoComponent implements OnDestroy {
         next: (response) => {
           this.showNotification(response.message, 'success');
           this.isLoading.set(false);
+
+          // get update user record
+          this.userService.getUser(this.user()?.uid || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            error: (error) => {
+              console.error('Failed to refresh user:', error);
+            }
+          });
+
         },
         error: (error: HttpErrorResponse) => {
           this.handleError(error);

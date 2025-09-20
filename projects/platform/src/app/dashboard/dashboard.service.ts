@@ -28,7 +28,7 @@ export class DashboardService {
    * Get the form data to the backend.
    * @returns An observable of the submitted form data.
   */
-    getRandomTestimonials(): Observable<any> {
+  getRandomTestimonials(): Observable<any> {
     return this.apiService.get<any>(`settings/testimonial/dashboard`, undefined, undefined, true);
   }
 

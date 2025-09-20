@@ -7,6 +7,5 @@ import { RouterModule } from '@angular/router';
   template: `
   <router-outlet/>
   `,
-  styles: [``],
 })
 export class App {}

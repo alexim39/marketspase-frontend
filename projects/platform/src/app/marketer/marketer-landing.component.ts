@@ -141,7 +141,7 @@ export class MarketerLandingComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            console.log('Campaigns without metrics:', response.data);
+            //console.log('Campaigns without metrics:', response.data);
             const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
             console.log('Campaigns with metrics:', campaignsWithMetrics);
             this.campaigns.set(campaignsWithMetrics);
