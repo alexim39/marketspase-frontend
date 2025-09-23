@@ -33,7 +33,7 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsernameDialogComponent } from './help-dialog.component';
 import { ProfileService } from '../profile.service';
-import { Subject, takeUntil } from 'rxjs';
+import { UserService } from '../../../common/services/user.service';
 
 @Component({
   selector: 'async-username-info',
@@ -267,7 +267,7 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
-
+  private userService = inject(UserService);
   // Input is now a required signal
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -370,6 +370,16 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.showNotification(response.message, 'success');
           this.isLoading.set(false);
+
+           // get update user record
+          this.userService.getUser(this.user()?.uid || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            error: (error) => {
+              console.error('Failed to refresh user:', error);
+            }
+          });
+
         },
         error: (error: HttpErrorResponse) => {
           const errorMessage = error.error?.message || 'Failed to update username. Please try again.';

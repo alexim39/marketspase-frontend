@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, Signal, effect, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, inject, Input, Signal, effect, DestroyRef } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,7 +25,6 @@ import { ProfileService } from '../profile.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../common/services/user.service';
 
-
 @Component({
   selector: 'async-personal-infor',
   providers: [ProfileService],
@@ -50,14 +49,13 @@ import { UserService } from '../../../common/services/user.service';
   templateUrl: './personal.component.html',
   styleUrls: ['./personal.component.scss']
 })
-export class PersonalInfoComponent implements OnDestroy {
+export class PersonalInfoComponent {
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   private snackBar = inject(MatSnackBar);
   private profileService = inject(ProfileService);
   private readonly destroyRef = inject(DestroyRef);
-
   private userService = inject(UserService);
 
   // Reactive state using signals
@@ -152,12 +150,6 @@ export class PersonalInfoComponent implements OnDestroy {
     }, { allowSignalWrites: true });
   }
 
-  
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 
   onAccountStatusChange(event: MatSlideToggleChange): void {
     if (event.checked) {
@@ -189,7 +181,7 @@ export class PersonalInfoComponent implements OnDestroy {
           this.showNotification(response.message, 'success');
           this.isLoading.set(false);
 
-          // get update user record
+          // reload user record
           this.userService.getUser(this.user()?.uid || '')
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe({

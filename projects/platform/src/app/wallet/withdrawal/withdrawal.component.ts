@@ -9,7 +9,6 @@ import {
   computed,
   DestroyRef,
   Signal,
-  OnDestroy
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
@@ -33,7 +32,6 @@ import { Subject, EMPTY, of } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
-  switchMap,
   catchError,
   finalize
 } from 'rxjs/operators';
@@ -56,12 +54,6 @@ import { UserService } from '../../common/services/user.service';
 interface BankInterface {
   code: string;
   name: string;
-}
-
-interface BalanceResponse {
-  availableBalance: number;
-  pendingBalance: number;
-  totalBalance?: number;
 }
 
 interface AccountResolutionResponse {
@@ -456,6 +448,16 @@ export class WithdrawalComponent implements OnInit {
             this.showSuccessMessage('Withdrawal request submitted successfully!');
             this.resetForm();
             this.refreshBalance();
+
+            // reload user record
+            this.userService.getUser(this.user()?.uid || '')
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              error: (error) => {
+                console.error('Failed to refresh user:', error);
+              }
+            });
+
           }
         }
       });

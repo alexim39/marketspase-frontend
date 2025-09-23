@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-promotions-summary-card',
@@ -15,7 +16,8 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
-    CurrencyPipe
+    CurrencyPipe,
+    RouterModule
   ],
   template: `
     @if(user()?.promotion && user()!.promotion!.length > 0) {
@@ -23,7 +25,7 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
         <div class="summary-header">
           <div class="summary-title-section">
             <mat-icon class="summary-icon">campaign</mat-icon>
-            <h3 class="summary-title">Promotion Overview</h3>
+            <h3 class="summary-title">Overview</h3>
           </div>
           <button mat-flat-button color="primary" class="view-all-btn" (click)="viewAllPromotions.emit()">
             View All
@@ -80,17 +82,20 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
         </div>
       </div>
     } @else {
-      <div class="empty-cart-message">
+       <div class="empty-cart-message">
+        <div class="empty-cart-icon">
+          <mat-icon>campaign</mat-icon>
+        </div>
         <h4>No active promotion</h4>
-        <p>You have no running promotion yet</p>
-        <button
+        <p>You have no active campaign yet</p>
+        <a
           mat-flat-button
           color="primary"
           class="shop-btn"
-          routerLink="/campaigns"
+          routerLink="/dashboard/campaigns"
           (click)="startPromotion.emit()">
           Start a Promotion
-        </button>
+        </a>
       </div>
     }
   `,

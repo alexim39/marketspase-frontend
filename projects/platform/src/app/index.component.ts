@@ -540,20 +540,20 @@ export class IndexComponent implements OnDestroy {
     },
     {
       name: 'Twitter',
-      icon: 'alternate_email', // You could use a custom SVG for the Twitter bird icon for better branding!
+      icon: 'alternate_email',
       color: '#1da1f2',
       backgroundColor: '#f0f9ff',
       hoverColor: '#1a91da',
       method: () => this.signInWithTwitter(),
     },
-    {
-      name: 'Facebook',
-      icon: 'facebook',
-      color: '#1877f2',
-      backgroundColor: '#f0f2ff',
-      hoverColor: '#166fe5',
-      method: () => this.signInWithFacebook(),
-    },
+    // {
+    //   name: 'Facebook',
+    //   icon: 'facebook',
+    //   color: '#1877f2',
+    //   backgroundColor: '#f0f2ff',
+    //   hoverColor: '#166fe5',
+    //   method: () => this.signInWithFacebook(),
+    // },
     // {
     //   name: 'Apple',
     //   icon: 'phone_iphone',

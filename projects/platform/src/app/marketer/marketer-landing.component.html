@@ -153,17 +153,7 @@
               
               <div class="card-meta">
                 <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
-                <span><mat-icon>calendar_today</mat-icon> 
-                 @if (campaign.endDate) {
-                      @if (campaign.remainingDays === 'Expired') {
-                          <span>{{campaign.remainingDays}}</span>
-                      } @else {
-                          <span>{{campaign.remainingDays}} left</span>
-                      }
-                  } @else {
-                  <span>{{campaign.remainingDays}}</span>
-                  }
-                </span>
+                <span><mat-icon>calendar_today</mat-icon> {{campaign.duration}}</span>
               </div>
 
               <div class="metrics">

@@ -74,7 +74,7 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
         </button>
       </div>
 
-      <mat-divider/>
+      <!-- <mat-divider/> -->
 
       @if (activeTab === 'cart') {
         <div class="cart-content">
@@ -83,16 +83,16 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
               <app-campaigns-summary-card
                 [user]="user"
                 (viewAllCampaigns)="viewAllCampaigns.emit()"
-                (startCampaign)="closeDialog.emit()">
-              </app-campaigns-summary-card>
+                (startCampaign)="closeDialog.emit()"
+              />
             }
             @if(user()!.role === 'promoter') {
               <app-promotions-summary-card
                 [user]="user"
                 (viewAllPromotions)="viewAllPromotions.emit()"
                 (viewWithdrawal)="viewWithdrawal.emit()"
-                (startPromotion)="closeDialog.emit()">
-              </app-promotions-summary-card>
+                (startPromotion)="closeDialog.emit()"
+              />
             }
           </div>
           <div class="checkout-section">

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { CampaignInterface } from '../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'campaign-card',
@@ -9,7 +10,8 @@ import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-place
   imports: [
     CommonModule,
     TitleCasePipe,
-    CategoryPlaceholderPipe
+    CategoryPlaceholderPipe,
+    MatIconModule
   ],
   templateUrl: './campaign-card.component.html',
   styleUrls: ['./campaign-card.component.scss']
@@ -94,10 +96,10 @@ export class CampaignCardComponent {
   canAcceptCampaign(campaign: CampaignInterface): boolean {
     if (campaign.status !== 'active') return false;
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
-    const slotsFilled = campaign.totalPromotions || 0;
-    if (slotsFilled >= campaign.maxPromoters) return false;
-    const remainingBudget = campaign.budget - ( (campaign.payoutPerPromotion * campaign.currentPromoters )|| 0);
-    if (remainingBudget < campaign.payoutPerPromotion) return false;
+    //const slotsFilled = campaign.totalPromotions || 0;
+    if (campaign.totalPromotions >= campaign.maxPromoters) return false;
+    //const remainingBudget = campaign.budget - ( (campaign.payoutPerPromotion * campaign.currentPromoters ) || 0);
+    if (campaign.remainingBudget < campaign.payoutPerPromotion) return false;
     return true;
   }
   

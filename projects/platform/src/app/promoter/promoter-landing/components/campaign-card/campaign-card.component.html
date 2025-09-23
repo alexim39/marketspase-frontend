@@ -35,7 +35,7 @@
     
     <div class="card-meta">
       <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
-      <span><i class="material-icons">schedule</i> {{campaign.remainingDays}}</span>
+      <span><i class="material-icons">schedule</i> {{campaign.duration}}</span>
     </div>
 
     <div class="metrics">
@@ -72,7 +72,7 @@
       (click)="applyForCampaign.emit(campaign)"
       >
       @if (isApplying) {
-        <span class="loading-spinner"></span> Accepting...
+        <mat-icon class="loading-spinner">hourglass_empty</mat-icon> Accepting...
       }@else {
         <i class="material-icons">add_circle</i>
         {{getAcceptButtonText(campaign)}}

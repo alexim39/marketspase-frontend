@@ -215,16 +215,16 @@ export class PromoterLandingComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const updatedCampaigns = this.campaigns().map(c => {
-            if (c._id === campaign._id) {
+          const updatedCampaigns = this.campaigns().map(campaign => {
+            if (campaign._id === campaign._id) {
               return {
-                ...c,
-                totalPromotions: (c.totalPromotions || 0) + 1,
-                spentBudget: ( (c.payoutPerPromotion * c.currentPromoters ) || 0) + c.payoutPerPromotion
-                // spentBudget: (c.spentBudget || 0) + c.payoutPerPromotion
+                ...campaign,
+                //totalPromotions: (campaign.totalPromotions || 0) + 1,
+                //spentBudget: ( (campaign.payoutPerPromotion * c.currentPromoters ) || 0) + c.payoutPerPromotion
+                spentBudget: (campaign.spentBudget || 0) + campaign.payoutPerPromotion
               };
             }
-            return c;
+            return campaign;
           });
           
           this.campaigns.set(updatedCampaigns);

@@ -141,14 +141,12 @@ export class MarketerLandingComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            //console.log('Campaigns without metrics:', response.data);
-            const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
-            console.log('Campaigns with metrics:', campaignsWithMetrics);
-            this.campaigns.set(campaignsWithMetrics);
+            console.log('Campaigns without metrics:', response.data);
+            this.campaigns.set(response.data);
             this.isLoading.set(false);
             
             // --- FIX 1: Trigger the filtering after data is successfully loaded ---
-            this.filteredCampaigns.set(campaignsWithMetrics);
+            this.filteredCampaigns.set(response.data);
           },
           error: (error: HttpErrorResponse) => {
             // const errorMessage = error.error?.message || 'Failed to load campaign. Please try again.';
@@ -169,39 +167,13 @@ export class MarketerLandingComponent implements OnInit {
       totalCampaigns: campaigns.length,
       activeCampaigns: activeCampaigns.length,
       totalSpent: campaigns.reduce((sum, c) => sum + ( (c.payoutPerPromotion * c.currentPromoters ) || 0), 0),
-      totalViews: campaigns.reduce((sum, c) => sum + (c.views || 0), 0),
+      totalViews: 56,
+      //totalViews: campaigns.reduce((sum, c) => sum + (c.views || 0), 0),
       avgCTR: 3.2, // Mock value
       totalPromoters: campaigns.reduce((sum, c) => sum + (c.totalPromotions || 0), 0)
     };
   }
 
-   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
-      return campaigns.map(campaign => {
-        const updatedCampaign = { ...campaign };
-  
-        updatedCampaign.progress = ( (campaign.currentPromoters * campaign.payoutPerPromotion) / campaign.budget) * 100;
-        //updatedCampaign.progress = (campaign.spentBudget / campaign.budget) * 100;
-  
-        if (campaign.endDate) {
-          const endDate = new Date(campaign.endDate);
-          if (isDatePast(endDate)) {
-            updatedCampaign.remainingDays = 'Expired';
-          } else {
-            updatedCampaign.remainingDays = formatRemainingDays(endDate);
-          }
-        } else {
-          const budgetRemaining = updatedCampaign.budget - (updatedCampaign.payoutPerPromotion * updatedCampaign.currentPromoters );
-          // const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
-          if (budgetRemaining <= 0) {
-            updatedCampaign.remainingDays = 'Budget Exhausted';
-          } else {
-            updatedCampaign.remainingDays = 'Budget-based';
-          }
-        }
-  
-        return updatedCampaign;
-      });
-    }
 
   private applyFilters(): void {
     let filtered = [...this.campaigns()];

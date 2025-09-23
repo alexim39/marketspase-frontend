@@ -84,7 +84,14 @@
               <mat-error>
                 At least one skill is required
               </mat-error>
-            }          
+            }      
+            <mat-hint>
+              @if (skills().length === 0) {
+                Enter skill and tap enter
+              } @else {
+                {{ skills().length }} skill(s) added
+              }
+            </mat-hint>
           </mat-form-field>
 
           <!-- Hobbies Field -->
@@ -105,11 +112,19 @@
                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                    (matChipInputTokenEnd)="addHobby($event)">
             </mat-chip-grid>
+            
             @if (professionalForm.get('hobbies')?.hasError('required')) {
               <mat-error>
                 At least one hobby is required
               </mat-error>
             }
+            <mat-hint>
+              @if (hobbies().length === 0) {
+                Enter hobby and tap enter
+              } @else {
+                {{ hobbies().length }} hobby(ies) added
+              }
+            </mat-hint>
           </mat-form-field>
         </div>
       </div>

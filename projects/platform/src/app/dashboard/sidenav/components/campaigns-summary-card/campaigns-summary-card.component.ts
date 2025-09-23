@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
 import { CurrencyPipe } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-campaigns-summary-card',
@@ -16,7 +17,8 @@ import { CurrencyPipe } from '@angular/common';
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
-    CurrencyPipe
+    CurrencyPipe,
+    RouterModule
   ],
   template: `
     @if(user()?.campaigns && user()?.campaigns!.length > 0) {
@@ -24,7 +26,7 @@ import { CurrencyPipe } from '@angular/common';
         <div class="summary-header">
           <div class="summary-title-section">
             <mat-icon class="summary-icon">campaign</mat-icon>
-            <h3 class="summary-title">Campaign Overview</h3>
+            <h3 class="summary-title">Overview</h3>
           </div>
           <button mat-flat-button color="primary" class="view-all-btn" (click)="viewAllCampaigns.emit()">
             View All
@@ -82,14 +84,14 @@ import { CurrencyPipe } from '@angular/common';
         </div>
         <h4>No active campaigns</h4>
         <p>You have no active campaign yet</p>
-        <button
+        <a
           mat-flat-button
           color="primary"
           class="shop-btn"
-          routerLink="/campaigns"
+          routerLink="/dashboard/campaigns"
           (click)="startCampaign.emit()">
           Start a Campaign
-        </button>
+        </a>
       </div>
     }
   `,

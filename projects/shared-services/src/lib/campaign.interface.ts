@@ -41,34 +41,24 @@ export enum CampaignStatus {
  * and type safety throughout the application.
  */
 export interface CampaignInterface {
+  _id: string;
   hasEndDate: boolean;
   link?: string;
   caption: string; // Short description or caption for the campaign
   currency: string;
   owner: string | any; // The user ID
   activityLog: ActivityLogItem[];
-
-
-  filledSlots: number;
-  totalSlots: number;
-  isBookmarked: boolean;
-  difficulty: 'easy' | 'medium' | 'hard';
   tags: string[];
-  marketerName: string;
-  marketerRating: number;
+  difficulty: 'easy' | 'medium' | 'hard';
   requirements: string[];
   estimatedViews: number;
   duration: string;
-
-  _id: string;
   title: string;
   status: CampaignStatus;
   budget: number;
   payoutPerPromotion: number;
   maxPromoters: number;
   currentPromoters: number;
-  views: number;
-  //estimatedReach: 30; // estimate for each user
   startDate: Date;
   endDate: Date; // It can be null or undefined
   createdAt: Date;
@@ -76,22 +66,28 @@ export interface CampaignInterface {
   mediaType?: string;
   category: string;
   progress: number;
-  remainingDays?: number | string | 'N/A' | 'Expired' | 'Budget Exhausted' | 'Budget-based';
+  remainingDays?: number | string | 'Expired' | 'Budget Exhausted' | 'Budget-based';
   campaignType: 'standard' | 'premium' | 'boost';
   enableTarget: boolean;
-  isApproved: boolean;
   priority: 'low' | 'medium' | 'high';
-
   updatedAt: string;
-  spentBudget: number; // This is a key from your provided object
+  spentBudget: number; 
   paidPromotions: number;
   minViewsPerPromotion: number;
   validatedPromotions: number;
   totalPromotions: number;
+  promotions: PromotionInterface[];
+  remainingBudget: number;
 
-  promotions: PromotionInterface[]
 
 
+  //filledSlots: number;
+  //totalSlots: number;
+  //isBookmarked: boolean;
+  //marketerName: string;
+  //marketerRating: number;
+  //views: number;
+  //isApproved: boolean;
   // check
   targetAudience: any;
 }

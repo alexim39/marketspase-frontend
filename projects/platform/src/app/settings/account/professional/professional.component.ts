@@ -29,10 +29,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+import { UserService } from '../../../common/services/user.service';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { ProfileService } from '../profile.service';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'async-professional-info',
@@ -61,7 +60,7 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-
+  private userService = inject(UserService);
   // Input is a signal, which is a key part of the component's reactivity
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -154,6 +153,15 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.showNotification(response.message, 'success');
         this.isLoading.set(false);
+
+        // get update user record
+        this.userService.getUser(this.user()?.uid || '')
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          error: (error) => {
+            console.error('Failed to refresh user:', error);
+          }
+        });
       },
       error: (error: HttpErrorResponse) => {
         this.handleError(error);
