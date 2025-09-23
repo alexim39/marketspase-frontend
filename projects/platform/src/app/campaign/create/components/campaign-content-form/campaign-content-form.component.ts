@@ -10,6 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MediaFile } from '../../media-file.model';
+import { CATEGORIES } from '../../../../common/utils/categories';
 
 @Component({
   selector: 'app-campaign-content-form',
@@ -161,7 +162,7 @@ export class CampaignContentFormComponent implements OnInit {
     this.formGroup.get('media')?.setValue(null);
   }
 
-  get categories() {
+  /* get categories() {
     return [
       { value: 'fashion', label: 'Fashion & Beauty' },
       { value: 'food', label: 'Food & Restaurants' },
@@ -173,5 +174,10 @@ export class CampaignContentFormComponent implements OnInit {
       { value: 'business', label: 'Business & Finance' },
       { value: 'other', label: 'Other' }
     ];
+  } */
+
+  get categories() {
+    return CATEGORIES;
   }
+
 }

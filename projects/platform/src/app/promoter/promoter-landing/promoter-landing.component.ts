@@ -204,7 +204,14 @@ export class PromoterLandingComponent implements OnInit {
 
   applyForCampaign(campaign: CampaignInterface): void {
     if (!this.user() || !this.user()?._id) {
-      this.snackBar.open('Please log in to apply for campaigns', 'OK', { 
+      this.snackBar.open('Please log in to accept campaigns', 'OK', { 
+          duration: 3000,
+      });
+      return;
+    }
+    
+    if (!this.user()?.personalInfo?.address) {
+      this.snackBar.open('Please complete your profile setup to accept campaign', 'OK', { 
           duration: 3000,
       });
       return;
