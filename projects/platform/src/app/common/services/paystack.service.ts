@@ -40,7 +40,7 @@ export interface PaymentResult {
 export const PAYSTACK_CONFIG = 'PAYSTACK_CONFIG';
 
 @Injectable()
-export class PaystackService implements OnDestroy {
+export class PaystackService {
   private readonly defaultConfig: PaystackConfig = {
     publicKey: 'pk_test_1d5627d8d06cb2c937cee6ce4b0ed56c7fe2159a',
     currency: 'NGN',
@@ -55,13 +55,6 @@ export class PaystackService implements OnDestroy {
   ) {
     this.config = { ...this.defaultConfig, ...injectedConfig };
   }
-
-  
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 
   /**
    * Initiates the payment process using Paystack.

@@ -1,0 +1,87 @@
+.custom-amount-section {
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+  }
+
+  .funding-form {
+    .amount-field {
+      width: 100%;
+
+      ::ng-deep {
+        .mat-mdc-text-field-wrapper {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+          transition: all 0.3s ease;
+
+          &:hover {
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+          }
+        }
+
+        .mdc-text-field--focused .mat-mdc-text-field-wrapper {
+          box-shadow: 0 6px 24px rgba(102, 126, 234, 0.25);
+        }
+
+        .mat-mdc-form-field-focus-overlay {
+          border-radius: 12px;
+        }
+
+        .mdc-line-ripple::before,
+        .mdc-line-ripple::after {
+          border-bottom-color: #667eea;
+        }
+
+        .mat-mdc-form-field-label {
+          color: #667eea;
+        }
+      }
+
+      input {
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.3s ease;
+
+        &:focus {
+          color: #667eea;
+        }
+
+        @media (max-width: 767px) {
+          font-size: 20px;
+        }
+      }
+
+      .mat-mdc-form-field-hint,
+      .mat-mdc-form-field-error {
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      [matTextPrefix] {
+        font-size: 20px;
+        font-weight: 600;
+        color: #667eea;
+        margin-right: 8px;
+
+        @media (max-width: 767px) {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

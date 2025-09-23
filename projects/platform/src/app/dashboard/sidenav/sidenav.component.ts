@@ -172,7 +172,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public fundWallet(): void {
+    // const dataToPass = {
+    //   amount: 100, // Example data
+    //   currency: 'USD'
+    // };
+
     this.dialog.open(WalletFundingComponent, {
+      data: this.user(), // Pass the data here
       panelClass: 'custom-dialog-container',
     });
   }

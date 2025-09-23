@@ -1,0 +1,60 @@
+<div class="dialog-actions">
+  @if (!paymentStatus) {
+    <button 
+      mat-button 
+      (click)="close.emit()" 
+      class="cancel-btn"
+      [disabled]="isProcessing">
+      Cancel
+    </button>
+    <button 
+      mat-flat-button 
+      color="primary" 
+      (click)="pay.emit()" 
+      class="pay-btn"
+      [disabled]="!canProceed || isProcessing"
+      [matTooltip]="getPayButtonTooltip()">
+      @if (isProcessing) {
+        <mat-progress-spinner diameter="20" color="accent"></mat-progress-spinner>
+        Processing...
+      } @else {
+        Pay {{ totalAmount | currency: '₦':'symbol':'1.0-2' }}
+      }
+    </button>
+  } @else {
+    @if (paymentStatus.success) {
+      <button 
+        mat-button 
+        (click)="close.emit()"
+        class="cancel-btn">
+        Close
+      </button>
+      <button 
+        mat-flat-button 
+        color="primary" 
+        (click)="continue.emit()"
+        class="pay-btn">
+        <mat-icon>rocket_launch</mat-icon>
+        Continue to Campaign
+      </button>
+    } @else {
+      @if (retryCount < maxRetries) {
+        <button 
+          mat-button 
+          (click)="retry.emit()"
+          class="cancel-btn">
+          <mat-icon>refresh</mat-icon>
+          Try Again
+        </button>
+      }
+      <button 
+        mat-flat-button 
+        color="primary" 
+        (click)="close.emit()"
+        class="pay-btn">
+        <mat-icon>close</mat-icon>
+        Close
+      </button>
+    }
+  }
+</div>

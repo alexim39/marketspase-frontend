@@ -1,0 +1,23 @@
+<div class="balance-section">
+  <div class="balance-card">
+    <div class="balance-info">
+      <div class="balance-label">Current Balance</div>
+      <div class="balance-amount">{{ currentBalance | currency: '₦':'symbol':'1.0-2' }}</div>
+    </div>
+    <div class="balance-icon">
+      <mat-icon>account_balance</mat-icon>
+    </div>
+  </div>
+
+  @if (showFundingRequirement) {
+    <div class="funding-requirement">
+      <mat-icon>info</mat-icon>
+      <div>
+        <p class="requirement-title">Additional Funding Required</p>
+        <p class="requirement-amount">
+          You need {{ fundingShortfall | currency: '₦':'symbol':'1.0-2' }} more to fund your campaign
+        </p>
+      </div>
+    </div>
+  }
+</div>

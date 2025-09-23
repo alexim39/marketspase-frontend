@@ -1,0 +1,25 @@
+@if (status) {
+  <div class="payment-status" [class.success]="status.success" [class.error]="!status.success">
+    <div class="status-content">
+      <mat-icon>{{ status.success ? 'check_circle' : 'error_outline' }}</mat-icon>
+      <h4>{{ status.success ? 'Payment Successful!' : 'Payment Failed' }}</h4>
+      <p>{{ status.message }}</p>
+      
+      @if (status.success) {
+        <div class="success-details">
+          <p><strong>Amount Added:</strong> {{ status.amount | currency: '₦':'symbol':'1.0-2' }}</p>
+          <p><strong>Transaction Reference:</strong> {{ status.reference }}</p>
+          <p><strong>Date:</strong> {{ status.timestamp | date:'medium' }}</p>
+          <div class="celebration-animation">🎉</div>
+        </div>
+      } @else {
+        <div class="error-details">
+          <p>Don't worry, your money is safe. No charges were made to your account.</p>
+          @if (retryCount < maxRetries) {
+            <p>You can try again or contact support if the problem persists.</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

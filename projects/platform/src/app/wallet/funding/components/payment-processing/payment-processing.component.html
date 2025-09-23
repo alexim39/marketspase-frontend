@@ -1,0 +1,14 @@
+@if (isProcessing) {
+  <div class="payment-processing">
+    <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+    <div class="processing-content">
+      <mat-icon>hourglass_empty</mat-icon>
+      <h4>Processing Payment</h4>
+      <p>Please wait while we securely process your payment...</p>
+      <p class="warning">⚠️ Do not close this window or navigate away</p>
+      <div class="processing-timer">
+        Processing time: {{ processingTime }}s
+      </div>
+    </div>
+  </div>
+}

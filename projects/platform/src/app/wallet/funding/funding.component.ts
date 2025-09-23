@@ -1,25 +1,28 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { Component, OnInit, inject, signal, computed, Inject, Optional, Signal, DestroyRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { timer } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+// Import child components
+import { WalletBalanceCardComponent } from './components/wallet-balance-card/wallet-balance-card.component';
+import { QuickAmountSelectorComponent, QuickAmount } from './components/quick-amount-selector/quick-amount-selector.component';
+import { CustomAmountFormComponent } from './components/custom-amount-form/custom-amount-form.component';
+import { PaymentSummaryComponent } from './components/payment-summary/payment-summary.component';
+import { PaymentMethodComponent } from './components/payment-method/payment-method.component';
+import { PaymentProcessingComponent } from './components/payment-processing/payment-processing.component';
+import { PaymentStatusComponent, PaymentStatusData } from './components/payment-status/payment-status.component';
+import { DialogActionsComponent } from './components/dialog-actions/dialog-actions.component';
+
+// Services
 import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
-import { Router } from '@angular/router';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface WalletDialogData {
   currentBalance: number;
@@ -27,21 +30,7 @@ export interface WalletDialogData {
   suggestedAmount?: number;
   campaignBudget?: number;
   userId?: string;
-}
-
-interface QuickAmount {
-  value: number;
-  label: string;
-  popular?: boolean;
-  description?: string;
-}
-
-interface PaymentStatusData {
-  success: boolean;
-  message: string;
-  reference?: string;
-  amount?: number;
-  timestamp?: Date;
+  wallets: any;
 }
 
 @Component({
@@ -51,18 +40,16 @@ interface PaymentStatusData {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
-    MatProgressBarModule,
-    MatDividerModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    CurrencyPipe,
-    MatIconModule
+    // Child components
+    WalletBalanceCardComponent,
+    QuickAmountSelectorComponent,
+    CustomAmountFormComponent,
+    PaymentSummaryComponent,
+    PaymentMethodComponent,
+    PaymentProcessingComponent,
+    PaymentStatusComponent,
+    DialogActionsComponent
   ],
   templateUrl: './funding.component.html',
   styleUrls: ['./funding.component.scss']
@@ -72,19 +59,16 @@ export class WalletFundingComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private paystackService = inject(PaystackService);
   private dialogRef = inject(MatDialogRef<WalletFundingComponent>);
-
-  fundingForm!: FormGroup;
-  private readonly destroyRef = inject(DestroyRef);
-
+  private destroyRef = inject(DestroyRef);
   private userService = inject(UserService);
-  // Expose the signal directly to the template
-  public user: Signal<UserInterface | null> = this.userService.user;
+  private walletService = inject(WalletService);
   private router = inject(Router);
-  
+
   // Configuration
   readonly minFundingAmount = 500;
   readonly maxFundingAmount = 1000000;
-  readonly processingFeeRate = 0.015; // 1.5%
+  //readonly processingFeeRate = 0.015; // 1.5%
+  readonly processingFeeRate = 0.1; // 10%
   readonly minProcessingFee = 100;
   readonly maxRetries = 3;
 
@@ -94,6 +78,19 @@ export class WalletFundingComponent implements OnInit {
   paymentStatus = signal<PaymentStatusData | null>(null);
   processingTime = signal<number>(0);
   retryCount = signal<number>(0);
+
+  // Quick amounts configuration
+  quickAmounts: QuickAmount[] = [
+    { value: 1000, label: 'Starter', description: 'Perfect for small campaigns' },
+    { value: 5000, label: 'Popular', popular: true, description: 'Most chosen by users' },
+    { value: 10000, label: 'Standard', description: 'Good for medium campaigns' },
+    { value: 25000, label: 'Premium', description: 'For larger campaigns' },
+    { value: 50000, label: 'Business', description: 'Professional campaigns' },
+    { value: 100000, label: 'Enterprise', description: 'Large scale campaigns' }
+  ];
+
+  // Form
+  fundingForm!: FormGroup;
 
   // Computed values
   processingFee = computed(() => {
@@ -118,35 +115,26 @@ export class WalletFundingComponent implements OnInit {
     this.data.campaignBudget && this.data.campaignBudget > this.data.currentBalance
   );
 
-  // Quick amounts configuration with better UX
-  quickAmounts: QuickAmount[] = [
-    { value: 1000, label: 'Starter', description: 'Perfect for small campaigns' },
-    { value: 5000, label: 'Popular', popular: true, description: 'Most chosen by users' },
-    { value: 10000, label: 'Standard', description: 'Good for medium campaigns' },
-    { value: 25000, label: 'Premium', description: 'For larger campaigns' },
-    { value: 50000, label: 'Business', description: 'Professional campaigns' },
-    { value: 100000, label: 'Enterprise', description: 'Large scale campaigns' }
-  ];
-
-  private walletService = inject(WalletService);
+  // Expose user signal to template
+  public user: Signal<UserInterface | null> = this.userService.user;
 
   constructor(
-    @Optional() @Inject(MAT_DIALOG_DATA) public data: WalletDialogData
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    // Set default data if not provided
+    
     this.data = {
-      //currentBalance: 0,
       minAmount: this.minFundingAmount,
+      currentBalance: this.data.wallets.marketer.balance,
       ...data
     };
+
+    //console.log('sent data ',this.data)
   }
 
   ngOnInit(): void {
     this.initializeForm();
     this.setSuggestedAmount();
-    this.setupFormValidation();
   }
-
 
   private initializeForm(): void {
     this.fundingForm = this.fb.group({
@@ -154,12 +142,11 @@ export class WalletFundingComponent implements OnInit {
         Validators.required,
         Validators.min(this.minFundingAmount),
         Validators.max(this.maxFundingAmount),
-        Validators.pattern(/^\d+(\.\d{1,2})?$/) // Allow up to 2 decimal places
+        Validators.pattern(/^\d+(\.\d{1,2})?$/)
       ]]
     });
 
-    // Subscribe to form changes with debouncing
-      this.fundingForm.get('amount')!.valueChanges
+    this.fundingForm.get('amount')!.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         const numValue = parseFloat(value) || 0;
@@ -168,33 +155,14 @@ export class WalletFundingComponent implements OnInit {
         } else if (numValue === 0) {
           this.selectedAmount.set(0);
         }
-      })
-  }
-
-  private setupFormValidation(): void {
-    // Add custom validators
-    this.fundingForm.get('amount')?.addValidators([
-      this.customAmountValidator.bind(this)
-    ]);
-  }
-
-  private customAmountValidator(control: any) {
-    const value = parseFloat(control.value);
-    if (!value) return null;
-    
-    if (value % 50 !== 0) {
-      return { 'notMultiple': { value: control.value, multiple: 50 } };
-    }
-    return null;
+      });
   }
 
   private setSuggestedAmount(): void {
     let suggestedAmount = this.data.suggestedAmount || 5000;
 
-    // If there's a campaign budget shortfall, suggest that amount
     if (this.showFundingRequirement()) {
       const shortfall = this.getFundingShortfall();
-      // Round up to nearest 500 for better UX
       suggestedAmount = Math.ceil(shortfall / 500) * 500;
       suggestedAmount = Math.min(suggestedAmount, this.maxFundingAmount);
     }
@@ -207,6 +175,7 @@ export class WalletFundingComponent implements OnInit {
     return Math.max(0, this.data.campaignBudget - this.data.currentBalance);
   }
 
+  // Event handlers from child components
   selectQuickAmount(amount: number): void {
     this.selectedAmount.set(amount);
     this.fundingForm.patchValue({ amount }, { emitEvent: false });
@@ -214,15 +183,12 @@ export class WalletFundingComponent implements OnInit {
   }
 
   clearQuickSelection(): void {
-    // This is called when user starts typing in custom amount field
-    // We don't need to clear selectedAmount as it will be updated by form changes
+    // Handled by form value changes
   }
 
   onCustomAmountChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     let value = parseFloat(input.value) || 0;
-    
-    // Ensure the value is within bounds
     value = Math.min(Math.max(value, 0), this.maxFundingAmount);
     this.selectedAmount.set(value);
   }
@@ -257,14 +223,13 @@ export class WalletFundingComponent implements OnInit {
         reference: this.generatePaymentReference()
       };
 
-      // Subscribe to payment result
-        this.paystackService.initiatePayment(paymentRequest)
+      this.paystackService.initiatePayment(paymentRequest)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (result) => this.handlePaymentResult(result),
           error: (error) => this.handlePaymentError(error.message || 'Payment failed'),
           complete: () => this.stopProcessingTimer()
-        })
+        });
 
     } catch (error) {
       this.handlePaymentError('Failed to initiate payment');
@@ -274,48 +239,22 @@ export class WalletFundingComponent implements OnInit {
 
   private startProcessingTimer(): void {
     this.processingTime.set(0);
-      timer(0, 1000)
+    timer(0, 1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(seconds => {
         this.processingTime.set(seconds);
-      })
+      });
   }
 
   private stopProcessingTimer(): void {
     this.isProcessingPayment.set(false);
   }
 
-  // private handlePaymentResult(result: PaymentResult): void {
-  //   this.stopProcessingTimer();
-
-  //   if (result.success && result.response) {
-  //     this.paymentStatus.set({
-  //       success: true,
-  //       message: 'successfully added fund to your wallet',//`Successfully added ${this.selectedAmount() | currency: 'NGN':'symbol':'1.0-2'} to your wallet`,
-  //       reference: result.response.reference,
-  //       amount: this.selectedAmount(),
-  //       timestamp: new Date()
-  //     });
-
-  //     // Update the wallet balance
-  //     this.updateWalletBalance();
-      
-  //     this.showSuccess('Wallet funded successfully! 🎉');
-      
-  //     // Auto-close after success (optional)
-  //     // setTimeout(() => this.continueWithCampaign(), 3000);
-      
-  //   } else {
-  //     this.handlePaymentError(result.error || 'Payment was cancelled or failed');
-  //   }
-  // }
-
-
   private handlePaymentResult(paystackResult: PaymentResult): void {
     this.stopProcessingTimer();
 
     if (paystackResult.success && paystackResult.response) {
-      const paymentStatusData = {
+      const paymentStatusData: PaymentStatusData = {
         success: true,
         message: 'Processing your wallet update...',
         reference: paystackResult.response.reference,
@@ -324,44 +263,36 @@ export class WalletFundingComponent implements OnInit {
       };
       this.paymentStatus.set(paymentStatusData);
       
-      // Step 1: Prepare the data to send to the backend
       const payload: RecordPaymentPayload = {
         userId: this.data.userId || this.user()?._id || 'unknown',
         amount: this.selectedAmount(),
-        paystackResult: paystackResult //result.response.reference
+        paystackResult: paystackResult
       };
 
-      // Step 2: Call the backend endpoint to verify and record the payment
-        this.walletService.recordPayment(payload)
+      this.walletService.recordPayment(payload)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-           if (response.success) {
-              // The backend has confirmed and updated the wallet
+            if (response.success) {
               this.paymentStatus.set({
                 ...paymentStatusData,
-                message: response.message//'Successfully added fund to your wallet',
+                message: response.message
               });
               this.updateLocalWalletBalance();
-              //this.showSuccess(`${response.message} 🎉`);
 
-              // get update user record
               this.userService.getUser(this.user()?.uid || '')
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe({
-                error: (error) => {
-                  console.error('Failed to refresh user:', error);
-                }
-              });
-
-           }
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                  error: (error) => {
+                    console.error('Failed to refresh user:', error);
+                  }
+                });
+            }
           },
           error: (backendError) => {
-            // The backend verification failed. Show a more serious error message.
             this.handlePaymentError('Payment confirmed but failed to record. Please contact support.');
-            //console.error('Backend recording error:', backendError);
           }
-        })
+        });
 
     } else {
       this.handlePaymentError(paystackResult.error || 'Payment was cancelled or failed');
@@ -377,11 +308,8 @@ export class WalletFundingComponent implements OnInit {
       message: errorMessage,
       timestamp: new Date()
     });
-    
-    //this.showError('Payment failed. Please try again.');
   }
 
-  // Rename this method to avoid confusion
   private updateLocalWalletBalance(): void {
     this.data.currentBalance += this.selectedAmount();
   }
@@ -393,6 +321,7 @@ export class WalletFundingComponent implements OnInit {
     return `WALLET-${userId}-${timestamp}-${random}`;
   }
 
+  // Action handlers
   resetPayment(): void {
     this.paymentStatus.set(null);
     this.isProcessingPayment.set(false);
@@ -427,21 +356,6 @@ export class WalletFundingComponent implements OnInit {
     this.dialogRef.close(result);
   }
 
-  getPayButtonTooltip(): string {
-    if (!this.canProceedWithPayment()) {
-      if (this.selectedAmount() < this.minFundingAmount) {
-        return `Minimum amount is ₦${this.minFundingAmount}`;
-      }
-      if (this.selectedAmount() > this.maxFundingAmount) {
-        return `Maximum amount is ₦${this.maxFundingAmount}`;
-      }
-      if (!this.fundingForm.valid) {
-        return 'Please enter a valid amount';
-      }
-    }
-    return 'Proceed to secure payment';
-  }
-
   private showSuccess(message: string): void {
     this.snackBar.open(message, '✓', { 
       duration: 5000,
@@ -454,10 +368,5 @@ export class WalletFundingComponent implements OnInit {
       duration: 7000,
       panelClass: 'error-snackbar'
     });
-  }
-
-  // Accessibility helpers
-  getAriaLabel(): string {
-    return `Fund wallet dialog. Current balance: ${this.data.currentBalance}. Selected amount: ${this.selectedAmount()}`;
   }
 }

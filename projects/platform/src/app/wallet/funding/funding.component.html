@@ -1,288 +1,112 @@
-    <div class="wallet-funding-container" [class.processing]="isProcessingPayment()">
-      <!-- Header -->
-      <div class="dialog-header">
-        <div class="header-content">
-          <div class="header-icon">
-            <mat-icon>account_balance_wallet</mat-icon>
-          </div>
-          <div class="header-text">
-            <h2>Fund Your Wallet</h2>
-            <p>Add money to your wallet to create and launch campaigns</p>
-          </div>
-        </div>
-        <button 
-          mat-icon-button 
-          (click)="closeDialog()" 
-          class="close-btn"
-          [disabled]="isProcessingPayment()"
-          matTooltip="Close dialog">
-          <mat-icon>close</mat-icon>
-        </button>
+<div class="wallet-funding-container" [class.processing]="isProcessingPayment()">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>account_balance_wallet</mat-icon>
       </div>
-
-      <div class="dialog-content">
-        <!-- Current Balance Card -->
-        <div class="balance-section">
-          <div class="balance-card">
-            <div class="balance-info">
-              <div class="balance-label">Current Balance</div>
-              <div class="balance-amount">{{ data.currentBalance | currency: '₦':'symbol':'1.0-2' }}</div>
-            </div>
-            <div class="balance-icon">
-              <mat-icon>account_balance</mat-icon>
-            </div>
-          </div>
-
-          @if (showFundingRequirement()) {
-            <div class="funding-requirement">
-              <mat-icon>info</mat-icon>
-              <div>
-                <p class="requirement-title">Additional Funding Required</p>
-                <p class="requirement-amount">
-                  You need {{ getFundingShortfall() | currency: '₦':'symbol':'1.0-2' }} more to fund your campaign
-                </p>
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Quick Amount Selection -->
-        <div class="quick-amounts-section">
-          <h3>Quick Select</h3>
-          <div class="quick-amounts-grid">
-            @for (amount of quickAmounts; track amount.value) {
-              <button 
-                mat-button 
-                [class.selected]="selectedAmount() === amount.value"
-                [class.popular]="amount.popular"
-                [disabled]="isProcessingPayment() || paymentStatus() !== null"
-                (click)="selectQuickAmount(amount.value)"
-                class="quick-amount-btn"
-                [matTooltip]="amount.description || ''"
-                matTooltipPosition="above">
-                @if (amount.popular) {
-                  <span class="popular-badge">Popular</span>
-                }
-                <div class="amount-value">{{ amount.value | currency: '₦':'symbol':'1.0-0' }}</div>
-                <div class="amount-label">{{ amount.label }}</div>
-              </button>
-            }
-          </div>
-        </div>
-
-        <!-- Custom Amount Form -->
-        <div class="custom-amount-section">
-          <h3>Or Enter Custom Amount</h3>
-          <form [formGroup]="fundingForm" class="funding-form">
-            <mat-form-field class="amount-field" appearance="outline">
-              <mat-label>Amount (₦)</mat-label>
-              <span matTextPrefix>₦ </span>
-              <input 
-                matInput 
-                type="number" 
-                formControlName="amount" 
-                placeholder="0.00"
-                [disabled]="isProcessingPayment() || paymentStatus() !== null"
-                (input)="onCustomAmountChange($event)"
-                (focus)="clearQuickSelection()"
-                min="0"
-                max="1000000"
-                step="100">
-              <mat-hint>Minimum: ₦{{ minFundingAmount | number:'1.0-0' }} | Maximum: ₦{{ maxFundingAmount | number:'1.0-0' }}</mat-hint>
-              
-              @if (fundingForm.get('amount')?.hasError('required') && fundingForm.get('amount')?.touched) {
-                <mat-error>Amount is required</mat-error>
-              }
-              @if (fundingForm.get('amount')?.hasError('min')) {
-                <mat-error>Minimum amount is ₦{{ minFundingAmount | number:'1.0-0' }}</mat-error>
-              }
-              @if (fundingForm.get('amount')?.hasError('max')) {
-                <mat-error>Maximum amount is ₦{{ maxFundingAmount | number:'1.0-0' }}</mat-error>
-              }
-              @if (fundingForm.get('amount')?.hasError('pattern')) {
-                <mat-error>Please enter a valid amount</mat-error>
-              }
-            </mat-form-field>
-          </form>
-        </div>
-
-        <!-- Payment Summary -->
-        @if (selectedAmount() > 0 && !paymentStatus()) {
-          <div class="payment-summary">
-            <h3>Payment Summary</h3>
-            <div class="summary-card">
-              <div class="summary-row">
-                <span>Amount to Fund</span>
-                <span class="amount">{{ selectedAmount() | currency: '₦':'symbol':'1.0-2' }}</span>
-              </div>
-              <div class="summary-row">
-                <span>Processing Fee ({{ (processingFeeRate * 100) | number:'1.1-1' }}%)</span>
-                <span class="fee">{{ processingFee() | currency: '₦':'symbol':'1.0-2' }}</span>
-              </div>
-              <div class="summary-row total">
-                <span>Total to Pay</span>
-                <span class="amount">{{ totalAmount() | currency: '₦':'symbol':'1.0-2' }}</span>
-              </div>
-              <div class="summary-row">
-                <span>New Wallet Balance</span>
-                <span class="new-balance">{{ newBalance() | currency: '₦':'symbol':'1.0-2' }}</span>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Payment Method -->
-        @if (!paymentStatus()) {
-          <div class="payment-method-section">
-            <h3>Payment Method</h3>
-            <div class="payment-method-card">
-              <div class="payment-info">
-                <mat-icon>payment</mat-icon>
-                <div>
-                  <p class="method-name">Paystack Payment Gateway</p>
-                  <p class="method-description">Secure payment via debit card, bank transfer, or USSD</p>
-                </div>
-              </div>
-              <div class="security-badges">
-                <div class="badge" matTooltip="256-bit SSL encryption">
-                  <mat-icon>security</mat-icon>
-                  <span>SSL Secured</span>
-                </div>
-                <div class="badge" matTooltip="Payment Card Industry Data Security Standard compliant">
-                  <mat-icon>verified</mat-icon>
-                  <span>PCI DSS Compliant</span>
-                </div>
-                <div class="badge" matTooltip="Central Bank of Nigeria approved">
-                  <mat-icon>account_balance</mat-icon>
-                  <span>CBN Approved</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Payment Processing Overlay -->
-        @if (isProcessingPayment()) {
-          <div class="payment-processing">
-            <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
-            <div class="processing-content">
-              <mat-icon>hourglass_empty</mat-icon>
-              <h4>Processing Payment</h4>
-              <p>Please wait while we securely process your payment...</p>
-              <p class="warning">⚠️ Do not close this window or navigate away</p>
-              <div class="processing-timer">
-                Processing time: {{ processingTime() }}s
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Payment Status -->
-        @if (paymentStatus()) {
-          <div class="payment-status" [class.success]="paymentStatus()!.success" [class.error]="!paymentStatus()!.success">
-            <div class="status-content">
-              <mat-icon>{{ paymentStatus()!.success ? 'check_circle' : 'error_outline' }}</mat-icon>
-              <h4>{{ paymentStatus()!.success ? 'Payment Successful!' : 'Payment Failed' }}</h4>
-              <p>{{ paymentStatus()!.message }}</p>
-              
-              @if (paymentStatus()!.success) {
-                <div class="success-details">
-                  <p><strong>Amount Added:</strong> {{ selectedAmount() | currency: '₦':'symbol':'1.0-2' }}</p>
-                  <p><strong>Transaction Reference:</strong> {{ paymentStatus()!.reference }}</p>
-                  <p><strong>Date:</strong> {{ paymentStatus()!.timestamp | date:'medium' }}</p>
-                  <div class="celebration-animation">🎉</div>
-                </div>
-              } @else {
-                <div class="error-details">
-                  <p>Don't worry, your money is safe. No charges were made to your account.</p>
-                  @if (retryCount() < maxRetries) {
-                    <p>You can try again or contact support if the problem persists.</p>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-        <!-- Helpful Tips -->
-        @if (!paymentStatus() && !isProcessingPayment()) {
-          <div class="tips-section">
-            <div class="tips-card">
-              <div class="tips-header">
-                <mat-icon>lightbulb</mat-icon>
-                <span>Payment Tips</span>
-              </div>
-              <ul class="tips-list">
-                <li>Ensure your card is enabled for online transactions</li>
-                <li>Have sufficient balance for the total amount including fees</li>
-                <li>Use a stable internet connection during payment</li>
-                <li>Keep your transaction reference for records</li>
-              </ul>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="dialog-actions">
-        @if (!paymentStatus()) {
-          <button 
-            mat-button 
-            (click)="closeDialog()" 
-            class="cancel-btn"
-            [disabled]="isProcessingPayment()">
-            Cancel
-          </button>
-          <button 
-            mat-flat-button 
-            color="primary" 
-            (click)="initiatePayment()" 
-            class="pay-btn"
-            [disabled]="!canProceedWithPayment() || isProcessingPayment()"
-            [matTooltip]="getPayButtonTooltip()">
-            @if (isProcessingPayment()) {
-              <mat-progress-spinner diameter="20" color="accent"></mat-progress-spinner>
-              Processing...
-            } @else {
-              <!-- <mat-icon>payment</mat-icon> -->
-              Pay {{ totalAmount() | currency: '₦':'symbol':'1.0-2' }}
-            }
-          </button>
-        } @else {
-          @if (paymentStatus()!.success) {
-            <button 
-              mat-button 
-              (click)="closeDialog()"
-              class="cancel-btn">
-              Close
-            </button>
-            <button 
-              mat-flat-button 
-              color="primary" 
-              (click)="continueWithCampaign()"
-              class="pay-btn">
-              <mat-icon>rocket_launch</mat-icon>
-              Continue to Campaign
-            </button>
-          } @else {
-            @if (retryCount() < maxRetries) {
-              <button 
-                mat-button 
-                (click)="resetPayment()"
-                class="cancel-btn">
-                <mat-icon>refresh</mat-icon>
-                Try Again
-              </button>
-            }
-            <button 
-              mat-flat-button 
-              color="primary" 
-              (click)="closeDialog()"
-              class="pay-btn">
-              <mat-icon>close</mat-icon>
-              Close
-            </button>
-          }
-        }
+      <div class="header-text">
+        <h2>Fund Your Wallet</h2>
+        <p>Add money to your wallet to create and launch campaigns</p>
       </div>
     </div>
+    <button 
+      mat-icon-button 
+      (click)="closeDialog()" 
+      class="close-btn"
+      [disabled]="isProcessingPayment()"
+      matTooltip="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <!-- Balance Card -->
+    <wallet-balance-card
+      [currentBalance]="data.currentBalance"
+      [showFundingRequirement]="showFundingRequirement()"
+      [fundingShortfall]="getFundingShortfall()">
+    </wallet-balance-card>
+
+    <!-- Quick Amount Selector -->
+    <quick-amount-selector
+      [amounts]="quickAmounts"
+      [selectedAmount]="selectedAmount()"
+      [disabled]="isProcessingPayment() || paymentStatus() !== null"
+      (amountSelected)="selectQuickAmount($event)">
+    </quick-amount-selector>
+
+    <!-- Custom Amount Form -->
+    <custom-amount-form
+      [form]="fundingForm"
+      [minAmount]="minFundingAmount"
+      [maxAmount]="maxFundingAmount"
+      [disabled]="isProcessingPayment() || paymentStatus() !== null"
+      (amountChange)="onCustomAmountChange($event)"
+      (clearSelection)="clearQuickSelection()">
+    </custom-amount-form>
+
+    <!-- Payment Summary -->
+    @if (selectedAmount() > 0 && !paymentStatus()) {
+      <payment-summary
+        [amount]="selectedAmount()"
+        [feeRate]="processingFeeRate"
+        [processingFee]="processingFee()"
+        [totalAmount]="totalAmount()"
+        [newBalance]="newBalance()">
+      </payment-summary>
+    }
+
+    <!-- Payment Method -->
+    @if (!paymentStatus()) {
+      <payment-method></payment-method>
+    }
+
+    <!-- Payment Processing -->
+    <payment-processing
+      [isProcessing]="isProcessingPayment()"
+      [processingTime]="processingTime()">
+    </payment-processing>
+
+    <!-- Payment Status -->
+    @if (paymentStatus()) {
+      <payment-status
+        [status]="paymentStatus()"
+        [retryCount]="retryCount()"
+        [maxRetries]="maxRetries">
+      </payment-status>
+    }
+
+    <!-- Helpful Tips -->
+    @if (!paymentStatus() && !isProcessingPayment()) {
+      <div class="tips-section">
+        <div class="tips-card">
+          <div class="tips-header">
+            <mat-icon>lightbulb</mat-icon>
+            <span>Payment Tips</span>
+          </div>
+          <ul class="tips-list">
+            <li>Ensure your card is enabled for online transactions</li>
+            <li>Have sufficient balance for the total amount including fees</li>
+            <li>Use a stable internet connection during payment</li>
+            <li>Keep your transaction reference for records</li>
+          </ul>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  <dialog-actions
+    [paymentStatus]="paymentStatus()"
+    [isProcessing]="isProcessingPayment()"
+    [canProceed]="canProceedWithPayment()"
+    [retryCount]="retryCount()"
+    [maxRetries]="maxRetries"
+    [totalAmount]="totalAmount()"
+    (close)="closeDialog()"
+    (pay)="initiatePayment()"
+    (retry)="resetPayment()"
+    (continue)="continueWithCampaign()">
+  </dialog-actions>
+</div>

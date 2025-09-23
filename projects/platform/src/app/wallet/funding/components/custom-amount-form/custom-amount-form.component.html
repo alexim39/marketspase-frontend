@@ -1,0 +1,34 @@
+<div class="custom-amount-section">
+  <h3>Or Enter Custom Amount</h3>
+  <form [formGroup]="form" class="funding-form">
+    <mat-form-field class="amount-field" appearance="outline">
+      <mat-label>Amount (₦)</mat-label>
+      <span matTextPrefix>₦ </span>
+      <input 
+        matInput 
+        type="number" 
+        formControlName="amount" 
+        placeholder="0.00"
+        [disabled]="disabled"
+        (input)="onInputChange($event)"
+        (focus)="onFocus()"
+        min="0"
+        max="1000000"
+        step="100">
+      <mat-hint>Minimum: ₦{{ minAmount | number:'1.0-0' }} | Maximum: ₦{{ maxAmount | number:'1.0-0' }}</mat-hint>
+      
+      @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
+        <mat-error>Amount is required</mat-error>
+      }
+      @if (form.get('amount')?.hasError('min')) {
+        <mat-error>Minimum amount is ₦{{ minAmount | number:'1.0-0' }}</mat-error>
+      }
+      @if (form.get('amount')?.hasError('max')) {
+        <mat-error>Maximum amount is ₦{{ maxAmount | number:'1.0-0' }}</mat-error>
+      }
+      @if (form.get('amount')?.hasError('pattern')) {
+        <mat-error>Please enter a valid amount</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</div>
