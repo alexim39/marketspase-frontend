@@ -176,6 +176,14 @@ export class CreateCampaignComponent implements OnInit {
 
   // Final submission logic
   submitCampaign(): void {
+
+    if (!this.user()?.personalInfo?.address) {
+      this.snackBar.open('Please complete your profile setup to create campaign', 'OK', { 
+          duration: 3000,
+      });
+      return;
+    }
+
     this.isSubmitting.set(true);
 
     if (this.campaignIsReady()) {
