@@ -64,6 +64,7 @@ export class PromoterLandingComponent implements OnInit {
   isApplying = signal(false);
   campaigns = signal<CampaignInterface[]>([]);
   searchTerm = signal('');
+  viewMode = signal<'grid' | 'list'>('grid');
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 

@@ -3,6 +3,9 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { CampaignInterface } from '../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
 import { MatIconModule } from '@angular/material/icon';
+import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
+
+export type ViewMode = 'grid' | 'list';
 
 @Component({
   selector: 'campaign-card',
@@ -11,7 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
     CommonModule,
     TitleCasePipe,
     CategoryPlaceholderPipe,
-    MatIconModule
+    MatIconModule,
+    TruncatePipe
   ],
   templateUrl: './campaign-card.component.html',
   styleUrls: ['./campaign-card.component.scss']
@@ -20,6 +24,7 @@ export class CampaignCardComponent {
   @Input({ required: true }) campaign!: CampaignInterface;
   @Input({ required: true }) api!: string;
   @Input() isApplying: boolean = false;
+  @Input() viewMode: ViewMode = 'grid';
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
 
@@ -96,9 +101,7 @@ export class CampaignCardComponent {
   canAcceptCampaign(campaign: CampaignInterface): boolean {
     if (campaign.status !== 'active') return false;
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
-    //const slotsFilled = campaign.totalPromotions || 0;
     if (campaign.totalPromotions >= campaign.maxPromoters) return false;
-    //const remainingBudget = campaign.budget - ( (campaign.payoutPerPromotion * campaign.currentPromoters ) || 0);
     if (campaign.remainingBudget < campaign.payoutPerPromotion) return false;
     return true;
   }

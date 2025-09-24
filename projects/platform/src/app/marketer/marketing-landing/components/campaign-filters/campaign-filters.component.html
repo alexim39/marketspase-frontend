@@ -1,0 +1,52 @@
+<section class="filters">
+  <div class="container">
+    <div class="filters-content">
+      <!-- Search -->
+      <div class="search-container">
+        <div class="search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Search campaigns..."
+            [formControl]="searchControl">
+        </div>
+      </div>
+
+      <!-- Quick Filters -->
+      <div class="quick-filters">
+        @for (status of statusOptions; track status.value) {
+          <div 
+            class="filter-chip" 
+            [class.active]="currentFilter.status === status.value"
+            (click)="onStatusFilter(status.value)">
+            <mat-icon>{{status.icon}}</mat-icon>
+            {{status.label}}
+            <span class="count">{{getCount(status.value)}}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="filter-controls">
+        <div class="results-count">
+          Showing {{filteredCount}} of {{totalCount}} campaigns
+          @if (hasActiveFilters) {
+            <button class="clear-filters-btn" (click)="onClearFilters()">
+              Clear filters
+            </button>
+          }
+        </div>
+        
+        <div class="view-toggle">
+          <button class="view-btn" [class.active]="currentView === 'grid'" (click)="onViewChange('grid')">
+            <mat-icon>view_module</mat-icon>
+          </button>
+          <button class="view-btn" [class.active]="currentView === 'list'" (click)="onViewChange('list')">
+            <mat-icon>view_list</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -29,7 +29,9 @@
     [highPayoutCount]="getHighPayoutCount()"
     [expiringSoonCount]="metrics().expiringSoon"
     [quickTasksCount]="getQuickTasksCount()"
+    [viewMode]="viewMode()"
     (searchTermChange)="searchTerm.set($event)"
+    (viewModeChange)="viewMode.set($event)"
   />
 
   <main class="main">
@@ -39,14 +41,15 @@
       } @else if (filteredCampaigns().length === 0) {
         <empty-state/>
       } @else {
-        <div class="campaigns-grid">
+        <div class="campaigns-grid" [class.grid-view]="viewMode() === 'grid'" [class.list-view]="viewMode() === 'list'">
           @for (campaign of filteredCampaigns(); track campaign._id) {
             <campaign-card
               [campaign]="campaign"
               [api]="api"
               [isApplying]="isApplying()"
+              [viewMode]="viewMode()"
               (applyForCampaign)="applyForCampaign($event)"
-            ></campaign-card>
+            />
           }
         </div>
       }

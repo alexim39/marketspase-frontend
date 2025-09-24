@@ -11,7 +11,7 @@ export class CampaignService {
   
 
   /**
-   * Submits the user data to the backend API.
+   * Submits the user campaign data to the backend API to create new campaign.
    * @post campaignObject The user data to be submitted.
    * @returns An Observable that emits the API response or an error.
    */
@@ -31,6 +31,15 @@ export class CampaignService {
     // };
 
     return this.apiService.post<any>(`${this.apiUrl}/create`, campaignData, undefined, true);
+  }
+
+  /**
+   * Submits the user campaign data to be be saved to draft the backend API.
+   * @post campaignObject The user data to be submitted.
+   * @returns An Observable that emits the API response or an error.
+   */
+  save(campaignData: FormData): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/save`, campaignData, undefined, true);
   }
 
 }

@@ -119,6 +119,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...baseItems,
         { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
         { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
+        { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
     } else {
@@ -126,6 +127,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...baseItems,
         { icon: 'work', label: 'Promotions', route: './campaigns' },
         { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
+        { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
     }

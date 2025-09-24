@@ -1,4 +1,4 @@
-<div class="campaign-card">
+<div class="campaign-card" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
   <div class="card-header">
     <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
       {{getStatusBadgeText(campaign)}}
@@ -30,8 +30,8 @@
   </div>
 
   <div class="card-content">
-    <h3 class="card-title">{{campaign.title | titlecase}}</h3>
-    <p class="card-description">{{campaign.caption}}</p>
+    <h3 class="card-title">{{campaign.title | titlecase | truncate: (viewMode === 'list' ? 60 : 40)}}</h3>
+    <p class="card-description">{{campaign.caption | truncate: (viewMode === 'list' ? 120 : 80)}}</p>
     
     <div class="card-meta">
       <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>

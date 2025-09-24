@@ -246,7 +246,51 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   saveDraft(): void {
-    this.snackBar.open('Draft saved', 'OK', { duration: 2000 });
+    
+    this.isSubmitting.set(true);
+
+    if (this.campaignIsReady()) {
+      const formData = new FormData();
+      formData.append('title', this.contentForm.get('title')?.value);
+      formData.append('caption', this.contentForm.get('caption')?.value);
+      formData.append('link', this.contentForm.get('link')?.value);
+      formData.append('category', this.contentForm.get('category')?.value);
+      formData.append('budget', this.budgetForm.get('budget')?.value);
+      formData.append('enableTarget', this.budgetForm.get('enableTarget')?.value);
+      formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
+      formData.append('currency', 'NGN');
+      formData.append('owner', this.user()?._id ?? '');
+
+      if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
+        formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
+      }
+
+      const selected = this.selectedMedia();
+      if (selected && selected.file) {
+        formData.append('media', selected.file);
+      }
+
+      this.campaignService.save(formData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.snackBar.open(response.message, 'OK', { duration: 3000 });
+              this.router.navigate(['/dashboard/campaigns']);
+            }
+            this.isSubmitting.set(false);
+          },
+          error: (error: HttpErrorResponse) => {
+            const errorMessage = error.error?.message || 'Server error occurred, please try again.';
+            this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
+            this.isSubmitting.set(false);
+          }
+        });
+    } else {
+      this.snackBar.open('Please complete all required fields and ensure you have sufficient funds.', 'OK', { duration: 3000 });
+      this.isSubmitting.set(false);
+    }
+
   }
 
   fundWallet(): void {

@@ -26,15 +26,18 @@
 
     <div class="settings-wrapper">
         <mat-sidenav-container class="sidenav-container">
-            <mat-toolbar class="mobile-toolbar" *ngIf="isMobile">
-                <span class="toolbar-spacer"></span>
-                <button mat-stroked-button (click)="drawer.toggle()" class="menu-toggle" aria-label="Toggle menu">
-                    <mat-icon>menu</mat-icon>
-                    Settings Menu
-                    <mat-icon class="notification-dot" *ngIf="hasNotifications" matBadge="!" matBadgeColor="warn"
-                        matBadgeSize="small">notifications</mat-icon>
-                </button>
-            </mat-toolbar>
+            @if (isMobile) {
+                <mat-toolbar class="mobile-toolbar">
+                    <span class="toolbar-spacer"></span>
+                    <button mat-stroked-button (click)="drawer.toggle()" class="menu-toggle" aria-label="Toggle menu">
+                        <mat-icon>menu</mat-icon>
+                        Settings Menu
+                        <mat-icon class="notification-dot" *ngIf="hasNotifications" matBadge="!" matBadgeColor="warn"
+                            matBadgeSize="small">notifications</mat-icon>
+                    </button>
+                </mat-toolbar>
+            }
+
 
             <main class="main-content">
                 <router-outlet />
@@ -115,15 +118,17 @@
                             <span>Recent Activity</span>
                         </div>
                         <div class="activity-list">
-                            <div class="activity-item" *ngFor="let activity of recentActivities">
-                                <div class="activity-icon">
-                                    <mat-icon>{{activity.icon}}</mat-icon>
+                            @for (activity of recentActivities; track activity) {
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <mat-icon>{{activity.icon}}</mat-icon>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">{{activity.title}}</div>
+                                        <div class="activity-time">{{activity.time}}</div>
+                                    </div>
                                 </div>
-                                <div class="activity-content">
-                                    <div class="activity-title">{{activity.title}}</div>
-                                    <div class="activity-time">{{activity.time}}</div>
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -139,7 +144,7 @@
                         </div>
                     </div>
 
-                    <div class="footer-actions">
+                    <!-- <div class="footer-actions">
                         <button mat-stroked-button class="export-button" matTooltip="Export Settings">
                             <mat-icon>download</mat-icon>
                             Export
@@ -148,7 +153,7 @@
                             <mat-icon>logout</mat-icon>
                             Sign Out
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </mat-sidenav>
         </mat-sidenav-container>

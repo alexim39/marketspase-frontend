@@ -124,7 +124,7 @@ export class WalletFundingComponent implements OnInit {
     
     this.data = {
       minAmount: this.minFundingAmount,
-      currentBalance: this.data.wallets.marketer.balance,
+      currentBalance: this.data?.wallets?.marketer?.balance,
       ...data
     };
 
