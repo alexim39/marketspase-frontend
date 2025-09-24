@@ -1,0 +1,91 @@
+<!-- campaign-filters-mobile.component.html -->
+<section class="mobile-filters">
+  <div class="mobile-filters-header">
+    <div class="mobile-header-content">
+      <div class="mobile-title">
+        <h2>Campaigns</h2>
+        <span class="mobile-count">{{filteredCount}}/{{totalCount}}</span>
+      </div>
+      
+      <div class="mobile-actions">
+        <button class="mobile-action-btn" (click)="toggleFilterPanel()">
+          <mat-icon>filter_list</mat-icon>
+          @if (hasActiveFilters) {
+            <span class="filter-indicator"></span>
+          }
+        </button>
+        <button class="mobile-action-btn" (click)="toggleView()">
+          <mat-icon>{{currentView === 'grid' ? 'view_list' : 'view_module'}}</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Search -->
+    <div class="mobile-search-container">
+      <div class="mobile-search-box">
+        <mat-icon class="mobile-search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          class="mobile-search-input" 
+          placeholder="Search campaigns..."
+          [formControl]="searchControl">
+        @if (searchControl.value) {
+          <button class="mobile-clear-search" (click)="searchControl.setValue('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Filter Panel (Sliding Drawer) -->
+  <div class="mobile-filter-panel" [class.active]="filterPanelOpen">
+    <div class="mobile-panel-header">
+      <h3>Filters</h3>
+      <button class="mobile-close-panel" (click)="toggleFilterPanel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="mobile-panel-content">
+      <!-- Status Filters -->
+      <div class="mobile-filter-section">
+        <h4>Status</h4>
+        <div class="mobile-status-filters">
+          @for (status of statusOptions; track status.value) {
+            <div 
+              class="mobile-status-option" 
+              [class.active]="currentFilter.status === status.value"
+              (click)="onStatusFilter(status.value)">
+              <div class="status-indicator">
+                <mat-icon>{{status.icon}}</mat-icon>
+              </div>
+              <span class="status-label">{{status.label}}</span>
+              <span class="status-count">{{getCount(status.value)}}</span>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Active Filters Display -->
+      @if (hasActiveFilters) {
+        <div class="mobile-active-filters">
+          <div class="active-filters-header">
+            <span>Active Filters</span>
+            <button class="clear-all-btn" (click)="onClearFilters()">Clear All</button>
+          </div>
+          <!-- You could add specific active filter chips here if needed -->
+        </div>
+      }
+    </div>
+    
+    <div class="mobile-panel-actions">
+      <button class="mobile-apply-btn" (click)="toggleFilterPanel()">Apply Filters</button>
+    </div>
+  </div>
+  
+  <!-- Overlay when filter panel is open -->
+  @if (filterPanelOpen) {
+    <div class="mobile-overlay" (click)="toggleFilterPanel()"></div>
+  }
+</section>

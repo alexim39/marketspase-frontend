@@ -81,35 +81,79 @@ export class PromoterLandingComponent implements OnInit {
   });
 
   metrics = computed<CampaignMetrics>(() => {
-    const campaigns = this.campaigns();
-    const totalEarnings = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0) * campaign.payoutPerPromotion, 0);
-    //const pendingEarnings = campaigns.reduce((sum, campaign) => sum + ((campaign.validatedPromotions || 0) - (campaign.paidPromotions || 0)) * campaign.payoutPerPromotion, 0);
-    const activePromotions = this.promotions().filter((promotion: PromotionInterface) => promotion.status === 'pending' || promotion.status === 'submitted').length;    
-    const completedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.paidPromotions || 0), 0);
-    const totalViews = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0) * (campaign.minViewsPerPromotion || 0), 0);
-    const totalPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.totalPromotions || 0), 0);
-    //const validatedPromotions = campaigns.reduce((sum, campaign) => sum + (campaign.validatedPromotions || 0), 0);
-    //const successRate = totalPromotions > 0 ? (validatedPromotions / totalPromotions) * 100 : 0;
-    const expiringSoon = campaigns.filter(campaign => {
-      if (!campaign.endDate) return false;
-      const endDate = new Date(campaign.endDate);
+    const promotions = this.promotions();
+    console.log('metrics promotions ', promotions);
+
+    // Calculate earnings based on actual promotion status
+    const totalEarnings = promotions
+      .filter(promotion => promotion.status === 'paid')
+      .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
+
+    const pendingEarnings = promotions
+      //.filter(promotion => promotion.status === 'submitted')
+      .filter(promotion => promotion.status === 'submitted' || promotion.status === 'pending')
+      .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
+
+    const activePromotions = promotions.filter(promotion => 
+      promotion.status === 'pending' || promotion.status === 'submitted'
+    ).length;
+
+    const completedPromotions = promotions.filter(promotion => 
+      promotion.status === 'paid'
+    ).length;
+
+    // Calculate total views from proofViews in promotions (more accurate)
+    const totalViews = promotions.reduce((sum, promotion) => 
+      sum + (promotion.proofViews || 0), 0
+    );
+
+    // Calculate success rate based on promotion outcomes
+    const totalAcceptedPromotions = promotions.filter(p => 
+      p.status === 'submitted' || p.status === 'validated' || p.status === 'paid'
+    ).length;
+    
+    const successfulPromotions = promotions.filter(p => p.status === 'paid').length;
+    const successRate = totalAcceptedPromotions > 0 ? 
+      (successfulPromotions / totalAcceptedPromotions) * 100 : 0;
+
+    // Calculate rating based on completed promotions (you might want to get this from user data)
+    const rating = this.calculateUserRating(promotions);
+
+    // Expiring soon - promotions where campaign is ending in 3 days
+    const expiringSoon = promotions.filter(promotion => {
+      if (!promotion.campaign?.endDate) return false;
+      const endDate = new Date(promotion.campaign.endDate);
       const today = new Date();
       const diffTime = endDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays <= 3 && diffDays > 0;
+      return diffDays <= 3 && diffDays > 0 && 
+            (promotion.status === 'pending' || promotion.status === 'submitted');
     }).length;
 
     return {
       totalEarnings,
-      rating: 4.8,
+      rating,
       completedPromotions,
-      pendingEarnings: 5,
+      pendingEarnings,
       activePromotions,
-      successRate: 9,
+      successRate,
       totalViews,
       expiringSoon
     };
   });
+
+  // Helper method to calculate user rating
+  private calculateUserRating(promotions: PromotionInterface[]): number {
+    // If you have a user rating system, use that instead
+    const paidPromotions = promotions.filter(p => p.status === 'paid').length;
+    
+    // Simple rating calculation based on completed promotions
+    // You might want to replace this with actual user rating data
+    if (paidPromotions >= 10) return 4.8;
+    if (paidPromotions >= 5) return 4.5;
+    if (paidPromotions >= 1) return 4.0;
+    return 0; // No rating for new users
+  }
 
   ngOnInit(): void {
     this.loadCampaigns();

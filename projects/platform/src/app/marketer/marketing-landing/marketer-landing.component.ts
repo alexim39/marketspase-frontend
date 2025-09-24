@@ -17,6 +17,8 @@ import { CampaignInterface, DeviceService, UserInterface } from '../../../../../
 import { MarketerService } from '../marketer.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CampaignHeaderComponent } from './components/compaign-head/campaign-header.component';
+import { CampaignStatsMobileComponent } from './components/campaign-stats/mobile/campaign-stats-mobile.component';
+import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 
 interface FilterOptions {
   status: string;
@@ -46,7 +48,9 @@ interface StatusOption {
     CampaignStatsComponent,
     CampaignFiltersComponent,
     CampaignListComponent,
-    CampaignHeaderComponent
+    CampaignHeaderComponent,
+    CampaignStatsMobileComponent,
+    CampaignFiltersMobileComponent
   ],
   templateUrl: './marketer-landing.component.html',
   styleUrls: ['./marketer-landing.component.scss']
@@ -141,6 +145,7 @@ export class MarketerLandingComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
+            console.log('returned campaigns ',response.data)
             this.campaigns.set(response.data);
             this.filteredCampaigns.set(response.data);
             this.isLoading.set(false);
@@ -155,15 +160,106 @@ export class MarketerLandingComponent implements OnInit {
 
   private calculateStats() {
     const campaigns = this.campaigns();
+    
+    // Flatten all promotions from all campaigns
+    const allPromotions = campaigns.flatMap(campaign => campaign.promotions || []);
+    
+    // Calculate metrics based on actual data
+    const totalSpent = campaigns.reduce((sum, c) => sum + (c.spentBudget || 0), 0);
+    
+    // Calculate total views from proofViews in promotions
+    const totalViews = allPromotions.reduce((sum, promotion) => 
+      sum + (promotion.proofViews || 0), 0
+    );
+    
+    // Calculate total promoters (unique promoters across all campaigns)
+    const uniquePromoters = new Set(
+      allPromotions.map(p => p.promoter).filter(Boolean)
+    ).size;
+    
+    // Calculate engagement metrics
+    const submittedPromotions = allPromotions.filter(p => p.status === 'submitted' || p.status === 'validated' || p.status === 'paid');
+    const paidPromotions = allPromotions.filter(p => p.status === 'paid');
+    
+    // Calculate CTR (Click-Through Rate) - if you have link clicks data
+    // For now, using a calculated engagement rate based on views vs expected
+    const totalExpectedViews = campaigns.reduce((sum, c) => 
+      sum + ((c.minViewsPerPromotion || 0) * (c.totalPromotions || 0)), 0
+    );
+    
+    const engagementRate = totalExpectedViews > 0 ? 
+      (totalViews / totalExpectedViews) * 100 : 0;
+    
+    // Calculate success rate (paid vs submitted promotions)
+    const successRate = submittedPromotions.length > 0 ? 
+      (paidPromotions.length / submittedPromotions.length) * 100 : 0;
+    
+    // Calculate average completion time (if you have timing data)
+    const completedPromotions = allPromotions.filter(p => 
+      p.status === 'paid' && p.submittedAt && p.paidAt
+    );
+    
+    const avgCompletionTime = completedPromotions.length > 0 ? 
+      completedPromotions.reduce((sum, p) => {
+        const submitTime = new Date(p.submittedAt!).getTime();
+        const paidTime = new Date(p.paidAt!).getTime();
+        return sum + (paidTime - submitTime);
+      }, 0) / completedPromotions.length : 0;
+    
+    // Format average completion time to hours
+    const avgCompletionHours = avgCompletionTime > 0 ? 
+      (avgCompletionTime / (1000 * 60 * 60)).toFixed(1) : '0';
+    
+    // Campaign status breakdown
     const activeCampaigns = campaigns.filter(c => c.status === 'active');
-
+    const draftCampaigns = campaigns.filter(c => c.status === 'draft');
+    const completedCampaigns = campaigns.filter(c => 
+      c.status === 'completed' || c.remainingBudget <= 0
+    );
+    const pendingCampaigns = campaigns.filter(c => c.status === 'pending');
+    
+    // Calculate budget utilization
+    const totalBudget = campaigns.reduce((sum, c) => sum + (c.budget || 0), 0);
+    const budgetUtilization = totalBudget > 0 ? 
+      (totalSpent / totalBudget) * 100 : 0;
+    
     return {
+      // Campaign counts
       totalCampaigns: campaigns.length,
       activeCampaigns: activeCampaigns.length,
-      totalSpent: campaigns.reduce((sum, c) => sum + ((c.payoutPerPromotion * c.currentPromoters) || 0), 0),
-      totalViews: 56, // Mock value
-      avgCTR: 3.2, // Mock value
-      totalPromoters: campaigns.reduce((sum, c) => sum + (c.totalPromotions || 0), 0)
+      draftCampaigns: draftCampaigns.length,
+      completedCampaigns: completedCampaigns.length,
+      pendingCampaigns: pendingCampaigns.length,
+      
+      // Financial metrics
+      totalSpent,
+      totalBudget,
+      budgetUtilization: Math.round(budgetUtilization),
+      
+      // Performance metrics
+      totalViews,
+      totalPromoters: uniquePromoters,
+      totalPromotions: allPromotions.length,
+      successfulPromotions: paidPromotions.length,
+      
+      // Engagement metrics
+      engagementRate: Math.round(engagementRate),
+      successRate: Math.round(successRate),
+      avgCompletionTime: avgCompletionHours,
+      
+      // Additional useful metrics
+      avgPayout: paidPromotions.length > 0 ? 
+        paidPromotions.reduce((sum, p) => sum + (p.payoutAmount || 0), 0) / paidPromotions.length : 0,
+      
+      pendingPayout: allPromotions
+        .filter(p => p.status === 'submitted' || p.status === 'validated')
+        .reduce((sum, p) => sum + (p.payoutAmount || 0), 0),
+      
+      // Campaign performance indicators
+      campaignsWithPromotions: campaigns.filter(c => (c.promotions?.length || 0) > 0).length,
+      campaignsNeedingAttention: campaigns.filter(c => 
+        c.status === 'active' && (c.promotions?.length || 0) === 0
+      ).length
     };
   }
 

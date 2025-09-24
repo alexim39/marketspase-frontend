@@ -4,24 +4,54 @@
     (createCampaign)="createCampaign()"
   />
 
-  <app-campaign-stats 
-    [stats]="campaignStats()"
-  />
+ <!-- Desktop Stats -->
+  @if (deviceType() === 'desktop') {
+    <app-campaign-stats 
+      [stats]="campaignStats()"
+    />
+  }
+  
+  <!-- Mobile Stats -->
+  @if (deviceType() === 'mobile') {
+    <app-campaign-stats-mobile
+      [stats]="campaignStats()"
+    />
+  }
 
   <!-- Filters Section -->
-  <app-campaign-filters
-    [statusOptions]="statusOptions"
-    [currentFilter]="currentFilters()"
-    [campaignCounts]="campaignCounts()"
-    [searchControl]="searchControl"
-    [currentView]="currentView()"
-    [hasActiveFilters]="hasActiveFilters()"
-    [filteredCount]="filteredCampaigns().length"
-    [totalCount]="campaigns().length"
-    (filterChange)="updateFilters($event)"
-    (viewChange)="setView($event)"
-    (clearFilters)="clearAllFilters()"
-  />
+   <!-- Desktop Stats -->
+  @if (deviceType() === 'desktop') {
+    <app-campaign-filters
+      [statusOptions]="statusOptions"
+      [currentFilter]="currentFilters()"
+      [campaignCounts]="campaignCounts()"
+      [searchControl]="searchControl"
+      [currentView]="currentView()"
+      [hasActiveFilters]="hasActiveFilters()"
+      [filteredCount]="filteredCampaigns().length"
+      [totalCount]="campaigns().length"
+      (filterChange)="updateFilters($event)"
+      (viewChange)="setView($event)"
+      (clearFilters)="clearAllFilters()"
+    />
+  }
+
+  <!-- Mobile Stats -->
+  @if (deviceType() === 'mobile') {
+   <app-campaign-filters-mobile
+      [statusOptions]="statusOptions"
+      [currentFilter]="currentFilters()"
+      [campaignCounts]="campaignCounts()"
+      [searchControl]="searchControl"
+      [currentView]="currentView()"
+      [hasActiveFilters]="hasActiveFilters()"
+      [filteredCount]="filteredCampaigns().length"
+      [totalCount]="campaigns().length"
+      (filterChange)="updateFilters($event)"
+      (viewChange)="setView($event)"
+      (clearFilters)="clearAllFilters()"
+    />
+  }
 
   <!-- Campaigns List -->
   <app-campaign-list
