@@ -21,10 +21,11 @@ export class PromoterLandingService {
   /**
    * Get campaigns by status (e.g., active, paused, completed).
    * @param status The campaign status to filter by.
+   * @param userId The user id to targeting.
    * @returns An observable of the filtered campaigns.
    */
-  getCampaignsByStatus(status: string): Observable<any> {
-    return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true);
+  getCampaignsByStatus(status: string, userId: string | undefined): Observable<any> {
+    return this.apiService.get<any>(`campaign/?status=${status}?userId=${userId}`, undefined, undefined, true);
   }
 
   // Promoter accept a campaign (Note: This might be the same as the download function)

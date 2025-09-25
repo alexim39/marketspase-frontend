@@ -35,7 +35,13 @@
     
     <div class="card-meta">
       <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
-      <span><i class="material-icons">schedule</i> {{campaign.duration}}</span>
+      <span><i class="material-icons">schedule</i> 
+        @if (campaign.remainingDays === 'Expired') {
+          {{campaign.remainingDays}}
+        } @else {
+          Expires in {{campaign.remainingDays}}
+        }
+      </span>
     </div>
 
     <div class="metrics">

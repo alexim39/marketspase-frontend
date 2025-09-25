@@ -9,16 +9,31 @@
     <div class="campaigns-container" [class]="'view-' + currentView">
       @for (campaign of campaigns; track trackByCampaignId($index, campaign)) {
         @if (currentView === 'grid') {
-          <app-campaign-card
-            [campaign]="campaign"
-            [apiBaseUrl]="apiBaseUrl"
-            [view]="currentView"
-            (viewDetails)="onViewDetails($event)"
-            (editCampaign)="onEditCampaign($event)"
-            (pauseCampaign)="onPauseCampaign($event)"
-            (resumeCampaign)="onResumeCampaign($event)"
-            (deleteCampaign)="onDeleteCampaign($event)">
-          </app-campaign-card>
+          @if (deviceType() === 'desktop') {
+            <app-campaign-card
+              [campaign]="campaign"
+              [apiBaseUrl]="apiBaseUrl"
+              [view]="currentView"
+              (viewDetails)="onViewDetails($event)"
+              (editCampaign)="onEditCampaign($event)"
+              (pauseCampaign)="onPauseCampaign($event)"
+              (resumeCampaign)="onResumeCampaign($event)"
+              (deleteCampaign)="onDeleteCampaign($event)"
+            />
+          } @else {
+          <!-- @if (deviceType() === 'mobile') { -->
+            <app-campaign-card-mobile
+              [campaign]="campaign"
+              [apiBaseUrl]="apiBaseUrl"
+              [view]="currentView"
+              (viewDetails)="onViewDetails($event)"
+              (editCampaign)="onEditCampaign($event)"
+              (pauseCampaign)="onPauseCampaign($event)"
+              (resumeCampaign)="onResumeCampaign($event)"
+              (deleteCampaign)="onDeleteCampaign($event)"
+            />
+          }
+
         } @else {
           <!-- List View -->
           <div class="campaign-list-item">

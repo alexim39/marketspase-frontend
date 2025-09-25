@@ -1,16 +1,17 @@
+// campaign-card-mobile.component.ts
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { TitleCasePipe } from '@angular/common';
-import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
-import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
-import { CampaignInterface, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
-import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
+import { ShortNumberPipe } from '../../../../../common/pipes/short-number.pipe';
+import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
+import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { TruncatePipe } from '../../../../../common/pipes/truncate.pipe';
 
 @Component({
-  selector: 'app-campaign-card',
+  selector: 'app-campaign-card-mobile',
   standalone: true,
   imports: [
     CommonModule,
@@ -22,10 +23,10 @@ import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
     TitleCasePipe,
     TruncatePipe
   ],
-  templateUrl: './campaign-card.component.html',
-  styleUrls: ['./campaign-card.component.scss']
+  templateUrl: './campaign-card-mobile.component.html',
+  styleUrls: ['./campaign-card-mobile.component.scss']
 })
-export class CampaignCardComponent {
+export class CampaignCardMobileComponent {
   @Input({ required: true }) campaign!: CampaignInterface;
   @Input() apiBaseUrl = '';
   @Input() view: 'grid' | 'list' = 'grid';
@@ -36,7 +37,7 @@ export class CampaignCardComponent {
   @Output() resumeCampaign = new EventEmitter<string>();
   @Output() deleteCampaign = new EventEmitter<string>();
 
-  isNumber(value: number | string | null): string {
+   isNumber(value: number | string | null): string {
     //console.log('the value is', value);
     if (typeof value === 'number') {
       if (value === 0) {
@@ -74,12 +75,6 @@ export class CampaignCardComponent {
       totalViews += promotion.proofViews || 0;
     });
     return totalViews;
-  }
-
-  getProgressColor(progress: number): string {
-    if (progress >= 80) return 'success';
-    if (progress >= 50) return 'warning';
-    return 'danger';
   }
 
   formatCurrency(amount: number): string {

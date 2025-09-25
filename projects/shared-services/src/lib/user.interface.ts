@@ -14,6 +14,9 @@ export interface UserInterface {
   createdAt?: Date;
   preferences?: {
     notification?: boolean;
+    locationBasedAds?: boolean;
+    categoryBasedAds?: boolean;
+    adCategories?: string[];
   };
   darkMode?: boolean;
   testimonial?: {

@@ -1,17 +1,18 @@
-import {Component, inject, Signal} from '@angular/core';
-import {MatTabsModule} from '@angular/material/tabs';
+import { Component, inject, Signal} from '@angular/core';
+import { MatTabsModule} from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { NotificationSettingsComponent } from './notification/notification.component';
 import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { AdsSettingsComponent } from './ads/ads.component';
 
 
 @Component({
   selector: 'async-system-setting',
   standalone: true,
-  imports: [MatTabsModule, MatCardModule, CommonModule, MatIconModule,  NotificationSettingsComponent],
+  imports: [MatTabsModule, MatCardModule, CommonModule, MatIconModule, AdsSettingsComponent, NotificationSettingsComponent],
   template: `
   <div class="settings-container">
 
@@ -19,14 +20,17 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
 
       <mat-card class="settings-card">
         <mat-tab-group animationDuration="200ms">
-          <!-- <mat-tab label="Appearance">
-            <async-dark-theme-settings *ngIf="user" [user]="user"/>
-          </mat-tab> -->
           <mat-tab label="Notifications"> 
             @if (user()) {
               <async-notification [user]="user"/>
             }
           </mat-tab>
+          <mat-tab label="Ads Preferences">
+            @if (user()) {
+              <async-ads [user]="user"/>
+            }
+          </mat-tab>
+          
         </mat-tab-group>
       </mat-card>
     </div>

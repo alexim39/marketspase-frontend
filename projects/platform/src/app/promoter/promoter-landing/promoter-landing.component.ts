@@ -206,7 +206,7 @@ export class PromoterLandingComponent implements OnInit {
   private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-      this.promoterLandingService.getCampaignsByStatus('active')
+      this.promoterLandingService.getCampaignsByStatus('active', this.user()?._id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {

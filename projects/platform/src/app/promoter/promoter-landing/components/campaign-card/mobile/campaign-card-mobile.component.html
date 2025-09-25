@@ -44,7 +44,11 @@
           </span>
           <span class="duration">
             <i class="material-icons">schedule</i>
-            {{campaign.duration}}
+            @if (campaign.remainingDays === 'Expired') {
+                {{campaign.remainingDays}}
+            } @else {
+                Expires in {{campaign.remainingDays}}
+            }
           </span>
         </div>
         

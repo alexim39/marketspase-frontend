@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
-import { Subject, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -168,7 +167,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [MatExpansionModule, CommonModule, MatSlideToggleModule, MatIconModule, MatCardModule],
   providers: [SettingsService],
 })
-export class NotificationSettingsComponent implements OnDestroy {
+export class NotificationSettingsComponent {
  // Required input that expects a signal of type UserInterface or undefined
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -188,11 +187,6 @@ export class NotificationSettingsComponent implements OnDestroy {
   }
 
   
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 
   toggleNotification(event: MatSlideToggleChange): void {
     const isChecked = event.checked;

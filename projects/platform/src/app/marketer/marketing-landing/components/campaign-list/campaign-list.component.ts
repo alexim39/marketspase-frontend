@@ -10,6 +10,7 @@ import { CampaignInterface, DeviceService, PromotionInterface } from '../../../.
 import { CampaignCardComponent } from '../campaign-card/campaign-card.component';
 import { CampaignSkeletonComponent } from '../campaign-skeleton/campaign-skeleton.component';
 import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
+import { CampaignCardMobileComponent } from '../campaign-card/mobile/campaign-card-mobile.component';
 
 @Component({
   selector: 'app-campaign-list',
@@ -22,7 +23,8 @@ import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
     CampaignSkeletonComponent,
     ShortNumberPipe,
     CategoryPlaceholderPipe,
-    TruncatePipe
+    TruncatePipe,
+    CampaignCardMobileComponent
   ],
   templateUrl: './campaign-list.component.html',
   styleUrls: ['./campaign-list.component.scss']

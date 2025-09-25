@@ -50,7 +50,8 @@ interface StatusOption {
     CampaignListComponent,
     CampaignHeaderComponent,
     CampaignStatsMobileComponent,
-    CampaignFiltersMobileComponent
+    CampaignFiltersMobileComponent,
+    
   ],
   templateUrl: './marketer-landing.component.html',
   styleUrls: ['./marketer-landing.component.scss']

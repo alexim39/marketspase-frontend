@@ -70,7 +70,12 @@
     
     <div class="card-meta">
       <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
-      <span><mat-icon>calendar_today</mat-icon> {{campaign.duration}}</span>
+      @if (campaign.remainingDays !== undefined) {
+        <span>
+          <mat-icon>calendar_today</mat-icon>
+          {{ isNumber(campaign.remainingDays) }}
+        </span>
+      }
     </div>
 
     <div class="metrics">
