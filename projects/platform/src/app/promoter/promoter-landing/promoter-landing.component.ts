@@ -19,6 +19,9 @@ import { LoadingStateComponent } from './components/loading-state/loading-state.
 import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { PromoterLandingService } from './promoter-landing.service';
+import { CampaignCardMobileComponent } from './components/campaign-card/mobile/campaign-card-mobile.component';
+import { PromoterQuickStatsMobileComponent } from './components/promoter-quick-stats/mobile/promoter-quick-stats-mobile.component';
+import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -46,6 +49,9 @@ interface CampaignMetrics {
     CampaignCardComponent,
     EmptyStateComponent,
     LoadingStateComponent,
+    CampaignCardMobileComponent,
+    PromoterQuickStatsMobileComponent,
+    CampaignFiltersMobileComponent
   ],
   templateUrl: './promoter-landing.component.html',
   styleUrls: ['./promoter-landing.component.scss']
@@ -53,6 +59,7 @@ interface CampaignMetrics {
 export class PromoterLandingComponent implements OnInit {
   private router = inject(Router);
   private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
   private promoterLandingService = inject(PromoterLandingService);
   private snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);

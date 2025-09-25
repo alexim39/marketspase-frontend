@@ -1,0 +1,76 @@
+<section class="promoter-stats-mobile">
+  <!-- Header -->
+  <div class="stats-header">
+    <h2 class="header-title">Performance Dashboard</h2>
+    <p class="header-subtitle">Real-time promoter analytics</p>
+  </div>
+
+  <!-- Tab Navigation -->
+  <mat-tab-group 
+    class="stats-tabs" 
+    [selectedIndex]="activeTab"
+    (selectedIndexChange)="filterCardsByCategory($event)">
+    
+    @for (category of categories; track category.key) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="tab-label">
+            <mat-icon class="tab-icon">{{category.icon}}</mat-icon>
+            <span class="tab-text">{{category.label}}</span>
+          </div>
+        </ng-template>
+        
+        <!-- Stats Cards Carousel -->
+        <div class="stats-scroll-container">
+          <div class="stats-carousel">
+            @for (card of filteredCards; track card.label) {
+              <div class="stat-card" [class.highlight]="card.highlight">
+                <div class="stat-header">
+                  <div class="stat-icon">
+                    <mat-icon>{{card.icon}}</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{card.value}}</div>
+                    <div class="stat-label">{{card.label}}</div>
+                    @if (card.description) {
+                      <div class="stat-description">{{card.description}}</div>
+                    }
+                    @if (card.trend) {
+                      <div class="trend-indicator">
+                        <mat-icon 
+                          class="trend-icon" 
+                          [class.positive]="card.trend.positive"
+                          [class.negative]="!card.trend.positive">
+                          {{card.trend.positive ? 'trending_up' : 'trending_down'}}
+                        </mat-icon>
+                        <span class="trend-label">{{card.trend.label}}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
+
+  <!-- Quick Summary Bar -->
+  <div class="quick-summary">
+    <div class="summary-item">
+      <span class="summary-value">{{metrics.activePromotions || 0}}</span>
+      <span class="summary-label">Active</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-value">{{metrics.successRate || 0}}%</span>
+      <span class="summary-label">Success</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-value">{{formatCurrency(metrics.pendingEarnings || 0)}}</span>
+      <span class="summary-label">Pending</span>
+    </div>
+  </div>
+</section>

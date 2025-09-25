@@ -1,7 +1,12 @@
 <div class="promoter-landing-container">
   <promoter-header [user]="user" [metrics]="metrics()"/>
 
+  @if (deviceType() === 'desktop') {
   <promoter-quick-stats [metrics]="metrics()"/>
+  }
+  @if (deviceType() === 'mobile') {
+  <promoter-quick-stats-mobile [metrics]="metrics()"/>
+  }
 
   @if (metrics().activePromotions > 0) {
     <div class="container">
@@ -23,6 +28,7 @@
     </div>
   }
 
+  @if (deviceType() === 'desktop') {
   <campaign-filters
     [searchTerm]="searchTerm()"
     [allCampaignsCount]="campaigns().length"
@@ -33,6 +39,19 @@
     (searchTermChange)="searchTerm.set($event)"
     (viewModeChange)="viewMode.set($event)"
   />
+  }
+  @if (deviceType() === 'mobile') {
+  <campaign-filters-mobile
+    [searchTerm]="searchTerm()"
+    [allCampaignsCount]="campaigns().length"
+    [highPayoutCount]="getHighPayoutCount()"
+    [expiringSoonCount]="metrics().expiringSoon"
+    [quickTasksCount]="getQuickTasksCount()"
+    [viewMode]="viewMode()"
+    (searchTermChange)="searchTerm.set($event)"
+    (viewModeChange)="viewMode.set($event)"
+  />
+  }
 
   <main class="main">
     <div class="container">
@@ -43,13 +62,24 @@
       } @else {
         <div class="campaigns-grid" [class.grid-view]="viewMode() === 'grid'" [class.list-view]="viewMode() === 'list'">
           @for (campaign of filteredCampaigns(); track campaign._id) {
-            <campaign-card
-              [campaign]="campaign"
-              [api]="api"
-              [isApplying]="isApplying()"
-              [viewMode]="viewMode()"
-              (applyForCampaign)="applyForCampaign($event)"
-            />
+            @if (deviceType() === 'desktop') {
+              <campaign-card
+                [campaign]="campaign"
+                [api]="api"
+                [isApplying]="isApplying()"
+                [viewMode]="viewMode()"
+                (applyForCampaign)="applyForCampaign($event)"
+              />
+            }
+             @if (deviceType() === 'mobile') {
+              <app-campaign-card-mobile
+                [campaign]="campaign"
+                [api]="api"
+                [isApplying]="isApplying()"
+                [viewMode]="viewMode()"
+                (applyForCampaign)="applyForCampaign($event)"
+              />
+            }
           }
         </div>
       }

@@ -58,6 +58,7 @@ interface StatusOption {
 export class MarketerLandingComponent implements OnInit {
   private router = inject(Router);
   private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
   private destroyRef = inject(DestroyRef);
   private marketerService = inject(MarketerService);
   
@@ -85,7 +86,6 @@ export class MarketerLandingComponent implements OnInit {
   searchControl = new FormControl('');
 
   // Computed properties
-  deviceType = computed(() => this.deviceService.type());
   campaignStats = computed(() => this.calculateStats());
   
   campaignCounts = computed(() => {
