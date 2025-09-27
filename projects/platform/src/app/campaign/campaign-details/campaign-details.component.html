@@ -109,6 +109,63 @@
                   <span class="info-value">{{campaign.enableTarget? 'Local' : 'General'}}</span>
                 </div>
               </div>
+
+
+
+
+
+
+
+
+
+              <!-- Campaign Type -->
+              <div class="info-item">
+                <mat-icon>campaign</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Campaign Type</span>
+                  <span class="info-value">{{campaign.campaignType | titlecase}}</span>
+                </div>
+              </div>
+              
+              <!-- Priority -->
+              <div class="info-item">
+                <mat-icon>priority_high</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Priority</span>
+                  <span class="info-value">{{campaign.priority | titlecase}}</span>
+                </div>
+              </div>
+              
+              <!-- Difficulty -->
+              <div class="info-item">
+                <mat-icon>speed</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Difficulty</span>
+                  <span class="info-value">{{campaign.difficulty | titlecase}}</span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>people</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Target Audience</span>
+                  <span class="info-value">{{campaign.enableTarget ? 'Targeted' : 'General'}}</span>
+                </div>
+              </div>
+              
+              <!-- Minimum Rating -->
+              @if (campaign.enableTarget && campaign.minRating) {
+              <div class="info-item">
+                <mat-icon>star</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Minimum Rating</span>
+                  <span class="info-value">{{campaign.minRating}}+</span>
+                </div>
+              </div>
+              }
+
+
+              
               
               <div class="info-item">
                 <mat-icon>calendar_today</mat-icon>
@@ -129,6 +186,46 @@
                 </div>
               </div>
             </div>
+
+
+             <!-- Target Locations -->
+            @if (campaign.enableTarget && campaign.targetLocations && campaign.targetLocations.length > 0) {
+            <div class="info-section">
+              <h4 class="section-subtitle">Target Locations</h4>
+              <div class="tags-container">
+                @for (location of campaign.targetLocations; track location) {
+                <span class="tag">{{location}}</span>
+                }
+              </div>
+            </div>
+            }
+
+
+
+             <!-- Requirements -->
+            @if (campaign.requirements && campaign.requirements.length > 0) {
+            <div class="info-section">
+              <h4 class="section-subtitle">Requirements</h4>
+              <ul class="requirements-list">
+                @for (requirement of campaign.requirements; track requirement) {
+                <li>{{requirement}}</li>
+                }
+              </ul>
+            </div>
+            }
+
+            <!-- Tags -->
+            @if (campaign.tags && campaign.tags.length > 0) {
+            <div class="info-section">
+              <h4 class="section-subtitle">Tags</h4>
+              <div class="tags-container">
+                @for (tag of campaign.tags; track tag) {
+                <span class="tag">{{tag}}</span>
+                }
+              </div>
+            </div>
+            }
+
             @if (campaign.link) {
               <div class="campaign-link">
                 <mat-icon>link</mat-icon>

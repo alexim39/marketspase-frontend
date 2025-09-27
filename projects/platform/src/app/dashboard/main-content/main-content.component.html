@@ -25,17 +25,23 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #quickMenu="matMenu">
-        <button mat-menu-item (click)="viewWallet()">
-          <mat-icon>account_balance_wallet</mat-icon>
-          <span>Wallet</span>
-        </button>
+       
         @if (user()?.role === 'marketer') {
+          <button mat-menu-item (click)="createCampaign()">
+            <mat-icon>add</mat-icon>
+            <span>Create Campaign</span>
+          </button>
           <button mat-menu-item (click)="viewCampaigns()">
             <mat-icon>campaign</mat-icon>
             <span>My Campaigns</span>
           </button>
         }
+        
         @if (user()?.role === 'promoter') {
+          <button mat-menu-item (click)="viewWallet()">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <span>Wallet Withdrawal</span>
+          </button>
           <button mat-menu-item (click)="viewPromotions()">
             <mat-icon>assignment</mat-icon>
             <span>My Promotions</span>

@@ -272,12 +272,13 @@ export class DashboardMainContainer {
   }
 
   viewPromotions(): void {
-    this.router.navigate(['dashboard/promotions']);
+    this.router.navigate(['dashboard/campaigns']);
   }
 
   viewWallet(): void {
-    this.router.navigate(['dashboard/wallet']);
+    this.router.navigate(['dashboard/transactions/withdrawal']);
   }
+
 
   formatCurrency(amount: number): string {
     return `₦${amount.toLocaleString()}`;

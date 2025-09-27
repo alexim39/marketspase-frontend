@@ -3,9 +3,15 @@
     <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
       {{getStatusBadgeText(campaign)}}
     </div>
-    <button class="icon-btn">
-      <i class="material-icons">bookmark_border</i>
-    </button>
+    @if (hasUserPromotion(campaign)) {
+      <div class="user-badge">
+          <i class="material-icons">check_circle</i> Already Accepted
+        </div>
+    } @else {
+      <button class="icon-btn">
+        <i class="material-icons">bookmark_border</i>
+      </button>
+    }
   </div>
 
   <div class="card-media">
@@ -38,6 +44,9 @@
       <span><i class="material-icons">schedule</i> 
         @if (campaign.remainingDays === 'Expired') {
           {{campaign.remainingDays}}
+        }
+        @if (campaign.remainingDays === 'Ongoing') {
+          Budget Based
         } @else {
           Expires in {{campaign.remainingDays}}
         }
@@ -72,9 +81,10 @@
   </div>
 
   <div class="card-footer">
+    
     <button 
       class="apply-btn" 
-      [disabled]="!canAcceptCampaign(campaign) || isApplying"
+      [disabled]="!canAcceptCampaign(campaign) || isApplying || hasUserPromotion(campaign)"
       (click)="applyForCampaign.emit(campaign)"
       >
       @if (isApplying) {
@@ -83,6 +93,7 @@
         <i class="material-icons">add_circle</i>
         {{getAcceptButtonText(campaign)}}
       }
-    </button>
+    </button>  
+
   </div>
 </div>

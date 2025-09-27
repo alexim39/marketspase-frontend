@@ -977,3 +977,92 @@
     }
   }
 }
+
+
+
+
+// Add these styles to the existing SCSS file
+
+// Info Sections
+.info-section {
+  margin: 1.5rem 0;
+  
+  .section-subtitle {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    mat-icon {
+      font-size: 1.1rem;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+}
+
+// Tags Container
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  
+  .tag {
+    padding: 0.35rem 0.75rem;
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.2);
+    }
+  }
+}
+
+// Requirements List
+.requirements-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  
+  li {
+    margin-bottom: 0.5rem;
+    color: $text-secondary;
+    line-height: 1.5;
+    font-size: 0.9rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Update the campaign-info section to accommodate new content
+.campaign-info {
+  .info-grid {
+    // Keep existing styles, but you might want to adjust grid columns
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+// Responsive adjustments for new sections
+@include mobile {
+  .tags-container {
+    .tag {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+  
+  .requirements-list {
+    padding-left: 1rem;
+    
+    li {
+      font-size: 0.85rem;
+    }
+  }
+}

@@ -88,8 +88,14 @@ export interface CampaignInterface {
   //marketerRating: number;
   //views: number;
   //isApproved: boolean;
-  // check
-  targetAudience: any;
+  //targetAudience: any;
+
+
+
+
+  // ... existing fields ...
+  targetLocations: string[];
+  minRating: number;
 }
 
 

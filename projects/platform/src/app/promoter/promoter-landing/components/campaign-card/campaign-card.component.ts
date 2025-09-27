@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { CampaignInterface } from '../../../../../../../shared-services/src/public-api';
+import { CampaignInterface, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
 import { MatIconModule } from '@angular/material/icon';
 import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
@@ -22,11 +22,18 @@ export type ViewMode = 'grid' | 'list';
 })
 export class CampaignCardComponent {
   @Input({ required: true }) campaign!: CampaignInterface;
+  @Input({ required: true }) promotions!: PromotionInterface[];
   @Input({ required: true }) api!: string;
   @Input() isApplying: boolean = false;
   @Input() viewMode: ViewMode = 'grid';
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
+
+  hasUserPromotion(campaign: CampaignInterface): boolean {
+    return this.promotions.some(
+      (promotion: PromotionInterface) => promotion.campaign._id === campaign._id
+    );
+  }
 
   getStatusBadgeClass(campaign: CampaignInterface): string {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
@@ -44,6 +51,7 @@ export class CampaignCardComponent {
   }
 
   getStatusBadgeText(campaign: CampaignInterface): string {
+    //console.log('promotions:', this.promotions());
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
       return 'Completed';
     }

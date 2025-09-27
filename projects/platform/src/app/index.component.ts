@@ -116,8 +116,8 @@ export interface SocialProvider {
       <div class="auth-footer">
         <p class="footer-text">
           New to MarketSpase? 
-          <a href="https://marketspase.com/get-started" target="_blank" class="signup-link">
-            Get Started
+          <a href="https://marketspase.com/about-us" target="_blank" class="signup-link">
+            Get to Know Us
           </a>
         </p>
         <div class="footer-links">

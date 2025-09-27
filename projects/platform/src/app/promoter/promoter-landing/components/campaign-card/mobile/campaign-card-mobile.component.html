@@ -30,9 +30,16 @@
       <div class="compact-content">
         <div class="compact-header">
           <h3 class="campaign-title">{{campaign.title | titlecase | truncate: 30}}</h3>
-          <button class="mobile-bookmark-btn">
-            <i class="material-icons">bookmark_border</i>
-          </button>
+         
+          @if (hasUserPromotion(campaign)) {
+            <div class="user-badge">
+                <i class="material-icons">check_circle</i> Accepted
+              </div>
+          } @else {
+            <button class="mobile-bookmark-btn">
+                  <i class="material-icons">bookmark_border</i>
+                </button>
+          }
         </div>
         
         <p class="campaign-description">{{campaign.caption | truncate: 60}}</p>
@@ -45,9 +52,12 @@
           <span class="duration">
             <i class="material-icons">schedule</i>
             @if (campaign.remainingDays === 'Expired') {
-                {{campaign.remainingDays}}
+              {{campaign.remainingDays}}
+            }
+            @if (campaign.remainingDays === 'Ongoing') {
+              Budget Based
             } @else {
-                Expires in {{campaign.remainingDays}}
+              Expires in {{campaign.remainingDays}}
             }
           </span>
         </div>
@@ -77,7 +87,7 @@
           </div>
           <button 
             class="mobile-apply-btn"
-            [class.disabled]="!canAcceptCampaign(campaign)"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion(campaign)"
             [disabled]="!canAcceptCampaign(campaign) || isApplying"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplying) {
@@ -87,6 +97,7 @@
             }
             <span>{{getAcceptButtonText(campaign)}}</span>
           </button>
+          
         </div>
       </div>
     </div>
@@ -102,9 +113,15 @@
           </div>
           <h3 class="campaign-title">{{campaign.title | titlecase}}</h3>
         </div>
-        <button class="mobile-bookmark-btn">
-          <i class="material-icons">bookmark_border</i>
-        </button>
+        @if (hasUserPromotion(campaign)) {
+            <div class="user-badge">
+                <i class="material-icons">check_circle</i> Accepted
+              </div>
+          } @else {
+            <button class="mobile-bookmark-btn">
+                  <i class="material-icons">bookmark_border</i>
+                </button>
+          }
       </div>
 
       <div class="expanded-content">
@@ -181,7 +198,7 @@
           </div>
           <button 
             class="mobile-apply-btn large"
-            [class.disabled]="!canAcceptCampaign(campaign)"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion(campaign)"
             [disabled]="!canAcceptCampaign(campaign) || isApplying"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplying) {
@@ -192,6 +209,7 @@
               <span>{{getAcceptButtonText(campaign)}}</span>
             }
           </button>
+         
         </div>
       </div>
     </div>

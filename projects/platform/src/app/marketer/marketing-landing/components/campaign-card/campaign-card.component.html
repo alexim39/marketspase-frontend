@@ -16,28 +16,28 @@
         <mat-icon>edit</mat-icon>
         Edit Campaign
       </button>
-      @if (campaign.status === 'active') {
+      <!-- @if (campaign.status === 'active') {
         <button mat-menu-item (click)="onPauseCampaign()">
           <mat-icon>pause</mat-icon>
           Pause
         </button>
-      }
+      } -->
       @if (campaign.status === 'draft') {
         <button mat-menu-item (click)="onPauseCampaign()">
           <mat-icon>start</mat-icon>
           Activate
         </button>
       }
-      @if (campaign.status === 'paused') {
+      <!-- @if (campaign.status === 'paused') {
         <button mat-menu-item (click)="onResumeCampaign()">
           <mat-icon>play_arrow</mat-icon>
           Resume
         </button>
-      }
-      <button mat-menu-item (click)="onDeleteCampaign()" class="delete-action">
+      } -->
+      <!-- <button mat-menu-item (click)="onDeleteCampaign()" class="delete-action">
         <mat-icon>delete</mat-icon>
         Delete
-      </button>
+      </button> -->
     </mat-menu>
   </div>
 

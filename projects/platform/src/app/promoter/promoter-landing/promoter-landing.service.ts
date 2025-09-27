@@ -7,6 +7,7 @@ export class PromoterLandingService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
   private readonly apiUrl = 'promotion';
+  private readonly apiUrl2 = 'campaign';
 
   
    /**
@@ -18,20 +19,21 @@ export class PromoterLandingService {
     return this.apiService.get<any>(`${this.apiUrl}/user/${userId}`, undefined, undefined, true);
   }
 
-  /**
-   * Get campaigns by status (e.g., active, paused, completed).
-   * @param status The campaign status to filter by.
-   * @param userId The user id to targeting.
-   * @returns An observable of the filtered campaigns.
-   */
+ /**
+ * Get campaigns by status (e.g., active, paused, completed).
+ * @param status The campaign status to filter by.
+ * @param userId The user id to target.
+ * @returns An observable of the filtered campaigns.
+ */
   getCampaignsByStatus(status: string, userId: string | undefined): Observable<any> {
-    return this.apiService.get<any>(`campaign/?status=${status}?userId=${userId}`, undefined, undefined, true);
+    return this.apiService.get<any>(`${this.apiUrl2}/?status=${status}&userId=${userId}`, undefined, undefined, true);
   }
+
 
   // Promoter accept a campaign (Note: This might be the same as the download function)
   // Re-evaluating this based on your new controller, this function's logic might change.
   acceptCampaign(campaignId: string, userId: string): Observable<any> {
-    return this.apiService.post<any>(`campaign/${campaignId}/accept`, { userId }, undefined, true);
+    return this.apiService.post<any>(`${this.apiUrl2}/${campaignId}/accept`, { userId }, undefined, true);
   }
 
 }

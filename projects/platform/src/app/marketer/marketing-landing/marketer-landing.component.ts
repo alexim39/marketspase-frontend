@@ -320,7 +320,7 @@ export class MarketerLandingComponent implements OnInit {
   }
 
   editCampaign(campaignId: string): void {
-    this.router.navigate(['/dashboard/campaigns', campaignId, 'edit']);
+    this.router.navigate(['/dashboard/campaigns/edit', campaignId,]);
   }
 
   // Campaign actions

@@ -65,6 +65,7 @@
             @if (deviceType() === 'desktop') {
               <campaign-card
                 [campaign]="campaign"
+                [promotions]="promotions()"
                 [api]="api"
                 [isApplying]="isApplying()"
                 [viewMode]="viewMode()"
@@ -74,6 +75,7 @@
              @if (deviceType() === 'mobile') {
               <app-campaign-card-mobile
                 [campaign]="campaign"
+                [promotions]="promotions()"
                 [api]="api"
                 [isApplying]="isApplying()"
                 [viewMode]="viewMode()"

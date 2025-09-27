@@ -22,6 +22,7 @@ import { ErrorStateComponent } from './components/error-state/error-state.compon
 import { CampaignInterface } from '../../../../../shared-services/src/public-api';
 import { NIGERIAN_STATES } from '../../common/utils/nigerian-states';
 import { CampaignEditService } from './campaign-edit.service';
+import { CATEGORIES } from '../../common/utils/categories';
 
 @Component({
   selector: 'app-campaign-edit',
@@ -68,18 +69,7 @@ export class CampaignEditComponent implements OnInit {
 
   public readonly api = this.campaignEditService.api;
 
-  categories = [
-    { value: 'fashion', label: 'Fashion & Beauty' },
-    { value: 'food', label: 'Food & Beverage' },
-    { value: 'tech', label: 'Technology' },
-    { value: 'health', label: 'Health & Fitness' },
-    { value: 'travel', label: 'Travel & Tourism' },
-    { value: 'education', label: 'Education' },
-    { value: 'entertainment', label: 'Entertainment' },
-    { value: 'business', label: 'Business & Finance' },
-    { value: 'lifestyle', label: 'Lifestyle' },
-    { value: 'other', label: 'Other' }
-  ];
+  categories = CATEGORIES;
 
   readonly locationSuggestions = NIGERIAN_STATES;
 
@@ -104,10 +94,10 @@ export class CampaignEditComponent implements OnInit {
       link: ['', [Validators.pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)]],
       mediaType: ['image'],
       mediaFile: [null],
-      budget: [null, [Validators.required, Validators.min(1000)]],
-      payoutPerPromotion: [{ value: null, disabled: true }, [Validators.required, Validators.min(100)]],
-      maxPromoters: [{ value: null, disabled: true }],
-      minViewsPerPromotion: [{ value: 25, disabled: true }, [Validators.required, Validators.min(25)]],
+      //budget: [{ value: null, disabled: true }, [Validators.required, Validators.min(1000)]],
+      //payoutPerPromotion: [{ value: null, disabled: true }, [Validators.required, Validators.min(100)]],
+      //maxPromoters: [{ value: null, disabled: true }],
+      //minViewsPerPromotion: [{ value: 25, disabled: true }, [Validators.required, Validators.min(25)]],
       campaignType: ['standard'],
       enableTarget: [false],
       startDate: [null, Validators.required],
@@ -118,8 +108,8 @@ export class CampaignEditComponent implements OnInit {
       priority: ['medium']
     });
 
-    this.campaignForm.get('budget')?.valueChanges.subscribe(() => this.calculateMaxPromoters());
-    this.campaignForm.get('payoutPerPromotion')?.valueChanges.subscribe(() => this.calculateMaxPromoters());
+    //this.campaignForm.get('budget')?.valueChanges.subscribe(() => this.calculateMaxPromoters());
+    //this.campaignForm.get('payoutPerPromotion')?.valueChanges.subscribe(() => this.calculateMaxPromoters());
     
     this.campaignForm.get('hasEndDate')?.valueChanges.subscribe(hasEndDate => {
       const endDateControl = this.campaignForm.get('endDate');
@@ -147,6 +137,7 @@ export class CampaignEditComponent implements OnInit {
     this.campaignEditService.getCampaignById(campaignId).subscribe({
       next: (response) => {
         if (response.success) {
+          console.log('Campaign data:', response.data); // Debug log
           this.campaign.set(response.data);
           this.populateForm(response.data);
           this.isLoading.set(false);
@@ -166,9 +157,9 @@ export class CampaignEditComponent implements OnInit {
       category: campaign.category,
       link: campaign.link || '',
       mediaType: campaign.mediaType || 'image',
-      budget: campaign.budget,
-      payoutPerPromotion: campaign.payoutPerPromotion,
-      minViewsPerPromotion: campaign.minViewsPerPromotion,
+      //budget: campaign.budget,
+      //payoutPerPromotion: campaign.payoutPerPromotion,
+      //minViewsPerPromotion: campaign.minViewsPerPromotion,
       campaignType: campaign.campaignType,
       startDate: new Date(campaign.startDate),
       endDate: campaign.endDate ? new Date(campaign.endDate) : null,
@@ -186,20 +177,20 @@ export class CampaignEditComponent implements OnInit {
       }
     }
 
-    this.calculateMaxPromoters();
+    //this.calculateMaxPromoters();
   }
 
-  calculateMaxPromoters(): void {
-    const budget = this.campaignForm.get('budget')?.value;
-    const payout = this.campaignForm.get('payoutPerPromotion')?.value;
+  // calculateMaxPromoters(): void {
+  //   const budget = this.campaignForm.get('budget')?.value;
+  //   const payout = this.campaignForm.get('payoutPerPromotion')?.value;
     
-    if (budget && payout && payout > 0) {
-      const maxPromoters = Math.floor(budget / payout);
-      this.campaignForm.get('maxPromoters')?.setValue(maxPromoters);
-    } else {
-      this.campaignForm.get('maxPromoters')?.setValue(0);
-    }
-  }
+  //   if (budget && payout && payout > 0) {
+  //     const maxPromoters = Math.floor(budget / payout);
+  //     this.campaignForm.get('maxPromoters')?.setValue(maxPromoters);
+  //   } else {
+  //     this.campaignForm.get('maxPromoters')?.setValue(0);
+  //   }
+  // }
 
   onFileSelected(file: File): void {
     const maxSize = this.campaignForm.get('mediaType')?.value === 'image' ? 5 * 1024 * 1024 : 20 * 1024 * 1024;

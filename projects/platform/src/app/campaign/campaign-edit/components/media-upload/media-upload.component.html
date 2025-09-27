@@ -1,9 +1,4 @@
 <div class="form-card" [formGroup]="form">
-  <div class="card-header">
-    <h2>Media</h2>
-    <p>Upload image or video for promoters to share</p>
-  </div>
-  
   <div class="card-content">
     <div class="form-row">
       <div class="media-type-selector">
@@ -48,9 +43,9 @@
                   <source [src]="previewVideoUrl" type="video/mp4">
                   Your browser does not support the video tag.
                 </video>
-                <button type="button" class="remove-video-btn" mat-icon-button (click)="removeMedia()">
+                <!-- <button type="button" class="remove-video-btn" mat-icon-button (click)="removeMedia()">
                   <mat-icon>close</mat-icon>
-                </button>
+                </button> -->
               </div>
             } @else {
               <div class="upload-placeholder" (click)="triggerFileInput()">
@@ -64,7 +59,7 @@
         }
         
         @if (uploadProgress > 0 && uploadProgress < 100) {
-          <mat-progress-bar mode="determinate" [value]="uploadProgress" class="upload-progress"></mat-progress-bar>
+          <mat-progress-bar mode="determinate" [value]="uploadProgress" class="upload-progress"/>
         }
       </div>
     </div>
