@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, Signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { CampaignInterface, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
@@ -29,11 +29,13 @@ export class CampaignCardComponent {
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
 
-  hasUserPromotion(campaign: CampaignInterface): boolean {
-    return this.promotions.some(
-      (promotion: PromotionInterface) => promotion.campaign._id === campaign._id
-    );
-  }
+ // Computed signal to check if the user has already accepted the campaign
+  hasUserPromotion = computed(() => {
+    return (campaign: CampaignInterface) =>
+      this.promotions.some(
+        (promotion: PromotionInterface) => promotion.campaign._id === campaign._id
+      );
+  });
 
   getStatusBadgeClass(campaign: CampaignInterface): string {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {

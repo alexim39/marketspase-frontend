@@ -36,10 +36,10 @@ import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-pl
           <mat-icon>share</mat-icon>
           WhatsApp
         </button>
-        <button mat-flat-button class="btn btn-outline" (click)="download.emit()">
+       <!--  <button mat-flat-button class="btn btn-outline" (click)="download.emit()">
           <mat-icon>download</mat-icon>
           Download
-        </button>
+        </button> -->
       </div>
     </div>
   `,

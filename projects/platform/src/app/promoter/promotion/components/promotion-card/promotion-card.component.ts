@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-promotion-card',
@@ -28,6 +29,7 @@ import { Router } from '@angular/router';
     MatTooltipModule,
     MatMenuModule,
     CategoryPlaceholderPipe,
+    MatProgressSpinnerModule
   ],
   templateUrl: './promotion-card.component.html',
   styleUrls: ['./promotion-card.component.scss']
@@ -35,6 +37,8 @@ import { Router } from '@angular/router';
 export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   @Input({ required: true }) promotion!: PromotionInterface;
   @Output() openSubmitDialog = new EventEmitter<PromotionInterface>();
+
+  public isLoading = signal<boolean>(false);
 
   private promoterService = inject(PromoterService);
   public readonly api = this.promoterService.api;
@@ -165,12 +169,20 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   // New method to check if the countdown is nearing expiration (30 minutes)
+  // isNearingExpiration(): boolean {
+  //   const thirtyMinutesInMs = 30 * 60 * 1000;
+  //   return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= thirtyMinutesInMs;
+  // }
+
+  // Updated method to check if the countdown is nearing expiration (1 hour)
   isNearingExpiration(): boolean {
-    const thirtyMinutesInMs = 30 * 60 * 1000;
-    return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= thirtyMinutesInMs;
+    const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+    return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= oneHourInMs;
   }
 
   downloadPromotion(): void {
+    this.isLoading.set(true); // Set loading state to true
+
     const campaignId = this.promotion.campaign._id;
     const promoterId = this.promotion.promoter._id;
 
@@ -205,10 +217,12 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
 
             // set promotion.isDownloaded to true
             this.promotion.isDownloaded = true;
+            this.isLoading.set(false); 
           }, 
           error: (error) => {
             console.error('Error fetching media file for download:', error);
             this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
+            this.isLoading.set(false); 
           }
         });
       } else {
@@ -219,6 +233,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
       error: (error) => {
       console.error('Error calling downloadPromotion API:', error);
       this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
+      this.isLoading.set(false); 
     }
     });
   }

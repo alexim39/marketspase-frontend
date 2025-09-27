@@ -56,10 +56,10 @@
                 <mat-icon>content_copy</mat-icon>
                 Duplicate
               </button> -->
-              <button mat-menu-item (click)="toggleCampaignStatus()">
+              <!-- <button mat-menu-item (click)="toggleCampaignStatus()">
                 <mat-icon>{{campaign.status === 'active' ? 'pause' : 'play_arrow'}}</mat-icon>
                 {{campaign.status === 'active' ? 'Pause' : 'Resume'}}
-              </button>
+              </button> -->
               <button mat-menu-item (click)="deleteCampaign()" class="delete-action">
                 <mat-icon>delete</mat-icon>
                 Delete
@@ -111,13 +111,6 @@
               </div>
 
 
-
-
-
-
-
-
-
               <!-- Campaign Type -->
               <div class="info-item">
                 <mat-icon>campaign</mat-icon>
@@ -165,8 +158,6 @@
               }
 
 
-              
-              
               <div class="info-item">
                 <mat-icon>calendar_today</mat-icon>
                 <div class="info-content">
@@ -199,8 +190,6 @@
               </div>
             </div>
             }
-
-
 
              <!-- Requirements -->
             @if (campaign.requirements && campaign.requirements.length > 0) {
@@ -396,7 +385,6 @@
             <p>This campaign hasn't been picked up by any promoters.</p>
           </div>
         }
-          
           
         </div>
       </div>

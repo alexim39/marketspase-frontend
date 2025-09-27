@@ -3,7 +3,7 @@
     <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
       {{getStatusBadgeText(campaign)}}
     </div>
-    @if (hasUserPromotion(campaign)) {
+    @if (hasUserPromotion()(campaign)) {
       <div class="user-badge">
           <i class="material-icons">check_circle</i> Already Accepted
         </div>
@@ -84,7 +84,7 @@
     
     <button 
       class="apply-btn" 
-      [disabled]="!canAcceptCampaign(campaign) || isApplying || hasUserPromotion(campaign)"
+      [disabled]="!canAcceptCampaign(campaign) || isApplying || hasUserPromotion()(campaign)"
       (click)="applyForCampaign.emit(campaign)"
       >
       @if (isApplying) {

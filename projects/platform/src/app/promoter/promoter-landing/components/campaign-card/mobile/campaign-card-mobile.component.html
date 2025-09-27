@@ -31,7 +31,7 @@
         <div class="compact-header">
           <h3 class="campaign-title">{{campaign.title | titlecase | truncate: 30}}</h3>
          
-          @if (hasUserPromotion(campaign)) {
+          @if (hasUserPromotion()(campaign)) {
             <div class="user-badge">
                 <i class="material-icons">check_circle</i> Accepted
               </div>
@@ -87,7 +87,7 @@
           </div>
           <button 
             class="mobile-apply-btn"
-            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion(campaign)"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign)"
             [disabled]="!canAcceptCampaign(campaign) || isApplying"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplying) {
@@ -113,7 +113,7 @@
           </div>
           <h3 class="campaign-title">{{campaign.title | titlecase}}</h3>
         </div>
-        @if (hasUserPromotion(campaign)) {
+        @if (hasUserPromotion()(campaign)) {
             <div class="user-badge">
                 <i class="material-icons">check_circle</i> Accepted
               </div>
@@ -198,7 +198,7 @@
           </div>
           <button 
             class="mobile-apply-btn large"
-            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion(campaign)"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign)"
             [disabled]="!canAcceptCampaign(campaign) || isApplying"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplying) {

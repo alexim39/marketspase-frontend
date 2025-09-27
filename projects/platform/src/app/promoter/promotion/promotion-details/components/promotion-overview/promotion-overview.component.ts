@@ -33,14 +33,14 @@ import { PromotionInfoComponent } from '../promotion-info/promotion-info.compone
             <mat-icon>event</mat-icon>
             Created: {{promotion.createdAt | date:'mediumDate'}}
           </span>
-          <div class="header-actions">
+          <!-- <div class="header-actions">
             <button mat-fab class="icon-btn" (click)="download.emit()" matTooltip="Download promotion">
               <mat-icon>download_for_offline</mat-icon>
             </button>
             <button mat-fab class="icon-btn" (click)="share.emit()" matTooltip="Share to WhatsApp">
               <mat-icon>share</mat-icon>
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -49,14 +49,14 @@ import { PromotionInfoComponent } from '../promotion-info/promotion-info.compone
           [promotion]="promotion" 
           [apiUrl]="apiUrl"
           (share)="share.emit()"
-          (download)="download.emit()">
-        </app-promotion-media>
+          (download)="download.emit()"
+        />
         
         <app-promotion-info 
           [promotion]="promotion" 
           [countdown]="countdown"
-          [isNearingExpiration]="isNearingExpiration">
-        </app-promotion-info>
+          [isNearingExpiration]="isNearingExpiration"
+        />
       </div>
     </div>
   `,
