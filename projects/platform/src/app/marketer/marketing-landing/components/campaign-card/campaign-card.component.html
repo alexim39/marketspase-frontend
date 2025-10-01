@@ -1,0 +1,122 @@
+<div class="campaign-card" [class]="'status-' + campaign.status">
+  <!-- Card Header -->
+  <div class="card-header">
+    <div class="status-badge" [class]="'status-' + campaign.status">
+      {{campaign.status | titlecase}}
+    </div>
+    <button class="icon-btn" [matMenuTriggerFor]="campaignMenu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #campaignMenu="matMenu">
+      <button mat-menu-item (click)="onViewDetails()">
+        <mat-icon>visibility</mat-icon>
+        View Details
+      </button>
+      <button mat-menu-item (click)="onEditCampaign()">
+        <mat-icon>edit</mat-icon>
+        Edit Campaign
+      </button>
+      <!-- @if (campaign.status === 'active') {
+        <button mat-menu-item (click)="onPauseCampaign()">
+          <mat-icon>pause</mat-icon>
+          Pause
+        </button>
+      } -->
+      @if (campaign.status === 'draft') {
+        <button mat-menu-item (click)="onPauseCampaign()">
+          <mat-icon>start</mat-icon>
+          Activate
+        </button>
+      }
+      <!-- @if (campaign.status === 'paused') {
+        <button mat-menu-item (click)="onResumeCampaign()">
+          <mat-icon>play_arrow</mat-icon>
+          Resume
+        </button>
+      } -->
+      <!-- <button mat-menu-item (click)="onDeleteCampaign()" class="delete-action">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button> -->
+    </mat-menu>
+  </div>
+
+  <!-- Media Section -->
+  <div class="card-media">
+    <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+      <mat-icon>{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>
+      <span>{{ campaign.mediaType | titlecase }}</span>
+    </div>
+
+    @if (campaign.mediaType === 'image') {
+      <div class="media-placeholder">
+        <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+      </div>
+    }
+    @if (campaign.mediaType === 'video') {
+      <div class="media-placeholder video-placeholder">
+        <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+        <span class="video-play-btn">
+          <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg>
+        </span>
+      </div>
+    }
+  </div>
+
+  <!-- Content Section -->
+  <div class="card-content">
+    <h3 class="card-title" (click)="onViewDetails()">{{campaign.title | titlecase | truncate: 50}}</h3>
+    <p class="card-description">{{campaign.caption}}</p>
+    
+    <div class="card-meta">
+      <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
+      @if (campaign.remainingDays !== undefined) {
+        <span>
+          <mat-icon>calendar_today</mat-icon>
+          {{ isNumber(campaign.remainingDays) }}
+        </span>
+      }
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</div>
+        <div class="metric-label">Promoters</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{getViewCount(campaign.promotions) | shortNumber}}</div>
+        <div class="metric-label">Views</div>
+      </div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-header">
+        <span>Progress</span>
+        <span>{{ campaign.progress | number:'1.0-0' }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div 
+          class="progress-fill" 
+          [class]="'progress-' + getProgressColor(campaign.progress)" 
+          [style.width]="(campaign.progress | number:'1.0-0') + '%'">
+        </div>
+      </div>
+    </div>
+
+    <div class="budget-info">
+      <div class="budget-amount">
+        <span class="spent">{{formatCurrency( (campaign.currentPromoters * campaign.payoutPerPromotion) )}}</span>
+        <span class="total">/ {{formatCurrency(campaign.budget)}}</span>
+      </div>
+      <div class="budget-label">Budget Spent</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <button class="view-details-btn" (click)="onViewDetails()">
+      <mat-icon>analytics</mat-icon>
+      View Details
+    </button>
+  </div>
+</div>

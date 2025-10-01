@@ -1,0 +1,182 @@
+<div class="promotional-preferences">
+  <div class="header-section">
+    <h1 class="page-title">Ad Preferences</h1>
+    <p class="page-description">Control how you receive ads and promotions</p>
+  </div>
+
+  <div class="preferences-horizontal">
+    <mat-card class="preference-card horizontal-card">
+      <div class="card-content-horizontal">
+        <div class="card-info">
+          <div class="card-header">
+            <div class="icon-container">
+              <mat-icon class="card-icon">location_on</mat-icon>
+            </div>
+            <div class="card-title-group">
+              <h3>Location-Based Advertising</h3>
+              <p>Personalized promotions based on your geographic location</p>
+            </div>
+          </div>
+
+          <div class="feature-benefits">
+            <div class="benefit-item">
+              <mat-icon class="benefit-icon">place</mat-icon>
+              <span>Local business offers and deals</span>
+            </div>
+            <div class="benefit-item">
+              <mat-icon class="benefit-icon">event</mat-icon>
+              <span>Nearby events and activities</span>
+            </div>
+            <div class="benefit-item">
+              <mat-icon class="benefit-icon">store</mat-icon>
+              <span>Regional product availability</span>
+            </div>
+          </div>
+
+          <p class="setting-description">
+            Enhance your experience with relevant offers from businesses in your area.
+            We use your general location to show you promotions that are actually accessible to you.
+          </p>
+        </div>
+
+        <div class="card-control">
+          <div class="toggle-section">
+            <div class="toggle-header">
+              <span class="toggle-title">Location-Based Ads</span>
+              <div class="status-indicator" [class.active]="preferences().locationBased">
+                <span class="status-dot"></span>
+                {{ preferences().locationBased ? 'Active' : 'Inactive' }}
+              </div>
+            </div>
+
+            <mat-slide-toggle
+              [(ngModel)]="preferences().locationBased"
+              (ngModelChange)="onPreferenceChange()"
+              color="primary"
+              [disabled]="isSaving()"
+              class="large-toggle">
+              <span class="toggle-label">
+                {{ preferences().locationBased ? 'Enabled' : 'Disabled' }}
+              </span>
+            </mat-slide-toggle>
+
+            <div class="toggle-description">
+              {{ preferences().locationBased ?
+                 'You will receive location-specific promotions' :
+                 'Location-based promotions are turned off' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="preference-card horizontal-card">
+      <div class="card-content-horizontal">
+        <div class="card-info">
+          <div class="card-header">
+            <mat-icon class="card-icon">label</mat-icon>
+            <div class="card-title-group">
+              <h3>Interest-Based Ads</h3>
+              <p>Choose categories that interest you</p>
+            </div>
+          </div>
+
+          <div class="category-controls">
+            <div class="category-toggle-section">
+              <mat-slide-toggle
+                [(ngModel)]="preferences().categoryBased"
+                (ngModelChange)="onCategoryToggleChange()"
+                color="primary"
+                [disabled]="isSaving()">
+                {{ preferences().categoryBased ? 'You enabled category based promotion' : 'You disabled category based promotion' }}
+              </mat-slide-toggle>
+            </div>
+
+            <div class="category-section" [class.disabled]="!preferences().categoryBased">
+              <div class="category-header">
+                <span class="selection-count">
+                  {{ preferences().selectedCategories.length }}/6 selected
+                </span>
+                @if (preferences().categoryBased) {
+                    <span class="selection-hint">
+                    Select up to 6 categories
+                    </span>
+                }
+              </div>
+
+              <div class="categories-grid">
+                @for (category of allCategories; track category) {
+                     <mat-chip-option
+                        (click)="toggleCategory(category.value)"
+                        [selected]="preferences().selectedCategories.includes(category.value)"
+                        [disabled]="isSaving() || (!preferences().selectedCategories.includes(category.value) && preferences().selectedCategories.length >= 6)"
+                        color="primary"
+                        class="category-chip">
+                        {{ category.label }}
+                    </mat-chip-option>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  @if (deviceType() === 'desktop') {
+    <mat-card class="preference-card full-width">
+        <div class="card-content-full">
+        <div class="card-header">
+            <mat-icon class="card-icon">campaign</mat-icon>
+            <div class="card-title-group">
+            <h3>Ad Types You'll Receive</h3>
+            <p>Based on your preferences above</p>
+            </div>
+        </div>
+
+        <div class="ad-types-grid">
+            @for (type of adTypes; track type) {
+                <div class="ad-type">
+                    <mat-icon class="type-icon">{{ type.icon }}</mat-icon>
+                    <div class="type-content">
+                        <h4>{{ type.title }}</h4>
+                        <p>{{ type.description }}</p>
+                    </div>
+                </div>
+            }
+        </div>
+        </div>
+    </mat-card>
+    }
+
+  @if (hasChanges()) {
+    <div class="actions-section">
+        <button
+        class="save-button"
+        (click)="savePreferences()"
+        [disabled]="isSaving()">
+        @if (isSaving()) {
+            <mat-icon class="spinner">autorenew</mat-icon>
+        } @else {
+            <mat-icon>save</mat-icon>
+        }
+        {{ isSaving() ? 'Saving...' : 'Save Preferences' }}
+        </button>
+
+        <button
+        class="reset-button"
+        (click)="resetToDefault()"
+        [disabled]="isSaving()">
+        <mat-icon>refresh</mat-icon>
+        Reset to Default
+        </button>
+    </div>
+   }
+
+   @if (preferencesSaved()) {
+    <div class="success-message">
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        Preferences saved successfully!
+    </div>
+   }
+</div>

@@ -1,0 +1,150 @@
+<div class="promotion-card">
+  <div class="card-header">
+    <div class="status-badge" [ngClass]="getStatusColor(promotion.status)">
+      <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
+      <span class="status-text">{{ promotion.status | titlecase }}</span>
+    </div>
+    <div class="card-actions">
+      <button class="icon-btn" [matMenuTriggerFor]="cardMenu" aria-label="Promotion actions">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #cardMenu="matMenu">
+        @if (promotion.isDownloaded) {
+          <button mat-menu-item (click)="onOpenSubmitProofDialog()">
+          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">  -->
+            <mat-icon>cloud_upload</mat-icon>
+            <span>Submit Proof</span>
+          </button>
+        }
+        @if (!promotion.isDownloaded) {
+          <button mat-menu-item (click)="downloadPromotion()">
+            <mat-icon>download_for_offline</mat-icon>
+            <span>Download Promotion</span>
+          </button>
+        }
+        <button mat-menu-item (click)="viewDetails()">
+          <mat-icon>info</mat-icon>
+          <span>View Details</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <div class="card-media">
+    <div class="media-type-overlay" [ngClass]="promotion.campaign.mediaType">
+      <i class="material-icons">{{ promotion.campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+      <span>{{ promotion.campaign.mediaType | titlecase }}</span>
+    </div>
+    
+    @if (promotion.campaign.mediaType === "image") {
+      <img [src]="api + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
+    }
+    @if (promotion.campaign.mediaType === "video") {
+      <div class="video-placeholder">
+        <img [src]="promotion.campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+        <div class="video-play-btn">
+          <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg> 
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="card-content">
+    <h3 class="card-title">{{ promotion.campaign.title }}</h3>
+    <p class="card-description">{{ promotion.campaign.caption }}</p>
+    
+    <div class="card-meta">
+      <span>
+        <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
+        {{ promotion.campaign.category | titlecase }}
+      </span>
+      <span>
+        <i class="material-icons">schedule</i> 
+        <span [ngClass]="{'nearing-expiration': isNearingExpiration()}">{{ countdownSignal() }}</span>
+      </span>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value">{{ promotion.proofViews || 0 }}</div>
+        <div class="metric-label">Views</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{ promotion.upi || 0 }}</div>
+        <div class="metric-label">Promo ID</div>
+      </div>
+    </div>
+
+    <div class="payout-section">
+      <div class="payout-amount">
+        <span class="currency">₦</span>
+        <span class="amount">{{ promotion.payoutAmount }}</span>
+      </div>
+      <div class="status-indicator">
+        <span class="status-label">{{ promotion.status | titlecase }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    @if (isSubmissionExpired(promotion)) {
+      <div class="expired-alert">
+        <i class="material-icons">warning</i>
+        <span>Submission expired</span>
+      </div>
+    }
+    
+    <div class="action-buttons">
+      @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
+        @if (promotion.isDownloaded) {
+          @if (isNearingExpiration()) {
+            <!-- <button class="action-btn primary" (click)="onOpenSubmitProofDialog()"> -->
+            <button class="action-btn primary" (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">
+            <i class="material-icons">cloud_upload</i>
+            Submit Proof
+          </button>
+          } @else {
+            <small>Submission will be enabled 1 hour before expiration.</small>
+          }
+          
+        } @else {         
+          <button class="action-btn primary" (click)="downloadPromotion()" [disabled]="isLoading()">
+            @if (isLoading()) {
+              <mat-progress-spinner
+                diameter="20"
+                mode="indeterminate"
+                color="primary"
+                class="spinner"
+              />
+              <span>Downloading...</span>
+            } @else {
+              <i class="material-icons">download_for_offline</i>
+              <span>Download</span>
+            }
+          </button>
+
+        }            
+      }
+      @if (promotion.status === 'submitted' || promotion.status === 'validated') {
+        @if (!isNearingExpiration()) {
+          <button class="action-btn secondary" (click)="viewDetails()">
+            <i class="material-icons">visibility</i>
+            View Status
+          </button>
+        }
+      }
+      @if (promotion.status === 'paid') {
+        <button class="action-btn success" (click)="viewDetails()">
+          <i class="material-icons">paid</i>
+          Paid
+        </button>
+      }
+      @if (promotion.status === 'rejected') {
+        <button class="action-btn danger" (click)="viewDetails()">
+          <i class="material-icons">cancel</i>
+          Rejected
+        </button>
+      }
+    </div>
+  </div>
+</div>

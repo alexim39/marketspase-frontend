@@ -1,0 +1,105 @@
+<div class="dashboard-container">
+  @if (isMobile()) {
+    <mat-toolbar class="mobile-header">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <div class="mobile-logo">
+        <mat-icon class="logo-icon">sync</mat-icon>
+        <span class="logo-text">MarketSpase</span>
+      </div>
+      <div class="mobile-actions">
+        <button mat-icon-button [matMenuTriggerFor]="notificationMenu" class="notification-btn">
+          <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn" [matBadgeHidden]="unreadNotifications() === 0">notifications</mat-icon>
+        </button>
+        <button mat-icon-button (click)="openCartDialog()">
+          <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName"> 
+          <mat-icon>arrow_drop_down</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+  }
+
+  <mat-sidenav-container class="sidenav-container" [hasBackdrop]="isMobile()">
+    <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()" class="sidenav">
+      @if (!isMobile()) {
+        <div class="sidenav-header">
+          <div class="logo-section">
+            <mat-icon class="logo-icon">sync</mat-icon>
+            <h1 class="logo-text">MarketSpase</h1>
+          </div>
+        </div>
+      }
+
+      <app-user-profile-card [user]="user" (switchUser)="switchUser($event)"/>
+
+      <app-sidenav-navigation [navigationItems]="navigationItems" (navItemClick)="isMobile() && sidenav.close()"/>
+
+      <app-quick-actions [user]="user" 
+        (createCampaign)="createCampaign()"
+        (fundWallet)="fundWallet()"
+        (viewPromotion)="viewPromotion()"
+        (viewMyPromotion)="viewMyPromotion()"
+        (logout)="logout()"
+        (mobileAction)="isMobile() && sidenav.close()"
+      />
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main-content">
+      @if (!isMobile()) {
+        <mat-toolbar class="desktop-header">
+          <span class="page-title">{{getPageTitle()}}</span>
+          <div class="header-spacer"></div>
+          <div class="header-actions">
+            <div class="wallet-display" (click)="openWallet()">
+              <mat-icon>account_balance_wallet</mat-icon>
+              @if (user()!.role === 'promoter') {
+                <span class="wallet-amount">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+              }
+              @if (user()!.role === 'marketer') {
+                <span class="wallet-amount">{{user()?.wallets?.marketer?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+              }
+            </div>
+
+            <button mat-icon-button [matMenuTriggerFor]="notificationMenu" class="notification-btn">
+              <mat-icon matBadge="{{unreadNotifications()}}" matBadgeColor="warn" [matBadgeHidden]="unreadNotifications() === 0">notifications</mat-icon>
+            </button>
+
+            <button mat-icon-button (click)="openCartDialog()">
+              <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()?.displayName">
+              <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+          </div>
+        </mat-toolbar>
+      }
+
+      <router-outlet/>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+  <mat-menu #notificationMenu="matMenu" class="notification-menu">
+  <app-notifications-menu
+    [notifications]="notifications"
+    (markAsRead)="markAsRead($event)"
+    (markAllAsRead)="markAllAsRead()"
+    (viewAllNotifications)="viewAllNotifications()">
+  </app-notifications-menu>
+</mat-menu>
+  
+</div>
+
+<ng-template #cartDialogTemplate>
+  <app-cart-dialog
+    [user]="user"
+    [activeTab]="activeTab"
+    [pendingCampaignsCount]="pendingCampaignsCount"
+    [pendingPromotionsCount]="pendingPromotionsCount"
+    [activeCampaignsCount]="activeCampaignsCount"
+    (setActiveTab)="setActiveTab($event)"
+    (closeDialog)="closeCartDialog()"
+    (viewAllCampaigns)="closeCartDialog(); viewAllCampaigns()"
+    (viewAllPromotions)="closeCartDialog(); viewAllPromotion()"
+    (viewWithdrawal)="closeCartDialog(); viewWithdrawl()"
+    (switchUser)="closeCartDialog(); switchUser($event)"
+  />
+</ng-template>

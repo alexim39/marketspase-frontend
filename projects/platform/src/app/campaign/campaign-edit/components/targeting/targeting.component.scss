@@ -1,0 +1,81 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.toggle-switch {
+  font-size: 1rem;
+  font-weight: 500;
+  color: $primary-color;
+  margin-right: 0.5rem;
+
+  .mat-slide-toggle-bar {
+    //background-color: $primary-color-light !important;
+  }
+}
+
+.toggle-hint {
+  margin-left: 0.5rem;
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.targeting-options {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid gray;
+  border-radius: 8px;
+  //background-color: $background-light;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .form-field-full {
+    flex: 1 1 100%;
+    margin-bottom: 0;
+
+    .mat-form-field {
+      width: 100%;
+    }
+  }
+
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .chip-row {
+      //background-color: $primary-color-light;
+      //color: $primary-color;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border-radius: 16px;
+      padding: 0.25rem 0.75rem;
+
+      .chip-remove-btn {
+        margin-left: 0.5rem;
+        color: $text-secondary;
+
+        mat-icon {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .location-input {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    border: 1px solid gray;
+    border-radius: 4px;
+    width: 100%;
+  }
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}

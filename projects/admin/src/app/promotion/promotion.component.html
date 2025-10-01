@@ -1,0 +1,272 @@
+<div class="admin-promotions-container">
+    <!-- Header Section with Back Button -->
+    <div class="header-section">
+    <button mat-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Campaign
+    </button>
+    
+    <div class="header-title">
+        <h1 class="page-title">Campaign Promotions</h1>
+        <p class="page-subtitle" *ngIf="campaign()">Managing promotions for: {{ campaign()?.title }}</p>
+    </div>
+    
+    <div class="header-actions">
+        <button mat-button (click)="refreshPromotions()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+        </button>
+    </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+    @if (campaign()) {
+    <mat-card class="stat-card">
+        <mat-card-content>
+        <div class="stat-content">
+            <mat-icon class="stat-icon">groups</mat-icon>
+            <div class="stat-details">
+            <span class="stat-value">{{ promotions().length }}</span>
+            <span class="stat-label">Total Promotions</span>
+            </div>
+        </div>
+        </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="stat-card">
+        <mat-card-content>
+        <div class="stat-content">
+            <mat-icon class="stat-icon submitted">schedule</mat-icon>
+            <div class="stat-details">
+            <span class="stat-value">{{ getPromotionsByStatus('submitted').length }}</span>
+            <span class="stat-label">Pending Review</span>
+            </div>
+        </div>
+        </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="stat-card">
+        <mat-card-content>
+        <div class="stat-content">
+            <mat-icon class="stat-icon validated">check_circle</mat-icon>
+            <div class="stat-details">
+            <span class="stat-value">{{ getPromotionsByStatus('validated').length }}</span>
+            <span class="stat-label">Validated</span>
+            </div>
+        </div>
+        </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="stat-card">
+        <mat-card-content>
+        <div class="stat-content">
+            <mat-icon class="stat-icon paid">payments</mat-icon>
+            <div class="stat-details">
+            <span class="stat-value">{{ getPromotionsByStatus('paid').length }}</span>
+            <span class="stat-label">Paid</span>
+            </div>
+        </div>
+        </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="stat-card">
+        <mat-card-content>
+        <div class="stat-content">
+            <mat-icon class="stat-icon rejected">cancel</mat-icon>
+            <div class="stat-details">
+            <span class="stat-value">{{ getPromotionsByStatus('rejected').length }}</span>
+            <span class="stat-label">Rejected</span>
+            </div>
+        </div>
+        </mat-card-content>
+    </mat-card>
+    }
+    </div>
+
+    <!-- Filters Card -->
+    <mat-card class="filters-card">
+    <mat-card-content>
+        <div class="filters-container">
+        <mat-form-field appearance="outline" class="filter-field search-field">
+            <mat-label>Search Promotions</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search by promoter name, email" #input>
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Status</mat-label>
+            <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilterChange($event)">
+            <div style="background-color: black;">
+                <mat-option value="all">All Statuses</mat-option>
+                <mat-option value="pending">Pending</mat-option>
+                <mat-option value="submitted">Submitted</mat-option>
+                <mat-option value="validated">Validated</mat-option>
+                <mat-option value="rejected">Rejected</mat-option>
+                <mat-option value="paid">Paid</mat-option>
+            </div>
+            </mat-select>
+        </mat-form-field>
+        
+        <button mat-button (click)="clearFilters()" class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            Clear Filters
+        </button>
+        </div>
+    </mat-card-content>
+    </mat-card>
+
+    <!-- Promotions Table -->
+    <mat-card class="table-card">
+    <mat-card-content>
+        <div class="table-container">
+        @if (isLoading()) {
+            <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading promotions...</p>
+            </div>
+        } @else if (promotions().length === 0) {
+            <div class="no-data">
+            <mat-icon>groups</mat-icon>
+            <p>No promotions found for this campaign</p>
+            </div>
+        } @else {
+            <table mat-table [dataSource]="dataSource" matSort class="promotions-table">
+            <!-- Promoter Column -->
+            <ng-container matColumnDef="promoter">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Promoter </th>
+                <td mat-cell *matCellDef="let promotion">
+                <div class="promoter-info">
+                    <span class="promoter-name">{{ campaign()?.owner.displayName }}</span>
+                    <span class="promoter-username">@{{ campaign()?.owner.username }}</span>
+                    <span class="promoter-email">{{ campaign()?.owner.email }}</span>
+                </div>
+                </td>
+            </ng-container>
+
+            <!-- Submitted Column -->
+            <ng-container matColumnDef="upi">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Promotion UID </th>
+                <td mat-cell *matCellDef="let promotion">
+                {{ promotion.upi ? promotion.upi  : 'No upi' }}
+                </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+                <td mat-cell *matCellDef="let promotion">
+                <mat-chip 
+                    [class]="promotion.status"
+                    class="status-chip">
+                    {{ promotion.status | titlecase }}
+                </mat-chip>
+                </td>
+            </ng-container>
+
+            <!-- Views Column -->
+            <ng-container matColumnDef="views">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Views </th>
+                <td mat-cell *matCellDef="let promotion">
+                <div class="views-info">
+                    <span class="views-count">{{ promotion.proofViews || 0 }}</span>
+                    @if (campaign() && promotion.proofViews < campaign()!.minViewsPerPromotion && promotion.status === 'submitted') {
+                    <span class="views-warning">(Minimum: {{ campaign()!.minViewsPerPromotion }})</span>
+                    }
+                </div>
+                </td>
+            </ng-container>
+
+            <!-- Submitted Column -->
+            <ng-container matColumnDef="submitted">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Submitted </th>
+                <td mat-cell *matCellDef="let promotion">
+                {{ promotion.submittedAt ? (promotion.submittedAt | date:'short') : 'Not submitted' }}
+                </td>
+            </ng-container>
+
+            <!-- Validated Column -->
+            <ng-container matColumnDef="validated">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Validated </th>
+                <td mat-cell *matCellDef="let promotion">
+                {{ promotion.validatedAt ? (promotion.validatedAt | date:'short') : 'Not validated' }}
+                </td>
+            </ng-container>
+
+            <!-- Paid Column -->
+            <ng-container matColumnDef="paid">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Paid </th>
+                <td mat-cell *matCellDef="let promotion">
+                {{ promotion.paidAt ? (promotion.paidAt | date:'short') : 'Not paid' }}
+                </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Actions </th>
+                <td mat-cell *matCellDef="let promotion">
+                <div class="action-buttons">
+                    <button mat-icon-button 
+                            title="View Proof"
+                            (click)="viewProof(promotion)"
+                            [disabled]="!promotion.proofMedia || promotion.proofMedia.length === 0">
+                    <mat-icon>visibility</mat-icon>
+                    </button>
+
+                    <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Actions">
+                    <mat-icon>more_vert</mat-icon>
+                    </button>
+                    
+                    <mat-menu #menu="matMenu">
+                    <div style="background-color: black;">
+                    @if (promotion.status === 'submitted') {
+                        <button mat-menu-item (click)="validatePromotion(promotion)" 
+                                [disabled]="promotion.proofViews < campaign()!.minViewsPerPromotion">
+                        <mat-icon>check_circle</mat-icon>
+                        <span>Validate</span>
+                        </button>
+                        <button mat-menu-item (click)="rejectPromotion(promotion)">
+                        <mat-icon>cancel</mat-icon>
+                        <span>Reject</span>
+                        </button>
+                    }
+                    @if (promotion.status === 'validated') {
+                        <button mat-menu-item (click)="markAsPaid(promotion)">
+                        <mat-icon>payments</mat-icon>
+                        <span>Mark as Paid</span>
+                        </button>
+                    }
+                    @if (promotion.status === 'rejected') {
+                        <button mat-menu-item (click)="reopenPromotion(promotion)">
+                        <mat-icon>restart_alt</mat-icon>
+                        <span>Re-open</span>
+                        </button>
+                    }
+                    <button mat-menu-item (click)="viewPromoterDetails()">
+                        <mat-icon>person</mat-icon>
+                        <span>View Promoter</span>
+                    </button>
+                    </div>
+                    </mat-menu>
+                </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- Row shown when there's no matching data -->
+            <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                No promotions found matching "{{ input.value }}"
+                </td>
+            </tr>
+            </table>
+        }
+        </div>
+
+        <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons aria-label="Select page of promotions">
+        </mat-paginator>
+    </mat-card-content>
+    </mat-card>
+</div>

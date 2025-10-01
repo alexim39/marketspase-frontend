@@ -1,0 +1,103 @@
+<div class="promoter-landing-container">
+  <promoter-header [user]="user" [metrics]="metrics()"/>
+
+  @if (deviceType() === 'desktop') {
+  <promoter-quick-stats [metrics]="metrics()"/>
+  }
+  @if (deviceType() === 'mobile') {
+  <promoter-quick-stats-mobile [metrics]="metrics()"/>
+  }
+
+  @if (metrics().activePromotions > 0) {
+    <div class="container">
+      <div class="active-alert">
+        <div class="alert-content">
+          <div class="alert-icon">
+            <i class="material-icons">notification_important</i>
+          </div>
+          <div class="alert-text">
+            <h3>You have {{metrics().activePromotions}} running promotions</h3>
+            <p>Don't forget to submit your initial and final proof screenshots before expiry</p>
+          </div>
+          <button class="alert-btn" (click)="viewPromotions()">
+            View Active
+            <i class="material-icons">arrow_forward</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (deviceType() === 'desktop') {
+  <campaign-filters
+    [searchTerm]="searchTerm()"
+    [allCampaignsCount]="campaigns().length"
+    [highPayoutCount]="getHighPayoutCount()"
+    [expiringSoonCount]="metrics().expiringSoon"
+    [quickTasksCount]="getQuickTasksCount()"
+    [viewMode]="viewMode()"
+    (searchTermChange)="searchTerm.set($event)"
+    (viewModeChange)="viewMode.set($event)"
+  />
+  }
+  @if (deviceType() === 'mobile') {
+  <campaign-filters-mobile
+    [searchTerm]="searchTerm()"
+    [allCampaignsCount]="campaigns().length"
+    [highPayoutCount]="getHighPayoutCount()"
+    [expiringSoonCount]="metrics().expiringSoon"
+    [quickTasksCount]="getQuickTasksCount()"
+    [viewMode]="viewMode()"
+    (searchTermChange)="searchTerm.set($event)"
+    (viewModeChange)="viewMode.set($event)"
+  />
+  }
+
+  <main class="main">
+    <div class="container">
+      @if (isLoading()) {
+        <loading-state/>
+      } @else if (filteredCampaigns().length === 0) {
+        <empty-state/>
+      } @else {
+        <div class="campaigns-grid" [class.grid-view]="viewMode() === 'grid'" [class.list-view]="viewMode() === 'list'">
+          @for (campaign of filteredCampaigns(); track campaign._id) {
+            @if (deviceType() === 'desktop') {
+              <campaign-card
+                [campaign]="campaign"
+                [promotions]="promotions()"
+                [api]="api"
+                [isApplying]="isApplying()"
+                [viewMode]="viewMode()"
+                (applyForCampaign)="applyForCampaign($event)"
+              />
+            }
+             @if (deviceType() === 'mobile') {
+              <app-campaign-card-mobile
+                [campaign]="campaign"
+                [promotions]="promotions()"
+                [api]="api"
+                [isApplying]="isApplying()"
+                [viewMode]="viewMode()"
+                (applyForCampaign)="applyForCampaign($event)"
+              />
+            }
+          }
+        </div>
+      }
+
+      @if (campaigns().length > 0) {
+       <!--  <div style="text-align: center; margin-top: 32px;">
+          <button class="btn btn-primary" style="padding: 16px 32px; font-size: 16px;">
+            <i class="material-icons">apps</i>
+            View All Campaigns
+          </button>
+        </div> -->
+      }
+    </div>
+  </main>
+
+  <div class="mobile-fab">
+    <i class="material-icons">search</i>
+  </div>
+</div>

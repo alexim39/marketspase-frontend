@@ -1,0 +1,257 @@
+.submit-proof-dialog {
+  max-width: 500px;
+  width: 90vw;
+  overflow: hidden;
+
+  .status-message {
+    display: flex;
+    align-items: center;
+    padding: 12px 8px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    margin-top: 20px;
+    mat-icon {
+      margin-right: 5px;
+    }
+    
+    &.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    
+    &.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+      justify-content: space-between;
+      
+      button {
+        color: #c62828;
+      }
+    }
+  }
+
+  .campaign-info {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #f5f5f5;
+    border-radius: 8px;
+
+    h3 {
+      margin: 0 0 8px 0;
+      color: #333;
+    }
+
+    .caption {
+      margin: 0 0 16px 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .campaign-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #555;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        .expired {
+          color: #f44336;
+        }
+      }
+    }
+  }
+
+  .requirements {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #fff8e1;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+
+    h4 {
+      margin: 0 0 12px 0;
+      color: #333;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+
+      li {
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #555;
+      }
+    }
+  }
+
+  .proof-form {
+    .full-width {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+  }
+
+  .file-upload-section {
+    margin-top: 20px;
+
+    h4 {
+      margin: 0 0 12px 0;
+      color: #333;
+    }
+
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s;
+      position: relative;
+
+      &:hover {
+        border-color: #2196f3;
+      }
+
+      &.has-files {
+        border-style: solid;
+        border-color: #4caf50;
+      }
+
+      input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .upload-placeholder {
+        color: #666;
+
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          margin-bottom: 8px;
+          color: #999;
+        }
+
+        p {
+          margin: 0 0 4px 0;
+          font-weight: 500;
+        }
+
+        span {
+          font-size: 12px;
+          color: #999;
+        }
+      }
+
+      .file-previews {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+
+        .file-preview {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(255,255,255,0.9);
+            width: 24px;
+            height: 24px;
+
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+
+            &:disabled {
+              opacity: 0.5;
+              cursor: not-allowed;
+            }
+          }
+        }
+
+        .upload-more {
+          width: 80px;
+          height: 80px;
+          border: 2px dashed #ccc;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: #666;
+          transition: border-color 0.3s;
+
+          &:hover {
+            border-color: #2196f3;
+            color: #2196f3;
+          }
+
+          mat-icon {
+            margin-bottom: 4px;
+          }
+        }
+      }
+    }
+
+    .upload-info {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  mat-dialog-actions {
+    padding: 16px 16px;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+
+    button {
+      min-width: 100px;
+    }
+  }
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}

@@ -1,0 +1,83 @@
+<div class="campaign-creation-container">
+  <mat-toolbar class="campaign-header">
+    <button mat-icon-button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-title">
+      <h1>Create Campaign</h1>
+      <p>Launch your WhatsApp Status promotion</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later">
+        <mat-icon>save</mat-icon>
+        @if (deviceType() === 'desktop') {
+          Save As Draft
+        }
+      </button>
+    </div>
+  </mat-toolbar>
+
+  <div class="progress-container">
+    <div class="step-indicators">
+      <div class="step" [class.active]="isStepActive(1)" [class.current]="isStepCurrent(1)">
+        <div class="step-number">1</div>
+        <span class="step-label">Content</span>
+      </div>
+      <div class="step-connector" [class.completed]="isStepActive(1)"></div>
+      <div class="step" [class.active]="isStepActive(2)" [class.current]="isStepCurrent(2)">
+        <div class="step-number">2</div>
+        <span class="step-label">Budget/Target</span>
+      </div>
+      <div class="step-connector" [class.completed]="isStepActive(2)"></div>
+      <div class="step" [class.active]="isStepActive(3)" [class.current]="isStepCurrent(3)">
+        <div class="step-number">3</div>
+        <span class="step-label">Schedule</span>
+      </div>
+      <div class="step-connector" [class.completed]="isStepActive(3)"></div>
+      <div class="step" [class.active]="isStepActive(4)" [class.current]="isStepCurrent(4)">
+        <div class="step-number">4</div>
+        <span class="step-label">Summary</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-stepper-container">
+    <div class="form-content">
+      @if (currentStep() === 1) {
+        <app-campaign-content-form [formGroup]="contentForm" (validityChange)="onContentValidityChange($event)" (mediaChange)="onMediaChange($event)" />
+      }
+
+      @if (currentStep() === 2) {
+        <app-campaign-budget-form [formGroup]="budgetForm" [walletBalance]="walletBalance()" (validityChange)="onBudgetValidityChange($event)" (fundWallet)="fundWallet()" />
+      }
+
+      @if (currentStep() === 3) {
+        <app-campaign-schedule-form [formGroup]="scheduleForm" [minStartDate]="today" (validityChange)="onScheduleValidityChange($event)" />
+      }
+
+      @if (currentStep() === 4) {
+        <app-campaign-summary [contentForm]="contentForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" />
+      }
+
+      @if (isSubmitting()) {
+          <mat-progress-bar mode="indeterminate"/>
+      }
+
+      <div class="action-buttons">
+        <button mat-stroked-button (click)="goToPreviousStep()" [disabled]="currentStep() === 1">
+          <mat-icon>arrow_back</mat-icon> Previous
+        </button>
+        @if (currentStep() < 4) {
+          <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!isStepActive(currentStep()) || (currentStep() === 2 && walletBalance() < budgetForm.get('budget')?.value)">
+            Next Step <mat-icon>arrow_forward</mat-icon>
+          </button>
+        }
+        @if (currentStep() === 4) {
+          <button mat-flat-button color="primary" (click)="submitCampaign()" [disabled]="!campaignIsReady() || isSubmitting()">
+            <mat-icon>launch</mat-icon> Launch Campaign
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

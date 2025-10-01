@@ -1,0 +1,79 @@
+<div class="container">
+  <!-- Stats Header -->
+  <app-campaign-header 
+    (createCampaign)="createCampaign()"
+  />
+
+ <!-- Desktop Stats -->
+  @if (deviceType() === 'desktop') {
+    <app-campaign-stats 
+      [stats]="campaignStats()"
+    />
+  }
+  
+  <!-- Mobile Stats -->
+  @if (deviceType() === 'mobile') {
+    <app-campaign-stats-mobile
+      [stats]="campaignStats()"
+    />
+  }
+
+  <!-- Filters Section -->
+   <!-- Desktop Stats -->
+  @if (deviceType() === 'desktop') {
+    <app-campaign-filters
+      [statusOptions]="statusOptions"
+      [currentFilter]="currentFilters()"
+      [campaignCounts]="campaignCounts()"
+      [searchControl]="searchControl"
+      [currentView]="currentView()"
+      [hasActiveFilters]="hasActiveFilters()"
+      [filteredCount]="filteredCampaigns().length"
+      [totalCount]="campaigns().length"
+      (filterChange)="updateFilters($event)"
+      (viewChange)="setView($event)"
+      (clearFilters)="clearAllFilters()"
+    />
+  }
+
+  <!-- Mobile Stats -->
+  @if (deviceType() === 'mobile') {
+   <app-campaign-filters-mobile
+      [statusOptions]="statusOptions"
+      [currentFilter]="currentFilters()"
+      [campaignCounts]="campaignCounts()"
+      [searchControl]="searchControl"
+      [currentView]="currentView()"
+      [hasActiveFilters]="hasActiveFilters()"
+      [filteredCount]="filteredCampaigns().length"
+      [totalCount]="campaigns().length"
+      (filterChange)="updateFilters($event)"
+      (viewChange)="setView($event)"
+      (clearFilters)="clearAllFilters()"
+    />
+  }
+
+  <!-- Campaigns List -->
+  <app-campaign-list
+    [campaigns]="filteredCampaigns()"
+    [isLoading]="isLoading()"
+    [currentView]="currentView()"
+    [hasActiveFilters]="hasActiveFilters()"
+    [searchTerm]="searchControl.value"
+    [apiBaseUrl]="apiBaseUrl"
+    (viewDetails)="viewCampaignDetails($event)"
+    (editCampaign)="editCampaign($event)"
+    (pauseCampaign)="pauseCampaign($event)"
+    (resumeCampaign)="resumeCampaign($event)"
+    (deleteCampaign)="deleteCampaign($event)"
+    (createCampaign)="createCampaign()"
+    (clearFilters)="clearAllFilters()"
+  />
+
+  <!-- Mobile FAB -->
+  @if (deviceType() !== 'desktop') {
+    <div class="mobile-fab" (click)="createCampaign()">
+      <mat-icon>add</mat-icon>
+    </div>
+  }
+</div>

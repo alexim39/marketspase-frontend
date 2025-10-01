@@ -1,0 +1,183 @@
+/* --- General Layout and Container Styles --- */
+.promoter-landing-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+  padding: 0 20px;
+}
+
+.container {
+  //max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.main {
+  padding: 32px 0 64px;
+}
+
+.campaigns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+  padding: 16px;
+}
+
+/* --- Active Alert Styles --- */
+.active-alert {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 24px 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.alert-icon {
+  color: #1d4ed8;
+  font-size: 32px;
+}
+
+.alert-text {
+  flex-grow: 1;
+}
+
+.alert-text h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.alert-text p {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.alert-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.alert-btn:hover {
+  background: #f3f4f6;
+}
+
+/* --- Mobile FAB --- */
+.mobile-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #667eea;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 50;
+
+  i {
+    font-size: 24px;
+  }
+}
+
+.mobile-fab:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+/* Hide the FAB on larger screens */
+@media (min-width: 768px) {
+  .mobile-fab {
+    display: none;
+  }
+}
+
+/* --- Utility Classes --- */
+.btn {
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: #ffffff;
+  &:hover {
+    background: #1d4ed8;
+  }
+}
+
+
+
+// Add these styles to promoter-landing.component.scss
+.campaigns-container {
+  &.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+    padding: 16px;
+  }
+  
+  &.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    
+    // This will make campaign cards take full width in list view
+    campaign-card {
+      width: 100%;
+    }
+  }
+}
+
+// Add to promoter-landing.component.scss:
+.campaigns-grid {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  
+  // Grid view
+  &.grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  
+  // List view
+  &.list-view {
+    grid-template-columns: 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+    campaign-card {
+      width: 100%;
+    }
+  }
+}

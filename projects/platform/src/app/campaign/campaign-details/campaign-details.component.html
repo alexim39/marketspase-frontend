@@ -1,0 +1,438 @@
+<!-- campaign-details.component.html -->
+<div class="campaign-details-container">
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <button class="back-btn" mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Campaigns
+        </button>
+        <div class="header-title">
+          <h1>Campaign Details</h1>
+          <p>Monitor performance and manage your campaign</p>
+        </div>
+        <div class="header-actions">
+          <!-- <button class="btn btn-primary" mat-flat-button>
+            <mat-icon>edit</mat-icon>
+            Export Data
+          </button> -->
+          <button class="btn btn-outline" mat-raised-button (click)="editCampaign()">
+            <mat-icon>edit</mat-icon>
+            Edit Campaign
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  @if (campaign(); as campaign) {
+  <main class="main-content">
+    <div class="container">
+      <!-- Campaign Overview Card -->
+      <div class="overview-card">
+        <div class="overview-header">
+          <div class="campaign-status">
+            <span class="status-badge" [class]="'status-' + campaign.status">
+              {{campaign.status | titlecase}}
+            </span>
+            <span class="campaign-id">Campaign ID: {{campaign._id | truncateID }}</span>
+          </div>
+          <div class="campaign-meta">
+            <span class="created-date">
+              <mat-icon>event</mat-icon>
+              Created: {{campaign.createdAt | date:'mediumDate'}}
+            </span>
+            <button mat-button class="icon-btn" [matMenuTriggerFor]="campaignMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #campaignMenu="matMenu">
+              <button mat-menu-item (click)="editCampaign()">
+                <mat-icon>edit</mat-icon>
+                Edit Campaign
+              </button>
+             <!--  <button mat-menu-item (click)="duplicateCampaign()">
+                <mat-icon>content_copy</mat-icon>
+                Duplicate
+              </button> -->
+              <!-- <button mat-menu-item (click)="toggleCampaignStatus()">
+                <mat-icon>{{campaign.status === 'active' ? 'pause' : 'play_arrow'}}</mat-icon>
+                {{campaign.status === 'active' ? 'Pause' : 'Resume'}}
+              </button> -->
+              <button mat-menu-item (click)="deleteCampaign()" class="delete-action">
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div class="overview-content">
+          <div class="campaign-media">
+            <div class="media-container">
+              <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+                <i class="material-icons">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+                <span>{{ campaign.mediaType | titlecase }}</span>
+              </div>
+              
+              @if (campaign.mediaType === 'image') {
+                <img [src]="api + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+              } @else if (campaign.mediaType === 'video') {
+                <div class="video-container">
+                  <video controls [poster]="campaign.category | categoryPlaceholder">
+                    <source [src]="api + campaign.mediaUrl" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="campaign-info">
+            <h2 class="campaign-title">{{campaign.title | titlecase}}</h2>
+            <p class="campaign-caption">{{campaign.caption}}</p>
+            
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>category</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Category</span>
+                  <span class="info-value">{{campaign.category | titlecase}}</span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>people</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Target Audience</span>
+                  <span class="info-value">{{campaign.enableTarget? 'Local' : 'General'}}</span>
+                </div>
+              </div>
+
+
+              <!-- Campaign Type -->
+              <div class="info-item">
+                <mat-icon>campaign</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Campaign Type</span>
+                  <span class="info-value">{{campaign.campaignType | titlecase}}</span>
+                </div>
+              </div>
+              
+              <!-- Priority -->
+              <div class="info-item">
+                <mat-icon>priority_high</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Priority</span>
+                  <span class="info-value">{{campaign.priority | titlecase}}</span>
+                </div>
+              </div>
+              
+              <!-- Difficulty -->
+              <div class="info-item">
+                <mat-icon>speed</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Difficulty</span>
+                  <span class="info-value">{{campaign.difficulty | titlecase}}</span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>people</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Target Audience</span>
+                  <span class="info-value">{{campaign.enableTarget ? 'Targeted' : 'General'}}</span>
+                </div>
+              </div>
+              
+              <!-- Minimum Rating -->
+              @if (campaign.enableTarget && campaign.minRating) {
+              <div class="info-item">
+                <mat-icon>star</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Minimum Rating</span>
+                  <span class="info-value">{{campaign.minRating}}+</span>
+                </div>
+              </div>
+              }
+
+
+              <div class="info-item">
+                <mat-icon>calendar_today</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Duration</span>
+                  <span class="info-value">
+                    {{campaign.startDate | date:'mediumDate'}} - 
+                    {{campaign.endDate ? (campaign.endDate | date:'mediumDate') : 'Ongoing'}}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <mat-icon>visibility</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Minimum Views</span>
+                  <span class="info-value">{{campaign.minViewsPerPromotion}} per promotion</span>
+                </div>
+              </div>
+            </div>
+
+
+             <!-- Target Locations -->
+            @if (campaign.enableTarget && campaign.targetLocations && campaign.targetLocations.length > 0) {
+            <div class="info-section">
+              <h4 class="section-subtitle">Target Locations</h4>
+              <div class="tags-container">
+                @for (location of campaign.targetLocations; track location) {
+                <span class="tag">{{location}}</span>
+                }
+              </div>
+            </div>
+            }
+
+             <!-- Requirements -->
+            @if (campaign.requirements && campaign.requirements.length > 0) {
+            <div class="info-section">
+              <h4 class="section-subtitle">Requirements</h4>
+              <ul class="requirements-list">
+                @for (requirement of campaign.requirements; track requirement) {
+                <li>{{requirement}}</li>
+                }
+              </ul>
+            </div>
+            }
+
+            <!-- Tags -->
+            @if (campaign.tags && campaign.tags.length > 0) {
+            <div class="info-section">
+              <h4 class="section-subtitle">Tags</h4>
+              <div class="tags-container">
+                @for (tag of campaign.tags; track tag) {
+                <span class="tag">{{tag}}</span>
+                }
+              </div>
+            </div>
+            }
+
+            @if (campaign.link) {
+              <div class="campaign-link">
+                <mat-icon>link</mat-icon>
+                <a [href]="campaign.link" target="_blank" class="link-text">{{campaign.link}}</a>
+              </div>
+            }
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Metrics -->
+      <div class="metrics-section">
+        <h3 class="section-title">Performance Metrics</h3>
+        
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{campaign.currentPromoters}}/{{campaign.maxPromoters}}</div>
+              <div class="metric-label">Promoters Engaged</div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor(( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100)" 
+                       [style.width]="( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) + '%'"></div>
+                </div>
+                <span class="progress-percentage">{{(campaign.currentPromoters / campaign.maxPromoters * 100) | number:'1.0-0'}}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>visibility</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{getTotalViews(campaign.promotions) | shortNumber}}</div>
+              <div class="metric-label">Total Views</div>
+              <div class="metric-subtext">Estimated reach: {{ (campaign.estimatedViews ) | shortNumber}}</div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>payments</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{formatCurrency(campaign.payoutPerPromotion * campaign.currentPromoters )}}</div>
+              <!-- <div class="metric-value">{{formatCurrency(campaign.spentBudget)}}</div> -->
+              <div class="metric-label">Budget Spent</div>
+              <div class="metric-subtext">of {{formatCurrency(campaign.budget)}} total</div>
+              <div class="metric-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor(( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100)" 
+                       [style.width]="( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) + '%'"></div>
+                </div>
+                <span class="progress-percentage">{{( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) | number:'1.0-0'}}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="metric-card">
+            <div class="metric-icon">
+              <mat-icon>verified</mat-icon>
+            </div>
+            <div class="metric-content">
+              <div class="metric-value">{{campaign.validatedPromotions || 0}}</div>
+              <div class="metric-label">Validated Promotions</div>
+              <div class="metric-subtext">{{campaign.paidPromotions || 0}} paid out</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promotions Table -->
+      <div class="promotions-section">
+        <div class="section-header">
+          <h3 class="section-title">Promotion Activity</h3>
+          <div class="section-controls">
+            <div class="search-box">
+              <mat-icon class="search-icon">search</mat-icon>
+              <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search promotions..."
+                [formControl]="promotionSearchControl">
+            </div>
+            <button class="filter-btn" mat-button [matMenuTriggerFor]="statusFilterMenu">
+              <mat-icon>filter_list</mat-icon>
+              Status: {{selectedStatusFilter() || 'All'}}
+            </button>
+            <mat-menu #statusFilterMenu="matMenu">
+              <button mat-menu-item (click)="updateStatusFilter('')">All</button>
+              <button mat-menu-item (click)="updateStatusFilter('pending')">Pending</button>
+              <button mat-menu-item (click)="updateStatusFilter('submitted')">Submitted</button>
+              <button mat-menu-item (click)="updateStatusFilter('validated')">Validated</button>
+              <button mat-menu-item (click)="updateStatusFilter('paid')">Paid</button>
+              <button mat-menu-item (click)="updateStatusFilter('rejected')">Rejected</button>
+            </mat-menu>
+          </div>
+        </div>
+        
+        <div class="table-container">
+          @if (filteredPromotions().length > 0) {
+          <table class="promotions-table">
+            <thead>
+              <tr>
+                <th>Promoter</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Submitted</th>
+                <th>Payout</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (promotion of filteredPromotions(); track promotion) {
+              <tr>
+                <td class="promoter-cell">
+                  <div class="promoter-info">
+                    <div class="avatar">{{getInitials(promotion.promoter.displayName)}}</div>
+                    <div class="promoter-details">
+                      <span class="promoter-name">{{promotion.promoter.displayName || 'Unknown'}}</span>
+                     @if (promotion.promoter.rating) {
+                       <span class="promoter-rating">
+                        <mat-icon>star</mat-icon>
+                        {{promotion.promoter.rating | number:'1.1-1'}}
+                      </span>
+                     }
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="status-badge status-{{promotion.status}}">
+                    {{promotion.status | titlecase}}
+                  </span>
+                </td>
+                <td>{{promotion.proofViews || 0}}</td>
+                <td>{{promotion.submittedAt ? (promotion.submittedAt | date:'short') : 'Not submitted'}}</td>
+                <td>{{promotion.payoutAmount ? formatCurrency(promotion.payoutAmount) : 'N/A'}}</td>
+                <td>
+                  <div class="action-buttons">
+                    <button mat-button class="icon-btn" (click)="viewPromotionDetails(promotion)" matTooltip="View Details">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                   <!--  @if (promotion.status === 'submitted') {
+                      <button mat-button class="icon-btn" (click)="validatePromotion(promotion)" matTooltip="Validate">
+                        <mat-icon>check_circle</mat-icon>
+                      </button>
+                    } -->
+                   <!--  @if (promotion.status === 'submitted') {
+                      <button mat-button class="icon-btn" (click)="rejectPromotion(promotion)" matTooltip="Reject">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    } -->
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>assignment</mat-icon>
+            <h4>No promotions yet</h4>
+            <p>This campaign hasn't been picked up by any promoters.</p>
+          </div>
+        }
+          
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+       @if (campaign.activityLog && campaign.activityLog.length > 0) {
+        <div class="activity-section">
+          <h3 class="section-title">Activity Log</h3>
+          <div class="timeline">
+            @for (log of campaign.activityLog; track log) {
+              <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <span class="log-action">{{log.action}}</span>
+                    <span class="log-time">{{log.timestamp | date:'medium'}}</span>
+                  </div>
+                  <p class="log-details">{{log.details}}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+       }
+    </div>
+  </main>
+  }
+
+  <!-- Loading State -->
+   @if (isLoading()) {
+    <div class="loading-container">
+      <div class="loading-content">
+        <mat-progress-bar mode="indeterminate"/>
+        <p>Loading campaign details...</p>
+      </div>
+    </div>
+   }
+
+  <!-- Error State -->
+   @if (error()) {
+    <div class="error-container">
+      <div class="error-content">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Failed to load campaign</h3>
+        <p>{{error()}}</p>
+        <button class="btn btn-primary" (click)="loadCampaign()">Try Again</button>
+      </div>
+    </div>
+   }
+
+</div>

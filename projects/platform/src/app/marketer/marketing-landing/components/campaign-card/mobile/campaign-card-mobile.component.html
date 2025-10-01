@@ -1,0 +1,135 @@
+<!-- campaign-card-mobile.component.html -->
+<div class="campaign-card-mobile" [class]="'status-' + campaign.status">
+  <!-- Header with status and menu -->
+  <div class="mobile-header">
+    <div class="header-top">
+      <div class="status-badge" [class]="'status-' + campaign.status">
+        {{campaign.status | titlecase}}
+      </div>
+      <button class="mobile-menu-btn" [matMenuTriggerFor]="campaignMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </div>
+    
+    <h3 class="mobile-title" (click)="onViewDetails()">{{campaign.title | titlecase | truncate:45}}</h3>
+    <p class="card-description">{{campaign.caption}}</p>
+    
+    <div class="mobile-meta">
+      <span class="meta-item">
+        <mat-icon>category</mat-icon>
+        {{campaign.category | titlecase}}
+      </span>
+      <span class="meta-item">
+        @if (campaign.remainingDays !== undefined) {
+            <span>
+            <mat-icon>calendar_today</mat-icon>
+            {{ isNumber(campaign.remainingDays) }}
+            </span>
+        }
+      </span>
+    </div>
+  </div>
+
+  <!-- Media Section - Simplified for mobile -->
+  <div class="mobile-media" (click)="onViewDetails()">
+    <div class="media-container">
+      @if (campaign.mediaType === 'image') {
+        <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="mobile-media-img">
+      }
+      @if (campaign.mediaType === 'video') {
+        <div class="mobile-video-placeholder">
+          <img [src]="campaign.category | categoryPlaceholder" class="mobile-placeholder-img" />
+          <div class="mobile-play-overlay">
+            <mat-icon>play_arrow</mat-icon>
+          </div>
+        </div>
+      }
+      
+      <!-- Media type indicator -->
+      <div class="mobile-media-type">
+        <mat-icon>{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress and Metrics - Horizontal layout -->
+  <div class="mobile-metrics">
+    <div class="metric-row">
+      <div style="display: flex; gap: 12px;">
+        <div class="metric-item">
+          <div class="metric-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</div>
+          <div class="metric-label">Promoters</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">{{getViewCount(campaign.promotions) | shortNumber}}</div>
+          <div class="metric-label">Views</div>
+      </div>
+      </div>
+    </div>
+
+    <div class="metric-item">
+        <div class="metric-value">{{ campaign.progress | number:'1.0-0' }}%</div>
+        <div class="metric-label">Progress</div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="mobile-progress">
+      <div class="progress-fill" [style.width]="(campaign.progress | number:'1.0-0') + '%'"></div>
+    </div>
+  </div>
+
+  <!-- Budget Info -->
+  <div class="mobile-budget">
+    <div class="budget-amount">
+      <span class="spent">{{formatCurrency( (campaign.currentPromoters * campaign.payoutPerPromotion) )}}</span>
+      <span class="total">/ {{formatCurrency(campaign.budget)}}</span>
+    </div>
+    <div class="budget-label">Budget Spent</div>
+  </div>
+
+  <!-- Action Buttons - Bottom fixed style -->
+  <div class="mobile-actions">
+    <button class="action-btn primary" (click)="onViewDetails()">
+      <mat-icon>analytics</mat-icon>
+      Details
+    </button>
+    <!-- <button class="action-btn secondary" (click)="onEditCampaign()">
+      <mat-icon>edit</mat-icon>
+      Edit
+    </button> -->
+  </div>
+
+  <!-- Menu (same functionality) -->
+  <mat-menu #campaignMenu="matMenu" class="mobile-menu">
+    <button mat-menu-item (click)="onViewDetails()">
+      <mat-icon>visibility</mat-icon>
+      View Details
+    </button>
+    <button mat-menu-item (click)="onEditCampaign()">
+      <mat-icon>edit</mat-icon>
+      Edit Campaign
+    </button>
+   <!--  @if (campaign.status === 'active') {
+      <button mat-menu-item (click)="onPauseCampaign()">
+        <mat-icon>pause</mat-icon>
+        Pause
+      </button>
+    } -->
+    @if (campaign.status === 'draft') {
+      <button mat-menu-item (click)="onPauseCampaign()">
+        <mat-icon>start</mat-icon>
+        Activate
+      </button>
+    }
+    <!-- @if (campaign.status === 'paused') {
+      <button mat-menu-item (click)="onResumeCampaign()">
+        <mat-icon>play_arrow</mat-icon>
+        Resume
+      </button>
+    } -->
+   <!--  <button mat-menu-item (click)="onDeleteCampaign()" class="delete-action">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button> -->
+  </mat-menu>
+</div>

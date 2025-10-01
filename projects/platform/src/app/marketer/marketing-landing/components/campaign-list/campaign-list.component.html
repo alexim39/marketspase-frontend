@@ -1,0 +1,126 @@
+<main class="container main">
+  <!-- Loading State -->
+  @if (isLoading) {
+    <app-campaign-skeleton [view]="currentView"></app-campaign-skeleton>
+  }
+  
+  <!-- Campaigns Grid/List -->
+  @else if (campaigns.length > 0) {
+    <div class="campaigns-container" [class]="'view-' + currentView">
+      @for (campaign of campaigns; track trackByCampaignId($index, campaign)) {
+        @if (currentView === 'grid') {
+          @if (deviceType() === 'desktop') {
+            <app-campaign-card
+              [campaign]="campaign"
+              [apiBaseUrl]="apiBaseUrl"
+              [view]="currentView"
+              (viewDetails)="onViewDetails($event)"
+              (editCampaign)="onEditCampaign($event)"
+              (pauseCampaign)="onPauseCampaign($event)"
+              (resumeCampaign)="onResumeCampaign($event)"
+              (deleteCampaign)="onDeleteCampaign($event)"
+            />
+          } @else {
+          <!-- @if (deviceType() === 'mobile') { -->
+            <app-campaign-card-mobile
+              [campaign]="campaign"
+              [apiBaseUrl]="apiBaseUrl"
+              [view]="currentView"
+              (viewDetails)="onViewDetails($event)"
+              (editCampaign)="onEditCampaign($event)"
+              (pauseCampaign)="onPauseCampaign($event)"
+              (resumeCampaign)="onResumeCampaign($event)"
+              (deleteCampaign)="onDeleteCampaign($event)"
+            />
+          }
+
+        } @else {
+          <!-- List View -->
+          <div class="campaign-list-item">
+            <div class="list-item-content">
+              <div class="list-item-media">
+                @if (campaign.mediaType === 'image') {
+                  <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                } @else {
+                  <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img">
+                }
+                <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+                  <mat-icon>{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>
+                </div>
+              </div>
+              
+              <div class="list-item-details">
+                <div class="list-item-header">
+                  <h3 class="campaign-title" (click)="onViewDetails(campaign._id)">
+                    @if (deviceType() === 'mobile') {
+                      {{campaign.title | titlecase | truncate: 50}}
+                    } @else {
+                      {{campaign.title | titlecase}}
+                    }
+                  </h3>
+                  <div class="status-badge" [class]="'status-' + campaign.status">
+                    {{campaign.status | titlecase}}
+                  </div>
+                </div>
+                
+                <p class="campaign-description">
+                  {{campaign.caption}}
+                </p>
+                
+                <div class="list-item-meta">
+                  <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
+                  <span><mat-icon>calendar_today</mat-icon> {{campaign.duration}}</span>
+                </div>
+                
+                <div class="list-item-metrics">
+                  <div class="metric">
+                    <span class="metric-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</span>
+                    <span class="metric-label">Promoters</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-value">{{getViewCount(campaign.promotions) | shortNumber}}</span>
+                    <span class="metric-label">Views</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-value">{{formatCurrency((campaign.currentPromoters * campaign.payoutPerPromotion))}}</span>
+                    <span class="metric-label">Spent</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="list-item-actions">
+                <button class="view-details-btn" (click)="onViewDetails(campaign._id)">
+                  <mat-icon>analytics</mat-icon>
+                  Details
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  }
+  
+  <!-- Empty State -->
+  @else {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <mat-icon>search_off</mat-icon>
+      </div>
+      <h3 class="empty-title">No campaigns found</h3>
+      @if (hasActiveFilters || searchTerm) {
+        <p class="empty-description">Try adjusting your search criteria or filters</p>
+        <button class="btn btn-primary" (click)="onClearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      } @else {
+        <p class="empty-description">Create your first campaign to get started</p>
+        <button class="btn btn-primary" (click)="onCreateCampaign()">
+          <mat-icon>add</mat-icon>
+          Create Campaign
+        </button>
+      }
+    </div>
+  }
+</main>

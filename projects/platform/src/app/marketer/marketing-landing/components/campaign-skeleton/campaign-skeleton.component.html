@@ -1,0 +1,26 @@
+<div class="loading-container">
+  <div class="loading-items" [class]="'view-' + view">
+    @for (item of skeletonItems; track item) {
+      @if (view === 'grid') {
+        <div class="campaign-card-skeleton">
+          <div class="skeleton-header"></div>
+          <div class="skeleton-media"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-metrics"></div>
+          </div>
+        </div>
+      } @else {
+        <div class="campaign-list-skeleton">
+          <div class="skeleton-media"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-meta"></div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

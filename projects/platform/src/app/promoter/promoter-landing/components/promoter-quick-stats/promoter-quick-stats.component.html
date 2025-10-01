@@ -1,0 +1,69 @@
+<section class="quick-stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card earnings">
+        <div class="stat-card-header">
+          <div class="stat-icon">
+            <i class="material-icons">account_balance_wallet</i>
+          </div>
+        </div>
+        <h3>₦{{metrics.pendingEarnings | number:'1.0-0'}}</h3>
+        <p>Pending Earnings</p>
+        <div class="stat-trend">
+          <i class="material-icons">schedule</i>
+          Processing verification
+        </div>
+      </div>
+
+      <div class="stat-card campaigns">
+        <div class="stat-card-header">
+          <div class="stat-icon">
+            <i class="material-icons">play_circle_filled</i>
+          </div>
+        </div>
+        <h3>{{metrics.activePromotions}}</h3>
+        <p>Active Campaigns</p>
+        @if (metrics.expiringSoon > 0) {
+          <div class="stat-trend">
+            <i class="material-icons">trending_up</i>
+            {{metrics.expiringSoon}} expiring soon
+          </div>
+        }
+        @if (metrics.expiringSoon === 0) {
+          <div class="stat-trend">
+            <i class="material-icons">check_circle</i>
+            All campaigns active
+          </div>
+        }
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-card-header">
+          <div class="stat-icon">
+            <i class="material-icons">verified</i>
+          </div>
+        </div>
+        <h3>{{metrics.successRate | number:'1.0-0'}}%</h3>
+        <p>Success Rate</p>
+        <div class="stat-trend">
+          <i class="material-icons">thumb_up</i>
+          {{metrics.successRate >= 80 ? 'Great performance!' : 'Good performance'}}
+        </div>
+      </div>
+
+      <div class="stat-card views">
+        <div class="stat-card-header">
+          <div class="stat-icon">
+            <i class="material-icons">visibility</i>
+          </div>
+        </div>
+        <h3>{{metrics.totalViews | number:'1.0-0'}}</h3>
+        <p>Total Views</p>
+        <div class="stat-trend">
+          <i class="material-icons">insights</i>
+          Lifetime reach
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

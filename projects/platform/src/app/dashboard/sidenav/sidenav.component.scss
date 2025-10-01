@@ -1,0 +1,610 @@
+/* ==========================================================================
+   Base & Utilities
+   ========================================================================== */
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ==========================================================================
+   Dashboard Sidenav & Header
+   ========================================================================== */
+
+.sidenav-container {
+  height: 100%;
+  .mat-drawer-content {
+    background-color: #f8f9fa;
+  }
+}
+
+.sidenav {
+  width: 280px;
+  padding: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  .sidenav-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 8px 32px;
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      .logo-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #673ab7;
+      }
+      .logo-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a1a1a;
+      }
+    }
+  }
+
+  .profile-card {
+    background-color: #ece5f5;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #673ab7;
+    }
+    .profile-details {
+      .profile-name {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      .profile-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+        
+        .role-chip {
+          background-color: #673ab7;
+          color: white;
+          font-size: 11px;
+          height: 20px;
+          line-height: 20px;
+          padding: 0 8px;
+          border-radius: 10px;
+          &.marketer {
+            background-color: #007bff;
+          }
+          &.promoter {
+            background-color: #28a745;
+          }
+        }
+        .verified-badge {
+          font-size: 14px;
+          color: #2196f3;
+        }
+      }
+      .profile-stats {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+      }
+    }
+    .switch-user-btn {
+      color: #673ab7;
+    }
+  }
+}
+
+.nav-list {
+  .mat-list-item {
+    border-radius: 8px;
+    margin-bottom: 8px;
+    .mat-list-item-content {
+      padding: 0 16px !important;
+    }
+    &.active-nav-item {
+      background-color: #f3e5f5;
+      color: #673ab7;
+      .mat-icon, .badge-icon {
+        color: #673ab7;
+      }
+    }
+    &:hover {
+      background-color: #f0e6fa;
+    }
+    .badge-icon {
+      color: #ff9800;
+    }
+  }
+}
+
+.quick-actions {
+  padding: 16px;
+  .section-title {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #999;
+  }
+  .action-btn {
+    width: 100%;
+    margin-bottom: 8px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    color: #1a1a1a;
+    &.logout {
+      color: #f44336;
+    }
+  }
+}
+
+/* ==========================================================================
+   Mobile & Desktop Headers
+   ========================================================================== */
+.mobile-header, .desktop-header {
+  height: 64px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  padding: 0 16px;
+}
+
+.mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    .logo-icon {
+      color: #673ab7;
+    }
+    .logo-text {
+      font-weight: 600;
+    }
+  }
+  .mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.desktop-header {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .header-spacer {
+    flex: 1;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    .wallet-display {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background-color: #f0f4f7;
+      border-radius: 20px;
+      cursor: pointer;
+      &:hover {
+        background-color: #e6edf2;
+      }
+      mat-icon {
+        color: #4caf50;
+      }
+      .wallet-amount {
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+    }
+  }
+}
+
+.avatar-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ==========================================================================
+   Notification Menu
+   ========================================================================== */
+.notification-menu {
+  .mat-menu-panel {
+    max-width: 350px;
+  }
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+  .notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .notification-item {
+    &.unread {
+      background-color: #e8f0fe;
+    }
+    .notification-content {
+      white-space: normal;
+      .notification-title {
+        font-weight: 600;
+      }
+      .notification-message {
+        color: #666;
+        font-size: 13px;
+      }
+      .notification-time {
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+      }
+    }
+  }
+  .no-notifications {
+    padding: 40px;
+    text-align: center;
+    color: #999;
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 8px;
+    }
+    p {
+      margin: 0;
+    }
+  }
+}
+
+/* ==========================================================================
+   Premium Cart Dialog
+   ========================================================================== */
+.cart-dialog-card {
+  width: 100%;
+  max-width: 700px;
+  border-radius: 12px;
+  padding: 0;
+  
+  .cart-header {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    .cart-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      .close-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    }
+    .cart-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 16px;
+      .items-count {
+        font-size: 14px;
+        color: #666;
+      }
+      .total-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #673ab7;
+      }
+    }
+  }
+  
+  .cart-tabs {
+    display: flex;
+    .tab-btn {
+      flex: 1;
+      padding: 16px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #666;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: color 0.3s, border-color 0.3s;
+      
+      &:hover {
+        color: #1a1a1a;
+      }
+      &.active {
+        color: #673ab7;
+        border-bottom: 2px solid #673ab7;
+      }
+      .badge {
+        background-color: #ff9800;
+        color: white;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 10px;
+      }
+    }
+  }
+  
+  .cart-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    .cart-items-section {
+      padding: 24px;
+      overflow-y: auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+  }
+  
+  .empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+    .empty-cart-icon {
+      width: 64px;
+      height: 64px;
+      background: #f8f9fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      mat-icon {
+        font-size: 32px;
+        color: #999;
+      }
+    }
+    h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    p {
+      margin: 0 0 24px;
+      color: #666;
+    }
+  }
+
+  .checkout-section {
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+    .checkout-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      .amount {
+        color: #4caf50;
+      }
+    }
+    .secure-checkout {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+      color: #999;
+      font-size: 12px;
+      mat-icon {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .empty-cart-message {
+      text-align: center;
+      p {
+        margin: 5px 0;
+        color: gray;
+      }
+  }
+
+  .quick-actions-content {
+    padding: 24px;
+    .quick-actions-grid {
+      display: grid;
+      gap: 16px;
+      .quick-action {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        text-align: left;
+        padding: 16px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+        cursor: pointer;
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        &:hover:not(:disabled) {
+          background-color: #e9ecef;
+        }
+        mat-icon {
+          color: #673ab7;
+        }
+        span {
+          display: flex;
+          flex-direction: column;
+          font-weight: 500;
+          small {
+            font-size: 12px;
+            color: #666;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+    .account-section {
+      margin-top: 24px;
+      .account-action {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        border-radius: 8px;
+        color: #1a1a1a;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        cursor: pointer;
+        margin-top: 10px;
+        
+        &:hover {
+          background-color: #f8f9fa;
+        }
+        mat-icon {
+          color: #666;
+        }
+      }
+    }
+  }
+}
+
+/* ==========================================================================
+   New Campaign Summary Card
+   ========================================================================== */
+.campaigns-summary-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    .summary-title-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .summary-icon {
+        color: #673ab7;
+      }
+      .summary-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+      }
+    }
+    .view-all-btn {
+      font-size: 12px;
+      height: 32px;
+    }
+  }
+
+  .summary-divider {
+    margin: 12px 0;
+  }
+
+  .summary-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
+    .metric-summary {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .metric-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #eceff1;
+        .metric-icon {
+          font-size: 20px;
+        }
+      }
+      .metric-info {
+        display: flex;
+        flex-direction: column;
+        .metric-value {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+        .metric-label {
+          font-size: 12px;
+          color: #666;
+        }
+      }
+
+      // Metric-specific colors
+      &.active-campaigns .metric-icon { color: #2196f3; }
+      &.total-promotions .metric-icon { color: #4caf50; }
+      &.total-spending .metric-icon { color: #f44336; }
+      &.budget-remaining .metric-icon { color: #673ab7; }
+    }
+
+    
+  }
+  
+}

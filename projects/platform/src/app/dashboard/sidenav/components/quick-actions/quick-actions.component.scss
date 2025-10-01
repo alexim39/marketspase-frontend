@@ -1,0 +1,29 @@
+/* Quick Actions Styles */
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 8px;
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #757575;
+    margin: 0;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    color: #555;
+    .mat-icon {
+      color: #757575;
+      margin-right: 8px;
+    }
+  }
+  .logout {
+    margin-top: 16px;
+  }
+}

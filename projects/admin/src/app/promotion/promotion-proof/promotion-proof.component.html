@@ -1,0 +1,118 @@
+<!-- promotion-proof.component.html -->
+<div class="proof-dialog-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <h2 class="dialog-title">Promotion Proof</h2>
+    <button mat-icon-button (click)="closeDialog()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (isLoading()) {
+  <div class="loading-spinner">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading proof details...</p>
+  </div>
+  } @else if (promotion()) {
+  <div class="proof-content">
+    <!-- Image Viewer -->
+    <div class="image-viewer-section">
+      <h3>Proof Images</h3>
+      
+      @if (promotion()?.proofMedia && promotion()!.proofMedia.length > 0) {
+      <div class="image-viewer">
+        <div class="main-image-container">
+          <button mat-icon-button class="nav-button prev-button" (click)="prevImage()" 
+                  [disabled]="promotion()!.proofMedia.length <= 1">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          
+          <img [src]="api + promotion()!.proofMedia[activeImageIndex()]" 
+               alt="Proof image" class="main-image">
+          
+          <button mat-icon-button class="nav-button next-button" (click)="nextImage()" 
+                  [disabled]="promotion()!.proofMedia.length <= 1">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+        
+        @if (promotion()!.proofMedia.length > 1) {
+        <div class="image-thumbnails">
+          @for (image of promotion()!.proofMedia; track $index; let i = $index) {
+          <img [src]="api + image" 
+               [class.active]="i === activeImageIndex()"
+               (click)="setActiveImage(i)"
+               alt="Proof thumbnail" class="thumbnail">
+          }
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-images">
+        <mat-icon>image_not_supported</mat-icon>
+        <p>No proof images available</p>
+      </div>
+      }
+    </div>
+
+    <!-- Proof Details -->
+    <div class="proof-details-section">
+      <h3>Proof Information</h3>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-label">Promoter:</span>
+          <span class="detail-value">{{ promotion()?.promoter?.displayName }} (@{{ promotion()?.promoter?.username }})</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Status:</span>
+          <mat-chip [class]="promotion()?.status" class="status-chip">
+            {{ promotion()?.status | titlecase }}
+          </mat-chip>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Views Reported:</span>
+          <span class="detail-value">{{ promotion()?.proofViews || 0 }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Unique Promotion ID:</span>
+          <span class="detail-value">{{ promotion()?.upi || 0 }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Submitted:</span>
+          <span class="detail-value">{{ promotion()?.submittedAt ? (promotion()?.submittedAt | date:'medium') : 'Not submitted' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Validated:</span>
+          <span class="detail-value">{{ promotion()?.validatedAt ? (promotion()?.validatedAt | date:'medium') : 'Not validated' }}</span>
+        </div>
+        
+        @if (promotion()?.rejectionReason) {
+        <div class="detail-item">
+          <span class="detail-label">Rejection Reason:</span>
+          <span class="detail-value">{{ promotion()?.rejectionReason }}</span>
+        </div>
+        }
+        
+        @if (promotion()?.notes) {
+        <div class="detail-item">
+          <span class="detail-label">Admin Notes:</span>
+          <span class="detail-value">{{ promotion()?.notes }}</span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  } @else {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h3>Proof not found</h3>
+    <p>The proof you're looking for doesn't exist or may have been deleted.</p>
+  </div>
+  }
+</div>

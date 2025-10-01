@@ -1,0 +1,161 @@
+<div class="settings-container">
+    <header class="settings-header">
+        <nav class="breadcrumb">
+            <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                (click)="scrollToTop()">
+                <mat-icon>home</mat-icon> Dashboard
+            </a>
+            <mat-icon>chevron_right</mat-icon>
+            <a>Settings</a>
+            <mat-icon>chevron_right</mat-icon>
+            <span class="current">Account Settings</span>
+        </nav>
+
+        <div class="header-content">
+            <h1>
+                <mat-icon class="header-icon">account_circle</mat-icon>
+                Account Settings
+                <button mat-icon-button class="help-button" (click)="showDescription()" matTooltip="Help"
+                    aria-label="Help">
+                    <mat-icon>help_outline</mat-icon>
+                </button>
+            </h1>
+            <p>Manage your MarketSpase account information</p>
+        </div>
+    </header>
+
+    <div class="settings-wrapper">
+        <mat-sidenav-container class="sidenav-container">
+            @if (isMobile) {
+                <mat-toolbar class="mobile-toolbar">
+                    <span class="toolbar-spacer"></span>
+                    <button mat-stroked-button (click)="drawer.toggle()" class="menu-toggle" aria-label="Toggle menu">
+                        <mat-icon>menu</mat-icon>
+                        Settings Menu
+                        <mat-icon class="notification-dot" *ngIf="hasNotifications" matBadge="!" matBadgeColor="warn"
+                            matBadgeSize="small">notifications</mat-icon>
+                    </button>
+                </mat-toolbar>
+            }
+
+
+            <main class="main-content">
+                <router-outlet />
+            </main>
+
+            <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" position="end" class="settings-sidenav" [opened]="!isMobile" [fixedInViewport]="isMobile" [fixedTopGap]="isMobile ? 64 : 0">
+
+            <div class="sidenav-header">
+                <div class="sidenav-title-container">
+                    <div class="title-with-status">
+                        <h3>Quick Settings</h3>
+                        <div class="status-indicator" [class.online]="isOnline" matTooltip="{{isOnline ? 'Online' : 'Offline'}}">
+                            <div class="status-dot"></div>
+                            <span class="status-text">{{isOnline ? 'Online' : 'Offline'}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button mat-icon-button class="sidenav-close-button" *ngIf="isMobile" (click)="drawer.close()" aria-label="Close menu">
+                <mat-icon>close</mat-icon>
+            </button>
+
+                <div class="quick-actions-bar">
+                    <a mat-mini-fab class="quick-action-btn theme-toggle" routerLink="./account">
+                        <mat-icon>account_box</mat-icon>
+                    </a>
+
+                    <a mat-mini-fab class="quick-action-btn notifications-toggle" routerLink="./system">
+                        <mat-icon>notifications</mat-icon>
+                    </a>
+
+                    <a mat-mini-fab class="quick-action-btn backup-btn" routerLink="./share">
+                        <mat-icon>share</mat-icon>
+                    </a>
+                </div>
+
+                <div class="nav-content">
+                    <mat-nav-list class="settings-nav-list">
+                        <div class="nav-section">
+                            <div class="nav-section-header">
+                                <a class="nav-section-label" routerLink="./account" routerLinkActive="active"
+                                    (click)="closeMobileMenu()">
+                                    <mat-icon>account_circle</mat-icon>
+                                    ACCOUNT
+                                </a>
+                            </div>
+                        </div>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="nav-section">
+                            <div class="nav-section-header">
+                                <a class="nav-section-label" routerLink="./system" routerLinkActive="active"
+                                    (click)="closeMobileMenu()">
+                                    <mat-icon>tune</mat-icon>
+                                    SYSTEM
+                                </a>
+                            </div>
+                        </div>
+
+                        <mat-divider></mat-divider>
+
+                        <div class="nav-section">
+                            <div class="nav-section-header">
+                                <a class="nav-section-label" routerLink="./share" routerLinkActive="active"
+                                    (click)="closeMobileMenu()">
+                                    <mat-icon>support</mat-icon>
+                                    SUPPORT
+                                </a>
+                            </div>
+                        </div>
+                    </mat-nav-list>
+
+                    <div class="recent-activity">
+                        <div class="activity-header">
+                            <mat-icon>history</mat-icon>
+                            <span>Recent Activity</span>
+                        </div>
+                        <div class="activity-list">
+                            @for (activity of recentActivities; track activity) {
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <mat-icon>{{activity.icon}}</mat-icon>
+                                    </div>
+                                    <div class="activity-content">
+                                        <div class="activity-title">{{activity.title}}</div>
+                                        <div class="activity-time">{{activity.time}}</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidenav-footer">
+                    <div class="footer-stats">
+                        <div class="stat-item">
+                            <mat-icon>storage</mat-icon>
+                            <span>{{storageUsed}}GB / {{storageTotal}}GB</span>
+                            <div class="stat-bar">
+                                <div class="stat-fill" [style.width.%]="(storageUsed/storageTotal)*100"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="footer-actions">
+                        <button mat-stroked-button class="export-button" matTooltip="Export Settings">
+                            <mat-icon>download</mat-icon>
+                            Export
+                        </button>
+                        <button mat-raised-button class="logout-button">
+                            <mat-icon>logout</mat-icon>
+                            Sign Out
+                        </button>
+                    </div> -->
+                </div>
+            </mat-sidenav>
+        </mat-sidenav-container>
+    </div>
+</div>

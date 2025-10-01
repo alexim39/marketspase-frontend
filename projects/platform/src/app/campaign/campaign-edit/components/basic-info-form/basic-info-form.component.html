@@ -1,0 +1,55 @@
+<div class="form-card" [formGroup]="form">
+  <div class="card-header">
+    <h2>Basic Information</h2>
+    <p>Set up your campaign title, description, and category</p>
+  </div>
+  
+  <div class="card-content">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field-full">
+        <mat-label>Campaign Title</mat-label>
+        <input matInput formControlName="title" placeholder="Enter a compelling title">
+        @if (form.get('title')?.hasError('required')) {
+          <mat-error>Title is required</mat-error>
+        }
+        @if (form.get('title')?.hasError('minlength')) {
+          <mat-error>Title must be at least 5 characters</mat-error>
+        }
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field-full">
+        <mat-label>Caption/Description</mat-label>
+        <textarea matInput formControlName="caption" rows="3" placeholder="Describe your campaign"></textarea>
+        <mat-hint>{{ form.get('caption')?.value?.length || 0 }}/150 characters</mat-hint>
+        @if (form.get('caption')?.hasError('maxlength')) {
+          <mat-error>Description cannot exceed 150 characters</mat-error>
+        }
+      </mat-form-field>
+    </div>
+    
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="form-field-half">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          @for (category of categories; track category) {
+            <mat-option [value]="category.value">{{ category.label }}</mat-option>
+          }
+        </mat-select>
+        @if (form.get('category')?.hasError('required')) {
+          <mat-error>Category is required</mat-error>
+        }
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="form-field-half">
+        <mat-label>Link (Optional)</mat-label>
+        <input matInput formControlName="link" placeholder="https://example.com">
+        <mat-icon matSuffix>link</mat-icon>
+        @if (form.get('link')?.hasError('pattern')) {
+          <mat-error>Please enter a valid URL</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+</div>

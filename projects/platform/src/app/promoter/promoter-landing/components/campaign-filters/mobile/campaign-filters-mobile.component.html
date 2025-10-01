@@ -1,0 +1,122 @@
+<section class="mobile-filters">
+  <!-- Top Action Bar -->
+  <div class="filters-top-bar">
+    <div class="search-section">
+      <!-- Search Toggle -->
+      <button class="search-toggle" (click)="toggleSearch()" [class.active]="isSearchActive">
+        <i class="material-icons">search</i>
+      </button>
+
+      <!-- Expanded Search Input -->
+      @if (isSearchActive) {
+        <div class="search-expanded">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search campaigns..."
+            [value]="searchTerm"
+            (input)="onSearchInput($event)"
+            autofocus
+          >
+          <div class="search-actions">
+            @if (searchTerm) {
+              <button class="search-action-btn" (click)="clearSearch()">
+                <i class="material-icons">close</i>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Filter Toggle -->
+    <button 
+      class="filter-toggle" 
+      (click)="toggleFilters()"
+      [class.active]="isFiltersExpanded"
+    >
+      <i class="material-icons">filter_list</i>
+      @if (activeFilter !== 'all') {
+        <span class="filter-badge">{{getFilterCount(activeFilter)}}</span>
+      }
+    </button>
+  </div>
+
+  <!-- Expanded Filters Panel -->
+  @if (isFiltersExpanded) {
+    <div class="filters-panel">
+      <div class="filters-grid">
+        <div 
+          class="filter-option" 
+          [class.active]="activeFilter === 'all'"
+          (click)="setFilter('all')"
+        >
+          <div class="filter-icon">
+            <i class="material-icons">all_inclusive</i>
+          </div>
+          <div class="filter-label">All Campaigns</div>
+          <div class="filter-count">{{allCampaignsCount}}</div>
+        </div>
+
+        <div 
+          class="filter-option" 
+          [class.active]="activeFilter === 'highPayout'"
+          (click)="setFilter('highPayout')"
+        >
+          <div class="filter-icon">
+            <i class="material-icons">trending_up</i>
+          </div>
+          <div class="filter-label">High Payout</div>
+          <div class="filter-count">{{highPayoutCount}}</div>
+        </div>
+
+        <div 
+          class="filter-option" 
+          [class.active]="activeFilter === 'expiringSoon'"
+          (click)="setFilter('expiringSoon')"
+        >
+          <div class="filter-icon">
+            <i class="material-icons">schedule</i>
+          </div>
+          <div class="filter-label">Ending Soon</div>
+          <div class="filter-count">{{expiringSoonCount}}</div>
+        </div>
+
+        <div 
+          class="filter-option" 
+          [class.active]="activeFilter === 'quickTasks'"
+          (click)="setFilter('quickTasks')"
+        >
+          <div class="filter-icon">
+            <i class="material-icons">flash_on</i>
+          </div>
+          <div class="filter-label">Quick Tasks</div>
+          <div class="filter-count">{{quickTasksCount}}</div>
+        </div>
+      </div>
+
+      <!-- View Controls -->
+      <div class="view-controls">
+        <div class="results-count">
+          {{allCampaignsCount}} campaigns available
+        </div>
+        <div class="view-toggle">
+          <button 
+            class="view-btn" 
+            [class.active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+          >
+            <i class="material-icons">view_module</i>
+          </button>
+          <!-- <button 
+            class="view-btn"
+            [class.active]="viewMode === 'list'" 
+            (click)="setViewMode('list')"
+          >
+            <i class="material-icons">view_list</i>
+          </button> -->
+        </div>
+      </div>
+    </div>
+  }
+</section>

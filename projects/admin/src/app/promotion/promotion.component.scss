@@ -1,0 +1,343 @@
+.admin-promotions-container {
+    padding: 16px;
+    max-width: 100%;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+    color: rgba(0, 0, 0, 0.87);
+    min-height: 100vh;
+}
+
+.header-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-title {
+    flex: 1;
+    min-width: 200px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.54);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background-color: #ffffff;
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #3f51b5;
+    
+    &.submitted {
+    color: #ff9800;
+    }
+    
+    &.validated {
+    color: #4caf50;
+    }
+    
+    &.paid {
+    color: #9c27b0;
+    }
+    
+    &.rejected {
+    color: #f44336;
+    }
+}
+
+.stat-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.filters-card {
+    margin-bottom: 24px;
+    background-color: #ffffff;
+}
+
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+}
+
+.filter-field {
+    flex: 1 1 200px;
+}
+
+.search-field {
+    flex: 2 1 300px;
+}
+
+.clear-filters-btn {
+    white-space: nowrap;
+}
+
+.table-card {
+    overflow: auto;
+    background-color: #ffffff;
+}
+
+.table-container {
+    min-height: 400px;
+    position: relative;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 0;
+}
+
+.loading-spinner p {
+    margin-top: 16px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+    color: rgba(0, 0, 0, 0.54);
+    text-align: center;
+}
+
+.no-data mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+}
+
+.promotions-table {
+    width: 100%;
+}
+
+.promoter-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.promoter-name {
+    font-weight: 500;
+}
+
+.promoter-username, .promoter-email {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.status-chip {
+    font-size: 12px;
+    font-weight: 500;
+    
+    &.pending {
+    background-color: #fff3e0;
+    color: #ef6c00;
+    }
+    
+    &.submitted {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    }
+    
+    &.validated {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    }
+    
+    &.rejected {
+    background-color: #ffebee;
+    color: #c62828;
+    }
+    
+    &.paid {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+    }
+}
+
+.views-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.views-count {
+    font-weight: 500;
+}
+
+.views-warning {
+    font-size: 11px;
+    color: #f44336;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .admin-promotions-container {
+    padding: 8px;
+    }
+
+    .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    }
+
+    .header-title {
+    width: 100%;
+    }
+
+    .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+    }
+
+    .stats-overview {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    }
+
+    .filter-field {
+    width: 100%;
+    }
+
+    .promotions-table .mat-header-row {
+    display: none;
+    }
+
+    .promotions-table .mat-row {
+    flex-direction: column;
+    align-items: start;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+    }
+
+    .promotions-table .mat-cell {
+    border: none;
+    padding: 4px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    }
+
+    .promotions-table .mat-cell:before {
+    content: attr(data-label);
+    float: left;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.54);
+    margin-right: 8px;
+    }
+
+    .promotions-table .mat-cell:first-of-type {
+    padding-top: 16px;
+    }
+
+    .promotions-table .mat-cell:last-of-type {
+    padding-bottom: 16px;
+    }
+
+    .promotions-table .mat-column-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    }
+    
+    .action-buttons {
+    justify-content: flex-end;
+    width: 100%;
+    }
+}
+
+/* For desktop - ensure proper table layout */
+@media (min-width: 769px) {
+    .promotions-table .mat-column-promoter {
+    min-width: 200px;
+    }
+
+    .promotions-table .mat-column-status {
+    width: 120px;
+    }
+
+    .promotions-table .mat-column-views {
+    width: 100px;
+    }
+
+    .promotions-table .mat-column-submitted {
+    width: 150px;
+    }
+
+    .promotions-table .mat-column-validated {
+    width: 150px;
+    }
+
+    .promotions-table .mat-column-paid {
+    width: 150px;
+    }
+
+    .promotions-table .mat-column-actions {
+    width: 100px;
+    }
+}

@@ -1,0 +1,9 @@
+<!-- error-state.component.html -->
+<div class="error-container">
+  <div class="error-content">
+    <mat-icon>error_outline</mat-icon>
+    <h3>Failed to load campaign</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="retry.emit()">Try Again</button>
+  </div>
+</div>

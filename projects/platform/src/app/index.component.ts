@@ -1,0 +1,700 @@
+import { ChangeDetectorRef, Component, inject, OnDestroy, } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
+import { Router, RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from './auth/auth.service';
+import { UserCredential } from '@angular/fire/auth'; // Import UserCredential for type safety
+import { AuthError } from 'firebase/auth'; // Import AuthError for better error typing
+import { UserService } from './common/services/user.service';
+
+export interface SocialProvider {
+  name: string;
+  icon: string;
+  color: string;
+  backgroundColor: string;
+  hoverColor: string;
+  method: () => void;
+}
+
+@Component({
+  selector: 'app-index',
+  providers: [],
+  imports: [
+    MatButtonModule,
+    RouterModule,
+    CommonModule,
+    MatIconModule,
+    MatRippleModule,
+    CommonModule
+  ],
+  template: `
+    <div class="auth-container">
+      <!-- Header Section -->
+      <div class="auth-header">
+        <div class="logo-section">
+          <div class="logo-icon">
+            <mat-icon>campaign</mat-icon>
+          </div>
+          <h1 class="brand-title">MarketSpase</h1>
+        </div>
+        <div class="welcome-section">
+          <h2 class="welcome-title">WhatsApp Status Ads Marketspace</h2>
+          <p class="welcome-subtitle">
+            Where WhatsApp Status becomes a source of income by connecting marketers and promoters in a unified marketplace.
+            <!-- Connect with marketers and promoters on WhatsApp Status -->
+          </p>
+        </div>
+      </div>
+
+      <!-- Authentication Card -->
+      <div class="auth-card">
+        <div class="card-header">
+          <h3>Sign in to your account</h3>
+          <p>Choose your preferred sign-in method</p>
+        </div>
+
+        <div class="auth-providers">
+          <!-- Social Login Buttons -->
+          @for (provider of socialProviders; track provider) {
+            <button
+              mat-stroked-button
+              class="social-btn"
+              [style.border-color]="provider.color"
+              [style.color]="provider.color"
+              (click)="provider.method()"
+              matRipple
+              [matRippleColor]="provider.color + '20'"
+            >
+              <div class="btn-content">
+                <mat-icon [style.color]="provider.color">{{ provider.icon }}</mat-icon>
+                <span>Continue with {{ provider.name }}</span>
+              </div>
+            </button>
+          }
+          <!-- Loading State -->
+           @if (isLoading) {
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+              <p>Connecting to {{ currentProvider }}...</p>
+            </div>
+           }
+         
+        </div>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span class="divider-text">Secure & Trusted</span>
+        </div>
+
+        <!-- Security Features -->
+        <div class="security-features">
+          <div class="feature-item">
+            <mat-icon class="feature-icon">security</mat-icon>
+            <span>End-to-end encrypted</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon class="feature-icon">verified</mat-icon>
+            <span>Verified campaigns only</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon class="feature-icon">payment</mat-icon>
+            <span>Automated payments</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon class="feature-icon">smart_toy</mat-icon>
+            <span>AI automated verification</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p class="footer-text">
+          New to MarketSpase? 
+          <a href="https://marketspase.com/about-us" target="_blank" class="signup-link">
+            Get to Know Us
+          </a>
+        </p>
+        <div class="footer-links">
+          <a href="https://marketspase.com/privacy" target="_blank">Privacy Policy</a>
+          <span class="separator">•</span>
+          <a href="https://marketspase.com/terms" target="_blank">Terms of Service</a>
+          <span class="separator">•</span>
+          <a href="https://marketspase.com/help" target="_blank">Help Center</a>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <div class="footer-links">
+          <a href="#" target="_blank" style="color: #ccc;">&#169; MarketSpase by Async Groups</a>
+          <span class="separator">•</span>
+          <a style="color: #ccc;">All Rights Reserved</a>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .auth-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.15"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+      pointer-events: none;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+      z-index: 1;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .logo-icon mat-icon {
+      color: white;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .brand-title {
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .welcome-section {
+      color: white;
+    }
+
+    .welcome-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      opacity: 0.95;
+    }
+
+    .welcome-subtitle {
+      font-size: 16px;
+      margin: 0;
+      opacity: 0.8;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    .auth-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 1;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .card-header h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: #1a1a1a;
+    }
+
+    .card-header p {
+      color: #666;
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .auth-providers {
+      position: relative;
+    }
+
+    .social-btn {
+      width: 100%;
+      height: 56px;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border-width: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .social-btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .btn-content mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      z-index: 10;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e3e3e3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-overlay p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 32px 0;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+    }
+
+    .divider-text {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0 20px;
+      font-size: 14px;
+      color: #888;
+      font-weight: 500;
+      z-index: 1;
+      position: relative;
+    }
+
+    .security-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #666;
+      justify-content: center;
+    }
+
+    .feature-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #667eea;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 32px;
+      z-index: 1;
+    }
+
+    .footer-text {
+      color: white;
+      margin: 0 0 12px 0;
+      font-size: 15px;
+    }
+
+    .signup-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+      transition: border-color 0.2s ease;
+    }
+
+    .signup-link:hover {
+      border-bottom-color: white;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      //flex-direction: row;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 10px;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .separator {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .auth-container {
+        padding: 16px;
+      }
+
+      .auth-card {
+        padding: 24px;
+        border-radius: 20px;
+      }
+
+      .brand-title {
+        font-size: 28px;
+      }
+
+      .welcome-title {
+        font-size: 14px;
+      }
+
+      .welcome-subtitle {
+        font-size: 15px;
+      }
+
+      .card-header h3 {
+        font-size: 22px;
+      }
+
+      .social-btn {
+        height: 52px;
+      }
+
+      .security-features {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .footer-links {
+        flex-direction: row;
+        gap: 4px;
+      }
+
+      .separator {
+        display: block;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 20px;
+      }
+
+      .logo-section {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .brand-title {
+        font-size: 24px;
+      }
+
+      .welcome-title {
+        font-size: 15px;
+      }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      .auth-card {
+        background: white;
+        border: 2px solid #000;
+      }
+      
+      .social-btn {
+        border-width: 2px;
+      }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .social-btn {
+        transition: none;
+      }
+      
+      .loading-spinner {
+        animation: none;
+      }
+    }
+  `],
+})
+export class IndexComponent implements OnDestroy {
+  isLoading: boolean = false;
+  currentProvider: string = '';
+
+  private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
+  private authService: AuthService = inject(AuthService);
+  private userService: UserService = inject(UserService);
+
+  private destroy$ = new Subject<void>();
+
+  socialProviders: SocialProvider[] = [
+    {
+      name: 'Google',
+      icon: 'account_circle',
+      color: '#FBBC04',
+      backgroundColor: '#f8f9ff',
+      hoverColor: '#4285F4',
+      method: () => this.signInWithGoogle(),
+    },
+    {
+      name: 'Twitter',
+      icon: 'alternate_email',
+      color: '#1da1f2',
+      backgroundColor: '#f0f9ff',
+      hoverColor: '#1a91da',
+      method: () => this.signInWithTwitter(),
+    },
+    // {
+    //   name: 'Facebook',
+    //   icon: 'facebook',
+    //   color: '#1877f2',
+    //   backgroundColor: '#f0f2ff',
+    //   hoverColor: '#166fe5',
+    //   method: () => this.signInWithFacebook(),
+    // },
+    // {
+    //   name: 'Apple',
+    //   icon: 'phone_iphone',
+    //   color: '#000000',
+    //   backgroundColor: '#f5f5f5',
+    //   hoverColor: '#333333',
+    //   method: () => this.signInWithApple(),
+    // },
+   
+  ];
+
+  constructor(
+    private router: Router,
+  ) {}
+
+  private setLoadingState(provider: string, loading: boolean): void {
+    this.isLoading = loading;
+    this.currentProvider = provider;
+    this.cdr.detectChanges(); // Ensures UI updates when state changes
+  }
+
+  signInWithGoogle(): void {
+    this.setLoadingState('Google', true);
+
+      this.authService.signInWithGoogle()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (userCredential: UserCredential) => {
+          //console.log('Authenticated Firebase User:', userCredential.user);
+          this.handleAuthSuccess({ success: true, user: userCredential.user });
+        },
+        error: (error: AuthError | HttpErrorResponse) => { // Updated error type to include AuthError
+          this.handleAuthError(error, 'Google');
+        },
+        complete: () => {
+          this.setLoadingState('', false);
+        }
+      })
+  }
+
+  signInWithFacebook(): void {
+    this.setLoadingState('Facebook', true);
+
+      this.authService.signInWithFacebook()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (userCredential: UserCredential) => {
+          //console.log('Authenticated Firebase User:', userCredential.user);
+          this.handleAuthSuccess({ success: true, user: userCredential.user });
+        },
+        error: (error: AuthError | HttpErrorResponse) => { // Updated error type to include AuthError
+          this.handleAuthError(error, 'Facebook');
+        },
+        complete: () => {
+          this.setLoadingState('', false);
+        }
+      })
+  }
+
+  signInWithApple(): void {
+    this.setLoadingState('Apple', true);
+    // Placeholder for Apple Sign-in. Uncomment and implement when ready.
+    this.snackBar.open('Apple Sign-in is not yet implemented.', 'Got it', { duration: 3000 });
+    this.setLoadingState('', false); // Reset loading for not-implemented feature
+  }
+
+  // --- NEW: Twitter Login Implementation ---
+  signInWithTwitter(): void {
+    this.setLoadingState('Twitter', true);
+    
+      this.authService.signInWithTwitter()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (userCredential: UserCredential) => {
+          //console.log('Authenticated Firebase User:', userCredential.user);
+          this.handleAuthSuccess({ success: true, user: userCredential.user });
+        },
+        error: (error: AuthError | HttpErrorResponse) => { // Best to type Firebase Auth errors as AuthError
+          this.handleAuthError(error, 'Twitter');
+        },
+        complete: () => {
+          this.setLoadingState('', false);
+        }
+      })
+  }
+  // --- END NEW ---
+
+  private handleAuthSuccess(response: any): void {
+    if (response.success) {
+        this.userService.auth(response.user)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            if (response.success) {
+              //console.log('response ',response)
+              // Navigate to dashboard
+              this.router.navigateByUrl('/dashboard');
+            } else {
+              this.router.navigateByUrl('/');
+            }
+          },
+          error: (error: HttpErrorResponse) => {
+            this.snackBar.open('Local profile verification failed', 'Ok',{duration: 5000}); // Increased duration for error messages
+            this.setLoadingState('', false);
+            this.cdr.markForCheck(); 
+          }
+        })      
+    }
+  }
+
+  private handleAuthError(error: AuthError | HttpErrorResponse | any, provider: string): void {
+    let errorMessage = `Failed to sign in with ${provider}. Please try again.`;
+    
+    if ((error as AuthError).code) { // Check if it's a Firebase AuthError
+      errorMessage = `Authentication failed: ${ (error as AuthError).message }`;
+      // You might want to map specific Firebase Auth error codes to user-friendly messages here
+      // For example:
+      if ((error as AuthError).code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in window was closed. Please try again.';
+      }
+    } else if (error instanceof HttpErrorResponse) { // Existing HTTP error handling
+      if (error.error && error.error.message) {
+        errorMessage = error.error.message;
+      } else if (error.status === 0) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      }
+    } else if (error && error.message) { // Generic error with a message property
+      errorMessage = error.message;
+    }
+
+    this.snackBar.open(errorMessage, 'Ok',{duration: 5000}); // Increased duration for error messages
+    this.setLoadingState('', false);
+    this.cdr.markForCheck(); // Mark for change detection to ensure error message is shown
+  }
+
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+}

@@ -1,0 +1,57 @@
+
+<div class="mobile-stats-section">
+  <!-- Tab Navigation -->
+  <mat-tab-group 
+    class="stats-tabs" 
+    [selectedIndex]="activeTab"
+    (selectedIndexChange)="filterStatsByCategory($event)">
+    @for (category of categories; track category.key) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <div class="tab-label">
+            <mat-icon class="tab-icon">{{category.icon}}</mat-icon>
+            <span class="tab-text">{{category.label}}</span>
+          </div>
+        </ng-template>
+        
+        <!-- Stats Cards for this category -->
+        <div class="stats-scroll-container">
+          <div class="stats-carousel">
+            @for (stat of filteredStats; track stat.label) {
+              <div class="mobile-stat-card" [class.highlight]="stat.highlight">
+                <div class="stat-header">
+                  <div class="stat-icon">
+                    <mat-icon>{{stat.icon}}</mat-icon>
+                  </div>
+                  <div class="stat-value">{{stat.value}}</div>
+                </div>
+                <div class="stat-label">{{stat.label}}</div>
+                @if (stat.description) {
+                  <div class="stat-description">{{stat.description}}</div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
+
+  <!-- Quick Summary Bar -->
+  <div class="quick-summary">
+    <div class="summary-item">
+      <span class="summary-value">{{stats.totalCampaigns || 0}}</span>
+      <span class="summary-label">Campaigns</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-value">{{stats.totalViews || 0}}</span>
+      <span class="summary-label">Views</span>
+    </div>
+    <div class="summary-divider"></div>
+    <div class="summary-item">
+      <span class="summary-value">{{formatCurrency(stats.totalSpent || 0)}}</span>
+      <span class="summary-label">Spent</span>
+    </div>
+  </div>
+</div>

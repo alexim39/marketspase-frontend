@@ -1,0 +1,390 @@
+<div class="admin-campaign-details-container">
+    <!-- Header Section with Back Button -->
+    <div class="header-section">
+    <button mat-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Campaigns
+    </button>
+    
+    <div class="header-title">
+        <h1 class="page-title">Campaign Details</h1>
+        <p class="page-subtitle">Manage and monitor campaign performance</p>
+    </div>
+    
+    <div class="header-actions">
+        <button mat-icon-button [matMenuTriggerFor]="statusMenu" matTooltip="Change Status">
+        <mat-icon>settings</mat-icon>
+        </button>
+        <mat-menu #statusMenu="matMenu">
+        <div style="background-color: black !important;">
+            @if (campaign()?.status === 'pending') {
+                <button mat-menu-item (click)="updateCampaignStatus('active')">
+                <mat-icon>check_circle</mat-icon>
+                <span>Approve</span>
+                </button>
+                <button mat-menu-item (click)="updateCampaignStatus('paused')">
+                <mat-icon>pause_circle</mat-icon>
+                <span>Pause</span>
+                </button>
+            }
+            @if (campaign()?.status === 'active') {
+                <button mat-menu-item (click)="updateCampaignStatus('paused')">
+                <mat-icon>pause_circle</mat-icon>
+                <span>Pause</span>
+                </button>
+            }
+            @if (campaign()?.status === 'paused') {
+                <button mat-menu-item (click)="updateCampaignStatus('active')">
+                <mat-icon>play_circle</mat-icon>
+                <span>Resume</span>
+                </button>
+            }
+            <button mat-menu-item (click)="viewActivityLog()">
+                <mat-icon>history</mat-icon>
+                <span>View Activity Log</span>
+            </button>
+        </div>
+        </mat-menu>
+        
+    </div>
+    </div>
+
+    @if (isLoading()) {
+    <div class="loading-spinner">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading campaign details...</p>
+    </div>
+    } @else if (campaign()) {
+    <!-- Campaign Overview Card -->
+    <mat-card class="overview-card">
+        <mat-card-content>
+        <div class="overview-header">
+            <div class="campaign-title-section">
+            <h2 class="campaign-title">{{ campaign()?.title }}</h2>
+            <mat-chip [class]="campaign()?.status" class="status-chip">
+                {{ campaign()?.status | titlecase }}
+            </mat-chip>
+            </div>
+            
+            <div class="campaign-meta">
+            <span class="created-date">Created: {{ campaign()?.createdAt | date:'mediumDate' }}</span>
+            <span class="campaign-id">ID: {{ campaign()?._id }}</span>
+            </div>
+        </div>
+        
+        <div class="overview-stats">
+            <div class="stat-item">
+            <div class="stat-value">{{ campaign()?.currentPromoters }} / {{ campaign()?.maxPromoters }}</div>
+            <div class="stat-label">Promoters</div>
+            <!-- <mat-progress-bar 
+                mode="determinate" 
+                [value]="(campaign()?.currentPromoters / campaign()?.maxPromoters) * 100"
+                class="stat-progress">
+            </mat-progress-bar> -->
+            </div>
+            
+            <div class="stat-item">
+            <div class="stat-value">{{ campaign()?.validatedPromotions }}</div>
+            <div class="stat-label">Validated</div>
+            </div>
+            
+            <div class="stat-item">
+            <div class="stat-value">{{ campaign()?.paidPromotions }}</div>
+            <div class="stat-label">Paid</div>
+            </div>
+            
+            <div class="stat-item">
+            <div class="stat-value">{{ campaign()?.spentBudget | currency:'NGN':'₦' }} / {{ campaign()?.budget | currency:'NGN':'₦' }}</div>
+            <div class="stat-label">Budget Spent</div>
+            <!-- <mat-progress-bar 
+                mode="determinate" 
+                [value]="(campaign()?.spentBudget / campaign()?.budget) * 100"
+                class="stat-progress">
+            </mat-progress-bar> -->
+            </div>
+        </div>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Main Content Tabs -->
+    <mat-tab-group animationDuration="0ms" class="content-tabs">
+        <!-- Details Tab -->
+        <mat-tab label="Details">
+        <div class="tab-content">
+            <div class="details-grid">
+            <!-- Campaign Information -->
+            <mat-card class="detail-card">
+                <mat-card-header>
+                <mat-card-title>Campaign Information</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                <div class="detail-item">
+                    <span class="detail-label">Title:</span>
+                    <span class="detail-value">{{ campaign()?.title }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Category:</span>
+                    <span class="detail-value">{{ campaign()?.category || 'Not specified' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Media Type:</span>
+                    <span class="detail-value">{{ campaign()?.mediaType || 'Not specified' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Caption:</span>
+                    <span class="detail-value">{{ campaign()?.caption || 'No caption' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Link:</span>
+                    @if (campaign()?.link) {
+                    <a [href]="campaign()?.link" target="_blank" class="detail-value link">{{ campaign()?.link }}</a>
+                    } @else {
+                    <span class="detail-value">No link</span>
+                    }
+                </div>
+                @if (campaign()?.mediaUrl) {
+                    <div class="detail-item">
+                    <span class="detail-label">Media Preview:</span>
+                    <div class="media-preview">
+                        <img [src]="api + campaign()?.mediaUrl" alt="Campaign media" class="preview-image">
+                    </div>
+                    </div>
+                }
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Budget & Payout -->
+            <mat-card class="detail-card">
+                <mat-card-header>
+                <mat-card-title>Budget & Payout</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                <div class="detail-item">
+                    <span class="detail-label">Total Budget:</span>
+                    <span class="detail-value">{{ campaign()?.budget | currency:'NGN':'₦' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Payout per Promotion:</span>
+                    <span class="detail-value">{{ campaign()?.payoutPerPromotion | currency:'NGN':'₦' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Spent Budget:</span>
+                    <span class="detail-value">{{ campaign()?.spentBudget | currency:'NGN':'₦' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Remaining Budget:</span>
+                    <!-- <span class="detail-value">{{ (campaign()?.budget - campaign()?.spentBudget) | currency:'NGN':'₦' }}</span> -->
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Currency:</span>
+                    <span class="detail-value">{{ campaign()?.currency }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Minimum Views Required:</span>
+                    <span class="detail-value">{{ campaign()?.minViewsPerPromotion }}</span>
+                </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Timeline -->
+            <mat-card class="detail-card">
+                <mat-card-header>
+                <mat-card-title>Timeline</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                <div class="detail-item">
+                    <span class="detail-label">Start Date:</span>
+                    <span class="detail-value">{{ campaign()?.startDate | date:'medium' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">End Date:</span>
+                    <span class="detail-value">{{ campaign()?.endDate ? (campaign()?.endDate | date:'medium') : 'Not set' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Created:</span>
+                    <span class="detail-value">{{ campaign()?.createdAt | date:'medium' }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Updated:</span>
+                    <span class="detail-value">{{ campaign()?.updatedAt | date:'medium' }}</span>
+                </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Advertiser Information -->
+            <mat-card class="detail-card">
+                <mat-card-header>
+                <mat-card-title>Advertiser Information</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                <div class="detail-item">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">{{ campaign()?.owner.displayName }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Username:</span>
+                    <span class="detail-value">@{{ campaign()?.owner.username }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ campaign()?.owner.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <button mat-button color="primary" (click)="viewAdvertiserDetails()">
+                    View Advertiser Profile
+                    </button>
+                </div>
+                </mat-card-content>
+            </mat-card>
+            </div>
+        </div>
+        </mat-tab>
+
+        <!-- Promotions Tab -->
+        <mat-tab label="Promotions">
+        <div class="tab-content">
+            <mat-card>
+            <mat-card-header>
+                <mat-card-title>Campaign Promotions</mat-card-title>
+                <mat-card-subtitle>All promotions for this campaign</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                @if (promotions().length === 0) {
+                <div class="no-data">
+                    <mat-icon>groups</mat-icon>
+                    <p>No promotions yet</p>
+                </div>
+                } @else {
+                <div class="promotions-table-container">
+                    <table mat-table [dataSource]="promotionsDataSource" class="promotions-table">
+                    <!-- Promoter Column -->
+                    <ng-container matColumnDef="promoter">
+                        <th mat-header-cell *matHeaderCellDef> Promoter </th>
+                        <td mat-cell *matCellDef="let promotion">
+                        <div class="promoter-info">
+                            <span class="promoter-name">{{ promotion.promoter.displayName }}</span>
+                            <span class="promoter-username">@{{ promotion.promoter.username }}</span>
+                        </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Status Column -->
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef> Status </th>
+                        <td mat-cell *matCellDef="let promotion">
+                        <mat-chip [class]="promotion.status" class="status-chip small">
+                            {{ promotion.status | titlecase }}
+                        </mat-chip>
+                        </td>
+                    </ng-container>
+
+                    <!-- Views Column -->
+                    <ng-container matColumnDef="views">
+                        <th mat-header-cell *matHeaderCellDef> Views </th>
+                        <td mat-cell *matCellDef="let promotion">
+                        {{ promotion.proofViews || 0 }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Submitted Column -->
+                    <ng-container matColumnDef="submitted">
+                        <th mat-header-cell *matHeaderCellDef> Submitted </th>
+                        <td mat-cell *matCellDef="let promotion">
+                        {{ promotion.submittedAt ? (promotion.submittedAt | date:'short') : 'Not submitted' }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef> Actions </th>
+                        <td mat-cell *matCellDef="let promotion">
+                        <button mat-icon-button matTooltip="View Proof" (click)="viewPromotionProof(promotion)">
+                            <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button mat-icon-button [matMenuTriggerFor]="promotionMenu" matTooltip="More Actions">
+                            <mat-icon>more_vert</mat-icon>
+                        </button>
+                        
+                        <mat-menu #promotionMenu="matMenu">
+                            <div style="background-color: black !important;">
+                                @if (promotion.status === 'submitted') {
+                                <button mat-menu-item (click)="validatePromotion(promotion)">
+                                    <mat-icon>check_circle</mat-icon>
+                                    <span>Validate</span>
+                                </button>
+                                <button mat-menu-item (click)="rejectPromotion(promotion)">
+                                    <mat-icon>cancel</mat-icon>
+                                    <span>Reject</span>
+                                </button>
+                                }
+                                @if (promotion.status === 'validated') {
+                                <button mat-menu-item (click)="markAsPaid(promotion)">
+                                    <mat-icon>payments</mat-icon>
+                                    <span>Mark as Paid</span>
+                                </button>
+                                }
+                                <button mat-menu-item (click)="viewPromotionDetails(promotion)">
+                                <mat-icon>info</mat-icon>
+                                <span>View Details</span>
+                                </button>
+                            </div>
+                        </mat-menu>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="promotionsColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: promotionsColumns;"></tr>
+                    </table>
+                </div>
+                }
+            </mat-card-content>
+            </mat-card>
+        </div>
+        </mat-tab>
+
+        <!-- Activity Log Tab -->
+        <mat-tab label="Activity Log">
+        <div class="tab-content">
+            <mat-card>
+            <mat-card-header>
+                <mat-card-title>Activity History</mat-card-title>
+                <mat-card-subtitle>All activities for this campaign</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                @if (campaign()?.activityLog?.length === 0) {
+                <div class="no-data">
+                    <mat-icon>history</mat-icon>
+                    <p>No activity recorded yet</p>
+                </div>
+                } @else {
+                <div class="activity-timeline">
+                    @for (activity of campaign()?.activityLog; track activity.timestamp; let i = $index) {
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                        <mat-icon>event</mat-icon>
+                        </div>
+                        <div class="activity-content">
+                        <div class="activity-action">{{ activity.action }}</div>
+                        <div class="activity-details">{{ activity.details }}</div>
+                        <div class="activity-time">{{ activity.timestamp | date:'medium' }}</div>
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+            </mat-card-content>
+            </mat-card>
+        </div>
+        </mat-tab>
+    </mat-tab-group>
+    } @else {
+    <div class="error-state">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Campaign not found</h3>
+        <p>The campaign you're looking for doesn't exist or may have been deleted.</p>
+        <button mat-raised-button color="primary" (click)="goBack()">
+        Back to Campaigns
+        </button>
+    </div>
+    }
+</div>

@@ -1,0 +1,151 @@
+<mat-card class="professional-card">
+  <mat-card-header>
+    <mat-card-title class="professional-title">
+      <mat-icon class="professional-icon">work_outline</mat-icon>
+      Professional Profile
+    </mat-card-title>
+    <mat-card-subtitle class="professional-subtitle">
+      Showcase your skills and background for a better experience
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-divider/>
+
+  <mat-card-content>
+    <form [formGroup]="professionalForm" class="professional-form">
+      <!-- Professional Details Section -->
+      <div class="form-section">
+        <h3 class="section-header">
+          <mat-icon>business_center</mat-icon>
+          Career Information
+        </h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Job Title</mat-label>
+            <input matInput formControlName="jobTitle" required placeholder="E.g. Software Engineer">
+            <mat-icon matSuffix>badge</mat-icon>
+            @if (professionalForm.get('jobTitle')?.hasError('required')) {
+              <mat-error>
+                Job title is required
+              </mat-error>
+            }
+            <mat-hint>What's your current role?</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Education Background</mat-label>
+            <!-- Changed formControlName to educationBackground to match component class -->
+            <mat-select formControlName="certificate" required>
+              @for (education of educationOptions; track education) {
+                <mat-option [value]="education">
+                  {{education}}
+                </mat-option>
+              }            
+            </mat-select>
+            <mat-icon matSuffix>school</mat-icon>
+            <!-- Changed formControlName to educationBackground -->
+            @if (professionalForm.get('certificate')?.hasError('required')) {
+              <mat-error>
+                Education background is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Skills & Interests Section -->
+      <div class="form-section">
+        <h3 class="section-header">
+          <mat-icon>star</mat-icon>
+          Skills & Interests
+        </h3>
+
+        <div class="form-row">
+          <!-- Skills Field -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Skills</mat-label>
+            <mat-chip-grid #skillGrid formControlName="skills">
+              <!-- Use the skills() signal to render the chips -->
+              @for (skill of skills(); track skill) {
+                <mat-chip-row (removed)="removeSkill(skill)">
+                  {{ skill }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+              <input [matChipInputFor]="skillGrid" 
+                   placeholder="E.g. Singing, Photography"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   (matChipInputTokenEnd)="addSkill($event)">
+            </mat-chip-grid>
+            @if (professionalForm.get('skills')?.hasError('required')) {
+              <mat-error>
+                At least one skill is required
+              </mat-error>
+            }      
+            <mat-hint>
+              @if (skills().length === 0) {
+                Enter skill and tap enter
+              } @else {
+                {{ skills().length }} skill(s) added
+              }
+            </mat-hint>
+          </mat-form-field>
+
+          <!-- Hobbies Field -->
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Hobbies</mat-label>
+            <mat-chip-grid #hobbyGrid formControlName="hobbies">
+              <!-- Use the hobbies() signal to render the chips -->
+              @for (hobby of hobbies(); track hobby) {
+                <mat-chip-row (removed)="removeHobby(hobby)">
+                  {{ hobby }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+              <input [matChipInputFor]="hobbyGrid" 
+                   placeholder="E.g. Video Editing, Graphic Design"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   (matChipInputTokenEnd)="addHobby($event)">
+            </mat-chip-grid>
+            
+            @if (professionalForm.get('hobbies')?.hasError('required')) {
+              <mat-error>
+                At least one hobby is required
+              </mat-error>
+            }
+            <mat-hint>
+              @if (hobbies().length === 0) {
+                Enter hobby and tap enter
+              } @else {
+                {{ hobbies().length }} hobby(ies) added
+              }
+            </mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+
+  <mat-divider/>
+
+  <mat-card-actions class="form-actions">
+    <button 
+      mat-flat-button 
+      color="primary" 
+      class="save-button"
+      [disabled]="professionalForm.invalid || isLoading()"
+      (click)="onSubmit()">
+      @if (!isLoading()) {
+        <span>Save Changes</span>
+      } @else {
+        <!-- Access the isLoading signal value using () -->
+        <mat-spinner diameter="20"/>
+      }
+    </button>
+  </mat-card-actions>
+</mat-card>

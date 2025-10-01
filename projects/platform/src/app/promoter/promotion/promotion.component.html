@@ -1,0 +1,48 @@
+<div class="promoter-campaigns-container">
+  <app-header title="My Promotions"/>
+
+  <main class="content-container">
+    <div class="container">
+      <app-stats-overview [stats]="stats()"/>
+
+      <div class="campaign-list-section">
+        <nav mat-tab-nav-bar [tabPanel]="tabPanel">
+          <a mat-tab-link [active]="selectedTab() === 'all'" (click)="onTabChange('all')">All Promotions ({{ stats().total }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'pending'" (click)="onTabChange('pending')">Pending ({{ stats().pending }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'submitted'" (click)="onTabChange('submitted')">Submitted ({{ stats().submitted }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'validated'" (click)="onTabChange('validated')">Validated ({{ stats().validated }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'paid'" (click)="onTabChange('paid')">Paid ({{ stats().paid }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'rejected'" (click)="onTabChange('rejected')">Rejected ({{ stats().rejected }})</a>
+        </nav>
+
+        <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+
+        @if (isLoading()) {
+          <app-loading-state />
+        } @else {
+          @if (isEmptyState()) {
+            <app-empty-state />
+          }
+           
+          <div class="promotions-list">
+           @for (promotion of filteredPromotions(); track promotion) {
+            <app-promotion-card
+              [promotion]="promotion"
+              (openSubmitDialog)="openSubmitProofDialog($event)">
+            </app-promotion-card>
+          }
+          </div>
+        }
+
+       <!--  @if (filteredPromotions().length > 0) {
+          <div class="load-more">
+            <button mat-stroked-button>
+              <mat-icon>expand_more</mat-icon>
+              Load More
+            </button>
+          </div>
+        } -->
+      </div>
+    </div>
+  </main>
+</div>

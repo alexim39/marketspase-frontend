@@ -1,0 +1,144 @@
+.payment-status {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 2px solid;
+  animation: statusSlideIn 0.5s ease-out;
+  color: rgb(95, 95, 95);
+
+  &.success {
+    border-color: #10b981;
+    background: linear-gradient(145deg, #f0fdf4 0%, #ffffff 100%);
+  }
+
+  &.error {
+    border-color: #ef4444;
+    background: linear-gradient(145deg, #fef2f2 0%, #ffffff 100%);
+  }
+
+  .status-content {
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+
+      &.success-icon {
+        color: #10b981;
+      }
+
+      &.error-icon {
+        color: #ef4444;
+      }
+    }
+
+    h4 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+
+      .success & {
+        color: #065f46;
+      }
+
+      .error & {
+        color: #991b1b;
+      }
+    }
+
+    p {
+      font-size: 16px;
+      margin: 0 0 12px 0;
+      line-height: 1.5;
+
+      .success & {
+        color: #047857;
+      }
+
+      .error & {
+        color: #dc2626;
+      }
+    }
+
+    .success-details {
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+
+      p {
+        font-size: 14px;
+        color: #047857;
+        margin: 0 0 8px 0;
+
+        &:last-child {
+          margin-bottom: 0;
+          font-family: monospace;
+          font-weight: 600;
+          word-break: break-all;
+        }
+      }
+
+      .celebration-animation {
+        font-size: 48px;
+        margin-top: 16px;
+        animation: bounce 0.5s ease infinite alternate;
+      }
+    }
+
+    .error-details {
+      p {
+        font-size: 14px;
+        color: #dc2626;
+        margin: 0 0 8px 0;
+      }
+    }
+
+    @media (max-width: 767px) {
+      mat-icon {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+      }
+
+      h4 {
+        font-size: 20px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+
+      .success-details {
+        padding: 16px;
+
+        p {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+@keyframes statusSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}

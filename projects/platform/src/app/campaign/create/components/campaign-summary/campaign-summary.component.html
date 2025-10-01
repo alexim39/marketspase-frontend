@@ -1,0 +1,99 @@
+<mat-card class="form-card preview-card">
+  <mat-card-header>
+    <mat-card-title>Campaign Summary</mat-card-title>
+    <mat-card-subtitle>
+      Review your campaign details before launching.
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="preview-content">
+    <div class="whatsapp-preview">
+      <p class="preview-header">WhatsApp Status Preview</p>
+      <div class="phone-frame">
+        <div class="status-view">
+          @if (selectedMedia?.url) {
+            <div class="media-area">
+              @if (selectedMedia?.type === 'image') {
+                <img [src]="selectedMedia?.url" alt="Campaign Media" class="status-media-image">
+              } @else if (selectedMedia?.type === 'video') {
+                <video [src]="selectedMedia?.url" controls class="status-media-video"></video>
+              }
+            </div>
+          } @else {
+            <div class="no-media-placeholder">
+              <mat-icon>image</mat-icon>
+              <span>No media uploaded</span>
+            </div>
+          }
+
+          <div class="status-top-bar">
+            <div class="status-progress"></div> 
+            <!-- <button mat-icon-button class="close-status-btn">
+              <mat-icon>close</mat-icon>
+            </button> -->
+          </div>
+
+          <div class="status-footer">
+            <div class="status-user-info">
+              <img src="https://placehold.co/32x32/E5E5E5/transparent" alt="Profile" class="status-profile-pic">
+              <span class="status-sender-name">Your Ad</span>
+              <span class="status-time">just now</span>
+            </div>
+            @if (contentForm.get('caption')?.value) {
+              <div class="status-caption">
+                <p>{{contentForm.get('caption')?.value}}</p>
+              </div>
+            }
+            @if (contentForm.get('link')?.value) {
+              <a [href]="contentForm.get('link')?.value" target="_blank" class="status-link">
+                <mat-icon>link</mat-icon> {{contentForm.get('link')?.value | slice:0:30}}...
+              </a>
+            }
+            <div class="status-action-prompt">
+              <mat-icon>keyboard_arrow_up</mat-icon>
+              <span>Swipe up for details</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="campaign-details">
+      <h4>Campaign Details</h4>
+      <div class="detail-item">
+        <span class="detail-label">Title</span>
+        <span class="detail-value">{{contentForm.get('title')?.value}}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Category</span>
+        <span class="detail-value">{{contentForm.get('category')?.value}}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Budget</span>
+        <span class="detail-value">{{budgetForm.get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Target</span>
+        <span class="detail-value">{{ budgetForm.get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Start Date</span>
+        <span class="detail-value">{{scheduleForm.get('startDate')?.value | date:'shortDate'}}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">End Date</span>
+        <span class="detail-value">{{scheduleForm.get('endDate')?.value ? (scheduleForm.get('endDate')?.value | date:'shortDate') : 'No end date'}}</span>
+      </div>
+    </div>
+
+    <div class="final-cost-summary">
+      <mat-icon class="summary-icon">info</mat-icon>
+      <p class="summary-text">
+        Your total campaign cost is
+        <span class="cost-value">{{budgetForm.get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
+        which will be deducted from your wallet upon launch.
+      </p>
+    </div>
+  </mat-card-content>
+</mat-card>

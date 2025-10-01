@@ -1,0 +1,209 @@
+<!-- transactions.component.html -->
+<div class="transaction-container">
+  <!-- Header with role indicator -->
+  <mat-toolbar class="transaction-toolbar">
+    <div class="toolbar-content">
+      <div class="toolbar-title-section">
+        <mat-icon class="toolbar-icon">account_balance_wallet</mat-icon>
+        <h1>Wallet & Transactions</h1>
+        <div class="role-badge" [class.marketer]="user()?.role === 'marketer'" 
+             [class.promoter]="user()?.role === 'promoter'">
+          {{ user()?.role | titlecase }}
+        </div>
+      </div>
+      
+      <div class="toolbar-actions">
+        <button mat-stroked-button color="primary" (click)="refreshTransactions()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Wallet Summary Section -->
+  <mat-card class="wallet-summary-card">
+    <mat-card-header>
+      <mat-card-title>Account Summary</mat-card-title>
+      <mat-card-subtitle>
+        {{ user()?.role === 'promoter' ? 'Your earnings and reserved funds' : 'Your advertising budget and spending' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content class="wallet-balance-container">
+      <div class="balance-item">
+        <div class="balance-label">Available Balance</div>
+        <div class="balance-amount">{{ formatCurrency(currentBalance()) }}</div>
+        <div class="balance-subtext">
+          {{ user()?.role === 'promoter' ? 'Funds ready to withdraw' : 'Budget available for campaigns' }}
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="balance-item">
+        <div class="balance-label">
+          {{ user()?.role === 'promoter' ? 'Reserved Funds' : 'Active Campaigns' }}
+        </div>
+        <div class="balance-amount reserved">{{ formatCurrency(currentReserved()) }}</div>
+        <div class="balance-subtext">
+          {{ user()?.role === 'promoter' ? 'Pending campaign payments' : 'Funds reserved for active campaigns' }}
+        </div>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <div class="balance-item">
+        <div class="balance-label">
+          {{ user()?.role === 'promoter' ? 'Total Earnings' : 'Total Spent' }}
+        </div>
+        <div class="balance-amount earnings">{{ formatCurrency(totalAmount()) }}</div>
+        <div class="balance-subtext">
+          {{ user()?.role === 'promoter' ? 'All-time campaign earnings' : 'All-time campaign spending' }}
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Transaction History Section -->
+  <mat-card class="transaction-card">
+    <mat-card-header>
+      <mat-card-title>Transaction History</mat-card-title>
+      <mat-card-subtitle>All your financial activities</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Tabs for filtering -->
+      <div class="transaction-tabs">
+        <mat-tab-group animationDuration="0ms" (selectedTabChange)="filterTransactions($event)">
+          <mat-tab label="All Transactions"></mat-tab>
+          <mat-tab label="Credits"></mat-tab>
+          <mat-tab label="Debits"></mat-tab>
+          <mat-tab label="Campaigns"></mat-tab>
+          <mat-tab *ngIf="user()?.role === 'promoter'" label="Earnings"></mat-tab>
+          <mat-tab *ngIf="user()?.role === 'marketer'" label="Spending"></mat-tab>
+        </mat-tab-group>
+      </div>
+      
+      <!-- Filter controls -->
+      <div class="transaction-filters">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Filter by status</mat-label>
+          <mat-select (selectionChange)="filterByStatus($event)" multiple>
+            <mat-option value="successful">Successful</mat-option>
+            <mat-option value="pending">Pending</mat-option>
+            <mat-option value="failed">Failed</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search transactions</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Search description or amount">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <button mat-button (click)="clearFilters()" class="clear-filters-btn">
+          Clear Filters
+        </button>
+      </div>
+      
+      <!-- Transaction table -->
+      <div class="transaction-table-wrapper mat-elevation-z2">
+        <table mat-table [dataSource]="filteredTransactions()" class="transaction-table">
+          
+          <!-- Date Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef>Date & Time</th>
+            <td mat-cell *matCellDef="let transaction">
+              <div class="date-cell">
+                <div class="date">{{ formatDate(transaction.createdAt) }}</div>
+                <div class="time">{{ formatTime(transaction.createdAt) }}</div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Description Column -->
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let transaction">
+              <div class="description-cell">
+                <mat-icon 
+                  [class]="'category-icon ' + transaction.category" 
+                  [matTooltip]="transaction.category | titlecase">
+                  {{ getCategoryIcon(transaction.category) }}
+                </mat-icon>
+                <div class="description-content">
+                  <div class="description-main">{{ transaction.description || 'Transaction' }}</div>
+                  <div class="description-category">{{ transaction.category | titlecase }}</div>
+                  <div class="campaign-reference" *ngIf="transaction.relatedCampaign">
+                    Campaign ID: {{ transaction.relatedCampaign | shortenId }}
+                  </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Amount Column -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef class="text-right">Amount</th>
+            <td mat-cell *matCellDef="let transaction" class="text-right">
+              <span 
+                [class]="'amount ' + transaction.type" 
+                [matTooltip]="transaction.type | titlecase">
+                {{ (transaction.type === 'credit' ? '+' : '-') + formatCurrency(transaction.amount) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="text-center">Status</th>
+            <td mat-cell *matCellDef="let transaction" class="text-center">
+              <div 
+                [class]="'status-badge ' + transaction.status" 
+                [matTooltip]="transaction.status | titlecase">
+                <mat-icon class="icon-status">{{ getStatusIcon(transaction.status) }}</mat-icon>
+                <span>{{ transaction.status | titlecase }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          
+          <!-- Loading/empty state -->
+          <tr *matNoDataRow>
+            <td class="no-data" colspan="4">
+              <div class="no-data-content" *ngIf="!isLoading(); else loading">
+                <mat-icon>find_in_page</mat-icon>
+                <p>No transactions found</p>
+                <button mat-stroked-button color="primary" (click)="clearFilters()" *ngIf="hasActiveFilters()">
+                  Clear Filters
+                </button>
+              </div>
+              <ng-template #loading>
+                <div class="loading-data">
+                  <mat-spinner diameter="30"></mat-spinner>
+                  <p>Loading transactions...</p>
+                </div>
+              </ng-template>
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+      <!-- Table footer with info and actions -->
+      <div class="table-footer" *ngIf="filteredTransactions().length > 0">
+        <div class="footer-info">
+          Showing {{ filteredTransactions().length }} of {{ transactions().length }} transactions
+        </div>
+        <div class="export-actions">
+          <button mat-stroked-button color="primary">
+            <mat-icon>file_download</mat-icon>
+            Export CSV
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

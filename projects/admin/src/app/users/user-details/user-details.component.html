@@ -1,0 +1,324 @@
+<div class="user-details-container">
+  <div class="header-section">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="page-title">User Details</h1>
+    @if (user()) {
+      <div class="action-buttons">
+        <button mat-icon-button [matTooltip]="user()?.isActive ? 'Deactivate User' : 'Activate User'"
+                (click)="toggleUserStatus()" class="status-button" [disabled]="userIsDeleted()">
+          <mat-icon>{{ user()?.isActive ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Edit User" (click)="editUser()" class="edit-button">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading user details...</p>
+    </div>
+  } @else if (user()) {
+    <div class="user-content">
+      <mat-card class="profile-card">
+        <mat-card-content>
+          <div class="profile-header">
+            <img [src]="user()?.avatar" alt="User avatar" class="user-avatar-large">
+            <div class="profile-info">
+              <h2 class="user-name">{{ user()?.displayName }}</h2>
+              <p class="user-username">@{{ user()?.username }}</p>
+              <div class="status-badges">
+                <mat-chip class="role-chip" [class]="userRole()">
+                  {{ userRole() }}
+                </mat-chip>
+                <mat-chip
+                  class="status-chip"
+                  [class.active]="isUserActive()"
+                  [class.inactive]="!isUserActive() && !userIsDeleted()"
+                  [class.deleted]="userIsDeleted()">
+                  {{ userIsDeleted() ? 'Deleted' : (isUserActive() ? 'Active' : 'Inactive') }}
+                </mat-chip>
+                @if (user()?.isVerified && !userIsDeleted()) {
+                  <mat-chip class="verification-chip">
+                    Verified
+                  </mat-chip>
+                }
+              </div>
+            </div>
+          </div>
+
+          <mat-divider class="divider"/>
+
+          <div class="profile-details">
+            <div class="detail-item">
+              <mat-icon class="detail-icon">email</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ user()?.email }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon class="detail-icon">fingerprint</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Authentication Method</span>
+                <span class="detail-value">{{ user()?.authenticationMethod || 'Not specified' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <mat-icon class="detail-icon">calendar_today</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Joined</span>
+                <span class="detail-value">{{ user()?.createdAt | date:'fullDate' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <mat-icon class="detail-icon">update</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Last Updated</span>
+                <span class="detail-value">{{ user()?.updatedAt | date:'fullDate' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <mat-icon class="detail-icon">star</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Rating</span>
+                <span class="detail-value">{{ user()?.rating || 0 }} ({{ user()?.ratingCount || 0 }} reviews)</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-tab-group animationDuration="0ms" class="details-tabs">
+        <mat-tab label="Wallet">
+          <div class="tab-content">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Wallet Information</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="wallet-section">
+                  <h3>Marketer Wallet</h3>
+                  <mat-list>
+                    <mat-list-item>
+                      <span matListItemTitle>Available Balance</span>
+                      <span matListItemLine>{{ user()?.wallets?.marketer?.balance | currency:'NGN':'₦' }}</span>
+                    </mat-list-item>
+                    <mat-list-item>
+                      <span matListItemTitle>Reserved Funds</span>
+                      <span matListItemLine>{{ user()?.wallets?.marketer?.reserved | currency:'NGN':'₦' }}</span>
+                    </mat-list-item>
+                    <mat-list-item>
+                      <span matListItemTitle>Transactions</span>
+                      <span matListItemLine>{{ user()?.wallets?.marketer?.transactions?.length || 0 }}</span>
+                    </mat-list-item>
+                  </mat-list>
+                </div>
+
+                <mat-divider class="divider"></mat-divider>
+
+                <div class="wallet-section">
+                  <h3>Promoter Wallet</h3>
+                  <mat-list>
+                    <mat-list-item>
+                      <span matListItemTitle>Available Balance</span>
+                      <span matListItemLine>{{ user()?.wallets?.promoter?.balance | currency:'NGN':'₦' }}</span>
+                    </mat-list-item>
+                    <mat-list-item>
+                      <span matListItemTitle>Reserved Funds</span>
+                      <span matListItemLine>{{ user()?.wallets?.promoter?.reserved | currency:'NGN':'₦' }}</span>
+                    </mat-list-item>
+                    <mat-list-item>
+                      <span matListItemTitle>Transactions</span>
+                      <span matListItemLine>{{ user()?.wallets?.promoter?.transactions?.length || 0 }}</span>
+                    </mat-list-item>
+                  </mat-list>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Transactions">
+          <div class="tab-content">
+            @if (dataSource().length > 0) {
+              <div class="mat-elevation-z2">
+                <mat-table [dataSource]="dataSource()">
+                  <ng-container matColumnDef="date">
+                    <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+                    <mat-cell *matCellDef="let transaction">
+                      {{ transaction.createdAt | date:'short' }}
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="description">
+                    <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
+                    <mat-cell *matCellDef="let transaction">
+                      {{ transaction.description }}
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="amount">
+                    <mat-header-cell *matHeaderCellDef> Amount </mat-header-cell>
+                    <mat-cell *matCellDef="let transaction" [class.credit-amount]="transaction.type === 'credit'" [class.debit-amount]="transaction.type === 'debit'">
+                      {{ transaction.amount | currency:'NGN':'₦' }}
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="status">
+                    <mat-header-cell *matHeaderCellDef> Status </mat-header-cell>
+                    <mat-cell *matCellDef="let transaction">
+                      <mat-chip-listbox>
+                        <mat-chip
+                          [class.successful]="transaction.status === 'successful'"
+                          [class.pending]="transaction.status === 'pending'">
+                          {{ transaction.status }}
+                        </mat-chip>
+                      </mat-chip-listbox>
+                    </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="type">
+                    <mat-header-cell *matHeaderCellDef> Type </mat-header-cell>
+                    <mat-cell *matCellDef="let transaction">
+                      {{ transaction.type }}
+                    </mat-cell>
+                  </ng-container>
+
+                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                </mat-table>
+              </div>
+            } @else {
+              <div class="no-data-container">
+                <mat-icon>info_outline</mat-icon>
+                <p>No transactions found for this user.</p>
+              </div>
+            }
+          </div>
+        </mat-tab>
+        <mat-tab label="Professional">
+          <div class="tab-content">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Professional Information</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="skills-section">
+                  <h3>Skills</h3>
+                  @if (user()?.professionalInfo?.skills?.length) {
+                    <div class="chips-container">
+                      @for (skill of user()?.professionalInfo?.skills; track skill) {
+                        <mat-chip class="skill-chip">
+                          {{ skill }}
+                        </mat-chip>
+                      }
+                    </div>
+                  } @else {
+                    <p class="no-data">No skills added</p>
+                  }
+                </div>
+
+                <mat-divider class="divider"></mat-divider>
+
+                <div class="testimonials-section">
+                  <h3>Testimonials ({{ user()?.testimonials?.length || 0 }})</h3>
+                  @if (user()?.testimonials?.length) {
+                    <p>User has {{ user()?.testimonials?.length }} testimonials</p>
+                  } @else {
+                    <p class="no-data">No testimonials yet</p>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+        <mat-tab label="Interests">
+          <div class="tab-content">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Interests & Preferences</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="interests-section">
+                  <h3>Hobbies</h3>
+                  @if (user()?.interests?.hobbies?.length) {
+                    <div class="chips-container">
+                      @for (hobby of user()?.interests?.hobbies; track hobby) {
+                        <mat-chip class="interest-chip">
+                          {{ hobby }}
+                        </mat-chip>
+                      }
+                    </div>
+                  } @else {
+                    <p class="no-data">No hobbies listed</p>
+                  }
+                </div>
+
+                <mat-divider class="divider"/>
+
+                <div class="topics-section">
+                  <h3>Favorite Topics</h3>
+                  @if (user()?.interests?.favoriteTopics?.length) {
+                    <div class="chips-container">
+                      @for (topic of user()?.interests?.favoriteTopics; track topic) {
+                        <mat-chip class="topic-chip">
+                          {{ topic }}
+                        </mat-chip>
+                      }
+                    </div>
+                  } @else {
+                    <p class="no-data">No favorite topics listed</p>
+                  }
+                </div>
+
+                <mat-divider class="divider"/>
+
+                <div class="preferences-section">
+                  <h3>Preferences</h3>
+                  <mat-list>
+                    <mat-list-item>
+                      <mat-icon matListItemIcon>notifications</mat-icon>
+                      <span matListItemTitle>Notifications</span>
+                      <span matListItemLine>{{ user()?.preferences?.notification ? 'Enabled' : 'Disabled' }}</span>
+                    </mat-list-item>
+                  </mat-list>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+        <mat-tab label="Payouts">
+          <div class="tab-content">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Payout Accounts</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @if (user()?.payoutAccounts?.length) {
+                  <p>User has {{ user()?.payoutAccounts?.length }} payout accounts configured</p>
+                } @else {
+                  <p class="no-data">No payout accounts configured</p>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  } @else {
+    <div class="error-state">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h3>User not found</h3>
+      <p>We couldn't find the user you're looking for.</p>
+      <button mat-raised-button color="primary" (click)="goBack()">Back to Users</button>
+    </div>
+  }
+</div>

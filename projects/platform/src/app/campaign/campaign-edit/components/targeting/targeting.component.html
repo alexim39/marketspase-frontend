@@ -1,0 +1,41 @@
+<div class="form-row">
+  <mat-slide-toggle 
+    [checked]="enableTarget" 
+    (change)="enableTargetChange.emit($event.checked)" 
+    color="primary"
+    class="toggle-switch"
+  >
+    Enable Geographic Targeting
+  </mat-slide-toggle>
+  <span class="toggle-hint">Limit promotions to specific locations</span>
+</div>
+
+@if (enableTarget) {
+  <div class="form-row targeting-options">
+    <mat-form-field appearance="outline" class="form-field-full">
+      <mat-label>Target Locations</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Target locations" class="chip-grid">
+        @for (location of targetLocations; track location) {
+          <mat-chip-row class="chip-row" (removed)="removeLocation.emit(location)">
+            {{ location }}
+            <button matChipRemove [attr.aria-label]="'remove ' + location" class="chip-remove-btn">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-chip-grid>
+      <input 
+        placeholder="Add location..." 
+        [matChipInputFor]="chipGrid" 
+        [matAutocomplete]="auto"
+        [formControl]="locationInputControl"
+        class="location-input"
+      >
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addLocationFromAutocomplete.emit($event)">
+        <mat-option *ngFor="let location of filteredLocationSuggestions()" [value]="location">
+          {{ location }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </div>
+}

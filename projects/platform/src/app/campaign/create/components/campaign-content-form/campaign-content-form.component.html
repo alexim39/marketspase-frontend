@@ -1,0 +1,105 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>Campaign Content</mat-card-title>
+    <mat-card-subtitle>
+      Set campaign details. The title will help you understand your campaign.
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="formGroup" class="content-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Campaign Title</mat-label>
+        <input matInput formControlName="title" placeholder="e.g., Launch of new iPhone 16">
+        @if (formGroup.get('title')?.invalid && (formGroup.get('title')?.dirty || formGroup.get('title')?.touched)) {
+          <mat-error>
+            @if (formGroup.get('title')?.errors?.['required']) {
+              Title is required.
+            } @else if (formGroup.get('title')?.errors?.['minlength']) {
+              Title must be at least 5 characters long.
+            } @else if (formGroup.get('title')?.errors?.['maxlength']) {
+              Title cannot exceed 100 characters.
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <div class="media-upload-container">
+        <div class="media-upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+          <input type="file" #fileInput hidden (change)="onFileSelected($event)" [accept]="ACCEPTED_IMAGE_TYPES.join(',') + ',' + ACCEPTED_VIDEO_TYPES.join(',')">
+          @if (!selectedMedia()) {
+            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+            <p class="upload-text">Drag and drop your media here</p>
+            <p class="upload-subtext">or <span>browse files</span></p>
+          } @else {
+            <div class="media-preview-container">
+              @if (selectedMedia()?.type === 'image') {
+                <img #mediaPreview [src]="selectedMedia()!.url" alt="Media Preview" class="media-preview-image">
+              } @else if (selectedMedia()?.type === 'video') {
+                <video #mediaPreview [src]="selectedMedia()!.url" controls class="media-preview-video"></video>
+              }
+              <button mat-icon-button (click)="removeMedia(); $event.stopPropagation()" class="remove-media-btn">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+        @if (isLoading()) {
+          <div class="progress-bar-container">
+            <mat-progress-bar mode="determinate" [value]="uploadProgress()"/>
+            <p>{{uploadProgress() | number:'1.0-0'}}%</p>
+          </div>
+        }
+        @if (selectedMedia()) {
+          <div class="file-details">
+            <mat-icon>check_circle</mat-icon>
+            <span>File uploaded: {{selectedMedia()!.file.name}} ({{selectedMedia()!.size / 1024 / 1024 | number:'1.2-2'}} MB)</span>
+          </div>
+        }
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>WhatsApp Caption</mat-label>
+        <textarea 
+        matInput 
+        formControlName="caption" 
+        placeholder="This is the text that will accompany your ad on WhatsApp" 
+        rows="3">
+      </textarea>
+      <mat-hint align="end">{{formGroup.get('caption')?.value?.length || 0}} / 150</mat-hint>
+        @if (formGroup.get('caption')?.invalid && (formGroup.get('caption')?.dirty || formGroup.get('caption')?.touched)) {
+          <mat-error>
+            @if (formGroup.get('caption')?.errors?.['required']) {
+              Caption is required.
+            } @else if (formGroup.get('caption')?.errors?.['maxlength']) {
+              Caption cannot exceed 150 characters.
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Link</mat-label>
+        <input matInput formControlName="link" placeholder="e.g., https://yourwebsite.com">
+        @if (formGroup.get('link')?.invalid && (formGroup.get('link')?.dirty || formGroup.get('link')?.touched)) {
+          <mat-error>
+            Please enter a valid URL.
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Campaign Category</mat-label>
+        <mat-select formControlName="category">
+          @for (cat of categories; track cat.value) {
+            <mat-option [value]="cat.value">{{cat.label}}</mat-option>
+          }
+        </mat-select>
+        @if (formGroup.get('category')?.invalid && (formGroup.get('category')?.dirty || formGroup.get('category')?.touched)) {
+          <mat-error>
+            Category is required.
+          </mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+</mat-card>

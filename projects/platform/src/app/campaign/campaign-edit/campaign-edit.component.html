@@ -1,0 +1,92 @@
+<!-- campaign-edit.component.html -->
+<div class="campaign-edit-container">
+  <!-- Header Section -->
+  <app-campaign-edit-header
+    [isFormValid]="campaignForm.valid"
+    [isSaving]="isSaving()"
+    (goBack)="goBack()"
+    (cancel)="cancelEdit()"
+    (save)="saveCampaign()"
+  />
+
+  <!-- Main Content -->
+  @if (campaign() && campaignForm) {
+    <main class="main-content">
+      <div class="container">
+        <form [formGroup]="campaignForm" class="edit-form">
+          <!-- Basic Information -->
+          <app-basic-info-form
+            [form]="campaignForm"
+            [categories]="categories"
+          />
+
+          <!-- Media Upload -->
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Media</h2>
+              <p>Upload image or video for promoters to share</p>
+            </div>
+            <div class="card-content">
+            <app-media-upload
+              [form]="campaignForm"
+              [previewImageUrl]="previewImageUrl()"
+              [previewVideoUrl]="previewVideoUrl()"
+              [uploadProgress]="uploadProgress()"
+              (fileSelected)="onFileSelected($event)"
+              (mediaRemoved)="removeMedia()"
+            />
+           </div>
+          </div>
+
+          <!-- Budget & Promotion Settings -->
+          <app-budget-settings
+            [form]="campaignForm"
+          />
+          <!-- <app-budget-settings
+            [form]="campaignForm"
+            (calculateMaxPromoters)="calculateMaxPromoters()"
+          /> -->
+
+          <!-- Targeting -->
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Targeting Options</h2>
+              <p>Set geographic targeting for your campaign</p>
+            </div>
+            <div class="card-content">
+              <app-targeting
+                [enableTarget]="campaignForm.get('enableTarget')?.value"
+                [targetLocations]="targetLocations()"
+                [locationSuggestions]="locationSuggestions"
+                [locationInputControl]="locationInputControl"
+                (enableTargetChange)="campaignForm.get('enableTarget')?.setValue($event)"
+                (addLocation)="addLocation($event)"
+                (removeLocation)="removeLocation($event)"
+                (addLocationFromAutocomplete)="addLocationFromAutocomplete($event)"
+              />
+            </div>
+          </div>
+
+          <!-- Schedule -->
+          <app-schedule-form [form]="campaignForm"/>
+
+          <!-- Requirements -->
+          <app-requirements-form [form]="campaignForm"/>
+        </form>
+      </div>
+    </main>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <app-loading-state message="Loading campaign data..."/>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <app-error-state
+      [error]="error()!"
+      (retry)="loadCampaign()"
+    />
+  }
+</div>

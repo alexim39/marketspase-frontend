@@ -1,0 +1,258 @@
+<div class="withdrawal-container">
+    <div class="withdrawal-header">
+      <div class="breadcrumb">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">
+          <mat-icon>home</mat-icon> Dashboard
+        </a>
+        <mat-icon>chevron_right</mat-icon>
+        <a>Payments</a>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="current">Withdraw Funds</span>
+      </div>
+
+      <div class="header-main">
+        <h1>
+          <mat-icon class="withdrawal-icon">payments</mat-icon>
+          Payment Dashboard
+          <button mat-icon-button class="help" (click)="showDescription()" matTooltip="Help">
+            <mat-icon>help_outline</mat-icon>
+          </button>
+        </h1>
+        <p>Manage your accounts and withdrawal requests</p>
+      </div>
+    </div>
+
+    <div class="withdrawal-content">
+      <mat-card class="balance-card">
+        <div class="card-header">
+          <h2>
+            <mat-icon class="balance-icon">account_balance_wallet</mat-icon>
+            Account Balance
+          </h2>
+          <button
+            mat-icon-button
+            matTooltip="Refresh balance"
+            (click)="refreshBalance()"
+            [disabled]="isBalanceLoading()"
+            style="cursor: pointer;">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+
+        <div class="balance-content">
+          @if (!isBalanceLoading()) {
+            <div class="balance-amount">
+            <span class="currency">₦</span>
+            <span class="amount">{{ availableBalance()  | number:'1.2-2' }}</span>
+          </div>
+          }@else {
+            <mat-spinner diameter="20"/>
+          }
+
+          <div class="balance-details">
+            <div class="detail-item">
+              <mat-icon class="detail-icon">arrow_upward</mat-icon>
+              <div class="detail-text">
+                <div class="detail-label">Available</div>
+                <div class="detail-value">₦{{ availableBalance()   | number:'1.2-2' }}</div>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <mat-icon class="detail-icon">pending</mat-icon>
+              <div class="detail-text">
+                <div class="detail-label">Pending</div>
+                <div class="detail-value">₦{{ pendingBalance() | number:'1.2-2' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="withdrawal-card">
+        <div class="card-header">
+          <h2>Fund Withdrawal Request</h2>
+          <button mat-raised-button title="Manage Accounts" [matMenuTriggerFor]="accountMenu" aria-label="Manage Accounts">
+            <mat-icon>manage_accounts</mat-icon> Manage Accounts
+          </button>
+        </div>
+
+        <mat-accordion>
+          <mat-expansion-panel [expanded]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>account_balance_wallet</mat-icon> Withdrawal Details
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="form-container">
+              @if (savedAccounts().length > 0) {
+                <div class="saved-accounts-section">
+                  <h3>Use Saved Account</h3>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Select Saved Account</mat-label>
+                    <mat-select (selectionChange)="populateForm($event.value)">
+                      <mat-option value="">-- Select Account --</mat-option>
+                      @for (account of savedAccounts(); track account) {
+                        <mat-option [value]="account.accountNumber">
+                          {{ account.bank }} - {{ account.accountNumber }} ({{ account.accountName }})
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                }
+
+              <form [formGroup]="withdrawForm" (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Select Bank</mat-label>
+                  <mat-select #bankSelect formControlName="bank" (selectionChange)="onBankChange($event)">
+                    <div class="search-container">
+                      <input
+                        #searchInput
+                        matInput
+                        type="search"
+                        (input)="onSearchChange($event)"
+                        placeholder="Search Bank"
+                        style="background-color: #fff;"
+                        (focus)="true" />
+                    </div>
+                    @for (bank of filteredBanks(); track bank) {
+                      <mat-option [value]="bank.code">
+                      {{ bank.name }}
+                    </mat-option>
+                    }
+                  </mat-select>
+                  @if (withdrawForm.get('bank')?.hasError('required')) {
+                    <mat-error>
+                      Please select a bank
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Account Number</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    formControlName="accountNumber"
+                    placeholder="Enter 10-digit account number"
+                    maxlength="10" />
+                  <mat-hint>Must be 10 digits</mat-hint>
+                  @if (withdrawForm.get('accountNumber')?.hasError('required')) {
+                    <mat-error>
+                      Account number is required
+                    </mat-error>
+                  }
+                  @if (withdrawForm.get('accountNumber')?.hasError('minlength') || withdrawForm.get('accountNumber')?.hasError('maxlength')) {
+                    <mat-error>
+                      Account number must be exactly 10 digits
+                    </mat-error>
+                  }
+                  @if (withdrawForm.get('accountNumber')?.hasError('pattern')) {
+                      <mat-error>
+                      Account number must contain only numbers
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Account Name</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    formControlName="accountName"
+                    readonly
+                    placeholder="Will be auto-filled when you enter account number" />
+                    @if (isResolvingAccount()) {
+                      <mat-progress-bar
+                        mode="indeterminate"
+                        style="height: 2px;"
+                      />
+                    }
+
+                  @if (withdrawForm.get('accountName')?.hasError('required')) {
+                    <mat-error>
+                      Account name is required
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Amount to Withdraw (₦)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="amount"
+                    placeholder="Minimum ₦100"
+                    min="100" />
+                  <mat-hint class="hint">
+                    Processing Fee: ₦{{ withdrawalFee() | number:'1.2-2' }} |
+                    Total Deduction: 15% |
+                    Available Balance: ₦{{ availableBalance() | number:'1.2-2' }} |
+                    **Maximum Withdrawable: ₦{{ maxWithdrawableAmount() | number:'1.2-2' }}**
+                  </mat-hint>
+                  <!-- <mat-hint>
+                    Processing Fee: ₦{{ withdrawalFee() | number:'1.2-2' }} |
+                    Total Deduction: ₦{{ totalDeduction() | number:'1.2-2' }} |
+                    Available Balance: ₦{{ availableBalance() | number:'1.2-2' }} |
+                    **Maximum Withdrawable: ₦{{ maxWithdrawableAmount() | number:'1.2-2' }}**
+                  </mat-hint> -->
+                  @if (withdrawForm.get('amount')?.hasError('required')) {
+                    <mat-error>
+                      Amount is required
+                    </mat-error>
+                  }
+
+                  @if (withdrawForm.get('amount')?.hasError('min')) {
+                    <mat-error>
+                    Minimum withdrawal amount is ₦100
+                  </mat-error>
+                  }
+
+                  @if (withdrawForm.get('amount')?.hasError('maxWithdrawal')) {
+                    <mat-error>
+                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a ₦{{ withdrawalFee() | number:'1.2-2' }} fee.
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <mat-slide-toggle formControlName="saveAccount">
+                    Save this account for future withdrawals
+                  </mat-slide-toggle>
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="withdrawForm.invalid || isSubmitting()">
+                    <mat-icon>send</mat-icon>
+                    {{ isSubmitting() ? 'Processing...' : 'Submit Request' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-expansion-panel>
+
+          </mat-accordion>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- <button
+    mat-flat-button
+    color="primary"
+    type="submit"
+    (click)="test()"
+  >
+    test
+  </button> -->
+
+  <mat-menu #accountMenu="matMenu">
+    <button mat-menu-item (click)="openSavedAccount()">
+      <mat-icon>list_alt</mat-icon> View Saved Accounts
+    </button>
+    <a mat-menu-item routerLink="/dashboard/transactions" routerLinkActive="active" (click)="scrollToTop()">
+      <mat-icon>receipt_long</mat-icon> Transaction History
+    </a>
+  </mat-menu>

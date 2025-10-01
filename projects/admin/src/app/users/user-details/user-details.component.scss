@@ -1,0 +1,275 @@
+.user-details-container {
+    padding: 16px;
+    //max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    min-height: 100vh;
+    background-color: #e6e6e6ff;
+    color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.header-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.back-button {
+    background-color: #7e7e7eff;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+    flex: 1;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.status-button, .edit-button {
+    background-color: #7e7e7eff;
+}
+
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+}
+
+.loading-spinner p {
+    margin-top: 16px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.user-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-card {
+    margin-bottom: 16px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.user-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+}
+
+.user-username {
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 12px 0;
+}
+
+.status-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.role-chip {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.role-chip.marketer {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.role-chip.promoter {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.status-chip {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-chip.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-chip.inactive {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-chip.deleted {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.verification-chip {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-size: 12px;
+}
+
+.divider {
+    margin: 16px 0;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.detail-icon {
+    color: rgba(0, 0, 0, 0.54);
+}
+
+.detail-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.detail-value {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.details-tabs {
+    width: 100%;
+}
+
+.tab-content {
+    padding: 16px 0;
+}
+
+.wallet-section, .skills-section, .testimonials-section, 
+.interests-section, .topics-section, .preferences-section {
+    margin-bottom: 16px;
+}
+
+.chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-chip, .interest-chip, .topic-chip {
+    font-size: 12px;
+}
+
+.skill-chip {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.interest-chip {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.topic-chip {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.no-data {
+    color: rgba(0, 0, 0, 0.54);
+    font-style: italic;
+    margin: 8px 0;
+}
+
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 60px;
+    width: 60px;
+    height: 60px;
+    color: rgba(0, 0, 0, 0.54);
+    margin-bottom: 16px;
+}
+
+.error-state h3 {
+    margin: 0 0 8px 0;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.error-state p {
+    margin: 0 0 24px 0;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .user-details-container {
+    padding: 8px;
+    }
+
+    .header-section {
+    flex-wrap: wrap;
+    }
+
+    .page-title {
+    font-size: 20px;
+    }
+
+    .profile-header {
+    flex-direction: column;
+    text-align: center;
+    }
+
+    .status-badges {
+    justify-content: center;
+    }
+
+    .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    }
+
+    .detail-icon {
+    align-self: center;
+    }
+}

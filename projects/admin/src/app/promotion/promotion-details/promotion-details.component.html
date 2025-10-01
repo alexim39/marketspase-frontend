@@ -1,0 +1,188 @@
+<!-- promotion-details.component.html -->
+<div class="details-dialog-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <h2 class="dialog-title">Promotion Details</h2>
+    <button mat-icon-button (click)="closeDialog()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  @if (isLoading()) {
+  <div class="loading-spinner">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading promotion details...</p>
+  </div>
+  } @else if (promotion()) {
+  <div class="details-content">
+    <!-- Actions -->
+    <div class="actions-section">
+      <h3>Actions</h3>
+      <div class="action-buttons">
+        @if (promotion()?.proofMedia && promotion()!.proofMedia.length > 0) {
+        <button mat-stroked-button (click)="viewProof()" class="action-button">
+          <mat-icon>visibility</mat-icon>
+          View Proof
+        </button>
+        }
+        
+        @if (promotion()?.status === 'submitted') {
+        <button mat-raised-button color="primary" (click)="validatePromotion()" class="action-button">
+          <mat-icon>check_circle</mat-icon>
+          Validate
+        </button>
+        
+        <button mat-stroked-button color="warn" (click)="rejectPromotion()" class="action-button">
+          <mat-icon>cancel</mat-icon>
+          Reject
+        </button>
+        }
+        
+        @if (promotion()?.status === 'validated') {
+        <button mat-raised-button color="accent" (click)="markAsPaid()" class="action-button">
+          <mat-icon>payments</mat-icon>
+          Mark as Paid
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Promotion Details -->
+    <div class="details-section">
+      <h3>Promotion Information</h3>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-label">Promoter:</span>
+          <span class="detail-value">{{ promotion()?.promoter?.displayName }} (@{{ promotion()?.promoter?.username }})</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Status:</span>
+          <mat-chip [class]="promotion()?.status" class="status-chip">
+            {{ promotion()?.status | titlecase }}
+          </mat-chip>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">UPI:</span>
+          <span class="detail-value">{{ promotion()?.upi }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Views Reported:</span>
+          <span class="detail-value">{{ promotion()?.proofViews || 0 }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Payout Amount:</span>
+          <span class="detail-value">{{ campaign()?.payoutPerPromotion || 0 }} {{ campaign()?.currency || 'NGN' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Created:</span>
+          <span class="detail-value">{{ promotion()?.createdAt | date:'medium' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Submitted:</span>
+          <span class="detail-value">{{ promotion()?.submittedAt ? (promotion()?.submittedAt | date:'medium') : 'Not submitted' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Validated:</span>
+          <span class="detail-value">{{ promotion()?.validatedAt ? (promotion()?.validatedAt | date:'medium') : 'Not validated' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Paid:</span>
+          <span class="detail-value">{{ promotion()?.paidAt ? (promotion()?.paidAt | date:'medium') : 'Not paid' }}</span>
+        </div>
+        
+        @if (promotion()?.rejectionReason) {
+        <div class="detail-item">
+          <span class="detail-label">Rejection Reason:</span>
+          <span class="detail-value">{{ promotion()?.rejectionReason }}</span>
+        </div>
+        }
+        
+        @if (promotion()?.notes) {
+        <div class="detail-item">
+          <span class="detail-label">Admin Notes:</span>
+          <span class="detail-value">{{ promotion()?.notes }}</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Campaign Details -->
+    @if (campaign()) {
+    <div class="campaign-section">
+      <h3>Campaign Information</h3>
+      
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-label">Campaign Title:</span>
+          <span class="detail-value">{{ campaign()?.title }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Campaign Owner:</span>
+          <span class="detail-value">{{ campaign()?.owner?.displayName }} (@{{ campaign()?.owner?.username }})</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Campaign Status:</span>
+          <mat-chip [class]="campaign()?.status" class="status-chip">
+            {{ campaign()?.status | titlecase }}
+          </mat-chip>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Budget:</span>
+          <span class="detail-value">{{ campaign()?.budget }} {{ campaign()?.currency }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Payout per Promotion:</span>
+          <span class="detail-value">{{ campaign()?.payoutPerPromotion }} {{ campaign()?.currency }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Max Promoters:</span>
+          <span class="detail-value">{{ campaign()?.maxPromoters }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Current Promoters:</span>
+          <span class="detail-value">{{ campaign()?.currentPromoters }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Min Views Required:</span>
+          <span class="detail-value">{{ campaign()?.minViewsPerPromotion }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Start Date:</span>
+          <span class="detail-value">{{ campaign()?.startDate | date:'medium' }}</span>
+        </div>
+        
+        @if (campaign()?.endDate) {
+        <div class="detail-item">
+          <span class="detail-label">End Date:</span>
+          <span class="detail-value">{{ campaign()?.endDate | date:'medium' }}</span>
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h3>Promotion not found</h3>
+    <p>The promotion you're looking for doesn't exist or may have been deleted.</p>
+  </div>
+  }
+</div>

@@ -1,0 +1,22 @@
+<div class="quick-amounts-section">
+  <h3>Quick Select</h3>
+  <div class="quick-amounts-grid">
+    @for (amount of amounts; track amount.value) {
+      <button 
+        mat-button 
+        [class.selected]="selectedAmount === amount.value"
+        [class.popular]="amount.popular"
+        [disabled]="disabled"
+        (click)="selectAmount(amount.value)"
+        class="quick-amount-btn"
+        [matTooltip]="amount.description || ''"
+        matTooltipPosition="above">
+        @if (amount.popular) {
+          <span class="popular-badge">Popular</span>
+        }
+        <div class="amount-value">{{ amount.value | currency: '₦':'symbol':'1.0-0' }}</div>
+        <div class="amount-label">{{ amount.label }}</div>
+      </button>
+    }
+  </div>
+</div>

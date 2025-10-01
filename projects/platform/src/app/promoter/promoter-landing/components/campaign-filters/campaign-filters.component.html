@@ -1,0 +1,59 @@
+<section class="filters">
+  <div class="container">
+    <div class="filters-content">
+      <div class="search-box">
+        <i class="material-icons search-icon">search</i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search campaigns..."
+          [value]="searchTerm"
+          (input)="searchTermChange.emit($any($event.target).value)"
+        >
+      </div>
+
+      <div class="quick-filters">
+        <div class="filter-chip active">
+          <i class="material-icons">all_inclusive</i>
+          All
+          <span class="count">{{allCampaignsCount}}</span>
+        </div>
+        <div class="filter-chip">
+          <i class="material-icons">trending_up</i>
+          High Payout
+          <span class="count">{{highPayoutCount}}</span>
+        </div>
+        <div class="filter-chip">
+          <i class="material-icons">schedule</i>
+          Ending Soon
+          <span class="count">{{expiringSoonCount}}</span>
+        </div>
+        <div class="filter-chip">
+          <i class="material-icons">flash_on</i>
+          Quick Tasks
+          <span class="count">{{quickTasksCount}}</span>
+        </div>
+      </div>
+
+      <div class="view-controls">
+        <div class="results-count">Showing {{allCampaignsCount}} available campaigns</div>
+        <div class="view-toggle">
+          <button 
+            class="view-btn" 
+            [class.active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+          >
+            <i class="material-icons">view_module</i>
+          </button>
+          <button 
+            class="view-btn"
+            [class.active]="viewMode === 'list'" 
+            (click)="setViewMode('list')"
+          >
+            <i class="material-icons">view_list</i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

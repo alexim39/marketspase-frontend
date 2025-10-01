@@ -1,0 +1,217 @@
+<!-- campaign-card-mobile.component.html -->
+<div class="mobile-campaign-card" [class.compact]="viewMode === 'grid'" [class.expanded]="viewMode === 'list'">
+  <!-- Compact Grid View -->
+  @if (viewMode === 'grid') {
+    <div class="mobile-card-compact">
+      <div class="compact-media-section">
+        <div class="media-container">
+          <div class="media-type-badge" [ngClass]="campaign.mediaType">
+            <i class="material-icons">{{ campaign.mediaType === 'video' ? 'play_arrow' : 'photo' }}</i>
+          </div>
+          
+          @if (campaign.mediaType === 'video') {
+            <div class="video-thumbnail">
+              <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.title" class="thumbnail">
+              <div class="play-overlay">
+                <i class="material-icons">play_circle</i>
+              </div>
+            </div>
+          }
+          @if (campaign.mediaType === 'image') {
+            <img [src]="api+campaign.mediaUrl" [alt]="campaign.title" class="thumbnail">
+          }
+        </div>
+        
+        <div class="compact-status" [ngClass]="getStatusBadgeClass(campaign)">
+          {{getStatusBadgeText(campaign)}}
+        </div>
+      </div>
+
+      <div class="compact-content">
+        <div class="compact-header">
+          <h3 class="campaign-title">{{campaign.title | titlecase | truncate: 30}}</h3>
+         
+          @if (hasUserPromotion()(campaign)) {
+            <div class="user-badge">
+                <i class="material-icons">check_circle</i> Accepted
+              </div>
+          } @else {
+            <button class="mobile-bookmark-btn">
+                  <i class="material-icons">bookmark_border</i>
+                </button>
+          }
+        </div>
+        
+        <p class="campaign-description">{{campaign.caption | truncate: 60}}</p>
+        
+        <div class="compact-meta">
+          <span class="category-tag">
+            <i class="material-icons">{{getCategoryIcon(campaign.category)}}</i>
+            {{campaign.category | titlecase}}
+          </span>
+          <span class="duration">
+            <i class="material-icons">schedule</i>
+            @if (campaign.remainingDays === 'Expired') {
+              {{campaign.remainingDays}}
+            }
+            @if (campaign.remainingDays === 'Ongoing') {
+              Budget Based
+            } @else {
+              Expires in {{campaign.remainingDays}}
+            }
+          </span>
+        </div>
+        
+        <div class="compact-stats">
+          <div class="stat">
+            <span class="stat-value">{{campaign.totalPromotions || 0}}/{{campaign.maxPromoters}}</span>
+            <span class="stat-label">Slots</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{campaign.minViewsPerPromotion}}+</span>
+            <span class="stat-label">Views</span>
+          </div>
+          <div class="stat difficulty">
+            <span class="difficulty-dots">
+              <span class="dot" [class.active]="getDifficultyDots(campaign) >= 1"></span>
+              <span class="dot" [class.active]="getDifficultyDots(campaign) >= 2"></span>
+              <span class="dot" [class.active]="getDifficultyDots(campaign) >= 3"></span>
+            </span>
+            <span class="stat-label">{{getDifficultyLevel(campaign)}}</span>
+          </div>
+        </div>
+        
+        <div class="compact-footer">
+          <div class="payout">
+            <span class="payout-amount">₦{{campaign.payoutPerPromotion}}</span>
+          </div>
+          <button 
+            class="mobile-apply-btn"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign)"
+            [disabled]="!canAcceptCampaign(campaign) || isApplying"
+            (click)="applyForCampaign.emit(campaign)">
+            @if (isApplying) {
+              <i class="material-icons spinner">hourglass_empty</i>
+            } @else {
+              <i class="material-icons">add_circle</i>
+            }
+            <span>{{getAcceptButtonText(campaign)}}</span>
+          </button>
+          
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Expanded List View -->
+  @if (viewMode === 'list') {
+    <div class="mobile-card-expanded">
+      <div class="expanded-header">
+        <div class="header-left">
+          <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
+            {{getStatusBadgeText(campaign)}}
+          </div>
+          <h3 class="campaign-title">{{campaign.title | titlecase}}</h3>
+        </div>
+        @if (hasUserPromotion()(campaign)) {
+            <div class="user-badge">
+                <i class="material-icons">check_circle</i> Accepted
+              </div>
+          } @else {
+            <button class="mobile-bookmark-btn">
+                  <i class="material-icons">bookmark_border</i>
+                </button>
+          }
+      </div>
+
+      <div class="expanded-content">
+        <div class="media-section">
+          <div class="media-container">
+            <div class="media-type-badge" [ngClass]="campaign.mediaType">
+              <i class="material-icons">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+            </div>
+            
+            @if (campaign.mediaType === 'video') {
+              <div class="video-thumbnail">
+                <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.title" class="thumbnail">
+                <div class="play-overlay">
+                  <i class="material-icons">play_circle</i>
+                </div>
+              </div>
+            }
+            @if (campaign.mediaType === 'image') {
+              <img [src]="api+campaign.mediaUrl" [alt]="campaign.title" class="thumbnail">
+            }
+          </div>
+        </div>
+
+        <div class="details-section">
+          <p class="campaign-description">{{campaign.caption}}</p>
+          
+          <div class="meta-info">
+            <div class="meta-item">
+              <i class="material-icons">{{getCategoryIcon(campaign.category)}}</i>
+              <span>{{campaign.category | titlecase}}</span>
+            </div>
+            <div class="meta-item">
+              <i class="material-icons">schedule</i>
+              <span>{{campaign.duration}}</span>
+            </div>
+            <div class="meta-item">
+              <i class="material-icons">visibility</i>
+              <span>{{campaign.minViewsPerPromotion}}+ min views</span>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-number">{{campaign.totalPromotions || 0}}</span>
+              <span class="stat-label">Filled Slots</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">{{campaign.maxPromoters}}</span>
+              <span class="stat-label">Total Slots</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">{{getDifficultyLevel(campaign)}}</span>
+              <span class="stat-label">Difficulty</span>
+            </div>
+          </div>
+
+          <div class="difficulty-section">
+            <span class="difficulty-label">Challenge Level:</span>
+            <div class="difficulty-visual">
+              <div class="difficulty-bar">
+                <div class="difficulty-fill" [ngClass]="'level-' + getDifficultyDots(campaign)"></div>
+              </div>
+              <span class="difficulty-text">{{getDifficultyLevel(campaign)}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="expanded-footer">
+        <div class="payout-section">
+          <div class="payout-info">
+            <span class="payout-label">Payout per promotion</span>
+            <span class="payout-amount">₦{{campaign.payoutPerPromotion}}</span>
+          </div>
+          <button 
+            class="mobile-apply-btn large"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign)"
+            [disabled]="!canAcceptCampaign(campaign) || isApplying"
+            (click)="applyForCampaign.emit(campaign)">
+            @if (isApplying) {
+              <i class="material-icons spinner">hourglass_empty</i>
+              <span>Accepting...</span>
+            } @else {
+              <i class="material-icons">add_circle</i>
+              <span>{{getAcceptButtonText(campaign)}}</span>
+            }
+          </button>
+         
+        </div>
+      </div>
+    </div>
+  }
+</div>

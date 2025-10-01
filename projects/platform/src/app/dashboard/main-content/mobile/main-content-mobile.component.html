@@ -1,0 +1,307 @@
+<!-- main-content-mobile.component.html (Enhanced) -->
+<notify-profile-banner [user]="user" />
+
+<div class="dashboard-content" (swipe)="onSwipe($event)">
+  <!-- Pull to Refresh Indicator -->
+  @if (isRefreshing()) {
+    <div class="refresh-indicator">
+      <mat-icon>refresh</mat-icon>
+      <span>Refreshing data...</span>
+    </div>
+  }
+
+  <!-- Header Section -->
+  <!-- Add a role switcher to the header section in main-content-mobile.component.html -->
+<div class="header-section">
+  <div class="user-greeting">
+    <div class="greeting-header">
+      <h1>Welcome back, {{user()?.displayName}}!</h1>
+      
+      <!-- Role Badge with Switch Option -->
+      <div class="role-badge-container">
+        <div class="role-badge" [class]="user()?.role" (click)="switchUser(user()?.role === 'marketer' ? 'promoter' : 'marketer')">
+          <mat-icon class="badge-icon">
+            {{user()?.role === 'marketer' ? 'campaign' : 'work'}}
+          </mat-icon>
+          <span class="role-text">
+            {{user()?.role === 'marketer' ? 'Marketer' : 'Promoter'}}
+          </span>
+          <mat-icon class="switch-icon">swap_horiz</mat-icon>
+        </div>
+      </div>
+    </div>
+    <p>Here's your performance overview</p>
+  </div>
+  
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    @for (tab of tabs(); track tab; let i = $index) {
+      <div 
+        class="tab" 
+        [class.active]="currentTabIndex() === i"
+        (click)="selectTab(i)">
+        {{tab}}
+      </div>
+    }
+  </div>
+</div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Overview Tab -->
+    @if (currentTabIndex() === 0) {
+      <div class="overview-tab">
+        <!-- Quick Action Buttons -->
+        <div class="quick-action-buttons">
+          @if (user()?.role === 'marketer') {
+            <button mat-raised-button color="primary" (click)="createCampaign()" class="quick-action-btn">
+              <mat-icon>add</mat-icon>
+              Create Campaign
+            </button>
+          } @else {
+            <button mat-raised-button color="primary" (click)="browseCampaign()" class="quick-action-btn">
+              <mat-icon>search</mat-icon>
+              Browse Campaigns
+            </button>
+          }
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          @for (stat of dashboardStats(); track stat.label) {
+            <mat-card class="stat-card">
+              <div class="stat-content">
+                <div class="stat-header">
+                  <div class="stat-icon-container" [style.background]="stat.color + '20'">
+                    <mat-icon class="stat-icon" [style.color]="stat.color">{{stat.icon}}</mat-icon>
+                  </div>
+                  @if (stat.trend) {
+                    <div class="stat-trend" [class]="stat.trend">
+                      <mat-icon>{{stat.trend === 'up' ? 'trending_up' : 'trending_down'}}</mat-icon>
+                      <span>{{stat.change}}%</span>
+                    </div>
+                  }
+                </div>
+                <h2 class="stat-value">{{stat.value}}</h2>
+                <p class="stat-label">{{stat.label}}</p>
+                @if (stat.subtitle) {
+                  <p class="stat-subtitle">{{stat.subtitle}}</p>
+                }
+              </div>
+            </mat-card>
+          }
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          @if (user()?.role === 'marketer') {
+            <div class="quick-stat-card">
+              <div class="stat-header">
+                <h3>Campaign Performance</h3>
+                <span class="stat-value">{{campaignSummary().active}} active</span>
+              </div>
+              <div class="progress-section">
+                <div class="progress-header">
+                  <span>Budget Usage</span>
+                  <span>{{(campaignSummary().spentBudget / campaignSummary().totalBudget) * 100 | number:'1.0-0'}}%</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="(campaignSummary().spentBudget / campaignSummary().totalBudget) * 100">
+                </mat-progress-bar>
+              </div>
+            </div>
+          } @else {
+            <div class="quick-stat-card">
+              <div class="stat-header">
+                <h3>Promotion Status</h3>
+                <span class="stat-value">{{promotionSummary().total}} total</span>
+              </div>
+              <div class="stat-chips">
+                <span class="stat-chip pending">{{promotionSummary().pending}} pending</span>
+                <span class="stat-chip submitted">{{promotionSummary().submitted}} submitted</span>
+                <span class="stat-chip paid">{{promotionSummary().paid}} paid</span>
+              </div>
+            </div>
+          }
+
+          <!-- Wallet Balance -->
+          <div class="quick-stat-card">
+            <div class="stat-header">
+              <h3>Available Balance</h3>
+              <span class="stat-value">
+                @if (user()?.role === 'marketer') {
+                  ₦{{user()?.wallets?.marketer?.balance || 0}}
+                } @else {
+                  ₦{{user()?.wallets?.promoter?.balance || 0}}
+                }
+              </span>
+            </div>
+            @if (user()?.role === 'promoter') {
+              <button mat-raised-button color="primary" (click)="withdrawWallet()" class="full-width-btn">
+                <mat-icon>account_balance_wallet</mat-icon>
+                Withdraw Funds
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Activity Tab -->
+    @if (currentTabIndex() === 1) {
+      <div class="activity-tab">
+        <div class="section-header">
+          <h2>Recent Activity</h2>
+          <button mat-button color="primary" (click)="viewWallet()">View All</button>
+        </div>
+
+        @if (recentActivity().length > 0) {
+          <div class="activity-list">
+            @for (activity of recentActivity(); track activity) {
+              <div class="activity-item">
+                <div class="activity-icon" [class]="activity.type">
+                  <mat-icon>
+                    {{activity.type === 'credit' ? 'arrow_downward' : 'arrow_upward'}}
+                  </mat-icon>
+                </div>
+                <div class="activity-details">
+                  <p class="activity-description">{{activity.description}}</p>
+                  <span class="activity-date">{{activity.createdAt | date:'mediumDate'}}</span>
+                </div>
+                <div class="activity-amount" [class]="activity.type">
+                  {{activity.type === 'credit' ? '+' : '-'}}₦{{activity.amount}}
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <p>No recent activity</p>
+            <button mat-button color="primary" (click)="viewWallet()" class="action-button">
+              View Transactions
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Wallet Tab -->
+    @if (currentTabIndex() === 2) {
+      <div class="wallet-tab">
+        <div class="quick-stat-card">
+          <div class="stat-header">
+            <h3>Total Balance</h3>
+            <span class="stat-value large">
+              @if (user()?.role === 'marketer') {
+                ₦{{user()?.wallets?.marketer?.balance || 0}}
+              } @else {
+                ₦{{user()?.wallets?.promoter?.balance || 0}}
+              }
+            </span>
+          </div>
+          
+          @if (user()?.role === 'promoter') {
+            <div class="wallet-actions">
+              <button mat-raised-button color="primary" (click)="withdrawWallet()" class="wallet-action-btn">
+                <mat-icon>payments</mat-icon>
+                Withdraw
+              </button>
+              <button mat-stroked-button (click)="viewWallet()" class="wallet-action-btn">
+                <mat-icon>history</mat-icon>
+                History
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Pending Earnings -->
+        @if (user()?.role === 'promoter' && promotionSummary().pendingEarnings > 0) {
+          <div class="quick-stat-card pending-earnings">
+            <div class="stat-header">
+              <h3>Pending Earnings</h3>
+              <span class="stat-value warning">
+                ₦{{promotionSummary().pendingEarnings}}
+              </span>
+            </div>
+            <p class="pending-description">
+              Awaiting validation and payment
+            </p>
+          </div>
+        }
+
+        <!-- Quick Stats -->
+        <div class="quick-stat-card">
+          <div class="stat-header">
+            <h3>Earnings Summary</h3>
+          </div>
+          <div class="earnings-breakdown">
+            <div class="earnings-item">
+              <span class="label">Total Earned</span>
+              <span class="amount">₦{{promotionSummary().totalEarnings}}</span>
+            </div>
+            <div class="earnings-item">
+              <span class="label">Available Now</span>
+              <span class="amount available">₦{{promotionSummary().availableEarnings}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Testimonials Tab -->
+    @if (currentTabIndex() === 3) {
+      <div class="testimonials-tab">
+        <div class="section-header">
+          <h2>Success Stories</h2>
+        </div>
+        
+        @if (user()) {
+          <async-dashboard-testimonials [user]="user" />
+        }
+        
+        <div class="testimonial-actions">
+          <button mat-raised-button color="primary" (click)="browseCampaign()">
+            <mat-icon>rocket_launch</mat-icon>
+            Start Earning Now
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+
+   <!-- Router outlet for nested routes -->
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item" [class.active]="currentTabIndex() === 0" (click)="selectTab(0)">
+      <mat-icon class="nav-icon">dashboard</mat-icon>
+      <span class="nav-label">Overview</span>
+    </button>
+    
+    <button class="nav-item" [class.active]="currentTabIndex() === 1" (click)="selectTab(1)">
+      <mat-icon class="nav-icon">history</mat-icon>
+      <span class="nav-label">Activity</span>
+    </button>
+    
+    <button class="nav-item" [class.active]="currentTabIndex() === 2" (click)="selectTab(2)">
+      <mat-icon class="nav-icon">account_balance_wallet</mat-icon>
+      <span class="nav-label">Wallet</span>
+    </button>
+    
+    <button class="nav-item" [class.active]="currentTabIndex() === 3" (click)="selectTab(3)">
+      <mat-icon class="nav-icon">star</mat-icon>
+      <span class="nav-label">Stories</span>
+    </button>
+    
+    <button class="nav-item more-btn" (click)="quickActions()">
+      <mat-icon class="nav-icon">more_vert</mat-icon>
+      <span class="nav-label">More</span>
+    </button>
+  </nav>
+</div>

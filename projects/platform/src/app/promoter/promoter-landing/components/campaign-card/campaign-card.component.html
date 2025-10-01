@@ -1,0 +1,99 @@
+<div class="campaign-card" [class.grid-view]="viewMode === 'grid'" [class.list-view]="viewMode === 'list'">
+  <div class="card-header">
+    <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
+      {{getStatusBadgeText(campaign)}}
+    </div>
+    @if (hasUserPromotion()(campaign)) {
+      <div class="user-badge">
+          <i class="material-icons">check_circle</i> Already Accepted
+        </div>
+    } @else {
+      <button class="icon-btn">
+        <i class="material-icons">bookmark_border</i>
+      </button>
+    }
+  </div>
+
+  <div class="card-media">
+    <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+      <i class="material-icons">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
+      <span>{{ campaign.mediaType | titlecase }}</span>
+    </div>
+
+    @if (campaign.mediaType === 'video') {
+      <div class="video-placeholder">
+        <div class="video-play-btn">
+           <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+          <span class="video-play-btn">
+            <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg> 
+          </span>
+        </div>
+      </div>
+    }
+    @if (campaign.mediaType === 'image') {
+      <img [src]="api+campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+    }
+  </div>
+
+  <div class="card-content">
+    <h3 class="card-title">{{campaign.title | titlecase | truncate: (viewMode === 'list' ? 60 : 40)}}</h3>
+    <p class="card-description">{{campaign.caption | truncate: (viewMode === 'list' ? 120 : 80)}}</p>
+    
+    <div class="card-meta">
+      <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
+      <span><i class="material-icons">schedule</i> 
+        @if (campaign.remainingDays === 'Expired') {
+          {{campaign.remainingDays}}
+        }
+        @if (campaign.remainingDays === 'Ongoing') {
+          Budget Based
+        } @else {
+          Expires in {{campaign.remainingDays}}
+        }
+      </span>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value">{{campaign.totalPromotions || 0}}/{{campaign.maxPromoters}}</div>
+        <div class="metric-label">Slots Filled</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{campaign.minViewsPerPromotion}}+</div>
+        <div class="metric-label">Min Views</div>
+      </div>
+    </div>
+
+    <div class="payout-section">
+      <div class="payout-amount">
+        <span class="currency">₦</span>
+        <span class="amount">{{campaign.payoutPerPromotion}}</span>
+      </div>
+      <div class="difficulty-indicator">
+        <span class="difficulty-label">{{getDifficultyLevel(campaign)}}</span>
+        <div class="difficulty-dots">
+          <div class="dot" [class.active]="getDifficultyDots(campaign) >= 1"></div>
+          <div class="dot" [class.active]="getDifficultyDots(campaign) >= 2"></div>
+          <div class="dot" [class.active]="getDifficultyDots(campaign) >= 3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    
+    <button 
+      class="apply-btn" 
+      [disabled]="!canAcceptCampaign(campaign) || isApplying || hasUserPromotion()(campaign)"
+      (click)="applyForCampaign.emit(campaign)"
+      >
+      @if (isApplying) {
+        <mat-icon class="loading-spinner">hourglass_empty</mat-icon> Accepting...
+      }@else {
+        <i class="material-icons">add_circle</i>
+        {{getAcceptButtonText(campaign)}}
+      }
+    </button>  
+
+  </div>
+</div>

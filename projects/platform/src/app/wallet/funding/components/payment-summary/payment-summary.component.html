@@ -1,0 +1,21 @@
+<div class="payment-summary">
+  <h3>Payment Summary</h3>
+  <div class="summary-card">
+    <div class="summary-row">
+      <span>Amount to Fund</span>
+      <span class="amount">{{ amount | currency: '₦':'symbol':'1.0-2' }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Processing Fee ({{ (feeRate * 100) | number:'1.1-1' }}%)</span>
+      <span class="fee">{{ processingFee | currency: '₦':'symbol':'1.0-2' }}</span>
+    </div>
+    <div class="summary-row total">
+      <span>Total to Pay</span>
+      <span class="amount">{{ totalAmount | currency: '₦':'symbol':'1.0-2' }}</span>
+    </div>
+    <div class="summary-row">
+      <span>New Wallet Balance</span>
+      <span class="new-balance">{{ newBalance | currency: '₦':'symbol':'1.0-2' }}</span>
+    </div>
+  </div>
+</div>

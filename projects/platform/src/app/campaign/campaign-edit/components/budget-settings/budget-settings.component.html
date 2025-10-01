@@ -1,0 +1,64 @@
+<div class="form-card" [formGroup]="form">
+  <div class="card-header">
+    <h2>Budget & Promotion Settings</h2>
+    <p>Set your budget and promotion requirements</p>
+  </div>
+  
+  <div class="card-content">
+    <!-- <div class="form-row">
+       <mat-form-field appearance="outline" class="form-field-third">
+        <mat-label>Total Budget (₦)</mat-label>
+        <input matInput type="number" formControlName="budget" min="1000" step="100" (change)="calculateMaxPromoters.emit()">
+        <span matPrefix>₦&nbsp;</span>
+        @if (form.get('budget')?.hasError('required')) {
+          <mat-error>Budget is required</mat-error>
+        }
+        @if (form.get('budget')?.hasError('min')) {
+          <mat-error>Minimum budget is ₦1,000</mat-error>
+        }
+      </mat-form-field> 
+      
+      <mat-form-field appearance="outline" class="form-field-third">
+        <mat-label>Payout Per Promotion (₦)</mat-label>
+        <input matInput type="number" formControlName="payoutPerPromotion" min="100" step="50" (change)="calculateMaxPromoters.emit()">
+        <span matPrefix>₦&nbsp;</span>
+        @if (form.get('payoutPerPromotion')?.hasError('required')) {
+          <mat-error>Payout is required</mat-error>
+        }
+        @if (form.get('payoutPerPromotion')?.hasError('min')) {
+          <mat-error>Minimum payout is ₦100</mat-error>
+        }
+      </mat-form-field>
+      
+       @if (form.get('maxPromoters')) {
+        <mat-form-field appearance="outline" class="form-field-third">
+          <mat-label>Max Promoters</mat-label>
+          <input matInput type="number" formControlName="maxPromoters" min="1" [max]="form.get('maxPromoters')?.value" readonly>
+          <mat-hint>Calculated based on budget and payout</mat-hint>
+        </mat-form-field>
+      } 
+    </div> -->
+    
+    <div class="form-row">
+      <!-- <mat-form-field appearance="outline" class="form-field-half">
+        <mat-label>Minimum Views Per Promotion</mat-label>
+        <input matInput type="number" formControlName="minViewsPerPromotion" min="25" value="25">
+        @if (form.get('minViewsPerPromotion')?.hasError('required')) {
+          <mat-error>Minimum views is required</mat-error>
+        }
+        @if (form.get('minViewsPerPromotion')?.hasError('min')) {
+          <mat-error>Minimum 25 views required</mat-error>
+        }
+      </mat-form-field> -->
+      
+      <mat-form-field appearance="outline" class="form-field-half">
+        <mat-label>Campaign Type</mat-label>
+        <mat-select formControlName="campaignType">
+          <mat-option value="standard">Standard</mat-option>
+          <mat-option value="premium">Premium</mat-option>
+          <mat-option value="boost">Boost</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+</div>

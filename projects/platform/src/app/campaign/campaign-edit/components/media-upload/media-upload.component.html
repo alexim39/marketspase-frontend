@@ -1,0 +1,67 @@
+<div class="form-card" [formGroup]="form">
+  <div class="card-content">
+    <div class="form-row">
+      <div class="media-type-selector">
+        <mat-button-toggle-group formControlName="mediaType" aria-label="Media Type">
+          <mat-button-toggle value="image">
+            <mat-icon>image</mat-icon> Image
+          </mat-button-toggle>
+          <mat-button-toggle value="video">
+            <mat-icon>videocam</mat-icon> Video
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="media-upload-container">
+        @if (form.get('mediaType')?.value === 'image') {
+          <div class="image-upload-wrapper">
+            @if (previewImageUrl) {
+              <div class="image-preview">
+                <img [src]="previewImageUrl" alt="Campaign media preview">
+                <button type="button" class="remove-image-btn" mat-icon-button (click)="removeMedia()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <div class="upload-placeholder" (click)="triggerFileInput()">
+                <mat-icon>cloud_upload</mat-icon>
+                <p>Click to upload image</p>
+                <span>JPG, PNG or GIF (Max 5MB)</span>
+              </div>
+            }
+            <input #fileInput type="file" accept="image/*" hidden (change)="onFileSelected($event)">
+          </div>
+        }
+        
+        @if (form.get('mediaType')?.value === 'video') {
+          <div class="video-upload-wrapper">
+            @if (previewVideoUrl) {
+              <div class="video-preview">
+                <video controls>
+                  <source [src]="previewVideoUrl" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <!-- <button type="button" class="remove-video-btn" mat-icon-button (click)="removeMedia()">
+                  <mat-icon>close</mat-icon>
+                </button> -->
+              </div>
+            } @else {
+              <div class="upload-placeholder" (click)="triggerFileInput()">
+                <mat-icon>cloud_upload</mat-icon>
+                <p>Click to upload video</p>
+                <span>MP4 (Max 20MB)</span>
+              </div>
+            }
+            <input #fileInput type="file" accept="video/*" hidden (change)="onFileSelected($event)">
+          </div>
+        }
+        
+        @if (uploadProgress > 0 && uploadProgress < 100) {
+          <mat-progress-bar mode="determinate" [value]="uploadProgress" class="upload-progress"/>
+        }
+      </div>
+    </div>
+  </div>
+</div>

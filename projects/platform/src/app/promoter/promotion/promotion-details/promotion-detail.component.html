@@ -1,0 +1,62 @@
+<div class="promotion-detail-container">
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-content">
+        <mat-progress-bar mode="indeterminate"/>
+        <p>Loading promotion details...</p>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="error-container">
+      <div class="error-content">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Failed to load promotion</h3>
+        <p>{{error()}}</p>
+        <button class="btn btn-primary" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Promotions
+        </button>
+      </div>
+    </div>
+  } @else {
+    @if (promotion(); as promotion) {
+      <app-promotion-header (back)="goBack()"/>
+      
+      <main class="main-content">
+        <div class="container">
+          <app-promotion-overview 
+            [promotion]="promotion"
+            [countdown]="countdownSignal()"
+            [isNearingExpiration]="isNearingExpiration()"
+            [apiUrl]="api"
+            (share)="shareToWhatsApp()"
+            (download)="downloadPromotion()"
+          />
+          
+          <app-promotion-metrics 
+            [promotion]="promotion"
+            [progressPercentage]="progressPercentage()"
+          />
+          
+          <app-promotion-proof 
+            [promotion]="promotion"
+            [apiUrl]="api"
+            (viewProof)="viewProofMedia($event)"
+          />
+          
+          <app-promotion-activity 
+            [promotion]="promotion"
+          />
+          
+          <app-promotion-footer 
+            [promotion]="promotion"
+            [isSubmissionExpired]="isSubmissionExpired()"
+            [isNearingExpiration]="isNearingExpiration()"
+            (download)="downloadPromotion()"
+            (contactSupport)="contactSupport()"
+          />
+        </div>
+      </main>
+    }
+  }
+</div>

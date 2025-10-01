@@ -1,0 +1,170 @@
+// campaign-edit.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.campaign-edit-container {
+  min-height: 100vh;
+  background-color: $background-color; // Updated from $background-light to $background-color
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: $primary-color;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+
+        &.save-btn {
+          background-color: $primary-color;
+          color: #fff;
+
+          &:hover {
+            background-color: darken($primary-color, 10%);
+          }
+        }
+
+        &.cancel-btn {
+          background-color: $background-color; // Updated from $background-light to $background-color
+          color: $text-secondary;
+          border: 1px solid $border-color;
+
+          &:hover {
+            background-color: lighten($background-color, 5%);
+          }
+        }
+      }
+    }
+  }
+}
+
+.main-content {
+  padding: 2rem;
+  margin: 0 auto;
+  width: 800px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .form-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .form-group {
+        flex: 1 1 calc(50% - 1rem);
+        min-width: 300px;
+
+        mat-form-field {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@include mobile {
+  .main-content {
+    padding: 1.5rem;
+    margin: 0 1rem;
+    width: auto;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .action-buttons {
+      width: 100%;
+      justify-content: flex-start;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+
+  .edit-form {
+    .form-section {
+      flex-direction: column;
+
+      .form-group {
+        flex: 1 1 100%;
+      }
+    }
+  }
+}
+
+// Form validation styles
+mat-form-field.ng-invalid.ng-touched {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: $error-color;
+  }
+}
+
+.form-card {
+  background-color: #ffffff; // White background for the card
+  border-radius: 12px; // Rounded corners
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); // Subtle shadow for depth
+  padding: 1.5rem; // Inner padding for content
+  margin-bottom: 2rem; // Space between cards
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); // Slightly larger shadow on hover
+    transform: translateY(-2px); // Lift effect on hover
+  }
+
+  .card-header {
+    margin-bottom: 1rem;
+
+    h2 {
+      //font-size: 1.5rem;
+      //font-weight: 700;
+     // color: $primary-color; // Use your primary color
+      margin: 0;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: $text-secondary; // Use your secondary text color
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; // Space between content sections
+  }
+}

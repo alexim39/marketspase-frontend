@@ -1,0 +1,87 @@
+@import './../../../../../../styles/variables';
+
+.activity-section {
+  .section-title {
+    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+  
+  .timeline {
+    background: white;
+    border-radius: 12px;
+    box-shadow: $shadow;
+    padding: 1.5rem;
+    
+    .timeline-item {
+      display: flex;
+      position: relative;
+      padding-bottom: 1.5rem;
+      
+      &:last-child {
+        padding-bottom: 0;
+        
+        .timeline-marker::after {
+          display: none;
+        }
+      }
+      
+      .timeline-marker {
+        position: relative;
+        padding-right: 1.5rem;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0.25rem;
+          top: 0.25rem;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background-color: $primary-color;
+          z-index: 2;
+        }
+        
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0.75rem;
+          top: 1.25rem;
+          width: 2px;
+          height: calc(100% - 0.5rem);
+          background-color: $border-color;
+          z-index: 1;
+        }
+      }
+      
+      .timeline-content {
+        flex: 1;
+        
+        .timeline-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+          
+          .log-action {
+            font-weight: 600;
+            color: $text-primary;
+          }
+          
+          .log-time {
+            font-size: 0.8rem;
+            color: $text-secondary;
+          }
+        }
+        
+        .log-details {
+          margin: 0;
+          font-size: 0.9rem;
+          color: $text-secondary;
+          line-height: 1.5;
+        }
+      }
+    }
+  }
+}

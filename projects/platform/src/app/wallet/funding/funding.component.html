@@ -1,0 +1,112 @@
+<div class="wallet-funding-container" [class.processing]="isProcessingPayment()">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>account_balance_wallet</mat-icon>
+      </div>
+      <div class="header-text">
+        <h2>Fund Your Wallet</h2>
+        <p>Add money to your wallet to create and launch campaigns</p>
+      </div>
+    </div>
+    <button 
+      mat-icon-button 
+      (click)="closeDialog()" 
+      class="close-btn"
+      [disabled]="isProcessingPayment()"
+      matTooltip="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <!-- Balance Card -->
+    <wallet-balance-card
+      [currentBalance]="data.currentBalance"
+      [showFundingRequirement]="showFundingRequirement()"
+      [fundingShortfall]="getFundingShortfall()">
+    </wallet-balance-card>
+
+    <!-- Quick Amount Selector -->
+    <quick-amount-selector
+      [amounts]="quickAmounts"
+      [selectedAmount]="selectedAmount()"
+      [disabled]="isProcessingPayment() || paymentStatus() !== null"
+      (amountSelected)="selectQuickAmount($event)">
+    </quick-amount-selector>
+
+    <!-- Custom Amount Form -->
+    <custom-amount-form
+      [form]="fundingForm"
+      [minAmount]="minFundingAmount"
+      [maxAmount]="maxFundingAmount"
+      [disabled]="isProcessingPayment() || paymentStatus() !== null"
+      (amountChange)="onCustomAmountChange($event)"
+      (clearSelection)="clearQuickSelection()">
+    </custom-amount-form>
+
+    <!-- Payment Summary -->
+    @if (selectedAmount() > 0 && !paymentStatus()) {
+      <payment-summary
+        [amount]="selectedAmount()"
+        [feeRate]="processingFeeRate"
+        [processingFee]="processingFee()"
+        [totalAmount]="totalAmount()"
+        [newBalance]="newBalance()">
+      </payment-summary>
+    }
+
+    <!-- Payment Method -->
+    @if (!paymentStatus()) {
+      <payment-method></payment-method>
+    }
+
+    <!-- Payment Processing -->
+    <payment-processing
+      [isProcessing]="isProcessingPayment()"
+      [processingTime]="processingTime()">
+    </payment-processing>
+
+    <!-- Payment Status -->
+    @if (paymentStatus()) {
+      <payment-status
+        [status]="paymentStatus()"
+        [retryCount]="retryCount()"
+        [maxRetries]="maxRetries">
+      </payment-status>
+    }
+
+    <!-- Helpful Tips -->
+    @if (!paymentStatus() && !isProcessingPayment()) {
+      <div class="tips-section">
+        <div class="tips-card">
+          <div class="tips-header">
+            <mat-icon>lightbulb</mat-icon>
+            <span>Payment Tips</span>
+          </div>
+          <ul class="tips-list">
+            <li>Ensure your card is enabled for online transactions</li>
+            <li>Have sufficient balance for the total amount including fees</li>
+            <li>Use a stable internet connection during payment</li>
+            <li>Keep your transaction reference for records</li>
+          </ul>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Action Buttons -->
+  <dialog-actions
+    [paymentStatus]="paymentStatus()"
+    [isProcessing]="isProcessingPayment()"
+    [canProceed]="canProceedWithPayment()"
+    [retryCount]="retryCount()"
+    [maxRetries]="maxRetries"
+    [totalAmount]="totalAmount()"
+    (close)="closeDialog()"
+    (pay)="initiatePayment()"
+    (retry)="resetPayment()"
+    (continue)="continueWithCampaign()">
+  </dialog-actions>
+</div>
