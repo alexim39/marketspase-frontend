@@ -10,8 +10,8 @@
       </button>
       <mat-menu #cardMenu="matMenu">
         @if (promotion.isDownloaded) {
-          <button mat-menu-item (click)="onOpenSubmitProofDialog()">
-          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">  -->
+          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()"> -->
+          <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()"> 
             <mat-icon>cloud_upload</mat-icon>
             <span>Submit Proof</span>
           </button>

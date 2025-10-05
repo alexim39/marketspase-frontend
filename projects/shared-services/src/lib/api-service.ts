@@ -7,7 +7,8 @@ import { catchError, Observable, retry, throwError } from 'rxjs';
 })
 export class ApiService {
   //private readonly baseUrl = 'https://apimarketspase1-hyrqzkeb.b4a.run';
-  private readonly baseUrl = 'http://localhost:8080'; // For local testing
+  private readonly baseUrl = 'https://marketspase-22a2c.uc.r.appspot.com'; // Production code ong Google cloud
+  //private readonly baseUrl = 'http://localhost:8080'; // For local testing
 
   public getBaseUrl(): string {
     return this.baseUrl; 

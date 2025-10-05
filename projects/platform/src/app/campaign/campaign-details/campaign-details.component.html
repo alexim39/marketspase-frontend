@@ -37,7 +37,9 @@
             <span class="status-badge" [class]="'status-' + campaign.status">
               {{campaign.status | titlecase}}
             </span>
-            <span class="campaign-id">Campaign ID: {{campaign._id | truncateID }}</span>
+            @if (deviceType() === 'desktop') {
+              <span class="campaign-id">Campaign ID: {{campaign._id | truncateID }}</span>
+            }            
           </div>
           <div class="campaign-meta">
             <span class="created-date">

@@ -91,25 +91,45 @@ export interface SocialProvider {
           <span class="divider-text">Secure & Trusted</span>
         </div>
 
-        <!-- Security Features -->
         <div class="security-features">
           <div class="feature-item">
-            <mat-icon class="feature-icon">security</mat-icon>
-            <span>End-to-end encrypted</span>
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">security</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>End-to-End Encrypted</h4>
+              <p>Your data is protected with industry-standard encryption.</p>
+            </div>
           </div>
           <div class="feature-item">
-            <mat-icon class="feature-icon">verified</mat-icon>
-            <span>Verified campaigns only</span>
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">verified</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>Verified Campaigns</h4>
+              <p>Only trusted and verified campaigns are allowed.</p>
+            </div>
           </div>
           <div class="feature-item">
-            <mat-icon class="feature-icon">payment</mat-icon>
-            <span>Automated payments</span>
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">payment</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>Automated Payments</h4>
+              <p>Seamless and secure payment processing.</p>
+            </div>
           </div>
           <div class="feature-item">
-            <mat-icon class="feature-icon">smart_toy</mat-icon>
-            <span>AI automated verification</span>
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">smart_toy</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>AI Verification</h4>
+              <p>Advanced AI ensures campaign authenticity.</p>
+            </div>
           </div>
         </div>
+
       </div>
 
       <!-- Footer -->
@@ -358,27 +378,91 @@ export interface SocialProvider {
       position: relative;
     }
 
-    .security-features {
+
+  .security-features {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Smaller grid items */
+      gap: 16px; /* Reduced spacing between items */
       margin-top: 24px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.9); /* Subtle background for better readability */
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
     }
 
     .feature-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: #666;
+      gap: 12px; /* Reduced space between icon and text */
+      padding: 12px;
+      background: #f5f5f5; /* Slightly lighter background */
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-2px); /* Slight lift effect on hover */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Stronger shadow on hover */
+    }
+
+    .icon-wrapper {
+      display: flex;
+      align-items: center;
       justify-content: center;
+      width: 36px; /* Smaller icon size */
+      height: 36px;
+      background: #667eea; /* Primary color for icons */
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Shadow for the icon background */
     }
 
     .feature-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-      color: #667eea;
+      color: white;
+      font-size: 25px; /* Smaller icon size */
+    }
+
+    .feature-text h4 {
+      margin: 0;
+      font-size: 16px; /* Smaller heading font size */
+      font-weight: 500;
+      color: rgba(51, 51, 51, 1);
+    }
+
+    .feature-text p {
+      margin: 2px 0 0;
+      font-size: 12px; /* Smaller paragraph font size */
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      .security-features {
+        padding: 8px;
+        gap: 12px;
+      }
+
+      .feature-item {
+        padding: 8px;
+      }
+
+      .icon-wrapper {
+        width: 32px; /* Smaller icon size for mobile */
+        height: 32px;
+      }
+
+      .feature-icon {
+        font-size: 24px;
+      }
+
+      .feature-text h4 {
+        font-size: 14px;
+      }
+
+      .feature-text p {
+        font-size: 11px;
+      }
     }
 
     .auth-footer {

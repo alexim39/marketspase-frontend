@@ -67,6 +67,8 @@ export class CampaignDetailsComponent implements OnInit {
   error = signal<string | null>(null);
   promotionSearchControl = new FormControl('');
   selectedStatusFilter = signal<string>('');
+  private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
   
   // API base URL for media
   public readonly api = this.campaignDetailsService.api;
