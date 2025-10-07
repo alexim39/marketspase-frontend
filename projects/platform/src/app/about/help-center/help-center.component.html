@@ -1,0 +1,389 @@
+    <app-header/>
+    <div class="help-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Help Center</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">24/7 Support Available</div>
+            <h1 class="hero-title">
+              How Can We
+              <span class="gradient-text">Help You?</span>
+            </h1>
+            <p class="hero-subtitle">
+              Find answers to common questions, troubleshoot issues, and learn how to make the most of MarketSpase.
+            </p>
+          </div>
+
+          <!-- Search Section -->
+          <div class="search-section">
+            <div class="search-container">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search for help articles, FAQs, and guides...</mat-label>
+                <input 
+                  matInput 
+                  [formControl]="searchControl"
+                  placeholder="Type your question here..."
+                >
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              <button mat-raised-button color="primary" class="search-button">
+                <mat-icon>search</mat-icon>
+                Search
+              </button>
+            </div>
+            <div class="search-tags">
+              <span>Popular searches:</span>
+              @for (tag of popularSearches(); track tag) {
+                <button class="tag-button" (click)="searchByTag(tag)">
+                  {{ tag }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">5,000+</div>
+              <div class="stat-label">Help Articles</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Support</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">98%</div>
+              <div class="stat-label">Resolution Rate</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">< 2 min</div>
+              <div class="stat-label">Avg. Response</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Help Categories -->
+      <section class="categories-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Browse Help Categories</h2>
+            <p class="section-subtitle">Find organized help resources for every aspect of MarketSpase</p>
+          </div>
+
+          <div class="categories-grid">
+            @for (category of helpCategories(); track category.id) {
+              <div class="category-card" [style.background]="category.gradient" (click)="scrollToCategory(category.id)">
+                <div class="category-icon">
+                  <mat-icon>{{ category.icon }}</mat-icon>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+                <div class="article-count">{{ category.articleCount }} articles</div>
+                <div class="popular-articles">
+                  <span>Popular:</span>
+                  @for (article of category.popularArticles.slice(0, 2); track article) {
+                    <div class="popular-article">{{ article }}</div>
+                  }
+                </div>
+                <div class="category-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Help Section -->
+      <section class="quick-help-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Quick Solutions</h2>
+            <p class="section-subtitle">Get immediate help for common issues</p>
+          </div>
+
+          <div class="quick-help-grid">
+            <div class="quick-help-card">
+              <div class="help-icon">
+                <mat-icon>account_circle</mat-icon>
+              </div>
+              <h3>Account & Profile</h3>
+              <ul>
+                <li (click)="openArticle('reset-password')">Reset your password</li>
+                <li (click)="openArticle('update-profile')">Update profile information</li>
+                <li (click)="openArticle('verify-account')">Verify your account</li>
+                <li (click)="openArticle('close-account')">Close your account</li>
+              </ul>
+            </div>
+
+            <div class="quick-help-card">
+              <div class="help-icon">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <h3>Payments & Earnings</h3>
+              <ul>
+                <li (click)="openArticle('withdraw-earnings')">Withdraw your earnings</li>
+                <li (click)="openArticle('payment-issues')">Payment not received</li>
+                <li (click)="openArticle('tax-information')">Tax information</li>
+                <li (click)="openArticle('payment-methods')">Payment methods</li>
+              </ul>
+            </div>
+
+            <div class="quick-help-card">
+              <div class="help-icon">
+                <mat-icon>campaign</mat-icon>
+              </div>
+              <h3>Campaigns</h3>
+              <ul>
+                <li (click)="openArticle('create-campaign')">Create a campaign</li>
+                <li (click)="openArticle('track-performance')">Track campaign performance</li>
+                <li (click)="openArticle('campaign-issues')">Campaign not working</li>
+                <li (click)="openArticle('optimize-campaigns')">Optimize your campaigns</li>
+              </ul>
+            </div>
+
+            <div class="quick-help-card">
+              <div class="help-icon">
+                <mat-icon>verified</mat-icon>
+              </div>
+              <h3>Verification</h3>
+              <ul>
+                <li (click)="openArticle('proof-requirements')">Proof requirements</li>
+                <li (click)="openArticle('verification-failed')">Verification failed</li>
+                <li (click)="openArticle('appeal-process')">Appeal verification</li>
+                <li (click)="openArticle('status-views')">Status view requirements</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Articles -->
+      <section class="featured-articles-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Featured Help Articles</h2>
+            <p class="section-subtitle">Most popular and recently updated articles</p>
+          </div>
+
+          <div class="articles-grid">
+            @for (article of featuredArticles(); track article.id) {
+              <div class="article-card" [class.featured]="article.featured">
+                @if (article.featured) {
+                  <div class="featured-badge">
+                    <mat-icon>stars</mat-icon>
+                    Featured
+                  </div>
+                }
+                <div class="article-content">
+                  <div class="article-meta">
+                    <span class="category-tag">{{ article.category }}</span>
+                    <span class="read-time">{{ article.readTime }}</span>
+                  </div>
+                  <h3 class="article-title">{{ article.title }}</h3>
+                  <p class="article-excerpt">{{ article.excerpt }}</p>
+                  <div class="article-tags">
+                    @for (tag of article.tags; track tag) {
+                      <span class="article-tag">{{ tag }}</span>
+                    }
+                  </div>
+                  <div class="article-footer">
+                    <span class="update-date">Updated {{ article.lastUpdated }}</span>
+                    <button mat-stroked-button class="read-article-btn" (click)="openArticle(article.id)">
+                      Read Guide
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="faq-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Quick answers to common questions</p>
+          </div>
+
+          <div class="faq-categories">
+            @for (category of helpCategories(); track category.id) {
+              <div class="faq-category-section" [id]="'category-' + category.id">
+                <h3 class="faq-category-title">
+                  <mat-icon>{{ category.icon }}</mat-icon>
+                  {{ category.name }}
+                </h3>
+                <mat-accordion class="faq-accordion">
+                  @for (faq of getCategoryFAQs(category.id); track faq.question; let i = $index) {
+                    <mat-expansion-panel [class.popular]="faq.popular">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{ faq.question }}
+                          @if (faq.popular) {
+                            <span class="popular-badge">Popular</span>
+                          }
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <div class="faq-answer" [innerHTML]="faq.answer"></div>
+                      <div class="faq-tags">
+                        @for (tag of faq.tags; track tag) {
+                          <mat-chip>{{ tag }}</mat-chip>
+                        }
+                      </div>
+                    </mat-expansion-panel>
+                  }
+                </mat-accordion>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Support -->
+      <section class="contact-support-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Still Need Help?</h2>
+            <p class="section-subtitle">Our support team is ready to assist you 24/7</p>
+          </div>
+
+          <div class="contact-options-grid">
+            @for (option of contactOptions(); track option.title) {
+              <div class="contact-option-card" [style.background]="option.gradient">
+                <div class="contact-icon">
+                  <mat-icon>{{ option.icon }}</mat-icon>
+                </div>
+                <h3>{{ option.title }}</h3>
+                <p>{{ option.description }}</p>
+                <div class="availability">{{ option.availability }}</div>
+                <button mat-stroked-button class="contact-action-btn" (click)="initiateContact(option.title)">
+                  {{ option.action }}
+                </button>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Community Section -->
+      <section class="community-section">
+        <div class="container">
+          <div class="community-content">
+            <div class="community-text">
+              <h2>Join Our Community</h2>
+              <p>Connect with other marketers and promoters. Share tips, ask questions, and learn from experienced users.</p>
+              <div class="community-stats">
+                <div class="community-stat">
+                  <div class="stat-number">50K+</div>
+                  <div class="stat-label">Community Members</div>
+                </div>
+                <div class="community-stat">
+                  <div class="stat-number">10K+</div>
+                  <div class="stat-label">Discussions</div>
+                </div>
+                <div class="community-stat">
+                  <div class="stat-number">95%</div>
+                  <div class="stat-label">Questions Answered</div>
+                </div>
+              </div>
+              <div class="community-buttons">
+                <button mat-raised-button color="primary" class="community-btn">
+                  <mat-icon>groups</mat-icon>
+                  Join Community
+                </button>
+                <button mat-stroked-button class="community-btn secondary">
+                  <mat-icon>forum</mat-icon>
+                  Browse Discussions
+                </button>
+              </div>
+            </div>
+            <div class="community-visual">
+              <div class="community-avatars">
+                <div class="avatar-row">
+                  <div class="avatar" *ngFor="let i of [1,2,3,4]"></div>
+                </div>
+                <div class="community-message">
+                  <div class="message-bubble">
+                    "The community helped me increase my earnings by 300%!"
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resources Section -->
+      <section class="resources-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Learning Resources</h2>
+            <p class="section-subtitle">Master MarketSpase with our comprehensive guides and tutorials</p>
+          </div>
+
+          <div class="resources-grid">
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+              <h3>Knowledge Base</h3>
+              <p>Comprehensive documentation covering all features and functionalities</p>
+              <button mat-stroked-button class="resource-btn">
+                Browse Articles
+              </button>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>video_library</mat-icon>
+              </div>
+              <h3>Video Tutorials</h3>
+              <p>Step-by-step video guides for visual learners</p>
+              <button mat-stroked-button class="resource-btn">
+                Watch Videos
+              </button>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>school</mat-icon>
+              </div>
+              <h3>Academy</h3>
+              <p>Structured courses to master digital marketing and promotion</p>
+              <button mat-stroked-button class="resource-btn">
+                Start Learning
+              </button>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>description</mat-icon>
+              </div>
+              <h3>API Documentation</h3>
+              <p>Technical documentation for developers and advanced users</p>
+              <button mat-stroked-button class="resource-btn">
+                View Docs
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <app-footer/>

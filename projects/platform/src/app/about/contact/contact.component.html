@@ -1,0 +1,340 @@
+<app-header/> 
+ 
+ <div class="contact-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Contact Us</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">We're Here to Help</div>
+            <h1 class="hero-title">
+              Let's Start a
+              <span class="gradient-text">Conversation</span>
+            </h1>
+            <p class="hero-subtitle">
+              Ready to transform your marketing strategy or start earning with your WhatsApp status? 
+              Our team is here to answer your questions and help you get started.
+            </p>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">< 5 min</div>
+              <div class="stat-label">Average Response Time</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Support Available</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">98%</div>
+              <div class="stat-label">Satisfaction Rate</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Scroll to get in touch</span>
+        </div>
+      </section>
+
+      <!-- Contact Methods Section -->
+      <section class="contact-methods-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Choose Your Preferred Way to Connect</h2>
+            <p class="section-subtitle">Multiple channels to reach our dedicated support team</p>
+          </div>
+
+          <div class="contact-methods-grid">
+            @for (method of contactMethods(); track method.title) {
+              <div class="contact-method-card" [style.background]="method.gradient">
+                <div class="method-icon">
+                  <mat-icon>{{ method.icon }}</mat-icon>
+                </div>
+                <h3>{{ method.title }}</h3>
+                <p>{{ method.description }}</p>
+                <div class="method-value">{{ method.value }}</div>
+                @if (method.action) {
+                  <button mat-stroked-button class="method-action" (click)="handleContactAction(method)">
+                    {{ method.action }}
+                  </button>
+                }
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Form Section -->
+      <section class="contact-form-section">
+        <div class="container">
+          <div class="form-container">
+            <div class="form-content">
+              <div class="form-header">
+                <h2>Send Us a Message</h2>
+                <p>Fill out the form below and we'll get back to you within hours</p>
+              </div>
+
+              <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="fullName" placeholder="Enter your full name">
+                    <mat-icon matSuffix>person</mat-icon>
+                    @if (contactForm.get('fullName')?.hasError('required')) {
+                      <mat-error>Name is required</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Email Address</mat-label>
+                    <input matInput formControlName="email" placeholder="your@email.com">
+                    <mat-icon matSuffix>email</mat-icon>
+                    @if (contactForm.get('email')?.hasError('required')) {
+                      <mat-error>Email is required</mat-error>
+                    }
+                    @if (contactForm.get('email')?.hasError('email')) {
+                      <mat-error>Please enter a valid email</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Company</mat-label>
+                    <input matInput formControlName="company" placeholder="Your company name">
+                    <mat-icon matSuffix>business</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Phone Number</mat-label>
+                    <input matInput formControlName="phone" placeholder="+1 (555) 000-0000">
+                    <mat-icon matSuffix>phone</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>Inquiry Type</mat-label>
+                  <mat-select formControlName="inquiryType">
+                    <mat-option value="general">General Inquiry</mat-option>
+                    <mat-option value="marketer">Marketer - Campaign Support</mat-option>
+                    <mat-option value="promoter">Promoter - Account Help</mat-option>
+                    <mat-option value="partnership">Partnership Opportunity</mat-option>
+                    <mat-option value="technical">Technical Support</mat-option>
+                    <mat-option value="billing">Billing Question</mat-option>
+                  </mat-select>
+                  <mat-icon matSuffix>expand_more</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label>Your Message</mat-label>
+                  <textarea 
+                    matInput 
+                    formControlName="message" 
+                    placeholder="Tell us how we can help you..."
+                    rows="6"
+                  ></textarea>
+                  @if (contactForm.get('message')?.hasError('required')) {
+                    <mat-error>Message is required</mat-error>
+                  }
+                  @if (contactForm.get('message')?.hasError('minlength')) {
+                    <mat-error>Message must be at least 10 characters</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-checkbox formControlName="newsletter" color="primary" class="newsletter-checkbox">
+                  Send me product updates, marketing tips, and promotional offers
+                </mat-checkbox>
+
+                <mat-checkbox formControlName="terms" color="primary" class="terms-checkbox">
+                  I agree to the <a routerLink="/privacy" target="_blank">Privacy Policy</a> and 
+                  <a routerLink="/terms" target="_blank">Terms of Service</a>
+                </mat-checkbox>
+
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  class="submit-button"
+                  [disabled]="!contactForm.valid || isSubmitting()"
+                >
+                  @if (isSubmitting()) {
+                    <div class="button-loading">
+                      <div class="spinner"></div>
+                      Sending...
+                    </div>
+                  } @else {
+                    <div class="button-content">
+                      <mat-icon>send</mat-icon>
+                      Send Message
+                    </div>
+                  }
+                </button>
+              </form>
+            </div>
+
+            <div class="form-sidebar">
+              <div class="sidebar-card">
+                <h3>Why Contact Us?</h3>
+                <div class="benefits-list">
+                  <div class="benefit-item">
+                    <mat-icon>support_agent</mat-icon>
+                    <div>
+                      <strong>Expert Support</strong>
+                      <p>Get help from our dedicated team of marketing and tech experts</p>
+                    </div>
+                  </div>
+                  <div class="benefit-item">
+                    <mat-icon>rocket_launch</mat-icon>
+                    <div>
+                      <strong>Quick Start</strong>
+                      <p>We'll help you get started with campaigns or promotions in no time</p>
+                    </div>
+                  </div>
+                  <div class="benefit-item">
+                    <mat-icon>security</mat-icon>
+                    <div>
+                      <strong>Secure & Private</strong>
+                      <p>Your information is protected with enterprise-grade security</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="urgent-help-card">
+                <div class="urgent-icon">
+                  <mat-icon>emergency</mat-icon>
+                </div>
+                <h4>Need Immediate Help?</h4>
+                <p>For urgent technical issues or campaign problems</p>
+                <button mat-stroked-button class="urgent-button" (click)="startLiveChat()">
+                  <mat-icon>chat</mat-icon>
+                  Start Live Chat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Contact Section -->
+      <section class="team-contact-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Meet Our Support Team</h2>
+            <p class="section-subtitle">Directly contact the experts who can help you</p>
+          </div>
+
+          <div class="team-grid">
+            @for (member of teamMembers(); track member.name) {
+              <div class="team-card">
+                <div class="member-avatar">
+                  <img [src]="member.avatar" [alt]="member.name">
+                  <div class="online-indicator"></div>
+                </div>
+                <h3>{{ member.name }}</h3>
+                <div class="member-role">{{ member.role }}</div>
+                <div class="member-department">{{ member.department }}</div>
+                <div class="member-email">{{ member.email }}</div>
+                <button mat-stroked-button class="contact-member-btn" (click)="emailTeamMember(member)">
+                  <mat-icon>email</mat-icon>
+                  Send Email
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="faq-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Quick answers to common questions</p>
+          </div>
+
+          <div class="faq-grid">
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>How quickly will I get a response?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>We typically respond to all inquiries within 2-4 hours during business hours. For urgent matters, use our live chat for immediate assistance.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>What information should I include in my message?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Please include your account email, campaign ID (if applicable), and a detailed description of your question or issue for faster resolution.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>Do you offer support for technical issues?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Yes! Our technical support team is available 24/7 to help with any platform issues, integration problems, or bug reports.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>Can I schedule a demo or consultation?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Absolutely! Use the "Partnership Opportunity" inquiry type to schedule a personalized demo with our product specialists.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Get Started?</h2>
+            <p>Join thousands of marketers and promoters already using MarketSpase</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
+                <mat-icon>rocket_launch</mat-icon>
+                Sign Up Free
+              </button>
+              <button mat-stroked-button class="cta-button secondary" (click)="scheduleDemo()">
+                <mat-icon>video_library</mat-icon>
+                Schedule Demo
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <app-footer/>

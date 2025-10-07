@@ -1,0 +1,575 @@
+    <app-header/>   
+    <div class="how-it-works-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">How It Works</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Simple & Effective</div>
+            <h1 class="hero-title">
+              Turn WhatsApp Status into
+              <span class="gradient-text">Income & Growth</span>
+            </h1>
+            <p class="hero-subtitle">
+              Discover how MarketSpase connects marketers with promoters to create 
+              authentic, high-impact marketing campaigns through WhatsApp Status.
+            </p>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">4</div>
+              <div class="stat-label">Simple Steps</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24h</div>
+              <div class="stat-label">Campaign Duration</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">25+</div>
+              <div class="stat-label">Minimum Views</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">₦0</div>
+              <div class="stat-label">To Get Started</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>See how it works</span>
+        </div>
+      </section>
+
+      <!-- User Roles Section -->
+      <section class="roles-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Built for Two Amazing Roles</h2>
+            <p class="section-subtitle">Whether you want to promote your business or earn extra income, we've got you covered</p>
+          </div>
+
+          <div class="roles-grid">
+            @for (role of userRoles(); track role.id) {
+              <div class="role-card" [style.background]="role.gradient">
+                <div class="role-icon">
+                  <mat-icon>{{ role.icon }}</mat-icon>
+                </div>
+                <h3>{{ role.name }}</h3>
+                <p>{{ role.description }}</p>
+                
+                <div class="benefits-list">
+                  <h4>Key Benefits:</h4>
+                  <ul>
+                    @for (benefit of role.benefits; track benefit) {
+                      <li>
+                        <mat-icon>check_circle</mat-icon>
+                        <span>{{ benefit }}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+
+                <div class="ideal-for">
+                  <h4>Ideal For:</h4>
+                  <div class="ideal-tags">
+                    @for (item of role.idealFor; track item) {
+                      <span class="ideal-tag">{{ item }}</span>
+                    }
+                  </div>
+                </div>
+
+                <button 
+                  mat-raised-button 
+                  class="role-action-btn"
+                  [class.marketer]="role.id === 'marketer'"
+                  [class.promoter]="role.id === 'promoter'"
+                  routerLink="/auth"
+                >
+                  Start as {{ role.name }}
+                </button>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Unified Process Flow -->
+      <section class="process-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">The MarketSpase Process</h2>
+            <p class="section-subtitle">A seamless journey from campaign creation to payment - completely automated</p>
+          </div>
+
+          <div class="process-flow">
+            @for (step of processSteps(); track step.number; let i = $index) {
+              <div class="process-step" [class.reverse]="i % 2 === 1">
+                <div class="step-visual">
+                  <div class="step-number">{{ step.number }}</div>
+                  <div class="step-image">
+                    <img [src]="step.image" [alt]="step.title">
+                  </div>
+                  @if (i < processSteps().length - 1) {
+                    <div class="step-connector">
+                      <div class="connector-line"></div>
+                      <mat-icon>arrow_downward</mat-icon>
+                    </div>
+                  }
+                </div>
+                
+                <div class="step-content">
+                  <div class="step-icon">
+                    <mat-icon>{{ step.icon }}</mat-icon>
+                  </div>
+                  <h3>{{ step.title }}</h3>
+                  <p>{{ step.description }}</p>
+                  
+                  <div class="step-features">
+                    @for (feature of step.features; track feature) {
+                      <span class="step-feature">{{ feature }}</span>
+                    }
+                  </div>
+
+                  @if (step.duration) {
+                    <div class="step-duration">
+                      <mat-icon>schedule</mat-icon>
+                      <span>{{ step.duration }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed Role Processes -->
+      <section class="detailed-process-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Step-by-Step Guides</h2>
+            <p class="section-subtitle">Detailed breakdown for each role</p>
+          </div>
+
+          <mat-tab-group class="process-tabs">
+            <!-- Marketer Process -->
+            <mat-tab label="For Marketers">
+              <div class="tab-content">
+                <div class="role-process">
+                  <div class="process-header">
+                    <div class="role-badge marketer">
+                      <mat-icon>campaign</mat-icon>
+                      Marketer Process
+                    </div>
+                    <p>Create and manage successful campaigns that reach your target audience</p>
+                  </div>
+
+                  <mat-stepper orientation="vertical" class="process-stepper">
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Campaign Setup</div>
+                          <div class="step-subtitle">Create your campaign in minutes</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Upload & Configure</h4>
+                          <p>Upload your ad content, set your budget, and define your target audience. Our system automatically adds security watermarks.</p>
+                          <ul>
+                            <li>Upload high-quality images or videos</li>
+                            <li>Set daily or total budget</li>
+                            <li>Define target demographics</li>
+                            <li>Auto-watermarking for security</li>
+                          </ul>
+                        </div>
+                        <div class="step-tips">
+                          <h5>Pro Tips:</h5>
+                          <div class="tips-grid">
+                            <div class="tip-card">
+                              <mat-icon>lightbulb</mat-icon>
+                              <span>Use clear, engaging visuals for better performance</span>
+                            </div>
+                            <div class="tip-card">
+                              <mat-icon>lightbulb</mat-icon>
+                              <span>Start with a small budget to test different audiences</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Promoter Matching</div>
+                          <div class="step-subtitle">Connect with the right promoters</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Smart Matching System</h4>
+                          <p>Our AI-powered system matches your campaign with promoters whose audience aligns with your target demographic.</p>
+                          <ul>
+                            <li>AI-based promoter selection</li>
+                            <li>Audience demographic matching</li>
+                            <li>Performance history review</li>
+                            <li>Automatic campaign distribution</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Real-time Monitoring</div>
+                          <div class="step-subtitle">Track performance and optimize</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Live Analytics Dashboard</h4>
+                          <p>Monitor your campaign performance in real-time with detailed analytics and insights.</p>
+                          <ul>
+                            <li>Real-time view counts</li>
+                            <li>Engagement metrics</li>
+                            <li>ROI tracking</li>
+                            <li>Performance optimization suggestions</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Verification & Results</div>
+                          <div class="step-subtitle">AI-powered verification and results</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Automated Success Verification</h4>
+                          <p>Our system automatically verifies campaign completion and provides detailed performance reports.</p>
+                          <ul>
+                            <li>AI-powered proof verification</li>
+                            <li>24-hour duration tracking</li>
+                            <li>Comprehensive performance reports</li>
+                            <li>ROI analysis</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+                  </mat-stepper>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Promoter Process -->
+            <mat-tab label="For Promoters">
+              <div class="tab-content">
+                <div class="role-process">
+                  <div class="process-header">
+                    <div class="role-badge promoter">
+                      <mat-icon>groups</mat-icon>
+                      Promoter Process
+                    </div>
+                    <p>Earn money by sharing campaigns on your WhatsApp Status</p>
+                  </div>
+
+                  <mat-stepper orientation="vertical" class="process-stepper">
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Profile Setup</div>
+                          <div class="step-subtitle">Create your promoter profile</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Build Your Promoter Profile</h4>
+                          <p>Create a compelling profile that showcases your audience and increases your earning potential.</p>
+                          <ul>
+                            <li>Complete profile verification</li>
+                            <li>Define your audience demographics</li>
+                            <li>Set your preferences</li>
+                            <li>Build your reputation score</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Browse Campaigns</div>
+                          <div class="step-subtitle">Find campaigns that match your audience</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Discover Opportunities</h4>
+                          <p>Browse available campaigns filtered by your preferences and audience match.</p>
+                          <ul>
+                            <li>Smart campaign recommendations</li>
+                            <li>Earnings potential preview</li>
+                            <li>Category-based filtering</li>
+                            <li>Campaign requirements review</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Share & Promote</div>
+                          <div class="step-subtitle">Share campaigns on your status</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Easy Sharing Process</h4>
+                          <p>Accept campaigns and share them on your WhatsApp Status with one click.</p>
+                          <ul>
+                            <li>One-click campaign acceptance</li>
+                            <li>Download watermarked content</li>
+                            <li>Share to WhatsApp Status</li>
+                            <li>Automatic tracking enabled</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Earn & Grow</div>
+                          <div class="step-subtitle">Get paid and build your reputation</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Automated Earnings</h4>
+                          <p>Receive automatic payments after successful verification and watch your earnings grow.</p>
+                          <ul>
+                            <li>Auto-payment after verification</li>
+                            <li>Multiple withdrawal options</li>
+                            <li>Rating system for growth</li>
+                            <li>Premium campaign access</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+                  </mat-stepper>
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </section>
+
+      <!-- Platform Features -->
+      <section class="features-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Powerful Platform Features</h2>
+            <p class="section-subtitle">Advanced technology that makes everything work seamlessly</p>
+          </div>
+
+          <div class="features-grid">
+            @for (feature of platformFeatures(); track feature.title) {
+              <div class="feature-card" [style.background]="feature.gradient">
+                <div class="feature-icon">
+                  <mat-icon>{{ feature.icon }}</mat-icon>
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Verification Process -->
+      <section class="verification-section">
+        <div class="container">
+          <div class="verification-content">
+            <div class="verification-text">
+              <h2>Smart Verification System</h2>
+              <p>Our advanced AI-powered verification ensures authenticity and protects both marketers and promoters.</p>
+              
+              <div class verification-steps>
+                <div class="verification-step">
+                  <div class="verification-icon">
+                    <mat-icon>photo_camera</mat-icon>
+                  </div>
+                  <div class="verification-details">
+                    <h4>Proof Submission</h4>
+                    <p>Promoters submit screenshots showing the campaign on their status</p>
+                  </div>
+                </div>
+
+                <div class="verification-step">
+                  <div class="verification-icon">
+                    <mat-icon>smart_toy</mat-icon>
+                  </div>
+                  <div class="verification-details">
+                    <h4>AI Analysis</h4>
+                    <p>Computer vision analyzes proof for watermark visibility and duration</p>
+                  </div>
+                </div>
+
+                <div class="verification-step">
+                  <div class="verification-icon">
+                    <mat-icon>verified</mat-icon>
+                  </div>
+                  <div class="verification-details">
+                    <h4>Auto-Approval</h4>
+                    <p>Successful verifications trigger automatic payments within hours</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="verification-visual">
+              <div class="verification-demo">
+                <div class="demo-phone">
+                  <div class="phone-screen">
+                    <div class="status-demo">
+                      <div class="status-header">
+                        <div class="status-avatar"></div>
+                        <div class="status-info">
+                          <div class="status-name">Promoter User</div>
+                          <div class="status-time">23h remaining</div>
+                        </div>
+                      </div>
+                      <div class="status-content">
+                        <div class="campaign-image"></div>
+                        <div class="watermark">#MarketSpase123</div>
+                      </div>
+                      <div class="status-views">
+                        <mat-icon>visibility</mat-icon>
+                        <span>47 views</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="verification-badge">
+                  <mat-icon>verified</mat-icon>
+                  <span>AI Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payment & Security -->
+      <section class="payment-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Secure Payments & Earnings</h2>
+            <p class="section-subtitle">Transparent, secure, and automated financial system</p>
+          </div>
+
+          <div class="payment-grid">
+            <div class="payment-card">
+              <div class="payment-icon">
+                <mat-icon>account_balance</mat-icon>
+              </div>
+              <h3>Escrow Protection</h3>
+              <p>Campaign funds are held securely in escrow until successful verification, protecting both parties.</p>
+              <ul>
+                <li>Secure fund holding</li>
+                <li>Automatic release after verification</li>
+                <li>Dispute resolution system</li>
+              </ul>
+            </div>
+
+            <div class="payment-card">
+              <div class="payment-icon">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <h3>Multiple Withdrawal Options</h3>
+              <p>Choose from various payment methods that work best for you in your region.</p>
+              <ul>
+                <li>Bank transfers</li>
+                <li>Mobile money</li>
+                <li>Digital wallets</li>
+                <li>Instant processing</li>
+              </ul>
+            </div>
+
+            <div class="payment-card">
+              <div class="payment-icon">
+                <mat-icon>analytics</mat-icon>
+              </div>
+              <h3>Transparent Tracking</h3>
+              <p>Real-time tracking of earnings, pending payments, and campaign performance.</p>
+              <ul>
+                <li>Live earnings dashboard</li>
+                <li>Payment history</li>
+                <li>Performance analytics</li>
+                <li>Tax documentation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Get Started?</h2>
+            <p>Join thousands of marketers and promoters already using MarketSpase</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
+                <mat-icon>rocket_launch</mat-icon>
+                Start Your Journey
+              </button>
+              <button mat-stroked-button class="cta-button secondary" routerLink="/success-stories">
+                <mat-icon>play_circle</mat-icon>
+                See Success Stories
+              </button>
+            </div>
+            <div class="cta-stats">
+              <div class="cta-stat">
+                <div class="stat-number">5 min</div>
+                <div class="stat-desc">Average setup time</div>
+              </div>
+              <div class="cta-stat">
+                <div class="stat-number">24/7</div>
+                <div class="stat-desc">Support available</div>
+              </div>
+              <div class="cta-stat">
+                <div class="stat-number">₦0</div>
+                <div class="stat-desc">Upfront cost</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <app-footer/>

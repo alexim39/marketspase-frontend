@@ -1,0 +1,393 @@
+    <app-header/>
+    <div class="features-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Features</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Powerful Platform</div>
+            <h1 class="hero-title">
+              Everything You Need to
+              <span class="gradient-text">Succeed</span>
+            </h1>
+            <p class="hero-subtitle">
+              MarketSpase provides a comprehensive suite of tools for marketers to reach authentic audiences 
+              and for promoters to monetize their influence seamlessly.
+            </p>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">50+</div>
+              <div class="stat-label">Advanced Features</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">99.9%</div>
+              <div class="stat-label">Uptime Reliability</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Support</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Explore features</span>
+        </div>
+      </section>
+
+      <!-- Feature Categories -->
+      <section class="categories-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Built for Everyone</h2>
+            <p class="section-subtitle">Powerful tools tailored for marketers, promoters, and businesses</p>
+          </div>
+
+          <div class="categories-grid">
+            @for (category of featureCategories(); track category.id) {
+              <div 
+                class="category-card" 
+                [class.active]="activeCategory() === category.id"
+                (click)="setActiveCategory('promoter')"
+                [style.background]="category.gradient"
+              >
+                <div class="category-icon">
+                  <mat-icon>{{ category.icon }}</mat-icon>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+                <div class="category-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Grid -->
+      <section class="features-grid-section">
+        <div class="container">
+          <div class="features-header">
+            <h2 class="section-title">
+              @switch (activeCategory()) {
+                @case ('marketer') { Marketer Features }
+                @case ('promoter') { Promoter Features }
+                @case ('platform') { Platform Features }
+              }
+            </h2>
+            <p class="section-subtitle">
+              @switch (activeCategory()) {
+                @case ('marketer') { Tools to create, manage, and optimize your campaigns }
+                @case ('promoter') { Everything you need to earn from your WhatsApp status }
+                @case ('platform') { Advanced technology powering the entire ecosystem }
+              }
+            </p>
+          </div>
+
+          <div class="features-grid">
+            @for (feature of filteredFeatures(); track feature.title) {
+              <div class="feature-card" [style.background]="feature.gradient">
+                <div class="feature-icon">
+                  <mat-icon>{{ feature.icon }}</mat-icon>
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+                <ul class="feature-benefits">
+                  @for (benefit of feature.benefits; track benefit) {
+                    <li>
+                      <mat-icon>check_circle</mat-icon>
+                      <span>{{ benefit }}</span>
+                    </li>
+                  }
+                </ul>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section class="workflow-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">How MarketSpase Works</h2>
+            <p class="section-subtitle">Simple, secure, and efficient from start to finish</p>
+          </div>
+
+          <div class="workflow-tabs">
+            <mat-tab-group [selectedIndex]="activeTab()" (selectedIndexChange)="setActiveTab($event)">
+              <mat-tab label="For Marketers">
+                <div class="tab-content">
+                  <div class="workflow-steps">
+                    <div class="workflow-step">
+                      <div class="step-number">01</div>
+                      <div class="step-content">
+                        <h3>Create Campaign</h3>
+                        <p>Set up your campaign with detailed targeting, budget, and creative assets. Our system automatically adds security watermarks.</p>
+                        <div class="step-features">
+                          <span class="step-feature">Audience Targeting</span>
+                          <span class="step-feature">Budget Control</span>
+                          <span class="step-feature">Auto Watermarking</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="step-number">02</div>
+                      <div class="step-content">
+                        <h3>Manage & Optimize</h3>
+                        <p>Monitor campaign performance in real-time, adjust targeting, and optimize based on performance analytics.</p>
+                        <div class="step-features">
+                          <span class="step-feature">Real-time Analytics</span>
+                          <span class="step-feature">Performance Tracking</span>
+                          <span class="step-feature">A/B Testing</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="step-number">03</div>
+                      <div class="step-content">
+                        <h3>Verify & Scale</h3>
+                        <p>AI-powered verification ensures campaign authenticity. Scale successful campaigns with one click.</p>
+                        <div class="step-features">
+                          <span class="step-feature">AI Verification</span>
+                          <span class="step-feature">Automated Scaling</span>
+                          <span class="step-feature">ROI Analytics</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+
+              <mat-tab label="For Promoters">
+                <div class="tab-content">
+                  <div class="workflow-steps">
+                    <div class="workflow-step">
+                      <div class="step-number">01</div>
+                      <div class="step-content">
+                        <h3>Browse Campaigns</h3>
+                        <p>Explore available campaigns that match your audience and interests. Filter by payout, category, and requirements.</p>
+                        <div class="step-features">
+                          <span class="step-feature">Smart Matching</span>
+                          <span class="step-feature">Category Filters</span>
+                          <span class="step-feature">Earnings Preview</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="step-number">02</div>
+                      <div class="step-content">
+                        <h3>Accept & Share</h3>
+                        <p>Accept campaigns with one click, download watermarked content, and share on your WhatsApp status.</p>
+                        <div class="step-features">
+                          <span class="step-feature">One-Click Accept</span>
+                          <span class="step-feature">Easy Sharing</span>
+                          <span class="step-feature">Content Guidelines</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="workflow-step">
+                      <div class="step-number">03</div>
+                      <div class="step-content">
+                        <h3>Earn & Grow</h3>
+                        <p>Get paid automatically after verification. Build your promoter rating and unlock higher-paying campaigns.</p>
+                        <div class="step-features">
+                          <span class="step-feature">Auto Payments</span>
+                          <span class="step-feature">Rating System</span>
+                          <span class="step-feature">Growth Opportunities</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+      </section>
+
+      <!-- Platform Highlights -->
+      <section class="highlights-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Platform Technology</h2>
+            <p class="section-subtitle">Built with cutting-edge technology for maximum performance and security</p>
+          </div>
+
+          <div class="highlights-grid">
+            <div class="highlight-card">
+              <div class="highlight-icon security">
+                <mat-icon>security</mat-icon>
+              </div>
+              <h3>Bank-Grade Security</h3>
+              <p>Enterprise-level encryption, secure payment processing, and fraud detection systems protect your data and transactions.</p>
+              <ul class="highlight-features">
+                <li>End-to-end encryption</li>
+                <li>PCI DSS compliant payments</li>
+                <li>Advanced fraud detection</li>
+                <li>Regular security audits</li>
+              </ul>
+            </div>
+
+            <div class="highlight-card">
+              <div class="highlight-icon ai">
+                <mat-icon>smart_toy</mat-icon>
+              </div>
+              <h3>AI-Powered Verification</h3>
+              <p>Advanced computer vision and machine learning algorithms automatically verify campaign posts with 99.8% accuracy.</p>
+              <ul class="highlight-features">
+                <li>Computer vision technology</li>
+                <li>Real-time verification</li>
+                <li>Fraud pattern detection</li>
+                <li>Continuous learning</li>
+              </ul>
+            </div>
+
+            <div class="highlight-card">
+              <div class="highlight-icon scale">
+                <mat-icon>auto_awesome</mat-icon>
+              </div>
+              <h3>Enterprise Scalability</h3>
+              <p>Cloud-native architecture designed to handle millions of concurrent users and thousands of campaigns simultaneously.</p>
+              <ul class="highlight-features">
+                <li>Microservices architecture</li>
+                <li>Auto-scaling infrastructure</li>
+                <li>Global CDN</li>
+                <li>99.9% uptime SLA</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section class="pricing-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">No hidden fees. No surprises. Scale as you grow.</p>
+          </div>
+
+          <div class="pricing-grid">
+            @for (tier of pricingTiers(); track tier.name) {
+              <div class="pricing-card" [class.popular]="tier.popular">
+                @if (tier.popular) {
+                  <div class="popular-badge">Most Popular</div>
+                }
+                <div class="pricing-header" [style.background]="tier.gradient">
+                  <h3>{{ tier.name }}</h3>
+                  <div class="price">
+                    <span class="amount">{{ tier.price }}</span>
+                    <span class="period">/{{ tier.period }}</span>
+                  </div>
+                  <p class="tier-description">{{ tier.description }}</p>
+                </div>
+                <div class="pricing-features">
+                  <ul>
+                    @for (feature of tier.features; track feature) {
+                      <li>
+                        <mat-icon>check_circle</mat-icon>
+                        <span>{{ feature }}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+                <button 
+                  mat-raised-button 
+                  [color]="tier.popular ? 'primary' : ''"
+                  class="pricing-button"
+                  routerLink="/auth"
+                >
+                  Get Started
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="testimonials-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Trusted by Thousands</h2>
+            <p class="section-subtitle">See what our users say about their experience with MarketSpase</p>
+          </div>
+
+          <div class="testimonials-grid">
+            @for (testimonial of testimonials(); track testimonial.name) {
+              <div class="testimonial-card">
+                <div class="testimonial-content">
+                  <div class="stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <mat-icon [class.filled]="star <= testimonial.rating">star</mat-icon>
+                    }
+                  </div>
+                  <p>"{{ testimonial.content }}"</p>
+                </div>
+                <div class="testimonial-author">
+                  <img [src]="testimonial.avatar" [alt]="testimonial.name" class="author-avatar">
+                  <div class="author-info">
+                    <strong>{{ testimonial.name }}</strong>
+                    <span>{{ testimonial.role }} at {{ testimonial.company }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="final-cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Experience These Features?</h2>
+            <p>Join thousands of marketers and promoters already growing with MarketSpase</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
+                <mat-icon>rocket_launch</mat-icon>
+                Start Free Trial
+              </button>
+              <button mat-stroked-button class="cta-button secondary" routerLink="/contact">
+                <mat-icon>chat</mat-icon>
+                Talk to Sales
+              </button>
+            </div>
+            <div class="cta-features">
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>No credit card required</span>
+              </div>
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>14-day free trial</span>
+              </div>
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>Setup in 5 minutes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <app-footer/>

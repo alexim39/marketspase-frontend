@@ -1,0 +1,136 @@
+    <header class="header" [class.scrolled]="isScrolled()" [class.mobile-menu-open]="isMobileMenuOpen()">
+      <div class="header-container">
+        <!-- Logo -->
+        <a class="logo" routerLink="/">
+          <div class="logo-icon">
+            <mat-icon>campaign</mat-icon>
+          </div>
+          <span class="logo-text">MarketSpase</span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="desktop-nav">
+          @for (item of navItems(); track item.label) {
+            <div class="nav-item" [class.has-children]="item.children">
+              @if (item.children) {
+                <button class="nav-link" mat-button [matMenuTriggerFor]="menu">
+                  <span>{{ item.label }}</span>
+                  <mat-icon>expand_more</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu" class="nav-menu">
+                  @for (child of item.children; track child.label) {
+                    <button 
+                      mat-menu-item 
+                      (click)="navigateTo(child)"
+                      class="menu-item"
+                    >
+                      @if (child.icon) {
+                        <mat-icon>{{ child.icon }}</mat-icon>
+                      }
+                      <span>{{ child.label }}</span>
+                    </button>
+                  }
+                </mat-menu>
+              } @else {
+                <a 
+                  class="nav-link" 
+                  [routerLink]="item.route ? item.route : null"
+                  [href]="item.externalLink ? item.externalLink : null"
+                  [target]="item.externalLink ? '_blank' : '_self'"
+                  mat-button
+                >
+                  <span>{{ item.label }}</span>
+                </a>
+              }
+            </div>
+          }
+        </nav>
+
+        <!-- Desktop Auth Buttons -->
+        <div class="auth-buttons">
+          <button mat-stroked-button class="auth-btn login" routerLink="/auth">
+            <mat-icon>login</mat-icon>
+            Sign In
+          </button>
+          <button mat-raised-button color="primary" class="auth-btn signup" routerLink="/auth">
+            <mat-icon>person_add</mat-icon>
+            Get Started
+          </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button 
+          class="mobile-menu-btn" 
+          (click)="toggleMobileMenu()"
+          [class.active]="isMobileMenuOpen()"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <!-- Mobile Navigation -->
+      <div class="mobile-nav" [class.active]="isMobileMenuOpen()">
+        <nav class="mobile-nav-content">
+          @for (item of navItems(); track item.label) {
+            <div class="mobile-nav-item">
+              @if (item.children) {
+                <div class="mobile-nav-parent">
+                  <button class="mobile-nav-link" (click)="toggleSubMenu(item)">
+                    <span>{{ item.label }}</span>
+                    <mat-icon [class.rotated]="isSubMenuOpen(item)">
+                      expand_more
+                    </mat-icon>
+                  </button>
+                  <div class="mobile-submenu" [class.active]="isSubMenuOpen(item)">
+                    @for (child of item.children; track child.label) {
+                      <a 
+                        class="mobile-submenu-link"
+                        [routerLink]="child.route ? child.route : null"
+                        [href]="child.externalLink ? child.externalLink : null"
+                        [target]="child.externalLink ? '_blank' : '_self'"
+                        (click)="closeMobileMenu()"
+                      >
+                        @if (child.icon) {
+                          <mat-icon>{{ child.icon }}</mat-icon>
+                        }
+                        <span>{{ child.label }}</span>
+                      </a>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <a 
+                  class="mobile-nav-link"
+                  [routerLink]="item.route ? item.route : null"
+                  [href]="item.externalLink ? item.externalLink : null"
+                  [target]="item.externalLink ? '_blank' : '_self'"
+                  (click)="closeMobileMenu()"
+                >
+                  <span>{{ item.label }}</span>
+                </a>
+              }
+            </div>
+          }
+
+          <div class="mobile-auth-buttons">
+            <button mat-stroked-button class="mobile-auth-btn login" routerLink="/auth" (click)="closeMobileMenu()">
+              <mat-icon>login</mat-icon>
+              Sign In
+            </button>
+            <button mat-raised-button color="primary" class="mobile-auth-btn signup" routerLink="/auth" (click)="closeMobileMenu()">
+              <mat-icon>person_add</mat-icon>
+              Get Started
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Mobile Overlay -->
+      <div 
+        class="mobile-overlay" 
+        [class.active]="isMobileMenuOpen()"
+        (click)="closeMobileMenu()"
+      ></div>
+    </header>

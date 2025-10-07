@@ -1,0 +1,481 @@
+ <app-header/>
+
+    <div class="careers-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Careers</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">We're Hiring!</div>
+            <h1 class="hero-title">
+              Build the Future of
+              <span class="gradient-text">Digital Marketing</span>
+            </h1>
+            <p class="hero-subtitle">
+              Join our mission to revolutionize how businesses and individuals connect 
+              through WhatsApp. Create impact, grow your skills, and shape the future with us.
+            </p>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">15+</div>
+              <div class="stat-label">Open Positions</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">50+</div>
+              <div class="stat-label">Team Members</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">5+</div>
+              <div class="stat-label">Countries</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">₦100M+</div>
+              <div class="stat-label">Raised</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Explore opportunities</span>
+        </div>
+      </section>
+
+      <!-- Why Join Us Section -->
+      <section class="why-join-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Why Join MarketSpase?</h2>
+            <p class="section-subtitle">We're building more than a company - we're building a movement</p>
+          </div>
+
+          <div class="benefits-grid">
+            @for (benefit of benefits(); track benefit.title) {
+              <div class="benefit-card" [style.background]="benefit.gradient">
+                <div class="benefit-icon">
+                  <mat-icon>{{ benefit.icon }}</mat-icon>
+                </div>
+                <h3>{{ benefit.title }}</h3>
+                <p>{{ benefit.description }}</p>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Culture -->
+      <section class="culture-section">
+        <div class="container">
+          <div class="culture-content">
+            <div class="culture-text">
+              <h2>Our Culture & Values</h2>
+              <p>At MarketSpase, we believe that great products are built by great teams. Our culture is built on collaboration, innovation, and a shared passion for creating meaningful impact.</p>
+              
+              <div class="culture-points">
+                @for (point of teamCulture(); track point.title) {
+                  <div class="culture-point">
+                    <div class="culture-icon">
+                      <mat-icon>{{ point.icon }}</mat-icon>
+                    </div>
+                    <div class="culture-details">
+                      <h4>{{ point.title }}</h4>
+                      <p>{{ point.description }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="culture-stats">
+                <div class="culture-stat">
+                  <div class="stat-number">95%</div>
+                  <div class="stat-label">Employee Satisfaction</div>
+                </div>
+                <div class="culture-stat">
+                  <div class="stat-number">4.8/5</div>
+                  <div class="stat-label">Work-Life Balance</div>
+                </div>
+                <div class="culture-stat">
+                  <div class="stat-number">89%</div>
+                  <div class="stat-label">Promotion Rate</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="culture-visual">
+              <div class="team-collage">
+                <div class="collage-row">
+                  <div class="team-photo photo-1"></div>
+                  <div class="team-photo photo-2"></div>
+                </div>
+                <div class="collage-row">
+                  <div class="team-photo photo-3"></div>
+                  <div class="team-photo photo-4"></div>
+                </div>
+              </div>
+              <div class="culture-quote">
+                <div class="quote-bubble">
+                  "The best part about working at MarketSpase is the opportunity to solve real problems that impact millions of users across Africa."
+                </div>
+                <div class="quote-author">
+                  <div class="author-avatar"></div>
+                  <div class="author-info">
+                    <strong>Chinwe Okoro</strong>
+                    <span>Senior Product Manager</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Open Positions -->
+      <section class="positions-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Open Positions</h2>
+            <p class="section-subtitle">Find your perfect role and join our growing team</p>
+          </div>
+
+          <!-- Departments Filter -->
+          <div class="departments-filter">
+            <div class="filter-buttons">
+              <button 
+                class="filter-btn" 
+                [class.active]="activeDepartment() === 'all'"
+                (click)="setActiveDepartment('all')"
+              >
+                All Departments
+              </button>
+              @for (dept of departments(); track dept.id) {
+                <button 
+                  class="filter-btn" 
+                  [class.active]="activeDepartment() === dept.id"
+                  (click)="setActiveDepartment(dept.id)"
+                >
+                  {{ dept.name }} ({{ dept.openPositions }})
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Job Positions Grid -->
+          <div class="positions-grid">
+            @for (position of filteredPositions(); track position.id) {
+              <div class="position-card" [class.featured]="position.featured" [class.urgent]="position.urgent">
+                @if (position.featured) {
+                  <div class="featured-badge">
+                    <mat-icon>stars</mat-icon>
+                    Featured
+                  </div>
+                }
+                @if (position.urgent) {
+                  <div class="urgent-badge">
+                    <mat-icon>flash_on</mat-icon>
+                    Urgent Hire
+                  </div>
+                }
+
+                <div class="position-header">
+                  <div class="position-title">
+                    <h3>{{ position.title }}</h3>
+                    <div class="position-meta">
+                      <span class="department">{{ position.department }}</span>
+                      <span class="position-type">{{ getPositionTypeLabel(position.type) }}</span>
+                    </div>
+                  </div>
+                  <div class="position-salary" *ngIf="position.salary">
+                    {{ position.salary }}
+                  </div>
+                </div>
+
+                <div class="position-details">
+                  <div class="detail-item">
+                    <mat-icon>location_on</mat-icon>
+                    <span>{{ position.location }}{{ position.remote ? ' • Remote' : '' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>work</mat-icon>
+                    <span>{{ position.experience }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>schedule</mat-icon>
+                    <span>Posted {{ position.posted }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>people</mat-icon>
+                    <span>{{ position.applications }} applicants</span>
+                  </div>
+                </div>
+
+                <p class="position-description">{{ position.description }}</p>
+
+                <div class="position-tags">
+                  @for (req of position.requirements.slice(0, 3); track req) {
+                    <span class="position-tag">{{ req }}</span>
+                  }
+                  @if (position.requirements.length > 3) {
+                    <span class="position-tag">+{{ position.requirements.length - 3 }} more</span>
+                  }
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="position-actions">
+                  <button mat-stroked-button class="save-btn">
+                    <mat-icon>bookmark</mat-icon>
+                    Save
+                  </button>
+                  <button mat-raised-button color="primary" class="apply-btn" (click)="applyForPosition(position)">
+                    Apply Now
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- No Positions Message -->
+          @if (filteredPositions().length === 0) {
+            <div class="no-positions">
+              <div class="no-positions-icon">
+                <mat-icon>search_off</mat-icon>
+              </div>
+              <h3>No positions found</h3>
+              <p>We don't have any open positions in this department at the moment. Please check back later or <a href="mailto:careers@marketspase.com">send us your resume</a> for future opportunities.</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Hiring Process -->
+      <section class="process-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Our Hiring Process</h2>
+            <p class="section-subtitle">Transparent and straightforward - know what to expect</p>
+          </div>
+
+          <div class="process-steps">
+            <div class="process-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h3>Application Review</h3>
+                <p>Our team reviews your application and resume within 48 hours</p>
+                <span class="step-duration">1-2 days</span>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h3>Screening Call</h3>
+                <p>30-minute call with our HR team to discuss your experience and expectations</p>
+                <span class="step-duration">30 mins</span>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h3>Technical Assessment</h3>
+                <p>Role-specific assignment to evaluate your skills and approach</p>
+                <span class="step-duration">2-3 days</span>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h3>Team Interviews</h3>
+                <p>Meet with team members and managers to discuss collaboration</p>
+                <span class="step-duration">1-2 hours</span>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-number">5</div>
+              <div class="step-content">
+                <h3>Offer & Onboarding</h3>
+                <p>Receive your offer and join our comprehensive onboarding program</p>
+                <span class="step-duration">1 week</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Internship Program -->
+      <section class="internship-section">
+        <div class="container">
+          <div class="internship-content">
+            <div class="internship-text">
+              <div class="internship-badge">
+                <mat-icon>school</mat-icon>
+                Internship Program
+              </div>
+              <h2>Launch Your Career with Our Internship Program</h2>
+              <p>Our internship program is designed to give students and recent graduates real-world experience working on meaningful projects alongside experienced mentors.</p>
+              
+              <div class="internship-benefits">
+                <div class="internship-benefit">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Hands-on project experience</span>
+                </div>
+                <div class="internship-benefit">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Mentorship from senior team members</span>
+                </div>
+                <div class="internship-benefit">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Competitive stipend</span>
+                </div>
+                <div class="internship-benefit">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Potential for full-time conversion</span>
+                </div>
+              </div>
+
+              <button mat-raised-button color="primary" class="internship-cta">
+                View Internship Positions
+              </button>
+            </div>
+
+            <div class="internship-visual">
+              <div class="internship-stats">
+                <div class="internship-stat">
+                  <div class="stat-number">85%</div>
+                  <div class="stat-label">Conversion Rate to Full-Time</div>
+                </div>
+                <div class="internship-stat">
+                  <div class="stat-number">50+</div>
+                  <div class="stat-label">Alumni Network</div>
+                </div>
+                <div class="internship-stat">
+                  <div class="stat-number">4.9/5</div>
+                  <div class="stat-label">Intern Satisfaction</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Employee Testimonials -->
+      <section class="testimonials-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Hear From Our Team</h2>
+            <p class="section-subtitle">Don't just take our word for it - hear from people who build MarketSpase every day</p>
+          </div>
+
+          <div class="testimonials-grid">
+            <div class="testimonial-card">
+              <div class="testimonial-content">
+                <div class="stars">
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                </div>
+                <p>"The growth opportunities here are incredible. I started as a junior developer and within 18 months, I'm leading a team of my own. The trust and autonomy we're given is empowering."</p>
+              </div>
+              <div class="testimonial-author">
+                <div class="author-avatar"></div>
+                <div class="author-info">
+                  <strong>Adeola Johnson</strong>
+                  <span>Team Lead, Engineering</span>
+                  <span class="tenure">2 years at MarketSpase</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="testimonial-card">
+              <div class="testimonial-content">
+                <div class="stars">
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                </div>
+                <p>"What I love most is the impact we're making. Every day, I see how our work helps small businesses grow and creates earning opportunities for thousands of people across Nigeria."</p>
+              </div>
+              <div class="testimonial-author">
+                <div class="author-avatar"></div>
+                <div class="author-info">
+                  <strong>Emeka Nwosu</strong>
+                  <span>Product Manager</span>
+                  <span class="tenure">1.5 years at MarketSpase</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="testimonial-card">
+              <div class="testimonial-content">
+                <div class="stars">
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                  <mat-icon>star</mat-icon>
+                </div>
+                <p>"The learning culture here is amazing. We have regular knowledge-sharing sessions, access to courses, and the freedom to experiment with new technologies. I've grown more here in 6 months than in 2 years at my previous company."</p>
+              </div>
+              <div class="testimonial-author">
+                <div class="author-avatar"></div>
+                <div class="author-info">
+                  <strong>Zainab Bello</strong>
+                  <span>Frontend Developer</span>
+                  <span class="tenure">8 months at MarketSpase</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Build With Us?</h2>
+            <p>Join our mission to transform digital marketing in Africa and beyond</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" (click)="scrollToPositions()">
+                <mat-icon>work</mat-icon>
+                View Open Positions
+              </button>
+              <button mat-stroked-button class="cta-button secondary" (click)="openTalentNetwork()">
+                <mat-icon>person_add</mat-icon>
+                Join Talent Network
+              </button>
+            </div>
+            <div class="cta-note">
+              <mat-icon>info</mat-icon>
+              <span>Don't see the perfect role? Send your resume to <a href="mailto:careers@marketspase.com">careers@marketspase.com</a> and we'll keep you in mind for future opportunities.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <app-footer/>

@@ -1,0 +1,395 @@
+    <app-header/>
+    <div class="faq-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">FAQ</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Quick Answers</div>
+            <h1 class="hero-title">
+              Frequently Asked
+              <span class="gradient-text">Questions</span>
+            </h1>
+            <p class="hero-subtitle">
+              Find quick answers to common questions about MarketSpase. 
+              Can't find what you're looking for? Our support team is here to help.
+            </p>
+          </div>
+
+          <!-- Search Section -->
+          <div class="search-section">
+            <div class="search-container">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search questions and answers...</mat-label>
+                <input 
+                  matInput 
+                  [formControl]="searchControl"
+                  placeholder="Type your question here..."
+                >
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+              <button mat-raised-button color="primary" class="search-button" (click)="performSearch()">
+                <mat-icon>search</mat-icon>
+                Search
+              </button>
+            </div>
+            <div class="search-tags">
+              <span>Popular searches:</span>
+              @for (tag of popularSearches(); track tag) {
+                <button class="tag-button" (click)="searchByTag(tag)">
+                  {{ tag }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">200+</div>
+              <div class="stat-label">Answered Questions</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">98%</div>
+              <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24/7</div>
+              <div class="stat-label">Support</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">< 2 min</div>
+              <div class="stat-label">Avg. Read Time</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Help Cards -->
+      <section class="quick-help-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Quick Help Categories</h2>
+            <p class="section-subtitle">Get immediate answers organized by topic</p>
+          </div>
+
+          <div class="categories-grid">
+            @for (category of categories(); track category.id) {
+              <div 
+                class="category-card" 
+                [style.background]="category.gradient"
+                (click)="scrollToCategory(category.id)"
+                [class.active]="activeCategory() === category.id"
+              >
+                <div class="category-icon">
+                  <mat-icon>{{ category.icon }}</mat-icon>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+                <div class="question-count">{{ category.count }} questions</div>
+                <div class="popular-questions">
+                  @for (question of category.popularQuestions.slice(0, 2); track question) {
+                    <div class="popular-question">
+                      <mat-icon>help_outline</mat-icon>
+                      <span>{{ question }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="category-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Popular Questions -->
+      <section class="popular-questions-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Most Popular Questions</h2>
+            <p class="section-subtitle">Questions our users ask most frequently</p>
+          </div>
+
+          <div class="popular-questions-grid">
+            @for (question of popularQuestions(); track question.question) {
+              <div class="popular-question-card" (click)="scrollToQuestion(question.question)">
+                <div class="question-meta">
+                  <span class="question-category">{{ question.category }}</span>
+                  <span class="question-views">
+                    <mat-icon>visibility</mat-icon>
+                    {{ question.views }}K
+                  </span>
+                </div>
+                <h3 class="question-text">{{ question.question }}</h3>
+                <div class="question-arrow">
+                  <mat-icon>arrow_forward</mat-icon>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured FAQ -->
+      <section class="featured-faq-section" *ngIf="featuredQuestions().length > 0">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Featured Questions</h2>
+            <p class="section-subtitle">Important questions every user should know</p>
+          </div>
+
+          <div class="featured-faq-grid">
+            @for (faq of featuredQuestions(); track faq.id) {
+              <div class="featured-faq-card">
+                <div class="featured-badge">
+                  <mat-icon>stars</mat-icon>
+                  Featured
+                </div>
+                <div class="faq-content">
+                  <h3 class="faq-question">{{ faq.question }}</h3>
+                  <div class="faq-answer" [innerHTML]="faq.answer"></div>
+                  <div class="faq-meta">
+                    <div class="faq-tags">
+                      @for (tag of faq.tags; track tag) {
+                        <span class="faq-tag">{{ tag }}</span>
+                      }
+                    </div>
+                    <div class="faq-info">
+                      <span class="update-info">Updated {{ faq.lastUpdated }}</span>
+                      <span class="read-time">{{ faq.readTime }} read</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Main FAQ Sections -->
+      <section class="main-faq-section">
+        <div class="container">
+          <div class="faq-header">
+            <h2 class="section-title">Browse All Questions</h2>
+            <p class="section-subtitle">Find detailed answers organized by category</p>
+          </div>
+
+          <div class="faq-categories">
+            @for (category of categories(); track category.id) {
+              <div class="faq-category-section" [id]="'category-' + category.id">
+                <div class="category-header">
+                  <div class="category-title">
+                    <div class="category-icon-small">
+                      <mat-icon>{{ category.icon }}</mat-icon>
+                    </div>
+                    <h3>{{ category.name }}</h3>
+                  </div>
+                  <p class="category-description">{{ category.description }}</p>
+                </div>
+
+                <mat-accordion class="faq-accordion" multi>
+                  @for (faq of getCategoryFAQs(category.id); track faq.id; let i = $index) {
+                    <mat-expansion-panel 
+                      [class.popular]="faq.popular"
+                      [class.featured]="faq.featured"
+                      (opened)="onPanelOpened(faq.id)"
+                    >
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <div class="question-header">
+                            <span class="question-text">{{ faq.question }}</span>
+                            <div class="question-indicators">
+                              @if (faq.popular) {
+                                <span class="popular-indicator">
+                                  <mat-icon>trending_up</mat-icon>
+                                  Popular
+                                </span>
+                              }
+                              @if (faq.featured) {
+                                <span class="featured-indicator">
+                                  <mat-icon>stars</mat-icon>
+                                  Featured
+                                </span>
+                              }
+                            </div>
+                          </div>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      
+                      <div class="faq-answer-content">
+                        <div class="answer-text" [innerHTML]="faq.answer"></div>
+                        
+                        <div class="faq-footer">
+                          <div class="faq-tags">
+                            @for (tag of faq.tags; track tag) {
+                              <mat-chip (click)="searchByTag(tag)">{{ tag }}</mat-chip>
+                            }
+                          </div>
+                          <div class="faq-meta-info">
+                            <span class="last-updated">Updated {{ faq.lastUpdated }}</span>
+                            <span class="read-time">{{ faq.readTime }} read</span>
+                          </div>
+                        </div>
+
+                        <div class="helpful-section">
+                          <span>Was this helpful?</span>
+                          <div class="helpful-buttons">
+                            <button mat-stroked-button class="helpful-btn" (click)="markHelpful(faq.id)">
+                              <mat-icon>thumb_up</mat-icon>
+                              Yes
+                            </button>
+                            <button mat-stroked-button class="helpful-btn" (click)="markNotHelpful(faq.id)">
+                              <mat-icon>thumb_down</mat-icon>
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-expansion-panel>
+                  }
+                </mat-accordion>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Still Need Help Section -->
+      <section class="help-section">
+        <div class="container">
+          <div class="help-content">
+            <div class="help-text">
+              <h2>Still Need Help?</h2>
+              <p>Can't find the answer you're looking for? Our support team is here to help you get the answers you need.</p>
+              
+              <div class="contact-options">
+                <div class="contact-option">
+                  <div class="contact-icon">
+                    <mat-icon>chat</mat-icon>
+                  </div>
+                  <div class="contact-info">
+                    <h4>Live Chat</h4>
+                    <p>Get instant help from our support team</p>
+                    <span class="availability">Available 24/7</span>
+                  </div>
+                </div>
+
+                <div class="contact-option">
+                  <div class="contact-icon">
+                    <mat-icon>email</mat-icon>
+                  </div>
+                  <div class="contact-info">
+                    <h4>Email Support</h4>
+                    <p>Send us a detailed message</p>
+                    <span class="availability">Response within 2 hours</span>
+                  </div>
+                </div>
+
+                <div class="contact-option">
+                  <div class="contact-icon">
+                    <mat-icon>forum</mat-icon>
+                  </div>
+                  <div class="contact-info">
+                    <h4>Community Forum</h4>
+                    <p>Get help from other users</p>
+                    <span class="availability">Always available</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="help-visual">
+              <div class="support-card">
+                <div class="support-avatar">
+                  <mat-icon>support_agent</mat-icon>
+                </div>
+                <div class="support-message">
+                  <div class="message-bubble">
+                    "Hi! I'm here to help you with any questions about MarketSpase. Don't hesitate to ask!"
+                  </div>
+                </div>
+                <div class="support-status">
+                  <div class="status-indicator"></div>
+                  <span>Online now</span>
+                </div>
+                <button mat-raised-button color="primary" class="contact-support-btn" routerLink="/contact">
+                  <mat-icon>chat</mat-icon>
+                  Contact Support
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Related Resources -->
+      <section class="resources-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Related Resources</h2>
+            <p class="section-subtitle">Explore more helpful content and guides</p>
+          </div>
+
+          <div class="resources-grid">
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+              <h3>Knowledge Base</h3>
+              <p>Comprehensive guides and tutorials for all MarketSpase features</p>
+              <button mat-stroked-button class="resource-btn" routerLink="/help-center">
+                Browse Articles
+              </button>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>video_library</mat-icon>
+              </div>
+              <h3>Video Tutorials</h3>
+              <p>Step-by-step video guides for visual learners</p>
+              <button mat-stroked-button class="resource-btn">
+                Watch Videos
+              </button>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>school</mat-icon>
+              </div>
+              <h3>Learning Academy</h3>
+              <p>Structured courses to master digital marketing and promotion</p>
+              <button mat-stroked-button class="resource-btn">
+                Start Learning
+              </button>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-icon">
+                <mat-icon>article</mat-icon>
+              </div>
+              <h3>Blog & Updates</h3>
+              <p>Latest news, tips, and updates from MarketSpase</p>
+              <button mat-stroked-button class="resource-btn">
+                Read Blog
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <app-footer/>

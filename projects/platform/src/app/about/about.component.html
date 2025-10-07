@@ -1,0 +1,342 @@
+<app-header/>
+    <div class="about-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">About Us</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Innovation in Micro-Influencer Marketing</div>
+            <h1 class="hero-title">
+              Revolutionizing
+              <span class="gradient-text">Digital Advertising</span>
+              Through WhatsApp
+            </h1>
+            <p class="hero-subtitle">
+              MarketSpase bridges the gap between brands seeking authentic reach and 
+              individuals looking to monetize their social influence. We're building 
+              the future of peer-to-peer marketing.
+            </p>
+            
+            <div class="hero-actions">
+              <button mat-raised-button color="primary" class="hero-btn primary" routerLink="/auth">
+                <mat-icon>rocket_launch</mat-icon>
+                Get Started
+              </button>
+              <button mat-stroked-button class="hero-btn secondary" (click)="scrollToMission()">
+                <mat-icon>play_circle</mat-icon>
+                Watch Demo
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            @for (stat of heroStatistics(); track stat.label) {
+              <div class="hero-stat">
+                <div class="stat-value">{{ stat.value }}{{ stat.suffix }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </div>
+            }
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Scroll to explore</span>
+        </div>
+      </section>
+
+      <!-- Mission & Vision Section -->
+      <section class="mission-section" #missionSection>
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Our Vision & Mission</h2>
+            <p class="section-subtitle">Driving the future of micro-influencer marketing</p>
+          </div>
+          
+          <div class="mission-cards">
+            <div class="mission-card vision-card">
+              <div class="card-icon">
+                <mat-icon>visibility</mat-icon>
+              </div>
+              <h3>Our Vision</h3>
+              <p>
+                To create a world where everyone can monetize their social influence 
+                while brands achieve authentic, measurable reach through trusted 
+                personal networks.
+              </p>
+              <ul class="vision-list">
+                <li>Global micro-entrepreneurship platform</li>
+                <li>Authentic brand-audience connections</li>
+                <li>Transparent performance metrics</li>
+                <li>Automated trust systems</li>
+              </ul>
+            </div>
+
+            <div class="mission-card mission-statement">
+              <div class="card-icon">
+                <mat-icon>flag</mat-icon>
+              </div>
+              <h3>Our Mission</h3>
+              <p>
+                Democratize digital advertising by empowering individuals to become 
+                micro-influencers while providing businesses with cost-effective, 
+                high-impact marketing solutions.
+              </p>
+              <div class="mission-points">
+                <div class="mission-point">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Enable economic opportunities</span>
+                </div>
+                <div class="mission-point">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Ensure platform transparency</span>
+                </div>
+                <div class="mission-point">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>Build trust through technology</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Value Proposition -->
+      <section class="value-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Why Choose MarketSpase?</h2>
+            <p class="section-subtitle">The complete solution for modern digital marketing</p>
+          </div>
+
+          <div class="value-grid">
+            @for (feature of features(); track feature.title) {
+              <div class="value-card" [style.background]="feature.gradient">
+                <div class="value-icon">
+                  <mat-icon>{{ feature.icon }}</mat-icon>
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Proof Section -->
+      <section class="social-proof-section">
+        <div class="container">
+          <div class="proof-content">
+            <div class="proof-stats">
+              <div class="proof-stat">
+                <div class="stat-number">10K+</div>
+                <div class="stat-desc">Active Promoters</div>
+              </div>
+              <div class="proof-stat">
+                <div class="stat-number">500+</div>
+                <div class="stat-desc">Brands Trust Us</div>
+              </div>
+              <div class="proof-stat">
+                <div class="stat-number">50K+</div>
+                <div class="stat-desc">Campaigns Completed</div>
+              </div>
+              <div class="proof-stat">
+                <div class="stat-number">₦100M+</div>
+                <div class="stat-desc">Total Payouts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section class="workflow-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">How It Works in 4 Simple Steps</h2>
+            <p class="section-subtitle">From campaign creation to payment - completely seamless</p>
+          </div>
+
+          <div class="workflow">
+            <div class="workflow-step">
+              <div class="step-visual">
+                <div class="step-number">01</div>
+                <div class="step-connector"></div>
+              </div>
+              <div class="step-content">
+                <h3>Create Campaign</h3>
+                <p>Marketers upload ads, set budget, and define target audience. System automatically generate unique ID and embed watermarks.</p>
+                <div class="step-features">
+                  <span class="step-feature">Budget Control</span>
+                  <span class="step-feature">Audience Targeting</span>
+                  <span class="step-feature">Auto Watermarking</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="workflow-step">
+              <div class="step-visual">
+                <div class="step-number">02</div>
+                <div class="step-connector"></div>
+              </div>
+              <div class="step-content">
+                <h3>Accept & Share</h3>
+                <p>Promoters browse campaigns, accept matching ones, and share watermarked ads and promotion ID on WhatsApp Status.</p>
+                <div class="step-features">
+                  <span class="step-feature">Campaign Matching</span>
+                  <span class="step-feature">One-Click Accept</span>
+                  <span class="step-feature">Easy Sharing</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="workflow-step">
+              <div class="step-visual">
+                <div class="step-number">03</div>
+                <div class="step-connector"></div>
+              </div>
+              <div class="step-content">
+                <h3>Verify & Track</h3>
+                <p>AI system verifies posts and tracks 24-hour duration. Real-time analytics monitor view counts.</p>
+                <div class="step-features">
+                  <span class="step-feature">AI Verification</span>
+                  <span class="step-feature">24h Tracking</span>
+                  <span class="step-feature">Live Analytics</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="workflow-step">
+              <div class="step-visual">
+                <div class="step-number">04</div>
+              </div>
+              <div class="step-content">
+                <h3>Get Paid</h3>
+                <p>Automated payments released after successful verification. Promoters earn, marketers get results.</p>
+                <div class="step-features">
+                  <span class="step-feature">Auto Payments</span>
+                  <span class="step-feature">Escrow Security</span>
+                  <span class="step-feature">Instant Withdrawal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <app-footer></app-footer>
+
+      <!-- Enhanced Footer -->
+      <!-- <footer class="site-footer">
+        <div class="container">
+          <div class="footer-content">
+            <div class="footer-main">
+              <div class="footer-brand">
+                <div class="brand-logo">
+                  <mat-icon>campaign</mat-icon>
+                  <span>MarketSpase</span>
+                </div>
+                <p class="brand-tagline">
+                  Where WhatsApp Status becomes a source of income by connecting 
+                  marketers and promoters in a unified marketplace.
+                </p>
+                <div class="social-links">
+                  <a href="#" class="social-link">
+                    <mat-icon>facebook</mat-icon>
+                  </a>
+                  <a href="#" class="social-link">
+                    <mat-icon>twitter</mat-icon>
+                  </a>
+                  <a href="#" class="social-link">
+                    <mat-icon>linkedin</mat-icon>
+                  </a>
+                  <a href="#" class="social-link">
+                    <mat-icon>instagram</mat-icon>
+                  </a>
+                </div>
+              </div>
+
+              <div class="footer-links-grid">
+                <div class="footer-column">
+                  <h4>Platform</h4>
+                  <ul>
+                    <li><a routerLink="/features">Features</a></li>
+                    <li><a routerLink="/how-it-works">How It Works</a></li>
+                    <li><a routerLink="/pricing">Pricing</a></li>
+                    <li><a routerLink="/success-stories">Success Stories</a></li>
+                  </ul>
+                </div>
+
+                <div class="footer-column">
+                  <h4>Resources</h4>
+                  <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Community</a></li>
+                    <li><a href="#">API Documentation</a></li>
+                  </ul>
+                </div>
+
+                <div class="footer-column">
+                  <h4>Company</h4>
+                  <ul>
+                    <li><a routerLink="/about" class="active">About Us</a></li>
+                    <li><a routerLink="/careers">Careers</a></li>
+                    <li><a routerLink="/contact">Contact</a></li>
+                    <li><a href="#">Press Kit</a></li>
+                  </ul>
+                </div>
+
+                <div class="footer-column">
+                  <h4>Legal</h4>
+                  <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">GDPR</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="footer-bottom">
+              <div class="footer-copyright">
+                <p>&copy; {{ currentYear }} MarketSpase by Async Groups. All rights reserved.</p>
+              </div>
+              <div class="footer-legal">
+                <div class="payment-methods">
+                  <span>Accepted Payments:</span>
+                  <div class="payment-icons">
+                    <mat-icon>credit_card</mat-icon>
+                    <mat-icon>account_balance</mat-icon>
+                    <mat-icon>payments</mat-icon>
+                  </div>
+                </div>
+                <div class="security-badge">
+                  <mat-icon>security</mat-icon>
+                  <span>SSL Secured</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer> -->
+    </div>

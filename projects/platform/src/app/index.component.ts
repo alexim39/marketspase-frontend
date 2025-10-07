@@ -136,16 +136,16 @@ export interface SocialProvider {
       <div class="auth-footer">
         <p class="footer-text">
           New to MarketSpase? 
-          <a href="https://marketspase.com/about-us" target="_blank" class="signup-link">
+          <a routerLink="/about" class="signup-link">
             Get to Know Us
           </a>
         </p>
         <div class="footer-links">
-          <a href="https://marketspase.com/privacy" target="_blank">Privacy Policy</a>
+          <a href="/legal/privacy" target="_blank">Privacy Policy</a>
           <span class="separator">•</span>
-          <a href="https://marketspase.com/terms" target="_blank">Terms of Service</a>
+          <a href="/legal/terms" target="_blank">Terms of Service</a>
           <span class="separator">•</span>
-          <a href="https://marketspase.com/help" target="_blank">Help Center</a>
+          <a href="/legal/help" target="_blank">Help Center</a>
         </div>
       </div>
 

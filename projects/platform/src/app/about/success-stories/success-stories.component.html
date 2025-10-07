@@ -1,0 +1,455 @@
+    <app-header/>
+    <div class="stories-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Success Stories</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Real Results, Real Stories</div>
+            <h1 class="hero-title">
+              Transforming Brands &
+              <span class="gradient-text">Creating Opportunities</span>
+            </h1>
+            <p class="hero-subtitle">
+              Discover how businesses are achieving remarkable results and individuals 
+              are building sustainable income through MarketSpase.
+            </p>
+          </div>
+
+          <div class="hero-stats">
+            @for (stat of heroStatistics(); track stat.label) {
+              <div class="hero-stat">
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+              </div>
+            }
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Explore success stories</span>
+        </div>
+      </section>
+
+      <!-- Categories Section -->
+      <section class="categories-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Success Across Every Category</h2>
+            <p class="section-subtitle">Discover how different users are achieving their goals with MarketSpase</p>
+          </div>
+
+          <div class="categories-grid">
+            @for (category of categories(); track category.id) {
+              <div 
+                class="category-card" 
+                [class.active]="activeCategory() === category.id"
+                (click)="setActiveCategory('promoter')"
+                [style.background]="category.gradient"
+              >
+                <div class="category-icon">
+                  <mat-icon>{{ category.icon }}</mat-icon>
+                </div>
+                <h3>{{ category.name }}</h3>
+                <p>{{ category.description }}</p>
+                <div class="story-count">{{ category.count }} Stories</div>
+                <div class="category-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Story -->
+      @if (featuredStory()) {
+        <section class="featured-section">
+          <div class="container">
+            <div class="section-header">
+              <h2 class="section-title">Featured Success Story</h2>
+              <p class="section-subtitle">An inspiring story that showcases the power of our platform</p>
+            </div>
+
+            <div class="featured-story-card">
+              <div class="featured-content">
+                <div class="story-meta">
+                  <div class="category-chip">{{ getCategoryLabel(featuredStory()!.category) }}</div>
+                  <div class="read-time">{{ featuredStory()!.readTime }} read</div>
+                </div>
+                
+                <h2 class="story-title">{{ featuredStory()!.title }}</h2>
+                <p class="story-excerpt">{{ featuredStory()!.excerpt }}</p>
+
+                <div class="results-grid">
+                  @for (result of featuredStory()!.results; track result.metric) {
+                    <div class="result-item">
+                      <div class="result-value">{{ result.value }}</div>
+                      <div class="result-metric">{{ result.metric }}</div>
+                      <div class="result-change">{{ result.change }}</div>
+                    </div>
+                  }
+                </div>
+
+                <div class="story-highlights">
+                  <h4>Key Achievements</h4>
+                  <ul>
+                    @for (highlight of featuredStory()!.highlights; track highlight) {
+                      <li>
+                        <mat-icon>check_circle</mat-icon>
+                        <span>{{ highlight }}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+
+                <div class="user-info">
+                  <img [src]="featuredStory()!.user.avatar" [alt]="featuredStory()!.user.name" class="user-avatar">
+                  <div class="user-details">
+                    <strong>{{ featuredStory()!.user.name }}</strong>
+                    <span>{{ featuredStory()!.user.role }} at {{ featuredStory()!.user.company }}</span>
+                  </div>
+                </div>
+
+                <button mat-raised-button color="primary" class="read-story-btn" (click)="openStory(featuredStory()!.id)">
+                  <mat-icon>menu_book</mat-icon>
+                  Read Full Story
+                </button>
+              </div>
+
+              <div class="featured-visual">
+                <div class="story-image">
+                  <img [src]="featuredStory()!.heroImage" [alt]="featuredStory()!.title">
+                  @if (featuredStory()!.videoUrl) {
+                    <button class="play-button" (click)="playVideo(featuredStory()!.videoUrl!)">
+                      <mat-icon>play_arrow</mat-icon>
+                    </button>
+                  }
+                </div>
+                <div class="company-logo">
+                  <img [src]="featuredStory()!.logo" [alt]="featuredStory()!.user.company + ' logo'">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Stories Grid -->
+      <section class="stories-grid-section">
+        <div class="container">
+          <div class="stories-header">
+            <h2 class="section-title">
+              @switch (activeCategory()) {
+                @case ('all') { All Success Stories }
+                @case ('marketer') { Marketer Success Stories }
+                @case ('promoter') { Promoter Success Stories }
+                @case ('enterprise') { Enterprise Success Stories }
+              }
+            </h2>
+            <p class="section-subtitle">
+              Real stories from real users achieving remarkable results
+            </p>
+          </div>
+
+          <div class="stories-grid">
+            @for (story of filteredStories(); track story.id) {
+              <div class="story-card" [class.featured]="story.featured">
+                @if (story.featured) {
+                  <div class="featured-badge">
+                    <mat-icon>stars</mat-icon>
+                    Featured
+                  </div>
+                }
+                
+                <div class="story-image">
+                  <img [src]="story.heroImage" [alt]="story.title">
+                  <div class="category-tag">{{ getCategoryLabel(story.category) }}</div>
+                </div>
+
+                <div class="story-content">
+                  <div class="story-meta">
+                    <span class="read-time">{{ story.readTime }}</span>
+                    <span class="publish-date">{{ story.publishDate }}</span>
+                  </div>
+
+                  <h3 class="story-title">{{ story.title }}</h3>
+                  <p class="story-excerpt">{{ story.excerpt }}</p>
+
+                  <div class="results-preview">
+                    @for (result of story.results.slice(0, 2); track result.metric) {
+                      <div class="result-preview">
+                        <div class="result-value">{{ result.value }}</div>
+                        <div class="result-label">{{ result.metric }}</div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="user-preview">
+                    <img [src]="story.user.avatar" [alt]="story.user.name" class="user-avatar-small">
+                    <div class="user-info">
+                      <strong>{{ story.user.name }}</strong>
+                      <span>{{ story.user.role }}</span>
+                    </div>
+                  </div>
+
+                  <button mat-stroked-button class="read-more-btn" (click)="openStory(story.id)">
+                    Read Story
+                    <mat-icon>arrow_forward</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Video Testimonials -->
+      <section class="video-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Hear From Our Users</h2>
+            <p class="section-subtitle">Watch real users share their MarketSpase success stories</p>
+          </div>
+
+          <div class="video-grid">
+            <div class="video-card">
+              <div class="video-placeholder">
+                <div class="play-indicator">
+                  <mat-icon>play_circle</mat-icon>
+                </div>
+                <img src="/assets/videos/testimonial-1-thumb.jpg" alt="Adeola's Success Story">
+              </div>
+              <div class="video-content">
+                <h3>From Side Hustle to Full-Time Income</h3>
+                <p>Adeola shares how she turned WhatsApp status promotions into a sustainable career</p>
+                <div class="video-meta">
+                  <div class="video-duration">4:32</div>
+                  <div class="video-views">12K views</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <div class="video-placeholder">
+                <div class="play-indicator">
+                  <mat-icon>play_circle</mat-icon>
+                </div>
+                <img src="/assets/videos/testimonial-2-thumb.jpg" alt="Chinedu's Marketing Success">
+              </div>
+              <div class="video-content">
+                <h3>300% ROI in 3 Months</h3>
+                <p>Chinedu explains how MarketSpase transformed his marketing strategy</p>
+                <div class="video-meta">
+                  <div class="video-duration">3:15</div>
+                  <div class="video-views">8.5K views</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="video-card">
+              <div class="video-placeholder">
+                <div class="play-indicator">
+                  <mat-icon>play_circle</mat-icon>
+                </div>
+                <img src="/assets/videos/testimonial-3-thumb.jpg" alt="Bisi's Business Growth">
+              </div>
+              <div class="video-content">
+                <h3>Building a Community Through WhatsApp</h3>
+                <p>Bisi shares how she built an engaged community while earning extra income</p>
+                <div class="video-meta">
+                  <div class="video-duration">5:47</div>
+                  <div class="video-views">15.2K views</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Statistics -->
+      <section class="results-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Proven Results Across Industries</h2>
+            <p class="section-subtitle">MarketSpase delivers measurable impact for businesses and individuals</p>
+          </div>
+
+          <div class="results-stats">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <mat-icon>trending_up</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">89%</div>
+                <div class="stat-label">of marketers see ROI within first month</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <mat-icon>savings</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">₦2.3B+</div>
+                <div class="stat-label">total earnings paid to promoters</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <mat-icon>groups</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">50K+</div>
+                <div class="stat-label">active promoters earning monthly</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <mat-icon>campaign</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value">150K+</div>
+                <div class="stat-label">successful campaigns completed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Industry Spotlight -->
+      <section class="industry-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Success Across Industries</h2>
+            <p class="section-subtitle">Discover how different industries are leveraging MarketSpase</p>
+          </div>
+
+          <div class="industry-grid">
+            <div class="industry-card">
+              <div class="industry-icon">
+                <mat-icon>store</mat-icon>
+              </div>
+              <h3>E-commerce & Retail</h3>
+              <p>Drive sales and increase brand awareness through authentic WhatsApp promotions</p>
+              <div class="industry-stats">
+                <div class="industry-stat">
+                  <strong>45%</strong>
+                  <span>Average sales increase</span>
+                </div>
+                <div class="industry-stat">
+                  <strong>3.2x</strong>
+                  <span>Higher engagement</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="industry-card">
+              <div class="industry-icon">
+                <mat-icon>school</mat-icon>
+              </div>
+              <h3>Education & EdTech</h3>
+              <p>Reach students and parents directly through trusted promoter networks</p>
+              <div class="industry-stats">
+                <div class="industry-stat">
+                  <strong>68%</strong>
+                  <span>Higher enrollment rates</span>
+                </div>
+                <div class="industry-stat">
+                  <strong>2.5x</strong>
+                  <span>More qualified leads</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="industry-card">
+              <div class="industry-icon">
+                <mat-icon>local_hospital</mat-icon>
+              </div>
+              <h3>Healthcare & Wellness</h3>
+              <p>Build trust and reach patients through credible health promoters</p>
+              <div class="industry-stats">
+                <div class="industry-stat">
+                  <strong>52%</strong>
+                  <span>Increase in appointments</span>
+                </div>
+                <div class="industry-stat">
+                  <strong>4.1x</strong>
+                  <span>Brand trust score</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="industry-card">
+              <div class="industry-icon">
+                <mat-icon>celebration</mat-icon>
+              </div>
+              <h3>Entertainment & Events</h3>
+              <p>Create buzz and drive ticket sales through viral WhatsApp campaigns</p>
+              <div class="industry-stats">
+                <div class="industry-stat">
+                  <strong>75%</strong>
+                  <span>Faster ticket sales</span>
+                </div>
+                <div class="industry-stat">
+                  <strong>5.3x</strong>
+                  <span>Social mentions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Write Your Success Story?</h2>
+            <p>Join thousands of marketers and promoters already achieving remarkable results with MarketSpase</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
+                <mat-icon>rocket_launch</mat-icon>
+                Start Your Journey
+              </button>
+              <button mat-stroked-button class="cta-button secondary" routerLink="/contact">
+                <mat-icon>chat</mat-icon>
+                Get Personalized Demo
+              </button>
+            </div>
+            <div class="cta-stats">
+              <div class="cta-stat">
+                <div class="stat-number">30 days</div>
+                <div class="stat-desc">to see first results</div>
+              </div>
+              <div class="cta-stat">
+                <div class="stat-number">24/7</div>
+                <div class="stat-desc">expert support</div>
+              </div>
+              <div class="cta-stat">
+                <div class="stat-number">₦0</div>
+                <div class="stat-desc">to get started</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <app-footer/>
