@@ -427,3 +427,33 @@
     font-size: 18px;
   }
 }
+
+
+.caption-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  float: right;
+  
+}
+
+.copy-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.copy-btn mat-icon {
+  font-size: 20px;
+  //color: #666;
+  color: #667eea;
+  
+}

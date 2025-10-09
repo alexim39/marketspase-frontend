@@ -49,42 +49,46 @@
     }
   </div>
 
-  <div class="card-content">
-    <h3 class="card-title">{{ promotion.campaign.title }}</h3>
+<div class="card-content">
+  <h3 class="card-title">{{ promotion.campaign.title }}</h3>
+  <div class="caption-container">
     <p class="card-description">{{ promotion.campaign.caption }}</p>
-    
-    <div class="card-meta">
-      <span>
-        <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
-        {{ promotion.campaign.category | titlecase }}
-      </span>
-      <span>
-        <i class="material-icons">schedule</i> 
-        <span [ngClass]="{'nearing-expiration': isNearingExpiration()}">{{ countdownSignal() }}</span>
-      </span>
-    </div>
+    <button class="copy-btn" (click)="copyCaption(promotion.campaign.caption)" matTooltip="Copy ID and caption" aria-label="Copy caption">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </div>
+  <div class="card-meta">
+    <span>
+      <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
+      {{ promotion.campaign.category | titlecase }}
+    </span>
+    <span>
+      <i class="material-icons">schedule</i> 
+      <span [ngClass]="{'nearing-expiration': isNearingExpiration()}">{{ countdownSignal() }}</span>
+    </span>
+  </div>
 
-    <div class="metrics">
-      <div class="metric">
-        <div class="metric-value">{{ promotion.proofViews || 0 }}</div>
-        <div class="metric-label">Views</div>
-      </div>
-      <div class="metric">
-        <div class="metric-value">{{ promotion.upi || 0 }}</div>
-        <div class="metric-label">Promo ID</div>
-      </div>
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-value">{{ promotion.proofViews || 0 }}</div>
+      <div class="metric-label">Views</div>
     </div>
-
-    <div class="payout-section">
-      <div class="payout-amount">
-        <span class="currency">₦</span>
-        <span class="amount">{{ promotion.payoutAmount }}</span>
-      </div>
-      <div class="status-indicator">
-        <span class="status-label">{{ promotion.status | titlecase }}</span>
-      </div>
+    <div class="metric">
+      <div class="metric-value">{{ promotion.upi || 0 }}</div>
+      <div class="metric-label">Promo ID</div>
     </div>
   </div>
+
+  <div class="payout-section">
+    <div class="payout-amount">
+      <span class="currency">₦</span>
+      <span class="amount">{{ promotion.payoutAmount }}</span>
+    </div>
+    <div class="status-indicator">
+      <span class="status-label">{{ promotion.status | titlecase }}</span>
+    </div>
+  </div>
+</div>
 
   <div class="card-footer">
     @if (isSubmissionExpired(promotion)) {

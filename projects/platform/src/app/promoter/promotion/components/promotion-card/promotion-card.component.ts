@@ -335,4 +335,21 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  copyCaption(caption: string): void {
+    const textToCopy = `${this.promotion.upi}\n${caption}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(textToCopy).then(
+        () => {
+          this.snackBar.open('Caption copied to clipboard', 'OK', { duration: 3000 });
+        },
+        (err) => {
+          console.error('Failed to copy caption: ', err);
+        }
+      );
+    } else {
+      // Fallback for older browsers – you can implement a fallback method here
+      console.warn('Clipboard API not supported');
+    }
+  }
+
 }
