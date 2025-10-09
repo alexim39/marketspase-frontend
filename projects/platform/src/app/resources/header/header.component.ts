@@ -40,16 +40,16 @@ export class HeaderComponent {
     {
       label: 'Platform',
       children: [
-        { label: 'Features', route: '/about/features', icon: 'rocket_launch' },
+        { label: 'Features', route: '/resources/features', icon: 'rocket_launch' },
         //{ label: 'Pricing', route: '/pricing', icon: 'attach_money' },
-        { label: 'Success Stories', route: '/about/success-stories', icon: 'stars' }
+        { label: 'Success Stories', route: '/resources/success-stories', icon: 'stars' }
       ]
     },
     {
       label: 'Solutions',
       children: [
-        { label: 'For Marketers', route: '/about/solutions/marketers', icon: 'business' },
-        { label: 'For Promoters', route: '/about/solutions/promoters', icon: 'groups' },
+        { label: 'For Marketers', route: '/resources/solutions/marketers', icon: 'business' },
+        { label: 'For Promoters', route: '/resources/solutions/promoters', icon: 'groups' },
         //{ label: 'Case Studies', route: '/case-studies', icon: 'analytics' },
         //{ label: 'API Documentation', externalLink: 'https://docs.marketspase.com', icon: 'code' }
       ]
@@ -58,9 +58,9 @@ export class HeaderComponent {
       label: 'Resources',
       children: [
         //{ label: 'Help Center', externalLink: 'https://help.marketspase.com', icon: 'help' },
-        { label: 'Help Center', route: '/about/help-center',  icon: 'help' },
-        { label: 'How It Works', route: '/about/how-it-works', icon: 'play_circle' },
-        { label: 'FAQs', route: '/about/faqs', icon: 'help_center' },
+        { label: 'Help Center', route: '/resources/help-center',  icon: 'help' },
+        { label: 'How It Works', route: '/resources/how-it-works', icon: 'play_circle' },
+        { label: 'FAQs', route: '/resources/faqs', icon: 'help_center' },
         //{ label: 'Blog', route: '/blog', icon: 'article' },
         //{ label: 'Community', route: '/community', icon: 'forum' },
         //{ label: 'Webinars', route: '/webinars', icon: 'video_library' }
@@ -69,9 +69,9 @@ export class HeaderComponent {
     {
       label: 'Company',
       children: [
-        { label: 'About Us', route: '/about', icon: 'info' },
-        { label: 'Careers', route: '/about/careers', icon: 'work' },
-        { label: 'Contact', route: '/about/contact', icon: 'mail' },
+        { label: 'About Us', route: '/resources/about', icon: 'info' },
+        { label: 'Careers', route: '/resources/careers', icon: 'work' },
+        { label: 'Contact', route: '/resources/contact', icon: 'mail' },
         //{ label: 'Press Kit', externalLink: '/press-kit', icon: 'newspaper' }
       ]
     }
@@ -123,10 +123,10 @@ export class HeaderComponent {
 
   navigateTo(item: NavItem): void {
     if (item.route) {
-      this.router.navigate([item.route]);
 
       this.scrollToTop()
-      
+      this.router.navigate([item.route]);
+
     } else if (item.externalLink) {
       window.open(item.externalLink, '_blank');
     }

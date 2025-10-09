@@ -7,7 +7,7 @@ import { LoadingService } from './loading.service';
 import { AboutSkeletonComponent } from './loading-skeleton/loading-skeleton.component';
 
 @Component({
-    selector: 'app-about-index',
+    selector: 'app-resources-index',
     providers: [LoadingService],
     imports: [RouterModule, CommonModule, AboutSkeletonComponent],
     template: `
@@ -18,7 +18,7 @@ import { AboutSkeletonComponent } from './loading-skeleton/loading-skeleton.comp
     `,
    
 })
-export class AboutIndexComponent {
+export class ResourcesIndexComponent {
     constructor(
     private router: Router,
     public loadingService: LoadingService // Made public for use in the template

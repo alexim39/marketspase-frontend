@@ -1,30 +1,19 @@
 import { Routes } from "@angular/router";
-import { AboutIndexComponent } from "./index.component";
+import { ResourcesIndexComponent } from "./index.component";
 
-export const AboutRoutes: Routes = [
+export const RosourcesRoutes: Routes = [
     { 
         path: '', 
-        component: AboutIndexComponent, 
+        component: ResourcesIndexComponent, 
         children: [
-            {   path: '', 
-                loadComponent: () => import('./about.component').then(c => c.AboutComponent),
+            {
+                path: '', 
+                redirectTo: 'about', 
+                pathMatch: 'full'
+            },
+            {   path: 'about', 
+                loadComponent: () => import('./about/about.component').then(c => c.AboutComponent),
                 title: "About Us - Get to know us",
-                //redirectTo: 'terms',
-                //pathMatch: 'prefix',
-                // children: [
-                //     { path: 'cookies', 
-                //         component: CookiesComponent, 
-                //         title: "Legal - Cookies terms of use"
-                //     },
-                //     { path: 'terms', 
-                //         component: TermsComponent, 
-                //         title: "Legal - Terms of use"
-                //     },
-                //     { path: 'privacy', 
-                //         component: PrivacyComponent, 
-                //         title: "Legal - Privacy terms of use"
-                //     },
-                // ]
             },
             {
                 path: 'contact',

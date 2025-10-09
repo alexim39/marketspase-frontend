@@ -136,7 +136,7 @@ export interface SocialProvider {
       <div class="auth-footer">
         <p class="footer-text">
           New to MarketSpase? 
-          <a routerLink="/about" class="signup-link">
+          <a routerLink="/resources" class="signup-link">
             Get to Know Us
           </a>
         </p>

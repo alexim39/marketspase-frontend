@@ -129,7 +129,7 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+     background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -162,7 +162,7 @@
     }
 
     .hero-btn.primary {
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       color: white;
       border: none;
     }
@@ -189,10 +189,10 @@
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }

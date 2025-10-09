@@ -93,7 +93,7 @@ export class ForMarketersComponent {
         'ROI and performance insights',
         'Exportable reports'
       ],
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       icon: 'verified',
@@ -105,7 +105,7 @@ export class ForMarketersComponent {
         'Fraud detection system',
         'Quality assurance'
       ],
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
     {
       icon: 'watermark',
@@ -117,7 +117,7 @@ export class ForMarketersComponent {
         'Brand protection',
         'Secure asset management'
       ],
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)'
     },
     {
       icon: 'auto_awesome',
@@ -129,7 +129,7 @@ export class ForMarketersComponent {
         'Budget optimization',
         'Best practice recommendations'
       ],
-      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+      gradient: 'linear-gradient(135deg, #da5b25ff 0%, #5d5005ff 100%)'
     },
     {
       icon: 'support_agent',
@@ -141,7 +141,7 @@ export class ForMarketersComponent {
         '24/7 technical support',
         'Best practice guidance'
       ],
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+      gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)'
     }
   ]);
 
