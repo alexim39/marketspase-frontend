@@ -5,7 +5,6 @@ export const AboutRoutes: Routes = [
     { 
         path: '', 
         component: AboutIndexComponent, 
-
         children: [
             {   path: '', 
                 loadComponent: () => import('./about.component').then(c => c.AboutComponent),
@@ -62,6 +61,20 @@ export const AboutRoutes: Routes = [
                 loadComponent: () => import('./career/career.component').then(m => m.CareersComponent),
                 title: "careers - Join our team",
             },
+            {
+                path: 'solutions',
+                children: [
+                    {   path: 'marketers', 
+                        loadComponent: () => import('./for-marketers/for-marketers.component').then(c => c.ForMarketersComponent),
+                        title: "Martketers information Guideline - MarketSpase",
+                    },
+                    {   path: 'promoters', 
+                        loadComponent: () => import('./for-promoters/for-promoters.component').then(c => c.ForPromotersComponent),
+                        title: "Promoters information Guideline - MarketSpase",
+                    }
+                ]
+            }
+           
            
 
         ]

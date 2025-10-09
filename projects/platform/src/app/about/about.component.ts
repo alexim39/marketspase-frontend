@@ -61,38 +61,38 @@ export class AboutComponent {
     {
       icon: 'auto_awesome',
       title: 'AI-Powered Verification',
-      description: 'Advanced computer vision and AI algorithms automatically verify posts and track 24-hour duration with 99% accuracy.',
+      description: 'Advanced computer vision and AI algorithms automatically verify submited screenshot and track 24-hour duration with 99% accuracy.',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
     {
       icon: 'security',
       title: 'Escrow Payment Protection',
       description: 'Funds held securely in escrow until campaign completion. Automated payouts after successful verification.',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       icon: 'analytics',
       title: 'Real-time Analytics',
       description: 'Comprehensive dashboard with live campaign performance, view counts, and earnings tracking.',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
     {
       icon: 'watermark',
       title: 'Embedded Watermarking & Unique IDs',
-      description: 'Automatic unique promotion ID and embedded watermarking for each campaign to prevent fraud and ensure authenticity.',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      description: 'Unique promotion ID and impeccably embedded watermarking for each campaign to prevent fraud and ensure authenticity.',
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)'
     },
     {
       icon: 'diversity_3',
       title: 'Community Trust',
       description: 'Rating system and reputation scores build trust between marketers and promoters.',
-      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+      gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)'
     },
     {
       icon: 'rocket_launch',
       title: 'Rapid Scaling',
-      description: 'Infrastructure designed to handle thousands of concurrent campaigns across multiple regions.',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+      description: 'Infrastructure designed to handle thousands of concurrent campaigns and promotions across multiple regions.',
+      gradient: 'linear-gradient(135deg, #da5b25ff 0%, #98103bff 100%)'
     }
   ]);
 

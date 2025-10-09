@@ -18,4 +18,8 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class FooterComponent {
   currentYear: number = new Date().getFullYear();
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }

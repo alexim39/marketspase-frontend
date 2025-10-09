@@ -24,7 +24,7 @@ interface NavItem {
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
-    MatToolbarModule
+    MatToolbarModule,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
@@ -40,37 +40,39 @@ export class HeaderComponent {
     {
       label: 'Platform',
       children: [
-        { label: 'Features', route: '/features', icon: 'rocket_launch' },
-        { label: 'How It Works', route: '/how-it-works', icon: 'play_circle' },
-        { label: 'Pricing', route: '/pricing', icon: 'attach_money' },
-        { label: 'Success Stories', route: '/success-stories', icon: 'stars' }
+        { label: 'Features', route: '/about/features', icon: 'rocket_launch' },
+        //{ label: 'Pricing', route: '/pricing', icon: 'attach_money' },
+        { label: 'Success Stories', route: '/about/success-stories', icon: 'stars' }
       ]
     },
     {
       label: 'Solutions',
       children: [
-        { label: 'For Marketers', route: '/solutions/marketers', icon: 'business' },
-        { label: 'For Promoters', route: '/solutions/promoters', icon: 'groups' },
-        { label: 'Case Studies', route: '/case-studies', icon: 'analytics' },
-        { label: 'API Documentation', externalLink: 'https://docs.marketspase.com', icon: 'code' }
+        { label: 'For Marketers', route: '/about/solutions/marketers', icon: 'business' },
+        { label: 'For Promoters', route: '/about/solutions/promoters', icon: 'groups' },
+        //{ label: 'Case Studies', route: '/case-studies', icon: 'analytics' },
+        //{ label: 'API Documentation', externalLink: 'https://docs.marketspase.com', icon: 'code' }
       ]
     },
     {
       label: 'Resources',
       children: [
-        { label: 'Help Center', externalLink: 'https://help.marketspase.com', icon: 'help' },
-        { label: 'Blog', route: '/blog', icon: 'article' },
-        { label: 'Community', route: '/community', icon: 'forum' },
-        { label: 'Webinars', route: '/webinars', icon: 'video_library' }
+        //{ label: 'Help Center', externalLink: 'https://help.marketspase.com', icon: 'help' },
+        { label: 'Help Center', route: '/about/help-center',  icon: 'help' },
+        { label: 'How It Works', route: '/about/how-it-works', icon: 'play_circle' },
+        { label: 'FAQs', route: '/about/faqs', icon: 'help_center' },
+        //{ label: 'Blog', route: '/blog', icon: 'article' },
+        //{ label: 'Community', route: '/community', icon: 'forum' },
+        //{ label: 'Webinars', route: '/webinars', icon: 'video_library' }
       ]
     },
     {
       label: 'Company',
       children: [
         { label: 'About Us', route: '/about', icon: 'info' },
-        { label: 'Careers', route: '/careers', icon: 'work' },
-        { label: 'Contact', route: '/contact', icon: 'mail' },
-        { label: 'Press Kit', externalLink: '/press-kit', icon: 'newspaper' }
+        { label: 'Careers', route: '/about/careers', icon: 'work' },
+        { label: 'Contact', route: '/about/contact', icon: 'mail' },
+        //{ label: 'Press Kit', externalLink: '/press-kit', icon: 'newspaper' }
       ]
     }
   ]);
@@ -90,7 +92,7 @@ export class HeaderComponent {
 
   // In header.component.ts
   toggleMobileMenu(): void {
-    console.log('Toggle mobile menu clicked, current state:', this.isMobileMenuOpen());
+    //console.log('Toggle mobile menu clicked, current state:', this.isMobileMenuOpen());
     this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
     if (this.isMobileMenuOpen()) {
       document.body.style.overflow = 'hidden';
@@ -122,8 +124,15 @@ export class HeaderComponent {
   navigateTo(item: NavItem): void {
     if (item.route) {
       this.router.navigate([item.route]);
+
+      this.scrollToTop()
+      
     } else if (item.externalLink) {
       window.open(item.externalLink, '_blank');
     }
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

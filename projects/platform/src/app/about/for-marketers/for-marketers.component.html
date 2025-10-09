@@ -1,0 +1,519 @@
+<app-header/>
+    
+    <div class="marketers-container">
+      <!-- Enhanced Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">For Marketers</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Authentic WhatsApp Marketing</div>
+            <h1 class="hero-title">
+              Reach Real Audiences with
+              <span class="gradient-text">Authentic Influence</span>
+            </h1>
+            <p class="hero-subtitle">
+              Connect with trusted promoters who share your brand with their personal networks. 
+              Get measurable results through WhatsApp Status - the most personal social platform.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <button mat-raised-button color="primary" class="hero-btn primary" routerLink="/auth">
+              <mat-icon>rocket_launch</mat-icon>
+              Start Your First Campaign
+            </button>
+            <button mat-stroked-button class="hero-btn secondary" (click)="scrollToFeatures()">
+              <mat-icon>play_circle</mat-icon>
+              Watch Demo
+            </button>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">3-5x</div>
+              <div class="stat-label">Higher Engagement</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">70%</div>
+              <div class="stat-label">Cost Savings</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">50K+</div>
+              <div class="stat-label">Active Promoters</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24h</div>
+              <div class="stat-label">Campaign Duration</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Discover how it works</span>
+        </div>
+      </section>
+
+      <!-- Why MarketSpase Section -->
+      <section class="why-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Why Choose MarketSpase for Your Marketing?</h2>
+            <p class="section-subtitle">Traditional digital advertising is broken. Here's how we're fixing it.</p>
+          </div>
+
+          <div class="comparison-grid">
+            <div class="comparison-card traditional">
+              <div class="comparison-header">
+                <h3>Traditional Ads</h3>
+                <div class="comparison-badge negative">
+                  <mat-icon>close</mat-icon>
+                  Ineffective
+                </div>
+              </div>
+              <ul class="comparison-list">
+                <li>
+                  <mat-icon>block</mat-icon>
+                  <span>Ad blockers and banner blindness</span>
+                </li>
+                <li>
+                  <mat-icon>payments</mat-icon>
+                  <span>High cost per click/impression</span>
+                </li>
+                <li>
+                  <mat-icon>visibility_off</mat-icon>
+                  <span>Low engagement and trust</span>
+                </li>
+                <li>
+                  <mat-icon>group_off</mat-icon>
+                  <span>Impersonal brand interactions</span>
+                </li>
+                <li>
+                  <mat-icon>analytics</mat-icon>
+                  <span>Complex analytics and tracking</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="comparison-card marketspase">
+              <div class="comparison-header">
+                <h3>MarketSpase</h3>
+                <div class="comparison-badge positive">
+                  <mat-icon>check</mat-icon>
+                  Effective
+                </div>
+              </div>
+              <ul class="comparison-list">
+                <li>
+                  <mat-icon>verified</mat-icon>
+                  <span>Trusted personal recommendations</span>
+                </li>
+                <li>
+                  <mat-icon>savings</mat-icon>
+                  <span>Cost-effective performance pricing</span>
+                </li>
+                <li>
+                  <mat-icon>visibility</mat-icon>
+                  <span>High engagement and view-through rates</span>
+                </li>
+                <li>
+                  <mat-icon>groups</mat-icon>
+                  <span>Authentic personal connections</span>
+                </li>
+                <li>
+                  <mat-icon>insights</mat-icon>
+                  <span>Simple, transparent performance tracking</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Key Features -->
+      <section class="features-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Powerful Features for Smart Marketers</h2>
+            <p class="section-subtitle">Everything you need to run successful WhatsApp marketing campaigns</p>
+          </div>
+
+          <div class="features-grid">
+            @for (feature of features(); track feature.title) {
+              <div class="feature-card" [style.background]="feature.gradient">
+                <div class="feature-icon">
+                  <mat-icon>{{ feature.icon }}</mat-icon>
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+                <div class="feature-benefits">
+                  @for (benefit of feature.benefits; track benefit) {
+                    <div class="benefit-item">
+                      <mat-icon>check_circle</mat-icon>
+                      <span>{{ benefit }}</span>
+                    </div>
+                  }
+                </div>
+                <div class="card-overlay"></div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works for Marketers -->
+      <section class="process-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Launch Your First Campaign in Minutes</h2>
+            <p class="section-subtitle">Simple, fast, and effective campaign management</p>
+          </div>
+
+          <div class="process-steps">
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">01</div>
+                <div class="step-icon">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Create Your Campaign</h3>
+                <p>Upload your ad content, set your budget, and define your target audience. Our system automatically adds secure watermarks.</p>
+                <div class="step-details">
+                  <div class="detail-item">
+                    <mat-icon>upload</mat-icon>
+                    <span>Upload images or videos</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>target</mat-icon>
+                    <span>Set audience criteria</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>account_balance_wallet</mat-icon>
+                    <span>Define your budget</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">02</div>
+                <div class="step-icon">
+                  <mat-icon>group</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Smart Promoter Matching</h3>
+                <p>Our AI matches your campaign with promoters whose audience matches your target demographics and interests.</p>
+                <div class="step-details">
+                  <div class="detail-item">
+                    <mat-icon>smart_toy</mat-icon>
+                    <span>AI-powered matching</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>diversity</mat-icon>
+                    <span>Audience demographic alignment</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>trending_up</mat-icon>
+                    <span>Performance-based selection</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">03</div>
+                <div class="step-icon">
+                  <mat-icon>analytics</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Real-time Performance Tracking</h3>
+                <p>Monitor your campaign performance with live analytics, view counts, and engagement metrics.</p>
+                <div class="step-details">
+                  <div class="detail-item">
+                    <mat-icon>visibility</mat-icon>
+                    <span>Live view counts</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>insights</mat-icon>
+                    <span>Performance analytics</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>show_chart</mat-icon>
+                    <span>ROI tracking</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">04</div>
+                <div class="step-icon">
+                  <mat-icon>verified</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>AI Verification & Results</h3>
+                <p>Our system automatically verifies campaign completion and provides detailed performance reports.</p>
+                <div class="step-details">
+                  <div class="detail-item">
+                    <mat-icon>verified</mat-icon>
+                    <span>Automated verification</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>description</mat-icon>
+                    <span>Detailed performance reports</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>payments</mat-icon>
+                    <span>Pay only for verified results</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Use Cases -->
+      <section class="use-cases-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Success Across Industries</h2>
+            <p class="section-subtitle">See how businesses like yours are achieving remarkable results</p>
+          </div>
+
+          <mat-tab-group class="use-cases-tabs">
+            @for (useCase of useCases(); track useCase.industry) {
+              <mat-tab [label]="useCase.industry">
+                <div class="tab-content">
+                  <div class="use-case-card">
+                    <div class="use-case-content">
+                      <h3>{{ useCase.title }}</h3>
+                      <p>{{ useCase.description }}</p>
+                      
+                      <div class="results-grid">
+                        @for (result of useCase.results; track result.metric) {
+                          <div class="result-item">
+                            <div class="result-value">{{ result.value }}</div>
+                            <div class="result-metric">{{ result.metric }}</div>
+                            <div class="result-change">{{ result.change }}</div>
+                          </div>
+                        }
+                      </div>
+
+                      <button mat-stroked-button class="case-study-btn">
+                        Read Full Case Study
+                      </button>
+                    </div>
+                    <div class="use-case-visual">
+                      <div class="case-image">
+                        <img [src]="useCase.image" [alt]="useCase.title">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+            }
+          </mat-tab-group>
+        </div>
+      </section>
+
+      <!-- Pricing Section -->
+      <section class="pricing-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">Pay only for verified results. No hidden fees, no surprises.</p>
+          </div>
+
+          <div class="pricing-grid">
+            @for (tier of pricingTiers(); track tier.name) {
+              <div class="pricing-card" [class.popular]="tier.popular">
+                @if (tier.popular) {
+                  <div class="popular-badge">Most Popular</div>
+                }
+                <div class="pricing-header" [style.background]="tier.gradient">
+                  <h3>{{ tier.name }}</h3>
+                  <div class="price">
+                    <span class="amount">{{ tier.price }}</span>
+                    <span class="period">/{{ tier.period }}</span>
+                  </div>
+                  <p class="tier-description">{{ tier.description }}</p>
+                </div>
+                <div class="pricing-features">
+                  <ul>
+                    @for (feature of tier.features; track feature) {
+                      <li>
+                        <mat-icon>check_circle</mat-icon>
+                        <span>{{ feature }}</span>
+                      </li>
+                    }
+                  </ul>
+                </div>
+                <button 
+                  mat-raised-button 
+                  [color]="tier.popular ? 'primary' : ''"
+                  class="pricing-button"
+                  routerLink="/auth"
+                >
+                  Get Started
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="pricing-note">
+            <mat-icon>info</mat-icon>
+            <span>All plans include our 14-day free trial. No credit card required to get started.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials -->
+      <section class="testimonials-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Trusted by Smart Marketers</h2>
+            <p class="section-subtitle">See what other marketers are saying about their MarketSpase experience</p>
+          </div>
+
+          <div class="testimonials-grid">
+            @for (testimonial of testimonials(); track testimonial.name) {
+              <div class="testimonial-card">
+                <div class="testimonial-content">
+                  <div class="quote-icon">"</div>
+                  <p>{{ testimonial.content }}</p>
+                  
+                  <div class="testimonial-results">
+                    @for (result of testimonial.results; track result.metric) {
+                      <div class="testimonial-result">
+                        <div class="result-value">{{ result.value }}</div>
+                        <div class="result-metric">{{ result.metric }}</div>
+                      </div>
+                    }
+                  </div>
+                </div>
+                
+                <div class="testimonial-author">
+                  <img [src]="testimonial.avatar" [alt]="testimonial.name" class="author-avatar">
+                  <div class="author-info">
+                    <strong>{{ testimonial.name }}</strong>
+                    <span>{{ testimonial.role }} at {{ testimonial.company }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="faq-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Quick answers to common marketer questions</p>
+          </div>
+
+          <div class="faq-grid">
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>How much does it cost to run a campaign?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Campaign costs start from as low as ₦5,000 and scale based on your target audience size and campaign duration. You only pay when promoters successfully complete your campaign requirements.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>What type of content works best?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>High-quality images and short videos (15-30 seconds) perform best. Content that tells a story, offers value, or creates curiosity typically achieves the highest engagement rates on WhatsApp Status.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>How do you verify campaign completion?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Our AI-powered verification system analyzes screenshots and proof submitted by promoters. We verify that your content was posted, remained visible for 24 hours, and achieved the required view count.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>Can I target specific demographics?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Yes! You can target based on age, location, interests, and promoter audience demographics. Our smart matching system ensures your campaign reaches the most relevant audiences.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Transform Your Marketing?</h2>
+            <p>Join thousands of marketers already achieving better results with authentic WhatsApp marketing</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
+                <mat-icon>rocket_launch</mat-icon>
+                Start Free Trial
+              </button>
+              <button mat-stroked-button class="cta-button secondary" routerLink="/contact">
+                <mat-icon>chat</mat-icon>
+                Book a Demo
+              </button>
+            </div>
+            <div class="cta-features">
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>No credit card required</span>
+              </div>
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>Setup in 5 minutes</span>
+              </div>
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>Expert support included</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <app-footer/>

@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { TestimonialsComponent } from '../../dashboard/testimonial/testimonial.component';
 
 interface Feature {
   icon: string;
@@ -58,7 +59,8 @@ interface Testimonial {
     MatTabsModule,
     MatCheckboxModule,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    TestimonialsComponent
   ],
   templateUrl: './features.component.html',
   styleUrls: ['./features.component.scss']
@@ -71,7 +73,7 @@ export class FeaturesComponent {
     {
       id: 'marketer',
       name: 'For Marketers',
-      description: 'Powerful tools to create, manage, and optimize your campaigns',
+      description: 'Powerful tools to create, manage, and optimize your WhatApp status campaigns',
       icon: 'campaign',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
@@ -80,14 +82,14 @@ export class FeaturesComponent {
       name: 'For Promoters',
       description: 'Everything you need to earn from your WhatsApp status',
       icon: 'groups',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       id: 'platform',
       name: 'Platform Features',
-      description: 'Advanced technology powering the entire ecosystem',
+      description: 'Advanced AI technology powering the entire ecosystem',
       icon: 'auto_awesome',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     }
   ]);
 
@@ -116,7 +118,7 @@ export class FeaturesComponent {
         'Location targeting',
         'Audience behavior analysis'
       ],
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)',
       category: 'marketer'
     },
     {
@@ -129,20 +131,20 @@ export class FeaturesComponent {
         'A/B testing automation',
         'Smart budget allocation'
       ],
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)',
       category: 'marketer'
     },
     {
       icon: 'watermark',
       title: 'Secure Watermarking',
-      description: 'Automatic unique watermarking for each campaign to ensure authenticity and prevent fraud.',
+      description: 'Unique promotioin ID and impeccably embedded watermarking for each promtion to ensure authenticity and prevent fraud.',
       benefits: [
         'Automatic watermark generation',
         'Unique campaign identifiers',
         'Fraud prevention',
         'Content protection'
       ],
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)',
       category: 'marketer'
     },
 
@@ -257,52 +259,54 @@ export class FeaturesComponent {
 
   pricingTiers = signal<PricingTier[]>([
     {
-      name: 'Starter',
-      price: '₦0',
-      period: 'month',
-      description: 'Perfect for individuals and small businesses',
-      features: [
-        'Up to 5 active campaigns',
-        'Basic analytics',
-        'Standard support',
-        'Manual verification',
-        'Up to 100 promoters'
-      ],
+      name: 'Marketers',
+      price: '10% ',
+      period: ' Transaction',
+      description: 'No monthly fees. Pay only 10% service charge on fund deposit.',
+      features: [],
+      // features: [
+      //   'Up to 5 active campaigns',
+      //   'Basic analytics',
+      //   'Standard support',
+      //   'Manual verification',
+      //   'Up to 100 promoters'
+      // ],
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
+    // {
+    //   name: 'Professional',
+    //   price: '₦25,000',
+    //   period: 'month',
+    //   description: 'Ideal for growing businesses and agencies',
+    //   features: [
+    //     'Up to 50 active campaigns',
+    //     'Advanced analytics',
+    //     'Priority support',
+    //     'AI verification',
+    //     'Up to 1,000 promoters',
+    //     'A/B testing',
+    //     'API access'
+    //   ],
+    //   popular: true,
+    //   gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+    // },
     {
-      name: 'Professional',
-      price: '₦25,000',
-      period: 'month',
-      description: 'Ideal for growing businesses and agencies',
-      features: [
-        'Up to 50 active campaigns',
-        'Advanced analytics',
-        'Priority support',
-        'AI verification',
-        'Up to 1,000 promoters',
-        'A/B testing',
-        'API access'
-      ],
-      popular: true,
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-    },
-    {
-      name: 'Enterprise',
-      price: 'Custom',
-      period: 'month',
-      description: 'For large organizations with custom needs',
-      features: [
-        'Unlimited campaigns',
-        'Enterprise analytics',
-        'Dedicated support',
-        'Custom AI models',
-        'Unlimited promoters',
-        'Advanced API',
-        'Custom integrations',
-        'SLA guarantee'
-      ],
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      name: 'Promoters',
+      price: '15% ',
+      period: ' Transaction',
+      description: 'No subscription fees. Pay only 15% service charge on fund withdrawal.',
+      features: [],
+      // features: [
+      //   'Unlimited campaigns',
+      //   'Enterprise analytics',
+      //   'Dedicated support',
+      //   'Custom AI models',
+      //   'Unlimited promoters',
+      //   'Advanced API',
+      //   'Custom integrations',
+      //   'SLA guarantee'
+      // ],
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     }
   ]);
 

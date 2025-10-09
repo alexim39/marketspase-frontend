@@ -1,0 +1,421 @@
+
+    <app-header/>
+    <div class="promoters-container">
+      <!-- Hero Section -->
+      <section class="hero-section">
+        <div class="hero-background">
+          <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+        </div>
+        <div class="hero-content">
+          <nav class="breadcrumb-nav">
+            <a routerLink="/" class="breadcrumb-link">
+              <mat-icon>home</mat-icon>
+              Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">For Promoters</span>
+          </nav>
+          
+          <div class="hero-text">
+            <div class="badge">Earn Money with WhatsApp</div>
+            <h1 class="hero-title">
+              Turn Your WhatsApp Status Into
+              <span class="gradient-text">Passive Income</span>
+            </h1>
+            <p class="hero-subtitle">
+              Get paid for sharing brand content on your WhatsApp status. 
+              Simple posts, real earnings. Start earning in minutes.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <button mat-raised-button color="primary" class="hero-btn primary" routerLink="/auth/register">
+              <mat-icon>rocket_launch</mat-icon>
+              Start Earning Now
+            </button>
+            <button mat-stroked-button class="hero-btn secondary" (click)="scrollToHowItWorks()">
+              <mat-icon>play_circle</mat-icon>
+              How It Works
+            </button>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="stat-value">₦50K+</div>
+              <div class="stat-label">Total Earnings Paid</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">10K+</div>
+              <div class="stat-label">Active Promoters</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">24h</div>
+              <div class="stat-label">Payment Processing</div>
+            </div>
+            <div class="hero-stat">
+              <div class="stat-value">25+</div>
+              <div class="stat-label">Views Required</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="scroll-indicator">
+          <div class="scroll-line"></div>
+          <span>Start your earning journey</span>
+        </div>
+      </section>
+
+      <!-- Benefits Section -->
+      <section class="benefits-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Why Become a MarketSpase Promoter?</h2>
+            <p class="section-subtitle">Join thousands of Nigerians already earning with their WhatsApp status</p>
+          </div>
+
+          <div class="benefits-grid">
+            @for (benefit of benefits(); track benefit.title) {
+              <div class="benefit-card">
+                <div class="benefit-icon">
+                  <mat-icon>{{ benefit.icon }}</mat-icon>
+                </div>
+                <h3>{{ benefit.title }}</h3>
+                <p>{{ benefit.description }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works -->
+      <section class="process-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Start Earning in 4 Simple Steps</h2>
+            <p class="section-subtitle">Easy process, guaranteed payments</p>
+          </div>
+
+          <div class="process-steps">
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">01</div>
+                <div class="step-icon">
+                  <mat-icon>person_add</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Create Your Account</h3>
+                <p>Sign up as a promoter, verify your profile, and set up your payment method. It takes less than 2 minutes.</p>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">02</div>
+                <div class="step-icon">
+                  <mat-icon>campaign</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Browse Available Campaigns</h3>
+                <p>Choose from hundreds of campaigns that match your audience. Each campaign shows exactly how much you'll earn.</p>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">03</div>
+                <div class="step-icon">
+                  <mat-icon>whatsapp</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Share on WhatsApp Status</h3>
+                <p>Download the branded content and post it to your WhatsApp status. Keep it live for 24 hours.</p>
+              </div>
+            </div>
+
+            <div class="process-step">
+              <div class="step-visual">
+                <div class="step-number">04</div>
+                <div class="step-icon">
+                  <mat-icon>payments</mat-icon>
+                </div>
+              </div>
+              <div class="step-content">
+                <h3>Get Paid Automatically</h3>
+                <p>Once your post gets 25+ views and stays up for 24 hours, we automatically transfer earnings to your wallet.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Earning Potential -->
+      <section class="earnings-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Your Earning Potential</h2>
+            <p class="section-subtitle">Earn based on your WhatsApp audience size and engagement</p>
+          </div>
+
+          <div class="earnings-grid">
+            @for (tier of earningTiers(); track tier.views) {
+              <div class="earning-tier" [class.popular]="tier.popular">
+                @if (tier.popular) {
+                  <div class="popular-badge">Most Common</div>
+                }
+                <div class="tier-header">
+                  <h3>{{ tier.views }} Views</h3>
+                  <div class="earnings-amount">{{ tier.earnings }}</div>
+                </div>
+                <p class="tier-description">{{ tier.description }}</p>
+                <div class="tier-stats">
+                  <div class="stat">
+                    <mat-icon>schedule</mat-icon>
+                    <span>24 hours</span>
+                  </div>
+                  <div class="stat">
+                    <mat-icon>visibility</mat-icon>
+                    <span>25+ views required</span>
+                  </div>
+                  <div class="stat">
+                    <mat-icon>payments</mat-icon>
+                    <span>Instant payout</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="earnings-note">
+            <mat-icon>info</mat-icon>
+            <span>All earnings are guaranteed once you meet the 25-view requirement. No hidden fees.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Available Campaigns Preview -->
+      <section class="campaigns-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Available Campaigns</h2>
+            <p class="section-subtitle">Real campaigns waiting for promoters like you</p>
+          </div>
+
+          <div class="campaigns-grid">
+            @for (campaign of sampleCampaigns(); track campaign.id) {
+              <div class="campaign-card">
+                <div class="campaign-header">
+                  <div class="campaign-category">
+                    <mat-icon>label</mat-icon>
+                    {{ campaign.category }}
+                  </div>
+                  <div class="campaign-urgency" [class]="campaign.urgency">
+                    <mat-icon>
+                      @switch (campaign.urgency) {
+                        @case ('high') { flash_on }
+                        @case ('medium') { schedule }
+                        @case ('low') { timer }
+                      }
+                    </mat-icon>
+                    {{ campaign.urgency }} demand
+                  </div>
+                </div>
+                
+                <h3>{{ campaign.title }}</h3>
+                <p>{{ campaign.description }}</p>
+                
+                <div class="campaign-meta">
+                  <div class="meta-item">
+                    <mat-icon>account_balance_wallet</mat-icon>
+                    <span>Earns {{ campaign.earnings }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <mat-icon>schedule</mat-icon>
+                    <span>{{ campaign.duration }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <mat-icon>visibility</mat-icon>
+                    <span>{{ campaign.viewsRequired }}+ views</span>
+                  </div>
+                </div>
+
+                <div class="campaign-footer">
+                  <div class="marketer-info">
+                    <div class="marketer-rating">
+                      <mat-icon>star</mat-icon>
+                      <span>{{ campaign.marketerRating }}/5</span>
+                    </div>
+                    <span class="marketer-name">by {{ campaign.marketer }}</span>
+                  </div>
+                  <button mat-stroked-button class="accept-btn">
+                    Accept Campaign
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="view-all-container">
+            <button mat-raised-button color="primary" routerLink="/campaigns" class="view-all-btn">
+              View All Campaigns
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Success Stories -->
+      <section class="testimonials-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Success Stories from Promoters</h2>
+            <p class="section-subtitle">See how real people are earning with MarketSpase</p>
+          </div>
+
+          <div class="testimonials-grid">
+            @for (testimonial of promoterTestimonials(); track testimonial.name) {
+              <div class="testimonial-card">
+                <div class="testimonial-content">
+                  <div class="quote-icon">"</div>
+                  <p>{{ testimonial.content }}</p>
+                  
+                  <div class="testimonial-stats">
+                    @for (stat of testimonial.stats; track stat.metric) {
+                      <div class="testimonial-stat">
+                        <div class="stat-value">{{ stat.value }}</div>
+                        <div class="stat-metric">{{ stat.metric }}</div>
+                      </div>
+                    }
+                  </div>
+                </div>
+                
+                <div class="testimonial-author">
+                  <img [src]="testimonial.avatar" [alt]="testimonial.name" class="author-avatar">
+                  <div class="author-info">
+                    <strong>{{ testimonial.name }}</strong>
+                    <span>{{ testimonial.role }}</span>
+                    <div class="author-earnings">
+                      <mat-icon>account_balance_wallet</mat-icon>
+                      {{ testimonial.earnings }} total earnings
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section class="faq-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know about promoting</p>
+          </div>
+
+          <div class="faq-grid">
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>How much can I earn per campaign?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Earnings range from ₦500 to ₦5,000 per campaign, depending on the campaign requirements and your audience size. Most promoters earn between ₦1,000-₦2,000 per post.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>What happens if I don't get 25 views?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>If your post doesn't reach 25 views within 24 hours, you won't receive payment for that campaign. However, you can still participate in other campaigns and build your audience.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>How do I prove I posted the content?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>You'll need to submit screenshots showing the post on your WhatsApp status with visible view counts. Our AI verification system checks these automatically.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>When do I get paid?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Payments are processed automatically within 24 hours after your campaign ends successfully. You can withdraw to your bank account or mobile money.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>Can I post multiple campaigns at once?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>Yes! You can run multiple campaigns simultaneously, as long as each post meets the 25-view requirement. Many promoters run 2-3 campaigns at a time to maximize earnings.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question">
+                <h4>Is there any cost to join?</h4>
+                <mat-icon>add</mat-icon>
+              </div>
+              <div class="faq-answer">
+                <p>No, joining as a promoter is completely free. You only earn money - there are no fees or hidden charges.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final CTA -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Start Earning?</h2>
+            <p>Join thousands of promoters making money with their WhatsApp status today</p>
+            <div class="cta-buttons">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth/register">
+                <mat-icon>rocket_launch</mat-icon>
+                Become a Promoter
+              </button>
+              <button mat-stroked-button class="cta-button secondary" routerLink="/campaigns">
+                <mat-icon>campaign</mat-icon>
+                Browse Campaigns
+              </button>
+            </div>
+            <div class="cta-features">
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>Free to join</span>
+              </div>
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>Setup in 2 minutes</span>
+              </div>
+              <div class="cta-feature">
+                <mat-icon>check_circle</mat-icon>
+                <span>Guaranteed payments</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <app-footer/>

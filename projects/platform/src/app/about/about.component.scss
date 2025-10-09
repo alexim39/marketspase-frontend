@@ -248,6 +248,9 @@
       margin: 0 0 16px 0;
       color: #1a202c;
       letter-spacing: -0.02em;
+      @media (max-width: 480px) {
+        font-size: 1.8rem;
+      }
     }
 
     .section-subtitle {
