@@ -42,7 +42,7 @@ export class HeaderComponent {
       children: [
         { label: 'Features', route: '/resources/features', icon: 'rocket_launch' },
         //{ label: 'Pricing', route: '/pricing', icon: 'attach_money' },
-        { label: 'Success Stories', route: '/resources/success-stories', icon: 'stars' }
+        // { label: 'Success Stories', route: '/resources/success-stories', icon: 'stars' }
       ]
     },
     {
@@ -58,7 +58,7 @@ export class HeaderComponent {
       label: 'Resources',
       children: [
         //{ label: 'Help Center', externalLink: 'https://help.marketspase.com', icon: 'help' },
-        { label: 'Help Center', route: '/resources/help-center',  icon: 'help' },
+        // { label: 'Help Center', route: '/resources/help-center',  icon: 'help' },
         { label: 'How It Works', route: '/resources/how-it-works', icon: 'play_circle' },
         { label: 'FAQs', route: '/resources/faqs', icon: 'help_center' },
         //{ label: 'Blog', route: '/blog', icon: 'article' },

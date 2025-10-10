@@ -35,14 +35,26 @@ export class ResourcesIndexComponent {
       )
       .subscribe(event => {
         if (event instanceof NavigationStart) {
-          // A navigation has started, show the loader
           this.loadingService.show();
-        } else if (event instanceof NavigationEnd || 
-                   event instanceof NavigationCancel || 
-                   event instanceof NavigationError) {
-          // Navigation completed successfully, or was cancelled/failed, hide the loader
+        } else if (event instanceof NavigationEnd) { // Only successful navigation
+          this.loadingService.hide();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (event instanceof NavigationCancel || 
+                  event instanceof NavigationError) {
+          // Optionally handle cancelled or errored navigation separately
           this.loadingService.hide();
         }
       });
+      // .subscribe(event => {
+      //   if (event instanceof NavigationStart) {
+      //     // A navigation has started, show the loader
+      //     this.loadingService.show();
+      //   } else if (event instanceof NavigationEnd || 
+      //              event instanceof NavigationCancel || 
+      //              event instanceof NavigationError) {
+      //     // Navigation completed successfully, or was cancelled/failed, hide the loader
+      //     this.loadingService.hide();
+      //   }
+      // });
   }
 }

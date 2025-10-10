@@ -32,7 +32,7 @@
           </div>
 
           <!-- Search Section -->
-          <div class="search-section">
+          <!-- <div class="search-section">
             <div class="search-container">
               <mat-form-field appearance="outline" class="search-field">
                 <mat-label>Search questions and answers...</mat-label>
@@ -56,7 +56,7 @@
                 </button>
               }
             </div>
-          </div>
+          </div> -->
 
           <div class="hero-stats">
             <div class="hero-stat">
@@ -129,12 +129,15 @@
               <div class="popular-question-card" (click)="scrollToQuestion(question.question)">
                 <div class="question-meta">
                   <span class="question-category">{{ question.category }}</span>
-                  <span class="question-views">
+                 <!--  <span class="question-views">
                     <mat-icon>visibility</mat-icon>
                     {{ question.views }}K
-                  </span>
+                  </span> -->
                 </div>
                 <h3 class="question-text">{{ question.question }}</h3>
+                <p>
+                  {{question.answer}}
+                </p>
                 <div class="question-arrow">
                   <mat-icon>arrow_forward</mat-icon>
                 </div>
@@ -145,7 +148,8 @@
       </section>
 
       <!-- Featured FAQ -->
-      <section class="featured-faq-section" *ngIf="featuredQuestions().length > 0">
+      @if (featuredQuestions().length > 0) {
+      <section class="featured-faq-section">
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">Featured Questions</h2>
@@ -179,6 +183,7 @@
           </div>
         </div>
       </section>
+    }
 
       <!-- Main FAQ Sections -->
       <section class="main-faq-section">
@@ -326,7 +331,7 @@
                   <div class="status-indicator"></div>
                   <span>Online now</span>
                 </div>
-                <button mat-raised-button color="primary" class="contact-support-btn" routerLink="/contact">
+                <button mat-raised-button color="primary" class="contact-support-btn" routerLink="/resources/contact">
                   <mat-icon>chat</mat-icon>
                   Contact Support
                 </button>
@@ -337,7 +342,7 @@
       </section>
 
       <!-- Related Resources -->
-      <section class="resources-section">
+      <!-- <section class="resources-section">
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">Related Resources</h2>
@@ -390,6 +395,6 @@
             </div>
           </div>
         </div>
-      </section>
+      </section> -->
     </div>
     <app-footer/>

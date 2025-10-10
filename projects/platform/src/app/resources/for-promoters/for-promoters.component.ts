@@ -100,24 +100,24 @@ export class ForPromotersComponent {
   ]);
 
   earningTiers = signal<EarningTier[]>([
-    {
+   /*  {
       views: '25-50',
       earnings: '₦500 - ₦1,000',
       description: 'Perfect for beginners with smaller networks',
       popular: false
-    },
+    }, */
     {
-      views: '51-100',
-      earnings: '₦1,000 - ₦2,000',
-      description: 'Great for active users with engaged followers',
+      views: '25+',
+      earnings: '₦200',
+      description: 'Great for all active users with engaged WhatsApp contacts',
       popular: true
     },
-    {
+   /*  {
       views: '100+',
       earnings: '₦2,000 - ₦5,000',
       description: 'Premium campaigns for large, active audiences',
       popular: false
-    }
+    } */
   ]);
 
   sampleCampaigns = signal<Campaign[]>([
@@ -165,7 +165,7 @@ export class ForPromotersComponent {
       role: 'Student & Promoter',
       earnings: '₦85,000',
       content: 'I started promoting to pay for my school fees. Now I earn enough to cover my expenses and even save some money. The best part is I can do it between classes!',
-      avatar: '/assets/avatars/aisha.jpg',
+      avatar: '/img/resources/avatar/aisha.png',
       stats: [
         { metric: 'Campaigns', value: '42' },
         { metric: 'Success Rate', value: '98%' },
@@ -174,14 +174,26 @@ export class ForPromotersComponent {
     },
     {
       name: 'Chinedu Okoro',
-      role: 'Freelancer',
+      role: 'Entrepreneur',
       earnings: '₦120,000',
-      content: 'As a freelancer, MarketSpase gives me stable extra income. I run 2-3 campaigns weekly and earn consistently. The payment system is reliable and fast.',
-      avatar: '/assets/avatars/chinedu.jpg',
+      content: 'I use MarketSpase to supplement my business income. The flexibility allows me to promote during my free time, and the earnings help with my business expenses.',
+      avatar: '/img/resources/avatar/chinedu.png',
       stats: [
         { metric: 'Campaigns', value: '67' },
         { metric: 'Success Rate', value: '95%' },
         { metric: 'Avg. Earnings', value: '₦1,791' }
+      ]
+    },
+    {
+      name: 'Aliu Ibrahim',
+      role: 'Freelancer',
+      earnings: '₦72,000',
+      content: 'As a freelancer, MarketSpase gives me stable extra income. I run 2-3 campaigns weekly and earn consistently. The payment system is reliable and fast.',
+      avatar: '/img/resources/avatar/aliu.png',
+      stats: [
+        { metric: 'Campaigns', value: '84' },
+        { metric: 'Success Rate', value: '78%' },
+        { metric: 'Avg. Earnings', value: '₦850' }
       ]
     }
   ]);

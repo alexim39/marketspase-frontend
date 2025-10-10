@@ -129,7 +129,7 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -162,7 +162,7 @@
     }
 
     .hero-btn.primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       color: white;
       border: none;
     }
@@ -192,7 +192,7 @@
       font-size: 2.5rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -243,6 +243,9 @@
       margin: 0 0 16px 0;
       color: #1a202c;
       letter-spacing: -0.02em;
+      @media (max-width: 480px) {
+        font-size: 1.5rem;
+      }
     }
 
     .section-subtitle {
@@ -343,7 +346,7 @@
       justify-content: center;
       font-size: 1.5rem;
       font-weight: 800;
-      box-shadow: 0 10px 30px rgba(67, 233, 123, 0.3);
+      box-shadow: 0 10px 30px rgba(109, 67, 233, 0.3);
     }
 
     .step-icon {
@@ -810,8 +813,11 @@
     .cta-content h2 {
       font-size: clamp(2.5rem, 4vw, 3.5rem);
       font-weight: 800;
-      margin: 0 0 16px 0;
+      margin: 0 0 26px 0;
       letter-spacing: -0.02em;
+      @media (max-width: 480px) {
+        font-size: 1.5rem;
+      }
     }
 
     .cta-content p {

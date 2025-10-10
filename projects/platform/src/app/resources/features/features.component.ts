@@ -310,32 +310,32 @@ export class FeaturesComponent {
     }
   ]);
 
-  testimonials = signal<Testimonial[]>([
-    {
-      name: 'Adeola Johnson',
-      role: 'Marketing Director',
-      company: 'Nigerian Breweries',
-      content: 'MarketSpase transformed our digital marketing strategy. The ROI is incredible and the platform is so easy to use.',
-      avatar: '/assets/testimonials/adeola.jpg',
-      rating: 5
-    },
-    {
-      name: 'Chinedu Okoro',
-      role: 'Content Creator',
-      company: 'Self-Employed',
-      content: 'I\'ve earned over ₦500,000 in 6 months just by sharing campaigns on my WhatsApp status. Life-changing platform!',
-      avatar: '/assets/testimonials/chinedu.jpg',
-      rating: 5
-    },
-    {
-      name: 'Bisi Adekunle',
-      role: 'CEO',
-      company: 'Fashion Haven NG',
-      content: 'The targeting capabilities are amazing. We reached exactly the right audience and saw a 300% increase in engagement.',
-      avatar: '/assets/testimonials/bisi.jpg',
-      rating: 5
-    }
-  ]);
+  // testimonials = signal<Testimonial[]>([
+  //   {
+  //     name: 'Adeola Johnson',
+  //     role: 'Marketing Director',
+  //     company: 'Nigerian Breweries',
+  //     content: 'MarketSpase transformed our digital marketing strategy. The ROI is incredible and the platform is so easy to use.',
+  //     avatar: '/assets/testimonials/adeola.jpg',
+  //     rating: 5
+  //   },
+  //   {
+  //     name: 'Chinedu Okoro',
+  //     role: 'Content Creator',
+  //     company: 'Self-Employed',
+  //     content: 'I\'ve earned over ₦500,000 in 6 months just by sharing campaigns on my WhatsApp status. Life-changing platform!',
+  //     avatar: '/assets/testimonials/chinedu.jpg',
+  //     rating: 5
+  //   },
+  //   {
+  //     name: 'Bisi Adekunle',
+  //     role: 'CEO',
+  //     company: 'Fashion Haven NG',
+  //     content: 'The targeting capabilities are amazing. We reached exactly the right audience and saw a 300% increase in engagement.',
+  //     avatar: '/assets/testimonials/bisi.jpg',
+  //     rating: 5
+  //   }
+  // ]);
 
   filteredFeatures = signal<Feature[]>([]);
 

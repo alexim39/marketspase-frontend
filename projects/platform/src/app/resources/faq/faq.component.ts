@@ -19,11 +19,11 @@ interface FAQ {
   question: string;
   answer: string;
   category: string;
-  tags: string[];
+  tags?: string[];
   popular?: boolean;
   featured?: boolean;
-  lastUpdated: string;
-  readTime: string;
+  lastUpdated?: string;
+  readTime?: string;
 }
 
 interface FAQCategory {
@@ -39,7 +39,8 @@ interface FAQCategory {
 interface PopularQuestion {
   question: string;
   category: string;
-  views: number;
+  views?: number;
+  answer: string;
 }
 
 @Component({
@@ -92,7 +93,7 @@ export class FAQComponent {
       name: 'Account & Profile',
       description: 'Manage your account settings, profile, and security',
       icon: 'account_circle',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)',
       count: 18,
       popularQuestions: ['How to reset my password?', 'How to verify my account?']
     },
@@ -101,7 +102,7 @@ export class FAQComponent {
       name: 'Campaigns',
       description: 'Create, manage, and optimize your marketing campaigns',
       icon: 'campaign',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)',
       count: 32,
       popularQuestions: ['How to create a campaign?', 'How to track campaign performance?']
     },
@@ -110,7 +111,7 @@ export class FAQComponent {
       name: 'Payments & Earnings',
       description: 'Everything about payments, withdrawals, and earnings',
       icon: 'payments',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)',
       count: 22,
       popularQuestions: ['When will I receive my payment?', 'What payment methods are available?']
     },
@@ -119,7 +120,7 @@ export class FAQComponent {
       name: 'Verification',
       description: 'Learn about the verification process and requirements',
       icon: 'verified',
-      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+      gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)',
       count: 15,
       popularQuestions: ['Why was my verification failed?', 'What proof do I need to provide?']
     },
@@ -128,7 +129,7 @@ export class FAQComponent {
       name: 'Troubleshooting',
       description: 'Solve common issues and technical problems',
       icon: 'support_agent',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+      gradient: 'linear-gradient(135deg, #da5b25ff 0%, #98103bff 100%)',
       count: 28,
       popularQuestions: ['What if my campaign is not working?', 'How to contact support?']
     }
@@ -138,18 +139,33 @@ export class FAQComponent {
     {
       id: 'create-account',
       question: 'How do I create a MarketSpase account?',
-      answer: 'Creating a MarketSpase account is simple and free:<ol><li>Click the "Sign Up" button on our homepage</li><li>Choose your role (Marketer or Promoter)</li><li>Enter your email address and create a password</li><li>Verify your email address through the link we send you</li><li>Complete your profile with basic information</li><li>Start exploring campaigns or create your first one!</li></ol>',
+      answer: `Creating a MarketSpase account is simple and free:
+      <ol>
+        <li>Click the "Continue with xxx" button on our homepage</li>
+        <li>Authorise MarketSpase authentication on any of the chosen platform</li>
+        <li>On first sign up, your current role with be set to Promoter</li>
+        <li>Complete your profile setup with basic information</li>
+        <li>Start exploring campaigns or create your first one!</li>
+      </ol>`,
       category: 'getting-started',
       tags: ['account', 'signup', 'beginner'],
       popular: true,
-      featured: true,
-      lastUpdated: '2 days ago',
+      //featured: true,
+      //lastUpdated: '2 days ago',
       readTime: '3 min'
     },
     {
       id: 'promoter-requirements',
       question: 'What are the requirements to become a promoter?',
-      answer: 'To become a promoter on MarketSpase, you need:<ul><li>An active WhatsApp account</li><li>Minimum 25 views on your WhatsApp status posts</li><li>A verified phone number</li><li>Completed profile information</li><li>Agreement to our terms and conditions</li><li>Valid government-issued ID for verification (required for higher payouts)</li></ul>',
+      answer: `To become a promoter on MarketSpase, you need:
+      <ul>
+        <li>An active WhatsApp account</li>
+        <li>Minimum 25 views on your WhatsApp status posts</li>
+        <li>A verified phone number</li>
+        <li>Completed profile information</li>
+        <li>Agreement to our terms and conditions</li>
+        <li>Valid government-issued ID for verification (required for higher payouts)</li>
+      </ul>`,
       category: 'getting-started',
       tags: ['promoter', 'requirements', 'eligibility'],
       popular: true,
@@ -159,18 +175,39 @@ export class FAQComponent {
     {
       id: 'withdraw-earnings',
       question: 'How do I withdraw my earnings?',
-      answer: 'Withdrawing your earnings is easy:<ol><li>Go to your Earnings dashboard</li><li>Click "Withdraw Funds"</li><li>Choose your preferred payment method (bank transfer, mobile money, etc.)</li><li>Enter the amount you want to withdraw</li><li>Confirm your withdrawal details</li><li>Funds will be processed within 24-48 hours</li></ol><p><strong>Note:</strong> Minimum withdrawal amount is ₦1,000. Processing times may vary based on your payment method.</p>',
+      answer: `Withdrawing your earnings is easy:
+      <ol>
+        <li>Go to your Earnings dashboard</li>
+        <li>Click "Withdraw Funds"</li>
+        <li>Choose your preferred payment method (bank transfer, mobile money, etc.)</li>
+        <li>Enter the amount you want to withdraw</li>
+        <li>Confirm your withdrawal details</li>
+        <li>Funds will be processed almost immediately</li>
+      </ol>
+      <p>
+      <strong>Note:</strong> 
+      Minimum withdrawal amount is ₦200. Processing times may vary based on your payment method.<br />
+      Withdrawals can only be made in promoter mode.
+      </p>
+      `,
       category: 'payments',
       tags: ['withdrawal', 'earnings', 'payments'],
       popular: true,
-      featured: true,
       lastUpdated: '3 days ago',
       readTime: '4 min'
     },
     {
       id: 'verification-failed',
       question: 'Why was my campaign verification failed?',
-      answer: 'Common reasons for verification failure include:<ul><li><strong>Blurry or incomplete screenshots:</strong> Make sure all required proof is clear and complete</li><li><strong>Missing watermarks:</strong> The campaign watermark must be visible in your proof</li><li><strong>Insufficient duration:</strong> Campaign must remain on your status for full 24 hours</li><li><strong>Low view count:</strong> Your status must receive at least 25 views</li><li><strong>Incorrect proof format:</strong> Follow our proof submission guidelines exactly</li></ul>If you believe this was a mistake, you can appeal the decision through your dashboard.',
+      answer: `Common reasons for verification failure include:
+      <ul>
+        <li><strong>Blurry or incomplete screenshots:</strong> Make sure all required proof is clear and complete</li>
+        <li><strong>Missing watermarks:</strong> The campaign embedded watermark can not be verified by the AI system</li>
+        <li><strong>Insufficient duration:</strong> Campaign must remain on your status for at least 23 hours</li>
+        <li><strong>Low view count:</strong> Your status must receive at least 25 views</li>
+        <li><strong>Incorrect proof format:</strong> Follow our proof submission guidelines exactly</li>
+      </ul>
+      If you believe this was a mistake, you can contact support for further clearification.`,
       category: 'verification',
       tags: ['verification', 'failed', 'proof'],
       popular: true,
@@ -180,22 +217,80 @@ export class FAQComponent {
     {
       id: 'create-campaign',
       question: 'How do I create my first campaign?',
-      answer: 'Creating a campaign takes just a few minutes:<ol><li>Login to your Marketer dashboard</li><li>Click "Create New Campaign"</li><li>Upload your ad content (images or videos)</li><li>Set your campaign budget and duration</li><li>Define your target audience demographics</li><li>Review and launch your campaign</li><li>Our system will automatically match you with suitable promoters</li></ol>',
+      answer: `Creating a campaign takes just a few minutes:
+      <ol>
+        <li>Login to your dashboard and switch user role to marketer</li>
+        <li>Click "Create Campaign"</li>
+        <li>Upload your ad content (images or videos)</li>
+        <li>Set your campaign budget and duration</li>
+        <li>Define your target audience demographics</li>
+        <li>Review and launch your campaign</li>
+        <li>Our system will automatically match you with suitable promoters</li>
+      </ol>`,
       category: 'campaigns',
       tags: ['campaign', 'create', 'marketer'],
       popular: true,
-      lastUpdated: '1 week ago',
-      readTime: '5 min'
+      featured: true,
+      //lastUpdated: '1 week ago',
+      //readTime: '5 min'
+    },
+    {
+      id: 'create-campaign',
+      question: 'How do I create my first promotion?',
+      answer: `Creating a promotion takes just a few minutes:
+      <ol>
+        <li>Login to your dashboard and switch user role to promoter</li>
+        <li>Click "View Promotion"</li>
+        <li>Accept suitable campaign for our contact from the list of available campaign</li>
+        <li>Click "My Promotion" to view accepted promotions</li>
+        <li>Click Download to download promotion asset to our device</li>
+        <li>Ensure you follow the instruction stipulated by the marketer the description area (if any)</li>
+        <li>Upload promotion to your WhatsApp status, ensuring the promotion ID is visible</li>
+      </ol>`,
+      category: 'campaigns',
+      tags: ['promotion', 'create', 'promoter'],
+      popular: true,
+      featured: true,
+      //lastUpdated: '1 week ago',
+      readTime: '50 sec'
+    },
+    {
+      id: 'submit-promotion-proof',
+      question: 'How do I submit my promotion proof?',
+      answer: `Submitting your promotion proof is straightforward:
+      <ol>
+        <li>After uploading the promotion to your WhatsApp status, take a clear screenshot showing the promotion ID and view count</li>
+        <li>click "My Promotions" </li>
+        <li>Locate the promotion you want to submit proof for</li>
+        <li>Enter view count and optional comment</li>
+        <li>Upload the screenshot as proof</li>
+        <li>Ensure the screenshot is clear and shows the promotion ID and view count (You can upload between 1 -3 proofs)</li>
+        <li>Click the submit button to submit</li>
+      </ol>`,
+      category: 'campaigns',
+      tags: ['promotion', 'proof', 'promoter'],
+      popular: true,
+      featured: true,
+      //lastUpdated: '1 week ago',
+      readTime: '50 sec'
     },
     {
       id: 'increase-views',
       question: 'How can I increase my WhatsApp status views?',
-      answer: 'Here are proven strategies to increase your status views:<ul><li><strong>Post consistently:</strong> Share content regularly to stay visible</li><li><strong>Engage with your audience:</strong> Respond to messages and interact with viewers</li><li><strong>Share valuable content:</strong> Post content that your contacts find useful or entertaining</li><li><strong>Use optimal timing:</strong> Post when your audience is most active</li><li><strong>Cross-promote:</strong> Mention your status on other social platforms</li><li><strong>Build your network:</strong> Connect with more relevant contacts</li></ul>',
+      answer: `Here are proven strategies to increase your status views:
+      <ul>
+        <li><strong>Post consistently:</strong> Share content regularly to stay visible</li>
+        <li><strong>Engage with your audience:</strong> Respond to messages and interact with viewers</li>
+        <li><strong>Share valuable content:</strong> Post content that your contacts find useful or entertaining</li>
+        <li><strong>Use optimal timing:</strong> Post when your audience is most active</li>
+        <li><strong>Cross-promote:</strong> Mention your status on other social platforms</li>
+        <li><strong>Build your network:</strong> Connect with more relevant contacts</li>
+      </ul>`,
       category: 'campaigns',
       tags: ['views', 'optimization', 'tips'],
       popular: true,
-      lastUpdated: '2 weeks ago',
-      readTime: '4 min'
+      //lastUpdated: '2 weeks ago',
+      readTime: '50 sec'
     }
   ]);
 
@@ -203,32 +298,27 @@ export class FAQComponent {
     {
       question: 'How long does it take to receive payments?',
       category: 'Payments',
-      views: 15.2
+     // views: 15.2,
+      answer: 'Payments are typically processed immediately when your submitted promotion proof is successfully verified. However, processing times may vary based on your chosen payment method and bank processing times.'
+
     },
     {
       question: 'What is the minimum withdrawal amount?',
       category: 'Payments',
-      views: 12.8
-    },
-    {
-      question: 'How do I reset my password?',
-      category: 'Account',
-      views: 11.5
-    },
-    {
-      question: 'Why was my account verification failed?',
-      category: 'Verification',
-      views: 10.3
+      //views: 12.8,
+      answer: 'The minimum withdrawal amount is ₦200. You can withdraw any amount above this threshold at any time from your Earnings dashboard.'
     },
     {
       question: 'How many campaigns can I run at once?',
       category: 'Campaigns',
-      views: 9.7
+      //views: 9.7,
+      answer: 'You can run multiple promotions simultaneously. However, we recommend managing a reasonable number to ensure each promotion receives adequate attention and resources for optimal performance.'
     },
     {
       question: 'What types of content are not allowed?',
       category: 'Campaigns',
-      views: 8.9
+      //views: 8.9,
+      answer: 'Prohibited content includes anything illegal, harmful, misleading, or offensive. This includes hate speech, adult content, violence, and misinformation. Please refer to our terms of use guidelines for a comprehensive list.'
     }
   ]);
 

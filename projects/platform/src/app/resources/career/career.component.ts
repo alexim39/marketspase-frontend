@@ -9,6 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface JobPosition {
   id: string;
@@ -24,7 +25,7 @@ interface JobPosition {
   requirements: string[];
   benefits: string[];
   posted: string;
-  applications: number;
+  applications: number | string;
   featured?: boolean;
   urgent?: boolean;
 }
@@ -69,44 +70,47 @@ interface TeamCulture {
   styleUrls: ['./career.component.scss'],
 })
 export class CareersComponent {
+
+  private snackBar = inject(MatSnackBar);
+
   activeDepartment = signal<string>('all');
 
   benefits = signal<Benefit[]>([
     {
       icon: 'trending_up',
       title: 'Impactful Work',
-      description: 'Build products that directly impact thousands of businesses and creators across Africa.',
+      description: 'Build products that directly impact thousands of businesses and creators across Africa and beyond.',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
     {
       icon: 'school',
       title: 'Continuous Learning',
       description: 'Access to courses, conferences, and mentorship programs to accelerate your growth.',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       icon: 'diversity',
       title: 'Great Team Culture',
       description: 'Collaborate with talented, passionate people in a supportive and inclusive environment.',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
     {
       icon: 'payments',
       title: 'Competitive Compensation',
       description: 'Attractive salary, equity options, and comprehensive benefits package.',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)'
     },
     {
       icon: 'work_life',
       title: 'Work-Life Balance',
       description: 'Flexible working hours and remote work options to fit your lifestyle.',
-      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+      gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)'
     },
     {
       icon: 'health',
       title: 'Health & Wellness',
       description: 'Comprehensive health insurance, wellness programs, and mental health support.',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+      gradient: 'linear-gradient(135deg, #da5b25ff 0%, #98103bff 100%)'
     }
   ]);
 
@@ -117,17 +121,17 @@ export class CareersComponent {
       description: 'We believe in the power of teamwork and open communication across all levels.'
     },
     {
-      icon: 'innovation',
+      icon: 'emoji_objects',
       title: 'Innovation First',
       description: 'We encourage experimentation and reward creative problem-solving.'
     },
     {
-      icon: 'diversity',
+      icon: 'diversity_3',
       title: 'Diversity & Inclusion',
       description: 'We celebrate different perspectives and build products for everyone.'
     },
     {
-      icon: 'growth',
+      icon: 'grass',
       title: 'Growth Mindset',
       description: 'We invest in our team\'s development and celebrate continuous learning.'
     }
@@ -140,7 +144,7 @@ export class CareersComponent {
       description: 'Build and scale our technology platform',
       icon: 'code',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      openPositions: 6
+      openPositions: 2
     },
     {
       id: 'product',
@@ -148,7 +152,7 @@ export class CareersComponent {
       description: 'Shape the future of our products',
       icon: 'dashboard',
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      openPositions: 3
+      openPositions: 1
     },
     {
       id: 'marketing',
@@ -156,7 +160,7 @@ export class CareersComponent {
       description: 'Grow our brand and user base',
       icon: 'campaign',
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      openPositions: 2
+      openPositions: 1
     },
     {
       id: 'sales',
@@ -164,7 +168,7 @@ export class CareersComponent {
       description: 'Drive business growth and partnerships',
       icon: 'trending_up',
       gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-      openPositions: 2
+      openPositions: 0
     },
     {
       id: 'customer-success',
@@ -172,7 +176,7 @@ export class CareersComponent {
       description: 'Support and empower our users',
       icon: 'support_agent',
       gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-      openPositions: 2
+      openPositions: 0
     }
   ]);
 
@@ -182,10 +186,10 @@ export class CareersComponent {
       title: 'Senior Frontend Developer',
       department: 'engineering',
       type: 'full-time',
-      location: 'Lagos, Nigeria',
+      location: 'Rivers, Nigeria',
       remote: true,
       experience: '5+ years',
-      salary: '₦400,000 - ₦600,000/month',
+      salary: '₦200,000 - ₦400,000/month',
       description: 'Lead the development of our user-facing applications using Angular and modern web technologies.',
       responsibilities: [
         'Architect and build scalable frontend applications',
@@ -194,7 +198,7 @@ export class CareersComponent {
         'Optimize application performance and user experience'
       ],
       requirements: [
-        '5+ years experience with Angular/React/Vue',
+        '5+ years experience with Angular/Angular Material/etc',
         'Strong TypeScript and JavaScript skills',
         'Experience with state management solutions',
         'Knowledge of web performance optimization',
@@ -206,8 +210,10 @@ export class CareersComponent {
         'Professional development budget',
         'Equity options'
       ],
-      posted: '2 days ago',
-      applications: 24,
+      posted: '',
+      //posted: '2 days ago',
+      applications: 'Submitted',
+      //applications: 24,
       featured: true
     },
     {
@@ -218,7 +224,7 @@ export class CareersComponent {
       location: 'Remote',
       remote: true,
       experience: '3+ years',
-      salary: '₦350,000 - ₦500,000/month',
+      salary: '₦150,000 - ₦300,000/month',
       description: 'Drive product strategy and execution for our core platform features.',
       responsibilities: [
         'Define product roadmap and strategy',
@@ -239,28 +245,30 @@ export class CareersComponent {
         'Learning and development budget',
         'Quarterly team retreats'
       ],
-      posted: '1 week ago',
-      applications: 18
+      //posted: '1 week ago',
+      posted: '',
+      applications: 'Submitted'
+      //applications: 18
     },
     {
       id: 'devops-engineer',
       title: 'DevOps Engineer',
       department: 'engineering',
       type: 'full-time',
-      location: 'Lagos, Nigeria',
+      location: 'Rivers, Nigeria',
       remote: true,
       experience: '4+ years',
-      salary: '₦450,000 - ₦650,000/month',
+      salary: '₦200,000 - ₦450,000/month',
       description: 'Build and maintain our cloud infrastructure and deployment pipelines.',
       responsibilities: [
-        'Manage AWS cloud infrastructure',
+        'Manage GCP cloud infrastructure',
         'Implement CI/CD pipelines',
         'Ensure system reliability and performance',
         'Automate deployment and monitoring processes'
       ],
       requirements: [
         '4+ years DevOps experience',
-        'Strong AWS knowledge',
+        'Strong GCP knowledge',
         'Experience with Docker and Kubernetes',
         'Infrastructure as Code (Terraform)',
         'Monitoring and logging tools experience'
@@ -271,8 +279,8 @@ export class CareersComponent {
         'Health and wellness benefits',
         'Conference attendance budget'
       ],
-      posted: '3 days ago',
-      applications: 15,
+      posted: '',
+      applications: 'Submitted',
       urgent: true
     },
     {
@@ -283,7 +291,7 @@ export class CareersComponent {
       location: 'Remote',
       remote: true,
       experience: '3+ years',
-      salary: '₦300,000 - ₦450,000/month',
+      //salary: '₦300,000 - ₦450,000/month',
       description: 'Develop and execute growth strategies to acquire and retain users.',
       responsibilities: [
         'Develop and implement growth strategies',
@@ -304,8 +312,8 @@ export class CareersComponent {
         'Marketing budget ownership',
         'Career growth opportunities'
       ],
-      posted: '5 days ago',
-      applications: 22
+      posted: '',
+      applications: 'Submitted'
     }
   ]);
 
@@ -339,10 +347,12 @@ export class CareersComponent {
     }
   }
 
-  applyForPosition(position: JobPosition): void {
+  applyForPosition(): void {
     // Implement application logic
-    console.log('Applying for position:', position.title);
+    //console.log('Applying for position:', position.title);
     // this.router.navigate(['/careers/apply', position.id]);
+
+    window.location.href = `mailto:careers@marketspase.com`;
   }
 
   scrollToPositions(): void {
@@ -352,8 +362,9 @@ export class CareersComponent {
     }
   }
 
-  openTalentNetwork(): void {
-    // Open talent network form or page
-    console.log('Opening talent network');
+
+
+  viewInternship() {
+    this.snackBar.open('No internship positions are currently open.', 'Close', { duration: 3000 });
   }
 }

@@ -5,7 +5,7 @@
     /* Enhanced Hero Section */
     .hero-section {
       position: relative;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 140px 20px 100px;
       overflow: hidden;
@@ -129,7 +129,7 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -212,10 +212,10 @@
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -248,6 +248,9 @@
       margin: 0 0 16px 0;
       color: #1a202c;
       letter-spacing: -0.02em;
+      @media (max-width: 480px) {
+        font-size: 1.8rem;
+      }
     }
 
     .section-subtitle {
@@ -457,8 +460,8 @@
 
     .featured-badge {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 5px;
+      right: 7px;
       background: #667eea;
       color: white;
       padding: 8px 16px;
@@ -475,7 +478,7 @@
     }
 
     .faq-question {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: 700;
       margin: 0 0 20px 0;
       color: #1a202c;

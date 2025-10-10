@@ -129,7 +129,7 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -155,7 +155,7 @@
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 8px;
       background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
@@ -209,6 +209,9 @@
       margin: 0 0 16px 0;
       color: #1a202c;
       letter-spacing: -0.02em;
+       @media (max-width: 480px) {
+        font-size: 1.5rem;
+      }
     }
 
     .section-subtitle {
@@ -472,6 +475,9 @@
       font-weight: 800;
       margin: 0 0 16px 0;
       color: #1a202c;
+      @media (max-width: 480px) {
+        font-size: 1.6rem;
+      }
     }
 
     .step-content p {
@@ -994,7 +1000,7 @@
 
     .cta-content h2 {
       font-size: clamp(2rem, 4vw, 3rem);
-      margin: 0 0 16px 0;
+      margin: 0 0 26px 0;
     }
 
     .cta-content p {
@@ -1047,7 +1053,7 @@
       font-size: 1.5rem;
       font-weight: 800;
       margin-bottom: 4px;
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }

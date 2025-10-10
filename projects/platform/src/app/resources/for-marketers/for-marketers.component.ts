@@ -156,7 +156,7 @@ export class ForMarketersComponent {
         { metric: 'ROI', value: '350%', change: '+150%' },
         { metric: 'Engagement Rate', value: '28%', change: '+18%' }
       ],
-      image: '/assets/use-cases/ecommerce.jpg'
+      image: '/img/resources/use-cases/ecommerce.png'
     },
     {
       industry: 'Real Estate',
@@ -168,7 +168,7 @@ export class ForMarketersComponent {
         { metric: 'Conversion Rate', value: '22%', change: '+12%' },
         { metric: 'Quality Score', value: '4.8/5', change: '+1.2' }
       ],
-      image: '/assets/use-cases/real-estate.jpg'
+      image: '/img/resources/use-cases/real-estate.png'
     },
     {
       industry: 'Education',
@@ -180,12 +180,12 @@ export class ForMarketersComponent {
         { metric: 'Cost per Enrollment', value: '-55%', change: '-25%' },
         { metric: 'Satisfaction', value: '94%', change: '+14%' }
       ],
-      image: '/assets/use-cases/education.jpg'
+      image: '/img/resources/use-cases/education.png'
     }
   ]);
 
   pricingTiers = signal<PricingTier[]>([
-    {
+   /*  {
       name: 'Starter',
       price: '₦5,000',
       period: 'campaign',
@@ -198,8 +198,8 @@ export class ForMarketersComponent {
         '7-day campaign duration'
       ],
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    {
+    }, */
+   /*  {
       name: 'Professional',
       price: '₦25,000',
       period: 'month',
@@ -214,8 +214,8 @@ export class ForMarketersComponent {
       ],
       popular: true,
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-    },
-    {
+    }, */
+   /*  {
       name: 'Enterprise',
       price: 'Custom',
       period: 'month',
@@ -230,7 +230,22 @@ export class ForMarketersComponent {
         'SLA guarantee'
       ],
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-    }
+    } */
+    {
+      name: 'Marketers',
+      price: '10% ',
+      period: ' Transaction',
+      description: 'No monthly fees. Pay only 10% service charge on fund deposit.',
+      features: [],
+      // features: [
+      //   'Up to 5 active campaigns',
+      //   'Basic analytics',
+      //   'Standard support',
+      //   'Manual verification',
+      //   'Up to 100 promoters'
+      // ],
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    },
   ]);
 
   testimonials = signal<Testimonial[]>([
@@ -239,7 +254,7 @@ export class ForMarketersComponent {
       role: 'Marketing Director',
       company: 'Nigerian Fashion Hub',
       content: 'MarketSpase transformed our digital marketing strategy. We achieved 3x higher engagement compared to traditional social media ads, and the authentic recommendations drove real sales.',
-      avatar: '/assets/testimonials/adeola.jpg',
+      avatar: '/img/resources/avatar/adeola.png',
       results: [
         { metric: 'ROI', value: '320%' },
         { metric: 'Engagement', value: '3.2x' },
@@ -251,7 +266,7 @@ export class ForMarketersComponent {
       role: 'CEO',
       company: 'TechStart NG',
       content: 'The targeting capabilities are incredible. We reached exactly the right audience for our SaaS product, and the personal touch of WhatsApp made all the difference in conversion rates.',
-      avatar: '/assets/testimonials/chinedu.jpg',
+      avatar: '/img/resources/avatar/chinedu.png',
       results: [
         { metric: 'Conversion', value: '28%' },
         { metric: 'Lead Quality', value: '4.7/5' },
@@ -263,7 +278,7 @@ export class ForMarketersComponent {
       role: 'Head of Marketing',
       company: 'EduLearn Academy',
       content: 'As an education platform, trust is everything. MarketSpase helped us build authentic connections with potential students through trusted promoters in academic communities.',
-      avatar: '/assets/testimonials/bisi.jpg',
+      avatar: '/img/resources/avatar/bisi.png',
       results: [
         { metric: 'Enrollment', value: '+45%' },
         { metric: 'Trust Score', value: '4.9/5' },

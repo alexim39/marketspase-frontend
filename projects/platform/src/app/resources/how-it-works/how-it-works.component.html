@@ -62,7 +62,7 @@
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">Built for Two Amazing Roles</h2>
-            <p class="section-subtitle">Whether you want to promote your business or earn extra income, we've got you covered</p>
+            <p class="section-subtitle">Whether you want to market your business or earn extra income, we've got you covered</p>
           </div>
 
           <div class="roles-grid">
@@ -95,7 +95,7 @@
                   </div>
                 </div>
 
-                <button 
+                <!-- <button 
                   mat-raised-button 
                   class="role-action-btn"
                   [class.marketer]="role.id === 'marketer'"
@@ -103,7 +103,7 @@
                   routerLink="/auth"
                 >
                   Start as {{ role.name }}
-                </button>
+                </button> -->
                 <div class="card-overlay"></div>
               </div>
             }
@@ -124,9 +124,9 @@
               <div class="process-step" [class.reverse]="i % 2 === 1">
                 <div class="step-visual">
                   <div class="step-number">{{ step.number }}</div>
-                  <div class="step-image">
+                  <!-- <div class="step-image">
                     <img [src]="step.image" [alt]="step.title">
-                  </div>
+                  </div> -->
                   @if (i < processSteps().length - 1) {
                     <div class="step-connector">
                       <div class="connector-line"></div>
@@ -339,6 +339,7 @@
                       </div>
                     </mat-step>
 
+
                     <mat-step>
                       <ng-template matStepLabel>
                         <div class="step-label">
@@ -355,6 +356,26 @@
                             <li>Download watermarked content</li>
                             <li>Share to WhatsApp Status</li>
                             <li>Automatic tracking enabled</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </mat-step>
+
+                    <mat-step>
+                      <ng-template matStepLabel>
+                        <div class="step-label">
+                          <div class="step-title">Submit Proofs</div>
+                          <div class="step-subtitle">Submit screenshots of promotion on Whatsapp</div>
+                        </div>
+                      </ng-template>
+                      <div class="step-content-detailed">
+                        <div class="step-description">
+                          <h4>Easy Submission Process</h4>
+                          <p>Before WhatsApp post expiration, take a screenshot/screen record of the post on WhatsApp</p>
+                          <ul>
+                            <li>Show WhatsApp view count</li>
+                            <li>Show promotion ID</li>
+                            <li>Show post date and time</li>
                           </ul>
                         </div>
                       </div>
@@ -503,6 +524,7 @@
               <ul>
                 <li>Secure fund holding</li>
                 <li>Automatic release after verification</li>
+                <li>Automatic marketer refund if verification failed</li>
                 <li>Dispute resolution system</li>
               </ul>
             </div>
@@ -545,14 +567,14 @@
             <h2>Ready to Get Started?</h2>
             <p>Join thousands of marketers and promoters already using MarketSpase</p>
             <div class="cta-buttons">
-              <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
+              <button mat-raised-button color="primary" class="cta-button" routerLink="/">
                 <mat-icon>rocket_launch</mat-icon>
                 Start Your Journey
               </button>
-              <button mat-stroked-button class="cta-button secondary" routerLink="/success-stories">
+              <!-- <button mat-stroked-button class="cta-button secondary" routerLink="/success-stories">
                 <mat-icon>play_circle</mat-icon>
                 See Success Stories
-              </button>
+              </button> -->
             </div>
             <div class="cta-stats">
               <div class="cta-stat">

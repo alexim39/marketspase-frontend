@@ -5,7 +5,7 @@
     /* Enhanced Hero Section */
     .hero-section {
       position: relative;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 140px 20px 100px;
       overflow: hidden;
@@ -155,10 +155,10 @@
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+      background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -209,6 +209,9 @@
       margin: 0 0 16px 0;
       color: #1a202c;
       letter-spacing: -0.02em;
+      @media (max-width: 480px) {
+        font-size: 1.5rem;
+      }
     }
 
     .section-subtitle {
@@ -285,7 +288,7 @@
     }
 
     .method-action {
-      color: white;
+      color: white !important;
       border-color: rgba(255, 255, 255, 0.3);
       position: relative;
       z-index: 2;
@@ -334,6 +337,9 @@
       font-weight: 700;
       margin: 0 0 12px 0;
       color: #1a202c;
+      @media (max-width: 480px) {
+        font-size: 1.8rem;
+      }
     }
 
     .form-header p {
@@ -468,8 +474,8 @@
     }
 
     .urgent-help-card {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
+      background: linear-gradient(135deg, #83368cff 0%, #f5576c 100%);
+      color: white !important;
       padding: 32px;
       border-radius: 20px;
       text-align: center;
@@ -506,7 +512,7 @@
     }
 
     .urgent-button {
-      color: white;
+      color: white !important;
       border-color: rgba(255, 255, 255, 0.3);
       width: 100%;
     }
@@ -658,7 +664,7 @@
 
     .cta-content h2 {
       font-size: clamp(2rem, 4vw, 3rem);
-      margin: 0 0 16px 0;
+      margin: 0 0 26px 0;
     }
 
     .cta-content p {

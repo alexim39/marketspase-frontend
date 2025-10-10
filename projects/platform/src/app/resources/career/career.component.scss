@@ -129,7 +129,7 @@
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+     background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -155,18 +155,19 @@
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 1.6rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+       background: linear-gradient(135deg, #8560ad 0%, #000 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .stat-label {
-      font-size: 1rem;
+      font-size: 1.1rem !important;
       opacity: 0.8;
       font-weight: 500;
+      color: rgba(255, 255, 255, 0.7) !important;
     }
 
     .scroll-indicator {
@@ -209,6 +210,9 @@
       margin: 0 0 16px 0;
       color: #1a202c;
       letter-spacing: -0.02em;
+      @media (max-width: 480px) {
+        font-size: 1.8rem;
+      }
     }
 
     .section-subtitle {
@@ -398,13 +402,12 @@
       border-radius: 16px;
       background: linear-gradient(135deg, #667eea, #764ba2);
       flex: 1;
-      opacity: 0.8;
+      //opacity: 0.8;
     }
 
-    .photo-1 { background: linear-gradient(135deg, #667eea, #764ba2); }
-    .photo-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
-    .photo-3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-    .photo-4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+    .photo-2 { background: linear-gradient(135deg, #83368cff, #f5576c); }
+    .photo-3 { background: linear-gradient(135deg, #4facfe, #10888eff); }
+    .photo-4 { background: linear-gradient(135deg, #29bd5aff, #107160ff); }
 
     .culture-quote {
       background: #f8fafc;
@@ -518,8 +521,8 @@
 
     .featured-badge {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: -20px;
+      right: 7px;
       background: #667eea;
       color: white;
       padding: 8px 16px;
@@ -533,8 +536,8 @@
 
     .urgent-badge {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: -20px;
+      right: 7px;
       background: #f56565;
       color: white;
       padding: 8px 16px;
@@ -771,7 +774,7 @@
     }
 
     .internship-text h2 {
-      font-size: 2.5rem;
+      font-size: 1.5rem;
       font-weight: 800;
       margin: 0 0 16px 0;
     }

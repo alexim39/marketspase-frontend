@@ -13,6 +13,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FooterComponent } from '../footer/footer.component';
 import { HeaderComponent } from '../header/header.component';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ContactFormData, ContactService } from './contact.service';
 
 interface ContactMethod {
   icon: string;
@@ -34,6 +36,7 @@ interface TeamMember {
 @Component({
   selector: 'app-contact',
   standalone: true,
+  providers: [ContactService],
   imports: [
     CommonModule,
     RouterModule,
@@ -55,6 +58,7 @@ interface TeamMember {
 export class ContactComponent {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private contactService = inject(ContactService);
 
   isSubmitting = signal(false);
   openFaqItems = signal<Set<number>>(new Set());
@@ -85,54 +89,68 @@ export class ContactComponent {
       description: 'Get instant help from our support team in real-time',
       value: 'Available 24/7',
       action: 'Start Chat',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       icon: 'phone',
       title: 'Phone Support',
       description: 'Prefer to talk? Call us during business hours',
-      value: '+1 (555) 123-4567',
+      value: '+234 906 253 7816',
       action: 'Call Now',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
-    {
+   /*  {
       icon: 'forum',
       title: 'Community Forum',
       description: 'Get help from other marketers and promoters',
       value: 'community.marketspase.com',
       action: 'Visit Forum',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-    }
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)'
+    } */
   ]);
 
   teamMembers = signal<TeamMember[]>([
     {
-      name: 'Sarah Chen',
+      name: 'Sonia',
       role: 'Support Lead',
       department: 'Customer Success',
-      email: 'sarah@marketspase.com',
-      avatar: '/assets/team/sarah.jpg'
+      email: 'sonia.n@marketspase.com',
+      avatar: '/img/resources/avatar/team/sonia.jpg'
     },
     {
-      name: 'Marcus Johnson',
+      name: 'Alex',
       role: 'Technical Specialist',
-      department: 'Engineering',
-      email: 'marcus@marketspase.com',
-      avatar: '/assets/team/marcus.jpg'
+      department: 'Software Engineering',
+      email: 'alex.i@marketspase.com',
+      avatar: '/img/resources/avatar/team/alex.jpg'
     },
     {
-      name: 'Elena Rodriguez',
-      role: 'Account Manager',
+      name: 'Jude',
+      role: 'Operations Manager',
       department: 'Business Development',
-      email: 'elena@marketspase.com',
-      avatar: '/assets/team/elena.jpg'
+      email: 'jude.a@marketspase.com',
+      avatar: '/img/resources/avatar/team/jude.jpg'
     },
     {
-      name: 'David Kim',
+      name: 'Angela',
       role: 'Campaign Specialist',
       department: 'Marketing Operations',
-      email: 'david@marketspase.com',
-      avatar: '/assets/team/david.jpg'
+      email: 'angela.n@marketspase.com',
+      avatar: '/img/resources/avatar/team/angela.jpg'
+    },
+    {
+      name: 'Ola',
+      role: 'Technical Specialist',
+      department: 'DevOps/Network Engineering',
+      email: 'ola.s@marketspase.com',
+      avatar: '/img/resources/avatar/team/ola.jpg'
+    },
+    {
+      name: 'Andrew',
+      role: 'Technical Specialist',
+      department: 'QA Engineering',
+      email: 'andrew.a@marketspase.com',
+      avatar: '/img/resources/avatar/team/andrew.jpg'
     }
   ]);
 
@@ -148,14 +166,15 @@ export class ContactComponent {
         window.location.href = `tel:${method.value}`;
         break;
       case 'Community Forum':
-        window.open('https://community.marketspase.com', '_blank');
+       // window.open('https://community.marketspase.com', '_blank');
         break;
     }
   }
 
-  startLiveChat(): void {
-    this.snackBar.open('Opening live chat...', 'Close', { duration: 3000 });
-    // Implement live chat integration here
+ startLiveChat(): void {
+    this.snackBar.open('Opening WhatsApp live chat...', 'Close', { duration: 3000 });
+    // Opens the WhatsApp chat link in a new tab/window
+    window.open('https://wa.me/2349062537816', '_blank');
   }
 
   emailTeamMember(member: TeamMember): void {
@@ -168,21 +187,28 @@ export class ContactComponent {
   }
 
   onSubmit(): void {
-    if (this.contactForm.valid) {
-      this.isSubmitting.set(true);
-      
-      // Simulate API call
-      setTimeout(() => {
+  if (this.contactForm.valid) {
+    this.isSubmitting.set(true);
+
+    const formData = this.contactForm.value as ContactFormData;
+
+    this.contactService.submit(formData).subscribe({
+      next: (response: any) => {
         this.isSubmitting.set(false);
-        this.snackBar.open('Message sent successfully! We\'ll get back to you soon.', 'Close', { duration: 5000 });
-        this.contactForm.reset({
-          inquiryType: 'general',
-          newsletter: true,
-          terms: false
-        });
-      }, 2000);
-    }
+        this.snackBar.open(response.message, 'Close', { duration: 5000 });
+        this.contactForm.reset(); // Reset form after successful submission
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isSubmitting.set(false);
+        let errorMessage = 'Server error occurred, please try again.'; // Default error message
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message; // Use backend's error message if available
+        }
+        this.snackBar.open(errorMessage, 'Close', { duration: 5000 });
+      }
+    });
   }
+}
 
   toggleFaq(index: number): void {
     const currentOpenItems = new Set(this.openFaqItems());

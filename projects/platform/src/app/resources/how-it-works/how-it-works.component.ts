@@ -15,7 +15,7 @@ interface ProcessStep {
   title: string;
   description: string;
   icon: string;
-  image: string;
+  image?: string;
   features: string[];
   duration?: string;
 }
@@ -59,7 +59,7 @@ export class HowItWorksComponent {
     {
       id: 'marketer',
       name: 'Marketers',
-      description: 'Businesses and individuals looking to promote their products or services through authentic WhatsApp marketing.',
+      description: 'Businesses and individuals looking to market their products or services through authentic WhatsApp marketing.',
       icon: 'campaign',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       benefits: [
@@ -73,15 +73,16 @@ export class HowItWorksComponent {
         'E-commerce Stores',
         'Startups',
         'Digital Agencies',
-        'Content Creators'
+        'Content Creators',
+        'etc.'
       ]
     },
     {
       id: 'promoter',
       name: 'Promoters',
-      description: 'Individuals who want to earn money by sharing campaigns on their WhatsApp Status to their network.',
+      description: 'Individuals who want to earn money by sharing campaigns on their WhatsApp Status.',
       icon: 'groups',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)',
       benefits: [
         'Earn from your social influence',
         'Flexible working hours',
@@ -104,7 +105,7 @@ export class HowItWorksComponent {
       title: 'Create & Set Up',
       description: 'Marketers create campaigns with their ad content, set budgets, and define target audiences. Promoters complete their profiles and verify their accounts.',
       icon: 'rocket_launch',
-      image: '/assets/process/create-campaign.jpg',
+      //image: '/img/process/create-campaign.png',
       features: ['Campaign Creation', 'Profile Setup', 'Audience Targeting', 'Budget Setting'],
       duration: '5 minutes'
     },
@@ -113,23 +114,23 @@ export class HowItWorksComponent {
       title: 'Match & Connect',
       description: 'Our AI system matches campaigns with promoters whose audience aligns with the target demographics. Promoters browse and accept suitable campaigns.',
       icon: 'connect_without_contact',
-      image: '/assets/process/matching.jpg',
+      //image: '/img/process/matching.jpg',
       features: ['AI Matching', 'Campaign Browsing', 'Smart Recommendations', 'One-Click Accept']
     },
     {
       number: '03',
       title: 'Share & Promote',
-      description: 'Promoters share the watermarked campaign content on their WhatsApp Status for 24 hours. Marketers can track performance in real-time.',
+      description: 'Promoters share the watermarked campaign content on their WhatsApp Status for 24 hours. Marketers can track performance in real-time as proofs are submitted.',
       icon: 'share',
-      image: '/assets/process/share-status.jpg',
+      //image: '/img/process/share-status.jpg',
       features: ['Easy Sharing', 'Real-time Tracking', 'Watermark Protection', '24-hour Duration']
     },
     {
       number: '04',
-      title: 'Verify & Earn',
-      description: 'Our AI system verifies campaign completion and view counts. Payments are automatically released to promoters, and marketers get detailed performance reports.',
+      title: 'Submit Proof, Verify & Earn',
+      description: 'After 23 hours, you are free to submit screenshot/screen record of promotion. Our AI system verifies campaign completion, view counts promotion ID, date and time. Payments are automatically released to promoters wallet, and marketers get detailed performance reports.',
       icon: 'verified',
-      image: '/assets/process/verification.jpg',
+      //image: '/img/process/verification.jpg',
       features: ['AI Verification', 'Auto Payments', 'Performance Reports', 'Earnings Tracking']
     }
   ]);
@@ -145,31 +146,31 @@ export class HowItWorksComponent {
       icon: 'security',
       title: 'Secure Watermarking',
       description: 'Automatic unique watermarking for each campaign to prevent fraud and ensure authenticity.',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
       icon: 'auto_awesome',
       title: 'Automated Verification',
       description: 'Advanced computer vision and AI verify campaign posts with 99.8% accuracy in real-time.',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
     {
       icon: 'payments',
       title: 'Instant Payments',
       description: 'Automated payment processing with multiple withdrawal options and instant bank transfers.',
-      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)'
     },
     {
       icon: 'analytics',
       title: 'Real-time Analytics',
       description: 'Comprehensive dashboard with live campaign performance, earnings tracking, and audience insights.',
-      gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+      gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)'
     },
     {
       icon: 'support_agent',
       title: '24/7 Support',
       description: 'Round-the-clock customer support with dedicated teams for both marketers and promoters.',
-      gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+      gradient: 'linear-gradient(135deg, #da5b25ff 0%, #98103bff 100%)'
     }
   ]);
 }
