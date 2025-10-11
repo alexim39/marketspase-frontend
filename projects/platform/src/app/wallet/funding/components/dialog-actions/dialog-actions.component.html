@@ -1,12 +1,14 @@
 <div class="dialog-actions">
   @if (!paymentStatus) {
-    <button 
-      mat-button 
-      (click)="close.emit()" 
-      class="cancel-btn"
-      [disabled]="isProcessing">
-      Cancel
-    </button>
+    @if (deviceType() === 'desktop') {
+      <button 
+        mat-button 
+        (click)="close.emit()" 
+        class="cancel-btn"
+        [disabled]="isProcessing">
+        Cancel
+      </button>
+    }
     <button 
       mat-flat-button 
       color="primary" 
@@ -15,7 +17,7 @@
       [disabled]="!canProceed || isProcessing"
       [matTooltip]="getPayButtonTooltip()">
       @if (isProcessing) {
-        <mat-progress-spinner diameter="20" color="accent"></mat-progress-spinner>
+        <mat-progress-spinner diameter="20" color="accent"/>
         Processing...
       } @else {
         Pay {{ totalAmount | currency: '₦':'symbol':'1.0-2' }}

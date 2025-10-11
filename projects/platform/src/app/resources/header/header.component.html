@@ -23,6 +23,8 @@
                       mat-menu-item 
                       (click)="navigateTo(child)"
                       class="menu-item"
+                      routerLinkActive="active"
+                      [routerLinkActiveOptions]="{exact: true}"
                     >
                       @if (child.icon) {
                         <mat-icon>{{ child.icon }}</mat-icon>
@@ -38,6 +40,8 @@
                   [href]="item.externalLink ? item.externalLink : null"
                   [target]="item.externalLink ? '_blank' : '_self'"
                   mat-button
+                  routerLinkActive="active"
+                  [routerLinkActiveOptions]="{exact: item.route !== '/'}"
                 >
                   <span>{{ item.label }}</span>
                 </a>
@@ -91,6 +95,8 @@
                         [href]="child.externalLink ? child.externalLink : null"
                         [target]="child.externalLink ? '_blank' : '_self'"
                         (click)="closeMobileMenu()"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{exact: true}"
                       >
                         @if (child.icon) {
                           <mat-icon>{{ child.icon }}</mat-icon>
@@ -107,6 +113,8 @@
                   [href]="item.externalLink ? item.externalLink : null"
                   [target]="item.externalLink ? '_blank' : '_self'"
                   (click)="closeMobileMenu()"
+                  routerLinkActive="active"
+                  [routerLinkActiveOptions]="{exact: item.route !== '/'}"
                 >
                   <span>{{ item.label }}</span>
                 </a>
