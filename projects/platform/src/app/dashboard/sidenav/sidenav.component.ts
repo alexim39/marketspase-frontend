@@ -25,8 +25,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserProfileCardComponent } from './components/user-profile-card/user-profile-card.component';
 import { SidenavNavigationComponent } from './components/sidenav-navigation/sidenav-navigation.component';
 import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
-import { NotificationsMenuComponent, NotificationItem } from './components/notifications-menu/notifications-menu.component';
 import { CartDialogComponent } from './components/cart-dialog/cart-dialog.component';
+import { NotificationBellComponent } from '../notification/notification.component';
 
 
 @Component({
@@ -49,12 +49,12 @@ import { CartDialogComponent } from './components/cart-dialog/cart-dialog.compon
     MatTooltipModule,
     MatProgressBarModule,
     CurrencyPipe,    
-    // New components
     UserProfileCardComponent,
     SidenavNavigationComponent,
     QuickActionsComponent,
-    NotificationsMenuComponent,
-    CartDialogComponent
+    //NotificationsMenuComponent,
+    CartDialogComponent,
+    NotificationBellComponent
   ],
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss']
@@ -82,7 +82,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pendingCampaignsCount: number | undefined = 0;
   pendingPromotionsCount: number | undefined = 0;
 
-  notifications = signal<NotificationItem[]>([
+/*   notifications = signal<NotificationItem[]>([
     {
       id: '1',
       title: 'Campaign Approved',
@@ -99,15 +99,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
       read: false
     }
-  ]);
+  ]); */
 
   isMobile = computed(() => {
     return this.deviceService.deviceState().isMobile;
   });
 
-  unreadNotifications = computed(() => {
+ /*  unreadNotifications = computed(() => {
     return this.notifications().filter(n => !n.read).length;
-  });
+  }); */
 
   navigationItems = computed(() => {
     const baseItems = [
@@ -189,19 +189,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/transactions']);
   }
 
-  public markAsRead(notificationId: string): void {
+ /*  public markAsRead(notificationId: string): void {
     this.notifications.update(notifications =>
       notifications.map(n =>
         n.id === notificationId ? { ...n, read: true } : n
       )
     );
-  }
+  } */
 
-  public markAllAsRead(): void {
+ /*  public markAllAsRead(): void {
     this.notifications.update(notifications =>
       notifications.map(n => ({ ...n, read: true }))
     );
-  }
+  } */
 
   public viewAllNotifications(): void {
     this.router.navigate(['/notifications']);
