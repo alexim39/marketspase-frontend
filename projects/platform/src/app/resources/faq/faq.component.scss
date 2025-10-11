@@ -922,6 +922,12 @@
         grid-template-columns: 1fr;
       }
 
+       .category-card {
+        h3 {
+          font-size: 1.25rem;
+        }
+      }
+
       .search-container {
         flex-direction: column;
       }
@@ -974,6 +980,12 @@
       .featured-faq-card,
       .resource-card {
         padding: 32px 24px;
+      }
+
+      .category-card {
+        h3 {
+          font-size: 1.25rem;
+        }
       }
 
       .faq-content {

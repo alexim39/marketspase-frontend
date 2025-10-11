@@ -89,7 +89,7 @@ export class CareersComponent {
       gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
     {
-      icon: 'diversity',
+      icon: 'diversity_3',
       title: 'Great Team Culture',
       description: 'Collaborate with talented, passionate people in a supportive and inclusive environment.',
       gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
@@ -107,7 +107,7 @@ export class CareersComponent {
       gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)'
     },
     {
-      icon: 'health',
+      icon: 'health_and_safety',
       title: 'Health & Wellness',
       description: 'Comprehensive health insurance, wellness programs, and mental health support.',
       gradient: 'linear-gradient(135deg, #da5b25ff 0%, #98103bff 100%)'

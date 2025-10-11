@@ -764,6 +764,9 @@
     .cta-content h2 {
       font-size: clamp(2rem, 4vw, 3rem);
       margin: 0 0 16px 0;
+       @media (max-width: 480px) {
+        font-size: 1.6rem;
+      }
     }
 
     .cta-content p {

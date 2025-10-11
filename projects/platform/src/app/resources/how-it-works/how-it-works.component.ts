@@ -128,7 +128,7 @@ export class HowItWorksComponent {
     {
       number: '04',
       title: 'Submit Proof, Verify & Earn',
-      description: 'After 23 hours, you are free to submit screenshot/screen record of promotion. Our AI system verifies campaign completion, view counts promotion ID, date and time. Payments are automatically released to promoters wallet, and marketers get detailed performance reports.',
+      description: 'After 23 hours, you are free to submit screenshot/screen record of promotion. Our AI system verifies campaign completion, view counts, promotion ID, date and time. Payments are automatically released to promoters wallet, and marketers get detailed performance reports.',
       icon: 'verified',
       //image: '/img/process/verification.jpg',
       features: ['AI Verification', 'Auto Payments', 'Performance Reports', 'Earnings Tracking']

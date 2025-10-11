@@ -109,7 +109,7 @@ export class FeaturesComponent {
       category: 'marketer'
     },
     {
-      icon: 'target',
+      icon: 'ads_click',
       title: 'Smart Targeting',
       description: 'Reach your ideal audience with advanced demographic and interest-based targeting.',
       benefits: [

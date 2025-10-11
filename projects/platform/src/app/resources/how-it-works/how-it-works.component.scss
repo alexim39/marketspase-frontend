@@ -745,6 +745,9 @@
       font-weight: 800;
       margin: 0 0 16px 0;
       color: #1a202c;
+      @media (max-width: 480px) {
+        font-size: 1.5rem;
+      }
     }
 
     .verification-text p {

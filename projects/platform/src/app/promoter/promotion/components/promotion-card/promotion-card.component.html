@@ -17,7 +17,7 @@
           </button>
         }
         @if (!promotion.isDownloaded) {
-          <button mat-menu-item (click)="downloadPromotion()">
+          <button mat-menu-item (click)="downloadPromotion()" [disabled]="isSubmissionExpired(promotion)">
             <mat-icon>download_for_offline</mat-icon>
             <span>Download Promotion</span>
           </button>

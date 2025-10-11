@@ -241,10 +241,10 @@ export class FAQComponent {
       <ol>
         <li>Login to your dashboard and switch user role to promoter</li>
         <li>Click "View Promotion"</li>
-        <li>Accept suitable campaign for our contact from the list of available campaign</li>
+        <li>Accept suitable campaign for your contact from the list of available campaign</li>
         <li>Click "My Promotion" to view accepted promotions</li>
-        <li>Click Download to download promotion asset to our device</li>
-        <li>Ensure you follow the instruction stipulated by the marketer the description area (if any)</li>
+        <li>Click Download to download promotion asset to your device</li>
+        <li>Ensure you follow the instruction stipulated for the promotion in the description area (if any)</li>
         <li>Upload promotion to your WhatsApp status, ensuring the promotion ID is visible</li>
       </ol>`,
       category: 'campaigns',
