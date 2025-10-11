@@ -1,0 +1,125 @@
+
+    <div class="auth-container">
+      <!-- Header Section -->
+      <div class="auth-header">
+        <div class="logo-section">
+          <div class="logo-icon">
+            <mat-icon>campaign</mat-icon>
+          </div>
+          <h1 class="brand-title">MarketSpase</h1>
+        </div>
+        <div class="welcome-section">
+          <h2 class="welcome-title">WhatsApp Status Ads Marketspace</h2>
+          <p class="welcome-subtitle">
+            Where WhatsApp Status becomes a source of income by connecting marketers and promoters in a unified marketspace.
+            <!-- Connect with marketers and promoters on WhatsApp Status -->
+          </p>
+        </div>
+      </div>
+
+      <!-- Authentication Card -->
+      <div class="auth-card">
+        <div class="card-header">
+          <h3>Sign in to your account</h3>
+          <p>Choose your preferred sign-in method</p>
+        </div>
+
+        <div class="auth-providers">
+          <!-- Social Login Buttons -->
+          @for (provider of socialProviders; track provider) {
+            <button
+              mat-stroked-button
+              class="social-btn"
+              [style.border-color]="provider.color"
+              [style.color]="provider.color"
+              (click)="provider.method()"
+              matRipple
+              [matRippleColor]="provider.color + '20'"
+            >
+              <div class="btn-content">
+                <mat-icon [style.color]="provider.color">{{ provider.icon }}</mat-icon>
+                <span>Continue with {{ provider.name }}</span>
+              </div>
+            </button>
+          }
+          <!-- Loading State -->
+           @if (isLoading) {
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+              <p>Connecting to {{ currentProvider }}...</p>
+            </div>
+           }
+         
+        </div>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span class="divider-text">Secure & Trusted</span>
+        </div>
+
+        <div class="security-features">
+          <div class="feature-item">
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">security</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>End-to-End Encrypted</h4>
+              <p>Your data is protected with industry-standard encryption.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">verified</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>Verified Campaigns</h4>
+              <p>Only trusted and verified campaigns are allowed.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">payment</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>Automated Payments</h4>
+              <p>Seamless and secure payment processing.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="icon-wrapper">
+              <mat-icon class="feature-icon">smart_toy</mat-icon>
+            </div>
+            <div class="feature-text">
+              <h4>AI Verification</h4>
+              <p>Advanced AI ensures campaign authenticity.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p class="footer-text">
+          New to MarketSpase? 
+          <a routerLink="/resources" class="signup-link">
+            Get to Know Us
+          </a>
+        </p>
+        <div class="footer-links">
+          <a href="/legal/privacy" target="_blank">Privacy Policy</a>
+          <span class="separator">•</span>
+          <a href="/legal/terms" target="_blank">Terms of Service</a>
+          <span class="separator">•</span>
+          <a href="/legal/help" target="_blank">Help Center</a>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <div class="footer-links">
+          <a href="#" target="_blank" style="color: #ccc;">&#169; MarketSpase by Async Groups</a>
+          <span class="separator">•</span>
+          <a style="color: #ccc;">All Rights Reserved</a>
+        </div>
+      </div>
+    </div>
