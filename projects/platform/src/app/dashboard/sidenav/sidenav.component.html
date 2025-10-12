@@ -9,9 +9,10 @@
         <span class="logo-text">MarketSpase</span>
       </div>
       <div class="mobile-actions">
-        <button mat-icon-button>
-          <app-notification-bell [user]="user"></app-notification-bell>
-        </button>
+        <!-- <button mat-icon-button>
+          <app-notification-bell [user]="user"/>
+        </button> -->
+        <app-notification-bell [user]="user"/>
         <button mat-icon-button (click)="openCartDialog()">
           <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()!.displayName"> 
           <mat-icon>arrow_drop_down</mat-icon>
@@ -61,9 +62,10 @@
               }
             </div>
 
-            <button mat-icon-button>
-              <app-notification-bell [user]="user"></app-notification-bell>
-            </button>
+            <!-- <button mat-icon-button>
+              <app-notification-bell [user]="user"/>
+            </button> -->
+            <app-notification-bell [user]="user"/>
 
             <button mat-icon-button (click)="openCartDialog()">
               <img [src]="user()!.avatar" class="avatar-sm" [alt]="user()?.displayName">
@@ -76,8 +78,6 @@
       <router-outlet/>
     </mat-sidenav-content>
   </mat-sidenav-container>
-
-  
 </div>
 
 <ng-template #cartDialogTemplate>
