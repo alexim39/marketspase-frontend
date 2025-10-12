@@ -8,7 +8,6 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardComponent } from './sidenav/sidenav.component';
 import { AuthService } from '../auth/auth.service';
@@ -17,7 +16,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 import { DashboardMainMobileContainer } from './main-content/mobile/main-content-mobile.component';
-import { MobileIndexComponent } from './main-content/mobile/index.component';
+import { LoadingService } from './loading.service';
+import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -28,8 +31,14 @@ interface AuthState {
 @Component({
   selector: 'dashboard-index',
   standalone: true,
-  imports: [CommonModule, DashboardComponent],
+  providers: [LoadingService],
+  imports: [CommonModule, DashboardComponent, MatProgressBarModule],
   template: `
+
+    @if (loadingService.isLoading$ | async) {
+        <mat-progress-bar mode="indeterminate"/>
+    }
+
     <div class="dashboard-container">
       <!-- Loading State -->
       @if (authState().isLoading) {
@@ -54,7 +63,7 @@ interface AuthState {
             <!-- Dashboard Content -->
             <main class="dashboard-main" role="main">
               @if (user()) {
-                <!-- <app-mobile-index/> -->
+                <!-- <app-main-container-mobile/> -->
                  <app-dashboard [user]="user" />
               }              
             </main>
@@ -289,12 +298,13 @@ interface AuthState {
     }
   `]
 })
-export class DashboardIndexComponent implements OnDestroy {
+export class DashboardIndexComponent implements OnInit {
   // Injected services using modern inject function
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly deviceService = inject(DeviceService);
   private snackBar = inject(MatSnackBar);
+  public loadingService = inject(LoadingService);
 
   // Reactive state using signals
   protected readonly authState = signal<AuthState>({
@@ -389,23 +399,29 @@ export class DashboardIndexComponent implements OnDestroy {
         }
       });
 
-    // Effect for logging state changes (development only)
-    /* effect(() => {
-      const state = this.authState();
-      const userData = this.user(); // Access the signal value in the effect
-      if (!state.isLoading) {
-        console.log('Auth state changed:', {
-          isAuthenticated: state.isAuthenticated,
-          deviceType: this.deviceType(),
-          user: userData // Log the user data from the signal
-        });
-      }
-    }); */
   }
 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
+  ngOnInit(): void {
+     this.router.events
+      .pipe(
+        // We only care about navigation-related events
+        filter(event => event instanceof NavigationStart || 
+                       event instanceof NavigationEnd || 
+                       event instanceof NavigationCancel || 
+                       event instanceof NavigationError)
+      )
+      .subscribe(event => {
+        if (event instanceof NavigationStart) {
+          this.loadingService.show();
+        } else if (event instanceof NavigationEnd) { // Only successful navigation
+          this.loadingService.hide();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (event instanceof NavigationCancel || 
+                  event instanceof NavigationError) {
+          // Optionally handle cancelled or errored navigation separately
+          this.loadingService.hide();
+        }
+      });
   }
 
 }

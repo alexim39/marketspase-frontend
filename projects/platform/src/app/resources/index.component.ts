@@ -11,10 +11,10 @@ import { AboutSkeletonComponent } from './loading-skeleton/loading-skeleton.comp
     providers: [LoadingService],
     imports: [RouterModule, CommonModule, AboutSkeletonComponent],
     template: `
-        @if (loadingService.isLoading$ | async) {
-            <app-about-skeleton/>
-        }    
-        <router-outlet/>
+    @if (loadingService.isLoading$ | async) {
+        <app-about-skeleton/>
+    }    
+    <router-outlet/>
     `,
    
 })
@@ -24,7 +24,7 @@ export class ResourcesIndexComponent {
     public loadingService: LoadingService // Made public for use in the template
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.router.events
       .pipe(
         // We only care about navigation-related events
@@ -45,16 +45,5 @@ export class ResourcesIndexComponent {
           this.loadingService.hide();
         }
       });
-      // .subscribe(event => {
-      //   if (event instanceof NavigationStart) {
-      //     // A navigation has started, show the loader
-      //     this.loadingService.show();
-      //   } else if (event instanceof NavigationEnd || 
-      //              event instanceof NavigationCancel || 
-      //              event instanceof NavigationError) {
-      //     // Navigation completed successfully, or was cancelled/failed, hide the loader
-      //     this.loadingService.hide();
-      //   }
-      // });
   }
 }
