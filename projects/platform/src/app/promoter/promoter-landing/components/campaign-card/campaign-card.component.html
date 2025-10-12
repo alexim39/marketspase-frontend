@@ -43,11 +43,13 @@
       <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
       <span><i class="material-icons">schedule</i> 
         @if (campaign.remainingDays === 'Expired') {
-          {{campaign.remainingDays}}
+          <!-- {{campaign.remainingDays}} -->
+           Expired
         }
         @if (campaign.remainingDays === 'Ongoing') {
           Budget Based
-        } @else {
+        } 
+        @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing') {
           Expires in {{campaign.remainingDays}}
         }
       </span>
