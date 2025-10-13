@@ -3,8 +3,8 @@ import { RouterModule } from '@angular/router';
 import { Component } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { LoadingService } from './loading.service';
 import { AboutSkeletonComponent } from './loading-skeleton/loading-skeleton.component';
+import { LoadingService } from '../../../../shared-services/src/public-api';
 
 @Component({
     selector: 'app-resources-index',
