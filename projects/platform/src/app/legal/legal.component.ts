@@ -15,6 +15,10 @@ import { RouterModule } from '@angular/router';
       <div class="legal-menu">
         <mat-list>
             <mat-list-item> 
+                <a [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Back to App</a>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+            <mat-list-item> 
                 <a [routerLink]="['terms']" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Terms of Service</a>
             </mat-list-item>
             <mat-divider></mat-divider>

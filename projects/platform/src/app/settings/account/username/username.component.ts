@@ -395,23 +395,23 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
       data: {
         title: 'Username Guidelines',
         content: `
-          <p>Your username will be part of your unique profile URL (davidotv.com/yourname).</p>
+          <p>Your username will be part of your unique profile URL (marketspase.com/yourname).</p>
           
           <h4>Requirements:</h4>
           <ul>
             <li>3-30 characters long</li>
             <li>Only letters, numbers and underscores (_)</li>
             <li>No spaces or special characters</li>
-            <li>Cannot contain restricted words (async, davidotv)</li>
+            <li>Cannot contain restricted words (async, marketspase)</li>
           </ul>
 
           <h4>Good Examples:</h4>
           <ul>
-            <li>davidotv.com/alexim39</li>
-            <li>davidotv.com/alex_imenwo</li>
+            <li>marketspase.com/alexim39</li>
+            <li>marketspase.com/alex_imenwo</li>
           </ul>
 
-          <p>Choose something memorable that represents you in the davidotv community!</p>
+          <p>Choose something memorable that represents your brand in the MarketSpase community!</p>
         `,
       },
       panelClass: 'help-dialog',

@@ -118,7 +118,7 @@
                             <span>Recent Activity</span>
                         </div>
                         <div class="activity-list">
-                            @for (activity of recentActivities; track activity) {
+                            @for (activity of recentActivities; track activity.timestamp) {
                                 <div class="activity-item">
                                     <div class="activity-icon">
                                         <mat-icon>{{activity.icon}}</mat-icon>
@@ -129,11 +129,17 @@
                                     </div>
                                 </div>
                             }
+                            @empty {
+                                <div class="no-activities">
+                                    <mat-icon>history</mat-icon>
+                                    <span>No recent activities</span>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
 
-                <div class="sidenav-footer">
+                <!-- <div class="sidenav-footer">
                     <div class="footer-stats">
                         <div class="stat-item">
                             <mat-icon>storage</mat-icon>
@@ -144,7 +150,7 @@
                         </div>
                     </div>
 
-                    <!-- <div class="footer-actions">
+                    <div class="footer-actions">
                         <button mat-stroked-button class="export-button" matTooltip="Export Settings">
                             <mat-icon>download</mat-icon>
                             Export
@@ -153,8 +159,8 @@
                             <mat-icon>logout</mat-icon>
                             Sign Out
                         </button>
-                    </div> -->
-                </div>
+                    </div>
+                </div> -->
             </mat-sidenav>
         </mat-sidenav-container>
     </div>

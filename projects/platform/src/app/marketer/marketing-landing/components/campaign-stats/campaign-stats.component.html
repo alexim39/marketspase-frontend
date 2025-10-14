@@ -1,29 +1,47 @@
+<!-- campaign-stats.component.html -->
+<div class="stats-section" [class.collapsed]="isCollapsed()">
+  <div class="stats-header">
+    <div class="header-content">
+      <h2 class="section-title">Campaign Performance</h2>
+      <p class="section-subtitle">Key metrics and insights for your marketing campaigns</p>
+    </div>
+    <button 
+      class="toggle-btn" 
+      (click)="toggleStats()"
+      [attr.aria-expanded]="!isCollapsed()"
+      aria-label="Toggle statistics display"
+    >
+      <span class="toggle-text">{{ isCollapsed() ? 'Show Statistics' : 'Hide Statistics' }}</span>
+      <div class="toggle-icon">
+        <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </div>
+    </button>
+  </div>
 
-@if (deviceType() === 'desktop') {
-<div class="stats-section">
-  <div class="container">
-    <div class="stats-grid">
-      @for (stat of statsArray; track stat.label) {
-        <div class="stat-card" [class.highlight]="stat.highlight">
-          <div class="stat-icon">
-            <mat-icon>{{stat.icon}}</mat-icon>
+  <div class="stats-content" [class.hidden]="isCollapsed()">
+    <div class="container">
+      <div class="stats-grid">
+        @for (stat of statsArray; track stat.label) {
+          <div class="stat-card" [class.highlight]="stat.highlight">
+            <div class="stat-icon">
+              <mat-icon>{{stat.icon}}</mat-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{stat.value}}</div>
+              <div class="stat-label">{{stat.label}}</div>
+              @if (stat.description) {
+                <div class="stat-description">{{stat.description}}</div>
+              }
+              @if (stat.trend) {
+                <div class="stat-trend" [class.positive]="stat.trend.direction === 'up'" [class.negative]="stat.trend.direction === 'down'">
+                  <mat-icon>{{stat.trend.direction === 'up' ? 'trending_up' : 'trending_down'}}</mat-icon>
+                  <span>{{stat.trend.value}}</span>
+                </div>
+              }
+            </div>
           </div>
-          <div class="stat-content">
-            <div class="stat-value">{{stat.value}}</div>
-            <div class="stat-label">{{stat.label}}</div>
-            @if (stat.description) {
-              <div class="stat-description">{{stat.description}}</div>
-            }
-            @if (stat.trend) {
-              <div class="stat-trend" [class.positive]="stat.trend.direction === 'up'" [class.negative]="stat.trend.direction === 'down'">
-                <mat-icon>{{stat.trend.direction === 'up' ? 'trending_up' : 'trending_down'}}</mat-icon>
-                <span>{{stat.trend.value}}</span>
-              </div>
-            }
-          </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   </div>
 </div>
-}

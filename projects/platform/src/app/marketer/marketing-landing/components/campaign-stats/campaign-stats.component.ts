@@ -1,4 +1,4 @@
-import { Component, computed, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, computed, inject, Input, OnChanges, signal, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { DeviceService } from '../../../../../../../shared-services/src/public-api';
@@ -56,6 +56,12 @@ interface StatItem {
 export class CampaignStatsComponent implements OnChanges {
   @Input() stats!: CampaignStats;
   private deviceService = inject(DeviceService);
+
+  isCollapsed = signal(true);
+  
+  toggleStats(): void {
+    this.isCollapsed.update(state => !state);
+  }
 
   statsArray: StatItem[] = [];
   deviceType = computed(() => this.deviceService.type());

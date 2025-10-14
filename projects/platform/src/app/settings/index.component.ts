@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, inject, Input, OnInit, ViewChild, HostListener, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
@@ -14,10 +14,41 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { HelpDialogComponent, UserInterface } from '../../../../shared-services/src/public-api';
+import { SettingsService } from './settings.service';
+import { UserService } from '../common/services/user.service';
+
+// Define the activity interface based on your user model
+interface UserActivity {
+  action: string;
+  description: string;
+  resourceType?: string;
+  resourceId?: string;
+  metadata?: any;
+  ipAddress?: string;
+  userAgent?: string;
+  timestamp: Date;
+  _id?: string;
+}
+
+interface DisplayActivity {
+  icon: string;
+  title: string;
+  time: string;
+  timestamp: Date;
+}
+
+interface UserWithActivities extends UserInterface {
+  activityLog: any[];
+  activitySettings: {
+    retainPeriod: number;
+    enabled: boolean;
+  };
+}
 
 @Component({
   selector: 'settings-index',
   standalone: true,
+  providers: [SettingsService],
   imports: [
     CommonModule,
     MatIconModule,
@@ -38,25 +69,27 @@ import { HelpDialogComponent, UserInterface } from '../../../../shared-services/
 })
 export class SettingsIndexComponent implements OnInit {
   readonly dialog = inject(MatDialog);
-  @Input() user!: UserInterface;
+  // @Input() user!: UserInterface & {
+  //   activityLog?: UserActivity[];
+  // };
+  private userService = inject(UserService);
+  public user = this.userService.user;
   @ViewChild('drawer') drawer!: MatSidenav;
   private router = inject(Router);
+  private settingsService = inject(SettingsService);
 
   // Enhanced Properties
   isMobile = false;
   isOnline = true;
   showSearch = false;
-  //isDarkMode = false;
-  //notificationsEnabled = true;
-  //isSyncing = false;
   hasNotifications = true;
   unreadNotifications = 3;
   connectedIntegrations = 5;
-  currentRating = 4;
+  //currentRating = 4;
   securityScore = 85;
   storageUsed = 2.4;
   storageTotal = 15;
-  defaultAvatar = 'assets/images/default-avatar.png';
+  defaultAvatar = '/img/avatar.png';
 
   // Completion Status
   completionStatus = {
@@ -72,24 +105,8 @@ export class SettingsIndexComponent implements OnInit {
     support: false
   };
 
-  // Recent Activities
-  recentActivities = [
-    {
-      icon: 'security',
-      title: 'Password updated',
-      time: '2 hours ago'
-    },
-    {
-      icon: 'notifications',
-      title: 'Notifications enabled',
-      time: '1 day ago'
-    },
-    {
-      icon: 'payment',
-      title: 'Billing updated',
-      time: '3 days ago'
-    }
-  ];
+  // Recent Activities - Now populated from user model
+  recentActivities: DisplayActivity[] = [];
 
   @HostListener('window:online', ['$event'])
   onOnline(event: Event) {
@@ -101,20 +118,133 @@ export class SettingsIndexComponent implements OnInit {
     this.isOnline = false;
   }
 
-  // Add this HostListener to your class
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.isMobile = window.innerWidth <= 768; // Or whatever breakpoint you prefer
+    this.isMobile = window.innerWidth <= 768;
   }
 
   ngOnInit() {
-    // Initialize the value on component load
     this.isMobile = window.innerWidth <= 768;
+    this.loadRecentActivities();
+  }
+
+  // Load recent activities from user model
+  loadRecentActivities() {
+  const user = this.user() as UserWithActivities | null;
+  
+  if (user?.activityLog && user.activityLog.length > 0) {
+    const recentUserActivities = user.activityLog
+      .slice(0, 10)
+      .map(activity => this.mapActivityToDisplay(activity));
+    this.recentActivities = recentUserActivities;
+  } else {
+    this.recentActivities = this.getDefaultActivities();
+  }
+}
+
+  
+
+  // Map backend activity to display format
+  private mapActivityToDisplay(activity: UserActivity): DisplayActivity {
+    return {
+      icon: this.getActivityIcon(activity.action),
+      title: activity.description,
+      time: this.formatTimeAgo(activity.timestamp),
+      timestamp: activity.timestamp
+    };
+  }
+
+  // Get appropriate icon for activity type
+  private getActivityIcon(action: string): string {
+    const iconMap: { [key: string]: string } = {
+      // Authentication & Profile
+      'login': 'login',
+      'logout': 'logout',
+      'profile_update': 'person',
+      'password_change': 'password',
+      'email_verify': 'mark_email_read',
+      
+      // Wallet & Financial
+      'wallet_fund': 'account_balance_wallet',
+      'withdrawal_request': 'payments',
+      'withdrawal_complete': 'check_circle',
+      'transfer': 'swap_horiz',
+      
+      // Campaign & Promotion
+      'campaign_create': 'campaign',
+      'campaign_update': 'edit',
+      'campaign_delete': 'delete',
+      'campaign_pause': 'pause_circle',
+      'promotion_submit': 'send',
+      'promotion_approve': 'verified',
+      'promotion_reject': 'cancel',
+      
+      // Notification & Settings
+      'notification_settings_update': 'notifications',
+      'preferences_update': 'tune',
+      
+      // Account Management
+      'device_add': 'devices',
+      'device_remove': 'devices_off',
+      'payout_account_add': 'account_balance',
+      'payout_account_remove': 'account_balance',
+      
+      // System
+      'role_change': 'admin_panel_settings',
+      'account_verify': 'verified_user',
+      'account_suspend': 'block',
+      
+      // Default
+      'default': 'history'
+    };
+
+    return iconMap[action] || iconMap['default'];
+  }
+
+  // Format timestamp to relative time
+  private formatTimeAgo(timestamp: Date): string {
+    const now = new Date();
+    const activityDate = new Date(timestamp);
+    const diffInSeconds = Math.floor((now.getTime() - activityDate.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return 'Just now';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else {
+      return activityDate.toLocaleDateString();
+    }
+  }
+
+  // Fallback default activities
+  private getDefaultActivities(): DisplayActivity[] {
+    return [
+      {
+        icon: 'history',
+        title: 'Account history',
+        time: 'Just now',
+        timestamp: new Date()
+      }
+    ];
+  }
+
+  // Refresh activities (useful if activities are updated)
+  refreshActivities() {
+    this.loadRecentActivities();
   }
 
   showDescription() {
     this.dialog.open(HelpDialogComponent, {
-      data: { help: 'In this section, you can set up your profile details and manage your account settings with our enhanced interface.' },
+      data: { 
+        help: 'In this section, you can set up your profile details and manage your account settings with our enhanced interface. The Recent Activity section shows your latest account actions.' 
+      },
       panelClass: 'help-dialog'
     });
   }
@@ -130,8 +260,6 @@ export class SettingsIndexComponent implements OnInit {
       }, 300);
     }
   }
-
-
 
   toggleSection(section: string) {
     this.expandedSections = {
@@ -153,7 +281,6 @@ export class SettingsIndexComponent implements OnInit {
   }
 
   contactSupport() {
-    // Implement contact support functionality
     console.log('Opening support chat...');
   }
 
@@ -163,12 +290,10 @@ export class SettingsIndexComponent implements OnInit {
   }
 
   changeAvatar() {
-    // Implement avatar change functionality
     console.log('Changing avatar...');
   }
 
   viewProfile() {
-    // Implement view profile functionality
     console.log('Viewing public profile...');
   }
 
