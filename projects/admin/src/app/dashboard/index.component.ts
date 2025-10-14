@@ -1,17 +1,19 @@
-import { Component, signal, computed, OnInit, OnDestroy, inject, DestroyRef } from '@angular/core';
+import { Component, signal, computed, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { Subject, takeUntil } from 'rxjs';
+import { filter } from 'rxjs';
 import {  AdminService } from '../common/services/user.service';
 import { AuthService } from '../auth/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { LoadingService } from '../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-whatsapp-admin-dashboard',
   standalone: true,
-  providers: [AuthService],
-  imports: [CommonModule, RouterModule, MatIconModule],
+  providers: [AuthService, LoadingService],
+  imports: [CommonModule, RouterModule, MatIconModule, MatProgressBarModule],
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss']
 })
@@ -20,6 +22,8 @@ export class AdminDashboardComponent implements OnInit {
   readonly adminService = inject(AdminService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  public loadingService = inject(LoadingService);
+  
 
   // Define component state using signals
   sidebarCollapsed = signal(false);
@@ -54,11 +58,33 @@ export class AdminDashboardComponent implements OnInit {
     day: 'numeric'
   });
 
-  // Call the service method in ngOnInit to trigger data fetch
-  ngOnInit() {
+  ngOnInit(): void {
+
     // This is the correct line to trigger the data fetch.
     this.adminService.fetchAdmin();
+
+     this.router.events
+      .pipe(
+        // We only care about navigation-related events
+        filter(event => event instanceof NavigationStart || 
+                       event instanceof NavigationEnd || 
+                       event instanceof NavigationCancel || 
+                       event instanceof NavigationError)
+      )
+      .subscribe(event => {
+        if (event instanceof NavigationStart) {
+          this.loadingService.show();
+        } else if (event instanceof NavigationEnd) { // Only successful navigation
+          this.loadingService.hide();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (event instanceof NavigationCancel || 
+                  event instanceof NavigationError) {
+          // Optionally handle cancelled or errored navigation separately
+          this.loadingService.hide();
+        }
+      });
   }
+
   
   // No changes needed for these methods as they already use signals
   toggleSidebar() {
