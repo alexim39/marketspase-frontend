@@ -189,7 +189,7 @@ export class CareersComponent {
       location: 'Rivers, Nigeria',
       remote: true,
       experience: '5+ years',
-      salary: '₦200,000 - ₦400,000/month',
+      //salary: '₦200,000 - ₦400,000/month',
       description: 'Lead the development of our user-facing applications using Angular and modern web technologies.',
       responsibilities: [
         'Architect and build scalable frontend applications',
@@ -224,7 +224,7 @@ export class CareersComponent {
       location: 'Remote',
       remote: true,
       experience: '3+ years',
-      salary: '₦150,000 - ₦300,000/month',
+      //salary: '₦150,000 - ₦300,000/month',
       description: 'Drive product strategy and execution for our core platform features.',
       responsibilities: [
         'Define product roadmap and strategy',
@@ -258,7 +258,7 @@ export class CareersComponent {
       location: 'Rivers, Nigeria',
       remote: true,
       experience: '4+ years',
-      salary: '₦200,000 - ₦450,000/month',
+      //salary: '₦200,000 - ₦450,000/month',
       description: 'Build and maintain our cloud infrastructure and deployment pipelines.',
       responsibilities: [
         'Manage GCP cloud infrastructure',

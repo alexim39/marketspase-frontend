@@ -12,9 +12,11 @@ import { LoadingService } from '../../../../shared-services/src/public-api';
     imports: [RouterModule, CommonModule, AboutSkeletonComponent],
     template: `
     @if (loadingService.isLoading$ | async) {
-        <app-about-skeleton/>
-    }    
-    <router-outlet/>
+      <app-about-skeleton/>
+    } @else {
+      <router-outlet/>
+    }
+    
     `,
    
 })
