@@ -7,13 +7,13 @@
     <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
     <div class="sidebar-header">
         <div class="logo">
-        <div class="logo-icon">
-            <mat-icon>sync</mat-icon>
-        </div>
-        <span class="logo-text">MarketSpase Admin</span>
+            <div class="logo-icon">
+                <mat-icon>sync</mat-icon>
+            </div>
+            <span class="logo-text">MarketSpase Admin</span>
         </div>
         <button class="sidebar-toggle" (click)="toggleSidebar()">
-        <mat-icon>{{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+            <mat-icon>{{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
         </button>
     </div>
     
@@ -139,12 +139,12 @@
             }
             </button>
             
-            <button class="message-btn" [class.has-messages]="messageCount() > 0">
-            <mat-icon>email</mat-icon>
-            @if (messageCount() > 0) {
-                <span class="notification-badge">{{ messageCount() }}</span>
-            }
-            </button>
+            <!-- <button class="message-btn" [class.has-messages]="messageCount() > 0">
+               <mat-icon>email</mat-icon>
+                @if (messageCount() > 0) {
+                    <span class="notification-badge">{{ messageCount() }}</span>
+                }
+            </button> -->
         </div>
         </div>
     </header>

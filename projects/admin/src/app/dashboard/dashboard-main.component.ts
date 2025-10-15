@@ -7,6 +7,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { CampaignInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { UserService } from '../users/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EngagementStats, RevenueService, RevenueStats } from './revenue.service';
 
 interface PromotionPost {
   id: string;
@@ -37,18 +38,21 @@ interface StatusPromotion {
 
 @Component({
   selector: 'app-dashboard-main',
-  providers: [CampaignService, UserService],
+  providers: [CampaignService, UserService, RevenueService],
   imports: [CommonModule, RouterModule, MatIconModule],
   templateUrl: './dashboard-main.component.html',
   styleUrls: ['./dashboard-main.component.scss']
 })
-export class DashboardMainComponent implements OnInit, OnDestroy {
+export class DashboardMainComponent implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
   readonly campaignService = inject(CampaignService);
   readonly userService = inject(UserService);
   isCampaignLoading = signal(true);
   isUserLoading = signal(true);
+
+
+  readonly revenueService = inject(RevenueService);
 
   totalCampaigns = signal(0);
   activeCampaigns = signal(0);
@@ -61,14 +65,13 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
   activeCampaignsChange = signal(0);
   usersChange = signal(0);
 
+  totalRevenue = signal(0);
+  revenueChange = signal(0);
+  averageEngagement = signal(0);
+  engagementChange = signal(0);
 
-
-  /* to be replaced */
-  totalRevenue = signal(2450000);
-  revenueChange = signal(22.5);
-  activePromoters = signal(847);
-  averageEngagement = signal(78.5);
-  engagementChange = signal(-2.1);
+  isRevenueLoading = signal(true);
+  isEngagementLoading = signal(true);
   
   // Data
   promotionPosts: PromotionPost[] = [
@@ -226,14 +229,12 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
   // Expose Math to template
   Math = Math;
 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
 
   ngOnInit(): void {
     this.loadCampaigns();
     this.loadUsers();
+    this.loadRevenueStats();
+    this.loadEngagementStats();
   }
 
   loadCampaigns(): void {
@@ -275,6 +276,42 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
       })
   }
 
+  loadRevenueStats(): void {
+    this.isRevenueLoading.set(true);
+    
+    this.revenueService.getRevenueStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stats: RevenueStats) => {
+          this.totalRevenue.set(stats.totalRevenue);
+          this.revenueChange.set(stats.revenueChange);
+          this.isRevenueLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading revenue stats:', error);
+          this.isRevenueLoading.set(false);
+        }
+      });
+  }
+
+  loadEngagementStats(): void {
+    this.isEngagementLoading.set(true);
+    
+    this.revenueService.getEngagementStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (stats: EngagementStats) => {
+          this.averageEngagement.set(stats.averageEngagement);
+          this.engagementChange.set(stats.engagementChange);
+          this.isEngagementLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading engagement stats:', error);
+          this.isEngagementLoading.set(false);
+        }
+      });
+  }
+
   calculateCampaignStats(campaigns: CampaignInterface[]): void {
     this.totalCampaigns.set(campaigns.length);
     this.activeCampaigns.set(campaigns.filter(campaign => campaign.status === 'active').length);
@@ -288,9 +325,6 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
   calculateUserStats(users: UserInterface[]): void {
     this.totalUsers.set(users.length);
     this.activeUsers.set(users.filter(user => user.isActive === true).length);
-    //this.pendingCampaigns.set(campaigns.filter(c => c.status === 'pending').length);
-    //this.rejectedCampaigns.set(campaigns.filter(c => c.status === 'rejected').length);
-//
   }
   
   // Action methods

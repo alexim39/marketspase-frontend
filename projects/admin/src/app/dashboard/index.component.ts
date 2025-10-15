@@ -30,7 +30,7 @@ export class AdminDashboardComponent implements OnInit {
   activeNavItem = signal('dashboard');
   searchQuery = signal('');
   notificationCount = signal(5);
-  messageCount = signal(12);
+  //messageCount = signal(12);
 
   private readonly destroyRef = inject(DestroyRef);
 

@@ -41,31 +41,41 @@
             </div>
         </div>
         
+        <!-- Updated Revenue Card -->
         <div class="stat-card success">
             <div class="stat-icon">
                 <mat-icon>attach_money</mat-icon>
             </div>
             <div class="stat-content">
-                <div class="stat-label">Total Revenue</div>
-                <div class="stat-value">₦{{ totalRevenue().toLocaleString() }}</div>
-                <div class="stat-change positive">
-                <mat-icon>trending_up</mat-icon>
-                +{{ revenueChange() }}% this month
-                </div>
+                @if (isRevenueLoading()) {
+                    <div style="color: gray">loading revenue...</div>
+                } @else {
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value">₦{{ totalRevenue().toLocaleString() }}</div>
+                    <div class="stat-change" [class]="revenueChange() >= 0 ? 'positive' : 'negative'">
+                        <mat-icon>{{ revenueChange() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+                        {{ revenueChange() >= 0 ? '+' : '' }}{{ revenueChange() }}% this month
+                    </div>
+                }
             </div>
         </div>
         
+        <!-- Updated Engagement Card -->
         <div class="stat-card warning">
             <div class="stat-icon">
-                <mat-icon>vital_signs</mat-icon>
+                <mat-icon>monitor_heart</mat-icon>
             </div>
             <div class="stat-content">
-                <div class="stat-label">Avg. Engagement</div>
-                <div class="stat-value">{{ averageEngagement() }}%</div>
-                <div class="stat-change negative">
-                <mat-icon>trending_down</mat-icon>
-                {{ Math.abs(engagementChange()) }}% from last week
-                </div>
+                @if (isEngagementLoading()) {
+                    <div style="color: gray">loading engagement...</div>
+                } @else {
+                    <div class="stat-label">Avg. Engagement</div>
+                    <div class="stat-value">{{ averageEngagement() }}%</div>
+                    <div class="stat-change" [class]="engagementChange() >= 0 ? 'positive' : 'negative'">
+                        <mat-icon>{{ engagementChange() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+                        {{ engagementChange() >= 0 ? '+' : '' }}{{ engagementChange() }}% from last week
+                    </div>
+                }
             </div>
         </div>
     </div>
