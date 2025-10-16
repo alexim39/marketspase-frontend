@@ -22,6 +22,7 @@ import { PromoterLandingService } from './promoter-landing.service';
 import { CampaignCardMobileComponent } from './components/campaign-card/mobile/campaign-card-mobile.component';
 import { PromoterQuickStatsMobileComponent } from './components/promoter-quick-stats/mobile/promoter-quick-stats-mobile.component';
 import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -51,7 +52,8 @@ interface CampaignMetrics {
     LoadingStateComponent,
     CampaignCardMobileComponent,
     PromoterQuickStatsMobileComponent,
-    CampaignFiltersMobileComponent
+    CampaignFiltersMobileComponent,
+    MatProgressSpinnerModule
   ],
   templateUrl: './promoter-landing.component.html',
   styleUrls: ['./promoter-landing.component.scss']
@@ -76,6 +78,21 @@ export class PromoterLandingComponent implements OnInit {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   promotions = signal<PromotionInterface[]>([]);
+
+
+  // Add these signals to your component
+currentPage = signal(1);
+pageSize = signal(20); // Adjust as needed
+hasMoreCampaigns = signal(false);
+paginationMetadata = signal<any>(null);
+
+// Add a method to load more campaigns
+loadMoreCampaigns(): void {
+  if (this.hasMoreCampaigns() && !this.isLoading()) {
+    this.loadCampaigns(true);
+  }
+}
+
 
   filteredCampaigns = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
@@ -163,7 +180,8 @@ export class PromoterLandingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadCampaigns();
+    //this.loadCampaigns();
+    this.loadCampaigns(false); // Initial load
     this.loadUserPromotions();
   }
 
@@ -203,7 +221,7 @@ export class PromoterLandingComponent implements OnInit {
       });
   }
 
-  private loadCampaigns(): void {
+  /* private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
       this.promoterLandingService.getCampaignsByStatus('active', this.user()?._id)
@@ -220,7 +238,47 @@ export class PromoterLandingComponent implements OnInit {
           }
         });
     }
-  }
+  } */
+
+    private loadCampaigns(loadMore: boolean = false): void {
+      if (this.user() && this.user()?._id) {
+        // If loading more, increment page, otherwise start from page 1
+        const nextPage = loadMore ? this.currentPage() + 1 : 1;
+        
+        this.isLoading.set(true);
+        
+        this.promoterLandingService.getCampaignsByStatus('active', this.user()?._id, { 
+          page: nextPage, 
+          limit: this.pageSize()
+        })
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => {
+              const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
+              
+              if (loadMore) {
+                // Append new campaigns to existing ones
+                const currentCampaigns = this.campaigns();
+                this.campaigns.set([...currentCampaigns, ...campaignsWithMetrics]);
+                this.currentPage.set(nextPage);
+              } else {
+                // Replace campaigns with new ones
+                this.campaigns.set(campaignsWithMetrics);
+                this.currentPage.set(1);
+              }
+              
+              // Update pagination metadata
+              this.paginationMetadata.set(response.metadata?.pagination);
+              this.isLoading.set(false);
+              this.hasMoreCampaigns.set(response.metadata?.pagination?.hasNextPage || false);
+            },
+            error: (error: HttpErrorResponse) => {
+              console.error('Failed to load campaigns:', error);
+              this.isLoading.set(false);
+            }
+          });
+      }
+    }
 
   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
     return campaigns.map(campaign => {

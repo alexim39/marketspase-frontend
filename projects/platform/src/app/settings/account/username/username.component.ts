@@ -34,6 +34,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsernameDialogComponent } from './help-dialog.component';
 import { ProfileService } from '../profile.service';
 import { UserService } from '../../../common/services/user.service';
+import { RESTRICTEDWORDS } from './restricted-words';
 
 @Component({
   selector: 'async-username-info',
@@ -281,7 +282,7 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
     return this.usernameForm?.get('username')?.value || 'yourname';
   });
 
-  private restrictedWords = ['async', 'marketspase', 'alexim39', 'alex_imenwo'];
+  private restrictedWords = RESTRICTEDWORDS;
 
   constructor() {
     // Create an effect to react to changes in the 'user' input signal
@@ -328,17 +329,36 @@ export class UsernameInfoComponent implements OnInit, OnDestroy {
     }
   }
 
+  // private restrictedWordsValidator(
+  //   control: AbstractControl
+  // ): ValidationErrors | null {
+  //   const value = (control.value as string)?.toLowerCase();
+  //   if (!value) {
+  //     return null;
+  //   }
+
+  //   const isRestricted = this.restrictedWords.some((word) =>
+  //     value.includes(word.toLowerCase())
+  //   );
+
+  //   return isRestricted ? { restrictedWord: true } : null;
+  // }
+
   private restrictedWordsValidator(
     control: AbstractControl
   ): ValidationErrors | null {
-    const value = (control.value as string)?.toLowerCase();
+    const value = (control.value as string)?.toLowerCase().trim();
     if (!value) {
       return null;
     }
 
-    const isRestricted = this.restrictedWords.some((word) =>
-      value.includes(word.toLowerCase())
-    );
+    // Split the value into words using whitespace as delimiter
+    const words = value.split(/\s+/);
+
+    const isRestricted = this.restrictedWords.some((restrictedWord) => {
+      const lowerRestricted = restrictedWord.toLowerCase();
+      return words.some((word) => word === lowerRestricted);
+    });
 
     return isRestricted ? { restrictedWord: true } : null;
   }

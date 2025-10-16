@@ -29,7 +29,7 @@ export class CampaignCardComponent {
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
 
- // Computed signal to check if the user has already accepted the campaign
+  // Computed signal to check if the user has already accepted the campaign
   hasUserPromotion = computed(() => {
     return (campaign: CampaignInterface) =>
       this.promotions.some(
@@ -53,7 +53,6 @@ export class CampaignCardComponent {
   }
 
   getStatusBadgeText(campaign: CampaignInterface): string {
-    //console.log('promotions:', this.promotions());
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
       return 'Completed';
     }
@@ -117,6 +116,11 @@ export class CampaignCardComponent {
   }
   
   getAcceptButtonText(campaign: CampaignInterface): string {
+    // Check if user has already accepted this campaign
+    if (this.hasUserPromotion()(campaign)) {
+      return 'Already Accepted';
+    }
+    
     if (!this.canAcceptCampaign(campaign)) {
       if (campaign.status !== 'active') return 'Not Available';
       if (campaign.remainingDays === 'Expired') return 'Expired';

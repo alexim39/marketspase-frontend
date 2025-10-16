@@ -181,3 +181,46 @@
     }
   }
 }
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+  
+  span {
+    color: #666;
+    font-size: 0.9rem;
+  }
+}
+
+.load-more-trigger {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+  
+  .load-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #e9ecef;
+    }
+  }
+}
+
+.no-more-campaigns {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}

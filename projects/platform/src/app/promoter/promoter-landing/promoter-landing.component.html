@@ -55,24 +55,31 @@
 
   <main class="main">
     <div class="container">
-      @if (isLoading()) {
+      <!-- Initial loading state -->
+      @if (isLoading() && campaigns().length === 0) {
         <loading-state/>
-      } @else if (filteredCampaigns().length === 0) {
+      } 
+      
+      <!-- Empty state -->
+      @else if (filteredCampaigns().length === 0 && !isLoading()) {
         <empty-state/>
-      } @else {
+      } 
+      
+      <!-- Campaigns content -->
+      @else {
         <div class="campaigns-grid" [class.grid-view]="viewMode() === 'grid'" [class.list-view]="viewMode() === 'list'">
           @for (campaign of filteredCampaigns(); track campaign._id) {
             @if (deviceType() === 'desktop') {
-              <campaign-card
+              <campaign-card 
                 [campaign]="campaign"
                 [promotions]="promotions()"
                 [api]="api"
                 [isApplying]="isApplying()"
                 [viewMode]="viewMode()"
-                (applyForCampaign)="applyForCampaign($event)"
-              />
+                (applyForCampaign)="applyForCampaign($event)">
+              </campaign-card>
             }
-             @if (deviceType() === 'mobile') {
+            @if (deviceType() === 'mobile') {
               <app-campaign-card-mobile
                 [campaign]="campaign"
                 [promotions]="promotions()"
@@ -84,15 +91,31 @@
             }
           }
         </div>
-      }
 
-      @if (campaigns().length > 0) {
-       <!--  <div style="text-align: center; margin-top: 32px;">
-          <button class="btn btn-primary" style="padding: 16px 32px; font-size: 16px;">
-            <i class="material-icons">apps</i>
-            View All Campaigns
-          </button>
-        </div> -->
+        <!-- Loading more indicator -->
+        @if (isLoading() && campaigns().length > 0) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Loading more campaigns...</span>
+          </div>
+        }
+
+        <!-- Load more trigger -->
+        @if (hasMoreCampaigns() && !isLoading() && filteredCampaigns().length > 0) {
+          <div class="load-more-trigger" (click)="loadMoreCampaigns()">
+            <button class="load-more-btn">
+              <i class="material-icons">expand_more</i>
+              Load More Campaigns
+            </button>
+          </div>
+        }
+
+        <!-- No more campaigns message -->
+        @if (!hasMoreCampaigns() && campaigns().length > 0 && filteredCampaigns().length > 0) {
+          <div class="no-more-campaigns">
+            <p>You've reached the end of available campaigns</p>
+          </div>
+        }
       }
     </div>
   </main>

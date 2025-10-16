@@ -61,18 +61,18 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
     {
       icon: 'local_offer',
       title: 'Special Offers',
-      description: 'Discounts and promotions based on your interests'
+      description: 'Campaigns and promotions based on your interests'
     },
     {
       icon: 'store',
       title: 'Local Businesses',
-      description: 'Deals from businesses in your area'
+      description: 'Campaigns from businesses in your area'
     },
-    {
-      icon: 'event',
-      title: 'Events',
-      description: 'Local events and activities you might enjoy'
-    }
+    // {
+    //   icon: 'event',
+    //   title: 'Events',
+    //   description: 'Local events and activities you might enjoy'
+    // }
   ];
 
   private readonly snackBar = inject(MatSnackBar);

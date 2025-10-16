@@ -19,15 +19,35 @@ export class PromoterLandingService {
     return this.apiService.get<any>(`${this.apiUrl}/user/${userId}`, undefined, undefined, true);
   }
 
- /**
- * Get campaigns by status (e.g., active, paused, completed).
+/**
+ * Get campaigns by status (e.g., active, paused, completed) with pagination.
  * @param status The campaign status to filter by.
  * @param userId The user id to target.
- * @returns An observable of the filtered campaigns.
+ * @param pagination Pagination options (page, limit).
+ * @returns An observable of the filtered campaigns with pagination metadata.
  */
-  getCampaignsByStatus(status: string, userId: string | undefined): Observable<any> {
-    return this.apiService.get<any>(`${this.apiUrl2}/?status=${status}&userId=${userId}`, undefined, undefined, true);
-  }
+getCampaignsByStatus(
+  status: string, 
+  userId: string | undefined, 
+  pagination: { page?: number; limit?: number } = {}
+): Observable<any> {
+  const { page = 1, limit = 20 } = pagination;
+  
+  // Build query string manually
+  const queryParams = new URLSearchParams({
+    status: status,
+    userId: userId || '',
+    page: page.toString(),
+    limit: limit.toString()
+  }).toString();
+  
+  return this.apiService.get<any>(
+    `${this.apiUrl2}/?${queryParams}`, 
+    undefined, 
+    undefined, 
+    true
+  );
+}
 
 
   // Promoter accept a campaign (Note: This might be the same as the download function)
