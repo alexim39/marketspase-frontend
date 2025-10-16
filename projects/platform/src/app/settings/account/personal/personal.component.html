@@ -91,11 +91,12 @@
           </mat-form-field>
         </div>
 
-        <!-- Replace the current address textarea with these fields -->
+        <!-- Address fields with Autocomplete setup -->
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Street Address</mat-label>
-            <input matInput formControlName="street" required>
+            <mat-label>Street Address (Start Typing for Autocomplete)</mat-label>
+            <!-- Add the template reference variable #streetInput here -->
+            <input matInput formControlName="street" required #streetInput>
             <mat-icon matSuffix>location_on</mat-icon>
             @if (profileForm.get('street')?.hasError('required')) {
                <mat-error>
@@ -161,10 +162,12 @@
         }
           
         @if (showStateAutocomplete()) {
+          <!-- This is now primarily for displaying the state/province value populated by Autocomplete or manual entry -->
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>State/Province</mat-label>
-            <input matInput formControlName="state" required>
+            <input matInput formControlName="state">
             <mat-icon matSuffix>location_city</mat-icon>
+            <!-- Only show error if explicitly required/invalid, but usually Autocomplete handles it -->
             @if (profileForm.get('state')?.hasError('required')) {
               <mat-error>
                 State is required

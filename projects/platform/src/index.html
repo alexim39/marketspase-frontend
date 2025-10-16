@@ -31,6 +31,10 @@
   <meta name="twitter:description" content="Connect marketers with WhatsApp Status promoters for verified campaigns and automated payments.">
   <meta name="twitter:image" content="https://marketspase.com/img/x_logo.png">
   
+   <!-- Google Maps script is loading libraries=places, suggesting location/autocomplete features -->
+  <!-- Ensure you replace AIzaSyD91TxVyx2IFPJBbAWpdeAewvtsrFnDRiA with your actual API key -->
+  <!-- The CSP error is likely from an adblocker and can be ignored but should be noted. -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD91TxVyx2IFPJBbAWpdeAewvtsrFnDRiA&libraries=places&loading=async" defer></script>
   
   <!-- Facebook SDK -->
   <script>
@@ -261,6 +265,42 @@
         if (loader) {
           loader.classList.add('fade-out');
           setTimeout(() => loader.remove(), 300);
+        }
+      }, 1000);
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+      // Check for the pre-loader and remove it after a delay if the application has started rendering.
+      let attempts = 0;
+      const maxAttempts = 10; // Increased attempts to 10 seconds total just in case
+      const intervalId = setInterval(() => {
+        const appRoot = document.querySelector('app-root');
+        
+        // Condition to remove the loader: app-root has content OR we've maxed out attempts.
+        const shouldRemove = (appRoot && appRoot.children.length > 0) || (attempts >= maxAttempts);
+
+        if (shouldRemove) {
+          clearInterval(intervalId);
+          
+          // Use setTimeout for a smooth fade-out effect
+          setTimeout(() => {
+            // CRITICAL FIX: Re-fetch the loader element right before removing it. 
+            // This prevents a TypeError if another script or Angular itself removes it 
+            // before this timeout executes, as the original reference might become stale.
+            const loader = document.getElementById('app-loader');
+            if (loader) {
+              // Fade out and then remove
+              loader.style.opacity = '0';
+              setTimeout(() => {
+                // Final check before removal
+                if (loader.parentElement) { 
+                  loader.remove();
+                }
+              }, 300);
+            }
+          }, 100); // 100ms delay to ensure the interval is fully cleared
+        } else {
+          attempts++;
         }
       }, 1000);
     });

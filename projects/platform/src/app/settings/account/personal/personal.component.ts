@@ -1,4 +1,4 @@
-import { Component, inject, Input, Signal, effect, DestroyRef } from '@angular/core';
+import { Component, inject, Input, Signal, effect, DestroyRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +25,18 @@ import { ProfileService } from '../profile.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../common/services/user.service';
 
+// Declare google namespace to prevent TypeScript errors. 
+// This assumes the Google Maps API script is loaded globally in index.html.
+declare const google: any;
+
+// Define a clear interface for the structured address data
+interface StructuredAddress {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+}
+
 @Component({
   selector: 'async-personal-infor',
   providers: [ProfileService],
@@ -49,9 +61,12 @@ import { UserService } from '../../../common/services/user.service';
   templateUrl: './personal.component.html',
   styleUrls: ['./personal.component.scss']
 })
-export class PersonalInfoComponent {
+export class PersonalInfoComponent implements AfterViewInit {
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
+  
+  // Reference to the street address input field
+  @ViewChild('streetInput', { static: false }) addressInput!: ElementRef<HTMLInputElement>;
 
   private snackBar = inject(MatSnackBar);
   private profileService = inject(ProfileService);
@@ -152,7 +167,100 @@ export class PersonalInfoComponent {
       }
     }, { allowSignalWrites: true });
   }
+  
+  ngAfterViewInit(): void {
+    // Only attempt to set up autocomplete if the input element is available
+    if (this.addressInput) {
+      this.initAddressAutocomplete();
+    }
+  }
 
+  /**
+   * Initializes the Google Places Autocomplete functionality on the street input.
+   * Assumes the Google Maps API is loaded globally.
+   */
+  initAddressAutocomplete(): void {
+    // Check if the Google Maps API and Places library are loaded
+    if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+      const autocomplete = new google.maps.places.Autocomplete(
+        this.addressInput.nativeElement,
+        {
+          types: ['address'],
+          // IMPORTANT: Request only necessary fields to minimize billing
+          fields: ['address_components', 'geometry', 'name']
+        }
+      );
+
+      // Listen for the place selection event
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        this.handlePlaceSelection(place);
+      });
+    } else {
+      console.warn('Google Maps API or Places library not loaded. Address Autocomplete will not be available.');
+    }
+  }
+
+  /**
+   * Extracts components from the selected Google Place object and updates the form controls.
+   * @param place The selected Google Place object.
+   */
+  handlePlaceSelection(place: any): void {
+    if (!place || !place.address_components) {
+      return;
+    }
+
+    const componentMap: { [key: string]: keyof StructuredAddress } = {
+      locality: 'city',
+      administrative_area_level_1: 'state',
+      country: 'country',
+      // street_number and route will be handled separately for 'street'
+    };
+
+    // Use the defined interface for type safety
+    const address: StructuredAddress = {
+      street: '',
+      city: '',
+      state: '',
+      country: '',
+    };
+
+    let streetNumber = '';
+    let route = '';
+
+    // Parse address components
+    for (const component of place.address_components) {
+      const type = component.types[0];
+      
+      if (type === 'street_number') {
+        streetNumber = component.long_name;
+      } else if (type === 'route') {
+        route = component.long_name;
+      } else if (componentMap[type]) {
+        // Use bracket notation to safely assign the value based on the mapping
+        address[componentMap[type]] = component.long_name;
+      }
+    }
+
+    // Combine street number and route into the 'street' field
+    address.street = (streetNumber + ' ' + route).trim();
+
+    // Apply the extracted values to the form
+    this.profileForm.patchValue({
+      street: address.street,
+      city: address.city,
+      state: address.state,
+      country: address.country
+    });
+    
+    // Manually trigger the country value change to update state validation logic
+    this.profileForm.get('country')?.setValue(address.country);
+
+    // If no specific street components were found, use the place name as a fallback for the street.
+    if (!address.street) {
+        this.profileForm.get('street')?.setValue(place.name || '');
+    }
+  }
 
   onAccountStatusChange(event: MatSlideToggleChange): void {
     if (event.checked) {
@@ -161,6 +269,7 @@ export class PersonalInfoComponent {
         state: event.checked,
         userId: this.user()?._id
       };
+      // ... (Rest of activation logic)
     }
   }
 
