@@ -36,15 +36,19 @@
     }
 
     .logo-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(255, 255, 255, 0.2);
+     
+     // background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(10px);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+     // border: 1px solid rgba(255, 255, 255, 0.3);
+     img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+     }
     }
 
     .logo-icon mat-icon {

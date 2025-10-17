@@ -16,7 +16,8 @@ import { Subscription } from 'rxjs';
         <div class="login-header">
           <div class="logo">
             <div class="logo-icon">
-              <i class="fa fa-refresh"></i>
+              <!-- <i class="fa fa-refresh"></i> -->
+               <img src="/img/x_logo.png">
             </div>
           </div>
           <h1>MarketSpase Admin</h1>
@@ -141,6 +142,11 @@ import { Subscription } from 'rxjs';
       justify-content: center;
       color: #667eea;
       font-size: 22px;
+      img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+     }
     }
     
     h1 {
