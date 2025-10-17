@@ -85,7 +85,16 @@
       <span class="amount">{{ promotion.payoutAmount }}</span>
     </div>
     <div class="status-indicator">
-      <span class="status-label">{{ promotion.status | titlecase }}</span>
+      @if (promotion.isDownloaded) {
+        <span class="status-label">
+          Pending Submission
+        </span>
+      } @else {
+        <span class="status-label">
+          Pending Download
+        </span>
+      }
+      
     </div>
   </div>
 </div>
