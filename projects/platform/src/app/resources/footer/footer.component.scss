@@ -29,11 +29,12 @@
   margin-bottom: 20px;
 }
 
-.brand-logo mat-icon {
+.brand-logo mat-icon, img {
   color: #667eea;
   font-size: 32px;
   width: 32px;
   height: 32px;
+  border-radius: 50%;
 }
 
 .brand-tagline {

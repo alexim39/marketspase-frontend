@@ -72,39 +72,6 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
- /*  private startCountdownTimer(): void {
-    if (this.countdownSubscription) {
-      this.countdownSubscription.unsubscribe();
-    }
-
-    const creationTime = new Date(this.promotion.createdAt).getTime();
-    const expirationTime = creationTime + (24 * 60 * 60 * 1000);
-    const currentTime = new Date().getTime();
-    this.timeDifferenceInMilliseconds = expirationTime - currentTime; // Set the new property
-
-    if (this.timeDifferenceInMilliseconds <= 0) {
-      this.countdownSignal.set('Expired');
-      return;
-    }
-
-    this.countdownSubscription = interval(1000)
-      .pipe(
-        takeWhile(() => {
-          const creationTime = new Date(this.promotion.createdAt).getTime();
-          const expirationTime = creationTime + (24 * 60 * 60 * 1000);
-          const currentTime = new Date().getTime();
-          return expirationTime > currentTime;
-        }, true),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => {
-        this.updateCountdown();
-      });
-
-    this.updateCountdown();
-  } */
-
-
   private startCountdownTimer(): void {
       if (this.countdownSubscription) {
         this.countdownSubscription.unsubscribe();

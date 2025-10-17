@@ -159,7 +159,8 @@ export class IndexComponent implements OnDestroy {
   // --- END NEW ---
 
   private handleAuthSuccess(response: any): void {
-    if (response.success) {
+    this.setLoadingState('Verifying', true);
+    if (response.success) {      
         this.userService.auth(response.user)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -168,8 +169,10 @@ export class IndexComponent implements OnDestroy {
               //console.log('response ',response)
               // Navigate to dashboard
               this.router.navigateByUrl('/dashboard');
+              this.setLoadingState('', false);
             } else {
               this.router.navigateByUrl('/');
+              this.setLoadingState('', false);
             }
           },
           error: (error: HttpErrorResponse) => {
