@@ -90,7 +90,7 @@
       (click)="applyForCampaign.emit(campaign)"
       >
       @if (isApplyingCampaign()) {
-        <mat-icon class="loading-spinner">hourglass_empty</mat-icon> Accepting...
+        <mat-icon class="loading-spinner">autorenew</mat-icon> Accepting...
       }@else {
         <i class="material-icons">add_circle</i>
         {{getAcceptButtonText(campaign)}}

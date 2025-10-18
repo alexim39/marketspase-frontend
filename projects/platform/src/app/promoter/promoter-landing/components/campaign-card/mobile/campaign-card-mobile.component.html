@@ -92,7 +92,7 @@
             [disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplyingCampaign()) {
-              <i class="material-icons spinner">hourglass_empty</i>
+              <i class="material-icons spinner">autorenew</i>
               <span>Accepting...</span>
             } @else {
               <i class="material-icons">add_circle</i>
@@ -213,7 +213,7 @@
             [disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplyingCampaign()) {
-              <i class="material-icons spinner">hourglass_empty</i>
+              <i class="material-icons spinner">autorenew</i>
               <span>Accepting...</span>
             } @else {
               <i class="material-icons">add_circle</i>

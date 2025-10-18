@@ -79,21 +79,24 @@ export class PromoterLandingComponent implements OnInit {
 
   promotions = signal<PromotionInterface[]>([]);
 
-  applyingCampaignId: string | null = null;
+  //applyingCampaignId: string | null = null;
+
+  // Change applyingCampaignId to a signal
+  applyingCampaignId = signal<string | null>(null);
 
 
   // Add these signals to your component
-currentPage = signal(1);
-pageSize = signal(20); // Adjust as needed
-hasMoreCampaigns = signal(false);
-paginationMetadata = signal<any>(null);
+  currentPage = signal(1);
+  pageSize = signal(20); // Adjust as needed
+  hasMoreCampaigns = signal(false);
+  paginationMetadata = signal<any>(null);
 
-// Add a method to load more campaigns
-loadMoreCampaigns(): void {
-  if (this.hasMoreCampaigns() && !this.isLoading()) {
-    this.loadCampaigns(true);
+  // Add a method to load more campaigns
+  loadMoreCampaigns(): void {
+    if (this.hasMoreCampaigns() && !this.isLoading()) {
+      this.loadCampaigns(true);
+    }
   }
-}
 
 
   filteredCampaigns = computed(() => {
@@ -108,7 +111,6 @@ loadMoreCampaigns(): void {
 
   metrics = computed<CampaignMetrics>(() => {
     const promotions = this.promotions();
-    console.log('metrics promotions ', promotions);
 
     // Calculate earnings based on actual promotion status
     const totalEarnings = promotions
@@ -205,7 +207,7 @@ loadMoreCampaigns(): void {
         next: (response) => {
           // Add a defensive check for the response data
           if (response && response.data) {
-            console.log('returned promotions',response)
+            //console.log('returned promotions',response)
             this.promotions.set(response.data);
             //this.stats.set(this.calculateStats(response.data));
           } else {
@@ -314,52 +316,59 @@ loadMoreCampaigns(): void {
     return this.campaigns().filter(campaign => campaign.minViewsPerPromotion <= 25).length;
   }
 
-  applyForCampaign(campaign: CampaignInterface): void {
-    if (!this.user() || !this.user()?._id) {
-      this.snackBar.open('Please log in to accept campaigns', 'OK', { 
-          duration: 3000,
-      });
-      return;
-    }
-    
-    if (!this.user()?.personalInfo?.address) {
-      this.snackBar.open('Please complete your profile setup to accept campaign', 'OK', { 
-          duration: 3000,
-      });
-      return;
-    }
-    
-    this.isApplying.set(true);
-      this.promoterLandingService.acceptCampaign(campaign._id, this.user()!._id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const updatedCampaigns = this.campaigns().map(campaign => {
-            if (campaign._id === campaign._id) {
-              return {
-                ...campaign,
-                //totalPromotions: (campaign.totalPromotions || 0) + 1,
-                //spentBudget: ( (campaign.payoutPerPromotion * c.currentPromoters ) || 0) + c.payoutPerPromotion
-                spentBudget: (campaign.spentBudget || 0) + campaign.payoutPerPromotion
-              };
-            }
-            return campaign;
-          });
-          
-          this.campaigns.set(updatedCampaigns);
-          this.isApplying.set(false);
-          this.snackBar.open(response.message, 'OK', { 
-              duration: 9000,
-          });
-        },
-        error: (error: HttpErrorResponse) => {
-          this.isApplying.set(false);
-           this.snackBar.open((error.error?.message || 'Unknown error'), 'OK', { 
-              duration: 3000,
-          });
-        }
-      });
+applyForCampaign(campaign: CampaignInterface): void {
+  if (!this.user() || !this.user()?._id) {
+    this.snackBar.open('Please log in to accept campaigns', 'OK', { 
+        duration: 3000,
+    });
+    return;
   }
+  
+  if (!this.user()?.personalInfo?.address) {
+    this.snackBar.open('Please complete your profile setup to accept campaign', 'OK', { 
+        duration: 3000,
+    });
+    return;
+  }
+  
+  // Set the applying campaign ID using signal
+  this.applyingCampaignId.set(campaign._id);
+  this.isApplying.set(true);
+  
+  this.promoterLandingService.acceptCampaign(campaign._id, this.user()!._id)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (response) => {
+        const updatedCampaigns = this.campaigns().map(c => {
+          if (c._id === campaign._id) {
+            return {
+              ...c,
+              spentBudget: (c.spentBudget || 0) + c.payoutPerPromotion
+            };
+          }
+          return c;
+        });
+        
+        this.campaigns.set(updatedCampaigns);
+        this.isApplying.set(false);
+        this.applyingCampaignId.set(null); // Reset using signal
+        
+        this.snackBar.open(response.message, 'OK', { 
+            duration: 9000,
+        });
+        
+        this.loadUserPromotions();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isApplying.set(false);
+        this.applyingCampaignId.set(null); // Reset using signal
+        
+        this.snackBar.open((error.error?.message || 'Unknown error'), 'OK', { 
+            duration: 3000,
+        });
+      }
+    });
+}
 
   viewPromotions() {
     this.router.navigate(['/dashboard/campaigns/promotions']);

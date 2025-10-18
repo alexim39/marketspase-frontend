@@ -30,10 +30,9 @@ export class CampaignCardMobileComponent {
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
 
-  // Computed property to check if this specific campaign is being applied to
-  isApplyingCampaign = computed(() => {
+  isApplyingCampaign(): boolean {
     return this.applyingCampaignId === this.campaign._id;
-  });
+  }
 
   // Computed signal to check if the user has already accepted the campaign
   hasUserPromotion = computed(() => {
