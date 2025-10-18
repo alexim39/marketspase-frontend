@@ -10,8 +10,8 @@
       </button>
       <mat-menu #cardMenu="matMenu">
         @if (promotion.isDownloaded) {
-          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()"> -->
-          <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()"> 
+          <button mat-menu-item (click)="onOpenSubmitProofDialog()">
+          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">  -->
             <mat-icon>cloud_upload</mat-icon>
             <span>Submit Proof</span>
           </button>
@@ -85,11 +85,17 @@
       <span class="amount">{{ promotion.payoutAmount }}</span>
     </div>
     <div class="status-indicator">
-      @if (promotion.isDownloaded) {
+      @if (promotion.status === 'submitted' && promotion.isDownloaded) {
+         <span class="status-label">
+          Pending Validation
+        </span>
+      }
+      @if (promotion.status === 'pending' && promotion.isDownloaded) {
         <span class="status-label">
           Pending Submission
         </span>
-      } @else {
+      } 
+      @if (!promotion.isDownloaded) {
         <span class="status-label">
           Pending Download
         </span>
