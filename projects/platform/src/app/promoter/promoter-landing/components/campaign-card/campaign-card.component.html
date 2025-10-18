@@ -86,10 +86,10 @@
     
     <button 
       class="apply-btn" 
-      [disabled]="!canAcceptCampaign(campaign) || isApplying || hasUserPromotion()(campaign)"
+      [disabled]="!canAcceptCampaign(campaign) || isApplyingCampaign() || hasUserPromotion()(campaign)"
       (click)="applyForCampaign.emit(campaign)"
       >
-      @if (isApplying) {
+      @if (isApplyingCampaign()) {
         <mat-icon class="loading-spinner">hourglass_empty</mat-icon> Accepting...
       }@else {
         <i class="material-icons">add_circle</i>

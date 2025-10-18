@@ -71,13 +71,13 @@ export class SubmitProofDialogComponent {
     return formValid && hasFiles && notSubmitting;
   });
 
-  daysRemaining = computed(() => {
-    if (!this.campaign().endDate) return 0;
-    const end = new Date(this.campaign().endDate);
-    const now = new Date();
-    const diffTime = end.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  });
+  // daysRemaining = computed(() => {
+  //   if (!this.campaign().endDate) return 0;
+  //   const end = new Date(this.campaign().endDate);
+  //   const now = new Date();
+  //   const diffTime = end.getTime() - now.getTime();
+  //   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // });
 
   campaign = computed(() => this.data.promotion.campaign);
 

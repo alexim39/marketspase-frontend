@@ -79,6 +79,8 @@ export class PromoterLandingComponent implements OnInit {
 
   promotions = signal<PromotionInterface[]>([]);
 
+  applyingCampaignId: string | null = null;
+
 
   // Add these signals to your component
 currentPage = signal(1);

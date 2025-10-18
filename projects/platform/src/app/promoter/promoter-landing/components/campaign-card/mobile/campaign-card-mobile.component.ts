@@ -23,12 +23,17 @@ export type ViewMode = 'grid' | 'list';
 })
 export class CampaignCardMobileComponent {
   @Input({ required: true }) campaign!: CampaignInterface;
-   @Input({ required: true }) promotions!: PromotionInterface[];
+  @Input({ required: true }) promotions!: PromotionInterface[];
   @Input({ required: true }) api!: string;
-  @Input() isApplying: boolean = false;
+  @Input() applyingCampaignId: string | null = null; // Track which campaign is being applied to
   @Input() viewMode: ViewMode = 'grid';
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
+
+  // Computed property to check if this specific campaign is being applied to
+  isApplyingCampaign = computed(() => {
+    return this.applyingCampaignId === this.campaign._id;
+  });
 
   // Computed signal to check if the user has already accepted the campaign
   hasUserPromotion = computed(() => {
@@ -117,6 +122,11 @@ export class CampaignCardMobileComponent {
   }
   
   getAcceptButtonText(campaign: CampaignInterface): string {
+    // Check if user has already accepted this campaign
+    if (this.hasUserPromotion()(campaign)) {
+      return 'Already Accepted';
+    }
+    
     if (!this.canAcceptCampaign(campaign)) {
       if (campaign.status !== 'active') return 'Not Available';
       if (campaign.remainingDays === 'Expired') return 'Expired';

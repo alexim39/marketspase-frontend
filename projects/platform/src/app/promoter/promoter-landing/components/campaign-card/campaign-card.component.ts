@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed, Signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { CampaignInterface, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
@@ -24,10 +24,15 @@ export class CampaignCardComponent {
   @Input({ required: true }) campaign!: CampaignInterface;
   @Input({ required: true }) promotions!: PromotionInterface[];
   @Input({ required: true }) api!: string;
-  @Input() isApplying: boolean = false;
+  @Input() applyingCampaignId: string | null = null; // Track which campaign is being applied to
   @Input() viewMode: ViewMode = 'grid';
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
+
+  // Computed property to check if this specific campaign is being applied to
+  isApplyingCampaign = computed(() => {
+    return this.applyingCampaignId === this.campaign._id;
+  });
 
   // Computed signal to check if the user has already accepted the campaign
   hasUserPromotion = computed(() => {

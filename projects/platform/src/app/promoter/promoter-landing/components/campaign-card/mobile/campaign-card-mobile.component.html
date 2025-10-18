@@ -52,7 +52,6 @@
           <span class="duration">
             <i class="material-icons">schedule</i>
              @if (campaign.remainingDays === 'Expired') {
-                <!-- {{campaign.remainingDays}} -->
                 Expired
              }
               @if (campaign.remainingDays === 'Ongoing') {
@@ -89,17 +88,17 @@
           </div>
           <button 
             class="mobile-apply-btn"
-            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign)"
-            [disabled]="!canAcceptCampaign(campaign) || isApplying"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
+            [disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
             (click)="applyForCampaign.emit(campaign)">
-            @if (isApplying) {
+            @if (isApplyingCampaign()) {
               <i class="material-icons spinner">hourglass_empty</i>
+              <span>Accepting...</span>
             } @else {
               <i class="material-icons">add_circle</i>
+              <span>{{getAcceptButtonText(campaign)}}</span>
             }
-            <span>{{getAcceptButtonText(campaign)}}</span>
           </button>
-          
         </div>
       </div>
     </div>
@@ -157,7 +156,17 @@
             </div>
             <div class="meta-item">
               <i class="material-icons">schedule</i>
-              <span>{{campaign.duration}}</span>
+              <span>
+                @if (campaign.remainingDays === 'Expired') {
+                  Expired
+                }
+                @if (campaign.remainingDays === 'Ongoing') {
+                  Budget Based
+                } 
+                @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing') {
+                  Expires in {{campaign.remainingDays}}
+                }
+              </span>
             </div>
             <div class="meta-item">
               <i class="material-icons">visibility</i>
@@ -200,10 +209,10 @@
           </div>
           <button 
             class="mobile-apply-btn large"
-            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign)"
-            [disabled]="!canAcceptCampaign(campaign) || isApplying"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
+            [disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
             (click)="applyForCampaign.emit(campaign)">
-            @if (isApplying) {
+            @if (isApplyingCampaign()) {
               <i class="material-icons spinner">hourglass_empty</i>
               <span>Accepting...</span>
             } @else {
@@ -211,7 +220,6 @@
               <span>{{getAcceptButtonText(campaign)}}</span>
             }
           </button>
-         
         </div>
       </div>
     </div>
