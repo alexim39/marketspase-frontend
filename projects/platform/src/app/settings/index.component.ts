@@ -16,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { HelpDialogComponent, UserInterface } from '../../../../shared-services/src/public-api';
 import { SettingsService } from './settings.service';
 import { UserService } from '../common/services/user.service';
+import { RecentActivityComponent } from './components/recent-activity/recent-activity.component';
 
 // Define the activity interface based on your user model
 interface UserActivity {
@@ -62,7 +63,8 @@ interface UserWithActivities extends UserInterface {
     MatSlideToggleModule,
     MatMenuModule,
     MatProgressBarModule,
-    MatDividerModule
+    MatDividerModule,
+    RecentActivityComponent
   ],
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss']

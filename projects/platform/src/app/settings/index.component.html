@@ -111,32 +111,7 @@
                             </div>
                         </div>
                     </mat-nav-list>
-
-                    <div class="recent-activity">
-                        <div class="activity-header">
-                            <mat-icon>history</mat-icon>
-                            <span>Recent Activity</span>
-                        </div>
-                        <div class="activity-list">
-                            @for (activity of recentActivities; track activity.timestamp) {
-                                <div class="activity-item">
-                                    <div class="activity-icon">
-                                        <mat-icon>{{activity.icon}}</mat-icon>
-                                    </div>
-                                    <div class="activity-content">
-                                        <div class="activity-title">{{activity.title}}</div>
-                                        <div class="activity-time">{{activity.time}}</div>
-                                    </div>
-                                </div>
-                            }
-                            @empty {
-                                <div class="no-activities">
-                                    <mat-icon>history</mat-icon>
-                                    <span>No recent activities</span>
-                                </div>
-                            }
-                        </div>
-                    </div>
+                    <app-recent-activity [activities]="recentActivities"/>
                 </div>
 
                 <!-- <div class="sidenav-footer">

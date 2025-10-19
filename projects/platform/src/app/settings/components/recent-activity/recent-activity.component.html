@@ -1,0 +1,43 @@
+<div class="recent-activity">
+    <div class="activity-header">
+        <div class="header-left">
+            <mat-icon>history</mat-icon>
+            <span>Recent Activity</span>
+            @if (activities.length > 0) {
+                <div class="activity-count">
+                    {{activities.length}}
+                </div>
+            }
+        </div>
+        <button mat-icon-button 
+                class="toggle-button" 
+                (click)="toggleActivities()"
+                [attr.aria-expanded]="isExpanded"
+                [attr.aria-label]="isExpanded ? 'Collapse activities' : 'Expand activities'"
+                matTooltip="{{isExpanded ? 'Collapse' : 'Expand'}}">
+            <mat-icon>{{isExpanded ? 'expand_less' : 'expand_more'}}</mat-icon>
+        </button>
+    </div>
+
+    @if (isExpanded) {
+        <div class="activity-list">
+            @for (activity of activities; track activity.timestamp) {
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <mat-icon>{{activity.icon}}</mat-icon>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{activity.title}}</div>
+                        <div class="activity-time">{{activity.time}}</div>
+                    </div>
+                </div>
+            }
+            @empty {
+                <div class="no-activities">
+                    <mat-icon>history</mat-icon>
+                    <span>No recent activities</span>
+                </div>
+            }
+        </div>
+    }
+</div>
