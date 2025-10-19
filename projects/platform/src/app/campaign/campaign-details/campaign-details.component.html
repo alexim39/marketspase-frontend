@@ -108,7 +108,7 @@
                 <mat-icon>people</mat-icon>
                 <div class="info-content">
                   <span class="info-label">Target Audience</span>
-                  <span class="info-value">{{campaign.enableTarget? 'Local' : 'General'}}</span>
+                  <span class="info-value">{{campaign.enableTarget ? 'Targeting is enabled' : 'No targeting enabled'}}</span>
                 </div>
               </div>
 
@@ -137,14 +137,6 @@
                 <div class="info-content">
                   <span class="info-label">Difficulty</span>
                   <span class="info-value">{{campaign.difficulty | titlecase}}</span>
-                </div>
-              </div>
-              
-              <div class="info-item">
-                <mat-icon>people</mat-icon>
-                <div class="info-content">
-                  <span class="info-label">Target Audience</span>
-                  <span class="info-value">{{campaign.enableTarget ? 'Targeted' : 'General'}}</span>
                 </div>
               </div>
               
@@ -187,7 +179,7 @@
               <h4 class="section-subtitle">Target Locations</h4>
               <div class="tags-container">
                 @for (location of campaign.targetLocations; track location) {
-                <span class="tag">{{location}}</span>
+                <span class="tag">{{location.name}}</span>
                 }
               </div>
             </div>

@@ -6,7 +6,7 @@ export const TransactionsRoutes: Routes = [
     {
         path: '',
         component: TransactionsIndexComponent,
-        title: "Advertiser, Promoter Transactions - View all transaction details",
+        title: "Transactions for Marketer, Promoter  - View all transaction details",
     },
     {
         path: 'withdrawal',

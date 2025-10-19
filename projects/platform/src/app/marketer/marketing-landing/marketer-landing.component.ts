@@ -146,7 +146,7 @@ export class MarketerLandingComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
-            console.log('returned campaigns ',response.data)
+            //console.log('returned campaigns ',response.data)
             this.campaigns.set(response.data);
             this.filteredCampaigns.set(response.data);
             this.isLoading.set(false);

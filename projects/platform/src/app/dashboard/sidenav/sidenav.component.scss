@@ -40,22 +40,37 @@ body {
   .sidenav-header {
     display: flex;
     align-items: center;
-    padding: 16px 8px 32px;
+    padding: 16px 8px 20px;
     
     .logo-section {
       display: flex;
       align-items: center;
       gap: 8px;
       .logo-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
+        //font-size: 32px;
+        // width: 220px;
+        // height: 50px;
         color: #673ab7;
+        height: 40px;
+        border-radius: 100%;
+        border: 1px solid rgb(243, 243, 243);
+        padding: 1px;
+
+        
       }
-      .logo-text {
+      /* .logo-text {
         font-size: 24px;
         font-weight: 700;
-        color: #1a1a1a;
+        color: #667eea;
+      } */
+      .logo-text {
+        font-weight: 700;
+        font-size: 22px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        /* Fallback for browsers without webkit support (e.g., older Firefox) */
+        background-clip: text;
       }
     }
   }
@@ -192,9 +207,18 @@ body {
     gap: 8px;
     .logo-icon {
       color: #673ab7;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgb(243, 243, 243);
+      padding: 1px;
     }
     .logo-text {
       font-weight: 600;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      /* Fallback for browsers without webkit support (e.g., older Firefox) */
+      background-clip: text;
     }
   }
   .mobile-actions {

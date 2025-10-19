@@ -94,8 +94,23 @@ export interface CampaignInterface {
 
 
   // ... existing fields ...
-  targetLocations: string[];
+  targetLocations: TargetingArea[];
   minRating: number;
 }
 
 
+export interface TargetingArea {
+  id: string;
+  name: string;
+  type: 'place' | 'city' | 'country'; 
+  place_id: string; 
+  address_components?: any[]; 
+  coordinates: { lat: number; lng: number };
+  precision: 'high' | 'medium' | 'low';
+}
+
+export interface TargetingSettings {
+  enabled: boolean;
+  areas: TargetingArea[];
+  precision: 'high' | 'medium' | 'low';
+}

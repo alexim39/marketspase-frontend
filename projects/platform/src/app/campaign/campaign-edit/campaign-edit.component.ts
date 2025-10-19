@@ -19,8 +19,7 @@ import { RequirementsFormComponent } from './components/requirements-form/requir
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { ErrorStateComponent } from './components/error-state/error-state.component';
 
-import { CampaignInterface } from '../../../../../shared-services/src/public-api';
-import { NIGERIAN_STATES } from '../../common/utils/nigerian-states';
+import { CampaignInterface, TargetingArea, TargetingSettings } from '../../../../../shared-services/src/public-api';
 import { CampaignEditService } from './campaign-edit.service';
 import { CATEGORIES } from '../../common/utils/categories';
 
@@ -62,7 +61,6 @@ export class CampaignEditComponent implements OnInit {
   uploadProgress = signal(0);
   previewImageUrl = signal<string | null>(null);
   previewVideoUrl = signal<string | null>(null);
-  targetLocations = signal<string[]>([]);
 
   campaignForm!: FormGroup;
   locationInputControl = new FormControl('');
@@ -71,15 +69,49 @@ export class CampaignEditComponent implements OnInit {
 
   categories = CATEGORIES;
 
-  readonly locationSuggestions = NIGERIAN_STATES;
 
-  filteredLocationSuggestions = computed(() => {
-    const inputValue = this.locationInputControl.value?.toLowerCase() || '';
-    return this.locationSuggestions.filter(location => 
-      location.toLowerCase().includes(inputValue) && 
-      !this.targetLocations().includes(location)
-    );
-  });
+  // Change targetLocations to handle TargetingArea objects
+  targetLocations = signal<TargetingArea[]>([]);
+
+// Update the addLocation method to handle TargetingArea objects
+  addLocation(area: TargetingArea): void {
+    this.targetLocations.update(locations => {
+      const exists = locations.some(loc => 
+        loc.place_id === area.place_id || 
+        (loc.name.toLowerCase() === area.name.toLowerCase() && loc.type === area.type)
+      );
+      
+      if (!exists) {
+        return [...locations, area];
+      }
+      return locations;
+    });
+  }
+
+// Update removeLocation to handle TargetingArea IDs
+removeLocation(areaId: string): void {
+    if (areaId === 'all') {
+      this.targetLocations.set([]);
+    } else {
+      this.targetLocations.update(locations => locations.filter(l => l.id !== areaId));
+    }
+  }
+
+filteredLocationSuggestions = computed(() => {
+  const inputValue = this.locationInputControl.value?.toLowerCase() || '';
+  const existingLocationNames = this.targetLocations().map(area => area.name);
+  
+});
+
+
+onTargetingSettingsChange(settings: TargetingSettings): void {
+    console.log('Targeting settings changed:', settings);
+    
+    // Only update if there are actual changes to avoid loops
+    if (JSON.stringify(this.targetLocations()) !== JSON.stringify(settings.areas)) {
+      this.targetLocations.set(settings.areas);
+    }
+  }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -150,24 +182,26 @@ export class CampaignEditComponent implements OnInit {
     });
   }
 
-  populateForm(campaign: CampaignInterface): void {
-    this.campaignForm.patchValue({
-      title: campaign.title,
-      caption: campaign.caption,
-      category: campaign.category,
-      link: campaign.link || '',
-      mediaType: campaign.mediaType || 'image',
-      //budget: campaign.budget,
-      //payoutPerPromotion: campaign.payoutPerPromotion,
-      //minViewsPerPromotion: campaign.minViewsPerPromotion,
-      campaignType: campaign.campaignType,
-      startDate: new Date(campaign.startDate),
-      endDate: campaign.endDate ? new Date(campaign.endDate) : null,
-      hasEndDate: campaign.hasEndDate,
-      requirements: campaign.requirements?.join(', ') || '',
-      minRating: 0,
-      priority: campaign.priority
-    });
+    populateForm(campaign: CampaignInterface): void {
+        this.campaignForm.patchValue({
+          title: campaign.title,
+          caption: campaign.caption,
+          category: campaign.category,
+          link: campaign.link || '',
+          mediaType: campaign.mediaType || 'image',
+          campaignType: campaign.campaignType,
+          startDate: new Date(campaign.startDate),
+          endDate: campaign.endDate ? new Date(campaign.endDate) : null,
+          hasEndDate: campaign.hasEndDate,
+          requirements: campaign.requirements?.join(', ') || '',
+          minRating: 0,
+          priority: campaign.priority,
+          enableTarget: campaign.enableTarget || false
+        });
+
+    if (campaign.targetLocations && Array.isArray(campaign.targetLocations)) {
+      this.targetLocations.set(campaign.targetLocations as TargetingArea[]);
+    }
 
     if (campaign.mediaUrl) {
       if (campaign.mediaType === 'image') {
@@ -176,8 +210,6 @@ export class CampaignEditComponent implements OnInit {
         this.previewVideoUrl.set(this.api + campaign.mediaUrl);
       }
     }
-
-    //this.calculateMaxPromoters();
   }
 
   // calculateMaxPromoters(): void {
@@ -236,7 +268,8 @@ export class CampaignEditComponent implements OnInit {
     const campaignData = {
       ...formValue,
       requirements: formValue.requirements ? formValue.requirements.split(',').map((r: string) => r.trim()) : [],
-      targetLocations: this.targetLocations(),
+      targetLocations: this.targetLocations(), // *** FIX: Use the signal value ***
+      enableTarget: this.campaignForm.get('enableTarget')?.value // *** FIX: Include enableTarget ***
     };
 
     this.campaignEditService.updateCampaign(this.campaign()?._id || '', this.campaign()?.owner._id, campaignData).subscribe({
@@ -271,26 +304,5 @@ export class CampaignEditComponent implements OnInit {
     this.router.navigate(['/dashboard/campaigns', this.campaign()?._id]);
   }
 
-  addLocation(event: any): void {
-    const value = (event.value || '').trim();
-    this.addLocationValue(value);
-    event.chipInput!.clear();
-    this.locationInputControl.setValue('');
-  }
 
-  addLocationFromAutocomplete(event: any): void {
-    const value = event.option.value.trim();
-    this.addLocationValue(value);
-    this.locationInputControl.setValue('');
-  }
-
-  private addLocationValue(value: string): void {
-    if (value && !this.targetLocations().includes(value)) {
-      this.targetLocations.update(locations => [...locations, value]);
-    }
-  }
-
-  removeLocation(location: string): void {
-    this.targetLocations.update(locations => locations.filter(l => l !== location));
-  }
 }

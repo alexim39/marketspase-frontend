@@ -1,5 +1,5 @@
 // notification-bell.component.ts
-import { Component, OnInit, OnDestroy, Input, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -87,130 +87,11 @@ import { MatButtonModule } from '@angular/material/button';
       </mat-menu>
     </div>
   `,
-  styles: [`
-    .notification-container {
-      position: relative;
-    }
-
-    .notification-button {
-      position: relative;
-    }
-
-    .notification-menu {
-      min-width: 350px;
-      max-width: 400px;
-      max-height: 500px;
-    }
-
-    .notification-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .notification-header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .mark-all-read {
-      font-size: 12px;
-    }
-
-    .notification-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .no-notifications {
-      text-align: center;
-      padding: 32px 16px;
-      color: #666;
-    }
-
-    .no-notifications mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 8px;
-      color: #ccc;
-    }
-
-    .notification-item {
-      display: flex;
-      align-items: flex-start;
-      padding: 12px 16px;
-      border-bottom: 1px solid #f5f5f5;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      position: relative;
-    }
-
-    .notification-item:hover {
-      background-color: #f8f9fa;
-    }
-
-    .notification-item.unread {
-      background-color: #f0f7ff;
-    }
-
-    .notification-content {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .notification-title {
-      margin: 0 0 4px 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .notification-message {
-      margin: 0 0 4px 0;
-      font-size: 13px;
-      color: #666;
-      line-height: 1.4;
-    }
-
-    .notification-time {
-      font-size: 11px;
-      color: #999;
-    }
-
-    .unread-indicator {
-      width: 8px;
-      height: 8px;
-      background-color: #1976d2;
-      border-radius: 50%;
-      margin-left: 8px;
-      margin-top: 8px;
-    }
-
-    .notification-footer {
-      padding: 12px 16px;
-      border-top: 1px solid #e0e0e0;
-      text-align: center;
-    }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  `]
+  styleUrls: ['./notification.component.scss']
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
+  private cdRef = inject(ChangeDetectorRef);
 
   notifications: Notification[] = [];
   unreadCount = 0;
@@ -234,13 +115,15 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       (this as any).pollInterval = pollInterval;
     }
 
-    // Subscribe to updates
+    // Subscribe to updates - use detectChanges to handle async updates
     this.notificationService.notifications$.subscribe(notifications => {
       this.notifications = notifications;
+      this.cdRef.detectChanges(); // Trigger change detection after update
     });
     
     this.notificationService.unreadCount$.subscribe(count => {
       this.unreadCount = count;
+      this.cdRef.detectChanges(); // Trigger change detection after update
     });
   }
 

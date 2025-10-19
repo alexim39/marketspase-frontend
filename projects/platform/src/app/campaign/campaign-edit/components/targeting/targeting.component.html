@@ -1,41 +1,102 @@
-<div class="form-row">
-  <mat-slide-toggle 
-    [checked]="enableTarget" 
-    (change)="enableTargetChange.emit($event.checked)" 
-    color="primary"
-    class="toggle-switch"
-  >
-    Enable Geographic Targeting
-  </mat-slide-toggle>
-  <span class="toggle-hint">Limit promotions to specific locations</span>
-</div>
-
-@if (enableTarget) {
-  <div class="form-row targeting-options">
-    <mat-form-field appearance="outline" class="form-field-full">
-      <mat-label>Target Locations</mat-label>
-      <mat-chip-grid #chipGrid aria-label="Target locations" class="chip-grid">
-        @for (location of targetLocations; track location) {
-          <mat-chip-row class="chip-row" (removed)="removeLocation.emit(location)">
-            {{ location }}
-            <button matChipRemove [attr.aria-label]="'remove ' + location" class="chip-remove-btn">
-              <mat-icon>cancel</mat-icon>
-            </button>
-          </mat-chip-row>
-        }
-      </mat-chip-grid>
-      <input 
-        placeholder="Add location..." 
-        [matChipInputFor]="chipGrid" 
-        [matAutocomplete]="auto"
-        [formControl]="locationInputControl"
-        class="location-input"
-      >
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addLocationFromAutocomplete.emit($event)">
-        <mat-option *ngFor="let location of filteredLocationSuggestions()" [value]="location">
-          {{ location }}
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
+<div class="targeting-container">
+  
+  <div class="form-row">
+    <mat-slide-toggle 
+      [checked]="enableTarget" 
+      (change)="onEnableTargetChange($event.checked)" 
+      color="primary"
+      class="toggle-switch"
+    >
+      Enable Granular Geographic Targeting
+    </mat-slide-toggle>
+    <span class="toggle-hint">Use Google Places search for precise location targeting</span>
   </div>
-}
+
+  @if (enableTarget) {
+    <div class="targeting-options">
+
+      <div class="form-row">
+        <h3 class="section-title">Add Target Location (Address, City, or Country)</h3>
+        <mat-form-field appearance="outline" class="form-field-full">
+          <mat-label>Search Address, City, or Country</mat-label>
+          <input 
+            matInput 
+            #locationInput
+            placeholder="e.g., Lagos, 123 Main St, Nigeria"
+            [formControl]="locationInputControl"
+            (keyup.enter)="onManualEntry($event)"
+          >
+          <mat-icon matSuffix>search</mat-icon>
+          <mat-hint>Select a suggestion from dropdown or press Enter for manual entry.</mat-hint>
+        </mat-form-field>
+        <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="onManualEntry()"
+            [disabled]="!locationInputControl.value"
+            class="add-button"
+        >
+            <mat-icon>add</mat-icon>
+            Add Location
+        </button>
+      </div>
+
+      <hr>
+
+      <div class="form-row">
+        <h3 class="section-title">Targeting Precision Level</h3>
+        <mat-radio-group [(ngModel)]="currentPrecision" (change)="onPrecisionChange(currentPrecision)" class="precision-group">
+          @for (precision of precisionLevels; track precision.value) {
+            <mat-radio-button [value]="precision.value" class="precision-option">
+              <div class="precision-content">
+                <div class="precision-label">{{precision.label}}</div>
+                <div class="precision-description">{{precision.description}}</div>
+              </div>
+            </mat-radio-button>
+          }
+        </mat-radio-group>
+      </div>
+
+      <hr>
+
+      <div class="form-row">
+        <h3 class="section-title">Targeted Areas List</h3>
+        <div class="areas-list">
+          @if (targetLocations.length === 0) {
+            <div class="no-areas">
+              <mat-icon>location_off</mat-icon>
+              <p>No targeting areas defined yet. Use the search box above to add addresses, cities, or countries.</p>
+            </div>
+          } @else {
+            <div class="areas-grid">
+              @for (area of targetLocations; track area.id) {
+                <div class="area-chip" [class]="'area-type-' + area.type">
+                  <mat-icon class="area-icon">{{getAreaIcon(area)}}</mat-icon>
+                  <span class="area-name">{{getAreaDisplayName(area)}}</span>
+                  <button 
+                    mat-icon-button 
+                    class="area-remove-btn" 
+                    (click)="removeLocation.emit(area.id)"
+                    matTooltip="Remove area"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-row quick-actions">
+        <h3 class="section-title">Quick Actions</h3>
+        <div class="actions-grid">
+          <button mat-stroked-button color="warn" (click)="clearAllAreas()" [disabled]="targetLocations.length === 0">
+            <mat-icon>clear_all</mat-icon>
+            Clear All Areas
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

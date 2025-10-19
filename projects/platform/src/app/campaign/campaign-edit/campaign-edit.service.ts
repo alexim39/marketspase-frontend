@@ -38,6 +38,7 @@ export class CampaignEditService {
     //   currency: campaignData.currency,
     //   owner: campaignData.owner
     // };
+
     return this.apiService.put<any>(`${this.apiUrl}/edit/${id}/${userId}`, campaignData, undefined, true);
   }
 
