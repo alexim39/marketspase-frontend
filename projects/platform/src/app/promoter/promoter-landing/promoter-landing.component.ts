@@ -21,7 +21,7 @@ import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { PromoterLandingService } from './promoter-landing.service';
 import { CampaignCardMobileComponent } from './components/campaign-card/mobile/campaign-card-mobile.component';
 import { PromoterQuickStatsMobileComponent } from './components/promoter-quick-stats/mobile/promoter-quick-stats-mobile.component';
-import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
+import { CampaignFiltersMobileComponent, FilterType } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface CampaignMetrics {
@@ -74,6 +74,7 @@ export class PromoterLandingComponent implements OnInit {
   campaigns = signal<CampaignInterface[]>([]);
   searchTerm = signal('');
   viewMode = signal<'grid' | 'list'>('grid');
+  activeFilter = signal<FilterType>('all');
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -99,15 +100,61 @@ export class PromoterLandingComponent implements OnInit {
   }
 
 
+
+
+  // Update filteredCampaigns computation
   filteredCampaigns = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
-    if (!term) return this.campaigns();
-    return this.campaigns().filter(c =>
-      c.title?.toLowerCase().includes(term) ||
-      c.caption?.toLowerCase().includes(term) ||
-      c.category?.toLowerCase().includes(term)
-    );
+    const filter = this.activeFilter();
+    let filtered = this.campaigns();
+
+    // Apply search filter
+    if (term) {
+      filtered = filtered.filter(c =>
+        c.title?.toLowerCase().includes(term) ||
+        c.caption?.toLowerCase().includes(term) ||
+        c.category?.toLowerCase().includes(term)
+      );
+    }
+
+    // Apply active filter
+    switch (filter) {
+      case 'highPayout':
+        filtered = filtered.filter(campaign => campaign.payoutPerPromotion >= 500);
+        break;
+      case 'expiringSoon':
+        filtered = filtered.filter(campaign => {
+          if (!campaign.endDate) return false;
+          const endDate = new Date(campaign.endDate);
+          const today = new Date();
+          const diffTime = endDate.getTime() - today.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays <= 3 && diffDays > 0;
+        });
+        break;
+      case 'quickTasks':
+        filtered = filtered.filter(campaign => campaign.minViewsPerPromotion <= 25);
+        break;
+      case 'active':
+        filtered = filtered.filter(campaign => {
+          // A campaign is active if it's not explicitly expired or budget exhausted
+          const isInactive = campaign.remainingDays === 'Expired' || 
+                            campaign.remainingDays === 'Budget Exhausted';
+          return !isInactive && campaign.status === 'active';
+        });
+        break;
+      case 'all':
+      default:
+        // No additional filtering needed
+        break;
+    }
+
+    return filtered;
   });
+
+  onFilterChange(filter: FilterType): void {
+    this.activeFilter.set(filter);
+  }
 
   metrics = computed<CampaignMetrics>(() => {
     const promotions = this.promotions();

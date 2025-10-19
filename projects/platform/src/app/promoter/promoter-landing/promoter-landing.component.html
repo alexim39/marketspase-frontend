@@ -29,29 +29,34 @@
   }
 
   @if (deviceType() === 'desktop') {
-  <campaign-filters
-    [searchTerm]="searchTerm()"
-    [allCampaignsCount]="campaigns().length"
-    [highPayoutCount]="getHighPayoutCount()"
-    [expiringSoonCount]="metrics().expiringSoon"
-    [quickTasksCount]="getQuickTasksCount()"
-    [viewMode]="viewMode()"
-    (searchTermChange)="searchTerm.set($event)"
-    (viewModeChange)="viewMode.set($event)"
-  />
+    <campaign-filters
+      [searchTerm]="searchTerm()"
+      [allCampaignsCount]="filteredCampaigns().length"
+      [highPayoutCount]="getHighPayoutCount()"
+      [expiringSoonCount]="metrics().expiringSoon"
+      [quickTasksCount]="getQuickTasksCount()"
+      [viewMode]="viewMode()"
+      [activeFilter]="activeFilter()"
+      (searchTermChange)="searchTerm.set($event)"
+      (viewModeChange)="viewMode.set($event)"
+      (filterChange)="onFilterChange($event)"
+    />
   }
   @if (deviceType() === 'mobile') {
-  <campaign-filters-mobile
-    [searchTerm]="searchTerm()"
-    [allCampaignsCount]="campaigns().length"
-    [highPayoutCount]="getHighPayoutCount()"
-    [expiringSoonCount]="metrics().expiringSoon"
-    [quickTasksCount]="getQuickTasksCount()"
-    [viewMode]="viewMode()"
-    (searchTermChange)="searchTerm.set($event)"
-    (viewModeChange)="viewMode.set($event)"
-  />
+    <campaign-filters-mobile
+      [searchTerm]="searchTerm()"
+      [allCampaignsCount]="filteredCampaigns().length"
+      [highPayoutCount]="getHighPayoutCount()"
+      [expiringSoonCount]="metrics().expiringSoon"
+      [quickTasksCount]="getQuickTasksCount()"
+      [viewMode]="viewMode()"
+      [activeFilter]="activeFilter()"
+      (searchTermChange)="searchTerm.set($event)"
+      (viewModeChange)="viewMode.set($event)"
+      (filterChange)="onFilterChange($event)"
+    />
   }
+  
 
   <main class="main">
     <div class="container">

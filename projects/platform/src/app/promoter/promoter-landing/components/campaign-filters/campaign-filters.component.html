@@ -13,22 +13,47 @@
       </div>
 
       <div class="quick-filters">
-        <div class="filter-chip active">
+        <div 
+          class="filter-chip" 
+          [class.active]="activeFilter === 'all'"
+          (click)="setFilter('all')"
+        >
           <i class="material-icons">all_inclusive</i>
           All
           <span class="count">{{allCampaignsCount}}</span>
         </div>
-        <div class="filter-chip">
+        <div 
+          class="filter-chip"
+          [class.active]="activeFilter === 'active'"
+          (click)="setFilter('active')"
+        >
+          <i class="material-icons">verified_user</i>
+          Active
+          <span class="count">{{allCampaignsCount}}</span>
+        </div>
+        <div 
+          class="filter-chip"
+          [class.active]="activeFilter ==='highPayout'"
+          (click)="setFilter('highPayout')"
+        >
           <i class="material-icons">trending_up</i>
           High Payout
           <span class="count">{{highPayoutCount}}</span>
         </div>
-        <div class="filter-chip">
+        <div 
+          class="filter-chip"
+          [class.active]="activeFilter === 'expiringSoon'"
+          (click)="setFilter('expiringSoon')"
+        >
           <i class="material-icons">schedule</i>
           Ending Soon
           <span class="count">{{expiringSoonCount}}</span>
         </div>
-        <div class="filter-chip">
+        <div 
+          class="filter-chip"
+          [class.active]="activeFilter === 'quickTasks'"
+          (click)="setFilter('quickTasks')"
+        >
           <i class="material-icons">flash_on</i>
           Quick Tasks
           <span class="count">{{quickTasksCount}}</span>

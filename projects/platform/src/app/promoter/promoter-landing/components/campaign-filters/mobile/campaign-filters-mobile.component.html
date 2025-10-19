@@ -36,9 +36,9 @@
       [class.active]="isFiltersExpanded"
     >
       <i class="material-icons">filter_list</i>
-      @if (activeFilter !== 'all') {
+      <!-- @if (activeFilter !== 'all') { -->
         <span class="filter-badge">{{getFilterCount(activeFilter)}}</span>
-      }
+      <!-- } -->
     </button>
   </div>
 
@@ -55,6 +55,18 @@
             <i class="material-icons">all_inclusive</i>
           </div>
           <div class="filter-label">All Campaigns</div>
+          <div class="filter-count">{{allCampaignsCount}}</div>
+        </div>
+
+        <div 
+          class="filter-option" 
+          [class.active]="activeFilter === 'active'"
+          (click)="setFilter('active')"
+        >
+          <div class="filter-icon">
+            <i class="material-icons">verified_user</i>
+          </div>
+          <div class="filter-label">Only Active</div>
           <div class="filter-count">{{allCampaignsCount}}</div>
         </div>
 

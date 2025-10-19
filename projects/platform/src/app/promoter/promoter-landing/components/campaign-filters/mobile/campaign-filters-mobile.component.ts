@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 
 export type ViewMode = 'grid' | 'list';
-export type FilterType = 'all' | 'highPayout' | 'expiringSoon' | 'quickTasks';
+export type FilterType = 'all' | 'active' | 'highPayout' | 'expiringSoon' | 'quickTasks';
 
 @Component({
   selector: 'campaign-filters-mobile',
@@ -85,6 +85,7 @@ export class CampaignFiltersMobileComponent {
   getFilterCount(filter: FilterType): number {
     switch (filter) {
       case 'all': return this.allCampaignsCount;
+      case 'active': return this.allCampaignsCount;
       case 'highPayout': return this.highPayoutCount;
       case 'expiringSoon': return this.expiringSoonCount;
       case 'quickTasks': return this.quickTasksCount;
