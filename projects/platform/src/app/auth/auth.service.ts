@@ -6,7 +6,6 @@ import {
   TwitterAuthProvider,
   signInWithPopup,
   UserCredential,
-  signOut,
   User, 
   user
 } from '@angular/fire/auth';

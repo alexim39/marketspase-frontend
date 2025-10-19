@@ -50,6 +50,20 @@
               <p>Connecting to {{ currentProvider }}...</p>
             </div>
            }
+
+          <!-- In your index.component.html -->
+          @if (isLoading) {
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+              <p>
+                @if (currentProvider === 'Verifying') {
+                  Verifying your account...
+                } @else {
+                  Connecting to {{ currentProvider }}...
+                }
+              </p>
+            </div>
+          }
          
         </div>
 

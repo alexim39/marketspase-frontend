@@ -56,29 +56,29 @@ export class IndexComponent implements OnDestroy {
       method: () => this.signInWithGoogle(),
     },
     {
-      name: 'Twitter',
+      name: 'Twitter (X)',
       icon: 'alternate_email',
       color: '#1da1f2',
       backgroundColor: '#f0f9ff',
       hoverColor: '#1a91da',
       method: () => this.signInWithTwitter(),
     },
-    // {
-    //   name: 'Facebook',
-    //   icon: 'facebook',
-    //   color: '#1877f2',
-    //   backgroundColor: '#f0f2ff',
-    //   hoverColor: '#166fe5',
-    //   method: () => this.signInWithFacebook(),
-    // },
-    // {
-    //   name: 'Apple',
-    //   icon: 'phone_iphone',
-    //   color: '#000000',
-    //   backgroundColor: '#f5f5f5',
-    //   hoverColor: '#333333',
-    //   method: () => this.signInWithApple(),
-    // },
+    {
+      name: 'Facebook',
+      icon: 'facebook',
+      color: '#1877f2',
+      backgroundColor: '#f0f2ff',
+      hoverColor: '#166fe5',
+      method: () => this.signInWithFacebook(),
+    },
+    {
+      name: 'Apple',
+      icon: 'phone_iphone',
+      color: '#000000',
+      backgroundColor: '#f5f5f5',
+      hoverColor: '#333333',
+      method: () => this.signInWithApple(),
+    },
    
   ];
 
@@ -104,9 +104,6 @@ export class IndexComponent implements OnDestroy {
         },
         error: (error: AuthError | HttpErrorResponse) => { // Updated error type to include AuthError
           this.handleAuthError(error, 'Google');
-        },
-        complete: () => {
-          this.setLoadingState('', false);
         }
       })
   }
@@ -123,9 +120,6 @@ export class IndexComponent implements OnDestroy {
         },
         error: (error: AuthError | HttpErrorResponse) => { // Updated error type to include AuthError
           this.handleAuthError(error, 'Facebook');
-        },
-        complete: () => {
-          this.setLoadingState('', false);
         }
       })
   }
@@ -150,16 +144,13 @@ export class IndexComponent implements OnDestroy {
         },
         error: (error: AuthError | HttpErrorResponse) => { // Best to type Firebase Auth errors as AuthError
           this.handleAuthError(error, 'Twitter');
-        },
-        complete: () => {
-          this.setLoadingState('', false);
         }
       })
   }
   // --- END NEW ---
 
   private handleAuthSuccess(response: any): void {
-    this.setLoadingState('Verifying', true);
+    this.setLoadingState('Verifying', true); // This sets loading for backend verification
     if (response.success) {      
         this.userService.auth(response.user)
         .pipe(takeUntil(this.destroy$))
@@ -169,18 +160,19 @@ export class IndexComponent implements OnDestroy {
               //console.log('response ',response)
               // Navigate to dashboard
               this.router.navigateByUrl('/dashboard');
-              this.setLoadingState('', false);
             } else {
               this.router.navigateByUrl('/');
-              this.setLoadingState('', false);
             }
+            this.setLoadingState('', false); // Hide loader after backend auth completes
           },
           error: (error: HttpErrorResponse) => {
-            this.snackBar.open('Local profile verification failed', 'Ok',{duration: 5000}); // Increased duration for error messages
-            this.setLoadingState('', false);
+            this.snackBar.open('Local profile verification failed', 'Ok',{duration: 5000});
+            this.setLoadingState('', false); // Hide loader on error
             this.cdr.markForCheck(); 
           }
         })      
+    } else {
+      this.setLoadingState('', false); // Hide loader if no success
     }
   }
 
