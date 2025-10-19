@@ -84,7 +84,7 @@ export class PromoterLandingComponent implements OnInit {
 
   // Change applyingCampaignId to a signal
   applyingCampaignId = signal<string | null>(null);
-
+  hasLoaded = signal(false);
 
   // Add these signals to your component
   currentPage = signal(1);
@@ -99,11 +99,13 @@ export class PromoterLandingComponent implements OnInit {
     }
   }
 
-
-
-
   // Update filteredCampaigns computation
   filteredCampaigns = computed(() => {
+    // If no campaigns and haven't loaded yet, return empty without processing
+    if (this.campaigns().length === 0 && !this.hasLoaded()) {
+      return [];
+    }
+
     const term = this.searchTerm().toLowerCase().trim();
     const filter = this.activeFilter();
     let filtered = this.campaigns();
@@ -231,7 +233,6 @@ export class PromoterLandingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    //this.loadCampaigns();
     this.loadCampaigns(false); // Initial load
     this.loadUserPromotions();
   }
@@ -272,25 +273,6 @@ export class PromoterLandingComponent implements OnInit {
       });
   }
 
-  /* private loadCampaigns(): void {
-    if (this.user() && this.user()?._id) {
-      this.isLoading.set(true);
-      this.promoterLandingService.getCampaignsByStatus('active', this.user()?._id)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (response) => {
-            const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
-            this.campaigns.set(campaignsWithMetrics);
-            this.isLoading.set(false);
-          },
-          error: (error: HttpErrorResponse) => {
-            console.error('Failed to load campaigns:', error);
-            this.isLoading.set(false);
-          }
-        });
-    }
-  } */
-
     private loadCampaigns(loadMore: boolean = false): void {
       if (this.user() && this.user()?._id) {
         // If loading more, increment page, otherwise start from page 1
@@ -322,10 +304,12 @@ export class PromoterLandingComponent implements OnInit {
               this.paginationMetadata.set(response.metadata?.pagination);
               this.isLoading.set(false);
               this.hasMoreCampaigns.set(response.metadata?.pagination?.hasNextPage || false);
+              this.hasLoaded.set(true);
             },
             error: (error: HttpErrorResponse) => {
               console.error('Failed to load campaigns:', error);
               this.isLoading.set(false);
+              this.hasLoaded.set(true);
             }
           });
       }

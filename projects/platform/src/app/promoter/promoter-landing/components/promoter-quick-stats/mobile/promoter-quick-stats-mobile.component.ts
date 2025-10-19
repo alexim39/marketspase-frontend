@@ -75,7 +75,7 @@ export class PromoterQuickStatsMobileComponent {
       {
         label: 'Avg. per Campaign',
         value: this.formatCurrency(this.metrics.avgEarnings || 0),
-        icon: 'avg_pace',
+        icon: 'payments',
         category: 'earnings',
         description: 'Average earnings'
       },
@@ -135,7 +135,7 @@ export class PromoterQuickStatsMobileComponent {
       {
         label: 'Active Rate',
         value: `${Math.min(100, Math.round((this.metrics.activePromotions / (this.metrics.completedPromotions || 1)) * 100))}%`,
-        icon: 'activity',
+        icon: 'work',
         category: 'engagement',
         description: 'Current activity level'
       }

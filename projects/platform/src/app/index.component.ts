@@ -63,22 +63,22 @@ export class IndexComponent implements OnDestroy {
       hoverColor: '#1a91da',
       method: () => this.signInWithTwitter(),
     },
-    {
-      name: 'Facebook',
-      icon: 'facebook',
-      color: '#1877f2',
-      backgroundColor: '#f0f2ff',
-      hoverColor: '#166fe5',
-      method: () => this.signInWithFacebook(),
-    },
-    {
-      name: 'Apple',
-      icon: 'phone_iphone',
-      color: '#000000',
-      backgroundColor: '#f5f5f5',
-      hoverColor: '#333333',
-      method: () => this.signInWithApple(),
-    },
+    // {
+    //   name: 'Facebook',
+    //   icon: 'facebook',
+    //   color: '#1877f2',
+    //   backgroundColor: '#f0f2ff',
+    //   hoverColor: '#166fe5',
+    //   method: () => this.signInWithFacebook(),
+    // },
+    // {
+    //   name: 'Apple',
+    //   icon: 'phone_iphone',
+    //   color: '#000000',
+    //   backgroundColor: '#f5f5f5',
+    //   hoverColor: '#333333',
+    //   method: () => this.signInWithApple(),
+    // },
    
   ];
 
