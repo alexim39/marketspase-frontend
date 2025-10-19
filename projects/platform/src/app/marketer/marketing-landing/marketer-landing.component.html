@@ -28,8 +28,8 @@
       [searchControl]="searchControl"
       [currentView]="currentView()"
       [hasActiveFilters]="hasActiveFilters()"
-      [filteredCount]="filteredCampaigns().length"
-      [totalCount]="campaigns().length"
+      [filteredCount]="campaigns().length" 
+      [totalCount]="totalCampaigns()"
       (filterChange)="updateFilters($event)"
       (viewChange)="setView($event)"
       (clearFilters)="clearAllFilters()"
@@ -45,8 +45,8 @@
       [searchControl]="searchControl"
       [currentView]="currentView()"
       [hasActiveFilters]="hasActiveFilters()"
-      [filteredCount]="filteredCampaigns().length"
-      [totalCount]="campaigns().length"
+      [filteredCount]="campaigns().length"
+      [totalCount]="totalCampaigns()"
       (filterChange)="updateFilters($event)"
       (viewChange)="setView($event)"
       (clearFilters)="clearAllFilters()"
@@ -55,12 +55,18 @@
 
   <!-- Campaigns List -->
   <app-campaign-list
-    [campaigns]="filteredCampaigns()"
+    [campaigns]="campaigns()"
     [isLoading]="isLoading()"
     [currentView]="currentView()"
     [hasActiveFilters]="hasActiveFilters()"
     [searchTerm]="searchControl.value"
     [apiBaseUrl]="apiBaseUrl"
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    [totalCampaigns]="totalCampaigns()"
+    [hasNextPage]="hasNextPage()"
+    [hasPrevPage]="hasPrevPage()"
+    [itemsPerPage]="itemsPerPage()"
     (viewDetails)="viewCampaignDetails($event)"
     (editCampaign)="editCampaign($event)"
     (pauseCampaign)="pauseCampaign($event)"
@@ -68,6 +74,10 @@
     (deleteCampaign)="deleteCampaign($event)"
     (createCampaign)="createCampaign()"
     (clearFilters)="clearAllFilters()"
+    (pageChange)="onPageChange($event)"
+    (nextPage)="onNextPage()"
+    (prevPage)="onPrevPage()"
+    (itemsPerPageChange)="onItemsPerPageChange($event)"
   />
 
   <!-- Mobile FAB -->

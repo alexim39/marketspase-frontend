@@ -1,7 +1,7 @@
 <main class="container main">
   <!-- Loading State -->
   @if (isLoading) {
-    <app-campaign-skeleton [view]="currentView"></app-campaign-skeleton>
+    <app-campaign-skeleton [view]="currentView"/>
   }
   
   <!-- Campaigns Grid/List -->
@@ -21,7 +21,6 @@
               (deleteCampaign)="onDeleteCampaign($event)"
             />
           } @else {
-          <!-- @if (deviceType() === 'mobile') { -->
             <app-campaign-card-mobile
               [campaign]="campaign"
               [apiBaseUrl]="apiBaseUrl"
@@ -33,7 +32,6 @@
               (deleteCampaign)="onDeleteCampaign($event)"
             />
           }
-
         } @else {
           <!-- List View -->
           <div class="campaign-list-item">
@@ -98,6 +96,63 @@
           </div>
         }
       }
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+        {{ endIndex }} of {{ totalCampaigns }} campaigns
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          class="pagination-btn" 
+          [disabled]="!hasPrevPage"
+          (click)="onPrevPage()">
+          <mat-icon>chevron_left</mat-icon>
+          Previous
+        </button>
+
+        @if (deviceType() === 'desktop') {
+        <div class="page-numbers">
+          @for (page of getPageNumbers(); track page) {
+            @if (page === '...') {
+              <span class="page-ellipsis">...</span>
+            } @else {
+              <button 
+                class="page-number" 
+                [class.active]="page === currentPage"
+                (click)="onPageChange(page)">
+                {{ page }}
+              </button>
+            }
+          }
+        </div>
+        }
+
+
+        <button 
+          class="pagination-btn" 
+          [disabled]="!hasNextPage"
+          (click)="onNextPage()">
+          Next
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div class="items-per-page">
+        <label for="itemsPerPage">Items per page:</label>
+        <select 
+          id="itemsPerPage" 
+          [value]="itemsPerPage"
+          (change)="onItemsPerPageChange($event)">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
     </div>
   }
   

@@ -14,7 +14,7 @@ import { CampaignListComponent } from './components/campaign-list/campaign-list.
 
 // Services & Types
 import { CampaignInterface, DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
-import { MarketerService } from '../marketer.service';
+import { MarketerService, PaginatedResponse, PaginationParams, FilterParams } from '../marketer.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CampaignHeaderComponent } from './components/compaign-head/campaign-header.component';
 import { CampaignStatsMobileComponent } from './components/campaign-stats/mobile/campaign-stats-mobile.component';
@@ -51,7 +51,6 @@ interface StatusOption {
     CampaignHeaderComponent,
     CampaignStatsMobileComponent,
     CampaignFiltersMobileComponent,
-    
   ],
   templateUrl: './marketer-landing.component.html',
   styleUrls: ['./marketer-landing.component.scss']
@@ -69,10 +68,17 @@ export class MarketerLandingComponent implements OnInit {
   
   // Signals
   campaigns = signal<CampaignInterface[]>([]);
-  filteredCampaigns = signal<CampaignInterface[]>([]);
   isLoading = signal(false);
   currentView = signal<'grid' | 'list'>('grid');
   
+  // Pagination properties
+  currentPage = signal(1);
+  itemsPerPage = signal(10);
+  totalPages = signal(0);
+  totalCampaigns = signal(0);
+  hasNextPage = signal(false);
+  hasPrevPage = signal(false);
+
   // Filters
   currentFilters = signal<FilterOptions>({
     status: 'all',
@@ -90,9 +96,11 @@ export class MarketerLandingComponent implements OnInit {
   campaignStats = computed(() => this.calculateStats());
   
   campaignCounts = computed(() => {
-    const counts: Record<string, number> = { all: this.campaigns().length };
+    const counts: Record<string, number> = { all: this.totalCampaigns() };
     this.statusOptions.forEach(option => {
       if (option.value !== 'all') {
+        // Note: For accurate counts across all pages with filters, you'd need backend support
+        // This is a frontend approximation based on current page data
         counts[option.value] = this.campaigns().filter(c => c.status === option.value).length;
       }
     });
@@ -135,20 +143,34 @@ export class MarketerLandingComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
-        this.applyFilters();
+        // Reset to first page when searching and reload with search filter
+        this.currentPage.set(1);
+        this.loadCampaigns();
       });
   }
 
   private loadCampaigns(): void {
     if (this.user() && this.user()?._id) {
       this.isLoading.set(true);
-      this.marketerService.getMarketerCampaign(this.user()!._id!)
+      
+      const paginationParams: PaginationParams = { 
+        page: this.currentPage(), 
+        limit: this.itemsPerPage() 
+      };
+      
+      const filterParams: FilterParams = this.buildFilterParams();
+      
+      this.marketerService.getMarketerCampaign(this.user()!._id!, paginationParams, filterParams)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (response) => {
-            //console.log('returned campaigns ',response.data)
+          next: (response: PaginatedResponse<CampaignInterface>) => {
             this.campaigns.set(response.data);
-            this.filteredCampaigns.set(response.data);
+            this.currentPage.set(response.pagination.currentPage);
+            this.totalPages.set(response.pagination.totalPages);
+            this.totalCampaigns.set(response.pagination.totalCampaigns);
+            this.hasNextPage.set(response.pagination.hasNext);
+            this.hasPrevPage.set(response.pagination.hasPrev);
+            this.itemsPerPage.set(response.pagination.limit);
             this.isLoading.set(false);
           },
           error: (error: HttpErrorResponse) => {
@@ -157,6 +179,74 @@ export class MarketerLandingComponent implements OnInit {
           }
         });
     }
+  }
+
+  private buildFilterParams(): FilterParams {
+    const filters = this.currentFilters();
+    const params: FilterParams = {};
+
+    // Status filter
+    if (filters.status && filters.status !== 'all') {
+      params.status = filters.status;
+    }
+
+    // Search filter
+    if (this.searchControl.value) {
+      params.search = this.searchControl.value;
+    }
+
+    // Category filter
+    if (filters.category) {
+      params.category = filters.category;
+    }
+
+    // Campaign type filter
+    if (filters.campaignType) {
+      params.campaignType = filters.campaignType;
+    }
+
+    // Sort parameters
+    if (filters.sortBy) {
+      params.sortBy = filters.sortBy;
+    }
+    if (filters.sortOrder) {
+      params.sortOrder = filters.sortOrder;
+    }
+
+    return params;
+  }
+
+  // Pagination methods
+  onNextPage(): void {
+    if (this.hasNextPage()) {
+      this.currentPage.set(this.currentPage() + 1);
+      this.loadCampaigns();
+    }
+  }
+
+  onPrevPage(): void {
+    if (this.hasPrevPage()) {
+      this.currentPage.set(this.currentPage() - 1);
+      this.loadCampaigns();
+    }
+  }
+
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadCampaigns();
+    }
+  }
+
+  onItemsPerPageChange(limit: number): void {
+    this.itemsPerPage.set(limit);
+    this.currentPage.set(1); // Reset to first page when changing items per page
+    this.loadCampaigns();
+  }
+
+  // Refresh campaigns (useful after creating/editing/deleting campaigns)
+  refreshCampaigns(): void {
+    this.loadCampaigns();
   }
 
   private calculateStats() {
@@ -226,7 +316,7 @@ export class MarketerLandingComponent implements OnInit {
     
     return {
       // Campaign counts
-      totalCampaigns: campaigns.length,
+      totalCampaigns: this.totalCampaigns(), // Use total from backend
       activeCampaigns: activeCampaigns.length,
       draftCampaigns: draftCampaigns.length,
       completedCampaigns: completedCampaigns.length,
@@ -264,34 +354,11 @@ export class MarketerLandingComponent implements OnInit {
     };
   }
 
-  private applyFilters(): void {
-    let filtered = [...this.campaigns()];
-    const filters = this.currentFilters();
-    const searchTerm = this.searchControl.value?.toLowerCase() || '';
-
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(campaign =>
-        campaign.title.toLowerCase().includes(searchTerm) ||
-        campaign.caption.toLowerCase().includes(searchTerm) ||
-        campaign._id.toLowerCase().includes(searchTerm) ||
-        campaign.category.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Apply status filter
-    if (filters.status && filters.status !== 'all') {
-      filtered = filtered.filter(campaign => campaign.status === filters.status);
-    }
-
-    // Apply other filters...
-    this.filteredCampaigns.set(filtered);
-  }
-
   // Public methods
   updateFilters(updates: Partial<FilterOptions>): void {
     this.currentFilters.set({ ...this.currentFilters(), ...updates });
-    this.applyFilters();
+    this.currentPage.set(1); // Reset to first page when filters change
+    this.loadCampaigns();
   }
 
   clearAllFilters(): void {
@@ -305,6 +372,8 @@ export class MarketerLandingComponent implements OnInit {
       sortOrder: 'desc'
     });
     this.searchControl.setValue('');
+    this.currentPage.set(1);
+    this.loadCampaigns();
   }
 
   setView(view: 'grid' | 'list'): void {
@@ -340,5 +409,55 @@ export class MarketerLandingComponent implements OnInit {
   formatCurrency(amount: number): string {
     if (!amount || isNaN(amount)) return '₦0';
     return `₦${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
+  }
+
+  // Helper method for pagination UI
+  getPageNumbers(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    
+    if (this.totalPages() <= maxVisiblePages) {
+      // Show all pages if total pages are less than max visible
+      for (let i = 1; i <= this.totalPages(); i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+      
+      // Calculate start and end of visible pages
+      let start = Math.max(2, this.currentPage() - 1);
+      let end = Math.min(this.totalPages() - 1, this.currentPage() + 1);
+      
+      // Adjust if we're at the beginning
+      if (this.currentPage() <= 3) {
+        end = 4;
+      }
+      
+      // Adjust if we're at the end
+      if (this.currentPage() >= this.totalPages() - 2) {
+        start = this.totalPages() - 3;
+      }
+      
+      // Add ellipsis after first page if needed
+      if (start > 2) {
+        pages.push('...');
+      }
+      
+      // Add middle pages
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      // Add ellipsis before last page if needed
+      if (end < this.totalPages() - 1) {
+        pages.push('...');
+      }
+      
+      // Always show last page
+      pages.push(this.totalPages());
+    }
+    
+    return pages;
   }
 }
