@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../shared-services/src/public-api';
+import { ApiService, PromotionInterface } from '../../../../shared-services/src/public-api';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable()
 export class PromoterService {
@@ -31,9 +32,34 @@ export class PromoterService {
     return this.apiService.post<any>(`campaign/${campaignId}/accept`, { userId }, undefined, true);
   }
 
-  // Get user's promotions
-  getUserPromotions(userId: string): Observable<any> {
-    return this.apiService.get<any>(`promotion/user/${userId}`, undefined, undefined, true);
+  // Get user's promotions with pagination and filtering
+  getUserPromotions(
+    userId: string,
+    filters?: {
+      status?: string;
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    }
+  ): Observable<{
+    success: boolean;
+    data: PromotionInterface[];
+    totalPages: number;
+    currentPage: number;
+    total: number;
+  }> {
+    let params = new HttpParams();
+    
+    if (filters) {
+      if (filters.status) params = params.set('status', filters.status);
+      if (filters.page) params = params.set('page', filters.page.toString());
+      if (filters.limit) params = params.set('limit', filters.limit.toString());
+      if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
+      if (filters.sortOrder) params = params.set('sortOrder', filters.sortOrder);
+    }
+
+    return this.apiService.get<any>(`promotion/user/${userId}`, params, undefined, true);
   }
 
   // Submit promotion proofs
@@ -55,5 +81,5 @@ export class PromoterService {
     };
     return this.apiService.post<any>('promotion/download', payload, undefined, true);
   }
-
 }
+

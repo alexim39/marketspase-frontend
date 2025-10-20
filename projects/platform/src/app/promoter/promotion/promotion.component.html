@@ -10,7 +10,6 @@
       <app-stats-overview-mobile [stats]="stats()"/>
       }
       
-
       <div class="campaign-list-section">
         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
           <a mat-tab-link [active]="selectedTab() === 'all'" (click)="onTabChange('all')">All Promotions ({{ stats().total }})</a>
@@ -28,26 +27,87 @@
         } @else {
           @if (isEmptyState()) {
             <app-empty-state />
-          }
-           
-          <div class="promotions-list">
-           @for (promotion of filteredPromotions(); track promotion) {
-            <app-promotion-card
-              [promotion]="promotion"
-              (openSubmitDialog)="openSubmitProofDialog($event)"
-            />
-          }
-          </div>
-        }
+          } @else {
+            <div class="promotions-list">
+              @for (promotion of filteredPromotions(); track promotion._id) {
+                <app-promotion-card
+                  [promotion]="promotion"
+                  (openSubmitDialog)="openSubmitProofDialog($event)"
+                />
+              }
+            </div>
 
-       <!--  @if (filteredPromotions().length > 0) {
-          <div class="load-more">
-            <button mat-stroked-button>
-              <mat-icon>expand_more</mat-icon>
-              Load More
-            </button>
-          </div>
-        } -->
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+              <!-- Desktop Pagination -->
+              <!-- @if (deviceType() === 'desktop' && pagination().totalPages > 1) {
+                <mat-paginator
+                  [length]="pagination().total"
+                  [pageSize]="pagination().limit"
+                  [pageIndex]="pagination().page - 1"
+                  [pageSizeOptions]="[12, 24, 48, 96]"
+                  (page)="onPageChange($event)"
+                  aria-label="Select page">
+                </mat-paginator>
+              } -->
+
+              @if (deviceType() === 'desktop' && hasMoreData()) {
+                <div class="load-more-mobile">
+                  <button 
+                    mat-stroked-button 
+                    (click)="loadMorePromotions()"
+                    [disabled]="isLoadingMore()"
+                    class="load-more-btn">
+                    @if (isLoadingMore()) {
+                      <div class="button-content">
+                        <mat-progress-spinner diameter="16" mode="indeterminate" strokeWidth="2"></mat-progress-spinner>
+                        <span class="button-text">Loading...</span>
+                      </div>
+                    } @else {
+                      <div class="button-content">
+                        <mat-icon>expand_more</mat-icon>
+                        <span class="button-text">Load More</span>
+                      </div>
+                    }
+                  </button>
+                </div>
+              }
+
+              <!-- Mobile Load More -->
+              @if (deviceType() === 'mobile' && hasMoreData()) {
+                <div class="load-more-mobile">
+                  <button 
+                    mat-stroked-button 
+                    (click)="loadMorePromotions()"
+                    [disabled]="isLoadingMore()"
+                    class="load-more-btn">
+                    @if (isLoadingMore()) {
+                      <div class="button-content">
+                        <mat-progress-spinner diameter="16" mode="indeterminate" strokeWidth="2"></mat-progress-spinner>
+                        <span class="button-text">Loading...</span>
+                      </div>
+                    } @else {
+                      <div class="button-content">
+                        <mat-icon>expand_more</mat-icon>
+                        <span class="button-text">Load More</span>
+                      </div>
+                    }
+                  </button>
+                </div>
+              }
+
+              <!-- Results Info -->
+              <div class="results-info">
+                @if (deviceType() === 'desktop') {
+                  Showing {{ displayedPromotionsCount().start }} - {{ displayedPromotionsCount().end }} of {{ displayedPromotionsCount().total }} promotions
+                }
+                @if (deviceType() === 'mobile') {
+                  Showing {{ filteredPromotions().length }} of {{ pagination().total }} promotions
+                }
+              </div>
+            </div>
+          }
+        }
       </div>
     </div>
   </main>

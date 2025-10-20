@@ -20,6 +20,8 @@ import { LoadingStateComponent } from './components/loading-state/loading-state.
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { StatsOverviewMobileComponent } from './components/stats-overview/mobile/stats-overview-mobile.component';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface PromotionStats {
   total: number;
@@ -28,6 +30,13 @@ interface PromotionStats {
   validated: number;
   paid: number;
   rejected: number;
+}
+
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 @Component({
@@ -41,6 +50,8 @@ interface PromotionStats {
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
     HeaderComponent,
     StatsOverviewComponent,
     PromotionCardComponent,
@@ -64,8 +75,11 @@ export class PromotionComponent implements OnInit {
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type());
 
+  // Signals
   isLoading = signal<boolean>(true);
-  promotions = signal<PromotionInterface[]>([]);
+  isLoadingMore = signal<boolean>(false);
+  currentPagePromotions = signal<PromotionInterface[]>([]); // Only current page promotions
+  
   stats = signal<PromotionStats>({
     total: 0,
     pending: 0,
@@ -76,62 +90,131 @@ export class PromotionComponent implements OnInit {
   });
 
   selectedTab = signal<string>('all');
+  pagination = signal<PaginationInfo>({
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0
+  });
 
-  // Computed signals to derive state from promotions signal
+  // Computed signals
   filteredPromotions = computed(() => {
-    const tab = this.selectedTab();
-    if (tab === 'all') {
-      return this.promotions();
-    }
-    return this.promotions().filter(p => p.status === tab);
+    return this.currentPagePromotions();
   });
 
   isEmptyState = computed(() => this.filteredPromotions().length === 0 && !this.isLoading());
+  hasMoreData = computed(() => {
+    const pagination = this.pagination();
+    return pagination.page < pagination.totalPages;
+  });
+
+  displayedPromotionsCount = computed(() => {
+    const pagination = this.pagination();
+    const currentPromotions = this.currentPagePromotions().length;
+    const startIndex = (pagination.page - 1) * pagination.limit + 1;
+    const endIndex = Math.min(pagination.page * pagination.limit, pagination.total);
+    
+    return { start: startIndex, end: endIndex, total: pagination.total };
+  });
 
   ngOnInit(): void {
     this.loadUserPromotions();
   }
 
-  loadUserPromotions(): void {
-    this.isLoading.set(true);
+  loadUserPromotions(loadMore: boolean = false): void {
+    if (loadMore) {
+      this.isLoadingMore.set(true);
+    } else {
+      this.isLoading.set(true);
+    }
 
     const userId = this.user()?._id;
+    const currentPagination = this.pagination();
 
-    // Check if the user ID exists before making the API call
     if (!userId) {
       this.snackBar.open('User not logged in or ID not available.', 'Dismiss', { duration: 3000 });
       this.isLoading.set(false);
+      this.isLoadingMore.set(false);
       return;
     }
 
-    this.promoterService.getUserPromotions(userId)
+    const pageToLoad = loadMore ? currentPagination.page + 1 : 1;
+
+    this.promoterService.getUserPromotions(userId, {
+      page: pageToLoad,
+      limit: currentPagination.limit,
+      status: this.selectedTab() !== 'all' ? this.selectedTab() : undefined,
+      sortBy: 'createdAt',
+      sortOrder: 'desc'
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          //console.log('response ',response)
-          // Add a defensive check for the response data
           if (response && response.data) {
-            //console.log('returned promotions',response.data)
-            this.promotions.set(response.data);
+            if (loadMore) {
+              // For mobile load more, append to current promotions
+              this.currentPagePromotions.update(current => [...current, ...response.data]);
+              this.pagination.update(current => ({
+                ...current,
+                page: response.currentPage,
+                total: response.total,
+                totalPages: response.totalPages
+              }));
+            } else {
+              // For desktop pagination or initial load, replace promotions
+              this.currentPagePromotions.set(response.data);
+              this.pagination.set({
+                page: response.currentPage,
+                limit: currentPagination.limit,
+                total: response.total,
+                totalPages: response.totalPages
+              });
+            }
+            
+            // Calculate stats from all promotions (if you want stats across all pages)
+            // For now, we'll calculate stats only from current page data
             this.stats.set(this.calculateStats(response.data));
+
+           
+
           } else {
-            // Handle case where response is not as expected
-            this.promotions.set([]);
+            this.currentPagePromotions.set([]);
             this.stats.set(this.calculateStats([]));
-            console.warn('API response was malformed or empty.');
           }
+          
           this.isLoading.set(false);
+          this.isLoadingMore.set(false);
         },
         error: (error: HttpErrorResponse) => {
           console.error('Failed to load promotions:', error);
-          //this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
           this.isLoading.set(false);
+          this.isLoadingMore.set(false);
         }
       });
   }
 
+  loadMorePromotions(): void {
+    if (this.hasMoreData() && !this.isLoadingMore()) {
+      this.loadUserPromotions(true);
+    }
+  }
+
+  onTabChange(tab: string): void {
+    this.selectedTab.set(tab);
+    this.pagination.update(p => ({ ...p, page: 1 })); // Reset to first page
+    this.loadUserPromotions(false); // Reload with new filter
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pagination.update(p => ({
+      ...p,
+      page: event.pageIndex + 1,
+      limit: event.pageSize
+    }));
+    this.loadUserPromotions(false);
+  }
+
   private calculateStats(promotions: PromotionInterface[]): PromotionStats {
-    // Ensure promotions is always an array to prevent TypeError
     const promos = promotions || [];
     return promos.reduce((acc, promo) => {
       acc.total++;
@@ -142,22 +225,14 @@ export class PromotionComponent implements OnInit {
     }, { total: 0, pending: 0, submitted: 0, validated: 0, paid: 0, rejected: 0 });
   }
 
-  onTabChange(tab: string): void {
-    this.selectedTab.set(tab);
-  }
-
   openSubmitProofDialog(promotion: PromotionInterface): void {
-    // Dialog logic remains here
-
-     const dialogRef = this.dialog.open(SubmitProofDialogComponent, {
-      data: { promotion: promotion } // Wrap the promotion object in the expected data structure
+    const dialogRef = this.dialog.open(SubmitProofDialogComponent, {
+      data: { promotion: promotion }
     });
 
-    // Handle the dialog result
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'submitted') {
-        // Update the specific promotion's status to 'submitted'
-        this.promotions.update(promotions => 
+        this.currentPagePromotions.update(promotions => 
           promotions.map(p => 
             p._id === promotion._id 
               ? { ...p, status: 'submitted' as any } 
@@ -165,14 +240,8 @@ export class PromotionComponent implements OnInit {
           )
         );
         
-        // Recalculate stats with the updated promotions
-        this.stats.set(this.calculateStats(this.promotions()));
-        
-        // Show success message
-        //this.snackBar.open('Proof submitted successfully!', 'Dismiss', { duration: 3000 });
+        this.stats.set(this.calculateStats(this.currentPagePromotions()));
       }
     });
   }
-
-
 }

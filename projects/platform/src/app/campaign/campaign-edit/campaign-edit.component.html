@@ -48,7 +48,7 @@
           /> -->
 
           <!-- Targeting -->
-          <!-- <div class="form-card">
+          <div class="form-card">
             <div class="card-header">
               <h2>Targeting Options</h2>
               <p>Set geographic targeting for your campaign</p>
@@ -63,24 +63,7 @@
                 (targetingSettingsChange)="onTargetingSettingsChange($event)"
               />
             </div>
-          </div> -->
-
-<div class="form-card">
-  <div class="card-header">
-    <h2>Targeting Options</h2>
-    <p>Set geographic targeting for your campaign</p>
-  </div>
-  <div class="card-content">
-    <app-targeting
-      [enableTarget]="campaignForm.get('enableTarget')?.value"
-      [targetLocations]="targetLocations()"
-      (enableTargetChange)="campaignForm.get('enableTarget')?.setValue($event)"
-      (addLocation)="addLocation($event)"
-      (removeLocation)="removeLocation($event)"
-      (targetingSettingsChange)="onTargetingSettingsChange($event)"
-    />
-  </div>
-</div>
+          </div>
 
           <!-- Schedule -->
           <app-schedule-form [form]="campaignForm"/>

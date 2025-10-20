@@ -269,7 +269,7 @@ onTargetingSettingsChange(settings: TargetingSettings): void {
       ...formValue,
       requirements: formValue.requirements ? formValue.requirements.split(',').map((r: string) => r.trim()) : [],
       targetLocations: this.targetLocations(), // *** FIX: Use the signal value ***
-      enableTarget: this.campaignForm.get('enableTarget')?.value // *** FIX: Include enableTarget ***
+      enableTarget: this.campaignForm.get('enableTarget')?.value || false // *** FIX: Include enableTarget ***
     };
 
     this.campaignEditService.updateCampaign(this.campaign()?._id || '', this.campaign()?.owner._id, campaignData).subscribe({

@@ -111,30 +111,6 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
       this.updateCountdown();
     }
 
-  /* private updateCountdown(): void {
-    const createdAt = this.promotion.createdAt;
-    const creationTime = new Date(createdAt).getTime();
-    const expirationTime = creationTime + (24 * 60 * 60 * 1000);
-    const currentTime = new Date().getTime();
-    this.timeDifferenceInMilliseconds = expirationTime - currentTime; // Update the new property
-
-    if (this.timeDifferenceInMilliseconds <= 0) {
-      this.countdownSignal.set('Expired');
-      return;
-    }
-
-    const totalSeconds = Math.floor(this.timeDifferenceInMilliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    const formattedHours = String(hours).padStart(2, '0');
-    const formattedMinutes = String(minutes).padStart(2, '0');
-    const formattedSeconds = String(seconds).padStart(2, '0');
-
-    this.countdownSignal.set(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
-  } */
-
   private updateCountdown(): void {
     const creationTime = new Date(this.promotion.createdAt).getTime();
     if (isNaN(creationTime)) {
@@ -207,12 +183,6 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     return nowUtc > expiryTimeUtc;
   }
   
-  // New method to check if the countdown is nearing expiration (30 minutes)
-  // isNearingExpiration(): boolean {
-  //   const thirtyMinutesInMs = 30 * 60 * 1000;
-  //   return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= thirtyMinutesInMs;
-  // }
-
   // Updated method to check if the countdown is nearing expiration (1 hour)
   isNearingExpiration(): boolean {
     const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
