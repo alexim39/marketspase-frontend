@@ -8,7 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
 import { PromoterService } from '../../promoter/promoter.service';
 import { UserService } from '../../common/services/user.service';
 
@@ -19,6 +19,7 @@ import { EmptyStateComponent } from './components/empty-state/empty-state.compon
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { StatsOverviewMobileComponent } from './components/stats-overview/mobile/stats-overview-mobile.component';
 
 interface PromotionStats {
   total: number;
@@ -45,6 +46,7 @@ interface PromotionStats {
     PromotionCardComponent,
     EmptyStateComponent,
     LoadingStateComponent,
+    StatsOverviewMobileComponent
   ],
   templateUrl: './promotion.component.html',
   styleUrls: ['./promotion.component.scss'],
@@ -58,6 +60,9 @@ export class PromotionComponent implements OnInit {
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
+
+  private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
 
   isLoading = signal<boolean>(true);
   promotions = signal<PromotionInterface[]>([]);

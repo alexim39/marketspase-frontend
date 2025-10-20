@@ -1,0 +1,199 @@
+<!-- stats-overview-mobile.component.html -->
+<section class="stats-overview">
+  <!-- Header with Toggle -->
+  <div class="stats-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="stats-title">Promotions</h1>
+        <p class="stats-subtitle">Overview of your campaign status</p>
+      </div>
+      <button class="toggle-view" (click)="toggleCompactView()" [class.compact]="isCompactView">
+        <div class="toggle-handle"></div>
+      </button>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards" [class.hidden]="isCompactView">
+      <div class="summary-card total">
+        <div class="summary-icon">
+          <mat-icon>campaign</mat-icon>
+        </div>
+        <div class="summary-numbers">
+          <span class="number">{{ stats.total }}</span>
+          <span class="label">Total</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Stats Grid -->
+    <div class="stats-container" [class.hidden]="isCompactView">
+    <div class="stats-grid">
+      <!-- Pending Card -->
+      <div class="stat-card pending" 
+           (click)="onStatClick('pending')" 
+           [class.active]="activeStat === 'pending'">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="status-header">
+            <div class="status-indicator"></div>
+            <span class="status-badge">Action Required</span>
+          </div>
+          <div class="stat-main">
+            <div class="icon-container">
+              <mat-icon>pending_actions</mat-icon>
+            </div>
+            <div class="stat-numbers">
+              <h3 class="stat-value">{{ stats.pending }}</h3>
+              <p class="stat-label">Pending Submission</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submitted Card -->
+      <div class="stat-card submitted" 
+           (click)="onStatClick('submitted')" 
+           [class.active]="activeStat === 'submitted'">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="status-header">
+            <div class="status-indicator"></div>
+            <span class="status-badge">In Review</span>
+          </div>
+          <div class="stat-main">
+            <div class="icon-container">
+              <mat-icon>hourglass_empty</mat-icon>
+            </div>
+            <div class="stat-numbers">
+              <h3 class="stat-value">{{ stats.submitted }}</h3>
+              <p class="stat-label">Pending Validation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validated Card -->
+      <div class="stat-card validated" 
+           (click)="onStatClick('validated')" 
+           [class.active]="activeStat === 'validated'">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="status-header">
+            <div class="status-indicator success"></div>
+            <span class="status-badge success">Approved</span>
+          </div>
+          <div class="stat-main">
+            <div class="icon-container">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="stat-numbers">
+              <h3 class="stat-value">{{ stats.validated }}</h3>
+              <p class="stat-label">Validated</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paid Card -->
+      <div class="stat-card paid" 
+           (click)="onStatClick('paid')" 
+           [class.active]="activeStat === 'paid'">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="status-header">
+            <div class="status-indicator success"></div>
+            <span class="status-badge success">Completed</span>
+          </div>
+          <div class="stat-main">
+            <div class="icon-container">
+              <mat-icon>paid</mat-icon>
+            </div>
+            <div class="stat-numbers">
+              <h3 class="stat-value">{{ stats.paid }}</h3>
+              <p class="stat-label">Paid</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rejected Card -->
+      <div class="stat-card rejected" 
+           (click)="onStatClick('rejected')" 
+           [class.active]="activeStat === 'rejected'">
+        <div class="card-background"></div>
+        <div class="card-content">
+          <div class="status-header">
+            <div class="status-indicator error"></div>
+            <span class="status-badge error">Needs Attention</span>
+          </div>
+          <div class="stat-main">
+            <div class="icon-container">
+              <mat-icon>cancel</mat-icon>
+            </div>
+            <div class="stat-numbers">
+              <h3 class="stat-value">{{ stats.rejected }}</h3>
+              <p class="stat-label">Rejected</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Bottom Sheet -->
+  <div class="bottom-sheet" [class.active]="activeStat" [class.expanded]="sheetExpanded">
+    <div class="sheet-handle" (click)="toggleSheet()">
+      <div class="handle-bar"></div>
+    </div>
+    
+    <div class="sheet-content">
+      <div class="sheet-header">
+        <div class="header-status">
+          <div class="status-icon" [class]="activeStat">
+            <mat-icon>{{ getStatIcon(activeStat) }}</mat-icon>
+          </div>
+          <div class="header-text">
+            <h3>{{ getStatLabel(activeStat) }}</h3>
+            <p>{{ getActiveStatValue() }} promotions</p>
+          </div>
+        </div>
+        <button class="close-sheet" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <div class="stat-details">
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <span class="detail-value" [class]="activeStat">{{ getStatusText(activeStat) }}</span>
+          </div>
+          <!-- <div class="detail-item">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">2 hours ago</span>
+          </div> -->
+          <!-- <div class="detail-item">
+            <span class="detail-label">Trend</span>
+            <span class="detail-value trend-positive">+5% this week</span>
+          </div> -->
+        </div>
+
+        <!-- <div class="action-buttons">
+          <button class="action-btn secondary" (click)="onViewDetails()">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+          <button class="action-btn primary" (click)="onViewDetails()">
+            <mat-icon>open_in_new</mat-icon>
+            Take Action
+          </button>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Background Overlay -->
+  <div class="sheet-overlay" [class.active]="activeStat" (click)="closeSheet()"></div>
+</section>

@@ -3,7 +3,13 @@
 
   <main class="content-container">
     <div class="container">
+      @if (deviceType() === 'desktop') {
       <app-stats-overview [stats]="stats()"/>
+      }
+      @if (deviceType() === 'mobile') {
+      <app-stats-overview-mobile [stats]="stats()"/>
+      }
+      
 
       <div class="campaign-list-section">
         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
