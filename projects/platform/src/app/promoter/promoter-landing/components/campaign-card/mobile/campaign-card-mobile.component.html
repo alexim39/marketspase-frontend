@@ -18,7 +18,8 @@
             </div>
           }
           @if (campaign.mediaType === 'image') {
-            <img [src]="api+campaign.mediaUrl" [alt]="campaign.title" class="thumbnail">
+            <img [src]="campaign.mediaUrl" [alt]="campaign.title" class="thumbnail">
+            <!-- <img [src]="api+campaign.mediaUrl" [alt]="campaign.title" class="thumbnail"> -->
           }
         </div>
         

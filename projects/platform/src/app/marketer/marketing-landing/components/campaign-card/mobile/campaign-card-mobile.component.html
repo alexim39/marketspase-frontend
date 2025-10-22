@@ -34,7 +34,8 @@
   <div class="mobile-media" (click)="onViewDetails()">
     <div class="media-container">
       @if (campaign.mediaType === 'image') {
-        <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="mobile-media-img">
+        <img [src]="campaign.mediaUrl" [alt]="campaign.title" class="mobile-media-img">
+        <!-- <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="mobile-media-img"> -->
       }
       @if (campaign.mediaType === 'video') {
         <div class="mobile-video-placeholder">

@@ -127,7 +127,7 @@ export class CampaignDetailsComponent implements OnInit {
     this.campaignDetailsService.getCampaignById(campaignId).subscribe({
       next: (response) => {
         if (response.success) {
-            console.log('campaign ',response)
+            //console.log('campaign ',response)
             this.campaign.set(response.data);
             this.isLoading.set(false);
         }

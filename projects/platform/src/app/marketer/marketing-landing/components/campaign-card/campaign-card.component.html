@@ -50,7 +50,8 @@
 
     @if (campaign.mediaType === 'image') {
       <div class="media-placeholder">
-        <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+        <img [src]="campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+        <!-- <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview"> -->
       </div>
     }
     @if (campaign.mediaType === 'video') {

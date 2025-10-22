@@ -105,7 +105,7 @@ filteredLocationSuggestions = computed(() => {
 
 
 onTargetingSettingsChange(settings: TargetingSettings): void {
-    console.log('Targeting settings changed:', settings);
+    //console.log('Targeting settings changed:', settings);
     
     // Only update if there are actual changes to avoid loops
     if (JSON.stringify(this.targetLocations()) !== JSON.stringify(settings.areas)) {
@@ -169,7 +169,7 @@ onTargetingSettingsChange(settings: TargetingSettings): void {
     this.campaignEditService.getCampaignById(campaignId).subscribe({
       next: (response) => {
         if (response.success) {
-          console.log('Campaign data:', response.data); // Debug log
+          //console.log('Campaign data:', response.data); // Debug log
           this.campaign.set(response.data);
           this.populateForm(response.data);
           this.isLoading.set(false);
