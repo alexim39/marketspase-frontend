@@ -6,7 +6,7 @@ import { catchError, Observable, retry, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = 'https://apimarketspase1-hyrqzkeb.b4a.run'; //'https://api.marketspase.com' // This redirect to 'https://apimarketspase1-hyrqzkeb.b4a.run';
+  private readonly baseUrl = 'https://apimarketspase1-hyrqzkeb.b4a.run';
   //private readonly baseUrl = 'http://localhost:8080'; // For local testing
 
   public getBaseUrl(): string {
