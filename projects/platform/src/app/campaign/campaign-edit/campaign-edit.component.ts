@@ -36,7 +36,7 @@ import { CATEGORIES } from '../../common/utils/categories';
     MatNativeDateModule,
     CampaignEditHeaderComponent,
     BasicInfoFormComponent,
-    MediaUploadComponent,
+    //MediaUploadComponent,
     BudgetSettingsComponent,
     TargetingComponent,
     ScheduleFormComponent,

@@ -13,7 +13,7 @@ import { UserService } from '../../../common/services/user.service';
 import { DashboardService } from './../../dashboard.service';
 import { TestimonialsComponent } from '../../testimonial/testimonial.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NotifyProfileBannerComponent } from './../notification-banner/notify-profile-banner.component';
+import { ProfileNotifierBannerComponent } from '../notification-banner/profiile-notifier/profile-notifier-banner.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBottomSheet, MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { DeviceService } from '../../../../../../shared-services/src/public-api';
@@ -59,7 +59,7 @@ interface PromotionSummary {
     MatButtonModule,
     MatProgressBarModule,
     TestimonialsComponent,
-    NotifyProfileBannerComponent,
+    ProfileNotifierBannerComponent,
     MatMenuModule,
     MatBottomSheetModule
   ],

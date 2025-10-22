@@ -1,5 +1,5 @@
 // transactions.component.ts
-import { Component, Input, Signal, computed, signal } from '@angular/core';
+import { Component, Input, Signal, computed, inject, signal } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
-import { UserInterface } from '../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 import { Transaction } from './transactions.model';
 import { ShortenIdPipe } from './shorten-id.pipe';
 
@@ -48,6 +48,9 @@ import { ShortenIdPipe } from './shorten-id.pipe';
 })
 export class TransactionComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
+
+  private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
   
   // Filter signals
   private currentFilter = signal<string>('all');

@@ -12,9 +12,10 @@ import { UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NotifyProfileBannerComponent } from './notification-banner/notify-profile-banner.component';
+import { ProfileNotifierBannerComponent } from './notification-banner/profiile-notifier/profile-notifier-banner.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { DeviceService } from '../../../../../shared-services/src/public-api';
+import { PromoBannerComponent } from './notification-banner/promo/promo-banner.component';
 
 interface DashboardStat {
   icon: string;
@@ -55,8 +56,9 @@ interface PromotionSummary {
     MatButtonModule,
     MatProgressBarModule,
     TestimonialsComponent,
-    NotifyProfileBannerComponent,
-    MatMenuModule
+    ProfileNotifierBannerComponent,
+    MatMenuModule,
+    PromoBannerComponent
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
@@ -177,15 +179,15 @@ export class DashboardMainContainer {
           color: '#4caf50',
           subtitle: `₦${((wallet?.reserved || 0) / 1000).toFixed(0)}K reserved`
         },
-        {
-          icon: 'trending_up',
-          label: 'Total Reach',
-          value: '37K',
-          change: '+25',
-          trend: 'up',
-          color: '#e91e63',
-          subtitle: 'Last 30 days'
-        }
+        // {
+        //   icon: 'trending_up',
+        //   label: 'Total Reach',
+        //   value: '37K',
+        //   change: '+25',
+        //   trend: 'up',
+        //   color: '#e91e63',
+        //   subtitle: 'Last 30 days'
+        // }
       ];
     } else {
       const summary = this.promotionSummary();
