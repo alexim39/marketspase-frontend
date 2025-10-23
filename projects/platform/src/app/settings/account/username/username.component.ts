@@ -230,7 +230,7 @@ import { RESTRICTEDWORDS } from './restricted-words';
     border-radius: 0;
 
     .username-form {
-      padding: 16px;
+      padding: 16px 2px;
     }
   }
 }

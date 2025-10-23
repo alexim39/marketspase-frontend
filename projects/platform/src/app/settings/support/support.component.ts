@@ -65,7 +65,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   .settings-content {
     max-width: 1200px;
     margin: 24px auto;
-    padding: 0 24px;
+    padding: 0 10px;
   }
 
   .settings-nav {
@@ -140,7 +140,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
   @media (max-width: 768px) {
     .social-settings-content {
-      padding: 0 16px;
+      padding: 0 3px;
     }
 
     .header-main h1 {

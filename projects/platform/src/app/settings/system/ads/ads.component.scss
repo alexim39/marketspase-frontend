@@ -7,10 +7,16 @@
   $success-color: #48bb78;
   $warning-color: #ed8936;
 
+  
+
   max-width: 1000px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  @media (max-width: 768px) {
+    padding: 2rem 10px;
+  }
 
   .header-section {
     text-align: center;
@@ -68,12 +74,12 @@
 
         @media (max-width: 768px) {
           flex-direction: column;
-          padding: 2rem;
+          padding: 2rem 10px;
           gap: 2rem;
         }
 
         @media (max-width: 480px) {
-          padding: 1.5rem;
+          padding: 2rem 10px;
           gap: 1.5rem;
         }
       }

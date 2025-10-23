@@ -81,7 +81,7 @@ export class PromoBannerComponent implements OnInit {
     this.promoBannerService.getActivePromo().subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          console.log('promo ',response.data)
+          //console.log('promo ',response.data)
           this.promoData.set(response.data);
           this.showPromoBanner.set(response.data.notificationSettings.showBanner);
         } 

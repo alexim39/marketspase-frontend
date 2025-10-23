@@ -112,7 +112,7 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
 
     @media (max-width: 768px) {
       .account-container {
-        padding: 8px;
+        padding: 3px;;
       }
       
       ::ng-deep .mat-expansion-panel-header {
