@@ -38,7 +38,8 @@
             <div class="list-item-content">
               <div class="list-item-media">
                 @if (campaign.mediaType === 'image') {
-                  <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                  <img [src]="campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
+                  <!-- <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview"> -->
                 } @else {
                   <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img">
                 }

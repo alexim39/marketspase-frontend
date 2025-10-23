@@ -42,7 +42,7 @@ export const PAYSTACK_CONFIG = 'PAYSTACK_CONFIG';
 @Injectable()
 export class PaystackService {
   private readonly defaultConfig: PaystackConfig = {
-    publicKey: 'pk_test_1d5627d8d06cb2c937cee6ce4b0ed56c7fe2159a',
+    publicKey: 'pk_live_ef4b274402e6786a901e106596f1904e3e08a713',
     currency: 'NGN',
     defaultEmailDomain: 'marketspase.com'
   };
