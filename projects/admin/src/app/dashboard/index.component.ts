@@ -40,6 +40,7 @@ export class AdminDashboardComponent implements OnInit {
       dashboard: 'Dashboard Overview',
       user: 'User Management',
       campaigns: 'Campaign Management',
+      promotions: 'Promotion Management',
       testimonials: 'Testimonial Management',
       //proof: 'Campaign Proof Management',
       //transactions: 'Transaction History',

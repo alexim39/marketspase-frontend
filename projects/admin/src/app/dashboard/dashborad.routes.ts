@@ -28,6 +28,10 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../campaign/campaign.component').then(c => c.CampaignMgtComponent),
                 title: 'Campaign Management - Admin Dashboard'
             },   
+            {   path: 'promotions', 
+                loadComponent: () => import('../promotion/promotion-list/promotion-list.component').then(c => c.PromotionListMgtComponent),
+                title: 'Promotions Management - Admin Dashboard'
+            },   
             { path: 'campaigns/:id', 
                 loadComponent: () => import('../campaign/campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
                 title: 'Campaign Details - Admin Dashboard'

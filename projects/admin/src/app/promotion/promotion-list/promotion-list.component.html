@@ -1,0 +1,367 @@
+<div class="admin-promotions-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="page-title">Promotion Management</h1>
+    <p class="page-subtitle">Manage all submitted promotions and validations</p>
+    
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon">assignment</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ totalPromotions() }}</span>
+              <span class="stat-label">Total Promotions</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon pending">schedule</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ pendingPromotions() }}</span>
+              <span class="stat-label">Pending Review</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon submitted">send</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ submittedPromotions() }}</span>
+              <span class="stat-label">Submitted</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon validated">check_circle</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ validatedPromotions() }}</span>
+              <span class="stat-label">Validated</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon paid">payments</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ paidPromotions() }}</span>
+              <span class="stat-label">Paid</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon rejected">cancel</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ rejectedPromotions() }}</span>
+              <span class="stat-label">Rejected</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-container">
+        <mat-form-field appearance="outline" class="filter-field search-field">
+          <mat-label>Search Promotions</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Search by promoter, campaign, UPI" #input>
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [formControl]="filtersForm.controls.status" multiple>
+            <div style="background-color: black;">
+              <mat-option value="pending">Pending</mat-option>
+              <mat-option value="submitted">Submitted</mat-option>
+              <mat-option value="validated">Validated</mat-option>
+              <mat-option value="paid">Paid</mat-option>
+              <mat-option value="rejected">Rejected</mat-option>
+            </div>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Campaign</mat-label>
+          <mat-select [formControl]="filtersForm.controls.campaign" multiple>
+            <div style="background-color: black;">
+              @for (campaign of campaigns(); track campaign._id) {
+                <mat-option [value]="campaign._id">{{ campaign.title }}</mat-option>
+              }
+            </div>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Date Range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="Start date" [formControl]="filtersForm.controls.startDate">
+            <input matEndDate placeholder="End date" [formControl]="filtersForm.controls.endDate">
+          </mat-date-range-input>
+          <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+        
+        <button mat-button (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Promotions Table -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        @if (isLoading()) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading promotions...</p>
+          </div>
+        } @else {
+          <table mat-table [dataSource]="dataSource" matSort class="promotions-table">
+            <!-- UPI Column -->
+            <ng-container matColumnDef="upi">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> UPI </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="upi-info">
+                  <span class="upi-code">{{ promotion.upi }}</span>
+                  <span class="created-date">Created: {{ promotion.createdAt | date:'shortDate' }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Campaign Column -->
+            <ng-container matColumnDef="campaign">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Campaign </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="campaign-info">
+                  <span class="campaign-title">{{ getCampaignTitle(promotion.campaign) }}</span>
+                  <span class="campaign-category">{{ getCampaignCategory(promotion.campaign) }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Promoter Column -->
+            <ng-container matColumnDef="promoter">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Promoter </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="promoter-info">
+                  <span class="promoter-name">{{ getPromoterName(promotion.promoter) }}</span>
+                  <span class="promoter-email">{{ getPromoterEmail(promotion.promoter) }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Proof Column -->
+            <ng-container matColumnDef="proof">
+              <th mat-header-cell *matHeaderCellDef> Proof </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="proof-info">
+                  @if (promotion.proofMedia && promotion.proofMedia.length > 0) {
+                    <button mat-button 
+                            color="primary" 
+                            (click)="viewProofMedia(promotion)"
+                            class="proof-button">
+                      <mat-icon>image</mat-icon>
+                      View Proof ({{ promotion.proofMedia.length }})
+                    </button>
+                  } @else {
+                    <span class="no-proof">No proof submitted</span>
+                  }
+                  @if (promotion.proofViews) {
+                    <span class="proof-views">Views: {{ promotion.proofViews }}</span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Payout Column -->
+            <ng-container matColumnDef="payout">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Payout </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="payout-info">
+                  <span class="payout-amount">{{ getPayoutAmount(promotion) | currency:'NGN':'₦' }}</span>
+                  @if (promotion.paidAt) {
+                    <span class="paid-date">Paid: {{ promotion.paidAt | date:'shortDate' }}</span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Timeline Column -->
+            <ng-container matColumnDef="timeline">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Timeline </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="timeline-info">
+                  @if (promotion.submittedAt) {
+                    <span class="submitted-date">Submitted: {{ promotion.submittedAt | date:'shortDate' }}</span>
+                  }
+                  @if (promotion.validatedAt) {
+                    <span class="validated-date">Validated: {{ promotion.validatedAt | date:'shortDate' }}</span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+              <td mat-cell *matCellDef="let promotion">
+                <mat-chip 
+                  [class]="promotion.status"
+                  class="status-chip">
+                  {{ promotion.status | titlecase }}
+                </mat-chip>
+                @if (isOverdue(promotion)) {
+                  <mat-icon class="overdue-icon" matTooltip="Overdue for validation">warning</mat-icon>
+                }
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef> Actions </th>
+              <td mat-cell *matCellDef="let promotion">
+                <div class="action-buttons">
+                  <button mat-icon-button 
+                          matTooltip="View Details"
+                          (click)="viewPromotionDetails(promotion)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+
+                  <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Actions">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  
+                  <mat-menu #menu="matMenu">
+                    <div style="background-color: black !important;">
+                      @if (promotion.status === 'submitted') {
+                        <button mat-menu-item (click)="validatePromotion(promotion)">
+                          <mat-icon>check_circle</mat-icon>
+                          <span>Validate</span>
+                        </button>
+                        <button mat-menu-item (click)="openRejectDialog(promotion)">
+                          <mat-icon>cancel</mat-icon>
+                          <span>Reject</span>
+                        </button>
+                      }
+                      @if (promotion.status === 'validated') {
+                        <button mat-menu-item (click)="markAsPaid(promotion)">
+                          <mat-icon>payments</mat-icon>
+                          <span>Mark as Paid</span>
+                        </button>
+                      }
+                      @if (promotion.status === 'rejected') {
+                        <button mat-menu-item (click)="revertToSubmitted(promotion)">
+                          <mat-icon>replay</mat-icon>
+                          <span>Revert to Submitted</span>
+                        </button>
+                      }
+                      <button mat-menu-item (click)="viewActivityLog(promotion)">
+                        <mat-icon>history</mat-icon>
+                        <span>Activity Log</span>
+                      </button>
+                      @if (promotion.proofMedia && promotion.proofMedia.length > 0) {
+                        <button mat-menu-item (click)="viewProofMedia(promotion)">
+                          <mat-icon>image</mat-icon>
+                          <span>View Proof Media</span>
+                        </button>
+                      }
+                    </div>
+                  </mat-menu>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- Row shown when there's no matching data -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                No promotions found matching your criteria
+              </td>
+            </tr>
+          </table>
+        }
+      </div>
+
+      <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons aria-label="Select page of promotions">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Proof Media Dialog -->
+<ng-template #proofMediaDialog>
+  <div class="proof-media-dialog">
+    <h2 mat-dialog-title>Proof Media</h2>
+    <mat-dialog-content>
+      <div class="proof-media-grid">
+        @for (media of selectedPromotion()?.proofMedia; track media; let i = $index) {
+          <div class="proof-media-item">
+            <img [src]="media" [alt]="'Proof media ' + (i + 1)" class="proof-image">
+            <div class="proof-media-info">
+              <span>Proof {{ i + 1 }}</span>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="promotion-info" *ngIf="selectedPromotion()">
+        <h4>Promotion Details</h4>
+        <p><strong>UPI:</strong> {{ selectedPromotion()?.upi }}</p>
+        <p><strong>Views:</strong> {{ selectedPromotion()?.proofViews || 'Not specified' }}</p>
+        <p><strong>Submitted:</strong> {{ selectedPromotion()?.submittedAt | date:'medium' }}</p>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>
+
+<!-- Reject Promotion Dialog -->
+<ng-template #rejectDialog>
+  <div class="reject-dialog">
+    <h2 mat-dialog-title>Reject Promotion</h2>
+    <mat-dialog-content>
+      <p>Please provide a reason for rejecting this promotion:</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Rejection Reason</mat-label>
+        <textarea matInput 
+                  [(ngModel)]="rejectionReason" 
+                  placeholder="Enter the reason for rejection..."
+                  rows="4"></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="dialogRef.close()">Cancel</button>
+      <button mat-button color="warn" (click)="rejectPromotion()">Reject Promotion</button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>

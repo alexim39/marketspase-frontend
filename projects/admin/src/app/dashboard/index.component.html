@@ -19,33 +19,43 @@
     
     <nav class="nav-menu">
         <a 
-        class="nav-item"
-        [class.active]="activeNavItem() === 'dashboard'"
-        (click)="setActiveNavItem('dashboard')"
-        routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
-        >
-        <mat-icon>dashboard</mat-icon>
-        <span>Dashboard</span>
+            class="nav-item"
+            [class.active]="activeNavItem() === 'dashboard'"
+            (click)="setActiveNavItem('dashboard')"
+            routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            >
+            <mat-icon>dashboard</mat-icon>
+            <span>Dashboard</span>
         </a>
 
         <a 
-        class="nav-item" 
-        [class.active]="activeNavItem() === 'user'"
-        (click)="setActiveNavItem('user')"
-        routerLink="/dashboard/users" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
-        >
-        <mat-icon>account_circle</mat-icon>
-        <span>Users</span>
+            class="nav-item" 
+            [class.active]="activeNavItem() === 'user'"
+            (click)="setActiveNavItem('user')"
+            routerLink="/dashboard/users" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            >
+            <mat-icon>account_circle</mat-icon>
+            <span>Users</span>
         </a>
 
         <a 
-        class="nav-item" 
-        [class.active]="activeNavItem() === 'campaigns'"
-        (click)="setActiveNavItem('campaigns')"
-        routerLink="/dashboard/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
-        >
-        <mat-icon>campaign</mat-icon>
-        <span>Campaigns</span>
+            class="nav-item" 
+            [class.active]="activeNavItem() === 'campaigns'"
+            (click)="setActiveNavItem('campaigns')"
+            routerLink="/dashboard/campaigns" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            >
+            <mat-icon>campaign</mat-icon>
+            <span>Campaigns</span>
+        </a>
+
+        <a 
+            class="nav-item" 
+            [class.active]="activeNavItem() === 'promotions'"
+            (click)="setActiveNavItem('promotions')"
+            routerLink="/dashboard/promotions" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+            >
+            <mat-icon>sell</mat-icon>
+            <span>Promotions</span>
         </a>
 
         <a 

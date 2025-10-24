@@ -189,14 +189,16 @@
                 <th mat-header-cell *matHeaderCellDef> Actions </th>
                 <td mat-cell *matCellDef="let campaign">
                 <div class="action-buttons">
-                    <button mat-icon-button 
-                            matTooltip="View Details"
-                            (click)="viewCampaignDetails(campaign)">
-                    <mat-icon>visibility</mat-icon>
+                    <button mat-icon-button matTooltip="View Details" (click)="viewCampaignDetails(campaign)">
+                        <mat-icon>visibility</mat-icon>
+                    </button>
+
+                    <button mat-icon-button matTooltip="View Promotions" (click)="viewPromotions(campaign)">
+                        <mat-icon>groups</mat-icon>
                     </button>
 
                     <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Actions">
-                    <mat-icon>more_vert</mat-icon>
+                        <mat-icon>more_vert</mat-icon>
                     </button>
                     
                     <mat-menu #menu="matMenu" >
@@ -223,10 +225,6 @@
                         <span>Resume</span>
                         </button>
                     }
-                    <button mat-menu-item (click)="viewPromotions(campaign)">
-                        <mat-icon>groups</mat-icon>
-                        <span>View Promotions</span>
-                    </button>
                     <button mat-menu-item (click)="viewActivityLog(campaign)">
                         <mat-icon>history</mat-icon>
                         <span>Activity Log</span>
