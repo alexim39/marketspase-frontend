@@ -27,7 +27,7 @@
             <mat-icon>chevron_left</mat-icon>
           </button>
           
-          <img [src]="api + promotion()!.proofMedia[activeImageIndex()]" 
+          <img [src]="promotion()!.proofMedia[activeImageIndex()]" 
                alt="Proof image" class="main-image">
           
           <button mat-icon-button class="nav-button next-button" (click)="nextImage()" 
@@ -39,7 +39,7 @@
         @if (promotion()!.proofMedia.length > 1) {
         <div class="image-thumbnails">
           @for (image of promotion()!.proofMedia; track $index; let i = $index) {
-          <img [src]="api + image" 
+          <img [src]="image" 
                [class.active]="i === activeImageIndex()"
                (click)="setActiveImage(i)"
                alt="Proof thumbnail" class="thumbnail">

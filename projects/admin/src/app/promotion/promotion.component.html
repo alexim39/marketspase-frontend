@@ -8,7 +8,9 @@
     
     <div class="header-title">
         <h1 class="page-title">Campaign Promotions</h1>
-        <p class="page-subtitle" *ngIf="campaign()">Managing promotions for: {{ campaign()?.title }}</p>
+        @if (campaign()) {
+            <p class="page-subtitle">Managing promotions for: {{ campaign()?.title }}</p>
+        }
     </div>
     
     <div class="header-actions">

@@ -6,8 +6,8 @@ import { catchError, Observable, retry, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly domain = 'https://apimarketspase1-hyrqzkeb.b4a.run';
-  //private readonly domain = 'http://localhost:8080'; // For local testing
+  //private readonly domain = 'https://apimarketspase1-hyrqzkeb.b4a.run';
+  private readonly domain = 'http://localhost:8080'; // For local testing
 
   public getBaseUrl(): string {
     return this.domain; 
