@@ -25,7 +25,11 @@ export interface UserInterface {
   dob?: Date;
   isActive?: boolean;
   verified?: boolean;
+  isDeleted?: boolean;
   rating: number;
+  ratingCount: number;
+  authenticationMethod: string;
+  updatedAt?: Date;
   personalInfo: {
     address: {
       street: string;

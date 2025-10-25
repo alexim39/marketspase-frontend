@@ -17,49 +17,50 @@ import { MatListModule } from '@angular/material/list';
 import { UserService } from '../user.service';
 import { MatTableModule } from '@angular/material/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 // Interfaces
-export interface User {
-  _id: string;
-  uid: string;
-  username: string;
-  displayName: string;
-  email: string;
-  authenticationMethod: string;
-  role: 'marketer' | 'promoter';
-  avatar: string;
-  rating: number;
-  ratingCount: number;
-  isActive: boolean;
-  isVerified: boolean;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  wallets: {
-    marketer: {
-      balance: number;
-      reserved: number;
-      transactions: any[];
-    };
-    promoter: {
-      balance: number;
-      reserved: number;
-      transactions: any[];
-    };
-  };
-  professionalInfo: {
-    skills: string[];
-  };
-  interests: {
-    hobbies: string[];
-    favoriteTopics: string[];
-  };
-  preferences: {
-    notification: boolean;
-  };
-  testimonials: any[];
-  payoutAccounts: any[];
-}
+// export interface User {
+//   _id: string;
+//   uid: string;
+//   username: string;
+//   displayName: string;
+//   email: string;
+//   authenticationMethod: string;
+//   role: 'marketer' | 'promoter';
+//   avatar: string;
+//   rating: number;
+//   ratingCount: number;
+//   isActive: boolean;
+//   isVerified: boolean;
+//   isDeleted: boolean;
+//   createdAt: string;
+//   updatedAt: string;
+//   wallets: {
+//     marketer: {
+//       balance: number;
+//       reserved: number;
+//       transactions: any[];
+//     };
+//     promoter: {
+//       balance: number;
+//       reserved: number;
+//       transactions: any[];
+//     };
+//   };
+//   professionalInfo: {
+//     skills: string[];
+//   };
+//   interests: {
+//     hobbies: string[];
+//     favoriteTopics: string[];
+//   };
+//   preferences: {
+//     notification: boolean;
+//   };
+//   testimonials: any[];
+//   payoutAccounts: any[];
+// }
 
 @Component({
   selector: 'app-user-details',
@@ -94,7 +95,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
 
   // State with signals
-  user = signal<User | null>(null);
+  user = signal<UserInterface | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
 

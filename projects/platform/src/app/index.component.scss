@@ -446,9 +446,9 @@
     }
 
 
-    .new-user-banner {
+.new-user-banner {
   text-align: center;
-  margin-bottom: 24px;
+  margin-top: 24px;
   z-index: 1;
   width: 100%;
   max-width: 480px;
@@ -485,7 +485,7 @@
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .new-user-banner {
-    margin-bottom: 20px;
+    margin-top: 20px;
     max-width: 100%;
   }
   

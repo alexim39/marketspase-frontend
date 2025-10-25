@@ -54,12 +54,23 @@ interface ContactReason {
         <!-- Header Section -->
         <div class="contact-header">
           <div class="header-content">
-            <mat-icon class="header-icon">support_agent</mat-icon>
+            <div  class="header-icon">
+              <mat-icon>support_agent</mat-icon>
+            </div>            
             <h1 class="header-title">Get In Touch</h1>
             <p class="header-subtitle">
               We're here to help you grow your WhatsApp promotion business. 
               Send us a message and we'll respond within 24 hours.
             </p>
+
+            <!-- Live Chat WhatsApp button (added) -->
+            <div class="header-actions">
+              <button mat-stroked-button color="primary" class="whatsapp-btn" (click)="startLiveChat()" matTooltip="Start WhatsApp live chat">
+                <mat-icon class="whatsapp-icon">chat</mat-icon>
+                <span class="btn-text">Live Chat</span>
+              </button>
+            </div>
+
           </div>
         </div>
 
@@ -397,5 +408,14 @@ export class ContactComponent implements OnInit, OnDestroy {
       top: 0, 
       behavior: 'smooth' 
     });
+  }
+
+   // add startLiveChat method
+  startLiveChat(): void {
+    const whatsappUrl = 'https://wa.me/2349062537816';
+    // provide immediate UI feedback
+    this.snackBar.open('Opening WhatsApp live chat...', 'Close', { duration: 2500 });
+    // open in new tab / window
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 }

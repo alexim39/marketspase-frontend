@@ -42,7 +42,7 @@
                   [class.deleted]="userIsDeleted()">
                   {{ userIsDeleted() ? 'Deleted' : (isUserActive() ? 'Active' : 'Inactive') }}
                 </mat-chip>
-                @if (user()?.isVerified && !userIsDeleted()) {
+                @if (user()?.verified && !userIsDeleted()) {
                   <mat-chip class="verification-chip">
                     Verified
                   </mat-chip>
@@ -59,6 +59,13 @@
               <div class="detail-content">
                 <span class="detail-label">Email</span>
                 <span class="detail-value">{{ user()?.email }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon class="detail-icon">call</mat-icon>
+              <div class="detail-content">
+                <span class="detail-label">Phone Number</span>
+                <span class="detail-value">{{ user()?.personalInfo?.phone }}</span>
               </div>
             </div>
             <div class="detail-item">
@@ -229,12 +236,12 @@
                 <mat-divider class="divider"></mat-divider>
 
                 <div class="testimonials-section">
-                  <h3>Testimonials ({{ user()?.testimonials?.length || 0 }})</h3>
+                  <!-- <h3>Testimonials ({{ user()?.testimonials?.length || 0 }})</h3>
                   @if (user()?.testimonials?.length) {
                     <p>User has {{ user()?.testimonials?.length }} testimonials</p>
                   } @else {
                     <p class="no-data">No testimonials yet</p>
-                  }
+                  } -->
                 </div>
               </mat-card-content>
             </mat-card>
@@ -302,11 +309,11 @@
                 <mat-card-title>Payout Accounts</mat-card-title>
               </mat-card-header>
               <mat-card-content>
-                @if (user()?.payoutAccounts?.length) {
+                <!-- @if (user()?.payoutAccounts?.length) {
                   <p>User has {{ user()?.payoutAccounts?.length }} payout accounts configured</p>
                 } @else {
                   <p class="no-data">No payout accounts configured</p>
-                }
+                } -->
               </mat-card-content>
             </mat-card>
           </div>

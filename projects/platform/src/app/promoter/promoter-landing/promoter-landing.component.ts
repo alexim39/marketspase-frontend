@@ -382,11 +382,23 @@ applyForCampaign(campaign: CampaignInterface): void {
         
         this.campaigns.set(updatedCampaigns);
         this.isApplying.set(false);
-        this.applyingCampaignId.set(null); // Reset using signal
-        
-        this.snackBar.open(response.message, 'OK', { 
+        this.applyingCampaignId.set(null); // Reset using signal        
+        // this.snackBar.open(response.message, 'OK', { 
+        //     duration: 9000,
+        // });
+
+        this.snackBar.open(
+          response.message,
+          'Go to Promotions',
+          {
             duration: 9000,
+            panelClass: 'snackbar-link'
+          }
+        ).onAction().subscribe(() => {
+          this.router.navigate(['/dashboard/campaigns/promotions']);
         });
+
+
         
         this.loadUserPromotions();
       },
