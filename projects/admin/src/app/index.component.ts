@@ -16,7 +16,6 @@ import { Subscription } from 'rxjs';
         <div class="login-header">
           <div class="logo">
             <div class="logo-icon">
-              <!-- <i class="fa fa-refresh"></i> -->
                <img src="/img/x_logo.png">
             </div>
           </div>
