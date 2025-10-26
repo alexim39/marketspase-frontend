@@ -66,7 +66,7 @@
 
   <!-- Content Section -->
   <div class="card-content">
-    <h3 class="card-title" (click)="onViewDetails()">{{campaign.title | titlecase | truncate: 50}}</h3>
+    <h3 class="card-title" title="{{campaign.title | titlecase}}" (click)="onViewDetails()">{{campaign.title | titlecase | truncate: 50}}</h3>
     <p class="card-description">{{campaign.caption}}</p>
     
     <div class="card-meta">

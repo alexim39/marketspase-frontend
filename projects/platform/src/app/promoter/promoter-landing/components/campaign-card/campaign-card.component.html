@@ -37,7 +37,7 @@
   </div>
 
   <div class="card-content">
-    <h3 class="card-title">{{campaign.title | titlecase | truncate: (viewMode === 'list' ? 60 : 40)}}</h3>
+    <h3 class="card-title" title="{{campaign.title | titlecase}}">{{campaign.title | titlecase | truncate: (viewMode === 'list' ? 60 : 40)}}</h3>
     <p class="card-description">{{campaign.caption | truncate: (viewMode === 'list' ? 120 : 80)}}</p>
     
     <div class="card-meta">

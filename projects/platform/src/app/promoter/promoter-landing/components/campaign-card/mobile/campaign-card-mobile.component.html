@@ -30,7 +30,7 @@
 
       <div class="compact-content">
         <div class="compact-header">
-          <h3 class="campaign-title">{{campaign.title | titlecase | truncate: 30}}</h3>
+          <h3 class="campaign-title" title="{{campaign.title | titlecase}}">{{campaign.title | titlecase | truncate: 30}}</h3>
          
           @if (hasUserPromotion()(campaign)) {
             <div class="user-badge">
