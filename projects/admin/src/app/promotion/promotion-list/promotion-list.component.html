@@ -311,8 +311,7 @@
         }
       </div>
 
-      <mat-paginator [pageSizeOptions]="[50, 100, 150, 200]" showFirstLastButtons aria-label="Select page of promotions">
-      </mat-paginator>
+      <mat-paginator [pageSizeOptions]="[100, 200, 300, 400]" showFirstLastButtons aria-label="Select page of promotions"></mat-paginator>
     </mat-card-content>
   </mat-card>
 </div>
@@ -332,12 +331,15 @@
           </div>
         }
       </div>
-      <div class="promotion-info" *ngIf="selectedPromotion()">
+      @if (selectedPromotion()) {
+      <div class="promotion-info">
         <h4>Promotion Details</h4>
         <p><strong>UPI:</strong> {{ selectedPromotion()?.upi }}</p>
         <p><strong>Views:</strong> {{ selectedPromotion()?.proofViews || 'Not specified' }}</p>
         <p><strong>Submitted:</strong> {{ selectedPromotion()?.submittedAt | date:'medium' }}</p>
       </div>
+      }
+
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Close</button>

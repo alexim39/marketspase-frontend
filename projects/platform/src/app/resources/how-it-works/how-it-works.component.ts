@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatStepperModule } from '@angular/material/stepper';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface ProcessStep {
   number: string;
@@ -173,4 +174,23 @@ export class HowItWorksComponent {
       gradient: 'linear-gradient(135deg, #da5b25ff 0%, #98103bff 100%)'
     }
   ]);
+
+   // public Facebook reel/video URL (must be public)
+  readonly fbUrl = 'https://www.facebook.com/reel/1488187402461164';
+  posterUrl = 'https://via.placeholder.com/1280x720?text=Video+Preview'; // replace with proper poster image
+  showPlayer = false;
+  videoUrl!: SafeResourceUrl;
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  openVideo(): void {
+    if (this.showPlayer) { return; }
+    // Use Facebook plugin embed URL (recommended for public videos)
+    const plugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrl)}&show_text=0&autoplay=1`;
+    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(plugin);
+    this.showPlayer = true;
+
+    // If embedding fails in some browsers / content is blocked, user can be opened in new tab:
+    // window.open(this.fbUrl, '_blank', 'noopener,noreferrer'); // fallback if desired
+  }
 }
