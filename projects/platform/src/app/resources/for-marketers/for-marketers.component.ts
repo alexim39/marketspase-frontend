@@ -9,6 +9,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface Feature {
   icon: string;
@@ -293,4 +294,18 @@ export class ForMarketersComponent {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   }
+
+  // public Facebook reel/video URL (must be public)
+  readonly fbUrl = 'https://web.facebook.com/reel/4109263909219907';
+  posterUrl = 'img/placeholders/how-to-video.jpg'; // replace with proper poster image
+  videoUrl!: SafeResourceUrl;
+
+  constructor(private sanitizer: DomSanitizer) {}
+
+  ngOnInit(): void {
+    // Preload video URL but do not show player until clicked
+    const plugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrl)}&show_text=0&autoplay=1`;
+    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(plugin);
+  }
+
 }

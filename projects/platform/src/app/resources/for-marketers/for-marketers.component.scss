@@ -1059,3 +1059,43 @@
         font-size: 1.5rem;
       }
     }
+
+/* Video Embed SCSS for Full-Length Mobile View */
+.video-embed {
+  /* Restrict max-width to a typical mobile screen size for a vertical video "short" */
+  max-width: 320px; /* Narrower size to visually represent a phone screen */
+  //margin: 40px auto; 
+  background-color: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  
+  /* Remove the padding-top hack, let the iframe define height based on content */
+  height: auto; 
+  padding-top: 0; 
+}
+
+.video-embed iframe {
+  /* Make the iframe fill the container's width */
+  width: 100%;
+  
+  /* Set a fixed height that works well for typical 9:16 content to ensure the player controls are visible */
+  height: 670px; /* Approximately 1.78x the 320px width (16:9 ratio in reverse) */
+  
+  display: block; /* Important to ensure it renders correctly */
+}
+
+/* 📲 Mobile Optimization: Full-width for smaller screens */
+@media (max-width: 768px) {
+  .video-embed {
+    /* Use the full available width on mobile devices */
+    max-width: 90%; 
+    margin: 20px auto;
+    border-radius: 8px;
+  }
+  
+  .video-embed iframe {
+    /* Adjust height to fit a wider mobile screen, maintaining the vertical feel */
+    height: 670px;
+  }
+}

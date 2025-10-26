@@ -175,22 +175,16 @@ export class HowItWorksComponent {
     }
   ]);
 
-   // public Facebook reel/video URL (must be public)
+  // public Facebook reel/video URL (must be public)
   readonly fbUrl = 'https://www.facebook.com/reel/1488187402461164';
-  posterUrl = 'https://via.placeholder.com/1280x720?text=Video+Preview'; // replace with proper poster image
-  showPlayer = false;
+  posterUrl = 'img/placeholders/how-to-video.jpg'; // replace with proper poster image
   videoUrl!: SafeResourceUrl;
 
   constructor(private sanitizer: DomSanitizer) {}
 
-  openVideo(): void {
-    if (this.showPlayer) { return; }
-    // Use Facebook plugin embed URL (recommended for public videos)
+   ngOnInit(): void {
+    // Preload video URL but do not show player until clicked
     const plugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrl)}&show_text=0&autoplay=1`;
     this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(plugin);
-    this.showPlayer = true;
-
-    // If embedding fails in some browsers / content is blocked, user can be opened in new tab:
-    // window.open(this.fbUrl, '_blank', 'noopener,noreferrer'); // fallback if desired
   }
 }

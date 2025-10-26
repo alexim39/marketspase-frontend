@@ -41,25 +41,15 @@
               </button>
             </div> -->
 
-            <!-- poster / click area -->
-            <!-- <div class="video-preview" (click)="openVideo()" role="button" aria-label="Play demo">
-              <img class="video-poster" [src]="posterUrl" alt="Watch demo poster" />
-              <div class="play-overlay">
-                <mat-icon>play_circle</mat-icon>
-                <span>Watch Demo</span>
-              </div>
-            </div> -->
-
-              <!-- embed appears only after click -->
-              <div class="video-embed" *ngIf="showPlayer">
-                <iframe
-                  [src]="videoUrl"
-                  frameborder="0"
-                  allow="autoplay; encrypted-media; picture-in-picture"
-                  allowfullscreen
-                  title="How it works demo">
-                </iframe>
-              </div>
+            <div class="video-embed">
+              <iframe
+                [src]="videoUrl"
+                frameborder="0"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen
+                title="How it works demo">
+              </iframe>
+            </div>
 
           </div>
 
