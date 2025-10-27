@@ -192,7 +192,11 @@ export class PromotionDetailComponent implements OnInit {
     const promotion = this.promotion();
     if (!promotion) return;
 
-    const text = `Check out this promotion: ${promotion.campaign.title}`;
+  const text = `
+  Hey! - Have you heard of MarketSpase?\n 
+  It's a platform where you earn passive income using your WhatsApp. You earn by posting on your WhatsApp status. I just promoted "*${promotion.campaign.title}*" on my status and got paid.\n
+  Check it out now on: https://marketspase.com
+  `;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   }

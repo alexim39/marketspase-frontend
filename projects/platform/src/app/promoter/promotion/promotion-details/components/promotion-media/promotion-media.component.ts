@@ -18,7 +18,7 @@ import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-pl
         </div>
         
         @if (promotion.campaign.mediaType === 'image') {
-          <img [src]="apiUrl + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
+          <img [src]="promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
         } @else if (promotion.campaign.mediaType === 'video') {
           <div class="video-container">
             <div class="video-placeholder">
@@ -34,7 +34,7 @@ import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-pl
       <div class="media-actions">
         <button mat-flat-button class="btn btn-primary" (click)="share.emit()">
           <mat-icon>share</mat-icon>
-          WhatsApp
+          Share on WhatsApp
         </button>
        <!--  <button mat-flat-button class="btn btn-outline" (click)="download.emit()">
           <mat-icon>download</mat-icon>

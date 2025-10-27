@@ -15,7 +15,7 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
       
       <div class="proof-grid">
         <div class="proof-item" *ngFor="let media of promotion.proofMedia" (click)="viewProof.emit(media)">
-          <img [src]="apiUrl + media" alt="Proof media" class="proof-image">
+          <img [src]="media" alt="Proof media" class="proof-image">
           <div class="proof-actions">
             <button class="proof-action-btn">
               <mat-icon>visibility</mat-icon>
