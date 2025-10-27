@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -20,7 +20,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatInputModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    FormsModule
   ],
   templateUrl: './campaign-schedule-form.component.html',
   styleUrls: ['./campaign-schedule-form.component.scss']
@@ -88,5 +89,16 @@ export class CampaignScheduleFormComponent implements OnInit {
     const date = new Date();
     date.setDate(date.getDate() + 7);
     return date;
+  }
+
+  /**
+   * Method to dynamically determine the slide-toggle's label.
+   * This accesses the current value of the 'hasEndDate' FormControl.
+   */
+  getEndDateLabel(): string {
+    const isChecked = this.formGroup.get('hasEndDate')?.value;
+    
+    // Ternary operation: (condition) ? value_if_true : value_if_false
+    return isChecked ? 'Set an end date' : 'No end date set';
   }
 }

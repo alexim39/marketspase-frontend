@@ -337,6 +337,24 @@
         <p><strong>UPI:</strong> {{ selectedPromotion()?.upi }}</p>
         <p><strong>Views:</strong> {{ selectedPromotion()?.proofViews || 'Not specified' }}</p>
         <p><strong>Submitted:</strong> {{ selectedPromotion()?.submittedAt | date:'medium' }}</p>
+        <p><strong>Campaign:</strong> {{ getCampaignTitle(selectedPromotion()?.campaign) }}</p>
+        <p><strong>Promoter:</strong> {{ getPromoterName(selectedPromotion()?.promoter) }} ({{ getPromoterEmail(selectedPromotion()?.promoter) }})</p>
+        <hr>
+        @if (selectedPromotion()?.status === 'submitted') {
+          <button mat-button color="primary" (click)="validatePromotion(selectedPromotion()!)">
+            <mat-icon>check_circle</mat-icon>
+            Validate Promotion
+          </button>
+          <button mat-button color="warn" (click)="openRejectDialog(selectedPromotion()!)">
+            <mat-icon>cancel</mat-icon>
+            Reject Promotion
+          </button>
+        } @else if (selectedPromotion()?.status === 'validated') {
+          <button mat-button color="accent" (click)="markAsPaid(selectedPromotion()!)">
+            <mat-icon>payments</mat-icon>
+            Mark as Paid
+          </button>
+        }
       </div>
       }
 
