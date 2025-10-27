@@ -184,9 +184,15 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   // Updated method to check if the countdown is nearing expiration (1 hour)
-  isNearingExpiration(): boolean {
-    const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
-    return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= oneHourInMs;
+  // isNearingExpiration(): boolean {
+  //   const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+  //   return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= oneHourInMs;
+  // }
+
+  // Updated method to check if the countdown is nearing expiration (4 hour)
+   isNearingExpiration(): boolean {
+    const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= fourHoursInMs;
   }
 
   downloadPromotion(): void {

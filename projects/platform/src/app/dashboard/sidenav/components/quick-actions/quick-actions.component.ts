@@ -16,6 +16,10 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     @if (user()!.role === 'marketer') {
       <div class="quick-actions">
         <h4 class="section-title">Quick Actions</h4>
+        <button mat-stroked-button class="action-btn" (click)="switchUser.emit(user()!.role || 'marketer'); mobileAction.emit()">
+          <mat-icon>swap_horiz</mat-icon>
+          Switch to Promoter
+        </button>
         <button mat-stroked-button class="action-btn" (click)="createCampaign.emit(); mobileAction.emit()">
           <mat-icon>add_circle_outline</mat-icon>
           Create Campaign
@@ -29,6 +33,10 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     @if (user()!.role === 'promoter') {
       <div class="quick-actions">
         <h4 class="section-title">Quick Actions</h4>
+        <button mat-stroked-button class="action-btn" (click)="switchUser.emit(user()!.role || 'promoter'); mobileAction.emit()">
+          <mat-icon>swap_horiz</mat-icon>
+          Switch to Marketer
+        </button>
         <button mat-stroked-button class="action-btn" (click)="viewPromotion.emit(); mobileAction.emit()">
           <mat-icon>campaign</mat-icon>
           View Promotion
@@ -52,6 +60,7 @@ export class QuickActionsComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   @Output() createCampaign = new EventEmitter<void>();
   @Output() fundWallet = new EventEmitter<void>();
+  @Output() switchUser = new EventEmitter<string>();
   @Output() viewPromotion = new EventEmitter<void>();
   @Output() viewMyPromotion = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();

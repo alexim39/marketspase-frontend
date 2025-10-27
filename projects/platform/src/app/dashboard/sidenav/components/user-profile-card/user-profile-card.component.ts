@@ -34,9 +34,9 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
           </div>
         </div>
       </div>
-      <button mat-icon-button class="switch-user-btn" (click)="switchUser.emit(user()!.role || 'promoter')" title="Switch user">
+      <!-- <button mat-icon-button class="switch-user-btn" (click)="switchUser.emit(user()!.role || 'promoter')" title="Switch user">
         <mat-icon>swap_horiz</mat-icon>
-      </button>
+      </button> -->
     </div>
   `,
   styleUrls: ['./user-profile-card.component.scss'] // Using the same styles to keep it simple
