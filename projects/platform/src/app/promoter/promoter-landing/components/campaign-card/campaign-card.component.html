@@ -5,12 +5,16 @@
     </div>
     @if (hasUserPromotion()(campaign)) {
       <div class="user-badge">
-          <i class="material-icons">check_circle</i> Already Accepted
+          <i class="material-icons">check_circle</i> 
+          Already Accepted
         </div>
     } @else {
-      <button class="icon-btn">
-        <i class="material-icons">bookmark_border</i>
-      </button>
+      <button 
+          class="icon-btn" 
+          matTooltip="View promotion details"
+          (click)="openPromotionDetails()">
+          <i class="material-icons">zoom_in</i>
+      </button>   
     }
   </div>
 

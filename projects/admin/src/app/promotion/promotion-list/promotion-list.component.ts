@@ -318,12 +318,6 @@ export class PromotionListMgtComponent implements OnInit, OnDestroy {
     return hoursDiff > 48; // Consider overdue if more than 48 hours
   }
 
-  // Action methods
-  viewPromotionDetails(promotion: PromotionInterface): void {
-    this.selectedPromotion.set(promotion);
-    // Navigate to detailed view or open dialog
-    this.snackBar.open(`Viewing details for promotion ${promotion.upi}`, 'Close', { duration: 2000 });
-  }
 
   viewProofMedia(promotion: PromotionInterface): void {
     this.selectedPromotion.set(promotion);

@@ -5,6 +5,10 @@ import { CampaignInterface, PromotionInterface } from '../../../../../../../../s
 import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
 import { MatIconModule } from '@angular/material/icon';
 import { TruncatePipe } from '../../../../../common/pipes/truncate.pipe';
+import { PromotionDetailModalComponent } from '../promotion-detail-modal/promotion-detail-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 
 export type ViewMode = 'grid' | 'list';
 
@@ -16,7 +20,9 @@ export type ViewMode = 'grid' | 'list';
     TitleCasePipe,
     CategoryPlaceholderPipe,
     MatIconModule,
-    TruncatePipe
+    TruncatePipe,
+    MatTooltipModule,
+    MatButtonModule
   ],
   templateUrl: './campaign-card-mobile.component.html',
   styleUrls: ['./campaign-card-mobile.component.scss']
@@ -29,6 +35,8 @@ export class CampaignCardMobileComponent {
   @Input() viewMode: ViewMode = 'grid';
   
   @Output() applyForCampaign = new EventEmitter<CampaignInterface>();
+
+  constructor(private dialog: MatDialog) {}
 
   isApplyingCampaign(): boolean {
     return this.applyingCampaignId === this.campaign._id;
@@ -135,5 +143,21 @@ export class CampaignCardMobileComponent {
       return 'Cannot Accept';
     }
     return 'Accept';
+  }
+
+  // Add method to open modal
+  openPromotionDetails(): void {
+    this.dialog.open(PromotionDetailModalComponent, {
+      width: '100%',
+      maxWidth: '900px',
+      panelClass: 'promotion-modal-overlay',
+      data: {
+        campaign: this.campaign,
+        promotions: this.promotions,
+        api: this.api,
+        hasUserPromotion: this.hasUserPromotion()(this.campaign),
+        canAcceptCampaign: this.canAcceptCampaign(this.campaign)
+      }
+    });
   }
 }

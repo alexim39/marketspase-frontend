@@ -8,9 +8,7 @@ export interface PromotionResponse {
   message?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PromotionService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();

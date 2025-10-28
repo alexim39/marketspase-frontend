@@ -250,7 +250,7 @@
                 <div class="action-buttons">
                   <button mat-icon-button 
                           matTooltip="View Details"
-                          (click)="viewPromotionDetails(promotion)">
+                          (click)="viewProofMedia(promotion)">
                     <mat-icon>visibility</mat-icon>
                   </button>
 
@@ -380,8 +380,8 @@
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close()">Cancel</button>
-      <button mat-button color="warn" (click)="rejectPromotion()">Reject Promotion</button>
+      <!-- <button style="color: red;" mat-button (click)="dialogRef.close()">Cancel</button> -->
+      <button style="color: rgb(255, 51, 0);" mat-button color="warn" (click)="rejectPromotion()">Reject Promotion</button>
     </mat-dialog-actions>
   </div>
 </ng-template>

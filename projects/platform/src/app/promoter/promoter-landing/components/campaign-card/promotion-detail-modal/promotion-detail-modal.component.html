@@ -1,0 +1,189 @@
+<!-- promotion-detail-modal.component.html -->
+<div class="promotion-modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-content">
+      <h2 class="modal-title">Campaign Details</h2>
+      <button class="close-btn" matTooltip="Close" (click)="onClose()">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="modal-content">
+    <!-- Media Section -->
+    <div class="media-section">
+      <div class="media-container">
+        @if (campaign.mediaType === 'video') {
+          <div class="video-container">
+            <video 
+              #videoPlayer
+              class="media-element"
+              [poster]="campaign.category | categoryPlaceholder"
+              controls
+              (click)="$event.preventDefault()">
+              <source [src]="campaign.mediaUrl" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            <div class="media-type-badge video">
+              <i class="material-icons">videocam</i>
+              <span>Video</span>
+            </div>
+          </div>
+        }
+        @if (campaign.mediaType === 'image') {
+          <div class="image-container">
+            <img 
+              [src]="campaign.mediaUrl" 
+              [alt]="campaign.title"
+              class="media-element"
+              loading="lazy">
+            <div class="media-type-badge image">
+              <i class="material-icons">image</i>
+              <span>Image</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Campaign Info -->
+    <div class="campaign-info">
+      <!-- Status & Title -->
+      <div class="info-header">
+        <div class="status-badge" [ngClass]="getStatusBadgeClass()">
+          {{getStatusBadgeText()}}
+        </div>
+        @if (hasUserPromotion) {
+          <div class="user-badge">
+            <i class="material-icons">check_circle</i>
+            Already Accepted
+          </div>
+        }
+      </div>
+
+      <h1 class="campaign-title">{{campaign.title | titlecase}}</h1>
+      <p class="campaign-description">{{campaign.caption}}</p>
+
+      <!-- Meta Information -->
+      <div class="meta-grid">
+        <div class="meta-item">
+          <i class="material-icons">{{getCategoryIcon(campaign.category)}}</i>
+          <div class="meta-content">
+            <span class="meta-label">Category</span>
+            <span class="meta-value">{{campaign.category | titlecase}}</span>
+          </div>
+        </div>
+
+        <div class="meta-item">
+          <i class="material-icons">schedule</i>
+          <div class="meta-content">
+            <span class="meta-label">Duration</span>
+            <span class="meta-value">
+              @if (campaign.remainingDays === 'Expired') {
+                Expired
+              }
+              @if (campaign.remainingDays === 'Ongoing') {
+                Budget Based
+              } 
+              @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing') {
+                Expires in {{campaign.remainingDays}}
+              }
+            </span>
+          </div>
+        </div>
+
+        <div class="meta-item">
+          <i class="material-icons">people</i>
+          <div class="meta-content">
+            <span class="meta-label">Promoters</span>
+            <span class="meta-value">{{campaign.totalPromotions || 0}}/{{campaign.maxPromoters}} slots filled</span>
+          </div>
+        </div>
+
+        <div class="meta-item">
+          <i class="material-icons">visibility</i>
+          <div class="meta-content">
+            <span class="meta-label">Minimum Views</span>
+            <span class="meta-value">{{campaign.minViewsPerPromotion}}+ required</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Metrics -->
+      <div class="metrics-section">
+        <h3 class="section-title">Performance Requirements</h3>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="material-icons">trending_up</i>
+            </div>
+            <div class="metric-info">
+              <div class="metric-value">{{campaign.minViewsPerPromotion}}+</div>
+              <div class="metric-label">Minimum Views</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="material-icons">group</i>
+            </div>
+            <div class="metric-info">
+              <div class="metric-value">{{campaign.maxPromoters}}</div>
+              <div class="metric-label">Max Promoters</div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="material-icons">how_to_reg</i>
+            </div>
+            <div class="metric-info">
+              <div class="metric-value">{{campaign.totalPromotions || 0}}</div>
+              <div class="metric-label">Current Promoters</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payout & Difficulty -->
+      <div class="payout-section">
+        <div class="payout-info">
+          <div class="payout-amount">
+            <span class="currency">₦</span>
+            <span class="amount">{{campaign.payoutPerPromotion | number}}</span>
+            <span class="payout-label">per promotion</span>
+          </div>
+          
+          <div class="difficulty-info">
+            <span class="difficulty-label">{{getDifficultyLevel()}}</span>
+            <div class="difficulty-dots">
+              <div class="dot" [class.active]="getDifficultyDots() >= 1"></div>
+              <div class="dot" [class.active]="getDifficultyDots() >= 2"></div>
+              <div class="dot" [class.active]="getDifficultyDots() >= 3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <!-- <div class="modal-footer">
+    <button 
+      class="btn-secondary"
+      (click)="onClose()">
+      <i class="material-icons">close</i>
+      Close
+    </button>
+    
+    <button 
+      class="btn-primary"
+      [disabled]="!canAcceptCampaign || hasUserPromotion"
+      (click)="onAccept()">
+      <i class="material-icons">add_circle</i>
+      {{getAcceptButtonText()}}
+    </button>
+  </div> -->
+</div>
