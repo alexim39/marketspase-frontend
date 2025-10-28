@@ -138,7 +138,7 @@
               </span>
             </div>
             @if (user()?.role === 'promoter') {
-              <button mat-raised-button color="primary" (click)="withdrawWallet()" class="full-width-btn">
+              <button mat-raised-button [disabled]="true" color="primary" (click)="withdrawWallet()" class="full-width-btn">
                 <mat-icon>account_balance_wallet</mat-icon>
                 Withdraw Funds
               </button>

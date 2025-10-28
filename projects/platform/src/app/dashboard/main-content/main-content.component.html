@@ -40,7 +40,7 @@
         }
         
         @if (user()?.role === 'promoter') {
-          <button mat-menu-item (click)="viewWallet()">
+          <button mat-menu-item (click)="viewWallet()" [disabled]="true">
             <mat-icon>account_balance_wallet</mat-icon>
             <span>Wallet Withdrawal</span>
           </button>
