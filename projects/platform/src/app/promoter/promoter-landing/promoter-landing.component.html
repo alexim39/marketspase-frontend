@@ -83,8 +83,8 @@
                 [viewMode]="viewMode()"
                 (applyForCampaign)="applyForCampaign($event)">
               </campaign-card>
-            }
-            @if (deviceType() === 'mobile') {
+            } @else {
+            <!-- @if (deviceType() === 'mobile') { -->
               <app-campaign-card-mobile
                 [campaign]="campaign"
                 [promotions]="promotions()"
