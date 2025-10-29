@@ -42,15 +42,25 @@ export class CampaignCardComponent {
     return this.applyingCampaignId === this.campaign._id;
   }
 
-  // Computed signal to check if the user has already accepted the campaign
-  hasUserPromotion = computed(() => {
+  // // Computed signal to check if the user has already accepted the campaign
+  // hasUserPromotion = computed(() => {
+  //   return (campaign: CampaignInterface) =>
+  //     this.promotions.some(
+  //       (promotion: PromotionInterface) => promotion.campaign._id === campaign._id
+  //     );
+  // });
+
+  // Computed signal to explicitly check if there is a PENDING promotion for this campaign
+  hasPendingPromotion = computed(() => {
     return (campaign: CampaignInterface) =>
       this.promotions.some(
-        (promotion: PromotionInterface) => promotion.campaign._id === campaign._id
+        (promotion: PromotionInterface) =>
+          promotion.campaign._id === campaign._id && promotion.status === 'pending'
       );
   });
 
   getStatusBadgeClass(campaign: CampaignInterface): string {
+    //console.log('Campaign Remaining Days:', campaign);
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
       return 'status-completed';
     }
@@ -130,8 +140,8 @@ export class CampaignCardComponent {
   
   getAcceptButtonText(campaign: CampaignInterface): string {
     // Check if user has already accepted this campaign
-    if (this.hasUserPromotion()(campaign)) {
-      return 'Already Accepted';
+    if (this.hasPendingPromotion()(campaign)) {
+      return 'Already Promoting';
     }
     
     if (!this.canAcceptCampaign(campaign)) {
@@ -155,7 +165,7 @@ export class CampaignCardComponent {
         campaign: this.campaign,
         promotions: this.promotions,
         api: this.api,
-        hasUserPromotion: this.hasUserPromotion()(this.campaign),
+        hasUserPromotion: this.hasPendingPromotion()(this.campaign),
         canAcceptCampaign: this.canAcceptCampaign(this.campaign)
       }
     });

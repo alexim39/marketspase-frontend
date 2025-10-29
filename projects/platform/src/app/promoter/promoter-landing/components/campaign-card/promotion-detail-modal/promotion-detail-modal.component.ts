@@ -28,7 +28,7 @@ export interface PromotionDetailModalData {
     MatTooltipModule,
     TitleCasePipe,
     CategoryPlaceholderPipe,
-    TruncatePipe
+    //TruncatePipe
   ],
   templateUrl: './promotion-detail-modal.component.html',
   styleUrls: ['./promotion-detail-modal.component.scss']

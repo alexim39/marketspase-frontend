@@ -3,10 +3,10 @@
     <div class="status-badge" [ngClass]="getStatusBadgeClass(campaign)">
       {{getStatusBadgeText(campaign)}}
     </div>
-    @if (hasUserPromotion()(campaign)) {
+    @if (hasPendingPromotion()(campaign)) {
       <div class="user-badge">
           <i class="material-icons">check_circle</i> 
-          Already Accepted
+          Already Promoting
         </div>
     } @else {
       <button 
@@ -41,7 +41,7 @@
   </div>
 
   <div class="card-content">
-    <h3 class="card-title" title="{{campaign.title | titlecase}}">{{campaign.title | titlecase | truncate: (viewMode === 'list' ? 60 : 40)}}</h3>
+    <h3 class="card-title" (click)="openPromotionDetails()" title="{{campaign.title | titlecase}}">{{campaign.title | titlecase | truncate: (viewMode === 'list' ? 60 : 40)}}</h3>
     <p class="card-description">{{campaign.caption | truncate: (viewMode === 'list' ? 120 : 80)}}</p>
     
     <div class="card-meta">
@@ -73,9 +73,12 @@
 
     <div class="payout-section">
       <div class="payout-amount">
-        <span class="currency">₦</span>
+        <span class="currency"><!-- ₦ -->{{campaign.currency}}</span>
         <span class="amount">{{campaign.payoutPerPromotion}}</span>
       </div>
+
+      
+
       <div class="difficulty-indicator">
         <span class="difficulty-label">{{getDifficultyLevel(campaign)}}</span>
         <div class="difficulty-dots">
@@ -85,13 +88,15 @@
         </div>
       </div>
     </div>
+
+    <!-- <div class="marketer-name">Marketed: {{campaign.owner.displayName}}</div> -->
   </div>
 
   <div class="card-footer">
     
     <button 
       class="apply-btn" 
-      [disabled]="!canAcceptCampaign(campaign) || isApplyingCampaign() || hasUserPromotion()(campaign)"
+      [disabled]="!canAcceptCampaign(campaign) || isApplyingCampaign() || hasPendingPromotion()(campaign)"
       (click)="applyForCampaign.emit(campaign)"
       >
       @if (isApplyingCampaign()) {

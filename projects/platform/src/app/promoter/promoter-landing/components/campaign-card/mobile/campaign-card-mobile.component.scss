@@ -702,3 +702,39 @@
   font-size: 18px;
   color: #4b5563;
 }
+
+
+/* Subtle, professional marketer name */
+.marketer-name {
+  display: block;
+  font-size: 0.6rem;            /* small, unobtrusive */
+  line-height: 1;
+  color: #838383 !important;                /* neutral gray (Tailwind slate-500) */
+  letter-spacing: 0.02em;
+  font-weight: 500;              /* slightly emphasized but small */
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: opacity 160ms ease, transform 160ms ease;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Place it visually separated but unobtrusive on wide cards */
+@media (min-width: 900px) {
+  .marketer-name {
+    margin-top: 0.5rem;
+    max-width: 70%;
+    color: #545863; /* a tad darker on larger screens */
+  }
+}
+
+/* Hide on very small screens to avoid clutter */
+@media (max-width: 420px) {
+  .marketer-name {
+    display: none;
+  }
+}
