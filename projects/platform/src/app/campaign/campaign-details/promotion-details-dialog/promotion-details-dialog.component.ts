@@ -110,7 +110,7 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
           <div class="proof-media-grid">
             @for (media of data.promotion.proofMedia; track media; let i = $index) {
               <div class="proof-media-item">
-                <img [src]="api + media" [alt]="'Proof ' + (i + 1)" (click)="openMediaDialog(media)" class="proof-image">
+                <img [src]="media" [alt]="'Proof ' + (i + 1)" (click)="openMediaDialog(media)" class="proof-image">
               </div>
             }
           </div>
@@ -178,7 +178,7 @@ export class PromotionDetailsDialogComponent {
   }
 
   openMediaDialog(mediaUrl: string) {
-    const fullMediaUrl = this.api + mediaUrl;
+    const fullMediaUrl = mediaUrl;
     
     this.dialog.open(MediaViewerDialogComponent, {
       data: { mediaUrl: fullMediaUrl },
