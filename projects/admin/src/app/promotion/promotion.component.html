@@ -138,11 +138,11 @@
             <ng-container matColumnDef="promoter">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Promoter </th>
                 <td mat-cell *matCellDef="let promotion">
-                <div class="promoter-info">
-                    <span class="promoter-name">{{ campaign()?.owner.displayName }}</span>
-                    <span class="promoter-username">@{{ campaign()?.owner.username }}</span>
-                    <span class="promoter-email">{{ campaign()?.owner.email }}</span>
-                </div>
+                    <div class="promoter-info">
+                        <span class="promoter-name">{{ promotion.promoter?.displayName }}</span>
+                        <span class="promoter-username">@{{ promotion.promoter?.username }}</span>
+                        <span class="promoter-email">{{ promotion.promoter?.email }}</span>
+                    </div>
                 </td>
             </ng-container>
 
