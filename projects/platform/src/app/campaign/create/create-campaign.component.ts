@@ -230,15 +230,56 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   // Validation helpers
+  // private urlValidator(control: AbstractControl): { [key: string]: any } | null {
+  //   if (!control.value) return null;
+  //   try {
+  //     new URL(control.value);
+  //     return null;
+  //   } catch {
+  //     return { invalidUrl: true };
+  //   }
+  // }
+
   private urlValidator(control: AbstractControl): { [key: string]: any } | null {
     if (!control.value) return null;
+    
     try {
-      new URL(control.value);
+      let urlString = control.value;
+      
+      // Create a test URL by adding protocol if missing
+      const testUrl = urlString.startsWith('http://') || urlString.startsWith('https://') 
+        ? urlString 
+        : 'https://' + urlString;
+      
+      // Validate the URL
+      new URL(testUrl);
+      
+      // Extract hostname and normalize to www. format
+      const urlObj = new URL(testUrl);
+      let normalizedUrl = '';
+      
+      // If it already has www., use it as is
+      if (urlObj.hostname.startsWith('www.')) {
+        normalizedUrl = urlObj.hostname + urlObj.pathname + urlObj.search;
+      } else {
+        // Add www. prefix
+        normalizedUrl = 'www.' + urlObj.hostname + urlObj.pathname + urlObj.search;
+      }
+      
+      // Remove trailing slash if present
+      normalizedUrl = normalizedUrl.replace(/\/$/, '');
+      
+      // Update control value with normalized www. version
+      if (control.value !== normalizedUrl) {
+        control.setValue(normalizedUrl, { emitEvent: false });
+      }
+      
       return null;
     } catch {
       return { invalidUrl: true };
     }
   }
+
 
   // Navigation and other actions
   goBack(): void {

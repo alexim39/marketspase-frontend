@@ -279,7 +279,12 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   copyCaption(caption: string): void {
-    const textToCopy = `${this.promotion.upi}\n${caption}`;
+    //console.log('promotion to copy ', this.promotion);
+    let urlLink = '';
+    if (this.promotion.campaign.link) {
+      urlLink = this.promotion.campaign.link;
+    }
+    const textToCopy = `${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(textToCopy).then(
         () => {

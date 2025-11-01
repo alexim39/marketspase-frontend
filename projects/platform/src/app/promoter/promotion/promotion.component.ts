@@ -151,7 +151,7 @@ export class PromotionComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response && response.data) {
-            console.log('returned user promotions ',response.data)
+            //console.log('returned user promotions ',response.data)
             if (loadMore) {
               // For mobile load more, append to current promotions
               this.currentPagePromotions.update(current => [...current, ...response.data]);

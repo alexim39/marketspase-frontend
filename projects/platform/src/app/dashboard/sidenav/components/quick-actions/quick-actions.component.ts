@@ -16,10 +16,6 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     @if (user()!.role === 'marketer') {
       <div class="quick-actions">
         <h4 class="section-title">Quick Actions</h4>
-        <button mat-stroked-button class="action-btn" (click)="switchUser.emit(user()!.role || 'marketer'); mobileAction.emit()">
-          <mat-icon>swap_horiz</mat-icon>
-          Switch to Promoter
-        </button>
         <button mat-stroked-button class="action-btn" (click)="createCampaign.emit(); mobileAction.emit()">
           <mat-icon>add_circle_outline</mat-icon>
           Create Campaign
@@ -33,10 +29,6 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     @if (user()!.role === 'promoter') {
       <div class="quick-actions">
         <h4 class="section-title">Quick Actions</h4>
-        <button mat-stroked-button class="action-btn" (click)="switchUser.emit(user()!.role || 'promoter'); mobileAction.emit()">
-          <mat-icon>swap_horiz</mat-icon>
-          Switch to Marketer
-        </button>
         <button mat-stroked-button class="action-btn" (click)="viewPromotion.emit(); mobileAction.emit()">
           <mat-icon>campaign</mat-icon>
           View Promotion
@@ -48,7 +40,19 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
       </div>
     }
     <div class="quick-actions">
-      <button mat-stroked-button class="action-btn logout" (click)="logout.emit()">
+      @if (user()!.role === 'promoter') {
+        <button mat-stroked-button class="action-btn switch-btn" (click)="switchUser.emit(user()!.role || 'promoter'); mobileAction.emit()">
+          <mat-icon>swap_horiz</mat-icon>
+          Switch to Marketer
+        </button>
+      }
+      @if (user()!.role === 'marketer') {
+        <button mat-stroked-button class="action-btn" (click)="switchUser.emit(user()!.role || 'marketer'); mobileAction.emit()">
+          <mat-icon>swap_horiz</mat-icon>
+          Switch to Promoter
+        </button>
+      }
+      <button mat-stroked-button class="action-btn" (click)="logout.emit()">
         <mat-icon>exit_to_app</mat-icon>
         Logout
       </button>

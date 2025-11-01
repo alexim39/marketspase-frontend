@@ -79,7 +79,7 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Link</mat-label>
-        <input matInput formControlName="link" placeholder="e.g., https://yourwebsite.com">
+        <input matInput formControlName="link" placeholder="e.g., www.yourwebsite.com">
         @if (formGroup.get('link')?.invalid && (formGroup.get('link')?.dirty || formGroup.get('link')?.touched)) {
           <mat-error>
             Please enter a valid URL.
