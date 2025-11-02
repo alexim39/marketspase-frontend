@@ -2,6 +2,7 @@ import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DeviceService } from '../../../../../../../../shared-services/src/public-api';
 
 interface CampaignMetrics {
@@ -31,7 +32,7 @@ interface StatCard {
 @Component({
   selector: 'promoter-quick-stats-mobile',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatTabsModule],
+  imports: [CommonModule, MatIconModule, MatTabsModule, MatSlideToggleModule],
   templateUrl: './promoter-quick-stats-mobile.component.html',
   styleUrls: ['./promoter-quick-stats-mobile.component.scss']
 })
@@ -42,6 +43,7 @@ export class PromoterQuickStatsMobileComponent {
   activeTab = 0;
   statCards: StatCard[] = [];
   filteredCards: StatCard[] = [];
+  showDashboard = false; // Default to showing dashboard
 
   categories = [
     { key: 'earnings', label: 'Earnings', icon: 'payments' },
@@ -54,6 +56,10 @@ export class PromoterQuickStatsMobileComponent {
   ngOnChanges(): void {
     this.updateStatCards();
     this.filterCardsByCategory(this.activeTab);
+  }
+
+  toggleDashboard(): void {
+    this.showDashboard = !this.showDashboard;
   }
 
   private updateStatCards(): void {

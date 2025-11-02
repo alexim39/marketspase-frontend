@@ -2,7 +2,82 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   margin: 0 -1rem;
   border-radius: 0;
-  min-height: 50vh;
+  min-height: auto;
+  transition: all 0.3s ease;
+  
+  &.collapsed {
+    min-height: 120px;
+  }
+}
+
+// Toggle Section
+.dashboard-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    
+    .toggle-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+      opacity: 0.9;
+    }
+    
+    .toggle-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+  }
+  
+  // .toggle-control {
+  //   ::ng-deep .mdc-switch {
+  //     .mdc-switch__track {
+  //       height: 20px;
+  //       border-radius: 10px;
+  //       background: rgba(255, 255, 255, 0.3);
+        
+  //       &::before {
+  //         background: rgba(255, 255, 255, 0.4);
+  //       }
+  //     }
+      
+  //     .mdc-switch__handle-track {
+  //       width: 36px;
+  //     }
+      
+  //     .mdc-switch__handle {
+  //       width: 18px;
+  //       height: 18px;
+  //       background: white;
+  //       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  //     }
+      
+  //     &.mdc-switch--selected {
+  //       .mdc-switch__track {
+  //         background: #10b981 !important;
+          
+  //         &::before {
+  //           background: #10b981 !important;
+  //         }
+  //       }
+        
+  //       .mdc-switch__handle {
+  //         background: white;
+  //       }
+  //     }
+  //   }
+  // }
 }
 
 // Header Section
@@ -10,6 +85,7 @@
   padding: 24px 20px 16px;
   color: white;
   text-align: center;
+  transition: all 0.3s ease;
   
   .header-title {
     font-size: 1.25rem;
@@ -31,6 +107,7 @@
   backdrop-filter: blur(10px);
   border-radius: 16px 16px 0 0;
   margin: 0 16px;
+  transition: all 0.3s ease;
   
   .mat-mdc-tab-header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -86,6 +163,7 @@
   padding: 20px 16px;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
   
   &::-webkit-scrollbar {
     display: none;
@@ -228,6 +306,7 @@
   padding: 16px 20px;
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
 }
 
 .summary-item {
@@ -285,6 +364,16 @@
   -webkit-overflow-scrolling: touch;
 }
 
+// Collapsed state
+.collapsed {
+  .stats-header,
+  .stats-tabs,
+  .stats-scroll-container,
+  .quick-summary {
+    display: none;
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 360px) {
   .stat-card {
@@ -302,6 +391,10 @@
   
   .stats-header {
     padding: 20px 16px 12px;
+  }
+  
+  .dashboard-toggle {
+    padding: 14px 16px;
   }
 }
 
