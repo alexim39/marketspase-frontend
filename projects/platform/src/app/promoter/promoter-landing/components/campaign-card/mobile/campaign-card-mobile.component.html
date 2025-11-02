@@ -37,7 +37,7 @@
         <div class="compact-header">
           <h3 class="campaign-title" (click)="openPromotionDetails()" title="{{campaign.title | titlecase}}">{{campaign.title | titlecase | truncate: 30}}</h3>
          
-          @if (hasUserPromotion()(campaign)) {
+          @if (hasPendingPromotion()(campaign)) {
             <div class="user-badge">
                 <i class="material-icons">check_circle</i> Accepted
               </div>
@@ -100,8 +100,8 @@
           </div>
           <button 
             class="mobile-apply-btn"
-            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
-            [disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasPendingPromotion()(campaign) || isApplyingCampaign()"
+            [disabled]="!canAcceptCampaign(campaign) || hasPendingPromotion()(campaign) || isApplyingCampaign()"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplyingCampaign()) {
               <i class="material-icons spinner">autorenew</i>
@@ -126,7 +126,7 @@
           </div>
           <h3 class="campaign-title">{{campaign.title | titlecase}}</h3>
         </div>
-        @if (hasUserPromotion()(campaign)) {
+        @if (hasPendingPromotion()(campaign)) {
             <div class="user-badge">
                 <i class="material-icons">check_circle</i> Accepted
               </div>
@@ -170,7 +170,8 @@
               <i class="material-icons">schedule</i>
               <span>
                 @if (campaign.remainingDays === 'Expired') {
-                  Expired
+                  <!-- Expired -->
+                   {{campaign.remainingDays}}
                 }
                 @if (campaign.remainingDays === 'Ongoing') {
                   Budget Based
@@ -221,8 +222,8 @@
           </div>
           <button 
             class="mobile-apply-btn large"
-            [class.disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
-            [disabled]="!canAcceptCampaign(campaign) || hasUserPromotion()(campaign) || isApplyingCampaign()"
+            [class.disabled]="!canAcceptCampaign(campaign) || hasPendingPromotion()(campaign) || isApplyingCampaign()"
+            [disabled]="!canAcceptCampaign(campaign) || hasPendingPromotion()(campaign) || isApplyingCampaign()"
             (click)="applyForCampaign.emit(campaign)">
             @if (isApplyingCampaign()) {
               <i class="material-icons spinner">autorenew</i>

@@ -141,7 +141,7 @@ export class CampaignCardComponent {
   getAcceptButtonText(campaign: CampaignInterface): string {
     // Check if user has already accepted this campaign
     if (this.hasPendingPromotion()(campaign)) {
-      return 'Already Promoting';
+      return 'Promoting';
     }
     
     if (!this.canAcceptCampaign(campaign)) {
