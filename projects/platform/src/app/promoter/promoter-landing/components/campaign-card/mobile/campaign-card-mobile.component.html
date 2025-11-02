@@ -11,7 +11,12 @@
           
           @if (campaign.mediaType === 'video') {
             <div class="video-thumbnail">
-              <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.title" class="thumbnail">
+              <!-- <img [src]="campaign.category | categoryPlaceholder" [alt]="campaign.title" class="thumbnail"> -->
+              <img 
+                [src]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)" 
+                class="thumbnail"
+                [alt]="campaign.title"
+              />
               <div class="play-overlay">
                 <i class="material-icons">play_circle</i>
               </div>

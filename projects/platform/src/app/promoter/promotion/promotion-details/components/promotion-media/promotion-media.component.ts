@@ -22,7 +22,12 @@ import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-pl
         } @else if (promotion.campaign.mediaType === 'video') {
           <div class="video-container">
             <div class="video-placeholder">
-              <img [src]="promotion.campaign.category | categoryPlaceholder" class="placeholder-img" />
+              <!-- <img [src]="promotion.campaign.category | categoryPlaceholder" class="placeholder-img" /> -->
+              <img 
+                [src]="promotion.campaign.thumbnailUrl || (promotion.campaign.category | categoryPlaceholder)" 
+                class="placeholder-img" 
+                [alt]="promotion.campaign.title"
+              />
               <div class="video-play-btn">
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
               </div>

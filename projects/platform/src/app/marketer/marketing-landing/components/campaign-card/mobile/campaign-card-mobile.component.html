@@ -39,7 +39,12 @@
       }
       @if (campaign.mediaType === 'video') {
         <div class="mobile-video-placeholder">
-          <img [src]="campaign.category | categoryPlaceholder" class="mobile-placeholder-img" />
+           <!-- Use thumbnail if available, fallback to category placeholder -->
+          <img 
+            [src]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)" 
+            class="media-preview placeholder-img" 
+            [alt]="campaign.title"
+          />
           <div class="mobile-play-overlay">
             <mat-icon>play_arrow</mat-icon>
           </div>

@@ -56,7 +56,12 @@
     }
     @if (campaign.mediaType === 'video') {
       <div class="media-placeholder video-placeholder">
-        <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+        <!-- Use thumbnail if available, fallback to category placeholder -->
+        <img 
+          [src]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)" 
+          class="media-preview placeholder-img" 
+          [alt]="campaign.title"
+        />
         <span class="video-play-btn">
           <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg>
         </span>

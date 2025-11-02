@@ -19,7 +19,7 @@
   </div>
 
   <div class="card-media">
-    <div class="media-type-overlay" [ngClass]="campaign.mediaType">
+    <div class="media-type-overlay" [ngClass]="campaign.mediaType" (click)="openPromotionDetails()">
       <i class="material-icons">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</i>
       <span>{{ campaign.mediaType | titlecase }}</span>
     </div>
@@ -27,7 +27,12 @@
     @if (campaign.mediaType === 'video') {
       <div class="video-placeholder">
         <div class="video-play-btn">
-           <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img" />
+          <!-- Use thumbnail if available, fallback to category placeholder -->
+          <img 
+            [src]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)" 
+            class="media-preview placeholder-img" 
+            [alt]="campaign.title"
+          />
           <span class="video-play-btn">
             <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg> 
           </span>
@@ -48,8 +53,8 @@
       <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
       <span><i class="material-icons">schedule</i> 
         @if (campaign.remainingDays === 'Expired') {
-          <!-- {{campaign.remainingDays}} -->
-           Expired
+          {{campaign.remainingDays}}
+           <!-- Expired -->
         }
         @if (campaign.remainingDays === 'Ongoing') {
           Budget Based

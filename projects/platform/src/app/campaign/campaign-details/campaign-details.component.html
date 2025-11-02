@@ -80,12 +80,10 @@
               
               @if (campaign.mediaType === 'image') {
                 <img [src]="campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
-                <!-- <img [src]="api + campaign.mediaUrl" [alt]="campaign.title" class="media-preview"> -->
               } @else if (campaign.mediaType === 'video') {
                 <div class="video-container">
-                  <video controls [poster]="campaign.category | categoryPlaceholder">
+                  <video controls [poster]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)">
                     <source [src]="campaign.mediaUrl" type="video/mp4">
-                    <!-- <source [src]="api + campaign.mediaUrl" type="video/mp4"> -->
                     Your browser does not support the video tag.
                   </video>
                 </div>
