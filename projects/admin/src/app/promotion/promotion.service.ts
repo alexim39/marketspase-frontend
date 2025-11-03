@@ -18,19 +18,19 @@ export class PromotionService {
     return this.apiService.get<PromotionResponse>(`${this.apiUrl}/admin/promotions`);
   }
 
-  validatePromotion(promotionId: string): Observable<PromotionResponse> {
-    return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/validate`, {});
-  }
+  // validatePromotion(promotionId: string): Observable<PromotionResponse> {
+  //   return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/validate`, {});
+  // }
 
-  rejectPromotion(promotionId: string, reason: string): Observable<PromotionResponse> {
-    return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/reject`, { reason });
-  }
+  // rejectPromotion(promotionId: string, reason: string): Observable<PromotionResponse> {
+  //   return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/reject`, { reason });
+  // }
 
-  markAsPaid(promotionId: string): Observable<PromotionResponse> {
-    return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/mark-paid`, {});
-  }
+  // markAsPaid(promotionId: string): Observable<PromotionResponse> {
+  //   return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/mark-paid`, {});
+  // }
 
-  revertToSubmitted(promotionId: string): Observable<PromotionResponse> {
-    return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/revert`, {});
-  }
+  // revertToSubmitted(promotionId: string): Observable<PromotionResponse> {
+  //   return this.apiService.post<PromotionResponse>(`${this.apiUrl}/admin/promotions/${promotionId}/revert`, {});
+  // }
 }

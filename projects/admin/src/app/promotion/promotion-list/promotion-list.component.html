@@ -270,18 +270,18 @@
                           <span>Reject</span>
                         </button>
                       }
-                      @if (promotion.status === 'validated') {
+                      <!-- @if (promotion.status === 'validated') {
                         <button mat-menu-item (click)="markAsPaid(promotion)">
                           <mat-icon>payments</mat-icon>
                           <span>Mark as Paid</span>
                         </button>
-                      }
-                      @if (promotion.status === 'rejected') {
+                      } -->
+                      <!-- @if (promotion.status === 'rejected') {
                         <button mat-menu-item (click)="revertToSubmitted(promotion)">
                           <mat-icon>replay</mat-icon>
                           <span>Revert to Submitted</span>
                         </button>
-                      }
+                      } -->
                       <button mat-menu-item (click)="viewActivityLog(promotion)">
                         <mat-icon>history</mat-icon>
                         <span>Activity Log</span>
@@ -350,10 +350,10 @@
             Reject Promotion
           </button>
         } @else if (selectedPromotion()?.status === 'validated') {
-          <button mat-button color="accent" (click)="markAsPaid(selectedPromotion()!)">
+          <!-- <button mat-button color="accent" (click)="markAsPaid(selectedPromotion()!)">
             <mat-icon>payments</mat-icon>
             Mark as Paid
-          </button>
+          </button> -->
         }
       </div>
       }
@@ -381,7 +381,7 @@
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <!-- <button style="color: red;" mat-button (click)="dialogRef.close()">Cancel</button> -->
-      <button style="color: rgb(255, 51, 0);" mat-button color="warn" (click)="rejectPromotion()">Reject Promotion</button>
+      <button style="color: rgb(255, 51, 0); border: 1px solid red;" mat-raised-button color="warn" (click)="rejectPromotion()">Reject Promotion</button>
     </mat-dialog-actions>
   </div>
 </ng-template>

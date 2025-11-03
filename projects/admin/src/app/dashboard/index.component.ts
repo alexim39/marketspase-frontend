@@ -42,6 +42,8 @@ export class AdminDashboardComponent implements OnInit {
       campaigns: 'Campaign Management',
       promotions: 'Promotion Management',
       testimonials: 'Testimonial Management',
+      financial: 'financial Management',
+      newsletters: 'Newsletters Management',
       //proof: 'Campaign Proof Management',
       //transactions: 'Transaction History',
       analytics: 'Analytics & Reports',

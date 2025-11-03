@@ -68,10 +68,32 @@
         <span>Testimonials</span>
         </a>
 
+        <a 
+        class="nav-item" 
+        [class.active]="activeNavItem() === 'newsletters'"
+        (click)="setActiveNavItem('newsletters')"
+        routerLink="/dashboard/newsletters" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        >
+        <mat-icon>newspaper</mat-icon>
+        <span>Newsletters</span>
+        </a>
+
+        <a 
+        class="nav-item" 
+        [class.active]="activeNavItem() === 'financial'"
+        (click)="setActiveNavItem('financial')"
+        routerLink="/dashboard/financial" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        >
+        <mat-icon>payment_arrow_down</mat-icon>
+        <span>Financials</span>
+        </a>
+
        <!--  <a 
         class="nav-item" 
         [class.active]="activeNavItem() === 'proof'"
-        (click)="setActiveNavItem('proof')">
+        (click)="setActiveNavItem('proof')"
+        routerLink="/dashboard/financial" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        >
         <mat-icon>approval</mat-icon>
         <span>Proofs</span>
         </a> -->
@@ -79,7 +101,9 @@
        <!--  <a 
         class="nav-item" 
         [class.active]="activeNavItem() === 'transactions'"
-        (click)="setActiveNavItem('transactions')">
+        (click)="setActiveNavItem('transactions')"
+        routerLink="/dashboard/financial" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        >
         <mat-icon>checkbook</mat-icon>
         <span>Transactions</span>
         </a> -->
@@ -87,7 +111,8 @@
         <a 
         class="nav-item" 
         [class.active]="activeNavItem() === 'analytics'"
-        (click)="setActiveNavItem('analytics')">
+        (click)="setActiveNavItem('analytics')"
+        routerLink="/dashboard/analytics" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
         <mat-icon>analytics</mat-icon>
         <span>Analytics</span>
         </a>
@@ -95,7 +120,9 @@
         <a 
         class="nav-item" 
         [class.active]="activeNavItem() === 'settings'"
-        (click)="setActiveNavItem('settings')">
+        (click)="setActiveNavItem('settings')"
+        routerLink="/dashboard/settings" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        >
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
         </a>

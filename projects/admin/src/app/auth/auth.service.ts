@@ -21,7 +21,7 @@ export class AuthService {
    * @returns An Observable that emits the API response or an error.
    */
   signIn(formObject: SignInInterface): Observable<any> {
-    return this.apiService.post<SignInInterface>(`admin/signin`, formObject, undefined, true);
+    return this.apiService.post<SignInInterface>(`auth/admin/signin`, formObject, undefined, true);
   }
 
   /**
@@ -30,7 +30,7 @@ export class AuthService {
    * @returns An Observable that emits the API response or an error.
    */
   signOut(formObject: {}): Observable<any> {
-    return this.apiService.post<any>('admin/signout', formObject, undefined, true);
+    return this.apiService.post<any>('auth/admin/signout', formObject, undefined, true);
   }
 
   

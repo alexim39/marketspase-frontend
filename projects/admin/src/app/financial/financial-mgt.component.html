@@ -1,0 +1,272 @@
+<!-- financial-management.component.html -->
+<main class="financial-content">
+  <!-- Stats Overview -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <mat-icon>account_balance</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Platform Revenue</div>
+          <div class="stat-value">₦{{ financialStats().totalRevenue.toLocaleString() }}</div>
+          <div class="stat-change positive">
+            <mat-icon>trending_up</mat-icon>
+            +15% this month
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <mat-icon>savings</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Platform Earnings</div>
+          <div class="stat-value">₦{{ financialStats().platformEarnings.toLocaleString() }}</div>
+          <div class="stat-change positive">
+            <mat-icon>trending_up</mat-icon>
+            +12% this month
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <mat-icon>pending_actions</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Pending Withdrawals</div>
+          <div class="stat-value">₦{{ financialStats().pendingWithdrawals.toLocaleString() }}</div>
+          <div class="stat-change negative">
+            <mat-icon>warning</mat-icon>
+            Needs attention
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Active Balance</div>
+          <div class="stat-value">₦{{ financialStats().activeBalance.toLocaleString() }}</div>
+          <div class="stat-change positive">
+            <mat-icon>trending_up</mat-icon>
+            +8% this week
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Financial Management Tabs -->
+  <section class="management-section">
+    <mat-tab-group>
+      <!-- Withdrawal Requests Tab -->
+      <mat-tab label="Withdrawal Requests">
+        <div class="tab-content">
+          <!-- Filters and Actions -->
+          <div class="section-header">
+            <div class="filters-container">
+              <div class="search-box">
+                <mat-icon>search</mat-icon>
+                <input 
+                  type="text" 
+                  placeholder="Search by name, email, or bank..." 
+                  (input)="onSearchChange($event)"
+                  class="search-input">
+              </div>
+              
+              <div class="filter-buttons">
+                <button 
+                  class="filter-btn" 
+                  [class.active]="statusFilter() === 'all'"
+                  (click)="onStatusFilterChange('all')">
+                  All
+                </button>
+                <button 
+                  class="filter-btn warning" 
+                  [class.active]="statusFilter() === 'pending'"
+                  (click)="onStatusFilterChange('pending')">
+                  Pending
+                </button>
+                <button 
+                  class="filter-btn success" 
+                  [class.active]="statusFilter() === 'approved'"
+                  (click)="onStatusFilterChange('approved')">
+                  Approved
+                </button>
+                <button 
+                  class="filter-btn danger" 
+                  [class.active]="statusFilter() === 'rejected'"
+                  (click)="onStatusFilterChange('rejected')">
+                  Rejected
+                </button>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" (click)="exportTransactions()">
+              <mat-icon>download</mat-icon>
+              Export Report
+            </button>
+          </div>
+
+          <!-- Withdrawal Requests Table -->
+          <div class="table-container">
+            @if (isWithdrawalsLoading()) {
+              <div class="loading-state">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Loading withdrawal requests...</p>
+              </div>
+            } @else {
+              <table mat-table [dataSource]="paginatedWithdrawals()" class="financial-table">
+                <!-- User Column -->
+                <ng-container matColumnDef="user">
+                  <th mat-header-cell *matHeaderCellDef>User</th>
+                  <td mat-cell *matCellDef="let request">
+                    <div class="user-info">
+                      <div class="user-name">{{ request.userName }}</div>
+                      <div class="user-email">{{ request.userEmail }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Amount Column -->
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let request">
+                    <div class="amount-cell">
+                      <div class="amount">₦{{ request.amount.toLocaleString() }}</div>
+                      <div class="date">{{ request.createdAt | date:'MMM d, y' }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Bank Details Column -->
+                <ng-container matColumnDef="bankDetails">
+                  <th mat-header-cell *matHeaderCellDef>Bank Details</th>
+                  <td mat-cell *matCellDef="let request">
+                    <div class="bank-info">
+                      <div class="bank-name">{{ request.bankName }}</div>
+                      <div class="account-number">{{ request.accountNumber }}</div>
+                      <div class="account-name">{{ request.accountName }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let request">
+                    <span 
+                      class="status-badge" 
+                      [class]="'status-' + request.status">
+                      {{ request.status | titlecase }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <!-- Date Column -->
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Date</th>
+                  <td mat-cell *matCellDef="let request">
+                    <div class="date-cell">
+                      <div class="created-date">{{ request.createdAt | date:'MMM d, y' }}</div>
+                      <div class="time">{{ request.createdAt | date:'shortTime' }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let request">
+                    <div class="action-buttons">
+                      @if (request.status === 'pending') {
+                        <button 
+                          class="btn-icon success" 
+                          (click)="approveWithdrawal(request)"
+                          title="Approve Withdrawal">
+                          <mat-icon>check_circle</mat-icon>
+                        </button>
+                        <button 
+                          class="btn-icon danger" 
+                          (click)="rejectWithdrawal(request)"
+                          title="Reject Withdrawal">
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      }
+                      <button class="btn-icon" title="View Details">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="withdrawalColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: withdrawalColumns;"></tr>
+              </table>
+
+              <!-- Empty State -->
+              @if (paginatedWithdrawals().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>payments</mat-icon>
+                  <h3>No withdrawal requests found</h3>
+                  <p>There are no withdrawal requests matching your current filters.</p>
+                </div>
+              }
+
+              <!-- Pagination -->
+              @if (totalItems() > pageSize()) {
+                <mat-paginator
+                  [length]="totalItems()"
+                  [pageSize]="pageSize()"
+                  [pageIndex]="currentPage()"
+                  [pageSizeOptions]="[5, 10, 25, 50]"
+                  (page)="onPageChange($event)"
+                  aria-label="Select page">
+                </mat-paginator>
+              }
+            }
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Transaction History Tab -->
+      <mat-tab label="Transaction History">
+        <div class="tab-content">
+          <!-- Transaction filters would go here -->
+          <div class="section-header">
+            <h3>All Transactions</h3>
+            <button class="btn btn-secondary">
+              <mat-icon>filter_list</mat-icon>
+              Filter Transactions
+            </button>
+          </div>
+
+          <!-- Transaction table would go here -->
+          <div class="table-container">
+            <!-- Similar table structure for transactions -->
+            <p>Transaction history table implementation...</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Financial Reports Tab -->
+      <mat-tab label="Reports & Analytics">
+        <div class="tab-content">
+          <div class="section-header">
+            <h3>Financial Reports</h3>
+            <button class="btn btn-primary">
+              <mat-icon>analytics</mat-icon>
+              Generate Report
+            </button>
+          </div>
+          <!-- Reports content would go here -->
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

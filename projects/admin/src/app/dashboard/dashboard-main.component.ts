@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CampaignService } from '../campaign/campaign.service';
-import { Subject, takeUntil } from 'rxjs';
 import { CampaignInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { UserService } from '../users/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

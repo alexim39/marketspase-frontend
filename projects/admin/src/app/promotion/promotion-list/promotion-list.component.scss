@@ -285,8 +285,8 @@
 
 /* Dialog Styles */
 .proof-media-dialog, .reject-dialog {
-  max-width: 800px;
-  width: 90vw;
+  width: auto;
+  height: auto;
 }
 
 .proof-media-grid {

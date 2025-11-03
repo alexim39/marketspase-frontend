@@ -12,7 +12,8 @@ interface ApiResponse<T> {
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private readonly apiBase = 'campaign'
+  private readonly apiBase = 'campaign/admin'
+  private readonly apiBase2 = 'campaign'
   
 
   /**
@@ -34,7 +35,7 @@ export class CampaignService {
   }
 
   getCampaignById(id: string): Observable<ApiResponse<any>> {
-    return this.apiService.get<ApiResponse<any>>(`${this.apiBase}/${id}`, undefined, undefined, true);
+    return this.apiService.get<ApiResponse<any>>(`${this.apiBase2}/${id}`, undefined, undefined, true);
   }
 
   updateCampaignStatus(id: string, status: string): Observable<ApiResponse<any>> {

@@ -31,7 +31,7 @@ export class AdminService implements OnDestroy {
   // A method to trigger the API call and update the signal
   fetchAdmin() {
     this.subscriptions.push(
-      this.apiService.get<any>(`admin`, undefined, undefined, true).pipe(
+      this.apiService.get<any>(`auth/admin/user`, undefined, undefined, true).pipe(
         // Use the tap operator to perform a side effect (updating the signal)
         // without modifying the stream.
         tap(response => {

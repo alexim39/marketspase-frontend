@@ -89,7 +89,7 @@ export interface CampaignInterface {
   templateUrl: './promotion-list.component.html',
   styleUrls: ['./promotion-list.component.scss'],
 })
-export class PromotionListMgtComponent implements OnInit, OnDestroy {
+export class PromotionListMgtComponent implements OnInit {
   readonly adminService = inject(AdminService);
   readonly promotionService = inject(PromotionService);
   readonly campaignService = inject(CampaignService);
@@ -321,7 +321,7 @@ export class PromotionListMgtComponent implements OnInit, OnDestroy {
 
   viewProofMedia(promotion: PromotionInterface): void {
     this.selectedPromotion.set(promotion);
-    this.dialog.open(this.proofMediaDialog, {
+    this.dialogRef = this.dialog.open(this.proofMediaDialog, {
       width: '800px',
       maxWidth: '90vw'
     });
@@ -330,13 +330,14 @@ export class PromotionListMgtComponent implements OnInit, OnDestroy {
   validatePromotion(promotion: PromotionInterface): void {
     this.isLoading.set(true);
     
-    this.promotionService.validatePromotion(promotion._id)
+    this.campaignService.updatePromotionStatus(promotion._id, 'validated', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
             this.loadPromotions(); // Refresh data
+             this.dialogRef.close();
           } else {
             this.snackBar.open('Failed to validate promotion', 'Close', { duration: 3000 });
             this.isLoading.set(false);
@@ -355,7 +356,8 @@ export class PromotionListMgtComponent implements OnInit, OnDestroy {
     this.rejectionReason = '';
     
     this.dialogRef = this.dialog.open(this.rejectDialog, {
-      width: '500px'
+      width: '200px',
+      height: 'auto'
     });
   }
 
@@ -367,7 +369,7 @@ export class PromotionListMgtComponent implements OnInit, OnDestroy {
 
     this.isLoading.set(true);
     
-    this.promotionService.rejectPromotion(this.selectedPromotion()!._id, this.rejectionReason)
+    this.campaignService.updatePromotionStatus(this.selectedPromotion()!._id, 'rejected', this.adminService.adminData()?._id || '', this.rejectionReason)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -388,59 +390,55 @@ export class PromotionListMgtComponent implements OnInit, OnDestroy {
       });
   }
 
-  markAsPaid(promotion: PromotionInterface): void {
-    this.isLoading.set(true);
+  // markAsPaid(promotion: PromotionInterface): void {
+  //   this.isLoading.set(true);
     
-    this.promotionService.markAsPaid(promotion._id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion marked as paid', 'Close', { duration: 3000 });
-            this.loadPromotions(); // Refresh data
-          } else {
-            this.snackBar.open('Failed to mark promotion as paid', 'Close', { duration: 3000 });
-            this.isLoading.set(false);
-          }
-        },
-        error: (error) => {
-          console.error('Error marking promotion as paid:', error);
-          this.snackBar.open('Error marking promotion as paid', 'Close', { duration: 3000 });
-          this.isLoading.set(false);
-        }
-      });
-  }
+  //   this.promotionService.markAsPaid(promotion._id)
+  //     .pipe(takeUntilDestroyed(this.destroyRef))
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response.success) {
+  //           this.snackBar.open('Promotion marked as paid', 'Close', { duration: 3000 });
+  //           this.loadPromotions(); // Refresh data
+  //         } else {
+  //           this.snackBar.open('Failed to mark promotion as paid', 'Close', { duration: 3000 });
+  //           this.isLoading.set(false);
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Error marking promotion as paid:', error);
+  //         this.snackBar.open('Error marking promotion as paid', 'Close', { duration: 3000 });
+  //         this.isLoading.set(false);
+  //       }
+  //     });
+  // }
 
-  revertToSubmitted(promotion: PromotionInterface): void {
-    this.isLoading.set(true);
+  // revertToSubmitted(promotion: PromotionInterface): void {
+  //   this.isLoading.set(true);
     
-    this.promotionService.revertToSubmitted(promotion._id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion reverted to submitted status', 'Close', { duration: 3000 });
-            this.loadPromotions(); // Refresh data
-          } else {
-            this.snackBar.open('Failed to revert promotion', 'Close', { duration: 3000 });
-            this.isLoading.set(false);
-          }
-        },
-        error: (error) => {
-          console.error('Error reverting promotion:', error);
-          this.snackBar.open('Error reverting promotion', 'Close', { duration: 3000 });
-          this.isLoading.set(false);
-        }
-      });
-  }
+  //   this.promotionService.revertToSubmitted(promotion._id)
+  //     .pipe(takeUntilDestroyed(this.destroyRef))
+  //     .subscribe({
+  //       next: (response) => {
+  //         if (response.success) {
+  //           this.snackBar.open('Promotion reverted to submitted status', 'Close', { duration: 3000 });
+  //           this.loadPromotions(); // Refresh data
+  //         } else {
+  //           this.snackBar.open('Failed to revert promotion', 'Close', { duration: 3000 });
+  //           this.isLoading.set(false);
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Error reverting promotion:', error);
+  //         this.snackBar.open('Error reverting promotion', 'Close', { duration: 3000 });
+  //         this.isLoading.set(false);
+  //       }
+  //     });
+  // }
 
   viewActivityLog(promotion: PromotionInterface): void {
     this.selectedPromotion.set(promotion);
     this.snackBar.open(`Viewing activity log for ${promotion.upi}`, 'Close', { duration: 2000 });
     // Implement activity log view logic
-  }
-
-  ngOnDestroy(): void {
-    // Clean up any subscriptions if needed
   }
 }
