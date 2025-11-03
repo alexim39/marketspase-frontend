@@ -32,7 +32,7 @@ import { RouterModule } from '@angular/router';
           </button>
         </div>
         <div class="summary-header">
-          <button class="withdrawal" [disabled]="true" mat-stroked-button color="primary" (click)="viewWithdrawal.emit()">
+          <button class="withdrawal" mat-stroked-button color="primary" (click)="viewWithdrawal.emit()">
             Withdraw Fund
           </button>
         </div>
