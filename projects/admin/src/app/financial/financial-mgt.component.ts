@@ -71,6 +71,7 @@ export class FinancialMgtComponent implements OnInit {
   private searchSubject = new Subject<string>();
 
   // Computed values
+  // NOTE: This computed is pure — it does NOT write to other signals.
   readonly filteredWithdrawals = computed(() => {
     const requests = this.withdrawalRequests();
     const search = this.searchTerm().toLowerCase();
@@ -80,10 +81,10 @@ export class FinancialMgtComponent implements OnInit {
 
     if (search) {
       filtered = filtered.filter(request =>
-        request.userName.toLowerCase().includes(search) ||
-        request.userEmail.toLowerCase().includes(search) ||
-        request.bankName.toLowerCase().includes(search) ||
-        request.accountNumber.includes(search)
+        (request.userName || '').toLowerCase().includes(search) ||
+        (request.userEmail || '').toLowerCase().includes(search) ||
+        (request.bankName || '').toLowerCase().includes(search) ||
+        (request.accountNumber || '').includes(search)
       );
     }
 
@@ -91,7 +92,7 @@ export class FinancialMgtComponent implements OnInit {
       filtered = filtered.filter(request => request.status === status);
     }
 
-    this.totalItems.set(filtered.length);
+    // <-- Removed this.totalItems.set(...) from here (computed must be pure)
     return filtered;
   });
 
@@ -126,6 +127,7 @@ export class FinancialMgtComponent implements OnInit {
   ngOnInit() {
     this.loadFinancialData();
     this.setupSearch();
+    this.loadWithdrawalRequests();
   }
 
   private setupSearch() {
@@ -135,6 +137,7 @@ export class FinancialMgtComponent implements OnInit {
     ).subscribe(search => {
       this.searchTerm.set(search);
       this.currentPage.set(0);
+      this.loadWithdrawalRequests();
     });
   }
 
@@ -146,21 +149,31 @@ export class FinancialMgtComponent implements OnInit {
   onStatusFilterChange(status: 'all' | 'pending' | 'approved' | 'rejected') {
     this.statusFilter.set(status);
     this.currentPage.set(0);
+    this.loadWithdrawalRequests();
   }
 
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
+    this.loadWithdrawalRequests();
   }
 
   loadFinancialData() {
     this.isLoading.set(true);
-    
+
     this.financialService.getFinancialOverview().subscribe({
       next: (data) => {
         this.financialStats.set(data.stats);
-        this.transactions.set(data.recentTransactions);
-        this.withdrawalRequests.set(data.pendingWithdrawals);
+        this.transactions.set(data.recentTransactions || []);
+
+        // If the overview endpoint returns pendingWithdrawals we can seed them,
+        // but we'll still call loadWithdrawalRequests() for canonical paginated data.
+        if (data.pendingWithdrawals && data.pendingWithdrawals.length > 0) {
+          this.withdrawalRequests.set(data.pendingWithdrawals);
+          // set totalItems only from real server counts when appropriate
+          this.totalItems.set(data.pendingWithdrawals.length);
+        }
+
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -176,39 +189,52 @@ export class FinancialMgtComponent implements OnInit {
 
   loadWithdrawalRequests() {
     this.isWithdrawalsLoading.set(true);
-    
-    this.financialService.getWithdrawalRequests({
+
+    const params = {
       status: this.statusFilter(),
-      page: this.currentPage() + 1,
+      page: this.currentPage() + 1, // backend uses 1-indexed page
       limit: this.pageSize(),
       search: this.searchTerm()
-    }).subscribe({
+    };
+
+    this.financialService.getWithdrawalRequests(params).subscribe({
       next: (response) => {
-        this.withdrawalRequests.set(response.requests);
-        this.totalItems.set(response.total);
+        // Expecting server to return { requests: [], total, page, limit }
+        const requests = response?.requests ?? [];
+        const total = response?.total ?? requests.length;
+
+        this.withdrawalRequests.set(requests);
+        this.totalItems.set(total);
         this.isWithdrawalsLoading.set(false);
+
+        console.log('requests: ', requests);
       },
       error: (error) => {
         console.error('Error loading withdrawal requests:', error);
         this.isWithdrawalsLoading.set(false);
+        this.snackBar.open('Error loading withdrawal requests', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   approveWithdrawal(request: WithdrawalRequest) {
-    this.financialService.approveWithdrawal(request.id).subscribe({
+    //console.log('Approving withdrawal for request:', request);
+    this.financialService.approveWithdrawal(request.withdrawalId).subscribe({
       next: (response) => {
         if (response.success) {
           // Update local state
           this.withdrawalRequests.update(requests =>
-            requests.map(r => r.id === request.id ? { ...r, status: 'approved' } : r)
+            requests.map(r => r.withdrawalId === request.withdrawalId ? { ...r, status: 'approved' } : r)
           );
-          
+
           this.snackBar.open('Withdrawal approved successfully', 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          
+
           // Reload stats to reflect changes
           this.loadFinancialData();
         }
@@ -224,22 +250,21 @@ export class FinancialMgtComponent implements OnInit {
   }
 
   rejectWithdrawal(request: WithdrawalRequest) {
-    // In a real implementation, you'd open a dialog for rejection notes
     const notes = 'Withdrawal rejected by administrator';
-    
-    this.financialService.rejectWithdrawal(request.id, notes).subscribe({
+
+    this.financialService.rejectWithdrawal(request.withdrawalId, notes).subscribe({
       next: (response) => {
         if (response.success) {
           // Update local state
           this.withdrawalRequests.update(requests =>
-            requests.map(r => r.id === request.id ? { ...r, status: 'rejected' } : r)
+            requests.map(r => r.withdrawalId === request.withdrawalId ? { ...r, status: 'rejected' } : r)
           );
-          
-          this.snackBar.open('Withdrawal rejected', 'Close', {
+
+          this.snackBar.open('Withdrawal rejected successfully', 'Close', {
             duration: 3000,
             panelClass: ['error-snackbar']
           });
-          
+
           // Reload stats to reflect changes
           this.loadFinancialData();
         }
@@ -255,14 +280,14 @@ export class FinancialMgtComponent implements OnInit {
   }
 
   processWithdrawal(request: WithdrawalRequest) {
-    this.financialService.processWithdrawal(request.id).subscribe({
+    this.financialService.processWithdrawal(request.withdrawalId).subscribe({
       next: (response) => {
         if (response.success) {
           // Update local state
           this.withdrawalRequests.update(requests =>
-            requests.map(r => r.id === request.id ? { ...r, status: 'processing' } : r)
+            requests.map(r => r.withdrawalId === request.withdrawalId ? { ...r, status: 'processing' } : r)
           );
-          
+
           this.snackBar.open('Withdrawal marked as processing', 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar']
@@ -292,7 +317,7 @@ export class FinancialMgtComponent implements OnInit {
           link.href = response.data.url;
           link.download = `transactions_export_${new Date().toISOString().split('T')[0]}.csv`;
           link.click();
-          
+
           this.snackBar.open('Transactions exported successfully', 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar']
@@ -323,7 +348,7 @@ export class FinancialMgtComponent implements OnInit {
           link.href = response.data.url;
           link.download = `withdrawals_export_${new Date().toISOString().split('T')[0]}.csv`;
           link.click();
-          
+
           this.snackBar.open('Withdrawals exported successfully', 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar']

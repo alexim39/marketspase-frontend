@@ -23,6 +23,7 @@ export interface Transaction {
 
 export interface WithdrawalRequest {
   id: string;
+  withdrawalId: string;
   userId: string;
   userName: string;
   userEmail: string;
@@ -80,6 +81,8 @@ export class FinancialService {
       .pipe(map(response => response.data));
   }
 
+
+
   getWithdrawalRequests(params?: {
     status?: string;
     page?: number;
@@ -97,9 +100,14 @@ export class FinancialService {
       });
     }
 
-    return this.apiService.get<{success: boolean, data: any}>(`${this.baseUrl}/withdrawals`, httpParams)
-      .pipe(map(response => response.data));
+    return this.apiService
+      .get<{ success: boolean; data: { requests: WithdrawalRequest[]; total: number; page: number; limit: number } }>(
+        `${this.baseUrl}/withdrawals`,
+        httpParams
+      )
+      .pipe(map(response => response.data)); // ✅ ensures response has requests, total, page, limit
   }
+
 
   getTransactions(params?: {
     type?: string;

@@ -184,7 +184,8 @@
                   <th mat-header-cell *matHeaderCellDef>Actions</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="action-buttons">
-                      @if (request.status === 'pending') {
+                      @if (request.status === 'processing') {
+                      <!-- @if (request.status === 'pending') { -->
                         <button 
                           class="btn-icon success" 
                           (click)="approveWithdrawal(request)"
