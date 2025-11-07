@@ -48,6 +48,10 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../financial/financial-mgt.component').then(c => c.FinancialMgtComponent),
                 title: 'Financial Management - Admin Dashboard'
             }, 
+            {   path: 'newletters', 
+                loadComponent: () => import('../newsletter/newsletter.component').then(c => c.NewsletterManagementComponent),
+                title: 'Newletters Management - Admin Dashboard'
+            }, 
                               
             // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  
             // { path: 'analytics', loadChildren: () => import('./business/analytics/analytics-routes').then(r => r.AnalyticsRoutes) },  
