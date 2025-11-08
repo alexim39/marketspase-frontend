@@ -243,42 +243,75 @@ export class CreateCampaignComponent implements OnInit {
   private urlValidator(control: AbstractControl): { [key: string]: any } | null {
     if (!control.value) return null;
     
+    const urlPattern = /^(https?|ftp):\/\/(-\.)?([^\s\/?\.#]+\.?)+(\/[^\s]*)?$/i;
+    const localhostPattern = /^(https?):\/\/localhost(:\d+)?(\/.*)?$/i;
+    const ipPattern = /^(https?):\/\/(\d{1,3}\.){3}\d{1,3}(:\d+)?(\/.*)?$/i;
+    
+    let urlToTest = control.value.trim();
+    
+    // Add protocol if missing (default to http)
+    if (!/^https?:\/\//i.test(urlToTest)) {
+      urlToTest = 'https://' + urlToTest;
+    }
+    
     try {
-      let urlString = control.value;
-      
-      // Create a test URL by adding protocol if missing
-      const testUrl = urlString.startsWith('http://') || urlString.startsWith('https://') 
-        ? urlString 
-        : 'https://' + urlString;
-      
-      // Validate the URL
-      new URL(testUrl);
-      
-      // Extract hostname and normalize to www. format
-      const urlObj = new URL(testUrl);
-      let normalizedUrl = '';
-      
-      // If it already has www., use it as is
-      if (urlObj.hostname.startsWith('www.')) {
-        normalizedUrl = urlObj.hostname + urlObj.pathname + urlObj.search;
-      } else {
-        // Add www. prefix
-        normalizedUrl = 'www.' + urlObj.hostname + urlObj.pathname + urlObj.search;
+      // Test against various URL patterns
+      if (urlPattern.test(urlToTest) || 
+          localhostPattern.test(urlToTest) || 
+          ipPattern.test(urlToTest)) {
+        
+        const url = new URL(urlToTest);
+        
+        // Additional validation for basic URL structure
+        if (url.hostname && url.protocol && url.protocol.match(/^(https?|ftp):$/)) {
+          return null;
+        }
       }
-      
-      // Remove trailing slash if present
-      normalizedUrl = normalizedUrl.replace(/\/$/, '');
-      
-      // Update control value with normalized www. version
-      if (control.value !== normalizedUrl) {
-        control.setValue(normalizedUrl, { emitEvent: false });
-      }
-      
-      return null;
+      return { invalidUrl: true };
     } catch {
       return { invalidUrl: true };
     }
   }
+
+  // private urlValidator(control: AbstractControl): { [key: string]: any } | null {
+  //   if (!control.value) return null;
+    
+  //   try {
+  //     let urlString = control.value;
+      
+  //     // Create a test URL by adding protocol if missing
+  //     const testUrl = urlString.startsWith('http://') || urlString.startsWith('https://') 
+  //       ? urlString 
+  //       : 'https://' + urlString;
+      
+  //     // Validate the URL
+  //     new URL(testUrl);
+      
+  //     // Extract hostname and normalize to www. format
+  //     const urlObj = new URL(testUrl);
+  //     let normalizedUrl = '';
+      
+  //     // If it already has www., use it as is
+  //     if (urlObj.hostname.startsWith('www.')) {
+  //       normalizedUrl = urlObj.hostname + urlObj.pathname + urlObj.search;
+  //     } else {
+  //       // Add www. prefix
+  //       normalizedUrl = 'www.' + urlObj.hostname + urlObj.pathname + urlObj.search;
+  //     }
+      
+  //     // Remove trailing slash if present
+  //     normalizedUrl = normalizedUrl.replace(/\/$/, '');
+      
+  //     // Update control value with normalized www. version
+  //     if (control.value !== normalizedUrl) {
+  //       control.setValue(normalizedUrl, { emitEvent: false });
+  //     }
+      
+  //     return null;
+  //   } catch {
+  //     return { invalidUrl: true };
+  //   }
+  // }
 
 
   // Navigation and other actions

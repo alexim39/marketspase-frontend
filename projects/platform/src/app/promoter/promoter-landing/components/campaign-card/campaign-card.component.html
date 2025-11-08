@@ -26,7 +26,7 @@
 
     @if (campaign.mediaType === 'video') {
       <div class="video-placeholder">
-        <div class="video-play-btn">
+        <div class="video-play-btn" (click)="openPromotionDetails()">
           <!-- Use thumbnail if available, fallback to category placeholder -->
           <img 
             [src]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)" 
@@ -59,7 +59,10 @@
         @if (campaign.remainingDays === 'Ongoing') {
           Budget Based
         } 
-        @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing') {
+        @if (campaign.remainingDays === 'Budget Exhausted') {
+          Exhausted
+        } 
+        @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing' && campaign.remainingDays !== 'Budget Exhausted') {
           Expires in {{campaign.remainingDays}}
         }
       </span>
