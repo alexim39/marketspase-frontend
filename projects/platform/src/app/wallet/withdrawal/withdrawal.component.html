@@ -50,13 +50,13 @@
           }
 
           <div class="balance-details">
-            <div class="detail-item">
+            <!-- <div class="detail-item">
               <mat-icon class="detail-icon">arrow_upward</mat-icon>
               <div class="detail-text">
                 <div class="detail-label">Available</div>
                 <div class="detail-value">₦{{ availableBalance()   | number:'1.2-2' }}</div>
               </div>
-            </div>
+            </div> -->
 
             <div class="detail-item">
               <mat-icon class="detail-icon">pending</mat-icon>
@@ -187,17 +187,9 @@
                     placeholder="Minimum ₦100"
                     min="100" />
                   <mat-hint class="hint">
-                    Processing Fee: ₦{{ withdrawalFee() | number:'1.2-2' }} |
-                    Total Deduction: 15% |
-                    Available Balance: ₦{{ availableBalance() | number:'1.2-2' }} |
-                    **Maximum Withdrawable: ₦{{ maxWithdrawableAmount() | number:'1.2-2' }}**
+                    Service Fee: 15% |
+                    <strong>You'll Receive: ₦{{ payableAmount() | number:'1.2-2' }}</strong>
                   </mat-hint>
-                  <!-- <mat-hint>
-                    Processing Fee: ₦{{ withdrawalFee() | number:'1.2-2' }} |
-                    Total Deduction: ₦{{ totalDeduction() | number:'1.2-2' }} |
-                    Available Balance: ₦{{ availableBalance() | number:'1.2-2' }} |
-                    **Maximum Withdrawable: ₦{{ maxWithdrawableAmount() | number:'1.2-2' }}**
-                  </mat-hint> -->
                   @if (withdrawForm.get('amount')?.hasError('required')) {
                     <mat-error>
                       Amount is required
@@ -212,12 +204,12 @@
 
                   @if (withdrawForm.get('amount')?.hasError('maxWithdrawal')) {
                     <mat-error>
-                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a ₦{{ withdrawalFee() | number:'1.2-2' }} fee.
+                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a 15% fee.
                     </mat-error>
                   }
                 </mat-form-field>
 
-                <div class="form-actions">
+                <div class="form-actions" style="margin-top: 20px; font-weight: bolder;">
                   <mat-slide-toggle formControlName="saveAccount">
                     Save this account for future withdrawals
                   </mat-slide-toggle>

@@ -108,6 +108,7 @@ export class FinancialMgtComponent implements OnInit {
   readonly withdrawalColumns = [
     'user',
     'amount',
+    'amountPayable',
     'bankDetails',
     'status',
     'date',
