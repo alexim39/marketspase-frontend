@@ -337,7 +337,7 @@ export class PromotionListMgtComponent implements OnInit {
           if (response.success) {
             this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
             this.dialogRef.close();
-            //this.loadPromotions(); // Refresh data
+            this.loadPromotions(); // Refresh data
           } else {
             this.snackBar.open('Failed to validate promotion', 'Close', { duration: 3000 });
             this.isLoading.set(false);
@@ -376,7 +376,7 @@ export class PromotionListMgtComponent implements OnInit {
           if (response.success) {
             this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
             this.dialogRef.close();
-            //this.loadPromotions(); // Refresh data
+            this.loadPromotions(); // Refresh data
           } else {
             this.snackBar.open('Failed to reject promotion', 'Close', { duration: 3000 });
             this.isLoading.set(false);

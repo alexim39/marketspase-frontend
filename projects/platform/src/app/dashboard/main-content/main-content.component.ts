@@ -16,6 +16,7 @@ import { ProfileNotifierBannerComponent } from './notification-banner/profiile-n
 import { MatMenuModule } from '@angular/material/menu';
 import { DeviceService } from '../../../../../shared-services/src/public-api';
 import { PromoBannerComponent } from './notification-banner/promo/promo-banner.component';
+import { GeneralMsgNotifierBannerComponent } from './notification-banner/general-msg-notifier/general-msg-notifier-banner.component';
 
 interface DashboardStat {
   icon: string;
@@ -58,7 +59,8 @@ interface PromotionSummary {
     TestimonialsComponent,
     ProfileNotifierBannerComponent,
     MatMenuModule,
-    PromoBannerComponent
+    PromoBannerComponent,
+    GeneralMsgNotifierBannerComponent
   ],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],

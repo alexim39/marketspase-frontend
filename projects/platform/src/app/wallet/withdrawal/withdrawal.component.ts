@@ -128,60 +128,62 @@ export class WithdrawalComponent implements OnInit {
   selectedBankName = signal<string>('');
 
   // Constants
-  private readonly PAYSTACK_SECRET_KEY = '';
+  private readonly PAYSTACK_SECRET_KEY = 'sk_live_2288514c9d501669926c10dc09cff03b11b3bafa';
   private readonly MIN_WITHDRAWAL_AMOUNT = 100;
   private readonly WITHDRAWAL_FEE_RATE = 0.15; // 15%
-  private readonly WITHDRAWAL_FLAT_FEE = 100;
+
+  readonly payableAmount = signal<number>(0);
 
   // New private method for consistent fee calculation
   private calculateFee(amount: number): number {
-    return Math.max(amount * this.WITHDRAWAL_FEE_RATE, this.WITHDRAWAL_FLAT_FEE);
+    return amount * this.WITHDRAWAL_FEE_RATE;
   }
 
-  // Computed signals for fee calculation
-  readonly withdrawalFee = computed(() => {
-    const amount = this.withdrawForm?.get('amount')?.value || 0;
-    return Math.round(this.calculateFee(amount) * 100) / 100;
-  });
 
-  readonly totalDeduction = computed(() => {
-    const amount = this.withdrawForm?.get('amount')?.value || 0;
-    return (parseFloat(amount) || 0) + this.withdrawalFee();
-  });
+readonly totalDeduction = computed(() => {
+  const amount = this.withdrawForm?.get('amount')?.value || 0;
+  const withdrawalAmount = parseFloat(amount) || 0;
+  
+  // Total deduction = withdrawal amount + 15% fee
+  return withdrawalAmount + (withdrawalAmount * this.WITHDRAWAL_FEE_RATE);
+});
 
-  // Computed signal for maximum withdrawable amount
+
+
+  private updatePayableAmount(): void {
+  const amountValue = this.withdrawForm?.get('amount')?.value;
+  
+  if (!amountValue || isNaN(amountValue)) {
+    this.payableAmount.set(0);
+    return;
+  }
+  
+  const withdrawalAmount = parseFloat(amountValue);
+  
+  if (withdrawalAmount < this.MIN_WITHDRAWAL_AMOUNT) {
+    this.payableAmount.set(0);
+    return;
+  }
+  
+  // Calculate payable amount: withdrawal amount minus 15% fee
+  const payable = withdrawalAmount * (1 - this.WITHDRAWAL_FEE_RATE);
+  this.payableAmount.set(Math.max(0, Math.round(payable * 100) / 100));
+}
+
+  
+
+  // Keep your existing maxWithdrawableAmount if you still need it for validation
   readonly maxWithdrawableAmount = computed(() => {
     const availableBalance = this.availableBalance();
-    const flatFee = this.WITHDRAWAL_FLAT_FEE;
     const percentageRate = this.WITHDRAWAL_FEE_RATE;
     
-    // Calculate max amount assuming percentage fee
-    const maxAmountWithPercentageFee = availableBalance / (1 + percentageRate);
-    
-    // Calculate max amount assuming flat fee
-    const maxAmountWithFlatFee = availableBalance - flatFee;
-    
-    // The fee switches from flat to percentage at the point where they are equal.
-    // We need to find the amount at which this switch happens.
-    // X * 0.015 = 100  => X = 100 / 0.015 = 6666.67
-    const threshold = flatFee / percentageRate;
-    
-    // Determine which fee structure applies to the available balance.
-    // This logic is a bit tricky, a simpler way is to check the result from the percentage calculation.
-    
-    let maxAmount;
-    if (maxAmountWithPercentageFee >= threshold) {
-      // If the max amount calculated with the percentage fee is above the threshold,
-      // it means the percentage fee applies.
-      maxAmount = maxAmountWithPercentageFee;
-    } else {
-      // Otherwise, the flat fee applies.
-      maxAmount = maxAmountWithFlatFee;
-    }
+    // Calculate max amount with percentage fee only
+    const maxAmount = availableBalance / (1 + percentageRate);
     
     // Ensure the amount is at least the minimum withdrawal amount
     return Math.max(0, Math.floor(maxAmount));
   });
+
 
   // Computed values
   readonly filteredBanks = computed(() => {
@@ -231,7 +233,6 @@ export class WithdrawalComponent implements OnInit {
         [
           Validators.required,
           Validators.min(this.MIN_WITHDRAWAL_AMOUNT),
-          this.maxWithdrawalValidator()
         ]
       ],
       userId: [this.user()?._id]
@@ -240,28 +241,28 @@ export class WithdrawalComponent implements OnInit {
     this.setupFormSubscriptions();
   }
 
-  private setupFormSubscriptions(): void {
-    const accountNumberControl = this.withdrawForm.get('accountNumber');
-    const amountControl = this.withdrawForm.get('amount');
+private setupFormSubscriptions(): void {
+  const accountNumberControl = this.withdrawForm.get('accountNumber');
+  const amountControl = this.withdrawForm.get('amount');
 
-    if (accountNumberControl) {
-      accountNumberControl.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => this.resolveAccountName());
-    }
-
-    if (amountControl) {
-      amountControl.valueChanges
-        .pipe(
-          debounceTime(300),
-          takeUntilDestroyed(this.destroyRef)
-        )
-        .subscribe(() => {
-          // Re-run validation on the amount field after a change
-          amountControl.updateValueAndValidity({ emitEvent: false });
-        });
-    }
+  if (accountNumberControl) {
+    accountNumberControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.resolveAccountName());
   }
+
+  if (amountControl) {
+    amountControl.valueChanges
+      .pipe(
+        debounceTime(100),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.updatePayableAmount();
+        amountControl.updateValueAndValidity({ emitEvent: false });
+      });
+  }
+}
 
   private setupSearchFunctionality(): void {
     this.searchControl
@@ -281,26 +282,6 @@ export class WithdrawalComponent implements OnInit {
     this.loadSavedAccounts();
   }
 
-  // Custom validator for maximum amount, now including the fee
-  private maxWithdrawalValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const withdrawalAmount = parseFloat(control.value) || 0;
-      const availableBalance = this.availableBalance();
-
-      if (withdrawalAmount === 0 || !control.value) {
-        return null;
-      }
-
-      const fee = this.calculateFee(withdrawalAmount);
-      const totalDeduction = withdrawalAmount + fee;
-
-      if (totalDeduction > availableBalance) {
-        return { maxWithdrawal: { requiredAmount: totalDeduction, available: availableBalance } };
-      }
-
-      return null;
-    };
-  }
 
   // Balance methods
   fetchBalance(): void {
@@ -426,8 +407,7 @@ export class WithdrawalComponent implements OnInit {
       ...this.withdrawForm.value,
       bankName: this.selectedBankName(),
       bankCode: this.withdrawForm.get('bank')?.value,
-      // Add the withdrawal fee and total deduction to the transaction data
-      withdrawalFee: this.withdrawalFee(),
+      payableAmount: this.payableAmount(),
       totalDeduction: this.totalDeduction(),
       finalAmount: this.withdrawForm.get('amount')?.value
     };

@@ -101,7 +101,7 @@
           Pending Submission
         </span>
       } 
-      @if (!promotion.isDownloaded) {
+      @if (!promotion.isDownloaded && promotion.status !== 'rejected') {
         <span class="status-label">
           Pending Download
         </span>
