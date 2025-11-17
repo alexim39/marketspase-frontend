@@ -12,6 +12,7 @@ import { NotificationBannerService, PromoData } from '../notfication-banner.serv
   selector: 'promo-banner',
   standalone: true,
   imports: [CommonModule, MatIconModule, MatButtonModule],
+  providers: [NotificationBannerService],
   template: `
     <!-- Promotional Banner for Marketers -->
     @if (showPromoBanner() && user()?.role === 'marketer' && promoData()) {

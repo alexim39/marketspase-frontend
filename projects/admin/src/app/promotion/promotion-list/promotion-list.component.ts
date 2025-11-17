@@ -356,7 +356,7 @@ export class PromotionListMgtComponent implements OnInit {
     this.rejectionReason = '';
     
     this.dialogRef = this.dialog.open(this.rejectDialog, {
-      width: '200px',
+      width: '500px',
       height: 'auto'
     });
   }

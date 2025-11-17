@@ -99,7 +99,7 @@
         <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Status</mat-label>
             <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilterChange($event)">
-            <div style="background-color: black;">
+            <div>
                 <mat-option value="all">All Statuses</mat-option>
                 <mat-option value="pending">Pending</mat-option>
                 <mat-option value="submitted">Submitted</mat-option>
@@ -220,7 +220,7 @@
                     </button>
                     
                     <mat-menu #menu="matMenu">
-                    <div style="background-color: black;">
+                    <div>
                     @if (promotion.status === 'submitted') {
                         <button mat-menu-item (click)="validatePromotion(promotion)" 
                                 [disabled]="promotion.proofViews < campaign()!.minViewsPerPromotion">

@@ -16,7 +16,7 @@
         <mat-icon>settings</mat-icon>
         </button>
         <mat-menu #statusMenu="matMenu">
-        <div style="background-color: black !important;">
+        <div>
             @if (campaign()?.status === 'pending') {
                 <button mat-menu-item (click)="updateCampaignStatus('active')">
                 <mat-icon>check_circle</mat-icon>
@@ -306,7 +306,7 @@
                         </button>
                         
                         <mat-menu #promotionMenu="matMenu">
-                            <div style="background-color: black !important;">
+                            <div>
                                 @if (promotion.status === 'submitted') {
                                 <button mat-menu-item (click)="validatePromotion(promotion)">
                                     <mat-icon>check_circle</mat-icon>

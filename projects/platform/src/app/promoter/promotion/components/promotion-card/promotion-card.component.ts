@@ -287,7 +287,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
       //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
       urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}`; 
     }
-    const textToCopy = `${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
+    const textToCopy = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(textToCopy).then(
         () => {

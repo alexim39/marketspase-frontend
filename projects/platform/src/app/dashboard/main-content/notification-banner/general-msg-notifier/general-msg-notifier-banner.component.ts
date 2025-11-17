@@ -5,37 +5,45 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { NotificationBannerService } from '../notfication-banner.service';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { NotificationMessage, NotificationResponse, DismissalResponse } from './notification-message.model';
 
 @Component({
   selector: 'general-msg-notifier-banner',
   imports: [CommonModule, MatIconModule, RouterModule],
   providers: [NotificationBannerService],
   template: `
-    <!-- Withdrawal Service Notification Banner -->
-    @if(showWithdrawalNotification()) {
-      <div class="notification-banner">
-        <mat-icon class="notification-icon">warning</mat-icon>
+    <!-- Dynamic Notification Banners -->
+    @for(notification of activeNotifications(); track notification._id) {
+      <div 
+        class="notification-banner" 
+        [style.background]="notification.bannerColor || getDefaultColor(notification.type)"
+        [style.color]="notification.textColor || '#fff'"
+        [style.border-left-color]="getBorderColor(notification.type)">
+        
+        <mat-icon class="notification-icon">{{getNotificationIcon(notification.type)}}</mat-icon>
+        
         <div class="notification-content">
-          <div class="notification-title">Temporary Withdrawal Service Pause</div>
-          <p class="notification-message">
-            Please be advised that withdrawal requests are currently temporarily paused due to technical maintenance. 
-            Our team is actively working to resolve these issues. Withdrawal services will resume on 
-            <strong>the 20th of November, 2025</strong>. We apologize for any inconvenience this may cause and appreciate your patience.
-          </p>
+          <div class="notification-title" [innerHTML]="notification.title"></div>
+          <p class="notification-message" [innerHTML]="notification.message"></p>
+          
+          @if(notification.actionLink && notification.actionText) {
+            <a 
+              [routerLink]="notification.actionLink" 
+              class="notification-action"
+              [style.color]="notification.textColor || '#fff'">
+              {{notification.actionText}}
+            </a>
+          }
         </div>
-        <mat-icon class="close-icon" (click)="closeWithdrawalNotification()" title="Dismiss notification">close</mat-icon>
-      </div>
-    }
-
-    <!-- Original Profile Completion Banner (kept for reference) -->
-    @if(!this.isProfiled()) {
-      <div class="info-alert">
-        <mat-icon class="info-icon">info</mat-icon>
-        <span>
-          To enjoy a better experience on the platform, please complete your profile setup.
-          <a routerLink="settings/account" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()" title="New Ad">Go to the profile settings to finish setting up your account.</a>
-        </span>
-        <mat-icon class="close-icon" (click)="close()">close</mat-icon>
+        
+        @if(notification.dismissible) {
+          <mat-icon 
+            class="close-icon" 
+            (click)="dismissNotification(notification)" 
+            title="Dismiss notification">
+            close
+          </mat-icon>
+        }
       </div>
     }
   `,
@@ -47,32 +55,112 @@ export class GeneralMsgNotifierBannerComponent implements OnInit {
 
   private notificationBannerService = inject(NotificationBannerService);
 
-  isProfiled = signal(false);
-  showWithdrawalNotification = signal(true);
+  activeNotifications = signal<NotificationMessage[]>([]);
+  dismissedNotificationIds = signal<string[]>([]);
 
   ngOnInit(): void {
-    if (this.user()?.personalInfo?.address) {
-      this.isProfiled.set(true);
+    this.fetchActiveNotifications();
+  }
+
+  private fetchActiveNotifications() {
+    this.notificationBannerService.getActiveNotifications().subscribe({
+      next: (response: NotificationResponse) => {
+        if (response.success && response.data) {
+          // Filter out dismissed notifications
+          const filteredNotifications = response.data.filter(notification => 
+            !this.dismissedNotificationIds().includes(notification._id)
+          );
+          this.activeNotifications.set(filteredNotifications);
+        }
+      },
+      error: (error: any) => {
+        console.error('Failed to fetch notification data:', error);
+      }
+    });
+
+    // Load dismissed notifications for current user
+    if (this.user()?._id) {
+      this.loadDismissedNotifications();
     }
-    
-    // Check if user has already dismissed the withdrawal notification
-    // const dismissed = localStorage.getItem('withdrawal-notification-dismissed');
-    // if (dismissed === 'true') {
-    //   this.showWithdrawalNotification.set(false);
-    // }
   }
 
-  close() {
-    this.isProfiled.set(true);
+  private loadDismissedNotifications() {
+    const userId = this.user()?._id;
+    if (!userId) return;
+
+    this.notificationBannerService.getDismissedNotifications(userId).subscribe({
+      next: (response: DismissalResponse) => {
+        if (response.success && response.data) {
+          this.dismissedNotificationIds.set(response.data);
+          // Re-fetch active notifications to filter out dismissed ones
+          this.fetchActiveNotifications();
+        }
+      },
+      error: (error: any) => {
+        console.error('Failed to fetch dismissed notifications:', error);
+      }
+    });
   }
 
-  closeWithdrawalNotification() {
-    this.showWithdrawalNotification.set(false);
-    // Store dismissal in localStorage to persist across page refreshes
-    //localStorage.setItem('withdrawal-notification-dismissed', 'true');
+  dismissNotification(notification: NotificationMessage) {
+    const userId = this.user()?._id;
+    if (!userId) {
+      // If no user, just remove from UI
+      this.removeNotificationFromUI(notification._id);
+      return;
+    }
+
+    this.notificationBannerService.dismissNotification(notification._id, userId).subscribe({
+      next: (response: { success: boolean; message: string }) => {
+        if (response.success) {
+          this.removeNotificationFromUI(notification._id);
+        }
+      },
+      error: (error: any) => {
+        console.error('Failed to dismiss notification:', error);
+        // Still remove from UI even if API call fails
+        this.removeNotificationFromUI(notification._id);
+      }
+    });
   }
 
-  scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  private removeNotificationFromUI(notificationId: string) {
+    this.activeNotifications.update(notifications => 
+      notifications.filter(n => n._id !== notificationId)
+    );
+    this.dismissedNotificationIds.update(ids => [...ids, notificationId]);
+  }
+
+  getNotificationIcon(type: string): string {
+    const iconMap: { [key: string]: string } = {
+      'INFO': 'info',
+      'WARNING': 'warning',
+      'ERROR': 'error',
+      'SUCCESS': 'check_circle',
+      'MAINTENANCE': 'build'
+    };
+    return iconMap[type] || 'info';
+  }
+
+  getDefaultColor(type: string): string {
+    const colorMap: { [key: string]: string } = {
+      'INFO': '#1976d2',
+      'WARNING': '#f57c00',
+      'ERROR': '#d32f2f',
+      'SUCCESS': '#388e3c',
+      'MAINTENANCE': '#7b1fa2'
+    };
+    return colorMap[type] || '#1976d2';
+  }
+
+  getBorderColor(type: string): string {
+    const borderColorMap: { [key: string]: string } = {
+      'INFO': '#1565c0',
+      'WARNING': '#ef6c00',
+      'ERROR': '#c62828',
+      'SUCCESS': '#2e7d32',
+      'MAINTENANCE': '#6a1b9a'
+    };
+    return borderColorMap[type] || '#1565c0';
   }
 }

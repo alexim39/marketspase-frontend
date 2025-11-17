@@ -69,7 +69,7 @@
         <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Status</mat-label>
             <mat-select [formControl]="filtersForm.controls.status" multiple>
-            <div style="background-color: black;">
+            <div>
                 <mat-option value="active">Active</mat-option>
                 <mat-option value="paused">Paused</mat-option>
                 <mat-option value="rejected">Rejected</mat-option>
@@ -84,7 +84,7 @@
         <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Category</mat-label>
             <mat-select [formControl]="filtersForm.controls.category" multiple>
-            <div style="background-color: black;">
+            <div>
                 @for (category of categories(); track category) {
                 <mat-option [value]="category">{{ category }}</mat-option>
                 }
@@ -202,7 +202,7 @@
                     </button>
                     
                     <mat-menu #menu="matMenu" >
-                    <div style="background-color: black !important;">
+                    <div>
                     @if (campaign.status === 'pending') {
                         <button mat-menu-item (click)="approveCampaign(campaign)">
                         <mat-icon>check_circle</mat-icon>

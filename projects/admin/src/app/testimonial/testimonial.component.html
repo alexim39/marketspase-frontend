@@ -18,7 +18,7 @@
                 <mat-form-field appearance="outline" class="filter-field">
                     <mat-label>Status</mat-label>
                     <mat-select (selectionChange)="onStatusFilterChange($event)">
-                        <div style="background-color: black;">
+                        <div>
                             <mat-option value="all">All Statuses</mat-option>
                             <mat-option value="pending">Pending</mat-option>
                             <mat-option value="approved">Approved</mat-option>
@@ -30,7 +30,7 @@
                 <mat-form-field appearance="outline" class="filter-field">
                     <mat-label>Rating</mat-label>
                     <mat-select (selectionChange)="onRatingFilterChange($event)">
-                        <div style="background-color: black;">
+                        <div>
                         <mat-option value="all">All Ratings</mat-option>
                         <mat-option value="5">5 Stars</mat-option>
                         <mat-option value="4">4 Stars</mat-option>
