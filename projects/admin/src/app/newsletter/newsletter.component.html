@@ -2,339 +2,244 @@
     <mat-progress-bar mode="indeterminate"/>
 }
 
-<div class="newsletter-management">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">Newsletter Management</h1>
-            <p class="page-description">Create and send newsletters to your users</p>
+<div class="newsletter-dashboard">
+    <!-- Simplified Header -->
+    <div class="dashboard-header">
+        <div class="header-main">
+            <h1>Newsletters</h1>
+            <p>Create and manage email campaigns</p>
         </div>
-        <button class="create-newsletter-btn" (click)="createNewNewsletter()" mat-raised-button color="primary">
+        <button class="create-btn" (click)="createNewsletter()" mat-raised-button color="primary">
             <mat-icon>add</mat-icon>
             New Newsletter
         </button>
     </div>
 
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon total">
-                <mat-icon>email</mat-icon>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value">{{ stats().totalSent }}</div>
-                <div class="stat-label">Total Sent</div>
-            </div>
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat">
+            <span class="stat-number">{{ stats().total }}</span>
+            <span class="stat-label">Total</span>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon scheduled">
-                <mat-icon>schedule</mat-icon>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value">{{ stats().scheduled }}</div>
-                <div class="stat-label">Scheduled</div>
-            </div>
+        <div class="stat">
+            <span class="stat-number">{{ stats().draft }}</span>
+            <span class="stat-label">Draft</span>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon opened">
-                <mat-icon>visibility</mat-icon>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value">{{ stats().openRate }}%</div>
-                <div class="stat-label">Open Rate</div>
-            </div>
+        <div class="stat">
+            <span class="stat-number">{{ stats().scheduled }}</span>
+            <span class="stat-label">Scheduled</span>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon clicked">
-                <mat-icon>click</mat-icon>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value">{{ stats().clickRate }}%</div>
-                <div class="stat-label">Click Rate</div>
-            </div>
+        <div class="stat">
+            <span class="stat-number">{{ stats().sent }}</span>
+            <span class="stat-label">Sent</span>
         </div>
     </div>
 
-    <!-- Newsletter List/Form Toggle -->
-    <div class="content-section">
-        @if (!showNewsletterForm()) {
-            <!-- Newsletter List -->
-            <div class="newsletter-list">
-                <div class="section-header">
-                    <h2>Recent Newsletters</h2>
-                    <div class="filter-controls">
-                        <mat-form-field appearance="outline" class="filter-field">
-                            <mat-label>Status</mat-label>
-                            <mat-select [value]="filterStatus()" (selectionChange)="onFilterChange($event.value)">
-                                <mat-option value="all">All</mat-option>
-                                <mat-option value="draft">Draft</mat-option>
-                                <mat-option value="scheduled">Scheduled</mat-option>
-                                <mat-option value="sent">Sent</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        
-                        <div class="search-container">
-                            <mat-icon class="search-icon">search</mat-icon>
-                            <input 
-                                type="text" 
-                                placeholder="Search newsletters..."
-                                class="search-input"
-                                [value]="searchQuery()"
-                                (input)="onSearchInput($event)">
-                        </div>
-                    </div>
+    <!-- Main Content -->
+    @if (!showForm()) {
+        <!-- Newsletter List -->
+        <div class="newsletter-list">
+            <div class="list-controls">
+                <div class="search-box">
+                    <mat-icon>search</mat-icon>
+                    <input 
+                        type="text" 
+                        placeholder="Search newsletters..."
+                        [value]="searchQuery()"
+                        (input)="onSearch($event)">
                 </div>
+                
+                <mat-button-toggle-group [value]="filterStatus()" (change)="onFilterChange($event.value)">
+                    <mat-button-toggle value="all">All</mat-button-toggle>
+                    <mat-button-toggle value="draft">Draft</mat-button-toggle>
+                    <mat-button-toggle value="scheduled">Scheduled</mat-button-toggle>
+                    <mat-button-toggle value="sent">Sent</mat-button-toggle>
+                </mat-button-toggle-group>
+            </div>
 
-                <div class="newsletter-table">
-                    <div class="table-header">
-                        <div class="col subject">Subject</div>
-                        <div class="col recipients">Recipients</div>
-                        <div class="col status">Status</div>
-                        <div class="col sent-date">Sent Date</div>
-                        <div class="col open-rate">Open Rate</div>
-                        <div class="col actions">Actions</div>
-                    </div>
-
-                    <div class="table-body">
-                        @for (newsletter of filteredNewsletters(); track newsletter.id) {
-                            <div class="table-row">
-                                <div class="col subject">
-                                    <div class="subject-line">{{ newsletter.subject }}</div>
-                                    <div class="preview-text">{{ newsletter.previewText }}</div>
-                                </div>
-                                <div class="col recipients">
-                                    <div class="recipient-count">{{ newsletter.recipientCount }}</div>
-                                    <div class="recipient-type">{{ newsletter.recipientType }}</div>
-                                </div>
-                                <div class="col status">
-                                    <span class="status-badge" [class]="newsletter.status">
-                                        {{ newsletter.status }}
-                                    </span>
-                                </div>
-                                <div class="col sent-date">
-                                    {{ newsletter.sentDate | date:'medium' }}
-                                </div>
-                                <div class="col open-rate">
-                                    <div class="rate-display">
-                                        <span class="rate-value">{{ newsletter.openRate }}%</span>
-                                        <mat-progress-bar 
-                                            mode="determinate" 
-                                            [value]="newsletter.openRate"
-                                            class="rate-bar">
-                                        </mat-progress-bar>
-                                    </div>
-                                </div>
-                                <div class="col actions">
-                                    <button class="action-btn" mat-icon-button [matMenuTriggerFor]="actionMenu">
-                                        <mat-icon>more_vert</mat-icon>
-                                    </button>
-                                    <mat-menu #actionMenu="matMenu">
-                                        <button mat-menu-item (click)="editNewsletter(newsletter.id)">
-                                            <mat-icon>edit</mat-icon>
-                                            <span>Edit</span>
-                                        </button>
-                                        <button mat-menu-item 
-                                                (click)="duplicateNewsletter(newsletter.id)"
-                                                [disabled]="newsletter.status === 'scheduled'">
-                                            <mat-icon>content_copy</mat-icon>
-                                            <span>Duplicate</span>
-                                        </button>
-                                        <button mat-menu-item 
-                                                (click)="deleteNewsletter(newsletter.id)"
-                                                class="delete-action">
-                                            <mat-icon>delete</mat-icon>
-                                            <span>Delete</span>
-                                        </button>
-                                    </mat-menu>
-                                </div>
+            <div class="newsletter-cards">
+                @for (newsletter of filteredNewsletters(); track newsletter.id) {
+                    <div class="newsletter-card" [class]="newsletter.status">
+                        <div class="card-header">
+                            <h3>{{ newsletter.subject }}</h3>
+                            <span class="status-badge">{{ newsletter.status }}</span>
+                        </div>
+                        
+                        <p class="preview">{{ newsletter.previewText }}</p>
+                        
+                        <div class="card-meta">
+                            <div class="meta-item">
+                                <mat-icon>people</mat-icon>
+                                {{ newsletter.recipientCount }} recipients
                             </div>
-                        } @empty {
-                            <div class="empty-state">
-                                <mat-icon>email</mat-icon>
-                                <h3>No newsletters found</h3>
-                                <p>Create your first newsletter to get started</p>
-                                <button mat-raised-button color="primary" (click)="createNewNewsletter()">
-                                    Create Newsletter
-                                </button>
+                            <div class="meta-item">
+                                <mat-icon>calendar_today</mat-icon>
+                                {{ newsletter.sentDate | date:'MMM d, y' }}
+                            </div>
+                        </div>
+
+                        @if (newsletter.status === 'sent') {
+                            <div class="performance">
+                                <div class="metric">
+                                    <span>Open Rate</span>
+                                    <strong>{{ newsletter.openRate }}%</strong>
+                                </div>
+                                <div class="metric">
+                                    <span>Click Rate</span>
+                                    <strong>{{ newsletter.clickRate }}%</strong>
+                                </div>
                             </div>
                         }
+
+                        <div class="card-actions">
+                            <button mat-icon-button (click)="editNewsletter(newsletter.id)">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="duplicateNewsletter(newsletter.id)">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                            <button mat-icon-button color="warn" (click)="deleteNewsletter(newsletter.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                } @empty {
+                    <div class="empty-state">
+                        <mat-icon>email</mat-icon>
+                        <h3>No newsletters yet</h3>
+                        <p>Create your first newsletter to get started</p>
+                        <button mat-raised-button color="primary" (click)="createNewsletter()">
+                            Create Newsletter
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    } @else {
+        <!-- Simplified Form -->
+        <div class="newsletter-form">
+            <div class="form-header">
+                <button mat-icon-button (click)="cancelEdit()" class="back-btn">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <h2>{{ editingId() ? 'Edit Newsletter' : 'Create Newsletter' }}</h2>
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="saveNewsletter()" class="form-content">
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Subject *</mat-label>
+                        <input matInput formControlName="subject" placeholder="What's this newsletter about?">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Preview Text</mat-label>
+                        <textarea matInput formControlName="previewText" 
+                                 placeholder="Brief text shown in email inbox" rows="2"></textarea>
+                    </mat-form-field>
+                </div>
+
+                <!-- Recipients -->
+                <div class="form-section">
+                    <h3>Send to</h3>
+                    <mat-button-toggle-group formControlName="recipientType" class="recipient-toggle">
+                        <mat-button-toggle value="all">All Users</mat-button-toggle>
+                        <mat-button-toggle value="marketers">Marketers</mat-button-toggle>
+                        <mat-button-toggle value="promoters">Promoters</mat-button-toggle>
+                        <mat-button-toggle value="external">External Emails</mat-button-toggle>
+                    </mat-button-toggle-group>
+
+
+     @if (form.get('recipientType')?.value === 'external') {
+        <div class="external-emails-section">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email addresses</mat-label>
+                <textarea matInput formControlName="externalEmails" 
+                         placeholder="Enter email addresses (one per line or separated by commas)"
+                         rows="4"
+                         (blur)="validateExternalEmails()"></textarea>
+                <mat-hint>Enter one email per line or separate with commas</mat-hint>
+                @if (form.get('externalEmails')?.hasError('invalidEmails')) {
+                    <mat-error>Please enter valid email addresses</mat-error>
+                }
+                @if (form.get('externalEmails')?.hasError('maxEmails')) {
+                    <mat-error>Maximum {{MAX_EXTERNAL_EMAILS}} emails allowed</mat-error>
+                }
+            </mat-form-field>
+            
+            <div class="email-stats">
+                <span>{{ getEmailCount() }} email(s)</span>
+                @if (getInvalidEmails().length > 0) {
+                    <span class="invalid-count">{{ getInvalidEmails().length }} invalid</span>
+                }
+            </div>
+            
+            @if (getInvalidEmails().length > 0) {
+                <div class="invalid-emails">
+                    <strong>Invalid emails:</strong>
+                    <div class="invalid-list">{{ getInvalidEmails().join(', ') }}</div>
+                </div>
+            }
+        </div>
+    }
+    
+
+                    <div class="recipient-count">
+                        {{ 0 }} people will receive this
                     </div>
                 </div>
-            </div>
-        } @else {
-            <!-- Newsletter Form -->
-            <div class="newsletter-form">
-                <div class="form-header">
-                    <h2>{{ editingNewsletter() ? 'Edit Newsletter' : 'Create New Newsletter' }}</h2>
-                    <button class="back-btn" mat-stroked-button (click)="cancelEdit()">
-                        <mat-icon>arrow_back</mat-icon>
-                        Back to List
+
+                <!-- Content -->
+                <div class="form-section">
+                    <h3>Content</h3>
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Your message *</mat-label>
+                        <textarea matInput formControlName="content" 
+                                 placeholder="Write your newsletter content..." rows="8"></textarea>
+                    </mat-form-field>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-section">
+                    <h3>Send options</h3>
+                    <mat-button-toggle-group formControlName="sendOption" class="send-toggle">
+                        <mat-button-toggle value="draft">Save as draft</mat-button-toggle>
+                        <mat-button-toggle value="now">Send now</mat-button-toggle>
+                        <mat-button-toggle value="schedule">Schedule</mat-button-toggle>
+                    </mat-button-toggle-group>
+
+                    @if (form.get('sendOption')?.value === 'schedule') {
+                        <div class="schedule-fields">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Date</mat-label>
+                                <input matInput [matDatepicker]="picker" formControlName="scheduledDate">
+                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                            
+                            <mat-form-field appearance="outline">
+                                <mat-label>Time</mat-label>
+                                <input matInput type="time" formControlName="scheduledTime">
+                            </mat-form-field>
+                        </div>
+                    }
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" mat-stroked-button (click)="cancelEdit()">
+                        Cancel
+                    </button>
+                    <button type="submit" mat-raised-button color="primary" 
+                            [disabled]="form.invalid || saving()">
+                        @if (saving()) {
+                            <mat-spinner diameter="20"></mat-spinner>
+                        }
+                        {{ getActionText() }}
                     </button>
                 </div>
-
-                <form [formGroup]="newsletterForm" (ngSubmit)="onSubmit()">
-                    <div class="form-grid">
-                        <!-- Basic Information -->
-                        <div class="form-section">
-                            <h3 class="section-title">Basic Information</h3>
-                            
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Subject</mat-label>
-                                <input matInput formControlName="subject" placeholder="Enter newsletter subject">
-                                @if (newsletterForm.get('subject')?.hasError('required')) {
-                                    <mat-error>Subject is required</mat-error>
-                                }
-                            </mat-form-field>
-
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Preview Text</mat-label>
-                                <textarea 
-                                    matInput 
-                                    formControlName="previewText" 
-                                    placeholder="Brief preview text that appears in email inbox"
-                                    rows="2">
-                                </textarea>
-                            </mat-form-field>
-                        </div>
-
-                        <!-- Recipients -->
-                        <div class="form-section">
-                            <h3 class="section-title">Recipients</h3>
-                            
-                            <div class="recipient-type-selector">
-                                <mat-radio-group formControlName="recipientType" (change)="onRecipientTypeChange()">
-                                    <mat-radio-button value="all">All Users</mat-radio-button>
-                                    <mat-radio-button value="marketers">Marketers Only</mat-radio-button>
-                                    <mat-radio-button value="promoters">Promoters Only</mat-radio-button>
-                                    <mat-radio-button value="custom">Custom List</mat-radio-button>
-                                </mat-radio-group>
-                            </div>
-
-                            @if (newsletterForm.get('recipientType')?.value === 'custom') {
-                                <mat-form-field appearance="outline" class="full-width">
-                                    <mat-label>Email Addresses</mat-label>
-                                    <textarea 
-                                        matInput 
-                                        formControlName="customEmails" 
-                                        placeholder="Enter email addresses separated by commas"
-                                        rows="4">
-                                    </textarea>
-                                    <mat-hint>Separate multiple emails with commas</mat-hint>
-                                    @if (newsletterForm.get('customEmails')?.hasError('email')) {
-                                        <mat-error>Please enter valid email addresses</mat-error>
-                                    }
-                                </mat-form-field>
-                            }
-
-                            <div class="recipient-count">
-                                Estimated recipients: <strong>{{ estimatedRecipients() }}</strong>
-                            </div>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="form-section">
-                            <h3 class="section-title">Content</h3>
-                            
-                            <div class="editor-toolbar">
-                                <button type="button" class="toolbar-btn" (click)="formatText('bold')">
-                                    <mat-icon>format_bold</mat-icon>
-                                </button>
-                                <button type="button" class="toolbar-btn" (click)="formatText('italic')">
-                                    <mat-icon>format_italic</mat-icon>
-                                </button>
-                                <button type="button" class="toolbar-btn" (click)="formatText('underline')">
-                                    <mat-icon>format_underlined</mat-icon>
-                                </button>
-                                <button type="button" class="toolbar-btn" (click)="insertLink()">
-                                    <mat-icon>link</mat-icon>
-                                </button>
-                                <button type="button" class="toolbar-btn" (click)="insertImage()">
-                                    <mat-icon>image</mat-icon>
-                                </button>
-                            </div>
-
-                            <mat-form-field appearance="outline" class="full-width">
-                                <mat-label>Newsletter Content</mat-label>
-                                <textarea 
-                                    matInput 
-                                    formControlName="content" 
-                                    placeholder="Write your newsletter content here..."
-                                    rows="12"
-                                    #contentTextarea>
-                                </textarea>
-                            </mat-form-field>
-
-                            <div class="content-preview" [innerHTML]="previewContent()"></div>
-                        </div>
-
-                        <!-- Scheduling -->
-                        <div class="form-section">
-                            <h3 class="section-title">Scheduling</h3>
-                            
-                            <mat-radio-group formControlName="sendOption">
-                                <div class="radio-option">
-                                    <mat-radio-button value="now">Send immediately</mat-radio-button>
-                                </div>
-                                <div class="radio-option">
-                                    <mat-radio-button value="schedule">Schedule for later</mat-radio-button>
-                                    @if (newsletterForm.get('sendOption')?.value === 'schedule') {
-                                        <mat-form-field appearance="outline" class="schedule-field">
-                                            <mat-label>Schedule Date & Time</mat-label>
-                                            <input 
-                                                matInput 
-                                                [matDatepicker]="picker" 
-                                                formControlName="scheduledDate"
-                                                [min]="minDate">
-                                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                                            <mat-datepicker #picker></mat-datepicker>
-                                        </mat-form-field>
-                                        <mat-form-field appearance="outline" class="schedule-field">
-                                            <mat-label>Time</mat-label>
-                                            <input matInput type="time" formControlName="scheduledTime">
-                                        </mat-form-field>
-                                    }
-                                </div>
-                                <div class="radio-option">
-                                    <mat-radio-button value="draft">Save as draft</mat-radio-button>
-                                </div>
-                            </mat-radio-group>
-                        </div>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="form-actions">
-                        <button 
-                            type="button" 
-                            mat-stroked-button 
-                            (click)="cancelEdit()"
-                            class="cancel-btn">
-                            Cancel
-                        </button>
-                        
-                        <button 
-                            type="button" 
-                            mat-stroked-button 
-                            (click)="saveDraft()"
-                            [disabled]="newsletterForm.invalid">
-                            Save Draft
-                        </button>
-                        
-                        <button 
-                            type="submit" 
-                            mat-raised-button 
-                            color="primary"
-                            [disabled]="newsletterForm.invalid || isSubmitting()">
-                            @if (isSubmitting()) {
-                                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
-                            }
-                            {{ getSubmitButtonText() }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        }
-    </div>
+            </form>
+        </div>
+    }
 </div>

@@ -1,40 +1,63 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatMenuModule } from '@angular/material/menu';
-import { Router } from '@angular/router';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingService } from '../../../../shared-services/src/public-api';
+import { NewsletterService, NewsletterStats, CreateNewsletterRequest } from './newsletter.service';
 
 interface Newsletter {
   id: string;
   subject: string;
   previewText: string;
   content: string;
-  recipientType: 'all' | 'marketers' | 'promoters' | 'custom';
-  customEmails?: string[];
+  recipientType: 'all' | 'marketers' | 'promoters' | 'external';
   recipientCount: number;
+  externalEmails?: string[];
   status: 'draft' | 'scheduled' | 'sent';
   sentDate: Date;
   openRate: number;
   clickRate: number;
 }
 
-interface NewsletterStats {
-  totalSent: number;
+interface Stats {
+  total: number;
+  draft: number;
   scheduled: number;
-  openRate: number;
-  clickRate: number;
+  sent: number;
+}
+
+// Email validation function
+function emailValidator(control: AbstractControl) {
+  if (!control.value) return null;
+  
+  const emails = control.value.split(/[\n,]/)
+    .map((email: string) => email.trim())
+    .filter((email: string) => email.length > 0);
+  
+  // Check if exceeds maximum
+  if (emails.length > 1000) {
+    return { maxEmails: true };
+  }
+  
+  // Validate each email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const invalidEmails = emails.filter((email: string) => !emailRegex.test(email));
+  
+  if (invalidEmails.length > 0) {
+    return { invalidEmails: true };
+  }
+  
+  return null;
 }
 
 @Component({
@@ -45,362 +68,417 @@ interface NewsletterStats {
     ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatRadioModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatMenuModule
+    MatButtonToggleModule,
+    MatTooltipModule,
+    MatSnackBarModule
   ],
   templateUrl: './newsletter.component.html',
   styleUrls: ['./newsletter.component.scss']
 })
 export class NewsletterManagementComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
+ private fb = inject(FormBuilder);
+  private newsletterService = inject(NewsletterService);
+  private snackBar = inject(MatSnackBar);
   public loadingService = inject(LoadingService);
 
+  // Constants
+  readonly MAX_EXTERNAL_EMAILS = 1000;
+
   // Signals
-  showNewsletterForm = signal(false);
-  editingNewsletter = signal<string | null>(null);
+  showForm = signal(false);
+  editingId = signal<string | null>(null);
   searchQuery = signal('');
   filterStatus = signal('all');
-  isSubmitting = signal(false);
+  saving = signal(false);
+  invalidEmails = signal<string[]>([]);
+  recipientCounts = signal({ all: 0, marketers: 0, promoters: 0 });
   
-  // Sample data - replace with actual API calls
-  newsletters = signal<Newsletter[]>([
-    {
-      id: '1',
-      subject: 'Welcome to Our New Platform Features',
-      previewText: 'Discover the latest updates and how they benefit you...',
-      content: '<p>Welcome to our new platform features...</p>',
-      recipientType: 'all',
-      recipientCount: 1250,
-      status: 'sent',
-      sentDate: new Date('2024-01-15'),
-      openRate: 42,
-      clickRate: 18
-    },
-    {
-      id: '2',
-      subject: 'Important Update for Marketers',
-      previewText: 'New campaign tools and analytics available...',
-      content: '<p>Dear marketers, we have exciting news...</p>',
-      recipientType: 'marketers',
-      recipientCount: 450,
-      status: 'scheduled',
-      sentDate: new Date('2024-01-20'),
-      openRate: 0,
-      clickRate: 0
-    },
-    {
-      id: '3',
-      subject: 'Promoter Earnings Report - Q1 2024',
-      previewText: 'See how promoters are earning with our platform...',
-      content: '<p>Check out the latest earnings report...</p>',
-      recipientType: 'promoters',
-      recipientCount: 800,
-      status: 'draft',
-      sentDate: new Date(),
-      openRate: 0,
-      clickRate: 0
-    }
-  ]);
-
+  // Data
+  newsletters = signal<Newsletter[]>([]);
   stats = signal<NewsletterStats>({
-    totalSent: 45,
-    scheduled: 3,
-    openRate: 38.5,
-    clickRate: 12.2
+    total: 0,
+    draft: 0,
+    scheduled: 0,
+    sent: 0,
+    totalSent: 0,
+    openRate: 0,
+    clickRate: 0
   });
 
   // Form
-  newsletterForm: FormGroup;
+  form: FormGroup;
 
-  // Computed signals
+  // Computed values
   filteredNewsletters = computed(() => {
     const query = this.searchQuery().toLowerCase();
-    const statusFilter = this.filterStatus();
+    const status = this.filterStatus();
     
     return this.newsletters().filter(newsletter => {
       const matchesSearch = newsletter.subject.toLowerCase().includes(query) ||
                            newsletter.previewText.toLowerCase().includes(query);
-      const matchesStatus = statusFilter === 'all' || newsletter.status === statusFilter;
+      const matchesStatus = status === 'all' || newsletter.status === status;
       
       return matchesSearch && matchesStatus;
     });
   });
 
-  estimatedRecipients = computed(() => {
-        const recipientType = this.newsletterForm.get('recipientType')?.value as 'all' | 'marketers' | 'promoters' | 'custom';
-        
-        const userCounts = {
-            all: 1250,
-            marketers: 450,
-            promoters: 800,
-            custom: 0
-        };
-
-        if (recipientType === 'custom') {
-            const emails = this.newsletterForm.get('customEmails')?.value || '';
-            return emails.split(',').filter((email: string) => email.trim()).length;
-        }
-        
-        return userCounts[recipientType] || 0;
-    });
-
-  previewContent = computed(() => {
-    const content = this.newsletterForm.get('content')?.value || '';
-    // Basic HTML formatting for preview
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>');
-  });
-
   constructor() {
-    this.newsletterForm = this.createNewsletterForm();
+    this.form = this.createForm();
   }
 
   ngOnInit(): void {
-    // Initialize with current date as minimum for scheduling
-    this.newsletterForm.get('scheduledDate')?.setValue(new Date());
-    this.newsletterForm.get('scheduledTime')?.setValue('09:00');
+    this.loadNewsletters();
+    this.loadStats();
+    this.loadRecipientCounts();
+    
+    this.form.get('scheduledDate')?.setValue(new Date());
+    this.form.get('scheduledTime')?.setValue('09:00');
+    
+    this.form.get('recipientType')?.valueChanges.subscribe(() => {
+      this.validateExternalEmails();
+    });
   }
 
-  private createNewsletterForm(): FormGroup {
+  private loadNewsletters(): void {
+    this.loadingService.show();
+    this.newsletterService.getNewsletters().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.newsletters.set(response.data);
+        }
+        this.loadingService.hide();
+      },
+      error: (error) => {
+        console.error('Error loading newsletters:', error);
+        this.showError('Failed to load newsletters');
+        this.loadingService.hide();
+      }
+    });
+  }
+
+  private loadStats(): void {
+    this.newsletterService.getNewsletterStats().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.stats.set(response.data);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading stats:', error);
+      }
+    });
+  }
+
+  private loadRecipientCounts(): void {
+    this.newsletterService.getRecipientCounts().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.recipientCounts.set(response.data);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading recipient counts:', error);
+      }
+    });
+  }
+
+  private createForm(): FormGroup {
     return this.fb.group({
       subject: ['', [Validators.required, Validators.minLength(5)]],
       previewText: ['', [Validators.maxLength(150)]],
-      content: ['', [Validators.required, Validators.minLength(50)]],
+      content: ['', [Validators.required, Validators.minLength(10)]],
       recipientType: ['all', Validators.required],
-      customEmails: [''],
-      sendOption: ['now', Validators.required],
+      externalEmails: ['', [emailValidator]],
+      sendOption: ['draft', Validators.required],
       scheduledDate: [new Date()],
       scheduledTime: ['09:00']
     });
   }
 
-  // UI Actions
-  createNewNewsletter(): void {
-    this.showNewsletterForm.set(true);
-    this.editingNewsletter.set(null);
-    this.newsletterForm.reset({
+  // Email validation methods
+  validateExternalEmails(): void {
+    const emailsControl = this.form.get('externalEmails');
+    if (!emailsControl?.value || this.form.get('recipientType')?.value !== 'external') {
+      this.invalidEmails.set([]);
+      return;
+    }
+
+    const emails = this.parseEmails(emailsControl.value);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const invalid = emails.filter(email => !emailRegex.test(email));
+    
+    this.invalidEmails.set(invalid);
+  }
+
+  parseEmails(emailString: string): string[] {
+    return emailString.split(/[\n,]/)
+      .map(email => email.trim())
+      .filter(email => email.length > 0);
+  }
+
+  getEmailCount(): number {
+    if (this.form.get('recipientType')?.value !== 'external') return 0;
+    const emailValue = this.form.get('externalEmails')?.value;
+    return emailValue ? this.parseEmails(emailValue).length : 0;
+  }
+
+  getInvalidEmails(): string[] {
+    return this.invalidEmails();
+  }
+
+ getRecipientCount(): number {
+    const recipientType = this.form.get('recipientType')?.value;
+    const counts = this.recipientCounts();
+    
+    switch (recipientType) {
+      case 'all': return counts.all;
+      case 'marketers': return counts.marketers;
+      case 'promoters': return counts.promoters;
+      case 'external': return this.getEmailCount();
+      default: return 0;
+    }
+  }
+
+  // Updated saveNewsletter method using the service
+  saveNewsletter(): void {
+    if (this.form.invalid) return;
+    if (this.form.get('recipientType')?.value === 'external' && this.getInvalidEmails().length > 0) {
+      this.showError('Please fix invalid email addresses before sending');
+      return;
+    }
+
+    this.saving.set(true);
+    const formValue = this.form.value;
+
+    const newsletterData: CreateNewsletterRequest = {
+      subject: formValue.subject,
+      previewText: formValue.previewText,
+      content: formValue.content,
+      recipientType: formValue.recipientType,
+      externalEmails: formValue.recipientType === 'external' ? 
+        this.parseEmails(formValue.externalEmails) : undefined,
+      sendOption: formValue.sendOption,
+      scheduledDate: formValue.sendOption === 'schedule' ? formValue.scheduledDate : undefined,
+      scheduledTime: formValue.sendOption === 'schedule' ? formValue.scheduledTime : undefined
+    };
+
+    const saveOperation = this.editingId() 
+      ? this.newsletterService.updateNewsletter(this.editingId()!, { ...newsletterData, id: this.editingId()! })
+      : this.newsletterService.createNewsletter(newsletterData);
+
+    saveOperation.subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.saving.set(false);
+          this.showForm.set(false);
+          this.form.reset();
+          this.loadNewsletters();
+          this.loadStats();
+          this.showSuccess(
+            this.editingId() ? 'Newsletter updated successfully' : 'Newsletter created successfully'
+          );
+        } else {
+          this.saving.set(false);
+          this.showError(response.message || 'Failed to save newsletter');
+        }
+      },
+      error: (error) => {
+        console.error('Error saving newsletter:', error);
+        this.saving.set(false);
+        this.showError('Failed to save newsletter');
+      }
+    });
+  }
+
+  // Updated deleteNewsletter method
+  deleteNewsletter(id: string): void {
+    if (confirm('Are you sure you want to delete this newsletter?')) {
+      this.newsletterService.deleteNewsletter(id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.newsletters.update(items => items.filter(item => item.id !== id));
+            this.loadStats();
+            this.showSuccess('Newsletter deleted successfully');
+          } else {
+            this.showError(response.message || 'Failed to delete newsletter');
+          }
+        },
+        error: (error) => {
+          console.error('Error deleting newsletter:', error);
+          this.showError('Failed to delete newsletter');
+        }
+      });
+    }
+  }
+
+  // Updated duplicateNewsletter method
+  duplicateNewsletter(id: string): void {
+    this.newsletterService.duplicateNewsletter(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.newsletters.update(items => [response.data, ...items]);
+          this.loadStats();
+          this.showSuccess('Newsletter duplicated successfully');
+        } else {
+          this.showError(response.message || 'Failed to duplicate newsletter');
+        }
+      },
+      error: (error) => {
+        console.error('Error duplicating newsletter:', error);
+        this.showError('Failed to duplicate newsletter');
+      }
+    });
+  }
+
+  // Utility methods for notifications
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+
+  // File upload method (optional enhancement)
+  onFileUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    
+    if (!file) return;
+
+    // Basic CSV file validation
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      alert('Please upload a CSV file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      this.processCSVFile(content);
+    };
+    reader.readAsText(file);
+  }
+
+  private processCSVFile(content: string): void {
+    const lines = content.split('\n');
+    const emails: string[] = [];
+
+    lines.forEach(line => {
+      const email = line.split(',')[0]?.trim(); // Assume email is in first column
+      if (email && this.isValidEmail(email)) {
+        emails.push(email);
+      }
+    });
+
+    // Remove duplicates
+    const uniqueEmails = [...new Set(emails)];
+    
+    if (uniqueEmails.length > 0) {
+      this.form.get('externalEmails')?.setValue(uniqueEmails.join('\n'));
+      this.validateExternalEmails();
+    }
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  // Actions
+  createNewsletter(): void {
+    this.showForm.set(true);
+    this.editingId.set(null);
+    this.form.reset({
       recipientType: 'all',
-      sendOption: 'now',
+      sendOption: 'draft',
       scheduledDate: new Date(),
       scheduledTime: '09:00'
     });
+    this.invalidEmails.set([]);
   }
 
   editNewsletter(id: string): void {
     const newsletter = this.newsletters().find(n => n.id === id);
     if (newsletter) {
-      this.showNewsletterForm.set(true);
-      this.editingNewsletter.set(id);
+      this.showForm.set(true);
+      this.editingId.set(id);
       
-      this.newsletterForm.patchValue({
+      this.form.patchValue({
         subject: newsletter.subject,
         previewText: newsletter.previewText,
         content: newsletter.content,
         recipientType: newsletter.recipientType,
-        customEmails: newsletter.customEmails?.join(', ') || '',
+        externalEmails: newsletter.externalEmails?.join('\n') || '',
         sendOption: newsletter.status === 'draft' ? 'draft' : 'now'
       });
+      
+      this.validateExternalEmails();
     }
   }
 
   cancelEdit(): void {
-    this.showNewsletterForm.set(false);
-    this.editingNewsletter.set(null);
-    this.newsletterForm.reset();
+    this.showForm.set(false);
+    this.editingId.set(null);
+    this.form.reset();
+    this.invalidEmails.set([]);
   }
 
-  onRecipientTypeChange(): void {
-    const recipientType = this.newsletterForm.get('recipientType')?.value;
-    if (recipientType !== 'custom') {
-      this.newsletterForm.get('customEmails')?.setValue('');
-    }
-  }
-
-  onSearchInput(event: Event): void {
-    const query = (event.target as HTMLInputElement).value;
-    this.searchQuery.set(query);
+  onSearch(event: Event): void {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
   }
 
   onFilterChange(status: string): void {
     this.filterStatus.set(status);
   }
 
-  // Form Actions
-  saveDraft(): void {
-    if (this.newsletterForm.invalid) return;
-    
-    this.isSubmitting.set(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const formValue = this.newsletterForm.value;
-      const newsletter: Newsletter = {
-        id: this.editingNewsletter() || Date.now().toString(),
-        subject: formValue.subject,
-        previewText: formValue.previewText,
-        content: formValue.content,
-        recipientType: formValue.recipientType,
-        customEmails: formValue.recipientType === 'custom' ? 
-          formValue.customEmails.split(',').map((email: string) => email.trim()) : undefined,
-        recipientCount: this.estimatedRecipients(),
-        status: 'draft',
-        sentDate: new Date(),
-        openRate: 0,
-        clickRate: 0
-      };
 
-      if (this.editingNewsletter()) {
-        // Update existing
-        this.newsletters.update(newsletters => 
-          newsletters.map(n => n.id === newsletter.id ? newsletter : n)
-        );
-      } else {
-        // Add new
-        this.newsletters.update(newsletters => [newsletter, ...newsletters]);
-      }
-
-      this.isSubmitting.set(false);
-      this.showNewsletterForm.set(false);
-      this.newsletterForm.reset();
-    }, 1000);
-  }
-
-  onSubmit(): void {
-    if (this.newsletterForm.invalid) return;
-
-    this.isSubmitting.set(true);
-    const formValue = this.newsletterForm.value;
-    const sendOption = formValue.sendOption;
-
-    // Simulate API call
-    setTimeout(() => {
-      const newsletter: Newsletter = {
-        id: this.editingNewsletter() || Date.now().toString(),
-        subject: formValue.subject,
-        previewText: formValue.previewText,
-        content: formValue.content,
-        recipientType: formValue.recipientType,
-        customEmails: formValue.recipientType === 'custom' ? 
-          formValue.customEmails.split(',').map((email: string) => email.trim()) : undefined,
-        recipientCount: this.estimatedRecipients(),
-        status: sendOption === 'schedule' ? 'scheduled' : 'sent',
-        sentDate: sendOption === 'schedule' ? 
-          new Date(`${formValue.scheduledDate} ${formValue.scheduledTime}`) : new Date(),
-        openRate: 0,
-        clickRate: 0
-      };
-
-      if (this.editingNewsletter()) {
-        // Update existing
-        this.newsletters.update(newsletters => 
-          newsletters.map(n => n.id === newsletter.id ? newsletter : n)
-        );
-      } else {
-        // Add new
-        this.newsletters.update(newsletters => [newsletter, ...newsletters]);
-      }
-
-      this.isSubmitting.set(false);
-      this.showNewsletterForm.set(false);
-      this.newsletterForm.reset();
-    }, 1500);
-  }
-
-  // Utility Methods
-  getSubmitButtonText(): string {
-    const sendOption = this.newsletterForm.get('sendOption')?.value;
-    
+  private getNewsletterStatus(sendOption: string): 'draft' | 'scheduled' | 'sent' {
     switch (sendOption) {
-      case 'now': return 'Send Newsletter';
-      case 'schedule': return 'Schedule Newsletter';
-      case 'draft': return 'Save as Draft';
-      default: return 'Send Newsletter';
+      case 'now': return 'sent';
+      case 'schedule': return 'scheduled';
+      default: return 'draft';
     }
   }
 
-  duplicateNewsletter(id: string): void {
-    const newsletter = this.newsletters().find(n => n.id === id);
-    if (newsletter) {
-      const duplicated: Newsletter = {
-        ...newsletter,
-        id: Date.now().toString(),
-        subject: `${newsletter.subject} (Copy)`,
-        status: 'draft',
-        sentDate: new Date(),
-        openRate: 0,
-        clickRate: 0
-      };
-      
-      this.newsletters.update(newsletters => [duplicated, ...newsletters]);
+  private getSentDate(formValue: any): Date {
+    switch (formValue.sendOption) {
+      case 'schedule': 
+        return new Date(`${formValue.scheduledDate} ${formValue.scheduledTime}`);
+      case 'now':
+        return new Date();
+      default:
+        return new Date();
     }
   }
 
-  deleteNewsletter(id: string): void {
-    if (confirm('Are you sure you want to delete this newsletter?')) {
-      this.newsletters.update(newsletters => 
-        newsletters.filter(n => n.id !== id)
-      );
+  getActionText(): string {
+    const option = this.form.get('sendOption')?.value;
+    switch (option) {
+      case 'now': return 'Send Now';
+      case 'schedule': return 'Schedule';
+      default: return 'Save Draft';
     }
   }
 
-  // Text formatting helpers
-  formatText(format: 'bold' | 'italic' | 'underline'): void {
-    const contentControl = this.newsletterForm.get('content');
-    const currentValue = contentControl?.value || '';
-    const selectionStart = 0; // In real implementation, get from textarea
-    const selectionEnd = 0; // In real implementation, get from textarea
-    
-    let formattedText = '';
-    switch (format) {
-      case 'bold':
-        formattedText = `**${currentValue.substring(selectionStart, selectionEnd)}**`;
-        break;
-      case 'italic':
-        formattedText = `*${currentValue.substring(selectionStart, selectionEnd)}*`;
-        break;
-      case 'underline':
-        formattedText = `__${currentValue.substring(selectionStart, selectionEnd)}__`;
-        break;
-    }
-    
-    // In real implementation, insert at cursor position
-    contentControl?.setValue(currentValue + formattedText);
-  }
+ 
 
-  insertLink(): void {
-    const url = prompt('Enter URL:');
-    if (url) {
-      const text = prompt('Enter link text:', url);
-      const contentControl = this.newsletterForm.get('content');
-      const currentValue = contentControl?.value || '';
-      const linkMarkdown = `[${text}](${url})`;
-      contentControl?.setValue(currentValue + linkMarkdown);
-    }
-  }
 
-  insertImage(): void {
-    const url = prompt('Enter image URL:');
-    if (url) {
-      const alt = prompt('Enter alt text:');
-      const contentControl = this.newsletterForm.get('content');
-      const currentValue = contentControl?.value || '';
-      const imageMarkdown = `![${alt}](${url})`;
-      contentControl?.setValue(currentValue + imageMarkdown);
-    }
-  }
 
-  // Date utilities
+  // Date utility
   get minDate(): Date {
     return new Date();
   }
