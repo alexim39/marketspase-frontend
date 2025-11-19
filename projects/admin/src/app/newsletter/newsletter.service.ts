@@ -9,7 +9,7 @@ export interface NewsletterResponse {
 }
 
 export interface Newsletter {
-  id: string;
+  _id: string;
   subject: string;
   previewText: string;
   content: string;
@@ -33,6 +33,8 @@ export interface CreateNewsletterRequest {
   sendOption: 'draft' | 'now' | 'schedule';
   scheduledDate?: Date;
   scheduledTime?: string;
+  createdBy?: string;
+  title?: string;
 }
 
 export interface UpdateNewsletterRequest extends CreateNewsletterRequest {
@@ -97,7 +99,6 @@ export class NewsletterService {
 
   // Create new newsletter
   createNewsletter(newsletterData: CreateNewsletterRequest): Observable<NewsletterResponse> {
-    console.log('Creating newsletter with data:', newsletterData);
     return this.apiService.post<NewsletterResponse>(`${this.apiUrl}/admin/newsletters`, newsletterData);
   }
 

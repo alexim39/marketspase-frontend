@@ -58,7 +58,7 @@
             </div>
 
             <div class="newsletter-cards">
-                @for (newsletter of filteredNewsletters(); track newsletter.id) {
+                @for (newsletter of filteredNewsletters(); track newsletter._id) {
                     <div class="newsletter-card" [class]="newsletter.status">
                         <div class="card-header">
                             <h3>{{ newsletter.subject }}</h3>
@@ -92,13 +92,13 @@
                         }
 
                         <div class="card-actions">
-                            <button mat-icon-button (click)="editNewsletter(newsletter.id)">
+                            <button mat-icon-button (click)="editNewsletter(newsletter._id)">
                                 <mat-icon>edit</mat-icon>
                             </button>
-                            <button mat-icon-button (click)="duplicateNewsletter(newsletter.id)">
+                            <button mat-icon-button (click)="duplicateNewsletter(newsletter._id)">
                                 <mat-icon>content_copy</mat-icon>
                             </button>
-                            <button mat-icon-button color="warn" (click)="deleteNewsletter(newsletter.id)">
+                            <button mat-icon-button color="warn" (click)="deleteNewsletter(newsletter._id)">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>

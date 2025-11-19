@@ -24,9 +24,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 // Services
-//import { CampaignService } from '../campaign/campaign.service';
-//import { PromotionService } from './promotion.service';
-//import { AdminService } from '../common/services/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CampaignService } from '../../campaign/campaign.service';
 import { AdminService } from '../../common/services/user.service';

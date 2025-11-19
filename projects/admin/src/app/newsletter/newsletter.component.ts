@@ -14,9 +14,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingService } from '../../../../shared-services/src/public-api';
 import { NewsletterService, NewsletterStats, CreateNewsletterRequest } from './newsletter.service';
+import { AdminService } from '../common/services/user.service';
 
 interface Newsletter {
-  id: string;
+  _id: string;
   subject: string;
   previewText: string;
   content: string;
@@ -82,6 +83,7 @@ function emailValidator(control: AbstractControl) {
   styleUrls: ['./newsletter.component.scss']
 })
 export class NewsletterManagementComponent implements OnInit {
+  readonly adminService = inject(AdminService);
  private fb = inject(FormBuilder);
   private newsletterService = inject(NewsletterService);
   private snackBar = inject(MatSnackBar);
@@ -133,6 +135,7 @@ export class NewsletterManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
+     this.adminService.fetchAdmin();
     this.loadNewsletters();
     this.loadStats();
     this.loadRecipientCounts();
@@ -245,56 +248,110 @@ export class NewsletterManagementComponent implements OnInit {
     }
   }
 
-  // Updated saveNewsletter method using the service
-  saveNewsletter(): void {
-    if (this.form.invalid) return;
-    if (this.form.get('recipientType')?.value === 'external' && this.getInvalidEmails().length > 0) {
-      this.showError('Please fix invalid email addresses before sending');
-      return;
-    }
-
-    this.saving.set(true);
-    const formValue = this.form.value;
-
-    const newsletterData: CreateNewsletterRequest = {
-      subject: formValue.subject,
-      previewText: formValue.previewText,
-      content: formValue.content,
-      recipientType: formValue.recipientType,
-      externalEmails: formValue.recipientType === 'external' ? 
-        this.parseEmails(formValue.externalEmails) : undefined,
-      sendOption: formValue.sendOption,
-      scheduledDate: formValue.sendOption === 'schedule' ? formValue.scheduledDate : undefined,
-      scheduledTime: formValue.sendOption === 'schedule' ? formValue.scheduledTime : undefined
-    };
-
-    const saveOperation = this.editingId() 
-      ? this.newsletterService.updateNewsletter(this.editingId()!, { ...newsletterData, id: this.editingId()! })
-      : this.newsletterService.createNewsletter(newsletterData);
-
-    saveOperation.subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.saving.set(false);
-          this.showForm.set(false);
-          this.form.reset();
-          this.loadNewsletters();
-          this.loadStats();
-          this.showSuccess(
-            this.editingId() ? 'Newsletter updated successfully' : 'Newsletter created successfully'
-          );
-        } else {
-          this.saving.set(false);
-          this.showError(response.message || 'Failed to save newsletter');
-        }
-      },
-      error: (error) => {
-        console.error('Error saving newsletter:', error);
-        this.saving.set(false);
-        this.showError('Failed to save newsletter');
-      }
-    });
+// Updated saveNewsletter method
+saveNewsletter(): void {
+  if (this.form.invalid) return;
+  if (this.form.get('recipientType')?.value === 'external' && this.getInvalidEmails().length > 0) {
+    this.showError('Please fix invalid email addresses before sending');
+    return;
   }
+
+  this.saving.set(true);
+  const formValue = this.form.value;
+  const sendOption = formValue.sendOption;
+
+  const newsletterData: CreateNewsletterRequest = {
+    subject: formValue.subject,
+    previewText: formValue.previewText,
+    content: formValue.content,
+    recipientType: formValue.recipientType,
+    externalEmails: formValue.recipientType === 'external' ? this.parseEmails(formValue.externalEmails) : undefined,
+    sendOption: sendOption,
+    scheduledDate: sendOption === 'schedule' ? formValue.scheduledDate : undefined,
+    scheduledTime: sendOption === 'schedule' ? formValue.scheduledTime : undefined,
+    createdBy: this.adminService.adminData()?._id || '',
+    title: `Newsletter - ${formValue.subject}` || `Newsletter ${new Date().toLocaleDateString()}`
+  };
+
+  // First, create/update the newsletter
+  const saveOperation = this.editingId() 
+    ? this.newsletterService.updateNewsletter(this.editingId()!, { ...newsletterData, id: this.editingId()! })
+    : this.newsletterService.createNewsletter(newsletterData);
+
+  saveOperation.subscribe({
+    next: (response) => {
+      if (response.success) {
+        const newsletterId = response.data.id || response.data._id;
+        
+        // Handle different send options
+        if (sendOption === 'now') {
+          this.sendNewsletterImmediately(newsletterId);
+        } else if (sendOption === 'schedule') {
+          this.scheduleNewsletter(newsletterId, newsletterData.scheduledDate!);
+        } else {
+          // Draft - just show success and close
+          this.handleSaveSuccess();
+        }
+      } else {
+        this.saving.set(false);
+        this.showError(response.message || 'Failed to save newsletter');
+      }
+    },
+    error: (error) => {
+      console.error('Error saving newsletter:', error);
+      this.saving.set(false);
+      this.showError('Failed to save newsletter');
+    }
+  });
+}
+
+// New method to send newsletter immediately
+private sendNewsletterImmediately(newsletterId: string): void {
+  this.newsletterService.sendNewsletter(newsletterId).subscribe({
+    next: (response) => {
+      this.saving.set(false);
+      if (response.success) {
+        this.handleSaveSuccess();
+        this.showSuccess('Newsletter sent successfully!');
+      } else {
+        this.showError(response.message || 'Failed to send newsletter');
+      }
+    },
+    error: (error) => {
+      console.error('Error sending newsletter:', error);
+      this.saving.set(false);
+      this.showError('Failed to send newsletter');
+    }
+  });
+}
+
+// New method to schedule newsletter
+private scheduleNewsletter(newsletterId: string, scheduledDate: Date): void {
+  this.newsletterService.scheduleNewsletter(newsletterId, scheduledDate).subscribe({
+    next: (response) => {
+      this.saving.set(false);
+      if (response.success) {
+        this.handleSaveSuccess();
+        this.showSuccess('Newsletter scheduled successfully!');
+      } else {
+        this.showError(response.message || 'Failed to schedule newsletter');
+      }
+    },
+    error: (error) => {
+      console.error('Error scheduling newsletter:', error);
+      this.saving.set(false);
+      this.showError('Failed to schedule newsletter');
+    }
+  });
+}
+
+// Common success handler
+private handleSaveSuccess(): void {
+  this.showForm.set(false);
+  this.form.reset();
+  this.loadNewsletters();
+  this.loadStats();
+}
 
   // Updated deleteNewsletter method
   deleteNewsletter(id: string): void {
@@ -302,7 +359,7 @@ export class NewsletterManagementComponent implements OnInit {
       this.newsletterService.deleteNewsletter(id).subscribe({
         next: (response) => {
           if (response.success) {
-            this.newsletters.update(items => items.filter(item => item.id !== id));
+            this.newsletters.update(items => items.filter(item => item._id !== id));
             this.loadStats();
             this.showSuccess('Newsletter deleted successfully');
           } else {
@@ -412,7 +469,7 @@ export class NewsletterManagementComponent implements OnInit {
   }
 
   editNewsletter(id: string): void {
-    const newsletter = this.newsletters().find(n => n.id === id);
+    const newsletter = this.newsletters().find(n => n._id === id);
     if (newsletter) {
       this.showForm.set(true);
       this.editingId.set(id);
