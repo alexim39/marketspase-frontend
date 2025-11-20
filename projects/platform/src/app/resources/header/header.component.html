@@ -132,10 +132,14 @@
               <mat-icon>login</mat-icon>
               Sign In
             </button> -->
-            <button mat-raised-button color="primary" class="mobile-auth-btn signup" routerLink="/" (click)="closeMobileMenu()">
+            <button mat-flat-button class="whatsapp-channel-button" matTooltip="Join Our WhatsApp Channel for real-time updates" (click)="openWhatsAppChannel()">
+              <mat-icon>group</mat-icon>  <!-- or svgIcon="whatsapp" if you add the SVG -->
+              Join Our WhatsApp Channel
+            </button>
+            <!-- <button mat-raised-button color="primary" class="mobile-auth-btn signup" routerLink="/" (click)="closeMobileMenu()">
               <mat-icon>person_add</mat-icon>
               Get Started
-            </button>
+            </button> -->
           </div>
         </nav>
       </div>
