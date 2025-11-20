@@ -114,8 +114,8 @@
                     <app-recent-activity [activities]="recentActivities"/>
                 </div>
 
-                <!-- <div class="sidenav-footer">
-                    <div class="footer-stats">
+                <div class="sidenav-footer">
+                    <!-- <div class="footer-stats">
                         <div class="stat-item">
                             <mat-icon>storage</mat-icon>
                             <span>{{storageUsed}}GB / {{storageTotal}}GB</span>
@@ -123,19 +123,26 @@
                                 <div class="stat-fill" [style.width.%]="(storageUsed/storageTotal)*100"></div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
+                    <div class="channel-message">
+                        <p>Join our WhatsApp channel for real-time updates and training information</p>
+                    </div>
                     <div class="footer-actions">
-                        <button mat-stroked-button class="export-button" matTooltip="Export Settings">
+                        <button mat-flat-button class="whatsapp-channel-button" matTooltip="Join Our WhatsApp Channel for real-time updates" (click)="openWhatsAppChannel()">
+                            <mat-icon>group</mat-icon>  <!-- or svgIcon="whatsapp" if you add the SVG -->
+                            Join Our WhatsApp Channel
+                        </button>
+                       <!--  <button mat-stroked-button class="export-button" matTooltip="Export Settings">
                             <mat-icon>download</mat-icon>
                             Export
-                        </button>
-                        <button mat-raised-button class="logout-button">
+                        </button> -->
+                       <!--  <button mat-raised-button class="logout-button">
                             <mat-icon>logout</mat-icon>
                             Sign Out
-                        </button>
+                        </button> -->
                     </div>
-                </div> -->
+                </div>
             </mat-sidenav>
         </mat-sidenav-container>
     </div>

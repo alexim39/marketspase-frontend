@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface NavItem {
   label: string;
@@ -25,6 +26,7 @@ interface NavItem {
     MatButtonModule,
     MatMenuModule,
     MatToolbarModule,
+    MatTooltipModule
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
@@ -134,5 +136,13 @@ export class HeaderComponent {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+   openWhatsAppChannel() {
+     const whatsappUrl = 'https://whatsapp.com/channel/0029Vb77xA51NCrKysUMO11D';
+    // provide immediate UI feedback
+    //this.snackBar.open('Opening WhatsApp channel...', 'Close', { duration: 2500 });
+    // open in new tab / window
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 }

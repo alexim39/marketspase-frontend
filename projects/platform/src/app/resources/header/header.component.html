@@ -53,14 +53,18 @@
 
         <!-- Desktop Auth Buttons -->
         <div class="auth-buttons">
-          <!-- <button mat-stroked-button class="auth-btn login" routerLink="/auth">
+         <!--  <button mat-stroked-button class="auth-btn login" routerLink="/auth">
             <mat-icon>login</mat-icon>
             Sign In
           </button> -->
-          <button mat-raised-button color="primary" class="auth-btn signup" routerLink="/">
+          <button mat-flat-button class="whatsapp-channel-button" matTooltip="Join Our WhatsApp Channel for real-time updates" (click)="openWhatsAppChannel()">
+              <mat-icon>group</mat-icon>  <!-- or svgIcon="whatsapp" if you add the SVG -->
+              Join Our WhatsApp Channel
+          </button>
+          <!-- <button mat-raised-button color="primary" class="auth-btn signup" routerLink="/">
             <mat-icon>person_add</mat-icon>
             Get Started
-          </button>
+          </button> -->
         </div>
 
         <!-- Mobile Menu Button -->

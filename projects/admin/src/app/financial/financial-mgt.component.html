@@ -149,7 +149,7 @@
                   <td mat-cell *matCellDef="let request">
                     <div class="amount-cell">
                       @if (request.amountPayable) {
-                      <div class="amount">₦{{ request.amountPayable.toLocaleString() }}</div>
+                      <div class="amount" style="color: green; font-weight: bolder;">₦{{ request.amountPayable.toLocaleString() }}</div>
                       <div class="date">15% service charge (₦{{request.amount - request.amountPayable }})</div>
                       }
                     </div>
@@ -237,7 +237,7 @@
                   [length]="totalItems()"
                   [pageSize]="pageSize()"
                   [pageIndex]="currentPage()"
-                  [pageSizeOptions]="[5, 10, 25, 50]"
+                  [pageSizeOptions]="[50, 100, 400, 600]"
                   (page)="onPageChange($event)"
                   aria-label="Select page">
                 </mat-paginator>

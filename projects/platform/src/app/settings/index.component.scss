@@ -1127,3 +1127,55 @@
     font-weight: 500;
   }
 }
+
+.channel-message {
+  p {
+    color: gray;
+    width: 100%;
+    text-align: justify;
+    margin-bottom: 12px;
+  }
+}
+
+.whatsapp-channel-button {
+  // WhatsApp's official brand green
+   background: linear-gradient(180deg, #128C7E 0%, rgb(11, 88, 36) 100%); /* WhatsApp-like greens */
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;           // WhatsApp-style rounded corners
+  padding: 12px 20px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;              // Semi-bold like WhatsApp
+  text-transform: none !important;           // Remove Material's uppercase
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;                                 // Space between icon and text
+  min-height: 48px;                          // Comfortable touch target
+
+  // Hover & ripple effect (WhatsApp darkens slightly on hover)
+  &:hover {
+    background-color: #1DA851 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  &:active {
+    background-color: #25D366 !important;
+    transform: translateY(1px);
+  }
+
+  // Icon styling
+  mat-icon {
+    font-size: 22px !important;
+    width: 22px !important;
+    height: 22px !important;
+    color: white !important;
+  }
+
+  // Optional: If you want the official WhatsApp logo instead of "group"
+  // ::ng-deep mat-icon[svgIcon="whatsapp"] {
+  //   background: url('whatsapp-logo-white.svg') no-repeat center;
+  //   background-size: contain;
+  // }
+}

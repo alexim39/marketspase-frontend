@@ -17,6 +17,7 @@ import { HelpDialogComponent, UserInterface } from '../../../../shared-services/
 import { SettingsService } from './settings.service';
 import { UserService } from '../common/services/user.service';
 import { RecentActivityComponent } from './components/recent-activity/recent-activity.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 // Define the activity interface based on your user model
 interface UserActivity {
@@ -79,6 +80,7 @@ export class SettingsIndexComponent implements OnInit {
   @ViewChild('drawer') drawer!: MatSidenav;
   private router = inject(Router);
   private settingsService = inject(SettingsService);
+  private readonly snackBar = inject(MatSnackBar);
 
   // Enhanced Properties
   isMobile = false;
@@ -312,5 +314,13 @@ export class SettingsIndexComponent implements OnInit {
 
   scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  openWhatsAppChannel() {
+     const whatsappUrl = 'https://whatsapp.com/channel/0029Vb77xA51NCrKysUMO11D';
+    // provide immediate UI feedback
+    this.snackBar.open('Opening WhatsApp channel...', 'Close', { duration: 2500 });
+    // open in new tab / window
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 }

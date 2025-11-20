@@ -208,7 +208,7 @@ export class FinancialMgtComponent implements OnInit {
         this.totalItems.set(total);
         this.isWithdrawalsLoading.set(false);
 
-        console.log('requests: ', requests);
+        //console.log('requests: ', requests);
       },
       error: (error) => {
         console.error('Error loading withdrawal requests:', error);
