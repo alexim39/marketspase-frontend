@@ -98,7 +98,7 @@ export class NotificationBannerService {
 
 
 
-/**
+  /**
    * Get active notification messages for current user
    */
   getActiveNotifications(): Observable<NotificationResponse> {
