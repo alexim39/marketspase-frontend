@@ -1,3 +1,4 @@
+// promotion-proof.component.scss (updated)
 @import './../../../../../../styles/variables';
 @import './../../../../../../styles/mixins';
 
@@ -41,6 +42,10 @@
         .proof-actions {
           opacity: 1;
         }
+        
+        .image-loading {
+          opacity: 0.7;
+        }
       }
     }
 
@@ -61,6 +66,7 @@
       justify-content: center;
       opacity: 0;
       transition: opacity 0.2s ease;
+      z-index: 2;
     }
 
     .proof-action-btn {
@@ -79,5 +85,37 @@
         background: white;
       }
     }
+    
+    .image-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+      
+      .loading-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    }
   }
+}
+
+// Global backdrop styles (add to your styles.scss)
+.image-viewer-backdrop {
+  background: rgba(0, 0, 0, 0.9) !important;
 }

@@ -49,6 +49,7 @@ export class FinancialMgtComponent implements OnInit {
     platformEarnings: 0,
     totalWithdrawals: 0,
     pendingWithdrawals: 0,
+    processingWithdrawals: 0,
     marketerSpend: 0,
     promoterEarnings: 0,
     activeBalance: 0,
@@ -63,7 +64,7 @@ export class FinancialMgtComponent implements OnInit {
 
   // Filter and pagination
   readonly searchTerm = signal('');
-  readonly statusFilter = signal<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  readonly statusFilter = signal<'all' | 'pending' | 'approved' | 'rejected' | 'processing'>('all');
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
   readonly totalItems = signal(0);
@@ -147,7 +148,7 @@ export class FinancialMgtComponent implements OnInit {
     this.searchSubject.next(value);
   }
 
-  onStatusFilterChange(status: 'all' | 'pending' | 'approved' | 'rejected') {
+  onStatusFilterChange(status: 'all' | 'pending' | 'approved' | 'rejected' | 'processing') {
     this.statusFilter.set(status);
     this.currentPage.set(0);
     this.loadWithdrawalRequests();
@@ -173,6 +174,11 @@ export class FinancialMgtComponent implements OnInit {
           this.withdrawalRequests.set(data.pendingWithdrawals);
           // set totalItems only from real server counts when appropriate
           this.totalItems.set(data.pendingWithdrawals.length);
+        }
+        if (data.processingWithdrawals && data.processingWithdrawals.length > 0) {
+          this.withdrawalRequests.set(data.processingWithdrawals);
+          // set totalItems only from real server counts when appropriate
+          this.totalItems.set(data.processingWithdrawals.length);
         }
 
         this.isLoading.set(false);

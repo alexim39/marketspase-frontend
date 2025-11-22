@@ -41,12 +41,12 @@ export class ProfileService {
 
   // Referral methods
   getReferralStats(userId: string): Observable<any> {
-    console.log('Fetching referral stats for userId:', userId);
+    //console.log('Fetching referral stats for userId:', userId);
     return this.apiService.get<any>(`user/referral/stats/${userId}`, undefined, undefined, true);
   }
 
   getReferralDetails(userId: string, page: number = 1, limit: number = 20): Observable<any> {
-    console.log('Fetching referral stats for userId:', userId);
+    //console.log('Fetching referral stats for userId:', userId);
 
     return this.apiService.get<any>(
       `user/referral/details/${userId}?page=${page}&limit=${limit}`, 
@@ -57,7 +57,7 @@ export class ProfileService {
   }
 
   validateReferralCode(referralCode: string): Observable<any> {
-    console.log('Fetching referral stats for referralCode:', referralCode);
+    //console.log('Fetching referral stats for referralCode:', referralCode);
 
     return this.apiService.get<any>(`user/referral/validate/${referralCode}`);
   }

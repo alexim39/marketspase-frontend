@@ -142,7 +142,7 @@ export class AuthService {
    * Initiates the Twitter sign-in process using a popup.
    * Returns an Observable of the UserCredential or throws an HttpErrorResponse.
    */
-  signInWithTwitter(): Observable<UserCredential> { // <--- NEW METHOD
+  signInWithTwitter(): Observable<UserCredential> { 
     const provider = new TwitterAuthProvider();
 
     // Optional: You can add custom scopes if you need specific permissions

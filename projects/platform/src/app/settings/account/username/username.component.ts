@@ -153,15 +153,35 @@ import { RESTRICTEDWORDS } from './restricted-words';
                 </div>
               </div>
 
+              @if (referralStats()) {
+                <div class="sharing-options">
+                  <h5>Share Your Referral Link:</h5>
+                  <div class="share-buttons">
+                    <button mat-button (click)="shareOnWhatsApp()">
+                      <mat-icon>chat</mat-icon>
+                      WhatsApp
+                    </button>
+                    <button mat-button (click)="shareOnFacebook()">
+                      <mat-icon>facebook</mat-icon>
+                      Facebook
+                    </button>
+                    <button mat-button (click)="copyReferralLink()">
+                      <mat-icon>link</mat-icon>
+                      Copy Link
+                    </button>
+                  </div>
+                </div>
+              }
+
               <div class="referral-rules">
                 <h5 class="rules-title">How it works:</h5>
                 <ul class="rules-list">
                   <li>
-                    <strong>Earn ₦1000</strong> when a <strong>marketer</strong> you refer makes their first payment
+                    <strong>Earn ₦1,250</strong> when a <strong>marketer</strong> you refer makes their first payment
                   </li>
-                  <li>
+                  <!-- <li>
                     <strong>Earn ₦250</strong> when a <strong>promoter</strong> you refer completes their first paid promotion
-                  </li>
+                  </li> -->
                   <li>
                     <strong>One-time bonus:</strong> Each person can only generate one bonus for you, regardless of role changes
                   </li>
@@ -362,4 +382,17 @@ export class UsernameInfoComponent implements OnInit {
       panelClass: [`snackbar-${type}`],
     });
   }
+
+
+  // Add methods to username.component.ts
+shareOnWhatsApp(): void {
+  const message = `Join me on MarketSpase! Use my referral link to sign up and earn bonuses: ${this.referralStats()?.referralLink}`;
+  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+shareOnFacebook(): void {
+  const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.referralStats()?.referralLink)}`;
+  window.open(url, '_blank');
+}
 }

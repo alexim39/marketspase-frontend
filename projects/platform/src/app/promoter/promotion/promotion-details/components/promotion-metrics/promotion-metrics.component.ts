@@ -34,9 +34,9 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
             <mat-icon>trending_up</mat-icon>
           </div>
           <div class="metric-content">
-            <div class="metric-value">{{ (promotion.campaign.minViewsPerPromotion || 0) - (promotion.proofViews || 0) }}</div>
-            <div class="metric-label">Views Needed</div>
-            <div class="metric-subtext">to qualify for payment</div>
+            <div class="metric-value">{{ (promotion.proofViews || 0) - (promotion.campaign.minViewsPerPromotion || 0)  }}</div>
+            <div class="metric-label">Views Difference</div>
+            <div class="metric-subtext">Qualify for payment</div>
           </div>
         </div>
         
