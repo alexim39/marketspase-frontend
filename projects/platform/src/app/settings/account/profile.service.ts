@@ -33,5 +33,37 @@ export class ProfileService {
   updateUsername(dataObject: any): Observable<any> {
     return this.apiService.put<any>(`user/profile/username`, dataObject, undefined, true);
   }
+
+  
+  
+
+
+
+  // Referral methods
+  getReferralStats(userId: string): Observable<any> {
+    //console.log('Fetching referral stats for userId:', userId);
+    return this.apiService.get<any>(`user/referral/stats/${userId}`, undefined, undefined, true);
+  }
+
+  getReferralDetails(userId: string, page: number = 1, limit: number = 20): Observable<any> {
+    //console.log('Fetching referral stats for userId:', userId);
+
+    return this.apiService.get<any>(
+      `user/referral/details/${userId}?page=${page}&limit=${limit}`, 
+      undefined, 
+      undefined, 
+      true
+    );
+  }
+
+  validateReferralCode(referralCode: string): Observable<any> {
+    //console.log('Fetching referral stats for referralCode:', referralCode);
+
+    return this.apiService.get<any>(`user/referral/validate/${referralCode}`);
+  }
+
+  copyReferralLink(link: string): Promise<void> {
+    return navigator.clipboard.writeText(link);
+  }
    
 }

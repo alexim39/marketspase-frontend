@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, OnDestroy, } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnDestroy, OnInit, } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -35,7 +35,7 @@ export interface SocialProvider {
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss'],
 })
-export class IndexComponent implements OnDestroy {
+export class IndexComponent implements OnDestroy, OnInit {
   isLoading: boolean = false;
   currentProvider: string = '';
 
@@ -45,6 +45,8 @@ export class IndexComponent implements OnDestroy {
   private userService: UserService = inject(UserService);
 
   private destroy$ = new Subject<void>();
+
+  referralCode: string | null = null;
 
   socialProviders: SocialProvider[] = [
     {
@@ -86,10 +88,47 @@ export class IndexComponent implements OnDestroy {
     private router: Router,
   ) {}
 
+  ngOnInit(): void {
+    // Check for referral code from various sources
+    this.getReferralCode();
+  }
+
+  private getReferralCode(): void {
+    // Check URL parameters first (if someone shares with query params)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlReferral = urlParams.get('ref');
+    
+    // Check localStorage
+    const localReferral = localStorage.getItem('referralCode');
+    
+    // Check cookies
+    const cookieReferral = this.getCookie('referralCode');
+    
+    // Priority: URL params > localStorage > cookies
+    this.referralCode = urlReferral || localReferral || cookieReferral;
+    
+    if (this.referralCode) {
+      console.log('Referral code detected:', this.referralCode);
+    }
+  }
+
+  private getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+  }
+
   private setLoadingState(provider: string, loading: boolean): void {
     this.isLoading = loading;
     this.currentProvider = provider;
     this.cdr.detectChanges(); // Ensures UI updates when state changes
+  }
+
+  private clearReferralData(): void {
+    localStorage.removeItem('referralCode');
+    document.cookie = 'referralCode=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    this.referralCode = null;
   }
 
   signInWithGoogle(): void {
@@ -151,12 +190,19 @@ export class IndexComponent implements OnDestroy {
 
   private handleAuthSuccess(response: any): void {
     this.setLoadingState('Verifying', true); // This sets loading for backend verification
-    if (response.success) {      
-        this.userService.auth(response.user)
+    if (response.success) {    
+      const signupData = {
+        ...response.user,
+        referralCode: this.referralCode // Include referral code in signup data
+      }; 
+        this.userService.auth(signupData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             if (response.success) {
+              // Clear referral data after successful registration
+              this.clearReferralData();
+
               //console.log('response ',response)
               // Navigate to dashboard
               this.router.navigateByUrl('/dashboard');

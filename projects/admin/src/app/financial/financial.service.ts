@@ -46,6 +46,7 @@ export interface FinancialStats {
   platformEarnings: number;
   totalWithdrawals: number;
   pendingWithdrawals: number;
+  processingWithdrawals: number;
   marketerSpend: number;
   promoterEarnings: number;
   activeBalance: number;
@@ -64,6 +65,7 @@ export interface FinancialOverview {
   stats: FinancialStats;
   recentTransactions: Transaction[];
   pendingWithdrawals: WithdrawalRequest[];
+  processingWithdrawals: WithdrawalRequest[];
 }
 
 @Injectable()

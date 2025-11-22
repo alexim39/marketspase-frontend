@@ -45,6 +45,20 @@
         </div>
       </div>
 
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <mat-icon>change_circle</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Processing Withdrawals</div>
+          <div class="stat-value">₦{{ financialStats().processingWithdrawals.toLocaleString() }}</div>
+          <div class="stat-change negative">
+            <mat-icon>warning</mat-icon>
+            Needs attention
+          </div>
+        </div>
+      </div>
+
       <div class="stat-card info">
         <div class="stat-icon">
           <mat-icon>account_balance_wallet</mat-icon>
@@ -88,9 +102,9 @@
                 </button>
                 <button 
                   class="filter-btn warning" 
-                  [class.active]="statusFilter() === 'pending'"
-                  (click)="onStatusFilterChange('pending')">
-                  Pending
+                  [class.active]="statusFilter() === 'processing'"
+                  (click)="onStatusFilterChange('processing')">
+                  Processing
                 </button>
                 <button 
                   class="filter-btn success" 

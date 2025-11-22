@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { DeviceService, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-promotion-info',
@@ -9,7 +9,12 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
   imports: [CommonModule, MatIconModule],
   template: `
     <div class="promotion-info">
-      <h2 class="promotion-title">{{promotion.campaign.title}}</h2>
+      @if (deviceType() === 'desktop') {
+        <h2 class="promotion-title">{{promotion.campaign.title}}</h2>
+      }
+      @if (deviceType() === 'mobile') {
+        <h5 class="promotion-title">{{promotion.campaign.title}}</h5>
+      }
       <p class="promotion-description">{{promotion.campaign.caption}}</p>
       
       <div class="info-grid">
@@ -74,6 +79,9 @@ export class PromotionInfoComponent {
   @Input() promotion!: PromotionInterface;
   @Input() countdown!: string;
   @Input() isNearingExpiration!: boolean;
+
+    private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
 
   getCategoryIcon(category: string): string {
     const categoryIcons: {[key: string]: string} = {

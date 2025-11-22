@@ -1,4 +1,6 @@
 @import './../../../../../../styles/variables';
+@import './../../../../../../styles/mixins';
+
 
 .promotion-info {
   .promotion-title {
@@ -6,6 +8,10 @@
     font-size: 1.5rem;
     font-weight: 600;
     color: $text-primary;
+
+    @include mobile {
+      font-size: 1.1rem;
+    }
   }
   
   .promotion-description {

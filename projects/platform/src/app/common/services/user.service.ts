@@ -20,6 +20,7 @@ export class UserService {
    * @returns An Observable that emits the API response or an error.
    */
   auth(firebaseUser: UserInterface): Observable<any> {
+    //console.log('check for referral record ',firebaseUser)
     return this.apiService.post<any>(`auth`, {firebaseUser}, undefined, true);
   }
 
