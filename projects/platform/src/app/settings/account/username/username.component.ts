@@ -177,7 +177,7 @@ import { RESTRICTEDWORDS } from './restricted-words';
                 <h5 class="rules-title">How it works:</h5>
                 <ul class="rules-list">
                   <li>
-                    <strong>Earn ₦1,200</strong> when a <strong>marketer</strong> you refer makes their first payment
+                    <strong>Earn ₦1,250</strong> when a <strong>marketer</strong> you refer makes their first payment
                   </li>
                   <!-- <li>
                     <strong>Earn ₦250</strong> when a <strong>promoter</strong> you refer completes their first paid promotion
