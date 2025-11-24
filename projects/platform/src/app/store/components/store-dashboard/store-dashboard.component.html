@@ -1,0 +1,238 @@
+<!-- components/store-dashboard/store-dashboard.component.html -->
+<div class="store-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="welcome-section">
+        <h1>Store Management</h1>
+        <p>Manage your virtual store and track performance</p>
+      </div>
+      
+      <div class="header-actions">
+        @if (currentStore()) {
+          <button mat-raised-button color="primary" (click)="addProduct()" class="desktop-action">
+            <mat-icon>add</mat-icon>
+            Add Product
+          </button>
+          
+          @if (!currentStore()?.isVerified) {
+            <button mat-stroked-button color="primary" (click)="verifyStore()">
+              <mat-icon>verified</mat-icon>
+              Verify Store
+            </button>
+          }
+        } @else {
+          <button mat-raised-button color="primary" (click)="createStore()">
+            <mat-icon>add</mat-icon>
+            Create Store
+          </button>
+        }
+        
+        <button mat-button [matMenuTriggerFor]="storeMenu" class="store-menu-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        
+        <mat-menu #storeMenu="matMenu">
+          <button mat-menu-item (click)="createStore()">
+            <mat-icon>add_business</mat-icon>
+            <span>Create New Store</span>
+          </button>
+          <button mat-menu-item [matMenuTriggerFor]="storesMenu">
+            <mat-icon>storefront</mat-icon>
+            <span>Switch Store</span>
+          </button>
+        </mat-menu>
+
+        <mat-menu #storesMenu="matMenu">
+          @for (store of stores(); track store._id) {
+            <button mat-menu-item (click)="manageStore(store._id!)">
+              <mat-icon>storefront</mat-icon>
+              <span>{{ store.name }}</span>
+              @if (store.isVerified) {
+                <mat-icon class="verified-badge">verified</mat-icon>
+              }
+            </button>
+          }
+        </mat-menu>
+      </div>
+    </div>
+  </div>
+
+  <!-- Store Selection/Overview -->
+  @if (!currentStore()) {
+    <div class="store-selection">
+      <mat-card class="selection-card">
+        <mat-card-content>
+          <div class="empty-state">
+            <mat-icon class="empty-icon">storefront</mat-icon>
+            <h2>No Store Selected</h2>
+            <p>Choose a store to manage or create a new one</p>
+            <button mat-raised-button color="primary" (click)="createStore()">
+              Create Your First Store
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <!-- Store Overview -->
+    <div class="store-overview">
+      <!-- Store Header -->
+      <div class="store-header">
+        <div class="store-info">
+          <div class="store-logo">
+            <img [src]="currentStore()?.logo || '/assets/default-store.png'" [alt]="currentStore()?.name">
+            @if (currentStore()?.isVerified) {
+              <mat-icon class="verified-icon" color="primary">verified</mat-icon>
+            }
+          </div>
+          <div class="store-details">
+            <h2>{{ currentStore()?.name }}</h2>
+            <p>{{ currentStore()?.description }}</p>
+            <div class="store-meta">
+              <span class="category-badge">{{ currentStore()?.category }}</span>
+              <span class="verification-tier">{{ currentStore()?.verificationTier }} tier</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="store-stats-quick">
+          <div class="quick-stat">
+            <span class="stat-value">{{ currentStore()?.analytics?.totalViews }}</span>
+            <span class="stat-label">Total Views</span>
+          </div>
+          <div class="quick-stat">
+            <span class="stat-value">{{ currentStore()?.analytics?.totalSales }}</span>
+            <span class="stat-label">Sales</span>
+          </div>
+          <div class="quick-stat">
+            <span class="stat-value">{{ currentStore()?.analytics?.conversionRate }}%</span>
+            <span class="stat-label">Conversion</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav mat-tab-nav-bar class="store-tabs">
+       <a mat-tab-link
+            *ngFor="let tab of tabs"
+            [active]="activeTab() === tab"
+            (click)="activeTab.set(tab)">
+            {{ tab | titlecase }}
+        </a>
+      </nav>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Overview Tab -->
+        @if (activeTab() === 'overview') {
+          <div class="overview-tab">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+              @for (stat of dashboardStats(); track trackByStatId($index, stat)) {
+                <mat-card class="stat-card" [class]="stat.trend ? stat.trend + '-trend' : ''">
+                  <mat-card-content>
+                    <div class="stat-header">
+                      <div class="stat-icon-container" [style.background]="stat.color + '20'">
+                        <mat-icon class="stat-icon" [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+                      </div>
+                      @if (stat.trend) {
+                        <div class="stat-trend" [class]="stat.trend">
+                          <mat-icon>{{ stat.trend === 'up' ? 'trending_up' : 'trending_down' }}</mat-icon>
+                          <span>{{ stat.change }}%</span>
+                        </div>
+                      }
+                    </div>
+                    <div class="stat-content">
+                      <h2 class="stat-value">{{ stat.value }}</h2>
+                      <p class="stat-label">{{ stat.label }}</p>
+                      @if (stat.subtitle) {
+                        <p class="stat-subtitle">{{ stat.subtitle }}</p>
+                      }
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+
+            <!-- Alerts & Quick Actions -->
+            <div class="alerts-section">
+              @if (lowStockProducts().length > 0) {
+                <mat-card class="alert-card warning">
+                  <mat-card-content>
+                    <div class="alert-content">
+                      <mat-icon>warning</mat-icon>
+                      <div class="alert-text">
+                        <h3>Low Stock Alert</h3>
+                        <p>{{ lowStockProducts().length }} products are running low on inventory</p>
+                      </div>
+                      <button mat-button color="warn" (click)="activeTab.set('products')">
+                        Manage Inventory
+                      </button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              }
+
+              <!-- Quick Actions -->
+              <div class="quick-actions-grid">
+                <mat-card class="quick-action-card" (click)="addProduct()">
+                  <mat-card-content>
+                    <mat-icon>add_circle</mat-icon>
+                    <h3>Add Product</h3>
+                    <p>Add new items to your store</p>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="quick-action-card" (click)="activeTab.set('promotions')">
+                  <mat-card-content>
+                    <mat-icon>campaign</mat-icon>
+                    <h3>Create Promotion</h3>
+                    <p>Launch a promoter campaign</p>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="quick-action-card" (click)="activeTab.set('analytics')">
+                  <mat-card-content>
+                    <mat-icon>analytics</mat-icon>
+                    <h3>View Analytics</h3>
+                    <p>Check store performance</p>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Products Tab -->
+        @if (activeTab() === 'products') {
+          <app-product-management 
+            [store]="currentStore()!"
+            [products]="products()"
+            (productUpdated)="storeService.getStoreProducts(currentStore()!._id!).subscribe()">
+          </app-product-management>
+        }
+
+        <!-- Analytics Tab -->
+        @if (activeTab() === 'analytics') {
+          <app-store-analytics [store]="currentStore()!"></app-store-analytics>
+        }
+
+        <!-- Promotions Tab -->
+        @if (activeTab() === 'promotions') {
+          <app-store-promotions [store]="currentStore()!"></app-store-promotions>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Mobile Quick Actions -->
+  @if (isMobile() && currentStore()) {
+    <div class="mobile-quick-actions">
+      <button mat-fab extended color="primary" (click)="addProduct()">
+        <mat-icon>add</mat-icon>
+        Add Product
+      </button>
+    </div>
+  }
+</div>

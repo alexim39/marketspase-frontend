@@ -1,5 +1,8 @@
 // styles/_mixins.scss
 
+// 💡 Add this line at the top:
+@use 'variables';
+
 // Media Query Mixins
 @mixin mobile {
   @media (max-width: #{$breakpoint-md - 1px}) {
