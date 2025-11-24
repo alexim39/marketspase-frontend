@@ -38,7 +38,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
       <div class="type-options">
         <div class="type-option">
           <mat-icon>campaign</mat-icon>
-          <span>New campaign from advertisers</span>
+          <span>New campaign from marketers</span>
         </div>
         <div class="type-option">
           <mat-icon>event</mat-icon>
