@@ -1,5 +1,6 @@
 import { Routes } from "@angular/router";
 import { StoreDashboardComponent } from "./components/store-dashboard/store-dashboard.component";
+import { StoreCreateComponent } from "./components/store-create/store-create.component";
 
 
 export const StoreRoutes: Routes = [
@@ -9,8 +10,13 @@ export const StoreRoutes: Routes = [
         pathMatch: 'full' */
         path: '',
         component: StoreDashboardComponent,
-        title: "Marketer, Promoter Dashboard - Manage all campaign and promotion",
+        title: "Marketer Store Dashboard - Manage all store campaign and promotion",
     },
+    {
+        path: 'create',
+        component: StoreCreateComponent,
+        title: "Create New Store - New Store Setup",
+    }, 
 
     
 ]

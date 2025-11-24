@@ -1,0 +1,40 @@
+<!-- shared/confirm-dialog/confirm-dialog.component.html -->
+<div class="confirm-dialog">
+  <!-- Header -->
+  <div class="dialog-header" *ngIf="data.title || data.icon">
+    <div class="header-content">
+      <mat-icon 
+        *ngIf="data.icon" 
+        class="dialog-icon" 
+        [color]="getIconColor()">
+        {{ data.icon }}
+      </mat-icon>
+      <h2 class="dialog-title" *ngIf="data.title">{{ data.title }}</h2>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="dialog-content">
+    <p class="dialog-message">{{ data.message }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="dialog-actions">
+    <button 
+      mat-button 
+      *ngIf="data.showCancel"
+      (click)="onCancel()"
+      class="cancel-button">
+      {{ data.cancelText }}
+    </button>
+    
+    <button 
+      mat-raised-button 
+      [color]="getConfirmColor()"
+      (click)="onConfirm()"
+      class="confirm-button"
+      cdkFocusInitial>
+      {{ data.confirmText }}
+    </button>
+  </div>
+</div>

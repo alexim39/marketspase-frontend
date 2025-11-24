@@ -1,0 +1,334 @@
+<!-- components/store-analytics/store-analytics.component.html -->
+<div class="store-analytics">
+  <!-- Header -->
+  <div class="analytics-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h2>Store Analytics</h2>
+        <p>Track your store performance and customer insights</p>
+      </div>
+      <div class="header-right">
+        <mat-form-field appearance="outline" class="timeframe-select">
+          <mat-label>Timeframe</mat-label>
+          <mat-select [value]="timeframe()" (selectionChange)="onTimeframeChange($event.value)">
+            <mat-option value="7d">Last 7 days</mat-option>
+            <mat-option value="30d">Last 30 days</mat-option>
+            <mat-option value="90d">Last 90 days</mat-option>
+            <mat-option value="1y">Last year</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="exportAnalytics()">
+          <mat-icon>download</mat-icon>
+          Export Report
+        </button>
+
+        @if (realTimeUpdates()) {
+          <div class="real-time-indicator">
+            <div class="live-dot"></div>
+            <span>Live</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav mat-tab-nav-bar class="analytics-tabs">
+    @for (tab of tabs; track trackByTabId($index, tab)) {
+      <a mat-tab-link
+         [active]="activeTab() === tab.id"
+         (click)="activeTab.set(tab.id)"
+         class="analytics-tab">
+        <mat-icon class="tab-icon">{{ tab.icon }}</mat-icon>
+        <span class="tab-label">{{ tab.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <!-- Tab Content -->
+  <div class="analytics-content">
+    <!-- Overview Tab -->
+    @if (activeTab() === 'overview') {
+      <div class="overview-tab">
+        <!-- Performance Metrics -->
+        <div class="metrics-grid">
+          @for (metric of performanceMetrics(); track trackByMetricId($index, metric)) {
+            <mat-card class="metric-card">
+              <mat-card-content>
+                <div class="metric-header">
+                  <div class="metric-icon" [style.background]="getMetricColor(metric) + '20'">
+                    <mat-icon [style.color]="getMetricColor(metric)">
+                      {{ getMetricIcon(metric) }}
+                    </mat-icon>
+                  </div>
+                  <div class="metric-trend" [class]="metric.trend">
+                    <mat-icon>{{ metric.trend === 'up' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                    <span>{{ metric.changePercent | number:'1.1-1' }}%</span>
+                  </div>
+                </div>
+
+                <div class="metric-content">
+                  <h3 class="metric-value">{{ formatMetricValue(metric) }}</h3>
+                  <p class="metric-label">{{ metric.label }}</p>
+                  <p class="metric-description">{{ metric.description }}</p>
+                </div>
+
+                @if (metric.target) {
+                  <div class="metric-progress">
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="getProgressValue(metric)"
+                      [color]="getProgressValue(metric) >= 90 ? 'primary' : 
+                               getProgressValue(metric) >= 70 ? 'accent' : 'warn'">
+                    </mat-progress-bar>
+                    <div class="progress-labels">
+                      <span class="current">{{ getProgressValue(metric) | number:'1.0-0' }}%</span>
+                      <span class="target">Target: {{ getTargetFormatted(metric) }}</span>
+                    </div>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-container">
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>show_chart</mat-icon>
+                  Sales Performance
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-placeholder">
+                  <mat-icon>bar_chart</mat-icon>
+                  <p>Sales chart would be displayed here</p>
+                  <small>Using libraries like Chart.js or ng2-charts</small>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="chart-container">
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>trending_up</mat-icon>
+                  Traffic Overview
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-placeholder">
+                  <mat-icon>show_chart</mat-icon>
+                  <p>Traffic chart would be displayed here</p>
+                  <small>Using libraries like Chart.js or ng2-charts</small>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="stat-row">
+            <mat-card class="stat-card">
+              <mat-card-content>
+                <div class="stat-content">
+                  <mat-icon class="stat-icon">storefront</mat-icon>
+                  <div class="stat-details">
+                    <h3>{{ store().analytics.totalViews | number }}</h3>
+                    <p>Total Store Views</p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="stat-card">
+              <mat-card-content>
+                <div class="stat-content">
+                  <mat-icon class="stat-icon">shopping_cart</mat-icon>
+                  <div class="stat-details">
+                    <h3>{{ store().analytics.totalSales | number }}</h3>
+                    <p>Total Sales</p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="stat-card">
+              <mat-card-content>
+                <div class="stat-content">
+                  <mat-icon class="stat-icon">conversion_path</mat-icon>
+                  <div class="stat-details">
+                    <h3>{{ store().analytics.conversionRate | number:'1.1-1' }}%</h3>
+                    <p>Conversion Rate</p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="stat-card">
+              <mat-card-content>
+                <div class="stat-content">
+                  <mat-icon class="stat-icon">people</mat-icon>
+                  <div class="stat-details">
+                    <h3>{{ store().analytics.promoterTraffic | number }}</h3>
+                    <p>Promoter Traffic</p>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Sales Tab -->
+    @if (activeTab() === 'sales') {
+      <div class="sales-tab">
+        <!-- Sales Overview -->
+        <div class="sales-overview">
+          <mat-card class="revenue-card">
+            <mat-card-header>
+              <mat-card-title>Revenue Summary</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="revenue-stats">
+                <div class="revenue-item">
+                  <span class="label">Total Revenue</span>
+                  <span class="value">₦{{ salesData().totalRevenue | number }}</span>
+                </div>
+                <div class="revenue-item">
+                  <span class="label">Promoter-Driven Sales</span>
+                  <span class="value">₦{{ salesData().promoterDrivenSales | number }}</span>
+                </div>
+                <div class="revenue-item">
+                  <span class="label">Average Order Value</span>
+                  <span class="value">₦{{ salesData().averageOrderValue | number }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Top Products -->
+          <mat-card class="top-products-card">
+            <mat-card-header>
+              <mat-card-title>Top Performing Products</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="products-list">
+                @for (product of topProducts(); track trackByProductId($index, product)) {
+                  <div class="product-item">
+                    <div class="product-info">
+                      <span class="product-name">{{ product.name }}</span>
+                      <span class="product-sales">{{ product.sales }} sales</span>
+                    </div>
+                    <div class="product-revenue">
+                      <span class="revenue">₦{{ product.revenue | number }}</span>
+                      <span class="conversion">{{ product.conversionRate | number:'1.1-1' }}% conversion</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    }
+
+    <!-- Traffic Tab -->
+    @if (activeTab() === 'traffic') {
+      <div class="traffic-tab">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Traffic Analytics</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="traffic-stats">
+              <div class="traffic-item">
+                <h3>Total Views</h3>
+                <p>{{ store().analytics.totalViews | number }}</p>
+              </div>
+              <div class="traffic-item">
+                <h3>Promoter Traffic</h3>
+                <p>{{ store().analytics.promoterTraffic | number }}</p>
+              </div>
+              <div class="traffic-item">
+                <h3>Conversion Rate</h3>
+                <p>{{ store().analytics.conversionRate | number:'1.1-1' }}%</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Products Tab -->
+    @if (activeTab() === 'products') {
+      <div class="products-tab">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Product Performance</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="products-performance">
+              @for (product of topProducts(); track trackByProductId($index, product)) {
+                <div class="performance-item">
+                  <div class="product-details">
+                    <span class="product-name">{{ product.name }}</span>
+                    <span class="product-stats">
+                      {{ product.sales }} sales • ₦{{ product.revenue | number }} • {{ product.conversionRate | number:'1.1-1' }}% conversion
+                    </span>
+                  </div>
+                  <div class="performance-bar">
+                    <div class="bar-fill" [style.width.%]="(product.revenue / salesData().totalRevenue) * 100"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Promoters Tab -->
+    @if (activeTab() === 'promoters') {
+      <div class="promoters-tab">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Promoter Performance</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="promoters-list">
+              @for (promoter of promoterPerformance(); track trackByPromoterId($index, promoter)) {
+                <div class="promoter-item">
+                  <div class="promoter-info">
+                    <span class="promoter-name">{{ promoter.promoterName }}</span>
+                    <span class="promoter-stats">
+                      {{ promoter.clicks }} clicks • {{ promoter.conversions }} conversions • {{ promoter.conversionRate | number:'1.1-1' }}% rate
+                    </span>
+                  </div>
+                  <div class="promoter-earnings">
+                    <span class="earnings">₦{{ promoter.commissionEarned | number }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+      <span>Loading analytics data...</span>
+    </div>
+  }
+</div>

@@ -17,7 +17,7 @@ export const dashboardRoutes: Routes = [
                component: DashboardMainContainer,
             },                    
             { path: 'campaigns', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
-            { path: 'store', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },           
+            { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },           
             { path: 'settings', loadChildren: () => import('../settings/settings.routes').then(r => r.SettingsRoutes) },           
             { path: 'transactions', loadChildren: () => import('../transactions/transactions.routes').then(r => r.TransactionsRoutes) },           
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            

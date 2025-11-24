@@ -1,0 +1,441 @@
+// components/store-create/store-create.component.scss
+@use '../../../../styles/mixins' as mixins;
+@use '../../../../styles/variables' as vars;
+
+.store-create {
+  padding: vars.$spacing-6;
+  background: vars.$background-color;
+  min-height: 100vh;
+
+  @include mixins.mobile {
+    padding: vars.$spacing-4;
+  }
+
+  .create-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .create-header {
+    @include mixins.flex-center;
+    gap: vars.$spacing-4;
+    margin-bottom: vars.$spacing-8;
+    position: relative;
+
+    @include mixins.mobile {
+      flex-direction: column;
+      gap: vars.$spacing-3;
+      text-align: center;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 0;
+
+      @include mixins.mobile {
+        position: relative;
+        align-self: flex-start;
+      }
+    }
+
+    .header-content {
+      flex: 1;
+      text-align: center;
+
+      h1 {
+        @include mixins.heading-large;
+        margin: 0 0 vars.$spacing-2 0;
+        color: vars.$text-primary;
+        background: linear-gradient(135deg, vars.$primary-color, vars.$secondary-color);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      p {
+        @include mixins.body-large;
+        color: vars.$text-secondary;
+        margin: 0;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+    }
+  }
+
+  .progress-card {
+    margin-bottom: vars.$spacing-6;
+    background: linear-gradient(135deg, vars.$primary-color, vars.$secondary-color);
+    color: vars.$white;
+
+    .progress-content {
+      @include mixins.flex-center;
+      gap: vars.$spacing-3;
+
+      span {
+        @include mixins.body-medium;
+        font-weight: vars.$font-weight-semibold;
+      }
+    }
+  }
+
+  .store-form {
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: vars.$spacing-6;
+      margin-bottom: vars.$spacing-8;
+
+      @include mixins.tablet {
+        grid-template-columns: 1fr;
+        gap: vars.$spacing-4;
+      }
+
+      @include mixins.mobile {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-section {
+      @include mixins.card-base;
+      margin-bottom: vars.$spacing-4;
+
+      mat-card-header {
+        margin-bottom: vars.$spacing-4;
+
+        mat-card-title {
+          @include mixins.flex-center;
+          gap: vars.$spacing-2;
+          @include mixins.heading-small;
+          color: vars.$text-primary;
+
+          mat-icon {
+            color: vars.$primary-color;
+          }
+        }
+
+        mat-card-subtitle {
+          @include mixins.body-small;
+          color: vars.$text-secondary;
+        }
+      }
+
+      .full-width {
+        width: 100%;
+        margin-bottom: vars.$spacing-3;
+      }
+    }
+
+    .logo-upload-section {
+      text-align: center;
+
+      .logo-preview {
+        position: relative;
+        display: inline-block;
+        margin-bottom: vars.$spacing-4;
+
+        .logo-image {
+          width: 120px;
+          height: 120px;
+          border-radius: vars.$border-radius-lg;
+          object-fit: cover;
+          border: 2px solid vars.$border-color;
+        }
+
+        .remove-logo {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: vars.$error-color;
+          color: vars.$white;
+          width: 24px;
+          height: 24px;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+
+      .logo-placeholder {
+        @include mixins.flex-column-center;
+        width: 120px;
+        height: 120px;
+        border: 2px dashed vars.$border-color;
+        border-radius: vars.$border-radius-lg;
+        margin: 0 auto vars.$spacing-4 auto;
+        background: vars.$gray-50;
+        color: vars.$text-tertiary;
+
+        .placeholder-icon {
+          font-size: 40px;
+          width: 40px;
+          height: 40px;
+          margin-bottom: vars.$spacing-2;
+        }
+
+        p {
+          @include mixins.caption;
+          margin: 0;
+        }
+      }
+
+      .upload-actions {
+        @include mixins.flex-center;
+        gap: vars.$spacing-2;
+        margin-bottom: vars.$spacing-3;
+
+        .upload-button {
+          @include mixins.flex-center;
+          gap: vars.$spacing-2;
+          padding: vars.$spacing-2 vars.$spacing-4;
+          background: vars.$primary-color;
+          color: vars.$white;
+          border-radius: vars.$border-radius;
+          cursor: pointer;
+          transition: all vars.$transition-normal;
+          font-weight: vars.$font-weight-medium;
+
+          &:hover {
+            background: vars.$primary-dark;
+            transform: translateY(-1px);
+          }
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+
+        .remove-button {
+          color: vars.$error-color;
+
+          mat-icon {
+            color: vars.$error-color;
+          }
+        }
+      }
+
+      .upload-hint {
+        p {
+          @include mixins.caption;
+          color: vars.$text-tertiary;
+          margin: vars.$spacing-1 0 0 0;
+          text-align: center;
+        }
+      }
+    }
+
+    .preview-section {
+      .store-preview {
+        background: vars.$gray-50;
+        border-radius: vars.$border-radius;
+        padding: vars.$spacing-4;
+        border: 1px solid vars.$border-color;
+
+        .preview-header {
+          @include mixins.flex-center;
+          gap: vars.$spacing-3;
+          margin-bottom: vars.$spacing-3;
+
+          .preview-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: vars.$border-radius;
+            object-fit: cover;
+          }
+
+          .preview-logo-placeholder {
+            @include mixins.flex-center;
+            width: 60px;
+            height: 60px;
+            background: vars.$primary-color;
+            color: vars.$white;
+            border-radius: vars.$border-radius;
+
+            mat-icon {
+              font-size: 24px;
+              width: 24px;
+              height: 24px;
+            }
+          }
+
+          .preview-info {
+            flex: 1;
+
+            h3 {
+              @include mixins.body-large;
+              font-weight: vars.$font-weight-semibold;
+              margin: 0 0 vars.$spacing-1 0;
+              color: vars.$text-primary;
+              @include mixins.text-ellipsis;
+            }
+
+            p {
+              @include mixins.caption;
+              color: vars.$text-secondary;
+              margin: 0;
+            }
+          }
+        }
+
+        .preview-description {
+          @include mixins.body-small;
+          color: vars.$text-secondary;
+          line-height: vars.$line-height-normal;
+          margin-bottom: vars.$spacing-3;
+          @include mixins.text-multiline-ellipsis(3);
+        }
+
+        .preview-contact {
+          @include mixins.flex-center;
+          gap: vars.$spacing-1;
+          color: vars.$success-color;
+          font-size: vars.$font-size-sm;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+
+    .form-actions {
+      @include mixins.flex-between;
+      gap: vars.$spacing-3;
+      margin-top: vars.$spacing-6;
+
+      @include mixins.mobile {
+        flex-direction: column;
+      }
+
+      .cancel-button {
+        color: vars.$text-secondary;
+
+        @include mixins.mobile {
+          width: 100%;
+        }
+      }
+
+      .submit-button {
+        @include mixins.mobile {
+          width: 100%;
+        }
+
+        &:not(:disabled) {
+          background: linear-gradient(135deg, vars.$primary-color, vars.$secondary-color);
+        }
+      }
+    }
+  }
+
+  .help-section {
+    @include mixins.card-base;
+
+    .help-content {
+      .help-item {
+        @include mixins.flex-center;
+        gap: vars.$spacing-3;
+        padding: vars.$spacing-3 0;
+        border-bottom: 1px solid vars.$border-color;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        mat-icon {
+          color: vars.$primary-color;
+          flex-shrink: 0;
+        }
+
+        .help-text {
+          h4 {
+            @include mixins.body-medium;
+            font-weight: vars.$font-weight-semibold;
+            margin: 0 0 vars.$spacing-1 0;
+            color: vars.$text-primary;
+          }
+
+          p {
+            @include mixins.body-small;
+            color: vars.$text-secondary;
+            margin: 0;
+            line-height: vars.$line-height-normal;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Form field enhancements
+::ng-deep {
+  .store-create {
+    .mat-mdc-form-field {
+      width: 100%;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      background: vars.$white;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-form-field-hint-wrapper {
+      padding: 0;
+    }
+
+    .mat-mdc-form-field-error {
+      font-size: vars.$font-size-xs;
+    }
+  }
+}
+
+// Responsive design
+@include mixins.mobile {
+  .store-create {
+    padding: vars.$spacing-3;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
+// Loading states
+:host {
+  .loading-overlay {
+    @include mixins.flex-center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(vars.$surface-color, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .store-create {
+    .form-section {
+      border: 2px solid vars.$black;
+    }
+
+    .logo-placeholder {
+      border: 2px dashed vars.$black;
+    }
+  }
+}

@@ -1,0 +1,201 @@
+<!-- components/store-promotions/store-promotions.component.html -->
+<div class="store-promotions">
+  <!-- Header -->
+  <div class="promotions-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h2>Promotion Campaigns</h2>
+        <p>Create and manage promoter campaigns for your products</p>
+      </div>
+      <div class="header-right">
+        <button mat-raised-button color="primary" (click)="createPromotion()" [disabled]="!canCreatePromotion()">
+          <mat-icon>add</mat-icon>
+          Create Promotion
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="promotion-stats">
+      <div class="stat-item">
+        <span class="stat-value">{{ promotionStats().total }}</span>
+        <span class="stat-label">Total Campaigns</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value primary">{{ promotionStats().active }}</span>
+        <span class="stat-label">Active</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value accent">{{ promotionStats().draft }}</span>
+        <span class="stat-label">Draft</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ promotionStats().completed }}</span>
+        <span class="stat-label">Completed</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ formatCurrency(promotionStats().totalBudget) }}</span>
+        <span class="stat-label">Total Budget</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-buttons">
+      <button mat-button 
+              [class.active]="filterStatus() === 'all'"
+              (click)="filterStatus.set('all')">
+        All Promotions
+      </button>
+      <button mat-button 
+              [class.active]="filterStatus() === 'active'"
+              (click)="filterStatus.set('active')">
+        Active
+      </button>
+      <button mat-button 
+              [class.active]="filterStatus() === 'draft'"
+              (click)="filterStatus.set('draft')">
+        Draft
+      </button>
+      <button mat-button 
+              [class.active]="filterStatus() === 'completed'"
+              (click)="filterStatus.set('completed')">
+        Completed
+      </button>
+    </div>
+  </div>
+
+  <!-- Promotions Grid -->
+  <div class="promotions-grid">
+    @for (promotion of filteredPromotions(); track trackByPromotionId($index, promotion)) {
+      <mat-card class="promotion-card">
+        <mat-card-header>
+          <div class="promotion-header">
+            <div class="promotion-title">
+              <h3>{{ promotion.title }}</h3>
+              <mat-chip [color]="getStatusColor(promotion.status)" selected>
+                {{ promotion.status | titlecase }}
+              </mat-chip>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="promotionMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #promotionMenu="matMenu">
+              <button mat-menu-item (click)="viewPromotion(promotion)">
+                <mat-icon>visibility</mat-icon>
+                <span>View Details</span>
+              </button>
+              <button mat-menu-item (click)="editPromotion(promotion)" [disabled]="promotion.status === 'completed'">
+                <mat-icon>edit</mat-icon>
+                <span>Edit</span>
+              </button>
+              <button mat-menu-item (click)="duplicatePromotion(promotion)">
+                <mat-icon>content_copy</mat-icon>
+                <span>Duplicate</span>
+              </button>
+            </mat-menu>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <p class="promotion-description">{{ promotion.description }}</p>
+
+          <div class="promotion-meta">
+            <div class="meta-item">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ promotion.startDate | date:'mediumDate' }}</span>
+            </div>
+            @if (promotion.endDate) {
+              <div class="meta-item">
+                <mat-icon>event_available</mat-icon>
+                <span>{{ promotion.endDate | date:'mediumDate' }}</span>
+              </div>
+            }
+            <div class="meta-item">
+              <mat-icon>people</mat-icon>
+              <span>{{ promotion.maxPromoters }} promoters</span>
+            </div>
+          </div>
+
+          <!-- Budget Progress -->
+          <div class="budget-section">
+            <div class="budget-header">
+              <span class="budget-label">Budget Usage</span>
+              <span class="budget-amount">
+                {{ formatCurrency(promotion.analytics.totalSpent) }} of {{ formatCurrency(promotion.budget) }}
+              </span>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getProgress(promotion)"
+              [color]="getProgress(promotion) >= 90 ? 'warn' : 'primary'">
+            </mat-progress-bar>
+          </div>
+
+          <!-- Performance Stats -->
+          <div class="performance-stats">
+            <div class="performance-item">
+              <span class="label">Views</span>
+              <span class="value">{{ promotion.analytics.totalViews | number }}</span>
+            </div>
+            <div class="performance-item">
+              <span class="label">Clicks</span>
+              <span class="value">{{ promotion.analytics.totalClicks | number }}</span>
+            </div>
+            <div class="performance-item">
+              <span class="label">Conversions</span>
+              <span class="value">{{ promotion.analytics.totalConversions | number }}</span>
+            </div>
+            <div class="performance-item">
+              <span class="label">ROI</span>
+              <span class="value" [class.positive]="getROI(promotion) > 0" [class.negative]="getROI(promotion) < 0">
+                {{ getROI(promotion) | number:'1.1-1' }}%
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="viewPromotion(promotion)">
+            <mat-icon>visibility</mat-icon>
+            View Details
+          </button>
+          <button mat-button (click)="editPromotion(promotion)" [disabled]="promotion.status === 'completed'">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+
+    <!-- Empty State -->
+    @if (filteredPromotions().length === 0) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">campaign</mat-icon>
+        <h3>No promotions found</h3>
+        <p>Create your first promotion campaign to start growing your store through promoters.</p>
+        <button mat-raised-button color="primary" (click)="createPromotion()" [disabled]="!canCreatePromotion()">
+          Create First Promotion
+        </button>
+
+        @if (!canCreatePromotion()) {
+          <div class="requirements">
+            <p class="requirements-title">To create promotions, you need:</p>
+            <ul>
+              <li [class.met]="store().isVerified">
+                <mat-icon>{{ store().isVerified ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>Store verification</span>
+              </li>
+              <li [class.met]="availableProducts().length > 0">
+                <mat-icon>{{ availableProducts().length > 0 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                <span>Active products in stock</span>
+              </li>
+            </ul>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

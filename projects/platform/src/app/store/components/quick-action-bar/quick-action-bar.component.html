@@ -1,0 +1,89 @@
+<!-- components/quick-action-bar/quick-action-bar.component.html -->
+@if (store()) {
+  <div class="quick-action-bar" [class.mobile]="isMobile()">
+    <!-- Desktop Layout -->
+    @if (!isMobile()) {
+      <div class="desktop-actions">
+        <div class="actions-container">
+          @for (action of quickActions(); track trackByActionLabel($index, action)) {
+            <button mat-raised-button 
+                    [color]="action.color"
+                    [disabled]="action.disabled"
+                    (click)="action.action()"
+                    class="action-button"
+                    matTooltip="{{action.description}}"
+                    [matTooltipDisabled]="!action.disabled">
+              
+              <div class="action-content">
+                <div class="action-icon-container">
+                  @if (action.badge) {
+                    <!-- <mat-badge [content]="action.badge" 
+                              [color]="action.badgeColor"
+                              class="action-badge">
+                      <mat-icon class="action-icon">{{ action.icon }}</mat-icon>
+                    </mat-badge> -->
+                  } @else {
+                    <mat-icon class="action-icon">{{ action.icon }}</mat-icon>
+                  }
+                </div>
+                
+                <div class="action-text">
+                  <span class="action-label">{{ action.label }}</span>
+                  <span class="action-description">{{ action.description }}</span>
+                </div>
+                
+                @if (action.requiresVerification && !store()?.isVerified) {
+                  <mat-icon class="verification-required" color="warn">lock</mat-icon>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Mobile Layout -->
+      <div class="mobile-actions">
+        <!-- Floating Action Button -->
+        <button mat-fab color="primary" 
+                [matMenuTriggerFor]="mobileMenu"
+                class="mobile-fab">
+          <mat-icon>flash_on</mat-icon>
+        </button>
+
+        <mat-menu #mobileMenu="matMenu" class="mobile-actions-menu">
+          @for (action of mobileActions(); track trackByActionLabel($index, action)) {
+            <button mat-menu-item 
+                    (click)="action.action()"
+                    [disabled]="action.disabled">
+              
+              <div class="mobile-action-content">
+                @if (action.badge) {
+                  <!-- <mat-badge [content]="action.badge" 
+                            [color]="action.badgeColor"
+                            class="mobile-badge">
+                    <mat-icon>{{ action.icon }}</mat-icon>
+                  </mat-badge> -->
+                } @else {
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                }
+                
+                <span class="mobile-action-label">{{ action.label }}</span>
+                
+                @if (action.requiresVerification && !store()?.isVerified) {
+                  <mat-icon class="mobile-verification-icon" color="warn">lock</mat-icon>
+                }
+              </div>
+            </button>
+          }
+
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item (click)="onStoreSettings()">
+            <mat-icon>settings</mat-icon>
+            <span>All Actions</span>
+          </button>
+        </mat-menu>
+      </div>
+    }
+  </div>
+}

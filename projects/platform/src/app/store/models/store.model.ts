@@ -1,3 +1,5 @@
+import { PerformanceMetric } from "./performance-metric.model";
+
 // models/store.model.ts
 export interface Store {
   _id?: string;
@@ -14,6 +16,8 @@ export interface Store {
   status: 'active' | 'inactive' | 'suspended';
   createdAt: Date;
   updatedAt: Date;
+  settings?: StoreSettings;
+  isActive: boolean;
 }
 
 export interface StoreAnalytics {
@@ -24,6 +28,7 @@ export interface StoreAnalytics {
   dailyViews: DailyView[];
   salesData: SalesData;
   promoterPerformance: PromoterPerformance[];
+  performanceMetrics: PerformanceMetric[];
 }
 
 export interface DailyView {
@@ -31,13 +36,17 @@ export interface DailyView {
   views: number;
   uniqueVisitors: number;
   promoterTraffic: number;
+  sales: number;
+  revenue: number;
 }
 
 export interface SalesData {
   totalRevenue: number;
   promoterDrivenSales: number;
   conversionRate: number;
+  averageOrderValue: number;
   topProducts: TopProduct[];
+  revenueByCategory: RevenueByCategory[];
 }
 
 export interface TopProduct {
@@ -45,6 +54,14 @@ export interface TopProduct {
   name: string;
   sales: number;
   revenue: number;
+  conversionRate: number;
+  image?: string;
+}
+
+export interface RevenueByCategory {
+  category: string;
+  revenue: number;
+  percentage: number;
 }
 
 export interface PromoterPerformance {
@@ -53,37 +70,48 @@ export interface PromoterPerformance {
   clicks: number;
   conversions: number;
   commissionEarned: number;
+  conversionRate: number;
+  totalSales: number;
 }
 
-// models/product.model.ts
-export interface Product {
-  _id?: string;
-  store: string;
+export interface StoreSettings {
+  notifications: {
+    lowStock: boolean;
+    newOrder: boolean;
+    promotionEnding: boolean;
+    weeklyReport: boolean;
+  };
+  inventory: {
+    lowStockThreshold: number;
+    autoArchiveOutOfStock: boolean;
+    restockNotifications: boolean;
+  };
+  promotions: {
+    autoApprovePromoters: boolean;
+    minPromoterRating: number;
+    defaultCommission: number;
+  };
+  appearance: {
+    theme: 'light' | 'dark' | 'auto';
+    primaryColor: string;
+    logoPosition: 'left' | 'center';
+  };
+}
+
+export interface CreateStoreRequest {
   name: string;
   description: string;
-  price: number;
-  images: string[];
-  quantity: number;
   category: string;
-  promoterTracking: PromoterTracking;
-  lowStockAlert: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  logo?: File;
+  whatsappNumber: string;
+  settings?: Partial<StoreSettings>;
 }
 
-export interface PromoterTracking {
-  uniqueId: string;
-  viewCount: number;
-  clickCount: number;
-  conversionCount: number;
-}
-
-export interface CreateProductRequest {
-  name: string;
-  description: string;
-  price: number;
-  images: File[];
-  quantity: number;
-  category: string;
+export interface UpdateStoreRequest {
+  name?: string;
+  description?: string;
+  category?: string;
+  logo?: File;
+  whatsappNumber?: string;
+  settings?: Partial<StoreSettings>;
 }
