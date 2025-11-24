@@ -1,4 +1,5 @@
 import { PerformanceMetric } from "./performance-metric.model";
+import { StoreSettings } from "./store-promotion.model";
 
 // models/store.model.ts
 export interface Store {
@@ -74,44 +75,44 @@ export interface PromoterPerformance {
   totalSales: number;
 }
 
-export interface StoreSettings {
-  notifications: {
-    lowStock: boolean;
-    newOrder: boolean;
-    promotionEnding: boolean;
-    weeklyReport: boolean;
-  };
-  inventory: {
-    lowStockThreshold: number;
-    autoArchiveOutOfStock: boolean;
-    restockNotifications: boolean;
-  };
-  promotions: {
-    autoApprovePromoters: boolean;
-    minPromoterRating: number;
-    defaultCommission: number;
-  };
-  appearance: {
-    theme: 'light' | 'dark' | 'auto';
-    primaryColor: string;
-    logoPosition: 'left' | 'center';
-  };
-}
+// export interface StoreSettings {
+//   notifications: {
+//     lowStock: boolean;
+//     newOrder: boolean;
+//     promotionEnding: boolean;
+//     weeklyReport: boolean;
+//   };
+//   inventory: {
+//     lowStockThreshold: number;
+//     autoArchiveOutOfStock: boolean;
+//     restockNotifications: boolean;
+//   };
+//   promotions: {
+//     autoApprovePromoters: boolean;
+//     minPromoterRating: number;
+//     defaultCommission: number;
+//   };
+//   appearance: {
+//     theme: 'light' | 'dark' | 'auto';
+//     primaryColor: string;
+//     logoPosition: 'left' | 'center';
+//   };
+// }
 
-export interface CreateStoreRequest {
-  name: string;
-  description: string;
-  category: string;
-  logo?: File;
-  whatsappNumber: string;
-  settings?: Partial<StoreSettings>;
-}
+// export interface CreateStoreRequest {
+//   name: string;
+//   description: string;
+//   category: string;
+//   logo?: File;
+//   whatsappNumber: string;
+//   settings?: Partial<StoreSettings>;
+// }
 
-export interface UpdateStoreRequest {
-  name?: string;
-  description?: string;
-  category?: string;
-  logo?: File;
-  whatsappNumber?: string;
-  settings?: Partial<StoreSettings>;
-}
+// export interface UpdateStoreRequest {
+//   name?: string;
+//   description?: string;
+//   category?: string;
+//   logo?: File;
+//   whatsappNumber?: string;
+//   settings?: Partial<StoreSettings>;
+// }
