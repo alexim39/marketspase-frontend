@@ -174,7 +174,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/transactions/withdrawal']);
   }
 
-  public fundWallet(): void {
+ public fundWallet(): void {
+ 
+
+  if (this.deviceService.deviceState().isMobile) {
+    // const dataToPass = {
+    //   amount: 100, // Example data
+    //   currency: 'USD'
+    // };
+
+    this.dialog.open(WalletFundingComponent, {
+      data: this.user(), // Pass the data here
+      panelClass: 'custom-dialog-container',
+      height: '600px', // Set your desired height (e.g., '400px', '50vh', 'auto')
+    });
+
+  } else {
     // const dataToPass = {
     //   amount: 100, // Example data
     //   currency: 'USD'
@@ -185,6 +200,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       panelClass: 'custom-dialog-container',
     });
   }
+
+ 
+}
 
   public openWallet(): void {
     this.router.navigate(['/dashboard/transactions']);
