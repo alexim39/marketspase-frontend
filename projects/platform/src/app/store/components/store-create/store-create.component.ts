@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { StoreService } from '../../services/store.service';
-import { CreateStoreRequest } from '../../models/store.model';
+import { CreateStoreRequest } from '../../models';
 
 @Component({
   selector: 'app-store-create',

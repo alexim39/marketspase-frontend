@@ -11,7 +11,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f8f9fa;
+  //background-color: #f8f9fa;
 }
 
 .container {
@@ -27,14 +27,14 @@ body {
 .sidenav-container {
   height: 100%;
   .mat-drawer-content {
-    background-color: #f8f9fa;
+    //background-color: #f8f9fa;
   }
 }
 
 .sidenav {
   width: 280px;
   padding: 16px;
-  background-color: #ffffff;
+  //background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   
   .sidenav-header {
@@ -193,7 +193,7 @@ body {
 .mobile-header, .desktop-header {
   height: 64px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background-color: #ffffff;
+  //background-color: #ffffff;
   padding: 0 16px;
 }
 
@@ -249,11 +249,11 @@ body {
       align-items: center;
       gap: 4px;
       padding: 6px 12px;
-      background-color: #f0f4f7;
+      //background-color: #f0f4f7;
       border-radius: 20px;
       cursor: pointer;
       &:hover {
-        background-color: #e6edf2;
+       // background-color: #e6edf2;
       }
       mat-icon {
         color: #4caf50;

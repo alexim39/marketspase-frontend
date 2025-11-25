@@ -2,8 +2,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, tap } from 'rxjs';
-import { CreateStoreRequest, Store, StoreSettings } from '../models/store.model';
-import { CreateProductRequest, Product, StorePromotion, PerformanceMetric } from '../models';
+import { Store, } from '../models/store.model';
+import { CreateProductRequest, Product, StorePromotion, PerformanceMetric, CreateStoreRequest } from '../models';
 
 @Injectable()
 export class StoreService {

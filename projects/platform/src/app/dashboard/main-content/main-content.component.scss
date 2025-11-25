@@ -2,7 +2,7 @@
   flex: 1;
   padding: 24px;
   overflow: auto;
-  background-color: #f8f9fa;
+  //background-color: #f8f9fa;
 }
 
 /* Welcome Header */
@@ -14,7 +14,7 @@
   padding: 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 16px;
-  color: white;
+  //color: white;
 
   .welcome-text {
     h1 {
@@ -81,7 +81,7 @@
   border-radius: 16px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-  background: white;
+  //background: white;
 
   &:hover {
     transform: translateY(-2px);
@@ -120,12 +120,12 @@
 }
 
 .stat-trend.up {
-  background-color: #e8f5e8;
+  //background-color: #e8f5e8;
   color: #2e7d32;
 }
 
 .stat-trend.down {
-  background-color: #ffebee;
+  //background-color: #ffebee;
   color: #d32f2f;
 }
 
@@ -172,7 +172,7 @@
 .stats-card {
   border-radius: 16px;
   overflow: hidden;
-  background: white;
+  //background: white;
 }
 
 .activity-list {
@@ -197,12 +197,12 @@
     margin-right: 16px;
 
     &.credit {
-      background-color: #e8f5e8;
+     // background-color: #e8f5e8;
       color: #2e7d32;
     }
 
     &.debit {
-      background-color: #ffebee;
+      //background-color: #ffebee;
       color: #d32f2f;
     }
   }
@@ -304,17 +304,17 @@
       font-weight: 500;
 
       &.pending {
-        background-color: #fff3e0;
+       // background-color: #fff3e0;
         color: #ef6c00;
       }
 
       &.submitted {
-        background-color: #e3f2fd;
+       // background-color: #e3f2fd;
         color: #1976d2;
       }
 
       &.paid {
-        background-color: #e8f5e8;
+        //background-color: #e8f5e8;
         color: #2e7d32;
       }
     }
