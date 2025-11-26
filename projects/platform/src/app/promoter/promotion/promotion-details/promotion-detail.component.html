@@ -30,7 +30,7 @@
             [isNearingExpiration]="isNearingExpiration()"
             [apiUrl]="api"
             (share)="shareToWhatsApp()"
-            (download)="downloadPromotion()"
+            (download)="downloadPromotion(promotion._id)"
           />
           
           <app-promotion-metrics 
@@ -52,7 +52,7 @@
             [promotion]="promotion"
             [isSubmissionExpired]="isSubmissionExpired()"
             [isNearingExpiration]="isNearingExpiration()"
-            (download)="downloadPromotion()"
+            (download)="downloadPromotion(promotion._id)"
             (contactSupport)="contactSupport()"
           />
         </div>

@@ -17,7 +17,7 @@
           </button>
         }
         @if (!promotion.isDownloaded) {
-          <button mat-menu-item (click)="downloadPromotion()" [disabled]="isSubmissionExpired(promotion)">
+          <button mat-menu-item (click)="downloadPromotion(promotion._id)" [disabled]="isSubmissionExpired(promotion)">
             <mat-icon>download_for_offline</mat-icon>
             <span>Download Promotion</span>
           </button>
@@ -133,7 +133,7 @@
           }
           
         } @else {         
-          <button class="action-btn primary" (click)="downloadPromotion()" [disabled]="isLoading()">
+          <button class="action-btn primary" (click)="downloadPromotion(promotion._id)" [disabled]="isLoading()">
             @if (isLoading()) {
               <mat-progress-spinner
                 diameter="20"

@@ -164,14 +164,14 @@ export class PromotionDetailComponent implements OnInit {
     return nowUtc > expiryTimeUtc;
   }
 
-  downloadPromotion(): void {
+  downloadPromotion(promotionId: string): void {
     const promotion = this.promotion();
     if (!promotion) return;
 
     const campaignId = promotion.campaign._id;
     const promoterId = promotion.promoter._id;
 
-    this.promoterService.downloadPromotion(campaignId, promoterId)
+    this.promoterService.downloadPromotion(campaignId, promoterId, promotionId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
