@@ -146,10 +146,11 @@ import { ThemeService } from '../../../../theme.service';
               <mat-icon>person</mat-icon>
               <span>Profile & Settings</span>
             </button>
-            <button mat-icon-button (click)="themeService.toggleTheme()">
+            <button matRipple class="account-action"  (click)="themeService.toggleTheme()">
               <mat-icon>
                 {{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}
               </mat-icon>
+              <span>Toggle Theme</span>
             </button>
           </div>
         </div>
