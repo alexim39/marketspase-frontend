@@ -195,13 +195,13 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= fourHoursInMs;
   }
 
-  downloadPromotion(): void {
+  downloadPromotion(promotionId: string): void {
     this.isLoading.set(true); // Set loading state to true
 
     const campaignId = this.promotion.campaign._id;
     const promoterId = this.promotion.promoter._id;
 
-    this.promoterService.downloadPromotion(campaignId, promoterId)
+    this.promoterService.downloadPromotion(campaignId, promoterId, promotionId)
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
     next: (response) => {

@@ -74,10 +74,11 @@ export class PromoterService {
    * @param promoterId The ID of the promoter.
    * @returns An Observable of the API response, which contains the campaign media URL and type.
    */
-  downloadPromotion(campaignId: string, promoterId: string): Observable<any> {
+  downloadPromotion(campaignId: string, promoterId: string, promotionId: string): Observable<any> {
     const payload = {
       campaignId,
       promoterId,
+      promotionId
     };
     return this.apiService.post<any>('promotion/download', payload, undefined, true);
   }
