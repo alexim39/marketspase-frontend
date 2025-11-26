@@ -1,4 +1,8 @@
+
 /* Quick Actions Styles */
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .quick-actions {
   display: flex;
   flex-direction: column;
@@ -8,7 +12,8 @@
   .section-title {
     font-size: 14px;
     font-weight: 600;
-    color: #757575;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
     margin: 0;
   }
   
@@ -16,18 +21,25 @@
     width: 100%;
     justify-content: flex-start;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    color: #555;
+    // UPDATED: Use border-color variable for dynamic theming
+    border: 1px solid $border-color;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
+    
     .mat-icon {
-      color: #757575;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
       margin-right: 8px;
     }
   }
+  
   .switch-btn {
     margin-top: 16px;
   }
+  
   .big {
-    color: #667eea;
-    border-color: #667eea;
+    // UPDATED: Use primary-color variable for dynamic theming
+    color: $primary-color;
+    border-color: $primary-color;
   }
 }

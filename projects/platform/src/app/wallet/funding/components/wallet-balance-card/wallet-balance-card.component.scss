@@ -1,13 +1,18 @@
+@import './../../../../../styles/variables';
+@import './../../../../../styles/mixins';
+
 .balance-section {
   .balance-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    // UPDATED: Use gradient-primary variable
+    background: $gradient-primary;
     border-radius: 16px;
     color: white;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    // UPDATED: Use primary-rgb for dynamic shadow
+    box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.3);
     position: relative;
     overflow: hidden;
 
@@ -73,14 +78,17 @@
     align-items: flex-start;
     gap: 16px;
     padding: 20px;
-    background: linear-gradient(145deg, #fff3e0 0%, #ffe0b2 100%);
+    // UPDATED: Use color-mix for dynamic background with warning color
+    background: color-mix(in srgb, $warning-color 8%, $surface-color);
     border-radius: 12px;
-    border-left: 4px solid #ff9800;
+    // UPDATED: Use warning-color for border
+    border-left: 4px solid $warning-color;
     margin-top: 16px;
     animation: slideIn 0.3s ease-out;
 
     mat-icon {
-      color: #ff9800;
+      // UPDATED: Use warning-color for icon
+      color: $warning-color;
       font-size: 24px;
       width: 24px;
       height: 24px;
@@ -90,13 +98,15 @@
     .requirement-title {
       font-size: 16px;
       font-weight: 600;
-      color: #e65100;
+      // UPDATED: Use darken-bg mixin for title color
+      color: color-mix(in srgb, $warning-color, black 40%);
       margin: 0 0 4px 0;
     }
 
     .requirement-amount {
       font-size: 14px;
-      color: #bf360c;
+      // UPDATED: Use darken-bg mixin for amount color
+      color: color-mix(in srgb, $warning-color, black 60%);
       margin: 0;
       line-height: 1.4;
     }

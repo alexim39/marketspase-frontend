@@ -1,8 +1,10 @@
+
 // image-viewer-modal.component.scss
 @import './../../../../../../styles/variables';
 @import './../../../../../../styles/mixins';
 
 .image-viewer-modal {
+  // UPDATED: Keep dark background for image viewing context
   background: rgba(0, 0, 0, 0.9);
   color: white;
   height: 100vh;
@@ -152,7 +154,8 @@
       }
       
       .action-btn {
-        background: rgba(255, 255, 255, 0.9);
+        // UPDATED: Use surface-color for action buttons
+        background: $surface-color;
         border: none;
         border-radius: 50%;
         width: 44px;
@@ -161,11 +164,13 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: #1f2937;
+        // UPDATED: Use text-primary for button icons
+        color: $text-primary;
         transition: all 0.2s ease;
         
         &:hover:not(:disabled) {
-          background: white;
+          // UPDATED: Use gray-50 for hover state
+          background: $gray-50;
           transform: scale(1.05);
         }
         

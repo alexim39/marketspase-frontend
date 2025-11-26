@@ -1,6 +1,11 @@
+
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .promoter-campaigns-container {
   padding-bottom: 80px;
-  background: #f8f9fa;
+  // UPDATED: Use background-color variable for dynamic theming
+  background: $background-color;
 
   .content-container {
     margin: 0 auto;
@@ -86,7 +91,8 @@
 
     .results-info {
       font-size: 14px;
-      color: #6b7280;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
       text-align: center;
       font-weight: 500;
     }
@@ -108,7 +114,8 @@
         
         .mat-paginator-range-label {
           margin: 0 16px;
-          color: #6b7280;
+          // UPDATED: Use text-secondary variable for dynamic theming
+          color: $text-secondary;
         }
       }
       
@@ -118,7 +125,8 @@
         
         .mat-paginator-page-size-label {
           margin-right: 8px;
-          color: #6b7280;
+          // UPDATED: Use text-secondary variable for dynamic theming
+          color: $text-secondary;
           font-size: 14px;
         }
         

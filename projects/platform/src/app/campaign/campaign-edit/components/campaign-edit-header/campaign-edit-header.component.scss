@@ -3,7 +3,8 @@
 @import '../../../../../styles/mixins';
 
 .header {
-  background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
+  // UPDATED: Use gradient-primary variable for dynamic theming
+  background: $gradient-primary;
   color: white;
   padding: 1.5rem 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);

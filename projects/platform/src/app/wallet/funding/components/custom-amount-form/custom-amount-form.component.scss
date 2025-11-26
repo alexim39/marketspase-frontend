@@ -1,18 +1,21 @@
+@import './../../../../../styles/variables';
+@import './../../../../../styles/mixins';
+
 .custom-amount-section {
   h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 20px 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-5 0;
     position: relative;
 
     &::after {
       content: '';
       position: absolute;
-      bottom: -8px;
+      bottom: -$spacing-2;
       left: 0;
       width: 40px;
       height: 3px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
+      background: var(--gradient-primary);
       border-radius: 2px;
     }
   }
@@ -23,63 +26,63 @@
 
       ::ng-deep {
         .mat-mdc-text-field-wrapper {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-          transition: all 0.3s ease;
+          background: $surface-color;
+          border-radius: $border-radius-md;
+          box-shadow: $shadow-md;
+          transition: all $transition-normal;
 
           &:hover {
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            box-shadow: 0 4px 20px rgba($primary-color-hex, 0.15);
           }
         }
 
         .mdc-text-field--focused .mat-mdc-text-field-wrapper {
-          box-shadow: 0 6px 24px rgba(102, 126, 234, 0.25);
+          box-shadow: 0 6px 24px rgba($primary-color-hex, 0.25);
         }
 
         .mat-mdc-form-field-focus-overlay {
-          border-radius: 12px;
+          border-radius: $border-radius-md;
         }
 
         .mdc-line-ripple::before,
         .mdc-line-ripple::after {
-          border-bottom-color: #667eea;
+          border-bottom-color: $primary-color-hex;
         }
 
         .mat-mdc-form-field-label {
-          color: #667eea;
+          color: $primary-color-hex;
         }
       }
 
       input {
-        font-size: 24px;
-        font-weight: 600;
+        font-size: $font-size-2xl;
+        font-weight: $font-weight-semibold;
         text-align: center;
-        transition: all 0.3s ease;
+        transition: all $transition-normal;
 
         &:focus {
-          color: #667eea;
+          color: $primary-color-hex;
         }
 
-        @media (max-width: 767px) {
-          font-size: 20px;
+        @media (max-width: #{$breakpoint-md - 1px}) {
+          font-size: $font-size-xl;
         }
       }
 
       .mat-mdc-form-field-hint,
       .mat-mdc-form-field-error {
-        font-size: 12px;
-        margin-top: 8px;
+        font-size: $font-size-xs;
+        margin-top: $spacing-2;
       }
 
       [matTextPrefix] {
-        font-size: 20px;
-        font-weight: 600;
-        color: #667eea;
-        margin-right: 8px;
+        font-size: $font-size-xl;
+        font-weight: $font-weight-semibold;
+        color: $primary-color-hex;
+        margin-right: $spacing-2;
 
-        @media (max-width: 767px) {
-          font-size: 18px;
+        @media (max-width: #{$breakpoint-md - 1px}) {
+          font-size: $font-size-lg;
         }
       }
     }

@@ -1,3 +1,6 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .loading-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -5,15 +8,18 @@
 }
 
 .campaign-card-skeleton {
-  background: #ffffff;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   overflow: hidden;
 }
 
 .skeleton-header {
   height: 60px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  // UPDATED: Use gray-200 and gray-100 for shimmer effect
+  background: linear-gradient(90deg, $gray-200 25%, $gray-100 50%, $gray-200 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -22,7 +28,8 @@
   height: 200px;
   margin: 16px 20px 0;
   border-radius: 12px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  // UPDATED: Use gray-200 and gray-100 for shimmer effect
+  background: linear-gradient(90deg, $gray-200 25%, $gray-100 50%, $gray-200 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -33,7 +40,8 @@
 
 .skeleton-line {
   height: 12px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  // UPDATED: Use gray-200 and gray-100 for shimmer effect
+  background: linear-gradient(90deg, $gray-200 25%, $gray-100 50%, $gray-200 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 6px;
@@ -46,7 +54,8 @@
 
 .skeleton-metrics {
   height: 40px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  // UPDATED: Use gray-200 and gray-100 for shimmer effect
+  background: linear-gradient(90deg, $gray-200 25%, $gray-100 50%, $gray-200 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 6px;

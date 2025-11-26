@@ -1,26 +1,27 @@
 // basic-info-form.component.scss
-@import '../../../../../styles/variables';
-@import '../../../../../styles/mixins';
+@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/mixins' as mixins;
 
 .form-card {
-  background: white;
+  background: vars.$surface-color;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: vars.$shadow;
   overflow: hidden;
   
   .card-header {
     padding: 1.5rem;
-    border-bottom: 1px solid $border-color;
+    border-bottom: 1px solid vars.$border-color;
     
     h2 {
       margin: 0;
       font-size: 1.3rem;
       font-weight: 600;
+      color: vars.$text-primary;
     }
     
     p {
       margin: 0.5rem 0 0;
-      color: $text-secondary;
+      color: vars.$text-secondary;
       font-size: 0.9rem;
     }
   }
@@ -48,12 +49,12 @@
 .form-field-half {
   flex: 1 1 calc(50% - 0.5rem);
   
-  @include mobile {
+  @include mixins.mobile {
     flex: 1 1 100%;
   }
 }
 
-@include mobile {
+@include mixins.mobile {
   .form-card {
     .card-header,
     .card-content {

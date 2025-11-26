@@ -15,6 +15,7 @@
   
   p {
     margin-top: 1rem;
+    // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
   }
 }

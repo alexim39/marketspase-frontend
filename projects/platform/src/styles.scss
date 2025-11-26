@@ -1,78 +1,84 @@
-
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use './styles/variables' as vars;
 
+// 1. SETUP THEME
+// We rely on the automatic palette generation of M3/recent Angular versions
+// If you need specific azure/blue colors, we define them in the config directly.
+
+$my-app-theme: mat.define-theme((
+  color: (
+    theme-type: light, // Start with light
+    primary: mat.$azure-palette,
+    tertiary: mat.$blue-palette,
+  ),
+  typography: (
+    plain-family: 'Roboto, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  )
+));
+
+// 2. APPLY THEME
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  // Apply the base theme
+  @include mat.all-component-themes($my-app-theme);
+  
+  // NATIVE BROWSER SUPPORT
+  color-scheme: light dark;
+}
+
+// 3. DARK MODE OVERRIDES
+// When data-theme="dark" is present, we override the material system variables
+// and our own global variables.
+body[data-theme="dark"] {
+  // This mixin automatically flips the Material System Colors (surface, on-surface, etc)
+  // to dark mode values without needing to redefine the whole palette.
+  @include mat.all-component-colors(
+    mat.define-theme((
+      color: (
+        theme-type: dark,
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      )
+    ))
+  );
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-  //color-scheme: dark;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+  // CONNECT TO OUR VARIABLES
+  background-color: var(--background-color);
+  color: var(--text-primary);
+  
+  // Transition for smooth toggle
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-/* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-
-
-
-// styles.scss or styles/dialogs.scss
-// Dialog panel customization
+// --- DIALOG STYLES (Unchanged) ---
 .confirm-dialog-panel {
   .mat-mdc-dialog-surface {
+    background-color: var(--surface-color) !important;
+    color: var(--text-primary) !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
   }
 }
 
-// Backdrop customization
 .mat-mdc-dialog-backdrop {
   background: rgba(0, 0, 0, 0.5) !important;
 }
 
-// Dialog container
 .mat-mdc-dialog-container {
   padding: 0 !important;
-}
-
-// Animation for dialog entrance
-@keyframes dialogEnter {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.mat-mdc-dialog-container {
   animation: dialogEnter 0.2s ease-out;
+}
+
+@keyframes dialogEnter {
+  from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }

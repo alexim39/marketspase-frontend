@@ -1,8 +1,13 @@
+// campaign-summary.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
 @import '../../_campaign-forms.scss';
 
 .preview-card {
     .whatsapp-preview {
-    background-color: #f0f2f5;
+    // UPDATED: Use gray-100 variable for dynamic theming
+   // background-color: $gray-500;
+    border: solid 1px $primary-color;
     padding: 16px;
     border-radius: 12px;
     margin-bottom: 24px;
@@ -12,7 +17,8 @@
 
     .preview-header {
       font-weight: 600;
-      color: #555;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
       margin-bottom: 16px;
       text-align: center;
       width: 100%;
@@ -240,23 +246,29 @@
       font-size: 1rem;
       font-weight: 600;
       margin-bottom: 16px;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
     }
     .detail-item {
       display: flex;
       justify-content: space-between;
       padding: 8px 0;
-      border-bottom: 1px solid #eee;
+      // UPDATED: Use border-color variable for dynamic theming
+      border-bottom: 1px solid $border-color;
 
       &:last-child {
         border-bottom: none;
       }
 
       .detail-label {
-        color: #666;
+        // UPDATED: Use text-secondary variable for dynamic theming
+        color: $text-secondary;
       }
 
       .detail-value {
         font-weight: 600;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
       }
     }
   }
@@ -264,15 +276,18 @@
   .final-cost-summary {
     display: flex;
     align-items: flex-start;
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    // UPDATED: Use success-color with lightened background for dynamic theming
+    background-color: rgba($success-color, 0.1);
+    // UPDATED: Use success-color variable for dynamic theming
+    color: $success-color;
     padding: 16px;
     border-radius: 8px;
     margin-top: 24px;
 
     .summary-icon {
       margin-right: 12px;
-      color: #2e7d32;
+      // UPDATED: Use success-color variable for dynamic theming
+      color: $success-color;
     }
 
     .cost-value {

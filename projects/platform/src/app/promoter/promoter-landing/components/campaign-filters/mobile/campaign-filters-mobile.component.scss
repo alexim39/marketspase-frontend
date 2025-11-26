@@ -1,11 +1,16 @@
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
 .mobile-filters {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  // UPDATED: Use surface-color with backdrop for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-bottom: 1px solid $border-color;
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba($surface-color, 0.95);
 }
 
 // Top Bar
@@ -32,15 +37,19 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  // UPDATED: Use gray-50 for background
+  background: $gray-50;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:active {
     transform: scale(0.95);
-    background: #e2e8f0;
+    // UPDATED: Use gray-200 for active state
+    background: $gray-200;
   }
   
   .material-icons {
@@ -57,15 +66,19 @@
 .search-input {
   width: 100%;
   padding: 12px 44px 12px 16px;
-  border: 2px solid #667eea;
+  // UPDATED: Use primary-color for border
+  border: 2px solid $primary-color;
   border-radius: 12px;
   font-size: 16px;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  // UPDATED: Use surface-color for background
+  background: $surface-color;
+  // UPDATED: Use shadow variable for consistent shadow
+  box-shadow: $shadow;
   
   &:focus {
     outline: none;
-    border-color: #5a67d8;
+    // UPDATED: Use primary-dark for focus state
+    border-color: $primary-dark;
   }
 }
 
@@ -88,12 +101,14 @@
   justify-content: center;
   background: transparent;
   border: none;
-  color: #64748b;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:active {
-    background: #f1f5f9;
+    // UPDATED: Use gray-100 for active background
+    background: $gray-100;
     transform: scale(0.9);
   }
   
@@ -110,9 +125,10 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  // UPDATED: Use gradient-primary variable for dynamic theming
+  background: $gradient-primary;
   border: none;
-  color: white;
+  color: $white;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -126,7 +142,8 @@
   }
   
   &.active {
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    // UPDATED: Use shadow-md variable for active state
+    box-shadow: $shadow-md;
   }
 }
 
@@ -134,8 +151,9 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #ef4444;
-  color: white;
+  // UPDATED: Use error-color for badge background
+  background: $error-color;
+  color: $white;
   border-radius: 8px;
   padding: 2px 6px;
   font-size: 10px;
@@ -146,8 +164,10 @@
 
 // Expanded Filters Panel
 .filters-panel {
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-top: 1px solid $border-color;
   padding: 20px;
   animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -164,9 +184,11 @@
   flex-direction: column;
   align-items: center;
   padding: 16px 12px;
-  border: 2px solid #f1f5f9;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 2px solid $border-color;
   border-radius: 16px;
-  background: #f8fafc;
+  // UPDATED: Use gray-50 for background
+  background: $gray-50;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -176,18 +198,20 @@
   }
   
   &.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
-    color: white;
+    // UPDATED: Use gradient-primary variable for dynamic theming
+    background: $gradient-primary;
+    // UPDATED: Use primary-color for border
+    border-color: $primary-color;
+    color: $white;
     
     .filter-icon {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
+      background: rgba($white, 0.2);
+      color: $white;
     }
     
     .filter-count {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
+      background: rgba($white, 0.2);
+      color: $white;
     }
   }
 }
@@ -196,13 +220,16 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #ffffff;
+  // UPDATED: Use surface-color for icon background
+  background: $surface-color;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 8px;
-  color: #667eea;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  // UPDATED: Use primary-color for icon color
+  color: $primary-color;
+  // UPDATED: Use shadow variable for consistent shadow
+  box-shadow: $shadow;
   
   .material-icons {
     font-size: 24px;
@@ -215,11 +242,15 @@
   text-align: center;
   margin-bottom: 6px;
   line-height: 1.2;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 }
 
 .filter-count {
-  background: #e2e8f0;
-  color: #475569;
+  // UPDATED: Use gray-200 for count background
+  background: $gray-200;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 11px;
@@ -232,21 +263,25 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 0 0;
-  border-top: 1px solid #f1f5f9;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-top: 1px solid $border-color;
 }
 
 .results-count {
   font-size: 14px;
-  color: #64748b;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   font-weight: 500;
 }
 
 .view-toggle {
   display: flex;
-  border: 2px solid #f1f5f9;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 2px solid $border-color;
   border-radius: 12px;
   overflow: hidden;
-  background: #f8fafc;
+  // UPDATED: Use gray-50 for background
+  background: $gray-50;
 }
 
 .view-btn {
@@ -258,14 +293,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   
   &:active {
     transform: scale(0.95);
   }
   
   &.active {
-    background: #667eea;
-    color: #ffffff;
+    // UPDATED: Use primary-color for active state
+    background: $primary-color;
+    color: $white;
   }
   
   .material-icons {

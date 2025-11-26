@@ -1,3 +1,7 @@
+
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -5,19 +9,24 @@
   justify-content: center;
   text-align: center;
   padding: 40px 20px;
-  background-color: #f0f2f5;
+  // UPDATED: Use gray-100 for background for dynamic theming
+  background-color: $gray-100;
   border-radius: 8px;
   margin-top: 24px;
+  
   .empty-icon {
     font-size: 48px;
     height: 48px;
     width: 48px;
-    color: #ccc;
+    // UPDATED: Use text-tertiary variable for dynamic theming
+    color: $text-tertiary;
     margin-bottom: 16px;
   }
+  
   .empty-message {
     font-size: 16px;
-    color: #888;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
     margin: 0 0 16px;
   }
 }

@@ -1,8 +1,13 @@
 /* Cart Dialog Styles */
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .cart-dialog-card {
   width: 360px;
   padding: 0;
   border-radius: 8px;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
 
   .cart-header {
     display: flex;
@@ -17,9 +22,12 @@
         font-size: 18px;
         font-weight: 600;
         margin: 0;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
       }
       .cart-icon {
-        color: #673ab7;
+        // UPDATED: Use primary-color for icon
+        color: $primary-color;
         margin-right: 8px;
       }
       .close-btn {
@@ -34,11 +42,14 @@
       margin-top: 8px;
       .items-count {
         font-size: 14px;
-        color: #757575;
+        // UPDATED: Use text-tertiary variable for dynamic theming
+        color: $text-tertiary;
       }
       .total-price {
         font-size: 16px;
         font-weight: 600;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
       }
     }
   }
@@ -46,6 +57,8 @@
   .cart-tabs {
     display: flex;
     width: 100%;
+    // UPDATED: Use border-color variable for dynamic theming
+    border-bottom: 1px solid $border-color;
     .tab-btn {
       flex: 1;
       display: flex;
@@ -55,7 +68,8 @@
       border: none;
       background: none;
       cursor: pointer;
-      color: #757575;
+      // UPDATED: Use text-tertiary variable for dynamic theming
+      color: $text-tertiary;
       position: relative;
       font-size: 14px;
 
@@ -64,8 +78,9 @@
       }
 
       &.active {
-        color: #673ab7;
-        border-bottom: 2px solid #673ab7;
+        // UPDATED: Use primary-color for active state
+        color: $primary-color;
+        border-bottom: 2px solid $primary-color;
         font-weight: 500;
       }
 
@@ -73,8 +88,9 @@
         position: absolute;
         top: 2px;
         right: 18px;
-        background-color: #673ab7;
-        color: white;
+        // UPDATED: Use primary-color for badge background
+        background-color: $primary-color;
+        color: $white;
         border-radius: 50%;
         font-size: 10px;
         height: 16px;
@@ -102,13 +118,16 @@
         font-weight: 600;
         font-size: 16px;
         margin-top: 12px;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
       }
       .secure-checkout {
         display: flex;
         align-items: center;
         justify-content: center;
         margin-top: 12px;
-        color: #757575;
+        // UPDATED: Use text-tertiary variable for dynamic theming
+        color: $text-tertiary;
         font-size: 12px;
         .mat-icon {
           font-size: 16px;
@@ -130,24 +149,32 @@
         gap: 12px;
         padding: 12px;
         border-radius: 8px;
-        border: 1px solid #e0e0e0;
+        // UPDATED: Use border-color variable for dynamic theming
+        border: 1px solid $border-color;
         cursor: pointer;
         transition: background-color 0.2s;
+        // UPDATED: Use surface-color for background
+        background: $surface-color;
         
         &:hover {
-          background-color: #f5f5f5;
+          // UPDATED: Use gray-50 for hover background
+          background-color: $gray-50;
         }
 
         .mat-icon {
-          color: #673ab7;
+          // UPDATED: Use primary-color for icons
+          color: $primary-color;
         }
         span {
           display: flex;
           flex-direction: column;
           font-weight: 500;
+          // UPDATED: Use text-primary variable for dynamic theming
+          color: $text-primary;
           small {
             font-size: 12px;
-            color: #757575;
+            // UPDATED: Use text-tertiary variable for dynamic theming
+            color: $text-tertiary;
             font-weight: 400;
           }
         }
@@ -166,17 +193,23 @@
         gap: 12px;
         padding: 12px;
         border-radius: 8px;
-        border: 1px solid #e0e0e0;
+        // UPDATED: Use border-color variable for dynamic theming
+        border: 1px solid $border-color;
         cursor: pointer;
         transition: background-color 0.2s;
         margin-top: 12px;
-        color: #333;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
+        // UPDATED: Use surface-color for background
+        background: $surface-color;
 
         &:hover {
-          background-color: #f5f5f5;
+          // UPDATED: Use gray-50 for hover background
+          background-color: $gray-50;
         }
         .mat-icon {
-          color: #757575;
+          // UPDATED: Use text-tertiary variable for dynamic theming
+          color: $text-tertiary;
         }
       }
     }
@@ -192,14 +225,18 @@
       font-size: 16px;
       font-weight: 600;
       margin: 8px 0 0;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
     }
     p {
       font-size: 14px;
-      color: #757575;
+      // UPDATED: Use text-tertiary variable for dynamic theming
+      color: $text-tertiary;
       margin: 4px 0 16px;
     }
     .empty-cart-icon {
-      background-color: #f0f0f0;
+      // UPDATED: Use gray-100 for icon background
+      background-color: $gray-100;
       border-radius: 50%;
       width: 64px;
       height: 64px;
@@ -208,7 +245,8 @@
       justify-content: center;
       .mat-icon {
         font-size: 32px;
-        color: #9e9e9e;
+        // UPDATED: Use text-tertiary variable for dynamic theming
+        color: $text-tertiary;
       }
     }
     .shop-btn {

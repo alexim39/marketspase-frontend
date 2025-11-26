@@ -25,12 +25,14 @@
 .image-upload-wrapper,
 .video-upload-wrapper {
   width: 100%;
+  // UPDATED: Use border-color variable for dynamic theming
   border: 2px dashed $border-color;
   border-radius: 8px;
   overflow: hidden;
   position: relative;
   
   &:hover {
+    // UPDATED: Use primary-color variable for dynamic theming
     border-color: $primary-color;
   }
 }
@@ -39,6 +41,7 @@
   padding: 3rem 1rem;
   text-align: center;
   cursor: pointer;
+  // UPDATED: Use text-secondary variable for dynamic theming
   color: $text-secondary;
   
   mat-icon {
@@ -46,7 +49,8 @@
     width: 3rem;
     height: 3rem;
     margin-bottom: 1rem;
-    color: lighten($text-secondary, 20%);
+    // UPDATED: Use lighten-text mixin for consistent theming
+    @include lighten-text($text-secondary, 20%);
   }
   
   p {

@@ -3,23 +3,28 @@
 @import '../../../../../styles/mixins';
 
 .form-card {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   
   .card-header {
     padding: 1.5rem;
+    // UPDATED: Use border-color variable for dynamic theming
     border-bottom: 1px solid $border-color;
     
     h2 {
       margin: 0;
       font-size: 1.3rem;
       font-weight: 600;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
     }
     
     p {
       margin: 0.5rem 0 0;
+      // UPDATED: Use text-secondary variable for dynamic theming
       color: $text-secondary;
       font-size: 0.9rem;
     }
@@ -27,6 +32,8 @@
   
   .card-content {
     padding: 1.5rem;
+    // UPDATED: Ensure content uses proper text color
+    color: $text-primary;
   }
 }
 

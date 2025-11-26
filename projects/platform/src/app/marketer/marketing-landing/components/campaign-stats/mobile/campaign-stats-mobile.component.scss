@@ -1,6 +1,9 @@
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
 
 .mobile-stats-section {
-  background: #f8fafc;
+  // UPDATED: Use gray-50 variable for section background
+  background: $gray-50;
   border-radius: 0;
   margin: 0 -1rem;
 }
@@ -39,8 +42,10 @@
   }
   
   .mat-mdc-tab-header {
-    border-bottom: 1px solid #e2e8f0;
-    background: white;
+    // UPDATED: Use border-color variable for dynamic theming
+    border-bottom: 1px solid $border-color;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
   }
   
   .mat-mdc-tab-body-wrapper {
@@ -68,28 +73,32 @@
 }
 
 .mobile-stat-card {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 12px;
   padding: 16px;
   min-width: 140px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
+  // UPDATED: Use shadow variable for consistent shadow styling
+  box-shadow: $shadow;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   display: flex;
   flex-direction: column;
   gap: 8px;
   
   &.highlight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    // UPDATED: Use gradient-primary variable for highlight state
+    background: $gradient-primary;
+    color: $white;
     
     .stat-icon {
       background: rgba(255, 255, 255, 0.2);
-      color: white;
+      color: $white;
     }
     
     .stat-value, .stat-label, .stat-description {
-      color: white;
+      color: $white;
     }
   }
 }
@@ -104,11 +113,13 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #f1f5f9;
+  // UPDATED: Use gray-100 variable for icon background
+  background: $gray-100;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   flex-shrink: 0;
   
   mat-icon {
@@ -121,13 +132,15 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   line-height: 1;
 }
 
 .stat-label {
   font-size: 12px;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -136,7 +149,8 @@
 
 .stat-description {
   font-size: 10px;
-  color: #94a3b8;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   line-height: 1.3;
 }
 
@@ -145,9 +159,11 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   padding: 12px 16px;
-  border-top: 1px solid #e2e8f0;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-top: 1px solid $border-color;
 }
 
 .summary-item {
@@ -160,12 +176,14 @@
 .summary-value {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1e293b;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 }
 
 .summary-label {
   font-size: 10px;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
@@ -174,7 +192,8 @@
 .summary-divider {
   width: 1px;
   height: 24px;
-  background: #e2e8f0;
+  // UPDATED: Use border-color variable for dynamic theming
+  background: $border-color;
 }
 
 // Animations
@@ -205,7 +224,7 @@
 }
 
 .mobile-stat-card {
-  transition: transform 0.2s ease;
+  transition: transform $transition-fast;
   
   &:active {
     transform: scale(0.98);
@@ -228,44 +247,6 @@
   }
 }
 
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .mobile-stats-section {
-    background: #0f172a;
-  }
-  
-  .mobile-stat-card {
-    background: #1e293b;
-    border-color: #334155;
-    
-    .stat-value {
-      color: #f1f5f9;
-    }
-    
-    .stat-label {
-      color: #94a3b8;
-    }
-    
-    .stat-icon {
-      background: #334155;
-      color: #cbd5e1;
-    }
-  }
-  
-  .quick-summary {
-    background: #1e293b;
-    border-color: #334155;
-    
-    .summary-value {
-      color: #f1f5f9;
-    }
-    
-    .summary-label {
-      color: #94a3b8;
-    }
-    
-    .summary-divider {
-      background: #334155;
-    }
-  }
-}
+// REMOVED: Manual dark mode media query since we're using CSS variables
+// The component will now automatically adapt to both light and dark themes
+// through the CSS variable system defined in _variables.scss

@@ -1,10 +1,10 @@
 // campaign-edit.component.scss
-@import '../../../styles/variables';
-@import '../../../styles/mixins';
+@use '../../../styles/variables' as vars;
+@use '../../../styles/mixins' as mixins;
 
 .campaign-edit-container {
   min-height: 100vh;
-  background-color: $background-color; // Updated from $background-light to $background-color
+  background-color: vars.$background-color;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -18,7 +18,7 @@
     h1 {
       font-size: 1.8rem;
       font-weight: 700;
-      color: $primary-color;
+      color: vars.$primary-color;
     }
 
     .action-buttons {
@@ -33,21 +33,21 @@
         transition: background-color 0.2s;
 
         &.save-btn {
-          background-color: $primary-color;
-          color: #fff;
+          background-color: vars.$primary-color;
+          color: vars.$white;
 
           &:hover {
-            //background-color: darken($primary-color, 10%);
+            background-color: color-mix(in srgb, #{vars.$primary-color}, black 10%);
           }
         }
 
         &.cancel-btn {
-          background-color: $background-color; // Updated from $background-light to $background-color
-          color: $text-secondary;
-          border: 1px solid $border-color;
+          background-color: vars.$background-color;
+          color: vars.$text-secondary;
+          border: 1px solid vars.$border-color;
 
           &:hover {
-            background-color: lighten($background-color, 5%);
+            background-color: color-mix(in srgb, #{vars.$background-color}, white 5%);
           }
         }
       }
@@ -59,9 +59,9 @@
   padding: 2rem;
   margin: 0 auto;
   width: 800px;
-  background-color: #fff;
+  background-color: vars.$surface-color;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: vars.$shadow-md;
 
   .edit-form {
     display: flex;
@@ -90,7 +90,7 @@
 }
 
 // Responsive adjustments
-@include mobile {
+@include mixins.mobile {
   .main-content {
     padding: 1.5rem;
     margin: 0 1rem;
@@ -128,36 +128,34 @@ mat-form-field.ng-invalid.ng-touched {
   .mdc-notched-outline__leading,
   .mdc-notched-outline__notch,
   .mdc-notched-outline__trailing {
-    border-color: $error-color;
+    border-color: vars.$error-color;
   }
 }
 
 .form-card {
-  background-color: #ffffff; // White background for the card
-  border-radius: 12px; // Rounded corners
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); // Subtle shadow for depth
-  padding: 1.5rem; // Inner padding for content
-  margin-bottom: 2rem; // Space between cards
+  background-color: vars.$surface-color;
+  border-radius: 12px;
+  box-shadow: vars.$shadow;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); // Slightly larger shadow on hover
-    transform: translateY(-2px); // Lift effect on hover
+    box-shadow: vars.$shadow-lg;
+    transform: translateY(-2px);
   }
 
   .card-header {
     margin-bottom: 1rem;
 
     h2 {
-      //font-size: 1.5rem;
-      //font-weight: 700;
-     // color: $primary-color; // Use your primary color
       margin: 0;
+      color: vars.$text-primary;
     }
 
     p {
       font-size: 0.95rem;
-      color: $text-secondary; // Use your secondary text color
+      color: vars.$text-secondary;
       margin: 0.25rem 0 0;
     }
   }
@@ -165,6 +163,6 @@ mat-form-field.ng-invalid.ng-touched {
   .card-content {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem; // Space between content sections
+    gap: 1.5rem;
   }
 }

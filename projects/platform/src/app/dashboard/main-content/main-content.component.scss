@@ -1,8 +1,13 @@
+// main-content.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .dashboard-content {
   flex: 1;
   padding: 24px;
   overflow: auto;
-  //background-color: #f8f9fa;
+  // UPDATED: Use background-color variable for dynamic theming
+  background-color: $background-color;
 }
 
 /* Welcome Header */
@@ -12,9 +17,10 @@
   align-items: center;
   margin-bottom: 32px;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  // UPDATED: Use gradient-primary variable for dynamic theming
+  background: $gradient-primary;
   border-radius: 16px;
-  //color: white;
+  color: white;
 
   .welcome-text {
     h1 {
@@ -57,12 +63,14 @@
     font-size: 20px;
     font-weight: 600;
     margin: 0;
-    color: #1a1a1a;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
   }
 
   .last-updated {
     font-size: 12px;
-    color: #666;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
   }
 }
 
@@ -81,7 +89,8 @@
   border-radius: 16px;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-  //background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
 
   &:hover {
     transform: translateY(-2px);
@@ -120,13 +129,17 @@
 }
 
 .stat-trend.up {
-  //background-color: #e8f5e8;
-  color: #2e7d32;
+  // UPDATED: Use success-color with lightened background for dynamic theming
+  background-color: rgba($success-color, 0.1);
+  // UPDATED: Use success-color variable for dynamic theming
+  color: $success-color;
 }
 
 .stat-trend.down {
-  //background-color: #ffebee;
-  color: #d32f2f;
+  // UPDATED: Use error-color with lightened background for dynamic theming
+  background-color: rgba($error-color, 0.1);
+  // UPDATED: Use error-color variable for dynamic theming
+  color: $error-color;
 }
 
 .stat-trend mat-icon {
@@ -139,19 +152,22 @@
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 8px 0;
-  color: #1a1a1a;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 }
 
 .stat-label {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   margin: 0 0 4px 0;
 }
 
 .stat-subtitle {
   font-size: 14px;
-  color: #666;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   margin: 0;
 }
 
@@ -172,7 +188,8 @@
 .stats-card {
   border-radius: 16px;
   overflow: hidden;
-  //background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
 }
 
 .activity-list {
@@ -180,7 +197,8 @@
     display: flex;
     align-items: center;
     padding: 16px 0;
-    border-bottom: 1px solid #f0f0f0;
+    // UPDATED: Use border-color variable for dynamic theming
+    border-bottom: 1px solid $border-color;
 
     &:last-child {
       border-bottom: none;
@@ -197,13 +215,17 @@
     margin-right: 16px;
 
     &.credit {
-     // background-color: #e8f5e8;
-      color: #2e7d32;
+      // UPDATED: Use success-color with lightened background for dynamic theming
+      background-color: rgba($success-color, 0.1);
+      // UPDATED: Use success-color variable for dynamic theming
+      color: $success-color;
     }
 
     &.debit {
-      //background-color: #ffebee;
-      color: #d32f2f;
+      // UPDATED: Use error-color with lightened background for dynamic theming
+      background-color: rgba($error-color, 0.1);
+      // UPDATED: Use error-color variable for dynamic theming
+      color: $error-color;
     }
   }
 
@@ -214,12 +236,14 @@
       font-size: 14px;
       font-weight: 500;
       margin: 0 0 4px 0;
-      color: #1a1a1a;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
     }
 
     .activity-date {
       font-size: 12px;
-      color: #666;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
     }
   }
 
@@ -227,11 +251,13 @@
     font-weight: 600;
 
     &.credit {
-      color: #2e7d32;
+      // UPDATED: Use success-color variable for dynamic theming
+      color: $success-color;
     }
 
     &.debit {
-      color: #d32f2f;
+      // UPDATED: Use error-color variable for dynamic theming
+      color: $error-color;
     }
   }
 }
@@ -242,7 +268,8 @@
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  color: #999;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
 
   mat-icon {
     font-size: 48px;
@@ -260,7 +287,8 @@
 /* Quick Stats */
 .quick-stat {
   padding: 20px 0;
-  border-bottom: 1px solid #f0f0f0;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-bottom: 1px solid $border-color;
 
   &:last-child {
     border-bottom: none;
@@ -273,12 +301,14 @@
       font-size: 16px;
       font-weight: 600;
       margin: 0 0 4px 0;
-      color: #1a1a1a;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
     }
 
     p {
       font-size: 14px;
-      color: #666;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
       margin: 0;
     }
   }
@@ -287,7 +317,8 @@
     span {
       display: block;
       font-size: 12px;
-      color: #666;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
       margin-top: 8px;
     }
   }
@@ -304,18 +335,24 @@
       font-weight: 500;
 
       &.pending {
-       // background-color: #fff3e0;
-        color: #ef6c00;
+        // UPDATED: Use warning-color with lightened background for dynamic theming
+        background-color: rgba($warning-color, 0.1);
+        // UPDATED: Use warning-color variable for dynamic theming
+        color: $warning-color;
       }
 
       &.submitted {
-       // background-color: #e3f2fd;
-        color: #1976d2;
+        // UPDATED: Use info-color with lightened background for dynamic theming
+        background-color: rgba($info-color, 0.1);
+        // UPDATED: Use info-color variable for dynamic theming
+        color: $info-color;
       }
 
       &.paid {
-        //background-color: #e8f5e8;
-        color: #2e7d32;
+        // UPDATED: Use success-color with lightened background for dynamic theming
+        background-color: rgba($success-color, 0.1);
+        // UPDATED: Use success-color variable for dynamic theming
+        color: $success-color;
       }
     }
   }
@@ -328,7 +365,8 @@
     .balance-amount {
       font-size: 20px;
       font-weight: 700;
-      color: #2e7d32;
+      // UPDATED: Use success-color variable for dynamic theming
+      color: $success-color;
     }
   }
 }
@@ -427,6 +465,7 @@
 .stat-card:focus-within,
 .activity-card:focus-within,
 .stats-card:focus-within {
-  outline: 2px solid #667eea;
+  // UPDATED: Use primary-color variable for dynamic theming
+  outline: 2px solid $primary-color;
   outline-offset: 2px;
 }

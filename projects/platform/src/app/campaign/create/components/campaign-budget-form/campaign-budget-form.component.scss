@@ -1,3 +1,6 @@
+// campaign-budget-form.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
 @import '../../_campaign-forms.scss';
 
 .budget-form {
@@ -7,19 +10,23 @@
     padding: 1rem 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #333;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
   }
+  
   .slider-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 16px;
     font-size: 0.875rem;
-    color: #666;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
   }
 
   mat-slide-toggle {
     margin: 1em 0;
-    color: gray;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
   }
 }

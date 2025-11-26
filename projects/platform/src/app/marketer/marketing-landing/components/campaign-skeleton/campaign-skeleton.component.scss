@@ -1,3 +1,6 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .loading-container {
   padding: 3rem 0;
 }
@@ -17,28 +20,33 @@
 }
 
 .campaign-card-skeleton {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  // UPDATED: Use shadow variable for consistent shadow styling
+  box-shadow: $shadow;
   height: 400px;
   animation: pulse 2s infinite;
 }
 
 .campaign-list-skeleton {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 0.75rem;
   padding: 1.25rem;
   display: flex;
   gap: 1.5rem;
   align-items: center;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  // UPDATED: Use shadow variable for consistent shadow styling
+  box-shadow: $shadow;
   animation: pulse 2s infinite;
   
   .skeleton-media {
     width: 120px;
     height: 80px;
-    background: #e2e8f0;
+    // UPDATED: Use gray-200 variable for skeleton background
+    background: $gray-200;
     border-radius: 0.5rem;
     flex-shrink: 0;
   }
@@ -53,14 +61,16 @@
 
 .skeleton-header {
   height: 2rem;
-  background: #e2e8f0;
+  // UPDATED: Use gray-200 variable for skeleton background
+  background: $gray-200;
   margin: 1.25rem 1.25rem 0;
   border-radius: 0.5rem;
 }
 
 .skeleton-media {
   height: 160px;
-  background: #e2e8f0;
+  // UPDATED: Use gray-200 variable for skeleton background
+  background: $gray-200;
   margin: 1rem 1.25rem 0;
   border-radius: 0.5rem;
 }
@@ -74,7 +84,8 @@
 
 .skeleton-line {
   height: 1rem;
-  background: #e2e8f0;
+  // UPDATED: Use gray-200 variable for skeleton background
+  background: $gray-200;
   border-radius: 0.5rem;
 
   &.short {
@@ -84,14 +95,16 @@
 
 .skeleton-metrics {
   height: 4rem;
-  background: #e2e8f0;
+  // UPDATED: Use gray-200 variable for skeleton background
+  background: $gray-200;
   border-radius: 0.5rem;
   margin: 0.5rem 0;
 }
 
 .skeleton-meta {
   height: 2rem;
-  background: #e2e8f0;
+  // UPDATED: Use gray-200 variable for skeleton background
+  background: $gray-200;
   border-radius: 0.5rem;
   width: 80%;
 }

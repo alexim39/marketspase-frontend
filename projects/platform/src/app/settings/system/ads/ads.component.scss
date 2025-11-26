@@ -1,212 +1,193 @@
+// UPDATED: Import theme variables and mixins
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
 .promotional-preferences {
-  $primary-color: #667eea;
-  $text-primary: #2d3748;
-  $text-secondary: #718096;
-  $border-color: #e2e8f0;
-  $background-light: #f7fafc;
-  $success-color: #48bb78;
-  $warning-color: #ed8936;
-
-  
-
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: $spacing-8 $spacing-6;
+  font-family: $font-family;
 
-  @media (max-width: 768px) {
-    padding: 2rem 10px;
+  @include mobile {
+    padding: $spacing-8 $spacing-2;
   }
 
   .header-section {
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 0 1rem;
+    margin-bottom: $spacing-12;
+    padding: 0 $spacing-4;
   }
 
   .page-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin: 0 0 0.75rem 0;
+    @include heading-medium;
+    margin: 0 0 $spacing-3 0;
     color: $text-primary;
     letter-spacing: -0.025em;
   }
 
   .page-description {
-    font-size: 1.125rem;
+    @include body-large;
     color: $text-secondary;
     margin: 0;
-    line-height: 1.5;
+    line-height: $line-height-normal;
   }
 
   .preferences-horizontal {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2.5rem;
+    gap: $spacing-8;
+    margin-bottom: $spacing-10;
 
-    @media (max-width: 900px) {
+    @include tablet {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: $spacing-6;
     }
   }
 
   .preference-card {
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid $border-color;
-    background: white;
-    transition: all 0.3s ease;
+    @include card-base;
+    border-radius: $border-radius-md;
+    border: $border-width solid $border-color;
+    transition: all $transition-normal;
     overflow: hidden;
 
     &:hover {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      @include card-hover;
       transform: translateY(-2px);
     }
 
     &.horizontal-card {
       .card-content-horizontal {
-        display: flex;
-        justify-content: space-between;
+        @include flex-between;
         align-items: stretch;
-        padding: 2.5rem;
-        gap: 3rem;
+        padding: $spacing-10;
+        gap: $spacing-12;
 
-        @media (max-width: 768px) {
-          flex-direction: column;
-          padding: 2rem 10px;
-          gap: 2rem;
+        @include mobile {
+          @include flex-column;
+          padding: $spacing-8 $spacing-2;
+          gap: $spacing-8;
         }
 
-        @media (max-width: 480px) {
-          padding: 2rem 10px;
-          gap: 1.5rem;
+        @include small-screen {
+          padding: $spacing-8 $spacing-2;
+          gap: $spacing-6;
         }
       }
 
       .card-info {
         flex: 1;
         min-width: 0;
-        display: flex;
-        flex-direction: column;
+        @include flex-column;
         justify-content: space-between;
       }
 
       .card-header {
-        display: flex;
+        @include flex-center;
         align-items: flex-start;
-        margin-bottom: 1.5rem;
-        gap: 1rem;
+        margin-bottom: $spacing-6;
+        gap: $spacing-4;
         
         .icon-container {
-          background: linear-gradient(135deg, $primary-color, #5a6fd8);
-          border-radius: 12px;
-          padding: 0.75rem;
+          background: $gradient-primary;
+          border-radius: $border-radius;
+          padding: $spacing-3;
           width: 3rem;
           height: 3rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          @include flex-center;
           flex-shrink: 0;
           
           .card-icon {
-            color: white;
-            font-size: 1.75rem;
-            width: 1.75rem;
-            height: 1.75rem;
+            color: $white;
+            font-size: $font-size-2xl;
+            width: $font-size-2xl;
+            height: $font-size-2xl;
           }
         }
       }
 
       .feature-benefits {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin: 1.5rem 0;
+        @include flex-column;
+        gap: $spacing-3;
+        margin: $spacing-6 0;
 
         .benefit-item {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 0.5rem 0;
+          @include flex-center;
+          gap: $spacing-3;
+          padding: $spacing-2 0;
 
           .benefit-icon {
             color: $primary-color;
-            font-size: 1.25rem;
-            width: 1.25rem;
-            height: 1.25rem;
+            font-size: $font-size-xl;
+            width: $font-size-xl;
+            height: $font-size-xl;
             opacity: 0.8;
           }
 
           span {
-            font-size: 0.95rem;
+            @include body-small;
             color: $text-primary;
-            font-weight: 500;
+            font-weight: $font-weight-medium;
           }
         }
       }
 
       .card-control {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flex-center;
         min-width: 280px;
-        border-left: 1px solid $border-color;
-        padding-left: 3rem;
+        border-left: $border-width solid $border-color;
+        padding-left: $spacing-12;
 
-        @media (max-width: 768px) {
+        @include mobile {
           border-left: none;
-          border-top: 1px solid $border-color;
+          border-top: $border-width solid $border-color;
           padding-left: 0;
-          padding-top: 2rem;
+          padding-top: $spacing-8;
           min-width: auto;
           width: 100%;
         }
 
         .toggle-section {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
+          @include flex-column;
+          gap: $spacing-4;
           width: 100%;
           max-width: 260px;
 
-          @media (max-width: 768px) {
+          @include mobile {
             max-width: 100%;
           }
 
           .toggle-header {
-            display: flex;
-            justify-content: space-between;
+            @include flex-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: $spacing-2;
 
             .toggle-title {
-              font-size: 1.1rem;
-              font-weight: 600;
+              @include body-large;
+              font-weight: $font-weight-semibold;
               color: $text-primary;
             }
 
             .status-indicator {
-              display: flex;
-              align-items: center;
-              gap: 0.5rem;
-              font-size: 0.85rem;
-              font-weight: 500;
-              padding: 0.25rem 0.75rem;
-              border-radius: 12px;
-              background: #f7fafc;
+              @include flex-center;
+              gap: $spacing-2;
+              @include body-small;
+              font-weight: $font-weight-medium;
+              padding: $spacing-1 $spacing-3;
+              border-radius: $border-radius;
+              background: color-mix(in srgb, $background-color, black 5%);
               color: $text-secondary;
 
               &.active {
-                background: #f0fff4;
-                color: #2d774b;
+                background: color-mix(in srgb, $success-color, white 95%);
+                color: darken($success-color, 20%);
               }
 
               .status-dot {
                 width: 8px;
                 height: 8px;
-                border-radius: 50%;
-                background: #cbd5e0;
+                border-radius: $border-radius-full;
+                background: $gray-400;
               }
 
               &.active .status-dot {
@@ -216,24 +197,24 @@
           }
 
           ::ng-deep .large-toggle.mat-slide-toggle {
-            margin: 0.5rem 0;
+            margin: $spacing-2 0;
 
             .mat-slide-toggle-bar {
               width: 60px;
               height: 32px;
               border-radius: 16px;
-              background: #e2e8f0;
+              background: $gray-200;
             }
 
             .mat-slide-toggle-thumb {
               width: 28px;
               height: 28px;
-              border-radius: 50%;
+              border-radius: $border-radius-full;
             }
 
             &.mat-checked {
               .mat-slide-toggle-bar {
-                background: rgba(102, 126, 234, 0.5);
+                background: rgba($primary-color, 0.5);
               }
 
               .mat-slide-toggle-thumb {
@@ -244,17 +225,17 @@
           }
 
           .toggle-label {
-            font-size: 1rem;
-            font-weight: 600;
+            @include body-medium;
+            font-weight: $font-weight-semibold;
             color: $text-primary;
           }
 
           .toggle-description {
-            font-size: 0.9rem;
+            @include body-small;
             color: $text-secondary;
-            line-height: 1.4;
+            line-height: $line-height-tight;
             text-align: center;
-            padding: 0.5rem 0;
+            padding: $spacing-2 0;
           }
         }
       }
@@ -262,10 +243,10 @@
 
     &.full-width {
       .card-content-full {
-        padding: 2rem;
+        padding: $spacing-8;
         
-        @media (max-width: 600px) {
-          padding: 1.5rem;
+        @include mobile {
+          padding: $spacing-6;
         }
       }
     }
@@ -274,51 +255,51 @@
       flex: 1;
       
       h3 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.375rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, $text-primary, #4a5568);
+        margin: 0 0 $spacing-2 0;
+        @include heading-small;
+        font-weight: $font-weight-bold;
+        background: linear-gradient(135deg, $text-primary, $gray-700);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        line-height: 1.3;
+        line-height: $line-height-tight;
       }
 
       p {
         margin: 0;
         color: $text-secondary;
-        font-size: 1.05rem;
-        line-height: 1.5;
+        @include body-medium;
+        line-height: $line-height-normal;
       }
     }
 
     .setting-description {
-      font-size: 0.95rem;
-      line-height: 1.6;
+      @include body-small;
+      line-height: $line-height-normal;
       color: $text-secondary;
-      margin: 1rem 0 0 0;
-      padding: 1rem;
-      background: $background-light;
-      border-radius: 8px;
+      margin: $spacing-4 0 0 0;
+      padding: $spacing-4;
+      background: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius;
       border-left: 4px solid $primary-color;
     }
   }
 
   .category-controls {
     .category-toggle-section {
-      margin-bottom: 1.5rem;
+      margin-bottom: $spacing-6;
 
       ::ng-deep .mat-slide-toggle {
         .mat-slide-toggle-bar {
-          background-color: rgba(0, 0, 0, 0.38);
+          background-color: rgba($black, 0.38);
         }
 
         &.mat-checked .mat-slide-toggle-bar {
-          background-color: rgba(102, 126, 234, 0.54);
+          background-color: rgba($primary-color, 0.54);
         }
 
         .mat-slide-toggle-thumb {
-          background-color: #fafafa;
+          background-color: $gray-50;
         }
 
         &.mat-checked .mat-slide-toggle-thumb {
@@ -328,7 +309,7 @@
     }
 
     .category-section {
-      transition: all 0.3s ease;
+      transition: all $transition-normal;
 
       &.disabled {
         opacity: 0.5;
@@ -336,22 +317,21 @@
       }
 
       .category-header {
-        display: flex;
-        justify-content: space-between;
+        @include flex-between;
         align-items: center;
-        margin-bottom: 1.25rem;
+        margin-bottom: $spacing-5;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: $spacing-2;
       }
 
       .selection-count {
-        font-size: 0.9rem;
+        @include body-small;
         color: $primary-color;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
       }
 
       .selection-hint {
-        font-size: 0.85rem;
+        @include caption;
         color: $text-secondary;
         font-style: italic;
       }
@@ -359,14 +339,14 @@
       .categories-grid {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
+        gap: $spacing-3;
       }
 
       .category-chip {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        transition: all 0.2s ease;
+        @include body-small;
+        padding: $spacing-2 $spacing-4;
+        border-radius: $border-radius-full;
+        transition: all $transition-fast;
         
         &:hover:not(.mat-mdc-chip-disabled) {
           transform: translateY(-1px);
@@ -378,19 +358,19 @@
   .ad-types-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    gap: $spacing-6;
+    margin-top: $spacing-6;
   }
 
   .ad-type {
-    display: flex;
+    @include flex-center;
     align-items: flex-start;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: $background-light;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
+    gap: $spacing-4;
+    padding: $spacing-6;
+    background: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius;
+    transition: all $transition-normal;
+    border: $border-width solid transparent;
 
     &:hover {
       transform: translateY(-2px);
@@ -399,81 +379,74 @@
 
     .type-icon {
       color: $primary-color;
-      font-size: 1.5rem;
-      width: 1.5rem;
-      height: 1.5rem;
+      font-size: $font-size-2xl;
+      width: $font-size-2xl;
+      height: $font-size-2xl;
       margin-top: 0.125rem;
       flex-shrink: 0;
     }
 
     .type-content {
       h4 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1rem;
-        font-weight: 600;
+        margin: 0 0 $spacing-2 0;
+        @include body-medium;
+        font-weight: $font-weight-semibold;
         color: $text-primary;
-        line-height: 1.3;
+        line-height: $line-height-tight;
       }
 
       p {
         margin: 0;
         color: $text-secondary;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        @include body-small;
+        line-height: $line-height-tight;
       }
     }
   }
 
   .actions-section {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem 0 0;
-    margin-top: 2rem;
-    border-top: 1px solid $border-color;
+    @include flex-center;
+    gap: $spacing-4;
+    padding: $spacing-8 0 0;
+    margin-top: $spacing-8;
+    border-top: $border-width solid $border-color;
 
-    @media (max-width: 768px) {
-      flex-direction: column;
-      gap: 0.75rem;
+    @include mobile {
+      @include flex-column;
+      gap: $spacing-3;
     }
   }
 
   .save-button, .reset-button {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 2rem;
+    @include flex-center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-8;
     border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: $border-radius;
+    @include body-medium;
+    font-weight: $font-weight-semibold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all $transition-normal;
     min-width: 160px;
     justify-content: center;
 
-    @media (max-width: 768px) {
+    @include mobile {
       width: 100%;
       max-width: 280px;
     }
 
     mat-icon {
-      font-size: 1.25rem;
-      width: 1.25rem;
-      height: 1.25rem;
+      font-size: $font-size-xl;
+      width: $font-size-xl;
+      height: $font-size-xl;
     }
   }
 
   .save-button {
-    background: $primary-color;
-    color: white;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
-
+    @include button-primary;
+    
     &:hover:not(:disabled) {
-      opacity: 0.95;
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
     }
 
     &:active:not(:disabled) {
@@ -489,10 +462,8 @@
   }
 
   .reset-button {
-    background: transparent;
-    color: $text-secondary;
-    border: 2px solid $border-color;
-
+    @include button-secondary;
+    
     &:hover:not(:disabled) {
       border-color: $text-secondary;
       color: $text-primary;
@@ -509,48 +480,27 @@
   }
 
   .success-message {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    background: #f0fff4;
-    border: 1px solid $success-color;
-    border-radius: 12px;
-    color: #2f855a;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-top: 2rem;
-    animation: slideIn 0.3s ease-out;
-
-    .success-icon {
-      color: $success-color;
-      font-size: 1.5rem;
-      width: 1.5rem;
-      height: 1.5rem;
-    }
+    @include flex-center;
+    gap: $spacing-3;
+    padding: $spacing-5;
+    background: color-mix(in srgb, $success-color, white 95%);
+    border: $border-width solid $success-color;
+    border-radius: $border-radius;
+    color: darken($success-color, 20%);
+    @include body-medium;
+    font-weight: $font-weight-medium;
+    margin-top: $spacing-8;
+    @include fade-in;
   }
 
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
 }
 
-
 .category-section {
-  transition: opacity 0.3s ease;
+  transition: opacity $transition-normal;
   
   &.disabled {
     opacity: 0.6;
@@ -559,31 +509,28 @@
 }
 
 .category-chip {
-  margin: 4px;
+  margin: $spacing-1;
 }
 
-// Make sure the toggle section is clearly visible
 .category-toggle-section {
-  margin-bottom: 16px;
+  margin-bottom: $spacing-6;
   
   .mat-slide-toggle {
-    font-weight: 500;
+    font-weight: $font-weight-medium;
   }
 }
 
-// Success message styling
 .success-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #4caf50;
-  font-weight: 500;
-  margin-top: 16px;
-  padding: 12px;
-  background: #f1f8e9;
-  border-radius: 4px;
+  @include flex-center;
+  gap: $spacing-2;
+  color: $success-color;
+  font-weight: $font-weight-medium;
+  margin-top: $spacing-6;
+  padding: $spacing-3;
+  background: color-mix(in srgb, $success-color, white 95%);
+  border-radius: $border-radius-sm;
   
   .success-icon {
-    color: #4caf50;
+    color: $success-color;
   }
 }

@@ -1,3 +1,4 @@
+
 @import './../../../../../../styles/variables';
 @import './../../../../../../styles/mixins';
 
@@ -6,6 +7,7 @@
     margin: 0 0 1.5rem;
     font-size: 1.25rem;
     font-weight: 600;
+    // UPDATED: Already using text-primary variable - good!
     color: $text-primary;
   }
   
@@ -19,8 +21,10 @@
     }
     
     .metric-card {
-      background: white;
+      // UPDATED: Use surface-color variable for dynamic theming
+      background: $surface-color;
       border-radius: 12px;
+      // UPDATED: Already using shadow variable - good!
       box-shadow: $shadow;
       padding: 1.5rem;
       display: flex;
@@ -34,6 +38,7 @@
         width: 48px;
         height: 48px;
         border-radius: 12px;
+        // UPDATED: Already using primary-color with rgba - good!
         background-color: rgba($primary-color, 0.1);
         color: $primary-color;
         
@@ -50,18 +55,21 @@
         .metric-value {
           font-size: 1.5rem;
           font-weight: 700;
+          // UPDATED: Already using text-primary variable - good!
           color: $text-primary;
           margin-bottom: 0.25rem;
         }
         
         .metric-label {
           font-size: 0.9rem;
+          // UPDATED: Already using text-secondary variable - good!
           color: $text-secondary;
           margin-bottom: 0.5rem;
         }
         
         .metric-subtext {
           font-size: 0.8rem;
+          // UPDATED: Already using text-secondary variable - good!
           color: $text-secondary;
           margin-bottom: 0.75rem;
         }
@@ -74,7 +82,8 @@
           .progress-bar {
             flex: 1;
             height: 6px;
-            background-color: #f0f0f0;
+            // UPDATED: Use gray-200 for progress bar background
+            background-color: $gray-200;
             border-radius: 3px;
             overflow: hidden;
             
@@ -83,14 +92,17 @@
               border-radius: 3px;
               
               &.progress-success {
+                // UPDATED: Already using success-color - good!
                 background-color: $success-color;
               }
               
               &.progress-warning {
+                // UPDATED: Already using warning-color - good!
                 background-color: $warning-color;
               }
               
               &.progress-danger {
+                // UPDATED: Already using error-color - good!
                 background-color: $error-color;
               }
             }
@@ -99,6 +111,7 @@
           .progress-percentage {
             font-size: 0.8rem;
             font-weight: 600;
+            // UPDATED: Already using text-secondary variable - good!
             color: $text-secondary;
           }
         }

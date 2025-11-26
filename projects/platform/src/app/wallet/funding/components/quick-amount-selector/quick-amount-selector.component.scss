@@ -1,9 +1,14 @@
+@import './../../../../../styles/variables';
+@import './../../../../../styles/mixins';
+
 .quick-amounts-section {
   h3 {
     font-size: 18px;
     font-weight: 600;
     margin: 0 0 20px 0;
     position: relative;
+    // UPDATED: Use text-primary for dynamic theming
+    color: $text-primary;
 
     &::after {
       content: '';
@@ -12,7 +17,8 @@
       left: 0;
       width: 40px;
       height: 3px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
+      // UPDATED: Use gradient-primary variable
+      background: $gradient-primary;
       border-radius: 2px;
     }
   }
@@ -34,25 +40,31 @@
       flex-direction: column;
       align-items: center;
       padding: 20px 12px;
-      border: 2px solid #e0e7ff;
+      // UPDATED: Use border-color and surface-color for dynamic theming
+      border: 2px solid $border-color;
+      background: $surface-color;
       border-radius: 12px;
       transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
       cursor: pointer;
       min-height: 90px;
       justify-content: center;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      // UPDATED: Use text-primary for text color
+      color: $text-primary;
 
       &:hover:not(:disabled) {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
-        border-color: #667eea;
+        // UPDATED: Use primary-color for hover effects
+        box-shadow: 0 8px 24px rgba(var(--primary-rgb), 0.2);
+        border-color: $primary-color;
       }
 
       &.selected {
-        background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
-        border-color: #667eea;
+        // UPDATED: Use gradient-primary for selected state
+        background: $gradient-primary;
+        border-color: $primary-color;
         transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 12px 32px rgba(var(--primary-rgb), 0.3);
         color: white;
 
         .popular-badge {
@@ -61,14 +73,16 @@
       }
 
       &.popular {
-        border-color: #ff9800;
+        // UPDATED: Use warning-color for popular badge (static hex)
+        border-color: $warning-color;
 
         &:not(.selected) {
-          background: linear-gradient(145deg, #fff8e1 0%, #ffecb3 100%);
+          // UPDATED: Lightened warning color background for popular items
+          background: color-mix(in srgb, $warning-color 8%, $surface-color);
         }
 
         .popular-badge {
-          background: #ff9800;
+          background: $warning-color;
           top: -35px;
           right: -40px;
         }
@@ -83,7 +97,8 @@
         position: absolute;
         top: -8px;
         right: -8px;
-        background: #667eea;
+        // UPDATED: Use primary-color for default badge
+        background: $primary-color;
         color: white;
         font-size: 10px;
         font-weight: 600;

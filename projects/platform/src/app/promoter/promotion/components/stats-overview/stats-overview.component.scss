@@ -1,3 +1,7 @@
+
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .stats-overview {
   padding: 24px 0;
 
@@ -11,13 +15,15 @@
     gap: 16px;
 
     .stat-card {
-      background: #fff;
+      // UPDATED: Use surface-color variable for dynamic theming
+      background: $surface-color;
       border-radius: 8px;
       padding: 16px;
       display: flex;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      // UPDATED: Use shadow variable for consistent shadow
+      box-shadow: $shadow;
 
       .stat-icon {
         width: 48px;
@@ -34,24 +40,29 @@
         }
 
         &.total {
-          background: #e3f2fd;
-          color: #2196f3;
+          // UPDATED: Use info-color with light background
+          background: color-mix(in srgb, $info-color, white 85%);
+          color: $info-color;
         }
         &.pending, &.submitted {
-          background: #fff3e0;
-          color: #ff9800;
+          // UPDATED: Use warning-color with light background
+          background: color-mix(in srgb, $warning-color, white 85%);
+          color: $warning-color;
         }
         &.validated {
-          background: #e8f5e9;
-          color: #4caf50;
+          // UPDATED: Use success-color with light background
+          background: color-mix(in srgb, $success-color, white 85%);
+          color: $success-color;
         }
         &.paid {
-          background: #e1f5fe;
-          color: #03a9f4;
+          // UPDATED: Use primary-color with light background
+          background: color-mix(in srgb, $primary-color, white 85%);
+          color: $primary-color;
         }
         &.rejected {
-          background: #ffebee;
-          color: #f44336;
+          // UPDATED: Use error-color with light background
+          background: color-mix(in srgb, $error-color, white 85%);
+          color: $error-color;
         }
       }
 
@@ -60,11 +71,13 @@
           font-size: 24px;
           font-weight: 700;
           margin: 0;
-          color: #333;
+          // UPDATED: Use text-primary variable for dynamic theming
+          color: $text-primary;
         }
         p {
           font-size: 12px;
-          color: #777;
+          // UPDATED: Use text-secondary variable for dynamic theming
+          color: $text-secondary;
           margin: 0;
         }
       }

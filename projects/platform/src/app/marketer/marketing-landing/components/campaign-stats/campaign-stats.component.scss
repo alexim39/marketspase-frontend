@@ -1,13 +1,18 @@
 // campaign-stats.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .stats-section {
   padding: 1.5rem 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  // UPDATED: Use gray-50 and gray-100 for gradient background
+  background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
   border-radius: 16px;
   margin: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   
   &.collapsed {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    // UPDATED: Use gray-50 and gray-100 for collapsed state
+    background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
     padding: 1rem;
     
     .stats-header {
@@ -34,7 +39,8 @@
 .section-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   margin: 0 0 0.25rem 0;
   line-height: 1.2;
   letter-spacing: -0.25px;
@@ -42,7 +48,8 @@
 
 .section-subtitle {
   font-size: 0.875rem;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   margin: 0;
   line-height: 1.4;
   font-weight: 500;
@@ -53,23 +60,31 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   border-radius: 12px;
-  color: #475569;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  // UPDATED: Use shadow-sm variable for consistent shadow styling
+  box-shadow: $shadow-sm;
   
   &:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+    // UPDATED: Use gray-50 variable for hover background
+    background: $gray-50;
+    // UPDATED: Use gray-300 variable for hover border
+    border-color: $gray-300;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    color: #334155;
+    // UPDATED: Use shadow-md variable for hover state
+    box-shadow: $shadow-md;
+    // UPDATED: Use text-primary variable for hover text
+    color: $text-primary;
   }
   
   &:active {
@@ -77,10 +92,12 @@
   }
   
   .stats-section.collapsed & {
-    background: white;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
     
     &:hover {
-      background: #f8fafc;
+      // UPDATED: Use gray-50 variable for hover background
+      background: $gray-50;
     }
   }
 }
@@ -96,7 +113,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  // UPDATED: Use gray-100 variable for icon background
+  background: $gray-100;
   border-radius: 6px;
   transition: all 0.3s ease;
   
@@ -104,15 +122,18 @@
     width: 16px;
     height: 16px;
     font-size: 16px;
-    color: #64748b;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
     transition: all 0.3s ease;
   }
   
   .toggle-btn:hover & {
-    background: #e2e8f0;
+    // UPDATED: Use gray-200 variable for hover background
+    background: $gray-200;
     
     mat-icon {
-      color: #475569;
+      // UPDATED: Use text-primary variable for hover text
+      color: $text-primary;
     }
   }
 }
@@ -143,13 +164,14 @@
 }
 
 .stat-card {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
+  // UPDATED: Use shadow variable for consistent shadow styling
+  box-shadow: $shadow;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: flex-start;
@@ -164,17 +186,18 @@
     left: 0;
     width: 3px;
     height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    // UPDATED: Use gradient-primary variable for accent border
+    background: $gradient-primary;
     opacity: 0.7;
     transition: opacity 0.3s ease;
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 
-      0 8px 25px -5px rgba(0, 0, 0, 0.1),
-      0 4px 10px -5px rgba(0, 0, 0, 0.04);
-    border-color: #e2e8f0;
+    // UPDATED: Use shadow-lg variable for hover state
+    box-shadow: $shadow-lg;
+    // UPDATED: Use gray-300 variable for hover border
+    border-color: $gray-300;
     
     &::before {
       opacity: 1;
@@ -186,11 +209,11 @@
   }
 
   &.highlight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 
-      0 8px 25px -5px rgba(102, 126, 234, 0.3),
-      0 4px 10px -5px rgba(102, 126, 234, 0.2);
+    // UPDATED: Use gradient-primary variable for highlight state
+    background: $gradient-primary;
+    //color: $white;
+    // UPDATED: Use shadow-lg with primary color for highlight
+    box-shadow: $shadow-lg;
     
     &::before {
       display: none;
@@ -198,12 +221,12 @@
     
     .stat-icon {
       background: rgba(255, 255, 255, 0.25);
-      color: white;
+      color: $white;
       backdrop-filter: blur(10px);
     }
     
     .stat-value {
-      color: white;
+      color: $white;
     }
     
     .stat-label {
@@ -216,9 +239,8 @@
     
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 
-        0 12px 30px -5px rgba(102, 126, 234, 0.4),
-        0 6px 15px -5px rgba(102, 126, 234, 0.3);
+      // UPDATED: Use shadow-xl for highlight hover state
+      box-shadow: $shadow-xl;
     }
   }
 }
@@ -227,14 +249,17 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  // UPDATED: Use gray-50 and gray-100 for icon gradient
+  background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #475569;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   flex-shrink: 0;
   transition: all 0.3s ease;
-  border: 1px solid #f1f5f9;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   
   mat-icon {
     width: 20px;
@@ -251,7 +276,8 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   margin-bottom: 0.125rem;
   line-height: 1.1;
   letter-spacing: -0.5px;
@@ -259,7 +285,8 @@
 
 .stat-label {
   font-size: 0.8125rem;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   font-weight: 600;
   margin-bottom: 0.375rem;
   text-transform: uppercase;
@@ -269,7 +296,8 @@
 
 .stat-description {
   font-size: 0.75rem;
-  color: #94a3b8;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   margin-bottom: 0.5rem;
   line-height: 1.3;
   font-weight: 500;
@@ -283,11 +311,13 @@
   font-weight: 600;
   
   &.positive {
-    color: #059669;
+    // UPDATED: Use success-color variable for positive trend
+    color: $success-color;
   }
   
   &.negative {
-    color: #dc2626;
+    // UPDATED: Use error-color variable for negative trend
+    color: $error-color;
   }
   
   mat-icon {
@@ -319,29 +349,35 @@
   }
 }
 
-// Color coding with subtle gradients
+// Color coding with subtle gradients - UPDATED: Use semantic color variables
 .stat-card:nth-child(6n+1)::before {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  // UPDATED: Use primary and secondary colors
+  background: $gradient-primary;
 }
 
 .stat-card:nth-child(6n+2)::before {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  // UPDATED: Use success color gradient
+  background: linear-gradient(135deg, $success-color 0%, darken($success-color, 10%) 100%);
 }
 
 .stat-card:nth-child(6n+3)::before {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  // UPDATED: Use warning color gradient
+  background: linear-gradient(135deg, $warning-color 0%, darken($warning-color, 10%) 100%);
 }
 
 .stat-card:nth-child(6n+4)::before {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  // UPDATED: Use secondary color gradient
+  //background: linear-gradient(135deg, $secondary-color 0%, darken($secondary-color, 10%) 100%);
 }
 
 .stat-card:nth-child(6n+5)::before {
-  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  // UPDATED: Use info color gradient
+  background: linear-gradient(135deg, $info-color 0%, darken($info-color, 10%) 100%);
 }
 
 .stat-card:nth-child(6n+6)::before {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  // UPDATED: Use primary light gradient
+  background: linear-gradient(135deg, $primary-light-hex 0%, $primary-color-hex 100%);
 }
 
 // Responsive design
@@ -476,16 +512,19 @@
 // High contrast mode support
 @media (prefers-contrast: high) {
   .stat-card {
-    border-color: #334155;
+    // UPDATED: Use gray-700 for high contrast border
+    border-color: $gray-700;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   }
   
   .stat-icon {
-    border-color: #cbd5e1;
+    // UPDATED: Use gray-400 for high contrast border
+    border-color: $gray-400;
   }
   
   .toggle-btn {
-    border-color: #475569;
+    // UPDATED: Use gray-600 for high contrast border
+    border-color: $gray-600;
   }
 }
 

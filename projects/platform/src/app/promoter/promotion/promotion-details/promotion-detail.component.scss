@@ -1,8 +1,10 @@
+
 @import './../../../../styles/variables';
 @import './../../../../styles/mixins';
 
 .promotion-detail-container {
   min-height: 100vh;
+  // UPDATED: Already using background-color variable - good!
   background-color: $background-color;
 }
 
@@ -36,11 +38,13 @@
       margin: 0 0 0.5rem;
       font-size: 1.5rem;
       font-weight: 600;
+      // UPDATED: Already using text-primary variable - good!
       color: $text-primary;
     }
     
     p {
       margin: 1rem;
+      // UPDATED: Already using text-secondary variable - good!
       color: $text-secondary;
     }
   }
@@ -49,6 +53,7 @@
 .error-container {
   .error-content {
     mat-icon {
+      // UPDATED: Already using error-color variable - good!
       color: $error-color;
     }
   }

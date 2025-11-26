@@ -223,11 +223,13 @@
 
     // Accent color actions
     &[color="accent"] {
-      background: linear-gradient(135deg, vars.$secondary-color, vars.$secondary-dark);
+      //background: linear-gradient(135deg, vars.$secondary-color, vars.$secondary-dark);
+      background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark-hex, #684491));
       color: vars.$white;
 
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, vars.$secondary-dark, vars.$secondary-color);
+        //background: linear-gradient(135deg, vars.$secondary-dark, vars.$secondary-color);
+        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark-hex, #684491));
       }
     }
 

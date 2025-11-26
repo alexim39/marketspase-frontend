@@ -1,0 +1,261 @@
+// UPDATED: Import theme variables and mixins
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
+.testimonial-settings {
+  padding: $spacing-6;
+
+  .section-title {
+    @include heading-small;
+    margin: 0 0 $spacing-2;
+  }
+
+  .section-description {
+    @include body-medium;
+    color: $text-secondary;
+    margin: 0 0 $spacing-8;
+  }
+
+  .loading-state, .error-state {
+    margin-bottom: $spacing-8;
+
+    mat-card-content {
+      padding: $spacing-6;
+    }
+
+    .loading-content, .error-content {
+      @include flex-column-center;
+      gap: $spacing-1;
+
+      p {
+        margin: 0;
+        color: $gray-500;
+      }
+    }
+
+    .error-content {
+      color: $error-color;
+
+      mat-icon {
+        color: $error-color;
+      }
+    }
+  }
+
+  .profile-completion-notification {
+    margin-bottom: $spacing-8;
+    background-color: color-mix(in srgb, $warning-color, white 90%);
+    border-left: 4px solid $warning-color;
+
+    .notification-content {
+      @include flex-between;
+      gap: $spacing-6;
+
+      .notification-icon {
+        font-size: $font-size-2xl;
+      }
+
+      .notification-text {
+        flex: 1;
+        h4 {
+          margin: 0 0 $spacing-1;
+          @include body-large;
+          font-weight: $font-weight-medium;
+          color: $text-primary;
+        }
+
+        p {
+          margin: 0;
+          @include body-medium;
+          color: $text-secondary;
+        }
+      }
+    }
+  }
+
+  .existing-testimonial {
+    margin-bottom: $spacing-8;
+
+    .rating-display {
+      @include flex-center;
+      margin-bottom: $spacing-6;
+      gap: $spacing-2;
+
+      .rating-label {
+        font-weight: $font-weight-medium;
+      }
+
+      .stars {
+        display: flex;
+        
+        mat-icon {
+          color: $warning-color;
+          font-size: $font-size-xl;
+          height: $font-size-xl;
+          width: $font-size-xl;
+        }
+      }
+
+      .rating-value {
+        @include caption;
+        color: $text-secondary;
+      }
+    }
+
+    .testimonial-content {
+      white-space: pre-line;
+      line-height: $line-height-relaxed;
+      @include body-medium;
+    }
+
+    mat-divider {
+      margin: $spacing-6 0;
+    }
+  }
+
+  .testimonial-form-card {
+    @include card-base;
+    padding: $spacing-8;
+    border-radius: $border-radius;
+
+    form {
+      @include flex-column;
+      gap: $spacing-5;
+    }
+
+    .rating-input {
+      @include flex-column;
+      gap: $spacing-2;
+
+      label {
+        font-weight: $font-weight-medium;
+        color: $text-secondary;
+      }
+
+      .rating-options {
+        @include flex-column;
+        gap: $spacing-2;
+
+        .rating-option {
+          .option-content {
+            @include flex-center;
+            gap: $spacing-2;
+
+            .stars {
+              display: flex;
+              
+              mat-icon {
+                color: $warning-color;
+                font-size: $font-size-xl;
+                height: $font-size-xl;
+                width: $font-size-xl;
+              }
+            }
+
+            .label {
+              @include body-small;
+            }
+          }
+        }
+      }
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .form-row {
+      display: flex;
+      gap: $spacing-6;
+
+      mat-form-field {
+        flex: 1;
+      }
+    }
+
+    .form-actions {
+      @include flex-between;
+      gap: $spacing-2;
+
+      button {
+        padding: 0 $spacing-8;
+        font-weight: $font-weight-medium;
+      }
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+  }
+}
+
+.write-testimonial-prompt {
+  margin-bottom: $spacing-8;
+  border: $border-width solid $border-color;
+  @include card-base;
+
+  .prompt-content {
+    @include flex-center;
+    gap: $spacing-6;
+
+    mat-icon {
+      color: $primary-color;
+      font-size: $font-size-3xl;
+      height: $font-size-3xl;
+      width: $font-size-3xl;
+    }
+
+    .prompt-text {
+      flex: 1;
+
+      h4 {
+        margin: 0 0 $spacing-1;
+        @include body-large;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+      }
+
+      p {
+        margin: 0;
+        @include body-medium;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+@include mobile {
+  .testimonial-settings {
+    padding: $spacing-2;
+
+    .profile-completion-notification {
+      .notification-content {
+        @include flex-column;
+        align-items: flex-start;
+        gap: $spacing-3;
+      }
+    }
+
+    .testimonial-form-card {
+      padding: $spacing-6;
+
+      .form-row {
+        @include flex-column;
+        gap: $spacing-4;
+      }
+    }
+  }
+
+  .write-testimonial-prompt {
+    .prompt-content {
+      @include flex-column;
+      align-items: flex-start;
+      gap: $spacing-3;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

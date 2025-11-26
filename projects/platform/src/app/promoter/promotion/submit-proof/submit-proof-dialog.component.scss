@@ -1,3 +1,7 @@
+
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
 .submit-proof-dialog {
   max-width: 500px;
   width: 90vw;
@@ -16,19 +20,21 @@
     }
     
     &.success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
+      // UPDATED: Use success-color with light background
+      background-color: color-mix(in srgb, $success-color, white 92%);
+      color: $success-color;
+      border: 1px solid color-mix(in srgb, $success-color, white 80%);
     }
     
     &.error {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ffcdd2;
+      // UPDATED: Use error-color with light background
+      background-color: color-mix(in srgb, $error-color, white 92%);
+      color: $error-color;
+      border: 1px solid color-mix(in srgb, $error-color, white 80%);
       justify-content: space-between;
       
       button {
-        color: #c62828;
+        color: $error-color;
       }
     }
   }
@@ -36,17 +42,20 @@
   .campaign-info {
     margin-bottom: 20px;
     padding: 16px;
-    background: #f5f5f5;
+    // UPDATED: Use gray-50 for background
+    background: $gray-50;
     border-radius: 8px;
 
     h3 {
       margin: 0 0 8px 0;
-      color: #333;
+      // UPDATED: Use text-primary for heading
+      color: $text-primary;
     }
 
     .caption {
       margin: 0 0 16px 0;
-      color: #666;
+      // UPDATED: Use text-secondary for caption
+      color: $text-secondary;
       font-size: 14px;
     }
 
@@ -60,7 +69,8 @@
         align-items: center;
         gap: 8px;
         font-size: 14px;
-        color: #555;
+        // UPDATED: Use text-secondary for details
+        color: $text-secondary;
 
         mat-icon {
           font-size: 18px;
@@ -69,7 +79,8 @@
         }
 
         .expired {
-          color: #f44336;
+          // UPDATED: Use error-color for expired state
+          color: $error-color;
         }
       }
     }
@@ -78,13 +89,15 @@
   .requirements {
     margin-bottom: 20px;
     padding: 16px;
-    background: #fff8e1;
+    // UPDATED: Use warning-color with light background
+    background: color-mix(in srgb, $warning-color, white 92%);
     border-radius: 8px;
-    border-left: 4px solid #ffc107;
+    border-left: 4px solid $warning-color;
 
     h4 {
       margin: 0 0 12px 0;
-      color: #333;
+      // UPDATED: Use text-primary for heading
+      color: $text-primary;
     }
 
     ul {
@@ -94,7 +107,8 @@
       li {
         margin-bottom: 8px;
         font-size: 14px;
-        color: #555;
+        // UPDATED: Use text-secondary for list items
+        color: $text-secondary;
       }
     }
   }
@@ -111,11 +125,12 @@
 
     h4 {
       margin: 0 0 12px 0;
-      color: #333;
+      // UPDATED: Use text-primary for heading
+      color: $text-primary;
     }
 
     .upload-area {
-      border: 2px dashed #ccc;
+      border: 2px dashed $border-color;
       border-radius: 8px;
       padding: 20px;
       text-align: center;
@@ -124,12 +139,14 @@
       position: relative;
 
       &:hover {
-        border-color: #2196f3;
+        // UPDATED: Use primary-color for hover border
+        border-color: $primary-color;
       }
 
       &.has-files {
         border-style: solid;
-        border-color: #4caf50;
+        // UPDATED: Use success-color for success state
+        border-color: $success-color;
       }
 
       input[type="file"] {
@@ -143,14 +160,16 @@
       }
 
       .upload-placeholder {
-        color: #666;
+        // UPDATED: Use text-secondary for placeholder
+        color: $text-secondary;
 
         mat-icon {
           font-size: 48px;
           width: 48px;
           height: 48px;
           margin-bottom: 8px;
-          color: #999;
+          // UPDATED: Use text-tertiary for icon
+          color: $text-tertiary;
         }
 
         p {
@@ -160,7 +179,8 @@
 
         span {
           font-size: 12px;
-          color: #999;
+          // UPDATED: Use text-tertiary for small text
+          color: $text-tertiary;
         }
       }
 
@@ -176,7 +196,8 @@
           height: 80px;
           border-radius: 8px;
           overflow: hidden;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          // UPDATED: Use shadow variable
+          box-shadow: $shadow;
 
           img {
             width: 100%;
@@ -188,7 +209,8 @@
             position: absolute;
             top: 4px;
             right: 4px;
-            background: rgba(255,255,255,0.9);
+            // UPDATED: Use surface-color for remove button
+            background: $surface-color;
             width: 24px;
             height: 24px;
 
@@ -208,19 +230,21 @@
         .upload-more {
           width: 80px;
           height: 80px;
-          border: 2px dashed #ccc;
+          border: 2px dashed $border-color;
           border-radius: 8px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          color: #666;
+          // UPDATED: Use text-secondary for text
+          color: $text-secondary;
           transition: border-color 0.3s;
 
           &:hover {
-            border-color: #2196f3;
-            color: #2196f3;
+            // UPDATED: Use primary-color for hover
+            border-color: $primary-color;
+            color: $primary-color;
           }
 
           mat-icon {
@@ -234,14 +258,16 @@
       margin-top: 8px;
       text-align: center;
       font-size: 12px;
-      color: #666;
+      // UPDATED: Use text-tertiary for info text
+      color: $text-tertiary;
     }
   }
 
   mat-dialog-actions {
     padding: 16px 16px;
     margin-top: 20px;
-    border-top: 1px solid #eee;
+    // UPDATED: Use border-color for divider
+    border-top: 1px solid $border-color;
 
     button {
       min-width: 100px;

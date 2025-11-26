@@ -1,3 +1,6 @@
+@import './../../../styles/variables';
+@import './../../../styles/mixins';
+
 .withdrawal-container {
   padding: 24px;
   max-width: 1200px;
@@ -14,18 +17,20 @@
   gap: 8px;
   margin-bottom: 16px;
   font-size: 14px;
-  color: #666;
+  // UPDATED: Use text-secondary for breadcrumb
+  color: $text-secondary;
 
   a {
     display: flex;
     align-items: center;
     gap: 4px;
     text-decoration: none;
-    color: #673ab7;
+    // UPDATED: Use primary-color for links
+    color: $primary-color;
     transition: color 0.2s;
 
     &:hover {
-      color: #673ab7;
+      color: $primary-color;
     }
   }
 
@@ -36,7 +41,8 @@
   }
 
   .current {
-    color: #333;
+    // UPDATED: Use text-primary for current page
+    color: $text-primary;
     font-weight: 500;
   }
 }
@@ -49,10 +55,12 @@
     margin: 0 0 8px 0;
     font-size: 28px;
     font-weight: 600;
-    color: #333;
+    // UPDATED: Use text-primary for main heading
+    color: $text-primary;
 
     .withdrawal-icon {
-      color: #673ab7;
+      // UPDATED: Use primary-color for icon
+      color: $primary-color;
       font-size: 32px;
     }
 
@@ -63,7 +71,8 @@
 
   p {
     margin: 0;
-    color: #666;
+    // UPDATED: Use text-secondary for description
+    color: $text-secondary;
     font-size: 16px;
   }
 }
@@ -81,6 +90,8 @@
   padding: 6px 24px;
   position: relative;
   overflow: hidden;
+  // UPDATED: Use surface-color for background
+  background: $surface-color;
 
   &::before {
     content: '';
@@ -89,7 +100,8 @@
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, #673ab7, #d81b60);
+    // UPDATED: Use gradient-primary for accent border
+    background: $gradient-primary;
   }
 
   .card-header {
@@ -104,21 +116,24 @@
       margin: 0;
       font-size: 20px;
       font-weight: 600;
-      color: #333;
+      // UPDATED: Use text-primary for card headings
+      color: $text-primary;
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
     .balance-icon {
-      color: #673ab7;
+      // UPDATED: Use primary-color for icons
+      color: $primary-color;
       font-size: 28px;
       width: 28px;
       height: 28px;
     }
 
     button {
-      color: #673ab7;
+      // UPDATED: Use primary-color for buttons
+      color: $primary-color;
     }
   }
 
@@ -135,7 +150,8 @@
     .currency {
       font-size: 28px;
       font-weight: 500;
-      color: #673ab7;
+      // UPDATED: Use primary-color for currency
+      color: $primary-color;
       margin-right: 4px;
       margin-top: 4px;
     }
@@ -143,7 +159,8 @@
     .amount {
       font-size: 48px;
       font-weight: 600;
-      color: #333;
+      // UPDATED: Use text-primary for amount
+      color: $text-primary;
       letter-spacing: -1px;
     }
   }
@@ -158,11 +175,13 @@
       display: flex;
       align-items: center;
       padding: 8px;
-      background: rgba(143, 0, 69, 0.05);
+      // UPDATED: Use color-mix for detail background
+      background: color-mix(in srgb, $primary-color 5%, $surface-color);
       border-radius: 8px;
 
       .detail-icon {
-        color: #673ab7;
+        // UPDATED: Use primary-color for detail icons
+        color: $primary-color;
         margin-right: 12px;
         font-size: 24px;
         width: 24px;
@@ -172,14 +191,16 @@
       .detail-text {
         .detail-label {
           font-size: 12px;
-          color: #666;
+          // UPDATED: Use text-secondary for labels
+          color: $text-secondary;
           margin-bottom: 4px;
         }
 
         .detail-value {
           font-size: 16px;
           font-weight: 500;
-          color: #333;
+          // UPDATED: Use text-primary for values
+          color: $text-primary;
         }
       }
     }
@@ -192,6 +213,8 @@
   border-radius: 12px;
   overflow: hidden;
   padding: 24px;
+  // UPDATED: Use surface-color for background
+  background: $surface-color;
 
   .card-header {
     display: flex;
@@ -205,12 +228,14 @@
       margin: 0;
       font-size: 20px;
       font-weight: 600;
-      color: #333;
+      // UPDATED: Use text-primary for headings
+      color: $text-primary;
     }
 
     button {
-      color: #673ab7;
-      border: 1px solid #e5e5e5;
+      // UPDATED: Use primary-color for buttons
+      color: $primary-color;
+      border: 1px solid $border-color;
     }
   }
 }
@@ -225,7 +250,8 @@
       margin: 0 0 16px 0;
       font-size: 16px;
       font-weight: 500;
-      color: #673ab7;
+      // UPDATED: Use primary-color for section headings
+      color: $primary-color;
     }
   }
 
@@ -250,7 +276,6 @@
         margin: 1em 0;
       }
     }
-
   }
 
   .form-actions {
@@ -274,13 +299,15 @@
 .recent-withdrawals {
   padding: 16px;
   border-radius: 4px;
-  color: #666;
+  // UPDATED: Use text-secondary for recent withdrawals
+  color: $text-secondary;
 }
 
 ::ng-deep .mat-expansion-panel {
   box-shadow: none !important;
   border-radius: 0 !important;
-  border-bottom: 1px solid #e5e5e5;
+  // UPDATED: Use border-color for expansion panel borders
+  border-bottom: 1px solid $border-color;
 
   &:last-child {
     border-bottom: none;
@@ -295,7 +322,8 @@
     }
 
     mat-icon {
-      color: #673ab7;
+      // UPDATED: Use primary-color for expansion panel icons
+      color: $primary-color;
       margin-right: 16px;
     }
 
@@ -307,7 +335,8 @@
 
 mat-spinner {
   margin: 24px auto;
-  --mdc-circular-progress-active-indicator-color: #673ab7;
+  // UPDATED: Use primary-color for spinner
+  --mdc-circular-progress-active-indicator-color: #{$primary-color};
 }
 
 /* Responsive adjustments */
