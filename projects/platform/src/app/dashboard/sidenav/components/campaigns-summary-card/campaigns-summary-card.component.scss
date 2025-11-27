@@ -49,12 +49,13 @@
 
     .metric-summary {
       // UPDATED: Use gray-50 for metric background
-      background: $gray-50;
+      //background: $gray-50;
+      border: 1px solid $gray-50;
       border-radius: 8px;
       padding: 12px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       .metric-icon-wrapper {
         display: flex;
         align-items: center;
