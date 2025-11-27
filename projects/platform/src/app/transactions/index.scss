@@ -1,0 +1,198 @@
+@import './../../styles/variables';
+@import './../../styles/mixins';
+
+.page-container {
+  min-height: 100vh;
+  // UPDATED: Use gradient-primary variable
+  background: $gradient-primary;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Loading State Styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  // UPDATED: Use gradient-primary variable
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+}
+
+.loading-content {
+  text-align: center;
+  color: $white;
+  padding: $spacing-8;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.spinner-container {
+  margin-bottom: $spacing-8;
+  display: flex;
+  justify-content: center;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid rgba($white, 0.3);
+  border-top: 3px solid $white;
+  border-radius: $border-radius-full;
+  animation: spin 1s linear infinite;
+}
+
+.loading-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-2 0;
+  letter-spacing: -0.025em;
+}
+
+.loading-subtitle {
+  font-size: $font-size-base;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: $font-weight-normal;
+}
+
+/* Dashboard Wrapper */
+.page-wrapper {
+  min-height: 100vh;
+  // UPDATED: Use background-color variable
+  background: $background-color;
+  // UPDATED: Use transition variable
+  transition: all $transition-normal;
+}
+
+/* Main Dashboard Content */
+.page-main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Error State */
+.error-state {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // UPDATED: Use gradient-primary variable
+  background: $gradient-primary;
+}
+
+.error-content {
+  text-align: center;
+  color: $white;
+  padding: $spacing-8;
+}
+
+.error-title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-2 0;
+}
+
+.error-subtitle {
+  font-size: $font-size-base;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(2rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .loading-content {
+    padding: $spacing-6;
+  }
+  
+  .loading-title {
+    font-size: $font-size-xl;
+  }
+  
+  .loading-subtitle {
+    font-size: $font-size-sm;
+  }
+  
+  .spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .page-wrapper[data-device="tablet"] {
+    padding: 0;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1025px) {
+  .page-wrapper[data-device="desktop"] {
+    // UPDATED: Use surface-color for desktop background
+    background: $surface-color;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+  
+  .loading-content {
+    animation: none;
+  }
+  
+  .page-wrapper {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .loading-overlay {
+    background: $black;
+    color: $white;
+  }
+  
+  .spinner {
+    border-color: $white;
+    border-top-color: $black;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .page-wrapper {
+    // UPDATED: Use gray-900 for dark mode background
+    background: $gray-900;
+  }
+}

@@ -5,14 +5,14 @@
 .stats-section {
   padding: 1.5rem 1rem;
   // UPDATED: Use gray-50 and gray-100 for gradient background
-  background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
+  //background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
   border-radius: 16px;
   margin: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   
   &.collapsed {
     // UPDATED: Use gray-50 and gray-100 for collapsed state
-    background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
+    //background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
     padding: 1rem;
     
     .stats-header {
@@ -77,14 +77,15 @@
   
   &:hover {
     // UPDATED: Use gray-50 variable for hover background
-    background: $gray-50;
+    //background: $gray-100;
     // UPDATED: Use gray-300 variable for hover border
     border-color: $gray-300;
     transform: translateY(-1px);
     // UPDATED: Use shadow-md variable for hover state
     box-shadow: $shadow-md;
     // UPDATED: Use text-primary variable for hover text
-    color: $text-primary;
+    //color: $text-primary;
+    //color: $text-secondary;
   }
   
   &:active {
@@ -97,7 +98,7 @@
     
     &:hover {
       // UPDATED: Use gray-50 variable for hover background
-      background: $gray-50;
+      //background: $gray-50;
     }
   }
 }
@@ -114,7 +115,7 @@
   align-items: center;
   justify-content: center;
   // UPDATED: Use gray-100 variable for icon background
-  background: $gray-100;
+  //background: $gray-100;
   border-radius: 6px;
   transition: all 0.3s ease;
   

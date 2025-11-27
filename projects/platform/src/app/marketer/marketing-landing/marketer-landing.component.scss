@@ -6,6 +6,8 @@
   display: flex;
   flex-direction: column;
   font-family: $font-family; // UPDATED: Use font-family variable
+  // UPDATED: Use background-color variable for dynamic theming
+  background: $background-color;
 }
 
 .mobile-fab {

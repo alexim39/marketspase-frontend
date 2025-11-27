@@ -32,7 +32,7 @@ import { SettingsService, ThemeInterface } from '../system.service';
             (change)="toggleTheme($event)"
             [disabled]="systemDefault()"
             color="primary">
-            {{ isDarkMode() ? 'Dark' : 'Light' }}
+            {{ isDarkMode() ? 'Light' : 'Dark' }}
           </mat-slide-toggle>
         </div>
       </div>

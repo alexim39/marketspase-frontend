@@ -19,7 +19,7 @@ import { DashboardMainMobileContainer } from './main-content/mobile/main-content
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-
+import { DOCUMENT } from '@angular/common';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -102,200 +102,7 @@ interface AuthState {
       }
     </div>
   `,
-  styles: [`
-    .dashboard-container {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    /* Loading State Styles */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .loading-content {
-      text-align: center;
-      color: white;
-      padding: 2rem;
-      animation: fadeInUp 0.6s ease-out;
-    }
-
-    .spinner-container {
-      margin-bottom: 2rem;
-      display: flex;
-      justify-content: center;
-    }
-
-    .spinner {
-      width: 3rem;
-      height: 3rem;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    .loading-title {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem 0;
-      letter-spacing: -0.025em;
-    }
-
-    .loading-subtitle {
-      font-size: 1rem;
-      opacity: 0.9;
-      margin: 0;
-      font-weight: 400;
-    }
-
-    /* Dashboard Wrapper */
-    .dashboard-wrapper {
-      min-height: 100vh;
-      background: #f8fafc;
-      transition: all 0.3s ease;
-    }
-
-    /* Main Dashboard Content */
-    .dashboard-main {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Error State */
-    .error-state {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .error-content {
-      text-align: center;
-      color: white;
-      padding: 2rem;
-    }
-
-    .error-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem 0;
-    }
-
-    .error-subtitle {
-      font-size: 1rem;
-      opacity: 0.9;
-      margin: 0;
-    }
-
-    /* Animations */
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @keyframes fadeInUp {
-      0% {
-        opacity: 0;
-        transform: translateY(2rem);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Responsive Design */
-    
-    /* Mobile Styles */
-    @media (max-width: 768px) {
-      .loading-content {
-        padding: 1.5rem;
-      }
-      
-      .loading-title {
-        font-size: 1.5rem;
-      }
-      
-      .loading-subtitle {
-        font-size: 0.9rem;
-      }
-      
-      .spinner {
-        width: 2.5rem;
-        height: 2.5rem;
-      }
-      
-    }
-
-    /* Tablet Styles */
-    @media (min-width: 769px) and (max-width: 1024px) {
-      .dashboard-wrapper[data-device="tablet"] {
-        padding: 0;
-      }
-    }
-
-    /* Desktop Styles */
-    @media (min-width: 1025px) {
-      .dashboard-wrapper[data-device="desktop"] {
-        background: #ffffff;
-      }
-    }
-
-    /* Accessibility Improvements */
-    @media (prefers-reduced-motion: reduce) {
-      .spinner {
-        animation: none;
-      }
-      
-      .loading-content {
-        animation: none;
-      }
-      
-      .dashboard-wrapper {
-        transition: none;
-      }
-    }
-
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-      .loading-overlay {
-        background: #000;
-        color: #fff;
-      }
-      
-      .spinner {
-        border-color: #fff;
-        border-top-color: #000;
-      }
-      
-     
-    }
-
-    /* Dark mode support (if needed) */
-    @media (prefers-color-scheme: dark) {
-      .dashboard-wrapper {
-        background: #1f2937;
-      }
-      
-    }
-  `]
+  styleUrls: ['./index.scss'],
 })
 export class DashboardIndexComponent implements OnInit {
   // Injected services using modern inject function
@@ -304,6 +111,7 @@ export class DashboardIndexComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private snackBar = inject(MatSnackBar);
   public loadingService = inject(LoadingService);
+  private readonly document = inject(DOCUMENT);
 
   // Reactive state using signals
   protected readonly authState = signal<AuthState>({
@@ -323,6 +131,65 @@ export class DashboardIndexComponent implements OnInit {
   // CONVERTED TO A SIGNAL: User data is now a signal.
   // It holds the value of the user and allows for reactivity.
   public user = signal<UserInterface | null>(null);
+
+  // --- NEW METHOD TO APPLY THEME ---
+  private applyThemeGlobally(user: UserInterface): void {
+    const body = this.document.body;
+    const html = this.document.documentElement;
+    const themePrefs = user.preferences?.theme;
+
+    // Default to system-based detection if preferences are missing or systemDefault is true
+    const systemThemeIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Determine effective theme: system default (if enabled) OR user selection
+    const useSystemDefault = themePrefs?.systemDefault ?? true;
+    const effectiveDarkMode = useSystemDefault 
+      ? systemThemeIsDark 
+      : (themePrefs?.darkMode ?? false);
+
+    const highContrastMode = themePrefs?.highContrast ?? false;
+    
+    // Remove all theme classes first (using your existing class structure)
+    // Note: If you switched to Option 2 in the previous answer, you'd use setAttribute here.
+    // Assuming you stick to classes/attributes as is:
+    
+    // 1. Theme Mode (Using the `data-theme` attribute you had in SCSS)
+    // NOTE: We are using the `data-theme` attribute here as per your SCSS example: body[data-theme="dark"]
+    if (effectiveDarkMode) {
+      body.setAttribute('data-theme', 'dark');
+      // Set a class as a fallback/for other styling if needed
+      html.classList.add('dark-theme');
+      body.classList.add('dark-theme');
+    } else {
+      body.setAttribute('data-theme', 'light');
+      html.classList.remove('dark-theme');
+      body.classList.remove('dark-theme');
+    }
+
+    // 2. High Contrast Mode
+    if (highContrastMode) {
+      body.classList.add('high-contrast');
+      html.classList.add('high-contrast');
+    } else {
+      body.classList.remove('high-contrast');
+      html.classList.remove('high-contrast');
+    }
+
+    // 3. Update color-scheme and meta tag
+    html.style.colorScheme = effectiveDarkMode ? 'dark light' : 'light dark';
+    this.updateThemeColorMeta(effectiveDarkMode);
+  }
+
+  private updateThemeColorMeta(isDark: boolean): void {
+    let themeColor = isDark ? '#1a1a1a' : '#ffffff';
+    let metaThemeColor = this.document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = this.document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      this.document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', themeColor);
+  }
 
   constructor() {
     // Set up auth state subscription with automatic cleanup
@@ -346,6 +213,9 @@ export class DashboardIndexComponent implements OnInit {
                     //console.log('Returned User:', response.data);
                    // UPDATED: Use `set()` to update the signal's value.
                     this.user.set(response.data as UserInterface);
+
+                    // --- NEW LINE: APPLY THEME HERE! ---
+                    this.applyThemeGlobally(response.data as UserInterface);
                   }
                 },
                 error: (error: HttpErrorResponse) => {
