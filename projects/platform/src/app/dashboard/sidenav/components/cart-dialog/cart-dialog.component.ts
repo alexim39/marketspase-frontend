@@ -9,7 +9,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
 import { CampaignsSummaryCardComponent } from '../campaigns-summary-card/campaigns-summary-card.component';
 import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promotions-summary-card.component';
-import { ThemeService } from '../../../../theme.service';
 
 @Component({
   selector: 'app-cart-dialog',
@@ -146,12 +145,12 @@ import { ThemeService } from '../../../../theme.service';
               <mat-icon>person</mat-icon>
               <span>Profile & Settings</span>
             </button>
-            <button matRipple class="account-action"  (click)="themeService.toggleTheme()">
+            <!-- <button matRipple class="account-action"  (click)="themeService.toggleTheme()">
               <mat-icon>
                 {{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}
               </mat-icon>
               <span>Toggle Theme</span>
-            </button>
+            </button> -->
           </div>
         </div>
       }
@@ -173,8 +172,7 @@ export class CartDialogComponent {
   @Output() viewWithdrawal = new EventEmitter<void>();
   @Output() switchUser = new EventEmitter<string>();
 
-  // Inject public so template can access it directly
-  constructor(public themeService: ThemeService) {}
+
 
 /* 
 

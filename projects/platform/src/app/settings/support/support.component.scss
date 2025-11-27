@@ -1,0 +1,103 @@
+@import './../../../styles/variables';
+@import './../../../styles/mixins';
+
+.social-settings-container {
+  min-height: 100vh;
+  padding: 0;
+}
+
+.settings-content {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 10px;
+}
+
+.settings-nav {
+  margin-bottom: 24px;
+
+  button {
+    // UPDATED: Use primary-color for text and surface-color for background
+    color: $primary-color;
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    padding: $spacing-2 $spacing-4;
+    font-weight: $font-weight-medium;
+    display: flex;
+    align-items: center;
+    // UPDATED: Use surface-color for background
+    background-color: $surface-color;
+
+    mat-icon {
+      margin-right: $spacing-2;
+    }
+
+    &:hover {
+      // UPDATED: Use color-mix for hover background
+      background-color: color-mix(in srgb, $primary-color 4%, $surface-color);
+    }
+  }
+}
+
+.social-settings-content {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+
+.settings-card {
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  // UPDATED: Use surface-color for card background
+  background: $surface-color;
+
+  ::ng-deep .mat-tab-group {
+    .mat-tab-header {
+      border-bottom: none;
+      // UPDATED: Use surface-color for tab header
+      background-color: $surface-color;
+    }
+
+    .mat-tab-label {
+      height: 48px;
+      font-weight: $font-weight-medium;
+      // UPDATED: Use text-secondary for inactive tabs
+      color: $text-secondary;
+      opacity: 1;
+
+      &:hover {
+        // UPDATED: Use primary-color for hover state
+        color: $primary-color;
+      }
+    }
+
+    .mat-tab-label-active {
+      // UPDATED: Use primary-color for active tab
+      color: $primary-color;
+    }
+
+    .mat-ink-bar {
+      // UPDATED: Use primary-color for ink bar
+      background-color: $primary-color;
+      height: 3px;
+    }
+
+    .mat-tab-body-content {
+      padding: $spacing-6;
+    }
+  }
+
+  .tab-content {
+    padding: $spacing-4 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .social-settings-content {
+    padding: 0 3px;
+  }
+
+  .header-main h1 {
+    font-size: 20px;
+  }
+}

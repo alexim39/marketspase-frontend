@@ -8,8 +8,9 @@
   padding: 0;
   overflow: hidden;
   // UPDATED: Use shadow variable for consistent shadow
-  box-shadow: $shadow;
+  box-shadow: var(--shadow, 0 2px 10px rgba(0, 0, 0, 0.1));
   border-radius: 8px;
+  background-color: $surface-color;
 
   .professional-title {
     font-size: 24px;
@@ -75,7 +76,7 @@
     justify-content: flex-end;
     padding: 16px 24px;
     // UPDATED: Use gray-50 for actions background
-    background-color: $gray-50;
+    //background-color: $gray-50;
 
     .cancel-button {
       margin-right: 16px;

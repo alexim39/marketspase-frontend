@@ -17,6 +17,11 @@ export interface UserInterface {
     locationBasedAds?: boolean;
     categoryBasedAds?: boolean;
     adCategories?: string[];
+    theme?: {
+      darkMode?: boolean;
+      systemDefault?: boolean;
+      highContrast?: boolean;
+    };
   };
   darkMode?: boolean;
   testimonial?: {

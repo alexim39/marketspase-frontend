@@ -69,57 +69,7 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
       </mat-card>
     </div>
   `,
-  styles: [`
-    .account-container {
-      width: 100%;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .settings-card {
-      width: 100%;
-      border-radius: 8px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    ::ng-deep .mat-expansion-panel {
-      box-shadow: none;
-      border-radius: 0;
-      border-bottom: 1px solid #e5e5e5;
-
-      &:last-child {
-        border-bottom: none;
-      }
-
-      .mat-expansion-panel-header {
-        height: 64px;
-        padding: 0 24px;
-
-        .mat-content {
-          align-items: center;
-        }
-
-        mat-icon {
-          color: #667eea;
-          margin-right: 16px;
-        }
-
-        .mat-expansion-panel-header-title {
-          font-weight: 500;
-        }
-      }
-    }
-
-    @media (max-width: 768px) {
-      .account-container {
-        padding: 3px;;
-      }
-      
-      ::ng-deep .mat-expansion-panel-header {
-        padding: 0 16px;
-      }
-    }
-  `]
+  styleUrls: ['./account.component.scss']
 })
 export class AccountComponent {
  private userService = inject(UserService);

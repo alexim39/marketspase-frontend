@@ -9,6 +9,7 @@
   overflow: hidden;
   // UPDATED: Use shadow variable for consistent shadow
   box-shadow: $shadow;
+  background-color: $surface-color;
   border-radius: 8px;
 
   .profile-title {
@@ -115,7 +116,7 @@
     justify-content: flex-end;
     padding: 16px 24px;
     // UPDATED: Use gray-50 for actions background
-    background-color: $gray-50;
+    //background-color: $gray-50;
 
     .cancel-button {
       margin-right: 16px;
