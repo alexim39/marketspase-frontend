@@ -106,7 +106,7 @@
           @include mixins.flex-center;
           gap: vars.$spacing-2;
           @include mixins.heading-small;
-          color: vars.$text-primary;
+          //color: vars.$text-primary;
 
           mat-icon {
             color: vars.$primary-color;

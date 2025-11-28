@@ -25,8 +25,6 @@ import { ThemeSettingsComponent } from './theme/theme.component';
           <mat-tab label="Notifications & Themes"> 
             @if (user()) {
               
-
-
               <mat-accordion>
                 <mat-expansion-panel [expanded]="true">
                   <mat-expansion-panel-header>

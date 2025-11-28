@@ -42,13 +42,13 @@
   box-shadow: $shadow-sm;
   overflow: hidden;
   // UPDATED: Use surface-color for card background
-  background: $surface-color;
+  background: $surface-color !important;
 
   ::ng-deep .mat-tab-group {
     .mat-tab-header {
       border-bottom: none;
       // UPDATED: Use surface-color for tab header
-      background-color: $surface-color;
+      background-color: $surface-color !important;
     }
 
     .mat-tab-label {
