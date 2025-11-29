@@ -77,6 +77,7 @@ export class CampaignCardComponent {
   }
 
   getProgressColor(progress: number): string {
+    console.log('progress value:', progress);
     if (progress >= 80) return 'success';
     if (progress >= 50) return 'warning';
     return 'danger';

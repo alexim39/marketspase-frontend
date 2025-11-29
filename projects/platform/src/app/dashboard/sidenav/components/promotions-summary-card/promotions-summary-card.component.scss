@@ -3,7 +3,8 @@
 
 .campaigns-summary-card {
   // UPDATED: Use surface-color variable for dynamic theming
-  background: $surface-color;
+  //background: $surface-color;
+  background-color: color-mix(in srgb, $background-color, black 5%);
   border-radius: 12px;
   // UPDATED: Use shadow variable for consistent shadow
   box-shadow: $shadow;
