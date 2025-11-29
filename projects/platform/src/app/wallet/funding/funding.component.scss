@@ -1,19 +1,22 @@
 // Main container styles only - specific styles moved to child components
+@import './../../../styles/variables';
+@import './../../../styles/mixins';
+
 .wallet-funding-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 600px;
-  border-radius: 16px;
+  border-radius: $border-radius-lg;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
+  box-shadow: $shadow-2xl;
 
-  @media (min-width: 768px) {
+  @media (min-width: #{$breakpoint-md}) {
     max-width: 700px;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: #{$breakpoint-lg}) {
     max-width: 800px;
   }
 
@@ -22,9 +25,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 24px 24px 0 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    padding: $spacing-6 $spacing-6 0 $spacing-6;
+    background: var(--gradient-primary);
+    color: $white;
     position: relative;
     overflow: hidden;
 
@@ -35,93 +38,93 @@
       right: -20%;
       width: 200px;
       height: 200px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba($white, 0.1) 0%, transparent 70%);
       border-radius: 50%;
     }
 
     .header-content {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: $spacing-4;
       flex: 1;
       z-index: 2;
 
       .header-icon {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        padding: 12px;
+        background: rgba($white, 0.2);
+        border-radius: $border-radius-md;
+        padding: $spacing-3;
         backdrop-filter: blur(10px);
 
         mat-icon {
-          font-size: 28px;
-          width: 28px;
-          height: 28px;
-          color: white;
+          font-size: $font-size-2xl;
+          width: $font-size-2xl;
+          height: $font-size-2xl;
+          color: $white;
         }
       }
 
       .header-text {
         h2 {
-          font-size: 24px;
-          font-weight: 700;
-          margin: 0 0 4px 0;
-          color: white;
+          font-size: $font-size-2xl;
+          font-weight: $font-weight-bold;
+          margin: 0 0 $spacing-1 0;
+          color: $white;
         }
 
         p {
-          font-size: 14px;
+          font-size: $font-size-sm;
           margin: 0;
-          color: rgba(255, 255, 255, 0.9);
-          font-weight: 400;
+          color: rgba($white, 0.9);
+          font-weight: $font-weight-normal;
         }
       }
     }
 
     .close-btn {
-      color: white;
-      background: rgba(255, 255, 255, 0.1);
+      color: $white;
+      background: rgba($white, 0.1);
       backdrop-filter: blur(10px);
       z-index: 2;
-      transition: all 0.3s ease;
+      transition: all $transition-normal;
       width: 20px;
       height: 20px;
+      
       mat-icon {
         font-size: 10px;
         position: relative;
         right: 4px;
         top: 3px;
       }
-      
 
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba($white, 0.2);
         transform: scale(1.05);
       }
     }
 
-    @media (max-width: 767px) {
-      padding: 20px 20px 0 20px;
+    @media (max-width: #{$breakpoint-md - 1px}) {
+      padding: $spacing-5 $spacing-5 0 $spacing-5;
 
       .header-content {
-        gap: 12px;
+        gap: $spacing-3;
 
         .header-icon {
-          padding: 10px;
+          padding: $spacing-2;
 
           mat-icon {
-            font-size: 24px;
-            width: 24px;
-            height: 24px;
+            font-size: $font-size-xl;
+            width: $font-size-xl;
+            height: $font-size-xl;
           }
         }
 
         .header-text {
           h2 {
-            font-size: 20px;
+            font-size: $font-size-xl;
           }
 
           p {
-            font-size: 13px;
+            font-size: $font-size-sm;
           }
         }
       }
@@ -131,11 +134,10 @@
   // Main Content
   .dialog-content {
     flex: 1;
-    padding: 32px 24px 24px 24px;
-    background: linear-gradient(145deg, #f8f9fa 0%, #ffffff 100%);
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
+    padding: $spacing-8 $spacing-6 $spacing-6 $spacing-6;
+    background: linear-gradient(145deg, $gray-50 0%, $white 100%);
+    @include flex-column;
+    gap: $spacing-8;
     overflow-y: auto;
     max-height: calc(90vh - 120px);
 
@@ -144,59 +146,58 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: #f1f1f1;
+      background: $gray-100;
       border-radius: 3px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #667eea;
+      background: $primary-color-hex;
       border-radius: 3px;
     }
 
-    @media (max-width: 767px) {
-      padding: 24px 20px 20px 20px;
-      gap: 24px;
+    @media (max-width: #{$breakpoint-md - 1px}) {
+      padding: $spacing-6 $spacing-5 $spacing-5 $spacing-5;
+      gap: $spacing-6;
     }
   }
 
   // Tips Section (stays in main component)
   .tips-section {
-    //background-color: gray;
     .tips-card {
-      background: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%);
-      border-radius: 12px;
-      padding: 20px;
-      border-left: 4px solid #0284c7;
+      background: linear-gradient(145deg, $gray-50 0%, $gray-100 100%);
+      border-radius: $border-radius-md;
+      padding: $spacing-5;
+      border-left: $border-width-2 solid $info-color;
 
       .tips-header {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
+        gap: $spacing-3;
+        margin-bottom: $spacing-3;
 
         mat-icon {
-          color: #0284c7;
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
+          color: $info-color;
+          font-size: $font-size-xl;
+          width: $font-size-xl;
+          height: $font-size-xl;
         }
 
         span {
-          font-size: 16px;
-          font-weight: 600;
-          color: #0369a1;
+          font-size: $font-size-base;
+          font-weight: $font-weight-semibold;
+          color: $info-color;
         }
       }
 
       .tips-list {
         margin: 0;
-        padding-left: 20px;
-        color: #075985;
+        padding-left: $spacing-5;
+        color: $text-secondary;
 
         li {
-          margin-bottom: 8px;
-          font-size: 14px;
-          line-height: 1.4;
+          margin-bottom: $spacing-2;
+          font-size: $font-size-sm;
+          line-height: $line-height-normal;
 
           &:last-child {
             margin-bottom: 0;

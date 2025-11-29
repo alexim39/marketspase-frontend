@@ -1,14 +1,21 @@
+// create-campaign.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .campaign-creation-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  // UPDATED: Use background-color variable for dynamic theming
+  background: $background-color;
   display: flex;
   flex-direction: column;
   font-family: 'Inter', sans-serif;
 
   .campaign-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    // UPDATED: Use gradient-primary variable for dynamic theming
+    background: $gradient-primary;
     color: white;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    // UPDATED: Use primary-color with rgba for dynamic theming
+    box-shadow: 0 4px 20px rgba($primary-color, 0.3);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -97,7 +104,8 @@
 
       .step-label {
         font-size: 14px;
-        color: #666;
+        // UPDATED: Use text-secondary variable for dynamic theming
+        color: $text-secondary;
         white-space: nowrap;
         text-align: center;
       }
@@ -106,8 +114,10 @@
         background-color: #4CAF50;
       }
       &.current .step-number {
-        background-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        // UPDATED: Use primary-color variable for dynamic theming
+        background-color: $primary-color;
+        // UPDATED: Use primary-color with rgba for dynamic theming
+        box-shadow: 0 4px 12px rgba($primary-color, 0.4);
         transform: scale(1.1);
       }
     }

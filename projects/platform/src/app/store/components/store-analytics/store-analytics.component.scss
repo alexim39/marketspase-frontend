@@ -1,0 +1,450 @@
+// components/store-analytics/store-analytics.component.scss
+@use '../../../../styles/mixins' as mixins;
+@use '../../../../styles/variables' as vars;
+
+.store-analytics {
+  position: relative;
+
+  .analytics-header {
+    margin-bottom: vars.$spacing-6;
+
+    .header-content {
+      @include mixins.flex-between;
+      align-items: flex-start;
+
+      @include mixins.mobile {
+        flex-direction: column;
+        gap: vars.$spacing-4;
+      }
+
+      .header-left {
+        h2 {
+          @include mixins.heading-medium;
+          margin: 0 0 vars.$spacing-1 0;
+          color: vars.$text-primary;
+        }
+
+        p {
+          @include mixins.body-medium;
+          color: vars.$text-secondary;
+          margin: 0;
+        }
+      }
+
+      .header-right {
+        @include mixins.flex-center;
+        gap: vars.$spacing-3;
+
+        .timeframe-select {
+          width: 160px;
+        }
+
+        .real-time-indicator {
+          @include mixins.flex-center;
+          gap: vars.$spacing-1;
+          background: rgba(vars.$success-color, 0.1);
+          color: vars.$success-color;
+          padding: vars.$spacing-1 vars.$spacing-2;
+          border-radius: vars.$border-radius-full;
+          font-size: vars.$font-size-xs;
+          font-weight: vars.$font-weight-semibold;
+
+          .live-dot {
+            width: 8px;
+            height: 8px;
+            background: vars.$success-color;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+          }
+        }
+      }
+    }
+  }
+
+  .analytics-tabs {
+    margin-bottom: vars.$spacing-6;
+    border-bottom: vars.$border-width solid vars.$border-color;
+
+    .analytics-tab {
+      @include mixins.flex-center;
+      gap: vars.$spacing-2;
+      min-width: 120px;
+
+      .tab-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  .analytics-content {
+    .overview-tab {
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: vars.$spacing-4;
+        margin-bottom: vars.$spacing-6;
+      }
+
+      .metric-card {
+        @include mixins.card-base;
+        @include mixins.card-hover;
+
+        .metric-header {
+          @include mixins.flex-between;
+          margin-bottom: vars.$spacing-4;
+
+          .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: vars.$border-radius-md;
+            @include mixins.flex-center;
+          }
+
+          .metric-trend {
+            @include mixins.flex-center;
+            gap: vars.$spacing-1;
+            font-size: vars.$font-size-xs;
+            font-weight: vars.$font-weight-semibold;
+            padding: vars.$spacing-1 vars.$spacing-2;
+            border-radius: vars.$border-radius-full;
+
+            &.up {
+              background: rgba(vars.$success-color, 0.1);
+              color: vars.$success-color;
+            }
+
+            &.down {
+              background: rgba(vars.$error-color, 0.1);
+              color: vars.$error-color;
+            }
+
+            mat-icon {
+              font-size: 14px;
+              width: 14px;
+              height: 14px;
+            }
+          }
+        }
+
+        .metric-content {
+          .metric-value {
+            @include mixins.heading-large;
+            margin: 0 0 vars.$spacing-1 0;
+            color: vars.$text-primary;
+          }
+
+          .metric-label {
+            @include mixins.body-medium;
+            font-weight: vars.$font-weight-semibold;
+            color: vars.$text-primary;
+            margin: 0 0 vars.$spacing-1 0;
+          }
+
+          .metric-description {
+            @include mixins.body-small;
+            color: vars.$text-secondary;
+            margin: 0 0 vars.$spacing-4 0;
+          }
+        }
+
+        .metric-progress {
+          .progress-labels {
+            @include mixins.flex-between;
+            margin-top: vars.$spacing-1;
+
+            .current {
+              @include mixins.body-small;
+              font-weight: vars.$font-weight-semibold;
+              color: vars.$text-primary;
+            }
+
+            .target {
+              @include mixins.caption;
+              color: vars.$text-secondary;
+            }
+          }
+        }
+      }
+
+      .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: vars.$spacing-4;
+        margin-bottom: vars.$spacing-6;
+
+        @include mixins.mobile {
+          grid-template-columns: 1fr;
+        }
+
+        .chart-card {
+          .chart-placeholder {
+            @include mixins.flex-column-center;
+            padding: vars.$spacing-12;
+            text-align: center;
+            color: vars.$text-secondary;
+
+            mat-icon {
+              font-size: 48px;
+              width: 48px;
+              height: 48px;
+              color: vars.$gray-400;
+              margin-bottom: vars.$spacing-3;
+            }
+
+            p {
+              @include mixins.body-medium;
+              margin: 0 0 vars.$spacing-1 0;
+            }
+
+            small {
+              @include mixins.caption;
+            }
+          }
+        }
+      }
+
+      .quick-stats {
+        .stat-row {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: vars.$spacing-4;
+
+          .stat-card {
+            .stat-content {
+              @include mixins.flex-center;
+              gap: vars.$spacing-3;
+
+              .stat-icon {
+                font-size: 32px;
+                width: 32px;
+                height: 32px;
+                color: vars.$primary-color;
+              }
+
+              .stat-details {
+                h3 {
+                  @include mixins.heading-small;
+                  margin: 0 0 vars.$spacing-1 0;
+                  color: vars.$text-primary;
+                }
+
+                p {
+                  @include mixins.body-small;
+                  color: vars.$text-secondary;
+                  margin: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Other tabs styling
+    .sales-tab,
+    .traffic-tab,
+    .products-tab,
+    .promoters-tab {
+      .sales-overview {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: vars.$spacing-4;
+        margin-bottom: vars.$spacing-6;
+
+        @include mixins.mobile {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .revenue-stats {
+        .revenue-item {
+          @include mixins.flex-between;
+          padding: vars.$spacing-3 0;
+          border-bottom: 1px solid vars.$border-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .label {
+            @include mixins.body-medium;
+            color: vars.$text-secondary;
+          }
+
+          .value {
+            @include mixins.body-large;
+            font-weight: vars.$font-weight-semibold;
+            color: vars.$text-primary;
+          }
+        }
+      }
+
+      .products-list,
+      .promoters-list {
+        .product-item,
+        .promoter-item {
+          @include mixins.flex-between;
+          padding: vars.$spacing-3 0;
+          border-bottom: 1px solid vars.$border-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .product-info,
+          .promoter-info {
+            @include mixins.flex-column;
+            gap: vars.$spacing-1;
+
+            .product-name,
+            .promoter-name {
+              @include mixins.body-medium;
+              font-weight: vars.$font-weight-semibold;
+              color: vars.$text-primary;
+            }
+
+            .product-stats,
+            .promoter-stats {
+              @include mixins.caption;
+              color: vars.$text-secondary;
+            }
+          }
+
+          .product-revenue,
+          .promoter-earnings {
+            text-align: right;
+
+            .revenue,
+            .earnings {
+              @include mixins.body-medium;
+              font-weight: vars.$font-weight-semibold;
+              color: vars.$primary-color;
+              display: block;
+            }
+
+            .conversion {
+              @include mixins.caption;
+              color: vars.$text-secondary;
+              display: block;
+            }
+          }
+        }
+      }
+
+      .products-performance {
+        .performance-item {
+          @include mixins.flex-between;
+          padding: vars.$spacing-3 0;
+          border-bottom: 1px solid vars.$border-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .product-details {
+            @include mixins.flex-column;
+            gap: vars.$spacing-1;
+            flex: 1;
+
+            .product-name {
+              @include mixins.body-medium;
+              font-weight: vars.$font-weight-semibold;
+              color: vars.$text-primary;
+            }
+
+            .product-stats {
+              @include mixins.caption;
+              color: vars.$text-secondary;
+            }
+          }
+
+          .performance-bar {
+            width: 100px;
+            height: 8px;
+            background: vars.$gray-200;
+            border-radius: vars.$border-radius-full;
+            overflow: hidden;
+
+            .bar-fill {
+              height: 100%;
+              background: vars.$primary-color;
+              border-radius: vars.$border-radius-full;
+              transition: width vars.$transition-normal;
+            }
+          }
+        }
+      }
+
+      .traffic-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: vars.$spacing-4;
+
+        .traffic-item {
+          text-align: center;
+          padding: vars.$spacing-4;
+
+          h3 {
+            @include mixins.body-medium;
+            color: vars.$text-secondary;
+            margin: 0 0 vars.$spacing-2 0;
+          }
+
+          p {
+            @include mixins.heading-medium;
+            color: vars.$text-primary;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .loading-overlay {
+    @include mixins.flex-center;
+    gap: vars.$spacing-2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(vars.$surface-color, 0.9);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    color: vars.$text-secondary;
+
+    span {
+      @include mixins.body-medium;
+      font-weight: vars.$font-weight-medium;
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Responsive design
+@include mixins.mobile {
+  .store-analytics {
+    .metrics-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .charts-row {
+      grid-template-columns: 1fr !important;
+    }
+
+    .sales-overview {
+      grid-template-columns: 1fr !important;
+    }
+  }
+}

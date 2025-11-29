@@ -1,23 +1,26 @@
+@import './../../../../../styles/variables';
+@import './../../../../../styles/mixins';
+
 .dialog-actions {
   display: flex;
-  gap: 12px;
-  padding: 24px;
-  background: white;
-  border-top: 1px solid #e5e7eb;
+  gap: $spacing-3;
+  padding: $spacing-6;
+  background: $surface-color;
+  border-top: $border-width solid $border-color;
   justify-content: flex-end;
 
   .cancel-btn {
-    color: #6b7280;
-    border: 2px solid #e5e7eb;
-    padding: 12px 24px;
-    font-weight: 600;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    color: $text-secondary;
+    border: $border-width-2 solid $border-color;
+    padding: $spacing-3 $spacing-6;
+    font-weight: $font-weight-semibold;
+    border-radius: $border-radius-md;
+    transition: all $transition-normal;
 
     &:hover:not(:disabled) {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      color: #374151;
+      background: $gray-50;
+      border-color: $gray-300;
+      color: $text-primary;
     }
 
     &:disabled {
@@ -26,21 +29,21 @@
     }
 
     mat-icon {
-      margin-right: 8px;
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      margin-right: $spacing-2;
+      font-size: $font-size-lg;
+      width: $font-size-lg;
+      height: $font-size-lg;
     }
   }
 
   .pay-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 12px 32px;
-    font-weight: 700;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-    transition: all 0.3s ease;
+    background: var(--gradient-primary);
+    color: $white;
+    padding: $spacing-3 $spacing-8;
+    font-weight: $font-weight-bold;
+    border-radius: $border-radius-md;
+    box-shadow: 0 4px 20px rgba($primary-color-hex, 0.3);
+    transition: all $transition-normal;
     position: relative;
     overflow: hidden;
 
@@ -51,13 +54,13 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba($white, 0.2), transparent);
       transition: left 0.5s;
     }
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 28px rgba($primary-color-hex, 0.4);
 
       &::before {
         left: 100%;
@@ -68,23 +71,23 @@
       opacity: 0.7;
       cursor: not-allowed;
       transform: none;
-      box-shadow: 0 2px 12px rgba(102, 126, 234, 0.2);
+      box-shadow: 0 2px 12px rgba($primary-color-hex, 0.2);
     }
 
     mat-icon {
-      margin-right: 8px;
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      margin-right: $spacing-2;
+      font-size: $font-size-lg;
+      width: $font-size-lg;
+      height: $font-size-lg;
     }
 
     mat-progress-spinner {
-      margin-right: 8px;
+      margin-right: $spacing-2;
     }
   }
 
-  @media (max-width: 767px) {
-    padding: 20px;
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    padding: $spacing-5;
     flex-direction: column;
 
     button {

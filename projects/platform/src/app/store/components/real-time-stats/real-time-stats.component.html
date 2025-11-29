@@ -1,0 +1,70 @@
+<!-- components/real-time-stats/real-time-stats.component.html -->
+@if (store()) {
+  <div class="real-time-stats">
+    <mat-card class="stats-card">
+      <mat-card-content>
+        <div class="stats-header">
+          <div class="header-left">
+            <mat-icon class="live-indicator">live_tv</mat-icon>
+            <h3 class="stats-title">Live Store Activity</h3>
+            <div class="live-pulse"></div>
+            <span class="live-badge">LIVE</span>
+          </div>
+          <div class="header-right">
+            <span class="last-updated">Updated just now</span>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          @for (stat of realTimeStats(); track trackByStatLabel($index, stat)) {
+            <div class="stat-item" [style.border-color]="stat.color">
+              <div class="stat-header">
+                <div class="stat-icon-container" [style.background]="stat.color + '15'">
+                  <mat-icon class="stat-icon" [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+                </div>
+                <div class="stat-trend" [style.color]="getTrendColor(stat.trend)">
+                  <mat-icon class="trend-icon">{{ getTrendIcon(stat.trend) }}</mat-icon>
+                  <span class="trend-value">{{ stat.change }}%</span>
+                </div>
+              </div>
+
+              <div class="stat-content">
+                <div class="stat-value">{{ formatValue(stat) }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+                <div class="stat-description">{{ stat.description }}</div>
+              </div>
+
+              <div class="stat-visualization">
+                <div class="activity-bar">
+                  <div class="activity-fill" 
+                       [style.width.%]="getWidthPercentage(stat)"
+                       [style.background]="stat.color">
+                  </div>
+                </div>
+                <div class="activity-dots">
+                  @for (dot of [1,2,3,4,5]; track dot) {
+                    <div class="activity-dot" 
+                         [class.active]="isDotActive(dot, stat.value)"
+                         [style.background]="stat.color">
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="stats-footer">
+          <div class="connection-status">
+            <mat-icon class="connection-icon">wifi</mat-icon>
+            <span class="connection-text">Connected to live data</span>
+          </div>
+          <div class="update-frequency">
+            <mat-icon class="frequency-icon">schedule</mat-icon>
+            <span class="frequency-text">Updates every 5s</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

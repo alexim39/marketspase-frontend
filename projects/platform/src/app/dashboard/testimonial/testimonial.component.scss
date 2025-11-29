@@ -1,0 +1,449 @@
+@import './../../../styles/variables';
+@import './../../../styles/mixins';
+
+.testimonials-container {
+  // UPDATED: Use surface-color for background
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  padding: $spacing-8;
+  box-shadow: $shadow-md;
+  // UPDATED: Use border-color for border
+  border: 1px solid $border-color;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  // UPDATED: Use gradient-primary for top accent
+  background: $gradient-primary;
+}
+
+.testimonials-header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+}
+
+.section-title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  // UPDATED: Use text-primary for title
+  color: $text-primary;
+  margin: 0 0 $spacing-2 0;
+  line-height: $line-height-tight;
+  letter-spacing: -0.025em;
+}
+
+.section-subtitle {
+  font-size: $font-size-base;
+  // UPDATED: Use text-secondary for subtitle
+  color: $text-secondary;
+  margin: 0;
+  font-weight: $font-weight-medium;
+}
+
+.testimonial-carousel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-6;
+  margin-bottom: $spacing-6;
+  position: relative;
+}
+
+.nav-button {
+  @include flex-center;
+  width: 3rem;
+  height: 3rem;
+  // UPDATED: Use surface-color for background
+  background: $surface-color;
+  // UPDATED: Use border-color for border
+  border: 2px solid $border-color;
+  border-radius: $border-radius-full;
+  cursor: pointer;
+  // UPDATED: Use text-secondary for color
+  color: $text-secondary;
+  // UPDATED: Use transition variable
+  transition: $transition-normal;
+  flex-shrink: 0;
+}
+
+.nav-button:hover:not(:disabled) {
+  // UPDATED: Use primary-color for hover states
+  border-color: $primary-color;
+  color: $primary-color;
+  transform: scale(1.05);
+  box-shadow: $shadow-md;
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+}
+
+.nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.testimonial-card {
+  flex: 1;
+  // UPDATED: Use color-mix for gradient background
+  background: color-mix(in srgb, $primary-color 8%, $surface-color);
+  border-radius: $border-radius-lg;
+  padding: $spacing-8;
+  // UPDATED: Use border-color for border
+  border: 1px solid $border-color;
+  // UPDATED: Use transition variable
+  transition: $transition-normal;
+  position: relative;
+}
+
+.testimonial-card::before {
+  content: '"';
+  position: absolute;
+  top: $spacing-4;
+  left: $spacing-6;
+  font-size: 4rem;
+  // UPDATED: Use primary-color for quote mark
+  color: $primary-color;
+  opacity: 0.2;
+  font-family: serif;
+  line-height: 1;
+}
+
+.card-content {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-6;
+}
+
+.testimonial-avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-image {
+  width: 4rem;
+  height: 4rem;
+  border-radius: $border-radius-full;
+  object-fit: cover;
+  // UPDATED: Use surface-color for border
+  border: 3px solid $surface-color;
+  box-shadow: $shadow-md;
+}
+
+.avatar-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 1.5rem;
+  height: 1.5rem;
+  // UPDATED: Use primary-color for badge
+  background: $primary-color;
+  color: $white;
+  border-radius: $border-radius-full;
+  @include flex-center;
+  // UPDATED: Use surface-color for border
+  border: 2px solid $surface-color;
+}
+
+.testimonial-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.testimonial-rating {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-3;
+
+  .stars {
+    display: flex;
+    
+    mat-icon {
+      color: #ffc107;
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+  }
+
+  .rating-value {
+    // UPDATED: Use text-secondary for rating value
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.testimonial-message {
+  font-size: $font-size-lg;
+  line-height: $line-height-relaxed;
+  // UPDATED: Use text-primary for message
+  color: $text-primary;
+  margin: 0 0 $spacing-6 0;
+  font-weight: $font-weight-medium;
+  font-style: italic;
+}
+
+.testimonial-footer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.author-name {
+  font-weight: $font-weight-semibold;
+  // UPDATED: Use text-primary for author name
+  color: $text-primary;
+  font-size: $font-size-base;
+  font-style: normal;
+}
+
+.author-location {
+  font-size: $font-size-sm;
+  // UPDATED: Use text-tertiary for location
+  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.progress-bar {
+  height: 4px;
+  // UPDATED: Use border-color for progress background
+  background: $border-color;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  // UPDATED: Use gradient-primary for progress fill
+  background: $gradient-primary;
+  transform-origin: left;
+  transition: transform 0.1s linear;
+}
+
+.testimonial-indicators {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-2;
+}
+
+.indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: $border-radius-full;
+  border: none;
+  // UPDATED: Use border-color for inactive indicators
+  background: $border-color;
+  cursor: pointer;
+  // UPDATED: Use transition variable
+  transition: $transition-normal;
+}
+
+.indicator.active {
+  // UPDATED: Use primary-color for active indicator
+  background: $primary-color;
+  transform: scale(1.2);
+}
+
+.indicator:hover {
+  // UPDATED: Use text-secondary for hover
+  background: $text-secondary;
+  transform: scale(1.1);
+}
+
+/* Loading State */
+.loading-skeleton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-6;
+  padding: $spacing-8;
+}
+
+.skeleton-avatar {
+  width: 4rem;
+  height: 4rem;
+  border-radius: $border-radius-full;
+  // UPDATED: Use border-color for skeleton
+  background: linear-gradient(90deg, $border-color 25%, transparent 37%, $border-color 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.skeleton-line {
+  height: 1rem;
+  border-radius: $border-radius;
+  // UPDATED: Use border-color for skeleton
+  background: linear-gradient(90deg, $border-color 25%, transparent 37%, $border-color 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-line--long { width: 100%; }
+.skeleton-line--medium { width: 70%; }
+.skeleton-line--short { width: 40%; }
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error State */
+.error-state {
+  text-align: center;
+  padding: $spacing-12 $spacing-4;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: $spacing-4;
+}
+
+.error-message {
+  // UPDATED: Use text-secondary for error message
+  color: $text-secondary;
+  margin-bottom: $spacing-6;
+  font-size: $font-size-lg;
+}
+
+.retry-button {
+  // UPDATED: Use button-primary mixin
+  @include button-primary;
+  color: $white;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: $spacing-12 $spacing-4;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: $spacing-4;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  // UPDATED: Use text-primary for empty title
+  color: $text-primary;
+  margin: 0 0 $spacing-2 0;
+}
+
+.empty-description {
+  // UPDATED: Use text-secondary for empty description
+  color: $text-secondary;
+  font-size: $font-size-base;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .testimonials-container {
+    padding: $spacing-6;
+  }
+
+  .section-title {
+    font-size: $font-size-2xl;
+  }
+}
+
+@media (max-width: 768px) {
+  .testimonials-container {
+    padding: $spacing-4;
+  }
+
+  .section-title {
+    font-size: $font-size-xl;
+  }
+
+  .testimonial-carousel {
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  .nav-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .card-content {
+    flex-direction: column;
+    text-align: center;
+    gap: $spacing-4;
+  }
+
+  .testimonial-message {
+    font-size: $font-size-base;
+  }
+
+  .nav-button--prev {
+    order: -1;
+    align-self: flex-start;
+  }
+
+  .nav-button--next {
+    order: 1;
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .testimonials-container {
+    padding: $spacing-4 $spacing-3;
+  }
+
+  .section-title {
+    font-size: $font-size-lg;
+  }
+
+  .testimonial-card {
+    padding: $spacing-6 $spacing-4;
+  }
+}
+
+/* Focus States for Accessibility */
+.nav-button:focus-visible,
+.indicator:focus-visible,
+.retry-button:focus-visible {
+  // UPDATED: Use primary-color for focus outline
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .nav-button,
+  .indicator,
+  .testimonial-card,
+  .progress-fill {
+    transition: none;
+  }
+
+  .skeleton-loading {
+    animation: none;
+  }
+}

@@ -1,132 +1,72 @@
-// SCSS Variables for consistent theming
-$primary-color: #667eea;
-$primary-light: #42a5f5;
-$primary-dark: #1565c0;
-$accent-color: #764ba2;
-$success-color: #4caf50;
-$warning-color: #ff9800;
-$error-color: #f44336;
-
-// WhatsApp brand colors for context
-$whatsapp-green: #25d366;
-$whatsapp-dark: #128c7e;
-
-// Neutral colors
-$background-light: #fafafa;
-$background-white: #ffffff;
-$surface-elevation: #f5f5f5;
-$text-primary: #212121;
-$text-secondary: #757575;
-$text-disabled: #bdbdbd;
-$border-color: #e0e0e0;
-$shadow-light: rgba(0, 0, 0, 0.08);
-$shadow-medium: rgba(0, 0, 0, 0.16);
-$shadow-heavy: rgba(0, 0, 0, 0.24);
-
-// Spacing scale
-$spacing-xs: 0.25rem;  // 4px
-$spacing-sm: 0.5rem;   // 8px
-$spacing-md: 1rem;     // 16px
-$spacing-lg: 1.5rem;   // 24px
-$spacing-xl: 2rem;     // 32px
-$spacing-xxl: 3rem;    // 48px
-$spacing-xxxl: 4rem;   // 64px
-
-// Breakpoints for responsive design
-$mobile: 480px;
-$tablet: 768px;
-$desktop: 1024px;
-$large-desktop: 1200px;
-
-// Mixins
-@mixin elevation($level: 1) {
-  @if $level == 1 {
-    box-shadow: 0 2px 4px $shadow-light;
-  } @else if $level == 2 {
-    box-shadow: 0 4px 8px $shadow-light, 0 2px 4px $shadow-medium;
-  } @else if $level == 3 {
-    box-shadow: 0 8px 16px $shadow-medium, 0 4px 8px $shadow-heavy;
-  }
-}
-
-@mixin glass-effect {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-@mixin smooth-transition($property: all, $duration: 0.3s) {
-  transition: $property $duration cubic-bezier(0.4, 0.0, 0.2, 1);
-}
-
-@mixin hover-lift {
-  @include smooth-transition(transform);
-  
-  &:hover {
-    transform: translateY(-2px);
-  }
-}
+// UPDATED: Import theme variables and mixins
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
 
 // Main container styling
 .contact-container {
   min-height: 100vh;
+  // UPDATED: Use theme colors for gradient background
   background: linear-gradient(135deg, 
     rgba($primary-color, 0.05) 0%, 
-    rgba($whatsapp-green, 0.03) 50%, 
+    rgba($success-color, 0.03) 50%, 
     rgba($primary-light, 0.05) 100%
-  );
-  padding: $spacing-lg $spacing-md;
+  ), $background-color;
+  padding: $spacing-6 $spacing-4;
   
-  @media (max-width: $mobile) {
-    padding: $spacing-md $spacing-sm;
+  @include mobile {
+    padding: $spacing-4 $spacing-2;
   }
 
-  @media (min-width: $tablet) {
-    padding: $spacing-xl $spacing-lg;
+  @include tablet {
+    padding: $spacing-8 $spacing-6;
   }
 
-  @media (min-width: $desktop) {
-    padding: $spacing-xxl $spacing-xl;
+  @include desktop {
+    padding: $spacing-12 $spacing-8;
   }
 }
 
 // Header section styling
 .contact-header {
   text-align: center;
-  margin-bottom: $spacing-xxl;
+  margin-bottom: $spacing-12;
 
-  position: relative; /* allow absolute placement of actions */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 1rem 0;
+  gap: $spacing-4;
+  padding: $spacing-4 0;
+  border: 1px solid rgba($white, 0.12);
+  border-radius: 15px;
+  //background: linear-gradient(180deg, rgba($white, 0.8) 0%, rgba($white, 0.6) 100%);
+  box-shadow: $shadow-md;
   
   .header-content {
     max-width: 600px;
     margin: 0 auto;
-    padding: $spacing-xl;
+    padding: $spacing-8;
 
     flex: 1 1 auto;
     min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    gap: $spacing-1;
     
-    @include glass-effect;
-    @include elevation(2);
-    border-radius: 24px;
+    @include card-base;
+    @include card-hover;
+    border-radius: $border-radius-xl;
     
-    @media (max-width: $mobile) {
-      padding: $spacing-lg $spacing-md;
-      border-radius: 16px;
+    @include mobile {
+      padding: $spacing-6 $spacing-4;
+      border-radius: $border-radius-lg;
     }
 
-     .header-actions {
+    .header-actions {
       width: 100%;
       justify-content: flex-start;
-      margin-top: 0.6rem;
+      margin-top: $spacing-2;
     }
   }
 
@@ -136,9 +76,9 @@ $large-desktop: 1200px;
       width: 4rem;
       height: 4rem;
       color: $primary-color;
-      margin-bottom: $spacing-lg;
+      margin-bottom: $spacing-6;
       
-      @media (max-width: $mobile) {
+      @include mobile {
         font-size: 3rem;
         width: 3rem;
         height: 3rem;
@@ -147,72 +87,58 @@ $large-desktop: 1200px;
   }
 
   .header-title {
-    font-size: 2.5rem;
-    font-weight: 700;
+    @include heading-large;
     color: $text-primary !important;
-    margin-bottom: $spacing-md;
+    margin-bottom: $spacing-4;
     letter-spacing: -0.02em;
     
-    @media (max-width: $mobile) {
-      font-size: 2rem;
+    @include mobile {
+      font-size: $font-size-3xl;
     }
     
-    @media (min-width: $desktop) {
-      font-size: 3rem;
+    @include desktop {
+      font-size: $font-size-4xl;
     }
   }
 
   .header-subtitle {
-    font-size: 1.1rem;
+    @include body-large;
     color: $text-secondary !important;
-    line-height: 1.6;
     margin: 0;
-    font-weight: 400;
-    
-    @media (max-width: $mobile) {
-      font-size: 1rem;
-    }
   }
 }
 
 // Contact card styling
 .contact-card {
   max-width: 800px;
-  margin: 0 auto $spacing-xxl auto;
-  border-radius: 20px;
-  @include elevation(3);
+  margin: 0 auto $spacing-12 auto;
+  border-radius: $border-radius-lg;
+  @include card-base;
+  @include card-hover;
   overflow: hidden;
-  border: none;
   
-  @include smooth-transition(box-shadow);
-  
-  &:hover {
-    box-shadow: 0 12px 24px $shadow-medium, 0 6px 12px $shadow-heavy;
-  }
-  
-  @media (max-width: $mobile) {
-    border-radius: 16px;
-    margin-bottom: $spacing-xl;
+  @include mobile {
+    border-radius: $border-radius-md;
+    margin-bottom: $spacing-8;
   }
 }
 
 .card-header {
-  background: linear-gradient(135deg, $primary-color 0%, $accent-color 100%);
-  color: white;
-  padding: $spacing-xl;
+  background: $gradient-primary;
+  color: $white;
+  padding: $spacing-8;
   text-align: center;
   
-  @media (max-width: $mobile) {
-    padding: $spacing-lg;
+  @include mobile {
+    padding: $spacing-6;
   }
   
   .card-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-sm;
-    font-size: 1.5rem;
-    font-weight: 600;
+    gap: $spacing-2;
+    @include heading-small;
     margin: 0;
     
     mat-icon {
@@ -221,8 +147,8 @@ $large-desktop: 1200px;
       height: 1.75rem;
     }
     
-    @media (max-width: $mobile) {
-      font-size: 1.3rem;
+    @include mobile {
+      font-size: $font-size-xl;
       
       mat-icon {
         font-size: 1.5rem;
@@ -233,36 +159,31 @@ $large-desktop: 1200px;
   }
   
   .card-subtitle {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1rem;
-    margin-top: $spacing-sm;
-    font-weight: 400;
-    
-    @media (max-width: $mobile) {
-      font-size: 0.9rem;
-    }
+    color: rgba($white, 0.9);
+    @include body-medium;
+    margin-top: $spacing-2;
   }
 }
 
 .card-content {
-  padding: $spacing-xxl;
+  padding: $spacing-12;
   
-  @media (max-width: $mobile) {
-    padding: $spacing-lg;
+  @include mobile {
+    padding: $spacing-6;
   }
   
-  @media (min-width: $tablet) {
-    padding: $spacing-xxxl;
+  @include tablet {
+    padding: $spacing-16;
   }
 }
 
 // Form styling
 .contact-form {
   .form-section {
-    margin-bottom: $spacing-xl;
+    margin-bottom: $spacing-8;
     
     &:last-of-type {
-      margin-bottom: $spacing-lg;
+      margin-bottom: $spacing-6;
     }
   }
 
@@ -273,19 +194,19 @@ $large-desktop: 1200px;
   // Custom Material form field styling
   ::ng-deep .mat-mdc-form-field {
     .mat-mdc-form-field-flex {
-      border-radius: 12px;
+      border-radius: $border-radius;
     }
     
     .mat-mdc-form-field-outline {
-      border-radius: 12px;
+      border-radius: $border-radius;
     }
     
     .mat-mdc-form-field-label-wrapper {
       .mat-mdc-form-field-label {
         display: flex;
         align-items: center;
-        gap: $spacing-xs;
-        font-weight: 500;
+        gap: $spacing-1;
+        font-weight: $font-weight-medium;
         
         mat-icon {
           font-size: 1rem;
@@ -300,7 +221,7 @@ $large-desktop: 1200px;
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
         border-color: $primary-color;
-        border-width: 2px;
+        border-width: $border-width-2;
       }
     }
     
@@ -308,8 +229,8 @@ $large-desktop: 1200px;
       .mat-mdc-form-field-error {
         display: flex;
         align-items: center;
-        gap: $spacing-xs;
-        font-size: 0.85rem;
+        gap: $spacing-1;
+        font-size: $font-size-xs;
         
         mat-icon {
           font-size: 1rem;
@@ -321,8 +242,7 @@ $large-desktop: 1200px;
     
     .mat-mdc-form-field-hint-wrapper {
       .mat-mdc-form-field-hint {
-        font-size: 0.8rem;
-        color: $text-secondary;
+        @include caption;
       }
     }
   }
@@ -330,13 +250,13 @@ $large-desktop: 1200px;
 
 // Reason dropdown styling
 .reason-option {
-  padding: $spacing-md !important;
+  padding: $spacing-4 !important;
   min-height: 60px !important;
   
   .reason-content {
     display: flex;
     align-items: flex-start;
-    gap: $spacing-md;
+    gap: $spacing-4;
     width: 100%;
     
     .reason-icon {
@@ -352,17 +272,17 @@ $large-desktop: 1200px;
       
       .reason-label {
         display: block;
-        font-weight: 500;
+        font-weight: $font-weight-medium;
         color: $text-primary;
-        font-size: 0.95rem;
+        font-size: $font-size-sm;
       }
       
       .reason-desc {
         display: block;
         color: $text-secondary;
-        font-size: 0.8rem;
+        font-size: $font-size-xs;
         margin-top: 2px;
-        line-height: 1.3;
+        line-height: $line-height-normal;
       }
     }
   }
@@ -370,8 +290,8 @@ $large-desktop: 1200px;
 
 // Progress bar styling
 .progress-bar {
-  margin: $spacing-lg 0;
-  border-radius: 4px;
+  margin: $spacing-6 0;
+  border-radius: $border-radius-sm;
   
   ::ng-deep .mat-mdc-progress-bar-buffer {
     background-color: rgba($primary-color, 0.1);
@@ -384,66 +304,40 @@ $large-desktop: 1200px;
 
 // Form actions styling
 .form-actions {
-  display: flex;
-  gap: $spacing-md;
-  justify-content: flex-end;
-  align-items: center;
+  @include flex-between;
+  gap: $spacing-4;
   flex-wrap: wrap;
-  margin-top: $spacing-xl;
+  margin-top: $spacing-8;
   
-  @media (max-width: $mobile) {
+  @include mobile {
     flex-direction: column-reverse;
     align-items: stretch;
   }
   
   .submit-btn {
-    //background: linear-gradient(135deg, $whatsapp-green 0%, $whatsapp-dark 100%);
-    //color: white;
-    // font-weight: 600;
-    // font-size: 1rem;
-    // padding: $spacing-md $spacing-xl;
-    // border-radius: 50px;
-    // min-width: 160px;
-    // height: 48px;
-    
-    @include smooth-transition();
-    @include hover-lift;
-    
-    &:hover:not(:disabled) {
-    //   background: linear-gradient(135deg, $whatsapp-dark 0%, darken($whatsapp-dark, 10%) 100%);
-      @include elevation(2);
-    }
+    @include button-primary;
+    min-width: 160px;
     
     &:disabled {
-      background: $text-disabled;
-      color: white;
-      opacity: 0.7;
+      background: $gray-400;
+      color: $white;
     }
     
     mat-icon {
-      margin-right: $spacing-xs;
-      
       &.spinning {
         animation: spin 1s linear infinite;
       }
     }
     
-    @media (max-width: $mobile) {
+    @include mobile {
       width: 100%;
       min-width: unset;
     }
   }
   
   .reset-btn {
-    color: $text-secondary;
-    border-color: $border-color;
-    font-weight: 500;
-    padding: $spacing-md $spacing-lg;
-    border-radius: 50px;
+    @include button-secondary;
     min-width: 140px;
-    height: 48px;
-    
-    @include smooth-transition();
     
     &:hover:not(:disabled) {
       background-color: rgba($error-color, 0.05);
@@ -451,11 +345,7 @@ $large-desktop: 1200px;
       color: $error-color;
     }
     
-    mat-icon {
-      margin-right: $spacing-xs;
-    }
-    
-    @media (max-width: $mobile) {
+    @include mobile {
       width: 100%;
       min-width: unset;
     }
@@ -470,24 +360,22 @@ $large-desktop: 1200px;
   .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: $spacing-lg;
+    gap: $spacing-6;
     
-    @media (max-width: $mobile) {
+    @include mobile {
       grid-template-columns: 1fr;
-      gap: $spacing-md;
+      gap: $spacing-4;
     }
   }
   
   .info-item {
-    display: flex;
-    align-items: center;
-    gap: $spacing-md;
-    padding: $spacing-lg;
-    background: $background-white;
-    border-radius: 16px;
-    @include elevation(1);
-    @include smooth-transition();
-    @include hover-lift;
+    @include flex-center;
+    gap: $spacing-4;
+    padding: $spacing-6;
+    background: $surface-color;
+    border-radius: $border-radius-md;
+    @include card-base;
+    @include card-hover;
     
     .info-icon {
       font-size: 2.5rem;
@@ -495,28 +383,25 @@ $large-desktop: 1200px;
       height: 2.5rem;
       color: $primary-color !important;
       background: rgba($primary-color, 0.1) !important;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: $spacing-sm;
+      border-radius: $border-radius-full;
+      @include flex-center;
+      padding: $spacing-2;
     }
     
     .info-content {
       flex: 1;
       
       h3 {
-        margin: 0 0 $spacing-xs 0;
-        font-size: 1.1rem;
-        font-weight: 600;
+        margin: 0 0 $spacing-1 0;
+        @include body-large;
+        font-weight: $font-weight-semibold;
         color: $text-primary !important;
       }
       
       p {
         margin: 0;
+        @include body-medium;
         color: $text-secondary !important;
-        font-size: 0.95rem;
-        font-weight: 400;
       }
     }
   }
@@ -532,38 +417,15 @@ $large-desktop: 1200px;
   }
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
 // Custom snackbar styling (global)
 ::ng-deep .success-snackbar {
   .mat-mdc-snack-bar-container {
     background-color: $success-color;
-    color: white;
+    color: $white;
     
     .mat-mdc-snack-bar-action {
-      color: white;
-      font-weight: bold;
+      color: $white;
+      font-weight: $font-weight-bold;
     }
   }
 }
@@ -571,21 +433,21 @@ $large-desktop: 1200px;
 ::ng-deep .error-snackbar {
   .mat-mdc-snack-bar-container {
     background-color: $error-color;
-    color: white;
+    color: $white;
     
     .mat-mdc-snack-bar-action {
-      color: white;
-      font-weight: bold;
+      color: $white;
+      font-weight: $font-weight-bold;
     }
   }
 }
 
 // Responsive design enhancements
-@media (max-width: $mobile) {
+@include mobile {
   .contact-container {
     .contact-header {
       .header-content {
-        margin-bottom: $spacing-lg;
+        margin-bottom: $spacing-6;
       }
     }
     
@@ -593,7 +455,7 @@ $large-desktop: 1200px;
       .card-content {
         .contact-form {
           .form-section {
-            margin-bottom: $spacing-lg;
+            margin-bottom: $spacing-6;
           }
         }
       }
@@ -601,15 +463,7 @@ $large-desktop: 1200px;
   }
 }
 
-@media (min-width: $tablet) and (max-width: $desktop) {
-  .contact-container {
-    max-width: 100%;
-    padding-left: $spacing-xl;
-    padding-right: $spacing-xl;
-  }
-}
-
-@media (min-width: $desktop) {
+@include desktop {
   .contact-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -617,13 +471,13 @@ $large-desktop: 1200px;
   
   .contact-header {
     .header-content {
-      padding: $spacing-xxl $spacing-xxxl;
+      padding: $spacing-12 $spacing-16;
     }
   }
   
   .contact-card {
     .card-content {
-      padding: $spacing-xxxl $spacing-xxl;
+      padding: $spacing-16 $spacing-12;
     }
   }
 }
@@ -631,12 +485,12 @@ $large-desktop: 1200px;
 // High contrast mode support
 @media (prefers-contrast: high) {
   .contact-container {
-    background: $background-white;
+    background: $white;
   }
   
   .contact-header {
     .header-content {
-      background: $background-white;
+      background: $white;
       border: 2px solid $text-primary;
     }
   }
@@ -671,12 +525,12 @@ $large-desktop: 1200px;
 // Print styles
 @media print {
   .contact-container {
-    background: white;
+    background: $white;
     padding: 0;
     
     .contact-header {
       .header-content {
-        background: white;
+        background: $white;
         box-shadow: none;
         border: 1px solid $border-color;
       }
@@ -687,7 +541,7 @@ $large-desktop: 1200px;
       border: 1px solid $border-color;
       
       .card-header {
-        background: white;
+        background: $white;
         color: $text-primary;
         border-bottom: 1px solid $border-color;
       }
@@ -718,77 +572,15 @@ $large-desktop: 1200px;
       .mdc-notched-outline__notch,
       .mdc-notched-outline__trailing {
         border-color: $primary-color;
-        border-width: 3px; // Thicker border for better visibility
+        border-width: 3px;
       }
     }
   }
   
   .submit-btn:focus-visible,
   .reset-btn:focus-visible {
-    outline: 3px solid rgba($primary-color, 0.5);
+    outline: 2px solid $primary-color;
     outline-offset: 2px;
-  }
-}
-
-// Dark mode support (if implemented)
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-light: #121212;
-    --background-white: #1e1e1e;
-    --surface-elevation: #2d2d2d;
-    --text-primary: #ffffff;
-    --text-secondary: #b3b3b3;
-    --border-color: #404040;
-  }
-  
-  .contact-container {
-    background: linear-gradient(135deg, 
-      rgba($primary-color, 0.1) 0%, 
-      rgba($whatsapp-green, 0.05) 50%, 
-      rgba($primary-light, 0.1) 100%
-    ), var(--background-light);
-    color: var(--text-primary);
-  }
-  
-  .contact-header {
-    .header-content {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .header-title {
-      color: var(--text-primary);
-    }
-    
-    .header-subtitle {
-      color: var(--text-secondary);
-    }
-  }
-  
-  .contact-card {
-    background: var(--background-white);
-    
-    .card-content {
-      background: var(--background-white);
-    }
-  }
-  
-  .contact-info {
-    .info-item {
-      background: var(--background-white);
-      border: 1px solid var(--border-color);
-      
-      .info-content {
-        h3 {
-          color: var(--text-primary);
-        }
-        
-        p {
-          color: var(--text-secondary);
-        }
-      }
-    }
   }
 }
 
@@ -805,101 +597,88 @@ $large-desktop: 1200px;
 // Success state styling
 .form-success {
   text-align: center;
-  padding: $spacing-xxl;
+  padding: $spacing-12;
   
   .success-icon {
     font-size: 4rem;
     width: 4rem;
     height: 4rem;
     color: $success-color;
-    margin-bottom: $spacing-lg;
-    animation: pulse 2s infinite;
+    margin-bottom: $spacing-6;
+    @include pulse;
   }
   
   .success-title {
-    font-size: 1.5rem;
-    font-weight: 600;
+    @include heading-medium;
     color: $text-primary;
-    margin-bottom: $spacing-md;
+    margin-bottom: $spacing-4;
   }
   
   .success-message {
+    @include body-large;
     color: $text-secondary;
-    font-size: 1rem;
-    line-height: 1.6;
   }
 }
 
-// ...existing code...
-/* WhatsApp live chat button — refreshed to look like an official WhatsApp chat CTA */
+// WhatsApp live chat button
 .whatsapp-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  border-radius: 999px; /* pill */
-  background: linear-gradient(180deg, #128C7E 0%, rgb(11, 88, 36) 100%); /* WhatsApp-like greens */
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.95rem;
-  line-height: 1;
+  @include flex-center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius-full;
+  background: linear-gradient(180deg, #128C7E 0%, #0b5824 100%);
+  color: $white;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
   border: none;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.18), inset 0 -2px 0 rgba(0,0,0,0.06);
-  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.18);
+  transition: all $transition-normal;
   min-height: 44px;
-  -webkit-tap-highlight-color: transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(37, 211, 102, 0.20);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:focus-visible {
+    outline: 2px solid rgba(37, 211, 102, 0.5);
+    outline-offset: 2px;
+  }
 }
 
-/* circular icon chip on the left */
 .whatsapp-btn .whatsapp-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #25d366; /* WhatsApp green for icon */
+  border-radius: $border-radius-full;
+  background: $white;
+  color: #25d366;
   font-size: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  box-shadow: $shadow-sm;
 }
 
-/* optional small 'Live' badge to emphasize chat */
 .whatsapp-btn .btn-badge {
   display: inline-block;
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.95);
-  font-size: 0.7rem;
+  background: rgba($white, 0.12);
+  color: rgba($white, 0.95);
+  font-size: $font-size-xs;
   padding: 2px 6px;
-  border-radius: 999px;
+  border-radius: $border-radius-full;
   margin-left: 6px;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
 }
 
-/* hover / focus / active */
-.whatsapp-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 36px rgba(37,211,102,0.20);
-  opacity: 0.98;
-}
-
-.whatsapp-btn:active {
-  transform: translateY(-1px) scale(.995);
-}
-
-.whatsapp-btn:focus-visible {
-  outline: 3px solid rgba(37,211,102,0.14);
-  outline-offset: 2px;
-  box-shadow: 0 10px 30px rgba(37,211,102,0.16);
-}
-
-/* responsive: hide text on very small screens, keep icon visible */
-@media (max-width: 420px) {
+@include small-screen {
   .whatsapp-btn {
-    padding: 6px 10px;
+    padding: $spacing-1 $spacing-2;
     min-height: 40px;
-    gap: 8px;
+    gap: $spacing-2;
   }
 
   .whatsapp-btn .btn-text {
@@ -910,4 +689,3 @@ $large-desktop: 1200px;
     display: none;
   }
 }
-/* ...existing code... */

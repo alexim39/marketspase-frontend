@@ -3,23 +3,26 @@
 @import '../../../../../styles/mixins';
 
 .targeting-container {
-  //background: white;
+  //background: white; // Commented out - using default background
   border-radius: 12px;
-  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); // Commented out - using default
   overflow: hidden;
   
   .card-header {
-    //padding: 1.5rem;
-    //border-bottom: 1px solid $border-color;
+    //padding: 1.5rem; // Commented out - using default
+    //border-bottom: 1px solid $border-color; // Commented out - using default
     
     h2 {
       margin: 0;
       font-size: 1.3rem;
       font-weight: 600;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
     }
     
     p {
       margin: 0.5rem 0 0;
+      // UPDATED: Use text-secondary variable for dynamic theming
       color: $text-secondary;
       font-size: 0.9rem;
     }
@@ -39,18 +42,21 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding: 1rem;
+  // UPDATED: Use primary-color with rgba for dynamic theming
   background: rgba($primary-color, 0.03);
   border-radius: 8px;
-  //border: 1px solid $border-color;
+  //border: 1px solid $border-color; // Commented out - using default
 }
 
 .toggle-switch {
   font-size: 1rem;
   font-weight: 600;
+  // UPDATED: Use primary-color variable for dynamic theming
   color: $primary-color;
   margin-right: 0.5rem;
 
   .mat-slide-toggle-bar {
+    // UPDATED: Use primary-light variable for dynamic theming
     background-color: $primary-light !important;
   }
 }
@@ -58,6 +64,7 @@
 .toggle-hint {
   margin-left: 0.25rem;
   font-size: 0.8rem;
+  // UPDATED: Use text-secondary variable for dynamic theming
   color: $text-secondary;
   font-style: italic;
 }
@@ -65,13 +72,14 @@
 .targeting-options {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  //border: 1px solid $border-color;
+  //border: 1px solid $border-color; // Commented out - using default
   border-radius: 8px;
-  //background: rgba(white, 0.5);
+  //background: rgba(white, 0.5); // Commented out - using default
 
   .section-title {
     font-size: 1.1rem;
     font-weight: 600;
+    // UPDATED: Use primary-color variable for dynamic theming
     color: $primary-color;
     margin-bottom: 1rem;
     display: flex;
@@ -83,7 +91,7 @@
 .form-row {
   display: flex;
   flex-direction: column;
-  //flex-wrap: wrap;
+  //flex-wrap: wrap; // Commented out - using default
   gap: 1rem;
   margin-bottom: 1.5rem;
   
@@ -118,20 +126,27 @@
   .targeting-type-option {
     width: 100%;
     padding: 1rem;
+    // UPDATED: Use border-color variable for dynamic theming
     border: 1px solid $border-color;
     border-radius: 6px;
-    background: white;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
     transition: all 0.3s ease;
     cursor: pointer;
 
     &:hover {
+      // UPDATED: Use primary-color variable for dynamic theming
       border-color: $primary-color;
+      // UPDATED: Use primary-color with rgba for dynamic theming
       box-shadow: 0 2px 8px rgba($primary-color, 0.1);
     }
 
     &.selected {
+      // UPDATED: Use primary-color variable for dynamic theming
       border-color: $primary-color;
+      // UPDATED: Use primary-color with rgba for dynamic theming
       background-color: rgba($primary-color, 0.05);
+      // UPDATED: Use primary-color with rgba for dynamic theming
       box-shadow: 0 2px 8px rgba($primary-color, 0.15);
     }
 
@@ -146,6 +161,7 @@
       }
 
       .type-icon {
+        // UPDATED: Use primary-color variable for dynamic theming
         color: $primary-color;
         font-size: 1.25rem;
         width: 1.25rem;
@@ -159,6 +175,7 @@
         
         .type-label {
           font-weight: 600;
+          // UPDATED: Use text-primary variable for dynamic theming
           color: $text-primary;
           margin-bottom: 0.25rem;
           font-size: 0.95rem;
@@ -166,6 +183,7 @@
 
         .type-description {
           font-size: 0.8rem;
+          // UPDATED: Use text-secondary variable for dynamic theming
           color: $text-secondary;
           line-height: 1.4;
         }
@@ -178,31 +196,39 @@
   display: block;
   margin-bottom: 1rem;
   padding: 1rem;
+  // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
   border-radius: 6px;
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
+    // UPDATED: Use primary-color variable for dynamic theming
     border-color: $primary-color;
+    // UPDATED: Use primary-color with rgba for dynamic theming
     box-shadow: 0 2px 8px rgba($primary-color, 0.1);
   }
 
   &.selected {
+    // UPDATED: Use primary-color variable for dynamic theming
     border-color: $primary-color;
+    // UPDATED: Use primary-color with rgba for dynamic theming
     background-color: rgba($primary-color, 0.05);
   }
 
   .precision-content {
     .precision-label {
       font-weight: 600;
+      // UPDATED: Use text-primary variable for dynamic theming
       color: $text-primary;
       font-size: 0.95rem;
     }
 
     .precision-description {
       font-size: 0.8rem;
+      // UPDATED: Use text-secondary variable for dynamic theming
       color: $text-secondary;
       margin-top: 0.25rem;
       line-height: 1.4;
@@ -216,6 +242,7 @@
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
 
   .google-map {
@@ -239,10 +266,13 @@
       align-items: center;
       gap: 0.375rem;
       font-size: 0.8rem;
+      // UPDATED: Use text-primary variable for dynamic theming
       color: $text-primary;
+      // UPDATED: Use border-color variable for dynamic theming
       border: 1px solid $border-color;
 
       mat-icon {
+        // UPDATED: Use primary-color variable for dynamic theming
         color: $primary-color;
         font-size: 1rem;
         width: 1rem;
@@ -257,9 +287,12 @@
   .no-areas {
     text-align: center;
     padding: 2rem;
+    // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
+    // UPDATED: Use border-color with rgba for dynamic theming
     background: rgba($border-color, 0.1);
     border-radius: 6px;
+    // UPDATED: Use border-color variable for dynamic theming
     border: 1px dashed $border-color;
 
     mat-icon {
@@ -292,13 +325,17 @@
       align-items: center;
       padding: 0.75rem 1rem;
       border-radius: 6px;
-      background: white;
+      // UPDATED: Use surface-color variable for dynamic theming
+      background: $surface-color;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      // UPDATED: Use primary-color variable for dynamic theming
       border-left: 3px solid $primary-color;
+      // UPDATED: Use border-color variable for dynamic theming
       border: 1px solid $border-color;
 
       .area-icon {
         margin-right: 0.5rem;
+        // UPDATED: Use text-secondary variable for dynamic theming
         color: $text-secondary;
         font-size: 1.125rem;
         width: 1.125rem;
@@ -308,16 +345,18 @@
       .area-name {
         flex: 1;
         font-weight: 500;
+        // UPDATED: Use text-primary variable for dynamic theming
         color: $text-primary;
         font-size: 0.9rem;
       }
 
       .area-remove-btn {
         margin-left: 0.375rem;
+        // UPDATED: Use text-secondary variable for dynamic theming
         color: $text-secondary;
 
         &:hover {
-          //color: $warn-color;
+          //color: $warn-color; // Commented out - using default
         }
       }
     }
@@ -342,13 +381,17 @@
       gap: 0.375rem;
       padding: 0.75rem 1rem;
       font-size: 0.9rem;
+      // UPDATED: Use border-color variable for dynamic theming
       border: 1px solid $border-color;
       border-radius: 6px;
-      background: white;
+      // UPDATED: Use surface-color variable for dynamic theming
+      background: $surface-color;
       transition: all 0.3s ease;
 
       &:hover {
+        // UPDATED: Use primary-color variable for dynamic theming
         border-color: $primary-color;
+        // UPDATED: Use primary-color with rgba for dynamic theming
         background: rgba($primary-color, 0.05);
       }
 

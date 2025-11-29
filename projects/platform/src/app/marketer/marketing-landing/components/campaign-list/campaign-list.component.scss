@@ -1,3 +1,6 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .main {
   padding: 0 1rem;
 }
@@ -20,22 +23,28 @@
 
 /* List View Styles */
 .campaign-list-item {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  // UPDATED: Use shadow variable for consistent shadow styling
+  box-shadow: $shadow;
+  transition: all $transition-normal;
   border-left: 4px solid transparent;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    // UPDATED: Use shadow-lg variable for hover state
+    box-shadow: $shadow-lg;
   }
 
-  @each $status in active, paused, draft, completed, expired, pending, exhausted {
-    &.status-#{$status} {
-      border-left-color: var(--status-#{$status}-color);
-    }
-  }
+  // Status-specific borders - UPDATED: Use semantic color variables
+  &.status-active { border-left-color: $success-color; }
+  &.status-paused { border-left-color: $warning-color; }
+  &.status-draft { border-left-color: $secondary-color; }
+  &.status-completed { border-left-color: $success-color; }
+  &.status-expired { border-left-color: $error-color; }
+  &.status-pending { border-left-color: $info-color; }
+  &.status-exhausted { border-left-color: mix($success-color, $warning-color, 50%); }
 }
 
 .list-item-content {
@@ -102,7 +111,6 @@
     text-align: center;
     padding: 0 1em;
     width: 400px;
-    
   }
 }
 
@@ -116,10 +124,11 @@
 .campaign-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #0f172a;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   margin: 0;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color $transition-fast;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -127,7 +136,8 @@
   margin-right: 1rem;
 
   &:hover {
-    color: #667eea;
+    // UPDATED: Use primary-color variable for hover state
+    color: $primary-color;
   }
 }
 
@@ -140,37 +150,45 @@
   white-space: nowrap;
 
   &.status-active {
-    background: #dcfce7;
-    color: #166534;
+    // UPDATED: Use success-color with lightened background
+    background: rgba($success-color, 0.1);
+    color: $success-color;
   }
   &.status-paused {
-    background: #fef3c7;
-    color: #92400e;
+    // UPDATED: Use warning-color with lightened background
+    background: rgba($warning-color, 0.1);
+    color: $warning-color;
   }
   &.status-draft {
-    background: #e0e7ff;
-    color: #3730a3;
+    // UPDATED: Use secondary-color with lightened background
+    background: rgba($secondary-color, 0.1);
+    color: $secondary-color;
   }
   &.status-completed {
-    background: #dcfce7;
-    color: #166534;
+    // UPDATED: Use success-color with lightened background
+    background: rgba($success-color, 0.1);
+    color: $success-color;
   }
   &.status-expired {
-    background: #fee2e2;
-    color: #991b1b;
+    // UPDATED: Use error-color with lightened background
+    background: rgba($error-color, 0.1);
+    color: $error-color;
   }
   &.status-pending {
-    background: #e0f2fe;
-    color: #075985;
+    // UPDATED: Use info-color with lightened background
+    background: rgba($info-color, 0.1);
+    color: $info-color;
   }
   &.status-exhausted {
-    background: #e8ebdc;
-    color: #7c991b;
+    // UPDATED: Use mixed colors for exhausted state
+    background: rgba(mix($success-color, $warning-color, 50%), 0.1);
+    color: mix($success-color, $warning-color, 50%);
   }
 }
 
 .campaign-description {
-  color: #475569;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   font-size: 0.875rem;
   line-height: 1.4;
   margin: 0 0 0.75rem 0;
@@ -185,7 +203,8 @@
   gap: 1rem;
   margin-bottom: 0.75rem;
   font-size: 0.75rem;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
 
   span {
     display: inline-flex;
@@ -218,12 +237,14 @@
   .metric-value {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #0f172a;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
   }
   
   .metric-label {
     font-size: 0.75rem;
-    color: #64748b;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
     margin-top: 0.125rem;
   }
 }
@@ -238,17 +259,19 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #667eea;
-  color: white;
+  // UPDATED: Use primary-color variable for button background
+  background: $primary-color;
+  color: $white;
   border: none;
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all $transition-fast;
   white-space: nowrap;
 
   &:hover {
-    background: #6d28d9;
+    // UPDATED: Use primary-dark variable for hover state
+    background: $primary-dark;
     transform: translateY(-1px);
   }
 }
@@ -257,7 +280,8 @@
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
 }
 
 .empty-icon {
@@ -274,7 +298,8 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #334155;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 }
 
 .empty-description {
@@ -288,21 +313,24 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #667eea;
-  color: white;
+  // UPDATED: Use primary-color variable for button background
+  background: $primary-color;
+  color: $white;
   border: none;
   border-radius: 0.5rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all $transition-fast;
 
   &:hover {
-    background: #6d28d9;
+    // UPDATED: Use primary-dark variable for hover state
+    background: $primary-dark;
     transform: translateY(-1px);
   }
 
   &.btn-primary {
-    background: linear-gradient(135deg, #8b5cf6 0%, #764ba2 100%);
+    // UPDATED: Use gradient-primary variable for primary button
+    background: $gradient-primary;
   }
 }
 
@@ -340,15 +368,14 @@
   }
 }
 
-// ... existing styles ...
-
 /* Pagination Styles */
 .pagination-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 0;
-  border-top: 1px solid #e2e8f0;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-top: 1px solid $border-color;
   margin-top: 1rem;
   flex-wrap: wrap;
   gap: 1rem;
@@ -360,7 +387,8 @@
 }
 
 .pagination-info {
-  color: #64748b;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   font-size: 0.875rem;
 }
 
@@ -375,17 +403,22 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: white;
-  border: 1px solid #d1d5db;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   border-radius: 0.375rem;
-  color: #374151;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all $transition-fast;
 
   &:hover:not(:disabled) {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    // UPDATED: Use gray-50 variable for hover background
+    background: $gray-50;
+    // UPDATED: Use gray-400 variable for hover border
+    border-color: $gray-400;
   }
 
   &:disabled {
@@ -411,23 +444,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  border: 1px solid #d1d5db;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   border-radius: 0.375rem;
-  color: #374151;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all $transition-fast;
 
   &:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    // UPDATED: Use gray-50 variable for hover background
+    background: $gray-50;
+    // UPDATED: Use gray-400 variable for hover border
+    border-color: $gray-400;
   }
 
   &.active {
-    background: #667eea;
-    border-color: #667eea;
-    color: white;
+    // UPDATED: Use primary-color variable for active state
+    background: $primary-color;
+    border-color: $primary-color;
+    color: $white;
   }
 }
 
@@ -437,7 +476,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
 }
 
 .items-per-page {
@@ -445,7 +485,8 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 
   label {
     white-space: nowrap;
@@ -453,16 +494,22 @@
 
   select {
     padding: 0.375rem 0.75rem;
-    border: 1px solid #d1d5db;
+    // UPDATED: Use border-color variable for dynamic theming
+    border: 1px solid $border-color;
     border-radius: 0.375rem;
-    background: white;
-    color: #374151;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
     cursor: pointer;
+    transition: all $transition-fast;
 
     &:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      // UPDATED: Use primary-color variable for focus state
+      border-color: $primary-color;
+      // UPDATED: Use primary-rgb with rgba for focus shadow
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
   }
 

@@ -1,12 +1,13 @@
+
 @import './../../../../../../styles/variables';
 @import './../../../../../../styles/mixins';
-
 
 .promotion-info {
   .promotion-title {
     margin: 0 0 0.5rem;
     font-size: 1.5rem;
     font-weight: 600;
+    // UPDATED: Already using text-primary variable - good!
     color: $text-primary;
 
     @include mobile {
@@ -16,6 +17,7 @@
   
   .promotion-description {
     margin: 0 0 1.5rem;
+    // UPDATED: Already using text-secondary variable - good!
     color: $text-secondary;
     line-height: 1.5;
   }
@@ -32,6 +34,7 @@
       gap: 0.75rem;
       
       mat-icon {
+        // UPDATED: Already using primary-color variable - good!
         color: $primary-color;
         font-size: 1.25rem;
         width: 1.25rem;
@@ -44,18 +47,21 @@
         
         .info-label {
           font-size: 0.75rem;
+          // UPDATED: Already using text-secondary variable - good!
           color: $text-secondary;
         }
         
         .info-value {
           font-size: 0.9rem;
           font-weight: 500;
+          // UPDATED: Already using text-primary variable - good!
           color: $text-primary;
           display: flex;
           align-items: center;
           gap: 0.25rem;
           
           &.nearing-expiration {
+            // UPDATED: Already using error-color variable - good!
             color: $error-color;
             font-weight: 600;
           }

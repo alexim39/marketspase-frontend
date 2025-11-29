@@ -118,6 +118,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return [
         ...baseItems,
         { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
+        { icon: 'add_business', label: 'Storefronts', route: './stores' },
         { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
         { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
@@ -185,7 +186,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dialog.open(WalletFundingComponent, {
       data: this.user(), // Pass the data here
       panelClass: 'custom-dialog-container',
-      height: '600px', // Set your desired height (e.g., '400px', '50vh', 'auto')
+      height: '650px', // Set your desired height (e.g., '400px', '50vh', 'auto')
     });
 
   } else {

@@ -1,16 +1,21 @@
+
 @import './../../../../../../styles/variables';
+@import './../../../../../../styles/mixins';
 
 .activity-section {
   .section-title {
     margin: 0 0 1.5rem;
     font-size: 1.25rem;
     font-weight: 600;
+    // UPDATED: Already using text-primary variable - good!
     color: $text-primary;
   }
   
   .timeline {
-    background: white;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
     border-radius: 12px;
+    // UPDATED: Already using shadow variable - good!
     box-shadow: $shadow;
     padding: 1.5rem;
     
@@ -39,6 +44,7 @@
           width: 12px;
           height: 12px;
           border-radius: 50%;
+          // UPDATED: Already using primary-color variable - good!
           background-color: $primary-color;
           z-index: 2;
         }
@@ -50,6 +56,7 @@
           top: 1.25rem;
           width: 2px;
           height: calc(100% - 0.5rem);
+          // UPDATED: Already using border-color variable - good!
           background-color: $border-color;
           z-index: 1;
         }
@@ -66,11 +73,13 @@
           
           .log-action {
             font-weight: 600;
+            // UPDATED: Already using text-primary variable - good!
             color: $text-primary;
           }
           
           .log-time {
             font-size: 0.8rem;
+            // UPDATED: Already using text-secondary variable - good!
             color: $text-secondary;
           }
         }
@@ -78,6 +87,7 @@
         .log-details {
           margin: 0;
           font-size: 0.9rem;
+          // UPDATED: Already using text-secondary variable - good!
           color: $text-secondary;
           line-height: 1.5;
         }

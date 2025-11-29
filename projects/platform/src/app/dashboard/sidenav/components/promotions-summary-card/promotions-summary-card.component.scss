@@ -1,7 +1,13 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .campaigns-summary-card {
-  background: #ffffff;
+  // UPDATED: Use surface-color variable for dynamic theming
+  //background: $surface-color;
+  background-color: color-mix(in srgb, $background-color, black 5%);
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  // UPDATED: Use shadow variable for consistent shadow
+  box-shadow: $shadow;
   padding: 16px;
 
   .summary-header {
@@ -14,12 +20,15 @@
       align-items: center;
       gap: 12px;
       .summary-icon {
-        color: #673ab7;
+        // UPDATED: Use primary-color for icon
+        color: $primary-color;
       }
       .summary-title {
         font-size: 18px;
         font-weight: 600;
         margin: 0;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
       }
     }
     .view-all-btn {
@@ -35,6 +44,8 @@
 
   .summary-divider {
     margin: 12px 0;
+    // UPDATED: Use border-color variable for dynamic theming
+    border-color: $border-color;
   }
 
   .summary-metrics-grid {
@@ -43,7 +54,8 @@
     gap: 16px;
 
     .metric-summary {
-      background: #f8f9fa;
+      // UPDATED: Use gray-50 for metric background
+      background: $gray-50;
       border-radius: 8px;
       padding: 12px;
       display: flex;
@@ -56,7 +68,8 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: #eceff1;
+        // UPDATED: Use gray-100 for icon background
+        background-color: $gray-100;
         .metric-icon {
           font-size: 20px;
         }
@@ -67,19 +80,33 @@
         .metric-value {
           font-size: 18px;
           font-weight: 700;
-          color: #1a1a1a;
+          // UPDATED: Use text-primary variable for dynamic theming
+          color: $text-primary;
         }
         .metric-label {
           font-size: 12px;
-          color: #666;
+          // UPDATED: Use text-secondary variable for dynamic theming
+          color: $text-secondary;
         }
       }
 
       // Metric-specific colors
-      &.active-campaigns .metric-icon { color: #2196f3; }
-      &.total-promotions .metric-icon { color: #4caf50; }
-      &.total-spending .metric-icon { color: #f44336; }
-      &.budget-remaining .metric-icon { color: #673ab7; }
+      &.active-campaigns .metric-icon { 
+        // UPDATED: Use info-color for active campaigns
+        color: $info-color; 
+      }
+      &.total-promotions .metric-icon { 
+        // UPDATED: Use success-color for total promotions
+        color: $success-color; 
+      }
+      &.total-spending .metric-icon { 
+        // UPDATED: Use error-color for total spending
+        color: $error-color; 
+      }
+      &.budget-remaining .metric-icon { 
+        // UPDATED: Use primary-color for budget remaining
+        color: $primary-color; 
+      }
     }
   }
 }
@@ -88,14 +115,16 @@
   text-align: center;
   p {
     margin: 5px 0;
-    color: gray;
+    // UPDATED: Use text-tertiary variable for dynamic theming
+    color: $text-tertiary;
   }
 }
 
 .empty-cart-icon {
   width: 64px;
   height: 64px;
-  background: #f8f9fa;
+  // UPDATED: Use gray-50 for icon background
+  background: $gray-50;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -103,11 +132,14 @@
   margin: 0 auto 20px;
   mat-icon {
     font-size: 32px;
-    color: #999;
+    // UPDATED: Use text-tertiary variable for dynamic theming
+    color: $text-tertiary;
   }
 }
 
 h4 {
   margin: 0 0 8px;
   font-size: 18px;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 }

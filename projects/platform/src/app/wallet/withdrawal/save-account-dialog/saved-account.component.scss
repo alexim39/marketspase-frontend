@@ -1,0 +1,269 @@
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px 8px 24px;
+  // UPDATED: Use border-color for dynamic theming
+  border-bottom: 1px solid $border-color;
+}
+
+.dialog-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  // UPDATED: Use primary-color for header text
+  color: $primary-color;
+}
+
+.dialog-icon {
+  // UPDATED: Use primary-color for icon
+  color: $primary-color;
+}
+
+.close-button {
+  // UPDATED: Use text-secondary for close button
+  color: $text-secondary;
+}
+
+.saved-accounts-container {
+  padding: 16px 24px;
+  min-height: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+  // UPDATED: Use text-secondary for loading text
+  color: $text-secondary;
+}
+
+.accounts-header {
+  margin-bottom: 24px;
+}
+
+.accounts-header h3 {
+  margin: 0 0 8px 0;
+  // UPDATED: Use text-primary for headings
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.accounts-description {
+  margin: 0;
+  // UPDATED: Use text-secondary for description
+  color: $text-secondary;
+  font-size: 14px;
+}
+
+.accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-account-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  // UPDATED: Use border-color for dynamic borders
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  // UPDATED: Use surface-color for background
+  background-color: $surface-color;
+  transition: all 0.2s ease;
+  gap: 16px;
+}
+
+.saved-account-item:hover {
+  // UPDATED: Use color-mix for hover background
+  background-color: color-mix(in srgb, $surface-color, black 3%);
+  border-color: $gray-300;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.saved-account-item.removing {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.account-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  // UPDATED: Use lighten-bg mixin for icon background
+  @include lighten-bg($primary-color, 85%);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.account-icon mat-icon {
+  // UPDATED: Use primary-color for icons
+  color: $primary-color;
+}
+
+.account-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.bank-name {
+  font-weight: 600;
+  font-size: 16px;
+  // UPDATED: Use text-primary for bank name
+  color: $text-primary;
+  margin-bottom: 4px;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  // UPDATED: Use text-secondary for account info
+  color: $text-secondary;
+}
+
+.account-number {
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+}
+
+.separator {
+  // UPDATED: Use text-tertiary for separator
+  color: $text-tertiary;
+}
+
+.account-name {
+  font-style: italic;
+}
+
+.account-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.remove-button {
+  transition: all 0.2s ease;
+}
+
+.remove-button:hover:not(:disabled) {
+  // UPDATED: Use lighten-bg mixin for hover background
+  @include lighten-bg($error-color, 90%);
+  transform: scale(1.1);
+}
+
+.no-accounts-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 16px;
+}
+
+.no-accounts-icon, .error-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  // UPDATED: Use text-tertiary for no accounts icon
+  color: $text-tertiary;
+}
+
+.error-icon {
+  // UPDATED: Use error-color for error icon
+  color: $error-color;
+}
+
+.no-accounts-container h3, .error-container h3 {
+  margin: 0;
+  // UPDATED: Use text-secondary for headings
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.no-accounts-message {
+  margin: 0;
+  // UPDATED: Use text-tertiary for messages
+  color: $text-tertiary;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 300px;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  // UPDATED: Use border-color for top border
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.action-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  // UPDATED: Use text-secondary for info text
+  color: $text-secondary;
+  font-size: 12px;
+}
+
+.info-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .dialog-header {
+    padding: 12px 16px;
+  }
+
+  .saved-accounts-container {
+    padding: 12px 16px;
+  }
+
+  .saved-account-item {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .account-details {
+    font-size: 14px;
+  }
+
+  .bank-name {
+    font-size: 15px;
+  }
+
+  .account-info {
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+
+  .dialog-actions {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-info {
+    order: 2;
+  }
+}

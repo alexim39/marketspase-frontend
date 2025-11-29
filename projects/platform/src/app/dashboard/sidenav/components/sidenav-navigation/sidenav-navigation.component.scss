@@ -1,4 +1,8 @@
+
 /* Sidenav Navigation Styles */
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .nav-list {
   padding-top: 0;
   .mat-list-item {
@@ -6,19 +10,24 @@
     font-weight: 500;
     margin-bottom: 8px;
     border-radius: 8px;
-    color: #555;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
     transition: background-color 0.2s ease, color 0.2s ease;
+    
     .mat-icon {
-      color: #757575;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
       margin-right: 16px;
     }
   }
 }
 
- .active {
-  //background-color: #673ab7;
-  color: #673ab7;
+.active {
+  // UPDATED: Use primary-color variable for dynamic theming
+  color: $primary-color;
+  
   .mat-icon {
-    color: #673ab7;
+    // UPDATED: Use primary-color variable for dynamic theming
+    color: $primary-color;
   }
 }

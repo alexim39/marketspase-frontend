@@ -1,7 +1,12 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .campaign-card {
-  background: #ffffff;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
   overflow: hidden;
   transition: all 0.2s ease;
   position: relative;
@@ -40,9 +45,10 @@
     .card-footer {
       flex: 0 0 auto;
       padding: 20px;
-      background: transparent;
+      //background: transparent;
       border-top: none;
-      border-left: 1px solid #e5e7eb;
+      // UPDATED: Use border-color variable for dynamic theming
+      border-left: 1px solid $border-color;
     }
     
     .metrics {
@@ -66,7 +72,8 @@
 
 .campaign-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  // UPDATED: Use shadow-lg variable for consistent shadow styling
+  box-shadow: $shadow-lg;
 }
 
 .card-header {
@@ -86,45 +93,51 @@
 }
 
 .status-badge.status-active {
-  background: #dcfce7;
-  color: #166534;
+  // UPDATED: Use success-color with light background
+  background: rgba($success-color, 0.1);
+  color: $success-color;
 }
 
 .status-badge.status-paused {
-  background: #fef3c7;
-  color: #92400e;
+  // UPDATED: Use warning-color with light background
+  background: rgba($warning-color, 0.1);
+  color: $warning-color;
 }
 
 .status-badge.status-rejected {
-  background: #92400e;
-  color: #fef3c7;
+  // UPDATED: Use warning-color with inverted colors for rejected
+  background: $warning-color;
+  color: $white;
 }
 
 .status-badge.status-completed {
-  background: #e0e7ff;
-  color: #3730a3;
+  // UPDATED: Use primary-color with light background
+  background: rgba($primary-color, 0.1);
+  color: $primary-color;
 }
 
 .icon-btn {
   width: 32px;
   height: 32px;
   border: none;
-  background: #f3f4f6;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: 1px solid $gray-300;
 }
 
 .icon-btn:hover {
-  background: #e5e7eb;
+  // UPDATED: Use gray-200 for hover state
+  background: $gray-200;
 }
 
 .icon-btn .material-icons {
   font-size: 18px;
-  color: #4b5563;
+  // UPDATED: Use gray-600 for icon color
+  color: $gray-300;
 }
 
 .card-media {
@@ -132,7 +145,8 @@
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 16/9;
-  background: #f3f4f6;
+  // UPDATED: Use gray-100 for media background
+  background: $gray-100;
   position: relative;
 }
 
@@ -146,7 +160,7 @@
   position: relative;
   height: 100%;
   width: 100%;
-  background: #18181b;
+  background: $gray-900;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,7 +179,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(24,24,27,0.5) 60%, rgba(102,126,234,0.18) 100%);
+    background: linear-gradient(135deg, rgba($gray-900, 0.5) 60%, rgba($primary-color, 0.18) 100%);
     z-index: 1;
     pointer-events: none;
   }
@@ -178,20 +192,22 @@
     transform: translate(-50%, -50%);
     width: 54px;
     height: 54px;
-    background: rgba(255,255,255,0.92);
+    background: rgba($white, 0.92);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(102,126,234,0.12);
+    // UPDATED: Use shadow variable for consistent shadow
+    box-shadow: $shadow;
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s;
 
     &:hover {
-      background: #667eea;
-      box-shadow: 0 8px 24px rgba(102,126,234,0.18);
+      background: $primary-color;
+      // UPDATED: Use shadow-md variable for hover state
+      box-shadow: $shadow-md;
       svg {
-        fill: #fff;
+        fill: $white;
       }
     }
 
@@ -202,7 +218,7 @@
       top: 50%;
       width: 70px;
       height: 70px;
-      background: rgba(102,126,234,0.18);
+      background: rgba($primary-color, 0.18);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: -1;
@@ -212,7 +228,7 @@
     svg {
       width: 28px;
       height: 28px;
-      fill: #667eea;
+      fill: $primary-color;
       transition: fill 0.2s;
     }
   }
@@ -231,19 +247,22 @@
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   margin-bottom: 8px;
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .card-title:hover {
-  color: #667eea;
+  // UPDATED: Use primary-color for hover state
+  color: $primary-color;
 }
 
 .card-description {
   font-size: 14px;
-  color: #4b5563;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   margin-bottom: 16px;
   line-height: 1.5;
   display: -webkit-box;
@@ -257,7 +276,8 @@
   justify-content: space-between;
   margin-bottom: 16px;
   font-size: 13px;
-  color: #6b7280;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
 }
 
 .card-meta span {
@@ -280,19 +300,22 @@
 .metric {
   text-align: center;
   padding: 12px;
-  background: #f9fafb;
+  // UPDATED: Use gray-50 for metric background
+  border: 1px solid $gray-300;
   border-radius: 8px;
 }
 
 .metric-value {
   font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
 }
 
 .metric-label {
   font-size: 12px;
-  color: #6b7280;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -302,7 +325,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  border-top: 1px solid #e5e7eb;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-top: 1px solid $border-color;
 }
 
 .payout-amount {
@@ -314,13 +338,15 @@
 .amount {
   font-size: 24px;
   font-weight: 800;
-  color: #10b981;
+  // UPDATED: Use success-color for payout amount
+  color: $success-color;
 }
 
 .currency {
   font-size: 16px;
   font-weight: 600;
-  color: #4b5563;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
 }
 
 .difficulty-indicator {
@@ -332,7 +358,8 @@
 .difficulty-label {
   font-size: 12px;
   font-weight: 500;
-  color: #4b5563;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
   text-transform: capitalize;
 }
 
@@ -345,17 +372,21 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #d1d5db;
+  // UPDATED: Use gray-300 for inactive dots
+  background: $gray-300;
 }
 
 .dot.active {
-  background: #10b981;
+  // UPDATED: Use success-color for active difficulty dots
+  background: $success-color;
 }
 
 .card-footer {
   padding: 20px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  // UPDATED: Use gray-50 for footer background
+  //background: $gray-50;
+  // UPDATED: Use border-color variable for dynamic theming
+  border-top: 1px solid $border-color;
 }
 
 .apply-btn {
@@ -363,8 +394,9 @@
   padding: 12px 20px;
   border: none;
   border-radius: 12px;
-  background: #667eea;
-  color: #ffffff;
+  // UPDATED: Use primary-color variable for dynamic theming
+  background: $primary-color;
+  color: $white;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -376,13 +408,15 @@
 }
 
 .apply-btn:hover {
-  background: #764ba2 ;
+  // UPDATED: Use primary-dark for hover state
+  background: $primary-dark;
   transform: translateY(-1px);
 }
 
 .apply-btn:disabled {
-  background: #d1d5db;
-  color: #6b7280;
+  // UPDATED: Use gray-300 for disabled state
+  background: $gray-300;
+  color: $gray-500;
   cursor: not-allowed;
   transform: none;
 }
@@ -394,13 +428,15 @@
 .apply-btn.disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: #ccc !important;
+  // UPDATED: Use gray-400 for disabled background
+  background-color: $gray-400 !important;
 }
 
 .apply-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: #ccc !important;
+  // UPDATED: Use gray-400 for disabled background
+  background-color: $gray-400 !important;
 }
 
 .media-type-overlay {
@@ -424,13 +460,15 @@
   }
   
   &.video {
-    background: rgba(219, 39, 119, 0.85);
-    color: white;
+    // UPDATED: Use error-color with opacity for video overlay
+    background: rgba($error-color, 0.85);
+    color: $white;
   }
   
   &.image {
-    background: rgba(37, 99, 235, 0.85);
-    color: white;
+    // UPDATED: Use info-color with opacity for image overlay
+    background: rgba($info-color, 0.85);
+    color: $white;
   }
 }
 
@@ -447,35 +485,35 @@
     
     .card-footer {
       border-left: none;
-      border-top: 1px solid #e5e7eb;
+      border-top: 1px solid $border-color;
     }
   }
 } */
-
-
-
 
 .user-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #e6f7e6; // Light green background
-  color: #10b981; // Green text color
+  // UPDATED: Use success-color with light background
+  background-color: rgba($success-color, 0.1);
+  color: $success-color;
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0.25rem 0.75rem;
   border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  // UPDATED: Use shadow variable for consistent shadow
+  box-shadow: $shadow;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   i.material-icons {
     font-size: 1.2rem;
-    color: #10b981; // Green icon color
+    color: $success-color;
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    // UPDATED: Use shadow-md variable for hover state
+    box-shadow: $shadow-md;
   }
 }
 
@@ -495,16 +533,15 @@
   }
 }
 
-// ...existing code...
-
 /* Subtle, professional marketer name */
 .marketer-name {
   display: block;
-  font-size: 0.6rem;            /* small, unobtrusive */
+  font-size: 0.6rem;
   line-height: 1;
-  color: #838383 !important;                /* neutral gray (Tailwind slate-500) */
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary !important;
   letter-spacing: 0.02em;
-  font-weight: 500;              /* slightly emphasized but small */
+  font-weight: 500;
   text-transform: none;
   white-space: nowrap;
   overflow: hidden;
@@ -521,7 +558,8 @@
   .marketer-name {
     margin-top: 0.5rem;
     max-width: 70%;
-    color: #545863; /* a tad darker on larger screens */
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
   }
 }
 
@@ -531,5 +569,3 @@
     display: none;
   }
 }
-
-// ...existing code...

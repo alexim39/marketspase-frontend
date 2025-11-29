@@ -1,3 +1,6 @@
+@use '../../../styles/variables' as vars;
+@use '../../../styles/mixins' as mixins;
+
 /* ==========================================================================
    Base & Utilities
    ========================================================================== */
@@ -11,7 +14,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f8f9fa;
+  //background-color: #f8f9fa; // Removed static color
 }
 
 .container {
@@ -27,14 +30,14 @@ body {
 .sidenav-container {
   height: 100%;
   .mat-drawer-content {
-    background-color: #f8f9fa;
+    //background-color: #f8f9fa; // Removed static color
   }
 }
 
 .sidenav {
   width: 280px;
   padding: 16px;
-  background-color: #ffffff;
+  background-color: var(--surface-color); // Updated to use theme variable
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   
   .sidenav-header {
@@ -47,36 +50,25 @@ body {
       align-items: center;
       gap: 8px;
       .logo-icon {
-        //font-size: 32px;
-        // width: 220px;
-        // height: 50px;
-        color: #673ab7;
+        color: var(--primary-color); // Updated to use theme variable
         height: 40px;
         border-radius: 100%;
-        border: 1px solid rgb(243, 243, 243);
+        border: 1px solid var(--border-color); // Updated to use theme variable
         padding: 1px;
-
-        
       }
-      /* .logo-text {
-        font-size: 24px;
-        font-weight: 700;
-        color: #667eea;
-      } */
       .logo-text {
         font-weight: 700;
         font-size: 22px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary); // Updated to use theme variable
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        /* Fallback for browsers without webkit support (e.g., older Firefox) */
         background-clip: text;
       }
     }
   }
 
   .profile-card {
-    background-color: #ece5f5;
+    background-color: color-mix(in srgb, var(--primary-color), transparent 90%); // Updated to use theme variable with transparency
     border-radius: 12px;
     padding: 16px;
     display: flex;
@@ -94,14 +86,14 @@ body {
       height: 56px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid #673ab7;
+      border: 2px solid var(--primary-color); // Updated to use theme variable
     }
     .profile-details {
       .profile-name {
         margin: 0;
         font-size: 16px;
         font-weight: 600;
-        color: #1a1a1a;
+        color: var(--text-primary); // Updated to use theme variable
       }
       .profile-meta {
         display: flex;
@@ -110,33 +102,33 @@ body {
         margin-top: 4px;
         
         .role-chip {
-          background-color: #673ab7;
-          color: white;
+          background-color: var(--primary-color); // Updated to use theme variable
+          color: var(--white); // Using static white for text on colored background
           font-size: 11px;
           height: 20px;
           line-height: 20px;
           padding: 0 8px;
           border-radius: 10px;
           &.marketer {
-            background-color: #007bff;
+            background-color: var(--info-color); // Updated to use theme variable
           }
           &.promoter {
-            background-color: #28a745;
+            background-color: var(--success-color); // Updated to use theme variable
           }
         }
         .verified-badge {
           font-size: 14px;
-          color: #2196f3;
+          color: var(--info-color); // Updated to use theme variable
         }
       }
       .profile-stats {
         font-size: 12px;
-        color: #666;
+        color: var(--text-secondary); // Updated to use theme variable
         margin-top: 4px;
       }
     }
     .switch-user-btn {
-      color: #673ab7;
+      color: var(--primary-color); // Updated to use theme variable
     }
   }
 }
@@ -149,17 +141,17 @@ body {
       padding: 0 16px !important;
     }
     &.active-nav-item {
-      background-color: #f3e5f5;
-      color: #673ab7;
+      background-color: color-mix(in srgb, var(--primary-color), transparent 90%); // Updated to use theme variable with transparency
+      color: var(--primary-color); // Updated to use theme variable
       .mat-icon, .badge-icon {
-        color: #673ab7;
+        color: var(--primary-color); // Updated to use theme variable
       }
     }
     &:hover {
-      background-color: #f0e6fa;
+      background-color: color-mix(in srgb, var(--primary-color), transparent 95%); // Updated to use theme variable with transparency
     }
     .badge-icon {
-      color: #ff9800;
+      color: var(--warning-color); // Updated to use theme variable
     }
   }
 }
@@ -170,7 +162,7 @@ body {
     margin: 0 0 12px;
     font-size: 14px;
     font-weight: 600;
-    color: #999;
+    color: var(--text-tertiary); // Updated to use theme variable
   }
   .action-btn {
     width: 100%;
@@ -180,9 +172,9 @@ body {
     align-items: center;
     gap: 8px;
     border-radius: 8px;
-    color: #1a1a1a;
+    color: var(--text-primary); // Updated to use theme variable
     &.logout {
-      color: #f44336;
+      color: var(--error-color); // Updated to use theme variable
     }
   }
 }
@@ -193,7 +185,7 @@ body {
 .mobile-header, .desktop-header {
   height: 64px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background-color: #ffffff;
+  background-color: var(--surface-color); // Updated to use theme variable
   padding: 0 16px;
 }
 
@@ -206,18 +198,17 @@ body {
     align-items: center;
     gap: 8px;
     .logo-icon {
-      color: #673ab7;
+      color: var(--primary-color); // Updated to use theme variable
       height: 40px;
       border-radius: 50%;
-      border: 1px solid rgb(243, 243, 243);
+      border: 1px solid var(--border-color); // Updated to use theme variable
       padding: 1px;
     }
     .logo-text {
       font-weight: 600;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--gradient-primary); // Updated to use theme variable
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      /* Fallback for browsers without webkit support (e.g., older Firefox) */
       background-clip: text;
     }
   }
@@ -235,7 +226,7 @@ body {
   .page-title {
     font-size: 20px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-primary); // Updated to use theme variable
   }
   .header-spacer {
     flex: 1;
@@ -249,18 +240,18 @@ body {
       align-items: center;
       gap: 4px;
       padding: 6px 12px;
-      background-color: #f0f4f7;
+      background-color: var(--gray-100); // Using static gray for consistent appearance
       border-radius: 20px;
       cursor: pointer;
       &:hover {
-        background-color: #e6edf2;
+        background-color: var(--gray-200); // Using static gray for consistent appearance
       }
       mat-icon {
-        color: #4caf50;
+        color: var(--success-color); // Updated to use theme variable
       }
       .wallet-amount {
         font-weight: 600;
-        color: #1a1a1a;
+        color: var(--text-primary); // Updated to use theme variable
       }
     }
   }
@@ -289,6 +280,7 @@ body {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
+      color: var(--text-primary); // Updated to use theme variable
     }
   }
   .notification-list {
@@ -297,20 +289,21 @@ body {
   }
   .notification-item {
     &.unread {
-      background-color: #e8f0fe;
+      background-color: color-mix(in srgb, var(--info-color), transparent 90%); // Updated to use theme variable with transparency
     }
     .notification-content {
       white-space: normal;
       .notification-title {
         font-weight: 600;
+        color: var(--text-primary); // Updated to use theme variable
       }
       .notification-message {
-        color: #666;
+        color: var(--text-secondary); // Updated to use theme variable
         font-size: 13px;
       }
       .notification-time {
         font-size: 11px;
-        color: #999;
+        color: var(--text-tertiary); // Updated to use theme variable
         margin-top: 4px;
       }
     }
@@ -318,7 +311,7 @@ body {
   .no-notifications {
     padding: 40px;
     text-align: center;
-    color: #999;
+    color: var(--text-tertiary); // Updated to use theme variable
     mat-icon {
       font-size: 48px;
       width: 48px;
@@ -339,10 +332,11 @@ body {
   max-width: 700px;
   border-radius: 12px;
   padding: 0;
+  background: var(--surface-color); // Updated to use theme variable
   
   .cart-header {
     padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color); // Updated to use theme variable
     .cart-title {
       display: flex;
       align-items: center;
@@ -361,12 +355,12 @@ body {
       margin-top: 16px;
       .items-count {
         font-size: 14px;
-        color: #666;
+        color: var(--text-secondary); // Updated to use theme variable
       }
       .total-price {
         font-size: 20px;
         font-weight: 700;
-        color: #673ab7;
+        color: var(--primary-color); // Updated to use theme variable
       }
     }
   }
@@ -379,7 +373,7 @@ body {
       background: none;
       border: none;
       border-bottom: 2px solid transparent;
-      color: #666;
+      color: var(--text-secondary); // Updated to use theme variable
       font-weight: 600;
       cursor: pointer;
       display: flex;
@@ -389,15 +383,15 @@ body {
       transition: color 0.3s, border-color 0.3s;
       
       &:hover {
-        color: #1a1a1a;
+        color: var(--text-primary); // Updated to use theme variable
       }
       &.active {
-        color: #673ab7;
-        border-bottom: 2px solid #673ab7;
+        color: var(--primary-color); // Updated to use theme variable
+        border-bottom: 2px solid var(--primary-color); // Updated to use theme variable
       }
       .badge {
-        background-color: #ff9800;
-        color: white;
+        background-color: var(--warning-color); // Updated to use theme variable
+        color: var(--white); // Using static white for text on colored background
         font-size: 12px;
         padding: 2px 6px;
         border-radius: 10px;
@@ -425,7 +419,7 @@ body {
     .empty-cart-icon {
       width: 64px;
       height: 64px;
-      background: #f8f9fa;
+      background: var(--gray-100); // Using static gray for consistent appearance
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -433,22 +427,23 @@ body {
       margin: 0 auto 20px;
       mat-icon {
         font-size: 32px;
-        color: #999;
+        color: var(--text-tertiary); // Updated to use theme variable
       }
     }
     h4 {
       margin: 0 0 8px;
       font-size: 18px;
+      color: var(--text-primary); // Updated to use theme variable
     }
     p {
       margin: 0 0 24px;
-      color: #666;
+      color: var(--text-secondary); // Updated to use theme variable
     }
   }
 
   .checkout-section {
     padding: 16px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color); // Updated to use theme variable
     .checkout-total {
       display: flex;
       justify-content: space-between;
@@ -456,8 +451,9 @@ body {
       margin-bottom: 16px;
       font-size: 18px;
       font-weight: 600;
+      color: var(--text-primary); // Updated to use theme variable
       .amount {
-        color: #4caf50;
+        color: var(--success-color); // Updated to use theme variable
       }
     }
     .secure-checkout {
@@ -466,7 +462,7 @@ body {
       gap: 8px;
       justify-content: center;
       margin-top: 16px;
-      color: #999;
+      color: var(--text-tertiary); // Updated to use theme variable
       font-size: 12px;
       mat-icon {
         font-size: 16px;
@@ -478,7 +474,7 @@ body {
       text-align: center;
       p {
         margin: 5px 0;
-        color: gray;
+        color: var(--text-secondary); // Updated to use theme variable
       }
   }
 
@@ -494,7 +490,7 @@ body {
         text-align: left;
         padding: 16px;
         border-radius: 8px;
-        background-color: #f8f9fa;
+        background-color: var(--gray-100); // Using static gray for consistent appearance
         transition: background-color 0.2s;
         cursor: pointer;
         
@@ -503,18 +499,19 @@ body {
           cursor: not-allowed;
         }
         &:hover:not(:disabled) {
-          background-color: #e9ecef;
+          background-color: var(--gray-200); // Using static gray for consistent appearance
         }
         mat-icon {
-          color: #673ab7;
+          color: var(--primary-color); // Updated to use theme variable
         }
         span {
           display: flex;
           flex-direction: column;
           font-weight: 500;
+          color: var(--text-primary); // Updated to use theme variable
           small {
             font-size: 12px;
-            color: #666;
+            color: var(--text-secondary); // Updated to use theme variable
             font-weight: 400;
           }
         }
@@ -529,17 +526,17 @@ body {
         gap: 8px;
         padding: 12px;
         border-radius: 8px;
-        color: #1a1a1a;
+        color: var(--text-primary); // Updated to use theme variable
         font-weight: 500;
         transition: background-color 0.2s;
         cursor: pointer;
         margin-top: 10px;
         
         &:hover {
-          background-color: #f8f9fa;
+          background-color: var(--gray-100); // Using static gray for consistent appearance
         }
         mat-icon {
-          color: #666;
+          color: var(--text-secondary); // Updated to use theme variable
         }
       }
     }
@@ -550,7 +547,7 @@ body {
    New Campaign Summary Card
    ========================================================================== */
 .campaigns-summary-card {
-  background: #ffffff;
+  background: var(--surface-color); // Updated to use theme variable
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   padding: 16px;
@@ -565,12 +562,13 @@ body {
       align-items: center;
       gap: 12px;
       .summary-icon {
-        color: #673ab7;
+        color: var(--primary-color); // Updated to use theme variable
       }
       .summary-title {
         font-size: 18px;
         font-weight: 600;
         margin: 0;
+        color: var(--text-primary); // Updated to use theme variable
       }
     }
     .view-all-btn {
@@ -581,6 +579,7 @@ body {
 
   .summary-divider {
     margin: 12px 0;
+    border-color: var(--border-color); // Updated to use theme variable
   }
 
   .summary-metrics-grid {
@@ -589,7 +588,7 @@ body {
     gap: 16px;
 
     .metric-summary {
-      background: #f8f9fa;
+      background: var(--gray-100); // Using static gray for consistent appearance
       border-radius: 8px;
       padding: 12px;
       display: flex;
@@ -602,7 +601,7 @@ body {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: #eceff1;
+        background-color: var(--gray-200); // Using static gray for consistent appearance
         .metric-icon {
           font-size: 20px;
         }
@@ -613,22 +612,19 @@ body {
         .metric-value {
           font-size: 18px;
           font-weight: 700;
-          color: #1a1a1a;
+          color: var(--text-primary); // Updated to use theme variable
         }
         .metric-label {
           font-size: 12px;
-          color: #666;
+          color: var(--text-secondary); // Updated to use theme variable
         }
       }
 
-      // Metric-specific colors
-      &.active-campaigns .metric-icon { color: #2196f3; }
-      &.total-promotions .metric-icon { color: #4caf50; }
-      &.total-spending .metric-icon { color: #f44336; }
-      &.budget-remaining .metric-icon { color: #673ab7; }
+      // Metric-specific colors - using theme variables
+      &.active-campaigns .metric-icon { color: var(--info-color); }
+      &.total-promotions .metric-icon { color: var(--success-color); }
+      &.total-spending .metric-icon { color: var(--error-color); }
+      &.budget-remaining .metric-icon { color: var(--primary-color); }
     }
-
-    
   }
-  
 }

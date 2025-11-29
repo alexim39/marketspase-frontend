@@ -1,8 +1,12 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .header {
   width: inherit;
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  // UPDATED: Use gradient-primary variable for dynamic theming
+  background: $gradient-primary;
+  color: $white;
   padding: 1.5rem 1rem;
   z-index: 10;
   overflow: hidden;
@@ -33,12 +37,14 @@
     font-size: 1.875rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
+    color: $white; // UPDATED: Ensure text stays white for contrast
   }
 
   p {
     opacity: 0.9;
     font-weight: 400;
     margin-bottom: 1.5rem;
+    color: $white; // UPDATED: Ensure text stays white for contrast
   }
 }
 
@@ -55,18 +61,21 @@
   padding: 0.625rem 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all $transition-fast;
   border: none;
   outline: none;
 
   &.btn-primary {
-    background: linear-gradient(135deg, #8b5cf6 0%, #764ba2 100%) !important;
-    color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    // UPDATED: Use gradient-primary variable for button background
+    background: $gradient-primary !important;
+    color: $white;
+    // UPDATED: Use shadow variable for consistent shadow styling
+    box-shadow: $shadow;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      // UPDATED: Use shadow-lg variable for hover state
+      box-shadow: $shadow-lg;
     }
   }
 }

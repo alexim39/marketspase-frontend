@@ -1,0 +1,117 @@
+// shared/confirm-dialog/confirm-dialog.component.scss
+@use '../../../../styles/mixins' as mixins;
+@use '../../../../styles/variables' as vars;
+
+.confirm-dialog {
+  min-width: 400px;
+  max-width: 500px;
+  padding: 0;
+
+  @include mixins.mobile {
+    min-width: 300px;
+    max-width: 90vw;
+    margin: vars.$spacing-4;
+  }
+
+  .dialog-header {
+    padding: vars.$spacing-6 vars.$spacing-6 0 vars.$spacing-6;
+
+    .header-content {
+      @include mixins.flex-center;
+      gap: vars.$spacing-3;
+      text-align: center;
+
+      .dialog-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .dialog-title {
+        @include mixins.heading-small;
+        margin: 0;
+        color: vars.$text-primary;
+        text-align: center;
+        flex: 1;
+      }
+    }
+  }
+
+  .dialog-content {
+    padding: vars.$spacing-4 vars.$spacing-6;
+
+    .dialog-message {
+      @include mixins.body-large;
+      color: vars.$text-secondary;
+      margin: 0;
+      line-height: vars.$line-height-relaxed;
+      text-align: center;
+    }
+  }
+
+  .dialog-actions {
+    @include mixins.flex-between;
+    padding: vars.$spacing-4 vars.$spacing-6 vars.$spacing-6 vars.$spacing-6;
+    gap: vars.$spacing-3;
+
+    @include mixins.mobile {
+      flex-direction: column-reverse;
+      gap: vars.$spacing-2;
+    }
+
+    .cancel-button {
+      flex: 1;
+
+      @include mixins.mobile {
+        width: 100%;
+      }
+    }
+
+    .confirm-button {
+      flex: 1;
+
+      @include mixins.mobile {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Custom styles for different dialog types
+::ng-deep {
+  .confirm-dialog-warning {
+    .dialog-icon {
+      color: vars.$warning-color !important;
+    }
+  }
+
+  .confirm-dialog-error {
+    .dialog-icon {
+      color: vars.$error-color !important;
+    }
+  }
+
+  .confirm-dialog-info {
+    .dialog-icon {
+      color: vars.$info-color !important;
+    }
+  }
+
+  .confirm-dialog-success {
+    .dialog-icon {
+      color: vars.$success-color !important;
+    }
+  }
+}
+
+// Animation for dialog entrance
+:host {
+  @include mixins.fade-in;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .confirm-dialog {
+    border: 2px solid vars.$black;
+  }
+}

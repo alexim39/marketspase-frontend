@@ -1,0 +1,58 @@
+@import './../../../styles/variables';
+@import './../../../styles/mixins';
+
+.account-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-4;
+}
+
+.settings-card {
+  width: 100%;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  // UPDATED: Use surface-color for card background
+  background: $surface-color;
+}
+
+::ng-deep .mat-expansion-panel {
+  box-shadow: none;
+  border-radius: 0;
+  // UPDATED: Use border-color for expansion panel borders
+  border-bottom: 1px solid $border-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .mat-expansion-panel-header {
+    height: 64px;
+    padding: 0 $spacing-6;
+
+    .mat-content {
+      align-items: center;
+    }
+
+    mat-icon {
+      // UPDATED: Use primary-color for expansion panel icons
+      color: $primary-color;
+      margin-right: $spacing-4;
+    }
+
+    .mat-expansion-panel-header-title {
+      font-weight: $font-weight-medium;
+      // UPDATED: Use text-primary for header title
+      color: $text-primary;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .account-container {
+    padding: $spacing-3;
+  }
+  
+  ::ng-deep .mat-expansion-panel-header {
+    padding: 0 $spacing-4;
+  }
+}

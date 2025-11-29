@@ -1,0 +1,415 @@
+// theme.component.scss
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
+.theme-settings {
+  padding: $spacing-4;
+
+  .section-title {
+    @include heading-small;
+    margin: 0 0 $spacing-2;
+    color: $text-primary;
+  }
+
+  .section-description {
+    @include body-medium;
+    color: $text-secondary;
+    margin: 0 0 $spacing-8;
+  }
+
+  .setting-card {
+    @include card-base;
+    padding: $spacing-6;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-sm;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: $shadow-md;
+    }
+  }
+
+  .setting-row {
+    @include flex-between;
+    align-items: center;
+    padding: $spacing-6 0;
+    border-bottom: $border-width solid $border-color;
+
+    .setting-info {
+      @include flex-center;
+      flex: 1;
+
+      mat-icon {
+        color: $primary-color;
+        margin-right: $spacing-6;
+        font-size: $font-size-2xl;
+        width: $font-size-2xl;
+        height: $font-size-2xl;
+      }
+
+      h4 {
+        margin: 0;
+        @include body-large;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+      }
+
+      p {
+        margin: $spacing-1 0 0;
+        @include body-medium;
+        color: $text-secondary;
+        line-height: 1.5;
+      }
+    }
+
+    .theme-toggle-container {
+      ::ng-deep .mat-slide-toggle {
+        .mat-slide-toggle-bar {
+          background-color: $gray-400;
+          width: 64px;
+          height: 32px;
+          border-radius: 16px;
+        }
+
+        &.mat-checked .mat-slide-toggle-bar {
+          background-color: $primary-color;
+        }
+
+        .mat-slide-toggle-thumb {
+          width: 24px;
+          height: 24px;
+          background-color: $white;
+          box-shadow: $shadow-sm;
+        }
+
+        &.mat-checked .mat-slide-toggle-thumb {
+          background-color: $white;
+        }
+
+        .mat-slide-toggle-content {
+          @include body-medium;
+          font-weight: $font-weight-medium;
+        }
+
+        &.mat-disabled {
+          opacity: 0.6;
+        }
+      }
+    }
+  }
+
+  .theme-preview-section {
+    margin-top: $spacing-8;
+    padding: $spacing-6 0;
+
+    h5 {
+      margin: 0 0 $spacing-6;
+      @include body-large;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+    }
+
+    .theme-previews {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: $spacing-6;
+      margin-top: $spacing-4;
+
+      @include mobile {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .theme-preview {
+      border: 2px solid $border-color;
+      border-radius: $border-radius-lg;
+      padding: $spacing-4;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: $white;
+      position: relative;
+
+      &:hover:not(.disabled) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+
+      &.active {
+        border-color: $primary-color;
+        background: rgba($primary-color, 0.05);
+      }
+
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      &.dark-theme {
+        background: $gray-900;
+        color: $white;
+
+        .preview-header {
+          background: $gray-800;
+        }
+
+        .preview-dots span {
+          background: $gray-400;
+        }
+
+        .preview-card {
+          background: $gray-700;
+        }
+
+        .preview-text .text-line {
+          background: $gray-600;
+        }
+      }
+
+      .preview-header {
+        background: $gray-100;
+        border-radius: $border-radius;
+        padding: $spacing-3;
+        margin-bottom: $spacing-4;
+      }
+
+      .preview-dots {
+        display: flex;
+        gap: $spacing-2;
+
+        span {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+
+          &:nth-child(1) { background: #ff5f57; }
+          &:nth-child(2) { background: #ffbd2e; }
+          &:nth-child(3) { background: #28ca42; }
+        }
+      }
+
+      .preview-content {
+        display: flex;
+        gap: $spacing-3;
+        margin-bottom: $spacing-4;
+      }
+
+      .preview-card {
+        width: 40px;
+        height: 40px;
+        background: $gray-200;
+        border-radius: $border-radius-sm;
+      }
+
+      .preview-text {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
+
+        .text-line {
+          height: 8px;
+          border-radius: 4px;
+          background: $gray-200;
+
+          &.short {
+            width: 60%;
+          }
+
+          &.medium {
+            width: 80%;
+          }
+        }
+      }
+
+      .theme-label {
+        @include flex-center;
+        gap: $spacing-2;
+        @include body-medium;
+        font-weight: $font-weight-medium;
+
+        mat-icon {
+          font-size: $font-size-lg;
+          width: $font-size-lg;
+          height: $font-size-lg;
+        }
+
+        .badge {
+          background: $primary-color;
+          color: $white;
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-medium;
+        }
+      }
+    }
+  }
+
+  .additional-options {
+    margin-top: $spacing-8;
+    padding-top: $spacing-6;
+    border-top: $border-width solid $border-color;
+    background: rgba($primary-color, 0.54);
+
+    h5 {
+      margin: 0 0 $spacing-6;
+      @include body-large;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+    }
+
+    .option-list {
+      @include flex-column;
+      gap: $spacing-4;
+    }
+
+    .option-item {
+      @include flex-between;
+      align-items: center;
+      padding: $spacing-4;
+      border-radius: $border-radius;
+      background: $gray-50;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: $gray-100;
+      }
+
+      .option-info {
+        @include flex-center;
+        flex: 1;
+
+        mat-icon {
+          color: $text-secondary;
+          margin-right: $spacing-4;
+          font-size: $font-size-xl;
+          width: $font-size-xl;
+          height: $font-size-xl;
+        }
+
+        h6 {
+          margin: 0;
+          @include body-medium;
+          font-weight: $font-weight-medium;
+          color: $text-primary;
+        }
+
+        p {
+          margin: $spacing-1 0 0;
+          @include body-small;
+          color: $text-secondary;
+        }
+
+        .option-note {
+          display: block;
+          margin-top: $spacing-1;
+          color: $primary-color;
+          font-weight: $font-weight-medium;
+        }
+      }
+
+      ::ng-deep .mat-slide-toggle {
+        .mat-slide-toggle-bar {
+          background-color: $gray-300;
+        }
+
+        &.mat-checked .mat-slide-toggle-bar {
+          background-color: rgba($primary-color, 0.54);
+        }
+
+        .mat-slide-toggle-thumb {
+          background-color: $gray-100;
+        }
+
+        &.mat-checked .mat-slide-toggle-thumb {
+          background-color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .theme-settings {
+    padding: $spacing-3;
+
+    .setting-card {
+      padding: $spacing-4;
+    }
+
+    .setting-row {
+      padding: $spacing-4 0;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-4;
+
+      .theme-toggle-container {
+        align-self: flex-end;
+      }
+    }
+
+    .theme-previews {
+      grid-template-columns: 1fr !important;
+    }
+
+    .option-item {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: $spacing-3;
+
+      ::ng-deep .mat-slide-toggle {
+        align-self: flex-end;
+      }
+    }
+  }
+}
+
+// Dark theme support for the component itself
+:host-context(.dark-theme) {
+  .theme-settings {
+    .setting-card {
+      background: $gray-800;
+      color: $white;
+    }
+
+    .section-title,
+    .setting-info h4,
+    .theme-preview-section h5,
+    .additional-options h5,
+    .option-info h6 {
+      color: $gray-100;
+    }
+
+    .section-description,
+    .setting-info p,
+    .option-info p {
+      color: $gray-300;
+    }
+
+    .option-item {
+      background: $gray-700;
+
+      &:hover {
+        background: $gray-600;
+      }
+    }
+
+    .theme-preview.light-theme:not(.active) {
+      background: $gray-700;
+    }
+  }
+}
+
+// High contrast mode support
+:host-context(.high-contrast) {
+  .theme-settings {
+    .setting-card {
+      border: 2px solid $text-primary;
+    }
+
+    .theme-preview.active {
+      border-width: 3px;
+    }
+  }
+}

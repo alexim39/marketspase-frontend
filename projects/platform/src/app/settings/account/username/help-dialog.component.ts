@@ -40,67 +40,7 @@ import { MatDividerModule } from '@angular/material/divider';
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-    .help-dialog-container {
-      padding: 0;
-      max-width: 100%;
-      
-      .dialog-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px 0;
-
-        h2 {
-          display: flex;
-          align-items: center;
-          margin: 0;
-          font-size: 20px;
-          font-weight: 500;
-
-          .header-icon {
-            margin-right: 12px;
-            color: #667eea;
-          }
-        }
-
-        .close-button {
-          margin-right: -8px;
-        }
-      }
-
-      .dialog-content {
-        padding: 20px 24px;
-        font-size: 15px;
-        line-height: 1.5;
-        color: #333;
-
-        h4 {
-          color: #667eea;
-          margin: 20px 0 10px;
-          font-size: 16px;
-        }
-
-        ul {
-          padding-left: 20px;
-          margin: 10px 0;
-
-          li {
-            margin-bottom: 8px;
-          }
-        }
-
-        p {
-          margin: 15px 0 0;
-        }
-      }
-
-      mat-dialog-actions {
-        padding: 10px 24px;
-        margin-bottom: 0;
-      }
-    }
-  `]
+  styleUrls: ['./help-dialog.component.scss']
 })
 export class UsernameDialogComponent {
   constructor(

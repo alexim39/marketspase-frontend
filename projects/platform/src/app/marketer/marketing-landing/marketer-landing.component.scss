@@ -1,7 +1,13 @@
+// marketer-landing.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .container {
   display: flex;
   flex-direction: column;
-  font-family: 'Inter', sans-serif;
+  font-family: $font-family; // UPDATED: Use font-family variable
+  // UPDATED: Use background-color variable for dynamic theming
+  background: $background-color;
 }
 
 .mobile-fab {
@@ -10,19 +16,22 @@
   right: 2rem;
   width: 56px;
   height: 56px;
-  background: #667eea;
-  color: white;
+  // UPDATED: Use primary-color variable for dynamic theming
+  background: $primary-color;
+  color: $white; // UPDATED: Use white variable for consistent text color
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  // UPDATED: Use shadow-lg variable for consistent shadow styling
+  box-shadow: $shadow-lg;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all $transition-normal; // UPDATED: Use transition-normal variable
   z-index: 50;
 
   &:hover {
-    background: #6d28d9;
+    // UPDATED: Use primary-dark variable for hover state with dynamic theming
+    background: $primary-dark;
     transform: scale(1.1);
   }
 

@@ -1,28 +1,36 @@
 
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
 .professional-card {
   //max-width: 800px;
   margin: 24px auto;
   padding: 0;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  // UPDATED: Use shadow variable for consistent shadow
+  box-shadow: var(--shadow, 0 2px 10px rgba(0, 0, 0, 0.1));
   border-radius: 8px;
+  background-color: $surface-color;
 
   .professional-title {
     font-size: 24px;
     font-weight: 500;
     display: flex;
     align-items: center;
-    //color: #202124;
+    // UPDATED: Use text-primary for title
+    color: $text-primary;
 
     .professional-icon {
       margin-right: 12px;
-      //color: mat-color($mat-deep-purple, 600);
+      // UPDATED: Use primary-color for icons
+      color: $primary-color;
     }
   }
 
   .professional-subtitle {
     font-size: 14px;
-    color: #5f6368;
+    // UPDATED: Use text-secondary for subtitle
+    color: $text-secondary;
     margin-top: 8px;
   }
 
@@ -37,12 +45,14 @@
         align-items: center;
         font-size: 18px;
         font-weight: 500;
-        //color: #202124;
+        // UPDATED: Use text-primary for section headers
+        color: $text-primary;
         margin: 0 0 16px;
 
         mat-icon {
           margin-right: 12px;
-          //color: mat-color($mat-deep-purple, 600);
+          // UPDATED: Use primary-color for section icons
+          color: $primary-color;
           font-size: 22px;
           width: 22px;
           height: 22px;
@@ -65,7 +75,8 @@
     display: flex;
     justify-content: flex-end;
     padding: 16px 24px;
-    //background-color: #f8f9fa;
+    // UPDATED: Use gray-50 for actions background
+    //background-color: $gray-50;
 
     .cancel-button {
       margin-right: 16px;
@@ -96,9 +107,11 @@
 
 // Snackbar styles
 .snackbar-success {
-  background-color: green; //mat-color($mat-green, 600);
+  // UPDATED: Use success-color for success snackbar
+  background-color: $success-color;
 }
 
 .snackbar-error {
-  background-color: red; // mat-color($mat-red, 600);
+  // UPDATED: Use error-color for error snackbar
+  background-color: $error-color;
 }

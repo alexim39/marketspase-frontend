@@ -119,14 +119,7 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
       @if (activeTab === 'quick-actions') {
         <div class="quick-actions-content">
           <div class="quick-actions-grid">
-            <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')" [disabled]="user()!.role === 'promoter'">
-              <mat-icon>attach_money</mat-icon>
-              <span>
-                Switch to Promoter
-                <small>Earn by posting ads on your WhatsApp status</small>
-              </span>
-            </button>
-
+            @if (user()?.role === 'promoter') {
             <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('marketer')" [disabled]="user()!.role === 'marketer'">
               <mat-icon>campaign</mat-icon>
               <span>
@@ -134,6 +127,16 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
                 <small>Pay promoters to post your ads on their WhatsApp status</small>
               </span>
             </button>
+            }
+            @if (user()?.role === 'marketer') {
+              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')" [disabled]="user()!.role === 'promoter'">
+                <mat-icon>attach_money</mat-icon>
+                <span>
+                  Switch to Promoter
+                  <small>Earn by posting ads on your WhatsApp status</small>
+                </span>
+              </button>
+            }
           </div>
 
           <div class="account-section">
@@ -142,6 +145,12 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
               <mat-icon>person</mat-icon>
               <span>Profile & Settings</span>
             </button>
+            <!-- <button matRipple class="account-action"  (click)="themeService.toggleTheme()">
+              <mat-icon>
+                {{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}
+              </mat-icon>
+              <span>Toggle Theme</span>
+            </button> -->
           </div>
         </div>
       }
@@ -162,4 +171,16 @@ export class CartDialogComponent {
   @Output() viewAllPromotions = new EventEmitter<void>();
   @Output() viewWithdrawal = new EventEmitter<void>();
   @Output() switchUser = new EventEmitter<string>();
+
+
+
+/* 
+
+  ### **Summary of Logic**
+1.  **Priority:** The service first checks LocalStorage. If nothing is found, it checks the user's OS System Preference (e.g., "Dark Mode" on Windows/Mac).
+2.  **Attribute:** It sets `data-theme="dark"` on the `<body>` tag, which triggers the CSS variables we defined in Step 1.
+3.  **Signals:** It uses Angular Signals (`currentTheme()`) so your UI (icons, text) updates instantly without needing `async` pipes or subscriptions.
+
+*/
+
 }

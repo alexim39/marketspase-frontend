@@ -1,3 +1,4 @@
+
 // promotion-proof.component.scss (updated)
 @import './../../../../../../styles/variables';
 @import './../../../../../../styles/mixins';
@@ -13,6 +14,7 @@
       margin: 0;
       font-size: 1.25rem;
       font-weight: 600;
+      // UPDATED: Already using text-primary variable - good!
       color: $text-primary;
     }
   }
@@ -31,13 +33,15 @@
       border-radius: 12px;
       overflow: hidden;
       aspect-ratio: 1;
-      background: #f3f4f6;
+      // UPDATED: Use gray-100 for background
+      background: $gray-100;
       cursor: pointer;
       transition: transform 0.2s ease;
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        // UPDATED: Use shadow-lg variable for consistent shadow
+        box-shadow: $shadow-lg;
         
         .proof-actions {
           opacity: 1;
@@ -73,16 +77,19 @@
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.9);
+      // UPDATED: Use surface-color for button background
+      background: $surface-color;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       border: none;
-      color: #1f2937;
+      // UPDATED: Use text-primary for button icon
+      color: $text-primary;
 
       &:hover {
-        background: white;
+        // UPDATED: Use gray-50 for hover background
+        background: $gray-50;
       }
     }
     
@@ -92,7 +99,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: #f3f4f6;
+      // UPDATED: Use gray-100 for loading background
+      background: $gray-100;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -102,7 +110,8 @@
         width: 24px;
         height: 24px;
         border: 2px solid rgba(0, 0, 0, 0.1);
-        border-top: 2px solid #3b82f6;
+        // UPDATED: Use primary-color for spinner
+        border-top: 2px solid $primary-color;
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -117,5 +126,6 @@
 
 // Global backdrop styles (add to your styles.scss)
 .image-viewer-backdrop {
+  // UPDATED: Keep dark backdrop for image viewing context
   background: rgba(0, 0, 0, 0.9) !important;
 }

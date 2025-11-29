@@ -1,9 +1,13 @@
 /* --- General Layout and Container Styles --- */
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .promoter-landing-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f9fafb;
+  // UPDATED: Use background-color variable for dynamic theming
+  background: $background-color;
   padding: 0 20px;
 }
 
@@ -26,11 +30,13 @@
 
 /* --- Active Alert Styles --- */
 .active-alert {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+  // UPDATED: Use info-color with lightened background for alert
+  background: linear-gradient(135deg, rgba($info-color, 0.1) 0%, rgba($info-color, 0.05) 100%);
   border-radius: 12px;
   padding: 16px;
   margin: 24px 0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  // UPDATED: Use shadow variable for consistent shadow styling
+  box-shadow: $shadow;
 }
 
 .alert-content {
@@ -40,7 +46,8 @@
 }
 
 .alert-icon {
-  color: #1d4ed8;
+  // UPDATED: Use info-color for alert icon
+  color: $info-color;
   font-size: 32px;
 }
 
@@ -51,19 +58,24 @@
 .alert-text h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   margin-bottom: 4px;
 }
 
 .alert-text p {
   font-size: 14px;
-  color: #4b5563;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
 }
 
 .alert-btn {
-  background: #ffffff;
-  border: 1px solid #d1d5db;
-  color: #1f2937;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
+  // UPDATED: Use text-primary variable for dynamic theming
+  color: $text-primary;
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 14px;
@@ -72,11 +84,12 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all $transition-fast;
 }
 
 .alert-btn:hover {
-  background: #f3f4f6;
+  // UPDATED: Use gray-50 variable for hover background
+  background: $gray-50;
 }
 
 /* --- Mobile FAB --- */
@@ -87,14 +100,16 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #667eea;
-  color: #ffffff;
+  // UPDATED: Use primary-color variable for dynamic theming
+  background: $primary-color;
+  color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  // UPDATED: Use shadow-lg variable for consistent shadow styling
+  box-shadow: $shadow-lg;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all $transition-fast;
   z-index: 50;
 
   i {
@@ -103,7 +118,8 @@
 }
 
 .mobile-fab:hover {
-  background: #1d4ed8;
+  // UPDATED: Use primary-dark variable for hover state
+  background: $primary-dark;
   transform: scale(1.05);
 }
 
@@ -120,7 +136,7 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all $transition-fast;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,14 +144,14 @@
 }
 
 .btn-primary {
-  background: #667eea;
-  color: #ffffff;
+  // UPDATED: Use primary-color variable for dynamic theming
+  background: $primary-color;
+  color: $white;
   &:hover {
-    background: #1d4ed8;
+    // UPDATED: Use primary-dark variable for hover state
+    background: $primary-dark;
   }
 }
-
-
 
 // Add these styles to promoter-landing.component.scss
 .campaigns-container {
@@ -191,7 +207,8 @@
   gap: 1rem;
   
   span {
-    color: #666;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
     font-size: 0.9rem;
   }
 }
@@ -206,14 +223,17 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+    // UPDATED: Use gray-50 variable for button background
+    background: $gray-50;
+    // UPDATED: Use border-color variable for dynamic theming
+    border: 1px solid $border-color;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all $transition-normal;
     
     &:hover {
-      background: #e9ecef;
+      // UPDATED: Use gray-100 variable for hover background
+      background: $gray-100;
     }
   }
 }
@@ -221,11 +241,13 @@
 .no-more-campaigns {
   text-align: center;
   padding: 2rem;
-  color: #6c757d;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   font-style: italic;
 }
 
 .snackbar-link .mat-simple-snackbar-action {
-  color: #ff8400;
+  // UPDATED: Use warning-color for snackbar action
+  color: $warning-color;
   font-weight: bold;
 }

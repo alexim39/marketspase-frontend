@@ -1,14 +1,20 @@
 // general-msg-notifier-banner.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .notification-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgb(255, 243, 205);
-  color: rgb(133, 100, 4);
+  // UPDATED: Use warning-color with lightened background for dynamic theming
+  background-color: rgba($warning-color, 0.1);
+  // UPDATED: Use warning-color variable for dynamic theming
+  color: $warning-color;
   padding: 12px;
   border-radius: 5px;
   font-size: 14px;
-  border-left: 4px solid rgb(255, 193, 7);
+  // UPDATED: Use warning-color variable for dynamic theming
+  border-left: 4px solid $warning-color;
   position: relative;
   margin: 1em 2em !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -16,20 +22,23 @@
 
 .notification-icon {
   font-size: 20px;
-  color: rgb(133, 100, 4);
+  // UPDATED: Use warning-color variable for dynamic theming
+  color: $warning-color;
   margin-right: 10px;
 }
 
 .close-icon {
   font-size: 20px;
   cursor: pointer;
-  color: rgb(133, 100, 4);
+  // UPDATED: Use warning-color variable for dynamic theming
+  color: $warning-color;
   margin-left: auto;
   transition: color 0.2s ease;
 }
 
 .close-icon:hover {
-  color: rgb(84, 63, 2);
+  // UPDATED: Use darken-bg mixin for consistent darkening
+  @include darken-bg($warning-color, 20%);
   transform: scale(1.1);
 }
 
@@ -49,14 +58,16 @@
 }
 
 a {
-  color: rgb(133, 100, 4);
+  // UPDATED: Use warning-color variable for dynamic theming
+  color: $warning-color;
   text-decoration: underline;
   cursor: pointer;
   font-weight: bold;
 }
 
 a:hover {
-  color: rgb(84, 63, 2);
+  // UPDATED: Use darken-bg mixin for consistent darkening
+  @include darken-bg($warning-color, 20%);
 }
 
 @media (max-width: 768px) {
@@ -95,6 +106,12 @@ a:hover {
   animation: slideIn 0.3s ease-out;
   border-left: 4px solid;
   position: relative;
+  // UPDATED: Use warning-color with lightened background for dynamic theming
+  background-color: rgba($warning-color, 0.1);
+  // UPDATED: Use warning-color variable for dynamic theming
+  color: $warning-color;
+  // UPDATED: Use warning-color variable for dynamic theming
+  border-left-color: $warning-color;
 
   .notification-icon {
     margin-right: 12px;
@@ -102,6 +119,8 @@ a:hover {
     width: 20px;
     height: 20px;
     flex-shrink: 0;
+    // UPDATED: Use warning-color variable for dynamic theming
+    color: $warning-color;
   }
 
   .notification-content {
@@ -125,9 +144,13 @@ a:hover {
       font-weight: 500;
       text-decoration: underline;
       cursor: pointer;
+      // UPDATED: Use warning-color variable for dynamic theming
+      color: $warning-color;
       
       &:hover {
         opacity: 0.8;
+        // UPDATED: Use darken-bg mixin for consistent darkening
+        @include darken-bg($warning-color, 20%);
       }
     }
   }
@@ -138,10 +161,14 @@ a:hover {
     margin-left: 12px;
     flex-shrink: 0;
     transition: all 0.2s ease;
+    // UPDATED: Use warning-color variable for dynamic theming
+    color: $warning-color;
     
     &:hover {
       opacity: 1;
       transform: scale(1.1);
+      // UPDATED: Use darken-bg mixin for consistent darkening
+      @include darken-bg($warning-color, 20%);
     }
   }
 }

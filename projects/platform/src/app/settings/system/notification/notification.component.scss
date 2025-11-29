@@ -1,0 +1,110 @@
+// UPDATED: Import theme variables and mixins
+@import './../../../../styles/variables';
+@import './../../../../styles/mixins';
+
+.notification-settings {
+  padding: $spacing-4;
+  
+
+  .section-title {
+    @include heading-small;
+    margin: 0 0 $spacing-2;
+  }
+
+  .section-description {
+    @include body-medium;
+    color: $text-secondary;
+    margin: 0 0 $spacing-8;
+  }
+
+  .setting-card {
+    @include card-base;
+    padding: $spacing-6;
+    border-radius: $border-radius;
+  }
+
+  .setting-row {
+    @include flex-between;
+    align-items: center;
+    padding: $spacing-3 0;
+    border-bottom: $border-width solid $border-color;
+
+    .setting-info {
+      @include flex-center;
+
+      mat-icon {
+        color: $primary-color;
+        margin-right: $spacing-6;
+        font-size: $font-size-2xl;
+        width: $font-size-2xl;
+        height: $font-size-2xl;
+      }
+
+      h4 {
+        margin: 0;
+        @include body-large;
+        font-weight: $font-weight-medium;
+      }
+
+      p {
+        margin: $spacing-1 0 0;
+        @include body-medium;
+        color: $text-secondary;
+      }
+    }
+
+    ::ng-deep .mat-slide-toggle {
+      .mat-slide-toggle-bar {
+        background-color: $gray-300;
+      }
+
+      &.mat-checked .mat-slide-toggle-bar {
+        background-color: rgba($primary-color, 0.54);
+      }
+
+      .mat-slide-toggle-thumb {
+        background-color: $gray-100;
+      }
+
+      &.mat-checked .mat-slide-toggle-thumb {
+        background-color: $primary-color;
+      }
+    }
+  }
+
+  .notification-types {
+    margin-top: $spacing-6;
+
+    h5 {
+      margin: $spacing-6 0 $spacing-3;
+      @include body-large;
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+    }
+
+    .type-options {
+      @include flex-column;
+      gap: $spacing-3;
+    }
+
+    .type-option {
+      @include flex-center;
+      padding: $spacing-2;
+      border-radius: $border-radius-sm;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+
+      mat-icon {
+        color: $text-tertiary;
+        margin-right: $spacing-3;
+        font-size: $font-size-xl;
+        width: $font-size-xl;
+        height: $font-size-xl;
+      }
+
+      span {
+        @include body-medium;
+        color: $text-secondary;
+      }
+    }
+  }
+}

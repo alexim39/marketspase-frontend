@@ -1,4 +1,8 @@
+
 /* stats-overview-mobile.component.scss */
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
 .stats-overview {
   //background: #ffffff;
   //min-height: 100vh;
@@ -6,7 +10,8 @@
   
   // Header Styles
   .stats-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    // UPDATED: Use gradient-primary variable for dynamic theming
+    background: $gradient-primary;
     padding: 50px 16px 16px;
     color: white;
     position: relative;
@@ -141,15 +146,18 @@
   
   // Stat Cards - Reduced sizes
   .stat-card {
-    background: #ffffff;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
     border-radius: 16px;
     padding: 16px;
     position: relative;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    // UPDATED: Use border-color variable for dynamic theming
+    border: 1px solid $border-color;
+    // UPDATED: Use shadow-sm variable for consistent shadow
+    box-shadow: $shadow-sm;
     
     .card-background {
       position: absolute;
@@ -162,7 +170,9 @@
     }
     
     &.active {
-      border-color: #3b82f6;
+      // UPDATED: Use info-color for active border
+      border-color: $info-color;
+      // UPDATED: Use info-color with opacity for shadow
       box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15);
       transform: translateY(-1px);
       
@@ -235,7 +245,8 @@
         flex-shrink: 0;
         transition: all 0.3s ease;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        // UPDATED: Use gradient-primary for icon container
+        background: $gradient-primary;
         
         mat-icon {
           color: white;
@@ -259,14 +270,16 @@
           font-size: 24px;
           font-weight: 800;
           margin: 0 0 2px 0;
-          color: #1e293b;
+          // UPDATED: Use text-primary variable for dynamic theming
+          color: $text-primary;
           line-height: 1;
           letter-spacing: -0.5px;
         }
         
         .stat-label {
           font-size: 12px;
-          color: #64748b;
+          // UPDATED: Use text-secondary variable for dynamic theming
+          color: $text-secondary;
           margin: 0;
           font-weight: 600;
         }
@@ -280,12 +293,14 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
     border-radius: 20px 20px 0 0;
     transform: translateY(100%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
-    box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.15);
+    // UPDATED: Use shadow-xl variable for consistent shadow
+    box-shadow: $shadow-xl;
     
     &.active {
       transform: translateY(0);
@@ -304,7 +319,8 @@
       .handle-bar {
         width: 36px;
         height: 4px;
-        background: #e2e8f0;
+        // UPDATED: Use gray-200 for handle bar
+        background: $gray-200;
         border-radius: 2px;
       }
     }
@@ -349,19 +365,22 @@
               font-size: 18px;
               font-weight: 700;
               margin: 0 0 4px 0;
-              color: #1e293b;
+              // UPDATED: Use text-primary variable for dynamic theming
+              color: $text-primary;
             }
             
             p {
               font-size: 13px;
-              color: #64748b;
+              // UPDATED: Use text-secondary variable for dynamic theming
+              color: $text-secondary;
               margin: 0;
             }
           }
         }
         
         .close-sheet {
-          background: #f8fafc;
+          // UPDATED: Use gray-50 for close button background
+          background: $gray-50;
           border: none;
           border-radius: 10px;
           width: 36px;
@@ -370,19 +389,22 @@
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          color: #64748b;
+          // UPDATED: Use text-secondary for close button color
+          color: $text-secondary;
           transition: all 0.2s ease;
           flex-shrink: 0;
           
           &:active {
-            background: #e2e8f0;
+            // UPDATED: Use gray-200 for active state
+            background: $gray-200;
           }
         }
       }
       
       .sheet-body {
         .stat-details {
-          background: #f8fafc;
+          // UPDATED: Use gray-50 for details background
+          background: $gray-50;
           border-radius: 14px;
           padding: 16px;
           margin-bottom: 16px;
@@ -394,19 +416,22 @@
             padding: 6px 0;
             
             &:not(:last-child) {
-              border-bottom: 1px solid #e2e8f0;
+              // UPDATED: Use border-color for divider
+              border-bottom: 1px solid $border-color;
             }
             
             .detail-label {
               font-size: 13px;
-              color: #64748b;
+              // UPDATED: Use text-secondary for detail labels
+              color: $text-secondary;
               font-weight: 500;
             }
             
             .detail-value {
               font-size: 13px;
               font-weight: 600;
-              color: #1e293b;
+              // UPDATED: Use text-primary for detail values
+              color: $text-primary;
               
               &.pending { color: #d97706; }
               &.submitted { color: #ea580c; }
@@ -440,16 +465,20 @@
             transition: all 0.2s ease;
             
             &.secondary {
-              background: #f8fafc;
-              color: #475569;
+              // UPDATED: Use gray-50 for secondary button
+              background: $gray-50;
+              // UPDATED: Use text-secondary for secondary button text
+              color: $text-secondary;
               
               &:active {
-                background: #e2e8f0;
+                // UPDATED: Use gray-200 for active state
+                background: $gray-200;
               }
             }
             
             &.primary {
-              background: linear-gradient(135deg, #667eea, #764ba2);
+              // UPDATED: Use gradient-primary for primary button
+              background: $gradient-primary;
               color: white;
               
               &:active {

@@ -1,119 +1,122 @@
+@import './../../../../../styles/variables';
+@import './../../../../../styles/mixins';
+
 .payment-status {
-  background: white;
-  border-radius: 16px;
-  padding: 32px 24px;
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  padding: $spacing-8 $spacing-6;
   text-align: center;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 2px solid;
+  box-shadow: $shadow-2xl;
+  border: $border-width-2 solid;
   animation: statusSlideIn 0.5s ease-out;
-  color: rgb(95, 95, 95);
+  color: $text-secondary;
 
   &.success {
-    border-color: #10b981;
-    background: linear-gradient(145deg, #f0fdf4 0%, #ffffff 100%);
+    border-color: $success-color;
+    background: linear-gradient(145deg, rgba($success-color, 0.1) 0%, $surface-color 100%);
   }
 
   &.error {
-    border-color: #ef4444;
-    background: linear-gradient(145deg, #fef2f2 0%, #ffffff 100%);
+    border-color: $error-color;
+    background: linear-gradient(145deg, rgba($error-color, 0.1) 0%, $surface-color 100%);
   }
 
   .status-content {
     mat-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      margin-bottom: 20px;
+      font-size: $font-size-4xl;
+      width: $font-size-4xl;
+      height: $font-size-4xl;
+      margin-bottom: $spacing-5;
 
       &.success-icon {
-        color: #10b981;
+        color: $success-color;
       }
 
       &.error-icon {
-        color: #ef4444;
+        color: $error-color;
       }
     }
 
     h4 {
-      font-size: 24px;
-      font-weight: 700;
-      margin: 0 0 12px 0;
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      margin: 0 0 $spacing-3 0;
 
       .success & {
-        color: #065f46;
+        color: $success-color;
       }
 
       .error & {
-        color: #991b1b;
+        color: $error-color;
       }
     }
 
     p {
-      font-size: 16px;
-      margin: 0 0 12px 0;
-      line-height: 1.5;
+      font-size: $font-size-base;
+      margin: 0 0 $spacing-3 0;
+      line-height: $line-height-normal;
 
       .success & {
-        color: #047857;
+        color: $success-color;
       }
 
       .error & {
-        color: #dc2626;
+        color: $error-color;
       }
     }
 
     .success-details {
-      margin-top: 20px;
-      padding: 20px;
-      background: rgba(16, 185, 129, 0.1);
-      border-radius: 12px;
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      margin-top: $spacing-5;
+      padding: $spacing-5;
+      background: rgba($success-color, 0.1);
+      border-radius: $border-radius-md;
+      border: $border-width solid rgba($success-color, 0.2);
 
       p {
-        font-size: 14px;
-        color: #047857;
-        margin: 0 0 8px 0;
+        font-size: $font-size-sm;
+        color: $success-color;
+        margin: 0 0 $spacing-2 0;
 
         &:last-child {
           margin-bottom: 0;
           font-family: monospace;
-          font-weight: 600;
+          font-weight: $font-weight-semibold;
           word-break: break-all;
         }
       }
 
       .celebration-animation {
-        font-size: 48px;
-        margin-top: 16px;
+        font-size: $font-size-3xl;
+        margin-top: $spacing-4;
         animation: bounce 0.5s ease infinite alternate;
       }
     }
 
     .error-details {
       p {
-        font-size: 14px;
-        color: #dc2626;
-        margin: 0 0 8px 0;
+        font-size: $font-size-sm;
+        color: $error-color;
+        margin: 0 0 $spacing-2 0;
       }
     }
 
-    @media (max-width: 767px) {
+    @media (max-width: #{$breakpoint-md - 1px}) {
       mat-icon {
-        font-size: 56px;
-        width: 56px;
-        height: 56px;
+        font-size: $font-size-3xl;
+        width: $font-size-3xl;
+        height: $font-size-3xl;
       }
 
       h4 {
-        font-size: 20px;
+        font-size: $font-size-xl;
       }
 
       p {
-        font-size: 14px;
+        font-size: $font-size-sm;
       }
 
       .success-details {
-        padding: 16px;
+        padding: $spacing-4;
 
         p {
           font-size: 13px;

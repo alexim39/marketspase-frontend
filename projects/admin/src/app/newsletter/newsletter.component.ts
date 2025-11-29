@@ -135,7 +135,7 @@ export class NewsletterManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-     this.adminService.fetchAdmin();
+    this.adminService.fetchAdmin();
     this.loadNewsletters();
     this.loadStats();
     this.loadRecipientCounts();
@@ -153,6 +153,7 @@ export class NewsletterManagementComponent implements OnInit {
     this.newsletterService.getNewsletters().subscribe({
       next: (response) => {
         if (response.success) {
+          //console.log('Newsletters response data:', response.data);
           this.newsletters.set(response.data);
         }
         this.loadingService.hide();
@@ -169,6 +170,7 @@ export class NewsletterManagementComponent implements OnInit {
     this.newsletterService.getNewsletterStats().subscribe({
       next: (response) => {
         if (response.success) {
+          //console.log('Stats response data:', response.data);
           this.stats.set(response.data);
         }
       },
@@ -182,6 +184,7 @@ export class NewsletterManagementComponent implements OnInit {
     this.newsletterService.getRecipientCounts().subscribe({
       next: (response) => {
         if (response.success) {
+          //console.log('Recipient counts response data:', response.data); 
           this.recipientCounts.set(response.data);
         }
       },

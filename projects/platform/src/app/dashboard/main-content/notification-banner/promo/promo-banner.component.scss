@@ -1,11 +1,16 @@
 // notification-banner/notify-profile-banner.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .promo-banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  // UPDATED: Use gradient-primary variable for dynamic theming
+  background: $gradient-primary;
+  //color: white;
   border-radius: 12px;
   margin: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  // UPDATED: Use primary-color with rgba for dynamic theming
+  box-shadow: 0 4px 20px rgba($primary-color, 0.3);
   position: relative;
   transition: all 0.3s ease;
   
@@ -69,15 +74,14 @@
     flex-shrink: 0;
 
     .claim-btn {
-      background: rgba(255, 255, 255, 0.95);
-      color: #667eea;
+      // UPDATED: Use primary-color variable for dynamic theming
+      color: $primary-color;
       font-weight: 600;
       border-radius: 24px;
       padding: 8px 20px;
       transition: all 0.2s ease;
 
       &:hover {
-        background: white;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
@@ -91,12 +95,10 @@
     }
 
     .close-btn {
-      color: rgba(255, 255, 255, 0.8);
       width: 32px;
       height: 32px;
 
       &:hover {
-        color: white;
         background: rgba(255, 255, 255, 0.1);
       }
 
@@ -143,10 +145,12 @@
 // Animation for urgency
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    // UPDATED: Use primary-color with rgba for dynamic theming
+    box-shadow: 0 4px 20px rgba($primary-color, 0.3);
   }
   50% {
-    box-shadow: 0 4px 30px rgba(102, 126, 234, 0.6);
+    // UPDATED: Use primary-color with rgba for dynamic theming
+    box-shadow: 0 4px 30px rgba($primary-color, 0.6);
   }
 }
 

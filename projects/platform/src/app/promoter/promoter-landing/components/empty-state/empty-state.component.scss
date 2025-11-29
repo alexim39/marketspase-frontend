@@ -1,19 +1,27 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  background: #ffffff;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 16px;
-  border: 2px dashed #d1d5db;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 2px dashed $border-color;
 }
 
 .empty-icon {
   font-size: 64px;
-  color: #9ca3af;
+  // UPDATED: Use text-tertiary variable for dynamic theming
+  color: $text-tertiary;
   margin-bottom: 16px;
 }
 
 p {
   margin-top: 15px;
+  // UPDATED: Use text-secondary variable for dynamic theming
+  color: $text-secondary;
 }
 
 .setting-button {

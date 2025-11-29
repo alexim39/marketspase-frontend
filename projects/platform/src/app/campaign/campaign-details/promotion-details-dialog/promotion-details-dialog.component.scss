@@ -1,5 +1,5 @@
-@import './../../../../styles/variables';
-@import './../../../../styles/mixins';
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mixins;
 
 // Promotion Details Dialog
 .promotion-details-dialog {
@@ -10,7 +10,7 @@
       margin: 0 0 1rem;
       font-size: 1.1rem;
       font-weight: 600;
-      color: $text-primary;
+      color: vars.$text-primary;
     }
     
     .promoter-info-large {
@@ -22,8 +22,8 @@
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background-color: $primary-color;
-        color: white;
+        background-color: vars.$primary-color;
+        color: vars.$white;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -38,7 +38,7 @@
         .promoter-name {
           font-size: 1.1rem;
           font-weight: 600;
-          color: $text-primary;
+          color: vars.$text-primary;
           margin-bottom: 0.25rem;
         }
         
@@ -47,7 +47,7 @@
           align-items: center;
           gap: 0.5rem;
           font-size: 0.9rem;
-          color: $text-secondary;
+          color: vars.$text-secondary;
           
           mat-icon {
             font-size: 1rem;
@@ -58,7 +58,7 @@
         
         .promoter-rating {
           mat-icon {
-            color: #ffc107;
+            color: #ffc107; // Keeping static color for rating stars
           }
         }
       }
@@ -77,7 +77,7 @@
         left: 0;
         right: 0;
         height: 2px;
-        background-color: $border-color;
+        background-color: vars.$border-color;
         z-index: 1;
       }
       
@@ -91,12 +91,12 @@
         
         &.active {
           .step-icon {
-            background-color: $primary-color;
-            color: white;
+            background-color: vars.$primary-color;
+            color: vars.$white;
           }
           
           .step-title {
-            color: $primary-color;
+            color: vars.$primary-color;
             font-weight: 600;
           }
         }
@@ -105,8 +105,8 @@
           width: 2.5rem;
           height: 2.5rem;
           border-radius: 50%;
-          background-color: #f0f0f0;
-          color: $text-secondary;
+          background-color: vars.$gray-100;
+          color: vars.$text-secondary;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -124,13 +124,13 @@
           
           .step-title {
             font-size: 0.8rem;
-            color: $text-secondary;
+            color: vars.$text-secondary;
             margin-bottom: 0.25rem;
           }
           
           .step-time {
             font-size: 0.6rem;
-            color: $text-secondary;
+            color: vars.$text-secondary;
           }
         }
       }
@@ -157,12 +157,12 @@
     
     .rejection-reason, .promotion-notes {
       padding: 1rem;
-      background-color: #f8f9fa;
+      background-color: vars.$gray-100;
       border-radius: 8px;
       margin: 0;
       font-size: 0.9rem;
       line-height: 1.5;
-      color: $text-secondary;
+      color: vars.$text-secondary;
     }
   }
 }

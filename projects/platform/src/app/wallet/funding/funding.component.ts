@@ -22,7 +22,7 @@ import { DialogActionsComponent } from './components/dialog-actions/dialog-actio
 import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
 
 export interface WalletDialogData {
   currentBalance: number;
@@ -63,6 +63,9 @@ export class WalletFundingComponent implements OnInit {
   private userService = inject(UserService);
   private walletService = inject(WalletService);
   private router = inject(Router);
+
+  private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type());
 
   // Configuration
   readonly minFundingAmount = 500;

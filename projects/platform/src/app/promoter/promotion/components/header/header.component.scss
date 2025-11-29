@@ -1,6 +1,12 @@
+
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
 .header {
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  // UPDATED: Use shadow variable for consistent shadow
+  box-shadow: $shadow;
   padding: 16px 0;
 
   .container {
@@ -21,13 +27,15 @@
         margin: 0;
         font-size: 20px;
         font-weight: 600;
-        color: #1a1a1a;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
       }
     }
 
     .header-actions {
       .btn-help {
-        color: #666;
+        // UPDATED: Use text-secondary variable for dynamic theming
+        color: $text-secondary;
       }
     }
   }

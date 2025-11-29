@@ -1,0 +1,296 @@
+// components/quick-action-bar/quick-action-bar.component.scss
+@use '../../../../styles/mixins' as mixins;
+@use '../../../../styles/variables' as vars;
+
+.quick-action-bar {
+  position: fixed;
+  bottom: vars.$spacing-6;
+  right: vars.$spacing-6;
+  z-index: vars.$z-index-fixed;
+  transition: all vars.$transition-normal;
+
+  @include mixins.mobile {
+    bottom: vars.$spacing-4;
+    right: vars.$spacing-4;
+  }
+
+  &.mobile {
+    .mobile-actions {
+      .mobile-fab {
+        width: 56px;
+        height: 56px;
+        box-shadow: vars.$shadow-lg;
+        transition: all vars.$transition-normal;
+
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: vars.$shadow-xl;
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+
+      .mobile-actions-menu {
+        min-width: 200px;
+
+        .mobile-action-content {
+          @include mixins.flex-between;
+          width: 100%;
+          align-items: center;
+
+          .mobile-badge {
+            margin-right: vars.$spacing-2;
+          }
+
+          .mobile-action-label {
+            flex: 1;
+            text-align: left;
+            margin-left: vars.$spacing-2;
+          }
+
+          .mobile-verification-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            margin-left: vars.$spacing-2;
+          }
+        }
+      }
+    }
+  }
+
+  // Desktop Layout
+  .desktop-actions {
+    .actions-container {
+      @include mixins.flex-center;
+      gap: vars.$spacing-3;
+      background: vars.$surface-color;
+      padding: vars.$spacing-3;
+      border-radius: vars.$border-radius-xl;
+      box-shadow: vars.$shadow-lg;
+      border: vars.$border-width solid vars.$border-color;
+      backdrop-filter: blur(10px);
+      animation: slideInUp 0.3s ease;
+
+      @include mixins.mobile {
+        display: none;
+      }
+    }
+
+    .action-button {
+      padding: vars.$spacing-3 vars.$spacing-4;
+      min-width: 160px;
+      height: auto;
+      border-radius: vars.$border-radius-lg;
+      transition: all vars.$transition-normal;
+      position: relative;
+      overflow: hidden;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: vars.$shadow-md;
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity vars.$transition-normal;
+      }
+
+      &:hover::before {
+        opacity: 0.3;
+      }
+
+      .action-content {
+        @include mixins.flex-center;
+        gap: vars.$spacing-3;
+        width: 100%;
+        text-align: left;
+
+        .action-icon-container {
+          position: relative;
+          flex-shrink: 0;
+
+          .action-icon {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
+
+          .action-badge {
+            ::ng-deep .mat-badge-content {
+              font-size: 10px;
+              width: 18px;
+              height: 18px;
+              line-height: 18px;
+              top: -8px;
+              right: -8px;
+            }
+          }
+        }
+
+        .action-text {
+          flex: 1;
+          @include mixins.flex-column;
+          gap: vars.$spacing-1;
+
+          .action-label {
+            @include mixins.body-small;
+            font-weight: vars.$font-weight-semibold;
+            color: inherit;
+            line-height: 1.2;
+          }
+
+          .action-description {
+            @include mixins.caption;
+            opacity: 0.8;
+            line-height: 1.2;
+            @include mixins.text-ellipsis;
+          }
+        }
+
+        .verification-required {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+          flex-shrink: 0;
+        }
+      }
+
+      // Disabled state
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+
+        .action-content {
+          .action-text {
+            .action-label,
+            .action-description {
+              opacity: 0.7;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(vars.$primary-color, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(vars.$primary-color, 0);
+  }
+}
+
+// Special states
+.quick-action-bar:not(.mobile) {
+  .action-button {
+    // Primary color actions
+    &[color="primary"] {
+      background: linear-gradient(135deg, vars.$primary-color, vars.$primary-dark);
+      color: vars.$white;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, vars.$primary-dark, vars.$primary-color);
+      }
+    }
+
+    // Accent color actions
+    &[color="accent"] {
+      //background: linear-gradient(135deg, vars.$secondary-color, vars.$secondary-dark);
+      background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark-hex, #684491));
+      color: vars.$white;
+
+      &:hover:not(:disabled) {
+        //background: linear-gradient(135deg, vars.$secondary-dark, vars.$secondary-color);
+        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark-hex, #684491));
+      }
+    }
+
+    // Warn color actions
+    &[color="warn"] {
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      color: vars.$white;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d32f2f, #f44336);
+      }
+    }
+  }
+}
+
+// Mobile optimizations
+@include mixins.mobile {
+  .quick-action-bar.mobile {
+    .mobile-fab {
+      animation: pulse-glow 2s infinite;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .quick-action-bar {
+    .desktop-actions .actions-container {
+      border: 2px solid vars.$black;
+    }
+
+    .mobile-fab {
+      border: 2px solid vars.$black;
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .quick-action-bar {
+    transition: none;
+
+    .action-button {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+
+    .mobile-fab {
+      animation: none;
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

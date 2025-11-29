@@ -1,8 +1,12 @@
+
 @import './../../../../../../styles/variables';
+@import './../../../../../../styles/mixins';
 
 .footer-section {
-  background: white;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
   border-radius: 12px;
+  // UPDATED: Already using shadow variable - good!
   box-shadow: $shadow;
   padding: 1.5rem;
   
@@ -16,16 +20,19 @@
     font-weight: 500;
     
     &.alert-error {
+      // UPDATED: Already using error-color with rgba - good!
       background-color: rgba($error-color, 0.1);
       color: $error-color;
     }
     
     &.alert-warning {
+      // UPDATED: Already using warning-color with rgba - good!
       background-color: rgba($warning-color, 0.1);
       color: $warning-color;
     }
     
     &.alert-info {
+      // UPDATED: Already using info-color with rgba - good!
       background-color: rgba($info-color, 0.1);
       color: $info-color;
     }
@@ -53,12 +60,15 @@
         color: white;
         
         &:hover:not(:disabled) {
-          background-color: darken($primary-color, 10%);
+          // UPDATED: Use primary-dark variable instead of darken function
+          background-color: $primary-dark;
         }
         
         &:disabled {
-          background-color: #d1d5db;
-          color: #6b7280;
+          // UPDATED: Use gray-300 for disabled background
+          background-color: $gray-300;
+          // UPDATED: Use text-tertiary for disabled text
+          color: $text-tertiary;
           cursor: not-allowed;
         }
       }
@@ -69,6 +79,7 @@
         color: $primary-color;
         
         &:hover {
+          // UPDATED: Use rgba with primary-color for hover background
           background-color: rgba($primary-color, 0.1);
         }
       }
@@ -76,6 +87,7 @@
     
     .footer-note {
       text-align: center;
+      // UPDATED: Already using text-secondary variable - good!
       color: $text-secondary;
       font-size: 0.85rem;
       margin: 0;
