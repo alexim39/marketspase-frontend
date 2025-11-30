@@ -123,7 +123,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
     const campaign = this.campaign();
     if (!campaign) return;
 
-      this.campaignService.updateCampaignStatus(campaign._id, status)
+      this.campaignService.updateCampaignStatus(campaign._id, status, this.adminService.adminData()?._id || '')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
