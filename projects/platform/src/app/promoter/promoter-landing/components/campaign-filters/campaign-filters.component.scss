@@ -22,6 +22,7 @@
   flex: 1;
   min-width: 280px;
   max-width: 400px;
+  background: t;
 }
 
 .search-input {
@@ -32,7 +33,7 @@
   border-radius: 12px;
   font-size: 14px;
   // UPDATED: Use gray-50 for background
-  background: $gray-50;
+  //background: $gray-50;
   transition: all 0.2s ease;
 }
 

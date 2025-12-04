@@ -224,7 +224,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   approveCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'active')
+      this.campaignService.updateCampaignStatus(campaign._id, 'active', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -243,7 +243,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   rejectCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'rejected')
+      this.campaignService.updateCampaignStatus(campaign._id, 'rejected', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -262,7 +262,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   pauseCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'paused')
+      this.campaignService.updateCampaignStatus(campaign._id, 'paused', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -281,7 +281,7 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   resumeCampaign(campaign: CampaignInterface): void {
-      this.campaignService.updateCampaignStatus(campaign._id, 'active')
+      this.campaignService.updateCampaignStatus(campaign._id, 'active', this.adminService.adminData()?._id || '')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

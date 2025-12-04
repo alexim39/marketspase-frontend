@@ -165,7 +165,7 @@ export class MarketerLandingComponent implements OnInit {
         .subscribe({
           next: (response: PaginatedResponse<CampaignInterface>) => {
             this.campaigns.set(response.data);
-            console.log('returned campaign ',response.data)
+            //console.log('returned campaign ',response.data)
             this.currentPage.set(response.pagination.currentPage);
             this.totalPages.set(response.pagination.totalPages);
             this.totalCampaigns.set(response.pagination.totalCampaigns);
