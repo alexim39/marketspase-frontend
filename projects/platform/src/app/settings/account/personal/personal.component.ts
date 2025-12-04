@@ -104,6 +104,7 @@ export class PersonalInfoComponent implements AfterViewInit {
     effect(() => {
       // Create the form here, where `this.user` is available
       const userData = this.user();
+      console.log('Initializing form with user data:', this.user());
       if (userData) {
         // Corrected: Determine the initial state validators based on the initial country value.
         // This is the fix for the form being invalid from the start.

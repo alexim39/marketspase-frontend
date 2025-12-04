@@ -121,17 +121,8 @@ export class AdminDashboardComponent implements OnInit {
       })
   }
 
- 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 
   loadDashboard() {
     this.router.navigate(['dashboard']);
   }
-  // loadUsers() {
-  //   this.router.navigate(['dashboard/users']);
-  // }
 }
