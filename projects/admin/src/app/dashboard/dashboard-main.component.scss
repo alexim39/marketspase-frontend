@@ -19,8 +19,9 @@
 }
 
 .stat-card {
-  background: #ffffff;
+  //background: #ffffff;
   border-radius: 12px;
+  border: 1px solid #e5e7eb;
   padding: 24px;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   display: flex;
@@ -41,7 +42,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  //color: #ffffff;
 }
 
 .stat-card.primary .stat-icon {
@@ -67,14 +68,14 @@
 .stat-label {
   font-size: 14px;
   font-weight: 500;
-  color: #4b5563;
+  //color: #4b5563;
   margin-bottom: 4px;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  //color: #111827;
   margin-bottom: 4px;
 }
 
@@ -114,7 +115,7 @@
 .section-title {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  //color: #111827;
 }
 
 .btn {
@@ -165,7 +166,7 @@
   padding: 16px 12px;
   font-weight: 600;
   font-size: 14px;
-  color: #4b5563;
+  //color: #4b5563;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -186,7 +187,7 @@
 
 .post-title {
   font-weight: 600;
-  color: #111827;
+  //color: #111827;
 }
 
 .post-meta {
@@ -200,8 +201,8 @@
 }
 
 .category {
-  background: #f3f4f6;
-  color: #374151;
+  //background: #f3f4f6;
+  //color: #374151;
   padding: 2px 8px;
   border-radius: 12px;
 }
@@ -214,12 +215,12 @@
 
 .budget {
   font-weight: 600;
-  color: #111827;
+  //color: #111827;
 }
 
 .rate {
   font-size: 12px;
-  color: #4b5563;
+  //color: #4b5563;
 }
 
 .progress-info {
@@ -231,7 +232,7 @@
 .progress-bar {
   width: 100px;
   height: 6px;
-  background: #e5e7eb;
+  //background: #e5e7eb;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -411,7 +412,7 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #6b7280;
+  //color: #6b7280;
 }
 
 /* Responsive Design */

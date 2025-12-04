@@ -1,25 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 // styles.scss - PROPER MINIMAL CONFIGURATION
 
-// 1. Angular Material Theme (MOST IMPORTANT)
-@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@use '@angular/material' as mat;
 
-// 2. Material Icons
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+html {
+  //color-scheme: light;
+  color-scheme: dark;
+  //color-scheme: light dark;
+  @include mat.theme((
+    color: mat.$rose-palette,
+    typography: Roboto,
+    density: 0
+  ));
+}
 
-// 3. Inter Font (you're using it)
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+html, body { height: 100%; }
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
 
-// 4. Basic CSS Reset (minimal and safe)
-// html, body { 
-//   height: 100%; 
-//   margin: 0; 
-//   padding: 0; 
-// }
-
-// body {
-//   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-//   background-color: #f9fafb;
-//   color: #111827;
-//   line-height: 1.6;
-// }
+// Dark theme variables
+body.dark-mode {
+  color-scheme: dark;
+}

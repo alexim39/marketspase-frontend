@@ -2,8 +2,8 @@
     padding: 16px;
     max-width: 100%;
     box-sizing: border-box;
-    background-color: #f5f5f5;
-    color: rgba(0, 0, 0, 0.87);
+   // background-color: #f5f5f5;
+    //color: rgba(0, 0, 0, 0.87);
     min-height: 100vh;
 }
 
@@ -31,12 +31,12 @@
     font-size: 24px;
     font-weight: 500;
     margin: 0 0 4px 0;
-    color: rgba(0, 0, 0, 0.87);
+   // color: rgba(0, 0, 0, 0.87);
 }
 
 .page-subtitle {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
     margin: 0;
 }
 
@@ -55,7 +55,7 @@
 
 .loading-spinner p {
     margin-top: 16px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .error-state {
@@ -77,12 +77,12 @@
 
 .error-state h3 {
     margin: 0 0 8px 0;
-    color: rgba(0, 0, 0, 0.87);
+    //color: rgba(0, 0, 0, 0.87);
 }
 
 .error-state p {
     margin: 0 0 24px 0;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .overview-card {
@@ -120,7 +120,7 @@
 
 .created-date, .campaign-id {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .overview-stats {
@@ -142,7 +142,7 @@
 
 .stat-label {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.54);
+   // color: rgba(0, 0, 0, 0.54);
 }
 
 .stat-progress {
@@ -177,13 +177,13 @@
 
 .detail-label {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+   // color: rgba(0, 0, 0, 0.54);
     font-weight: 500;
 }
 
 .detail-value {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.87);
+    //color: rgba(0, 0, 0, 0.87);
 }
 
 .link {
@@ -213,7 +213,7 @@
     align-items: center;
     justify-content: center;
     padding: 40px 0;
-    color: rgba(0, 0, 0, 0.54);
+   // color: rgba(0, 0, 0, 0.54);
     text-align: center;
 }
 
@@ -243,7 +243,7 @@
 
 .promoter-username {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .status-chip {
@@ -251,23 +251,19 @@
     font-weight: 500;
     
     &.active, &.validated, &.paid {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background: #2e7d32;
     }
     
     &.paused, &.pending {
-    background-color: #fff3e0;
-    color: #ef6c00;
+    background: #ef6c00;
     }
     
     &.rejected {
-    background-color: #ffebee;
-    color: #c62828;
+    background: #c62828;
     }
     
     &.submitted {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background: #1976d2;
     }
     
     &.small {
@@ -297,7 +293,7 @@
 }
 
 .activity-icon mat-icon {
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .activity-content {
@@ -311,13 +307,13 @@
 
 .activity-details {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.7);
+    //color: rgba(0, 0, 0, 0.7);
     margin-bottom: 4px;
 }
 
 .activity-time {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 /* Mobile responsiveness */

@@ -2,8 +2,8 @@
     padding: 16px;
     max-width: 100%;
     box-sizing: border-box;
-    background-color: #f5f5f5;
-    color: rgba(0, 0, 0, 0.87);
+    //background-color: #f5f5f5;
+   // color: rgba(0, 0, 0, 0.87);
     min-height: 100vh;
 }
 
@@ -31,12 +31,12 @@
     font-size: 24px;
     font-weight: 500;
     margin: 0 0 4px 0;
-    color: rgba(0, 0, 0, 0.87);
+    //color: rgba(0, 0, 0, 0.87);
 }
 
 .page-subtitle {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
     margin: 0;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .stat-card {
-    background-color: #ffffff;
+   // background-color: #ffffff;
 }
 
 .stat-content {
@@ -97,12 +97,12 @@
 
 .stat-label {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .filters-card {
     margin-bottom: 24px;
-    background-color: #ffffff;
+   // background-color: #ffffff;
 }
 
 .filters-container {
@@ -126,7 +126,7 @@
 
 .table-card {
     overflow: auto;
-    background-color: #ffffff;
+    //background-color: #ffffff;
 }
 
 .table-container {
@@ -144,7 +144,7 @@
 
 .loading-spinner p {
     margin-top: 16px;
-    color: rgba(0, 0, 0, 0.54);
+   // color: rgba(0, 0, 0, 0.54);
 }
 
 .no-data {
@@ -153,7 +153,7 @@
     align-items: center;
     justify-content: center;
     padding: 100px 0;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
     text-align: center;
 }
 
@@ -179,7 +179,7 @@
 
 .promoter-username, .promoter-email {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .status-chip {
@@ -187,28 +187,23 @@
     font-weight: 500;
     
     &.pending {
-    background-color: #fff3e0;
-    color: #ef6c00;
+    background: #ef6c00;
     }
     
     &.submitted {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background: #1976d2;
     }
     
     &.validated {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background: #2e7d32;
     }
     
     &.rejected {
-    background-color: #ffebee;
-    color: #c62828;
+    background: #c62828;
     }
     
     &.paid {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
+    background: #7b1fa2;
     }
 }
 
@@ -270,10 +265,10 @@
     }
 
     .promotions-table .mat-row {
-    flex-direction: column;
-    align-items: start;
-    padding: 8px 0;
-    border-bottom: 1px solid #e0e0e0;
+        flex-direction: column;
+        align-items: start;
+        padding: 8px 0;
+        //border-bottom: 1px solid #e0e0e0;
     }
 
     .promotions-table .mat-cell {
@@ -284,15 +279,15 @@
     }
 
     .promotions-table .mat-cell:before {
-    content: attr(data-label);
-    float: left;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.54);
-    margin-right: 8px;
+        content: attr(data-label);
+        float: left;
+        font-weight: 500;
+       // color: rgba(0, 0, 0, 0.54);
+        margin-right: 8px;
     }
 
     .promotions-table .mat-cell:first-of-type {
-    padding-top: 16px;
+        padding-top: 16px;
     }
 
     .promotions-table .mat-cell:last-of-type {
@@ -300,14 +295,14 @@
     }
 
     .promotions-table .mat-column-actions {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
     }
     
     .action-buttons {
-    justify-content: flex-end;
-    width: 100%;
+        justify-content: flex-end;
+        width: 100%;
     }
 }
 

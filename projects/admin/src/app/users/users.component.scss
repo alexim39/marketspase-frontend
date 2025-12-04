@@ -2,9 +2,9 @@
     padding: 16px;
     max-width: 100%;
     box-sizing: border-box;
-    background-color: #e6e6e6ff;
-    color: rgba(0, 0, 0, 0.87) !important;
+    //background: linear-gradient(145deg, #060918ff 0%, #111827 100%);
     min-height: 100vh;
+    //color: #cccccc;
 }
 
 .header-section {
@@ -15,18 +15,18 @@
     font-size: 24px;
     font-weight: 500;
     margin: 0 0 8px 0;
-    color: rgba(0, 0, 0, 0.87);
+   // color: #cccccc;
 }
 
 .page-subtitle {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: #6b7280;
     margin: 0;
 }
 
 .filters-card {
     margin-bottom: 24px;
-    background-color: #ffffff;
+    //background-color: #ffffff;
 }
 
 .filters-container {
@@ -42,7 +42,7 @@
 
 .table-card {
     overflow: auto;
-    background-color: #ffffff;
+   // background-color: #ffffff;
 }
 
 .table-container {
@@ -60,7 +60,7 @@
 
 .loading-spinner p {
     margin-top: 16px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .users-table {
@@ -85,7 +85,7 @@
 
 .user-username {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.54);
+   // color: rgba(0, 0, 0, 0.54);
 }
 
 .email-cell {
@@ -98,13 +98,13 @@
 }
 
 .role-chip.marketer {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: #1976d2;
+    //color: #1976d2;
 }
 
 .role-chip.promoter {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
+    background-color: #7b1fa2;
+    //color: #7b1fa2;
 }
 
 .balance-info {
@@ -128,23 +128,23 @@
 }
 
 .status-chip.active {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: #2e7d32;
+    //color: #2e7d32;
 }
 
 .status-chip.inactive {
-    background-color: #fff3e0;
-    color: #ef6c00;
+    background-color: #ef6c00;
+    //color: #ef6c00;
 }
 
 .status-chip.deleted {
-    background-color: #ffebee;
-    color: #c62828;
+    background-color: #c62828;
+    //color: #c62828;
 }
 
 .verification-chip {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: #2e7d32;
+    //color: #2e7d32;
     font-size: 10px;
 }
 
@@ -156,7 +156,7 @@
 .no-data {
     text-align: center;
     padding: 24px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
     font-style: italic;
 }
 
@@ -166,7 +166,7 @@
 
 /* Fix for form fields */
 .mat-form-field-appearance-outline .mat-form-field-outline {
-    color: rgba(0, 0, 0, 0.42);
+    //color: rgba(0, 0, 0, 0.42);
 }
 
 .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
@@ -174,11 +174,11 @@
 }
 
 .mat-form-field-label {
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
 }
 
 .mat-input-element {
-    color: rgba(0, 0, 0, 0.87);
+    //color: rgba(0, 0, 0, 0.87);
 }
 
 /* Mobile responsiveness */
@@ -202,25 +202,25 @@
     }
 
     .users-table .mat-row {
-    flex-direction: column;
-    align-items: start;
-    padding: 8px 0;
-    border-bottom: 1px solid #e0e0e0;
+        flex-direction: column;
+        align-items: start;
+        padding: 8px 0;
+        border-bottom: 1px solid #e0e0e0;
     }
 
     .users-table .mat-cell {
-    border: none;
-    padding: 4px 16px;
-    width: 100%;
-    box-sizing: border-box;
+        border: none;
+        padding: 4px 16px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .users-table .mat-cell:before {
-    content: attr(data-label);
-    float: left;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.54);
-    margin-right: 8px;
+        content: attr(data-label);
+        float: left;
+        font-weight: 500;
+        //color: rgba(0, 0, 0, 0.54);
+        margin-right: 8px;
     }
 
     .users-table .mat-cell:first-of-type {
@@ -228,18 +228,18 @@
     }
 
     .users-table .mat-cell:last-of-type {
-    padding-bottom: 16px;
+        padding-bottom: 16px;
     }
 
     .users-table .mat-column-actions {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
     }
     
     .action-buttons {
-    justify-content: flex-end;
-    width: 100%;
+        justify-content: flex-end;
+        width: 100%;
     }
 }
 
