@@ -55,7 +55,7 @@ export class UserMgtComponent implements OnInit, OnDestroy {
   readonly router = inject(Router);
 
   // Table properties
-  displayedColumns: string[] = ['avatar', 'displayName', 'email', 'role', 'balance', 'status', 'createdAt', 'actions'];
+  displayedColumns: string[] = ['avatar', 'displayName', 'email', 'role', 'balance', 'status', 'createdAt', 'updatedAt', 'actions'];
   dataSource: MatTableDataSource<UserInterface> = new MatTableDataSource<UserInterface>([]);
   isLoading = true;
 
@@ -78,6 +78,7 @@ export class UserMgtComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success) {
             this.dataSource.data = response.data;
+            //console.log('Fetched app users:', response.data);
             this.isLoading = false;
           } else {
             console.error('Failed to fetch app users:', response.message);
