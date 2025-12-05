@@ -82,8 +82,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: 'sell',
       isExpanded: false,
       children: [
-        { id: 'all-promotions', title: 'All Promotions', icon: 'ad', route: '/dashboard/promotions' },
-        { id: 'active-promotions', title: 'Active Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/active' },
+        { id: 'all-promotions', title: 'All Promotions', icon: 'ads_click', route: '/dashboard/promotions' },
+        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' },
         { id: 'promotion-performance', title: 'Promotion Performance', icon: 'bar_chart', route: '/dashboard/promotions/performance' },
         { id: 'status-tracker', title: 'Status Tracking', icon: 'track_changes', route: '/dashboard/promotions/tracking' },
         { id: 'view-analytics', title: 'View Analytics', icon: 'visibility', route: '/dashboard/promotions/views' }

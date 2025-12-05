@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../../shared-services/src/public-api';
+import { HttpParams } from '@angular/common/http';
 
 export interface PromotionResponse {
   success: boolean;
@@ -14,8 +15,17 @@ export class PromotionService {
   public api = this.apiService.getBaseUrl();
   private readonly apiUrl = 'promotion';
 
-  getPromotions(): Observable<PromotionResponse> {
+  getAllPromotions(): Observable<PromotionResponse> {
     return this.apiService.get<PromotionResponse>(`${this.apiUrl}/admin/promotions`);
+  }
+
+  // getPromotionsByStatus(status: string): Observable<PromotionResponse> {
+  //   return this.apiService.get<PromotionResponse>(`${this.apiUrl}/admin/promotions/${encodeURIComponent(status)}`);
+  // }
+
+  getPromotionsByStatus(status: string): Observable<PromotionResponse> {
+    const params = new HttpParams().set('status', status);
+    return this.apiService.get<PromotionResponse>(`${this.apiUrl}/admin/promotions`, params );
   }
 
   // validatePromotion(promotionId: string): Observable<PromotionResponse> {
