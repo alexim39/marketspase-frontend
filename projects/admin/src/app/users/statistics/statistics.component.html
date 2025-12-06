@@ -1,0 +1,545 @@
+<div class="statistics-container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="page-title">User Statistics</h1>
+    <p class="page-subtitle">Analytics and insights for user roles</p>
+  </div>
+
+  <!-- Role Selection Tabs -->
+  <mat-tab-group 
+    [selectedIndex]="selectedIndex()"
+    (selectedIndexChange)="onTabSelected($event)">
+    
+    <!-- Marketer Tab -->
+    <mat-tab label="Marketers">
+      <ng-template matTabContent>
+        @if (isLoading() && selectedRole() === 'marketer') {
+          <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading Marketers statistics...</p>
+          </div>
+        } @else if (error() && selectedRole() === 'marketer') {
+          <div class="error-message">
+            <mat-icon color="warn">error_outline</mat-icon>
+            <p>{{ error() }}</p>
+            <button mat-stroked-button (click)="retry()">
+              <mat-icon>refresh</mat-icon>
+              Retry
+            </button>
+          </div>
+        } @else if (marketerStats()) {
+          @let stats = marketerStats();
+          <div class="statistics-grid">
+            <!-- User Counts Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>people</mat-icon>
+                  User Counts
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Users</span>
+                    <span class="stat-value">{{ stats?.counts?.total | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Active</span>
+                    <span class="stat-value active">{{ stats?.counts?.active | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Inactive</span>
+                    <span class="stat-value inactive">{{ stats?.counts?.inactive | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Verified</span>
+                    <span class="stat-value verified">{{ stats?.counts?.verified | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Recent (30d)</span>
+                    <span class="stat-value recent">{{ stats?.counts?.recent | number }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Financial Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  Financial Overview
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Balance</span>
+                    <span class="stat-value financial">
+                      {{ stats?.financial?.totalBalance | currency:stats?.financial?.currency:'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Average Balance</span>
+                    <span class="stat-value financial">
+                      {{ stats?.financial?.averageBalance | currency:stats?.financial?.currency:'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Engagement Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>star</mat-icon>
+                  Engagement
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Average Rating</span>
+                    <span class="stat-value rating">
+                      {{ stats?.engagement?.averageRating | number:'1.1-1' }}/5
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Ratings</span>
+                    <span class="stat-value">{{ stats?.engagement?.totalRatings | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Rated Users</span>
+                    <span class="stat-value">
+                      {{ stats?.engagement?.percentageRated | number:'1.1-1' }}%
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Referral Activity Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>share</mat-icon>
+                  Referral Activity
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Referrals</span>
+                    <span class="stat-value">{{ stats?.activity?.totalReferrals }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Earned</span>
+                    <span class="stat-value financial">
+                      {{ stats?.activity?.totalEarned | currency:'NGN':'₦':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Quick Stats -->
+            <mat-card class="stat-card quick-stats">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>insights</mat-icon>
+                  Quick Stats
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chip-container">
+                  <mat-chip class="active-chip" selected>
+                    <mat-icon>check_circle</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.active, stats?.counts?.total) | number:'1.0-0' }}% Active
+                  </mat-chip>
+                  <mat-chip class="verified-chip" selected>
+                    <mat-icon>verified</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.verified, stats?.counts?.total) | number:'1.0-0' }}% Verified
+                  </mat-chip>
+                  <mat-chip class="recent-chip" selected>
+                    <mat-icon>trending_up</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.recent, stats?.counts?.total) | number:'1.0-0' }}% Recent
+                  </mat-chip>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        } @else if (selectedRole() === 'marketer') {
+          <div class="no-data-message">
+            <mat-icon>data_usage</mat-icon>
+            <p>No statistics available for Marketers</p>
+            <button mat-stroked-button (click)="loadRoleStatistics('marketer')">
+              <mat-icon>cloud_download</mat-icon>
+              Load Statistics
+            </button>
+          </div>
+        }
+      </ng-template>
+    </mat-tab>
+
+    <!-- Promoter Tab -->
+    <mat-tab label="Promoters">
+      <ng-template matTabContent>
+        @if (isLoading() && selectedRole() === 'promoter') {
+          <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading Promoters statistics...</p>
+          </div>
+        } @else if (error() && selectedRole() === 'promoter') {
+          <div class="error-message">
+            <mat-icon color="warn">error_outline</mat-icon>
+            <p>{{ error() }}</p>
+            <button mat-stroked-button (click)="retry()">
+              <mat-icon>refresh</mat-icon>
+              Retry
+            </button>
+          </div>
+        } @else if (promoterStats()) {
+          @let stats = promoterStats();
+          <div class="statistics-grid">
+            <!-- User Counts Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>people</mat-icon>
+                  User Counts
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Users</span>
+                    <span class="stat-value">{{ stats?.counts?.total | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Active</span>
+                    <span class="stat-value active">{{ stats?.counts?.active | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Inactive</span>
+                    <span class="stat-value inactive">{{ stats?.counts?.inactive | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Verified</span>
+                    <span class="stat-value verified">{{ stats?.counts?.verified | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Recent (30d)</span>
+                    <span class="stat-value recent">{{ stats?.counts?.recent | number }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Financial Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  Financial Overview
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Balance</span>
+                    <span class="stat-value financial">
+                      {{ stats?.financial?.totalBalance | currency:stats?.financial?.currency:'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Average Balance</span>
+                    <span class="stat-value financial">
+                      {{ stats?.financial?.averageBalance | currency:stats?.financial?.currency:'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Engagement Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>star</mat-icon>
+                  Engagement
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Average Rating</span>
+                    <span class="stat-value rating">
+                      {{ stats?.engagement?.averageRating | number:'1.1-1' }}/5
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Ratings</span>
+                    <span class="stat-value">{{ stats?.engagement?.totalRatings | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Rated Users</span>
+                    <span class="stat-value">
+                      {{ stats?.engagement?.percentageRated | number:'1.1-1' }}%
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Referral Activity Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>share</mat-icon>
+                  Referral Activity
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Referrals</span>
+                    <span class="stat-value">{{ stats?.activity?.totalReferrals }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Earned</span>
+                    <span class="stat-value financial">
+                      {{ stats?.activity?.totalEarned | currency:'NGN':'₦':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Quick Stats -->
+            <mat-card class="stat-card quick-stats">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>insights</mat-icon>
+                  Quick Stats
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chip-container">
+                  <mat-chip class="active-chip" selected>
+                    <mat-icon>check_circle</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.active, stats?.counts?.total) | number:'1.0-0' }}% Active
+                  </mat-chip>
+                  <mat-chip class="verified-chip" selected>
+                    <mat-icon>verified</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.verified, stats?.counts?.total) | number:'1.0-0' }}% Verified
+                  </mat-chip>
+                  <mat-chip class="recent-chip" selected>
+                    <mat-icon>trending_up</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.recent, stats?.counts?.total) | number:'1.0-0' }}% Recent
+                  </mat-chip>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        } @else if (selectedRole() === 'promoter') {
+          <div class="no-data-message">
+            <mat-icon>data_usage</mat-icon>
+            <p>No statistics available for Promoters</p>
+            <button mat-stroked-button (click)="loadRoleStatistics('promoter')">
+              <mat-icon>cloud_download</mat-icon>
+              Load Statistics
+            </button>
+          </div>
+        }
+      </ng-template>
+    </mat-tab>
+
+    <!-- Admin Tab -->
+    <mat-tab label="Admins">
+      <ng-template matTabContent>
+        @if (isLoading() && selectedRole() === 'admin') {
+          <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading Admins statistics...</p>
+          </div>
+        } @else if (error() && selectedRole() === 'admin') {
+          <div class="error-message">
+            <mat-icon color="warn">error_outline</mat-icon>
+            <p>{{ error() }}</p>
+            <button mat-stroked-button (click)="retry()">
+              <mat-icon>refresh</mat-icon>
+              Retry
+            </button>
+          </div>
+        } @else if (adminStats()) {
+          @let stats = adminStats();
+          <div class="statistics-grid">
+            <!-- User Counts Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>people</mat-icon>
+                  User Counts
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Users</span>
+                    <span class="stat-value">{{ stats?.counts?.total | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Active</span>
+                    <span class="stat-value active">{{ stats?.counts?.active | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Inactive</span>
+                    <span class="stat-value inactive">{{ stats?.counts?.inactive | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Verified</span>
+                    <span class="stat-value verified">{{ stats?.counts?.verified | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Recent (30d)</span>
+                    <span class="stat-value recent">{{ stats?.counts?.recent | number }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Financial Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  Financial Overview
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Balance</span>
+                    <span class="stat-value financial">
+                      {{ stats?.financial?.totalBalance | currency:stats?.financial?.currency:'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Average Balance</span>
+                    <span class="stat-value financial">
+                      {{ stats?.financial?.averageBalance | currency:stats?.financial?.currency:'symbol':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Engagement Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>star</mat-icon>
+                  Engagement
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Average Rating</span>
+                    <span class="stat-value rating">
+                      {{ stats?.engagement?.averageRating | number:'1.1-1' }}/5
+                    </span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Ratings</span>
+                    <span class="stat-value">{{ stats?.engagement?.totalRatings | number }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Rated Users</span>
+                    <span class="stat-value">
+                      {{ stats?.engagement?.percentageRated | number:'1.1-1' }}%
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Referral Activity Card -->
+            <mat-card class="stat-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>share</mat-icon>
+                  Referral Activity
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="stat-grid">
+                  <div class="stat-item">
+                    <span class="stat-label">Total Referrals</span>
+                    <span class="stat-value">{{ stats?.activity?.totalReferrals }}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">Total Earned</span>
+                    <span class="stat-value financial">
+                      {{ stats?.activity?.totalEarned | currency:'NGN':'₦':'1.0-0' }}
+                    </span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Quick Stats -->
+            <mat-card class="stat-card quick-stats">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>insights</mat-icon>
+                  Quick Stats
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chip-container">
+                  <mat-chip class="active-chip" selected>
+                    <mat-icon>check_circle</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.active, stats?.counts?.total) | number:'1.0-0' }}% Active
+                  </mat-chip>
+                  <mat-chip class="verified-chip" selected>
+                    <mat-icon>verified</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.verified, stats?.counts?.total) | number:'1.0-0' }}% Verified
+                  </mat-chip>
+                  <mat-chip class="recent-chip" selected>
+                    <mat-icon>trending_up</mat-icon>
+                    {{ calculatePercentage(stats?.counts?.recent, stats?.counts?.total) | number:'1.0-0' }}% Recent
+                  </mat-chip>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        } @else if (selectedRole() === 'admin') {
+          <div class="no-data-message">
+            <mat-icon>data_usage</mat-icon>
+            <p>No statistics available for Admins</p>
+            <button mat-stroked-button (click)="loadRoleStatistics('admin')">
+              <mat-icon>cloud_download</mat-icon>
+              Load Statistics
+            </button>
+          </div>
+        }
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="refreshAll()"
+      [disabled]="isLoading()"
+      matTooltip="Refresh all statistics">
+      <mat-icon>refresh</mat-icon>
+      Refresh All Statistics
+    </button>
+  </div>
+</div>
