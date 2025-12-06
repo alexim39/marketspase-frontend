@@ -1,4 +1,3 @@
-
 .admin-dashboard {
   display: flex;
   min-height: 100vh;
@@ -6,16 +5,16 @@
 
 /* Sidebar Styles */
 .sidebar {
-  width: 280px;
+  width: 315px;
   background: linear-gradient(145deg, #060918ff 0%, #111827 100%);
-  color: #ffffff;
+  color: #cccccc;
   display: flex;
   flex-direction: column;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  //position: relative;
   z-index: 10;
-  position: fixed; height: 100vh;
+  position: fixed;
+  height: 100vh;
 }
 
 .sidebar.collapsed {
@@ -44,7 +43,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: #cccccc;
 }
 
 .logo-text {
@@ -64,7 +63,7 @@
 .sidebar-toggle {
   background: none;
   border: none;
-  color: #ffffff;
+  color: #cccccc;
   cursor: pointer;
   padding: 8px;
   border-radius: 6px;
@@ -78,6 +77,8 @@
 .nav-menu {
   flex: 1;
   padding: 20px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .nav-item {
@@ -86,21 +87,28 @@
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 16px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
+  user-select: none;
 }
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  color: #cccccc;
 }
 
 .nav-item.active {
   background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  color: #cccccc;
+}
+
+.nav-item-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
 }
 
 .nav-item mat-icon {
@@ -111,9 +119,22 @@
 .nav-item span {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  flex: 1;
+  font-size: 14px;
 }
 
-.collapsed .nav-item span {
+.nav-item-chevron {
+  transition: transform 0.2s ease;
+  margin-left: auto;
+  font-size: 20px;
+}
+
+.nav-item-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.collapsed .nav-item span,
+.collapsed .nav-item-chevron {
   opacity: 0;
   width: 0;
   height: 0;
@@ -126,6 +147,77 @@
   padding: 12px;
 }
 
+/* Submenu Styles */
+.submenu {
+  margin-left: 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.2s ease-out;
+  max-height: 0;
+  opacity: 0;
+}
+
+.submenu.expanded {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.submenu-item {
+  padding: 10px 16px;
+  margin: 2px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cccccc;
+}
+
+.submenu-item.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #cccccc;
+  font-weight: 500;
+}
+
+.submenu-item mat-icon {
+  font-size: 18px;
+  width: 20px;
+  height: 20px;
+}
+
+.submenu-item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsed .submenu-item span {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.collapsed .submenu-item {
+  justify-content: center;
+  padding: 10px;
+  margin: 2px 12px;
+}
+
+.collapsed .submenu {
+  margin-left: 0;
+  border-left: none;
+}
+
+/* Admin Profile */
 .admin-profile {
   padding: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -170,26 +262,37 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Main Content */
+/* Main Content - Preserving your original margin */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  margin-left: 20em; overflow-y: auto;
+  margin-left: 315px; /* Your original was 20em, 280px is similar */
+  overflow-y: auto;
+  transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
   @media (max-width: 768px) {
-    margin-left: 100px;
+    margin-left: 80px;
   }
+}
+
+.sidebar.collapsed ~ .main-content {
+  margin-left: 80px;
 }
 
 /* Header */
 .header {
-  padding: 20px 32px;
+  padding: 13px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #444549ff;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  background: linear-gradient(145deg, #060918ff 0%, #111827 100%);
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .header-left {
@@ -201,6 +304,7 @@
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 4px;
+  color: #cccccc;
 }
 
 .breadcrumb {
@@ -227,17 +331,20 @@
 }
 
 .search-input {
-  border: none;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 10px 12px 10px 40px;
   width: 300px;
   font-size: 14px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f9fafb;
 }
 
 .search-input:focus {
   outline: none;
+  border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: #cccccc;
 }
 
 .header-actions {
@@ -246,8 +353,7 @@
   gap: 12px;
 }
 
-.notification-btn,
-.message-btn {
+.notification-btn {
   position: relative;
   background: none;
   border: none;
@@ -258,8 +364,7 @@
   color: #4b5563;
 }
 
-.notification-btn:hover,
-.message-btn:hover {
+.notification-btn:hover {
   background: #f3f4f6;
 }
 
@@ -268,7 +373,7 @@
   top: 6px;
   right: 6px;
   background: #ef4444;
-  color: #ffffff;
+  color: #cccccc;
   font-size: 10px;
   font-weight: 600;
   padding: 2px 6px;
@@ -285,14 +390,17 @@
   
   .sidebar .logo-text,
   .sidebar .nav-item span,
-  .sidebar .admin-info {
+  .sidebar .nav-item-chevron,
+  .sidebar .admin-info,
+  .sidebar .submenu-item span {
     opacity: 0;
     width: 0;
     height: 0;
     overflow: hidden;
   }
   
-  .sidebar .nav-item {
+  .sidebar .nav-item,
+  .sidebar .submenu-item {
     justify-content: center;
   }
   
@@ -316,4 +424,23 @@
   .search-input {
     display: none;
   }
+}
+
+/* Scrollbar styling for sidebar */
+.nav-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nav-menu::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.nav-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }

@@ -16,22 +16,12 @@ export const dashboardRoutes: Routes = [
                 path: '',
                component: DashboardMainComponent,
             },   
-            {   path: 'users', 
-                loadComponent: () => import('../users/users.component').then(c => c.UserMgtComponent),
-                title: 'User Management - Admin Dashboard'
-            },  
-            { path: 'users/:id', 
-                loadComponent: () => import('../users/user-details/user-details.component').then(c => c.UserDetailsComponent),
-                title: 'User Details - Admin Dashboard'
-            },
+            { path: 'users', loadChildren: () => import('../users/user.routes').then(r => r.UserRoutes) }, 
             {   path: 'campaigns', 
                 loadComponent: () => import('../campaign/campaign.component').then(c => c.CampaignMgtComponent),
                 title: 'Campaign Management - Admin Dashboard'
-            },   
-            {   path: 'promotions', 
-                loadComponent: () => import('../promotion/promotion-list/promotion-list.component').then(c => c.PromotionListMgtComponent),
-                title: 'Promotions Management - Admin Dashboard'
-            },   
+            },  
+            { path: 'promotions', loadChildren: () => import('../promotion/promotion.routes').then(r => r.PromotionRoutes) },  
             { path: 'campaigns/:id', 
                 loadComponent: () => import('../campaign/campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
                 title: 'Campaign Details - Admin Dashboard'

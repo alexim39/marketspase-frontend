@@ -4,8 +4,8 @@
     margin: 0 auto;
     box-sizing: border-box;
     min-height: 100vh;
-    background-color: #e6e6e6ff;
-    color: rgba(0, 0, 0, 0.87) !important;
+    //background-color: #e6e6e6ff;
+    //color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .header-section {
@@ -16,7 +16,7 @@
 }
 
 .back-button {
-    background-color: #7e7e7eff;
+    //background-color: #7e7e7eff;
 }
 
 .page-title {
@@ -32,7 +32,7 @@
 }
 
 .status-button, .edit-button {
-    background-color: #7e7e7eff;
+    //background-color: #7e7e7eff;
 }
 
 .loading-spinner {
@@ -45,7 +45,7 @@
 
 .loading-spinner p {
     margin-top: 16px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .user-content {
@@ -83,7 +83,7 @@
 }
 
 .user-username {
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(200, 200, 200, 0.6);
     margin: 0 0 12px 0;
 }
 
@@ -99,13 +99,13 @@
 }
 
 .role-chip.marketer {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: #1976d2;
+    //color: #1976d2;
 }
 
 .role-chip.promoter {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
+    background-color: #7b1fa2;
+    //color: #7b1fa2;
 }
 
 .status-chip {
@@ -114,23 +114,23 @@
 }
 
 .status-chip.active {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: #2e7d32;
+    //color: #2e7d32;
 }
 
 .status-chip.inactive {
-    background-color: #fff3e0;
-    color: #ef6c00;
+    background-color: #ef6c00;
+    //color: #ef6c00;
 }
 
 .status-chip.deleted {
-    background-color: #ffebee;
-    color: #c62828;
+    background-color: #c62828;
+    //color: #c62828;
 }
 
 .verification-chip {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: #2e7d32;
+   // color: #2e7d32;
     font-size: 12px;
 }
 
@@ -151,7 +151,7 @@
 }
 
 .detail-icon {
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
 }
 
 .detail-content {
@@ -161,12 +161,12 @@
 
 .detail-label {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
 }
 
 .detail-value {
     font-size: 14px;
-    color: rgba(0, 0, 0, 0.87);
+    //color: rgba(0, 0, 0, 0.87);
 }
 
 .details-tabs {
@@ -193,22 +193,22 @@
 }
 
 .skill-chip {
-    background-color: #e3f2fd;
-    color: #1976d2;
+    background-color: #1976d2;
+    //color: #1976d2;
 }
 
 .interest-chip {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
+    background-color: #7b1fa2;
+    //color: #7b1fa2;
 }
 
 .topic-chip {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: #2e7d32;
+    //color: #2e7d32;
 }
 
 .no-data {
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
     font-style: italic;
     margin: 8px 0;
 }
@@ -226,18 +226,18 @@
     font-size: 60px;
     width: 60px;
     height: 60px;
-    color: rgba(0, 0, 0, 0.54);
+    //color: rgba(0, 0, 0, 0.54);
     margin-bottom: 16px;
 }
 
 .error-state h3 {
     margin: 0 0 8px 0;
-    color: rgba(0, 0, 0, 0.87);
+    //color: rgba(0, 0, 0, 0.87);
 }
 
 .error-state p {
     margin: 0 0 24px 0;
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
 }
 
 /* Mobile responsiveness */

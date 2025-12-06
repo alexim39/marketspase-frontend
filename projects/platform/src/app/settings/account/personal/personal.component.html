@@ -26,6 +26,7 @@
             <mat-label>Display Name</mat-label>
             <input matInput formControlName="displayName">
             <mat-icon matSuffix>person</mat-icon>
+            <mat-hint>Current username: @{{ user()?.username }}</mat-hint>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">

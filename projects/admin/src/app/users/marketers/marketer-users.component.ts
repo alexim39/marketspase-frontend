@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, DestroyRef, AfterViewInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, DestroyRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -18,15 +18,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services
-import { AdminService } from '../common/services/user.service';
-import { UserService } from './user.service';
+import { AdminService } from '../../common/services/user.service';
+import { UserService } from './../user.service';
 import { Router } from '@angular/router';
-import { UserInterface } from '../../../../shared-services/src/public-api';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RoleStatisticsComponent } from './statistics/statistics.component';
+import { RoleStatisticsComponent } from '../statistics/statistics.component';
 
 @Component({
-  selector: 'admin-user-mgt',
+  selector: 'admin-marketers-mgt',
   standalone: true,
   providers: [UserService],
   imports: [
@@ -46,12 +46,11 @@ import { RoleStatisticsComponent } from './statistics/statistics.component';
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
-    RoleStatisticsComponent
   ],
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss'],
+  templateUrl: './marketer-users.component.html',
+  styleUrls: ['./marketer-users.component.scss'],
 })
-export class UserMgtComponent implements OnInit, AfterViewInit {
+export class MarketerUserMgtComponent implements OnInit, AfterViewInit {
   readonly adminService = inject(AdminService);
   readonly userService = inject(UserService);
   readonly router = inject(Router);
@@ -60,9 +59,6 @@ export class UserMgtComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['avatar', 'displayName', 'email', 'role', 'balance', 'status', 'createdAt', 'updatedAt', 'actions'];
   dataSource: MatTableDataSource<UserInterface> = new MatTableDataSource<UserInterface>([]);
   isLoading = true;
-
-    // Statistics toggle state
-  showStatistics = signal(false);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -77,7 +73,7 @@ export class UserMgtComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.adminService.fetchAdmin();
 
-    this.userService.getAppUsers()
+    this.userService.getUsersByRole('marketer')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -100,17 +96,6 @@ export class UserMgtComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  }
-
-  /**
-   * Toggle statistics visibility
-   */
-  toggleStatistics(): void {
-    const newValue = !this.showStatistics();
-    this.showStatistics.set(newValue);
-    
-    // Save preference to localStorage
-    localStorage.setItem('showUserStatistics', JSON.stringify(newValue));
   }
 
   applyFilter(event: Event) {

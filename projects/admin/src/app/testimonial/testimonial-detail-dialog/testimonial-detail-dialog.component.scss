@@ -11,13 +11,13 @@
     align-items: center;
     padding: 16px 24px;
     margin: 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #727272;
     
     h2 {
       margin: 0;
       font-size: 20px;
       font-weight: 500;
-      color: #212121;
+      //color: #212121;
     }
     
     .close-button {
@@ -51,7 +51,7 @@
             margin: 0 0 4px 0;
             font-size: 18px;
             font-weight: 500;
-            color: #212121;
+            //color: #212121;
           }
           
           .user-username {
@@ -81,7 +81,7 @@
       }
       
       .message-container {
-        background-color: #f9f9f9;
+        //background-color: #f9f9f9;
         border-radius: 8px;
         padding: 16px;
         border-left: 4px solid #3f51b5;
@@ -89,7 +89,7 @@
         .testimonial-message {
           margin: 0;
           line-height: 1.6;
-          color: #212121;
+          //color: #212121;
           white-space: pre-wrap;
         }
       }
@@ -152,18 +152,15 @@
             width: fit-content;
             
             &.status-pending {
-              background-color: #fff8e1;
-              color: #ff9800;
+              background: #ff9800;
             }
             
             &.status-approved {
-              background-color: #e8f5e9;
-              color: #4caf50;
+              background: #4caf50;
             }
             
             &.status-rejected {
-              background-color: #ffebee;
-              color: #f44336;
+              background: #f44336;
             }
           }
           
@@ -207,7 +204,7 @@
         margin: 0 0 12px 0;
         font-size: 16px;
         font-weight: 500;
-        color: #212121;
+        //color: #212121;
       }
       
       .dates-grid {
@@ -229,7 +226,7 @@
           
           .date-value {
             font-weight: 500;
-            color: #212121;
+            //color: #212121;
           }
         }
       }
@@ -242,7 +239,7 @@
         margin: 16px 0 8px 0;
         font-size: 16px;
         font-weight: 500;
-        color: #212121;
+        //color: #212121;
       }
       
       .info-note {

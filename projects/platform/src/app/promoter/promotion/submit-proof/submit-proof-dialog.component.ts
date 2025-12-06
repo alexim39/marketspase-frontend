@@ -47,11 +47,13 @@ export class SubmitProofDialogComponent {
   submissionStatus = signal<'idle' | 'success' | 'error'>('idle');
   statusMessage = signal('');
 
-  readonly maxFiles = 2;
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
+  readonly minFiles = 2;
+  readonly maxFiles = 3;
 
   // Computed signals
-  hasFiles = computed(() => this.selectedFiles().length > 0);
+  //hasFiles = computed(() => this.selectedFiles().length > 0);
+  hasFiles = computed(() => this.selectedFiles().length >= this.minFiles);
   
   // Debug computed signal to help identify issues
   formValidity = computed(() => ({
@@ -61,14 +63,24 @@ export class SubmitProofDialogComponent {
     isSubmitting: this.isSubmitting()
   }));
 
+  // canSubmit = computed(() => {
+  //   const formValid = this.proofForm.valid;
+  //   const hasFiles = this.selectedFiles().length > 0;
+  //   const notSubmitting = !this.isSubmitting();
+    
+  //   console.log('canSubmit check:', { formValid, hasFiles, notSubmitting });
+    
+  //   return formValid && hasFiles && notSubmitting;
+  // });
+
   canSubmit = computed(() => {
     const formValid = this.proofForm.valid;
-    const hasFiles = this.selectedFiles().length > 0;
+    const hasRequiredFiles = this.selectedFiles().length >= this.minFiles;
     const notSubmitting = !this.isSubmitting();
     
-    console.log('canSubmit check:', { formValid, hasFiles, notSubmitting });
+    //console.log('canSubmit check:', { formValid, hasRequiredFiles, notSubmitting });
     
-    return formValid && hasFiles && notSubmitting;
+    return formValid && hasRequiredFiles && notSubmitting;
   });
 
   // daysRemaining = computed(() => {
@@ -119,6 +131,11 @@ export class SubmitProofDialogComponent {
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
     
+    // if (this.selectedFiles().length + files.length > this.maxFiles) {
+    //   this.showMessage('error', `Maximum ${this.maxFiles} files allowed`);
+    //   return;
+    // }
+
     if (this.selectedFiles().length + files.length > this.maxFiles) {
       this.showMessage('error', `Maximum ${this.maxFiles} files allowed`);
       return;
@@ -170,16 +187,21 @@ export class SubmitProofDialogComponent {
   }
 
   onSubmit(): void {
-    console.log('Submitting form:', {
-      valid: this.proofForm.valid,
-      values: this.proofForm.value,
-      files: this.selectedFiles().length
-    });
+    // console.log('Submitting form:', {
+    //   valid: this.proofForm.valid,
+    //   values: this.proofForm.value,
+    //   files: this.selectedFiles().length
+    // });
 
     if (this.proofForm.invalid || !this.hasFiles()) {
-      this.showMessage('error', 'Please fill all required fields and upload at least one proof image');
+      this.showMessage('error', `Please fill all required fields and upload at least ${this.minFiles} proof images`);
       return;
     }
+
+    // if (this.proofForm.invalid || !this.hasFiles()) {
+    //   this.showMessage('error', 'Please fill all required fields and upload at least one proof image');
+    //   return;
+    // }
 
     this.isSubmitting.set(true);
     this.submissionStatus.set('idle');

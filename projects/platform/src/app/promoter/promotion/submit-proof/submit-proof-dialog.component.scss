@@ -42,8 +42,7 @@
   .campaign-info {
     margin-bottom: 20px;
     padding: 16px;
-    // UPDATED: Use gray-50 for background
-    background: $gray-50;
+    background-color: color-mix(in srgb, $gray-50 #667eea 55%);
     border-radius: 8px;
 
     h3 {
@@ -90,7 +89,8 @@
     margin-bottom: 20px;
     padding: 16px;
     // UPDATED: Use warning-color with light background
-    background: color-mix(in srgb, $warning-color, white 92%);
+    //background: color-mix(in srgb, $warning-color, white 92%);
+    background-color: color-mix(in srgb, $background-color, black 5%);
     border-radius: 8px;
     border-left: 4px solid $warning-color;
 
@@ -109,6 +109,11 @@
         font-size: 14px;
         // UPDATED: Use text-secondary for list items
         color: $text-secondary;
+      }
+      .aiwarning {
+        font-weight: 600;
+        // UPDATED: Use error-color for AI warning
+        color: $error-color;
       }
     }
   }

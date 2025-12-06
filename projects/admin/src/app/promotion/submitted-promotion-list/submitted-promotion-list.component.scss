@@ -2,8 +2,11 @@
   padding: 16px;
   max-width: 100%;
   box-sizing: border-box;
+  //background-color: #f5f5f5;
+  //color: rgba(0, 0, 0, 0.87);
   min-height: 100vh;
 }
+
 
 .header-section {
   margin-bottom: 24px;
@@ -13,12 +16,13 @@
   font-size: 24px;
   font-weight: 500;
   margin: 0 0 8px 0;
+  //color: rgba(0, 0, 0, 0.87);
 }
 
 .page-subtitle {
   font-size: 14px;
+  //color: rgba(0, 0, 0, 0.54);
   margin: 0 0 24px 0;
-  //color: rgba(0, 0, 0, 0.6);
 }
 
 .stats-overview {
@@ -26,6 +30,10 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.stat-card {
+  //background-color: #ffffff;
 }
 
 .stat-content {
@@ -38,9 +46,26 @@
   font-size: 32px;
   width: 32px;
   height: 32px;
+  color: #3f51b5;
+  
+  &.pending {
+    color: #ff9800;
+  }
   
   &.submitted {
-    color: #1976d2;
+    color: #2196f3;
+  }
+  
+  &.validated {
+    color: #4caf50;
+  }
+
+  &.paid {
+    color: #9c27b0;
+  }
+  
+  &.rejected {
+    color: #f44336;
   }
 }
 
@@ -56,11 +81,12 @@
 
 .stat-label {
   font-size: 12px;
-  //color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
 }
 
 .filters-card {
   margin-bottom: 24px;
+ // background-color: #ffffff;
 }
 
 .filters-container {
@@ -84,6 +110,7 @@
 
 .table-card {
   overflow: auto;
+  //background-color: #ffffff;
 }
 
 .table-container {
@@ -101,7 +128,7 @@
 
 .loading-spinner p {
   margin-top: 16px;
-  //color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
 }
 
 .promotions-table {
@@ -121,7 +148,7 @@
 
 .created-date {
   font-size: 12px;
-  //color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
 }
 
 .campaign-info {
@@ -135,7 +162,7 @@
 
 .campaign-category {
   font-size: 12px;
-  //color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
 }
 
 .promoter-info {
@@ -149,7 +176,7 @@
 
 .promoter-email {
   font-size: 12px;
-  //color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
 }
 
 .proof-info {
@@ -167,13 +194,13 @@
 
 .no-proof {
   font-size: 12px;
- // color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
   font-style: italic;
 }
 
 .proof-views {
   font-size: 12px;
-  //color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
   //background: #f5f5f5;
   padding: 2px 6px;
   border-radius: 4px;
@@ -190,46 +217,48 @@
   color: #4caf50;
 }
 
+.paid-date {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
 .timeline-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.submitted-date {
+.submitted-date, .validated-date {
   font-size: 12px;
-  //color: rgba(0, 0, 0, 0.6);
 }
 
 .status-chip {
   font-size: 12px;
   font-weight: 500;
   
+  &.pending {
+    background: #ef6c00;
+  }
+  
   &.submitted {
     background: #1976d2;
-    color: white;
   }
+  
   &.validated {
-    background: #10b981;
-    color: white;
-  }
-  &.rejected {
-    background: #ef4444;
-    color: white;
-  }
-  &.paid {
-    background: #4caf50;
-    color: white;
+    background: #2e7d32;
   }
 
-  &.pending {
-    background: #ff9800;
-    color: white;
+  &.paid {
+    background: #7b1fa2;
+  }
+  
+  &.rejected {
+    background: #c62828;
   }
 }
 
 .overdue-icon {
-  color: #ff9800;
+  background: #ff9800;
   font-size: 16px;
   margin-left: 4px;
 }
@@ -242,7 +271,7 @@
 .no-data {
   text-align: center;
   padding: 24px;
- // color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.54);
   font-style: italic;
 }
 
@@ -251,8 +280,7 @@
 }
 
 /* Dialog Styles */
-.proof-media-dialog,
-.reject-dialog {
+.proof-media-dialog, .reject-dialog {
   width: auto;
   height: auto;
 }
@@ -265,15 +293,14 @@
 }
 
 .proof-media-item {
-  border: 1px solid #2f2f2f;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
   //background: #fafafa;
 }
 
 .proof-image {
-  width: 100%;
-  height: 200px;
+  width: 300px;
   object-fit: cover;
   display: block;
 }
@@ -302,13 +329,6 @@
   font-size: 14px;
 }
 
-.dialog-actions {
-  margin-top: 16px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
 .full-width {
   width: 100%;
 }
@@ -320,7 +340,7 @@
   }
 
   .stats-overview {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .filters-container {
@@ -341,7 +361,7 @@
     flex-direction: column;
     align-items: start;
     padding: 8px 0;
-    border-bottom: 1px solid #5b5b5b;
+    border-bottom: 1px solid #e0e0e0;
   }
 
   .promotions-table .mat-cell {
@@ -355,7 +375,7 @@
     content: attr(data-label);
     float: left;
     font-weight: 500;
-    //color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.54);
     margin-right: 8px;
   }
 
@@ -367,6 +387,12 @@
     padding-bottom: 16px;
   }
 
+  .promotions-table .mat-column-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  
   .action-buttons {
     justify-content: flex-end;
     width: 100%;
@@ -374,14 +400,6 @@
 
   .proof-media-grid {
     grid-template-columns: 1fr;
-  }
-
-  .dialog-actions {
-    flex-direction: column;
-  }
-  
-  .dialog-actions button {
-    width: 100%;
   }
 }
 

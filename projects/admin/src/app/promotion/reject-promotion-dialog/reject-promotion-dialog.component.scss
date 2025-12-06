@@ -1,0 +1,14 @@
+.reject-dialog {
+  width: 500px;
+  max-width: 90vw;
+}
+
+.full-width {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .reject-dialog {
+    width: 90vw;
+  }
+}

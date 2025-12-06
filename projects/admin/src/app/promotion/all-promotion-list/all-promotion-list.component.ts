@@ -83,10 +83,10 @@ export interface CampaignInterface {
     MatProgressBarModule,
     FormsModule
   ],
-  templateUrl: './promotion-list.component.html',
-  styleUrls: ['./promotion-list.component.scss'],
+  templateUrl: './all-promotion-list.component.html',
+  styleUrls: ['./all-promotion-list.component.scss'],
 })
-export class PromotionListMgtComponent implements OnInit {
+export class AllPromotionListMgtComponent implements OnInit {
   readonly adminService = inject(AdminService);
   readonly promotionService = inject(PromotionService);
   readonly campaignService = inject(CampaignService);
@@ -155,7 +155,7 @@ export class PromotionListMgtComponent implements OnInit {
   private loadPromotions(): void {
     this.isLoading.set(true);
     
-    this.promotionService.getPromotions()
+    this.promotionService.getAllPromotions()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {

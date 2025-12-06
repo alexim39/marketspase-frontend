@@ -37,10 +37,11 @@
     <div class="requirements">
       <h4>Proof Requirements:</h4>
       <ul>
-        <li>Screenshot showing your WhatsApp status with the campaign content</li>
-        <li>Ensure a clear view of the promotion ID on the screenshot</li>
-        <li>Timestamp showing the status was active</li>
-        <li>Ensure a clear view showing numbers of status view. Minimum {{ campaign().minViewsPerPromotion }} views</li>
+        <li>A minimum of 2 screenshots is required.</li>
+        <li>Screenshots must clearly show the image, promotion ID, view count, and timestamp.</li>
+        <li>The second screenshot should display the list of actual viewers.</li>
+        <li>All proofs must be clear, free of distortion, and unobstructed. Minimum {{ campaign().minViewsPerPromotion }} views</li>
+        <li class="aiwarning">Note: AI-generated proofs are not allowed and will result in a permanent ban of your account.</li>
       </ul>
     </div>
 
@@ -76,8 +77,8 @@
 
       <!-- File Upload -->
       <div class="file-upload-section">
-        <h4>Upload Proof Screenshots (1 - 2 images Max)</h4>
-        
+        <h4>Upload Proof Screenshots (2 - 3 images Required)</h4>
+
         <div class="upload-area" [class.has-files]="hasFiles()">
           <input 
             type="file" 
@@ -87,26 +88,29 @@
             (change)="onFileSelected($event)"
             [disabled]="selectedFiles().length >= maxFiles"
           >
-          @if (!hasFiles()) {
-             <div class="upload-placeholder">
+          <!-- Show placeholder when no files -->
+          @if (selectedFiles().length === 0) {
+            <div class="upload-placeholder">
               <mat-icon>cloud_upload</mat-icon>
               <p>Click to upload or drag and drop</p>
               <span>PNG, JPG up to 5MB each</span>
             </div>
           }
-         
-          @if (hasFiles()) {
+          
+          <!-- Always show previews when there are files -->
+          @if (selectedFiles().length > 0) {
             <div class="file-previews">
               @for (url of previewUrls(); track url; let i = $index) {
-              <div class="file-preview">
-                <img [src]="url" alt="Proof screenshot">
-                <button mat-icon-button class="remove-btn" (click)="removeFile(i)" [disabled]="isSubmitting()">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
+                <div class="file-preview">
+                  <img [src]="url" alt="Proof screenshot">
+                  <button mat-icon-button class="remove-btn" (click)="removeFile(i)" [disabled]="isSubmitting()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               }
+              <!-- Show "Add more" button when less than maxFiles -->
               @if (selectedFiles().length < maxFiles) {
-                <div class="upload-more">
+                <div class="upload-more" (click)="fileInput.click()">
                   <mat-icon>add</mat-icon>
                   <span>Add more</span>
                 </div>
@@ -117,8 +121,8 @@
 
         <div class="upload-info">
           <span>{{ selectedFiles().length }}/{{ maxFiles }} files selected</span>
-          @if (!hasFiles()) {
-            <span class="file-error">* At least one proof image is required</span>
+          @if (selectedFiles().length < minFiles || selectedFiles().length > maxFiles) {
+            <span class="file-error">* Between {{ minFiles }} and {{ maxFiles }} proof images are required</span>
           }
         </div>
       </div>
