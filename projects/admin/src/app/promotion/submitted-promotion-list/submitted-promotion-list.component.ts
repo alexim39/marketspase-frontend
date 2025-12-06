@@ -1,7 +1,6 @@
-import { Component, inject, OnInit, AfterViewInit, ViewChild, signal, DestroyRef, TemplateRef } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit, ViewChild, signal, DestroyRef } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormsModule } from '@angular/forms';
 
 // Angular Material imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -28,6 +27,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CampaignService } from '../../campaign/campaign.service';
 import { AdminService } from '../../common/services/user.service';
 import { PromotionService } from '../promotion.service';
+import { ProofMediaDialogComponent } from '../proof-media-dialog/proof-media-dialog.component';
+import { RejectPromotionDialogComponent } from '../reject-promotion-dialog/reject-promotion-dialog.component';
 
 // Types
 export interface Promotion {
@@ -141,8 +142,6 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
   // View Children
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild('proofMediaDialog') proofMediaDialog!: TemplateRef<any>;
-  @ViewChild('rejectDialog') rejectDialog!: TemplateRef<any>;
 
   private dialogRef!: MatDialogRef<any>;
   private rejectDialogRef!: MatDialogRef<any>;
@@ -297,17 +296,30 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
   }
 
   // Dialog Methods
-  viewProofMedia(promotion: Promotion): void {
+ viewProofMedia(promotion: Promotion): void {
     this.selectedPromotion.set(promotion);
-    this.dialogRef = this.dialog.open(this.proofMediaDialog, {
-      width: '800px',
-      maxWidth: '90vw'
+    
+    this.dialog.open(ProofMediaDialogComponent, {
+      width: '1200px',
+      maxWidth: '100vw',
+      height: '90vh',
+      data: {
+        promotion: promotion,
+        campaigns: this.campaigns(),
+        onValidate: (promo: Promotion) => this.validatePromotion(promo),
+        onReject: (promo: Promotion) => this.openRejectDialog(promo)
+      }
     });
+
+    // Listen for dialog close if needed
+    // this.dialogRef.afterClosed().subscribe(() => {
+    //   // Handle any cleanup if needed
+    // });
   }
 
   validatePromotion(promotion: Promotion): void {
     this.isLoading.set(true);
-    this.dialogRef.close();
+    //this.dialogRef.close();
     
     this.campaignService.updatePromotionStatus(
       promotion._id, 
@@ -319,7 +331,11 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
         next: (response) => {
           if (response.success) {
             this.showSuccess('Promotion validated successfully');
-            this.loadData();
+            //this.loadData();
+            // Use setTimeout to avoid change detection issues
+            setTimeout(() => {
+              this.loadData();
+            });
           } else {
             this.showError('Failed to validate promotion');
           }
@@ -328,28 +344,25 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
       });
   }
 
-  openRejectDialog(promotion: Promotion): void {
+ openRejectDialog(promotion: Promotion): void {
     this.selectedPromotion.set(promotion);
     this.rejectionReason.set('');
     
-    this.rejectDialogRef = this.dialog.open(this.rejectDialog, {
+    this.dialog.open(RejectPromotionDialogComponent, {
       width: '500px',
-      height: 'auto'
+      data: {
+        promotion: promotion,
+        onReject: (promo: Promotion, reason: string) => {
+          this.rejectPromotionWithReason(promo, reason);
+        }
+      }
     });
   }
 
-  rejectPromotion(): void {
-    const promotion = this.selectedPromotion();
-    const reason = this.rejectionReason().trim();
-    
-    if (!promotion || !reason) {
-      this.showError('Please provide a rejection reason');
-      return;
-    }
 
+  // Add this new method to handle rejection with reason
+  rejectPromotionWithReason(promotion: Promotion, reason: string): void {
     this.isLoading.set(true);
-    this.dialogRef.close();
-    this.rejectDialogRef.close();
     
     this.campaignService.updatePromotionStatus(
       promotion._id, 
@@ -362,14 +375,26 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
         next: (response) => {
           if (response.success) {
             this.showSuccess('Promotion rejected successfully');
-
             this.loadData();
           } else {
             this.showError('Failed to reject promotion');
           }
+          this.isLoading.set(false);
         },
         error: (error) => this.handleError(error, 'Error rejecting promotion')
       });
+  }
+
+  rejectPromotion(): void {
+    const promotion = this.selectedPromotion();
+    const reason = this.rejectionReason().trim();
+    
+    if (!promotion || !reason) {
+      this.showError('Please provide a rejection reason');
+      return;
+    }
+
+    this.rejectPromotionWithReason(promotion, reason);
   }
 
   // Utility Methods

@@ -18,7 +18,7 @@
 .page-subtitle {
   font-size: 14px;
   margin: 0 0 24px 0;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .stats-overview {
@@ -56,7 +56,7 @@
 
 .stat-label {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .filters-card {
@@ -101,7 +101,7 @@
 
 .loading-spinner p {
   margin-top: 16px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .promotions-table {
@@ -121,7 +121,7 @@
 
 .created-date {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .campaign-info {
@@ -135,7 +135,7 @@
 
 .campaign-category {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .promoter-info {
@@ -149,7 +149,7 @@
 
 .promoter-email {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .proof-info {
@@ -167,14 +167,14 @@
 
 .no-proof {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+ // color: rgba(0, 0, 0, 0.6);
   font-style: italic;
 }
 
 .proof-views {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
-  background: #f5f5f5;
+  //color: rgba(0, 0, 0, 0.6);
+  //background: #f5f5f5;
   padding: 2px 6px;
   border-radius: 4px;
   display: inline-block;
@@ -198,7 +198,7 @@
 
 .submitted-date {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .status-chip {
@@ -207,6 +207,23 @@
   
   &.submitted {
     background: #1976d2;
+    color: white;
+  }
+  &.validated {
+    background: #10b981;
+    color: white;
+  }
+  &.rejected {
+    background: #ef4444;
+    color: white;
+  }
+  &.paid {
+    background: #4caf50;
+    color: white;
+  }
+
+  &.pending {
+    background: #ff9800;
     color: white;
   }
 }
@@ -225,7 +242,7 @@
 .no-data {
   text-align: center;
   padding: 24px;
-  color: rgba(0, 0, 0, 0.6);
+ // color: rgba(0, 0, 0, 0.6);
   font-style: italic;
 }
 
@@ -248,10 +265,10 @@
 }
 
 .proof-media-item {
-  border: 1px solid #e0e0e0;
+  border: 1px solid #2f2f2f;
   border-radius: 8px;
   overflow: hidden;
-  background: #fafafa;
+  //background: #fafafa;
 }
 
 .proof-image {
@@ -265,19 +282,19 @@
   padding: 8px;
   text-align: center;
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .promotion-info {
   margin-top: 16px;
   padding: 16px;
-  background: #f5f5f5;
+  //background: #f5f5f5;
   border-radius: 8px;
 }
 
 .promotion-info h4 {
   margin: 0 0 8px 0;
-  color: rgba(0, 0, 0, 0.87);
+  //color: rgba(0, 0, 0, 0.87);
 }
 
 .promotion-info p {
@@ -324,7 +341,7 @@
     flex-direction: column;
     align-items: start;
     padding: 8px 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #5b5b5b;
   }
 
   .promotions-table .mat-cell {
@@ -338,7 +355,7 @@
     content: attr(data-label);
     float: left;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
     margin-right: 8px;
   }
 

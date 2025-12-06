@@ -47,7 +47,7 @@ export class SubmitProofDialogComponent {
   submissionStatus = signal<'idle' | 'success' | 'error'>('idle');
   statusMessage = signal('');
 
-  readonly maxFiles = 2;
+  readonly maxFiles = 3;
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
 
   // Computed signals
