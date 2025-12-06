@@ -10,8 +10,8 @@
       </button>
       <mat-menu #cardMenu="matMenu">
         @if (promotion.isDownloaded) {
-          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()"> -->
-          <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()"> 
+          <button mat-menu-item (click)="onOpenSubmitProofDialog()">
+          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">  -->
             <mat-icon>cloud_upload</mat-icon>
             <span>Submit Proof</span>
           </button>
@@ -38,11 +38,9 @@
     
     @if (promotion.campaign.mediaType === "image") {
       <img [src]="promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
-      <!-- <img [src]="api + promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview"> -->
     }
     @if (promotion.campaign.mediaType === "video") {
       <div class="video-placeholder">
-        <!-- <img [src]="promotion.campaign.category | categoryPlaceholder" class="media-preview placeholder-img" /> -->
          <img 
             [src]="promotion.campaign.thumbnailUrl || (promotion.campaign.category | categoryPlaceholder)" 
             class="media-preview placeholder-img" 
@@ -87,7 +85,7 @@
 
   <div class="payout-section">
     <div class="payout-amount">
-      <span class="currency">₦</span>
+      <span class="currency">{{ promotion.campaign.currency }}</span>
       <span class="amount">{{ promotion.payoutAmount }}</span>
     </div>
     <div class="status-indicator">
