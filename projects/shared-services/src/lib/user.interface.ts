@@ -82,25 +82,43 @@ export interface UserInterface {
     marketer: {
       balance: number;
       reserved: number;
-      transactions: {
-        amount: number;
-        category: string;
+     transactions: {
+        _id: string;
+        amount?: number;
+        category?: string;
         createdAt: Date;
-        description: string;
-        status: string;
-        type: string;
+        description?: string;
+        status?: string;
+        type?: string;
+        isDefault?: boolean;
+        bankDetails?: {
+          bank?: string;
+          accountNumber?: string;
+          accountName?: string;
+          bankCode?: string;
+          isDefault?: boolean;
+        };
       }[];
     };
     promoter: {
       balance: number;
       reserved: number;
       transactions: {
-        amount: number;
-        category: string;
+        _id: string;
+        amount?: number;
+        category?: string;
         createdAt: Date;
-        description: string;
-        status: string;
-        type: string;
+        description?: string;
+        status?: string;
+        type?: string;
+        isDefault?: boolean;
+        bankDetails?: {
+          bank?: string;
+          accountNumber?: string;
+          accountName?: string;
+          bankCode?: string;
+          isDefault?: boolean;
+        };
       }[];
     };
 
@@ -109,4 +127,14 @@ export interface UserInterface {
   };
   campaigns?: [CampaignInterface];
   promotion?: [PromotionInterface];
+
+
+  testimonials: {
+    message: string;
+    createdAt: Date;
+    _id: string;
+    rating: number;
+    status: string;
+    isFeatured: boolean;
+  }[];
 }

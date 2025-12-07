@@ -19,7 +19,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services
 import { AdminService } from '../../common/services/user.service';
-import { UserService } from '../user.service';
+import { UserService } from '../users.service';
 import { Router } from '@angular/router';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

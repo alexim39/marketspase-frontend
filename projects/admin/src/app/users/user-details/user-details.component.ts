@@ -14,53 +14,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 
 // Services
-import { UserService } from '../user.service';
+import { UserService } from '../users.service';
 import { MatTableModule } from '@angular/material/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 
-// Interfaces
-// export interface User {
-//   _id: string;
-//   uid: string;
-//   username: string;
-//   displayName: string;
-//   email: string;
-//   authenticationMethod: string;
-//   role: 'marketer' | 'promoter';
-//   avatar: string;
-//   rating: number;
-//   ratingCount: number;
-//   isActive: boolean;
-//   isVerified: boolean;
-//   isDeleted: boolean;
-//   createdAt: string;
-//   updatedAt: string;
-//   wallets: {
-//     marketer: {
-//       balance: number;
-//       reserved: number;
-//       transactions: any[];
-//     };
-//     promoter: {
-//       balance: number;
-//       reserved: number;
-//       transactions: any[];
-//     };
-//   };
-//   professionalInfo: {
-//     skills: string[];
-//   };
-//   interests: {
-//     hobbies: string[];
-//     favoriteTopics: string[];
-//   };
-//   preferences: {
-//     notification: boolean;
-//   };
-//   testimonials: any[];
-//   payoutAccounts: any[];
-// }
 
 @Component({
   selector: 'app-user-details',
@@ -87,7 +45,7 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
   templateUrl: './user-details.component.html',
   styleUrls: ['./user-details.component.scss']
 })
-export class UserDetailsComponent implements OnInit, OnDestroy {
+export class UserDetailsComponent implements OnInit {
   private userService = inject(UserService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -105,14 +63,45 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
   public userIsDeleted = computed(() => !!this.user()?.isDeleted);
 
   // Define the columns for the Angular Material table
-  public displayedColumns: string[] = ['date', 'description', 'amount', 'status', 'type'];
+  //public displayedColumns: string[] = ['date', 'description', 'amount', 'status', 'type'];
+
+  // Add 'wallet' to the displayed columns
+public displayedColumns: string[] = ['date', 'description', 'amount', 'status', 'type', 'wallet'];
 
   // A computed signal for the transaction data source
-  public dataSource = computed(() => {
-    // Return the marketer transactions if the user exists, otherwise an empty array
-    return this.user()?.wallets?.marketer?.transactions || [];
-  });
+ public dataSource = computed(() => {
+  const user = this.user();
+  if (!user) return [];
+  
+  // Combine transactions from both wallets
+  const marketerTransactions = user?.wallets?.marketer?.transactions || [];
+  const promoterTransactions = user?.wallets?.promoter?.transactions || [];
+  
+  return [...marketerTransactions, ...promoterTransactions];
+});
 
+// Add this computed property for professional info
+professionalInfo = computed(() => {
+  return this.user()?.professionalInfo || {
+    skills: [],
+    experience: '',
+    education: ''
+  };
+});
+
+
+// Add this computed property for interests
+interestsInfo = computed(() => {
+  return this.user()?.interests || {
+    hobbies: [],
+    favoriteTopics: []
+  };
+});
+
+// Add this computed property for payout accounts
+payoutAccounts = computed(() => {
+  return this.user()?.savedAccounts || [];
+});
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -120,10 +109,6 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     this.loadUserDetails();
   }
 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
 
   loadUserDetails(): void {
     const userId = this.route.snapshot.paramMap.get('id');
@@ -206,4 +191,12 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
       panelClass: `snackbar-${type}`
     });
   }
+
+  // Add this computed property
+withdrawalTransactions = computed(() => {
+  const transactions = this.dataSource();
+  return transactions.filter(t => t.category === 'withdrawal' || t.description?.toLowerCase().includes('withdrawal'));
+});
+
+
 }

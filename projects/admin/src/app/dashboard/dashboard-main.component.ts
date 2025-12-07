@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CampaignService } from '../campaign/campaign.service';
 import { CampaignInterface, UserInterface } from '../../../../shared-services/src/public-api';
-import { UserService } from '../users/user.service';
+import { UserService } from '../users/users.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EngagementStats, RevenueService, RevenueStats } from './revenue.service';
 
