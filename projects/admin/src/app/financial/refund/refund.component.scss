@@ -18,7 +18,7 @@
 
 .page-subtitle {
   font-size: 16px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
   margin: 0 0 24px 0;
 }
 
@@ -80,7 +80,7 @@
 
 .stat-label {
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
   margin-top: 4px;
 }
 
@@ -137,7 +137,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
+  //background: white;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -176,7 +176,7 @@
 
 .promoter-email {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .promoter-wallet {
@@ -234,7 +234,7 @@
 
 // Selected promoter info
 .selected-promoter-info {
-  background: #f5f5f5;
+  //background: #f5f5f5;
   border-radius: 8px;
   padding: 16px;
   margin: 16px 0;
@@ -267,7 +267,7 @@
   
   .balance-label {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
   }
   
   .balance-amount {
@@ -316,7 +316,7 @@
 
 .upload-text {
   font-size: 16px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
 }
 
 .file-name {
@@ -360,7 +360,7 @@
   
   .summary-label {
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
   }
   
   &.total-amount .summary-value {
@@ -416,7 +416,7 @@
   
   p {
     margin-top: 16px;
-    color: rgba(0, 0, 0, 0.6);
+    //color: rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -459,7 +459,7 @@
 .no-data {
   text-align: center;
   padding: 40px;
-  color: rgba(0, 0, 0, 0.6);
+  //color: rgba(0, 0, 0, 0.6);
   font-style: italic;
 }
 

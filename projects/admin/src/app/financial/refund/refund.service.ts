@@ -154,7 +154,7 @@ export class RefundService {
    */
   refundPromoterBalance(refundRequest: RefundRequest): Observable<ApiResponse<RefundResponseData>> {
     return this.apiService.post<ApiResponse<RefundResponseData>>(
-      `${this.apiBase}/promoter`,
+      `${this.apiBase}/`,
       refundRequest,
       undefined,
       true
@@ -168,7 +168,7 @@ export class RefundService {
    */
   getPromoterWalletDetails(promoterIdentifier: string): Observable<ApiResponse<PromoterWalletDetailsData>> {
     return this.apiService.get<ApiResponse<PromoterWalletDetailsData>>(
-      `${this.apiBase}/promoter/${promoterIdentifier}/wallet`,
+      `${this.apiBase}/${promoterIdentifier}/wallet`,
       undefined,
       undefined,
       true
@@ -219,7 +219,7 @@ export class RefundService {
     let params: any = {};
     
     if (options?.promoterIdentifier) {
-      endpoint = `${this.apiBase}/promoter/${options.promoterIdentifier}/refund-history`;
+      endpoint = `${this.apiBase}/${options.promoterIdentifier}/refund-history`;
     }
     
     if (options?.limit) {
@@ -247,7 +247,7 @@ searchPromoters(query: string): Observable<ApiResponse<SearchPromotersData[]>> {
   const params = new HttpParams().set('query', query);
   
   return this.apiService.get<ApiResponse<SearchPromotersData[]>>(
-    `${this.apiBase}/promoters/search`,
+    `${this.apiBase}/search`,
     params,
     undefined,
     true

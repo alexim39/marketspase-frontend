@@ -1,5 +1,5 @@
 // file: refund.component.ts
-import { Component, inject, OnInit, ViewChild, signal, DestroyRef, computed } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, signal, DestroyRef, computed, Inject } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -85,6 +85,96 @@ export interface BulkRefundItem {
   data?: any;
 }
 
+// Dialog Components (simplified inline versions)
+@Component({
+  selector: 'app-refund-details-dialog',
+  template: `
+    <h2 mat-dialog-title>Refund Details</h2>
+    <mat-dialog-content>
+      <div *ngIf="data.refund">
+        <div class="detail-row">
+          <strong>Promoter:</strong> {{data.refund.promoterUsername}} ({{data.refund.promoterEmail}})
+        </div>
+        <div class="detail-row">
+          <strong>Amount:</strong> {{data.refund.amount | currency:'NGN':'₦'}}
+        </div>
+        <div class="detail-row">
+          <strong>Status:</strong> {{data.refund.status}}
+        </div>
+        <div class="detail-row">
+          <strong>Processed At:</strong> {{data.refund.processedAt | date:'medium'}}
+        </div>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Close</button>
+    </mat-dialog-actions>
+  `,
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule, CurrencyPipe, DatePipe]
+})
+export class RefundDetailsDialogComponent {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { refund: any }) {}
+}
+
+@Component({
+  selector: 'app-edit-bulk-item-dialog',
+  template: `
+    <h2 mat-dialog-title>Edit Refund Item</h2>
+    <mat-dialog-content>
+      <form [formGroup]="editForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Promoter ID</mat-label>
+          <input matInput formControlName="promoterUserId" readonly>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount</mat-label>
+          <input matInput type="number" formControlName="amount" min="1" max="1000000">
+          <span matTextPrefix>₦&nbsp;</span>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Reason</mat-label>
+          <textarea matInput formControlName="reason" rows="3"></textarea>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-button color="primary" [mat-dialog-close]="editForm.value" [disabled]="editForm.invalid">Save</button>
+    </mat-dialog-actions>
+  `,
+  standalone: true,
+  imports: [
+    CommonModule, 
+    MatDialogModule, 
+    ReactiveFormsModule, 
+    MatFormFieldModule, 
+    MatInputModule,
+    MatButtonModule
+  ]
+})
+export class EditBulkItemDialogComponent implements OnInit {
+  editForm: FormGroup;
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { item: any },
+    private fb: FormBuilder
+  ) {
+    this.editForm = this.fb.group({
+      promoterUserId: [data.item.promoterUserId, Validators.required],
+      amount: [data.item.amount, [Validators.required, Validators.min(1), Validators.max(1000000)]],
+      reason: [data.item.reason, [Validators.required, Validators.minLength(10)]]
+    });
+  }
+
+  ngOnInit() {}
+}
+
+// Import for MAT_DIALOG_DATA
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 @Component({
   selector: 'app-admin-promoter-refund',
   standalone: true,
@@ -118,7 +208,10 @@ export interface BulkRefundItem {
     MatBadgeModule,
     MatProgressBarModule,
     MatAutocompleteModule,
-    MatOptionModule
+    MatOptionModule,
+    // Dialog components
+    RefundDetailsDialogComponent,
+    EditBulkItemDialogComponent
   ],
   templateUrl: './refund.component.html',
   styleUrls: ['./refund.component.scss'],
@@ -258,7 +351,10 @@ export class RefundComponent implements OnInit {
 
   // Search methods
   searchPromoters(query: string): void {
-    if (!query || query.length < 2) return;
+    if (!query || query.length < 2) {
+      this.promoters.set([]);
+      return;
+    }
 
     this.isLoading.set(true);
     this.searchQuery.set(query);
@@ -268,12 +364,20 @@ export class RefundComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.promoters.set(response.data);
+            this.promoters.set(response.data || []);
+          } else {
+            this.showError(response.message || 'Search failed');
+            this.promoters.set([]);
           }
           this.isLoading.set(false);
         },
         error: (error) => {
           console.error('Error searching promoters:', error);
+          // Don't show error for 404 - just clear results
+          if (error.status !== 404) {
+            this.showError('Search failed. Please try again.');
+          }
+          this.promoters.set([]);
           this.isLoading.set(false);
         }
       });
@@ -291,7 +395,10 @@ export class RefundComponent implements OnInit {
   // Validation methods
   validateSingleRefund(): void {
     const formValue = this.singleRefundForm.value;
-    if (!formValue.promoterIdentifier || !formValue.amount) return;
+    if (!formValue.promoterIdentifier || !formValue.amount || formValue.amount <= 0) {
+      this.validationResult.set({ valid: false, error: 'Enter promoter and amount' });
+      return;
+    }
 
     this.isLoading.set(true);
     this.adminRefundService.validateRefund(
@@ -301,14 +408,22 @@ export class RefundComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.validationResult.set(response.data);
-          if (!response.data.valid) {
-            this.singleRefundForm.setErrors({ validation: response.data.error });
+          if (response.success) {
+            this.validationResult.set(response.data);
+            if (!response.data?.valid) {
+              this.singleRefundForm.setErrors({ validation: response.data?.error });
+            }
+          } else {
+            this.validationResult.set({ valid: false, error: response.message });
           }
           this.isLoading.set(false);
         },
         error: (error) => {
           console.error('Validation error:', error);
+          this.validationResult.set({ 
+            valid: false, 
+            error: error.message || 'Validation failed' 
+          });
           this.isLoading.set(false);
         }
       });
@@ -616,18 +731,24 @@ export class RefundComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            const transactions = (response.data?.refunds?.transactions || []).map(transaction => ({
+            // Fix: Check if response.data exists before accessing
+            const transactions = response.data?.refunds?.transactions || [];
+            const mappedTransactions = transactions.map(transaction => ({
               ...transaction,
-              status: transaction.status as 'completed' | 'pending' | 'failed' | 'cancelled'
+              _id: transaction._id || transaction.transactionId,
+              status: (transaction.status || 'completed') as 'completed' | 'pending' | 'failed' | 'cancelled'
             }));
             
-            this.refundHistory.set(transactions);
-            this.refundHistoryDataSource.data = transactions;
+            this.refundHistory.set(mappedTransactions);
+            this.refundHistoryDataSource.data = mappedTransactions;
+          } else {
+            this.showError(response.message || 'Failed to load refund history');
           }
           this.isLoading.set(false);
         },
         error: (error) => {
           console.error('Error loading refund history:', error);
+          this.showError('Failed to load refund history');
           this.isLoading.set(false);
         }
       });
@@ -695,8 +816,8 @@ export class RefundComponent implements OnInit {
     this.refundHistoryDataSource.data = this.refundHistory();
   }
 
-  // Utility methods
-  private markFormGroupTouched(formGroup: FormGroup): void {
+  // Utility methods - REMOVE 'private' keyword since they're called from template
+  markFormGroupTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
       if (control instanceof FormGroup) {
@@ -717,14 +838,14 @@ export class RefundComponent implements OnInit {
     this.validationResult.set(null);
   }
 
-  private showSuccess(message: string): void {
+  showSuccess(message: string): void {
     this.snackBar.open(message, 'Close', { 
       duration: 5000,
       panelClass: ['success-snackbar']
     });
   }
 
-  private showError(message: string): void {
+  showError(message: string): void {
     this.snackBar.open(message, 'Close', { 
       duration: 5000,
       panelClass: ['error-snackbar']
@@ -851,32 +972,19 @@ export class RefundComponent implements OnInit {
             this.isLoading.set(false);
         }
         });
+  }
+
+  onTabChange(index: number): void {
+    switch (index) {
+      case 0:
+        this.activeTab.set('single');
+        break;
+      case 1:
+        this.activeTab.set('bulk');
+        break;
+      case 2:
+        this.activeTab.set('history');
+        break;
     }
+  }
 }
-
-// Dialog Components (would be in separate files)
-@Component({
-  selector: 'app-refund-details-dialog',
-  template: `
-    <h2 mat-dialog-title>Refund Details</h2>
-    <mat-dialog-content>
-      <!-- Refund details display -->
-    </mat-dialog-content>
-  `,
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule]
-})
-export class RefundDetailsDialogComponent {}
-
-@Component({
-  selector: 'app-edit-bulk-item-dialog',
-  template: `
-    <h2 mat-dialog-title>Edit Refund Item</h2>
-    <mat-dialog-content>
-      <!-- Edit form -->
-    </mat-dialog-content>
-  `,
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule]
-})
-export class EditBulkItemDialogComponent {}

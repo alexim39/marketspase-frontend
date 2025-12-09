@@ -48,9 +48,9 @@
   <!-- Tabs Navigation -->
   <div class="tabs-section">
     <mat-tab-group 
-    [selectedIndex]="activeTab()"
-    (selectedIndexChange)="activeTab.set('single')"
-     animationDuration="200ms">
+    [selectedIndex]="activeTab() === 'single' ? 0 : activeTab() === 'bulk' ? 1 : 2"
+    (selectedIndexChange)="onTabChange($event)"
+    animationDuration="200ms">
     <!-- <mat-tab-group [(selectedIndex)]="activeTab()" animationDuration="200ms"> -->
       <!-- Single Refund Tab -->
       <mat-tab label="Single Refund">
@@ -208,7 +208,7 @@
                 </button>
                 
                 <mat-checkbox [formControl]="singleRefundForm.controls.sendNotification">
-                  Send notification to promoter
+                  Send notification to user
                 </mat-checkbox>
               </div>
             </mat-card-content>
@@ -223,7 +223,7 @@
           <mat-card class="bulk-refund-card fade-in">
             <mat-card-header class="card-header">
               <mat-card-title class="card-title">Bulk Refund Processing</mat-card-title>
-              <mat-card-subtitle>Process refunds to multiple promoters at once</mat-card-subtitle>
+              <mat-card-subtitle>Process refunds to multiple users at once</mat-card-subtitle>
             </mat-card-header>
             
             <mat-card-content>

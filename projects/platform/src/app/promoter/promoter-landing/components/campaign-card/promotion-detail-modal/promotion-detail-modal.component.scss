@@ -247,7 +247,7 @@
     gap: 16px;
     padding: 20px;
     // UPDATED: Use gray-50 for background
-    background: $gray-50;
+     background-color: color-mix(in srgb, $background-color, black 5%);
     border-radius: 12px;
     // UPDATED: Use border-color variable for dynamic theming
     border: 1px solid $border-color;
