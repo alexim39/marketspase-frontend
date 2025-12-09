@@ -1,0 +1,47 @@
+
+    <div class="media-viewer">
+      <div class="mv-toolbar">
+        <div class="mv-title">{{ data.title || '' }}</div>
+        <div class="mv-actions">
+          <button mat-icon-button aria-label="Copy link" (click)="copyLink()">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <a class="mv-open" [href]="data.url" target="_blank" rel="noopener" mat-icon-button aria-label="Open in new tab">
+            <mat-icon>open_in_new</mat-icon>
+          </a>
+          <button mat-icon-button (click)="close()" aria-label="Close">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="mv-content">
+        <ng-container [ngSwitch]="data.mediaType">
+          <video
+            *ngSwitchCase="'video'"
+            class="mv-video"
+            controls
+            [attr.poster]="poster"
+            preload="metadata"
+          >
+            <source [src]="data.url" />
+            Your browser does not support the video tag.
+          </video>
+
+          <iframe
+            *ngSwitchCase="'embed'"
+            class="mv-embed"
+            [src]="safeEmbedUrl"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+
+          <img *ngSwitchDefault class="mv-image" [src]="data.url" [alt]="data.title || 'Media preview'"/>
+        </ng-container>
+      </div>
+
+      <div class="mv-footer">
+        <div class="mv-url">{{ data.url }}</div>
+      </div>
+    </div>

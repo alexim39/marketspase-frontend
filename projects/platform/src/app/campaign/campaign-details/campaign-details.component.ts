@@ -19,6 +19,7 @@ import { PromotionDetailsDialogComponent } from './promotion-details-dialog/prom
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TruncateIDPipe } from './truncate-id.pipe';
 import { CampaignDetailsService } from './campaign-details.service';
+import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -282,5 +283,32 @@ export class CampaignDetailsComponent implements OnInit {
       this.campaign.set({...campaign});
     }
   }
+
+  // viewMedia(mediaUrl: string | undefined) {
+  //   if (!mediaUrl) return;
+  //   window.open(mediaUrl, '_blank');
+  // }
+
+  viewMedia(mediaUrl: string | undefined) {
+    if (!mediaUrl) return;
+
+    console.log('Viewing media URL:', mediaUrl);
+
+    // basic media type detection
+    const isVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaUrl) || /youtube\.com|youtu\.be|vimeo\.com/.test(mediaUrl);
+    const mediaType = isVideo ? (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(mediaUrl) ? 'video' : 'embed') : 'image';
+
+    this.dialog.open(MediaViewerOnlyDialogComponent, {
+      data: {
+        url: mediaUrl,
+        mediaType,
+        title: this.campaign()?.title || undefined
+      },
+      width: '90vw',
+      maxWidth: '900px',
+      panelClass: 'media-viewer-dialog-panel'
+    });
+  }
+
   
 }
