@@ -32,6 +32,8 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';  // For mat-autocomplete
 import { MatOptionModule } from '@angular/material/core';
+import { debounceTime } from 'rxjs/operators';
+
 // Services
 import { AdminService } from '../../common/services/user.service';
 import { RefundService } from './refund.service';
@@ -322,32 +324,55 @@ export class RefundComponent implements OnInit {
   }
 
   // Form setup
-  private setupFormSubscriptions(): void {
-    // Single refund form - promoter identifier search
-    this.singleRefundForm.get('promoterIdentifier')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
-        if (value && value.length >= 2) {
-          this.searchPromoters(value);
-        } else {
-          this.promoters.set([]);
-        }
-      });
+private setupFormSubscriptions(): void {
+  // Single refund form - promoter identifier search
+  this.singleRefundForm.get('promoterIdentifier')?.valueChanges
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(value => {
+      if (value && value.length >= 2) {
+        this.searchPromoters(value);
+      } else {
+        this.promoters.set([]);
+      }
+      
+      // Auto-validate when promoter identifier changes
+      if (value && this.singleRefundForm.get('amount')?.value) {
+        setTimeout(() => this.validateSingleRefund(), 300);
+      }
+    });
 
-    // Single refund form - amount validation
-    this.singleRefundForm.get('amount')?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(amount => {
-        if (amount && amount > 1000000) {
-          this.singleRefundForm.get('amount')?.setErrors({ max: true });
-        }
-      });
+  // Single refund form - amount validation
+  this.singleRefundForm.get('amount')?.valueChanges
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(amount => {
+      if (amount && amount > 1000000) {
+        this.singleRefundForm.get('amount')?.setErrors({ max: true });
+      }
+      
+      // Auto-validate when amount changes and we have a promoter
+      if (amount && amount > 0 && this.singleRefundForm.get('promoterIdentifier')?.value) {
+        setTimeout(() => this.validateSingleRefund(), 300);
+      }
+    });
 
-    // Filters form
-    this.filtersForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.applyFilters());
-  }
+  // Validate when any form value changes
+  this.singleRefundForm.valueChanges
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      debounceTime(500) // Add debounce to prevent excessive API calls
+    )
+    .subscribe(() => {
+      const formValue = this.singleRefundForm.value;
+      if (formValue.promoterIdentifier && formValue.amount && formValue.amount > 0) {
+        this.validateSingleRefund();
+      }
+    });
+
+  // Filters form
+  this.filtersForm.valueChanges
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(() => this.applyFilters());
+}
 
   // Search methods
   searchPromoters(query: string): void {
@@ -383,51 +408,91 @@ export class RefundComponent implements OnInit {
       });
   }
 
-  selectPromoter(promoter: any): void {
-    this.selectedPromoter.set(promoter);
-    this.singleRefundForm.patchValue({
-      promoterIdentifier: promoter.username || promoter.email || promoter._id
-    });
-    this.promoters.set([]); // Clear search results
+
+  // In the selectPromoter method:
+selectPromoter(promoter: any): void {
+  this.selectedPromoter.set(promoter);
+  
+  // Store the promoter data for reference
+  const promoterIdentifier = promoter.username || promoter.email || promoter._id;
+  
+  this.singleRefundForm.patchValue({
+    promoterIdentifier: promoterIdentifier
+  }, { emitEvent: true });
+  
+  this.promoters.set([]); // Clear search results
+  
+  // Force validation
+  setTimeout(() => {
     this.validateSingleRefund();
+  }, 100);
+}
+
+
+// Validation methods
+validateSingleRefund(): void {
+  const formValue = this.singleRefundForm.value;
+  
+  // Debug logging
+  console.log('Validating refund with:', {
+    promoterIdentifier: formValue.promoterIdentifier,
+    amount: formValue.amount,
+    selectedPromoter: this.selectedPromoter()
+  });
+  
+  // Check if we have a selected promoter
+  const promoter = this.selectedPromoter();
+  const promoterIdentifier = formValue.promoterIdentifier || (promoter?.username || promoter?.email || promoter?._id);
+  
+  if (!promoterIdentifier || !formValue.amount || formValue.amount <= 0) {
+    console.log('Validation failed: Missing promoter or amount');
+    this.validationResult.set({ 
+      valid: false, 
+      error: 'Please select a promoter and enter a valid amount' 
+    });
+    return;
   }
 
-  // Validation methods
-  validateSingleRefund(): void {
-    const formValue = this.singleRefundForm.value;
-    if (!formValue.promoterIdentifier || !formValue.amount || formValue.amount <= 0) {
-      this.validationResult.set({ valid: false, error: 'Enter promoter and amount' });
-      return;
-    }
-
-    this.isLoading.set(true);
-    this.adminRefundService.validateRefund(
-      formValue.promoterIdentifier,
-      formValue.amount
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.validationResult.set(response.data);
-            if (!response.data?.valid) {
-              this.singleRefundForm.setErrors({ validation: response.data?.error });
-            }
+  this.isLoading.set(true);
+  
+  // Use the promoter identifier from the form OR from the selected promoter
+  this.adminRefundService.validateRefund(
+    promoterIdentifier,
+    formValue.amount
+  )
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (response) => {
+        console.log('Validation response:', response);
+        if (response.success) {
+          this.validationResult.set(response.data);
+          if (!response.data?.valid) {
+            this.singleRefundForm.setErrors({ validation: response.data?.error });
           } else {
-            this.validationResult.set({ valid: false, error: response.message });
+            // Clear any existing validation errors if valid
+            this.singleRefundForm.setErrors(null);
           }
-          this.isLoading.set(false);
-        },
-        error: (error) => {
-          console.error('Validation error:', error);
+        } else {
+          console.log('Validation failed with message:', response.message);
           this.validationResult.set({ 
             valid: false, 
-            error: error.message || 'Validation failed' 
+            error: response.message || 'Validation failed' 
           });
-          this.isLoading.set(false);
+          this.singleRefundForm.setErrors({ validation: response.message });
         }
-      });
-  }
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Validation API error:', error);
+        this.validationResult.set({ 
+          valid: false, 
+          error: error.error?.message || error.message || 'Validation API error' 
+        });
+        this.singleRefundForm.setErrors({ validation: error.message });
+        this.isLoading.set(false);
+      }
+    });
+}
 
   validateBulkRefunds(): void {
     const items = this.bulkRefundItems();
@@ -826,17 +891,19 @@ export class RefundComponent implements OnInit {
     });
   }
 
-  resetSingleRefundForm(): void {
-    this.singleRefundForm.reset({
-      promoterIdentifier: '',
-      amount: 0,
-      reason: '',
-      notes: '',
-      sendNotification: true
-    });
-    this.selectedPromoter.set(null);
-    this.validationResult.set(null);
-  }
+resetSingleRefundForm(): void {
+  this.singleRefundForm.reset({
+    promoterIdentifier: '',
+    amount: 0,
+    reason: '',
+    notes: '',
+    sendNotification: true
+  });
+  this.selectedPromoter.set(null);
+  this.validationResult.set(null);
+  this.promoters.set([]); // Clear search results
+  this.searchQuery.set(''); // Clear search query
+}
 
   showSuccess(message: string): void {
     this.snackBar.open(message, 'Close', { 
@@ -868,8 +935,27 @@ export class RefundComponent implements OnInit {
   get validationMessage(): string {
     const result = this.validationResult();
     if (!result) return 'Enter promoter and amount to validate';
-    return result.valid ? '✓ Refund is valid' : `✗ ${result.error}`;
+    
+    if (result.valid) {
+      return '✓ Refund is valid';
+    } else {
+      // Handle undefined error message
+      const errorMsg = result.error || 'Unknown validation error';
+      return `✗ ${errorMsg}`;
+    }
   }
+
+// Add this method
+triggerFormValidation(): void {
+  // Mark all fields as touched to show validation errors
+  this.markFormGroupTouched(this.singleRefundForm);
+  
+  // Validate if we have the required fields
+  const formValue = this.singleRefundForm.value;
+  if (formValue.promoterIdentifier && formValue.amount && formValue.amount > 0) {
+    this.validateSingleRefund();
+  }
+}
 
   get totalBulkAmount(): number {
     return this.bulkRefundItems().reduce((sum, item) => sum + item.amount, 0);

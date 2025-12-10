@@ -170,23 +170,23 @@
               }
               
               <!-- Validation Status -->
-              @if (validationResult() || singleRefundForm.controls.promoterIdentifier.value) {
-                <div class="validation-status {{ validationStatus }} fade-in">
-                  <mat-icon class="validation-icon">
-                    @if (validationStatus === 'valid') { check_circle }
-                    @else if (validationStatus === 'invalid') { error }
-                    @else { hourglass_empty }
-                  </mat-icon>
-                  <div class="validation-details">
-                    <div class="validation-title">Validation Status</div>
-                    <div class="validation-message">{{ validationMessage }}</div>
-                  </div>
-                </div>
-              }
+@if (validationResult() || singleRefundForm.controls.promoterIdentifier.value) {
+  <div class="validation-status {{ validationStatus }} fade-in">
+    <mat-icon class="validation-icon">
+      @if (validationStatus === 'valid') { check_circle }
+      @else if (validationStatus === 'invalid') { error }
+      @else { hourglass_empty }
+    </mat-icon>
+    <div class="validation-details">
+      <div class="validation-title">Validation Status</div>
+      <div class="validation-message">{{ validationMessage }}</div>
+    </div>
+  </div>
+}
               
               <!-- Form Actions -->
               <div class="form-actions">
-                <button mat-flat-button 
+               <button mat-flat-button 
                         color="primary" 
                         [disabled]="isProcessing() || singleRefundForm.invalid || !validationResult()?.valid"
                         (click)="processSingleRefund()">

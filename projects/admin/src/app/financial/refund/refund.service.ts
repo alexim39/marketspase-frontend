@@ -3,7 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../../../shared-services/src/public-api';
 import { HttpParams } from '@angular/common/http';
-
+import { map, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -175,20 +176,43 @@ export class RefundService {
     );
   }
 
-  /**
-   * Validate if a refund can be processed
-   * @param promoterUserId Promoter identifier
-   * @param amount Amount to refund
-   * @returns An Observable that emits the validation result
-   */
-  validateRefund(promoterUserId: string, amount: number): Observable<ApiResponse<ValidationResponseData>> {
-    return this.apiService.post<ApiResponse<ValidationResponseData>>(
-      `${this.apiBase}/validate`,
-      { promoterUserId, amount },
-      undefined,
-      true
-    );
-  }
+ /**
+ * Validate if a refund can be processed
+ * @param promoterUserId Promoter identifier
+ * @param amount Amount to refund
+ * @returns An Observable that emits the validation result
+ */
+validateRefund(promoterUserId: string, amount: number): Observable<ApiResponse<ValidationResponseData>> {
+  return this.apiService.post<ApiResponse<ValidationResponseData>>(
+    `${this.apiBase}/validate`,
+    { promoterUserId, amount },
+    undefined,
+    true
+  ).pipe(
+    // Ensure consistent response format
+    map(response => {
+      // If response.data is already a ValidationResponseData object
+      if (response.data && typeof response.data === 'object') {
+        // Check if it has the 'valid' property
+        if ('valid' in response.data) {
+          return response;
+        }
+        // If it's the old format with data.valid
+        if (response.data && (response.data as any).data && typeof (response.data as any).data === 'object' && 'valid' in (response.data as any).data) {
+          return {
+            ...response,
+            data: response.data
+          };
+        }
+      }
+      return response;
+    }),
+    catchError(error => {
+      console.error('Validation service error:', error);
+      return throwError(() => error);
+    })
+  );
+}
 
   /**
    * Process bulk refunds to multiple promoters

@@ -9,7 +9,8 @@
             </div>
             <div class="stat-content">
                 @if (isCampaignLoading()) {
-                    <div style="color: gray">loading campaigns...</div>
+                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
+                    <div style="color: gray; font-size: 14px;">loading campaigns...</div>
                 } @else {
                     <div class="stat-label">Total Campaign/Active Campaigns</div>
                     <div class="stat-value">{{ totalCampaigns() + '/' + activeCampaigns() }}</div>
@@ -28,7 +29,8 @@
             </div>
             <div class="stat-content">
                   @if (isUserLoading()) {
-                    <div style="color: gray">loading user...</div>
+                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
+                    <div style="color: gray; font-size: 14px;">loading user...</div>
                 } @else {
                     <div class="stat-label">Total User/Active Users</div>
                     <div class="stat-value">{{ totalUsers() + '/' + activeUsers() }}</div>
@@ -48,7 +50,8 @@
             </div>
             <div class="stat-content">
                 @if (isRevenueLoading()) {
-                    <div style="color: gray">loading revenue...</div>
+                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
+                    <div style="color: gray; font-size: 14px;">loading revenue...</div>
                 } @else {
                     <div class="stat-label">Total Revenue</div>
                     <div class="stat-value">₦{{ totalRevenue().toLocaleString() }}</div>
@@ -67,7 +70,8 @@
             </div>
             <div class="stat-content">
                 @if (isEngagementLoading()) {
-                    <div style="color: gray">loading engagement...</div>
+                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
+                    <div style="color: gray; font-size: 14px;">loading engagement...</div>
                 } @else {
                     <div class="stat-label">Avg. Engagement</div>
                     <div class="stat-value">{{ averageEngagement() }}%</div>
