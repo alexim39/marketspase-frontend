@@ -75,6 +75,7 @@
 
   .existing-testimonial {
     margin-bottom: $spacing-8;
+    background-color: color-mix(in srgb, $background-color, black 5%);
 
     .rating-display {
       @include flex-center;
