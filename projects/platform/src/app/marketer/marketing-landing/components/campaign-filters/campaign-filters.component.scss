@@ -86,8 +86,8 @@
   color: $text-primary;
 
   &:hover {
-    // UPDATED: Use gray-200 variable for hover background
-    background: $gray-200;
+    // UPDATED: Use gray-900 variable for hover background
+    background: $gray-900;
   }
 
   &.active {

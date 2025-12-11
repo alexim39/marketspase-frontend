@@ -40,7 +40,7 @@
   
   .mobile-count {
     // UPDATED: Use gray-100 variable for count background
-    background: $gray-100;
+    background: $gray-900;
     padding: 0.25rem 0.5rem;
     border-radius: 0.75rem;
     font-size: 0.75rem;
@@ -101,8 +101,8 @@
   border: 1px solid $gray-300;
   border-radius: 0.75rem;
   font-size: 1rem;
-  // UPDATED: Use gray-50 variable for search background
-  background: $gray-50;
+  // UPDATED: Use gray-700 variable for search background
+  background: $gray-700;
   // UPDATED: Use text-primary variable for dynamic theming
   color: $text-primary;
   transition: all $transition-normal;
@@ -273,8 +273,8 @@
 }
 
 .status-count {
-  // UPDATED: Use gray-100 variable for count background
-  background: $gray-100;
+  // UPDATED: Use gray-900 variable for count background
+  background: $gray-900;
   padding: 0.25rem 0.5rem;
   border-radius: 0.75rem;
   font-size: 0.75rem;
@@ -284,8 +284,8 @@
 }
 
 .mobile-active-filters {
-  // UPDATED: Use gray-50 variable for active filters background
-  background: $gray-50;
+  // UPDATED: Use gray-900 variable for active filters background
+  background: $gray-900;
   border-radius: 0.75rem;
   padding: 1rem;
   margin-top: 1rem;
