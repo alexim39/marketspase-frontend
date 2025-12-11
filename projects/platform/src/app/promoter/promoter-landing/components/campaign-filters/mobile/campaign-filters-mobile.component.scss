@@ -187,7 +187,7 @@
   border: 2px solid $border-color;
   border-radius: 16px;
   // UPDATED: Use gray-50 for background
-  background: $gray-50;
+  background: color-mix(in srgb, $background-color, black 1%);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -247,7 +247,7 @@
 
 .filter-count {
   // UPDATED: Use gray-200 for count background
-  background: $gray-200;
+  //background: $gray-200;
   // UPDATED: Use text-secondary variable for dynamic theming
   color: $text-secondary;
   padding: 4px 8px;
@@ -280,7 +280,7 @@
   border-radius: 12px;
   overflow: hidden;
   // UPDATED: Use gray-50 for background
-  background: $gray-50;
+  //background: $gray-50;
 }
 
 .view-btn {

@@ -112,7 +112,7 @@
 
 .filter-chip:not(.active) .count {
   // UPDATED: Use gray-100 for inactive count background
-  background: $gray-100;
+  //background: $gray-100;
   // UPDATED: Use text-secondary variable for dynamic theming
   color: $text-secondary;
 }

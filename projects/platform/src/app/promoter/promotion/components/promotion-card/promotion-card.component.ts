@@ -16,6 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instruction-dialog.component';
 
 @Component({
   selector: 'app-promotion-card',
@@ -41,6 +43,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   public isLoading = signal<boolean>(false);
 
   private promoterService = inject(PromoterService);
+  private dialog = inject(MatDialog);
   public readonly api = this.promoterService.api;
 
   public countdownSignal = signal<string>('');
@@ -303,4 +306,14 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  showWhatsAppSharingInstructions(promotion: PromotionInterface): void {
+    const captionText = `Check out this amazing campaign!\n\n${promotion.campaign?.title || 'Exciting Opportunity'}\n\n[Link to campaign]`;
+
+    this.dialog.open(WhatsAppInstructionsDialogComponent, {
+      data: { captionText, promotionTitle: promotion.campaign?.title },
+      width: '90vw',
+      maxWidth: '500px',
+      panelClass: 'whatsapp-dialog-panel'
+    });
+  }
 }

@@ -65,7 +65,9 @@
 
     .header-actions {
       width: 100%;
-      justify-content: flex-start;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
       margin-top: $spacing-2;
     }
   }
