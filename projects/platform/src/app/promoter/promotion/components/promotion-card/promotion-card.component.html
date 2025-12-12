@@ -61,7 +61,10 @@
   </div>
 
 <div class="card-content">
-  <h3 class="card-title">{{ promotion.campaign.title }}</h3>
+  <div class="title-section">
+    <mat-icon matTooltip="See instructions" (click)="showWhatsAppSharingInstructions(promotion)">help</mat-icon>
+    <h3 class="card-title">{{ promotion.campaign.title }}</h3>
+  </div>
   <div class="caption-container">
     <p class="card-description">{{ promotion.campaign.caption }}</p>
     <button class="copy-btn" (click)="copyCaption(promotion.campaign.caption)" matTooltip="Copy ID and caption" aria-label="Copy caption">

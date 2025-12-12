@@ -31,7 +31,8 @@ import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instru
     MatTooltipModule,
     MatMenuModule,
     CategoryPlaceholderPipe,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './promotion-card.component.html',
   styleUrls: ['./promotion-card.component.scss']
@@ -274,7 +275,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
 
 
   viewDetails() {
-    console.log('clicked')
+    //console.log('clicked')
     const promotion = this.promotion;
     if (promotion) {
       this.router.navigate(['/dashboard/campaigns/promotions', promotion._id]);
@@ -307,12 +308,19 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   showWhatsAppSharingInstructions(promotion: PromotionInterface): void {
-    const captionText = `Check out this amazing campaign!\n\n${promotion.campaign?.title || 'Exciting Opportunity'}\n\n[Link to campaign]`;
+     let urlLink = '';
+    if (this.promotion.campaign.link) {
+      urlLink = this.promotion.campaign.link;
+    } else {
+      //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
+      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}`; 
+    }
+    const captionText = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${promotion.campaign?.caption || 'Visit the link for more details.'}`;
 
     this.dialog.open(WhatsAppInstructionsDialogComponent, {
       data: { captionText, promotionTitle: promotion.campaign?.title },
-      width: '90vw',
-      maxWidth: '500px',
+      //width: '90vw',
+      maxWidth: '550px',
       panelClass: 'whatsapp-dialog-panel'
     });
   }

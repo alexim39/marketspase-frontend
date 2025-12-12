@@ -1,8 +1,9 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export interface WhatsAppInstructionsData {
   captionText: string;
@@ -66,6 +67,8 @@ export interface WhatsAppInstructionsData {
   styleUrls: ['./instruction-dialog.component.scss']
 })
 export class WhatsAppInstructionsDialogComponent {
+  private snackBar = inject(MatSnackBar);
+  
   constructor(
     public dialogRef: MatDialogRef<WhatsAppInstructionsDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: WhatsAppInstructionsData
@@ -79,6 +82,7 @@ export class WhatsAppInstructionsDialogComponent {
     try {
       await navigator.clipboard.writeText(this.data.captionText);
       // optional: show snackbar toast
+      this.snackBar.open('Caption copied to clipboard', 'OK', { duration: 3000 });
     } catch (err) {
       console.error('Failed to copy caption:', err);
     }

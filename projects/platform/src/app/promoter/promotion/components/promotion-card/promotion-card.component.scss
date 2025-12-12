@@ -237,6 +237,17 @@
 
 .card-content {
   padding: 20px;
+  .title-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    mat-icon {
+      font-size: 20px;
+      // UPDATED: Use text-secondary for icon color
+      color: $text-secondary;
+      cursor: pointer;
+    }
+  }
 }
 
 .card-title {
