@@ -150,7 +150,7 @@
               <td mat-cell *matCellDef="let promotion">
                 <div class="upi-info">
                   <span class="upi-code">{{ promotion.upi }}</span>
-                  <span class="created-date">Created: {{ promotion.createdAt | date:'shortDate' }}</span>
+                  <span class="created-date">Created: {{ promotion.createdAt | date:'short' }}</span>
                 </div>
               </td>
             </ng-container>
@@ -282,7 +282,16 @@
                           <span>Revert to Submitted</span>
                         </button>
                       } -->
-                      <button mat-menu-item (click)="viewActivityLog(promotion)">
+                     
+                      <button mat-menu-item (click)="viewCampaignDetails(promotion)">
+                        <mat-icon>history</mat-icon>
+                        <span>View Campaign Details</span>
+                      </button>
+                      <button mat-menu-item (click)="viewCampaignPromotions(promotion)">
+                        <mat-icon>history</mat-icon>
+                        <span>View Campaign Promotions</span>
+                      </button>
+                       <button mat-menu-item (click)="viewActivityLog(promotion)">
                         <mat-icon>history</mat-icon>
                         <span>Activity Log</span>
                       </button>

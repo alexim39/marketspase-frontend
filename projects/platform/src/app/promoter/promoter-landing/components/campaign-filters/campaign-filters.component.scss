@@ -33,7 +33,7 @@
   border-radius: 12px;
   font-size: 14px;
   // UPDATED: Use gray-50 for background
-  //background: $gray-50;
+  background: $surface-color;
   transition: all 0.2s ease;
 }
 
@@ -112,7 +112,7 @@
 
 .filter-chip:not(.active) .count {
   // UPDATED: Use gray-100 for inactive count background
-  background: $gray-100;
+  //background: $gray-100;
   // UPDATED: Use text-secondary variable for dynamic theming
   color: $text-secondary;
 }

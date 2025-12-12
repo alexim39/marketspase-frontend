@@ -19,7 +19,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // Services
 import { AdminService } from '../common/services/user.service';
-import { UserService } from './user.service';
+import { UserService } from './users.service';
 import { Router } from '@angular/router';
 import { UserInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -48,10 +48,10 @@ import { RoleStatisticsComponent } from './statistics/statistics.component';
     MatSnackBarModule,
     RoleStatisticsComponent
   ],
-  templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss'],
+  templateUrl: './all-users-list.component.html',
+  styleUrls: ['./all-users-list.component.scss'],
 })
-export class UserMgtComponent implements OnInit, AfterViewInit {
+export class AllUsersListComponent implements OnInit, AfterViewInit {
   readonly adminService = inject(AdminService);
   readonly userService = inject(UserService);
   readonly router = inject(Router);

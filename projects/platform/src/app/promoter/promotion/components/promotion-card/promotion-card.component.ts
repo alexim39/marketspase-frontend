@@ -16,6 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instruction-dialog.component';
 
 @Component({
   selector: 'app-promotion-card',
@@ -29,7 +31,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatTooltipModule,
     MatMenuModule,
     CategoryPlaceholderPipe,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './promotion-card.component.html',
   styleUrls: ['./promotion-card.component.scss']
@@ -41,6 +44,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   public isLoading = signal<boolean>(false);
 
   private promoterService = inject(PromoterService);
+  private dialog = inject(MatDialog);
   public readonly api = this.promoterService.api;
 
   public countdownSignal = signal<string>('');
@@ -271,7 +275,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
 
 
   viewDetails() {
-    console.log('clicked')
+    //console.log('clicked')
     const promotion = this.promotion;
     if (promotion) {
       this.router.navigate(['/dashboard/campaigns/promotions', promotion._id]);
@@ -303,4 +307,21 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  showWhatsAppSharingInstructions(promotion: PromotionInterface): void {
+     let urlLink = '';
+    if (this.promotion.campaign.link) {
+      urlLink = this.promotion.campaign.link;
+    } else {
+      //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
+      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}`; 
+    }
+    const captionText = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${promotion.campaign?.caption || 'Visit the link for more details.'}`;
+
+    this.dialog.open(WhatsAppInstructionsDialogComponent, {
+      data: { captionText, promotionTitle: promotion.campaign?.title },
+      //width: '90vw',
+      maxWidth: '550px',
+      panelClass: 'whatsapp-dialog-panel'
+    });
+  }
 }

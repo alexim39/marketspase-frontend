@@ -1,0 +1,209 @@
+      <div class="contact-container">
+        <!-- Header Section -->
+        <div class="contact-header">
+          <div class="header-content">
+            <div  class="header-icon">
+              <mat-icon>support_agent</mat-icon>
+            </div>            
+            <h1 class="header-title">Get In Touch</h1>
+            <p class="header-subtitle">
+              We're here to help you grow your WhatsApp promotion business. 
+              Send us a message and we'll respond within 24 hours.
+            </p>
+
+            <!-- Live Chat WhatsApp button (added) -->
+            <div class="header-actions">
+              <button mat-stroked-button color="primary" class="whatsapp-btn" (click)="startLiveChat()" matTooltip="Start WhatsApp live chat">
+                <mat-icon class="whatsapp-icon">chat</mat-icon>
+                <span class="btn-text">Live Chat</span>
+              </button>
+              <button mat-stroked-button color="primary" class="whatsapp-btn" (click)="openWhatsAppChannel()" matTooltip="Join our WhatsApp channel">
+                <mat-icon class="whatsapp-icon">group</mat-icon>
+                <span class="btn-text">Join Our WhatsApp Channel</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Contact Form Card -->
+        <mat-card class="contact-card">
+          <mat-card-header class="card-header">
+            <mat-card-title class="card-title">
+              <mat-icon>mail_outline</mat-icon>
+              Contact Form
+            </mat-card-title>
+            <mat-card-subtitle class="card-subtitle">
+              Fill out the form below and we'll get back to you soon
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content class="card-content">
+            <form [formGroup]="contactForm()" (ngSubmit)="onSubmit()" class="contact-form">
+              
+              <!-- Reason Selection -->
+              <div class="form-section">
+                <mat-form-field appearance="outline" class="full-width">
+                <mat-label>
+                    <mat-icon matPrefix>category</mat-icon>
+                    Reason for Contact
+                </mat-label>
+                <mat-select formControlName="reason" [placeholder]="'Select a reason'">
+                    <!-- Trigger: What shows when an option is selected -->
+                    <mat-select-trigger>
+                        @let selected = getSelectedReason();
+                        @if (selected) {
+                            <mat-icon class="reason-icon">{{ selected.icon }}</mat-icon>
+                            {{ selected.label }}
+                        } @else {
+                            <span>Select a reason</span>
+                        }
+                    </mat-select-trigger>
+                    <mat-option value="" disabled>Choose your reason</mat-option>
+                    @for (reason of contactReasons(); track reason) {
+                    <mat-option [value]="reason.value" class="reason-option">
+                        <div class="reason-content">
+                            <mat-icon class="reason-icon">{{ reason.icon }}</mat-icon>
+                            <div class="reason-text">
+                                <span class="reason-label">{{ reason.label }}</span>
+                                @if (reason.description) {
+                                <span class="reason-desc">{{ reason.description }}</span>
+                                }
+                            </div>
+                        </div>
+                    </mat-option>
+                    }
+                </mat-select>
+                @if (contactForm().get('reason')?.hasError('required') && contactForm().get('reason')?.touched) {
+                    <mat-error>
+                    <mat-icon>error_outline</mat-icon>
+                    Please select a reason for your contact
+                    </mat-error>
+                }
+                </mat-form-field>
+              </div>
+              <!-- Subject Field -->
+              <div class="form-section">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>
+                    <mat-icon matPrefix>subject</mat-icon>
+                    Message Subject
+                  </mat-label>
+                  <input 
+                    matInput 
+                    formControlName="subject" 
+                    placeholder="Brief summary of your message"
+                    maxlength="100"
+                  >
+                  <mat-hint align="end">{{ contactForm().get('subject')?.value?.length || 0 }} / 100</mat-hint>
+                  @if (contactForm().get('subject')?.hasError('required') && contactForm().get('subject')?.touched) {
+                    <mat-error>
+                        <mat-icon>error_outline</mat-icon>
+                        Subject is required
+                    </mat-error>
+                  }
+                  @if (contactForm().get('subject')?.hasError('minlength') && contactForm().get('subject')?.touched) {
+                    <mat-error>
+                        <mat-icon>error_outline</mat-icon>
+                        Subject must be at least 5 characters long
+                    </mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <!-- Message Field -->
+              <div class="form-section">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>
+                    <mat-icon matPrefix>message</mat-icon>
+                    Your Message
+                  </mat-label>
+                  <textarea 
+                    matInput 
+                    formControlName="message" 
+                    placeholder="Please provide detailed information about your inquiry..."
+                    rows="6"
+                    maxlength="1000"
+                  ></textarea>
+                  <mat-hint align="end">{{ contactForm().get('message')?.value?.length || 0 }} / 1000</mat-hint>
+                  @if (contactForm().get('message')?.hasError('required') && contactForm().get('message')?.touched) {
+                    <mat-error>
+                        <mat-icon>error_outline</mat-icon>
+                        Message is required
+                    </mat-error>
+                  }
+                  @if (contactForm().get('message')?.hasError('minlength') && contactForm().get('message')?.touched) {
+                    <mat-error>
+                        <mat-icon>error_outline</mat-icon>
+                        Message must be at least 10 characters long
+                    </mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <!-- Loading Progress -->
+               @if (isSpinning()) {
+              <mat-progress-bar mode="indeterminate" class="progress-bar"/>
+               }
+
+              <!-- Submit Button -->
+              <div class="form-actions">
+                <button 
+                  mat-flat-button 
+                  color="primary" 
+                  type="submit"
+                  [disabled]="isSpinning() || !contactForm().valid"
+                  class="submit-btn"
+                  matTooltip="Send your message to our support team"
+                >
+                @if (!isSpinning()) {
+                    <mat-icon>send</mat-icon>
+                } @else {
+                    <mat-icon class="spinning">refresh</mat-icon>
+                }                  
+                  {{ isSpinning() ? 'Sending...' : 'Send Message' }}
+                </button>
+
+                <button 
+                  mat-stroked-button 
+                  type="button" 
+                  (click)="resetForm()"
+                  [disabled]="isSpinning()"
+                  class="reset-btn"
+                  matTooltip="Clear all form fields"
+                >
+                  <mat-icon>clear</mat-icon>
+                  Clear Form
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Contact Info Section -->
+        <div class="contact-info">
+          <div class="info-grid">
+            <div class="info-item">
+              <mat-icon class="info-icon">schedule</mat-icon>
+              <div class="info-content">
+                <h3>Response Time</h3>
+                <p>Within 24 hours</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon class="info-icon">support</mat-icon>
+              <div class="info-content">
+                <h3>Support Hours</h3>
+                <p>24/7 Available</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon class="info-icon">verified</mat-icon>
+              <div class="info-content">
+                <h3>Trusted Platform</h3>
+                <p>Secure & Reliable</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>

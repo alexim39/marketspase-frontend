@@ -96,13 +96,13 @@ export class TransactionComponent {
     if (userData.role === 'promoter') {
       return this.transactions()
         .filter(t => t.type === 'credit')
-        .reduce((sum, transaction) => sum + transaction.amount, 0);
+        .reduce((sum, transaction) => sum + (transaction.amount ?? 0), 0);
     }
     
     // For marketers, calculate total spending (debits)
     return this.transactions()
       .filter(t => t.type === 'debit')
-      .reduce((sum, transaction) => sum + transaction.amount, 0);
+      .reduce((sum, transaction) => sum + (transaction.amount ?? 0), 0);
   });
   
   // Filtered transactions based on active filters
@@ -126,7 +126,7 @@ export class TransactionComponent {
     
     // Apply status filter
     if (this.statusFilter().length > 0) {
-      filtered = filtered.filter(t => this.statusFilter().includes(t.status));
+      filtered = filtered.filter(t => this.statusFilter().includes(t.status?.at(0) ?? ''));
     }
     
     // Apply search filter
@@ -134,8 +134,8 @@ export class TransactionComponent {
       const searchTerm = this.searchFilter().toLowerCase();
       filtered = filtered.filter(t => 
         t.description?.toLowerCase().includes(searchTerm) || 
-        t.amount.toString().includes(searchTerm) ||
-        t.category.toLowerCase().includes(searchTerm)
+        t.amount?.toString().includes(searchTerm) ||
+        t.category?.toLowerCase().includes(searchTerm)
       );
     }
     

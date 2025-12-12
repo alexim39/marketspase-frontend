@@ -188,79 +188,83 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
   }
 
   validatePromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'validated', this.adminService.adminData()?._id || '')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
-            this.loadCampaignPromotions(); // Reload to get updated data
-          } else {
-            this.snackBar.open('Failed to validate promotion', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error validating promotion:', error);
-          this.snackBar.open('Error validating promotion', 'Close', { duration: 3000 });
-        }
-      })
+    this.snackBar.open('Validate from Submitted Promotion secttion', 'Close', { duration: 3000 });
+      // this.campaignService.updatePromotionStatus(promotion._id, 'validated', this.adminService.adminData()?._id || '')
+      // .pipe(takeUntilDestroyed(this.destroyRef))
+      // .subscribe({
+      //   next: (response) => {
+      //     if (response.success) {
+      //       this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
+      //       this.loadCampaignPromotions(); // Reload to get updated data
+      //     } else {
+      //       this.snackBar.open('Failed to validate promotion', 'Close', { duration: 3000 });
+      //     }
+      //   },
+      //   error: (error) => {
+      //     console.error('Error validating promotion:', error);
+      //     this.snackBar.open('Error validating promotion', 'Close', { duration: 3000 });
+      //   }
+      // })
   }
 
   rejectPromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'rejected', this.adminService.adminData()?._id || '')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
-            this.loadCampaignPromotions(); // Reload to get updated data
-          } else {
-            this.snackBar.open('Failed to reject promotion', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error rejecting promotion:', error);
-          this.snackBar.open('Error rejecting promotion', 'Close', { duration: 3000 });
-        }
-      })
+    this.snackBar.open('Reject from Submitted Promotion secttion', 'Close', { duration: 3000 });
+      // this.campaignService.updatePromotionStatus(promotion._id, 'rejected', this.adminService.adminData()?._id || '')
+      // .pipe(takeUntilDestroyed(this.destroyRef))
+      // .subscribe({
+      //   next: (response) => {
+      //     if (response.success) {
+      //       this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
+      //       this.loadCampaignPromotions(); // Reload to get updated data
+      //     } else {
+      //       this.snackBar.open('Failed to reject promotion', 'Close', { duration: 3000 });
+      //     }
+      //   },
+      //   error: (error) => {
+      //     console.error('Error rejecting promotion:', error);
+      //     this.snackBar.open('Error rejecting promotion', 'Close', { duration: 3000 });
+      //   }
+      // })
   }
 
   markAsPaid(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'paid', this.adminService.adminData()?._id || '')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion marked as paid successfully', 'Close', { duration: 3000 });
-            this.loadCampaignPromotions(); // Reload to get updated data
-          } else {
-            this.snackBar.open('Failed to mark promotion as paid', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error marking promotion as paid:', error);
-          this.snackBar.open('Error marking promotion as paid', 'Close', { duration: 3000 });
-        }
-      })
+    this.snackBar.open('Mark as Paid from Validated Promotion secttion', 'Close', { duration: 3000 });
+      // this.campaignService.updatePromotionStatus(promotion._id, 'paid', this.adminService.adminData()?._id || '')
+      // .pipe(takeUntilDestroyed(this.destroyRef))
+      // .subscribe({
+      //   next: (response) => {
+      //     if (response.success) {
+      //       this.snackBar.open('Promotion marked as paid successfully', 'Close', { duration: 3000 });
+      //       this.loadCampaignPromotions(); // Reload to get updated data
+      //     } else {
+      //       this.snackBar.open('Failed to mark promotion as paid', 'Close', { duration: 3000 });
+      //     }
+      //   },
+      //   error: (error) => {
+      //     console.error('Error marking promotion as paid:', error);
+      //     this.snackBar.open('Error marking promotion as paid', 'Close', { duration: 3000 });
+      //   }
+      // })
   }
 
   reopenPromotion(promotion: PromotionInterface): void {
-      this.campaignService.updatePromotionStatus(promotion._id, 'submitted', this.adminService.adminData()?._id || '')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion re-opened successfully', 'Close', { duration: 3000 });
-            this.loadCampaignPromotions(); // Reload to get updated data
-          } else {
-            this.snackBar.open('Failed to re-open promotion', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error re-opening promotion:', error);
-          this.snackBar.open('Error re-opening promotion', 'Close', { duration: 3000 });
-        }
-      })
+    this.snackBar.open('Re-open from Paid Promotion secttion', 'Close', { duration: 3000 });
+      // this.campaignService.updatePromotionStatus(promotion._id, 'submitted', this.adminService.adminData()?._id || '')
+      // .pipe(takeUntilDestroyed(this.destroyRef))
+      // .subscribe({
+      //   next: (response) => {
+      //     if (response.success) {
+      //       this.snackBar.open('Promotion re-opened successfully', 'Close', { duration: 3000 });
+      //       this.loadCampaignPromotions(); // Reload to get updated data
+      //     } else {
+      //       this.snackBar.open('Failed to re-open promotion', 'Close', { duration: 3000 });
+      //     }
+      //   },
+      //   error: (error) => {
+      //     console.error('Error re-opening promotion:', error);
+      //     this.snackBar.open('Error re-opening promotion', 'Close', { duration: 3000 });
+      //   }
+      // })
   }
 
   viewPromoterDetails(): void {

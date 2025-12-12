@@ -415,16 +415,35 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
   downloadImage(): void {
     if (this.promotion.proofMedia.length > 0) {
       const imageUrl = this.promotion.proofMedia[this.selectedImageIndex()];
-      const link = document.createElement('a');
-      link.href = imageUrl;
-      link.download = `proof-${this.promotion.upi}-${this.selectedImageIndex() + 1}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      this.snackBar.open('Image download started', 'Close', {
-        duration: 2000
-      });
+      // Derive extension as you already do
+      let ext = 'jpg';
+      try {
+        const parts = imageUrl.split('?')[0].split('.');
+        ext = parts.length > 1 ? parts.pop()!.toLowerCase() : 'jpg';
+      } catch {
+        ext = 'jpg';
+      }
+
+      fetch(imageUrl, { mode: 'cors' })
+        .then(res => {
+          if (!res.ok) throw new Error('Network response not ok');
+          return res.blob();
+        })
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = `proof-${this.promotion.upi}-${this.selectedImageIndex() + 1}.${ext}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+          this.snackBar.open('Image download started', 'Close', { duration: 2000 });
+        })
+        .catch(err => {
+          console.error(err);
+          this.snackBar.open('Failed to download image', 'Close', { duration: 2000 });
+        });
     }
   }
 

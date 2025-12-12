@@ -273,3 +273,95 @@
     align-self: center;
     }
 }
+
+// Add these styles at the end of the file
+
+.credit-amount {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.debit-amount {
+  color: #c62828;
+  font-weight: bold;
+}
+
+.successful {
+  background-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.pending, .processing {
+  background-color: #ef6c00 !important;
+  color: white !important;
+}
+
+.reversed {
+  background-color: #681c1c !important;
+  color: white !important;
+}
+
+.failed {
+  background-color: #c62828 !important;
+  color: white !important;
+}
+
+.testimonial-card {
+  margin-bottom: 16px;
+}
+
+.testimonial-author {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.testimonial-author .date {
+  color: rgba(194, 193, 193, 0.54);
+}
+
+.account-card {
+  margin-bottom: 16px;
+}
+
+.account-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.withdrawal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.withdrawal-amount {
+  text-align: right;
+}
+
+.withdrawal-amount span {
+  display: block;
+  font-weight: bold;
+}
+
+.no-data-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.no-data-container mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}

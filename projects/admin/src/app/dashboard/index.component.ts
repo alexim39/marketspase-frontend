@@ -109,11 +109,11 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: false,
       children: [
         { id: 'all-withdrawals', title: 'All Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
-        { id: 'marketer-payments', title: 'Marketer Deposits', icon: 'upload', route: '/dashboard/payments/deposits' },
-        { id: 'promoter-payouts', title: 'Promoter Payouts', icon: 'download', route: '/dashboard/payments/payouts' },
-        { id: 'transactions', title: 'Transaction History', icon: 'history', route: '/dashboard/payments/transactions' },
-        { id: 'financial-reports', title: 'Financial Reports', icon: 'summarize', route: '/dashboard/payments/reports' },
-        { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/payments/refunds' }
+        { id: 'marketer-payments', title: 'Marketer Deposits', icon: 'upload', route: '/dashboard/financial/deposits' },
+        { id: 'promoter-payouts', title: 'Promoter Payouts', icon: 'download', route: '/dashboard/financial/payouts' },
+        { id: 'transactions', title: 'Transaction History', icon: 'history', route: '/dashboard/financial/transactions' },
+        { id: 'financial-reports', title: 'Financial Reports', icon: 'summarize', route: '/dashboard/financial/reports' },
+        { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' }
       ]
     },
     {

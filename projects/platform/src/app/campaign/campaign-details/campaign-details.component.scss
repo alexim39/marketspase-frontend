@@ -473,7 +473,7 @@
       border-collapse: collapse;
       
       thead {
-        background-color: vars.$gray-50;
+        //background-color: vars.$gray-50;
         
         th {
           padding: 1rem;
@@ -494,7 +494,7 @@
           }
           
           &:hover {
-            background-color: vars.$gray-50;
+            background-color: rgba(vars.$gray-50, 0.1);
           }
           
           .promoter-cell {
@@ -1056,6 +1056,28 @@
     
     li {
       font-size: 0.85rem;
+    }
+  }
+}
+
+.view-media {
+  margin-top: 0.5rem;
+  
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: vars.$primary-color;
+    font-size: 0.9rem;
+    
+    mat-icon {
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+    
+    &:hover {
+      background-color: rgba(vars.$primary-color, 0.1);
     }
   }
 }

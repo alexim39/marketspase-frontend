@@ -438,4 +438,12 @@ export class AllPromotionListMgtComponent implements OnInit {
     this.snackBar.open(`Viewing activity log for ${promotion.upi}`, 'Close', { duration: 2000 });
     // Implement activity log view logic
   }
+
+  viewCampaignDetails(promotion: PromotionInterface): void {
+    this.router.navigate(['dashboard/campaigns', promotion.campaign._id]);
+  }
+  
+  viewCampaignPromotions(promotion: PromotionInterface): void {
+    this.router.navigate([`dashboard/campaigns`, promotion.campaign._id, 'promotions']);
+  }
 }
