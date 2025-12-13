@@ -6,12 +6,12 @@ import { CampaignService } from '../campaign/campaign.service';
 import { CampaignInterface, UserInterface } from '../../../../shared-services/src/public-api';
 import { UserService } from '../users/users.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EngagementStats, RevenueService, RevenueStats } from './revenue.service';
+import { EngagementStats, DashboardService, RevenueStats } from './dashboard.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-dashboard-main',
-  providers: [CampaignService, UserService, RevenueService],
+  providers: [CampaignService, UserService, DashboardService],
   imports: [CommonModule, RouterModule, MatIconModule, MatProgressBarModule],
   templateUrl: './dashboard-main.component.html',
   styleUrls: ['./dashboard-main.component.scss']
@@ -24,7 +24,7 @@ export class DashboardMainComponent implements OnInit {
   isCampaignLoading = signal(true);
   isUserLoading = signal(true);
 
-  readonly revenueService = inject(RevenueService);
+  readonly dashboardService = inject(DashboardService);
 
   totalCampaigns = signal(0);
   activeCampaigns = signal(0);
@@ -94,7 +94,7 @@ export class DashboardMainComponent implements OnInit {
   loadRevenueStats(): void {
     this.isRevenueLoading.set(true);
     
-    this.revenueService.getRevenueStats()
+    this.dashboardService.getRevenueStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (stats: RevenueStats) => {
@@ -112,7 +112,7 @@ export class DashboardMainComponent implements OnInit {
   loadEngagementStats(): void {
     this.isEngagementLoading.set(true);
     
-    this.revenueService.getEngagementStats()
+    this.dashboardService.getEngagementStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (stats: EngagementStats) => {

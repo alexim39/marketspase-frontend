@@ -18,7 +18,7 @@ export interface EngagementStats {
 }
 
 @Injectable()
-export class RevenueService {
+export class DashboardService {
 
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();

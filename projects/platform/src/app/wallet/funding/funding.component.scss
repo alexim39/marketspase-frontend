@@ -135,7 +135,8 @@
   .dialog-content {
     flex: 1;
     padding: $spacing-8 $spacing-6 $spacing-6 $spacing-6;
-    background: linear-gradient(145deg, $gray-50 0%, $white 100%);
+   // background: linear-gradient(145deg, $gray-50 0%, $white 100%);
+   background-color: color-mix(in srgb, $background-color, black 5%);
     @include flex-column;
     gap: $spacing-8;
     overflow-y: auto;
@@ -164,7 +165,7 @@
   // Tips Section (stays in main component)
   .tips-section {
     .tips-card {
-      background: linear-gradient(145deg, $gray-50 0%, $gray-100 100%);
+      background: linear-gradient(145deg, $gray-900 0%, $black-hex 80%);
       border-radius: $border-radius-md;
       padding: $spacing-5;
       border-left: $border-width-2 solid $info-color;
