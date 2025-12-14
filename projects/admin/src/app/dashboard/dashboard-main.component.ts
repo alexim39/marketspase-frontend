@@ -1,145 +1,193 @@
-import { Component, signal, computed, OnInit, inject, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, signal, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { CampaignService } from '../campaign/campaign.service';
-import { CampaignInterface, UserInterface } from '../../../../shared-services/src/public-api';
-import { UserService } from '../users/users.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EngagementStats, DashboardService, RevenueStats } from './dashboard.service';
+import { EngagementStats, DashboardService, RevenueStats, CampaignStats, UserStats } from './dashboard.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-main',
-  providers: [CampaignService, UserService, DashboardService],
+  standalone: true,
+  providers: [DashboardService],
   imports: [CommonModule, RouterModule, MatIconModule, MatProgressBarModule],
   templateUrl: './dashboard-main.component.html',
   styleUrls: ['./dashboard-main.component.scss']
 })
 export class DashboardMainComponent implements OnInit {
-
   private readonly destroyRef = inject(DestroyRef);
-  readonly campaignService = inject(CampaignService);
-  readonly userService = inject(UserService);
-  isCampaignLoading = signal(true);
-  isUserLoading = signal(true);
+  private readonly dashboardService = inject(DashboardService);
 
-  readonly dashboardService = inject(DashboardService);
+  // Loading states
+  readonly isLoading = signal({
+    campaigns: false,
+    users: false,
+    revenue: false,
+    engagement: false
+  });
 
-  totalCampaigns = signal(0);
-  activeCampaigns = signal(0);
-  pendingCampaigns = signal(0);
-  completedCampaigns = signal(0);
-  rejectedCampaigns = signal(0);
-  categories = signal<string[]>([]);
-  totalUsers = signal(0);
-  activeUsers = signal(0);
-  activeCampaignsChange = signal(0);
-  usersChange = signal(0);
+  // Campaign stats
+  readonly campaignStats = signal({
+    totalCampaigns: 0,
+    activeCampaigns: 0,
+    activeCampaignsChange: 0
+  });
 
-  totalRevenue = signal(0);
-  revenueChange = signal(0);
-  averageEngagement = signal(0);
-  engagementChange = signal(0);
+  // User stats
+  readonly userStats = signal({
+    totalUsers: 0,
+    activeUsers: 0,
+    usersChange: 0
+  });
 
-  isRevenueLoading = signal(true);
-  isEngagementLoading = signal(true);
-  
+  // Revenue stats
+  readonly revenueStats = signal({
+    totalRevenue: 0,
+    revenueChange: 0
+  });
+
+  // Engagement stats
+  readonly engagementStats = signal({
+    averageEngagement: 0,
+    engagementChange: 0
+  });
+
   ngOnInit(): void {
-    this.loadCampaigns();
-    this.loadUsers();
+    this.loadAllStats();
+  }
+
+  private loadAllStats(): void {
+    // Load all stats in parallel for better performance
+    this.loadCampaignStats();
+    this.loadUserStats();
     this.loadRevenueStats();
     this.loadEngagementStats();
   }
 
-  loadCampaigns(): void {
-    this.isCampaignLoading.set(true);
-    
-    this.campaignService.getAppCampaigns()
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (response) => {
-        if (response.success) {
-          //console.log('campaign ',response.data)
-          this.calculateCampaignStats(response.data);
-          this.isCampaignLoading.set(false);
-        }
-      },
-      error: (error) => {
-        this.isCampaignLoading.set(false);
-      }
-    })
-  }
+  private loadCampaignStats(): void {
+    this.isLoading.update(state => ({ ...state, campaigns: true }));
 
-  loadUsers(): void {
-    this.isUserLoading.set(true);
-
-     this.userService.getAppUsers()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    this.dashboardService.getCampaignStats()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isLoading.update(state => ({ ...state, campaigns: false }));
+        })
+      )
       .subscribe({
-        next: (response) => {
-          if (response.success) {
-            //console.log('users ',response.data)
-            this.calculateUserStats(response.data)
-            this.isUserLoading.set(false);
-          }
+        next: (stats: CampaignStats) => {
+          this.campaignStats.set({
+            totalCampaigns: stats.totalCampaigns,
+            activeCampaigns: stats.activeCampaigns,
+            activeCampaignsChange: stats.activeCampaignsChange
+          });
         },
         error: (error) => {
-          //console.error('Error fetching app users:', error);
-          this.isUserLoading.set(false);
+          console.error('Error loading campaign stats:', error);
+          // Set default values on error
+          this.campaignStats.set({
+            totalCampaigns: 0,
+            activeCampaigns: 0,
+            activeCampaignsChange: 0
+          });
         }
-      })
+      });
   }
 
-  loadRevenueStats(): void {
-    this.isRevenueLoading.set(true);
-    
+  private loadUserStats(): void {
+    this.isLoading.update(state => ({ ...state, users: true }));
+
+    this.dashboardService.getUserStats()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isLoading.update(state => ({ ...state, users: false }));
+        })
+      )
+      .subscribe({
+        next: (stats: UserStats) => {
+          this.userStats.set({
+            totalUsers: stats.totalUsers,
+            activeUsers: stats.activeUsers,
+            usersChange: stats.usersChange
+          });
+        },
+        error: (error) => {
+          console.error('Error loading user stats:', error);
+          this.userStats.set({
+            totalUsers: 0,
+            activeUsers: 0,
+            usersChange: 0
+          });
+        }
+      });
+  }
+
+  private loadRevenueStats(): void {
+    this.isLoading.update(state => ({ ...state, revenue: true }));
+
     this.dashboardService.getRevenueStats()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isLoading.update(state => ({ ...state, revenue: false }));
+        })
+      )
       .subscribe({
         next: (stats: RevenueStats) => {
-          this.totalRevenue.set(stats.totalRevenue);
-          this.revenueChange.set(stats.revenueChange);
-          this.isRevenueLoading.set(false);
+          this.revenueStats.set({
+            totalRevenue: stats.totalRevenue,
+            revenueChange: stats.revenueChange
+          });
         },
         error: (error) => {
           console.error('Error loading revenue stats:', error);
-          this.isRevenueLoading.set(false);
+          this.revenueStats.set({
+            totalRevenue: 0,
+            revenueChange: 0
+          });
         }
       });
   }
 
-  loadEngagementStats(): void {
-    this.isEngagementLoading.set(true);
-    
+  private loadEngagementStats(): void {
+    this.isLoading.update(state => ({ ...state, engagement: true }));
+
     this.dashboardService.getEngagementStats()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isLoading.update(state => ({ ...state, engagement: false }));
+        })
+      )
       .subscribe({
         next: (stats: EngagementStats) => {
-          this.averageEngagement.set(stats.averageEngagement);
-          this.engagementChange.set(stats.engagementChange);
-          this.isEngagementLoading.set(false);
+          this.engagementStats.set({
+            averageEngagement: stats.averageEngagement,
+            engagementChange: stats.engagementChange
+          });
         },
         error: (error) => {
           console.error('Error loading engagement stats:', error);
-          this.isEngagementLoading.set(false);
+          this.engagementStats.set({
+            averageEngagement: 0,
+            engagementChange: 0
+          });
         }
       });
   }
 
-  calculateCampaignStats(campaigns: CampaignInterface[]): void {
-    this.totalCampaigns.set(campaigns.length);
-    this.activeCampaigns.set(campaigns.filter(campaign => campaign.status === 'active').length);
-    this.pendingCampaigns.set(campaigns.filter(campaign => campaign.status === 'pending').length);
-    this.rejectedCampaigns.set(campaigns.filter(campaign => campaign.status === 'rejected').length);
-    this.completedCampaigns.set(
-      campaigns.filter(c => ['completed', 'exhausted', 'expired'].includes(c.status)).length
-    );
-  }
+  // Helper getters for template
+  isCampaignLoading = () => this.isLoading().campaigns;
+  isUserLoading = () => this.isLoading().users;
+  isRevenueLoading = () => this.isLoading().revenue;
+  isEngagementLoading = () => this.isLoading().engagement;
 
-  calculateUserStats(users: UserInterface[]): void {
-    this.totalUsers.set(users.length);
-    this.activeUsers.set(users.filter(user => user.isActive === true).length);
+  // Refresh function
+  refreshStats(): void {
+    // Clear cache and reload
+    this.dashboardService.clearCache();
+    this.loadAllStats();
   }
-  
 }

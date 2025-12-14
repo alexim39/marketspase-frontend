@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, OnDestroy, ViewChild, DestroyRef, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 
 // Angular Material imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,15 +16,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 // Services
 import { AdminService } from '../common/services/user.service';
 import { UserService } from './users.service';
-import { Router } from '@angular/router';
 import { UserInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoleStatisticsComponent } from './statistics/statistics.component';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'admin-user-mgt',
@@ -31,7 +37,9 @@ import { RoleStatisticsComponent } from './statistics/statistics.component';
   providers: [UserService],
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
+    RouterModule,
     // Material Modules
     MatTableModule,
     MatPaginatorModule,
@@ -46,132 +54,257 @@ import { RoleStatisticsComponent } from './statistics/statistics.component';
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    MatProgressBarModule,
     RoleStatisticsComponent
   ],
   templateUrl: './all-users-list.component.html',
   styleUrls: ['./all-users-list.component.scss'],
 })
-export class AllUsersListComponent implements OnInit, AfterViewInit {
+export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly adminService = inject(AdminService);
   readonly userService = inject(UserService);
   readonly router = inject(Router);
+  readonly snackBar = inject(MatSnackBar);
 
   // Table properties
   displayedColumns: string[] = ['avatar', 'displayName', 'email', 'role', 'balance', 'status', 'createdAt', 'updatedAt', 'actions'];
   dataSource: MatTableDataSource<UserInterface> = new MatTableDataSource<UserInterface>([]);
-  isLoading = true;
-
-    // Statistics toggle state
-  showStatistics = signal(false);
-
+  
+  // State
+  readonly isLoading = signal(true);
+  readonly isRefreshing = signal(false);
+  readonly showStatistics = signal(false);
+  readonly isExporting = signal(false);
+  readonly searchTerm = signal('');
+  
+  // Pagination
+  totalUsers = 0;
+  pageSize = 50;
+  pageIndex = 0;
+  pageSizeOptions = [10, 25, 50, 100];
+  
+  // Filters
+  roles = ['marketer', 'promoter', 'admin'];
+  selectedRole = signal<string>('');
+  showActiveOnly = signal<boolean | null>(null);
+  showVerifiedOnly = signal<boolean | null>(null);
+  
+  // View children
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-
+  
+  // Private subjects
   private readonly destroyRef = inject(DestroyRef);
+  private readonly searchSubject = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    // Initialize the data source with the correct filter predicate
-    this.dataSource.filterPredicate = this.createFilter();
+    // Load saved preferences
+    const savedStats = localStorage.getItem('showUserStatistics');
+    if (savedStats) {
+      this.showStatistics.set(JSON.parse(savedStats));
+    }
   }
 
   ngOnInit(): void {
     this.adminService.fetchAdmin();
-
-    this.userService.getAppUsers()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.dataSource.data = response.data;
-            //console.log('Fetched app users:', response.data);
-            this.isLoading = false;
-          } else {
-            console.error('Failed to fetch app users:', response.message);
-            this.isLoading = false;
-          }
-        },
-        error: (error) => {
-          console.error('Error fetching app users:', error);
-          this.isLoading = false;
-        }
-      })
+    this.setupSearchListener();
+    this.loadUsers();
+    this.setupUserServiceSubscription();
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    // Setup paginator and sort
+    this.setupPaginator();
+    this.setupSort();
   }
 
-  /**
-   * Toggle statistics visibility
-   */
-  toggleStatistics(): void {
-    const newValue = !this.showStatistics();
-    this.showStatistics.set(newValue);
-    
-    // Save preference to localStorage
-    localStorage.setItem('showUserStatistics', JSON.stringify(newValue));
+  private setupSearchListener(): void {
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(searchTerm => {
+      this.applySearch(searchTerm);
+    });
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    
-    // Ensure filterValue is trimmed and in lowercase
-    const trimmedFilter = filterValue.trim().toLowerCase();
-    this.dataSource.filter = trimmedFilter;
+private setupUserServiceSubscription(): void {
+  this.userService.getAppUsers().pipe(
+    takeUntil(this.destroy$)
+  ).subscribe({
+    next: (response) => {
+      if (response.success) {
+        this.dataSource.data = response.data.users;
+        this.totalUsers = response.data.pagination.total;
+        this.pageIndex = response.data.pagination.page - 1;
+        this.pageSize = response.data.pagination.limit;
+        this.isLoading.set(false);
+        this.isRefreshing.set(false);
+      }
+    },
+    error: (error) => {
+      console.error('Error loading users:', error);
+      this.isLoading.set(false);
+      this.isRefreshing.set(false);
+      this.showError('Failed to load users');
+    }
+  });
+}
 
-    // Reset paginator to first page
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+  private setupPaginator(): void {
+    if (this.paginator) {
+      this.paginator.page.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe((pageEvent: PageEvent) => {
+        this.pageSize = pageEvent.pageSize;
+        this.pageIndex = pageEvent.pageIndex;
+        this.userService.updateFilters({
+          page: pageEvent.pageIndex + 1,
+          limit: pageEvent.pageSize
+        });
+      });
     }
   }
 
-  createFilter(): (data: UserInterface, filter: string) => boolean {
-    return (data: UserInterface, filter: string): boolean => {
-      // If the filter is empty, return true for all items
-      if (!filter || filter.trim() === '') return true;
-      
-      const searchData = filter.toLowerCase().trim();
-      
-      // Check if any of the user properties contain the search term
-      return (
-        (data.displayName?.toLowerCase() || '').includes(searchData) ||
-        (data.email?.toLowerCase() || '').includes(searchData) ||
-        (data.username?.toLowerCase() || '').includes(searchData)
-      );
-    };
+  private setupSort(): void {
+    if (this.sort) {
+      this.sort.sortChange.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe((sortState: Sort) => {
+        const direction = sortState.direction === 'desc' ? '-' : '';
+        const sortField = `${direction}${sortState.active}`;
+        this.userService.updateFilters({ sort: sortField });
+      });
+    }
   }
 
-  viewUserDetails(user: UserInterface) {
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+    this.searchSubject.next(value);
+  }
+
+applySearch(searchTerm: string): void {
+  this.userService.updateFilters({ 
+    search: searchTerm,
+    page: 1
+  });
+  this.refreshUsers(); // This will trigger a new API call
+}
+
+onRoleChange(role: string): void {
+  this.selectedRole.set(role);
+  this.userService.updateFilters({ 
+    role: role || undefined,
+    page: 1
+  });
+  this.refreshUsers();
+}
+
+  onActiveFilterChange(active: boolean | null): void {
+    this.showActiveOnly.set(active);
+    this.userService.updateFilters({ 
+      isActive: active ?? undefined,
+      page: 1
+    });
+  }
+
+  onVerifiedFilterChange(verified: boolean | null): void {
+    this.showVerifiedOnly.set(verified);
+    this.userService.updateFilters({ 
+      isVerified: verified ?? undefined,
+      page: 1
+    });
+  }
+
+  clearFilters(): void {
+    this.searchTerm.set('');
+    this.selectedRole.set('');
+    this.showActiveOnly.set(null);
+    this.showVerifiedOnly.set(null);
+    this.userService.clearFilters();
+  }
+
+refreshUsers(): void {
+  this.isRefreshing.set(true);
+  this.userService.clearUserListsCache();
+  this.loadUsers();
+}
+
+  exportUsers(): void {
+    this.isExporting.set(true);
+    this.userService.streamUsers().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users_export_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.isExporting.set(false);
+        this.showSuccess('Users exported successfully');
+      },
+      error: (error) => {
+        console.error('Export error:', error);
+        this.isExporting.set(false);
+        this.showError('Failed to export users');
+      }
+    });
+  }
+
+  toggleStatistics(): void {
+    const newValue = !this.showStatistics();
+    this.showStatistics.set(newValue);
+    localStorage.setItem('showUserStatistics', JSON.stringify(newValue));
+  }
+
+  viewUserDetails(user: UserInterface): void {
     this.router.navigate(['dashboard/users', user._id]);
   }
 
-  editUser(user: UserInterface) {
+  editUser(user: UserInterface): void {
+    // Implement edit modal/dialog
     console.log('Edit user:', user);
-    // Implement edit user functionality
   }
 
-  activateUser(user: UserInterface) {
+  activateUser(user: UserInterface): void {
+    // Implement activation logic
     console.log('Activate user:', user);
-    // Implement activate user functionality
   }
 
-  deactivateUser(user: UserInterface) {
+  deactivateUser(user: UserInterface): void {
+    // Implement deactivation logic
     console.log('Deactivate user:', user);
-    // Implement deactivate user functionality
   }
 
-  deleteUser(user: UserInterface) {
-    console.log('Delete user:', user);
-    // Implement delete user functionality
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
   }
 
-  restoreUser(user: UserInterface) {
-    console.log('Restore user:', user);
-    // Implement restore user functionality
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
   }
+
+// Update the loadUsers method:
+private loadUsers(): void {
+  this.isLoading.set(true);
+  this.setupUserServiceSubscription();
+}
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
