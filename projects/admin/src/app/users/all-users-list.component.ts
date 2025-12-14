@@ -1,3 +1,4 @@
+// all-users-list.component.ts - FIXED VERSION
 import { Component, inject, OnInit, OnDestroy, ViewChild, DestroyRef, AfterViewInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -15,7 +16,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -30,6 +31,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RoleStatisticsComponent } from './statistics/statistics.component';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { EditDisplayNameDialogComponent } from './edit-display-name-dialog/edit-display-name-dialog.component';
 
 @Component({
   selector: 'admin-user-mgt',
@@ -100,6 +102,7 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly searchSubject = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
+  private readonly dialog = inject(MatDialog);
 
   constructor() {
     // Load saved preferences
@@ -112,12 +115,12 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.adminService.fetchAdmin();
     this.setupSearchListener();
-    this.loadUsers();
-    this.setupUserServiceSubscription();
+    this.setupUserServiceSubscription(); // Set up subscription once
+    this.loadUsers(); // Load initial data
   }
 
   ngAfterViewInit() {
-    // Setup paginator and sort
+    // Setup paginator and sort after view is initialized
     this.setupPaginator();
     this.setupSort();
   }
@@ -132,28 +135,40 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-private setupUserServiceSubscription(): void {
-  this.userService.getAppUsers().pipe(
-    takeUntil(this.destroy$)
-  ).subscribe({
-    next: (response) => {
-      if (response.success) {
-        this.dataSource.data = response.data.users;
-        this.totalUsers = response.data.pagination.total;
-        this.pageIndex = response.data.pagination.page - 1;
-        this.pageSize = response.data.pagination.limit;
+  private setupUserServiceSubscription(): void {
+    // Subscribe to user service data stream
+    this.userService.getAppUsers().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.dataSource.data = response.data.users;
+          this.totalUsers = response.data.pagination.total;
+          this.pageIndex = response.data.pagination.page - 1;
+          this.pageSize = response.data.pagination.limit;
+          this.isLoading.set(false);
+          this.isRefreshing.set(false);
+          
+          // Update paginator if it exists
+          if (this.paginator) {
+            this.paginator.length = this.totalUsers;
+            this.paginator.pageIndex = this.pageIndex;
+            this.paginator.pageSize = this.pageSize;
+          }
+        } else {
+          this.isLoading.set(false);
+          this.isRefreshing.set(false);
+          //this.showError(response.message || 'Failed to load users');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
         this.isLoading.set(false);
         this.isRefreshing.set(false);
+        this.showError('Failed to load users');
       }
-    },
-    error: (error) => {
-      console.error('Error loading users:', error);
-      this.isLoading.set(false);
-      this.isRefreshing.set(false);
-      this.showError('Failed to load users');
-    }
-  });
-}
+    });
+  }
 
   private setupPaginator(): void {
     if (this.paginator) {
@@ -162,10 +177,15 @@ private setupUserServiceSubscription(): void {
       ).subscribe((pageEvent: PageEvent) => {
         this.pageSize = pageEvent.pageSize;
         this.pageIndex = pageEvent.pageIndex;
+        
+        // Update filters with pagination
         this.userService.updateFilters({
           page: pageEvent.pageIndex + 1,
           limit: pageEvent.pageSize
         });
+        
+        // Reload data with new pagination
+        this.refreshUsers();
       });
     }
   }
@@ -177,48 +197,89 @@ private setupUserServiceSubscription(): void {
       ).subscribe((sortState: Sort) => {
         const direction = sortState.direction === 'desc' ? '-' : '';
         const sortField = `${direction}${sortState.active}`;
-        this.userService.updateFilters({ sort: sortField });
+        
+        // Update filters with sort
+        this.userService.updateFilters({ 
+          sort: sortField,
+          page: 1 // Reset to first page when sorting
+        });
+        
+        // Reset pagination
+        this.resetPagination();
+        
+        // Reload data with new sort
+        this.refreshUsers();
       });
     }
   }
 
-  onSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+  onSearchInput(value: string): void {
+
+    // Use the passed 'value' directly
     this.searchTerm.set(value);
     this.searchSubject.next(value);
   }
 
-applySearch(searchTerm: string): void {
-  this.userService.updateFilters({ 
-    search: searchTerm,
-    page: 1
-  });
-  this.refreshUsers(); // This will trigger a new API call
-}
+  applySearch(searchTerm: string): void {
+    // Update filters with search term
+    this.userService.updateFilters({ 
+      search: searchTerm.trim(),
+      page: 1 // Reset to first page when searching
+    });
+    
+    // Reset pagination
+    this.resetPagination();
+    
+    // Trigger data reload
+    this.refreshUsers();
+  }
 
-onRoleChange(role: string): void {
-  this.selectedRole.set(role);
-  this.userService.updateFilters({ 
-    role: role || undefined,
-    page: 1
-  });
-  this.refreshUsers();
-}
+  onRoleChange(role: string): void {
+    this.selectedRole.set(role);
+    
+    // Update filters with role
+    this.userService.updateFilters({ 
+      role: role || undefined,
+      page: 1 // Reset to first page when filtering
+    });
+    
+    // Reset pagination
+    this.resetPagination();
+    
+    // Trigger data reload
+    this.refreshUsers();
+  }
 
   onActiveFilterChange(active: boolean | null): void {
     this.showActiveOnly.set(active);
+    
+    // Update filters with active status
     this.userService.updateFilters({ 
       isActive: active ?? undefined,
-      page: 1
+      page: 1 // Reset to first page when filtering
     });
+    
+    // Reset pagination
+    this.resetPagination();
+    
+    // Trigger data reload
+    this.refreshUsers();
   }
 
   onVerifiedFilterChange(verified: boolean | null): void {
     this.showVerifiedOnly.set(verified);
+    
+    // Update filters with verified status
     this.userService.updateFilters({ 
       isVerified: verified ?? undefined,
-      page: 1
+      page: 1 // Reset to first page when filtering
     });
+    
+    // Reset pagination
+    this.resetPagination();
+    
+    // Trigger data reload
+    this.refreshUsers();
   }
 
   clearFilters(): void {
@@ -226,14 +287,37 @@ onRoleChange(role: string): void {
     this.selectedRole.set('');
     this.showActiveOnly.set(null);
     this.showVerifiedOnly.set(null);
+    
+    // Clear all filters in service
     this.userService.clearFilters();
+    
+    // Reset pagination
+    this.resetPagination();
+    
+    // Trigger data reload
+    this.refreshUsers();
   }
 
-refreshUsers(): void {
-  this.isRefreshing.set(true);
-  this.userService.clearUserListsCache();
-  this.loadUsers();
-}
+  refreshUsers(): void {
+    this.isRefreshing.set(true);
+    
+    // Clear cache and trigger reload through service
+    this.userService.clearUserListsCache();
+    
+    // The service subscription will pick up the changes automatically
+    // because the service updates its internal filters
+  }
+
+  private resetPagination(): void {
+    this.pageIndex = 0;
+    
+    // Update paginator if it exists
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+  }
+
+  // ... rest of the methods remain the same ...
 
   exportUsers(): void {
     this.isExporting.set(true);
@@ -269,8 +353,26 @@ refreshUsers(): void {
   }
 
   editUser(user: UserInterface): void {
-    // Implement edit modal/dialog
-    console.log('Edit user:', user);
+    const dialogRef = this.dialog.open(EditDisplayNameDialogComponent, {
+      width: '500px',
+      data: {
+        user: user,
+        currentDisplayName: user.displayName
+      },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.success) {
+        // Update the user in the local data source
+        const updatedUsers = this.dataSource.data.map(u => 
+          u._id === result.user._id ? { ...u, displayName: result.displayName } : u
+        );
+        this.dataSource.data = updatedUsers;
+        
+        this.showSuccess('Display name updated successfully');
+      }
+    });
   }
 
   activateUser(user: UserInterface): void {
@@ -297,14 +399,15 @@ refreshUsers(): void {
     });
   }
 
-// Update the loadUsers method:
-private loadUsers(): void {
-  this.isLoading.set(true);
-  this.setupUserServiceSubscription();
-}
+  private loadUsers(): void {
+    this.isLoading.set(true);
+    // Trigger the service to load data with current filters
+    this.userService.loadUsers();
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.searchSubject.complete();
   }
 }

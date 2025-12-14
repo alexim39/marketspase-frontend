@@ -10,7 +10,7 @@
                 (click)="toggleUserStatus()" class="status-button" [disabled]="userIsDeleted()">
           <mat-icon>{{ user()?.isActive ? 'toggle_on' : 'toggle_off' }}</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Edit User" (click)="editUser()" class="edit-button">
+        <button mat-icon-button matTooltip="Edit User" (click)="user() && editUser(user()!)" class="edit-button">
           <mat-icon>edit</mat-icon>
         </button>
       </div>

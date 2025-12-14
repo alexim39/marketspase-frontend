@@ -18,6 +18,7 @@ import { UserService } from '../users.service';
 import { MatTableModule } from '@angular/material/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { EditDisplayNameDialogComponent } from '../edit-display-name-dialog/edit-display-name-dialog.component';
 
 
 @Component({
@@ -145,10 +146,31 @@ payoutAccounts = computed(() => {
     this.router.navigate(['dashboard/users']);
   }
 
-  editUser(): void {
-    // Implement edit functionality
-    this.showSnackbar('Edit user functionality coming soon', 'info');
-  }
+  editUser(user: UserInterface): void {
+     const dialogRef = this.dialog.open(EditDisplayNameDialogComponent, {
+       width: '500px',
+       data: {
+         user: user,
+         currentDisplayName: user.displayName
+       },
+       disableClose: true
+     });
+ 
+     dialogRef.afterClosed().subscribe(result => {
+       if (result?.success) {
+         // Update the user in the local data source
+         const updatedUsers = this.dataSource().map(u => 
+           u._id === result.user._id ? { ...u, displayName: result.displayName } : u
+         );
+
+         
+         //this.showSuccess('Display name updated successfully');
+         
+         // Optional: Refresh the user list to get the latest data
+         //this.refreshUsers();
+       }
+     });
+   }
 
   toggleUserStatus(): void {
     if (!this.user()) return;

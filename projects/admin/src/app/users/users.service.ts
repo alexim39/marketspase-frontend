@@ -1,4 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+// users.service.ts - FIXED VERSION
+import { inject, Injectable, signal } from '@angular/core';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
 import { ApiService } from '../../../../shared-services/src/public-api';
@@ -80,9 +81,34 @@ export interface RoleStatistics {
   };
 }
 
+export interface UsersResponse {
+  success: boolean;
+  data: {
+    users: any[];
+    pagination: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
+  message?: string;
+}
+
 export interface StatisticsResponse {
   success: boolean;
   data: UserStatistics | RoleStatistics;
+}
+
+// Define the interface for filter state
+interface FilterState {
+  search: string;
+  role: string;
+  isActive: boolean | undefined;
+  isVerified: boolean | undefined;
+  page: number;
+  limit: number;
+  sort: string;
 }
 
 // Helper function to build HttpParams
@@ -116,60 +142,140 @@ export class UserService {
   
   filters$ = this.filtersSubject.asObservable();
   
+  // Current filters state using signal with proper interface
+  private filters = signal<FilterState>({
+    search: '',
+    role: '',
+    isActive: undefined,
+    isVerified: undefined,
+    page: 1,
+    limit: 50,
+    sort: ''
+  });
+  
+  // BehaviorSubject to emit when users data changes
+  private usersSubject = new BehaviorSubject<UsersResponse>({
+    success: false,
+    data: {
+      users: [],
+      pagination: {
+        total: 0,
+        page: 1,
+        limit: 50,
+        totalPages: 0
+      }
+    }
+  });
+
   // Cache for user data
   private cache = new Map<string, { data: any, timestamp: number }>();
   private readonly CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
 
-  /**
-   * Get users with pagination and filters (using query parameters)
-   */
-  getAppUsers(filters?: UserFilters): Observable<PaginatedResponse<any>> {
-    // Merge with current filters if provided
-    const currentFilters = filters ? { ...this.filtersSubject.value, ...filters } : this.filtersSubject.value;
-    
-    // Update filters state
-    this.filtersSubject.next(currentFilters);
+  // Update filters - FIXED: Use the proper type
+  updateFilters(newFilters: Partial<FilterState>): void {
+    this.filters.update(current => ({ ...current, ...newFilters }));
+  }
+
+  // Clear all filters
+  clearFilters(): void {
+    this.filters.set({
+      search: '',
+      role: '',
+      isActive: undefined,
+      isVerified: undefined,
+      page: 1,
+      limit: 50,
+      sort: ''
+    });
+  }
+
+  // Get users observable
+  getAppUsers(): Observable<UsersResponse> {
+    return this.usersSubject.asObservable();
+  }
+
+  // Load users with current filters
+  loadUsers(): void {
+    const currentFilters = this.filters();
     
     // Build query parameters
-    const params = this.buildQueryParams(currentFilters);
-    
-    // Create cache key
-    const cacheKey = `users_${JSON.stringify(currentFilters)}`;
-    const cached = this.cache.get(cacheKey);
-    const now = Date.now();
-    
-    // Return cached data if available
-    if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
-      return of(cached.data);
+    let params = new HttpParams()
+      .set('page', currentFilters.page.toString())
+      .set('limit', currentFilters.limit.toString());
+
+    if (currentFilters.search) {
+      params = params.set('search', currentFilters.search);
     }
     
-    // Make API call with proper HttpParams
-    return this.apiService.get<PaginatedResponse<any>>(`${this.apiUrl}/admin/users`, params).pipe(
-      map(response => {
-        // Transform the response data
-        const transformedData = {
-          ...response,
+    if (currentFilters.role) {
+      params = params.set('role', currentFilters.role);
+    }
+    
+    if (currentFilters.isActive !== undefined) {
+      params = params.set('isActive', currentFilters.isActive.toString());
+    }
+    
+    if (currentFilters.isVerified !== undefined) {
+      params = params.set('isVerified', currentFilters.isVerified.toString());
+    }
+    
+    if (currentFilters.sort) {
+      params = params.set('sort', currentFilters.sort);
+    }
+
+    // Make API call
+    this.apiService.get<UsersResponse>(`${this.apiUrl}/admin/users`, params).subscribe({
+      next: (response) => {
+        this.usersSubject.next(response);
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.usersSubject.next({
+          success: false,
           data: {
-            ...response.data,
-            users: response.data?.users?.map(this.transformUserData) || []
-          }
-        };
-        
-        // Cache the response
-        this.cache.set(cacheKey, { data: transformedData, timestamp: now });
-        
-        // Clean up old cache entries
-        this.cleanupCache();
-        
-        return transformedData;
-      }),
+            users: [],
+            pagination: {
+              total: 0,
+              page: 1,
+              limit: 50,
+              totalPages: 0
+            }
+          },
+          message: 'Failed to load users'
+        });
+      }
+    });
+  }
+
+  // Clear cache (triggers reload)
+  clearUserListsCache(): void {
+    this.loadUsers();
+  }
+
+  // Update user display name
+  updateUserDisplayName(userId: string, displayName: string): Observable<any> {
+    return this.apiService.patch(`${this.apiUrl}/admin/${userId}/display-name`, { displayName });
+  }
+
+  // Stream users for export
+  streamUsers(): Observable<Blob> {
+    const currentFilters = this.filters();
+    const params = this.buildQueryParamsFromFilterState(currentFilters);
+    
+    // Set headers for blob response
+    const headers = new HttpHeaders({
+      'Accept': 'application/json, application/octet-stream'
+    });
+    
+    return this.apiService.get(`${this.apiUrl}/admin/users/stream`, params, headers, false).pipe(
+      map(response => response as Blob),
       catchError(error => {
-        console.error('Error fetching users:', error);
-        return throwError(() => new Error('Failed to fetch users'));
+        console.error('Error streaming users:', error);
+        return throwError(() => new Error('Failed to export users'));
       })
     );
   }
-  
+
   /**
    * Get user summary statistics
    */
@@ -291,37 +397,17 @@ export class UserService {
   }
   
   /**
-   * Stream users for export
+   * Update filters for the behavior subject
    */
-  streamUsers(): Observable<Blob> {
-    const params = this.buildQueryParams(this.filtersSubject.value);
-    
-    // Set headers for blob response
-    const headers = new HttpHeaders({
-      'Accept': 'application/json, application/octet-stream'
-    });
-    
-    return this.apiService.get(`${this.apiUrl}/admin/users/stream`, params, headers, false).pipe(
-      map(response => response as Blob),
-      catchError(error => {
-        console.error('Error streaming users:', error);
-        return throwError(() => new Error('Failed to export users'));
-      })
-    );
-  }
-  
-  /**
-   * Update filters
-   */
-  updateFilters(filters: Partial<UserFilters>): void {
+  updateFiltersSubject(filters: Partial<UserFilters>): void {
     const current = this.filtersSubject.value;
     this.filtersSubject.next({ ...current, ...filters });
   }
   
   /**
-   * Clear filters
+   * Clear filters for the behavior subject
    */
-  clearFilters(): void {
+  clearFiltersSubject(): void {
     this.filtersSubject.next({
       page: 1,
       limit: 50,
@@ -331,7 +417,7 @@ export class UserService {
   }
   
   /**
-   * Get current filters
+   * Get current filters from behavior subject
    */
   getCurrentFilters(): UserFilters {
     return { ...this.filtersSubject.value };
@@ -345,25 +431,25 @@ export class UserService {
   }
   
   /**
-   * Clear only user lists cache
-   */
-  clearUserListsCache(): void {
-    const keysToDelete: string[] = [];
-    
-    this.cache.forEach((value, key) => {
-      if (key.startsWith('users_')) {
-        keysToDelete.push(key);
-      }
-    });
-    
-    keysToDelete.forEach(key => this.cache.delete(key));
-  }
-  
-  /**
-   * Build query parameters from filters
+   * Build query parameters from UserFilters
    */
   private buildQueryParams(filters: UserFilters): HttpParams {
     return buildHttpParams(filters);
+  }
+  
+  /**
+   * Build query parameters from FilterState
+   */
+  private buildQueryParamsFromFilterState(filters: FilterState): HttpParams {
+    return buildHttpParams({
+      page: filters.page,
+      limit: filters.limit,
+      search: filters.search,
+      role: filters.role,
+      isActive: filters.isActive,
+      isVerified: filters.isVerified,
+      sort: filters.sort
+    });
   }
   
   /**

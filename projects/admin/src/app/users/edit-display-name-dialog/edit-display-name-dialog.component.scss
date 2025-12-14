@@ -1,0 +1,181 @@
+// edit-display-name-dialog.component.scss
+:host {
+  display: block;
+}
+
+.p-6 {
+  padding: 1.5rem;
+  
+  .text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+  
+  .mat-mdc-text-field-wrapper {
+    border-radius: 8px;
+  }
+  
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.mat-mdc-form-field-hint {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.mat-mdc-form-field-error {
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+.mat-mdc-dialog-content {
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.mat-mdc-dialog-actions {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.cancel-button {
+  min-width: 80px;
+  
+  &:hover:not([disabled]) {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.save-button {
+  min-width: 120px;
+  
+  &:hover:not([disabled]) {
+    background-color: #1565c0;
+  }
+  
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.mat-spinner {
+  display: inline-block;
+  
+  ::ng-deep circle {
+    stroke: #ffffff;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .p-6 {
+    padding: 1rem;
+  }
+  
+  .mat-mdc-dialog-container {
+    max-width: calc(100vw - 32px);
+    margin: 16px;
+  }
+  
+  .flex {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .space-x-2 > * + * {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+  
+  .save-button, .cancel-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animation for dialog */
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mat-mdc-dialog-container {
+  animation: dialogFadeIn 0.2s ease-out;
+}
+
+/* Focus styles for accessibility */
+.mat-mdc-form-field input:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+button:focus-visible {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :host-context(.dark-mode) .p-6,
+  :host-context([data-theme="dark"]) .p-6 {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    
+    .mat-mdc-form-field-hint {
+      color: #b0b0b0;
+    }
+  }
+}
