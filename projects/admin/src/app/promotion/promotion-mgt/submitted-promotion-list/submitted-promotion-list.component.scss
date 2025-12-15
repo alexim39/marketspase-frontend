@@ -437,3 +437,70 @@
     width: 80px;
   }
 }
+
+// Add to existing SCSS file
+
+// Processing status styles
+.processing-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  
+  span {
+    font-size: 12px;
+    font-weight: 500;
+    color: #ff9800;
+  }
+}
+
+.processing-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+// Disabled state for proof button
+.proof-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+// Row processing overlay
+.mat-row.processing {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1;
+  }
+  
+  .mat-cell {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// Loading overlay for entire table
+.table-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+}

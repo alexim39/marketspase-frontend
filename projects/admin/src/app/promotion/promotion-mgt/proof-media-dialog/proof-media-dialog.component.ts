@@ -9,10 +9,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { CampaignService } from '../../campaign/campaign.service';
-import { AdminService } from '../../common/services/user.service';
+import { CampaignService } from '../../../campaign/campaign.service';
+import { AdminService } from '../../../common/services/user.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Campaign, Promoter, Promotion } from '../submitted-promotion-list/submitted-promotion-list.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 interface ViewState {
   scale: number;
@@ -33,7 +34,8 @@ interface ViewState {
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatProgressBarModule
   ],
   templateUrl: './proof-media-dialog.component.html',
   styleUrls: ['./proof-media-dialog.component.scss']
@@ -450,12 +452,16 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
   validatePromotion(): void {
     this.isLoading.set(true);
     this.data.onValidate(this.promotion);
-    this.onClose();
+    // Close dialog with result
+    //this.dialogRef.close('validated');
   }
+
+
 
   rejectPromotion(): void {
     this.data.onReject(this.promotion);
-    this.onClose();
+    // Close dialog with result
+    //this.dialogRef.close('rejected');
   }
 
   onClose(): void {

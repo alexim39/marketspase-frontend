@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { SubmittedPromotionListComponent, } from "./submitted-promotion-list/submitted-promotion-list.component";
+import { SubmittedPromotionListComponent, } from "./promotion-mgt/submitted-promotion-list/submitted-promotion-list.component";
 import { AllPromotionListMgtComponent } from "./all-promotion-list/all-promotion-list.component";
 
 export const PromotionRoutes: Routes = [

@@ -185,17 +185,24 @@
               </div>
             </div>
             }
-        </div>
+
+          @if (isLoading()) {
+            <mat-progress-bar mode="indeterminate"/>
+          }
         
+
+        </div>
+
         <mat-divider></mat-divider>
         
         <!-- Action Buttons -->
         <div class="action-buttons">
+
           <button mat-flat-button 
-                  color="primary" 
-                  class="validate-btn"
-                  (click)="validatePromotion()"
-                  [disabled]="isLoading()">
+            color="primary" 
+            class="validate-btn"
+            (click)="validatePromotion()"
+            [disabled]="isLoading()">
             <mat-icon>check_circle</mat-icon>
             @if (isLoading()) {
               Validating...
@@ -203,7 +210,6 @@
               Approve
             }
           </button>
-          
           <button mat-stroked-button 
                   color="warn" 
                   class="reject-btn"
@@ -212,7 +218,9 @@
             <mat-icon>cancel</mat-icon>
             Reject
           </button>
+
         </div>
+
       </div>
     </div>
   </mat-dialog-content>
