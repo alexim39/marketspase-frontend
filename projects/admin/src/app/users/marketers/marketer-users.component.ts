@@ -78,7 +78,7 @@ export class MarketerUserMgtComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.dataSource.data = response.data;
+            this.dataSource.data = response.data.users;
             //console.log('Fetched app users:', response.data);
             this.isLoading = false;
           } else {

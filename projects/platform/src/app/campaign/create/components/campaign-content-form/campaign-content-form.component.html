@@ -65,13 +65,13 @@
         placeholder="This is the text that will accompany your ad on WhatsApp" 
         rows="3">
       </textarea>
-      <mat-hint align="end">{{formGroup.get('caption')?.value?.length || 0}} / 150</mat-hint>
+      <mat-hint align="end">{{formGroup.get('caption')?.value?.length || 0}} / 300</mat-hint>
         @if (formGroup.get('caption')?.invalid && (formGroup.get('caption')?.dirty || formGroup.get('caption')?.touched)) {
           <mat-error>
             @if (formGroup.get('caption')?.errors?.['required']) {
               Caption is required.
             } @else if (formGroup.get('caption')?.errors?.['maxlength']) {
-              Caption cannot exceed 150 characters.
+              Caption cannot exceed 300 characters.
             }
           </mat-error>
         }

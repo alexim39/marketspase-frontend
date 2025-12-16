@@ -1,32 +1,27 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-loading-state',
   standalone: true,
-  imports: [CommonModule, MatProgressBarModule],
+  imports: [CommonModule],
   template: `
-    <div class="loading-state">
-      <mat-progress-bar mode="indeterminate"/>
-      <p>Loading promotions...</p>
+    <div class="loading-grid">
+      @for (item of [1,2,3,4]; track $index) {
+        <div class="campaign-card-skeleton">
+          <div class="skeleton-header"></div>
+          <div class="skeleton-media"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line" style="width: 70%"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-metrics"></div>
+            <div class="skeleton-line" style="width: 40%; height: 24px; margin-top: 16px;"></div>
+          </div>
+        </div>
+      }
     </div>
   `,
-  styles: [`
-    .loading-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 0;
-      mat-progress-bar {
-        width: 20em;
-      }
-      p {
-        margin-top: 16px;
-        color: #777;
-      }
-    }
-  `]
+  styleUrls: ['./loading-state.component.scss']
 })
 export class LoadingStateComponent {}

@@ -121,9 +121,14 @@ export class RoleStatisticsComponent implements OnInit {
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
-        next: (response: StatisticsResponse) => {
+        next: (response: StatisticsResponse | { success: boolean; data: null }) => {
           if (response.success && response.data) {
-            this.updateStatistics(response.data);
+            if ('role' in response.data && 'counts' in response.data) {
+              this.updateStatistics(response.data as RoleStatistics);
+            } else {
+              console.error('Invalid data format:', response.data);
+              this.error.set('Received invalid data format from server');
+            }
           } else if (!response.success) {
             this.error.set('Failed to load statistics from server');
           }
@@ -154,9 +159,14 @@ export class RoleStatisticsComponent implements OnInit {
           finalize(() => this.isLoading.set(false))
         )
         .subscribe({
-          next: (response: StatisticsResponse) => {
+          next: (response: StatisticsResponse  | { success: boolean; data: null }) => {
             if (response.success && response.data) {
-              this.updateStatistics(response.data);
+              if ('role' in response.data && 'counts' in response.data) {
+                this.updateStatistics(response.data as RoleStatistics);
+              } else {
+                console.error('Invalid data format:', response.data);
+                this.error.set('Received invalid data format from server');
+              }
             } else if (!response.success) {
               this.error.set(`Failed to load statistics for ${role}`);
             }
@@ -211,11 +221,11 @@ export class RoleStatisticsComponent implements OnInit {
       request
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: (response: StatisticsResponse) => {
+          next: (response: StatisticsResponse  | { success: boolean; data: null }) => {
             completed++;
             
             if (response.success && response.data) {
-              this.updateStatistics(response.data);
+              this.updateStatistics(response.data as RoleStatistics);
             }
             
             // When all requests are done, set loading to false

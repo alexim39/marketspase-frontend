@@ -1,0 +1,74 @@
+
+    <div class="notification-container">
+      <button 
+        mat-icon-button 
+        [matMenuTriggerFor]="notificationMenu"
+        class="notification-button"
+        aria-label="Notifications"
+        [attr.aria-describedby]="unreadCount > 0 ? 'unread-notifications' : null">
+        
+        <mat-icon 
+          [matBadge]="unreadCount" 
+          [matBadgeColor]="unreadCount > 0 ? 'warn' : 'primary'"
+          matBadgePosition="above after"
+          aria-hidden="false">
+          notifications
+        </mat-icon>
+        
+        @if (unreadCount > 0) {
+          <span class="visually-hidden" id="unread-notifications">
+            {{ unreadCount }} unread notifications
+          </span>
+        }
+      </button>
+
+      <mat-menu #notificationMenu="matMenu" class="notification-menu">
+        <div class="notification-header">
+          <h3>Notifications</h3>
+          @if (unreadCount > 0) {
+            <button 
+              mat-button 
+              color="primary" 
+              (click)="markAllAsRead()"
+              class="mark-all-read">
+              Mark all as read
+            </button>
+          }
+        </div>
+
+        <div class="notification-list">
+          @if (notifications.length === 0) {
+            <div class="no-notifications">
+              <mat-icon>notifications_off</mat-icon>
+              <p>No notifications</p>
+            </div>
+          } @else {
+            @for (notification of notifications; track notification._id) {
+              <div 
+                class="notification-item" 
+                [class.unread]="notification.status === 'unread'"
+                (click)="handleNotificationClick(notification)">
+                
+                <div class="notification-content">
+                  <h4 class="notification-title">{{ notification.title }}</h4>
+                  <p class="notification-message">{{ notification.message }}</p>
+                  <small class="notification-time">
+                    {{ notification.createdAt | date:'short' }}
+                  </small>
+                </div>
+                
+                @if (notification.status === 'unread') {
+                  <div class="unread-indicator"></div>
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <!-- <div class="notification-footer">
+          <button mat-button color="primary" (click)="viewAllNotifications()">
+            View All Notifications
+          </button>
+        </div> -->
+      </mat-menu>
+    </div>

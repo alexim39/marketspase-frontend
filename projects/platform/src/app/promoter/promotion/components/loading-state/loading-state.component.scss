@@ -5,6 +5,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 24px;
+  margin: 2em 0;
 }
 
 .campaign-card-skeleton {

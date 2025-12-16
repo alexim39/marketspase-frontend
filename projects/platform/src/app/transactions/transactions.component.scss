@@ -90,6 +90,7 @@
   overflow: hidden;
   box-shadow: $shadow-xl;
   border: none;
+  background-color: color-mix(in srgb, $background-color, black 45%);
   
   mat-card-header {
     padding: $spacing-6 $spacing-6 0;
@@ -118,6 +119,7 @@
   gap: $spacing-6;
   display: flex;
   flex-direction: row;
+  background-color: color-mix(in srgb, $background-color, black 45%);
   
   
   @media (min-width: 769px) and (max-width: 1024px) {

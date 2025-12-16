@@ -2,9 +2,7 @@
     padding: 16px;
     max-width: 100%;
     box-sizing: border-box;
-    //background: linear-gradient(145deg, #060918ff 0%, #111827 100%);
     min-height: 100vh;
-    //color: #cccccc;
 }
 
 .header-section {
@@ -15,18 +13,17 @@
     font-size: 24px;
     font-weight: 500;
     margin: 0 0 8px 0;
-   // color: #cccccc;
 }
 
 .page-subtitle {
     font-size: 14px;
-    //color: #6b7280;
     margin: 0;
 }
 
 .filters-card {
     margin-bottom: 24px;
-    //background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .filters-container {
@@ -34,15 +31,30 @@
     flex-wrap: wrap;
     gap: 16px;
     align-items: center;
-}
-
-.search-field {
-    flex: 1 1 300px;
+    
+    .search-field {
+        flex: 1 1 300px;
+    }
+    
+    .filter-field {
+        min-width: 150px;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: 8px;
+        
+        button {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    }
 }
 
 .table-card {
-    overflow: auto;
-   // background-color: #ffffff;
+    overflow: hidden;
+    border-radius: 8px;
 }
 
 .table-container {
@@ -56,11 +68,35 @@
     align-items: center;
     justify-content: center;
     padding: 50px 0;
+    
+    p {
+        margin-top: 16px;
+        color: #666;
+    }
 }
 
-.loading-spinner p {
-    margin-top: 16px;
-    //color: rgba(0, 0, 0, 0.54);
+.no-data {
+    text-align: center;
+    padding: 60px 24px;
+    color: #666;
+    
+    mat-icon {
+        font-size: 48px;
+        height: 48px;
+        width: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+    
+    h3 {
+        margin: 0 0 8px 0;
+        font-weight: 500;
+    }
+    
+    p {
+        margin: 0;
+        font-style: italic;
+    }
 }
 
 .users-table {
@@ -72,229 +108,126 @@
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid #e0e0e0;
 }
 
 .user-info {
     display: flex;
     flex-direction: column;
-}
-
-.user-name {
-    font-weight: 500;
-}
-
-.user-username {
-    font-size: 12px;
-   // color: rgba(0, 0, 0, 0.54);
+    
+    .user-name {
+        font-weight: 500;
+    }
+    
+    .user-username {
+        font-size: 12px;
+        color: #666;
+    }
 }
 
 .email-cell {
     word-break: break-all;
+    font-size: 14px;
 }
 
 .role-chip {
     font-size: 12px;
     font-weight: 500;
-}
-
-.role-chip.marketer {
-    background-color: #1976d2;
-    //color: #1976d2;
-}
-
-.role-chip.promoter {
-    background-color: #7b1fa2;
-    //color: #7b1fa2;
+    padding: 4px 12px;
+    
+    &.marketer {
+        //background-color: #e3f2fd;
+        background: #1976d2;
+    }
+    
+    &.promoter {
+        //background-color: #f3e5f5;
+        background: #7b1fa2;
+    }
+    
+    &.admin {
+        //background-color: #e8f5e9;
+        background: #2e7d32;
+    }
 }
 
 .balance-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.balance-amount {
-    font-weight: 500;
+    .balance-amount {
+        font-weight: 500;
+        font-size: 14px;
+    }
 }
 
 .status-container {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    
+    .status-chip {
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 12px;
+        
+        &.active {
+            //background-color: #e8f5e9;
+            background: #2e7d32;
+        }
+        
+        &.inactive {
+            //background-color: #fff3e0;
+            background: #ef6c00;
+        }
+        
+        &.deleted {
+            //background-color: #ffebee;
+            background: #c62828;
+        }
+    }
+    
+    .verification-chip {
+        //background-color: #e8f5e9;
+        background: #2e7d32;
+        font-size: 10px;
+        padding: 2px 8px;
+    }
 }
 
-.status-chip {
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.status-chip.active {
-    background-color: #2e7d32;
-    //color: #2e7d32;
-}
-
-.status-chip.inactive {
-    background-color: #ef6c00;
-    //color: #ef6c00;
-}
-
-.status-chip.deleted {
-    background-color: #c62828;
-    //color: #c62828;
-}
-
-.verification-chip {
-    background-color: #2e7d32;
-    //color: #2e7d32;
-    font-size: 10px;
+.date-info {
+    display: flex;
+    flex-direction: column;
+    
+    .date-main {
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .date-time {
+        font-size: 12px;
+        color: #666;
+    }
 }
 
 .action-buttons {
     display: flex;
     gap: 4px;
-}
-
-.no-data {
-    text-align: center;
-    padding: 24px;
-    //color: rgba(0, 0, 0, 0.54);
-    font-style: italic;
-}
-
-.mat-row, .mat-header-row {
-    min-height: 56px;
-}
-
-/* Fix for form fields */
-.mat-form-field-appearance-outline .mat-form-field-outline {
-    //color: rgba(0, 0, 0, 0.42);
-}
-
-.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
-    color: #3f51b5;
-}
-
-.mat-form-field-label {
-    //color: rgba(0, 0, 0, 0.6);
-}
-
-.mat-input-element {
-    //color: rgba(0, 0, 0, 0.87);
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-    .admin-users-container {
-    padding: 8px;
-    }
-
-    .filters-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    }
-
-    .search-field {
-    width: 100%;
-    }
-
-    .users-table .mat-header-row {
-    display: none;
-    }
-
-    .users-table .mat-row {
-        flex-direction: column;
-        align-items: start;
-        padding: 8px 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .users-table .mat-cell {
-        border: none;
-        padding: 4px 16px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .users-table .mat-cell:before {
-        content: attr(data-label);
-        float: left;
-        font-weight: 500;
-        //color: rgba(0, 0, 0, 0.54);
-        margin-right: 8px;
-    }
-
-    .users-table .mat-cell:first-of-type {
-    padding-top: 16px;
-    }
-
-    .users-table .mat-cell:last-of-type {
-        padding-bottom: 16px;
-    }
-
-    .users-table .mat-column-actions {
-        display: flex;
-        justify-content: flex-end;
-        width: 100%;
-    }
     
-    .action-buttons {
-        justify-content: flex-end;
-        width: 100%;
+    button {
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
     }
 }
 
-/* For desktop - ensure proper table layout */
-@media (min-width: 769px) {
-    .users-table .mat-column-avatar {
-    width: 60px;
-    }
-
-    .users-table .mat-column-displayName {
-    min-width: 180px;
-    }
-
-    .users-table .mat-column-email {
-    min-width: 200px;
-    }
-
-    .users-table .mat-column-role {
-    width: 120px;
-    }
-
-    .users-table .mat-column-balance {
-    width: 120px;
-    }
-
-    .users-table .mat-column-status {
-    width: 140px;
-    }
-
-    .users-table .mat-column-createdAt {
-    width: 120px;
-    }
-
-    .users-table .mat-column-actions {
-    width: 200px;
-    }
-}
-
-// Add to existing users.component.scss
 .statistics-toggle {
     margin-top: 16px;
     display: flex;
-    justify-content: flex-end;
     gap: 8px;
+    flex-wrap: wrap;
     
     button {
         display: flex;
         align-items: center;
         gap: 8px;
-        transition: all 0.3s ease;
-        
-        &:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
         
         mat-icon {
             font-size: 20px;
@@ -304,15 +237,130 @@
     }
 }
 
-// Add animation for statistics show/hide
+.export-progress {
+    margin-top: 16px;
+    text-align: center;
+    
+    p {
+        margin-top: 8px;
+        color: #666;
+        font-size: 14px;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-users-container {
+        padding: 8px;
+    }
+    
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        
+        .search-field {
+            width: 100%;
+        }
+        
+        .filter-buttons {
+            justify-content: center;
+        }
+    }
+    
+    .statistics-toggle {
+        button {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+    
+    .users-table .mat-header-row {
+        display: none;
+    }
+    
+    .users-table .mat-row {
+        flex-direction: column;
+        align-items: start;
+        padding: 16px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .users-table .mat-cell {
+        border: none;
+        padding: 8px 16px;
+        width: 100%;
+        box-sizing: border-box;
+        
+        &:before {
+            content: attr(data-label);
+            float: left;
+            font-weight: 500;
+            color: #666;
+            margin-right: 8px;
+        }
+        
+        &:first-of-type {
+            padding-top: 16px;
+        }
+        
+        &:last-of-type {
+            padding-bottom: 16px;
+        }
+    }
+    
+    .users-table .mat-column-actions {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        
+        .action-buttons {
+            justify-content: flex-end;
+            width: 100%;
+        }
+    }
+}
+
+/* Desktop Column Sizes */
+@media (min-width: 769px) {
+    .users-table .mat-column-avatar {
+        width: 60px;
+    }
+    
+    .users-table .mat-column-displayName {
+        min-width: 180px;
+    }
+    
+    .users-table .mat-column-email {
+        min-width: 200px;
+    }
+    
+    .users-table .mat-column-role {
+        width: 100px;
+    }
+    
+    .users-table .mat-column-balance {
+        width: 120px;
+    }
+    
+    .users-table .mat-column-status {
+        width: 140px;
+    }
+    
+    .users-table .mat-column-createdAt {
+        width: 140px;
+    }
+    
+    .users-table .mat-column-actions {
+        width: 180px;
+    }
+}
+
+/* Animation for statistics */
 app-role-statistics {
     display: block;
     margin-bottom: 24px;
     animation: fadeIn 0.3s ease-in-out;
-    
-    &:not(:last-child) {
-        margin-bottom: 24px;
-    }
 }
 
 @keyframes fadeIn {
@@ -326,22 +374,13 @@ app-role-statistics {
     }
 }
 
-// Add smooth transition for content
-.admin-users-container {
-    transition: all 0.3s ease;
+/* Snackbar custom styles */
+::ng-deep .success-snackbar {
+    background-color: #2e7d32;
+    color: white;
 }
 
-// Optional: Add a subtle border when statistics are shown
-:host-context(.statistics-visible) .filters-card {
-    border-top: 2px solid #3f51b5;
-}
-
-// Mobile responsiveness for toggle button
-@media (max-width: 768px) {
-    .statistics-toggle {
-        button {
-            width: 100%;
-            justify-content: center;
-        }
-    }
+::ng-deep .error-snackbar {
+    background-color: #c62828;
+    color: white;
 }

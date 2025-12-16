@@ -21,13 +21,6 @@
             <mat-icon>download_for_offline</mat-icon>
             <span>Download Promotion</span>
           </button>
-          <!-- <button mat-menu-item 
-                  (click)="showWhatsAppSharingInstructions(promotion)" 
-                  [disabled]="isSubmissionExpired(promotion) || isLoading()"
-                  class="whatsapp-menu-item">
-            <mat-icon style="color: #25D366;">share</mat-icon>
-            <span style="color: #25D366;">Share on WhatsApp Status</span>
-          </button> -->
         }
         <button mat-menu-item (click)="viewDetails()">
           <mat-icon>info</mat-icon>
@@ -123,7 +116,7 @@
     @if (isSubmissionExpired(promotion)) {
       <div class="expired-alert">
         <i class="material-icons">warning</i>
-        <span>Submission expired</span>
+        <span>Promotion timeline complete</span>
       </div>
     }
     
@@ -155,23 +148,6 @@
               <span>Download</span>
             }
           </button>
-          <!-- <button class="action-btn whatsapp-status-btn" 
-                  (click)="showWhatsAppSharingInstructions(promotion)" 
-                  [disabled]="isSubmissionExpired(promotion) || isLoading()">
-            @if (isLoading()) {
-              <mat-progress-spinner
-                diameter="20"
-                mode="indeterminate"
-                style="color: #25D366;"
-                class="spinner"
-              />
-              <span>Preparing...</span>
-            } @else {
-              <i class="material-icons" style="color: #25D366;">share</i>
-              <span>Share on WhatsApp Status</span>
-            }
-          </button> -->
-
         }            
       }
       @if (promotion.status === 'submitted' || promotion.status === 'validated') {

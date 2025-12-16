@@ -1,210 +1,95 @@
 <!-- Dashboard Content -->
 <main class="dashboard-content">
-    <!-- Stats Overview -->
-    <section class="stats-section">
+  <!-- Stats Overview -->
+  <section class="stats-section">
     <div class="stats-grid">
-        <div class="stat-card primary">
-            <div class="stat-icon">
-                <mat-icon>analytics</mat-icon>
+      <!-- Campaign Stats Card -->
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <mat-icon>analytics</mat-icon>
+        </div>
+        <div class="stat-content">
+          @if (isCampaignLoading()) {
+            <mat-progress-bar mode="indeterminate" />
+            <div class="loading-text">Loading campaigns...</div>
+          } @else {
+            <div class="stat-label">Total Campaigns / Active</div>
+            <div class="stat-value">{{ campaignStats().totalCampaigns }} / {{ campaignStats().activeCampaigns }}</div>
+            <div class="stat-change positive">
+              <mat-icon>trending_up</mat-icon>
+              +{{ campaignStats().activeCampaignsChange }}% this week
             </div>
-            <div class="stat-content">
-                @if (isCampaignLoading()) {
-                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
-                    <div style="color: gray; font-size: 14px;">loading campaigns...</div>
-                } @else {
-                    <div class="stat-label">Total Campaign/Active Campaigns</div>
-                    <div class="stat-value">{{ totalCampaigns() + '/' + activeCampaigns() }}</div>
-                    <div class="stat-change positive">
-                        <mat-icon>trending_up</mat-icon>
-                        +{{ activeCampaignsChange() }}% this week
-                    </div>
-                }
+          }
+        </div>
+      </div>
 
-            </div>
+      <!-- User Stats Card -->
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <mat-icon>group</mat-icon>
         </div>
+        <div class="stat-content">
+          @if (isUserLoading()) {
+            <mat-progress-bar mode="indeterminate" />
+            <div class="loading-text">Loading users...</div>
+          } @else {
+            <div class="stat-label">Total Users / Active</div>
+            <div class="stat-value">{{ userStats().totalUsers }} / {{ userStats().activeUsers }}</div>
+            <div class="stat-change positive">
+              <mat-icon>trending_up</mat-icon>
+              +{{ userStats().usersChange }}% this month
+            </div>
+          }
+        </div>
+      </div>
 
-        <div class="stat-card info">
-            <div class="stat-icon">
-                <mat-icon>group</mat-icon>
-            </div>
-            <div class="stat-content">
-                  @if (isUserLoading()) {
-                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
-                    <div style="color: gray; font-size: 14px;">loading user...</div>
-                } @else {
-                    <div class="stat-label">Total User/Active Users</div>
-                    <div class="stat-value">{{ totalUsers() + '/' + activeUsers() }}</div>
-                    <div class="stat-change positive">
-                        <mat-icon>trending_up</mat-icon>
-                        +{{ usersChange() }}% this month
-                    </div>
-                }
-               
-            </div>
+      <!-- Revenue Stats Card -->
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <mat-icon>attach_money</mat-icon>
         </div>
-        
-        <!-- Updated Revenue Card -->
-        <div class="stat-card success">
-            <div class="stat-icon">
-                <mat-icon>attach_money</mat-icon>
+        <div class="stat-content">
+          @if (isRevenueLoading()) {
+            <mat-progress-bar mode="indeterminate" />
+            <div class="loading-text">Loading revenue...</div>
+          } @else {
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value">₦{{ 0 }}</div>
+            <!-- <div class="stat-value">₦{{ revenueStats().totalRevenue.toLocaleString() }}</div> -->
+            <div class="stat-change" [class]="revenueStats().revenueChange >= 0 ? 'positive' : 'negative'">
+              <mat-icon>{{ revenueStats().revenueChange >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+              {{ revenueStats().revenueChange >= 0 ? '+' : '' }}{{ revenueStats().revenueChange }}% this month
             </div>
-            <div class="stat-content">
-                @if (isRevenueLoading()) {
-                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
-                    <div style="color: gray; font-size: 14px;">loading revenue...</div>
-                } @else {
-                    <div class="stat-label">Total Revenue</div>
-                    <div class="stat-value">₦{{ totalRevenue().toLocaleString() }}</div>
-                    <div class="stat-change" [class]="revenueChange() >= 0 ? 'positive' : 'negative'">
-                        <mat-icon>{{ revenueChange() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-                        {{ revenueChange() >= 0 ? '+' : '' }}{{ revenueChange() }}% this month
-                    </div>
-                }
-            </div>
+          }
         </div>
-        
-        <!-- Updated Engagement Card -->
-        <div class="stat-card warning">
-            <div class="stat-icon">
-                <mat-icon>monitor_heart</mat-icon>
-            </div>
-            <div class="stat-content">
-                @if (isEngagementLoading()) {
-                    <mat-progress-bar mode="indeterminate" style="width: 100px;"/>
-                    <div style="color: gray; font-size: 14px;">loading engagement...</div>
-                } @else {
-                    <div class="stat-label">Avg. Engagement</div>
-                    <div class="stat-value">{{ averageEngagement() }}%</div>
-                    <div class="stat-change" [class]="engagementChange() >= 0 ? 'positive' : 'negative'">
-                        <mat-icon>{{ engagementChange() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-                        {{ engagementChange() >= 0 ? '+' : '' }}{{ engagementChange() }}% from last week
-                    </div>
-                }
-            </div>
+      </div>
+
+      <!-- Engagement Stats Card -->
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <mat-icon>monitor_heart</mat-icon>
         </div>
+        <div class="stat-content">
+          @if (isEngagementLoading()) {
+            <mat-progress-bar mode="indeterminate" />
+            <div class="loading-text">Loading engagement...</div>
+          } @else {
+            <div class="stat-label">Avg. Engagement</div>
+            <div class="stat-value">{{ engagementStats().averageEngagement }}%</div>
+            <div class="stat-change" [class]="engagementStats().engagementChange >= 0 ? 'positive' : 'negative'">
+              <mat-icon>{{ engagementStats().engagementChange >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+              {{ engagementStats().engagementChange >= 0 ? '+' : '' }}{{ engagementStats().engagementChange }}% from last week
+            </div>
+          }
+        </div>
+      </div>
     </div>
-    </section>
-    
-    <!-- Recent Promotion Posts -->
-     <section class="dashboard-section">
-        <div style="text-align: center;">
-            <h2 style="margin: 1em 0">Welcome to Marketspase Admin Dashboard</h2>
-            <p style="color: gray;;">Manage your campaigns, users, and promotions efficiently.</p>
-            <small style="color: rgb(205, 234, 159);">Features coming up soon</small>
-        </div>
-      <!--  <div class="section-header">
-            <h2 class="section-title">Recent Promotion Posts</h2>
-            <button class="btn btn-primary">
-            <mat-icon>add_2</mat-icon>
-            Add New Post
-            </button>
-        </div>
-    
-        <div class="data-table-container">
-            <table class="data-table">
-            <thead>
-                <tr>
-                <th>Post Details</th>
-                <th>Budget & Rate</th>
-                <th>Progress</th>
-                <th>Status</th>
-                <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let post of filteredPosts()">
-                <td>
-                    <div class="post-info">
-                    <div class="post-title">{{ post.title }}</div>
-                    <div class="post-meta">
-                        <span class="marketer">{{ post.marketer }}</span>
-                        <span class="category">{{ post.category }}</span>
-                    </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="budget-info">
-                    <div class="budget">₦{{ post.budget.toLocaleString() }}</div>
-                    <div class="rate">₦{{ post.rate }}/promotion</div>
-                    </div>
-                </td>
-                <td>
-                    <div class="progress-info">
-                    <div class="progress-bar">
-                        <div 
-                        class="progress-fill" 
-                        [style.width.%]="(post.filledSlots / post.totalSlots) * 100">
-                        </div>
-                    </div>
-                    <div class="progress-text">{{ post.filledSlots }}/{{ post.totalSlots }} slots</div>
-                    </div>
-                </td>
-                <td>
-                    <span 
-                    class="status-badge" 
-                    [class]="'status-' + post.status">
-                    {{ post.status | titlecase }}
-                    </span>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                    <button class="btn-icon" (click)="viewPost(post)" title="View Details">
-                        <mat-icon>visibility</mat-icon>
-                    </button>
-                    <button class="btn-icon" (click)="editPost(post)" title="Edit">
-                        <mat-icon>edit</mat-icon>
-                    </button>
-                    </div>
-                </td>
-                </tr>
-            </tbody>
-            </table>
-        </div> -->
-    </section> 
-    
-    <!-- Active Status Promotions -->
-    <!-- <section class="dashboard-section">
-        <div class="section-header">
-            <h2 class="section-title">Active Status Promotions</h2>
-            <button class="btn btn-secondary">View All</button>
-        </div>
-    
-        <div class="status-grid">
-            <div 
-            *ngFor="let status of filteredStatusPromotions()" 
-            class="status-card"
-            [class]="'status-' + status.status">
-            <div class="status-header">
-                <div class="status-title">{{ status.postTitle }}</div>
-                <div class="status-badge" [class]="'badge-' + status.status">
-                {{ status.status | titlecase }}
-                </div>
-            </div>
-            
-            <div class="status-promoter">
-                <mat-icon>account_box</mat-icon>
-                {{ status.promoter }}
-            </div>
-            
-            <div class="status-metrics">
-                <div class="metric">
-                <div class="metric-label">Views</div>
-                <div class="metric-value">{{ status.views }}/{{ status.requiredViews }}</div>
-                </div>
-                <div class="metric">
-                <div class="metric-label">Payment</div>
-                <div class="metric-value">₦{{ status.payment }}</div>
-                </div>
-            </div>
-            
-            <div class="status-time">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12,6 12,12 16,14"/>
-                </svg>
-                Expires {{ status.expiresIn }}
-            </div>
-            </div>
-        </div>
-    </section> -->
+  </section>
+
+  <!-- Welcome Section -->
+  <section class="dashboard-section">
+    <h2>Welcome to Marketspase Admin Dashboard</h2>
+    <p>Manage your campaigns, users, and promotions efficiently.</p>
+    <small>Features coming up soon</small>
+  </section>
 </main>

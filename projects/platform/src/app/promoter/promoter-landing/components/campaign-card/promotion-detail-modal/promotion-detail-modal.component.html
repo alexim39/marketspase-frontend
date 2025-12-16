@@ -98,7 +98,7 @@
           <i class="material-icons">people</i>
           <div class="meta-content">
             <span class="meta-label">Promoters</span>
-            <span class="meta-value">{{campaign.totalPromotions || 0}}/{{campaign.maxPromoters}} slots filled</span>
+            <span class="meta-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}} slots filled</span>
           </div>
         </div>
 
@@ -140,7 +140,7 @@
               <i class="material-icons">how_to_reg</i>
             </div>
             <div class="metric-info">
-              <div class="metric-value">{{campaign.totalPromotions || 0}}</div>
+              <div class="metric-value">{{campaign.currentPromoters || 0}}</div>
               <div class="metric-label">Current Promoters</div>
             </div>
           </div>
