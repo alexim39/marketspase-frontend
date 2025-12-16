@@ -113,13 +113,12 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  // UPDATED: Use gray-100 variable for icon background
-  background: $gray-100;
+  // UPDATED: Use gray-200 variable for icon background
+  background: $gray-200;
   display: flex;
   align-items: center;
   justify-content: center;
-  // UPDATED: Use text-secondary variable for dynamic theming
-  color: $text-secondary;
+  color: $primary-color;
   flex-shrink: 0;
   
   mat-icon {
