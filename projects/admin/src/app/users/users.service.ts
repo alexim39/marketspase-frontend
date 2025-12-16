@@ -169,7 +169,7 @@ export class UserService {
 
   // Cache for user data
   private cache = new Map<string, { data: any, timestamp: number }>();
-  private readonly CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
 
   // Update filters - FIXED: Use the proper type
   updateFilters(newFilters: Partial<FilterState>): void {
