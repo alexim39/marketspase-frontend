@@ -108,7 +108,7 @@ export class CreateCampaignComponent implements OnInit {
   private initializeForms(): void {
     this.contentForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
-      caption: ['', [Validators.required, Validators.maxLength(150)]],
+      caption: ['', [Validators.required, Validators.maxLength(300)]],
       link: ['', [this.urlValidator]],
       category: ['other', Validators.required]
     });

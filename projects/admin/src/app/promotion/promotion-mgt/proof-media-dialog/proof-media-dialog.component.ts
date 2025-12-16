@@ -459,6 +459,7 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
 
 
   rejectPromotion(): void {
+    this.isLoading.set(true);
     this.data.onReject(this.promotion);
     // Close dialog with result
     //this.dialogRef.close('rejected');

@@ -367,7 +367,8 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
         campaigns: this.campaigns(),
         onValidate: (promo: Promotion) => this.validatePromotion(promo),
         onReject: (promo: Promotion) => this.openRejectDialog(promo)
-      }
+      },
+      disableClose: true
     });
 
     // Auto-close dialog on successful action
