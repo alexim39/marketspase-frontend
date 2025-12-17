@@ -33,10 +33,10 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
               <p class="footer-note">Submission will be enabled 30 minutes before expiration.</p>
             }
           } @else {
-            <button mat-flat-button class="btn btn-primary" (click)="download.emit()">
+            <!-- <button mat-flat-button class="btn btn-primary" (click)="download.emit()">
               <mat-icon>download_for_offline</mat-icon>
               Download Promotion
-            </button>
+            </button> -->
           }            
         }
         @if (promotion.status === 'submitted' || promotion.status === 'validated') {
