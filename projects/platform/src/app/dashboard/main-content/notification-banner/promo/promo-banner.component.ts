@@ -75,7 +75,7 @@ export class PromoBannerComponent implements OnInit {
       this.showPromoBanner.set(false);
     }
 
-    this.fetchActivePromo();
+    //this.fetchActivePromo();
   }
 
   private fetchActivePromo() {

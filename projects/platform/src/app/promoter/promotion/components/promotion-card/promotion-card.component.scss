@@ -247,6 +247,12 @@
       color: $text-secondary;
       cursor: pointer;
     }
+    // Responsive adjustments
+    @media (max-width: 768px) {
+      mat-icon {
+      font-size: 16px;
+      }
+    }
   }
 }
 
