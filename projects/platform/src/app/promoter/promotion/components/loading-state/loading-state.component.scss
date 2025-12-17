@@ -3,74 +3,156 @@
 
 .loading-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  // Better responsive grid with appropriate breakpoints
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 24px;
   margin: 2em 0;
+  
+  // Mobile: 1 column
+  @media (max-width: 576px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 1.5em 0;
+  }
+  
+  // Tablet: 2 columns for medium screens
+  @media (min-width: 577px) and (max-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  // Large screens: 4 columns max
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
 }
 
 .campaign-card-skeleton {
-  // UPDATED: Use surface-color variable for dynamic theming
   background: $surface-color;
   border-radius: 16px;
-  // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
   overflow: hidden;
+  // Ensure proper scaling
+  width: 100%;
 }
 
 .skeleton-header {
   height: 60px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: $gray-700;
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+  
+  @media (max-width: 576px) {
+    height: 50px; // Slightly smaller on mobile
+  }
 }
 
 .skeleton-media {
   height: 200px;
   margin: 16px 20px 0;
   border-radius: 12px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: $gray-700;
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+  
+  @media (max-width: 576px) {
+    height: 150px; // Reduce height on mobile
+    margin: 12px 16px 0; // Reduce margin
+  }
+  
+  @media (max-width: 768px) {
+    height: 170px;
+  }
 }
 
 .skeleton-content {
   padding: 20px;
+  
+  @media (max-width: 576px) {
+    padding: 16px; // Reduce padding on mobile
+  }
 }
 
 .skeleton-line {
   height: 12px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: $gray-700;
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 6px;
   margin-bottom: 8px;
+  width: 100%;
+  
+  @media (max-width: 576px) {
+    height: 10px; // Slightly thinner on mobile
+    margin-bottom: 6px;
+  }
 }
 
 .skeleton-line.short {
   width: 60%;
+  
+  @media (max-width: 576px) {
+    width: 40%; // Adjust short line width for mobile
+  }
+  
+  @media (max-width: 768px) {
+    width: 50%;
+  }
 }
 
 .skeleton-metrics {
   height: 40px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: $gray-700;
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 6px;
   margin-top: 16px;
+  
+  @media (max-width: 576px) {
+    height: 32px; // Smaller on mobile
+    margin-top: 12px;
+  }
+}
+
+// Optional: Add container query support for more advanced responsiveness
+@supports (container-type: inline-size) {
+  .campaign-card-skeleton {
+    container-type: inline-size;
+  }
+  
+  @container (max-width: 300px) {
+    .skeleton-media {
+      height: 120px;
+    }
+    
+    .skeleton-header {
+      height: 40px;
+    }
+    
+    .skeleton-metrics {
+      height: 28px;
+    }
+  }
 }
 
 @keyframes shimmer {
-  // 0% {
-  //   background-position: -200% 0;
-  // }
-  // 100% {
-  //   background-position: 200% 0;
-  // }
-   0% { opacity: 1; }
+  0% { opacity: 1; }
   50% { opacity: 0.5; }
   100% { opacity: 1; }
+}
+
+// For extremely small screens
+@media (max-width: 375px) {
+  .skeleton-content {
+    padding: 12px;
+  }
+  
+  .skeleton-media {
+    margin: 12px 12px 0;
+    height: 130px;
+  }
+  
+  .skeleton-line {
+    height: 9px;
+  }
 }
