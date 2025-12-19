@@ -178,9 +178,21 @@ export class CreateCampaignComponent implements OnInit {
   submitCampaign(): void {
 
     if (!this.user()?.personalInfo?.address) {
-      this.snackBar.open('Please complete your profile setup to create campaign', 'OK', { 
-          duration: 3000,
-      });
+      // this.snackBar.open('Please complete your profile setup to create campaign', 'OK', { 
+      //     duration: 3000,
+      // });
+
+    this.snackBar.open(
+      'Please complete your profile setup to create campaign',
+      'Go to Settings',
+      {
+        duration: 3000,
+        panelClass: 'snackbar-link'
+      }
+    ).onAction().subscribe(() => {
+      this.router.navigate(['/dashboard/settings/account']);
+    });
+
       return;
     }
 
