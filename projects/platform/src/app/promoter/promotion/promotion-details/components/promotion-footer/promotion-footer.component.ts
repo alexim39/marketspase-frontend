@@ -25,13 +25,13 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
       <div class="footer-actions">
         @if (promotion.status === 'pending' && !isSubmissionExpired) {
           @if (promotion.isDownloaded) {
-            <button mat-flat-button class="btn btn-primary" [disabled]="!isNearingExpiration">
+            <!-- <button mat-flat-button class="btn btn-primary" [disabled]="!isNearingExpiration">
               <mat-icon>cloud_upload</mat-icon>
               Submit Proof
             </button>
             @if (!isNearingExpiration) {
               <p class="footer-note">Submission will be enabled 30 minutes before expiration.</p>
-            }
+            } -->
           } @else {
             <!-- <button mat-flat-button class="btn btn-primary" (click)="download.emit()">
               <mat-icon>download_for_offline</mat-icon>
