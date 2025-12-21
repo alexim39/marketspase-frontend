@@ -125,7 +125,8 @@
                 <div class="timeline-info">
                   @if (promotion.submittedAt) {
                     <span class="submitted-date">
-                      Submitted: {{ promotion.submittedAt | date:'shortDate' }}
+                      Submitted: {{ promotion.submittedAt | date:'short' }}
+                      <!-- Submitted: {{ promotion.submittedAt | date:'shortDate' }} -->
                     </span>
                   }
                 </div>
