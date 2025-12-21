@@ -123,6 +123,11 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Setup paginator and sort after view is initialized
     this.setupPaginator();
     this.setupSort();
+
+    // Initialize paginator after data is loaded
+    if (this.paginator) {
+      this.updatePaginatorAfterDataLoad();
+    }
   }
 
   private setupSearchListener(): void {
@@ -135,39 +140,19 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private setupUserServiceSubscription(): void {
-    // Subscribe to user service data stream
-    this.userService.getAppUsers().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.dataSource.data = response.data.users;
-          this.totalUsers = response.data.pagination.total;
-          this.pageIndex = response.data.pagination.page - 1;
-          this.pageSize = response.data.pagination.limit;
-          this.isLoading.set(false);
-          this.isRefreshing.set(false);
-          
-          // Update paginator if it exists
-          if (this.paginator) {
-            this.paginator.length = this.totalUsers;
-            this.paginator.pageIndex = this.pageIndex;
-            this.paginator.pageSize = this.pageSize;
-          }
-        } else {
-          this.isLoading.set(false);
-          this.isRefreshing.set(false);
-          //this.showError(response.message || 'Failed to load users');
-        }
-      },
-      error: (error) => {
-        console.error('Error loading users:', error);
-        this.isLoading.set(false);
-        this.isRefreshing.set(false);
-        this.showError('Failed to load users');
-      }
+  // Add this method to AllUsersListComponent class
+  onPageChange(pageEvent: PageEvent): void {
+    this.pageSize = pageEvent.pageSize;
+    this.pageIndex = pageEvent.pageIndex;
+    
+    // Update filters with pagination
+    this.userService.updateFilters({
+      page: pageEvent.pageIndex + 1,
+      limit: pageEvent.pageSize
     });
+    
+    // Load data with new pagination
+    this.loadUsers();
   }
 
   private setupPaginator(): void {
@@ -184,8 +169,50 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
           limit: pageEvent.pageSize
         });
         
-        // Reload data with new pagination
-        this.refreshUsers();
+        // Load data with new pagination - don't call refreshUsers()
+        this.loadUsers();
+      });
+    }
+  }
+
+
+  private setupUserServiceSubscription(): void {
+    this.userService.getAppUsers().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.dataSource.data = response.data.users;
+          this.totalUsers = response.data.pagination.total;
+          this.pageIndex = response.data.pagination.page - 1;
+          this.pageSize = response.data.pagination.limit;
+          this.isLoading.set(false);
+          this.isRefreshing.set(false);
+          
+          // Update paginator after data is loaded
+          this.updatePaginatorAfterDataLoad();
+        } else {
+          this.isLoading.set(false);
+          this.isRefreshing.set(false);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.isLoading.set(false);
+        this.isRefreshing.set(false);
+        this.showError('Failed to load users');
+      }
+    });
+  }
+
+   private updatePaginatorAfterDataLoad(): void {
+    // Update paginator properties after data is loaded
+    if (this.paginator) {
+      // Use setTimeout to ensure change detection runs
+      setTimeout(() => {
+        this.paginator.length = this.totalUsers;
+        this.paginator.pageIndex = this.pageIndex;
+        this.paginator.pageSize = this.pageSize;
       });
     }
   }
@@ -221,65 +248,46 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   applySearch(searchTerm: string): void {
-    // Update filters with search term
     this.userService.updateFilters({ 
       search: searchTerm.trim(),
-      page: 1 // Reset to first page when searching
+      page: 1
     });
     
-    // Reset pagination
     this.resetPagination();
-    
-    // Trigger data reload
-    this.refreshUsers();
+    this.loadUsers(); // Use loadUsers instead of refreshUsers
   }
 
   onRoleChange(role: string): void {
     this.selectedRole.set(role);
-    
-    // Update filters with role
     this.userService.updateFilters({ 
       role: role || undefined,
-      page: 1 // Reset to first page when filtering
+      page: 1
     });
     
-    // Reset pagination
     this.resetPagination();
-    
-    // Trigger data reload
-    this.refreshUsers();
+    this.loadUsers(); // Use loadUsers instead of refreshUsers
   }
 
-  onActiveFilterChange(active: boolean | null): void {
+   onActiveFilterChange(active: boolean | null): void {
     this.showActiveOnly.set(active);
-    
-    // Update filters with active status
     this.userService.updateFilters({ 
       isActive: active ?? undefined,
-      page: 1 // Reset to first page when filtering
+      page: 1
     });
     
-    // Reset pagination
     this.resetPagination();
-    
-    // Trigger data reload
-    this.refreshUsers();
+    this.loadUsers(); // Use loadUsers instead of refreshUsers
   }
 
   onVerifiedFilterChange(verified: boolean | null): void {
     this.showVerifiedOnly.set(verified);
-    
-    // Update filters with verified status
     this.userService.updateFilters({ 
       isVerified: verified ?? undefined,
-      page: 1 // Reset to first page when filtering
+      page: 1
     });
     
-    // Reset pagination
     this.resetPagination();
-    
-    // Trigger data reload
-    this.refreshUsers();
+    this.loadUsers(); // Use loadUsers instead of refreshUsers
   }
 
   clearFilters(): void {
@@ -288,24 +296,25 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showActiveOnly.set(null);
     this.showVerifiedOnly.set(null);
     
-    // Clear all filters in service
     this.userService.clearFilters();
-    
-    // Reset pagination
     this.resetPagination();
-    
-    // Trigger data reload
-    this.refreshUsers();
+    this.loadUsers(); // Use loadUsers instead of refreshUsers
   }
+
 
   refreshUsers(): void {
     this.isRefreshing.set(true);
     
-    // Clear cache and trigger reload through service
-    this.userService.clearUserListsCache();
+    // Reset to first page when refreshing
+    this.pageIndex = 0;
     
-    // The service subscription will pick up the changes automatically
-    // because the service updates its internal filters
+    // Update filters to first page
+    this.userService.updateFilters({
+      page: 1
+    });
+    
+    // Load users with current filters
+    this.loadUsers();
   }
 
   private resetPagination(): void {
@@ -317,7 +326,6 @@ export class AllUsersListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ... rest of the methods remain the same ...
 
   exportUsers(): void {
     this.isExporting.set(true);
