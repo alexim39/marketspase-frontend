@@ -10,12 +10,12 @@
       <p class="preview-header">WhatsApp Status Preview</p>
       <div class="phone-frame">
         <div class="status-view">
-          @if (selectedMedia?.url) {
+          @if (selectedMedia()?.url) {
             <div class="media-area">
-              @if (selectedMedia?.type === 'image') {
-                <img [src]="selectedMedia?.url" alt="Campaign Media" class="status-media-image">
-              } @else if (selectedMedia?.type === 'video') {
-                <video [src]="selectedMedia?.url" controls class="status-media-video"></video>
+              @if (selectedMedia()?.type === 'image') {
+                <img [src]="selectedMedia()?.url" alt="Campaign Media" class="status-media-image">
+              } @else if (selectedMedia()?.type === 'video') {
+                <video [src]="selectedMedia()?.url" controls class="status-media-video"></video>
               }
             </div>
           } @else {
@@ -38,14 +38,14 @@
               <span class="status-sender-name">Your Ad</span>
               <span class="status-time">just now</span>
             </div>
-            @if (contentForm.get('caption')?.value) {
+            @if (contentForm().get('caption')?.value) {
               <div class="status-caption">
-                <p>{{contentForm.get('caption')?.value}}</p>
+                <p>{{contentForm().get('caption')?.value}}</p>
               </div>
             }
-            @if (contentForm.get('link')?.value) {
-              <a [href]="contentForm.get('link')?.value" target="_blank" class="status-link">
-                <mat-icon>link</mat-icon> {{contentForm.get('link')?.value | slice:0:30}}...
+            @if (contentForm().get('link')?.value) {
+              <a [href]="contentForm().get('link')?.value" target="_blank" class="status-link">
+                <mat-icon>link</mat-icon> {{contentForm().get('link')?.value | slice:0:30}}...
               </a>
             }
             <div class="status-action-prompt">
@@ -63,27 +63,36 @@
       <h4>Campaign Details</h4>
       <div class="detail-item">
         <span class="detail-label">Title</span>
-        <span class="detail-value">{{contentForm.get('title')?.value}}</span>
+        <span class="detail-value">{{contentForm().get('title')?.value}}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Category</span>
-        <span class="detail-value">{{contentForm.get('category')?.value}}</span>
+        <span class="detail-value">{{contentForm().get('category')?.value}}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Budget</span>
-        <span class="detail-value">{{budgetForm.get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
+        <span class="detail-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Promoter slots</span>
+        <span class="detail-value">{{ slots() }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Estimated reach</span>
+        <span class="detail-value"> ~{{ estimatedReach() | shortNumber }} views</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Target</span>
-        <span class="detail-value">{{ budgetForm.get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
+        <span class="detail-value">{{ budgetForm().get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Start Date</span>
-        <span class="detail-value">{{scheduleForm.get('startDate')?.value | date:'shortDate'}}</span>
+        <span class="detail-value">{{scheduleForm().get('startDate')?.value | date:'shortDate'}}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">End Date</span>
-        <span class="detail-value">{{scheduleForm.get('endDate')?.value ? (scheduleForm.get('endDate')?.value | date:'shortDate') : 'No end date'}}</span>
+        <span class="detail-value">{{scheduleForm().get('endDate')?.value ? (scheduleForm().get('endDate')?.value | date:'shortDate') : 'No end date'}}</span>
       </div>
     </div>
 
@@ -91,7 +100,7 @@
       <mat-icon class="summary-icon">info</mat-icon>
       <p class="summary-text">
         Your total campaign cost is
-        <span class="cost-value">{{budgetForm.get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
+        <span class="cost-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
         which will be deducted from your wallet upon launch.
       </p>
     </div>

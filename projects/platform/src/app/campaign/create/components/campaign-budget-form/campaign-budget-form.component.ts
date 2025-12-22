@@ -53,7 +53,7 @@ export class CampaignBudgetFormComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(budget => {
         if (budget) {
-          this.estimatedReach = Math.floor((budget / 200) * 30);
+          this.estimatedReach = Math.floor((budget / 200) * 45);
         } else {
           this.estimatedReach = 0;
         }
