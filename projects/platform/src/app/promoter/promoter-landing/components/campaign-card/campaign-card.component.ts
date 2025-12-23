@@ -42,14 +42,6 @@ export class CampaignCardComponent {
     return this.applyingCampaignId === this.campaign._id;
   }
 
-  // // Computed signal to check if the user has already accepted the campaign
-  // hasUserPromotion = computed(() => {
-  //   return (campaign: CampaignInterface) =>
-  //     this.promotions.some(
-  //       (promotion: PromotionInterface) => promotion.campaign._id === campaign._id
-  //     );
-  // });
-
   // Computed signal to explicitly check if there is a PENDING promotion for this campaign
   hasPendingPromotion = computed(() => {
     return (campaign: CampaignInterface) =>

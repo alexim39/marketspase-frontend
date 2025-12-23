@@ -88,7 +88,7 @@ export class PromoterService {
    * @param userId The user ID.
    * @returns An observable of the API response.
    */
-  acceptCampaign(campaignId: string, userId: string): Observable<any> {
+ /*  acceptCampaign(campaignId: string, userId: string): Observable<any> {
     return this.apiService.post<any>(`campaign/${campaignId}/accept`, { userId }, undefined, true).pipe(
       tap(response => {
         if (response.success) {
@@ -102,7 +102,7 @@ export class PromoterService {
         return throwError(() => new Error('Failed to accept campaign'));
       })
     );
-  }
+  } */
 
   /**
    * Get user's promotions with pagination and filtering.

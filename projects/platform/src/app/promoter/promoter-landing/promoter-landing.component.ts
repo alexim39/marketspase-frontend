@@ -415,11 +415,12 @@ applyForCampaign(campaign: CampaignInterface): void {
         this.loadUserPromotions();
       },
       error: (error: HttpErrorResponse) => {
+        //console.log('error ',error.message)
         this.isApplying.set(false);
         this.applyingCampaignId.set(null); // Reset using signal
         
-        this.snackBar.open((error.error?.message || 'Unknown error'), 'OK', { 
-            duration: 3000,
+        this.snackBar.open((error?.message || 'Unknown error'), 'OK', { 
+            duration: 9000,
         });
       }
     });
