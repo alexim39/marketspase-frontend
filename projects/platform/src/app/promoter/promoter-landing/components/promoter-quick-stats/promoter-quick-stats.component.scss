@@ -52,7 +52,7 @@
 
 .stat-card.campaigns .stat-icon {
   // UPDATED: Use primary-color gradient
-  //background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 15%) 100%);
+  background: linear-gradient(135deg, $success-color 0%, darken($success-color, 15%) 100%);
 }
 
 .stat-card.success .stat-icon {
@@ -62,7 +62,7 @@
 
 .stat-card.views .stat-icon {
   // UPDATED: Use secondary-color gradient
-  //background: linear-gradient(135deg, $secondary-color 0%, darken($secondary-color, 10%) 100%);
+  background: linear-gradient(135deg, $warning-color 0%, darken($warning-color, 10%) 100%);
 }
 
 .stat-card h3 {
