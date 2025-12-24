@@ -223,8 +223,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    // UPDATED: Use gray-50 variable for button background
-    background: $gray-50;
+    background: $gray-900;
     // UPDATED: Use border-color variable for dynamic theming
     border: 1px solid $border-color;
     border-radius: 8px;

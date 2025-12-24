@@ -729,8 +729,8 @@
   width: 32px;
   height: 32px;
   border: none;
-  // UPDATED: Use gray-100 for button background
-  border: 1px solid $gray-300;
+  border: 1px solid $gray-500;
+  background: $surface-color;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -740,8 +740,7 @@
 }
 
 .icon-btn:hover {
-  // UPDATED: Use gray-200 for hover state
-  background: $gray-200;
+  background: $gray-500;
 }
 
 .icon-btn .material-icons {

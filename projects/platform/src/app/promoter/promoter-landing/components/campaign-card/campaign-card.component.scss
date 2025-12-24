@@ -126,18 +126,17 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid $gray-300;
+  border: 1px solid $gray-500;
+  background: $surface-color;
 }
 
 .icon-btn:hover {
-  // UPDATED: Use gray-200 for hover state
-  background: $gray-200;
+  background: $gray-500;
 }
 
 .icon-btn .material-icons {
   font-size: 18px;
-  // UPDATED: Use gray-600 for icon color
-  color: $gray-300;
+  color: gray-300;
 }
 
 .card-media {
@@ -146,7 +145,7 @@
   overflow: hidden;
   aspect-ratio: 16/9;
   // UPDATED: Use gray-100 for media background
-  background: $gray-100;
+  //background: $gray-100;
   position: relative;
 }
 
