@@ -106,20 +106,23 @@
     
     &.status-active {
       // UPDATED: Use success-color with light background
-      background: rgba($success-color, 0.1);
-      color: $success-color;
+      background: rgba($success-color, 1);
+      color: $white;
+      // color: $success-color;
     }
     
     &.status-paused {
       // UPDATED: Use warning-color with light background
-      background: rgba($warning-color, 0.1);
-      color: $warning-color;
+      background: rgba($warning-color, 1);
+      //color: $warning-color;
+      color: $white;
     }
     
     &.status-completed {
       // UPDATED: Use primary-color with light background
-      background: rgba($primary-color, 0.1);
-      color: $primary-color;
+      background: rgba($primary-color, 1);
+      //color: $primary-color;
+      color: $white;
     }
   }
 }

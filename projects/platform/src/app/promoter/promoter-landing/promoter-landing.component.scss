@@ -26,6 +26,12 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 10px;
   padding: 16px;
+
+  @media (max-width: 420px) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 /* --- Active Alert Styles --- */
