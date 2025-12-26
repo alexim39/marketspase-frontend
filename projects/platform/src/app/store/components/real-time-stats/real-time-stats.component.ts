@@ -1,12 +1,13 @@
-// components/real-time-stats/real-time-stats.component.ts
-import { Component, input, computed, OnDestroy, OnInit } from '@angular/core';
+// components/real-time-stats/real-time-stats.component.ts - FIXED VERSION
+import { Component, input, computed, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { interval, Subject, takeUntil } from 'rxjs';
-import { Store,  } from '../../models/store.model';
+import { Store } from '../../models/store.model';
+import { StoreService } from '../../services/store.service';
 import { PerformanceMetric } from '../../models';
 
 interface RealTimeStat {
@@ -18,6 +19,7 @@ interface RealTimeStat {
   format: 'number' | 'currency' | 'percentage';
   color: string;
   description: string;
+  maxValue?: number;
 }
 
 @Component({
@@ -34,12 +36,14 @@ interface RealTimeStat {
   styleUrls: ['./real-time-stats.component.scss']
 })
 export class RealTimeStatsComponent implements OnInit, OnDestroy {
+  private storeService = inject(StoreService);
+  private destroy$ = new Subject<void>();
+
   // Inputs
   store = input<Store | null>(null);
   metrics = input<PerformanceMetric[]>([]);
 
   // Private
-  private destroy$ = new Subject<void>();
   private updateInterval = 5000; // 5 seconds
 
   // Real-time data simulation
@@ -50,10 +54,17 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
     revenue: 0
   };
 
-  // Computed real-time stats
+  // Max values for visualization
+  private maxValues: { [key: string]: number } = {
+    'Live Visitors': 100,
+    'Sales Today': 50,
+    'Live Conversion': 100,
+    'Revenue Stream': 10000
+  };
+
+  // Computed real-time stats - FIXED VERSION
   realTimeStats = computed((): RealTimeStat[] => {
     const store = this.store();
-    const baseMetrics = this.metrics();
     
     if (!store) return [];
 
@@ -66,7 +77,8 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
         trend: 'up',
         format: 'number',
         color: '#667eea',
-        description: 'Users currently browsing your store'
+        description: 'Users currently browsing your store',
+        maxValue: this.maxValues['Live Visitors']
       },
       {
         icon: 'shopping_cart',
@@ -76,7 +88,8 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
         trend: 'up',
         format: 'number',
         color: '#4caf50',
-        description: 'Completed purchases in the last 24 hours'
+        description: 'Completed purchases in the last 24 hours',
+        maxValue: this.maxValues['Sales Today']
       },
       {
         icon: 'trending_up',
@@ -86,7 +99,8 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
         trend: 'up',
         format: 'percentage',
         color: '#ff9800',
-        description: 'Real-time conversion rate'
+        description: 'Real-time conversion rate',
+        maxValue: this.maxValues['Live Conversion']
       },
       {
         icon: 'attach_money',
@@ -96,7 +110,8 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
         trend: 'up',
         format: 'currency',
         color: '#9c27b0',
-        description: 'Revenue generated in current session'
+        description: 'Revenue generated in current session',
+        maxValue: this.maxValues['Revenue Stream']
       }
     ];
   });
@@ -117,8 +132,10 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
       this.simulatedData = {
         activeVisitors: Math.floor(Math.random() * 50) + 10,
         salesToday: Math.floor(store.analytics.totalSales * 0.1),
-        conversionRate: store.analytics.conversionRate + (Math.random() * 2 - 1),
-        revenue: Math.floor(store.analytics.salesData.totalRevenue * 0.05)
+        conversionRate: Math.min(100, Math.max(0, 
+          store.analytics.conversionRate + (Math.random() * 2 - 1)
+        )),
+        revenue: Math.floor((store.analytics.salesData?.totalRevenue || 0) * 0.05)
       };
     }
   }
@@ -132,18 +149,28 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
   }
 
   private updateSimulatedData(): void {
-    // Simulate real-time fluctuations
+    // Simulate real-time fluctuations with realistic patterns
     this.simulatedData.activeVisitors = Math.max(0, 
-      this.simulatedData.activeVisitors + Math.floor(Math.random() * 6) - 2
+      Math.min(this.maxValues['Live Visitors'],
+        this.simulatedData.activeVisitors + Math.floor(Math.random() * 6) - 2
+      )
     );
     
     this.simulatedData.salesToday += Math.floor(Math.random() * 3);
+    this.simulatedData.salesToday = Math.min(
+      this.maxValues['Sales Today'], 
+      this.simulatedData.salesToday
+    );
     
     this.simulatedData.conversionRate = Math.max(0, 
       Math.min(100, this.simulatedData.conversionRate + (Math.random() * 0.4 - 0.2))
     );
     
     this.simulatedData.revenue += Math.floor(Math.random() * 500);
+    this.simulatedData.revenue = Math.min(
+      this.maxValues['Revenue Stream'], 
+      this.simulatedData.revenue
+    );
   }
 
   formatValue(stat: RealTimeStat): string {
@@ -171,26 +198,19 @@ export class RealTimeStatsComponent implements OnInit, OnDestroy {
     return stat.label;
   }
 
+  // FIXED: Proper implementation for width percentage
+  getWidthPercentage(stat: RealTimeStat): number {
+    if (!stat.maxValue || stat.maxValue <= 0) return 0;
+    return Math.min(100, (stat.value / stat.maxValue) * 100);
+  }
 
-  // Add to real-time-stats.component.ts
-    getMaxValue(stat: RealTimeStat): number {
-        const maxValues: { [key: string]: number } = {
-            'Live Visitors': 100,
-            'Sales Today': 50,
-            'Live Conversion': 100,
-            'Revenue Stream': 10000
-        };
-        return maxValues[stat.label] || 100;
-    }
-
-    isDotActive(dotIndex: number, value: number): boolean {
-        const maxValue = this.getMaxValue(this.realTimeStats().find(s => s.value === value)!);
-        const threshold = (dotIndex / 5) * maxValue;
-        return value >= threshold;
-    }
-
-
-    getWidthPercentage(stat: any): number {  // Replace `any` with your actual stat type for better type safety
-        return Math.min(100, (stat.value / this.getMaxValue(stat)) * 100);
-    }
+  // FIXED: Proper implementation for dot activation
+  isDotActive(dotIndex: number, stat: any): boolean {
+  // isDotActive(dotIndex: number, stat: RealTimeStat): boolean {
+    if (!stat.maxValue || stat.maxValue <= 0) return false;
+    
+    // Create 5 thresholds (20% each)
+    const threshold = (dotIndex / 5) * stat.maxValue;
+    return stat.value >= threshold;
+  }
 }

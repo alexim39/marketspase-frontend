@@ -46,9 +46,6 @@ export class StoreService {
 
 
   createStore(storeData: CreateStoreRequest): Observable<Store> {
-
-    console.log('store records ',storeData)
-
     this.loading.set(true);
     
     // Handle file upload separately if needed
@@ -70,11 +67,12 @@ export class StoreService {
   }
 
 
-  getStores(): Observable<Store[]> {
+  getStores(userId: string): Observable<any> {
     this.loading.set(true);
-    return this.apiService.get<Store[]>(this.apiUrl).pipe(
-      tap(stores => {
-        this.stores.set(stores);
+    return this.apiService.get<Store[]>(`${this.apiUrl}?userId=${userId}`).pipe(
+      tap(storesData => {
+        console.log('Fetched stores:', storesData);
+        this.stores.set(storesData);
         this.loading.set(false);
       })
     );
@@ -202,4 +200,25 @@ export class StoreService {
   verifyStore(storeId: string, tier: 'basic' | 'premium'): Observable<Store> {
     return this.apiService.post<Store>(`${this.apiUrl}/${storeId}/verify`, { tier });
   }
+
+  updateStoreAnalytics(storeId: string, analyticsData: Partial<Store['analytics']>): Observable<Store['analytics']> {
+    return this.apiService.patch<Store['analytics']>(`${this.apiUrl}/${storeId}/analytics`, analyticsData).pipe(
+      tap(updatedAnalytics => {
+        const currentStore = this.currentStore();
+        if (currentStore && currentStore._id === storeId) {
+          this.currentStore.set({ ...currentStore, analytics: updatedAnalytics });
+        }
+      })
+    );
+  }
+
+  // updateStoreAnalytics(storeId: string, analytics: StoreAnalytics): void {
+  //   const currentStore = this.currentStoreState();
+  //   if (currentStore && currentStore._id === storeId) {
+  //     this.currentStoreState.update(store => ({
+  //       ...store!,
+  //       analytics
+  //     }));
+  //   }
+  // }
 }

@@ -238,6 +238,7 @@ getFieldError(fieldName: string): string {
           category: this.storeForm.value.category,
           whatsappNumber: this.formatPhoneNumber(this.storeForm.value.whatsappNumber),
           logo: this.storeForm.value.logo,
+          userId: this.user()?._id || '',
           settings: {
             notifications: {
               lowStock: true,
@@ -259,7 +260,8 @@ getFieldError(fieldName: string): string {
               theme: 'light',
               primaryColor: '#667eea',
               logoPosition: 'left'
-            }
+            },
+            
           }
         };
 

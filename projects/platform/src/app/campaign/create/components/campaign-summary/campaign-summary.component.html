@@ -74,17 +74,27 @@
         <span class="detail-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Promoter slots</span>
+        <span class="detail-label">Promoter Slots</span>
         <span class="detail-value">{{ slots() }}</span>
       </div>
 
       <div class="detail-item">
-        <span class="detail-label">Estimated reach</span>
+        <span class="detail-label">Estimated Reach</span>
         <span class="detail-value"> ~{{ estimatedReach() | shortNumber }} views</span>
       </div>
       <div class="detail-item">
-        <span class="detail-label">Target</span>
+        <span class="detail-label">Location Target</span>
         <span class="detail-value">{{ budgetForm().get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
+      </div>
+      <div class="detail-item age-target-item">
+        <span class="detail-label">Age Target</span>
+        <div class="detail-value">
+          <div class="age-target-badge">
+            <mat-icon class="age-badge-icon">{{ getAgeIcon() }}</mat-icon>
+            <span class="age-badge-label">{{ getAgeTargetDisplay() }}</span>
+            <span class="age-badge-range">{{ getAgeRange() }}</span>
+          </div>
+        </div>
       </div>
       <div class="detail-item">
         <span class="detail-label">Start Date</span>

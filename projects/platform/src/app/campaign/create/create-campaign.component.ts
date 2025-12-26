@@ -105,6 +105,27 @@ export class CreateCampaignComponent implements OnInit {
     this.initializeForms();
   }
 
+  // private initializeForms(): void {
+  //   this.contentForm = this.fb.group({
+  //     title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
+  //     caption: ['', [Validators.required, Validators.maxLength(300)]],
+  //     link: ['', [this.urlValidator]],
+  //     category: ['other', Validators.required]
+  //   });
+
+  //   this.budgetForm = this.fb.group({
+  //     budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
+  //     enableTarget: [true] 
+  //   });
+
+  //   this.scheduleForm = this.fb.group({
+  //     startDate: [new Date(), Validators.required],
+  //     hasEndDate: [true],
+  //     endDate: [null],
+  //     duration: [{ value: 7, disabled: true }]
+  //   });
+  // }
+
   private initializeForms(): void {
     this.contentForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
@@ -115,7 +136,8 @@ export class CreateCampaignComponent implements OnInit {
 
     this.budgetForm = this.fb.group({
       budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
-      enableTarget: [true] 
+      enableTarget: [true],
+      ageTarget: ['all', Validators.required] // Add age targeting control
     });
 
     this.scheduleForm = this.fb.group({
@@ -209,6 +231,7 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
       formData.append('currency', 'NGN');
       formData.append('owner', this.user()?._id ?? '');
+      formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
         formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
@@ -346,6 +369,7 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
       formData.append('currency', 'NGN');
       formData.append('owner', this.user()?._id ?? '');
+      formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
         formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());

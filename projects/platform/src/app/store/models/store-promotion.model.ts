@@ -7,6 +7,7 @@ export interface CreateStoreRequest {
   whatsappNumber: string;
   logo?: File;
   settings?: Partial<StoreSettings>;
+  userId: string;
 }
 
 export interface UpdateStoreRequest {
