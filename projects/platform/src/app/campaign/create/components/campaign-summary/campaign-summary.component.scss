@@ -5,8 +5,6 @@
 
 .preview-card {
     .whatsapp-preview {
-    // UPDATED: Use gray-100 variable for dynamic theming
-   // background-color: $gray-500;
     border: solid 1px $primary-color;
     padding: 16px;
     border-radius: 12px;
@@ -283,15 +281,61 @@
     padding: 16px;
     border-radius: 8px;
     margin-top: 24px;
+    gap:1em;
+
+    @include mobile {
+      font-size: 13px;
+    }
+
 
     .summary-icon {
-      margin-right: 12px;
+      margin-right: 16px;
       // UPDATED: Use success-color variable for dynamic theming
       color: $success-color;
+      margin-top: 10px;
+
+      @include mobile {
+        display: none;
+      }
     }
 
     .cost-value {
       font-weight: 700;
+    }
+  }
+}
+
+.age-target-item {
+  .age-target-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba($primary-color, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba($primary-color, 0.3);
+    
+    .age-badge-icon {
+      color: $primary-color;
+      font-size: 1rem;
+      width: 1rem;
+      height: 1rem;
+    }
+    
+    .age-badge-label {
+      font-weight: 600;
+      color: $primary-color;
+      font-size: 0.9rem;
+    }
+    
+    .age-badge-range {
+      font-weight: 500;
+      color: $text-secondary;
+      font-size: 0.8rem;
+      background-color: $primary-color;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 4px;
     }
   }
 }

@@ -1,4 +1,4 @@
-// components/product-management/product-management.component.ts
+// components/product-management/product-management.component.ts - FIXED VERSION
 import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { Store, } from '../../models/store.model';
+import { Store } from '../../models/store.model';
 import { StoreService } from '../../services/store.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { Product } from '../../models';
@@ -24,6 +24,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { TruncatePipe } from '../../shared';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatInputModule } from '@angular/material/input';
+import { take } from 'rxjs';
 
 interface ProductColumn {
   key: keyof Product | 'actions';
@@ -52,9 +54,9 @@ interface ProductColumn {
     FormsModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatInputModule,
     TruncatePipe,
     MatDividerModule
-    
   ],
   templateUrl: './product-management.component.html',
   styleUrls: ['./product-management.component.scss']
@@ -64,27 +66,11 @@ export class ProductManagementComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private storeService = inject(StoreService);
+  private dialogService = inject(DialogService);
 
   // Inputs
   store = input.required<Store>();
   products = input.required<Product[]>();
-  // Change this line:
-  viewMode = signal<'grid' | 'list'>('grid'); // Change this to signal()// Writable signal with initial value
-
-  // Outputs
-  productUpdated = output<void>();
-
-   // Methods to change view mode
-  setGridView(): void {
-    this.viewMode.set('grid');
-  }
-
-  setListView(): void {
-    this.viewMode.set('list');
-  }
-
-  // Add to constructor
-private dialogService = inject(DialogService);
 
   // Signals
   searchQuery = signal<string>('');
@@ -94,10 +80,11 @@ private dialogService = inject(DialogService);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   loading = signal<boolean>(false);
+  viewMode = signal<'grid' | 'list'>('grid');
 
-  // Computed properties
+  // Computed properties - FIXED VERSION
   categories = computed(() => {
-    const categories = new Set(this.products().map(p => p.category));
+    const categories = new Set(this.products().map(p => p.category).filter(Boolean));
     return Array.from(categories);
   });
 
@@ -106,13 +93,14 @@ private dialogService = inject(DialogService);
     const query = this.searchQuery().toLowerCase();
     const category = this.selectedCategory();
 
-    // Filter by search query
+    // Filter by search query - FIXED: Added null checks for tags
     if (query) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query) ||
-        product.tags.some(tag => tag.toLowerCase().includes(query))
-      );
+      filtered = filtered.filter(product => {
+        const nameMatch = product.name?.toLowerCase().includes(query) || false;
+        const descMatch = product.description?.toLowerCase().includes(query) || false;
+        const tagsMatch = product.tags?.some(tag => tag.toLowerCase().includes(query)) || false;
+        return nameMatch || descMatch || tagsMatch;
+      });
     }
 
     // Filter by category
@@ -154,45 +142,51 @@ private dialogService = inject(DialogService);
     this.columns.map(col => col.key)
   );
 
+  // Outputs
+  productUpdated = output<void>();
+
   ngOnInit(): void {
-    // Initialize with any necessary data
+    // Initialize if needed
   }
 
-  // Sorting
- sortProducts(products: Product[]): Product[] {
-  const sortBy = this.sortBy();
-  const direction = this.sortDirection();
+  // Sorting - FIXED VERSION with proper type safety
+  sortProducts(products: Product[]): Product[] {
+    const sortBy = this.sortBy();
+    const direction = this.sortDirection();
 
-  return [...products].sort((a, b) => {
-    let aValue = a[sortBy];
-    let bValue = b[sortBy];
+    return [...products].sort((a, b) => {
+      let aValue: any = a[sortBy];
+      let bValue: any = b[sortBy];
 
-    // Handle nested properties
-    if (sortBy === 'promoterTracking') {
-      aValue = a.promoterTracking?.viewCount ?? 0;
-      bValue = b.promoterTracking?.viewCount ?? 0;
-    }
-
-    // Safe comparison handling undefined/null
-    const dirMultiplier = direction === 'asc' ? 1 : -1;
-    const safeCompare = (x: unknown, y: unknown): number => {
-      if (x == null && y == null) return 0;
-      if (x == null) return dirMultiplier;  // Nulls sort last in asc, first in desc
-      if (y == null) return -dirMultiplier;
-
-      // Assume numeric or string; coerce to number if possible, else use string comparison
-      const xNum = Number(x);
-      const yNum = Number(y);
-      if (!isNaN(xNum) && !isNaN(yNum)) {
-        return (xNum - yNum) * dirMultiplier;
+      // Handle nested properties
+      if (sortBy === 'promoterTracking') {
+        aValue = a.promoterTracking?.viewCount ?? 0;
+        bValue = b.promoterTracking?.viewCount ?? 0;
       }
-      // Fallback to string comparison
-      return String(x).localeCompare(String(y)) * dirMultiplier;
-    };
 
-    return safeCompare(aValue, bValue);
-  });
-}
+      // Handle dates
+      if (sortBy === 'createdAt') {
+        aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      }
+
+      // Safe comparison
+      const dirMultiplier = direction === 'asc' ? 1 : -1;
+      
+      // Handle undefined/null values
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return 1 * dirMultiplier; // Nulls go to end
+      if (bValue == null) return -1 * dirMultiplier;
+
+      // Numeric comparison
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return (aValue - bValue) * dirMultiplier;
+      }
+
+      // String comparison
+      return String(aValue).localeCompare(String(bValue)) * dirMultiplier;
+    });
+  }
 
   onSort(column: keyof Product): void {
     if (this.sortBy() === column) {
@@ -220,6 +214,15 @@ private dialogService = inject(DialogService);
     this.currentPage.set(0);
   }
 
+  // View mode control
+  setGridView(): void {
+    this.viewMode.set('grid');
+  }
+
+  setListView(): void {
+    this.viewMode.set('list');
+  }
+
   // Product actions
   addProduct(): void {
     this.router.navigate(['/dashboard/stores', this.store()._id, 'products', 'create']);
@@ -233,104 +236,71 @@ private dialogService = inject(DialogService);
     this.router.navigate(['/dashboard/stores', this.store()._id, 'products', product._id]);
   }
 
-  // async toggleProductStatus(product: Product): Promise<void> {
-  //   try {
-  //     this.loading.set(true);
-  //     await this.storeService.updateProduct(
-  //       this.store()._id!,
-  //       product._id!,
-  //       { isActive: !product.isActive }
-  //     ).subscribe({
-  //       next: () => {
-  //         this.productUpdated.emit();
-  //         this.snackBar.open(
-  //           `Product ${!product.isActive ? 'activated' : 'deactivated'} successfully`,
-  //           'OK',
-  //           { duration: 3000 }
-  //         );
-  //       },
-  //       error: (error) => {
-  //         this.snackBar.open('Failed to update product', 'OK', { duration: 3000 });
-  //       }
-  //     });
-  //   } finally {
-  //     this.loading.set(false);
-  //   }
-  // }
+  async toggleProductStatus(product: Product): Promise<void> {
+    const action = product.isActive ? 'deactivate' : 'activate';
+    const result = await this.dialogService.confirmAction(
+      `${action === 'deactivate' ? 'Deactivate' : 'Activate'} Product`,
+      `Are you sure you want to ${action} "${product.name}"?`,
+      action === 'deactivate' ? 'Deactivate' : 'Activate'
+    ).pipe(take(1)).toPromise();
 
-
-  // You can also use the convenience methods for other actions
-async toggleProductStatus(product: Product): Promise<void> {
-  const action = product.isActive ? 'deactivate' : 'activate';
-  const result = await this.dialogService.confirmAction(
-    `${action === 'deactivate' ? 'Deactivate' : 'Activate'} Product`,
-    `Are you sure you want to ${action} "${product.name}"?`,
-    action === 'deactivate' ? 'Deactivate' : 'Activate'
-  ).toPromise();
-
-  if (result) {
-    try {
-      this.loading.set(true);
-      await this.storeService.updateProduct(
-        this.store()._id!,
-        product._id!,
-        { isActive: !product.isActive }
-      ).subscribe({
-        next: () => {
-          this.productUpdated.emit();
-          this.snackBar.open(
-            `Product ${!product.isActive ? 'activated' : 'deactivated'} successfully`,
-            'OK',
-            { duration: 3000 }
-          );
-        },
-        error: (error) => {
-          this.snackBar.open('Failed to update product', 'OK', { duration: 3000 });
-        }
-      });
-    } finally {
-      this.loading.set(false);
+    if (result) {
+      try {
+        this.loading.set(true);
+        this.storeService.updateProduct(
+          this.store()._id!,
+          product._id!,
+          { isActive: !product.isActive }
+        ).subscribe({
+          next: () => {
+            this.productUpdated.emit();
+            this.snackBar.open(
+              `Product ${!product.isActive ? 'activated' : 'deactivated'} successfully`,
+              'OK',
+              { duration: 3000, panelClass: ['success-snackbar'] }
+            );
+          },
+          error: (error) => {
+            console.error('Failed to update product:', error);
+            this.snackBar.open('Failed to update product', 'OK', { 
+              duration: 5000, 
+              panelClass: ['error-snackbar'] 
+            });
+          }
+        });
+      } finally {
+        this.loading.set(false);
+      }
     }
   }
-}
 
-  // async deleteProduct(product: Product): Promise<void> {
-  //   const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-  //     data: {
-  //       title: 'Delete Product',
-  //       message: `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
-  //       confirmText: 'Delete',
-  //       cancelText: 'Cancel',
-  //       confirmColor: 'warn'
-  //     }
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result) {
-  //       this.performDelete(product);
-  //     }
-  //   });
-  // }
-
-  // Update the deleteProduct method
-async deleteProduct(product: Product): Promise<void> {
-  const result = await this.dialogService.confirmDelete(product.name, 'product').toPromise();
-  
-  if (result) {
-    await this.performDelete(product);
+  async deleteProduct(product: Product): Promise<void> {
+    const result = await this.dialogService.confirmDelete(product.name, 'product')
+      .pipe(take(1))
+      .toPromise();
+    
+    if (result) {
+      await this.performDelete(product);
+    }
   }
-}
 
   private async performDelete(product: Product): Promise<void> {
     try {
       this.loading.set(true);
-      await this.storeService.deleteProduct(this.store()._id!, product._id!).subscribe({
+      this.storeService.deleteProduct(this.store()._id!, product._id!).subscribe({
         next: () => {
           this.productUpdated.emit();
-          this.snackBar.open('Product deleted successfully', 'OK', { duration: 3000 });
+          this.snackBar.open('Product deleted successfully', 'OK', { 
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
         },
         error: (error) => {
-          this.snackBar.open('Failed to delete product', 'OK', { duration: 3000 });
+          console.error('Failed to delete product:', error);
+          this.snackBar.open('Failed to delete product', 'OK', { 
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
     } finally {
@@ -339,7 +309,6 @@ async deleteProduct(product: Product): Promise<void> {
   }
 
   duplicateProduct(product: Product): void {
-    // Implement duplicate logic
     this.snackBar.open('Duplication feature coming soon', 'OK', { duration: 3000 });
   }
 
@@ -349,7 +318,6 @@ async deleteProduct(product: Product): Promise<void> {
   }
 
   exportProducts(): void {
-    // Implement export logic
     this.snackBar.open('Export feature coming soon', 'OK', { duration: 3000 });
   }
 

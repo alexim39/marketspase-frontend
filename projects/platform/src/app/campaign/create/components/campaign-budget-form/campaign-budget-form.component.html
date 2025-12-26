@@ -1,16 +1,19 @@
 <mat-card class="form-card">
   <mat-card-header>
-    <mat-card-title>Campaign Budget</mat-card-title>
+    <mat-card-title>Campaign Budget & Targeting</mat-card-title>
     <mat-card-subtitle>
-      Set the total amount you want to spend on this campaign.
+      Set your budget and define who you want to reach.
     </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="formGroup" class="budget-form">
+      <!-- Wallet Balance Section -->
       <div class="wallet-balance-info">
         <span>Wallet Balance:</span>
         <span class="balance-value">{{walletBalance | currency: '₦':'symbol':'1.2-2'}}</span>
       </div>
+      
+      <!-- Budget Input -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Total Campaign Budget</mat-label>
         <span matTextPrefix>₦&nbsp;</span>
@@ -31,16 +34,60 @@
           </mat-error>
         }
       </mat-form-field>
+      
+      <!-- Estimated Reach -->
       <div class="slider-info">
         <span class="estimated-reach">Estimated Reach: ~{{estimatedReach | shortNumber}} views</span>
+        <!-- @if (formGroup.get('ageTarget')?.value !== 'all') {
+           <span class="age-target-info">
+            ({{getSelectedAgeGroupDescription()}})
+          </span>
+        } -->
       </div>
 
       <mat-divider class="form-divider"/>
 
+      <!-- Age Targeting Section -->
+      <div class="age-targeting-section">
+        <h3>Age Targeting</h3>
+        <p class="section-description">Select the age group you want to target with your campaign</p>
+        
+        <div class="age-options-grid">
+          @for (ageGroup of ageGroups; track ageGroup.value) {
+            <div class="age-option" 
+                 [class.selected]="formGroup.get('ageTarget')?.value === ageGroup.value"
+                 (click)="formGroup.get('ageTarget')?.setValue(ageGroup.value)">
+              <div class="age-option-content">
+                <mat-icon class="age-icon">{{ageGroup.icon}}</mat-icon>
+                <div class="age-info">
+                  <h4>{{ageGroup.label}}</h4>
+                  <p class="age-range">{{ageGroup.range}}</p>
+                  <p class="age-description">{{ageGroup.description}}</p>
+                </div>
+                <mat-radio-button 
+                  [value]="ageGroup.value" 
+                  [checked]="formGroup.get('ageTarget')?.value === ageGroup.value"
+                  (click)="$event.stopPropagation()">
+                </mat-radio-button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider class="form-divider"/>
+
+      <!-- Location Targeting -->
       <mat-slide-toggle formControlName="enableTarget">
         {{ formGroup.get('enableTarget')?.value ? 'Show Ads to people in my area' : 'Show Ads everywhere' }}
       </mat-slide-toggle>
+      <p class="toggle-description">
+        {{ formGroup.get('enableTarget')?.value 
+           ? 'Your ads will be shown primarily to users in your geographical area' 
+           : 'Your ads will be shown to users Worldwide' }}
+      </p>
 
+      <!-- Insufficient Funds Alert -->
       @if (walletBalance < formGroup.get('budget')?.value) {
         <div class="insufficient-funds-alert">
           <mat-icon class="alert-icon">account_balance_wallet</mat-icon>

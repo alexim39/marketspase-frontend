@@ -45,7 +45,7 @@ export class PromoterLandingService {
         }
       }),
       catchError(error => {
-        console.error(`Error fetching promotions for user ${userId}:`, error);
+        //console.error(`Error fetching promotions for user ${userId}:`, error);
         return throwError(() => new Error('Failed to fetch user promotions'));
       })
     );
@@ -98,7 +98,7 @@ export class PromoterLandingService {
         }
       }),
       catchError(error => {
-        console.error(`Error fetching ${status} campaigns:`, error);
+        //console.error(`Error fetching ${status} campaigns:`, error);
         return throwError(() => new Error(`Failed to fetch ${status} campaigns`));
       })
     );
@@ -125,8 +125,8 @@ export class PromoterLandingService {
         }
       }),
       catchError(error => {
-        console.error(`Error accepting campaign ${campaignId}:`, error);
-        return throwError(() => new Error('Failed to accept campaign'));
+        //console.error(`Error accepting campaign ${campaignId}:`, error.error);
+        return throwError(() => new Error(`You can't accept this promotion now: ${error.error.message}`));
       })
     );
   }

@@ -1,4 +1,4 @@
-// components/store-analytics/store-analytics.component.ts
+// components/store-analytics/store-analytics.component.ts - FIXED VERSION
 import { Component, input, signal, computed, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -74,42 +74,57 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
     { id: 'promoters', label: 'Promoters', icon: 'group' }
   ];
 
-  // Computed properties
+  // Computed properties - FIXED VERSION
   salesData = computed(() => {
     const store = this.store();
-    return store.analytics.salesData;
+    return store.analytics.salesData || {
+      totalRevenue: 0,
+      promoterDrivenSales: 0,
+      averageOrderValue: 0,
+      conversionRate: 0,
+      topProducts: []
+    };
   });
 
   trafficData = computed(() => {
     const store = this.store();
-    return store.analytics.dailyViews.slice(-30); // Last 30 days
+    return store.analytics.dailyViews?.slice(-30) || []; // Last 30 days or empty
   });
 
   topProducts = computed(() => {
-    return this.salesData().topProducts.slice(0, 10);
+    return (this.salesData().topProducts || []).slice(0, 10);
   });
 
   promoterPerformance = computed(() => {
     const store = this.store();
-    return store.analytics.promoterPerformance;
+    return store.analytics.promoterPerformance || [];
   });
 
-  // Chart data (simplified - in real app, use a charting library)
+  // Chart data (simplified - in real app, use a charting library) - FIXED VERSION
   salesChartData = computed((): ChartData => {
     const sales = this.trafficData();
     
     return {
-      labels: sales.map(day => new Date(day.date).toLocaleDateString()),
+      labels: sales.map(day => {
+        try {
+          return new Date(day.date).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          });
+        } catch {
+          return 'Invalid Date';
+        }
+      }),
       datasets: [
         {
           label: 'Sales',
-          data: sales.map(day => day.sales),
+          data: sales.map(day => day.sales || 0),
           backgroundColor: 'rgba(102, 126, 234, 0.1)',
           borderColor: '#667eea'
         },
         {
           label: 'Revenue',
-          data: sales.map(day => day.revenue / 1000), // Scale down for chart
+          data: sales.map(day => (day.revenue || 0) / 1000), // Scale down for chart
           backgroundColor: 'rgba(76, 175, 80, 0.1)',
           borderColor: '#4caf50'
         }
@@ -121,17 +136,26 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
     const traffic = this.trafficData();
     
     return {
-      labels: traffic.map(day => new Date(day.date).toLocaleDateString()),
+      labels: traffic.map(day => {
+        try {
+          return new Date(day.date).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          });
+        } catch {
+          return 'Invalid Date';
+        }
+      }),
       datasets: [
         {
           label: 'Total Views',
-          data: traffic.map(day => day.views),
+          data: traffic.map(day => day.views || 0),
           backgroundColor: 'rgba(255, 152, 0, 0.1)',
           borderColor: '#ff9800'
         },
         {
           label: 'Promoter Traffic',
-          data: traffic.map(day => day.promoterTraffic),
+          data: traffic.map(day => day.promoterTraffic || 0),
           backgroundColor: 'rgba(156, 39, 176, 0.1)',
           borderColor: '#9c27b0'
         }
@@ -139,7 +163,12 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
     };
   });
 
+  // Real-time update subscription
+  private realTimeSubscription?: ReturnType<typeof interval> extends any ? any : never;
+
   ngOnInit(): void {
+    this.refreshAnalytics();
+    
     if (this.realTimeUpdates()) {
       this.startRealTimeUpdates();
     }
@@ -148,10 +177,14 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    
+    if (this.realTimeSubscription) {
+      this.realTimeSubscription.unsubscribe();
+    }
   }
 
   private startRealTimeUpdates(): void {
-    interval(10000) // Update every 10 seconds
+    this.realTimeSubscription = interval(10000) // Update every 10 seconds
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.refreshAnalytics();
@@ -160,8 +193,8 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
 
   refreshAnalytics(): void {
     const store = this.store();
-    if (store) {
-      this.storeService.getStoreAnalytics(store._id!).subscribe();
+    if (store && store._id) {
+      this.storeService.getStoreAnalytics(store._id).subscribe();
     }
   }
 
@@ -173,6 +206,7 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
   exportAnalytics(): void {
     // Implement export functionality
     console.log('Exporting analytics data...');
+    // In production, call an API endpoint to generate and download report
   }
 
   getMetricIcon(metric: PerformanceMetric): string {
@@ -188,7 +222,7 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
   }
 
   formatMetricValue(metric: PerformanceMetric): string {
-    const value = metric.current;
+    const value = metric.current || 0;
     const unit = metric.unit || '';
     
     switch (metric.format) {
@@ -201,14 +235,16 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // New method: Handles target formatting safely
+  // New method: Handles target formatting safely - FIXED VERSION
   getTargetFormatted(metric: PerformanceMetric): string {
-    if (!metric.target) {
-      return 'N/A';  // Or '' / '0' based on your needs
+    const target = metric.target;
+    if (target === undefined || target === null) {
+      return 'N/A';
     }
+    
     const targetMetric: PerformanceMetric = {
       ...metric,
-      current: metric.target  // No ! needed; check exists first
+      current: target
     };
     return this.formatMetricValue(targetMetric);
   }
@@ -218,11 +254,11 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
   }
 
   trackByProductId(index: number, product: any): string {
-    return product.productId;
+    return product.productId || index.toString();
   }
 
   trackByPromoterId(index: number, promoter: any): string {
-    return promoter.promoterId;
+    return promoter.promoterId || index.toString();
   }
 
   trackByTabId(index: number, tab: AnalyticsTab): string {

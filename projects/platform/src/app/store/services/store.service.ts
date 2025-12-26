@@ -4,11 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, tap } from 'rxjs';
 import { Store, } from '../models/store.model';
 import { CreateProductRequest, Product, StorePromotion, PerformanceMetric, CreateStoreRequest } from '../models';
+import { ApiService } from '../../../../../shared-services/src/public-api';
 
 @Injectable()
 export class StoreService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/stores';
+
+  private apiService: ApiService = inject(ApiService);
+  public readonly api = this.apiService.getBaseUrl();
+  private readonly apiUrl = 'stores';
 
   // Signals for state management
   private stores = signal<Store[]>([]);
@@ -55,7 +58,7 @@ export class StoreService {
       }
     });
 
-    return this.http.post<Store>(this.apiUrl, formData).pipe(
+    return this.apiService.post<Store>(this.apiUrl, formData).pipe(
       tap(store => {
         this.stores.update(stores => [...stores, store]);
         this.loading.set(false);
@@ -64,11 +67,12 @@ export class StoreService {
   }
 
 
-  getStores(): Observable<Store[]> {
+  getStores(userId: string): Observable<any> {
     this.loading.set(true);
-    return this.http.get<Store[]>(this.apiUrl).pipe(
-      tap(stores => {
-        this.stores.set(stores);
+    return this.apiService.get<Store[]>(`${this.apiUrl}?userId=${userId}`).pipe(
+      tap(storesData => {
+        console.log('Fetched stores:', storesData);
+        this.stores.set(storesData);
         this.loading.set(false);
       })
     );
@@ -76,7 +80,7 @@ export class StoreService {
 
   getStoreById(storeId: string): Observable<Store> {
     this.loading.set(true);
-    return this.http.get<Store>(`${this.apiUrl}/${storeId}`).pipe(
+    return this.apiService.get<Store>(`${this.apiUrl}/${storeId}`).pipe(
       tap(store => {
         this.currentStore.set(store);
         this.loading.set(false);
@@ -85,7 +89,7 @@ export class StoreService {
   }
 
   updateStore(storeId: string, updates: Partial<Store>): Observable<Store> {
-    return this.http.patch<Store>(`${this.apiUrl}/${storeId}`, updates).pipe(
+    return this.apiService.patch<Store>(`${this.apiUrl}/${storeId}`, updates).pipe(
       tap(updatedStore => {
         this.currentStore.set(updatedStore);
         this.stores.update(stores => 
@@ -106,7 +110,7 @@ export class StoreService {
       }
     });
 
-    return this.http.post<Product>(`${this.apiUrl}/${storeId}/products`, formData).pipe(
+    return this.apiService.post<Product>(`${this.apiUrl}/${storeId}/products`, formData).pipe(
       tap(product => {
         this.storeProducts.update(products => [...products, product]);
       })
@@ -114,13 +118,13 @@ export class StoreService {
   }
 
   getStoreProducts(storeId: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/${storeId}/products`).pipe(
+    return this.apiService.get<Product[]>(`${this.apiUrl}/${storeId}/products`).pipe(
       tap(products => this.storeProducts.set(products))
     );
   }
 
   updateProduct(storeId: string, productId: string, updates: Partial<Product>): Observable<Product> {
-    return this.http.patch<Product>(
+    return this.apiService.patch<Product>(
       `${this.apiUrl}/${storeId}/products/${productId}`, 
       updates
     ).pipe(
@@ -133,7 +137,7 @@ export class StoreService {
   }
 
   deleteProduct(storeId: string, productId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
+    return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
       tap(() => {
         this.storeProducts.update(products =>
           products.filter(p => p._id !== productId)
@@ -144,25 +148,25 @@ export class StoreService {
 
   // Analytics
   getStoreAnalytics(storeId: string): Observable<Store['analytics']> {
-    return this.http.get<Store['analytics']>(`${this.apiUrl}/${storeId}/analytics`);
+    return this.apiService.get<Store['analytics']>(`${this.apiUrl}/${storeId}/analytics`);
   }
 
   // Performance Metrics
   getStorePerformanceMetrics(storeId: string): Observable<PerformanceMetric[]> {
-    return this.http.get<PerformanceMetric[]>(`${this.apiUrl}/${storeId}/analytics/performance`).pipe(
+    return this.apiService.get<PerformanceMetric[]>(`${this.apiUrl}/${storeId}/analytics/performance`).pipe(
       tap(metrics => this.performanceMetrics.set(metrics))
     );
   }
 
   // Promotions
   getStorePromotions(storeId: string): Observable<StorePromotion[]> {
-    return this.http.get<StorePromotion[]>(`${this.apiUrl}/${storeId}/promotions`).pipe(
+    return this.apiService.get<StorePromotion[]>(`${this.apiUrl}/${storeId}/promotions`).pipe(
       tap(promotions => this.promotions.set(promotions))
     );
   }
 
   createPromotion(storeId: string, promotionData: Partial<StorePromotion>): Observable<StorePromotion> {
-    return this.http.post<StorePromotion>(`${this.apiUrl}/${storeId}/promotions`, promotionData).pipe(
+    return this.apiService.post<StorePromotion>(`${this.apiUrl}/${storeId}/promotions`, promotionData).pipe(
       tap(promotion => {
         this.promotions.update(promotions => [...promotions, promotion]);
       })
@@ -170,7 +174,7 @@ export class StoreService {
   }
 
   updatePromotion(storeId: string, promotionId: string, updates: Partial<StorePromotion>): Observable<StorePromotion> {
-    return this.http.patch<StorePromotion>(
+    return this.apiService.patch<StorePromotion>(
       `${this.apiUrl}/${storeId}/promotions/${promotionId}`,
       updates
     ).pipe(
@@ -183,7 +187,7 @@ export class StoreService {
   }
 
   deletePromotion(storeId: string, promotionId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${storeId}/promotions/${promotionId}`).pipe(
+    return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/promotions/${promotionId}`).pipe(
       tap(() => {
         this.promotions.update(promotions =>
           promotions.filter(p => p._id !== promotionId)
@@ -194,6 +198,27 @@ export class StoreService {
 
   // Verification
   verifyStore(storeId: string, tier: 'basic' | 'premium'): Observable<Store> {
-    return this.http.post<Store>(`${this.apiUrl}/${storeId}/verify`, { tier });
+    return this.apiService.post<Store>(`${this.apiUrl}/${storeId}/verify`, { tier });
   }
+
+  updateStoreAnalytics(storeId: string, analyticsData: Partial<Store['analytics']>): Observable<Store['analytics']> {
+    return this.apiService.patch<Store['analytics']>(`${this.apiUrl}/${storeId}/analytics`, analyticsData).pipe(
+      tap(updatedAnalytics => {
+        const currentStore = this.currentStore();
+        if (currentStore && currentStore._id === storeId) {
+          this.currentStore.set({ ...currentStore, analytics: updatedAnalytics });
+        }
+      })
+    );
+  }
+
+  // updateStoreAnalytics(storeId: string, analytics: StoreAnalytics): void {
+  //   const currentStore = this.currentStoreState();
+  //   if (currentStore && currentStore._id === storeId) {
+  //     this.currentStoreState.update(store => ({
+  //       ...store!,
+  //       analytics
+  //     }));
+  //   }
+  // }
 }

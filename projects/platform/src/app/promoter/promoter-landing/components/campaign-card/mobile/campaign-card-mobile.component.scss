@@ -106,20 +106,23 @@
     
     &.status-active {
       // UPDATED: Use success-color with light background
-      background: rgba($success-color, 0.1);
-      color: $success-color;
+      background: rgba($success-color, 1);
+      color: $white;
+      // color: $success-color;
     }
     
     &.status-paused {
       // UPDATED: Use warning-color with light background
-      background: rgba($warning-color, 0.1);
-      color: $warning-color;
+      background: rgba($warning-color, 1);
+      //color: $warning-color;
+      color: $white;
     }
     
     &.status-completed {
       // UPDATED: Use primary-color with light background
-      background: rgba($primary-color, 0.1);
-      color: $primary-color;
+      background: rgba($primary-color, 1);
+      //color: $primary-color;
+      color: $white;
     }
   }
 }
@@ -729,8 +732,8 @@
   width: 32px;
   height: 32px;
   border: none;
-  // UPDATED: Use gray-100 for button background
-  border: 1px solid $gray-300;
+  border: 1px solid $gray-500;
+  background: $surface-color;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -740,8 +743,7 @@
 }
 
 .icon-btn:hover {
-  // UPDATED: Use gray-200 for hover state
-  background: $gray-200;
+  background: $gray-500;
 }
 
 .icon-btn .material-icons {

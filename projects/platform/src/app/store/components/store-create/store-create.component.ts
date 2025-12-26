@@ -1,5 +1,5 @@
 // components/store-create/store-create.component.ts
-import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnDestroy, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -15,6 +15,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { StoreService } from '../../services/store.service';
 import { CreateStoreRequest } from '../../models';
+import { CATEGORIES } from '../../../common/utils/categories';
+import { UserService } from '../../../common/services/user.service';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-store-create',
@@ -48,24 +51,33 @@ export class StoreCreateComponent implements OnDestroy {
   previewImage = signal<string | null>(null);
   isSubmitting = signal<boolean>(false);
 
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
+
   // Store categories
-  categories = [
-    'Fashion & Apparel',
-    'Electronics',
-    'Home & Garden',
-    'Beauty & Personal Care',
-    'Health & Wellness',
-    'Food & Beverage',
-    'Sports & Outdoors',
-    'Toys & Games',
-    'Books & Media',
-    'Automotive',
-    'Jewelry & Accessories',
-    'Arts & Crafts',
-    'Digital Products',
-    'Services',
-    'Other'
-  ];
+  // categories = [
+  //   'Fashion & Apparel',
+  //   'Electronics',
+  //   'Home & Garden',
+  //   'Beauty & Personal Care',
+  //   'Health & Wellness',
+  //   'Food & Beverage',
+  //   'Sports & Outdoors',
+  //   'Toys & Games',
+  //   'Books & Media',
+  //   'Automotive',
+  //   'Jewelry & Accessories',
+  //   'Arts & Crafts',
+  //   'Digital Products',
+  //   'Services',
+  //   'Other'
+  // ];
+
+
+  get categories() {
+    return CATEGORIES;
+  }
 
   // Form
   storeForm: FormGroup = this.fb.group({
@@ -80,7 +92,7 @@ export class StoreCreateComponent implements OnDestroy {
       Validators.maxLength(500)
     ]],
     category: ['', Validators.required],
-    whatsappNumber: ['', [
+    whatsappNumber: [this.user()?.personalInfo.phone ?? '', [
       Validators.required,
       Validators.pattern(/^(\+234|0)[789][01]\d{8}$/) // Nigerian phone number pattern
     ]],
@@ -114,6 +126,8 @@ export class StoreCreateComponent implements OnDestroy {
 
   ngOnInit(): void {
     this.setupFormListeners();
+     // Disable the whatsappNumber control
+    this.storeForm.get('whatsappNumber')?.disable();
   }
 
   ngOnDestroy(): void {
@@ -224,6 +238,7 @@ getFieldError(fieldName: string): string {
           category: this.storeForm.value.category,
           whatsappNumber: this.formatPhoneNumber(this.storeForm.value.whatsappNumber),
           logo: this.storeForm.value.logo,
+          userId: this.user()?._id || '',
           settings: {
             notifications: {
               lowStock: true,
@@ -245,7 +260,8 @@ getFieldError(fieldName: string): string {
               theme: 'light',
               primaryColor: '#667eea',
               logoPosition: 'left'
-            }
+            },
+            
           }
         };
 
@@ -281,6 +297,7 @@ getFieldError(fieldName: string): string {
   }
 
   private formatPhoneNumber(phone: string): string {
+    if (!phone) return ''
     // Format Nigerian phone numbers to international format
     let formatted = phone.trim();
     
