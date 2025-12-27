@@ -156,7 +156,7 @@
             <!-- Budget & Payout -->
             <mat-card class="detail-card">
                 <mat-card-header>
-                <mat-card-title>Budget & Payout</mat-card-title>
+                <mat-card-title>Budget, Target & Payout</mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
                 <div class="detail-item">
@@ -173,7 +173,7 @@
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Remaining Budget:</span>
-                    <!-- <span class="detail-value">{{ (campaign()?.budget - campaign()?.spentBudget) | currency:'NGN':'₦' }}</span> -->
+                    <span class="detail-value">{{ (campaign()?.budget ?? 0) - (campaign()?.spentBudget ?? 0) | currency:'NGN':'₦' }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">Currency:</span>
@@ -182,6 +182,20 @@
                 <div class="detail-item">
                     <span class="detail-label">Minimum Views Required:</span>
                     <span class="detail-value">{{ campaign()?.minViewsPerPromotion }}</span>
+                </div>
+                <hr>
+                <br>
+                <div class="detail-item">
+                    <span class="detail-label">Location Target:</span>
+                    <span class="detail-value">
+                        <ng-container *ngFor="let location of campaign()?.targetLocations; let isLast = last">
+                            {{ location.name }}<span *ngIf="!isLast">, </span>
+                        </ng-container>
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Age Target:</span>
+                    <span class="detail-value">{{ campaign()?.ageTarget | titlecase }}</span>
                 </div>
                 </mat-card-content>
             </mat-card>

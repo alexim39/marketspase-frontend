@@ -101,7 +101,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
             this.campaign.set(response.data);
             this.promotions.set(response.data.promotions || []);
             this.promotionsDataSource.data = response.data.promotions || [];
-            //console.log('promotion ', this.promotionsDataSource.data )
+            //console.log('campaign ', response.data);
           } else {
             this.snackBar.open('Failed to load campaign details', 'Close', { duration: 3000 });
           }

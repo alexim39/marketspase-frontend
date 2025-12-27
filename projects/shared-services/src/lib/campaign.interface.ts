@@ -79,6 +79,7 @@ export interface CampaignInterface {
   promotions: PromotionInterface[];
   remainingBudget: number;
   thumbnailUrl?: string;
+  ageTarget: string;
 
 
   //filledSlots: number;
