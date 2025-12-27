@@ -118,8 +118,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return [
         ...baseItems,
         { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
-        { icon: 'add_business', label: 'Storefronts', route: './stores' },
+        //{ icon: 'add_business', label: 'Storefronts', route: './stores' },
         { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
+        { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
         { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
@@ -128,6 +129,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ...baseItems,
         { icon: 'work', label: 'Promotions', route: './campaigns' },
         { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
+        { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
         { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
