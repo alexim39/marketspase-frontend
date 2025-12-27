@@ -192,6 +192,7 @@
                   [class.successful]="transaction.status === 'successful'"
                   [class.pending]="transaction.status === 'pending' || transaction.status === 'processing'"
                   [class.reversed]="transaction.status === 'reversed'"
+                  [class.approved]="transaction.status === 'approved'"
                   [class.failed]="transaction.status === 'failed'">
                   {{ transaction.status }}
                 </mat-chip>

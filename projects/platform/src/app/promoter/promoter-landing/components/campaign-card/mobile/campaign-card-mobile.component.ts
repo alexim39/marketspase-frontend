@@ -132,7 +132,8 @@ export class CampaignCardMobileComponent {
   canAcceptCampaign(campaign: CampaignInterface): boolean {
     if (campaign.status !== 'active') return false;
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
-    if (campaign.totalPromotions >= campaign.maxPromoters) return false;
+    if (campaign.currentPromoters >= campaign.maxPromoters) return false;
+    // if (campaign.totalPromotions >= campaign.maxPromoters) return false;
     if (campaign.remainingBudget < campaign.payoutPerPromotion) return false;
     return true;
   }
