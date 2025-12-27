@@ -20,6 +20,7 @@ export const dashboardRoutes: Routes = [
             { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },           
             { path: 'settings', loadChildren: () => import('../settings/settings.routes').then(r => r.SettingsRoutes) },           
             { path: 'transactions', loadChildren: () => import('../transactions/transactions.routes').then(r => r.TransactionsRoutes) },           
+            { path: 'forum', loadChildren: () => import('../forum/forum.routes').then(r => r.ForumRoutes) },           
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

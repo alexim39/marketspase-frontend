@@ -70,10 +70,10 @@ export class DashboardMainContainer {
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
-  private userService = inject(UserService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly deviceService = inject(DeviceService);
 
+  private userService = inject(UserService);
   public user = this.userService.user;
 
    isMobile = computed(() => {

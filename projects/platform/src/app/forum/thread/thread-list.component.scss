@@ -1,0 +1,444 @@
+// thread-list.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+  padding: $spacing-4 0;
+}
+
+.thread-item {
+  cursor: pointer;
+  transition: transform $transition-normal, box-shadow $transition-normal;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow-lg;
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+  
+  &:focus-within {
+    // UPDATED: Use primary-color variable for dynamic theming
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.thread-card {
+  // UPDATED: Use surface-color variable for dynamic theming
+  background-color: $surface-color;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  transition: all $transition-normal;
+  overflow: hidden;
+  
+  &:hover {
+    border-color: rgba($primary-color, 0.3);
+    box-shadow: $shadow-md;
+  }
+
+  mat-card-header {
+    align-items: center;
+    padding: $spacing-4 $spacing-4 $spacing-2;
+
+    mat-card-title {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
+      margin-bottom: $spacing-1;
+      line-height: $line-height-tight;
+      
+      &:hover {
+        // UPDATED: Use primary-color variable for dynamic theming
+        color: $primary-color;
+      }
+    }
+
+    mat-card-subtitle {
+      display: flex;
+      align-items: center;
+      font-size: $font-size-sm;
+      // UPDATED: Use text-secondary variable for dynamic theming
+      color: $text-secondary;
+
+      .author-info {
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
+        font-weight: $font-weight-medium;
+        
+        &:hover {
+          // UPDATED: Use primary-color variable for dynamic theming
+          color: $primary-color;
+          cursor: pointer;
+        }
+      }
+
+      .spacer {
+        flex: 1 1 auto;
+      }
+
+      .time {
+        margin-left: auto;
+        // UPDATED: Use text-tertiary variable for dynamic theming
+        color: $text-tertiary;
+        font-size: $font-size-xs;
+        white-space: nowrap;
+        font-weight: $font-weight-normal;
+      }
+    }
+  }
+  
+  mat-card-content {
+    padding: 0 $spacing-4;
+
+    .media-preview {
+      margin: $spacing-3 0;
+      max-width: 100%;
+      border-radius: $border-radius;
+      overflow: hidden;
+      
+      .preview-image {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: $border-radius;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+        // UPDATED: Use surface-color with darkened background for dynamic theming
+        background-color: color-mix(in srgb, var(--surface-color), black 3%);
+      }
+      
+      .preview-video {
+        width: 100%;
+        max-height: 200px;
+        border-radius: $border-radius;
+        background-color: $gray-900; // Dark background for video
+      }
+      
+      .preview-audio {
+        width: 100%;
+      }
+    }
+
+    .thread-content {
+      margin-bottom: $spacing-4;
+      line-height: $line-height-normal;
+      // UPDATED: Use text-primary variable for dynamic theming
+      color: $text-primary;
+      font-size: $font-size-base;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      
+      a {
+        // UPDATED: Use primary-color variable for dynamic theming
+        color: $primary-color;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      code {
+        // UPDATED: Use surface-color with darkened background for dynamic theming
+        background-color: color-mix(in srgb, var(--surface-color), black 5%);
+        padding: $spacing-5 $spacing-1;
+        border-radius: $border-radius-sm;
+        font-family: monospace;
+        font-size: $font-size-sm;
+        // UPDATED: Use text-primary variable for dynamic theming
+        color: $text-primary;
+      }
+    }
+    
+    .thread-tags {
+      margin-top: $spacing-3;
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      
+      mat-chip {
+        // UPDATED: Use primary-color with lightened background for dynamic theming
+        background-color: rgba($primary-color, 0.1);
+        // UPDATED: Use primary-color variable for dynamic theming
+        color: $primary-color;
+        font-weight: $font-weight-medium;
+        font-size: $font-size-xs;
+        height: 24px;
+        border-radius: $border-radius-full;
+        
+        &:hover {
+          // UPDATED: Use primary-color with darker background for dynamic theming
+          background-color: rgba($primary-color, 0.2);
+        }
+      }
+    }
+  }
+  
+
+  mat-card-actions {
+    display: flex !important;
+    justify-content: space-around !important;
+    padding: $spacing-2 $spacing-4 !important;
+    border-top: 1px solid $border-color !important;
+    gap: $spacing-2 !important;
+    
+    button {
+      display: flex !important;
+      align-items: center !important;
+      padding: $spacing-1 $spacing-3 !important;
+      font-size: $font-size-sm !important;
+      min-width: auto !important;
+      background: transparent !important;
+      border: none !important;
+      color: $text-secondary !important;
+      
+      mat-icon {
+        margin-right: $spacing-1 !important;
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+      
+      &:hover {
+        background: rgba($primary-color, 0.1) !important;
+        color: $primary-color !important;
+      }
+    }
+    
+    .delete-button {
+      margin-left: auto !important;
+      color: $error-color !important;
+      font-weight: $font-weight-bold !important;
+      
+      &:hover {
+        background-color: rgba($error-color, 0.1) !important;
+      }
+    }
+  }
+}
+
+.no-threads {
+  text-align: center;
+  padding: $spacing-10 $spacing-5;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background-color: $surface-color;
+  border-radius: $border-radius-lg;
+  border: 1px solid $border-color;
+  margin-top: $spacing-4;
+  
+  mat-icon {
+    font-size: 60px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: $spacing-5;
+    // UPDATED: Use text-tertiary variable for dynamic theming
+    color: $text-tertiary;
+  }
+  
+  h3 {
+    margin-bottom: $spacing-2;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-xl;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
+  }
+  
+  p {
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
+    font-size: $font-size-base;
+    margin-bottom: $spacing-4;
+  }
+  
+  button {
+    @include button-primary;
+    padding: $spacing-2 $spacing-6;
+  }
+}
+
+/* Accessibility improvements */
+.thread-item:focus-within .thread-card {
+  // UPDATED: Use primary-color variable for dynamic theming
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .thread-item,
+  .thread-card,
+  .thread-card mat-card-actions button {
+    transition: none;
+  }
+  
+  .thread-item:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .thread-card {
+    border: 2px solid $text-primary;
+  }
+  
+  .thread-card mat-card-actions {
+    border-top: 2px solid $text-primary;
+  }
+  
+  .no-threads {
+    border: 2px solid $text-primary;
+  }
+  
+  .thread-card mat-card-actions button {
+    border: 1px solid $text-primary;
+  }
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] {
+  .thread-card {
+    background-color: color-mix(in srgb, var(--surface-color), white 2%);
+    
+    &:hover {
+      border-color: rgba($primary-color, 0.5);
+    }
+    
+    .media-preview .preview-image {
+      background-color: color-mix(in srgb, var(--surface-color), black 8%);
+    }
+    
+    .thread-content code {
+      background-color: color-mix(in srgb, var(--surface-color), black 10%);
+    }
+    
+    .thread-tags mat-chip {
+      background-color: rgba($primary-color, 0.15);
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.25);
+      }
+    }
+  }
+  
+  .thread-card mat-card-actions button {
+    &.liked {
+      background-color: rgba($error-color, 0.15);
+      
+      &:hover {
+        background-color: rgba($error-color, 0.25);
+      }
+    }
+    
+    &.share-btn:hover {
+      background-color: rgba($success-color, 0.15);
+    }
+    
+    &.comment-btn:hover {
+      background-color: rgba($info-color, 0.15);
+    }
+  }
+  
+  .no-threads {
+    background-color: color-mix(in srgb, var(--surface-color), white 2%);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .thread-list {
+    gap: $spacing-4;
+  }
+  
+  .thread-card {
+    mat-card-header {
+      padding: $spacing-3 $spacing-3 $spacing-1;
+      
+      mat-card-title {
+        font-size: $font-size-base !important;
+      }
+      
+      mat-card-subtitle {
+        font-size: $font-size-xs;
+      }
+    }
+    
+    mat-card-content {
+      padding: 0 $spacing-3;
+      
+      .thread-content {
+        font-size: $font-size-sm;
+        -webkit-line-clamp: 2;
+      }
+      
+      .media-preview {
+        .preview-image,
+        .preview-video {
+          max-height: 150px;
+        }
+      }
+    }
+    
+    mat-card-actions {
+      padding: $spacing-2 $spacing-3;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: $spacing-1;
+      
+      button {
+        padding: $spacing-5 $spacing-2;
+        font-size: $font-size-xs;
+        
+        mat-icon {
+          margin-right: $spacing-5;
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+      
+      .delete-button {
+        margin-left: auto;
+        order: 1;
+      }
+    }
+  }
+  
+  .no-threads {
+    padding: $spacing-8 $spacing-4;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: $spacing-4;
+    }
+    
+    h3 {
+      font-size: $font-size-lg;
+    }
+  }
+}
+
+/* Tablet responsive */
+@include tablet {
+  .thread-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: $spacing-4;
+  }
+}
