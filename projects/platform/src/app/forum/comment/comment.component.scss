@@ -55,6 +55,13 @@
         // UPDATED: Use text-primary variable for dynamic theming
         color: $text-primary;
         font-size: $font-size-sm;
+
+        .time {
+          color: $text-tertiary;
+          font-size: $font-size-xs;
+          white-space: nowrap;
+          font-weight: $font-weight-normal;
+        }
         
         &:hover {
           // UPDATED: Use primary-color variable for dynamic theming

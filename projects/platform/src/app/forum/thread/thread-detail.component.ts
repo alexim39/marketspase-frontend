@@ -76,7 +76,7 @@ import { ApiService } from '../../../../../shared-services/src/public-api';
           <mat-card-title>{{ thread.title }}</mat-card-title>
           <mat-card-subtitle>
             <span class="author-info">
-              <span>{{thread.author.displayName | titlecase}} - @{{thread.author.username}}</span>
+              <span>{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
             </span>
             <span class="spacer"></span>
             <span class="time">{{ timeAgo(thread.createdAt) }}</span>

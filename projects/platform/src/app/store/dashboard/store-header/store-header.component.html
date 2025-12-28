@@ -57,7 +57,7 @@
               <div class="store-title-section">
                 <h1 class="store-name">{{ store()?.name }}</h1>
                 <div class="store-status">
-                  <mat-chip [color]="statusColor()" [disabled]="storeStatus() === 'suspended'">
+                  <mat-chip [color]="statusColor()" [disabled]="storeStatus() === 'inactive'">
                     <mat-icon class="status-icon">{{ statusIcon() }}</mat-icon>
                     <span class="status-text">
                       {{ storeStatus() | titlecase }}

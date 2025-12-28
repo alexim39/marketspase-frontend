@@ -37,7 +37,9 @@ template: `
     
     <div class="comment-content">
       <div class="comment-header">
-        <span class="comment-author"> {{timeAgo(comment.createdAt)}} </span>
+        <span class="comment-author"> 
+          <span class="time">{{timeAgo(comment.createdAt)}} </span>
+        </span>
        <!--  <span *ngIf="comment.author.isVerified" class="verified-badge" matTooltip="Verified User">
           <mat-icon>verified</mat-icon>
         </span> -->

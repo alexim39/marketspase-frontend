@@ -35,9 +35,9 @@ import { ConfirmDialogComponent } from '../confirmationDialog.component';
             <img mat-card-avatar [src]="thread.author.avatar || 'assets/default-avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
             <mat-card-title>{{thread.title}}</mat-card-title>
             <mat-card-subtitle>
-              <span>{{thread.author.displayName | titlecase}} - @{{thread.author.username}}</span>
+              <span class="author-info">{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
               <span class="spacer"></span>
-              <span>{{timeAgo(thread.createdAt) }}</span>
+              <span class="time">{{timeAgo(thread.createdAt) }}</span>
             </mat-card-subtitle>
           </mat-card-header>
           

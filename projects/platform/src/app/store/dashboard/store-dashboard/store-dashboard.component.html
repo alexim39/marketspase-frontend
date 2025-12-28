@@ -8,8 +8,9 @@
     (createStore)="createStore()"
     (manageStore)="manageStore($event)"
     (verifyStore)="verifyStore()"
-    (addProduct)="addProduct()">
-  </app-store-header>
+    (addProduct)="addProduct()"
+    />
+  
 
   <!-- Store Selection/Overview -->
   @if (!currentStore()) {
@@ -21,14 +22,14 @@
               <mat-icon class="empty-icon">storefront</mat-icon>
               <div class="empty-pulse"></div>
             </div>
-            <h2>No Store Selected</h2>
+            <h2>No Store Created/Selected</h2>
             <p>Choose a store to manage or create a new one to get started with your virtual store</p>
             <div class="empty-actions">
               <button mat-raised-button color="primary" (click)="createStore()" class="create-btn">
                 <mat-icon>add_business</mat-icon>
                 Create Your First Store
               </button>
-              <button mat-stroked-button color="primary" routerLink="/dashboard/stores/learn-more">
+              <button mat-stroked-button color="primary" routerLink="#">
                 <mat-icon>info</mat-icon>
                 Learn More
               </button>
@@ -308,8 +309,8 @@
           <app-product-management 
             [store]="currentStore()!"
             [products]="filteredProducts()"
-            (productUpdated)="refreshStoreData()">
-          </app-product-management>
+            (productUpdated)="refreshStoreData()"
+          />
         }
 
         @if (activeTab() === 'analytics') {

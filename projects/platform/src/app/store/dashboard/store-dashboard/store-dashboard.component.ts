@@ -233,7 +233,7 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
     return this.products().filter(product => {
       const matchesSearch = !query || 
         product.name.toLowerCase().includes(query) ||
-        product.description.toLowerCase().includes(query) ||
+        product?.description?.toLowerCase().includes(query) ||
         (product.tags?.some(tag => tag.toLowerCase().includes(query)) || false);
       
       const matchesCategory = category === 'all' || product.category === category;
@@ -344,7 +344,7 @@ loadStores(): void {
   this.storeService.getStores(userId).subscribe({
     next: (stores) => {
       // Successfully loaded stores
-      console.log('Stores loaded:', stores);
+      console.log('Stores loaded:', stores.data[0]);
       
       // If no current store is selected, auto-select the first one
       if (stores.data.length > 0 && !this.currentStore()) {
@@ -352,7 +352,7 @@ loadStores(): void {
         this.storeService.currentStore.set(stores.data[0]);
         
         // Also load products for this store
-        this.storeService.getStoreProducts(stores[0]._id!).subscribe();
+        this.storeService.getStoreProducts(stores.data[0]._id!).subscribe();
       }
     },
     error: (error) => {
