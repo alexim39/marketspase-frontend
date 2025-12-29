@@ -69,10 +69,23 @@
       align-items: flex-end;
       justify-content: space-around;
       margin-top: $spacing-2;
+       @include mobile {
+        align-items: center;
+        justify-content: space-between;
+        display: flex;
+        flex-direction: column;
+        button {
+          margin-bottom: $spacing-2;
+        }
+      }
     }
   }
 
   .header-icon {
+    border-radius: 20%;
+    border: 1px solid $gray-700;
+    padding: 10px 10px 0 10px; 
+
     mat-icon {
       font-size: 4rem;
       width: 4rem;
@@ -655,6 +668,7 @@
     outline: 2px solid rgba(37, 211, 102, 0.5);
     outline-offset: 2px;
   }
+  
 }
 
 .whatsapp-btn .whatsapp-icon {
@@ -687,7 +701,7 @@
   }
 
   .whatsapp-btn .btn-text {
-    display: none;
+    //display: none;
   }
 
   .whatsapp-btn .btn-badge {
