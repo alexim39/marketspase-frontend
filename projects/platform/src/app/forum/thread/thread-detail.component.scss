@@ -90,19 +90,33 @@
 
 
 mat-card-subtitle {
-  position: relative;               // establish positioning context
-  display: block;                   // absolute works fine with block too
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-2;
+
   width: 100%;
   font-size: $font-size-sm;
   color: $text-secondary;
   margin-top: $spacing-1;
-  padding-right: $spacing-2;        // small padding so text doesn’t touch edge
+  padding-right: $spacing-2;
+
+  // Allow wrapping on small screens
+  flex-wrap: wrap;
 
   .author-info {
     display: inline-flex;
     align-items: center;
     gap: $spacing-1;
     font-weight: $font-weight-medium;
+    min-width: 0; // prevents overflow issues
+
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     small {
       color: $text-tertiary;
       font-weight: $font-weight-normal;
@@ -110,28 +124,28 @@ mat-card-subtitle {
   }
 
   .time {
-    position: absolute;
-    top: 50%;
-    left: 50em;
-    right: $spacing-1;              // ➜ right corner
-    transform: translateY(-50%);    // vertical centering
     color: $text-tertiary;
     font-size: $font-size-xs;
     white-space: nowrap;
     font-weight: $font-weight-normal;
-    @include mobile {
-      left: 190px;
-    }
-    @include tablet  {
-      left: 250px;
-    }
-    // @include desktop  {
-    //   left: 250px;
-    // }
   }
 
-  .spacer { display: none; }
+  // Mobile optimization
+  @include mobile {
+    align-items: flex-start;
+
+    .time {
+      width: 100%;
+      text-align: left;
+      margin-top: $spacing-1;
+    }
+  }
+
+  .spacer {
+    display: none;
+  }
 }
+
 
 
 

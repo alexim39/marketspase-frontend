@@ -9,8 +9,8 @@ import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-place
 import { CampaignInterface, DeviceService, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
 import { CampaignCardComponent } from '../campaign-card/campaign-card.component';
 import { CampaignSkeletonComponent } from '../campaign-skeleton/campaign-skeleton.component';
-import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
 import { CampaignCardMobileComponent } from '../campaign-card/mobile/campaign-card-mobile.component';
+import { TruncatePipe } from '../../../../store/shared';
 
 @Component({
   selector: 'app-campaign-list',

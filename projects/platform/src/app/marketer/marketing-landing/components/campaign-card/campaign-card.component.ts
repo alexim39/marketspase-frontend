@@ -7,7 +7,7 @@ import { TitleCasePipe } from '@angular/common';
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
 import { CampaignInterface, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
-import { TruncatePipe } from '../../../../common/pipes/truncate.pipe';
+import { TruncatePipe } from '../../../../store/shared';
 
 @Component({
   selector: 'app-campaign-card',

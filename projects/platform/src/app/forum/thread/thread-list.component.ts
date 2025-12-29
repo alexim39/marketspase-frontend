@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { TruncatePipe } from '../../common/pipes/truncate.pipe';
 import { timeAgo as timeAgoUtil } from '../../common/utils/time.util';
 import { CommonModule } from '@angular/common';
 import { ForumService, Thread } from '../forum.service';
@@ -14,6 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../../../../shared-services/src/public-api';
 import { ConfirmDialogComponent } from '../confirmationDialog.component';
+import { TruncatePipe } from '../../store/shared';
 
 @Component({
   selector: 'app-thread-list',

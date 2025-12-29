@@ -4,11 +4,11 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
 import { MatIconModule } from '@angular/material/icon';
-import { TruncatePipe } from '../../../../../common/pipes/truncate.pipe';
 import { PromotionDetailModalComponent } from '../promotion-detail-modal/promotion-detail-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
+import { TruncatePipe } from '../../../../../store/shared';
 
 export type ViewMode = 'grid' | 'list';
 

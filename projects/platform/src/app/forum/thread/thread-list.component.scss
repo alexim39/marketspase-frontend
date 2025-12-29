@@ -63,49 +63,63 @@
       }
     }
 
-    mat-card-subtitle {
-      position: relative;               // establish positioning context
-      display: block;                   // absolute works fine with block too
-      width: 100%;
-      font-size: $font-size-sm;
-      color: $text-secondary;
-      margin-top: $spacing-1;
-      padding-right: $spacing-2;        // small padding so text doesn’t touch edge
+mat-card-subtitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-2;
 
-      .author-info {
-        display: inline-flex;
-        align-items: center;
-        gap: $spacing-1;
-        font-weight: $font-weight-medium;
-        small {
-          color: $text-tertiary;
-          font-weight: $font-weight-normal;
-        }
-      }
+  width: 100%;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin-top: $spacing-1;
+  padding-right: $spacing-2;
 
-      .time {
-        position: absolute;
-        top: 50%;
-        left: 80em;
-        right: $spacing-1;              // ➜ right corner
-        transform: translateY(-50%);    // vertical centering
-        color: $text-tertiary;
-        font-size: $font-size-xs;
-        white-space: nowrap;
-        font-weight: $font-weight-normal;
-        @include mobile {
-          left: 190px;
-        }
-        @include tablet  {
-          left: 250px;
-        }
-        // @include desktop  {
-        //   left: 250px;
-        // }
-      }
+  // Allow wrapping on small screens
+  flex-wrap: wrap;
 
-      .spacer { display: none; }
+  .author-info {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-weight: $font-weight-medium;
+    min-width: 0; // prevents overflow issues
+
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
+    small {
+      color: $text-tertiary;
+      font-weight: $font-weight-normal;
+    }
+  }
+
+  .time {
+    color: $text-tertiary;
+    font-size: $font-size-xs;
+    white-space: nowrap;
+    font-weight: $font-weight-normal;
+  }
+
+  // Mobile optimization
+  @include mobile {
+    align-items: flex-start;
+
+    .time {
+      width: 100%;
+      text-align: left;
+      margin-top: $spacing-1;
+    }
+  }
+
+  .spacer {
+    display: none;
+  }
+}
+
 
   }
   

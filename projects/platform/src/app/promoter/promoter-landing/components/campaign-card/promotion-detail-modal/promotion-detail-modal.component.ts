@@ -7,7 +7,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
 import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
-import { TruncatePipe } from '../../../../../common/pipes/truncate.pipe';
 
 export interface PromotionDetailModalData {
   campaign: CampaignInterface;
