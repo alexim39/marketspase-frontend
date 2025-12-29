@@ -23,6 +23,7 @@ import { CampaignCardMobileComponent } from './components/campaign-card/mobile/c
 import { PromoterQuickStatsMobileComponent } from './components/promoter-quick-stats/mobile/promoter-quick-stats-mobile.component';
 import { CampaignFiltersMobileComponent, FilterType } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoadingStateMobileComponent } from './components/loading-state/mobile/loading-state-mobile.component';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -50,6 +51,7 @@ interface CampaignMetrics {
     CampaignCardComponent,
     EmptyStateComponent,
     LoadingStateComponent,
+    LoadingStateMobileComponent,
     CampaignCardMobileComponent,
     PromoterQuickStatsMobileComponent,
     CampaignFiltersMobileComponent,

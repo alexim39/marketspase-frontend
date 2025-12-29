@@ -1,0 +1,65 @@
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
+.loading-grid-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.campaign-card-skeleton-mobile {
+  background: $surface-color;
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  overflow: hidden;
+}
+
+.skeleton-header-mobile {
+  height: 48px;
+  background: $gray-700;
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.skeleton-media-mobile {
+  height: 150px;
+  margin: 12px;
+  border-radius: 8px;
+  background: $gray-700;
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.skeleton-content-mobile {
+  padding: 16px 12px;
+}
+
+.skeleton-line-mobile {
+  height: 10px;
+  background: $gray-700;
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.skeleton-line-mobile.short {
+  width: 50%;
+}
+
+.skeleton-metrics-mobile {
+  height: 32px;
+  background: $gray-700;
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+// Same shimmer animation
+@keyframes shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
