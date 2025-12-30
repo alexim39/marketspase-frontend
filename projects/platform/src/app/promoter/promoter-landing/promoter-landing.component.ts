@@ -357,11 +357,8 @@ applyForCampaign(campaign: CampaignInterface): void {
     return;
   }
   
-  if (!this.user()?.personalInfo?.address) {
-    // this.snackBar.open('Please complete your profile setup to accept campaign', 'OK', { 
-    //     duration: 3000,
-    // });
-
+  if (this.user()?.personalInfo?.phone === '') {
+  // if (this.user()?.personalInfo?.phone == null || this.user()?.personalInfo?.address == null) {
     this.snackBar.open(
       'Please complete your profile setup to accept campaign',
       'Go to Settings',

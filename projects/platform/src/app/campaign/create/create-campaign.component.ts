@@ -199,21 +199,19 @@ export class CreateCampaignComponent implements OnInit {
   // Final submission logic
   submitCampaign(): void {
 
-    if (!this.user()?.personalInfo?.address) {
-      // this.snackBar.open('Please complete your profile setup to create campaign', 'OK', { 
-      //     duration: 3000,
-      // });
-
-    this.snackBar.open(
-      'Please complete your profile setup to create campaign',
-      'Go to Settings',
-      {
-        duration: 3000,
-        panelClass: 'snackbar-link'
-      }
-    ).onAction().subscribe(() => {
-      this.router.navigate(['/dashboard/settings/account']);
-    });
+    if (this.user()?.personalInfo?.phone === '') {
+    // if (this.user()?.personalInfo?.phone == null || this.user()?.personalInfo?.address == null) {
+    // if (this.user()?.personalInfo?.phone && this.user()?.personalInfo?.address) {
+      this.snackBar.open(
+        'Please complete your profile setup to create campaign',
+        'Go to Settings',
+        {
+          duration: 3000,
+          panelClass: 'snackbar-link'
+        }
+      ).onAction().subscribe(() => {
+        this.router.navigate(['/dashboard/settings/account']);
+      });
 
       return;
     }
