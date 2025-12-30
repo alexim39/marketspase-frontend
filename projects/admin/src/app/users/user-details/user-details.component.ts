@@ -215,10 +215,34 @@ payoutAccounts = computed(() => {
   }
 
   // Add this computed property
-withdrawalTransactions = computed(() => {
-  const transactions = this.dataSource();
-  return transactions.filter(t => t.category === 'withdrawal' || t.description?.toLowerCase().includes('withdrawal'));
-});
+  withdrawalTransactions = computed(() => {
+    const transactions = this.dataSource();
+    return transactions.filter(t => t.category === 'withdrawal' || t.description?.toLowerCase().includes('withdrawal'));
+  });
 
+
+  userAge = computed(() => {
+    const dob = this.user()?.personalInfo?.dob;
+    if (!dob) return null;
+    
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  });
+
+  // Returns formatted address from user().personalInfo.address
+  get formattedAddress(): string {
+    const addr = this.user()?.personalInfo?.address;
+    if (!addr) return '—';
+    return [addr.street, addr.city, addr.state, addr.country].filter(Boolean).join(', ');
+  }
 
 }
