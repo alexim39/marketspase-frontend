@@ -1,0 +1,722 @@
+// components/store-dashboard/store-dashboard.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.store-dashboard {
+  flex: 1;
+  padding: $spacing-6;
+  background: linear-gradient(135deg, $background-color 0%, $gray-700 100%);
+  min-height: 100vh;
+  position: relative;
+
+  @include mobile {
+    padding: $spacing-4;
+  }
+}
+
+// Control Bar
+.control-bar {
+  @include flex-between;
+  background: $surface-color;
+  padding: $spacing-4;
+  border-radius: $border-radius-lg;
+  margin-bottom: $spacing-6;
+  box-shadow: $shadow-sm;
+  border: $border-width solid $border-color;
+
+  @include mobile {
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  .control-group {
+    @include flex-center;
+    gap: $spacing-3;
+
+    @include mobile {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  .view-controls {
+    @include flex-center;
+    background: $gray-700;
+    border-radius: $border-radius;
+    padding: $spacing-1;
+
+    button {
+      border-radius: $border-radius-sm;
+    }
+  }
+
+  .search-box {
+    @include flex-center;
+    background: $gray-700;
+    border-radius: $border-radius;
+    padding: $spacing-2 $spacing-3;
+    gap: $spacing-2;
+    min-width: 250px;
+
+    @include mobile {
+      min-width: auto;
+      flex: 1;
+    }
+
+    mat-icon {
+      color: $text-tertiary;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    input {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      font-size: $font-size-sm;
+
+      &::placeholder {
+        color: $text-tertiary;
+      }
+    }
+  }
+
+  .category-filter {
+    width: 160px;
+
+    @include mobile {
+      width: 140px;
+    }
+  }
+}
+
+// Enhanced Store Selection
+.store-selection {
+  @include flex-center;
+  padding: $spacing-20 0;
+
+  .selection-card {
+    @include card-base;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    border: 2px dashed $border-color;
+    background: transparent;
+
+    .empty-state {
+      padding: $spacing-16 $spacing-8;
+
+      .empty-icon-container {
+        position: relative;
+        margin-bottom: $spacing-6;
+
+        .empty-icon {
+          font-size: 80px;
+          width: 80px;
+          height: 80px;
+          color: $primary-color;
+          opacity: 0.7;
+        }
+
+        .empty-pulse {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 100px;
+          height: 100px;
+          border: 2px solid $primary-color;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+          opacity: 0.3;
+        }
+      }
+
+      h2 {
+        @include heading-medium;
+        margin: 0 0 $spacing-3 0;
+        color: $text-primary;
+      }
+
+      p {
+        @include body-large;
+        color: $text-secondary;
+        margin: 0 0 $spacing-8 0;
+        line-height: $line-height-relaxed;
+      }
+
+      .empty-actions {
+        @include flex-center;
+        gap: $spacing-4;
+
+        @include mobile {
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .create-btn {
+          padding: $spacing-3 $spacing-6;
+        }
+
+        button {
+          @include flex-center;
+          gap: $spacing-2;
+        }
+      }
+    }
+  }
+}
+
+// Enhanced Store Overview
+.store-overview {
+  .store-tabs {
+    margin-bottom: $spacing-6;
+    border-bottom: $border-width solid $border-color;
+    background: $surface-color;
+    border-radius: $border-radius-lg $border-radius-lg 0 0;
+    padding: 0 $spacing-4;
+
+    .store-tab {
+      @include flex-center;
+      gap: $spacing-2;
+      padding: $spacing-3 $spacing-4;
+      min-width: 120px;
+      position: relative;
+
+      .tab-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .tab-label {
+        font-weight: $font-weight-medium;
+      }
+
+      .tab-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+// Enhanced Overview Tab
+.overview-tab {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-4;
+    margin-bottom: $spacing-6;
+  }
+
+  .overview-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: $spacing-6;
+
+    @include tablet {
+      grid-template-columns: 1fr;
+    }
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Enhanced Stat Cards
+.stat-card {
+  @include card-base;
+  @include card-hover;
+  position: relative;
+  overflow: visible;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: $border-radius-lg $border-radius-lg 0 0;
+    background: transparent;
+    transition: background-color $transition-normal;
+  }
+
+  &.up-trend::before {
+    background: $success-color;
+  }
+
+  &.down-trend::before {
+    background: $error-color;
+  }
+
+  &.neutral-trend::before {
+    background: $warning-color;
+  }
+
+  .stat-header {
+    @include flex-between;
+    margin-bottom: $spacing-4;
+
+    .stat-controls {
+      @include flex-center;
+      gap: $spacing-2;
+    }
+  }
+
+  .stat-icon-container {
+    width: 56px;
+    height: 56px;
+    border-radius: $border-radius-lg;
+    @include flex-center;
+    transition: all $transition-normal;
+
+    .stat-icon {
+      font-size: 28px;
+      transition: transform $transition-normal;
+    }
+  }
+
+  .stat-card:hover {
+    .stat-icon-container {
+      transform: scale(1.05);
+    }
+
+    .stat-icon {
+      transform: rotate(-5deg);
+    }
+  }
+
+  .stat-trend {
+    @include flex-center;
+    gap: $spacing-1;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-full;
+    transition: all $transition-normal;
+
+    &.up {
+      background-color: rgba($success-color, 0.1);
+      color: $success-color;
+    }
+
+    &.down {
+      background-color: rgba($error-color, 0.1);
+      color: $error-color;
+    }
+
+    &.neutral {
+      background-color: rgba($warning-color, 0.1);
+      color: $warning-color;
+    }
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .stat-value {
+    @include heading-large;
+    margin: 0 0 $spacing-2 0;
+    color: $text-primary;
+    font-feature-settings: 'tnum';
+
+    &.currency::before {
+      content: '₦';
+    }
+
+    &.percentage::after {
+      content: '%';
+    }
+  }
+
+  .stat-label {
+    @include body-medium;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0 0 $spacing-1 0;
+  }
+
+  .stat-subtitle {
+    @include body-small;
+    color: $text-secondary;
+    margin: 0 0 $spacing-4 0;
+  }
+
+  .stat-progress {
+    margin-top: $spacing-4;
+
+    .progress-label {
+      display: block;
+      font-size: $font-size-xs;
+      color: $text-tertiary;
+      margin-top: $spacing-1;
+      text-align: right;
+    }
+  }
+}
+
+// Enhanced Alerts Section
+.alerts-section {
+  .alert-card {
+    margin-bottom: $spacing-4;
+    border-left: 6px solid transparent;
+    transition: all $transition-normal;
+
+    &.critical {
+      border-left-color: $error-color;
+      background: linear-gradient(135deg, #fff 0%, #ffebee 100%);
+    }
+
+    &.warning {
+      border-left-color: $warning-color;
+      background: linear-gradient(135deg, #fff 0%, #fff3e0 100%);
+    }
+
+    .alert-content {
+      @include flex-between;
+      gap: $spacing-4;
+
+      @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .alert-icon {
+        @include flex-center;
+        width: 48px;
+        height: 48px;
+        border-radius: $border-radius-full;
+        background: $error-color;
+        color: $white;
+        flex-shrink: 0;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      .alert-text {
+        flex: 1;
+
+        h3 {
+          @include body-large;
+          font-weight: $font-weight-semibold;
+          margin: 0 0 $spacing-1 0;
+          color: $text-primary;
+        }
+
+        p {
+          @include body-small;
+          margin: 0 0 $spacing-2 0;
+          color: $text-secondary;
+        }
+
+        .alert-details {
+          @include flex-center;
+          gap: $spacing-2;
+          flex-wrap: wrap;
+
+          .product-alert {
+            padding: $spacing-1 $spacing-2;
+            border-radius: $border-radius-sm;
+            font-size: $font-size-xs;
+            font-weight: $font-weight-medium;
+
+            &.critical {
+              background: $error-color;
+              color: $white;
+            }
+
+            &.high {
+              background: $warning-color;
+              color: $white;
+            }
+
+            &.medium {
+              background: $info-color;
+              color: $white;
+            }
+          }
+
+          .more-alerts {
+            font-size: $font-size-xs;
+            color: $text-tertiary;
+          }
+        }
+      }
+    }
+  }
+
+  .performance-card {
+    margin-top: $spacing-4;
+
+    .metrics-list {
+      .metric-item {
+        @include flex-between;
+        padding: $spacing-3 0;
+        border-bottom: 1px solid $divider-color;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .metric-info {
+          .metric-label {
+            @include body-small;
+            color: $text-secondary;
+            display: block;
+            margin-bottom: $spacing-1;
+          }
+
+          .metric-value {
+            @include body-large;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+          }
+        }
+
+        .metric-trend {
+          @include flex-center;
+          gap: $spacing-1;
+          padding: $spacing-1 $spacing-2;
+          border-radius: $border-radius-full;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-semibold;
+
+          &.up {
+            background: rgba($success-color, 0.1);
+            color: $success-color;
+          }
+
+          &.down {
+            background: rgba($error-color, 0.1);
+            color: $error-color;
+          }
+
+          &.neutral {
+            background: rgba($warning-color, 0.1);
+            color: $warning-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Enhanced Quick Actions
+.quick-actions-card {
+  .quick-actions-grid {
+    display: grid;
+    gap: $spacing-3;
+
+    .quick-action-btn {
+      @include flex-between;
+      padding: $spacing-4;
+      text-align: left;
+      height: auto;
+      min-height: 80px;
+      transition: all $transition-normal;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        margin-right: $spacing-3;
+        flex-shrink: 0;
+      }
+
+      .action-content {
+        flex: 1;
+        text-align: left;
+
+        .action-label {
+          @include body-medium;
+          font-weight: $font-weight-semibold;
+          display: block;
+          margin-bottom: $spacing-1;
+        }
+
+        .action-description {
+          @include body-small;
+          color: $text-secondary;
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+// Insights Card
+.insights-card {
+  margin-top: $spacing-4;
+
+  .insights-list {
+    .insight-item {
+      @include flex-center;
+      gap: $spacing-3;
+      padding: $spacing-3 0;
+      border-bottom: 1px solid $divider-color;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      &.positive {
+        mat-icon {
+          color: $success-color;
+        }
+      }
+
+      &.neutral {
+        mat-icon {
+          color: $warning-color;
+        }
+      }
+
+      &.action {
+        mat-icon {
+          color: $primary-color;
+        }
+      }
+
+      .insight-content {
+        flex: 1;
+
+        .insight-title {
+          @include body-small;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          display: block;
+          margin-bottom: $spacing-1;
+        }
+
+        .insight-desc {
+          @include caption;
+          color: $text-secondary;
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Snackbar Styles
+::ng-deep {
+  .success-snackbar {
+    background: $success-color;
+    color: $white;
+  }
+
+  .error-snackbar {
+    background: $error-color;
+    color: $white;
+  }
+}
+
+// Utility Classes
+.stat-menu-btn {
+  color: $text-tertiary;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+// Responsive Enhancements
+@include mobile {
+  .store-dashboard {
+    padding: $spacing-3;
+  }
+
+  .control-bar {
+    padding: $spacing-3;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .overview-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .stat-card {
+    border: 2px solid $black;
+  }
+
+  .alert-card {
+    border: 2px solid $black;
+  }
+}
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  .stat-card,
+  .quick-action-btn {
+    transition: none;
+  }
+
+  .empty-pulse {
+    animation: none;
+  }
+}

@@ -1,0 +1,400 @@
+// components/store-header/store-header.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.store-header {
+  margin-bottom: $spacing-8;
+  position: relative;
+}
+
+// No Store Header
+.no-store-header {
+  .header-content {
+    @include flex-between;
+    align-items: flex-start;
+    background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+    padding: $spacing-8;
+    border-radius: $border-radius-xl;
+    color: $white;
+    position: relative;
+    overflow: hidden;
+
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-6;
+      padding: $spacing-6;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: rgba($white, 0.1);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+
+    .welcome-section {
+      position: relative;
+      z-index: 2;
+
+      h1 {
+        @include heading-large;
+        margin: 0 0 $spacing-3 0;
+        color: $white;
+        font-weight: $font-weight-bold;
+      }
+
+      p {
+        @include body-large;
+        margin: 0;
+        opacity: 0.9;
+        max-width: 400px;
+      }
+    }
+
+    .header-actions {
+      @include flex-center;
+      gap: $spacing-3;
+      position: relative;
+      z-index: 2;
+
+      .create-store-btn {
+        background: rgba($white, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba($white, 0.3);
+        color: $white;
+        padding: $spacing-3 $spacing-6;
+        font-weight: $font-weight-semibold;
+
+        &:hover {
+          background: rgba($white, 0.3);
+          transform: translateY(-1px);
+        }
+      }
+
+      .help-menu-btn {
+        color: $white;
+        border: 1px solid rgba($white, 0.3);
+      }
+    }
+  }
+}
+
+// Store Header with Data
+.store-header-with-data {
+  @include card-base;
+  padding: 0;
+  overflow: hidden;
+  border: $border-width solid $border-color;
+
+  .header-main {
+    @include flex-between;
+    padding: $spacing-6;
+    background: $surface-color;
+
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-4;
+      align-items: flex-start;
+    }
+  }
+
+  .store-info {
+    flex: 1;
+
+    .store-brand {
+      @include flex-center;
+      gap: $spacing-4;
+      align-items: flex-start;
+
+      @include mobile {
+        align-items: center;
+      }
+    }
+
+    .store-logo {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: $border-radius-lg;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid $border-color;
+
+      .logo-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .verification-badge {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        background: $primary-color;
+        color: $white;
+        border-radius: $border-radius-full;
+        width: 24px;
+        height: 24px;
+        @include flex-center;
+        border: 2px solid $white;
+
+        mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+
+    .store-details {
+      flex: 1;
+
+      .store-title-section {
+        @include flex-between;
+        align-items: flex-start;
+        margin-bottom: $spacing-2;
+
+        @include mobile {
+          flex-direction: column;
+          gap: $spacing-2;
+        }
+
+        .store-name {
+          @include heading-medium;
+          margin: 0;
+          color: $text-primary;
+          line-height: 1.2;
+        }
+
+        .store-status {
+          @include flex-center;
+          gap: $spacing-2;
+
+          .status-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+
+          .premium-badge {
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+          }
+        }
+      }
+
+      .store-description {
+        @include body-medium;
+        color: $text-secondary;
+        margin: 0 0 $spacing-3 0;
+        line-height: $line-height-relaxed;
+        max-width: 500px;
+      }
+
+      .store-meta {
+        @include flex-center;
+        gap: $spacing-3;
+        flex-wrap: wrap;
+
+        .category-badge {
+          @include caption;
+          background: $primary-color;
+          color: $white;
+          padding: $spacing-1 $spacing-3;
+          border-radius: $border-radius-full;
+          font-weight: $font-weight-medium;
+        }
+
+        .store-id, .created-date {
+          @include caption;
+          color: $text-tertiary;
+          background: $gray-100;
+          padding: $spacing-1 $spacing-2;
+          border-radius: $border-radius-sm;
+        }
+      }
+    }
+  }
+
+  .header-actions {
+    @include flex-center;
+    gap: $spacing-3;
+
+    @include mobile {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .action-group {
+      @include flex-center;
+      gap: $spacing-2;
+
+      &.primary-actions {
+        .desktop-action {
+          @include mobile {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .verify-btn {
+      border-width: 2px;
+    }
+
+    .store-menu-btn {
+      color: $text-primary;
+    }
+  }
+
+  // Stores Submenu
+  .stores-submenu {
+    min-width: 280px;
+
+    .store-menu-item {
+      @include flex-column;
+      align-items: flex-start;
+      line-height: 1.4;
+
+      .store-name {
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+      }
+
+      .store-category {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+      }
+    }
+
+    .active {
+      background: rgba($primary-color, 0.04);
+    }
+
+    .verified-badge {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin-left: auto;
+    }
+  }
+
+  .archive-item {
+    color: $error-color;
+
+    mat-icon {
+      color: $error-color;
+    }
+  }
+}
+
+// Quick Stats Bar
+.quick-stats-bar {
+  @include flex-between;
+  background: $gray-50;
+  padding: $spacing-4 $spacing-6;
+  border-top: $border-width solid $border-color;
+
+  @include mobile {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-4;
+  }
+
+  .stat-item {
+    @include flex-center;
+    gap: $spacing-2;
+    text-align: center;
+
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-1;
+    }
+
+    .stat-value {
+      @include heading-small;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+    }
+
+    .stat-label {
+      @include caption;
+      color: $text-secondary;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-trend {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+
+      &.up {
+        color: $success-color;
+      }
+
+      &.down {
+        color: $error-color;
+      }
+    }
+  }
+}
+
+// Loading Overlay
+.loading-overlay {
+  @include flex-center;
+  gap: $spacing-2;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($surface-color, 0.9);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  color: $text-secondary;
+
+  span {
+    @include body-medium;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .store-header {
+    margin-bottom: $spacing-6;
+  }
+
+  .quick-stats-bar {
+    padding: $spacing-3;
+  }
+
+  .header-main {
+    padding: $spacing-4 !important;
+  }
+}
+
+// Animation
+.store-header-with-data {
+  @include fade-in;
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  .no-store-header .header-content {
+    border: 2px solid $white;
+  }
+
+  .store-header-with-data {
+    border: 2px solid $black;
+  }
+}

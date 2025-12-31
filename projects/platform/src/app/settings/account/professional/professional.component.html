@@ -84,10 +84,13 @@
               <mat-error>
                 At least one skill is required
               </mat-error>
+              <small class="note">
+                Type your skill and tap the Enter on keyboard to input value
+              </small>
             }      
             <mat-hint>
               @if (skills().length === 0) {
-                Enter skill and tap enter
+                Type your skill and tap the Enter on keyboard to input value
               } @else {
                 {{ skills().length }} skill(s) added
               }
@@ -117,10 +120,13 @@
               <mat-error>
                 At least one hobby is required
               </mat-error>
+              <small class="note">
+                Type your hobby and tap the Enter on keyboard to input value
+              </small>
             }
             <mat-hint>
               @if (hobbies().length === 0) {
-                Enter hobby and tap enter
+                Type your hobby and tap the Enter on keyboard to input value
               } @else {
                 {{ hobbies().length }} hobby(ies) added
               }

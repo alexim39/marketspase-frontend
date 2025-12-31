@@ -62,7 +62,12 @@
     <div class="container">
       <!-- Initial loading state -->
       @if (isLoading() && campaigns().length === 0) {
-        <loading-state/>
+        @if (deviceType() === 'mobile') {
+          <loading-state-mobile/>
+        } @else {
+          <loading-state/>
+        }
+        
       } 
       
       <!-- Empty state -->

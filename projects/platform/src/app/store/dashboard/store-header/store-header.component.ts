@@ -52,7 +52,7 @@ export class StoreHeaderComponent {
     const store = this.store();
     if (!store) return 'no-store';
     
-    if (!store.isActive) return 'suspended';
+    if (!store.isActive) return 'inactive';
     if (store.isVerified) return 'verified';
     return 'active';
   });
@@ -75,7 +75,8 @@ export class StoreHeaderComponent {
       'no-store': 'default',
       'active': 'primary',
       'verified': 'accent',
-      'suspended': 'warn'
+      'suspended': 'warn',
+      'inactive': 'warn'
     };
     return colors[status] || 'default';
   });
@@ -86,7 +87,8 @@ export class StoreHeaderComponent {
       'no-store': 'storefront',
       'active': 'check_circle',
       'verified': 'verified',
-      'suspended': 'pause_circle'
+      'suspended': 'pause_circle',
+      'inactive': 'pause_circle'
     };
     return icons[status] || 'storefront';
   });

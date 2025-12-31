@@ -1,3 +1,4 @@
+
 import { Component, inject, Input, Signal, effect, DestroyRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -96,8 +97,13 @@ export class PersonalInfoComponent implements AfterViewInit {
     return this.countries.filter(country => country.toLowerCase().includes(filterValue));
   });
 
-  readonly minDate = new Date(1900, 0, 1);
-  readonly maxDate = new Date();
+  // Age restriction constant
+  private readonly MIN_AGE = 18;
+  isUnderAge = signal(false);
+
+  // Date constraints with sensible defaults
+  readonly minDate = new Date(new Date().getFullYear() - 120, 0, 1); // 120 years ago
+  readonly maxDate = new Date(); // Today
 
   constructor() {
     // We can use `effect` here because the constructor is an injection context.
@@ -165,6 +171,33 @@ export class PersonalInfoComponent implements AfterViewInit {
             stateControl.updateValueAndValidity();
           }
         });
+
+        // Check initial age on form creation
+        if (userData?.personalInfo?.dob) {
+          const dobDate = new Date(userData.personalInfo.dob);
+          if (this.isValidDate(dobDate)) {
+            const initialAge = this.calculateAge(dobDate);
+            this.isUnderAge.set(initialAge < this.MIN_AGE);
+          }
+        }
+
+        // Add dob change subscription to track age in real-time
+        this.profileForm.controls['dob'].valueChanges
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(dob => {
+            if (dob) {
+              const dobDate = new Date(dob);
+              if (this.isValidDate(dobDate)) {
+                const age = this.calculateAge(dobDate);
+                this.isUnderAge.set(age < this.MIN_AGE);
+              } else {
+                this.isUnderAge.set(false);
+              }
+            } else {
+              this.isUnderAge.set(false);
+            }
+          });
+          
       }
     }, { allowSignalWrites: true });
   }
@@ -274,6 +307,48 @@ export class PersonalInfoComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * Calculates age from date of birth
+   * @param dob The date of birth
+   * @returns Age in years
+   */
+  private calculateAge(dob: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+
+  /**
+   * Validates if a date is valid
+   * @param date The date to validate
+   * @returns True if date is valid
+   */
+  private isValidDate(date: Date): boolean {
+    return date instanceof Date && !isNaN(date.getTime());
+  }
+
+  /**
+   * Shows age restriction warning without notification (UI already shows warning)
+   */
+  showAgeRestrictionWarning(): void {
+    const dobControl = this.profileForm.get('dob');
+    if (dobControl?.value) {
+      const dobDate = new Date(dobControl.value);
+      if (this.isValidDate(dobDate)) {
+        const age = this.calculateAge(dobDate);
+        this.isUnderAge.set(age < this.MIN_AGE);
+      } else {
+        this.isUnderAge.set(false);
+      }
+    }
+  }
+
   onSubmit(): void {
     // Check if the form is initialized before checking its validity
     if (!this.profileForm || this.profileForm.invalid) {
@@ -283,32 +358,51 @@ export class PersonalInfoComponent implements AfterViewInit {
       this.showNotification('Please fill all required fields correctly');
       return;
     }
-
+    
+    // Check if user is under 18
+    const dob = this.profileForm.get('dob')?.value;
+    if (dob) {
+      const dobDate = new Date(dob);
+      
+      // Validate date first
+      if (!this.isValidDate(dobDate)) {
+        this.showNotification('Invalid date of birth', 'error');
+        return;
+      }
+      
+      const age = this.calculateAge(dobDate);
+      if (age < this.MIN_AGE) {
+        this.showNotification(`You must be at least ${this.MIN_AGE} years old to update your profile`, 'warning');
+        this.isUnderAge.set(true);
+        return;
+      }
+      this.isUnderAge.set(false);
+    }
+    
     this.isLoading.set(true);
     const formValue = this.profileForm.value;
 
-      this.profileService.updateProfile(formValue)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.showNotification(response.message, 'success');
-          this.isLoading.set(false);
+    this.profileService.updateProfile(formValue)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (response) => {
+        this.showNotification(response.message, 'success');
+        this.isLoading.set(false);
 
-          // reload user record
-          this.userService.getUser(this.user()?.uid || '')
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            error: (error) => {
-              console.error('Failed to refresh user:', error);
-            }
-          });
-
-        },
-        error: (error: HttpErrorResponse) => {
-          this.handleError(error);
-          this.isLoading.set(false);
-        }
-      })
+        // reload user record
+        this.userService.getUser(this.user()?.uid || '')
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          error: (error) => {
+            console.error('Failed to refresh user:', error);
+          }
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.handleError(error);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   private showNotification(message: string, panelClass: string = 'error'): void {

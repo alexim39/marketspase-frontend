@@ -11,9 +11,8 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
   providers: [NotificationBannerService,],
   template: `
 
-
     <!-- If user profile is set -->
-     @if(!this.isProfiled()) {
+     @if(this.isProfiled()) {
       <div class="info-alert">
         <mat-icon class="info-icon">info</mat-icon>
         <span>
@@ -35,7 +34,9 @@ export class ProfileNotifierBannerComponent implements OnInit {
   isProfiled = signal(false)
 
   ngOnInit(): void {
-    if (this.user()?.personalInfo?.address) {
+    if (this.user()?.personalInfo?.phone === '') {
+    // if (this.user()?.personalInfo?.phone == null || this.user()?.personalInfo?.address == null) {
+    // if (this.user()?.personalInfo?.address) {
       this.isProfiled.set(true)
     }
   }

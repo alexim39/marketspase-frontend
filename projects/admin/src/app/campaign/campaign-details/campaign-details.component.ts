@@ -99,6 +99,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.success) {
             this.campaign.set(response.data);
+            //console.log('campaign data', response.data);
             this.promotions.set(response.data.promotions || []);
             this.promotionsDataSource.data = response.data.promotions || [];
             //console.log('campaign ', response.data);

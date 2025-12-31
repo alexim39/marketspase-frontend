@@ -75,7 +75,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
   
   // Table properties
-  displayedColumns: string[] = ['promoter', 'upi', 'status', 'views', 'submitted', 'validated', 'paid', 'actions'];
+  displayedColumns: string[] = ['promoter', 'upi', 'status', 'views', 'created', 'submitted', 'validated', 'paid', 'actions'];
   dataSource: MatTableDataSource<PromotionInterface> = new MatTableDataSource<PromotionInterface>([]);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

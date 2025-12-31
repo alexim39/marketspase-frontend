@@ -1,3 +1,4 @@
+
 <mat-card class="profile-card">
   <mat-card-header>
     <mat-card-title class="profile-title">
@@ -85,10 +86,25 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Date of Birth</mat-label>
-            <input matInput [matDatepicker]="dobPicker" formControlName="dob" [max]="maxDate">
+            <input 
+              matInput 
+              [matDatepicker]="dobPicker" 
+              formControlName="dob" 
+              [min]="minDate"
+              [max]="maxDate"
+              (dateChange)="showAgeRestrictionWarning()"
+            >
             <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
             <mat-datepicker #dobPicker></mat-datepicker>
             <mat-hint>MM/DD/YYYY</mat-hint>
+            
+            <!-- Age restriction warning -->
+            @if (isUnderAge()) {
+              <mat-error class="age-warning">
+                <mat-icon>warning</mat-icon>
+                You must be at least 18 years old to update your profile
+              </mat-error>
+            }
           </mat-form-field>
         </div>
 
@@ -183,7 +199,7 @@
           <textarea matInput formControlName="biography" rows="3" placeholder="Tell the MarketSpase community about yourself"></textarea>
           <mat-icon matSuffix>edit</mat-icon>
           <mat-hint>Max 500 characters</mat-hint>
-          @if (profileForm.get('bio')?.hasError('maxlength')) {
+          @if (profileForm.get('biography')?.hasError('maxlength')) {
             <mat-error>
             Bio cannot exceed 500 characters
           </mat-error>
@@ -221,7 +237,8 @@
       mat-flat-button 
       color="primary" 
       class="save-button"
-      [disabled]="profileForm.invalid || isLoading()"
+      [disabled]="profileForm.invalid || isLoading() || isUnderAge()"
+      [matTooltip]="isUnderAge() ? 'You must be 18+ to update profile' : ''"
       (click)="onSubmit()">
       @if (isLoading()) {
         <mat-spinner diameter="20"/>
@@ -229,5 +246,13 @@
         Save Changes
       }      
     </button>
+    
+    <!-- Add a warning message when under age -->
+    @if (isUnderAge()) {
+      <div class="age-restriction-banner">
+        <!-- <mat-icon color="warn">warning</mat-icon> -->
+        <span>Age Restriction: You must be at least 18 years old to update your profile.</span>
+      </div>
+    }
   </mat-card-actions>
 </mat-card>

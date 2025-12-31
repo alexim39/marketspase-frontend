@@ -1,0 +1,855 @@
+<!-- components/product-management/add-product/add-product.component.html -->
+<div class="add-product-container">
+  <!-- Header -->
+  <div class="product-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button mat-button routerLink="/dashboard/stores" class="back-btn">
+        <!-- <button mat-button routerLink="/dashboard/stores/{{store()?._id}}/products" class="back-btn"> -->
+          <mat-icon>arrow_back</mat-icon>
+          Back to Stores
+        </button>
+        
+        <div class="header-title">
+          <h1>Add New Product</h1>
+          <p class="subtitle">Fill in the product details below. All fields marked with * are required.</p>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <button mat-stroked-button (click)="onCancel()" class="cancel-btn">
+          Cancel
+        </button>
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading()" class="submit-btn">
+          @if (loading()) {
+            <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+            <span>Saving...</span>
+          } @else {
+            <mat-icon>save</mat-icon>
+            <span>Save Product</span>
+          }
+        </button>
+      </div>
+    </div>
+    
+    <!-- Stepper -->
+    <mat-stepper [linear]="true" [selectedIndex]="currentStep()" class="product-stepper">
+      @for (step of stepLabels; track $index; let i = $index) {
+        <mat-step [stepControl]="productForm" [completed]="isStepValid(i)">
+          <ng-template matStepLabel>{{ step }}</ng-template>
+        </mat-step>
+      }
+    </mat-stepper>
+  </div>
+
+  <!-- Main Content -->
+  <div class="product-form-wrapper">
+    <!-- Step 1: Basic Information -->
+    @if (currentStep() === 0) {
+      <div class="form-step">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>info</mat-icon>
+              Basic Information
+            </mat-card-title>
+            <mat-card-subtitle>Tell us about your product</mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="form-grid" [formGroup]="basicInfo">
+              <!-- Product Name -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Product Name *</mat-label>
+                <input matInput formControlName="name">
+                <mat-icon matSuffix>title</mat-icon>
+                @if (basicInfo.get('name')?.hasError('required')) {
+                  <mat-error>Product name is required</mat-error>
+                }
+                @if (basicInfo.get('name')?.hasError('minlength')) {
+                  <mat-error>Minimum 3 characters required</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Category -->
+              <mat-form-field appearance="outline">
+                <mat-label>Category *</mat-label>
+                <mat-select formControlName="category">
+                  @for (category of productCategories(); track category) {
+                    <mat-option [value]="category">{{ category }}</mat-option>
+                  }
+                </mat-select>
+                @if (basicInfo.get('category')?.hasError('required')) {
+                  <mat-error>Please select a category</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Brand -->
+              <mat-form-field appearance="outline">
+                <mat-label>Brand</mat-label>
+                <input matInput formControlName="brand">
+                <mat-icon matSuffix>business</mat-icon>
+              </mat-form-field>
+
+              <!-- Tags -->
+              <div class="full-width">
+                <mat-form-field appearance="outline" class="tags-field">
+                  <mat-label>Tags</mat-label>
+                  <mat-chip-grid #chipGrid>
+                    @for (tag of tagsArray.controls; track $index) {
+                      <mat-chip-row (removed)="removeTag($index)">
+                        {{ tag.value }}
+                        <button matChipRemove>
+                          <mat-icon>cancel</mat-icon>
+                        </button>
+                      </mat-chip-row>
+                    }
+                  </mat-chip-grid>
+                  <input 
+                    placeholder="Add a tag..." 
+                    [matChipInputFor]="chipGrid" 
+                    (matChipInputTokenEnd)="addTag($event)"
+                    [matAutocomplete]="auto"
+                  />
+                  <mat-autocomplete #auto="matAutocomplete">
+                    @for (suggestion of ['New', 'Popular', 'Sale', 'Limited']; track suggestion) {
+                      <mat-option [value]="suggestion">{{ suggestion }}</mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+
+              <!-- Description -->
+              <mat-form-field appearance="outline" class="full-width description-field">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" rows="4"></textarea>
+                <mat-icon matSuffix>description</mat-icon>
+                <mat-hint>Describe your product in detail. You can use rich text formatting.</mat-hint>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Images Upload -->
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>image</mat-icon>
+              Product Images
+            </mat-card-title>
+            <mat-card-subtitle>Upload up to {{ maxImages }} images (First image will be the main image)</mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="images-upload">
+              <!-- Image Upload Area -->
+              <div class="upload-area" (click)="fileInput.click()">
+                <input type="file" #fileInput accept="image/*" multiple (change)="onImageSelect($event)" hidden>
+                <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                <p>Drag & drop images here or click to browse</p>
+                <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>
+              </div>
+
+              <!-- Image Previews -->
+              @if (imagePreviews().length > 0) {
+                <div class="image-previews">
+                  <div class="image-grid">
+                    @for (image of imagePreviews(); track $index; let i = $index) {
+                      <div class="image-preview" [class.main-image]="i === 0">
+                        <div class="image-overlay">
+                          <button mat-icon-button class="image-remove" (click)="removeImage(i)">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                          @if (i === 0) {
+                            <div class="main-label">Main</div>
+                          }
+                          <button mat-icon-button class="image-reorder" [matMenuTriggerFor]="reorderMenu">
+                            <mat-icon>more_vert</mat-icon>
+                          </button>
+                          <mat-menu #reorderMenu="matMenu">
+                            @if (i > 0) {
+                              <button mat-menu-item (click)="reorderImages(i, i - 1)">
+                                <mat-icon>arrow_upward</mat-icon>
+                                Move Up
+                              </button>
+                            }
+                            @if (i < imagePreviews().length - 1) {
+                              <button mat-menu-item (click)="reorderImages(i, i + 1)">
+                                <mat-icon>arrow_downward</mat-icon>
+                                Move Down
+                              </button>
+                            }
+                          </mat-menu>
+                        </div>
+                        <img [src]="image" [alt]="'Product image ' + (i + 1)">
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Step 2: Pricing & Inventory -->
+    @if (currentStep() === 1) {
+      <div class="form-step">
+        <div class="two-column-layout">
+          <!-- Pricing -->
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>attach_money</mat-icon>
+                Pricing
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="form-grid" [formGroup]="pricing">
+                <!-- Price -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Price *</mat-label>
+                  <input matInput type="number" formControlName="price" min="0" step="0.01">
+                  <span matTextPrefix>₦</span>
+                  @if (pricing.get('price')?.hasError('required')) {
+                    <mat-error>Price is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Original Price -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Original Price</mat-label>
+                  <input matInput type="number" formControlName="originalPrice" min="0" step="0.01">
+                  <span matTextPrefix>₦</span>
+                  <mat-hint>For showing discounts</mat-hint>
+                </mat-form-field>
+
+                <!-- Cost Price -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Cost Price</mat-label>
+                  <input matInput type="number" formControlName="costPrice" min="0" step="0.01">
+                  <span matTextPrefix>₦</span>
+                  <mat-hint>Your purchase cost (not shown to customers)</mat-hint>
+                </mat-form-field>
+
+                <!-- Tax Settings -->
+                <div class="full-width">
+                  <mat-slide-toggle formControlName="taxable">
+                    Product is taxable
+                  </mat-slide-toggle>
+                  
+                  @if (pricing.get('taxable')?.value) {
+                    <mat-form-field appearance="outline" class="tax-field">
+                      <mat-label>Tax Class</mat-label>
+                      <mat-select formControlName="taxClass">
+                        <mat-option value="standard">Standard Rate</mat-option>
+                        <mat-option value="reduced">Reduced Rate</mat-option>
+                        <mat-option value="zero">Zero Rate</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  }
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Inventory -->
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>inventory_2</mat-icon>
+                Inventory
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="form-grid" [formGroup]="inventory">
+                <!-- SKU -->
+                <mat-form-field appearance="outline">
+                  <mat-label>SKU</mat-label>
+                  <input matInput formControlName="sku">
+                  <mat-icon matSuffix>inventory</mat-icon>
+                  <mat-hint>Stock Keeping Unit (auto-generated from name)</mat-hint>
+                </mat-form-field>
+
+                <!-- Quantity -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Stock Quantity *</mat-label>
+                  <input matInput type="number" formControlName="quantity" min="0">
+                  @if (inventory.get('quantity')?.hasError('required')) {
+                    <mat-error>Quantity is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <!-- Low Stock Alert -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Low Stock Alert</mat-label>
+                  <input matInput type="number" formControlName="lowStockAlert" min="0">
+                  <mat-icon matSuffix>warning</mat-icon>
+                  <mat-hint>Get notified when stock reaches this level</mat-hint>
+                </mat-form-field>
+
+                <!-- Inventory Settings -->
+                <div class="full-width">
+                  <mat-slide-toggle formControlName="manageStock">
+                    Manage stock
+                  </mat-slide-toggle>
+                  
+                  <div class="toggle-group">
+                    <mat-slide-toggle formControlName="backorderAllowed">
+                      Allow backorders
+                    </mat-slide-toggle>
+                    
+                    <mat-slide-toggle formControlName="soldIndividually">
+                      Sold individually
+                    </mat-slide-toggle>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Variants -->
+    @if (currentStep() === 2) {
+      <div class="form-step">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>layers</mat-icon>
+              Product Variants
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content [formGroup]="variants">
+            <!-- Variant Toggle -->
+            <div class="variant-toggle">
+              <mat-slide-toggle formControlName="hasVariants">
+                This product has multiple options (like size or color)
+              </mat-slide-toggle>
+            </div>
+
+            @if (hasVariants()) {
+              <div class="variants-section">
+                <!-- Attributes -->
+                <div class="attributes-section">
+                  <h3>Attributes</h3>
+                  @for (attribute of attributesArray.controls; track $index; let i = $index) {
+                    <div class="attribute-card" [formGroup]="attribute">
+                      <div class="attribute-header">
+                        <mat-form-field appearance="outline" class="attribute-name">
+                          <mat-label>Attribute Name</mat-label>
+                          <input matInput formControlName="name">
+                          <mat-icon matSuffix>label</mat-icon>
+                        </mat-form-field>
+                        
+                        <div class="attribute-actions">
+                          <button mat-icon-button color="warn" (click)="removeAttribute(i)">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="attribute-values">
+                        <h4>Values</h4>
+                        @for (valueCtrl of getAttributeValuesArray(i).controls; track $index; let j = $index) {
+                          <div class="value-row">
+                            <mat-form-field appearance="outline">
+                              <mat-label>Value {{ j + 1 }}</mat-label>
+                              <input matInput [formControl]="valueControl(i, j)">
+                            </mat-form-field>
+                            <button mat-icon-button (click)="removeAttributeValue(i, j)" [disabled]="getAttributeValuesArray(i).length <= 1">
+                              <mat-icon>remove</mat-icon>
+                            </button>
+                          </div>
+                        }
+                        
+                        <button mat-button color="primary" (click)="addAttributeValue(i)">
+                          <mat-icon>add</mat-icon>
+                          Add Value
+                        </button>
+                      </div>
+
+                      <div class="attribute-settings">
+                        <mat-checkbox formControlName="visible" class="setting-checkbox">
+                          Visible on product page
+                        </mat-checkbox>
+                        <mat-checkbox formControlName="variation" class="setting-checkbox">
+                          Used for variations
+                        </mat-checkbox>
+                      </div>
+                    </div>
+                  }
+
+                  <button mat-raised-button color="primary" (click)="addAttribute()">
+                    <mat-icon>add</mat-icon>
+                    Add Attribute
+                  </button>
+
+                  @if (attributesArray.length > 0) {
+                    <div class="generate-variants">
+                      <button mat-raised-button color="accent" (click)="generateVariants()">
+                        <mat-icon>auto_awesome</mat-icon>
+                        Generate Variants
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <!-- Generated Variants -->
+                @if (variantsArray.length > 0) {
+                  <div class="generated-variants">
+                    <h3>Generated Variants ({{ variantsArray.length }})</h3>
+                    <div class="variants-list">
+                      @for (variant of variantsArray.controls; track $index; let i = $index) {
+                        <mat-card class="variant-card" [formGroup]="variant">
+                          <mat-card-content>
+                            <div class="variant-details">
+                              <div class="variant-info">
+                                <mat-form-field appearance="outline" class="variant-name">
+                                  <mat-label>Variant Name</mat-label>
+                                  <input matInput formControlName="name">
+                                </mat-form-field>
+                                
+                                <mat-form-field appearance="outline" class="variant-sku">
+                                  <mat-label>SKU</mat-label>
+                                  <input matInput formControlName="sku">
+                                </mat-form-field>
+                                
+                                <mat-form-field appearance="outline" class="variant-price">
+                                  <mat-label>Price</mat-label>
+                                  <input matInput type="number" formControlName="price" min="0" step="0.01">
+                                  <span matTextPrefix>₦</span>
+                                </mat-form-field>
+                                
+                                <mat-form-field appearance="outline" class="variant-quantity">
+                                  <mat-label>Quantity</mat-label>
+                                  <input matInput type="number" formControlName="quantity" min="0">
+                                </mat-form-field>
+                              </div>
+                            </div>
+                          </mat-card-content>
+                        </mat-card>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Step 4: Shipping -->
+    @if (currentStep() === 3) {
+      <div class="form-step">
+        <mat-card class="form-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>local_shipping</mat-icon>
+              Shipping
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="form-grid" [formGroup]="shipping">
+              <!-- Shipping Toggle -->
+              <div class="full-width">
+                <mat-slide-toggle formControlName="requiresShipping">
+                  This product requires shipping
+                </mat-slide-toggle>
+              </div>
+
+              @if (shipping.get('requiresShipping')?.value) {
+                <!-- Weight -->
+                <mat-form-field appearance="outline">
+                  <mat-label>Weight (kg)</mat-label>
+                  <input matInput type="number" formControlName="weight" min="0" step="0.001">
+                  <mat-icon matSuffix>scale</mat-icon>
+                </mat-form-field>
+
+                <!-- Dimensions -->
+                <div class="dimensions-section full-width" [formGroup]="dimensions">
+                  <h4>Dimensions (cm)</h4>
+                  <div class="dimensions-grid">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Length</mat-label>
+                      <input matInput formControlName="length">
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline">
+                      <mat-label>Width</mat-label>
+                      <input matInput formControlName="width">
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline">
+                      <mat-label>Height</mat-label>
+                      <input matInput formControlName="height">
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Shipping Class -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Shipping Class</mat-label>
+                  <mat-select formControlName="shippingClass">
+                    <mat-option value="">Default</mat-option>
+                    <mat-option value="fragile">Fragile</mat-option>
+                    <mat-option value="oversized">Oversized</mat-option>
+                    <mat-option value="refrigerated">Refrigerated</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              } @else {
+                <div class="digital-notice full-width">
+                  <mat-icon>cloud_download</mat-icon>
+                  <p>This product will be marked as digital (downloadable)</p>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Step 5: SEO & Advanced -->
+    @if (currentStep() === 4) {
+      <div class="form-step">
+        <div class="two-column-layout">
+          <!-- SEO -->
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>search</mat-icon>
+                SEO Settings
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="form-grid" [formGroup]="seo">
+                <!-- SEO Title -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>SEO Title</mat-label>
+                  <input matInput formControlName="seoTitle" maxlength="60">
+                  <mat-icon matSuffix>title</mat-icon>
+                  <mat-hint>Recommended: 50-60 characters</mat-hint>
+                </mat-form-field>
+
+                <!-- SEO Description -->
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>SEO Description</mat-label>
+                  <textarea matInput formControlName="seoDescription" rows="3" maxlength="160"></textarea>
+                  <mat-icon matSuffix>description</mat-icon>
+                  <mat-hint>Recommended: 150-160 characters</mat-hint>
+                </mat-form-field>
+
+                <!-- Keywords -->
+                <div class="full-width">
+                  <mat-form-field appearance="outline" class="keywords-field">
+                    <mat-label>Meta Keywords</mat-label>
+                    <mat-chip-grid #keywordGrid>
+                      @for (keyword of keywordsArray.controls; track $index) {
+                        <mat-chip-row (removed)="keywordsArray.removeAt($index)">
+                          {{ keyword.value }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip-row>
+                      }
+                    </mat-chip-grid>
+                    <input 
+                      placeholder="Add a keyword..." 
+                      [matChipInputFor]="keywordGrid" 
+                      (matChipInputTokenEnd)="keywordsArray.push(fb.control($event.value))"
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Advanced Settings -->
+          <mat-card class="form-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>settings</mat-icon>
+                Advanced Settings
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <div class="advanced-settings">
+                <!-- Product Status -->
+                <div class="setting-group" [formGroup]="advanced">
+                  <h4>Product Status</h4>
+                  <mat-slide-toggle formControlName="isActive" color="primary">
+                    Product is active
+                  </mat-slide-toggle>
+                  
+                  <mat-slide-toggle formControlName="isFeatured" color="accent">
+                    Mark as featured
+                  </mat-slide-toggle>
+                </div>
+
+                <!-- Scheduling -->
+                <div class="setting-group" [formGroup]="advanced">
+                  <h4>Scheduling</h4>
+                  <p class="setting-description">Schedule when this product should be published</p>
+                  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Publish Date</mat-label>
+                    <input matInput [matDatepicker]="startPicker" formControlName="scheduledStart">
+                    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #startPicker></mat-datepicker>
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>End Date</mat-label>
+                    <input matInput [matDatepicker]="endPicker" formControlName="scheduledEnd">
+                    <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #endPicker></mat-datepicker>
+                  </mat-form-field>
+                </div>
+
+                <!-- Digital Product -->
+                <div class="setting-group" [formGroup]="digital">
+                  <h4>Digital Product</h4>
+                  <mat-slide-toggle formControlName="isDigital" color="primary">
+                    This is a digital product
+                  </mat-slide-toggle>
+                  
+                  @if (digital.get('isDigital')?.value) {
+                    <div class="digital-options">
+                      <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Downloadable File</mat-label>
+                        <input matInput formControlName="digitalFile">
+                        <button mat-icon-button matSuffix (click)="triggerFileInput()">
+                          <mat-icon>attach_file</mat-icon>
+                        </button>
+                      </mat-form-field>
+                      
+                      <mat-form-field appearance="outline">
+                        <mat-label>Download Limit</mat-label>
+                        <input matInput type="number" formControlName="downloadLimit" min="0">
+                        <mat-hint>0 = unlimited downloads</mat-hint>
+                      </mat-form-field>
+                      
+                      <mat-form-field appearance="outline">
+                        <mat-label>Download Expiry (days)</mat-label>
+                        <input matInput type="number" formControlName="downloadExpiry" min="0">
+                        <mat-hint>0 = never expires</mat-hint>
+                      </mat-form-field>
+                    </div>
+                  }
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    }
+
+    <!-- Step 6: Review -->
+    @if (currentStep() === 5) {
+      <div class="form-step">
+        <mat-card class="review-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>preview</mat-icon>
+              Review & Submit
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="review-sections">
+              <!-- Basic Info Review -->
+              <div class="review-section">
+                <h3>
+                  <mat-icon>info</mat-icon>
+                  Basic Information
+                  <button mat-button color="primary" (click)="currentStep.set(0)">Edit</button>
+                </h3>
+                
+                <div class="review-grid">
+                  <div class="review-item">
+                    <span class="review-label">Name:</span>
+                    <span class="review-value">{{ basicInfo.get('name')?.value }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Category:</span>
+                    <span class="review-value">{{ basicInfo.get('category')?.value }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Brand:</span>
+                    <span class="review-value">{{ basicInfo.get('brand')?.value || 'Not specified' }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Description:</span>
+                    <span class="review-value">{{ basicInfo.get('description')?.value || 'No description' }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Tags:</span>
+                    <span class="review-value">
+                      @if (tagsArray.length > 0) {
+                        @for (tag of tagsArray.controls; track $index) {
+                          <mat-chip>{{ tag.value }}</mat-chip>
+                        }
+                      } @else {
+                        No tags
+                      }
+                    </span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Images:</span>
+                    <span class="review-value">{{ imagePreviews().length }} images uploaded</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pricing & Inventory Review -->
+              <div class="review-section">
+                <h3>
+                  <mat-icon>attach_money</mat-icon>
+                  Pricing & Inventory
+                  <button mat-button color="primary" (click)="currentStep.set(1)">Edit</button>
+                </h3>
+                
+                <div class="review-grid">
+                  <div class="review-item">
+                    <span class="review-label">Price:</span>
+                    <span class="review-value">₦{{ pricing.get('price')?.value | number:'1.2-2' }}</span>
+                  </div>
+                  @if (pricing.get('originalPrice')?.value) {
+                    <div class="review-item">
+                      <span class="review-label">Original Price:</span>
+                      <span class="review-value">₦{{ pricing.get('originalPrice')?.value | number:'1.2-2' }}</span>
+                    </div>
+                  }
+                  <div class="review-item">
+                    <span class="review-label">Stock Quantity:</span>
+                    <span class="review-value">{{ inventory.get('quantity')?.value }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Low Stock Alert:</span>
+                    <span class="review-value">{{ inventory.get('lowStockAlert')?.value }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">SKU:</span>
+                    <span class="review-value">{{ inventory.get('sku')?.value || 'Auto-generated' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shipping Review -->
+              <div class="review-section">
+                <h3>
+                  <mat-icon>local_shipping</mat-icon>
+                  Shipping
+                  <button mat-button color="primary" (click)="currentStep.set(3)">Edit</button>
+                </h3>
+                
+                <div class="review-grid">
+                  <div class="review-item">
+                    <span class="review-label">Requires Shipping:</span>
+                    <span class="review-value">{{ shipping.get('requiresShipping')?.value ? 'Yes' : 'No' }}</span>
+                  </div>
+                  @if (shipping.get('requiresShipping')?.value) {
+                    <div class="review-item">
+                      <span class="review-label">Weight:</span>
+                      <span class="review-value">{{ shipping.get('weight')?.value || 'Not specified' }} kg</span>
+                    </div>
+                    <div class="review-item">
+                      <span class="review-label">Shipping Class:</span>
+                      <span class="review-value">{{ shipping.get('shippingClass')?.value || 'Default' }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Status & SEO Review -->
+              <div class="review-section">
+                <h3>
+                  <mat-icon>settings</mat-icon>
+                  Status & SEO
+                  <button mat-button color="primary" (click)="currentStep.set(4)">Edit</button>
+                </h3>
+                
+                <div class="review-grid">
+                  <div class="review-item">
+                    <span class="review-label">Status:</span>
+                    <span class="review-value">
+                      <mat-chip [color]="advanced.get('isActive')?.value ? 'primary' : 'warn'">
+                        {{ advanced.get('isActive')?.value ? 'Active' : 'Draft' }}
+                      </mat-chip>
+                    </span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Featured:</span>
+                    <span class="review-value">{{ advanced.get('isFeatured')?.value ? 'Yes' : 'No' }}</span>
+                  </div>
+                  <div class="review-item">
+                    <span class="review-label">Digital Product:</span>
+                    <span class="review-value">{{ digital.get('isDigital')?.value ? 'Yes' : 'No' }}</span>
+                  </div>
+                  @if (seo.get('seoTitle')?.value) {
+                    <div class="review-item">
+                      <span class="review-label">SEO Title:</span>
+                      <span class="review-value">{{ seo.get('seoTitle')?.value }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Validation Summary -->
+            <div class="validation-summary" [class.valid]="productForm.valid">
+              <mat-icon>{{ productForm.valid ? 'check_circle' : 'error' }}</mat-icon>
+              <div class="validation-text">
+                <h4>Form Status: {{ productForm.valid ? 'Ready to Submit' : 'Needs Attention' }}</h4>
+                <p>{{ productForm.valid ? 'All required fields are filled correctly.' : 'Please check all required fields and fix errors.' }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  </div>
+
+  <!-- Stepper Navigation -->
+  <div class="stepper-navigation">
+    <button mat-stroked-button (click)="previousStep()" [disabled]="currentStep() === 0">
+      <mat-icon>arrow_back</mat-icon>
+      Previous
+    </button>
+    
+    <div class="step-indicator">
+      <span>Step {{ currentStep() + 1 }} of {{ stepLabels.length }}</span>
+      <mat-progress-bar 
+        mode="determinate" 
+        [value]="((currentStep() + 1) / stepLabels.length) * 100"
+        color="primary">
+      </mat-progress-bar>
+    </div>
+    
+    @if (currentStep() < stepLabels.length - 1) {
+      <button mat-raised-button color="primary" (click)="nextStep()" [disabled]="!isStepValid(currentStep())">
+        Next
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    } @else {
+      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading()">
+        @if (loading()) {
+          <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+          <span>Saving...</span>
+        } @else {
+          <mat-icon>save</mat-icon>
+          <span>Save Product</span>
+        }
+      </button>
+    }
+  </div>
+</div>

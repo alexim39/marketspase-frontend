@@ -1,6 +1,7 @@
 import { Routes } from "@angular/router";
-import { StoreDashboardComponent } from "./components/store-dashboard/store-dashboard.component";
-import { StoreCreateComponent } from "./components/store-create/store-create.component";
+import { StoreDashboardComponent } from "./dashboard/store-dashboard/store-dashboard.component";
+import { StoreCreateComponent } from "./dashboard/store-create/store-create.component";
+import { AddProductComponent } from "./products/add-product.component";
 
 
 export const StoreRoutes: Routes = [
@@ -17,6 +18,11 @@ export const StoreRoutes: Routes = [
         component: StoreCreateComponent,
         title: "Create New Store - New Store Setup",
     }, 
+    {
+        path: ':storeId/products/create',
+        component: AddProductComponent,
+        title: "Create New Product - Add Product to Store",
+    },
 
     
 ]

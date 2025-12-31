@@ -67,6 +67,12 @@
         .form-field {
           flex: 1;
         }
+
+        .note {
+          font-size: 11px;
+          color: $gray-400;
+          font-size: small;
+        }
       }
     }
   }

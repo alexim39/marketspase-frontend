@@ -1,26 +1,56 @@
-// models/product.model.ts
+
 export interface Product {
   _id?: string;
-  store: string;
+  store: string; // Store ID
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number; // For discounts
   images: string[];
   quantity: number;
   category: string;
-  tags: string[];
+  tags?: string[];
+  sku?: string;
+  brand?: string;
+  weight?: number;
+  dimensions?: {
+    length: number;
+    width: number;
+    height: number;
+  };
+
+  
+  
+  // Promoter tracking
   promoterTracking: PromoterTracking;
+  
+  // Inventory management
   lowStockAlert: number;
   isActive: boolean;
-  isFeatured: boolean;
+  isFeatured?: boolean;
+  isDigital?: boolean;
+  
+  // SEO Fields
   seo: ProductSEO;
+  
+  // Variants
   variants?: ProductVariant[];
-  createdAt: Date;
-  updatedAt: Date;
+  attributes?: ProductAttribute[];
+  
+  // Shipping
+  requiresShipping?: boolean;
+  shippingClass?: string;
+  
+  // Tax
+  taxable?: boolean;
+  taxClass?: string;
+  
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface PromoterTracking {
+  promoter: string; // User ID
   uniqueId: string;
   viewCount: number;
   clickCount: number;
@@ -41,6 +71,13 @@ export interface ProductVariant {
   name: string;
   options: VariantOption[];
   priceAdjustment: number;
+
+  price: number;
+  sku: string;
+  quantity: number;
+  attributes: {
+    [key: string]: string;
+  };
 }
 
 export interface VariantOption {
@@ -98,4 +135,11 @@ export interface ProductPromoterPerformance {
   conversions: number;
   commission: number;
   conversionRate: number;
+}
+
+export interface ProductAttribute {
+  name: string;
+  values: string[];
+  visible: boolean;
+  variation: boolean;
 }
