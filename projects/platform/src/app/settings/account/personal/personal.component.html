@@ -60,20 +60,79 @@
               </mat-error>
             }
           </mat-form-field>
-
-          <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="phone" required>
-            <mat-icon matSuffix>phone</mat-icon>
-            <mat-hint>Your WhatsApp number</mat-hint>
-            @if (profileForm.get('phone')?.hasError('required')) {
-              <mat-error>
-                Phone is required
-              </mat-error>
-            }
-            <!-- <mat-error *ngIf="profileForm.get('phone')?.hasError('pattern')">Please enter a valid phone number</mat-error> -->
-          </mat-form-field>
         </div>
+
+          <div class="form-row">
+
+            <!-- Country Code Field -->
+            <mat-form-field appearance="outline" class="form-field country-code-field">
+              <mat-label>Country</mat-label>
+              <mat-select formControlName="countryCode" class="country-code-select">
+                <div class="search-container">
+                  <mat-form-field appearance="fill" class="search-field">
+                    <input
+                      matInput
+                      placeholder="Search country..."
+                      #searchInput
+                      (keyup)="filterCountries(searchInput.value)"
+                    />
+                    <mat-icon matSuffix>search</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                @for (country of filteredPhoneCountries(); track country.iso2) {
+                  <!-- Ensure string value -->
+                  <mat-option [value]="country.dialCode.toString()">
+                    <span class="flag-emoji">{{ country.emoji }}</span>
+                    {{ country.name }} (+{{ country.dialCode }})
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>flag</mat-icon>
+            </mat-form-field>
+
+            <!-- Phone Number Field -->
+            <mat-form-field appearance="outline" class="form-field phone-field">
+              <mat-label>Phone Number</mat-label>
+              <span matPrefix class="phone-prefix">
+                <span class="selected-country-code">
+                  +{{ profileForm.get('countryCode')?.value || '234' }}
+                </span>
+              </span>
+              <input 
+                matInput 
+                formControlName="phone" 
+                placeholder="8031234567"
+                required
+                type="tel"
+              >
+              <mat-icon matSuffix>phone</mat-icon>
+              <!-- <mat-hint>Enter national number</mat-hint> -->
+               <!-- In personal.component.html -->
+              <mat-hint>
+                Enter your local number (e.g., for {{getSelectedCountryName()}}: 
+                @if (profileForm.get('countryCode')?.value === '233') {
+                  0248123456
+                } @else if (profileForm.get('countryCode')?.value === '234') {
+                  08051234567
+                } @else if (profileForm.get('countryCode')?.value === '1') {
+                  4151234567
+                } @else if (profileForm.get('countryCode')?.value === '44') {
+                  07911123456
+                } @else {
+                  your local number
+                })
+              </mat-hint>
+              
+              @if (profileForm.get('phone')?.hasError('required')) {
+                <mat-error>Phone number is required</mat-error>
+              }
+              @if (profileForm.get('phone')?.hasError('pattern')) {
+                <mat-error>Please enter a valid phone number</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        
       </div>
 
       <!-- Additional Information Section -->

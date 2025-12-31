@@ -357,7 +357,7 @@ applyForCampaign(campaign: CampaignInterface): void {
     return;
   }
   
-  if (this.user()?.personalInfo?.phone === '') {
+  if (!this.user()?.personalInfo?.phone || !this.user()?.personalInfo?.address) {
   // if (this.user()?.personalInfo?.phone == null || this.user()?.personalInfo?.address == null) {
     this.snackBar.open(
       'Please complete your profile setup to accept campaign',

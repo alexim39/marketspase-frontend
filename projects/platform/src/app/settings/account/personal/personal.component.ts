@@ -22,22 +22,19 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { COUNTRIES } from '../../../common/utils/countries';
 import { NIGERIAN_STATES } from '../../../common/utils/nigerian-states';
+import { COUNTRY_PHONE_MAP } from '../../../common/utils/country-phones';
 import { ProfileService } from '../profile.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../common/services/user.service';
 
-// Declare google namespace to prevent TypeScript errors. 
-// This assumes the Google Maps API script is loaded globally in index.html.
+// google maps global
 declare const google: any;
-
-// Define a clear interface for the structured address data
 interface StructuredAddress {
   street: string;
   city: string;
   state: string;
   country: string;
 }
-
 @Component({
   selector: 'async-personal-infor',
   providers: [ProfileService],
@@ -65,8 +62,7 @@ interface StructuredAddress {
 export class PersonalInfoComponent implements AfterViewInit {
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
-  
-  // Reference to the street address input field
+
   @ViewChild('streetInput', { static: false }) addressInput!: ElementRef<HTMLInputElement>;
 
   private snackBar = inject(MatSnackBar);
@@ -74,22 +70,20 @@ export class PersonalInfoComponent implements AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   private userService = inject(UserService);
 
-  // Reactive state using signals
   isLoading = signal(false);
 
-  // Country and state data
   readonly countries = COUNTRIES;
   readonly nigerianStates = NIGERIAN_STATES;
 
-  // The form is declared here
   profileForm!: FormGroup;
-  genders: string[] = ['Male', 'Female', 'Other']; // Gender options
+  genders: string[] = ['Male', 'Female', 'Other'];
 
+  phoneCountries = COUNTRY_PHONE_MAP;
+  filteredPhoneCountries = signal<any[]>(COUNTRY_PHONE_MAP);
+  private allPhoneCountries = COUNTRY_PHONE_MAP;
 
-  // Signal for the country control's value.
   private countryValue = signal<string | null | undefined>(undefined);
 
-  // Computed signals for UI logic
   showStateSelect = computed(() => this.countryValue() === 'Nigeria');
   showStateAutocomplete = computed(() => this.countryValue() !== 'Nigeria');
   filteredCountries = computed(() => {
@@ -97,135 +91,233 @@ export class PersonalInfoComponent implements AfterViewInit {
     return this.countries.filter(country => country.toLowerCase().includes(filterValue));
   });
 
-  // Age restriction constant
   private readonly MIN_AGE = 18;
   isUnderAge = signal(false);
 
-  // Date constraints with sensible defaults
-  readonly minDate = new Date(new Date().getFullYear() - 120, 0, 1); // 120 years ago
-  readonly maxDate = new Date(); // Today
+  readonly minDate = new Date(new Date().getFullYear() - 120, 0, 1);
+  readonly maxDate = new Date();
 
   constructor() {
-    // We can use `effect` here because the constructor is an injection context.
     effect(() => {
-      // Create the form here, where `this.user` is available
       const userData = this.user();
-      //console.log('Initializing form with user data:', this.user());
-      if (userData) {
-        // Corrected: Determine the initial state validators based on the initial country value.
-        // This is the fix for the form being invalid from the start.
-        const initialCountry = userData?.personalInfo?.address?.country || '';
-        const stateValidators = initialCountry === 'Nigeria' ? [Validators.required, Validators.maxLength(50)] : [Validators.maxLength(50)];
+      if (!userData) return;
 
-        // check if user's account has email or not
-        let isEmailSet: boolean;
-        if (userData?.email) {
-          isEmailSet = true
+      // --- helpers for country-code resolution (unchanged) ---
+      const normalizeCode = (code: string | number | null | undefined) =>
+        (code == null ? '' : String(code)).replace(/[^\d]/g, '');
+
+      const findCountryByIso2 = (iso?: string) => {
+        const key = (iso || '').toLowerCase();
+        return this.phoneCountries.find(c => c.iso2.toLowerCase() === key);
+      };
+
+      const findCountryByDialCode = (code?: string | number) => {
+        const str = normalizeCode(code);
+        return this.phoneCountries.find(c => normalizeCode(c.dialCode) === str);
+      };
+
+      let resolvedCountryCode = '234';
+      let resolvedNationalNumber = '';
+
+      const iso2 = userData?.personalInfo?.phoneDetails?.iso2;
+      const isoCountry = findCountryByIso2(iso2);
+      if (isoCountry) {
+        resolvedCountryCode = normalizeCode(isoCountry.dialCode);
+      } else {
+        const detailsCode = userData?.personalInfo?.phoneDetails?.countryCode;
+        if (detailsCode) {
+          const byCode = findCountryByDialCode(detailsCode);
+          resolvedCountryCode = byCode ? normalizeCode(byCode.dialCode) : normalizeCode(detailsCode);
         } else {
-          isEmailSet = false
+          const fullPhone = userData?.personalInfo?.phone || '';
+          if (fullPhone.startsWith('+')) {
+            const digits = fullPhone.replace(/[^\d]/g, '');
+            for (let i = 4; i >= 1; i--) {
+              const possible = digits.substring(0, i);
+              const found = findCountryByDialCode(possible);
+              if (found) {
+                resolvedCountryCode = normalizeCode(found.dialCode);
+                break;
+              }
+            }
+          }
         }
+      }
 
-        this.profileForm = new FormGroup({
-          displayName: new FormControl({ value: userData?.displayName, disabled: true }),
-          gender: new FormControl(userData?.personalInfo.gender || '', [Validators.required]),
-          email: new FormControl({ value: userData?.email, disabled: isEmailSet }, [Validators.email]),
-          phone: new FormControl(userData?.personalInfo?.phone || '', [
-            Validators.required,
-            Validators.pattern(/^(\+?\d{1,3}[- ]?)?\d{6,14}$/)
-          ]),
-          street: new FormControl(userData?.personalInfo?.address?.street || '', [Validators.required, Validators.maxLength(100)]),
-          city: new FormControl(userData?.personalInfo?.address?.city || '', [Validators.required, Validators.maxLength(50)]),
-          // Apply the correct initial validators here
-          state: new FormControl(userData?.personalInfo?.address?.state || '', stateValidators),
-          country: new FormControl(initialCountry, [Validators.required, Validators.maxLength(50)]),
-          biography: new FormControl(userData?.personalInfo?.biography || '', [Validators.maxLength(500)]),
-          dob: new FormControl<Date | null>(userData?.personalInfo?.dob || null),
-          userId: new FormControl(userData?._id)
-        });
+      const nationalFromDetails = userData?.personalInfo?.phoneDetails?.nationalNumber;
+      if (nationalFromDetails) {
+        resolvedNationalNumber = String(nationalFromDetails);
+      } else {
+        const full = userData?.personalInfo?.phone || '';
+        if (full) {
+          const digits = full.replace(/[^\d]/g, '');
+          if (full.startsWith('+')) {
+            if (digits.startsWith(resolvedCountryCode)) {
+              resolvedNationalNumber = digits.substring(resolvedCountryCode.length);
+            } else {
+              for (let i = 4; i >= 1; i--) {
+                const possible = digits.substring(0, i);
+                const found = findCountryByDialCode(possible);
+                if (found) {
+                  resolvedNationalNumber = digits.substring(i);
+                  break;
+                }
+              }
+              if (!resolvedNationalNumber) resolvedNationalNumber = digits;
+            }
+          } else {
+            resolvedNationalNumber = digits;
+          }
+        }
+      }
 
-        // Use toSignal() within this effect's injection context
-        this.countryValue.set(this.profileForm.controls['country'].value);
-        this.profileForm.controls['country'].valueChanges
+      if (!['39', '46'].includes(resolvedCountryCode)) {
+        resolvedNationalNumber = resolvedNationalNumber.replace(/^0+/, '');
+      }
+
+      const addressCountryName = userData?.personalInfo?.address?.country || '';
+      if (!isoCountry && !userData?.personalInfo?.phoneDetails?.countryCode && !userData?.personalInfo?.phone?.startsWith('+')) {
+        const byName = this.phoneCountries.find(
+          c => c.name.toLowerCase() === addressCountryName.toLowerCase()
+        );
+        if (byName) {
+          resolvedCountryCode = normalizeCode(byName.dialCode);
+        }
+      }
+
+      const isEmailSet = !!userData?.email;
+
+      this.profileForm = new FormGroup({
+        displayName: new FormControl({ value: userData?.displayName, disabled: true }),
+        gender: new FormControl(userData?.personalInfo.gender || '', [Validators.required]),
+        email: new FormControl({ value: userData?.email, disabled: isEmailSet }, [Validators.email]),
+        countryCode: new FormControl(normalizeCode(resolvedCountryCode), [Validators.required]),
+        phone: new FormControl(resolvedNationalNumber, [
+          Validators.required,
+          Validators.pattern(/^[\d\+\s\-\(\)\.]+$/),
+          Validators.minLength(5),
+          Validators.maxLength(20)
+        ]),
+        street: new FormControl(userData?.personalInfo?.address?.street || '', [Validators.required, Validators.maxLength(100)]),
+        city: new FormControl(userData?.personalInfo?.address?.city || '', [Validators.required, Validators.maxLength(50)]),
+        state: new FormControl(
+          userData?.personalInfo?.address?.state || '',
+          (addressCountryName === 'Nigeria' ? [Validators.required, Validators.maxLength(50)] : [Validators.maxLength(50)])
+        ),
+        country: new FormControl(addressCountryName, [Validators.required, Validators.maxLength(50)]),
+        biography: new FormControl(userData?.personalInfo?.biography || '', [Validators.maxLength(500)]),
+        dob: new FormControl<Date | null>(userData?.personalInfo?.dob || null),
+        userId: new FormControl(userData?._id)
+      });
+
+      this.countryValue.set(this.profileForm.controls['country'].value);
+
+      this.profileForm.controls['country'].valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(value => {
-            this.countryValue.set(value);
+          this.countryValue.set(value);
+          if (value) {
+            const countryData = this.phoneCountries.find(
+              c => c.name.toLowerCase() === value.toLowerCase()
+            );
+            if (countryData) {
+              this.profileForm.get('countryCode')?.setValue(normalizeCode(countryData.dialCode));
+            }
+          }
         });
 
-        // Add a subscription to handle the state field's validation and status dynamically
-        // after the form has been initialized.
-        this.profileForm.controls['country'].valueChanges
+      this.profileForm.controls['country'].valueChanges
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(country => {
           const stateControl = this.profileForm.get('state');
-          if (stateControl) {
-            if (country === 'Nigeria') {
-              // Set 'required' validator for Nigerian states
-              stateControl.setValidators([Validators.required, Validators.maxLength(50)]);
-              stateControl.enable(); // Ensure it's enabled for selection
-            } else {
-              // Clear 'required' validator for other countries
-              stateControl.clearValidators();
-              stateControl.setValue(''); // Clear the value for a new entry
-              stateControl.enable(); // Ensure it's enabled for typing
-            }
-            stateControl.updateValueAndValidity();
+          if (!stateControl) return;
+          if (country === 'Nigeria') {
+            stateControl.setValidators([Validators.required, Validators.maxLength(50)]);
+            stateControl.enable();
+          } else {
+            stateControl.clearValidators();
+            stateControl.setValue('');
+            stateControl.enable();
           }
+          stateControl.updateValueAndValidity();
         });
 
-        // Check initial age on form creation
-        if (userData?.personalInfo?.dob) {
-          const dobDate = new Date(userData.personalInfo.dob);
-          if (this.isValidDate(dobDate)) {
-            const initialAge = this.calculateAge(dobDate);
-            this.isUnderAge.set(initialAge < this.MIN_AGE);
-          }
+      if (userData?.personalInfo?.dob) {
+        const dobDate = new Date(userData.personalInfo.dob);
+        if (this.isValidDate(dobDate)) {
+          this.isUnderAge.set(this.calculateAge(dobDate) < this.MIN_AGE);
         }
+      }
 
-        // Add dob change subscription to track age in real-time
-        this.profileForm.controls['dob'].valueChanges
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(dob => {
-            if (dob) {
-              const dobDate = new Date(dob);
-              if (this.isValidDate(dobDate)) {
-                const age = this.calculateAge(dobDate);
-                this.isUnderAge.set(age < this.MIN_AGE);
-              } else {
-                this.isUnderAge.set(false);
-              }
+      this.profileForm.controls['dob'].valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(dob => {
+          if (dob) {
+            const dobDate = new Date(dob);
+            if (this.isValidDate(dobDate)) {
+              this.isUnderAge.set(this.calculateAge(dobDate) < this.MIN_AGE);
             } else {
               this.isUnderAge.set(false);
             }
-          });
-          
-      }
+          } else {
+            this.isUnderAge.set(false);
+          }
+        });
     }, { allowSignalWrites: true });
   }
-  
+
+  getSelectedCountryEmoji(): string {
+    const code = this.profileForm?.get('countryCode')?.value;
+    const country = this.phoneCountries.find(c => c.dialCode.toString() === String(code));
+    return country?.emoji || '';
+  }
+
+  getSelectedCountryName(): string {
+    const code = this.profileForm?.get('countryCode')?.value;
+    const country = this.phoneCountries.find(c => c.dialCode.toString() === String(code));
+    return country?.name || '';
+  }
+
+  // Filter countries for dropdown (unchanged)
+  filterCountries(searchTerm: string) {
+    if (!searchTerm) {
+      this.filteredPhoneCountries.set(this.allPhoneCountries);
+      return;
+    }
+    const filtered = this.allPhoneCountries.filter(country =>
+      country.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      country.dialCode.includes(searchTerm) ||
+      country.iso2.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    this.filteredPhoneCountries.set(filtered);
+  }
+
+  // Display helper (unchanged)
+  getFullPhoneNumber(): string {
+    const countryCode = this.profileForm?.get('countryCode')?.value;
+    const phoneNumber = this.profileForm?.get('phone')?.value;
+    if (countryCode && phoneNumber) {
+      return `+${countryCode}${this.cleanPhoneNumber(phoneNumber)}`;
+    }
+    return '';
+  }
+
+  private cleanPhoneNumber(phone: string): string {
+    return phone.replace(/\D/g, '');
+  }
+
   ngAfterViewInit(): void {
-    // Only attempt to set up autocomplete if the input element is available
     if (this.addressInput) {
       this.initAddressAutocomplete();
     }
   }
 
-  /**
-   * Initializes the Google Places Autocomplete functionality on the street input.
-   * Assumes the Google Maps API is loaded globally.
-   */
   initAddressAutocomplete(): void {
-    // Check if the Google Maps API and Places library are loaded
     if (typeof google !== 'undefined' && google.maps && google.maps.places) {
       const autocomplete = new google.maps.places.Autocomplete(
         this.addressInput.nativeElement,
-        {
-          types: ['address'],
-          // IMPORTANT: Request only necessary fields to minimize billing
-          fields: ['address_components', 'geometry', 'name']
-        }
+        { types: ['address'], fields: ['address_components', 'geometry', 'name'] }
       );
-
-      // Listen for the place selection event
       autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
         this.handlePlaceSelection(place);
@@ -235,64 +327,55 @@ export class PersonalInfoComponent implements AfterViewInit {
     }
   }
 
-  /**
-   * Extracts components from the selected Google Place object and updates the form controls.
-   * @param place The selected Google Place object.
-   */
   handlePlaceSelection(place: any): void {
-    if (!place || !place.address_components) {
-      return;
-    }
+    if (!place || !place.address_components) return;
 
     const componentMap: { [key: string]: keyof StructuredAddress } = {
       locality: 'city',
       administrative_area_level_1: 'state',
       country: 'country',
-      // street_number and route will be handled separately for 'street'
     };
 
-    // Use the defined interface for type safety
-    const address: StructuredAddress = {
-      street: '',
-      city: '',
-      state: '',
-      country: '',
-    };
-
+    const address: StructuredAddress = { street: '', city: '', state: '', country: '' };
     let streetNumber = '';
     let route = '';
 
-    // Parse address components
     for (const component of place.address_components) {
       const type = component.types[0];
-      
-      if (type === 'street_number') {
-        streetNumber = component.long_name;
-      } else if (type === 'route') {
-        route = component.long_name;
-      } else if (componentMap[type]) {
-        // Use bracket notation to safely assign the value based on the mapping
-        address[componentMap[type]] = component.long_name;
-      }
+      if (type === 'street_number') streetNumber = component.long_name;
+      else if (type === 'route') route = component.long_name;
+      else if (componentMap[type]) address[componentMap[type]] = component.long_name;
     }
 
-    // Combine street number and route into the 'street' field
     address.street = (streetNumber + ' ' + route).trim();
 
-    // Apply the extracted values to the form
     this.profileForm.patchValue({
       street: address.street,
       city: address.city,
       state: address.state,
       country: address.country
     });
-    
-    // Manually trigger the country value change to update state validation logic
-    this.profileForm.get('country')?.setValue(address.country);
 
-    // If no specific street components were found, use the place name as a fallback for the street.
+    // const countryData = this.phoneCountries.find(c => c.name.toLowerCase() === address.country.toLowerCase());
+    // if (countryData) {
+    //   this.profileForm.get('countryCode')?.setValue(countryData.dialCode);
+    // }
+
+    
+
+const countryData = this.phoneCountries.find(
+  c => c.name.toLowerCase() === address.country.toLowerCase()
+);
+if (countryData) {
+  const normalized = (code: string | number | null | undefined) =>
+    (code == null ? '' : String(code)).replace(/[^\d]/g, '');
+  this.profileForm.get('countryCode')?.setValue(normalized(countryData.dialCode));
+}
+
+
+
     if (!address.street) {
-        this.profileForm.get('street')?.setValue(place.name || '');
+      this.profileForm.get('street')?.setValue(place.name || '');
     }
   }
 
@@ -303,39 +386,24 @@ export class PersonalInfoComponent implements AfterViewInit {
         state: event.checked,
         userId: this.user()?._id
       };
-      // ... (Rest of activation logic)
+      // ... activation logic
     }
   }
 
-  /**
-   * Calculates age from date of birth
-   * @param dob The date of birth
-   * @returns Age in years
-   */
   private calculateAge(dob: Date): number {
     const today = new Date();
     let age = today.getFullYear() - dob.getFullYear();
     const monthDiff = today.getMonth() - dob.getMonth();
-    
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
       age--;
     }
-    
     return age;
   }
 
-  /**
-   * Validates if a date is valid
-   * @param date The date to validate
-   * @returns True if date is valid
-   */
   private isValidDate(date: Date): boolean {
     return date instanceof Date && !isNaN(date.getTime());
   }
 
-  /**
-   * Shows age restriction warning without notification (UI already shows warning)
-   */
   showAgeRestrictionWarning(): void {
     const dobControl = this.profileForm.get('dob');
     if (dobControl?.value) {
@@ -349,60 +417,36 @@ export class PersonalInfoComponent implements AfterViewInit {
     }
   }
 
-  onSubmit(): void {
-    // Check if the form is initialized before checking its validity
-    if (!this.profileForm || this.profileForm.invalid) {
-      if (this.profileForm) {
-        this.profileForm.markAllAsTouched();
-      }
-      this.showNotification('Please fill all required fields correctly');
-      return;
-    }
-    
-    // Check if user is under 18
-    const dob = this.profileForm.get('dob')?.value;
-    if (dob) {
-      const dobDate = new Date(dob);
-      
-      // Validate date first
-      if (!this.isValidDate(dobDate)) {
-        this.showNotification('Invalid date of birth', 'error');
-        return;
-      }
-      
-      const age = this.calculateAge(dobDate);
-      if (age < this.MIN_AGE) {
-        this.showNotification(`You must be at least ${this.MIN_AGE} years old to update your profile`, 'warning');
-        this.isUnderAge.set(true);
-        return;
-      }
-      this.isUnderAge.set(false);
-    }
-    
-    this.isLoading.set(true);
-    const formValue = this.profileForm.value;
+  /** -----------------------------
+   * Phone normalization (client-side, NG only)
+   * Mirrors the server’s normalizeNgPhone behavior.
+   * ----------------------------- */
+  private normalizeNgPhoneClient(raw: string | number | null | undefined): string | null {
+    if (raw === undefined || raw === null) return null;
+    const s = String(raw).trim();
+    if (!s) return null;
 
-    this.profileService.updateProfile(formValue)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (response) => {
-        this.showNotification(response.message, 'success');
-        this.isLoading.set(false);
+    // remove non-digits
+    let digits = s.replace(/\D/g, '');
 
-        // reload user record
-        this.userService.getUser(this.user()?.uid || '')
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          error: (error) => {
-            console.error('Failed to refresh user:', error);
-          }
-        });
-      },
-      error: (error: HttpErrorResponse) => {
-        this.handleError(error);
-        this.isLoading.set(false);
-      }
-    });
+    // Drop leading '0' for local 11-digit formats (080..., 090..., etc.)
+    if (digits.startsWith('0')) {
+      digits = digits.slice(1); // now 10 digits if input was 11
+    }
+
+    // If already starts with 234, it must be 13 digits total (234 + 10)
+    if (digits.startsWith('234')) {
+      if (digits.length !== 13) return null;
+      return digits; // canonical
+    }
+
+    // If we now have 10 digits, treat as local NG mobile and prefix '234'
+    if (digits.length === 10) {
+      return `234${digits}`;
+    }
+
+    // Any other length/case is invalid for current NG-only backend
+    return null;
   }
 
   private showNotification(message: string, panelClass: string = 'error'): void {
@@ -416,4 +460,80 @@ export class PersonalInfoComponent implements AfterViewInit {
     const errorMessage = error.error?.message || 'Server error occurred, please try again.';
     this.showNotification(errorMessage);
   }
+
+
+
+  /** -----------------------------
+   * Submit: let backend normalize for any country
+   * ----------------------------- */
+  onSubmit(): void {
+    if (!this.profileForm || this.profileForm.invalid) {
+      if (this.profileForm) this.profileForm.markAllAsTouched();
+      this.showNotification('Please fill all required fields correctly');
+      return;
+    }
+
+    // Age validation (unchanged)
+    const dob = this.profileForm.get('dob')?.value;
+    if (dob) {
+      const dobDate = new Date(dob);
+      if (!this.isValidDate(dobDate)) {
+        this.showNotification('Invalid date of birth', 'error');
+        return;
+      }
+      const age = this.calculateAge(dobDate);
+      if (age < this.MIN_AGE) {
+        this.showNotification(`You must be at least ${this.MIN_AGE} years old to update your profile`, 'warning');
+        this.isUnderAge.set(true);
+        return;
+      }
+      this.isUnderAge.set(false);
+    }
+
+    this.isLoading.set(true);
+    const formValue = this.profileForm.value;
+
+    // Resolve selected country by current countryCode control
+    const selectedCountry = this.phoneCountries.find(
+      c => String(c.dialCode) === String(formValue.countryCode)
+    );
+
+    // Raw phone as entered; backend will parse/validate this
+    const rawPhoneInput = (formValue.phone ?? '').toString().trim();
+
+    // Build payload; DO NOT pre-normalize for NG here
+    const payload: any = {
+      ...formValue,
+      phone: rawPhoneInput,
+      phoneDetails: {
+        countryCode: selectedCountry ? String(selectedCountry.dialCode) : undefined,
+        iso2: selectedCountry ? selectedCountry.iso2.toUpperCase() : undefined
+        // nationalNumber/fullNumber left for backend to compute
+      }
+    };
+
+    // Remove countryCode from top level (you keep this convention)
+    delete payload.countryCode;
+
+    this.profileService.updateProfile(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.showNotification(response.message, 'success');
+          this.isLoading.set(false);
+
+          this.userService.getUser(this.user()?.uid || '')
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              error: (error) => console.error('Failed to refresh user:', error)
+            });
+        },
+        error: (error: HttpErrorResponse) => {
+          this.handleError(error);
+          this.isLoading.set(false);
+        }
+      });
+  }
+
+
 }

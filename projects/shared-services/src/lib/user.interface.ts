@@ -44,6 +44,13 @@ export interface UserInterface {
     }
     email: string;
     phone: string;
+    phoneDetails: {
+      countryCode: string,
+      nationalNumber: string,
+      fullNumber: string,
+      iso2: string, // Country ISO code (e.g., "US", "NG")
+      lastUpdated: Date
+    },
     dob: Date;
     biography: string;
     gender: string;

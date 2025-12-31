@@ -219,3 +219,53 @@
     }
   }
 }
+
+.phone-prefix {
+  position: relative;
+  z-index: 1; // Ensure it's above other elements
+  
+  .country-code-select {
+    width: 120px;
+   
+    .mat-mdc-select-trigger {
+      cursor: pointer;
+      pointer-events: auto !important; // Ensure clicks work
+    }
+    
+    // Make sure dropdown doesn't overlap phone input
+    ::ng-deep .mat-mdc-select-panel {
+      max-height: 300px !important;
+      width: 300px !important;
+      margin-left: -16px; // Adjust positioning
+    }
+  }
+}
+
+// Ensure phone input is clickable
+::ng-deep .mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    .mat-mdc-form-field-flex {
+      .mat-mdc-form-field-prefix {
+        // Make prefix area non-blocking
+        pointer-events: none;
+        
+        .phone-prefix {
+          pointer-events: auto; // But allow clicks on the select
+        }
+      }
+      
+      .mat-mdc-form-field-infix {
+        // Make phone input always clickable
+        pointer-events: auto;
+        cursor: text;
+      }
+    }
+  }
+}
+
+ .search-container {
+    width: 100%;
+    .search-field {
+      width: inherit;
+    }
+}
