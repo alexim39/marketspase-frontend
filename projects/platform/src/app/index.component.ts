@@ -38,6 +38,7 @@ export interface SocialProvider {
 export class IndexComponent implements OnDestroy, OnInit {
   isLoading: boolean = false;
   currentProvider: string = '';
+  currentYear: number = new Date().getFullYear();
 
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
