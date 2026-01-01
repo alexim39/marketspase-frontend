@@ -13,6 +13,7 @@ export class ProfileService {
  * @returns An observable of the submitted form data.
  */
   updateProfile(userObject: any): Observable<any> {
+    console.log('Updating profile with data:', userObject); 
     return this.apiService.put<any>(`user/profile/personal`, userObject, undefined, true);
   }
 

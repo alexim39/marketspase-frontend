@@ -199,7 +199,7 @@ export class CreateCampaignComponent implements OnInit {
   // Final submission logic
   submitCampaign(): void {
 
-    if (this.user()?.personalInfo?.phone === '') {
+    if (!this.user()?.personalInfo?.phone || !this.user()?.personalInfo?.address) {
     // if (this.user()?.personalInfo?.phone == null || this.user()?.personalInfo?.address == null) {
     // if (this.user()?.personalInfo?.phone && this.user()?.personalInfo?.address) {
       this.snackBar.open(

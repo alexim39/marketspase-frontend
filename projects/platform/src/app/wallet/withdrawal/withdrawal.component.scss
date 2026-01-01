@@ -1,10 +1,17 @@
 @import './../../../styles/variables';
 @import './../../../styles/mixins';
 
+:host {
+  background: $background-color;
+  display: block;
+}
+
+
 .withdrawal-container {
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: color-mix(in srgb, $background-color, black 25%);
 }
 
 .withdrawal-header {
