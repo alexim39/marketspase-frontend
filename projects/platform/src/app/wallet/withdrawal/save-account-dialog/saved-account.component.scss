@@ -1,6 +1,12 @@
 @import './../../../../styles/variables';
 @import './../../../../styles/mixins';
 
+
+:host {
+  background: $background-color;
+  display: block;
+}
+
 .dialog-header {
   display: flex;
   justify-content: space-between;
@@ -8,6 +14,7 @@
   padding: 16px 24px 8px 24px;
   // UPDATED: Use border-color for dynamic theming
   border-bottom: 1px solid $border-color;
+
 }
 
 .dialog-header h2 {
