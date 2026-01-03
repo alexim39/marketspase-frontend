@@ -50,10 +50,22 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #campaignMenu="matMenu">
-              <button mat-menu-item (click)="editCampaign()">
+              <!-- <button mat-menu-item (click)="editCampaign()">
                 <mat-icon>edit</mat-icon>
                 Edit Campaign
-              </button>
+              </button> -->
+              @if (campaign.status === 'active') {
+                  <button mat-menu-item (click)="pauseCampaign(campaign)">
+                  <mat-icon>pause_circle</mat-icon>
+                  Pause Campaign
+                  </button>
+              }
+              @if (campaign.status === 'paused') {
+                  <button mat-menu-item (click)="resumeCampaign(campaign)">
+                  <mat-icon>play_circle</mat-icon>
+                  Resume Campaign
+                  </button>
+              }
              <!--  <button mat-menu-item (click)="duplicateCampaign()">
                 <mat-icon>content_copy</mat-icon>
                 Duplicate

@@ -38,8 +38,8 @@ export class CampaignService {
     return this.apiService.get<ApiResponse<any>>(`${this.apiBase2}/${id}`, undefined, undefined, true);
   }
 
-  updateCampaignStatus(id: string, status: string, createdBy: string): Observable<ApiResponse<any>> {
-    return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/${id}/status`, { status, createdBy }, undefined, true);
+  updateCampaignStatus(id: string, status: string, performedBy: string): Observable<ApiResponse<any>> {
+    return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/${id}/status`, { status, performedBy }, undefined, true);
   }
 
   updatePromotionStatus(id: string, status: string, performedBy: string, rejectionReason: string = ''): Observable<ApiResponse<any>> {
