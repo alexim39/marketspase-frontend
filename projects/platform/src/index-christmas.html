@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Marketspase - Connect Marketers with WhatsApp Status Promoters</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="WhatsApp Marketing Platform | Marketspase – Advertise on WhatsApp Status or get paid to share posts. Real views, real results">
+  <meta name="keywords" content="WhatsApp Status Marketing, micro-influencer marketing, WhatsApp Ads, Status Promotion, Digital Marketing, Campaign Management, Influencer Marketing, Social Media Marketing, WhatsApp Business, Marketing Platform">
+  <meta name="author" content="MarketSpase Team">
+  <link rel="canonical" href="https://marketspase.com/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- Meta tags for social sharing -->
+  <meta property="og:title" content="Marketspase - WhatsApp Marketing Platform">
+  <meta property="og:description" content="Grow your business by connecting with customers on WhatsApp. Sale your products through WhatsApp Status Ads.">
+  <meta property="og:image" content="https://marketspase.com/img/meta_logo.png">
+  <meta property="og:url" content="https://marketspase.com">
+  <meta property="og:type" content="website">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@marketspase">
+  <meta name="twitter:title" content="Marketspase - WhatsApp Marketing Platform">
+  <meta name="twitter:description" content="Grow your business by connecting with customers on WhatsApp. Sale your products through WhatsApp Status Ads.">
+  <meta name="twitter:image" content="https://marketspase.com/img/x_logo.png">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD91TxVyx2IFPJBbAWpdeAewvtsrFnDRiA&libraries=places&loading=async" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">   
+  
+  <!-- Facebook SDK -->
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId: 'YOUR_FACEBOOK_APP_ID', // Replace with your Facebook App ID
+        cookie: true,
+        xfbml: true,
+        version: 'v18.0'
+      });
+      
+      FB.AppEvents.logPageView();
+    };
+
+    (function(d, s, id){
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+  </script>
+  
+  <!-- Apple Sign-In -->
+  <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+  <script>
+    // Initialize Apple ID configuration
+    if (typeof AppleID !== 'undefined') {
+      AppleID.auth.init({
+        clientId: 'com.marketspase.signin', // Replace with your Apple Service ID
+        scope: 'name email',
+        redirectURI: 'https://marketspase.com/auth/apple/callback',
+        state: 'state',
+        usePopup: true
+      });
+    }
+  </script>
+  
+  <!-- Performance and Security -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//accounts.google.com">
+  <link rel="dns-prefetch" href="//connect.facebook.net">
+  <link rel="dns-prefetch" href="//appleid.cdn-apple.com">
+
+  
+<style>
+  /* =====================================================
+     FESTIVE GLOBAL STYLES - CHRISTMAS/NEW YEAR EDITION
+     Replace existing :root and global styles
+  ===================================================== */
+  
+  :root {
+    --christmas-green: #1a472a;
+    --christmas-red: #b22222;
+    --christmas-gold: #ffd700;
+    --christmas-dark-red: #8b0000;
+    --festive-gradient: linear-gradient(135deg, #667eea 0%, #5a6fd8 25%, #b22222 50%, #da1e37 75%, #8b0000 100%);
+    --snow-white: rgba(255, 255, 255, 0.9);
+    --text-primary: #fff;
+    --text-secondary: #ffd700;
+    --background-primary: #667eea;
+    --background-secondary: #0d2b1a;
+    --border-color: #ffd700;
+    --shadow-sm: 0 2px 8px rgba(178, 34, 34, 0.3);
+    --shadow-md: 0 8px 25px rgba(178, 34, 34, 0.4), 0 4px 15px rgba(255, 215, 0, 0.2);
+    --shadow-lg: 0 20px 50px rgba(178, 34, 34, 0.5), 0 10px 30px rgba(255, 215, 0, 0.3);
+    --border-radius: 12px;
+    --border-radius-lg: 24px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Dark mode support - Festive edition */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text-primary: #fff;
+      --text-secondary: #ffd700;
+      --background-primary: #0a1f14;
+      --background-secondary: #06180e;
+      --border-color: #ffd700;
+    }
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    color: var(--text-primary);
+    background: linear-gradient(135deg, #667eea 0%, #5a6fd8 25%, #b22222 50%, #da1e37 75%, #8b0000 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+  /* Animated festive background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,.8), transparent),
+      radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,.8), transparent),
+      radial-gradient(3px 3px at 60px 20px, rgba(255,255,255,.8), transparent),
+      radial-gradient(2px 2px at 80px 50px, rgba(255,255,255,.8), transparent),
+      radial-gradient(3px 3px at 100px 80px, rgba(255,255,255,.8), transparent),
+      radial-gradient(2px 2px at 120px 30px, rgba(255,255,255,.8), transparent),
+      radial-gradient(3px 3px at 140px 60px, rgba(255,255,255,.8), transparent),
+      radial-gradient(2px 2px at 160px 20px, rgba(255,255,255,.8), transparent),
+      radial-gradient(3px 3px at 180px 40px, rgba(255,255,255,.8), transparent);
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: snow 20s linear infinite;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(circle at top left, rgba(220, 20, 60, 0.15), transparent 30%),
+      radial-gradient(circle at top right, rgba(255, 215, 0, 0.15), transparent 30%),
+      radial-gradient(circle at bottom center, rgba(30, 144, 255, 0.1), transparent 40%),
+      radial-gradient(ellipse at center, rgba(255,255,255,0.05), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    animation: twinkle 4s ease-in-out infinite alternate;
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  @keyframes snow {
+    from { transform: translateY(-200px); }
+    to { transform: translateY(200px); }
+  }
+  
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+  
+  /* =====================================================
+     FESTIVE LOADING SCREEN
+  ===================================================== */
+  
+  .initial-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #b22222 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+  }
+  
+  .initial-loader.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .loader-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  
+  .loader-logo {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    animation: festivePulse 2s ease-in-out infinite;
+  }
+  
+  .loader-logo img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  
+  .loader-brand-name {
+    color: #ffd700;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    background: linear-gradient(45deg, #fff, #ffd700, #fff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shine 3s linear infinite;
+  }
+  
+  .loader-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 215, 0, 0.3);
+    border-top-color: #b22222;
+    border-right-color: #006400;
+    border-bottom-color: #228B22;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  
+  .loader-spinner::after {
+    content: "🎄";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+  }
+  
+  .loader-text {
+    color: #fff;
+    font-size: 14px !important;
+    text-align: center;
+    background: rgba(0, 100, 0, 0.3);
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .loader-text span {
+    display: block;
+    margin-top: 8px;
+    font-size: 18px !important;
+    color: #ffd700;
+    font-weight: 600;
+  }
+  
+  .loader-text small {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .loader-text::before {
+    content: " 🎁 ";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: bounce 1s ease-in-out infinite;
+  }
+  
+  .loader-text::after {
+    content: " ✨ ";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: sparkle 0.5s ease-in-out infinite reverse;
+  }
+  
+  @keyframes festivePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  @keyframes shine {
+    to { background-position: 200% center; }
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    50% { transform: translateY(-60%) rotate(10deg); }
+  }
+  
+  @keyframes sparkle {
+    0%, 100% { opacity: 0.3; transform: translateY(-50%) scale(0.8); }
+    50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
+  }
+  
+  /* =====================================================
+     FESTIVE DECORATIONS (for HTML if needed)
+  ===================================================== */
+  
+  .festive-decoration {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  .holly-left {
+    top: 10%;
+    left: 5%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at 30px 30px, #228B22, #006400);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  }
+  
+  .holly-left::before,
+  .holly-left::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #b22222;
+    border-radius: 50%;
+    filter: drop-shadow(0 2px 4px rgba(178,34,34,0.3));
+  }
+  
+  .holly-left::before {
+    top: 60px;
+    left: 15px;
+  }
+  
+  .holly-left::after {
+    top: 60px;
+    right: 15px;
+  }
+  
+  .holly-right {
+    top: 10%;
+    right: 5%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle at 30px 30px, #228B22, #006400);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    transform: scaleX(-1);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+  }
+  
+  .holly-right::before,
+  .holly-right::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #b22222;
+    border-radius: 50%;
+    filter: drop-shadow(0 2px 4px rgba(178,34,34,0.3));
+  }
+  
+  .holly-right::before {
+    top: 60px;
+    left: 15px;
+  }
+  
+  .holly-right::after {
+    top: 60px;
+    right: 15px;
+  }
+  
+  .snow-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.8));
+    mask-image: url("data:image/svg+xml,%3Csvg width='200' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,40 Q50,20 100,40 T200,40 L200,0 L0,0 Z' fill='white'/%3E%3C/svg%3E");
+    mask-size: 200px 40px;
+    mask-repeat: repeat-x;
+    z-index: 1;
+  }
+  
+  /* =====================================================
+     RESPONSIVE ADJUSTMENTS - FESTIVE
+  ===================================================== */
+  
+  @media (max-width: 480px) {
+    .loader-brand-name {
+      font-size: 20px;
+    }
+    
+    .loader-text {
+      font-size: 12px;
+    }
+    
+    .loader-text span {
+      font-size: 16px;
+    }
+    
+    .loader-text small {
+      font-size: 10px;
+    }
+    
+    .holly-left,
+    .holly-right {
+      width: 50px;
+      height: 50px;
+      top: 5%;
+    }
+  }
+  
+  /* Hide loader once Angular app is ready */
+  app-root:not(:empty) + .initial-loader {
+    display: none;
+  }
+</style>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <!-- Initial loading screen -->
+  <div class="initial-loader" id="initialLoader">
+    <div class="loader-brand">
+      <div class="loader-logo">
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.96-.69 2.8l1.46 1.46C19.54 15.06 20 13.57 20 12c0-4.42-3.58-8-8-8zm-6.77.73L3.77 6.19C2.46 7.94 2 9.43 2 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6 0-1.01.25-1.96.69-2.8z" fill="white"/>
+        </svg> -->
+        <img src="/img/x_logo.png">
+      </div>
+      <div class="loader-brand-name">WhatsApp MarketSpase</div>
+      <div style="color: #eee; font-size: 12px;">Enjoy the festive period & stay safe</div>
+    </div>
+    
+    <div class="loader-spinner"></div>
+    <div class="loader-text">
+      Loading MarketSpase...
+      <span>WhatsApp Marketing Marketspace</span>
+      <small>Powered by Async</small>
+    </div>
+  </div>
+  
+  <!-- Angular app root -->
+  <app-root></app-root>
+  
+  <script>
+    // Hide initial loader once the page is fully loaded
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        const loader = document.getElementById('initialLoader');
+        if (loader) {
+          loader.classList.add('fade-out');
+          setTimeout(() => loader.remove(), 300);
+        }
+      }, 1000);
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+      // Check for the pre-loader and remove it after a delay if the application has started rendering.
+      let attempts = 0;
+      const maxAttempts = 10; // Increased attempts to 10 seconds total just in case
+      const intervalId = setInterval(() => {
+        const appRoot = document.querySelector('app-root');
+        
+        // Condition to remove the loader: app-root has content OR we've maxed out attempts.
+        const shouldRemove = (appRoot && appRoot.children.length > 0) || (attempts >= maxAttempts);
+
+        if (shouldRemove) {
+          clearInterval(intervalId);
+          
+          // Use setTimeout for a smooth fade-out effect
+          setTimeout(() => {
+            // CRITICAL FIX: Re-fetch the loader element right before removing it. 
+            // This prevents a TypeError if another script or Angular itself removes it 
+            // before this timeout executes, as the original reference might become stale.
+            const loader = document.getElementById('app-loader');
+            if (loader) {
+              // Fade out and then remove
+              loader.style.opacity = '0';
+              setTimeout(() => {
+                // Final check before removal
+                if (loader.parentElement) { 
+                  loader.remove();
+                }
+              }, 300);
+            }
+          }, 100); // 100ms delay to ensure the interval is fully cleared
+        } else {
+          attempts++;
+        }
+      }, 1000);
+    });
+    
+    // Handle Twitter OAuth callback
+    // if (window.location.pathname === '/auth/twitter/callback') {
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const code = urlParams.get('code');
+    //   const error = urlParams.get('error');
+      
+    //   if (code) {
+    //     // Store the authorization code for the main window
+    //     sessionStorage.setItem('twitter_auth_code', code);
+    //     window.close();
+    //   } else if (error) {
+    //     sessionStorage.setItem('twitter_auth_error', error);
+    //     window.close();
+    //   }
+    // }
+    
+    // Handle Apple OAuth callback
+    // if (window.location.pathname === '/auth/apple/callback') {
+    //   // Apple Sign-In will handle the callback automatically
+    //   // You might need to implement additional logic here
+    // }
+  </script>
+  
+  <!-- Google Analytics (optional) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'GA_MEASUREMENT_ID');
+  </script>
+</body>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+</html>

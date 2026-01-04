@@ -37,7 +37,7 @@
     <div class="requirements">
       <h4>Proof Requirements:</h4>
       <ul>
-        <li>A minimum of 2 screenshots is required.</li>
+        <li>A minimum of 3 screenshots is required.</li>
         <li>Screenshots must clearly show the image, promotion ID, view count, and timestamp.</li>
         <li>The second screenshot should display the list of actual viewers.</li>
         <li>All proofs must be clear, free of distortion, and unobstructed. Minimum {{ campaign().minViewsPerPromotion }} views</li>
@@ -77,7 +77,7 @@
 
       <!-- File Upload -->
       <div class="file-upload-section">
-        <h4>Upload Proof Screenshots (2 - 3 images Required)</h4>
+        <h4>Upload Proof Screenshots (3 images Required)</h4>
 
         <div class="upload-area" [class.has-files]="hasFiles()">
           <input 
@@ -122,7 +122,8 @@
         <div class="upload-info">
           <span>{{ selectedFiles().length }}/{{ maxFiles }} files selected</span>
           @if (selectedFiles().length < minFiles || selectedFiles().length > maxFiles) {
-            <span class="file-error">* Between {{ minFiles }} and {{ maxFiles }} proof images are required</span>
+            <span class="file-error">* {{ maxFiles }} proof images are required</span>
+            <!-- <span class="file-error">* Between {{ minFiles }} and {{ maxFiles }} proof images are required</span> -->
           }
         </div>
       </div>
