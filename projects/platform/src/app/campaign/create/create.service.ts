@@ -16,20 +16,6 @@ export class CampaignService {
    * @returns An Observable that emits the API response or an error.
    */
   create(campaignData: FormData): Observable<any> {
-    // We send a stripped-down version of the data to the backend.
-    // const payload = {
-    //   title: campaignData.title,
-    //   caption: campaignData.caption,
-    //   link: campaignData.link,
-    //   category: campaignData.category,
-    //   budget: campaignData.budget,
-    //   startDate: campaignData.startDate,
-    //   endDate: campaignData.hasEndDate ? campaignData.endDate : null,
-    //   mediaUrl: campaignData.mediaUrl,
-    //   currency: campaignData.currency,
-    //   owner: campaignData.owner
-    // };
-
     return this.apiService.post<any>(`${this.apiUrl}/create`, campaignData, undefined, true);
   }
 

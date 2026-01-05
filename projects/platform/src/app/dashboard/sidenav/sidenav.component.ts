@@ -118,13 +118,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return [
         ...baseItems,
         { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
-        { icon: 'add_business', label: 'Storefronts', route: './stores' },
+        //{ icon: 'add_business', label: 'Storefronts', route: './stores' },
         { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
         { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
         { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
       ];
-    } else {
+    } else if (this.user()?.role === 'promoter') {
       return [
         ...baseItems,
         { icon: 'work', label: 'Promotions', route: './campaigns' },
@@ -132,6 +132,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
         { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
         { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
         { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
+      ];
+    } else if (this.user()?.role === 'marketing_manager') {
+      return [
+        // ...baseItems,
+        // { icon: 'group', label: 'My Marketers', route: '/dashboard/marketers' },
+        // { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
+        // { icon: 'insights', label: 'Commissions', route: '/dashboard/commissions' },
+        // { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
+        // { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
+        // { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
+        // { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
+      ];
+
+    } else {
+      // Admin or other roles
+      return [
+        ...baseItems
       ];
     }
   });

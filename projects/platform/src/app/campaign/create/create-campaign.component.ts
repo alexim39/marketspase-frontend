@@ -105,27 +105,6 @@ export class CreateCampaignComponent implements OnInit {
     this.initializeForms();
   }
 
-  // private initializeForms(): void {
-  //   this.contentForm = this.fb.group({
-  //     title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
-  //     caption: ['', [Validators.required, Validators.maxLength(300)]],
-  //     link: ['', [this.urlValidator]],
-  //     category: ['other', Validators.required]
-  //   });
-
-  //   this.budgetForm = this.fb.group({
-  //     budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
-  //     enableTarget: [true] 
-  //   });
-
-  //   this.scheduleForm = this.fb.group({
-  //     startDate: [new Date(), Validators.required],
-  //     hasEndDate: [true],
-  //     endDate: [null],
-  //     duration: [{ value: 7, disabled: true }]
-  //   });
-  // }
-
   private initializeForms(): void {
     this.contentForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
@@ -262,17 +241,6 @@ export class CreateCampaignComponent implements OnInit {
     }
   }
 
-  // Validation helpers
-  // private urlValidator(control: AbstractControl): { [key: string]: any } | null {
-  //   if (!control.value) return null;
-  //   try {
-  //     new URL(control.value);
-  //     return null;
-  //   } catch {
-  //     return { invalidUrl: true };
-  //   }
-  // }
-
   private urlValidator(control: AbstractControl): { [key: string]: any } | null {
     if (!control.value) return null;
     
@@ -305,47 +273,6 @@ export class CreateCampaignComponent implements OnInit {
       return { invalidUrl: true };
     }
   }
-
-  // private urlValidator(control: AbstractControl): { [key: string]: any } | null {
-  //   if (!control.value) return null;
-    
-  //   try {
-  //     let urlString = control.value;
-      
-  //     // Create a test URL by adding protocol if missing
-  //     const testUrl = urlString.startsWith('http://') || urlString.startsWith('https://') 
-  //       ? urlString 
-  //       : 'https://' + urlString;
-      
-  //     // Validate the URL
-  //     new URL(testUrl);
-      
-  //     // Extract hostname and normalize to www. format
-  //     const urlObj = new URL(testUrl);
-  //     let normalizedUrl = '';
-      
-  //     // If it already has www., use it as is
-  //     if (urlObj.hostname.startsWith('www.')) {
-  //       normalizedUrl = urlObj.hostname + urlObj.pathname + urlObj.search;
-  //     } else {
-  //       // Add www. prefix
-  //       normalizedUrl = 'www.' + urlObj.hostname + urlObj.pathname + urlObj.search;
-  //     }
-      
-  //     // Remove trailing slash if present
-  //     normalizedUrl = normalizedUrl.replace(/\/$/, '');
-      
-  //     // Update control value with normalized www. version
-  //     if (control.value !== normalizedUrl) {
-  //       control.setValue(normalizedUrl, { emitEvent: false });
-  //     }
-      
-  //     return null;
-  //   } catch {
-  //     return { invalidUrl: true };
-  //   }
-  // }
-
 
   // Navigation and other actions
   goBack(): void {
