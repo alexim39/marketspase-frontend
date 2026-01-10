@@ -7,7 +7,7 @@ import { FormGroup } from '@angular/forms';
 import { MediaFile } from '../../media-file.model';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
-import { startWith, switchMap } from 'rxjs/operators';
+import { map, startWith, switchMap } from 'rxjs/operators';
 
 // Define age group interface for better type safety
 interface AgeGroupInfo {
@@ -84,7 +84,26 @@ export class CampaignSummaryComponent {
     { initialValue: 0 }
   );
 
-  // 3. Create signal for age target value
+  // 3. Create the payment tier signal by watching the input signal
+  private paymentTier = toSignal(
+    toObservable(this.budgetForm).pipe(
+      switchMap(form =>
+        form.get('payoutTier')!.valueChanges.pipe(
+          startWith(form.get('payoutTier')?.value)
+        )
+      ),
+      map(value => {
+        if (!value) return 0;
+        const str = String(value);
+        const cleaned = str.replace('TIER_', '');
+        return parseInt(cleaned, 10) || 0;
+      })
+    ),
+    { initialValue: 0 }
+  );
+
+
+  // 4. Create signal for age target value
   private ageTargetValue = toSignal(
     toObservable(this.budgetForm).pipe(
       switchMap(form => 
@@ -108,9 +127,18 @@ export class CampaignSummaryComponent {
     return Math.floor(budget / 200);
   });
 
+ public tier = computed(() => this.paymentTier() ?? 0);
+
+
+  // public estimatedReach = computed(() => {
+  //   return this.slots() * 45;
+  // });
+
   public estimatedReach = computed(() => {
-    return this.slots() * 45;
+    const budget = this.budgetValue() || 0;
+    return Math.floor(budget * 0.25);
   });
+
 
   // Helper method to get friendly age target display
   public getAgeTargetDisplay(): string {

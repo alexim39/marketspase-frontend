@@ -2,105 +2,152 @@
   <mat-card-header>
     <mat-card-title>Campaign Budget & Targeting</mat-card-title>
     <mat-card-subtitle>
-      Set your budget and define who you want to reach.
+      Set your budget. Promoters earn based on real views.
     </mat-card-subtitle>
   </mat-card-header>
+
   <mat-card-content>
     <form [formGroup]="formGroup" class="budget-form">
-      <!-- Wallet Balance Section -->
+
+      <!-- Wallet Balance -->
       <div class="wallet-balance-info">
         <span>Wallet Balance:</span>
-        <span class="balance-value">{{walletBalance | currency: '₦':'symbol':'1.2-2'}}</span>
+        <span class="balance-value">
+          {{ walletBalance | currency:'₦':'symbol':'1.2-2' }}
+        </span>
       </div>
-      
-      <!-- Budget Input -->
+
+      <!-- Budget -->
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Total Campaign Budget</mat-label>
         <span matTextPrefix>₦&nbsp;</span>
-        <input matInput type="number" formControlName="budget" placeholder="e.g., 5000">
-        @if (formGroup.get('budget')?.errors?.['required']) {
+        <input
+          matInput
+          type="number"
+          formControlName="budget"
+          placeholder="e.g. 5000"
+        />
+        <mat-hint>
+          Your budget is spent gradually as promoters generate views.
+        </mat-hint>
+        @if (formGroup.get('budget')?.hasError('required')) {
           <mat-error>
             Budget is required.
           </mat-error>
         }
-        @if (formGroup.get('budget')?.errors?.['min']) {
+        @if (formGroup.get('budget')?.hasError('min')) {
           <mat-error>
-            Minimum budget is ₦500.
+            Minimum budget is ₦1000.
           </mat-error>
         }
-        @if (formGroup.get('budget')?.errors?.['max']) {
+        @if (formGroup.get('budget')?.hasError('max')) {
           <mat-error>
             Maximum budget is ₦1,000,000.
           </mat-error>
         }
       </mat-form-field>
-      
-      <!-- Estimated Reach -->
-      <div class="slider-info">
-        <span class="estimated-reach">Estimated Reach: ~{{estimatedReach | shortNumber}} views</span>
-        <!-- @if (formGroup.get('ageTarget')?.value !== 'all') {
-           <span class="age-target-info">
-            ({{getSelectedAgeGroupDescription()}})
-          </span>
-        } -->
+
+      <!-- Performance Info -->
+      <div class="performance-info">
+        <mat-icon>info</mat-icon>
+        <p>
+          Promoters are paid based on how many real views they generate.
+          Higher views earn higher payouts.
+        </p>
       </div>
 
-      <mat-divider class="form-divider"/>
+      <!-- PAYOUT TIERS (READ ONLY) -->
+      <!-- <div class="payout-tiers">
+        <h4>Payout Structure</h4>
+        <div class="tier" *ngFor="let tier of payoutTiers">
+          <span>{{ tier.views }} views</span>
+          <strong>{{ tier.payout }}</strong>
+        </div>
+        <p class="tier-note">
+          Final payouts are calculated automatically after validation.
+        </p>
+      </div> -->
 
-      <!-- Age Targeting Section -->
+      <div class="payout-tiers selectable">
+        <h4>Select Payment Per Promoter</h4>
+
+        <mat-radio-group
+          [value]="formGroup.get('payoutTier')?.value"
+          (change)="onTierChange($event.value)"
+        >
+
+          <mat-radio-button
+            *ngFor="let tier of payoutTiers"
+            [value]="tier.id"
+            class="tier-radio"
+          >
+            <div class="tier-content">
+              <strong>{{ tier.label }}</strong>
+              <span>
+                {{ tier.minViews }} –
+                {{ tier.maxViews || '∞' }} views
+              </span>
+            </div>
+          </mat-radio-button>
+        </mat-radio-group>
+
+        <p class="tier-note">
+          Each promoter will be paid this fixed amount after successful validation.
+        </p>
+      </div>
+
+
+      <!-- Estimated Reach -->
+      <div class="estimated-reach">
+        Estimated potential reach:
+        <strong>~{{ estimatedReach | shortNumber }} views</strong>
+        <span class="reach-note">(approximate)</span>
+      </div>
+
+      <mat-divider class="form-divider"></mat-divider>
+
+      <!-- Age Targeting -->
       <div class="age-targeting-section">
         <h3>Age Targeting</h3>
-        <p class="section-description">Select the age group you want to target with your campaign</p>
-        
+        <p class="section-description">
+          Narrowing your audience may reduce reach but improve relevance.
+        </p>
+
         <div class="age-options-grid">
           @for (ageGroup of ageGroups; track ageGroup.value) {
-            <div class="age-option" 
-                 [class.selected]="formGroup.get('ageTarget')?.value === ageGroup.value"
-                 (click)="formGroup.get('ageTarget')?.setValue(ageGroup.value)">
-              <div class="age-option-content">
-                <mat-icon class="age-icon">{{ageGroup.icon}}</mat-icon>
-                <div class="age-info">
-                  <h4>{{ageGroup.label}}</h4>
-                  <p class="age-range">{{ageGroup.range}}</p>
-                  <p class="age-description">{{ageGroup.description}}</p>
-                </div>
-                <mat-radio-button 
-                  [value]="ageGroup.value" 
-                  [checked]="formGroup.get('ageTarget')?.value === ageGroup.value"
-                  (click)="$event.stopPropagation()">
-                </mat-radio-button>
+            <div
+              class="age-option"
+              [class.selected]="formGroup.get('ageTarget')?.value === ageGroup.value"
+              (click)="formGroup.get('ageTarget')?.setValue(ageGroup.value)"
+            >
+              <mat-icon>{{ ageGroup.icon }}</mat-icon>
+              <div>
+                <h4>{{ ageGroup.label }}</h4>
+                <p>{{ ageGroup.range }}</p>
               </div>
             </div>
           }
         </div>
       </div>
 
-      <mat-divider class="form-divider"/>
+      <mat-divider class="form-divider"></mat-divider>
 
-      <!-- Location Targeting -->
+      <!-- Location -->
       <mat-slide-toggle formControlName="enableTarget">
-        {{ formGroup.get('enableTarget')?.value ? 'Show Ads to people in my area' : 'Show Ads everywhere' }}
+        {{ formGroup.get('enableTarget')?.value ? 'Prioritize nearby users' : 'Show ads broadly' }}
       </mat-slide-toggle>
-      <p class="toggle-description">
-        {{ formGroup.get('enableTarget')?.value 
-           ? 'Your ads will be shown primarily to users in your geographical area' 
-           : 'Your ads will be shown to users Worldwide' }}
-      </p>
 
-      <!-- Insufficient Funds Alert -->
+      <!-- Insufficient Funds -->
       @if (walletBalance < formGroup.get('budget')?.value) {
         <div class="insufficient-funds-alert">
-          <mat-icon class="alert-icon">account_balance_wallet</mat-icon>
-          <div class="alert-content">
-            <p class="alert-text">Insufficient wallet balance to cover this campaign budget.</p>
-            <br>
-            <button mat-flat-button color="primary" (click)="fundWallet.emit()">
-              <mat-icon>add</mat-icon>
-              Fund Wallet
-            </button>
-          </div>
+          <mat-icon>account_balance_wallet</mat-icon>
+          <p>Insufficient wallet balance.</p>
+          <button mat-flat-button color="primary" (click)="fundWallet.emit()">
+            Fund Wallet
+          </button>
         </div>
       }
+
     </form>
   </mat-card-content>
 </mat-card>

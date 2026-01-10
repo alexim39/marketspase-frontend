@@ -99,7 +99,15 @@ export class CreateCampaignComponent implements OnInit {
 
   // Computed signals for derived state
   walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
-  campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
+  //campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
+
+  campaignIsReady = computed(() =>
+    this.isContentValid() &&
+    this.isBudgetValid() &&
+    this.isScheduleValid() &&
+    this.walletBalance() >= this.budgetForm.get('budget')?.value &&
+    this.budgetForm.get('budget')?.value >= this.budgetForm.get('payoutAmount')?.value
+  );
 
   ngOnInit(): void {
     this.initializeForms();
@@ -113,11 +121,21 @@ export class CreateCampaignComponent implements OnInit {
       category: ['other', Validators.required]
     });
 
+    // this.budgetForm = this.fb.group({
+    //   budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
+    //   enableTarget: [true],
+    //   ageTarget: ['all', Validators.required] // Add age targeting control
+    // });
     this.budgetForm = this.fb.group({
-      budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
+      budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
+      payoutTier: ['TIER_100', Validators.required], // ✅ NEW
+      payoutAmount: [100, Validators.required],     // ✅ NEW
+      minViews: [35, Validators.required],           // ✅ NEW
+      maxViews: [65, Validators.required],            // ✅ NEW
       enableTarget: [true],
-      ageTarget: ['all', Validators.required] // Add age targeting control
+      ageTarget: ['all', Validators.required]
     });
+
 
     this.scheduleForm = this.fb.group({
       startDate: [new Date(), Validators.required],
@@ -210,6 +228,27 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
+     formData.append(
+        'payoutTierId',
+        String(this.budgetForm.get('payoutTier')?.value)
+      );
+
+      formData.append(
+        'payoutPerPromotion',
+        String(this.budgetForm.get('payoutAmount')?.value)
+      );
+
+      formData.append(
+        'minViewsPerPromotion',
+        String(this.budgetForm.get('minViews')?.value)
+      );
+
+      formData.append(
+        'maxViewsPerPromotion',
+        String(this.budgetForm.get('maxViews')?.value)
+      );
+
+
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
         formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
       }
@@ -295,6 +334,27 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('currency', 'NGN');
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
+
+      formData.append(
+        'payoutTierId',
+        String(this.budgetForm.get('payoutTier')?.value)
+      );
+
+      formData.append(
+        'payoutPerPromotion',
+        String(this.budgetForm.get('payoutAmount')?.value)
+      );
+
+      formData.append(
+        'minViewsPerPromotion',
+        String(this.budgetForm.get('minViews')?.value)
+      );
+
+      formData.append(
+        'maxViewsPerPromotion',
+        String(this.budgetForm.get('maxViews')?.value)
+      );
+
 
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
         formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());

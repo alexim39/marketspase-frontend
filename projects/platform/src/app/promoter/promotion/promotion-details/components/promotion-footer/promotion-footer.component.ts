@@ -23,7 +23,7 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
       }
       
       <div class="footer-actions">
-        @if (promotion.status === 'pending' && !isSubmissionExpired) {
+        @if (promotion.status === 'downloaded' && !isSubmissionExpired) {
           @if (promotion.isDownloaded) {
             <!-- <button mat-flat-button class="btn btn-primary" [disabled]="!isNearingExpiration">
               <mat-icon>cloud_upload</mat-icon>

@@ -47,7 +47,7 @@ export class CampaignCardComponent {
     return (campaign: CampaignInterface) =>
       this.promotions.some(
         (promotion: PromotionInterface) =>
-          promotion.campaign._id === campaign._id && promotion.status === 'pending'
+          promotion.campaign._id === campaign._id && promotion.status === 'accepted'
       );
   });
 

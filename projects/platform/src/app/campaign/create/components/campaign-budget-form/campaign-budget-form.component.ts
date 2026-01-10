@@ -43,7 +43,46 @@ export class CampaignBudgetFormComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   
   public estimatedReach = 0;
-  
+
+  /** READ-ONLY payout tiers */
+  public payoutTiers = [
+    {
+      id: 'TIER_100',
+      label: '₦100',
+      minViews: 35,
+      maxViews: 65,
+      payout: 100
+    },
+    {
+      id: 'TIER_200',
+      label: '₦200',
+      minViews: 66,
+      maxViews: 101,
+      payout: 200
+    },
+    {
+      id: 'TIER_300',
+      label: '₦300',
+      minViews: 102,
+      maxViews: 150,
+      payout: 300
+    },
+    {
+      id: 'TIER_400',
+      label: '₦400',
+      minViews: 151,
+      maxViews: 310,
+      payout: 400
+    },
+    {
+      id: 'TIER_500',
+      label: '₦500',
+      minViews: 311,
+      maxViews: 450,
+      payout: 500
+    }
+  ];
+
   // Age targeting options with descriptions
   public ageGroups = [
     {
@@ -77,6 +116,14 @@ export class CampaignBudgetFormComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+
+    if (!this.formGroup.get('payoutTier')) {
+      this.formGroup.addControl('payoutTier', new FormControl('TIER_100', Validators.required));
+      this.formGroup.addControl('payoutAmount', new FormControl(100, Validators.required));
+      this.formGroup.addControl('minViews', new FormControl(35, Validators.required));
+      this.formGroup.addControl('maxViews', new FormControl(65));
+    }
+
     // Ensure ageTarget control exists
     if (!this.formGroup.get('ageTarget')) {
       this.formGroup.addControl('ageTarget', new FormControl('all', Validators.required));
@@ -88,6 +135,10 @@ export class CampaignBudgetFormComponent implements OnInit {
       .subscribe(() => {
         this.validityChange.emit(this.formGroup.valid);
       });
+
+      this.formGroup.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.recalculateEstimate());
       
     // Subscribe to the 'budget' control's value changes
     this.formGroup.get('budget')?.valueChanges
@@ -113,6 +164,38 @@ export class CampaignBudgetFormComponent implements OnInit {
         }
       });
   }
+
+  selectTier(tier: any): void {
+    this.formGroup.patchValue({
+      payoutTier: tier.id,
+      payoutAmount: tier.payout,
+      minViews: tier.minViews,
+      maxViews: tier.maxViews
+    });
+
+    this.recalculateEstimate();
+  }
+
+  onTierChange(tierId: string): void {
+    const tier = this.payoutTiers.find(t => t.id === tierId);
+
+    if (!tier) {
+      return;
+    }
+
+    this.selectTier(tier);
+  }
+
+
+
+  private recalculateEstimate(): void {
+    const budget = this.formGroup.get('budget')?.value || 0;
+    const payout = this.formGroup.get('payoutAmount')?.value || 100;
+
+    this.estimatedReach = Math.floor(budget / payout) *
+      (this.formGroup.get('maxViews')?.value || 350);
+  }
+
 
   private getAgeMultiplier(): number {
     const ageTarget = this.formGroup.get('ageTarget')?.value;

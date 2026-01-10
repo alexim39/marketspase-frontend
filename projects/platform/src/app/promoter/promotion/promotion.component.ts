@@ -25,7 +25,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface PromotionStats {
   total: number;
-  pending: number;
+  accepted: number;
   submitted: number;
   validated: number;
   paid: number;
@@ -82,7 +82,7 @@ export class PromotionComponent implements OnInit {
   
   stats = signal<PromotionStats>({
     total: 0,
-    pending: 0,
+    accepted: 0,
     submitted: 0,
     validated: 0,
     paid: 0,
@@ -223,7 +223,7 @@ export class PromotionComponent implements OnInit {
         acc[promo.status as keyof PromotionStats] = (acc[promo.status as keyof PromotionStats] as number) + 1;
       }
       return acc;
-    }, { total: 0, pending: 0, submitted: 0, validated: 0, paid: 0, rejected: 0 });
+    }, { total: 0, accepted: 0, submitted: 0, validated: 0, paid: 0, rejected: 0 });
   }
 
   openSubmitProofDialog(promotion: PromotionInterface): void {
