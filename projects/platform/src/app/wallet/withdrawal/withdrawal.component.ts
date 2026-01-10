@@ -128,7 +128,7 @@ export class WithdrawalComponent implements OnInit {
   selectedBankName = signal<string>('');
 
   // Constants
-  private readonly PAYSTACK_SECRET_KEY = 'sk_live_2288514c9d501669926c10dc09cff03b11b3bafa';
+  private readonly PAYSTACK_SECRET_KEY = 'sk_live_311...4';
   private readonly MIN_WITHDRAWAL_AMOUNT = 100;
   private readonly WITHDRAWAL_FEE_RATE = 0.15; // 15%
 
