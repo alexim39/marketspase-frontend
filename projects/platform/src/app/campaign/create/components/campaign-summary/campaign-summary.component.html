@@ -61,6 +61,7 @@
 
     <div class="campaign-details">
       <h4>Campaign Details</h4>
+
       <div class="detail-item">
         <span class="detail-label">Title</span>
         <span class="detail-value">{{contentForm().get('title')?.value}}</span>
@@ -73,15 +74,34 @@
         <span class="detail-label">Budget</span>
         <span class="detail-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
       </div>
-      <div class="detail-item">
+      <!-- <div class="detail-item">
         <span class="detail-label">Promoter Slots</span>
         <span class="detail-value">{{ slots() }}</span>
-      </div>
+      </div> -->
+
+      <!-- <div class="detail-item">
+        <span class="detail-label">Estimated Reach</span>
+        <span class="detail-value"> ~{{ estimatedReach() | shortNumber }} views</span>
+      </div> -->
 
       <div class="detail-item">
         <span class="detail-label">Estimated Reach</span>
-        <span class="detail-value"> ~{{ estimatedReach() | shortNumber }} views</span>
+        <span class="detail-value">
+          ~{{ estimatedReach() | shortNumber }} views
+        </span>
       </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Payout Model</span>
+        <span class="detail-value">Performance-based</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Payout Per Promoter</span>
+        <span class="detail-value">{{ tier() | currency: '₦':'symbol':'1.0-2' }}</span>
+      </div>
+
+
       <div class="detail-item">
         <span class="detail-label">Location Target</span>
         <span class="detail-value">{{ budgetForm().get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
@@ -109,9 +129,11 @@
     <div class="final-cost-summary">
       <mat-icon class="summary-icon">info</mat-icon>
       <p class="summary-text">
-        Your total campaign cost is
-        <span class="cost-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
-        which will be deducted from your wallet upon launch.
+         Promoters are paid based on actual views generated.
+          Your campaign will automatically stop once your budget is exhausted
+          or the campaign end date is reached.
+        <!-- <span class="cost-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
+        which will be deducted from your wallet upon launch. -->
       </p>
     </div>
   </mat-card-content>

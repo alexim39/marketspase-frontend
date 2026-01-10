@@ -99,32 +99,19 @@ export class CreateCampaignComponent implements OnInit {
 
   // Computed signals for derived state
   walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
-  campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
+  //campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
+
+  campaignIsReady = computed(() =>
+    this.isContentValid() &&
+    this.isBudgetValid() &&
+    this.isScheduleValid() &&
+    this.walletBalance() >= this.budgetForm.get('budget')?.value &&
+    this.budgetForm.get('budget')?.value >= this.budgetForm.get('payoutAmount')?.value
+  );
 
   ngOnInit(): void {
     this.initializeForms();
   }
-
-  // private initializeForms(): void {
-  //   this.contentForm = this.fb.group({
-  //     title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
-  //     caption: ['', [Validators.required, Validators.maxLength(300)]],
-  //     link: ['', [this.urlValidator]],
-  //     category: ['other', Validators.required]
-  //   });
-
-  //   this.budgetForm = this.fb.group({
-  //     budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
-  //     enableTarget: [true] 
-  //   });
-
-  //   this.scheduleForm = this.fb.group({
-  //     startDate: [new Date(), Validators.required],
-  //     hasEndDate: [true],
-  //     endDate: [null],
-  //     duration: [{ value: 7, disabled: true }]
-  //   });
-  // }
 
   private initializeForms(): void {
     this.contentForm = this.fb.group({
@@ -134,11 +121,21 @@ export class CreateCampaignComponent implements OnInit {
       category: ['other', Validators.required]
     });
 
+    // this.budgetForm = this.fb.group({
+    //   budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
+    //   enableTarget: [true],
+    //   ageTarget: ['all', Validators.required] // Add age targeting control
+    // });
     this.budgetForm = this.fb.group({
-      budget: [null, [Validators.required, Validators.min(500), Validators.max(1000000)]],
+      budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
+      payoutTier: ['TIER_100', Validators.required], // ✅ NEW
+      payoutAmount: [100, Validators.required],     // ✅ NEW
+      minViews: [35, Validators.required],           // ✅ NEW
+      maxViews: [65, Validators.required],            // ✅ NEW
       enableTarget: [true],
-      ageTarget: ['all', Validators.required] // Add age targeting control
+      ageTarget: ['all', Validators.required]
     });
+
 
     this.scheduleForm = this.fb.group({
       startDate: [new Date(), Validators.required],
@@ -231,6 +228,27 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
+     formData.append(
+        'payoutTierId',
+        String(this.budgetForm.get('payoutTier')?.value)
+      );
+
+      formData.append(
+        'payoutPerPromotion',
+        String(this.budgetForm.get('payoutAmount')?.value)
+      );
+
+      formData.append(
+        'minViewsPerPromotion',
+        String(this.budgetForm.get('minViews')?.value)
+      );
+
+      formData.append(
+        'maxViewsPerPromotion',
+        String(this.budgetForm.get('maxViews')?.value)
+      );
+
+
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
         formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
       }
@@ -261,17 +279,6 @@ export class CreateCampaignComponent implements OnInit {
       this.isSubmitting.set(false);
     }
   }
-
-  // Validation helpers
-  // private urlValidator(control: AbstractControl): { [key: string]: any } | null {
-  //   if (!control.value) return null;
-  //   try {
-  //     new URL(control.value);
-  //     return null;
-  //   } catch {
-  //     return { invalidUrl: true };
-  //   }
-  // }
 
   private urlValidator(control: AbstractControl): { [key: string]: any } | null {
     if (!control.value) return null;
@@ -306,47 +313,6 @@ export class CreateCampaignComponent implements OnInit {
     }
   }
 
-  // private urlValidator(control: AbstractControl): { [key: string]: any } | null {
-  //   if (!control.value) return null;
-    
-  //   try {
-  //     let urlString = control.value;
-      
-  //     // Create a test URL by adding protocol if missing
-  //     const testUrl = urlString.startsWith('http://') || urlString.startsWith('https://') 
-  //       ? urlString 
-  //       : 'https://' + urlString;
-      
-  //     // Validate the URL
-  //     new URL(testUrl);
-      
-  //     // Extract hostname and normalize to www. format
-  //     const urlObj = new URL(testUrl);
-  //     let normalizedUrl = '';
-      
-  //     // If it already has www., use it as is
-  //     if (urlObj.hostname.startsWith('www.')) {
-  //       normalizedUrl = urlObj.hostname + urlObj.pathname + urlObj.search;
-  //     } else {
-  //       // Add www. prefix
-  //       normalizedUrl = 'www.' + urlObj.hostname + urlObj.pathname + urlObj.search;
-  //     }
-      
-  //     // Remove trailing slash if present
-  //     normalizedUrl = normalizedUrl.replace(/\/$/, '');
-      
-  //     // Update control value with normalized www. version
-  //     if (control.value !== normalizedUrl) {
-  //       control.setValue(normalizedUrl, { emitEvent: false });
-  //     }
-      
-  //     return null;
-  //   } catch {
-  //     return { invalidUrl: true };
-  //   }
-  // }
-
-
   // Navigation and other actions
   goBack(): void {
     this.router.navigate(['/dashboard/campaigns']);
@@ -368,6 +334,27 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('currency', 'NGN');
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
+
+      formData.append(
+        'payoutTierId',
+        String(this.budgetForm.get('payoutTier')?.value)
+      );
+
+      formData.append(
+        'payoutPerPromotion',
+        String(this.budgetForm.get('payoutAmount')?.value)
+      );
+
+      formData.append(
+        'minViewsPerPromotion',
+        String(this.budgetForm.get('minViews')?.value)
+      );
+
+      formData.append(
+        'maxViewsPerPromotion',
+        String(this.budgetForm.get('maxViews')?.value)
+      );
+
 
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
         formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());

@@ -170,11 +170,11 @@ export class PromoterLandingComponent implements OnInit {
 
     const pendingEarnings = promotions
       //.filter(promotion => promotion.status === 'submitted')
-      .filter(promotion => promotion.status === 'submitted' || promotion.status === 'pending')
+      .filter(promotion => promotion.status === 'submitted' || promotion.status === 'accepted')
       .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
 
     const activePromotions = promotions.filter(promotion => 
-      promotion.status === 'pending' || promotion.status === 'submitted'
+      promotion.status === 'accepted' || promotion.status === 'submitted'
     ).length;
 
     const completedPromotions = promotions.filter(promotion => 
@@ -206,7 +206,7 @@ export class PromoterLandingComponent implements OnInit {
       const diffTime = endDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return diffDays <= 3 && diffDays > 0 && 
-            (promotion.status === 'pending' || promotion.status === 'submitted');
+            (promotion.status === 'accepted' || promotion.status === 'submitted');
     }).length;
 
     return {

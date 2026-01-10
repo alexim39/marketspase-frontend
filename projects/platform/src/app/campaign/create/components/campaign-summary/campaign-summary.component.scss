@@ -299,9 +299,21 @@
       }
     }
 
-    .cost-value {
-      font-weight: 700;
+    .summary-text {
+      flex: 1;
+      font-size: 0.95rem;
+      line-height: 1.4;
+
+      @include mobile {
+        font-size: 13px;
+      }
+
+      .cost-value {
+        font-weight: 700;
+      }
     }
+
+    
   }
 }
 

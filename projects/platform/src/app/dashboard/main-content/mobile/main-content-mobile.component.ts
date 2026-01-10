@@ -132,7 +132,7 @@ export class DashboardMainMobileContainer {
     const promotions = userData.promotion;
     const wallet = userData.wallets?.promoter;
     
-    const pending = promotions.filter(p => p.status === 'pending').length;
+    const pending = promotions.filter(p => p.status === 'accepted').length;
     const submitted = promotions.filter(p => p.status === 'submitted').length;
     const validated = promotions.filter(p => p.status === 'validated').length;
     const paid = promotions.filter(p => p.status === 'paid').length;

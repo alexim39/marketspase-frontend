@@ -54,7 +54,7 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
             </div>
           </div>
           
-          <div class="status-step" [class.active]="data.promotion.status !== 'pending'">
+          <div class="status-step" [class.active]="data.promotion.status !== 'downloaded'">
             <div class="step-icon">
               <mat-icon>file_upload</mat-icon>
             </div>

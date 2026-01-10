@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 interface PromotionStats {
   total: number;
-  pending: number;
+  accepted: number;
   submitted: number;
   validated: number;
   paid: number;

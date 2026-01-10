@@ -167,7 +167,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   openCreateThreadDialog(): void {
     const dialogRef = this.dialog.open(CreateThreadComponent, {
       width: '600px',
-      maxWidth: '100vw'
+      maxWidth: '100vw',
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe(result => {

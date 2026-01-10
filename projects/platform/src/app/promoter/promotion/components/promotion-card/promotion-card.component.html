@@ -16,7 +16,7 @@
             <span>Submit Proof</span>
           </button>
         }
-        @if (!promotion.isDownloaded) {
+        @if (!promotion.isDownloaded && promotion.status === 'accepted') {
           <button mat-menu-item (click)="downloadPromotion(promotion._id)" [disabled]="isSubmissionExpired(promotion)">
             <mat-icon>download_for_offline</mat-icon>
             <span>Download Promotion</span>
@@ -97,16 +97,21 @@
           Pending Validation
         </span>
       }
-      @if (promotion.status === 'pending' && promotion.isDownloaded) {
+      @if (promotion.status === 'accepted' && promotion.isDownloaded) {
+        <span class="status-label">
+          Pending Download
+        </span>
+      } 
+      @if (promotion.status === 'downloaded' && promotion.isDownloaded) {
         <span class="status-label">
           Pending Submission
         </span>
       } 
-      @if (!promotion.isDownloaded && promotion.status !== 'rejected') {
+      <!-- @if (!promotion.isDownloaded && promotion.status !== 'rejected') {
         <span class="status-label">
           Pending Download
         </span>
-      }
+      } -->
       
     </div>
   </div>
@@ -121,7 +126,7 @@
     }
     
     <div class="action-buttons">
-      @if (promotion.status === 'pending' && !isSubmissionExpired(promotion)) {
+      @if (promotion.status === 'downloaded' && !isSubmissionExpired(promotion)) {
         @if (promotion.isDownloaded) {
           @if (isNearingExpiration()) {
             <!-- <button class="action-btn primary" (click)="onOpenSubmitProofDialog()"> -->
@@ -133,23 +138,25 @@
             <small>Submission will be enabled 4 hours before expiration.</small>
           }
           
-        } @else {         
-          <button class="action-btn primary" (click)="downloadPromotion(promotion._id)" [disabled]="isLoading()">
-            @if (isLoading()) {
-              <mat-progress-spinner
-                diameter="20"
-                mode="indeterminate"
-                color="primary"
-                class="spinner"
-              />
-              <span>Downloading...</span>
-            } @else {
-              <i class="material-icons">download_for_offline</i>
-              <span>Download</span>
-            }
-          </button>
-        }            
+        }
+                
       }
+      @if (!promotion.isDownloaded && promotion.status === 'accepted') {         
+        <button class="action-btn primary" (click)="downloadPromotion(promotion._id)" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <mat-progress-spinner
+              diameter="20"
+              mode="indeterminate"
+              color="primary"
+              class="spinner"
+            />
+            <span>Downloading...</span>
+          } @else {
+            <i class="material-icons">download_for_offline</i>
+            <span>Download</span>
+          }
+        </button>
+      }   
       @if (promotion.status === 'submitted' || promotion.status === 'validated') {
         @if (!isNearingExpiration()) {
           <button class="action-btn secondary" (click)="viewDetails()">

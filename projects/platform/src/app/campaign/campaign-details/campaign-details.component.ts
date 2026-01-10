@@ -1,5 +1,5 @@
 // campaign-details.component.ts
-import { Component, OnInit, inject, signal, computed, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -20,6 +20,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TruncateIDPipe } from './truncate-id.pipe';
 import { CampaignDetailsService } from './campaign-details.service';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
+import { UserService } from '../../common/services/user.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -73,6 +75,11 @@ export class CampaignDetailsComponent implements OnInit {
   
   // API base URL for media
   public readonly api = this.campaignDetailsService.api;
+
+  private userService = inject(UserService);
+  public user = this.userService.user;
+
+  private readonly destroyRef = inject(DestroyRef);
 
   
   // Computed signal for filtered promotions
@@ -310,5 +317,42 @@ export class CampaignDetailsComponent implements OnInit {
     });
   }
 
+  pauseCampaign(campaign: CampaignInterface): void {
+      this.campaignDetailsService.updateCampaignStatus(campaign._id, 'paused', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackBar.open('Campaign paused successfully', 'Close', { duration: 3000 });
+            this.loadCampaign();
+          } else {
+            this.snackBar.open('Failed to pause campaign', 'Close', { duration: 3000 });
+          }
+        },
+        error: (error) => {
+          console.error('Error pausing campaign:', error);
+          this.snackBar.open('Error pausing campaign', 'Close', { duration: 3000 });
+        }
+      })
+  }
+
+  resumeCampaign(campaign: CampaignInterface): void {
+      this.campaignDetailsService.updateCampaignStatus(campaign._id, 'active', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackBar.open('Campaign resumed successfully', 'Close', { duration: 3000 });
+            this.loadCampaign();
+          } else {
+            this.snackBar.open('Failed to resume campaign', 'Close', { duration: 3000 });
+          }
+        },
+        error: (error) => {
+          console.error('Error resuming campaign:', error);
+          this.snackBar.open('Error resuming campaign', 'Close', { duration: 3000 });
+        }
+      })
+  }
   
 }

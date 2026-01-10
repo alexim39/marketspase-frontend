@@ -5,7 +5,7 @@ import { UserInterface } from "./user.interface";
 
 export interface PromotionInterface {
   _id: string;
-  status: 'pending' | 'submitted' | 'validated' | 'paid' | 'rejected';
+  status: 'accepted' | 'submitted' | 'validated' | 'paid' | 'rejected' | 'downloaded';
   payoutAmount?: number;
   submittedAt?: Date;
   validatedAt?: Date;

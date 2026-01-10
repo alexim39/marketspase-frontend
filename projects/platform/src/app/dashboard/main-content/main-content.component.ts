@@ -38,7 +38,7 @@ interface CampaignSummary {
 
 interface PromotionSummary {
   total: number;
-  pending: number;
+  accepted: number;
   submitted: number;
   validated: number;
   paid: number;
@@ -107,7 +107,7 @@ export class DashboardMainContainer {
     if (!userData?.promotion) {
       return { 
         total: 0, 
-        pending: 0, 
+        accepted: 0, 
         submitted: 0, 
         validated: 0, 
         paid: 0, 
@@ -120,7 +120,7 @@ export class DashboardMainContainer {
     const promotions = userData.promotion;
     const wallet = userData.wallets?.promoter;
     
-    const pending = promotions.filter(p => p.status === 'pending').length;
+    const accepted = promotions.filter(p => p.status === 'accepted').length;
     const submitted = promotions.filter(p => p.status === 'submitted').length;
     const validated = promotions.filter(p => p.status === 'validated').length;
     const paid = promotions.filter(p => p.status === 'paid').length;
@@ -137,7 +137,7 @@ export class DashboardMainContainer {
 
     return {
       total: promotions.length,
-      pending,
+      accepted,
       submitted,
       validated,
       paid,

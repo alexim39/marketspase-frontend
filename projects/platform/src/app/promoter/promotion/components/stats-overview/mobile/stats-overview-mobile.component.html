@@ -31,8 +31,8 @@
     <div class="stats-grid">
       <!-- Pending Card -->
       <div class="stat-card pending" 
-           (click)="onStatClick('pending')" 
-           [class.active]="activeStat === 'pending'">
+           (click)="onStatClick('accepted')" 
+           [class.active]="activeStat === 'accepted'">
         <div class="card-background"></div>
         <div class="card-content">
           <div class="status-header">
@@ -44,7 +44,7 @@
               <mat-icon>pending_actions</mat-icon>
             </div>
             <div class="stat-numbers">
-              <h3 class="stat-value">{{ stats.pending }}</h3>
+              <h3 class="stat-value">{{ stats.accepted }}</h3>
               <p class="stat-label">Pending Submission</p>
             </div>
           </div>

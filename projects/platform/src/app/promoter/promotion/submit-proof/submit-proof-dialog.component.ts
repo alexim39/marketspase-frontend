@@ -48,7 +48,8 @@ export class SubmitProofDialogComponent {
   statusMessage = signal('');
 
   readonly maxFileSize = 5 * 1024 * 1024; // 5MB
-  readonly minFiles = 2;
+  // readonly minFiles = 2;
+  readonly minFiles = 3;
   readonly maxFiles = 3;
 
   // Computed signals

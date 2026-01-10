@@ -91,6 +91,9 @@ export interface CampaignInterface {
   //isApproved: boolean;
   //targetAudience: any;
 
+  minViewsPerPromoter: number;
+  maxViewsPerPromoter: number;
+  payoutModel: string;
 
 
 

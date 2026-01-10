@@ -153,8 +153,9 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
 
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      pending: 'warning',
+      accepted: 'warning',
       submitted: 'info',
+      downloaded: 'info',
       validated: 'success',
       paid: 'primary',
       rejected: 'error'
@@ -163,9 +164,10 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getStatusIcon(status: string): string {
-      const icons: { [key: string]: string } = {
-      pending: 'schedule',
+    const icons: { [key: string]: string } = {
+      accepted: 'schedule',
       submitted: 'pending_actions',
+      downloaded: 'download',
       validated: 'check_circle',
       paid: 'paid',
       rejected: 'cancel'
@@ -187,12 +189,6 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
     return nowUtc > expiryTimeUtc;
   }
   
-  // Updated method to check if the countdown is nearing expiration (1 hour)
-  // isNearingExpiration(): boolean {
-  //   const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
-  //   return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= oneHourInMs;
-  // }
-
   // Updated method to check if the countdown is nearing expiration (4 hour)
    isNearingExpiration(): boolean {
     const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
