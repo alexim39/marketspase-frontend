@@ -206,6 +206,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       data: this.user(), // Pass the data here
       panelClass: 'custom-dialog-container',
       height: '650px', // Set your desired height (e.g., '400px', '50vh', 'auto')
+      disableClose: true
     });
 
   } else {
@@ -217,6 +218,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dialog.open(WalletFundingComponent, {
       data: this.user(), // Pass the data here
       panelClass: 'custom-dialog-container',
+      disableClose: true
     });
   }
 

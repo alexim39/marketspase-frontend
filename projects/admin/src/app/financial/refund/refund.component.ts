@@ -212,7 +212,6 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     MatAutocompleteModule,
     MatOptionModule,
     // Dialog components
-    RefundDetailsDialogComponent,
     EditBulkItemDialogComponent
   ],
   templateUrl: './refund.component.html',
@@ -969,7 +968,7 @@ triggerFormValidation(): void {
   viewRefundDetails(refund: PromoterRefund): void {
     this.dialog.open(RefundDetailsDialogComponent, {
       width: '600px',
-      data: { refund }
+      data: { refund },
     });
   }
 
