@@ -550,3 +550,13 @@ mat-divider {
     height: 14px;
   }
 }
+
+.detail-value {
+  &.approve {
+    color: #4caf50; // Green for Approve
+  }
+
+  &.reject {
+    color: #f44336; // Red for Reject
+  }
+}

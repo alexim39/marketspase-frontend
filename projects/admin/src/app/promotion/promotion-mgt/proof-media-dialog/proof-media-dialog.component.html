@@ -151,6 +151,28 @@
           </div>
 
           <div class="detail-row">
+            <mat-icon class="detail-icon">campaign</mat-icon>
+            <div class="detail-info">
+              <span class="detail-label">Campaign Tier</span>
+              <span class="detail-value">{{ getCampaignTier() }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <mat-icon class="detail-icon">add_task</mat-icon>
+            <div class="detail-info">
+              <span class="detail-label">Promotion View</span>
+              <span class="detail-value"
+                    [ngClass]="{
+                      approve: confirmUserViews(promotion.proofViews ?? 0) === 'Valid views',
+                      reject: confirmUserViews(promotion.proofViews ?? 0) === 'Invalid views'
+                    }">
+                {{ confirmUserViews(promotion.proofViews ?? 0) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-row">
             <mat-icon class="detail-icon">calendar_today</mat-icon>
             <div class="detail-info">
               <span class="detail-label">Created</span>
