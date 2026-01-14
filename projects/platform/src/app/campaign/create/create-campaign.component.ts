@@ -121,18 +121,14 @@ export class CreateCampaignComponent implements OnInit {
       category: ['other', Validators.required]
     });
 
-    // this.budgetForm = this.fb.group({
-    //   budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
-    //   enableTarget: [true],
-    //   ageTarget: ['all', Validators.required] // Add age targeting control
-    // });
     this.budgetForm = this.fb.group({
       budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
-      payoutTier: ['TIER_100', Validators.required], // ✅ NEW
-      payoutAmount: [100, Validators.required],     // ✅ NEW
-      minViews: [35, Validators.required],           // ✅ NEW
-      maxViews: [65, Validators.required],            // ✅ NEW
-      enableTarget: [true],
+      payoutTier: ['TIER_100', Validators.required],
+      payoutAmount: [100, Validators.required],
+      minViews: [35, Validators.required],
+      maxViews: [65, Validators.required],
+      //enableTarget: [true],
+      enableTarget: [{ value: true, disabled: true }],
       ageTarget: ['all', Validators.required]
     });
 
