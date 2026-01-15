@@ -65,6 +65,7 @@ export interface Campaign {
   owner: any;
   payoutTierId?: string;
   minViewsPerPromotion?: number;
+  maxViewsPerPromotion?: number;
 }
 
 export interface Promoter {

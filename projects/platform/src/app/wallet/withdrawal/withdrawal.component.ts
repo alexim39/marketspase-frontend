@@ -128,7 +128,6 @@ export class WithdrawalComponent implements OnInit {
   selectedBankName = signal<string>('');
 
   // Constants
-  private readonly PAYSTACK_SECRET_KEY = 'sk_live_311...4';
   private readonly MIN_WITHDRAWAL_AMOUNT = 100;
   private readonly WITHDRAWAL_FEE_RATE = 0.15; // 15%
 
@@ -345,7 +344,7 @@ private setupFormSubscriptions(): void {
     this.isResolvingAccount.set(true);
 
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.PAYSTACK_SECRET_KEY}`
+      'Authorization': `Bearer ${this.withdrawalService.PAYSTACK_SECRET_KEY}`
     });
 
     const url = `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`;

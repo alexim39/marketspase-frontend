@@ -65,6 +65,9 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
   readonly minZoom = 0.5;
   readonly maxZoom = 5;
 
+  public minViewsPerPromotion: number | null = null;
+  public maxViewsPerPromotion: number | null = null;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {
       promotion: Promotion;
@@ -392,11 +395,12 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
       return 'Campaign not found'; // Campaign not found
     }
 
-    const min = campaign?.minViewsPerPromotion ?? 0;
+    this.minViewsPerPromotion = campaign?.minViewsPerPromotion ?? 0;
+    this.maxViewsPerPromotion = campaign?.maxViewsPerPromotion ?? null;
 
     // Only enforce the minimum views requirement
     // Exceeding maxViewsPerPromotion (if set) is allowed and considered valid
-    const isValid = views >= min;
+    const isValid = views >= this.minViewsPerPromotion;
 
     return isValid ? 'Valid views' : 'Invalid views';
   }

@@ -14,7 +14,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  //background-color: #f8f9fa; // Removed static color
 }
 
 .container {
@@ -29,15 +28,12 @@ body {
 
 .sidenav-container {
   height: 100%;
-  .mat-drawer-content {
-    //background-color: #f8f9fa; // Removed static color
-  }
 }
 
 .sidenav {
-  width: 280px;
+  width: 300px; // Increased width to accommodate nested menus
   padding: 16px;
-  background-color: var(--surface-color); // Updated to use theme variable
+  background-color: var(--surface-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   
   .sidenav-header {
@@ -50,16 +46,16 @@ body {
       align-items: center;
       gap: 8px;
       .logo-icon {
-        color: var(--primary-color); // Updated to use theme variable
+        color: var(--primary-color);
         height: 40px;
         border-radius: 100%;
-        border: 1px solid var(--border-color); // Updated to use theme variable
+        border: 1px solid var(--border-color);
         padding: 1px;
       }
       .logo-text {
         font-weight: 700;
         font-size: 22px;
-        background: var(--gradient-primary); // Updated to use theme variable
+        background: var(--gradient-primary);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -67,92 +63,237 @@ body {
     }
   }
 
-  .profile-card {
-    background-color: color-mix(in srgb, var(--primary-color), transparent 90%); // Updated to use theme variable with transparency
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
+/*   .nav-tree {
+    margin-top: 16px;
     
-    .profile-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .profile-avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--primary-color); // Updated to use theme variable
-    }
-    .profile-details {
-      .profile-name {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--text-primary); // Updated to use theme variable
+    .nav-item {
+      margin-bottom: 4px;
+      
+      &.top-level {
+        .nav-item-header {
+          padding: 12px 16px;
+          border-radius: 8px;
+          margin-bottom: 4px;
+          
+          &:hover {
+            background-color: color-mix(in srgb, var(--primary-color), transparent 95%);
+          }
+          
+          &.active {
+            background-color: color-mix(in srgb, var(--primary-color), transparent 90%);
+            color: var(--primary-color);
+            
+            .nav-icon, .nav-label, .nav-arrow {
+              color: var(--primary-color);
+            }
+          }
+        }
       }
-      .profile-meta {
+      
+      .nav-item-header {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 4px;
+        justify-content: space-between;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background-color 0.2s;
         
-        .role-chip {
-          background-color: var(--primary-color); // Updated to use theme variable
-          color: var(--white); // Using static white for text on colored background
-          font-size: 11px;
-          height: 20px;
-          line-height: 20px;
-          padding: 0 8px;
-          border-radius: 10px;
-          &.marketer {
-            background-color: var(--info-color); // Updated to use theme variable
-          }
-          &.promoter {
-            background-color: var(--success-color); // Updated to use theme variable
+        &:hover {
+          background-color: color-mix(in srgb, var(--primary-color), transparent 95%);
+        }
+        
+        &.active {
+          background-color: color-mix(in srgb, var(--primary-color), transparent 90%);
+          color: var(--primary-color);
+          
+          .nav-icon, .nav-label, .nav-arrow {
+            color: var(--primary-color);
           }
         }
-        .verified-badge {
-          font-size: 14px;
-          color: var(--info-color); // Updated to use theme variable
+        
+        .nav-header-content {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex: 1;
+          
+          .nav-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+          }
+          
+          .nav-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            flex: 1;
+          }
+        }
+        
+        .nav-badge {
+          margin-left: 8px;
+          
+          .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+            
+            &.primary {
+              background-color: var(--primary-color);
+              color: white;
+            }
+            
+            &.accent {
+              background-color: var(--accent-color);
+              color: white;
+            }
+            
+            &.warn {
+              background-color: var(--warning-color);
+              color: white;
+            }
+          }
+        }
+        
+        .nav-arrow {
+          margin-left: 8px;
+          width: 16px;
+          height: 16px;
+          font-size: 16px;
+          transition: transform 0.3s;
+          color: var(--text-secondary);
+          
+          &.expanded {
+            transform: rotate(90deg);
+          }
         }
       }
-      .profile-stats {
-        font-size: 12px;
-        color: var(--text-secondary); // Updated to use theme variable
-        margin-top: 4px;
+      
+      .nav-children {
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        
+        .nav-item {
+          margin-left: 20px;
+          
+          &.level-2 {
+            margin-left: 40px;
+          }
+          
+          &.level-3 {
+            margin-left: 60px;
+          }
+          
+          .nav-item-header {
+            padding-left: 16px;
+            
+            .nav-icon {
+              width: 18px;
+              height: 18px;
+              font-size: 18px;
+            }
+            
+            .nav-label {
+              font-size: 13px;
+              font-weight: 400;
+            }
+          }
+        }
       }
     }
-    .switch-user-btn {
-      color: var(--primary-color); // Updated to use theme variable
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      width: 100%;
+      
+      &.active-link {
+        .nav-item-header {
+          background-color: color-mix(in srgb, var(--primary-color), transparent 90%);
+          color: var(--primary-color);
+          
+          .nav-icon, .nav-label, .nav-arrow {
+            color: var(--primary-color);
+          }
+        }
+      }
     }
-  }
+  } */
 }
 
-.nav-list {
-  .mat-list-item {
-    border-radius: 8px;
-    margin-bottom: 8px;
-    .mat-list-item-content {
-      padding: 0 16px !important;
+.profile-card {
+  background-color: color-mix(in srgb, var(--primary-color), transparent 90%);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  
+  .profile-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+  }
+  .profile-details {
+    .profile-name {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
     }
-    &.active-nav-item {
-      background-color: color-mix(in srgb, var(--primary-color), transparent 90%); // Updated to use theme variable with transparency
-      color: var(--primary-color); // Updated to use theme variable
-      .mat-icon, .badge-icon {
-        color: var(--primary-color); // Updated to use theme variable
+    .profile-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      
+      .role-chip {
+        background-color: var(--primary-color);
+        color: var(--white);
+        font-size: 11px;
+        height: 20px;
+        line-height: 20px;
+        padding: 0 8px;
+        border-radius: 10px;
+        &.marketer {
+          background-color: var(--info-color);
+        }
+        &.promoter {
+          background-color: var(--success-color);
+        }
+      }
+      .verified-badge {
+        font-size: 14px;
+        color: var(--info-color);
       }
     }
-    &:hover {
-      background-color: color-mix(in srgb, var(--primary-color), transparent 95%); // Updated to use theme variable with transparency
+    .profile-stats {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
     }
-    .badge-icon {
-      color: var(--warning-color); // Updated to use theme variable
-    }
+  }
+  .switch-user-btn {
+    color: var(--primary-color);
   }
 }
 
@@ -162,7 +303,7 @@ body {
     margin: 0 0 12px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-tertiary); // Updated to use theme variable
+    color: var(--text-tertiary);
   }
   .action-btn {
     width: 100%;
@@ -172,9 +313,9 @@ body {
     align-items: center;
     gap: 8px;
     border-radius: 8px;
-    color: var(--text-primary); // Updated to use theme variable
+    color: var(--text-primary);
     &.logout {
-      color: var(--error-color); // Updated to use theme variable
+      color: var(--error-color);
     }
   }
 }
@@ -185,7 +326,7 @@ body {
 .mobile-header, .desktop-header {
   height: 64px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background-color: var(--surface-color); // Updated to use theme variable
+  background-color: var(--surface-color);
   padding: 0 16px;
 }
 
@@ -198,15 +339,15 @@ body {
     align-items: center;
     gap: 8px;
     .logo-icon {
-      color: var(--primary-color); // Updated to use theme variable
+      color: var(--primary-color);
       height: 40px;
       border-radius: 50%;
-      border: 1px solid var(--border-color); // Updated to use theme variable
+      border: 1px solid var(--border-color);
       padding: 1px;
     }
     .logo-text {
       font-weight: 600;
-      background: var(--gradient-primary); // Updated to use theme variable
+      background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -226,7 +367,7 @@ body {
   .page-title {
     font-size: 20px;
     font-weight: 600;
-    color: var(--text-primary); // Updated to use theme variable
+    color: var(--text-primary);
   }
   .header-spacer {
     flex: 1;
@@ -240,18 +381,18 @@ body {
       align-items: center;
       gap: 4px;
       padding: 6px 12px;
-      background-color: var(--gray-100); // Using static gray for consistent appearance
+      background-color: var(--gray-100);
       border-radius: 20px;
       cursor: pointer;
       &:hover {
-        background-color: var(--gray-200); // Using static gray for consistent appearance
+        background-color: var(--gray-200);
       }
       mat-icon {
-        color: var(--success-color); // Updated to use theme variable
+        color: var(--success-color);
       }
       .wallet-amount {
         font-weight: 600;
-        color: var(--text-primary); // Updated to use theme variable
+        color: var(--text-primary);
       }
     }
   }
@@ -280,7 +421,7 @@ body {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
-      color: var(--text-primary); // Updated to use theme variable
+      color: var(--text-primary);
     }
   }
   .notification-list {
@@ -289,21 +430,21 @@ body {
   }
   .notification-item {
     &.unread {
-      background-color: color-mix(in srgb, var(--info-color), transparent 90%); // Updated to use theme variable with transparency
+      background-color: color-mix(in srgb, var(--info-color), transparent 90%);
     }
     .notification-content {
       white-space: normal;
       .notification-title {
         font-weight: 600;
-        color: var(--text-primary); // Updated to use theme variable
+        color: var(--text-primary);
       }
       .notification-message {
-        color: var(--text-secondary); // Updated to use theme variable
+        color: var(--text-secondary);
         font-size: 13px;
       }
       .notification-time {
         font-size: 11px;
-        color: var(--text-tertiary); // Updated to use theme variable
+        color: var(--text-tertiary);
         margin-top: 4px;
       }
     }
@@ -311,7 +452,7 @@ body {
   .no-notifications {
     padding: 40px;
     text-align: center;
-    color: var(--text-tertiary); // Updated to use theme variable
+    color: var(--text-tertiary);
     mat-icon {
       font-size: 48px;
       width: 48px;
