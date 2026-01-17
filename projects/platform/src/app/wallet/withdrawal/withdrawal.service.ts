@@ -35,15 +35,17 @@ export interface WithdrawalRequestData {
 
 @Injectable()
 export class WithdrawalService {
+
+ public readonly PAYSTACK_SECRET_KEY = '';
   
   constructor(private apiService: ApiService) {}
   
-   /**
-   * Submits the  form data to the backend.
-   * @param formObject The form data.
-   * @returns An observable of the submitted form data.
-   */
-   getTransactions(userId: string): Observable<any> {
+  /**
+ * Submits the  form data to the backend.
+ * @param formObject The form data.
+ * @returns An observable of the submitted form data.
+ */
+  getTransactions(userId: string): Observable<any> {
     return this.apiService.get<any>(`wallet/${userId}`);
   }
   
@@ -90,22 +92,22 @@ export class WithdrawalService {
   }
 
   
-   /**
-   * Submits the form data to the backend.
-   * @param formObject The form data.
-   * @returns An observable of the submitted form data.
-   */
-   removeSavedAccount( accountNumber: string, userId: string,): Observable<any> {
+  /**
+ * Submits the form data to the backend.
+ * @param formObject The form data.
+ * @returns An observable of the submitted form data.
+ */
+  removeSavedAccount( accountNumber: string, userId: string,): Observable<any> {
     return this.apiService.delete<any>(`wallet/saved-accounts/${userId}/${accountNumber}`, undefined, undefined, true);
   }
 
 
-   /**
-   * Get data to the backend.
-   * @param formObject The form data.
-   * @returns An observable of the submitted form data.
-   */
-   getBalance( userId: string,): Observable<any> {
+  /**
+ * Get data to the backend.
+ * @param formObject The form data.
+ * @returns An observable of the submitted form data.
+ */
+  getBalance( userId: string,): Observable<any> {
     return this.apiService.get<any>(`wallet/saved-accounts/${userId}`, undefined, undefined, true);
   }
 }

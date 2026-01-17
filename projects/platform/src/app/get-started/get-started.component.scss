@@ -1,0 +1,1025 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+:host {
+  display: block;
+  min-height: 100vh;
+  //background-color: $background-color;
+  background-color: var(--background-color);
+}
+
+.get-started-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-6 $spacing-4;
+  
+  @include mobile {
+    padding: $spacing-4 $spacing-2;
+  }
+}
+
+// Hero Section
+.hero-section {
+  text-align: center;
+  margin-bottom: $spacing-12;
+  padding: $spacing-8 0;
+  
+  @include mobile {
+    padding: $spacing-4 0;
+    margin-bottom: $spacing-8;
+  }
+  
+  .hero-title {
+    @include heading-large;
+    margin-bottom: $spacing-4;
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    
+    @include mobile {
+      font-size: $font-size-3xl;
+    }
+  }
+  
+  .hero-subtitle {
+    @include body-large;
+    color: $text-secondary;
+    max-width: 600px;
+    margin: 0 auto $spacing-8;
+    
+    @include mobile {
+      @include body-medium;
+      margin-bottom: $spacing-6;
+    }
+  }
+  
+  .progress-container {
+    max-width: 500px;
+    margin: 0 auto;
+    
+    .progress-header {
+      @include flex-between;
+      margin-bottom: $spacing-2;
+      
+      @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-1;
+      }
+      
+      .progress-label {
+        @include body-medium;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+      }
+      
+      .progress-percentage {
+        @include body-medium;
+        font-weight: $font-weight-semibold;
+        color: $primary-color;
+      }
+    }
+    
+    .complete-badge {
+      margin-top: $spacing-4;
+      padding: $spacing-2 $spacing-4;
+      background: linear-gradient(135deg, $success-color-hex, darken($success-color-hex, 10%));
+      color: $white;
+      border-radius: $border-radius-full;
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-2;
+      @include fade-in;
+      
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+// Quick Stats
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-4;
+  margin-bottom: $spacing-12;
+  
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-3;
+  }
+  
+  .stat-card {
+    @include card-base;
+    @include card-hover;
+    @include flex-column-center;
+    padding: $spacing-6 $spacing-4;
+    text-align: center;
+    
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      @include flex-center;
+      border-radius: $border-radius-full;
+      margin-bottom: $spacing-4;
+      font-size: 24px;
+      
+      &.color-primary {
+        background: rgba($primary-color-hex, 0.1);
+        color: $primary-color-hex;
+      }
+      
+      &.color-accent {
+        background: rgba($secondary-color-hex, 0.1);
+        color: $secondary-color-hex;
+      }
+      
+      &.color-warn {
+        background: rgba($warning-color-hex, 0.1);
+        color: $warning-color-hex;
+      }
+      
+      &.color-success {
+        background: rgba($success-color-hex, 0.1);
+        color: $success-color-hex;
+      }
+    }
+    
+    .stat-value {
+      @include heading-medium;
+      margin-bottom: $spacing-1;
+    }
+    
+    .stat-label {
+      @include caption;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+// Onboarding Tabs
+.onboarding-tabs {
+  margin-bottom: $spacing-12;
+  
+  .tab-header {
+    @include sticky-top;
+    background: var(--surface-color);
+    padding: $spacing-2 $spacing-4;
+    margin-bottom: $spacing-6;
+    border-bottom: $border-width solid $border-color;
+
+     display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    
+    @include mobile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .banner-actions {
+        margin: 10px 0;
+    }
+  }
+  
+  .role-switcher {
+    display: flex;
+    gap: $spacing-2;
+    margin-bottom: $spacing-6;
+    
+    @include mobile {
+      flex-direction: column;
+    }
+    
+    .role-button {
+      flex: 1;
+      padding: $spacing-4;
+      @include flex-column;
+      align-items: center;
+      gap: $spacing-2;
+      border: $border-width solid $border-color;
+      border-radius: $border-radius-lg;
+      background: var(--surface-color);
+      cursor: pointer;
+      transition: all $transition-normal;
+      
+      &.active {
+        border-color: $primary-color;
+        background: rgba($primary-color-hex, 0.05);
+        
+        .role-icon {
+          background: $primary-color;
+          color: $white;
+        }
+      }
+      
+      &:hover:not(.active) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+      
+      .role-icon {
+        width: 56px;
+        height: 56px;
+        @include flex-center;
+        border-radius: $border-radius-full;
+        background: $gray-100;
+        color: $gray-600;
+        font-size: 28px;
+        margin-bottom: $spacing-2;
+      }
+      
+      .role-title {
+        @include heading-small;
+        margin-bottom: $spacing-1;
+      }
+      
+      .role-description {
+        @include body-small;
+        color: $text-secondary;
+        text-align: center;
+      }
+    }
+  }
+}
+
+// Steps Container
+.steps-container {
+  margin-bottom: $spacing-12;
+  
+  .step-card {
+    @include card-base;
+    padding: $spacing-6;
+    margin-bottom: $spacing-4;
+    position: relative;
+    overflow: hidden;
+    transition: all $transition-normal;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &.completed {
+      border-left: 4px solid $success-color-hex;
+      
+      .step-header {
+        .step-status {
+          background: $success-color-hex;
+          color: $white;
+        }
+      }
+    }
+    
+    &.current {
+      border-left: 4px solid $primary-color;
+      box-shadow: $shadow-lg;
+      transform: translateX(4px);
+    }
+    
+    .step-header {
+      @include flex-between;
+      margin-bottom: $spacing-4;
+      
+      @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-2;
+      }
+      
+      .step-info {
+        display: flex;
+        align-items: center;
+        gap: $spacing-4;
+        
+        .step-number {
+          @include flex-center;
+          width: 36px;
+          height: 36px;
+          background: var(--surface-color);
+          border: 2px solid $border-color;
+          border-radius: $border-radius-full;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+        }
+        
+        .step-text {
+          .step-title {
+            @include heading-small;
+            margin-bottom: $spacing-1;
+          }
+          
+          .step-description {
+            @include body-small;
+            color: $text-secondary;
+          }
+        }
+      }
+      
+      .step-status {
+        padding: $spacing-1 $spacing-3;
+        border-radius: $border-radius-full;
+        @include body-small;
+        font-weight: $font-weight-medium;
+        
+        &.pending {
+          background: rgba($warning-color-hex, 0.1);
+          color: $warning-color-hex;
+        }
+        
+        &.completed {
+          background: rgba($success-color-hex, 0.1);
+          color: $success-color-hex;
+        }
+      }
+    }
+    
+    .step-action {
+      margin-top: $spacing-4;
+      
+      button {
+        @include button-primary;
+        width: 100%;
+        
+        @include tablet {
+          width: auto;
+        }
+      }
+    }
+    
+    // Step indicator line
+    &::after {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: 72px;
+      bottom: -$spacing-4;
+      width: 2px;
+      background: $border-color;
+      z-index: 1;
+      
+      @include mobile {
+        left: 18px;
+      }
+    }
+    
+    &:last-child::after {
+      display: none;
+    }
+  }
+}
+
+// Video Guides
+.video-guides {
+  margin-bottom: $spacing-12;
+  
+  .video-section-title {
+    @include heading-medium;
+    margin-bottom: $spacing-6;
+    text-align: center;
+  }
+  
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-6;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+    
+    .video-card {
+      @include card-base;
+      overflow: hidden;
+      
+      .video-header {
+        padding: $spacing-4;
+        border-bottom: $border-width solid $border-color;
+        
+        .video-title {
+          @include heading-small;
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+          margin-bottom: $spacing-2;
+          
+          mat-icon {
+            color: $primary-color;
+          }
+        }
+        
+        .video-description {
+          @include body-small;
+          color: $text-secondary;
+        }
+      }
+      
+      .video-container {
+        position: relative;
+        padding-top: 56.25%; // 16:9 aspect ratio
+        background: $gray-900;
+        
+        iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+        
+        .video-placeholder {
+          @include absolute-center;
+          @include flex-column-center;
+          color: $white;
+          text-align: center;
+          
+          mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            margin-bottom: $spacing-2;
+            opacity: 0.7;
+          }
+          
+          span {
+            @include body-small;
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+}
+
+// FAQ Section
+.faq-section {
+  .faq-title {
+    @include heading-medium;
+    text-align: center;
+    margin-bottom: $spacing-8;
+  }
+  
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-4;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+    
+    .faq-card {
+      @include card-base;
+      padding: $spacing-6;
+      transition: all $transition-normal;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-lg;
+      }
+      
+      .faq-question {
+        @include heading-small;
+        margin-bottom: $spacing-3;
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        
+        mat-icon {
+          color: $primary-color;
+          flex-shrink: 0;
+        }
+      }
+      
+      .faq-answer {
+        @include body-medium;
+        color: $text-secondary;
+        line-height: $line-height-relaxed;
+      }
+    }
+  }
+}
+
+// Call to Action
+.cta-section {
+  text-align: center;
+  padding: $spacing-12 0;
+  background: linear-gradient(135deg, rgba($primary-color-hex, 0.05), rgba($secondary-color-hex, 0.05));
+  border-radius: $border-radius-xl;
+  margin-top: $spacing-12;
+  
+  .cta-title {
+    @include heading-medium;
+    margin-bottom: $spacing-4;
+  }
+  
+  .cta-subtitle {
+    @include body-large;
+    color: $text-secondary;
+    max-width: 600px;
+    margin: 0 auto $spacing-8;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    gap: $spacing-4;
+    justify-content: center;
+    
+    @include mobile {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .primary-cta {
+      @include button-primary;
+      padding: $spacing-4 $spacing-8;
+      font-size: $font-size-base;
+    }
+    
+    .secondary-cta {
+      @include button-outline;
+      padding: $spacing-4 $spacing-8;
+      font-size: $font-size-base;
+    }
+  }
+}
+
+// Utility classes
+.loading-spinner {
+  @include flex-center;
+  min-height: 200px;
+}
+
+.snackbar-success {
+  background: $success-color-hex;
+  color: $white;
+}
+
+.snackbar-warning {
+  background: $warning-color-hex;
+  color: $white;
+}
+
+// Animations
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+// Responsive adjustments
+@include small-screen {
+  .hero-section {
+    .hero-title {
+      font-size: $font-size-2xl;
+    }
+  }
+  
+  .quick-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .step-card {
+    padding: $spacing-4;
+  }
+}
+
+
+// Countdown Styles
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  @include flex-center;
+  animation: fadeIn 0.3s ease;
+}
+
+.countdown-container {
+  max-width: 400px;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.countdown-card {
+  background: var(--surface-color);
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-2xl;
+  
+  .countdown-content {
+    text-align: center;
+    padding: $spacing-6;
+    
+    .countdown-icon {
+      margin-bottom: $spacing-4;
+      
+      .spinner {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: var(--primary-color);
+        animation: spin 2s linear infinite;
+      }
+    }
+    
+    .countdown-title {
+      @include heading-small;
+      margin-bottom: $spacing-2;
+      color: var(--text-primary);
+    }
+    
+    .countdown-message {
+      @include body-medium;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-6;
+    }
+    
+    .countdown-timer {
+      margin: $spacing-6 0;
+      
+      .countdown-circle {
+        position: relative;
+        display: inline-block;
+        
+        svg {
+          circle {
+            transition: stroke-dashoffset 1s linear;
+          }
+        }
+        
+        .countdown-number {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          @include heading-medium;
+          font-weight: $font-weight-bold;
+          color: var(--primary-color);
+        }
+      }
+    }
+    
+    .countdown-hint {
+      @include body-small;
+      color: var(--text-tertiary);
+      margin-bottom: $spacing-6;
+    }
+    
+    .countdown-actions {
+      display: flex;
+      gap: $spacing-3;
+      justify-content: center;
+      
+      @include mobile {
+        flex-direction: column;
+      }
+      
+      .cancel-button, .reload-now-button {
+        @include button-base;
+        min-width: 140px;
+        
+        @include mobile {
+          width: 100%;
+        }
+      }
+      
+      .cancel-button {
+        background: transparent;
+        border-color: $error-color;
+        color: $error-color;
+        
+        &:hover {
+          background: rgba($error-color, 0.1);
+        }
+      }
+      
+      .reload-now-button {
+        @include button-primary;
+      }
+    }
+  }
+}
+
+// Spinner animation
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Snackbar customization
+::ng-deep {
+  .snackbar-success {
+    background: $success-color;
+    color: $white;
+    
+    .mat-simple-snackbar-action {
+      color: $white;
+      font-weight: $font-weight-medium;
+    }
+  }
+  
+  .snackbar-error {
+    background: $error-color;
+    color: $white;
+  }
+  
+  .snackbar-info {
+    background: $info-color;
+    color: $white;
+  }
+}
+
+// FAQ Section with Role Styling
+.faq-section {
+  .faq-header {
+    text-align: center;
+    margin-bottom: $spacing-8;
+    
+    .faq-title {
+      @include heading-medium;
+      margin-bottom: $spacing-2;
+    }
+    
+    .faq-subtitle {
+      @include body-medium;
+      color: $text-secondary;
+    }
+  }
+  
+  .faq-categories {
+    margin-bottom: $spacing-8;
+    
+    .categories-container {
+      display: flex;
+      gap: $spacing-2;
+      justify-content: center;
+      flex-wrap: wrap;
+      
+      .category-tab {
+        @include flex-center;
+        gap: $spacing-2;
+        padding: $spacing-2 $spacing-4;
+        border: $border-width solid $border-color;
+        border-radius: $border-radius-full;
+        background: var(--surface-color);
+        cursor: pointer;
+        transition: all $transition-normal;
+        @include body-small;
+        font-weight: $font-weight-medium;
+        
+        &.active {
+          background: $primary-color;
+          color: $white;
+          border-color: $primary-color;
+          
+          mat-icon {
+            color: $white;
+          }
+          
+          .badge {
+            background: $white;
+            color: $primary-color;
+          }
+        }
+        
+        &:hover:not(.active) {
+          transform: translateY(-2px);
+          box-shadow: $shadow-md;
+        }
+        
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+        
+        .badge {
+          padding: 1px 6px;
+          border-radius: $border-radius-full;
+          font-size: 11px;
+          font-weight: $font-weight-bold;
+          
+          &.marketer {
+            background: rgba($primary-color-hex, 0.1);
+            color: $primary-color-hex;
+          }
+          
+          &.promoter {
+            background: rgba($secondary-color-hex, 0.1);
+            color: $secondary-color-hex;
+          }
+        }
+      }
+    }
+  }
+  
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-6;
+    margin-bottom: $spacing-12;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+    
+    .faq-card {
+      @include card-base;
+      padding: $spacing-6;
+      position: relative;
+      transition: all $transition-normal;
+      
+      &.marketer-faq {
+        border-top: 3px solid $primary-color-hex;
+      }
+      
+      &.promoter-faq {
+        border-top: 3px solid $secondary-color-hex;
+      }
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: $shadow-xl;
+      }
+      
+      .faq-card-header {
+        margin-bottom: $spacing-4;
+        
+        .faq-role-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: $spacing-1;
+          padding: $spacing-1 $spacing-3;
+          border-radius: $border-radius-full;
+          @include body-small;
+          font-weight: $font-weight-medium;
+          
+          &.marketer-badge {
+            background: rgba($primary-color-hex, 0.1);
+            color: $primary-color-hex;
+          }
+          
+          &.promoter-badge {
+            background: rgba($secondary-color-hex, 0.1);
+            color: $secondary-color-hex;
+          }
+          
+          &.both-badge {
+            background: rgba($gray-400, 0.1);
+            color: $gray-600;
+          }
+          
+          mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+      
+      .faq-card-content {
+        .faq-question {
+          @include heading-small;
+          margin-bottom: $spacing-3;
+          display: flex;
+          align-items: flex-start;
+          gap: $spacing-2;
+          color: $text-primary;
+          
+          mat-icon {
+            color: $primary-color;
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+        }
+        
+        .faq-answer {
+          @include body-medium;
+          color: $text-secondary;
+          line-height: $line-height-relaxed;
+          
+          p {
+            margin: 0;
+          }
+        }
+      }
+      
+      .faq-actions {
+        margin-top: $spacing-4;
+        padding-top: $spacing-4;
+        border-top: 1px solid $border-color;
+        
+        .faq-action-button {
+          @include button-outline;
+          width: 100%;
+          justify-content: center;
+          
+          mat-icon {
+            margin-right: $spacing-2;
+          }
+        }
+      }
+    }
+    
+    .no-faqs {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: $spacing-12;
+      background: var(--surface-color);
+      border-radius: $border-radius-lg;
+      border: 1px dashed $border-color;
+      
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: $gray-400;
+        margin-bottom: $spacing-4;
+      }
+      
+      h3 {
+        @include heading-small;
+        margin-bottom: $spacing-2;
+      }
+      
+      p {
+        @include body-medium;
+        color: $text-secondary;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+    }
+  }
+  
+  .faq-help {
+    .help-card {
+      @include flex-between;
+      align-items: center;
+      padding: $spacing-6;
+      background: linear-gradient(135deg, rgba($primary-color-hex, 0.05), rgba($secondary-color-hex, 0.05));
+      border-radius: $border-radius-lg;
+      
+      @include mobile {
+        flex-direction: column;
+        text-align: center;
+        gap: $spacing-4;
+      }
+      
+      mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: $primary-color;
+      }
+      
+      .help-content {
+        flex: 1;
+        margin: 0 $spacing-6;
+        
+        @include mobile {
+          margin: 0;
+        }
+        
+        h3 {
+          @include heading-small;
+          margin-bottom: $spacing-1;
+        }
+        
+        p {
+          @include body-medium;
+          color: $text-secondary;
+          margin: 0;
+        }
+      }
+      
+      .contact-button {
+        @include button-primary;
+        white-space: nowrap;
+        
+        mat-icon {
+          color: $white;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          margin-right: $spacing-2;
+        }
+      }
+    }
+  }
+}

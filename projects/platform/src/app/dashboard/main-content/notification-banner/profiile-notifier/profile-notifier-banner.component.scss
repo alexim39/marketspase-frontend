@@ -2,69 +2,337 @@
 @import '../../../../../styles/variables';
 @import '../../../../../styles/mixins';
 
-.info-alert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.profile-completion-banner {
   // UPDATED: Use info-color with lightened background for dynamic theming
-  background-color: rgba($info-color, 0.1);
+  background-color: rgba($info-color, 0.08);
   // UPDATED: Use info-color variable for dynamic theming
   color: $info-color;
-  padding: 12px;
-  border-radius: 5px;
-  font-size: 14px;
-  // UPDATED: Use info-color variable for dynamic theming
-  border-left: 4px solid $info-color;
-  position: relative;
+  border-radius: 12px;
   margin: 1em;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid $info-color;
+  box-shadow: 0 4px 20px rgba($info-color, 0.1);
+  animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  
+  // Optional: Add a subtle gradient effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba($info-color, 0.03) 50%, 
+      transparent 100%);
+    pointer-events: none;
+  }
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    gap: 20px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      padding: 16px;
+    }
+  }
+
+  .banner-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+  }
+
+  .banner-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    // UPDATED: Use info-color variable for dynamic theming
+    color: $info-color;
+    flex-shrink: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .banner-text {
+    flex: 1;
+    
+    .banner-title {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 600;
+      // UPDATED: Use info-color variable for dynamic theming
+      color: $info-color;
+      
+      @media (max-width: 768px) {
+        font-size: 16px;
+        margin-bottom: 6px;
+      }
+    }
+
+    .banner-description {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0.95;
+      
+      @media (max-width: 768px) {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .missing-info {
+    display: inline;
+    font-weight: 500;
+    
+    .missing-item {
+      font-weight: 700;
+      position: relative;
+      display: inline-block;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: $info-color;
+        opacity: 0.3;
+        border-radius: 1px;
+      }
+    }
+  }
+
+  .banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  .get-started-button {
+    // UPDATED: Use info-color variable for dynamic theming
+    color: $info-color;
+    border-color: $info-color;
+    font-weight: 600;
+    text-transform: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &:hover {
+      // UPDATED: Use darken-bg mixin for consistent darkening
+      @include darken-bg($info-color, 10%);
+      background-color: rgba($info-color, 0.1);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($info-color, 0.2);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  .close-button {
+    // UPDATED: Use info-color variable for dynamic theming
+    color: $info-color;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      opacity: 1;
+      // UPDATED: Use darken-bg mixin for consistent darkening
+      @include darken-bg($info-color, 20%);
+      background-color: rgba($info-color, 0.1);
+    }
+  }
+
+  .progress-container {
+    padding: 0 24px 20px 24px;
+    
+    @media (max-width: 768px) {
+      padding: 0 16px 16px 16px;
+    }
+  }
+
+  .progress-bar {
+    height: 6px;
+    background-color: rgba($info-color, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    
+    .progress-fill {
+      height: 100%;
+      background-color: $info-color;
+      border-radius: 3px;
+      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(white, 0.4),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+    }
+  }
+
+  .progress-text {
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.8;
+    text-align: right;
+  }
 }
 
-.info-icon {
-  font-size: 20px;
-  // UPDATED: Use info-color variable for dynamic theming
-  color: $info-color;
-  margin-right: 10px;
+// Animations
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.close-icon {
-  font-size: 20px;
-  cursor: pointer;
-  // UPDATED: Use info-color variable for dynamic theming
-  color: $info-color;
-  margin-left: auto;
-  transition: color 0.2s ease;
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
-.close-icon:hover {
-  // UPDATED: Use darken-bg mixin for consistent darkening
-  @include darken-bg($info-color, 20%);
-}
-
+// Ensure links maintain your theme
 a {
   // UPDATED: Use info-color variable for dynamic theming
   color: $info-color;
   text-decoration: underline;
   cursor: pointer;
-  font-weight: bold;  
+  font-weight: bold;
+  
+  &:hover {
+    // UPDATED: Use darken-bg mixin for consistent darkening
+    @include darken-bg($info-color, 20%);
+  }
 }
 
-a:hover {
-  // UPDATED: Use darken-bg mixin for consistent darkening
-  @include darken-bg($info-color, 20%);
-}
-
+// Responsive adjustments
 @media (max-width: 768px) {
-  .info-alert {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 8px; /* Adjust padding for small screens */
-  }
-  .info-icon {
-    margin-bottom: 8px; /* Add margin to separate icon from text */
-  }
-  .close-icon {
-    margin-top: 8px; /* Add margin to separate close icon from text */
-    margin-left: 0; /* Reset left margin */
-    align-self: flex-end; /* Align close icon to the end */
+  .profile-completion-banner {
+    .banner-content {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 16px;
+    }
+    
+    .banner-left {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
+    
+    .banner-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .get-started-button {
+      flex: 1;
+      justify-content: center;
+    }
   }
 }
+
+@media (max-width: 480px) {
+  .profile-completion-banner {
+    margin: 0.5em;
+    border-radius: 8px;
+    
+    .banner-content {
+      padding: 14px;
+    }
+    
+    .progress-container {
+      padding: 0 14px 14px 14px;
+    }
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .profile-completion-banner {
+    animation: none;
+  }
+  
+  .get-started-button:hover {
+    transform: none;
+  }
+  
+  .progress-fill::after {
+    animation: none;
+  }
+}
+
+// Optional: Add a subtle pulsing effect for attention
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba($info-color, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba($info-color, 0.2);
+  }
+}
+
+// Uncomment to add a subtle pulsing effect (use sparingly)
+// .profile-completion-banner {
+//   animation: slideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+//              pulse-glow 3s ease-in-out infinite;
+// }

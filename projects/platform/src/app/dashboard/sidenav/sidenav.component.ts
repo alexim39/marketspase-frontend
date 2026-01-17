@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -118,7 +118,7 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
         children: [
           {
             icon: 'list_alt',
-            label: 'All Campaigns',
+            label: 'My Campaigns',
             route: '/dashboard/campaigns'
 
             // icon: 'list_alt',
@@ -191,50 +191,50 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
         ]
       },
 
-      // {
-      //   icon: 'storefront',
-      //   label: 'Storefronts',
-      //   expanded: false,
-      //   children: [
-      //     {
-      //       icon: 'store',
-      //       label: 'My Stores',
-      //       route: '/dashboard/stores'
-      //     },
-      //     {
-      //       icon: 'add_business',
-      //       label: 'Add Store',
-      //       route: '/dashboard/stores/create'
-      //     },
-      //     {
-      //       icon: 'analytics',
-      //       label: 'Store Analytics',
-      //       route: '/dashboard/stores/analytics'
-      //     },
-      //     {
-      //       icon: 'inventory',
-      //       label: 'Product Management',
-      //       expanded: false,
-      //       children: [
-      //         {
-      //           icon: 'inventory_2',
-      //           label: 'All Products',
-      //           route: '/dashboard/stores/products'
-      //         },
-      //         {
-      //           icon: 'add_shopping_cart',
-      //           label: 'Add Product',
-      //           route: '/dashboard/stores/products/create'
-      //         },
-      //         {
-      //           icon: 'category',
-      //           label: 'Categories',
-      //           route: '/dashboard/stores/categories'
-      //         }
-      //       ]
-      //     }
-      //   ]
-      // },
+      {
+        icon: 'storefront',
+        label: 'Storefronts',
+        expanded: false,
+        children: [
+          {
+            icon: 'store',
+            label: 'My Stores',
+            route: '/dashboard/stores'
+          },
+          {
+            icon: 'add_business',
+            label: 'Add Store',
+            route: '/dashboard/stores/create'
+          },
+          {
+            icon: 'analytics',
+            label: 'Store Analytics',
+            route: '/dashboard/stores/analytics'
+          },
+          {
+            icon: 'inventory',
+            label: 'Product Management',
+            expanded: false,
+            children: [
+              {
+                icon: 'inventory_2',
+                label: 'All Products',
+                route: '/dashboard/stores/products'
+              },
+              {
+                icon: 'add_shopping_cart',
+                label: 'Add Product',
+                route: '/dashboard/stores/products/create'
+              },
+              {
+                icon: 'category',
+                label: 'Categories',
+                route: '/dashboard/stores/categories'
+              }
+            ]
+          }
+        ]
+      },
 
       {
         icon: 'currency_exchange',
@@ -375,12 +375,41 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
           //   route: '/dashboard/settings/payments'
           // },
 
+          // {
+          //   icon: 'help',
+          //   label: 'Support & Help',
+          //    route: '/dashboard/settings/share'
+          //   // route: '/dashboard/settings/support'
+          // }
+        ]
+      },
+
+      {
+        icon: 'help',
+        label: 'Support',
+        expanded: false,
+        children: [
+         
+          // {
+          //   icon: 'monetization_on',
+          //   label: 'Payment Settings',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+         
+
+          {
+            icon: 'support_agent',
+            label: 'Support',
+            route: '/dashboard/settings/share'
+          },
+
           {
             icon: 'help',
-            label: 'Support & Help',
-             route: '/dashboard/settings/share'
-            // route: '/dashboard/settings/support'
+            label: 'Get Started',
+            route: '/dashboard/get-started'
           }
+
         ]
       }
     ];
@@ -515,11 +544,11 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
           //   route: '/dashboard/community/trending'
           // },
 
-          {
-            icon: 'support_agent',
-            label: 'Support',
-            route: '/dashboard/settings/share'
-          }
+          // {
+          //   icon: 'support_agent',
+          //   label: 'Support',
+          //   route: '/dashboard/settings/share'
+          // }
         ]
       },
 
@@ -535,12 +564,6 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
             // route: '/dashboard/settings/profile'
           },
 
-          // {
-          //   icon: 'monetization_on',
-          //   label: 'Payment Settings',
-          //   route: '/dashboard/settings/payments'
-          // },
-
           {
             icon: 'notifications',
             label: 'Notifications',
@@ -549,10 +572,46 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
           },
 
           // {
+          //   icon: 'monetization_on',
+          //   label: 'Payment Settings',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+          // {
           //   icon: 'help',
           //   label: 'Help Center',
           //   route: '/dashboard/settings/help'
           // }
+
+        ]
+      },
+
+      {
+        icon: 'help',
+        label: 'Support',
+        expanded: false,
+        children: [
+         
+          // {
+          //   icon: 'monetization_on',
+          //   label: 'Payment Settings',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+         
+
+          {
+            icon: 'support_agent',
+            label: 'Support',
+            route: '/dashboard/settings/share'
+          },
+          
+           
+          {
+            icon: 'help',
+            label: 'Get Started',
+            route: '/dashboard/get-started'
+          }
 
         ]
       }
