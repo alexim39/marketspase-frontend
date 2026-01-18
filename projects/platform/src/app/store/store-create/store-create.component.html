@@ -13,19 +13,25 @@
     </div>
 
     <!-- Progress Bar -->
-     @if (isSubmitting()) {
-      <mat-card class="progress-card">
-        <mat-card-content>
-          <div class="progress-content">
-            <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
-            <span>Creating your store...</span>
-          </div>
-        </mat-card-content>
-      </mat-card>
+    @if (isSubmitting()) {
+      <div class="loading-overlay">
+        <mat-card class="loading-card">
+          <mat-card-content>
+            <div class="loading-content">
+              <!-- <mat-spinner diameter="40" color="primary"></mat-spinner> -->
+               <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <div class="loading-text">
+                <h3>Creating Your Store...</h3>
+                <p>Please wait while we set up your store. This may take a moment.</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
     }
 
     <!-- Main Form -->
-    <form [formGroup]="storeForm" (ngSubmit)="onSubmit()" class="store-form">
+    <form [formGroup]="storeForm" (ngSubmit)="onSubmit()" class="store-form" [class.form-loading]="isSubmitting()">
       <div class="form-grid">
         <!-- Left Column -->
         <div class="form-left">
@@ -190,10 +196,18 @@
               <mat-icon>cancel</mat-icon>
               Cancel
             </button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="storeForm.invalid || isSubmitting()" class="submit-button">
-              <mat-icon>add_business</mat-icon>
-              Create Store
+            
+            <button mat-raised-button color="primary" type="submit" 
+                    [disabled]="storeForm.invalid || isSubmitting()" 
+                    class="submit-button">
+              @if (isSubmitting()) {
+                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+              } @else {
+                <mat-icon>add_business</mat-icon>
+              }
+              {{ isSubmitting() ? 'Creating...' : 'Create Store' }}
             </button>
+
           </div>
         </div>
       </div>

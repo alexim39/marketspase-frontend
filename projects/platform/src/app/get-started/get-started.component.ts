@@ -19,6 +19,7 @@ import { DashboardService } from '../dashboard/dashboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { interval, take } from 'rxjs';
+import { ProofGuideService } from './proof-model/proof-guide.service';
 
 interface OnboardingStep {
   id: number;
@@ -33,6 +34,7 @@ interface OnboardingStep {
 @Component({
   selector: 'marketspase-get-started',
   standalone: true,
+  providers: [ProofGuideService],
   imports: [
     CommonModule,
     RouterLink,
@@ -54,6 +56,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private userService = inject(UserService);
   private dashboardService = inject(DashboardService);
+  private proofGuideService = inject(ProofGuideService);
   private readonly destroyRef = inject(DestroyRef);
   // User signal from service
   user = this.userService.user;
@@ -142,7 +145,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     {
         target: 'marketer',
         question: 'How much do I need to deposit to get started?',
-        answer: 'You can start advertising on MarketSpase with a small budget, minimum deposit is N1000. There is no fixed amount needed — you fund your wallet based on how many views you want. This makes MarketSpase affordable for small businesses, startups, and growing brands.'
+        answer: 'You can start advertising on MarketSpase with a small budget, minimum deposit is N1000. There is no fixed amount needed — you fund your wallet based on how many promoters you want to promote your business. This makes MarketSpase affordable for small businesses, startups, and growing brands.'
     },
     {
         target: 'marketer',
@@ -157,17 +160,17 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     {
         target: 'marketer',
         question: 'What kind of businesses can advertise on MarketSpase?',
-        answer: 'MarketSpase supports all range of businesses including schools, online vendors, service providers, event organizers, real estate, churches, political campaigns, creatives, and startups—as long as the campaign follows platform policies.'
+        answer: 'MarketSpase supports all range of businesses including schools, online vendors, products and service providers, event organizers, real estate, churches, political campaigns, creatives, and startups—as long as the campaign follows platform policies.'
     },
     {
         target: 'marketer',
         question: 'Can I control how much I spend?',
-        answer: 'Yes. You decide your budget, the number of views you want, and when to stop or pause your campaign. This gives you full control over your advertising spend.'
+        answer: 'Yes. You decide your budget, the number of promoters you want, and when to stop or pause your campaign. This gives you full control over your advertising spend.'
     },
     {
         target: 'marketer',
         question: 'How fast will my campaign start running?',
-        answer: 'Once your campaign is approved, promoters can start picking it up almost immediately, allowing your ad to go live within minutes.'
+        answer: 'Once your campaign is approved, promoters can start picking it up almost immediately to post on their WhatsApp statuses, allowing your ad to go live within minutes.'
     },
     {
         target: 'marketer',
@@ -196,27 +199,32 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     ]);
 
-// Computed property to filter FAQs based on user role
-filteredFaqItems = computed(() => {
-  const userRole = this.user()?.role || '';
-  const userTarget = userRole === 'marketer' || userRole === 'promoter' ? userRole : 'both';
-  
-  return this.faqItems().filter(faq => {
-    // If target is 'both', show to everyone
-    if (faq.target === 'both') return true;
+  // Add method to open proof guide
+  openProofGuide(): void {
+    this.proofGuideService.openProofGuide();
+  }
+
+  // Computed property to filter FAQs based on user role
+  filteredFaqItems = computed(() => {
+    const userRole = this.user()?.role || '';
+    const userTarget = userRole === 'marketer' || userRole === 'promoter' ? userRole : 'both';
     
-    // If user has no specific role, show both marketer and promoter FAQs
-    if (!userRole || userRole === 'user') {
-      return faq.target === 'marketer' || faq.target === 'promoter';
-    }
-    
-    // If user is admin, show all FAQs
-    if (userRole === 'admin') return true;
-    
-    // Show FAQs matching user's role
-    return faq.target === userTarget;
+    return this.faqItems().filter(faq => {
+      // If target is 'both', show to everyone
+      if (faq.target === 'both') return true;
+      
+      // If user has no specific role, show both marketer and promoter FAQs
+      if (!userRole || userRole === 'user') {
+        return faq.target === 'marketer' || faq.target === 'promoter';
+      }
+      
+      // If user is admin, show all FAQs
+      if (userRole === 'admin') return true;
+      
+      // Show FAQs matching user's role
+      return faq.target === userTarget;
+    });
   });
-});
 
 // Add a method to get role-specific FAQs with tabs
 faqCategories = signal([

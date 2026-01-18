@@ -13,11 +13,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
-import { StoreService } from '../../services/store.service';
-import { CreateStoreRequest } from '../../models';
-import { CATEGORIES } from '../../../common/utils/categories';
-import { UserService } from '../../../common/services/user.service';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { StoreService } from '../services/store.service';
+import { CreateStoreRequest } from '../models';
+import { CATEGORIES } from '../../common/utils/categories';
+import { UserService } from '../../common/services/user.service';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-store-create',
@@ -33,7 +34,8 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
     MatIconModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule
   ],
   templateUrl: './store-create.component.html',
   styleUrls: ['./store-create.component.scss']
@@ -55,25 +57,7 @@ export class StoreCreateComponent implements OnDestroy {
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
 
-  // Store categories
-  // categories = [
-  //   'Fashion & Apparel',
-  //   'Electronics',
-  //   'Home & Garden',
-  //   'Beauty & Personal Care',
-  //   'Health & Wellness',
-  //   'Food & Beverage',
-  //   'Sports & Outdoors',
-  //   'Toys & Games',
-  //   'Books & Media',
-  //   'Automotive',
-  //   'Jewelry & Accessories',
-  //   'Arts & Crafts',
-  //   'Digital Products',
-  //   'Services',
-  //   'Other'
-  // ];
-
+  logoError = signal<boolean>(false);
 
   get categories() {
     return CATEGORIES;
@@ -96,7 +80,7 @@ export class StoreCreateComponent implements OnDestroy {
       Validators.required,
       Validators.pattern(/^(\+234|0)[789][01]\d{8}$/) // Nigerian phone number pattern
     ]],
-    logo: [null]
+    logo: [null, Validators.required] // Add Validators.required here
   });
 
   // Character counters
@@ -121,13 +105,18 @@ export class StoreCreateComponent implements OnDestroy {
     whatsappNumber: {
       required: 'WhatsApp number is required',
       pattern: 'Please enter a valid Nigerian phone number'
+    },
+    logo: {
+      required: 'Store logo is required' // Add this
     }
   };
 
   ngOnInit(): void {
     this.setupFormListeners();
-     // Disable the whatsappNumber control
+    // Disable the whatsappNumber control
     this.storeForm.get('whatsappNumber')?.disable();
+    // Set initial logo error state
+    this.logoError.set(this.storeForm.get('logo')?.hasError('required') || false);
   }
 
   ngOnDestroy(): void {
@@ -168,6 +157,9 @@ export class StoreCreateComponent implements OnDestroy {
       }
 
       this.storeForm.patchValue({ logo: file });
+      // Mark the logo field as touched and update validation
+      this.storeForm.get('logo')?.markAsTouched();
+      this.logoError.set(false);
       
       // Create preview
       const reader = new FileReader();
@@ -181,6 +173,9 @@ export class StoreCreateComponent implements OnDestroy {
   removeLogo(): void {
     this.storeForm.patchValue({ logo: null });
     this.previewImage.set(null);
+    // Mark the logo field as touched and set error
+    this.storeForm.get('logo')?.markAsTouched();
+    this.logoError.set(true);
     
     // Reset file input
     const fileInput = document.getElementById('logoUpload') as HTMLInputElement;
@@ -189,41 +184,46 @@ export class StoreCreateComponent implements OnDestroy {
     }
   }
 
- // Alternative simpler getFieldError method
-getFieldError(fieldName: string): string {
-  const field = this.storeForm.get(fieldName);
-  
-  if (!field?.errors || !field.touched) {
-    return '';
+  // Add a method to check if logo is required:
+  isLogoRequired(): boolean | undefined {
+    return this.storeForm.get('logo')?.hasError('required') && this.storeForm.get('logo')?.touched;
   }
 
-  const errors = field.errors;
-  
-  if (errors['required']) {
-    return 'This field is required';
+  // Alternative simpler getFieldError method
+  getFieldError(fieldName: string): string {
+    const field = this.storeForm.get(fieldName);
+    
+    if (!field?.errors || !field.touched) {
+      return '';
+    }
+
+    const errors = field.errors;
+    
+    if (errors['required']) {
+      return 'This field is required';
+    }
+    
+    if (errors['minlength']) {
+      return `Minimum ${errors['minlength'].requiredLength} characters required`;
+    }
+    
+    if (errors['maxlength']) {
+      return `Maximum ${errors['maxlength'].requiredLength} characters allowed`;
+    }
+    
+    if (errors['pattern']) {
+      return 'Please enter a valid format';
+    }
+    
+    return 'Invalid value';
   }
-  
-  if (errors['minlength']) {
-    return `Minimum ${errors['minlength'].requiredLength} characters required`;
-  }
-  
-  if (errors['maxlength']) {
-    return `Maximum ${errors['maxlength'].requiredLength} characters allowed`;
-  }
-  
-  if (errors['pattern']) {
-    return 'Please enter a valid format';
-  }
-  
-  return 'Invalid value';
-}
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.storeForm.get(fieldName);
     return !!(field?.invalid && field.touched);
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {  // Changed from async Promise<void> to void
     // Mark all fields as touched to trigger validation messages
     this.storeForm.markAllAsTouched();
 
@@ -231,58 +231,61 @@ getFieldError(fieldName: string): string {
       this.isSubmitting.set(true);
       this.loading.set(true);
 
-      try {
-        const formData: CreateStoreRequest = {
-          name: this.storeForm.value.name.trim(),
-          description: this.storeForm.value.description.trim(),
-          category: this.storeForm.value.category,
-          whatsappNumber: this.formatPhoneNumber(this.storeForm.value.whatsappNumber),
-          logo: this.storeForm.value.logo,
-          userId: this.user()?._id || '',
-          settings: {
-            notifications: {
-              lowStock: true,
-              newOrder: true,
-              promotionEnding: true,
-              weeklyReport: true
-            },
-            inventory: {
-              lowStockThreshold: 5,
-              autoArchiveOutOfStock: false,
-              restockNotifications: true
-            },
-            promotions: {
-              autoApprovePromoters: false,
-              minPromoterRating: 4.0,
-              defaultCommission: 10
-            },
-            appearance: {
-              theme: 'light',
-              primaryColor: '#667eea',
-              logoPosition: 'left'
-            },
-            
-          }
-        };
-
-        await this.storeService.createStore(formData).subscribe({
-          next: (store) => {
-            this.snackBar.open('Store created successfully!', 'OK', { duration: 3000 });
-            this.router.navigate(['/dashboard/stores', store._id]);
+      const formData: CreateStoreRequest = {
+        name: this.storeForm.value.name.trim(),
+        description: this.storeForm.value.description.trim(),
+        category: this.storeForm.value.category,
+        whatsappNumber: this.formatPhoneNumber(this.storeForm.value.whatsappNumber),
+        logo: this.storeForm.value.logo,
+        userId: this.user()?._id || '',
+        settings: {
+          notifications: {
+            lowStock: true,
+            newOrder: true,
+            promotionEnding: true,
+            weeklyReport: true
           },
-          error: (error) => {
-            console.error('Store creation failed:', error);
-            const errorMessage = error.error?.message || 'Failed to create store. Please try again.';
-            this.snackBar.open(errorMessage, 'OK', { duration: 5000 });
-          }
-        });
-      } catch (error) {
-        console.error('Unexpected error:', error);
-        this.snackBar.open('An unexpected error occurred. Please try again.', 'OK', { duration: 5000 });
-      } finally {
-        this.isSubmitting.set(false);
-        this.loading.set(false);
-      }
+          inventory: {
+            lowStockThreshold: 5,
+            autoArchiveOutOfStock: false,
+            restockNotifications: true
+          },
+          promotions: {
+            autoApprovePromoters: false,
+            minPromoterRating: 4.0,
+            defaultCommission: 10
+          },
+          appearance: {
+            theme: 'light',
+            primaryColor: '#667eea',
+            logoPosition: 'left'
+          },
+        }
+      };
+
+      this.storeService.createStore(formData).pipe(
+        takeUntil(this.destroy$)  // Clean up subscription
+      ).subscribe({
+        next: (store) => {
+          this.snackBar.open('Store created successfully!', 'OK', { duration: 3000 });
+          this.router.navigate(['/dashboard/stores', store._id]);
+        },
+        error: (error) => {
+          console.error('Store creation failed:', error);
+          const errorMessage = error.error?.message || 'Failed to create store. Please try again.';
+          this.snackBar.open(errorMessage, 'OK', { duration: 5000 });
+          this.isSubmitting.set(false);
+          this.loading.set(false);
+        },
+        complete: () => {
+          // This will be called after success or error, but we handle it in next/error
+          // Add a slight delay to ensure smooth UX
+          setTimeout(() => {
+            this.isSubmitting.set(false);
+            this.loading.set(false);
+          }, 500);
+        }
+      });
     }
   }
 

@@ -191,50 +191,50 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
         ]
       },
 
-      {
-        icon: 'storefront',
-        label: 'Storefronts',
-        expanded: false,
-        children: [
-          {
-            icon: 'store',
-            label: 'My Stores',
-            route: '/dashboard/stores'
-          },
-          {
-            icon: 'add_business',
-            label: 'Add Store',
-            route: '/dashboard/stores/create'
-          },
-          {
-            icon: 'analytics',
-            label: 'Store Analytics',
-            route: '/dashboard/stores/analytics'
-          },
-          {
-            icon: 'inventory',
-            label: 'Product Management',
-            expanded: false,
-            children: [
-              {
-                icon: 'inventory_2',
-                label: 'All Products',
-                route: '/dashboard/stores/products'
-              },
-              {
-                icon: 'add_shopping_cart',
-                label: 'Add Product',
-                route: '/dashboard/stores/products/create'
-              },
-              {
-                icon: 'category',
-                label: 'Categories',
-                route: '/dashboard/stores/categories'
-              }
-            ]
-          }
-        ]
-      },
+      // {
+      //   icon: 'storefront',
+      //   label: 'Storefronts',
+      //   expanded: false,
+      //   children: [
+      //     {
+      //       icon: 'store',
+      //       label: 'My Stores',
+      //       route: '/dashboard/stores'
+      //     },
+      //     {
+      //       icon: 'add_business',
+      //       label: 'Add Store',
+      //       route: '/dashboard/stores/create'
+      //     },
+      //     {
+      //       icon: 'analytics',
+      //       label: 'Store Analytics',
+      //       route: '/dashboard/stores/analytics'
+      //     },
+      //     {
+      //       icon: 'inventory',
+      //       label: 'Product Management',
+      //       expanded: false,
+      //       children: [
+      //         {
+      //           icon: 'inventory_2',
+      //           label: 'All Products',
+      //           route: '/dashboard/stores/products'
+      //         },
+      //         {
+      //           icon: 'add_shopping_cart',
+      //           label: 'Add Product',
+      //           route: '/dashboard/stores/products/create'
+      //         },
+      //         {
+      //           icon: 'category',
+      //           label: 'Categories',
+      //           route: '/dashboard/stores/categories'
+      //         }
+      //       ]
+      //     }
+      //   ]
+      // },
 
       {
         icon: 'currency_exchange',

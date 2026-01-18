@@ -86,7 +86,7 @@
           <mat-icon>groups</mat-icon>
         </div>
         <h3 class="role-title">I'm a Promoter</h3>
-        <p class="role-description">I want to earn by advertising business</p>
+        <p class="role-description">I want to earn by promoting people's business</p>
         @if (isPromoter()) {
           <mat-chip color="accent" selected>Active</mat-chip>
         }
@@ -271,6 +271,63 @@
         }
       </div>
     }
+
+
+
+
+    
+    <!-- Add this right after the Promoter Steps section -->
+@if (isPromoter()) {
+  <div class="proof-guide-section">
+    <div class="proof-guide-card">
+      <div class="proof-guide-header">
+        <mat-icon color="primary">photo_library</mat-icon>
+        <div class="proof-guide-title">
+          <h3>📸 Need Help With Proof Screenshots?</h3>
+          <p>Learn exactly what screenshots we accept and avoid rejections</p>
+        </div>
+      </div>
+      
+      <div class="proof-guide-content">
+        <div class="proof-tips">
+          <div class="proof-tip">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>View count must be clearly visible</span>
+          </div>
+          <div class="proof-tip">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>Promotion ID should appear in status</span>
+          </div>
+          <div class="proof-tip">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>Keep status for 22+ hours minimum</span>
+          </div>
+        </div>
+        
+        <button 
+          mat-flat-button 
+          color="accent" 
+          class="view-guide-button"
+          (click)="openProofGuide()">
+          <mat-icon>visibility</mat-icon>
+          View Complete Proof Guide
+        </button>
+        
+        <button 
+          mat-stroked-button 
+          color="primary" 
+          class="quick-example-button"
+          (click)="openProofGuide()">
+          <mat-icon>image</mat-icon>
+          See Example Screenshots
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+
 
     @if (!isMarketer() && !isPromoter()) {
     <div class="steps-container">
