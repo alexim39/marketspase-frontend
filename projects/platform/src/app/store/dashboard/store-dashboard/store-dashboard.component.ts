@@ -30,7 +30,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
-
+import { MatDialog } from '@angular/material/dialog';
+import { StoreManagerComponent } from '../../store-manager/store-manager.component';
 interface StoreStat {
   icon: string;
   label: string;
@@ -109,6 +110,8 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
   public viewMode = signal<'grid' | 'list'>('grid');
   public searchQuery = signal<string>('');
   public selectedCategory = signal<string>('all');
+
+   private dialog = inject(MatDialog);
 
   // Performance metrics - FIXED: Added proper typing
   public performanceMetrics = computed((): PerformanceMetric[] => {
@@ -334,33 +337,61 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-loadStores(): void {
-  const userId = this.user()?._id;
-  if (!userId) {
-    this.showError('User not found. Please log in again.');
-    return;
+  openStoreManager(): void {
+    const dialogRef = this.dialog.open(StoreManagerComponent, {
+      width: '600px',
+      maxHeight: '80vh',
+      data: {
+        stores: this.stores() // Pass the current stores as data
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh stores if changes were made
+        this.loadStores();
+      }
+    });
   }
 
-  this.storeService.getStores(userId).subscribe({
-    next: (stores) => {
-      // Successfully loaded stores
-      console.log('Stores loaded:', stores.data[0]);
-      
-      // If no current store is selected, auto-select the first one
-      if (stores.data.length > 0 && !this.currentStore()) {
-        // Directly set the first store as current
-        this.storeService.currentStore.set(stores.data[0]);
-        
-        // Also load products for this store
-        this.storeService.getStoreProducts(stores.data[0]._id!).subscribe();
-      }
-    },
-    error: (error) => {
-      console.error('Failed to load stores:', error);
-      this.showError('Failed to load stores. Please try again.');
+  loadStores(): void {
+    const userId = this.user()?._id;
+    if (!userId) {
+      this.showError('User not found. Please log in again.');
+      return;
     }
-  });
-}
+
+    this.storeService.getStores(userId).subscribe({
+      next: (stores) => {
+        
+        if (stores.data.length > 0) {
+          // Find the store with isDefaultStore: true
+          const defaultStore = stores.data.find((store: Store) => store.isDefaultStore);
+          
+          // If no current store is selected OR we found a default store, select it
+          if (!this.currentStore() || defaultStore) {
+            const storeToSelect = defaultStore || stores.data[0];
+            
+            // Directly set the default or first store as current
+            this.storeService.currentStore.set(storeToSelect);
+            
+            // Also load products for this store
+            this.storeService.getStoreProducts(storeToSelect._id!).subscribe();
+            
+            // if (defaultStore) {
+            //   console.log('Default store selected:', defaultStore.name);
+            // } else {
+            //   console.log('No default store found, selecting first store');
+            // }
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Failed to load stores:', error);
+        this.showError('Failed to load stores. Please try again.');
+      }
+    });
+  }
 
   refreshStoreData(): void {
     const store = this.currentStore();

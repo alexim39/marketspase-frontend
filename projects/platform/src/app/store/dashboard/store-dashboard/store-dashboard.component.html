@@ -66,6 +66,11 @@
               <mat-icon>view_list</mat-icon>
             </button>
           </div>
+
+          <button mat-stroked-button (click)="openStoreManager()" [color]="autoRefresh() ? 'primary' : ''">
+            <mat-icon>store</mat-icon>
+            Store Manager
+          </button>
         </div>
 
         <div class="control-group">

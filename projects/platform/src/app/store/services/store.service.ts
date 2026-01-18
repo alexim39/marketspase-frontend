@@ -102,6 +102,23 @@ export class StoreService {
     );
   }
 
+  setDefaultStore(store: Store): Observable<any> {
+    console.log('this store ',store)
+    return this.apiService.patch<Store>(
+      `${this.apiUrl}/${store._id}/set-default`, 
+      {userId: store.owner} 
+    ).pipe(
+      tap({
+        next: (updatedStore) => {
+          this.currentStore.set(updatedStore);
+          this.stores.update(stores => 
+            stores.map(s => s._id === store._id ? updatedStore : s)
+          );
+        }
+      })
+    );
+  }
+
   // Store Products (delegates to ProductService via component, but maintains local state)
   getStoreProducts(storeId: string): Observable<Product[]> {
     this.loading.set(true);

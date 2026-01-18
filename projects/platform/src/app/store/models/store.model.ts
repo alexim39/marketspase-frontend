@@ -19,6 +19,7 @@ export interface Store {
   updatedAt: Date;
   settings?: StoreSettings;
   isActive: boolean;
+  isDefaultStore: boolean;
 }
 
 export interface StoreAnalytics {

@@ -25,7 +25,7 @@
   padding: $spacing-8 0;
   
   @include mobile {
-    padding: $spacing-4 0;
+    padding: $spacing-4 $spacing-3;
     margin-bottom: $spacing-8;
   }
   
@@ -91,6 +91,7 @@
       align-items: center;
       gap: $spacing-2;
       @include fade-in;
+      font-size: 14px;
       
       mat-icon {
         font-size: 18px;
