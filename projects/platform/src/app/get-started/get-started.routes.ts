@@ -1,21 +1,20 @@
 import { Routes } from "@angular/router";
-import { GetStartedComponent } from "./get-started.component";
+import { GetStartedComponent } from "./onboarding/get-started.component";
 
 export const GetStartedRoutes: Routes = [
     {
         path: '',
+        redirectTo: 'onboarding', // Redirects the base URL to /onboarding
+        pathMatch: 'full'
+    },
+    {
+        path: 'onboarding',
         component: GetStartedComponent,
         title: "Get Started - Onboarding process",
     },
     // {
-    //     path: 'withdrawal',
-    //     component: WithdrawalComponent,
-    //     title: "Withfrawl Transanction - Request fund withdrawal",
-    // }, 
-    // {
-    //     path: 'promotions',
+    //     path: 'storefront-guide',
     //     component: PromotionComponent,
     //     title: "Promotions - List all accepted promoter promotions",
     // }, 
-    
-]
+];

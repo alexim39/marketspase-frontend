@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
-import { NotificationBannerService } from '../notfication-banner.service';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'profile-notifier-banner',
   imports: [CommonModule, MatIconModule, RouterModule, MatButtonModule],
-  providers: [NotificationBannerService],
   template: `
     @if(this.showBanner()) {
       <div class="profile-completion-banner" [class.hidden]="!showBanner()">
@@ -97,12 +95,14 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
         </div>
         
         <!-- Progress Bar -->
-        <div class="progress-container" *ngIf="completionPercentage() > 0 && completionPercentage() < 100">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="completionPercentage()"></div>
+         @if (completionPercentage() > 0 && completionPercentage() < 100) {
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="completionPercentage()"></div>
+            </div>
+            <div class="progress-text">{{completionPercentage()}}% complete</div>
           </div>
-          <div class="progress-text">{{completionPercentage()}}% complete</div>
-        </div>
+         }
       </div>
     }
   `,
@@ -111,7 +111,6 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
 export class ProfileNotifierBannerComponent implements OnInit {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
-  private notificationBannerService = inject(NotificationBannerService);
   private router = inject(Router);
 
   showBanner = signal(false);
@@ -153,7 +152,7 @@ export class ProfileNotifierBannerComponent implements OnInit {
   }
 
   navigateToGetStarted(): void {
-    this.router.navigate(['/dashboard/get-started'], { 
+    this.router.navigate(['/dashboard/get-started/onboarding'], { 
       queryParams: { 
         focus: this.getNextStep(),
         source: 'profile_banner'

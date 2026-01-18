@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, effect, AfterViewInit, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, computed, AfterViewInit, OnDestroy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -13,9 +13,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 
-import { UserInterface } from '../../../../shared-services/src/public-api';
-import { UserService } from '../common/services/user.service';
-import { DashboardService } from '../dashboard/dashboard.service';
+import { UserService } from '../../common/services/user.service';
+import { DashboardService } from '../../dashboard/dashboard.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { interval, take } from 'rxjs';
