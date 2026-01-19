@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { StoreDashboardComponent } from "./dashboard/store-dashboard/store-dashboard.component";
 import { StoreCreateComponent } from "./store-create/store-create.component";
-import { AddProductComponent } from "./products/add-product.component";
+import { AddProductComponent } from "./products/add-products/add-product.component";
 
 
 export const StoreRoutes: Routes = [

@@ -38,9 +38,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { ProductService } from '../services/product.service';
-import { StoreService } from '../services/store.service';
-import { ProductVariant, CreateProductRequest, ProductAttribute } from '../models/product.model';
+import { ProductService } from '../../services/product.service';
+import { StoreService } from '../../services/store.service';
+import { ProductVariant, CreateProductRequest, ProductAttribute } from '../../models/product.model';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatMenuModule } from '@angular/material/menu';
 import { ViewChild, ElementRef } from '@angular/core';
