@@ -1,10 +1,11 @@
-
 // components/product-management/add-product/add-product.component.ts
 import {
-  Component, inject, OnInit, signal, computed, OnDestroy,
+  Component, inject, OnInit, signal, OnDestroy,
+  computed,
+  Signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -12,39 +13,28 @@ import {
   FormControl,
   ReactiveFormsModule,
   Validators,
-  AbstractControl,
   NonNullableFormBuilder,
 } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { ProductService } from '../../services/product.service';
-import { StoreService } from '../../services/store.service';
-import { ProductVariant, CreateProductRequest, ProductAttribute } from '../../models/product.model';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatMenuModule } from '@angular/material/menu';
-import { ViewChild, ElementRef } from '@angular/core';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+//import { ProductService } from '../../services/product.service';
+//import { StoreService } from '../../services/store.service';
+import { ProductVariant, CreateProductRequest } from '../../models/product.model';
+
+// Child Components
+import { AddProductHeaderComponent } from './components/add-product-header/add-product-header.component';
+import { ProductStepperComponent } from './components/product-stepper/product-stepper.component';
+import { BasicInfoFormComponent } from './components/basic-info-form/basic-info-form.component';
+import { PricingInventoryFormComponent } from './components/pricing-inventory-form/pricing-inventory-form.component';
+import { ProductVariantsComponent } from './components/product-variants/product-variants.component';
+import { ShippingFormComponent } from './components/shipping-form/shipping-form.component';
+import { SeoAdvancedFormComponent } from './components/seo-advanced-form/seo-advanced-form.component';
+import { ProductReviewComponent } from './components/product-review/product-review.component';
+import { ProductService } from './add-product.service';
+import { UserService } from '../../../common/services/user.service';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
 
 type StrCtrl = FormControl<string>;
 type NumCtrl = FormControl<number>;
@@ -66,7 +56,7 @@ type VariantForm = FormGroup<{
   quantity: NumCtrl;
 }>;
 
-// Root product form type (simplified to what the template uses)
+// Root product form type
 type ProductForm = FormGroup<{
   basicInfo: FormGroup<{
     name: StrCtrl;
@@ -92,7 +82,7 @@ type ProductForm = FormGroup<{
   }>;
   shipping: FormGroup<{
     requiresShipping: BoolCtrl;
-    weight: StrCtrl; // keep as string if you prefer free-text; change to NumCtrl if numeric-only
+    weight: StrCtrl;
     dimensions: FormGroup<{
       length: StrCtrl;
       width: StrCtrl;
@@ -127,33 +117,18 @@ type ProductForm = FormGroup<{
 @Component({
   selector: 'app-add-product',
   standalone: true,
+  providers: [ProductService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatSlideToggleModule,
-    MatStepperModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatDividerModule,
-    MatTabsModule,
-    MatRadioModule,
-    MatExpansionModule,
-    MatTooltipModule,
-    MatBadgeModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    RouterModule,
-    MatAutocompleteModule,
-    MatMenuModule,
-    MatChipsModule,
-    MatProgressBarModule,
+    AddProductHeaderComponent,
+    ProductStepperComponent,
+    BasicInfoFormComponent,
+    PricingInventoryFormComponent,
+    ProductVariantsComponent,
+    ShippingFormComponent,
+    SeoAdvancedFormComponent,
+    ProductReviewComponent,
   ],
   templateUrl: './add-product.component.html',
   styleUrls: ['./add-product.component.scss'],
@@ -165,14 +140,17 @@ export class AddProductComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
   private productService = inject(ProductService);
-  private storeService = inject(StoreService);
+  //private storeService = inject(StoreService);
 
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  protected storeId = ''
 
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
+  
 
   // State
   public loading = signal<boolean>(false);
-  public store = computed(() => this.storeService.currentStoreState());
+  //public store = computed(() => this.storeService.currentStoreState());
   public productCategories = signal<string[]>([
     'Electronics',
     'Fashion',
@@ -198,23 +176,35 @@ export class AddProductComponent implements OnInit, OnDestroy {
   // Form
   public productForm!: ProductForm;
 
-  // Variants
-  public hasVariants = signal<boolean>(false);
-  public attributes = signal<ProductAttribute[]>([]);
+  // Computed getters for child components
+  get basicInfo(): ProductForm['controls']['basicInfo'] { return this.productForm.get('basicInfo') as any; }
+  get pricing(): ProductForm['controls']['pricing'] { return this.productForm.get('pricing') as any; }
+  get inventory(): ProductForm['controls']['inventory'] { return this.productForm.get('inventory') as any; }
+  get shipping(): ProductForm['controls']['shipping'] { return this.productForm.get('shipping') as any; }
+  get digital(): ProductForm['controls']['digital'] { return this.productForm.get('digital') as any; }
+  get seo(): ProductForm['controls']['seo'] { return this.productForm.get('seo') as any; }
+  get advanced(): ProductForm['controls']['advanced'] { return this.productForm.get('advanced') as any; }
+  get variants(): ProductForm['controls']['variants'] { return this.productForm.get('variants') as any; }
+  get tagsArray(): FormArray<StrCtrl> { return this.basicInfo.get('tags') as FormArray<StrCtrl>; }
+  get keywordsArray(): FormArray<StrCtrl> { return this.seo.get('metaKeywords') as FormArray<StrCtrl>; }
+  get dimensions() { return this.shipping.get('dimensions'); }
+  get attributesArray(): FormArray<AttributeForm> { return this.variants.get('attributes') as FormArray<AttributeForm>; }
+  get variantsArray(): FormArray<VariantForm> { return this.variants.get('variantData') as FormArray<VariantForm>; }
 
   ngOnInit(): void {
     this.initializeForm();
     this.listenForFormChanges();
+
+    // Observable (Use if the URL might change while on this page)
+    this.route.paramMap.subscribe(params => {
+      this.storeId = params.get('storeId') || ''
+    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-    triggerFileInput(): void {
-     this.fileInput.nativeElement.click();
-    }
 
   private initializeForm(): void {
     this.productForm = this.fb.group({
@@ -226,7 +216,6 @@ export class AddProductComponent implements OnInit, OnDestroy {
         tags: this.fb.array<StrCtrl>([]),
       }),
       pricing: this.fb.group({
-        // make them numbers from the start -> avoids parseFloat/parseInt churn later
         price: this.fb.control<number>(0, { validators: [Validators.required, Validators.min(0)] }),
         originalPrice: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
         costPrice: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
@@ -277,18 +266,6 @@ export class AddProductComponent implements OnInit, OnDestroy {
   }
 
   private listenForFormChanges(): void {
-    // Toggle variant management
-    this.variants.get('hasVariants')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((has) => {
-        this.hasVariants.set(!!has);
-        if (has) {
-          if (this.attributesArray.length === 0) this.addAttribute();
-        } else {
-          this.clearAttributes();
-        }
-      });
-
     // Auto-generate SKU from name
     this.basicInfo.get('name')?.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -301,148 +278,79 @@ export class AddProductComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ======= Form getters (typed) =======
-  get basicInfo(): ProductForm['controls']['basicInfo'] { return this.productForm.get('basicInfo') as any; }
-  get pricing(): ProductForm['controls']['pricing'] { return this.productForm.get('pricing') as any; }
-  get inventory(): ProductForm['controls']['inventory'] { return this.productForm.get('inventory') as any; }
-  get shipping(): ProductForm['controls']['shipping'] { return this.productForm.get('shipping') as any; }
-  get digital(): ProductForm['controls']['digital'] { return this.productForm.get('digital') as any; }
-  get seo(): ProductForm['controls']['seo'] { return this.productForm.get('seo') as any; }
-  get advanced(): ProductForm['controls']['advanced'] { return this.productForm.get('advanced') as any; }
-  get variants(): ProductForm['controls']['variants'] { return this.productForm.get('variants') as any; }
-
-  get attributesArray(): FormArray<AttributeForm> {
-    return this.variants.get('attributes') as FormArray<AttributeForm>;
-  }
-  get variantsArray(): FormArray<VariantForm> {
-    return this.variants.get('variantData') as FormArray<VariantForm>;
-  }
-  get tagsArray(): FormArray<StrCtrl> {
-    return this.basicInfo.get('tags') as FormArray<StrCtrl>;
-  }
-  get keywordsArray(): FormArray<StrCtrl> {
-    return this.seo.get('metaKeywords') as FormArray<StrCtrl>;
-  }
-  get dimensions(): ProductForm['controls']['shipping']['controls']['dimensions'] {
-    return this.shipping.get('dimensions') as any;
+  // ======= Event Handlers =======
+  onImagesChanged(event: { files: File[], previews: string[] }): void {
+    this.images.set(event.files);
+    this.imagePreviews.set(event.previews);
   }
 
-  // ======= Utilities to avoid TS2739 in templates =======
-  // Return a FormControl for a path (for [formControl] bindings)
-  fc<T = unknown>(path: string): FormControl<T> {
-    return this.productForm.get(path) as FormControl<T>;
-  }
-  // Return a FormControl from an AbstractControl (for arrays)
-  asCtrl<T>(ctrl: AbstractControl<T, any> | null): FormControl<T> {
-    return ctrl as FormControl<T>;
-  }
-  // Convenience: value control inside attributes.values FormArray
-  valueControl(attributeIndex: number, valueIndex: number): StrCtrl {
-    return this.getAttributeValuesArray(attributeIndex).at(valueIndex) as StrCtrl;
+  onTagsChanged(tags: string[]): void {
+    this.tagsArray.clear();
+    tags.forEach(tag => this.tagsArray.push(this.fb.control<string>(tag)));
   }
 
-  // ======= Attribute Management =======
-  clearAttributes(): void {
-    while (this.attributesArray.length) this.attributesArray.removeAt(0);
-    while (this.variantsArray.length) this.variantsArray.removeAt(0);
+  onKeywordsChanged(keywords: string[]): void {
+    this.keywordsArray.clear();
+    keywords.forEach(keyword => this.keywordsArray.push(this.fb.control<string>(keyword)));
   }
 
-  getAttributeValuesArray(attributeIndex: number): FormArray<StrCtrl> {
-    return this.attributesArray.at(attributeIndex).get('values') as FormArray<StrCtrl>;
-  }
-
-  addAttribute(): void {
+  onAttributeAdded(attribute: any): void {
     const attributeGroup: AttributeForm = this.fb.group({
-      name: this.fb.control<string>('', { validators: [Validators.required] }),
+      name: this.fb.control<string>(attribute.name || '', { validators: [Validators.required] }),
       values: this.fb.array<StrCtrl>([
         this.fb.control<string>('', { validators: [Validators.required] }),
       ]),
-      visible: this.fb.control<boolean>(true),
-      variation: this.fb.control<boolean>(true),
+      visible: this.fb.control<boolean>(attribute.visible || true),
+      variation: this.fb.control<boolean>(attribute.variation || true),
     });
     this.attributesArray.push(attributeGroup);
   }
 
-  removeAttribute(index: number): void {
+  onAttributeRemoved(index: number): void {
     this.attributesArray.removeAt(index);
   }
 
-  addAttributeValue(attributeIndex: number): void {
-    const valuesArray = this.getAttributeValuesArray(attributeIndex);
-    valuesArray.push(this.fb.control<string>('', { validators: [Validators.required] }));
+  onAttributeValueAdded(event: { attributeIndex: number, value: string }): void {
+    const valuesArray = this.attributesArray.at(event.attributeIndex).get('values') as FormArray<StrCtrl>;
+    valuesArray.push(this.fb.control<string>(event.value || '', { validators: [Validators.required] }));
   }
 
-  removeAttributeValue(attributeIndex: number, valueIndex: number): void {
-    const valuesArray = this.getAttributeValuesArray(attributeIndex);
-    if (valuesArray.length > 1) valuesArray.removeAt(valueIndex);
+  onAttributeValueRemoved(event: { attributeIndex: number, valueIndex: number }): void {
+    const valuesArray = this.attributesArray.at(event.attributeIndex).get('values') as FormArray<StrCtrl>;
+    if (valuesArray.length > 1) valuesArray.removeAt(event.valueIndex);
   }
 
-  generateVariants(): void {
+  onVariantsGenerated(variants: any[]): void {
     this.variantsArray.clear();
-    // Simple variant generation: each value becomes a variant (across all attributes)
-    this.attributesArray.controls.forEach((attrCtrl) => {
-      const name = (attrCtrl.get('name') as StrCtrl).value ?? '';
-      const values = (attrCtrl.get('values') as FormArray<StrCtrl>).controls.map((c) => c.value ?? '');
-
-      values.forEach((v) => {
-        const variant: VariantForm = this.fb.group({
-          name: this.fb.control<string>(`${name}: ${v}`),
-          sku: this.fb.control<string>(''),
-          price: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
-          quantity: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
-        });
-        this.variantsArray.push(variant);
+    variants.forEach(variant => {
+      const variantGroup: VariantForm = this.fb.group({
+        name: this.fb.control<string>(variant.name),
+        sku: this.fb.control<string>(variant.sku || ''),
+        price: this.fb.control<number>(variant.price || 0, { validators: [Validators.min(0)] }),
+        quantity: this.fb.control<number>(variant.quantity || 0, { validators: [Validators.min(0)] }),
       });
+      this.variantsArray.push(variantGroup);
     });
   }
 
-  // ======= Tags / Keywords =======
-  addTag(event: any): void {
-    const input = event.input;
-    const value = (event.value ?? '').trim();
-    if (value) {
-      this.tagsArray.push(this.fb.control<string>(value));
-      if (input) input.value = '';
-    }
-  }
-  removeTag(index: number): void {
-    this.tagsArray.removeAt(index);
+  onVariantChanged(event: { index: number, variant: any }): void {
+    const variantGroup = this.variantsArray.at(event.index);
+    variantGroup.patchValue(event.variant);
   }
 
-  // ======= Image Handling =======
-  onImageSelect(event: any): void {
-    const files: FileList = event.target.files;
-    for (let i = 0; i < files.length; i++) {
-      if (this.imagePreviews().length >= this.maxImages) break;
-      const file = files[i];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.images.update((prev) => [...prev, file]);
-        this.imagePreviews.update((prev) => [...prev, e.target.result]);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  removeImage(index: number): void {
-    this.images.update((prev) => prev.filter((_, i) => i !== index));
-    this.imagePreviews.update((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  reorderImages(from: number, to: number): void {
-    const images = [...this.imagePreviews()];
-    const [moved] = images.splice(from, 1);
-    images.splice(to, 0, moved);
-    this.imagePreviews.set(images);
-  }
-
-  // ======= Stepper & Validation =======
+  // ======= Stepper Navigation =======
   nextStep(): void {
     this.currentStep.update((prev) => Math.min(prev + 1, this.stepLabels.length - 1));
   }
+
   previousStep(): void {
     this.currentStep.update((prev) => Math.max(prev - 1, 0));
   }
+
+  goToStep(step: number): void {
+    this.currentStep.set(step);
+  }
+
   isStepValid(step: number): boolean {
     switch (step) {
       case 0: return this.basicInfo.valid;
@@ -452,57 +360,186 @@ export class AddProductComponent implements OnInit, OnDestroy {
   }
 
   // ======= Submit / Cancel =======
-  onSubmit(): void {
-    if (this.productForm.invalid) {
-      this.markFormGroupTouched(this.productForm);
-      this.showError('Please fill all required fields correctly.');
-      return;
-    }
-    if (!this.store()) {
-      this.showError('No store selected.');
-      return;
-    }
+onSubmit(): void {
+  if (this.productForm.invalid) {
+    this.markFormGroupTouched(this.productForm);
+    this.showError('Please fill all required fields correctly.');
+    return;
+  }
+  
+  if (!this.storeId) {
+    this.showError('No store selected.');
+    return;
+  }
 
-    this.loading.set(true);
-    const fv = this.productForm.getRawValue(); // typed
+  if (!this.user()?._id) {
+    this.showError('User not found. Please log in again.');
+    return;
+  }
 
-    const productData: CreateProductRequest = {
-      name: fv.basicInfo.name,
-      description: fv.basicInfo.description || '',
-      price: fv.pricing.price ?? 0,
-      originalPrice: fv.pricing.originalPrice || undefined,
-      images: this.images(), // File[]
-      quantity: fv.inventory.quantity ?? 0,
-      category: fv.basicInfo.category,
-      tags: fv.basicInfo.tags?.length ? fv.basicInfo.tags : [],
-      lowStockAlert: fv.inventory.lowStockAlert ?? 0,
-      isFeatured: fv.advanced.isFeatured ?? false,
-      seo: {
-        title: fv.seo.seoTitle || '',
-        description: fv.seo.seoDescription || '',
-        keywords: fv.seo.metaKeywords?.length ? fv.seo.metaKeywords : [],
-        slug: this.generateSlug(fv.basicInfo.name),
-      },
-      variants: fv.variants.hasVariants
-        ? this.prepareVariants(this.variantsArray.getRawValue())
-        : undefined,
-    };
+  this.loading.set(true);
+  const fv = this.productForm.getRawValue();
 
-    this.storeService.addProduct(this.store()!._id!, productData).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.showSuccess('Product created successfully!');
-        setTimeout(() => {
-          this.router.navigate(['/dashboard/stores', this.store()?._id, 'products']);
-        }, 1500);
-      },
-      error: (error) => {
-        this.loading.set(false);
-        console.error('Failed to create product:', error);
-        this.showError('Failed to create product. Please try again.');
-      },
+  // Prepare FormData for file upload
+  const formData = new FormData();
+  
+  // Add basic info (only append if value exists)
+  formData.append('name', fv.basicInfo.name);
+  if (fv.basicInfo.description) formData.append('description', fv.basicInfo.description);
+  formData.append('category', fv.basicInfo.category);
+  if (fv.basicInfo.brand) formData.append('brand', fv.basicInfo.brand);
+  
+  // Add tags if any
+  if (fv.basicInfo.tags?.length) {
+    fv.basicInfo.tags.forEach((tag, index) => {
+      if (tag.trim()) {
+        formData.append(`tags[${index}]`, tag.trim());
+      }
     });
   }
+
+  // Add pricing
+  formData.append('price', fv.pricing.price.toString());
+  if (fv.pricing.originalPrice) formData.append('originalPrice', fv.pricing.originalPrice.toString());
+  if (fv.pricing.costPrice) formData.append('costPrice', fv.pricing.costPrice.toString());
+  formData.append('taxable', fv.pricing.taxable.toString());
+  formData.append('taxClass', fv.pricing.taxClass);
+
+  // Add inventory
+  formData.append('quantity', fv.inventory.quantity.toString());
+  formData.append('lowStockAlert', fv.inventory.lowStockAlert.toString());
+  formData.append('manageStock', fv.inventory.manageStock.toString());
+  formData.append('backorderAllowed', fv.inventory.backorderAllowed.toString());
+  formData.append('soldIndividually', fv.inventory.soldIndividually.toString());
+  if (fv.inventory.sku) formData.append('sku', fv.inventory.sku);
+
+  // Add shipping
+  formData.append('requiresShipping', fv.shipping.requiresShipping.toString());
+  if (fv.shipping.weight) formData.append('weight', fv.shipping.weight);
+  
+  // Add dimensions only if they exist
+  const dims = fv.shipping.dimensions;
+  if (dims && (dims.length || dims.width || dims.height)) {
+    if (dims.length) formData.append('dimensions[length]', dims.length);
+    if (dims.width) formData.append('dimensions[width]', dims.width);
+    if (dims.height) formData.append('dimensions[height]', dims.height);
+  }
+  
+  if (fv.shipping.shippingClass) formData.append('shippingClass', fv.shipping.shippingClass);
+
+  // Add variants
+  formData.append('hasVariants', fv.variants.hasVariants.toString());
+  
+  if (fv.variants.hasVariants && fv.variants.attributes?.length) {
+    fv.variants.attributes.forEach((attr, attrIndex) => {
+      if (attr.name?.trim()) {
+        formData.append(`attributes[${attrIndex}][name]`, attr.name.trim());
+        formData.append(`attributes[${attrIndex}][visible]`, attr.visible.toString());
+        formData.append(`attributes[${attrIndex}][variation]`, attr.variation.toString());
+        
+        // Add attribute values if they exist
+        if (attr.values?.length) {
+          attr.values.forEach((value, valueIndex) => {
+            if (value?.trim()) {
+              formData.append(`attributes[${attrIndex}][values][${valueIndex}]`, value.trim());
+            }
+          });
+        }
+      }
+    });
+  }
+
+  if (fv.variants.hasVariants && fv.variants.variantData?.length) {
+    fv.variants.variantData.forEach((variant, variantIndex) => {
+      if (variant.name) {
+        formData.append(`variants[${variantIndex}][name]`, variant.name);
+        if (variant.sku) formData.append(`variants[${variantIndex}][sku]`, variant.sku);
+        formData.append(`variants[${variantIndex}][price]`, variant.price.toString());
+        formData.append(`variants[${variantIndex}][quantity]`, variant.quantity.toString());
+      }
+    });
+  }
+
+  // Add digital product info
+  formData.append('isDigital', fv.digital.isDigital.toString());
+  if (fv.digital.isDigital) {
+    if (fv.digital.downloadLimit) formData.append('digitalProduct[downloadLimit]', fv.digital.downloadLimit);
+    if (fv.digital.downloadExpiry) formData.append('digitalProduct[downloadExpiry]', fv.digital.downloadExpiry);
+  }
+
+  // Add SEO
+  if (fv.seo.seoTitle) formData.append('seo[title]', fv.seo.seoTitle);
+  if (fv.seo.seoDescription) formData.append('seo[description]', fv.seo.seoDescription);
+  
+  if (fv.seo.metaKeywords?.length) {
+    fv.seo.metaKeywords.forEach((keyword, index) => {
+      if (keyword.trim()) {
+        formData.append(`seo[keywords][${index}]`, keyword.trim());
+      }
+    });
+  }
+
+  // Add advanced settings
+  formData.append('isFeatured', fv.advanced.isFeatured.toString());
+  formData.append('isActive', fv.advanced.isActive.toString());
+  if (fv.advanced.scheduledStart) formData.append('scheduledStart', fv.advanced.scheduledStart);
+  if (fv.advanced.scheduledEnd) formData.append('scheduledEnd', fv.advanced.scheduledEnd);
+
+  // Add images (important: check if files exist)
+  const imageFiles = this.images();
+  if (imageFiles.length > 0) {
+    imageFiles.forEach((imageFile) => {
+      if (imageFile) {
+        formData.append('images', imageFile);
+      }
+    });
+  } else {
+    console.warn('No images selected for product');
+  }
+
+  // Debug: Log all FormData entries
+  console.log('FormData entries:');
+  for (const pair of formData.entries()) {
+    console.log(`${pair[0]}:`, pair[1]);
+  }
+
+  // Use the product service to create product
+  this.productService.createProduct(this.storeId, this.user()!._id, formData).subscribe({
+    next: (response) => {
+      this.loading.set(false);
+      this.showSuccess('Product created successfully!');
+      
+      // Reset form after successful creation
+      this.productForm.reset();
+      this.images.set([]);
+      this.imagePreviews.set([]);
+      
+      // Navigate back to products list after delay
+      setTimeout(() => {
+        this.router.navigate(['/dashboard/stores', this.storeId, 'products']);
+      }, 1500);
+    },
+    error: (error) => {
+      this.loading.set(false);
+      console.error('Failed to create product:', error);
+      
+      // Handle specific errors
+      let errorMessage = 'Failed to create product. Please try again.';
+      if (error.status === 400) {
+        errorMessage = error.error.message || 'Invalid product data. Please check all fields.';
+      } else if (error.status === 409) {
+        errorMessage = 'A product with similar details already exists.';
+      } else if (error.status === 413) {
+        errorMessage = 'Image files are too large. Please reduce file size.';
+      }
+      
+      this.showError(errorMessage);
+    },
+  });
+}
+
+  
+  
 
   private generateSlug(name: string): string {
     return name
@@ -543,7 +580,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
       const confirmLeave = confirm('You have unsaved changes. Are you sure you want to leave?');
       if (!confirmLeave) return;
     }
-    this.router.navigate(['/dashboard/stores', this.store()?._id, 'products']);
+    this.router.navigate(['/dashboard/stores', this.storeId, 'products']);
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

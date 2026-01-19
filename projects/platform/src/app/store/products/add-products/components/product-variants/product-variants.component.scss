@@ -1,0 +1,133 @@
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+
+.form-step {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.form-card {
+  @include card-base;
+
+  mat-card-header {
+    margin-bottom: $spacing-4;
+
+    mat-card-title {
+      @include flex-center;
+      gap: $spacing-2;
+      @include heading-small;
+      color: $text-primary;
+
+      mat-icon {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+.variant-toggle {
+  margin-bottom: $spacing-6;
+}
+
+.variants-section {
+  .attributes-section {
+    margin-bottom: $spacing-8;
+
+    h3 {
+      @include heading-small;
+      margin: 0 0 $spacing-4 0;
+      color: $text-primary;
+    }
+  }
+
+  .attribute-card {
+    @include card-base;
+    padding: $spacing-4;
+    margin-bottom: $spacing-4;
+    background: $gray-50;
+
+    .attribute-header {
+      @include flex-between;
+      margin-bottom: $spacing-4;
+
+      .attribute-name {
+        flex: 1;
+      }
+    }
+
+    .attribute-values {
+      margin-bottom: $spacing-4;
+
+      h4 {
+        @include body-medium;
+        font-weight: $font-weight-semibold;
+        margin: 0 0 $spacing-3 0;
+        color: $text-secondary;
+      }
+
+      .value-row {
+        @include flex-center;
+        gap: $spacing-2;
+        margin-bottom: $spacing-2;
+      }
+    }
+
+    .attribute-settings {
+      .setting-checkbox {
+        margin-right: $spacing-4;
+      }
+    }
+  }
+
+  .generate-variants {
+    margin-top: $spacing-6;
+    text-align: center;
+  }
+
+  .generated-variants {
+    margin-top: $spacing-6;
+
+    h3 {
+      @include heading-small;
+      margin: 0 0 $spacing-4 0;
+      color: $text-primary;
+    }
+
+    .variants-list {
+      display: grid;
+      gap: $spacing-3;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: $spacing-2;
+    }
+
+    .variant-card {
+      .variant-details {
+        .variant-info {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
+          gap: $spacing-3;
+
+          @include tablet {
+            grid-template-columns: 1fr 1fr;
+          }
+
+          @include mobile {
+            grid-template-columns: 1fr;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

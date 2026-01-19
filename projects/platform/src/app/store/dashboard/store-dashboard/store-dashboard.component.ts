@@ -217,15 +217,19 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
 
   // Enhanced low stock alert with severity levels
   public lowStockProducts = computed(() => {
-    const products = this.products().filter(product => 
-      product.quantity <= product.lowStockAlert && product.isActive
-    );
-    
-    return products.map(product => ({
-      ...product,
-      severity: product.quantity === 0 ? 'critical' : 
-                product.quantity <= 2 ? 'high' : 'medium'
-    }));
+    if (this.products()) {
+        const products = this.products().filter(product => 
+          product.quantity <= product.lowStockAlert && product.isActive
+        );
+        
+        return products.map(product => ({
+          ...product,
+          severity: product.quantity === 0 ? 'critical' : 
+                    product.quantity <= 2 ? 'high' : 'medium'
+        }));
+    }
+    return []
+  
   });
 
   // Filtered products based on search and category - FIXED VERSION
@@ -311,14 +315,14 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
   });
 
   // Real-time updates effect
-  private realTimeEffect = effect(() => {
-    if (this.realTimeUpdates() && this.currentStore()) {
-      this.setupRealTimeUpdates();
-    } else if (this.realTimeSubscription) {
-      this.realTimeSubscription.unsubscribe();
-      this.realTimeSubscription = undefined;
-    }
-  });
+  // private realTimeEffect = effect(() => {
+  //   if (this.realTimeUpdates() && this.currentStore()) {
+  //     this.setupRealTimeUpdates();
+  //   } else if (this.realTimeSubscription) {
+  //     this.realTimeSubscription.unsubscribe();
+  //     this.realTimeSubscription = undefined;
+  //   }
+  // });
 
   ngOnInit(): void {
     this.loadStores();
@@ -352,6 +356,10 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
         this.loadStores();
       }
     });
+  }
+
+  viewStoreProducts(storeId: string) {
+    this.router.navigate(['/dashboard/stores', storeId, 'products']);
   }
 
   loadStores(): void {
@@ -411,30 +419,30 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  setupRealTimeUpdates(): void {
-    // Clear existing subscription
-    if (this.realTimeSubscription) {
-      this.realTimeSubscription.unsubscribe();
-    }
+  // setupRealTimeUpdates(): void {
+  //   // Clear existing subscription
+  //   if (this.realTimeSubscription) {
+  //     this.realTimeSubscription.unsubscribe();
+  //   }
 
-    // Simulate real-time updates (in production, use WebSockets or SSE)
-    this.realTimeSubscription = interval(10000) // 10 seconds
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        const store = this.currentStore();
-        if (store) {
-          // Simulate real-time data changes
-          const updatedAnalytics: StoreAnalytics = {
-            ...store.analytics,
-            totalViews: store.analytics.totalViews + Math.floor(Math.random() * 5),
-            promoterTraffic: store.analytics.promoterTraffic + Math.floor(Math.random() * 3)
-          };
+  //   // Simulate real-time updates (in production, use WebSockets or SSE)
+  //   this.realTimeSubscription = interval(10000) // 10 seconds
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe(() => {
+  //       const store = this.currentStore();
+  //       if (store) {
+  //         // Simulate real-time data changes
+  //         const updatedAnalytics: StoreAnalytics = {
+  //           ...store.analytics,
+  //           totalViews: store.analytics.totalViews + Math.floor(Math.random() * 5),
+  //           promoterTraffic: store.analytics.promoterTraffic + Math.floor(Math.random() * 3)
+  //         };
           
-          // Update the store analytics in the service
-          this.storeService.updateStoreAnalytics(store._id!, updatedAnalytics);
-        }
-      });
-  }
+  //         // Update the store analytics in the service
+  //         this.storeService.updateStoreAnalytics(store._id!, updatedAnalytics);
+  //       }
+  //     });
+  // }
 
   createStore(): void {
     this.router.navigate(['/dashboard/stores/create']);
@@ -463,18 +471,18 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
   }
 
   verifyStore(): void {
-    const store = this.currentStore();
-    if (store && store._id) {
-      this.storeService.verifyStore(store._id, 'premium').subscribe({
-        next: () => {
-          this.showSuccess('Store verification submitted!');
-        },
-        error: (error) => {
-          console.error('Verification failed:', error);
-          this.showError('Verification failed. Please try again.');
-        }
-      });
-    }
+    // const store = this.currentStore();
+    // if (store && store._id) {
+    //   this.storeService.verifyStore(store._id, 'premium').subscribe({
+    //     next: () => {
+    //       this.showSuccess('Store verification submitted!');
+    //     },
+    //     error: (error) => {
+    //       console.error('Verification failed:', error);
+    //       this.showError('Verification failed. Please try again.');
+    //     }
+    //   });
+    // }
   }
 
   toggleRealTimeUpdates(): void {
@@ -584,8 +592,12 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
     return stat.value;
   }
 
-  getUniqueCategories(): string[] {
-    const categories = new Set(this.products().map(p => p.category).filter(Boolean));
-    return Array.from(categories);
-  }
+  uniqueCategories = computed(() => {
+    if (this.products()) {
+      const categories = new Set(this.products().map(p => p.category).filter(Boolean));
+      return Array.from(categories);
+    }
+    return []
+    
+  });
 }

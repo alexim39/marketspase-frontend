@@ -299,7 +299,7 @@
 // Quick Stats Bar
 .quick-stats-bar {
   @include flex-between;
-  background: $gray-50;
+  background: $gray-900;
   padding: $spacing-4 $spacing-6;
   border-top: $border-width solid $border-color;
 

@@ -1,5 +1,4 @@
-// components/product-management/product-management.component.ts - FIXED VERSION
-import { Component, input, output, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -56,17 +55,19 @@ interface ProductColumn {
     MatSelectModule,
     MatInputModule,
     TruncatePipe,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './product-management.component.html',
   styleUrls: ['./product-management.component.scss']
 })
-export class ProductManagementComponent implements OnInit {
+export class ProductManagementComponent {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private storeService = inject(StoreService);
   private dialogService = inject(DialogService);
+  @Input() paginationData: any;
+    @Output() pageChanged = new EventEmitter<number>();
 
   // Inputs
   store = input.required<Store>();
@@ -145,10 +146,6 @@ export class ProductManagementComponent implements OnInit {
   // Outputs
   productUpdated = output<void>();
 
-  ngOnInit(): void {
-    // Initialize if needed
-  }
-
   // Sorting - FIXED VERSION with proper type safety
   sortProducts(products: Product[]): Product[] {
     const sortBy = this.sortBy();
@@ -204,7 +201,8 @@ export class ProductManagementComponent implements OnInit {
   }
 
   // Search and filtering
-  onSearch(query: string): void {
+  onSearch(event: any): void {
+    let query = event.target.value
     this.searchQuery.set(query);
     this.currentPage.set(0);
   }
@@ -229,7 +227,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   editProduct(product: Product): void {
-    this.router.navigate(['/dashboard/stores', this.store()._id, 'products', product._id, 'edit']);
+    //this.router.navigate(['/dashboard/stores', this.store()._id, 'products', product._id, 'edit']);
   }
 
   viewProduct(product: Product): void {
@@ -346,4 +344,10 @@ export class ProductManagementComponent implements OnInit {
   trackByColumnKey(index: number, column: ProductColumn): string {
     return column.key;
   }
+
+  // Add to product-management.component.ts
+  handleImageError(event: Event): void {
+        const img = event.target as HTMLImageElement;
+        img.src = 'assets/images/product-placeholder.jpg'; // Add a placeholder image
+   }
 }

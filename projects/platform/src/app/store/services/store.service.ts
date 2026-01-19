@@ -5,9 +5,7 @@ import { Store, StoreAnalytics } from '../models/store.model';
 import { Product, StorePromotion, PerformanceMetric, CreateStoreRequest, CreateProductRequest, UpdateProductRequest } from '../models';
 import { ApiService } from '../../../../../shared-services/src/public-api';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class StoreService {
   private apiService = inject(ApiService);
   private readonly apiUrl = 'stores';
@@ -89,21 +87,20 @@ export class StoreService {
     );
   }
 
-  updateStore(storeId: string, updates: Partial<Store>): Observable<Store> {
-    return this.apiService.patch<Store>(`${this.apiUrl}/${storeId}`, updates).pipe(
-      tap({
-        next: (updatedStore) => {
-          this.currentStore.set(updatedStore);
-          this.stores.update(stores => 
-            stores.map(s => s._id === storeId ? updatedStore : s)
-          );
-        }
-      })
-    );
-  }
+  // updateStore(storeId: string, updates: Partial<Store>): Observable<Store> {
+  //   return this.apiService.patch<Store>(`${this.apiUrl}/${storeId}`, updates).pipe(
+  //     tap({
+  //       next: (updatedStore) => {
+  //         this.currentStore.set(updatedStore);
+  //         this.stores.update(stores => 
+  //           stores.map(s => s._id === storeId ? updatedStore : s)
+  //         );
+  //       }
+  //     })
+  //   );
+  // }
 
   setDefaultStore(store: Store): Observable<any> {
-    console.log('this store ',store)
     return this.apiService.patch<Store>(
       `${this.apiUrl}/${store._id}/set-default`, 
       {userId: store.owner} 
@@ -120,12 +117,12 @@ export class StoreService {
   }
 
   // Store Products (delegates to ProductService via component, but maintains local state)
-  getStoreProducts(storeId: string): Observable<Product[]> {
+  getStoreProducts(storeId: string, page: number = 1, limit: number = 20): Observable<any> {
     this.loading.set(true);
-    return this.apiService.get<Product[]>(`${this.apiUrl}/${storeId}/products`).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/${storeId}/products`).pipe(
       tap({
-        next: (products) => {
-          this.storeProducts.set(products);
+        next: (respsonse) => {
+          this.storeProducts.set(respsonse.products);
           this.loading.set(false);
         },
         error: () => {
@@ -136,93 +133,93 @@ export class StoreService {
   }
 
   // Store Analytics
-  getStoreAnalytics(storeId: string): Observable<StoreAnalytics> {
-    return this.apiService.get<StoreAnalytics>(`${this.apiUrl}/${storeId}/analytics`);
-  }
+  // getStoreAnalytics(storeId: string): Observable<StoreAnalytics> {
+  //   return this.apiService.get<StoreAnalytics>(`${this.apiUrl}/${storeId}/analytics`);
+  // }
 
-  updateStoreAnalytics(storeId: string, analyticsData: Partial<StoreAnalytics>): Observable<StoreAnalytics> {
-    return this.apiService.patch<StoreAnalytics>(`${this.apiUrl}/${storeId}/analytics`, analyticsData).pipe(
-      tap({
-        next: (updatedAnalytics) => {
-          const currentStore = this.currentStore();
-          if (currentStore && currentStore._id === storeId) {
-            this.currentStore.set({ ...currentStore, analytics: updatedAnalytics });
-          }
-        }
-      })
-    );
-  }
+  // updateStoreAnalytics(storeId: string, analyticsData: Partial<StoreAnalytics>): Observable<StoreAnalytics> {
+  //   return this.apiService.patch<StoreAnalytics>(`${this.apiUrl}/${storeId}/analytics`, analyticsData).pipe(
+  //     tap({
+  //       next: (updatedAnalytics) => {
+  //         const currentStore = this.currentStore();
+  //         if (currentStore && currentStore._id === storeId) {
+  //           this.currentStore.set({ ...currentStore, analytics: updatedAnalytics });
+  //         }
+  //       }
+  //     })
+  //   );
+  // }
 
   // Performance Metrics
-  getStorePerformanceMetrics(storeId: string): Observable<PerformanceMetric[]> {
-    return this.apiService.get<PerformanceMetric[]>(`${this.apiUrl}/${storeId}/analytics/performance`).pipe(
-      tap({
-        next: (metrics) => this.performanceMetrics.set(metrics)
-      })
-    );
-  }
+  // getStorePerformanceMetrics(storeId: string): Observable<PerformanceMetric[]> {
+  //   return this.apiService.get<PerformanceMetric[]>(`${this.apiUrl}/${storeId}/analytics/performance`).pipe(
+  //     tap({
+  //       next: (metrics) => this.performanceMetrics.set(metrics)
+  //     })
+  //   );
+  // }
 
   // Promotions
-  getStorePromotions(storeId: string): Observable<StorePromotion[]> {
-    return this.apiService.get<StorePromotion[]>(`${this.apiUrl}/${storeId}/promotions`).pipe(
-      tap({
-        next: (promotions) => this.promotions.set(promotions)
-      })
-    );
-  }
+  // getStorePromotions(storeId: string): Observable<StorePromotion[]> {
+  //   return this.apiService.get<StorePromotion[]>(`${this.apiUrl}/${storeId}/promotions`).pipe(
+  //     tap({
+  //       next: (promotions) => this.promotions.set(promotions)
+  //     })
+  //   );
+  // }
 
-  createPromotion(storeId: string, promotionData: Partial<StorePromotion>): Observable<StorePromotion> {
-    return this.apiService.post<StorePromotion>(`${this.apiUrl}/${storeId}/promotions`, promotionData).pipe(
-      tap({
-        next: (promotion) => {
-          this.promotions.update(promotions => [...promotions, promotion]);
-        }
-      })
-    );
-  }
+  // createPromotion(storeId: string, promotionData: Partial<StorePromotion>): Observable<StorePromotion> {
+  //   return this.apiService.post<StorePromotion>(`${this.apiUrl}/${storeId}/promotions`, promotionData).pipe(
+  //     tap({
+  //       next: (promotion) => {
+  //         this.promotions.update(promotions => [...promotions, promotion]);
+  //       }
+  //     })
+  //   );
+  // }
 
-  updatePromotion(storeId: string, promotionId: string, updates: Partial<StorePromotion>): Observable<StorePromotion> {
-    return this.apiService.patch<StorePromotion>(
-      `${this.apiUrl}/${storeId}/promotions/${promotionId}`,
-      updates
-    ).pipe(
-      tap({
-        next: (updatedPromotion) => {
-          this.promotions.update(promotions =>
-            promotions.map(p => p._id === promotionId ? updatedPromotion : p)
-          );
-        }
-      })
-    );
-  }
+  // updatePromotion(storeId: string, promotionId: string, updates: Partial<StorePromotion>): Observable<StorePromotion> {
+  //   return this.apiService.patch<StorePromotion>(
+  //     `${this.apiUrl}/${storeId}/promotions/${promotionId}`,
+  //     updates
+  //   ).pipe(
+  //     tap({
+  //       next: (updatedPromotion) => {
+  //         this.promotions.update(promotions =>
+  //           promotions.map(p => p._id === promotionId ? updatedPromotion : p)
+  //         );
+  //       }
+  //     })
+  //   );
+  // }
 
-  deletePromotion(storeId: string, promotionId: string): Observable<void> {
-    return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/promotions/${promotionId}`).pipe(
-      tap({
-        next: () => {
-          this.promotions.update(promotions =>
-            promotions.filter(p => p._id !== promotionId)
-          );
-        }
-      })
-    );
-  }
+  // deletePromotion(storeId: string, promotionId: string): Observable<void> {
+  //   return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/promotions/${promotionId}`).pipe(
+  //     tap({
+  //       next: () => {
+  //         this.promotions.update(promotions =>
+  //           promotions.filter(p => p._id !== promotionId)
+  //         );
+  //       }
+  //     })
+  //   );
+  // }
 
   // Verification
-  verifyStore(storeId: string, tier: 'basic' | 'premium'): Observable<Store> {
-    return this.apiService.post<Store>(`${this.apiUrl}/${storeId}/verify`, { tier });
-  }
+  // verifyStore(storeId: string, tier: 'basic' | 'premium'): Observable<Store> {
+  //   return this.apiService.post<Store>(`${this.apiUrl}/${storeId}/verify`, { tier });
+  // }
 
   // Update local store analytics state (for real-time updates)
-  updateLocalStoreAnalytics(storeId: string, analytics: StoreAnalytics): void {
-    const currentStore = this.currentStore();
-    if (currentStore && currentStore._id === storeId) {
-      this.currentStore.set({
-        ...currentStore,
-        analytics
-      });
-    }
-  }
+  // updateLocalStoreAnalytics(storeId: string, analytics: StoreAnalytics): void {
+  //   const currentStore = this.currentStore();
+  //   if (currentStore && currentStore._id === storeId) {
+  //     this.currentStore.set({
+  //       ...currentStore,
+  //       analytics
+  //     });
+  //   }
+  // }
 
   // Clear store state
   clearStoreState(): void {
@@ -239,121 +236,121 @@ export class StoreService {
 
 
   // Add this method to StoreService class (after getStoreProducts method)
-  addProduct(storeId: string, productData: CreateProductRequest): Observable<Product> {
-    this.loading.set(true);
+  // addProduct(storeId: string, productData: CreateProductRequest): Observable<Product> {
+  //   this.loading.set(true);
     
-    const formData = new FormData();
+  //   const formData = new FormData();
     
-    // Add store ID to the product data
-    formData.append('store', storeId);
+  //   // Add store ID to the product data
+  //   formData.append('store', storeId);
     
-    // Process product data
-    Object.entries(productData).forEach(([key, value]) => {
-      if (key === 'images' && Array.isArray(value)) {
-        value.forEach(file => {
-          if (file instanceof File) {
-            formData.append('images', file);
-          }
-        });
-      } else if (key === 'seo' && typeof value === 'object') {
-        formData.append(key, JSON.stringify(value));
-      } else if (key === 'variants' && Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (value !== null && value !== undefined) {
-        formData.append(key, value.toString());
-      }
-    });
+  //   // Process product data
+  //   Object.entries(productData).forEach(([key, value]) => {
+  //     if (key === 'images' && Array.isArray(value)) {
+  //       value.forEach(file => {
+  //         if (file instanceof File) {
+  //           formData.append('images', file);
+  //         }
+  //       });
+  //     } else if (key === 'seo' && typeof value === 'object') {
+  //       formData.append(key, JSON.stringify(value));
+  //     } else if (key === 'variants' && Array.isArray(value)) {
+  //       formData.append(key, JSON.stringify(value));
+  //     } else if (value !== null && value !== undefined) {
+  //       formData.append(key, value.toString());
+  //     }
+  //   });
 
-    return this.apiService.post<Product>(`${this.apiUrl}/${storeId}/products`, formData).pipe(
-      tap({
-        next: (product) => {
-          // Update local state
-          this.storeProducts.update(products => [...products, product]);
-          this.loading.set(false);
-        },
-        error: (error) => {
-          this.loading.set(false);
-          console.error('Failed to add product:', error);
-        }
-      })
-    );
-  }
+  //   return this.apiService.post<Product>(`${this.apiUrl}/${storeId}/products`, formData).pipe(
+  //     tap({
+  //       next: (product) => {
+  //         // Update local state
+  //         this.storeProducts.update(products => [...products, product]);
+  //         this.loading.set(false);
+  //       },
+  //       error: (error) => {
+  //         this.loading.set(false);
+  //         console.error('Failed to add product:', error);
+  //       }
+  //     })
+  //   );
+  // }
 
   // Also add this method for updating products in store context
-  updateProduct(storeId: string, productId: string, updates: UpdateProductRequest): Observable<Product> {
-    this.loading.set(true);
+  // updateProduct(storeId: string, productId: string, updates: UpdateProductRequest): Observable<Product> {
+  //   this.loading.set(true);
     
-    const formData = new FormData();
+  //   const formData = new FormData();
     
-    Object.entries(updates).forEach(([key, value]) => {
-      if (key === 'images' && Array.isArray(value)) {
-        value.forEach(file => {
-          if (file instanceof File) {
-            formData.append('images', file);
-          }
-        });
-      } else if (key === 'seo' && typeof value === 'object') {
-        formData.append(key, JSON.stringify(value));
-      } else if (key === 'variants' && Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (value !== null && value !== undefined) {
-        formData.append(key, value.toString());
-      }
-    });
+  //   Object.entries(updates).forEach(([key, value]) => {
+  //     if (key === 'images' && Array.isArray(value)) {
+  //       value.forEach(file => {
+  //         if (file instanceof File) {
+  //           formData.append('images', file);
+  //         }
+  //       });
+  //     } else if (key === 'seo' && typeof value === 'object') {
+  //       formData.append(key, JSON.stringify(value));
+  //     } else if (key === 'variants' && Array.isArray(value)) {
+  //       formData.append(key, JSON.stringify(value));
+  //     } else if (value !== null && value !== undefined) {
+  //       formData.append(key, value.toString());
+  //     }
+  //   });
 
-    return this.apiService.patch<Product>(
-      `${this.apiUrl}/${storeId}/products/${productId}`, 
-      formData
-    ).pipe(
-      tap({
-        next: (updatedProduct) => {
-          this.storeProducts.update(products =>
-            products.map(p => p._id === productId ? updatedProduct : p)
-          );
-          this.loading.set(false);
-        },
-        error: (error) => {
-          this.loading.set(false);
-          console.error('Failed to update product:', error);
-        }
-      })
-    );
-  }
+  //   return this.apiService.patch<Product>(
+  //     `${this.apiUrl}/${storeId}/products/${productId}`, 
+  //     formData
+  //   ).pipe(
+  //     tap({
+  //       next: (updatedProduct) => {
+  //         this.storeProducts.update(products =>
+  //           products.map(p => p._id === productId ? updatedProduct : p)
+  //         );
+  //         this.loading.set(false);
+  //       },
+  //       error: (error) => {
+  //         this.loading.set(false);
+  //         console.error('Failed to update product:', error);
+  //       }
+  //     })
+  //   );
+  // }
 
 
-  deleteProduct(storeId: string, productId: string): Observable<void> {
-    this.loading.set(true);
+  // deleteProduct(storeId: string, productId: string): Observable<void> {
+  //   this.loading.set(true);
     
-    return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
-      tap({
-        next: () => {
-          this.storeProducts.update(products =>
-            products.filter(p => p._id !== productId)
-          );
-          this.loading.set(false);
-        },
-        error: (error) => {
-          this.loading.set(false);
-          console.error('Failed to delete product:', error);
-        }
-      })
-    );
-  }
+  //   return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
+  //     tap({
+  //       next: () => {
+  //         this.storeProducts.update(products =>
+  //           products.filter(p => p._id !== productId)
+  //         );
+  //         this.loading.set(false);
+  //       },
+  //       error: (error) => {
+  //         this.loading.set(false);
+  //         console.error('Failed to delete product:', error);
+  //       }
+  //     })
+  //   );
+  // }
 
-  getStoreProduct(storeId: string, productId: string): Observable<Product> {
-    this.loading.set(true);
+  // getStoreProduct(storeId: string, productId: string): Observable<Product> {
+  //   this.loading.set(true);
     
-    return this.apiService.get<Product>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
-      tap({
-        next: () => {
-          this.loading.set(false);
-        },
-        error: (error) => {
-          this.loading.set(false);
-          console.error('Failed to get product:', error);
-        }
-      })
-    );
-  }
+  //   return this.apiService.get<Product>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
+  //     tap({
+  //       next: () => {
+  //         this.loading.set(false);
+  //       },
+  //       error: (error) => {
+  //         this.loading.set(false);
+  //         console.error('Failed to get product:', error);
+  //       }
+  //     })
+  //   );
+  // }
 
 }

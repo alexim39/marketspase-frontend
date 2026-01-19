@@ -101,10 +101,10 @@ export class StorePromotionsComponent implements OnInit {
   }
 
   loadPromotions(): void {
-    const store = this.store();
-    if (store) {
-      this.storeService.getStorePromotions(store._id!).subscribe();
-    }
+    // const store = this.store();
+    // if (store) {
+    //   this.storeService.getStorePromotions(store._id!).subscribe();
+    // }
   }
 
   createPromotion(): void {

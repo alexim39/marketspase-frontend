@@ -1,0 +1,215 @@
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+.form-step {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.form-card {
+  @include card-base;
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  mat-card-header {
+    margin-bottom: $spacing-4;
+
+    mat-card-title {
+      @include flex-center;
+      gap: $spacing-2;
+      @include heading-small;
+      color: $text-primary;
+
+      mat-icon {
+        color: $primary-color;
+      }
+    }
+
+    mat-card-subtitle {
+      @include body-small;
+      color: $text-secondary;
+    }
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-4;
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Images Upload
+.images-upload {
+  .upload-area {
+    @include flex-center;
+    flex-direction: column;
+    padding: $spacing-12 $spacing-6;
+    border: 2px dashed $border-color;
+    border-radius: $border-radius-lg;
+    background: $surface-color;
+    cursor: pointer;
+    transition: all $transition-normal;
+    margin-bottom: $spacing-6;
+
+    &:hover {
+      border-color: $primary-color;
+      background: rgba($primary-color, 0.02);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: $text-tertiary;
+      margin-bottom: $spacing-4;
+    }
+
+    p {
+      @include body-large;
+      color: $text-primary;
+      margin: 0 0 $spacing-2 0;
+      text-align: center;
+    }
+
+    .upload-hint {
+      @include caption;
+      color: $text-tertiary;
+    }
+  }
+
+  .image-previews {
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: $spacing-4;
+
+      @include mobile {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .image-preview {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: $border-radius-lg;
+      overflow: hidden;
+      border: 1px solid $border-color;
+      transition: all $transition-normal;
+
+      &.main-image {
+        border-color: $primary-color;
+        border-width: 2px;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 30%);
+        opacity: 0;
+        transition: opacity $transition-normal;
+        padding: $spacing-2;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      .image-remove {
+        position: absolute;
+        top: $spacing-2;
+        right: $spacing-2;
+        background: rgba($error-color, 0.9);
+        color: $white;
+        width: 24px;
+        height: 24px;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .main-label {
+        position: absolute;
+        top: $spacing-2;
+        left: $spacing-2;
+        background: $primary-color;
+        color: $white;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-sm;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+      }
+
+      .image-reorder {
+        position: absolute;
+        bottom: $spacing-2;
+        right: $spacing-2;
+        background: rgba($surface-color, 0.9);
+        color: $text-primary;
+        width: 24px;
+        height: 24px;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Tags Field
+.tags-field {
+  width: 100%;
+
+  ::ng-deep {
+    .mat-form-field-wrapper {
+      padding-bottom: 0;
+    }
+  }
+}
+
+// Description Field
+.description-field {
+  textarea {
+    line-height: $line-height-relaxed;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -6,7 +6,13 @@ export interface Product {
   description?: string;
   price: number;
   originalPrice?: number; // For discounts
-  images: string[];
+  // images: string[];
+  images: Array<{
+    url: string;
+    altText?: string;
+    isMain: boolean;
+    order: number;
+  }>;
   quantity: number;
   category: string;
   tags?: string[];
@@ -29,6 +35,11 @@ export interface Product {
   isActive: boolean;
   isFeatured?: boolean;
   isDigital?: boolean;
+  hasVariants: boolean;
+
+  viewCount: number;
+  purchaseCount: number;
+  averageRating: number;
   
   // SEO Fields
   seo: ProductSEO;
