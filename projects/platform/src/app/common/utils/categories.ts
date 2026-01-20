@@ -1,3 +1,8 @@
+export interface CategoryOption {
+  value: string;
+  label: string;
+}
+
 export const CATEGORIES = [
   { value: 'fashion', label: 'Fashion & Beauty' },
   { value: 'food', label: 'Food & Restaurants' },

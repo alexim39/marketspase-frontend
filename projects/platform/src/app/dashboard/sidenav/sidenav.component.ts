@@ -635,7 +635,7 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
       }
 
     ];
-  } else if (userRole === 'marketing_manager') {
+  } else if (userRole === 'marketing_rep') {
     return [
       // {
       //   icon: 'dashboard',

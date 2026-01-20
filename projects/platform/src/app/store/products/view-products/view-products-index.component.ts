@@ -42,10 +42,16 @@ import { StoreService } from '../../services/store.service';
         <app-product-management
           [store]="store()!"
           [products]="products()"
-          [paginationData]="paginationData()"
           (productUpdated)="loadProducts()"
           (pageChanged)="onPageChange($event)"
         ></app-product-management>
+        <!-- <app-product-management
+          [store]="store()!"
+          [products]="products()"
+          [paginationData]="paginationData()"
+          (productUpdated)="loadProducts()"
+          (pageChanged)="onPageChange($event)"
+        ></app-product-management> -->
       }
     </div>
   `,
@@ -89,7 +95,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     
     this.storeService.getStoreProducts(targetStoreId, page, this.limit()).subscribe({
       next: (response) => {
-        console.log('Returned response:', response);
+        //console.log('Returned response:', response);
         
         if (response.success && response.data) {
           // Update store information

@@ -319,7 +319,7 @@ categorizedFaqItems = computed(() => {
         description: 'Add your basic profile details to verify your identity.',
         icon: 'person',
         action: 'Go to Profile',
-        //actionLink: '/dashboard/settings/account',
+        actionLink: '/dashboard/settings/account',
         completed: false
       },
       {
@@ -358,7 +358,7 @@ categorizedFaqItems = computed(() => {
         description: 'Add your basic profile details to verify your identity.',
         icon: 'person',
         action: 'Go to Profile',
-        //actionLink: '/dashboard/profile',
+        actionLink: '/dashboard/settings/account',
         completed: false
       },
       {

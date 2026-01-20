@@ -1,0 +1,41 @@
+
+    <mat-stepper [linear]="true" [selectedIndex]="currentStep()" class="product-stepper">
+      @for (step of stepLabels(); track $index; let i = $index) {
+        <mat-step [completed]="i < currentStep()">
+          <ng-template matStepLabel>{{ step }}</ng-template>
+        </mat-step>
+      }
+    </mat-stepper>
+
+    <div class="stepper-navigation">
+      <button mat-stroked-button (click)="previous.emit()" [disabled]="currentStep() === 0">
+        <mat-icon>arrow_back</mat-icon>
+        Previous
+      </button>
+      
+      <div class="step-indicator">
+        <span>Step {{ currentStep() + 1 }} of {{ stepLabels().length }}</span>
+        <mat-progress-bar 
+          mode="determinate" 
+          [value]="((currentStep() + 1) / stepLabels().length) * 100"
+          color="primary">
+        </mat-progress-bar>
+      </div>
+      
+      @if (currentStep() < stepLabels().length - 1) {
+        <button mat-raised-button color="primary" (click)="next.emit()" [disabled]="!isStepValid()">
+          Next
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      } @else {
+        <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
+          @if (loading()) {
+            <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+            <span>Saving...</span>
+          } @else {
+            <mat-icon>save</mat-icon>
+            <span>Save Product</span>
+          }
+        </button>
+      }
+    </div>

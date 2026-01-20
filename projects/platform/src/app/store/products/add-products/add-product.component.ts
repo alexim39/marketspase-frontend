@@ -35,6 +35,7 @@ import { ProductReviewComponent } from './components/product-review/product-revi
 import { ProductService } from './add-product.service';
 import { UserService } from '../../../common/services/user.service';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { CATEGORIES, CategoryOption } from '../../../common/utils/categories';
 
 type StrCtrl = FormControl<string>;
 type NumCtrl = FormControl<number>;
@@ -150,19 +151,9 @@ export class AddProductComponent implements OnInit, OnDestroy {
 
   // State
   public loading = signal<boolean>(false);
-  //public store = computed(() => this.storeService.currentStoreState());
-  public productCategories = signal<string[]>([
-    'Electronics',
-    'Fashion',
-    'Home & Garden',
-    'Beauty & Health',
-    'Sports',
-    'Books',
-    'Food & Grocery',
-    'Automotive',
-    'Digital Products',
-    'Services',
-  ]);
+
+  private _productCategories = signal<CategoryOption[]>(CATEGORIES);
+  public productCategories = this._productCategories.asReadonly();
 
   // Image handling
   public images = signal<File[]>([]);
