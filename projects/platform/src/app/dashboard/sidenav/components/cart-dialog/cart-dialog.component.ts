@@ -36,6 +36,9 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
           @if(user()!.role === 'promoter') {
             <h3>Your Promotions</h3>
           }
+          @if(user()!.role === 'marketing_rep') {
+            <h3>Your Activities</h3>
+          }
           <button mat-icon-button class="close-btn" (click)="closeDialog.emit()">
             <mat-icon>close</mat-icon>
           </button>
@@ -46,6 +49,10 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
             <span class="total-price">{{user()?.wallets?.marketer?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
           }
           @if(user()!.role === 'promoter') {
+            <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
+            <span class="total-price">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+          }
+          @if(user()!.role === 'marketing_rep') {
             <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
             <span class="total-price">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
           }
@@ -60,9 +67,11 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
           <mat-icon>campaign</mat-icon>
           @if(user()!.role === 'marketer') { Campaigns }
           @if(user()!.role === 'promoter') { Promotions }
+          @if(user()!.role === 'marketing_rep') { Promotions }
           <span class="badge">
-          @if(user()!.role === 'marketer') { {{activeCampaignsCount}} }
-          @if(user()!.role === 'promoter') { {{pendingPromotionsCount}}  }
+            @if(user()!.role === 'marketer') { {{activeCampaignsCount}} }
+            @if(user()!.role === 'promoter') { {{pendingPromotionsCount}}  }
+            @if(user()!.role === 'marketing_rep') { {{pendingPromotionsCount}}  }
           </span>
         </button>
         <button
@@ -87,6 +96,14 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
               />
             }
             @if(user()!.role === 'promoter') {
+              <app-promotions-summary-card
+                [user]="user"
+                (viewAllPromotions)="viewAllPromotions.emit()"
+                (viewWithdrawal)="viewWithdrawal.emit()"
+                (startPromotion)="closeDialog.emit()"
+              />
+            }
+            @if(user()!.role === 'marketing_rep') {
               <app-promotions-summary-card
                 [user]="user"
                 (viewAllPromotions)="viewAllPromotions.emit()"
@@ -137,14 +154,30 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
                 </span>
               </button>
             }
+            @if (user()?.role === 'marketing_rep' && user()!.isMarketingRep) {
+            <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')">
+              <mat-icon>attach_money</mat-icon>
+              <span>
+                Switch to Promoter
+                <small>Earn by posting ads on your WhatsApp status</small>
+              </span>
+            </button>
+            }
           </div>
 
           <div class="account-section">
             <mat-divider/>
-            <button matRipple class="account-action" routerLink="./settings" (click)="closeDialog.emit()">
-              <mat-icon>person</mat-icon>
-              <span>Profile & Settings</span>
-            </button>
+             @if (user()!.isMarketingRep) {
+               <button matRipple class="account-action" (click)="closeDialog.emit(); switchUser.emit('marketing_rep')" [disabled]="user()!.role === 'marketing_rep'">
+                <mat-icon>ads_click</mat-icon>
+                  Switch to Marketing Rep
+              </button>
+            } @else {
+              <button matRipple class="account-action" routerLink="./settings" (click)="closeDialog.emit()">
+                <mat-icon>person</mat-icon>
+                <span>Profile & Settings</span>
+              </button>
+            }
             <!-- <button matRipple class="account-action"  (click)="themeService.toggleTheme()">
               <mat-icon>
                 {{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}

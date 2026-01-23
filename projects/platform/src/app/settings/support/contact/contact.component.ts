@@ -206,7 +206,7 @@ export class ContactComponent implements OnInit, OnDestroy {
 
    // add startLiveChat method
   startLiveChat(): void {
-    const whatsappUrl = 'https://wa.me/2348080386208';
+    const whatsappUrl = 'https://wa.me/2349062537816';
     // provide immediate UI feedback
     this.snackBar.open('Opening WhatsApp live chat...', 'Close', { duration: 2500 });
     // open in new tab / window

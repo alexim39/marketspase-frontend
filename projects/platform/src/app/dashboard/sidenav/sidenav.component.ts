@@ -96,6 +96,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   });
 
 navigationItems: Signal<NavigationItem[]> = computed(() => {
+  //console.log('user ',this.user())
   const userRole = this.user()?.role;
   const pendingCampaigns = this.pendingCampaignsCount || 0;
   const pendingPromotions = this.pendingPromotionsCount || 0;
@@ -413,6 +414,8 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
         ]
       }
     ];
+
+    
   } else if (userRole === 'promoter') {
     return [
 
@@ -635,98 +638,102 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
       }
 
     ];
+
+
   } else if (userRole === 'marketing_rep') {
     return [
-      // {
-      //   icon: 'dashboard',
-      //   label: 'Dashboard',
-      //   route: '/dashboard',
-      //   expanded: false
-      // },
-      // {
-      //   icon: 'group',
-      //   label: 'Team Management',
-      //   expanded: false,
-      //   children: [
-      //     {
-      //       icon: 'people',
-      //       label: 'My Marketers',
-      //       route: '/dashboard/marketers'
-      //     },
-      //     {
-      //       icon: 'person_add',
-      //       label: 'Add Marketer',
-      //       route: '/dashboard/marketers/add'
-      //     },
-      //     {
-      //       icon: 'assessment',
-      //       label: 'Performance Reports',
-      //       route: '/dashboard/marketers/reports'
-      //     },
-      //     {
-      //       icon: 'payments',
-      //       label: 'Commission Management',
-      //       expanded: false,
-      //       children: [
-      //         {
-      //           icon: 'calculate',
-      //           label: 'Calculate Commissions',
-      //           route: '/dashboard/commissions/calculate'
-      //         },
-      //         {
-      //           icon: 'receipt_long',
-      //           label: 'Commission Reports',
-      //           route: '/dashboard/commissions/reports'
-      //         },
-      //         {
-      //           icon: 'payments',
-      //           label: 'Payouts',
-      //           route: '/dashboard/commissions/payouts'
-      //         }
-      //       ]
-      //     }
-      //   ]
-      // },
-      // {
-      //   icon: 'campaign',
-      //   label: 'Campaigns Overview',
-      //   expanded: false,
-      //   children: [
-      //     {
-      //       icon: 'visibility',
-      //       label: 'View All Campaigns',
-      //       route: '/dashboard/campaigns/all'
-      //     },
-      //     {
-      //       icon: 'approval',
-      //       label: 'Campaign Approvals',
-      //       route: '/dashboard/campaigns/approvals'
-      //     },
-      //     {
-      //       icon: 'analytics',
-      //       label: 'Performance Dashboard',
-      //       route: '/dashboard/analytics/campaigns'
-      //     }
-      //   ]
-      // },
-      // {
-      //   icon: 'settings',
-      //   label: 'Settings',
-      //   expanded: false,
-      //   children: [
-      //     {
-      //       icon: 'admin_panel_settings',
-      //       label: 'Admin Settings',
-      //       route: '/dashboard/settings/admin'
-      //     },
-      //     {
-      //       icon: 'tune',
-      //       label: 'Platform Configuration',
-      //       route: '/dashboard/settings/platform'
-      //     }
-      //   ]
-      // }
+      {
+        icon: 'dashboard',
+        label: 'Dashboard',
+        route: '/dashboard',
+        expanded: false
+      },
+      {
+        icon: 'group',
+        label: 'Team Management',
+        expanded: false,
+        children: [
+          {
+            icon: 'people',
+            label: 'My Marketers',
+            route: '/dashboard/marketers'
+          },
+          {
+            icon: 'person_add',
+            label: 'Add Marketer',
+            route: '/dashboard/marketers/add'
+          },
+          {
+            icon: 'assessment',
+            label: 'Performance Reports',
+            route: '/dashboard/marketers/reports'
+          },
+          {
+            icon: 'payments',
+            label: 'Commission Management',
+            expanded: false,
+            children: [
+              {
+                icon: 'calculate',
+                label: 'Calculate Commissions',
+                route: '/dashboard/commissions/calculate'
+              },
+              {
+                icon: 'receipt_long',
+                label: 'Commission Reports',
+                route: '/dashboard/commissions/reports'
+              },
+              {
+                icon: 'payments',
+                label: 'Payouts',
+                route: '/dashboard/commissions/payouts'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        icon: 'campaign',
+        label: 'Campaigns Overview',
+        expanded: false,
+        children: [
+          {
+            icon: 'visibility',
+            label: 'View All Campaigns',
+            route: '/dashboard/campaigns/all'
+          },
+          {
+            icon: 'approval',
+            label: 'Campaign Approvals',
+            route: '/dashboard/campaigns/approvals'
+          },
+          {
+            icon: 'analytics',
+            label: 'Performance Dashboard',
+            route: '/dashboard/analytics/campaigns'
+          }
+        ]
+      },
+      {
+        icon: 'settings',
+        label: 'Settings',
+        expanded: false,
+        children: [
+          {
+            icon: 'admin_panel_settings',
+            label: 'Admin Settings',
+            route: '/dashboard/settings/admin'
+          },
+          {
+            icon: 'tune',
+            label: 'Platform Configuration',
+            route: '/dashboard/settings/platform'
+          }
+        ]
+      }
     ];
+
+
   } else {
     // Admin or other roles
     return [
@@ -841,6 +848,7 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
   }
 
   public switchUser(role: string): void {
+    //console.log('the role ',role)
     const roleObject = {
       role,
       userId: this.user()?._id

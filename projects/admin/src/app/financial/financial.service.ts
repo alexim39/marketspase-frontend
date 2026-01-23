@@ -179,8 +179,7 @@ export class FinancialService {
     description: string;
     reference?: string;
   }): Observable<{success: boolean, data: Transaction}> {
-    return this.apiService.post<{success: boolean, data: Transaction}>(`${this.baseUrl}/transactions/manual`, transactionData)
-      .pipe(map(response => response)); // Return full response object
+    return this.apiService.post<{success: boolean, data: Transaction}>(`${this.baseUrl}/transactions/manual`, transactionData).pipe(map(response => response)); // Return full response object
   }
 
   reverseTransaction(transactionId: string, reason: string): Observable<{success: boolean, message: string}> {

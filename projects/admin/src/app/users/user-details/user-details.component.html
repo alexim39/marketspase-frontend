@@ -47,6 +47,13 @@
                     Verified
                   </mat-chip>
                 }
+               <div class="action-btn">
+                <mat-slide-toggle 
+                  [(ngModel)]="isChecked" 
+                  (change)="onMarketingRepChange(user()?._id || '')">
+                  Make Marketing Rep
+                </mat-slide-toggle>
+              </div>
               </div>
             </div>
           </div>

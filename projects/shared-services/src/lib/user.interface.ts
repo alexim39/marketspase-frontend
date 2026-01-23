@@ -144,4 +144,6 @@ export interface UserInterface {
     status: string;
     isFeatured: boolean;
   }[];
+
+  isMarketingRep: boolean;
 }
