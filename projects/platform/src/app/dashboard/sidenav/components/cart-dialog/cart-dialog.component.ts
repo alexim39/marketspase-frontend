@@ -155,13 +155,21 @@ import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promo
               </button>
             }
             @if (user()?.role === 'marketing_rep' && user()!.isMarketingRep) {
-            <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')">
-              <mat-icon>attach_money</mat-icon>
-              <span>
-                Switch to Promoter
-                <small>Earn by posting ads on your WhatsApp status</small>
-              </span>
-            </button>
+              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')">
+                <mat-icon>attach_money</mat-icon>
+                <span>
+                  Switch to Promoter
+                  <small>Earn by posting ads on your WhatsApp status</small>
+                </span>
+              </button>
+
+              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('marketer')" [disabled]="user()!.role === 'marketer'">
+                <mat-icon>campaign</mat-icon>
+                <span>
+                  Switch to Marketer
+                  <small>Pay promoters to post your ads on their WhatsApp status</small>
+                </span>
+              </button>
             }
           </div>
 

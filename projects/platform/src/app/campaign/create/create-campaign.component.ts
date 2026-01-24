@@ -135,7 +135,7 @@ export class CreateCampaignComponent implements OnInit {
 
     this.scheduleForm = this.fb.group({
       startDate: [new Date(), Validators.required],
-      hasEndDate: [true],
+      hasEndDate: [false],
       endDate: [null],
       duration: [{ value: 7, disabled: true }]
     });

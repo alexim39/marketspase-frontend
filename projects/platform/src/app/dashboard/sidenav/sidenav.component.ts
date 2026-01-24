@@ -298,33 +298,32 @@ navigationItems: Signal<NavigationItem[]> = computed(() => {
 
       {
         icon: 'forum',
-        label: 'Forum',
+        label: 'Community',
         expanded: false,
         children: [
           {
             icon: 'chat',
-            label: 'Discussions',
+            label: 'Forum',
             route: '/dashboard/forum'
           },
 
           // {
-          //   icon: 'question_answer',
-          //   label: 'Q&A',
-          //   route: '/dashboard/forum/questions'
+          //   icon: 'groups',
+          //   label: 'Network',
+          //   route: '/dashboard/community/network'
           // },
 
           // {
           //   icon: 'trending_up',
-          //   label: 'Trending Topics',
-          //   route: '/dashboard/forum/trending'
+          //   label: 'Trending',
+          //   route: '/dashboard/community/trending'
           // },
 
           // {
-          //   icon: 'group',
-          //   label: 'Community',
-          //   route: '/dashboard/forum/community'
+          //   icon: 'support_agent',
+          //   label: 'Support',
+          //   route: '/dashboard/settings/share'
           // }
-
         ]
       },
       

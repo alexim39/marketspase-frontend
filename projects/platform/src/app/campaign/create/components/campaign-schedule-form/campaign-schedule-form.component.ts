@@ -99,6 +99,6 @@ export class CampaignScheduleFormComponent implements OnInit {
     const isChecked = this.formGroup.get('hasEndDate')?.value;
     
     // Ternary operation: (condition) ? value_if_true : value_if_false
-    return isChecked ? 'Set an end date' : 'No end date set';
+    return isChecked ? 'Turn off end date' : 'Set an end date';
   }
 }
