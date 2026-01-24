@@ -279,6 +279,12 @@
     // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
   }
+  .payout {
+    color: $gray-500;
+    border-top: 1px dotted $gray-900;
+    margin-top: 10px;
+    padding-top: 4px;
+  }
 }
 
 .mobile-actions {

@@ -13,8 +13,8 @@ import { CATEGORIES } from '../../../common/utils/categories';
 import { Subject, takeUntil } from 'rxjs';
 
 interface AdPreferences {
-  locationBased: boolean;
-  categoryBased: boolean;
+  locationBasedAds: boolean;
+  categoryBasedAds: boolean;
   selectedCategories: string[];
 }
 
@@ -39,14 +39,14 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
   deviceType = computed(() => this.deviceService.type());
 
   preferences = signal<AdPreferences>({
-    locationBased: true, // Default to true for better UX
-    categoryBased: false,
+    locationBasedAds: true, // Default to true for better UX
+    categoryBasedAds: false,
     selectedCategories: []
   });
 
   originalPreferences = signal<AdPreferences>({
-    locationBased: true,
-    categoryBased: false,
+    locationBasedAds: true,
+    categoryBasedAds: false,
     selectedCategories: []
   });
 
@@ -94,8 +94,8 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
     if (!user) return;
 
     const userPrefs: AdPreferences = {
-      locationBased: user.preferences?.locationBasedAds ?? true, // Default to true if undefined
-      categoryBased: user.preferences?.categoryBasedAds ?? false,
+      locationBasedAds: user.preferences?.locationBasedAds ?? true, // Default to true if undefined
+      categoryBasedAds: user.preferences?.categoryBasedAds ?? false,
       selectedCategories: user.preferences?.adCategories || []
     };
     
@@ -119,7 +119,7 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
     const currentPrefs = this.preferences();
     
     // If disabling category-based ads, clear selections but don't reset to original
-    if (!currentPrefs.categoryBased) {
+    if (!currentPrefs.categoryBasedAds) {
       this.preferences.set({
         ...currentPrefs,
         selectedCategories: []
@@ -131,7 +131,7 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
   }
 
   toggleCategory(categoryValue: string): void {
-    if (this.isSaving() || !this.preferences().categoryBased) return;
+    if (this.isSaving() || !this.preferences().categoryBasedAds) return;
 
     this.preferences.update(prefs => {
       const isSelected = prefs.selectedCategories.includes(categoryValue);
@@ -158,8 +158,8 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
     const original = this.originalPreferences();
     
     const changesDetected = 
-      current.locationBased !== original.locationBased ||
-      current.categoryBased !== original.categoryBased ||
+      current.locationBasedAds !== original.locationBasedAds ||
+      current.categoryBasedAds !== original.categoryBasedAds ||
       JSON.stringify([...current.selectedCategories].sort()) !== JSON.stringify([...original.selectedCategories].sort());
     
     this.hasChanges.set(changesDetected);
@@ -183,9 +183,9 @@ export class AdsSettingsComponent implements OnInit, OnDestroy {
     const formObject = {
       userId: userId,
       preferences: {
-        locationBasedAds: currentPrefs.locationBased,
-        categoryBasedAds: currentPrefs.categoryBased,
-        adCategories: currentPrefs.categoryBased ? currentPrefs.selectedCategories : []
+        locationBasedAds: currentPrefs.locationBasedAds,
+        categoryBasedAds: currentPrefs.categoryBasedAds,
+        adCategories: currentPrefs.categoryBasedAds ? currentPrefs.selectedCategories : []
       }
     };
 

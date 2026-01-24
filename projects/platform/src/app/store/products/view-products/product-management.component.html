@@ -1,0 +1,650 @@
+<!-- product-management.component.html -->
+<div class="product-management">
+  <!-- Header with back button -->
+  <div class="management-header">
+    <div class="header-top">
+      <button 
+        mat-icon-button 
+        class="back-button"
+        routerLink="/dashboard/stores"
+        matTooltip="Back to Stores"
+        aria-label="Back to Stores"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="store-name">{{ store().name }}</h1>
+          <p class="store-description">{{ store().description || 'Product Management Dashboard' }}</p>
+        </div>
+        
+        <div class="product-stats">
+          <div class="stat-item" [class.warning]="lowStockProducts().length > 0">
+            <div class="stat-icon">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ products().length }}</span>
+              <span class="stat-label">Total Products</span>
+            </div>
+          </div>
+          
+          <div class="stat-item" [class.warning]="lowStockProducts().length > 0">
+            <div class="stat-icon warning">
+              <mat-icon>warning</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value warn">{{ lowStockProducts().length }}</span>
+              <span class="stat-label">Low Stock</span>
+            </div>
+          </div>
+          
+          <div class="stat-item" [class.error]="outOfStockProducts().length > 0">
+            <div class="stat-icon error">
+              <mat-icon>cancel</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value error">{{ outOfStockProducts().length }}</span>
+              <span class="stat-label">Out of Stock</span>
+            </div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-icon">
+              <mat-icon>filter_alt</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ filteredProducts().length }}</span>
+              <span class="stat-label">Filtered</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="controls-left">
+        <!-- Search Box -->
+        <div class="search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input 
+            type="text" 
+            placeholder="Search products by name, SKU, tags..." 
+            [value]="searchQuery()"
+            (input)="onSearch($event)"
+            aria-label="Search products"
+          >
+          @if (searchQuery()) {
+            <button 
+              mat-icon-button 
+              class="clear-search" 
+              (click)="clearSearch()"
+              aria-label="Clear search"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+        
+        <!-- Category Filter -->
+        <mat-form-field class="category-filter" appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select 
+            [value]="selectedCategory()" 
+            (selectionChange)="onCategoryChange($event.value)"
+            aria-label="Filter by category"
+          >
+            <mat-option value="all">All Categories</mat-option>
+            @for (category of categories(); track category) {
+              <mat-option [value]="category">{{ category }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        
+        <!-- Sort Dropdown -->
+        <mat-form-field class="sort-filter" appearance="outline">
+          <mat-label>Sort by</mat-label>
+          <mat-select 
+            [value]="sortBy()" 
+            (selectionChange)="onSort($event.value)"
+            aria-label="Sort products"
+          >
+            <mat-option value="name">Name (A-Z)</mat-option>
+            <mat-option value="price">Price (Low to High)</mat-option>
+            <mat-option value="price_desc">Price (High to Low)</mat-option>
+            <mat-option value="quantity">Stock (High to Low)</mat-option>
+            <mat-option value="createdAt">Date Added (Newest)</mat-option>
+            <mat-option value="sales">Best Selling</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      
+      <div class="controls-right">
+        <!-- Bulk Actions -->
+        <div class="bulk-actions" *ngIf="selectedProducts.length > 0">
+          <span class="selected-count">{{ selectedProducts.length }} selected</span>
+          <button mat-button (click)="clearSelection()">Clear</button>
+          <button mat-stroked-button (click)="exportSelected()">
+            <mat-icon>download</mat-icon>
+            Export Selected
+          </button>
+        </div>
+        
+        <!-- View Toggle -->
+        <div class="view-toggle">
+          <button 
+            mat-icon-button 
+            [class.active]="viewMode() === 'grid'"
+            (click)="setGridView()"
+            matTooltip="Grid View"
+            aria-label="Switch to grid view"
+          >
+            <mat-icon>grid_view</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            [class.active]="viewMode() === 'list'"
+            (click)="setListView()"
+            matTooltip="List View"
+            aria-label="Switch to list view"
+          >
+            <mat-icon>list</mat-icon>
+          </button>
+        </div>
+        
+        <!-- Quick Actions Menu -->
+        <button 
+          mat-stroked-button 
+          [matMenuTriggerFor]="quickActionsMenu"
+          class="quick-actions-btn"
+        >
+          <mat-icon>more_vert</mat-icon>
+          <span class="button-text">Actions</span>
+        </button>
+        
+        <mat-menu #quickActionsMenu="matMenu">
+          <button mat-menu-item (click)="manageInventory()">
+            <mat-icon>inventory</mat-icon>
+            <span>Manage Inventory</span>
+          </button>
+          <button mat-menu-item (click)="exportProducts()">
+            <mat-icon>download</mat-icon>
+            <span>Export All</span>
+          </button>
+          <button mat-menu-item (click)="importProducts()">
+            <mat-icon>upload</mat-icon>
+            <span>Import Products</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="bulkUpdateStatus()">
+            <mat-icon>toggle_on</mat-icon>
+            <span>Bulk Status Update</span>
+          </button>
+        </mat-menu>
+        
+        <!-- Add Product Button -->
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="addProduct()"
+          class="add-product-btn"
+          aria-label="Add new product"
+        >
+          <mat-icon>add</mat-icon>
+          <span class="button-text">Add Product</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="product-content">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Loading products...</p>
+        </div>
+      </div>
+    }
+    
+    <!-- Empty State -->
+    @if (filteredProducts().length === 0 && !loading()) {
+      <div class="empty-state">
+        <div class="empty-state-content">
+          <div class="empty-icon">
+            <mat-icon>inventory_2</mat-icon>
+          </div>
+          <h3>No Products Found</h3>
+          <p>
+            @if (searchQuery() || selectedCategory() !== 'all') {
+              No products match your search criteria. Try adjusting your filters or search term.
+            } @else {
+              This store has no products yet. Start by adding your first product!
+            }
+          </p>
+          <div class="empty-state-actions">
+            @if (searchQuery() || selectedCategory() !== 'all') {
+              <button mat-button (click)="clearFilters()">
+                Clear All Filters
+              </button>
+            }
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="addProduct()"
+            >
+              <mat-icon>add</mat-icon>
+              Add Your First Product
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+    
+    <!-- Grid View -->
+    @if (viewMode() === 'grid' && filteredProducts().length > 0) {
+      <div class="products-grid">
+        @for (product of paginatedProducts(); track trackByProductId($index, product)) {
+          <div 
+            class="product-card" 
+            [class.selected]="isProductSelected(product)"
+            (click)="toggleProductSelection(product)"
+          >
+            <!-- Product Image -->
+            <div class="product-image">
+              <div class="image-container">
+                @if (product.images && product.images[0]?.url) {
+                  <img 
+                    [src]="product.images[0]?.url" 
+                    [alt]="product.name"
+                    (error)="handleImageError($event)"
+                    loading="lazy"
+                  >
+                } @else {
+                  <div class="image-placeholder">
+                    <mat-icon>image</mat-icon>
+                    <span>No Image</span>
+                  </div>
+                }
+                
+                <!-- Quick Actions Overlay -->
+                <div class="quick-actions-overlay">
+                  <button 
+                    mat-icon-button 
+                    color="primary"
+                    (click)="viewProduct(product); $event.stopPropagation()"
+                    class="action-btn"
+                    aria-label="View product details"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button 
+                    mat-icon-button 
+                    color="accent"
+                    (click)="editProduct(product); $event.stopPropagation()"
+                    class="action-btn"
+                    aria-label="Edit product"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                
+                <!-- Selection Checkbox -->
+                <div class="selection-checkbox">
+                  <mat-checkbox 
+                    [checked]="isProductSelected(product)"
+                    (click)="$event.stopPropagation()"
+                    (change)="toggleProductSelection(product)"
+                    aria-label="Select product"
+                  ></mat-checkbox>
+                </div>
+                
+                <!-- Stock Status Badge -->
+                <div class="stock-badge" [class]="getStockStatus(product).color">
+                  {{ getStockStatus(product).text }}
+                </div>
+              </div>
+              
+              <!-- Product Badges -->
+              <div class="product-badges">
+                @if (!product.isActive) {
+                  <span class="badge inactive" matTooltip="Product is inactive">Inactive</span>
+                }
+                @if (product.isFeatured) {
+                  <span class="badge featured" matTooltip="Featured product">Featured</span>
+                }
+                @if (product.hasVariants) {
+                  <span class="badge variants" matTooltip="Has variants">Variants</span>
+                }
+                @if (product.price < (product.originalPrice || 0)) {
+                  <span class="badge sale" matTooltip="On sale">Sale</span>
+                }
+              </div>
+            </div>
+            
+            <!-- Product Content -->
+            <div class="product-content">
+              <div class="product-header">
+                <h3 class="product-name" [matTooltip]="product.name">
+                  {{ product.name | truncate:28 }}
+                </h3>
+                @if (product.sku) {
+                  <span class="product-sku" matTooltip="SKU: {{ product.sku }}">
+                    {{ product.sku | truncate:12 }}
+                  </span>
+                }
+              </div>
+              
+              @if (product.description) {
+                <p class="product-description">
+                  {{ product.description | truncate:80 }}
+                </p>
+              }
+              
+              <div class="product-meta">
+                <div class="category-price">
+                  <span class="product-category">
+                    <mat-icon class="category-icon">category</mat-icon>
+                    {{ product.category || 'Uncategorized' }}
+                  </span>
+                  <div class="product-price">
+                    <span class="current-price">
+                      ${{ product.price | number:'1.2-2' }}
+                    </span>
+                    @if (product.originalPrice && product.originalPrice > product.price) {
+                      <span class="original-price">
+                        ${{ product.originalPrice | number:'1.2-2' }}
+                      </span>
+                    }
+                  </div>
+                </div>
+                
+                <div class="product-performance">
+                  <div class="performance-item" matTooltip="Views">
+                    <mat-icon>visibility</mat-icon>
+                    <span>{{ product.viewCount || 0 }}</span>
+                  </div>
+                  <div class="performance-item" matTooltip="Sales">
+                    <mat-icon>shopping_cart</mat-icon>
+                    <span>{{ product.purchaseCount || 0 }}</span>
+                  </div>
+                  <div class="performance-item" matTooltip="Rating">
+                    <mat-icon>star</mat-icon>
+                    <span>{{ product.averageRating || 0 | number:'1.1-1' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Product Actions -->
+              <div class="product-footer">
+                <div class="stock-info">
+                  <mat-icon [class]="getStockStatus(product).color + '-icon'">
+                    {{ getStockStatus(product).icon }}
+                  </mat-icon>
+                  <span [class]="getStockStatus(product).color + '-text'">
+                    {{ product.quantity }} in stock
+                  </span>
+                </div>
+                
+                <div class="action-menu">
+                  <button 
+                    mat-icon-button 
+                    [matMenuTriggerFor]="productMenu"
+                    (click)="$event.stopPropagation()"
+                    class="more-actions-btn"
+                    aria-label="More actions"
+                  >
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  
+                  <mat-menu #productMenu="matMenu" xPosition="before">
+                    <button mat-menu-item (click)="viewProduct(product)">
+                      <mat-icon>visibility</mat-icon>
+                      <span>View Details</span>
+                    </button>
+                    <button mat-menu-item (click)="editProduct(product)">
+                      <mat-icon>edit</mat-icon>
+                      <span>Edit Product</span>
+                    </button>
+                    <button mat-menu-item (click)="duplicateProduct(product)">
+                      <mat-icon>content_copy</mat-icon>
+                      <span>Duplicate</span>
+                    </button>
+                    <button mat-menu-item (click)="toggleProductStatus(product)">
+                      <mat-icon>{{ product.isActive ? 'pause_circle' : 'play_circle' }}</mat-icon>
+                      <span>{{ product.isActive ? 'Deactivate' : 'Activate' }}</span>
+                    </button>
+                    <mat-divider></mat-divider>
+                    <button 
+                      mat-menu-item 
+                      (click)="deleteProduct(product)"
+                      class="delete-action"
+                    >
+                      <mat-icon color="warn">delete</mat-icon>
+                      <span class="warn-text">Delete</span>
+                    </button>
+                  </mat-menu>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } 
+    
+    <!-- List View -->
+    @if (viewMode() === 'list' && filteredProducts().length > 0) {
+      <div class="products-list">
+        <table mat-table [dataSource]="paginatedProducts()" class="products-table">
+          <!-- Selection Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef class="checkbox-cell">
+              <mat-checkbox 
+                [checked]="isAllSelected()"
+                [indeterminate]="isSomeSelected()"
+                (change)="toggleSelectAll($event)"
+                aria-label="Select all products"
+              ></mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let product" class="checkbox-cell">
+              <mat-checkbox 
+                [checked]="isProductSelected(product)"
+                (change)="toggleProductSelection(product)"
+                aria-label="Select product"
+              ></mat-checkbox>
+            </td>
+          </ng-container>
+          
+          <!-- Product Column -->
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef>Product</th>
+            <td mat-cell *matCellDef="let product" class="product-cell">
+              <div class="product-info">
+                <div class="product-image">
+                  @if (product.images && product.images[0]?.url) {
+                    <img 
+                      [src]="product.images[0]?.url" 
+                      [alt]="product.name"
+                      (error)="handleImageError($event)"
+                      loading="lazy"
+                    >
+                  } @else {
+                    <div class="image-placeholder">
+                      <mat-icon>image</mat-icon>
+                    </div>
+                  }
+                </div>
+                <div class="product-details">
+                  <div class="product-name-row">
+                    <span class="product-name">{{ product.name }}</span>
+                    @if (product.sku) {
+                      <span class="product-sku">{{ product.sku }}</span>
+                    }
+                  </div>
+                  @if (product.description) {
+                    <span class="product-description">{{ product.description | truncate:60 }}</span>
+                  }
+                  <div class="product-tags">
+                    @for (tag of product.tags?.slice(0, 3); track tag) {
+                      <span class="tag">{{ tag }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Category Column -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <td mat-cell *matCellDef="let product">
+              <span class="category-chip">{{ product.category || 'Uncategorized' }}</span>
+            </td>
+          </ng-container>
+          
+          <!-- Price Column -->
+          <ng-container matColumnDef="price">
+            <th mat-header-cell *matHeaderCellDef>Price</th>
+            <td mat-cell *matCellDef="let product" class="price-cell">
+              <div class="price-display">
+                <span class="current-price">${{ product.price | number:'1.2-2' }}</span>
+                @if (product.originalPrice && product.originalPrice > product.price) {
+                  <span class="original-price">${{ product.originalPrice | number:'1.2-2' }}</span>
+                }
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Stock Column -->
+          <ng-container matColumnDef="stock">
+            <th mat-header-cell *matHeaderCellDef>Stock</th>
+            <td mat-cell *matCellDef="let product">
+              <div 
+                class="stock-info" 
+                [class]="getStockStatus(product).color"
+                matTooltip="{{ product.quantity }} in stock"
+              >
+                <mat-icon>{{ getStockStatus(product).icon }}</mat-icon>
+                <span>{{ product.quantity }}</span>
+              </div>
+            </td>
+          </ng-container>
+          
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let product">
+              <mat-chip-option
+                [color]="product.isActive ? 'primary' : 'warn'" 
+                [selected]="product.isActive"
+                (click)="toggleProductStatus(product)"
+                class="status-chip"
+              >
+                <mat-icon>{{ product.isActive ? 'check_circle' : 'pause_circle' }}</mat-icon>
+                {{ product.isActive ? 'Active' : 'Inactive' }}
+              </mat-chip-option>
+            </td>
+          </ng-container>
+          
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+            <td mat-cell *matCellDef="let product" class="actions-cell">
+              <button 
+                mat-icon-button 
+                color="primary"
+                (click)="viewProduct(product)"
+                matTooltip="View"
+                aria-label="View product"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                color="accent"
+                (click)="editProduct(product)"
+                matTooltip="Edit"
+                aria-label="Edit product"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                [matMenuTriggerFor]="actionMenu"
+                (click)="$event.stopPropagation()"
+                class="more-actions-btn"
+                aria-label="More actions"
+              >
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #actionMenu="matMenu" xPosition="before">
+                <button mat-menu-item (click)="duplicateProduct(product)">
+                  <mat-icon>content_copy</mat-icon>
+                  <span>Duplicate</span>
+                </button>
+                <button mat-menu-item (click)="toggleProductStatus(product)">
+                  <mat-icon>{{ product.isActive ? 'pause_circle' : 'play_circle' }}</mat-icon>
+                  <span>{{ product.isActive ? 'Deactivate' : 'Activate' }}</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button 
+                  mat-menu-item 
+                  (click)="deleteProduct(product)"
+                  class="delete-action"
+                >
+                  <mat-icon>delete</mat-icon>
+                  <span class="warn-text">Delete</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+          
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr 
+            mat-row 
+            *matRowDef="let row; columns: displayedColumns();" 
+            class="product-row"
+            [class.selected]="isProductSelected(row)"
+            (click)="toggleProductSelection(row)"
+          ></tr>
+        </table>
+      </div>
+    }
+    
+    <!-- Pagination -->
+    @if (filteredProducts().length > 0) {
+      <div class="pagination-container">
+        <div class="pagination-info">
+          Showing {{ (currentPage() * pageSize()) + 1 }} - 
+          <!-- {{ Math.min((currentPage() + 1) * pageSize(), filteredProducts().length) }}  -->
+          of {{ filteredProducts().length }} products
+        </div>
+        <mat-paginator
+          [length]="filteredProducts().length"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[10, 25, 50, 100]"
+          [pageIndex]="currentPage()"
+          (page)="onPageChange($event)"
+          showFirstLastButtons
+          aria-label="Select page of products"
+        ></mat-paginator>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Bulk Actions Dialog -->
+<ng-template #bulkActionsDialog>
+  <div class="bulk-actions-dialog">
+    <h2 mat-dialog-title>Bulk Actions</h2>
+    <mat-dialog-content>
+      <p>{{ selectedProducts.length }} products selected</p>
+      <!-- Add bulk action options here -->
+    </mat-dialog-content>
+  </div>
+</ng-template>

@@ -1,0 +1,310 @@
+// create-thread.component.scss
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+mat-dialog-content {
+  height: auto;
+  overflow-y: auto;
+  padding: 0 !important; // Remove default padding for custom styling
+  
+  form {
+    height: 100%;
+    padding: $spacing-6;
+    
+    @include mobile {
+      padding: $spacing-4;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: $spacing-6;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+  
+  // Ensure form fields use theme variables
+  .mdc-text-field {
+    background-color: $surface-color;
+    color: $text-primary;
+    
+    &:not(.mdc-text-field--disabled) {
+      .mdc-floating-label {
+        color: $text-secondary;
+      }
+      
+      .mdc-text-field__input {
+        color: $text-primary;
+        
+        &::placeholder {
+          color: $text-tertiary;
+        }
+      }
+    }
+  }
+}
+
+.media-section {
+  margin-top: $spacing-6;
+  margin-bottom: $spacing-6;
+  
+  h4 {
+    margin-bottom: $spacing-3;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-base;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
+  }
+  
+  .media-preview {
+    position: relative;
+    margin-bottom: $spacing-4;
+    max-width: 100%;
+    border-radius: $border-radius-md;
+    overflow: hidden;
+    // UPDATED: Use surface-color variable for dynamic theming
+    background: $surface-color;
+    border: 1px solid $border-color;
+    
+    .preview-image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .preview-video {
+      max-width: 100%;
+      max-height: 300px;
+      width: 100%;
+      display: block;
+    }
+    
+    .preview-audio {
+      width: 100%;
+      margin-top: $spacing-3;
+      padding: $spacing-4;
+    }
+    
+    .remove-media-btn {
+      position: absolute;
+      top: -$spacing-2;
+      right: -$spacing-2;
+      // UPDATED: Use surface-color variable for dynamic theming
+      background-color: $surface-color;
+      border-radius: 50%;
+      box-shadow: $shadow-md;
+      z-index: 10;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      padding: 0;
+      
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+      
+      &:hover {
+        // UPDATED: Use error-color with lightened background for dynamic theming
+        background-color: rgba($error-color, 0.1);
+        color: $error-color;
+      }
+    }
+  }
+  
+  .media-upload-btn {
+    margin-right: $spacing-3;
+    @include button-secondary;
+    
+    &:hover {
+      // UPDATED: Using color-mix instead of darken/lighten
+      background-color: color-mix(in srgb, var(--surface-color), black 5%);
+    }
+  }
+  
+  .hint {
+    display: block;
+    // UPDATED: Use text-tertiary variable for dynamic theming
+    color: $text-tertiary;
+    font-size: $font-size-xs;
+    margin-top: $spacing-1;
+    font-weight: $font-weight-normal;
+  }
+}
+
+.tags-section {
+  margin-top: $spacing-6;
+  
+  h4 {
+    margin-bottom: $spacing-3;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-base;
+    // UPDATED: Use text-primary variable for dynamic theming
+    color: $text-primary;
+  }
+  
+  mat-chip-listbox {
+    margin-bottom: $spacing-4;
+    
+    .mdc-evolution-chip-set__chips {
+      gap: $spacing-2;
+    }
+    
+    .mdc-evolution-chip {
+      // UPDATED: Use primary-color with lightened background for dynamic theming
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+      
+      &--selected {
+        // UPDATED: Use primary-color variable for dynamic theming
+        background-color: $primary-color;
+        color: $white;
+      }
+      
+      .mdc-evolution-chip__text-label {
+        font-size: $font-size-sm;
+      }
+    }
+    
+    input {
+      width: 150px;
+      padding: $spacing-2;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      background-color: $surface-color;
+      color: $text-primary;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+      }
+    }
+  }
+  
+  .available-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
+    
+    button {
+      min-width: auto;
+      padding: $spacing-1 $spacing-2;
+      line-height: $font-size-lg;
+      font-size: $font-size-xs;
+      border-radius: $border-radius-full;
+      border: 1px solid $border-color;
+      background-color: $surface-color;
+      color: $text-primary;
+      cursor: pointer;
+      transition: all $transition-fast;
+      
+      &:hover {
+        // UPDATED: Use primary-color with lightened background for dynamic theming
+        background-color: rgba($primary-color, 0.1);
+        border-color: $primary-color;
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: $spacing-6 $spacing-6;
+  border-top: 1px solid $border-color;
+  // UPDATED: Use surface-color variable for dynamic theming
+  background-color: $surface-color;
+  margin-bottom: 0;
+  
+  @include mobile {
+    padding: $spacing-4;
+  }
+  
+  button {
+    margin-left: $spacing-2;
+    
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+/* New styles for submit button */
+.submit-button-content {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+mat-spinner {
+  margin-right: $spacing-2;
+}
+
+/* Accessibility improvements */
+:focus-visible {
+  // UPDATED: Use primary-color variable for dynamic theming
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  button, .remove-media-btn, .available-tags button {
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .mat-mdc-form-field .mdc-text-field {
+    border: 2px solid $text-primary;
+  }
+  
+  .media-preview {
+    border: 2px solid $text-primary;
+  }
+  
+  .available-tags button {
+    border: 2px solid $text-primary;
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] {
+  mat-dialog-content {
+    background-color: $background-color;
+  }
+  
+  .mat-mdc-form-field {
+    .mdc-text-field {
+      background-color: $surface-color;
+      
+      .mdc-floating-label {
+        color: $text-secondary;
+      }
+    }
+  }
+  
+  .media-preview {
+    background-color: $surface-color;
+    border-color: $border-color;
+  }
+  
+  .available-tags button {
+    background-color: $surface-color;
+    border-color: $border-color;
+  }
+}
+
+:host {
+  background-color: $background-color !important;
+}

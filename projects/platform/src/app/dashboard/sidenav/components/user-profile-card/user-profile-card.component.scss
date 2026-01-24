@@ -48,19 +48,20 @@
         font-weight: 500;
         text-transform: capitalize;
         &.marketer {
-          // UPDATED: Use info-color with light background for marketer
           background-color: color-mix(in srgb, $info-color, white 85%);
           color: $info-color;
         }
         &.promoter {
-          // UPDATED: Use secondary color with light background for promoter
           background-color: color-mix(in srgb, $secondary-color, white 85%);
           color: $secondary-color;
+        }
+        &.marketing_rep {
+          background-color: color-mix(in srgb, $primary-color, white 95%);
+          color: $primary-color;
         }
       }
       .verified-badge {
         font-size: 16px;
-        // UPDATED: Use info-color for verified badge
         color: $info-color;
       }
     }

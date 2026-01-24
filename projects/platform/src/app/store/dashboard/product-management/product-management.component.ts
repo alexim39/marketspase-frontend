@@ -237,41 +237,41 @@ export class ProductManagementComponent implements OnInit {
   }
 
   async toggleProductStatus(product: Product): Promise<void> {
-    const action = product.isActive ? 'deactivate' : 'activate';
-    const result = await this.dialogService.confirmAction(
-      `${action === 'deactivate' ? 'Deactivate' : 'Activate'} Product`,
-      `Are you sure you want to ${action} "${product.name}"?`,
-      action === 'deactivate' ? 'Deactivate' : 'Activate'
-    ).pipe(take(1)).toPromise();
+    // const action = product.isActive ? 'deactivate' : 'activate';
+    // const result = await this.dialogService.confirmAction(
+    //   `${action === 'deactivate' ? 'Deactivate' : 'Activate'} Product`,
+    //   `Are you sure you want to ${action} "${product.name}"?`,
+    //   action === 'deactivate' ? 'Deactivate' : 'Activate'
+    // ).pipe(take(1)).toPromise();
 
-    if (result) {
-      try {
-        this.loading.set(true);
-        this.storeService.updateProduct(
-          this.store()._id!,
-          product._id!,
-          { isActive: !product.isActive }
-        ).subscribe({
-          next: () => {
-            this.productUpdated.emit();
-            this.snackBar.open(
-              `Product ${!product.isActive ? 'activated' : 'deactivated'} successfully`,
-              'OK',
-              { duration: 3000, panelClass: ['success-snackbar'] }
-            );
-          },
-          error: (error) => {
-            console.error('Failed to update product:', error);
-            this.snackBar.open('Failed to update product', 'OK', { 
-              duration: 5000, 
-              panelClass: ['error-snackbar'] 
-            });
-          }
-        });
-      } finally {
-        this.loading.set(false);
-      }
-    }
+    // if (result) {
+    //   try {
+    //     this.loading.set(true);
+    //     this.storeService.updateProduct(
+    //       this.store()._id!,
+    //       product._id!,
+    //       { isActive: !product.isActive }
+    //     ).subscribe({
+    //       next: () => {
+    //         this.productUpdated.emit();
+    //         this.snackBar.open(
+    //           `Product ${!product.isActive ? 'activated' : 'deactivated'} successfully`,
+    //           'OK',
+    //           { duration: 3000, panelClass: ['success-snackbar'] }
+    //         );
+    //       },
+    //       error: (error) => {
+    //         console.error('Failed to update product:', error);
+    //         this.snackBar.open('Failed to update product', 'OK', { 
+    //           duration: 5000, 
+    //           panelClass: ['error-snackbar'] 
+    //         });
+    //       }
+    //     });
+    //   } finally {
+    //     this.loading.set(false);
+    //   }
+    // }
   }
 
   async deleteProduct(product: Product): Promise<void> {
@@ -285,27 +285,27 @@ export class ProductManagementComponent implements OnInit {
   }
 
   private async performDelete(product: Product): Promise<void> {
-    try {
-      this.loading.set(true);
-      this.storeService.deleteProduct(this.store()._id!, product._id!).subscribe({
-        next: () => {
-          this.productUpdated.emit();
-          this.snackBar.open('Product deleted successfully', 'OK', { 
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-        },
-        error: (error) => {
-          console.error('Failed to delete product:', error);
-          this.snackBar.open('Failed to delete product', 'OK', { 
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-    } finally {
-      this.loading.set(false);
-    }
+    // try {
+    //   this.loading.set(true);
+    //   this.storeService.deleteProduct(this.store()._id!, product._id!).subscribe({
+    //     next: () => {
+    //       this.productUpdated.emit();
+    //       this.snackBar.open('Product deleted successfully', 'OK', { 
+    //         duration: 3000,
+    //         panelClass: ['success-snackbar']
+    //       });
+    //     },
+    //     error: (error) => {
+    //       console.error('Failed to delete product:', error);
+    //       this.snackBar.open('Failed to delete product', 'OK', { 
+    //         duration: 5000,
+    //         panelClass: ['error-snackbar']
+    //       });
+    //     }
+    //   });
+    // } finally {
+    //   this.loading.set(false);
+    // }
   }
 
   duplicateProduct(product: Product): void {

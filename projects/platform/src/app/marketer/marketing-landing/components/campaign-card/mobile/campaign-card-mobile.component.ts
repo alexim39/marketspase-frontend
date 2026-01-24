@@ -77,8 +77,8 @@ export class CampaignCardMobileComponent {
     return totalViews;
   }
 
-  formatCurrency(amount: number): string {
-    if (!amount || isNaN(amount)) return '₦0';
-    return `₦${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
+ formatCurrency(amount: number, currency: string): string {
+    if (!amount || isNaN(amount)) return `${currency}0`;
+    return `${currency}${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
   }
 }

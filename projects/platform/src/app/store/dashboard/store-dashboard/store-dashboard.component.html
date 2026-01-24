@@ -56,6 +56,16 @@
             Auto-refresh {{ autoRefresh() ? 'On' : 'Off' }}
           </button>
 
+          <button mat-stroked-button (click)="openStoreManager()" [color]="autoRefresh() ? 'primary' : ''">
+            <mat-icon>store</mat-icon>
+            Store Manager
+          </button>
+
+          <button mat-stroked-button (click)="viewStoreProducts(currentStore()?._id || '')" [color]="autoRefresh() ? 'primary' : ''">
+            <mat-icon>store</mat-icon>
+            Store Products
+          </button>
+
           <div class="view-controls">
             <button mat-icon-button (click)="switchViewMode('grid')"
                     [color]="viewMode() === 'grid' ? 'primary' : ''">
@@ -66,6 +76,7 @@
               <mat-icon>view_list</mat-icon>
             </button>
           </div>
+          
         </div>
 
         <div class="control-group">
@@ -78,12 +89,12 @@
 
           <mat-form-field appearance="outline" class="category-filter">
             <mat-label>Category</mat-label>
-            <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
+            <!-- <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
               <mat-option value="all">All Categories</mat-option>
-              @for (category of getUniqueCategories(); track category) {
+             @for (category of uniqueCategories(); track category) {
                 <mat-option [value]="category">{{ category }}</mat-option>
               }
-            </mat-select>
+            </mat-select> -->
           </mat-form-field>
         </div>
       </div>
@@ -118,8 +129,9 @@
         <!-- Overview Tab -->
         @if (activeTab() === 'overview') {
           <div class="overview-tab">
+
             <!-- Enhanced Stats Grid -->
-            <div class="stats-grid">
+           <!--  <div class="stats-grid">
               @for (stat of dashboardStats(); track trackByStatId($index, stat)) {
                 <mat-card class="stat-card" [class]="stat.trend + '-trend'">
                   <mat-card-content>
@@ -163,7 +175,7 @@
                   </mat-card-content>
                 </mat-card>
               }
-            </div>
+            </div> -->
 
             <!-- Two-column Layout for Alerts and Performance -->
             <div class="overview-content">
@@ -171,7 +183,7 @@
               <div class="overview-left">
                 <!-- Enhanced Alerts Section -->
                 <div class="alerts-section">
-                  @if (lowStockProducts().length > 0) {
+                  <!-- @if (lowStockProducts().length > 0) {
                     <mat-card class="alert-card critical">
                       <mat-card-content>
                         <div class="alert-content">
@@ -198,10 +210,10 @@
                         </div>
                       </mat-card-content>
                     </mat-card>
-                  }
+                  } -->
 
                   <!-- Performance Metrics -->
-                  <mat-card class="performance-card">
+                  <!-- <mat-card class="performance-card">
                     <mat-card-header>
                       <mat-card-title>
                         <mat-icon>trending_up</mat-icon>
@@ -224,14 +236,14 @@
                         }
                       </div>
                     </mat-card-content>
-                  </mat-card>
+                  </mat-card> -->
                 </div>
               </div>
 
               <!-- Right Column: Quick Actions & Insights -->
               <div class="overview-right">
                 <!-- Enhanced Quick Actions -->
-                <mat-card class="quick-actions-card">
+                <!-- <mat-card class="quick-actions-card">
                   <mat-card-header>
                     <mat-card-title>
                       <mat-icon>flash_on</mat-icon>
@@ -255,10 +267,10 @@
                       }
                     </div>
                   </mat-card-content>
-                </mat-card>
+                </mat-card> -->
 
                 <!-- Store Insights -->
-                <mat-card class="insights-card">
+                <!-- <mat-card class="insights-card">
                   <mat-card-header>
                     <mat-card-title>
                       <mat-icon>insights</mat-icon>
@@ -290,7 +302,7 @@
                       </div>
                     </div>
                   </mat-card-content>
-                </mat-card>
+                </mat-card> -->
               </div>
             </div>
           </div>
@@ -298,33 +310,27 @@
 
         <!-- Other Tabs -->
         @if (activeTab() === 'products') {
+          
+          <!-- In your parent template -->
           <!-- <app-product-management 
             [store]="currentStore()!"
             [products]="filteredProducts()"
-            [viewMode]="viewMode()"
-            (productUpdated)="refreshStoreData()">
-          </app-product-management> -->
-
-          <!-- In your parent template -->
-          <app-product-management 
-            [store]="currentStore()!"
-            [products]="filteredProducts()"
             (productUpdated)="refreshStoreData()"
-          />
+          /> -->
         }
 
         @if (activeTab() === 'analytics') {
-          <app-store-analytics 
+         <!--  <app-store-analytics 
             [store]="currentStore()!"
             [realTimeUpdates]="realTimeUpdates()">
-          </app-store-analytics>
+          </app-store-analytics> -->
         }
 
         @if (activeTab() === 'promotions') {
-          <app-store-promotions 
+         <!--  <app-store-promotions 
             [store]="currentStore()!"
             [products]="products()">
-          </app-store-promotions>
+          </app-store-promotions> -->
         }
 
         @if (activeTab() === 'settings') {

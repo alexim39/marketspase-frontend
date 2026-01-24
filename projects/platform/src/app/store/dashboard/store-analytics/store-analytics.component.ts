@@ -192,10 +192,10 @@ export class StoreAnalyticsComponent implements OnInit, OnDestroy {
   }
 
   refreshAnalytics(): void {
-    const store = this.store();
-    if (store && store._id) {
-      this.storeService.getStoreAnalytics(store._id).subscribe();
-    }
+    // const store = this.store();
+    // if (store && store._id) {
+    //   this.storeService.getStoreAnalytics(store._id).subscribe();
+    // }
   }
 
   onTimeframeChange(timeframe: '7d' | '30d' | '90d' | '1y'): void {

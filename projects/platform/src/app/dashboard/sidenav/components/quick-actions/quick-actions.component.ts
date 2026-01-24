@@ -41,13 +41,13 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     }
     <div class="quick-actions">
       @if (user()!.role === 'promoter') {
-        <button mat-stroked-button class="action-btn switch-btn big" (click)="switchUser.emit(user()!.role || 'promoter'); mobileAction.emit()">
+        <button mat-stroked-button class="action-btn switch-btn big" (click)="switchUser.emit('marketer'); mobileAction.emit()">
           <mat-icon>swap_horiz</mat-icon>
           Switch to Marketer
         </button>
       }
       @if (user()!.role === 'marketer') {
-        <button mat-stroked-button class="action-btn big" (click)="switchUser.emit(user()!.role || 'marketer'); mobileAction.emit()">
+        <button mat-stroked-button class="action-btn big" (click)="switchUser.emit('promoter'); mobileAction.emit()">
           <mat-icon>swap_horiz</mat-icon>
           Switch to Promoter
         </button>

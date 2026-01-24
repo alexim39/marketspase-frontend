@@ -108,6 +108,15 @@
     //color: #7b1fa2;
 }
 
+.action-btn {
+    display: flex;
+    align-items:flex-end;
+    justify-content: flex-end;
+    .marketing-rep {
+        //background-color: #a21f53;
+    }
+}
+
 .status-chip {
     font-size: 12px;
     font-weight: 500;

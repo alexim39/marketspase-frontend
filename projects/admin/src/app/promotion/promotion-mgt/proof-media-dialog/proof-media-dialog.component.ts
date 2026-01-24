@@ -65,6 +65,9 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
   readonly minZoom = 0.5;
   readonly maxZoom = 5;
 
+  public minViewsPerPromotion: number | null = null;
+  public maxViewsPerPromotion: number | null = null;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {
       promotion: Promotion;
@@ -344,6 +347,7 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
     this.campaignService.getAppCampaigns().subscribe({
       next: (response) => {
         if (response.success) {
+        //console.log('Setting campaigns from dialog data', response.data);
           this.campaigns.set(response.data);
         }
       },
@@ -358,6 +362,47 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
         : this.promotion.campaign._id)
     );
     return campaign?.title || 'Unknown Campaign';
+  }
+
+ getCampaignTier(): string {
+    const campaignId = typeof this.promotion.campaign === 'string'
+      ? this.promotion.campaign
+      : this.promotion.campaign._id?.toString();
+
+    const campaign = this.campaigns().find(c =>
+      c._id.toString() === campaignId
+    );
+
+    return campaign?.payoutTierId || 'Unknown Tier';
+  }
+
+ confirmUserViews(views: number): string {
+    // Safely extract the campaign ID (handles both populated object and string reference)
+    const campaignId = typeof this.promotion.campaign === 'string'
+      ? this.promotion.campaign
+      : this.promotion.campaign?._id?.toString();
+
+    if (!campaignId) {
+      return 'Invalid campaign ID'; // Invalid promotion reference
+    }
+
+    // Find the matching campaign from the cached/loaded campaigns
+    const campaign = this.campaigns().find(
+      c => c._id.toString() === campaignId
+    );
+
+    if (!campaign) {
+      return 'Campaign not found'; // Campaign not found
+    }
+
+    this.minViewsPerPromotion = campaign?.minViewsPerPromotion ?? 0;
+    this.maxViewsPerPromotion = campaign?.maxViewsPerPromotion ?? null;
+
+    // Only enforce the minimum views requirement
+    // Exceeding maxViewsPerPromotion (if set) is allowed and considered valid
+    const isValid = views >= this.minViewsPerPromotion;
+
+    return isValid ? 'Valid views' : 'Invalid views';
   }
 
   getPromoterName(): string {

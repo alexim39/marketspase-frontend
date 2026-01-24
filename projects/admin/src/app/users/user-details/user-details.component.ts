@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, DestroyRef, effect, linkedSignal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +19,8 @@ import { MatTableModule } from '@angular/material/table';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { EditDisplayNameDialogComponent } from '../edit-display-name-dialog/edit-display-name-dialog.component';
-
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-user-details',
@@ -41,7 +42,10 @@ import { EditDisplayNameDialogComponent } from '../edit-display-name-dialog/edit
     MatTooltipModule,
     MatDividerModule,
     MatListModule,
-    MatTableModule 
+    MatTableModule,
+    MatSlideToggleModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   templateUrl: './user-details.component.html',
   styleUrls: ['./user-details.component.scss']
@@ -63,11 +67,25 @@ export class UserDetailsComponent implements OnInit {
   isUserActive = computed(() => this.user()?.isActive && !this.user()?.isDeleted);
   public userIsDeleted = computed(() => !!this.user()?.isDeleted);
 
-  // Define the columns for the Angular Material table
-  //public displayedColumns: string[] = ['date', 'description', 'amount', 'status', 'type'];
+  isChecked = linkedSignal({
+    source: this.user,
+    computation: (user) => !!user?.isMarketingRep
+  });
 
   // Add 'wallet' to the displayed columns
-public displayedColumns: string[] = ['date', 'description', 'amount', 'status', 'type', 'wallet'];
+  public displayedColumns: string[] = ['date', 'description', 'amount', 'status', 'type', 'wallet'];
+
+  constructor() {
+    effect(() => {
+      // Read the user signal
+      const currentUser = this.user();
+      //console.log('current user ',currentUser)
+      // Update the toggle state based on the user's current status
+      if (currentUser) {
+        this.isChecked.set(!!currentUser.isMarketingRep);
+      }
+    }, { allowSignalWrites: true }); 
+  }
 
   // A computed signal for the transaction data source
  public dataSource = computed(() => {
@@ -244,5 +262,27 @@ payoutAccounts = computed(() => {
     if (!addr) return '—';
     return [addr.street, addr.city, addr.state, addr.country].filter(Boolean).join(', ');
   }
+
+  onMarketingRepChange(userId: string) {
+    // Access the current value of the signal
+    const newValue = this.isChecked(); 
+    
+    // Call your backend service
+    this.userService.updateMarketingStatus(newValue, userId).subscribe({
+      // Removed extra parentheses from parameters
+      next: (response: any) => {
+        if (response.success) {
+          this.showSnackbar(response.message, 'success');
+        }
+      },
+      error: (error: Error) => {
+        console.error('Update failed', error);
+        // Optional: Rollback the toggle if the backend call fails
+        this.isChecked.set(!newValue);
+        this.showSnackbar('Failed to set user as marketing rep', 'error');
+      }
+    });
+  }
+
 
 }

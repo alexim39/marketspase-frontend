@@ -158,7 +158,7 @@ export class ThemeSettingsComponent {
     this.setupThemeListeners();
 
     effect(() => {
-      console.log('User preferences changed, updating theme settings...', this.user());
+      //console.log('User preferences changed, updating theme settings...', this.user());
       const userPrefs = this.user()?.preferences;
       if (userPrefs?.theme) {
         this.isDarkMode.set(userPrefs.theme.darkMode || false);

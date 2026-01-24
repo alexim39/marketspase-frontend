@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef, } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -13,6 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
@@ -28,6 +29,16 @@ import { QuickActionsComponent } from './components/quick-actions/quick-actions.
 import { CartDialogComponent } from './components/cart-dialog/cart-dialog.component';
 import { NotificationBellComponent } from '../notification/notification.component';
 
+export interface NavigationItem {
+  icon: string;
+  label: string;
+  route?: string;
+  modalAction?: 'fundWallet' | string; // Add modal action support
+  children?: NavigationItem[];
+  expanded?: boolean;
+  badge?: number;
+  badgeColor?: 'primary' | 'accent' | 'warn';
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -48,11 +59,11 @@ import { NotificationBellComponent } from '../notification/notification.componen
     MatDialogModule,
     MatTooltipModule,
     MatProgressBarModule,
-    CurrencyPipe,    
+    MatExpansionModule,
+    CurrencyPipe,
     UserProfileCardComponent,
     SidenavNavigationComponent,
     QuickActionsComponent,
-    //NotificationsMenuComponent,
     CartDialogComponent,
     NotificationBellComponent
   ],
@@ -72,8 +83,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('notificationMenu') notificationMenu!: TemplateRef<any>;
   @ViewChild('cartDialogTemplate') cartDialogTemplate!: TemplateRef<any>;
 
-
-
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   activeTab: 'cart' | 'quick-actions' = 'cart';
   private cartDialogRef?: MatDialogRef<any>;
@@ -82,76 +91,660 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pendingCampaignsCount: number | undefined = 0;
   pendingPromotionsCount: number | undefined = 0;
 
-/*   notifications = signal<NotificationItem[]>([
-    {
-      id: '1',
-      title: 'Campaign Approved',
-      message: 'Your campaign "Summer Fashion" has been approved and is now live',
-      type: 'success',
-      timestamp: new Date(),
-      read: false
-    },
-    {
-      id: '2',
-      title: 'Proof Required',
-      message: 'Please upload proof for your campaign participation',
-      type: 'warning',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      read: false
-    }
-  ]); */
-
   isMobile = computed(() => {
     return this.deviceService.deviceState().isMobile;
   });
 
- /*  unreadNotifications = computed(() => {
-    return this.notifications().filter(n => !n.read).length;
-  }); */
+navigationItems: Signal<NavigationItem[]> = computed(() => {
+  //console.log('user ',this.user())
+  const userRole = this.user()?.role;
+  const pendingCampaigns = this.pendingCampaignsCount || 0;
+  const pendingPromotions = this.pendingPromotionsCount || 0;
+  const activeCampaigns = this.activeCampaignsCount || 0;
 
-  navigationItems = computed(() => {
-    const baseItems = [
-      { icon: 'dashboard', label: 'Dashboard', route: '/dashboard' },
+  if (userRole === 'marketer') {
+    return [
+      {
+        icon: 'dashboard',
+        label: 'Dashboard',
+        route: '/dashboard',
+        expanded: false
+      },
+      {
+        icon: 'campaign',
+        label: 'Campaigns',
+        badge: pendingCampaigns,
+        badgeColor: 'warn',
+        expanded: false,
+        children: [
+          {
+            icon: 'list_alt',
+            label: 'My Campaigns',
+            route: '/dashboard/campaigns'
+
+            // icon: 'list_alt',
+            // label: 'All Campaigns',
+            // route: '/dashboard/campaigns',
+            // expanded: false,
+            // children: [
+            //   {
+            //     icon: 'play_circle',
+            //     label: 'Active Campaigns',
+            //     route: '/dashboard/campaigns?status=active',
+            //     badge: activeCampaigns,
+            //     badgeColor: 'primary'
+            //   },
+            //   {
+            //     icon: 'pending',
+            //     label: 'Pending Campaigns',
+            //     route: '/dashboard/campaigns?status=pending',
+            //     badge: pendingCampaigns,
+            //     badgeColor: 'warn'
+            //   },
+            //   {
+            //     icon: 'check_circle',
+            //     label: 'Completed Campaigns',
+            //     route: '/dashboard/campaigns?status=completed'
+            //   },
+            //   {
+            //     icon: 'cancel',
+            //     label: 'Rejected Campaigns',
+            //     route: '/dashboard/campaigns?status=rejected'
+            //   }
+            // ]
+          },
+          
+          {
+            icon: 'add_circle',
+            label: 'Create Campaign',
+            route: '/dashboard/campaigns/create'
+          },
+
+          // {
+          //   icon: 'insights',
+          //   label: 'Campaign Analytics',
+          //   route: '/dashboard/campaigns/analytics'
+          // },
+
+          // {
+          //   icon: 'groups',
+          //   label: 'Promoter Management',
+          //   expanded: false,
+          //   children: [
+          //     {
+          //       icon: 'person_search',
+          //       label: 'Find Promoters',
+          //       route: '/dashboard/campaigns/promoters'
+          //     },
+          //     {
+          //       icon: 'history',
+          //       label: 'Application History',
+          //       route: '/dashboard/campaigns/applications'
+          //     },
+          //     {
+          //       icon: 'rate_review',
+          //       label: 'Review Promoters',
+          //       route: '/dashboard/campaigns/reviews'
+          //     }
+          //   ]
+          // }
+
+        ]
+      },
+
+      {
+        icon: 'storefront',
+        label: 'Storefronts',
+        expanded: false,
+        children: [
+          {
+            icon: 'store',
+            label: 'My Stores',
+            route: '/dashboard/stores'
+          },
+          {
+            icon: 'add_business',
+            label: 'Add Store',
+            route: '/dashboard/stores/create'
+          },
+          {
+            icon: 'analytics',
+            label: 'Store Analytics',
+            route: '/dashboard/stores/analytics'
+          },
+          {
+            icon: 'inventory',
+            label: 'Product Management',
+            expanded: false,
+            children: [
+              {
+                icon: 'inventory_2',
+                label: 'All Products',
+                route: '/dashboard/stores/products'
+              },
+              {
+                icon: 'add_shopping_cart',
+                label: 'Add Product',
+                route: '/dashboard/stores/products/create'
+              },
+              {
+                icon: 'category',
+                label: 'Categories',
+                route: '/dashboard/stores/categories'
+              }
+            ]
+          }
+        ]
+      },
+
+      {
+        icon: 'currency_exchange',
+        label: 'Transactions',
+        expanded: false,
+        children: [
+          {
+            icon: 'payments',
+            label: 'Payment History',
+            route: '/dashboard/transactions'
+          },
+
+          {
+            icon: 'savings',
+            label: 'Wallet Management',
+            expanded: false,
+            children: [
+
+              // {
+              //   icon: 'account_balance_wallet',
+              //   label: 'Wallet Balance',
+              //   route: '/dashboard/wallet'
+              // },
+
+              {
+                icon: 'add',
+                label: 'Fund Wallet',
+                // route: '/dashboard/wallet/fund'
+                modalAction: 'fundWallet'
+              },
+
+              // {
+              //   icon: 'money_off',
+              //   label: 'Withdraw Funds',
+              //   route: '/dashboard/wallet/withdraw'
+              // },
+
+              // {
+              //   icon: 'receipt_long',
+              //   label: 'Wallet Statement',
+              //   route: '/dashboard/wallet/statement'
+              // }
+
+            ]
+          },
+
+          // {
+          //   icon: 'request_quote',
+          //   label: 'Invoices & Receipts',
+          //   route: '/dashboard/transactions/invoices'
+          // },
+
+          // {
+          //   icon: 'price_check',
+          //   label: 'Commission Reports',
+          //   route: '/dashboard/transactions/commissions'
+          // }
+        ]
+      },
+
+      {
+        icon: 'forum',
+        label: 'Community',
+        expanded: false,
+        children: [
+          {
+            icon: 'chat',
+            label: 'Forum',
+            route: '/dashboard/forum'
+          },
+
+          // {
+          //   icon: 'groups',
+          //   label: 'Network',
+          //   route: '/dashboard/community/network'
+          // },
+
+          // {
+          //   icon: 'trending_up',
+          //   label: 'Trending',
+          //   route: '/dashboard/community/trending'
+          // },
+
+          // {
+          //   icon: 'support_agent',
+          //   label: 'Support',
+          //   route: '/dashboard/settings/share'
+          // }
+        ]
+      },
+      
+      {
+        icon: 'settings',
+        label: 'Settings',
+        expanded: false,
+        children: [
+          {
+            icon: 'person',
+            label: 'Profile Settings',
+             route: '/dashboard/settings/account'
+            // route: '/dashboard/settings/profile'
+          },
+
+          {
+            icon: 'notifications',
+            label: 'Notifications',
+            route: '/dashboard/settings/system'
+            // route: '/dashboard/settings/notifications'
+          },
+
+          // {
+          //   icon: 'security',
+          //   label: 'Security',
+          //   expanded: false,
+          //   children: [
+          //     {
+          //       icon: 'password',
+          //       label: 'Change Password',
+          //       route: '/dashboard/settings/security/password'
+          //     },
+          //     {
+          //       icon: 'vpn_key',
+          //       label: 'Two-Factor Auth',
+          //       route: '/dashboard/settings/security/2fa'
+          //     },
+          //     {
+          //       icon: 'devices',
+          //       label: 'Device Management',
+          //       route: '/dashboard/settings/security/devices'
+          //     }
+          //   ]
+          // },
+
+          // {
+          //   icon: 'credit_card',
+          //   label: 'Payment Methods',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+          // {
+          //   icon: 'help',
+          //   label: 'Support & Help',
+          //    route: '/dashboard/settings/share'
+          //   // route: '/dashboard/settings/support'
+          // }
+        ]
+      },
+
+      {
+        icon: 'help',
+        label: 'Support',
+        expanded: false,
+        children: [
+         
+          // {
+          //   icon: 'monetization_on',
+          //   label: 'Payment Settings',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+         
+
+          {
+            icon: 'support_agent',
+            label: 'Support',
+            route: '/dashboard/settings/share'
+          },
+
+          {
+            icon: 'help',
+            label: 'Get Started',
+            route: '/dashboard/get-started'
+          }
+
+        ]
+      }
     ];
 
-    if (this.user()?.role === 'marketer') {
-      return [
-        ...baseItems,
-        { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
-        //{ icon: 'add_business', label: 'Storefronts', route: './stores' },
-        { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
-        { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
-        { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
-        { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
-      ];
-    } else if (this.user()?.role === 'promoter') {
-      return [
-        ...baseItems,
-        { icon: 'work', label: 'Promotions', route: './campaigns' },
-        { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
-        { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
-        { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
-        { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
-      ];
-    } else if (this.user()?.role === 'marketing_manager') {
-      return [
-        // ...baseItems,
-        // { icon: 'group', label: 'My Marketers', route: '/dashboard/marketers' },
-        // { icon: 'campaign', label: 'Campaigns', route: './campaigns' },
-        // { icon: 'insights', label: 'Commissions', route: '/dashboard/commissions' },
-        // { icon: 'currency_exchange', label: 'Transactions', route: '/dashboard/transactions' },
-        // { icon: 'forum', label: 'Forum', route: '/dashboard/forum' },
-        // { icon: 'settings', label: 'Settings', route: '/dashboard/settings' },
-        // { icon: 'help', label: 'Support', route: '/dashboard/settings/share' }
-      ];
+    
+  } else if (userRole === 'promoter') {
+    return [
 
-    } else {
-      // Admin or other roles
-      return [
-        ...baseItems
-      ];
-    }
-  });
+      {
+        icon: 'dashboard',
+        label: 'Dashboard',
+        route: '/dashboard',
+        expanded: false
+      },
+
+      {
+        icon: 'work',
+        label: 'Promotions',
+        badge: pendingPromotions,
+        badgeColor: 'warn',
+        expanded: false,
+        children: [
+          {
+            icon: 'search',
+            label: 'Find Campaigns',
+            route: '/dashboard/campaigns'
+          },
+
+          {
+            icon: 'list_alt',
+            label: 'My Promotions',
+            route: '/dashboard/campaigns/promotions'
+          },
+
+          // {
+          //   icon: 'list_alt',
+          //   label: 'My Promotions',
+          //   expanded: false,
+          //   children: [
+          //     {
+          //       icon: 'pending',
+          //       label: 'Pending Promotions',
+          //       route: '/dashboard/campaigns/promotions?status=pending',
+          //       badge: pendingPromotions,
+          //       badgeColor: 'warn'
+          //     },
+          //     {
+          //       icon: 'play_circle',
+          //       label: 'Active Promotions',
+          //       route: '/dashboard/campaigns/promotions?status=active'
+          //     },
+          //     {
+          //       icon: 'check_circle',
+          //       label: 'Completed Promotions',
+          //       route: '/dashboard/campaigns/promotions?status=completed'
+          //     },
+          //     {
+          //       icon: 'cancel',
+          //       label: 'Rejected Promotions',
+          //       route: '/dashboard/campaigns/promotions?status=rejected'
+          //     }
+          //   ]
+          // },
+
+          // {
+          //   icon: 'insights',
+          //   label: 'Performance Analytics',
+          //   route: '/dashboard/campaigns/analytics'
+          // },
+
+          // {
+          //   icon: 'description',
+          //   label: 'Proof Submissions',
+          //   route: '/dashboard/campaigns/proofs'
+          // }
+
+        ]
+      },
+
+      {
+        icon: 'currency_exchange',
+        label: 'Earnings',
+        expanded: false,
+        children: [
+
+          // {
+          //   icon: 'account_balance_wallet',
+          //   label: 'Wallet',
+          //   route: '/dashboard/wallet'
+          // },
+
+          {
+            icon: 'payments',
+            label: 'Transactions',
+            route: '/dashboard/transactions'
+          },
+
+          {
+            icon: 'savings',
+            label: 'Withdraw Funds',
+            route: '/dashboard/transactions/withdrawal'
+            // route: '/dashboard/wallet/withdraw'
+          },
+
+          // {
+          //   icon: 'analytics',
+          //   label: 'Earnings Report',
+          //   route: '/dashboard/earnings/report'
+          // }
+
+        ]
+      },
+
+      {
+        icon: 'forum',
+        label: 'Community',
+        expanded: false,
+        children: [
+          {
+            icon: 'chat',
+            label: 'Forum',
+            route: '/dashboard/forum'
+          },
+
+          // {
+          //   icon: 'groups',
+          //   label: 'Network',
+          //   route: '/dashboard/community/network'
+          // },
+
+          // {
+          //   icon: 'trending_up',
+          //   label: 'Trending',
+          //   route: '/dashboard/community/trending'
+          // },
+
+          // {
+          //   icon: 'support_agent',
+          //   label: 'Support',
+          //   route: '/dashboard/settings/share'
+          // }
+        ]
+      },
+
+      {
+        icon: 'settings',
+        label: 'Settings',
+        expanded: false,
+        children: [
+          {
+            icon: 'person',
+            label: 'Profile',
+            route: '/dashboard/settings/account'
+            // route: '/dashboard/settings/profile'
+          },
+
+          {
+            icon: 'notifications',
+            label: 'Notifications',
+            route: '/dashboard/settings/system'
+            // route: '/dashboard/settings/notifications'
+          },
+
+          // {
+          //   icon: 'monetization_on',
+          //   label: 'Payment Settings',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+          // {
+          //   icon: 'help',
+          //   label: 'Help Center',
+          //   route: '/dashboard/settings/help'
+          // }
+
+        ]
+      },
+
+      {
+        icon: 'help',
+        label: 'Support',
+        expanded: false,
+        children: [
+         
+          // {
+          //   icon: 'monetization_on',
+          //   label: 'Payment Settings',
+          //   route: '/dashboard/settings/payments'
+          // },
+
+         
+
+          {
+            icon: 'support_agent',
+            label: 'Support',
+            route: '/dashboard/settings/share'
+          },
+          
+           
+          // {
+          //   icon: 'help',
+          //   label: 'Get Started',
+          //   route: '/dashboard/get-started'
+          // }
+
+          {
+            icon: 'help',
+            label: 'Get Started',
+            expanded: false,
+            children: [
+              {
+                icon: 'directions_bus',
+                label: 'Onboarding',
+                route: '/dashboard/get-started/onboarding',
+              },
+              // {
+              //   icon: 'departure_board',
+              //   label: 'Storefront Guide',
+              //   route: '/dashboard/get-started/storefront-guide'
+              // },
+            ]
+          },
+
+        ]
+      }
+
+    ];
+
+
+  } else if (userRole === 'marketing_rep') {
+    return [
+      {
+        icon: 'dashboard',
+        label: 'Dashboard',
+        route: '/dashboard',
+        expanded: false
+      },
+      {
+        icon: 'group',
+        label: 'Team Management',
+        expanded: false,
+        children: [
+          {
+            icon: 'people',
+            label: 'My Marketers',
+            route: '/dashboard/marketers'
+          },
+          {
+            icon: 'person_add',
+            label: 'Add Marketer',
+            route: '/dashboard/marketers/add'
+          },
+          {
+            icon: 'assessment',
+            label: 'Performance Reports',
+            route: '/dashboard/marketers/reports'
+          },
+          {
+            icon: 'payments',
+            label: 'Commission Management',
+            expanded: false,
+            children: [
+              {
+                icon: 'calculate',
+                label: 'Calculate Commissions',
+                route: '/dashboard/commissions/calculate'
+              },
+              {
+                icon: 'receipt_long',
+                label: 'Commission Reports',
+                route: '/dashboard/commissions/reports'
+              },
+              {
+                icon: 'payments',
+                label: 'Payouts',
+                route: '/dashboard/commissions/payouts'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        icon: 'campaign',
+        label: 'Campaigns Overview',
+        expanded: false,
+        children: [
+          {
+            icon: 'visibility',
+            label: 'View All Campaigns',
+            route: '/dashboard/campaigns/all'
+          },
+          {
+            icon: 'approval',
+            label: 'Campaign Approvals',
+            route: '/dashboard/campaigns/approvals'
+          },
+          {
+            icon: 'analytics',
+            label: 'Performance Dashboard',
+            route: '/dashboard/analytics/campaigns'
+          }
+        ]
+      },
+      {
+        icon: 'settings',
+        label: 'Settings',
+        expanded: false,
+        children: [
+          {
+            icon: 'admin_panel_settings',
+            label: 'Admin Settings',
+            route: '/dashboard/settings/admin'
+          },
+          {
+            icon: 'tune',
+            label: 'Platform Configuration',
+            route: '/dashboard/settings/platform'
+          }
+        ]
+      }
+    ];
+
+
+  } else {
+    // Admin or other roles
+    return [
+      {
+        icon: 'dashboard',
+        label: 'Dashboard',
+        route: '/dashboard',
+        expanded: false
+      }
+    ];
+  }
+});
 
   public ngOnInit(): void {
     this.calculateActiveCampaigns();
@@ -193,60 +786,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard/transactions/withdrawal']);
   }
 
- public fundWallet(): void {
- 
-
-  if (this.deviceService.deviceState().isMobile) {
-    // const dataToPass = {
-    //   amount: 100, // Example data
-    //   currency: 'USD'
-    // };
-
-    this.dialog.open(WalletFundingComponent, {
-      data: this.user(), // Pass the data here
-      panelClass: 'custom-dialog-container',
-      height: '650px', // Set your desired height (e.g., '400px', '50vh', 'auto')
-    });
-
-  } else {
-    // const dataToPass = {
-    //   amount: 100, // Example data
-    //   currency: 'USD'
-    // };
-
-    this.dialog.open(WalletFundingComponent, {
-      data: this.user(), // Pass the data here
-      panelClass: 'custom-dialog-container',
-    });
+  public fundWallet(): void {
+    if (this.deviceService.deviceState().isMobile) {
+      this.dialog.open(WalletFundingComponent, {
+        data: this.user(),
+        panelClass: 'custom-dialog-container',
+        height: '650px',
+        disableClose: true
+      });
+    } else {
+      this.dialog.open(WalletFundingComponent, {
+        data: this.user(),
+        panelClass: 'custom-dialog-container',
+        disableClose: true
+      });
+    }
   }
-
- 
-}
 
   public openWallet(): void {
     this.router.navigate(['/dashboard/transactions']);
   }
-
- /*  public markAsRead(notificationId: string): void {
-    this.notifications.update(notifications =>
-      notifications.map(n =>
-        n.id === notificationId ? { ...n, read: true } : n
-      )
-    );
-  } */
-
- /*  public markAllAsRead(): void {
-    this.notifications.update(notifications =>
-      notifications.map(n => ({ ...n, read: true }))
-    );
-  } */
 
   public viewAllNotifications(): void {
     this.router.navigate(['/notifications']);
   }
 
   public logout(): void {
-      this.authService.signOut()
+    this.authService.signOut()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -256,7 +822,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           console.error('Sign-out failed:', error.error.message);
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
-      })
+      });
   }
 
   public closeCartDialog(): void {
@@ -281,16 +847,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   public switchUser(role: string): void {
+    //console.log('the role ',role)
     const roleObject = {
       role,
       userId: this.user()?._id
-    }
-      this.dashboardService.switchUser(roleObject)
+    };
+    this.dashboardService.switchUser(roleObject)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            window.location.reload()
+            window.location.reload();
           }
         },
         error: (error: HttpErrorResponse) => {
@@ -298,9 +865,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
           if (error.error && error.error.message) {
             errorMessage = error.error.message;
           }
-          this.snackBar.open(errorMessage, 'Ok',{duration: 3000});
+          this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
         }
-      })
+      });
   }
 
   calculateActiveCampaigns(): void {
@@ -329,4 +896,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.pendingPromotionsCount = 0;
     }
   }
+
+  public handleModalAction(action: string): void {
+    switch (action) {
+      case 'fundWallet':
+        this.fundWallet();
+        break;
+      // case 'createCampaign':
+      //   this.createCampaign();
+      //   break;
+      // case 'switchUser':
+      //   // You might want to pass a specific role here
+      //   // this.switchUser('promoter'); // Example
+      //   break;
+      // case 'logout':
+      //   this.logout();
+      //   break;
+      default:
+        console.warn(`Unknown modal action: ${action}`);
+    }
+  }
+
 }

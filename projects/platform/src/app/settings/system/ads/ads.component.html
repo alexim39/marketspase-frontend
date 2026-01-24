@@ -43,25 +43,25 @@
           <div class="toggle-section">
             <div class="toggle-header">
               <span class="toggle-title">Location-Based Ads</span>
-              <div class="status-indicator" [class.active]="preferences().locationBased">
+              <div class="status-indicator" [class.active]="preferences().categoryBasedAds">
                 <span class="status-dot"></span>
-                {{ preferences().locationBased ? 'Active' : 'Inactive' }}
+                {{ preferences().locationBasedAds ? 'Active' : 'Inactive' }}
               </div>
             </div>
 
             <mat-slide-toggle
-              [(ngModel)]="preferences().locationBased"
+              [(ngModel)]="preferences().locationBasedAds"
               (ngModelChange)="onPreferenceChange()"
               color="primary"
               [disabled]="isSaving()"
               class="large-toggle">
               <span class="toggle-label">
-                {{ preferences().locationBased ? 'Enabled' : 'Disabled' }}
+                {{ preferences().locationBasedAds ? 'Enabled' : 'Disabled' }}
               </span>
             </mat-slide-toggle>
 
             <div class="toggle-description">
-              {{ preferences().locationBased ?
+              {{ preferences().locationBasedAds ?
                  'You will receive location-specific promotions' :
                  'Location-based promotions are turned off' }}
             </div>
@@ -84,20 +84,20 @@
           <div class="category-controls">
             <div class="category-toggle-section">
               <mat-slide-toggle
-                [(ngModel)]="preferences().categoryBased"
+                [(ngModel)]="preferences().categoryBasedAds"
                 (ngModelChange)="onCategoryToggleChange()"
                 color="primary"
                 [disabled]="isSaving()">
-                {{ preferences().categoryBased ? 'You enabled category based promotion' : 'You disabled category based promotion' }}
+                {{ preferences().categoryBasedAds ? 'You enabled category based promotion' : 'You disabled category based promotion' }}
               </mat-slide-toggle>
             </div>
 
-            <div class="category-section" [class.disabled]="!preferences().categoryBased">
+            <div class="category-section" [class.disabled]="!preferences().categoryBasedAds">
               <div class="category-header">
                 <span class="selection-count">
                   {{ preferences().selectedCategories.length }}/6 selected
                 </span>
-                @if (preferences().categoryBased) {
+                @if (preferences().categoryBasedAds) {
                     <span class="selection-hint">
                     Select up to 6 categories
                     </span>

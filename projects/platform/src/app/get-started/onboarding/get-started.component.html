@@ -1,0 +1,597 @@
+<div class="get-started-container">
+  
+  <!-- Hero Section -->
+  <section class="hero-section">
+  <h1 class="hero-title">Welcome to MarketSpase, {{ getCurrentRoleDisplay() }}! 🚀</h1>
+  
+  @if (user()) {
+    <div class="progress-container">
+      <div class="progress-header">
+        <span class="progress-label">Your Onboarding Progress</span>
+        <span class="progress-percentage">{{ onboardingProgress() }}%</span>
+      </div>
+      <mat-progress-bar 
+        mode="determinate" 
+        [value]="onboardingProgress()"
+        color="primary">
+      </mat-progress-bar>
+      
+      @if (isOnboardingComplete()) {
+        <div class="complete-badge">
+          <mat-icon>check_circle</mat-icon>
+          <span>Onboarding Complete! Ready to go! 🎉</span>
+        </div>
+      }
+    </div>
+  }
+</section>
+  
+  <!-- Quick Stats -->
+  <!-- <section class="quick-stats">
+    @for (stat of quickStats(); track trackByStatLabel($index, stat)) {
+      <div class="stat-card" [style.animation-delay]="$index * 100 + 'ms'">
+        <div class="stat-icon color-{{ stat.color }}">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+        </div>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+    }
+  </section> -->
+  
+  <!-- Role Selection & Steps -->
+  <section class="onboarding-tabs">
+    <div class="tab-header">
+      <h2 class="section-title">Get Started Guide</h2>
+      <p class="section-subtitle">Choose your path and follow the steps</p>
+
+        <div class="banner-actions">
+        <button 
+            mat-flat-button 
+            color="primary" 
+            class="get-started-button"
+            (click)="scrollToVideoGuides()"
+            >
+            <mat-icon>play_circle</mat-icon>
+            Go to Video Guides
+        </button>
+        
+        </div>
+
+    </div>
+    
+    <!-- Role Switcher -->
+    <div class="role-switcher">
+      <div 
+        class="role-button" 
+        [class.active]="isMarketer()"
+        (click)="switchRole('marketer')"
+        matRipple>
+        <div class="role-icon">
+          <mat-icon>storefront</mat-icon>
+        </div>
+        <h3 class="role-title">I'm a Marketer</h3>
+        <p class="role-description">I want to advertise my business</p>
+        @if (isMarketer()) {
+          <mat-chip color="primary" selected>Active</mat-chip>
+        }
+      </div>
+      
+      <div 
+        class="role-button" 
+        [class.active]="isPromoter()"
+        (click)="switchRole('promoter')"
+        matRipple>
+        <div class="role-icon">
+          <mat-icon>groups</mat-icon>
+        </div>
+        <h3 class="role-title">I'm a Promoter</h3>
+        <p class="role-description">I want to earn by promoting people's business</p>
+        @if (isPromoter()) {
+          <mat-chip color="accent" selected>Active</mat-chip>
+        }
+      </div>
+    </div>
+
+    <!-- Near your role switcher buttons -->
+    @if (currentCountdown() !== null) {
+    <div class="countdown-overlay" @fadeIn>
+        <div class="countdown-container">
+        <mat-card class="countdown-card">
+            <mat-card-content>
+            <div class="countdown-content">
+                <div class="countdown-icon">
+                <mat-icon class="spinner">autorenew</mat-icon>
+                </div>
+                <h3 class="countdown-title">Switching Role...</h3>
+                <p class="countdown-message">
+                Your role is being switched from <strong>{{ user()?.role === 'marketer' ? 'Marketer' : 'Promoter' }}</strong>
+                </p>
+                
+                <!-- Circular Countdown Timer -->
+                <div class="countdown-timer">
+                <div class="countdown-circle">
+                    <svg width="80" height="80" viewBox="0 0 100 100">
+                    <circle 
+                        cx="50" 
+                        cy="50" 
+                        r="45" 
+                        fill="none" 
+                        stroke="var(--primary-color)" 
+                        stroke-width="8" 
+                        stroke-dasharray="283"
+                        [attr.stroke-dashoffset]="283 - (283 * currentCountdown()!) / 5"
+                        transform="rotate(-90 50 50)"
+                    />
+                    </svg>
+                    <div class="countdown-number">
+                    {{ currentCountdown() }}
+                    </div>
+                </div>
+                </div>
+                
+                <p class="countdown-hint">
+                Page will reload automatically in {{ currentCountdown() }} second{{ currentCountdown() !== 1 ? 's' : '' }}
+                </p>
+                
+                <div class="countdown-actions">
+                <button 
+                    mat-stroked-button 
+                    color="warn" 
+                    (click)="cancelCountdown()"
+                    class="cancel-button">
+                    <mat-icon>close</mat-icon>
+                    Cancel Reload
+                </button>
+                
+                <button 
+                    mat-flat-button 
+                    color="primary" 
+                    (click)="reloadPage()"
+                    class="reload-now-button">
+                    <mat-icon>refresh</mat-icon>
+                    Reload Now
+                </button>
+                </div>
+            </div>
+            </mat-card-content>
+        </mat-card>
+        </div>
+    </div>
+    }
+    
+    <!-- Marketer Steps -->
+    @if (isMarketer()) {
+      <div class="steps-container">
+        <h3 class="section-title">Marketer Journey</h3>
+        <p class="section-subtitle">4 steps to launch your first campaign</p>
+        
+        @for (step of marketerSteps(); track trackByStepId($index, step); let i = $index) {
+          <div 
+            class="step-card" 
+            [class.completed]="step.completed"
+            [class.current]="!step.completed && marketerSteps()[i-1]?.completed"
+          >
+            
+            <div class="step-header">
+              <div class="step-info">
+                <div class="step-number">{{ step.id }}</div>
+                <div class="step-text">
+                  <h4 class="step-title">{{ step.title }}</h4>
+                  <p class="step-description">{{ step.description }}</p>
+                </div>
+              </div>
+              
+              <div class="step-status" [class]="step.completed ? 'completed' : 'pending'">
+                {{ step.completed ? 'Completed' : 'Pending' }}
+              </div>
+            </div>
+            
+            @if (step.action && !step.completed) {
+              <div class="step-action">
+                <button 
+                  mat-flat-button 
+                  color="primary"
+                  [disabled]="true"
+                  (click)="navigateToStep(step)">
+                  <mat-icon>{{ step.icon }}</mat-icon>
+                  {{ step.action }}
+                </button>
+              </div>
+            }
+            
+            @if (step.completed) {
+              <div class="step-action">
+                <button 
+                  mat-stroked-button 
+                  color="primary"
+                  (click)="navigateToStep(step)">
+                  <mat-icon>refresh</mat-icon>
+                  Revisit
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+    
+    <!-- Promoter Steps -->
+    @if (isPromoter()) {
+      <div class="steps-container">
+        <h3 class="section-title">Promoter Journey</h3>
+        <p class="section-subtitle">4 steps to start earning money</p>
+        
+        @for (step of promoterSteps(); track trackByStepId($index, step); let i = $index) {
+          <div 
+            class="step-card" 
+            [class.completed]="step.completed"
+            [class.current]="!step.completed && promoterSteps()[i-1]?.completed"
+          >
+            
+            <div class="step-header">
+              <div class="step-info">
+                <div class="step-number">{{ step.id }}</div>
+                <div class="step-text">
+                  <h4 class="step-title">{{ step.title }}</h4>
+                  <p class="step-description">{{ step.description }}</p>
+                </div>
+              </div>
+              
+              <div class="step-status" [class]="step.completed ? 'completed' : 'pending'">
+                {{ step.completed ? 'Completed' : 'Pending' }}
+              </div>
+            </div>
+            
+            @if (step.action && !step.completed) {
+              <div class="step-action">
+                <button 
+                  mat-flat-button 
+                  color="accent"
+                  [disabled]="true"
+                  (click)="navigateToStep(step)">
+                  <mat-icon>{{ step.icon }}</mat-icon>
+                  {{ step.action }}
+                </button>
+              </div>
+            }
+            
+            @if (step.completed) {
+              <div class="step-action">
+                <button 
+                  mat-stroked-button 
+                  color="accent"
+                  (click)="navigateToStep(step)">
+                  <mat-icon>refresh</mat-icon>
+                  Revisit
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+
+
+
+    
+    <!-- Add this right after the Promoter Steps section -->
+@if (isPromoter()) {
+  <div class="proof-guide-section">
+    <div class="proof-guide-card">
+      <div class="proof-guide-header">
+        <mat-icon color="primary">photo_library</mat-icon>
+        <div class="proof-guide-title">
+          <h3>📸 Need Help With Proof Screenshots?</h3>
+          <p>Learn exactly what screenshots we accept and avoid rejections</p>
+        </div>
+      </div>
+      
+      <div class="proof-guide-content">
+        <div class="proof-tips">
+          <div class="proof-tip">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>View count must be clearly visible</span>
+          </div>
+          <div class="proof-tip">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>Promotion ID should appear in status</span>
+          </div>
+          <div class="proof-tip">
+            <mat-icon color="primary">check_circle</mat-icon>
+            <span>Keep status for 22+ hours minimum</span>
+          </div>
+        </div>
+        
+        <button 
+          mat-flat-button 
+          color="accent" 
+          class="view-guide-button"
+          (click)="openProofGuide()">
+          <mat-icon>visibility</mat-icon>
+          View Complete Proof Guide
+        </button>
+        
+        <button 
+          mat-stroked-button 
+          color="primary" 
+          class="quick-example-button"
+          (click)="openProofGuide()">
+          <mat-icon>image</mat-icon>
+          See Example Screenshots
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+
+
+
+    @if (!isMarketer() && !isPromoter()) {
+    <div class="steps-container">
+        <h3 class="section-title">Welcome to MarketSpase!</h3>
+        <p class="section-subtitle">Please complete your profile to get started.</p>
+        
+        <div class="step-card">
+        <div class="step-header">
+            <div class="step-info">
+            <div class="step-number">1</div>
+            <div class="step-text">
+                <h4 class="step-title">Complete Your Profile</h4>
+                <p class="step-description">Set up your account to access all features</p>
+            </div>
+            </div>
+        </div>
+        <div class="step-action">
+            <button 
+            mat-flat-button 
+            color="primary"
+            routerLink="/dashboard/profile">
+            <mat-icon>person</mat-icon>
+            Go to Profile
+            </button>
+        </div>
+        </div>
+    </div>
+    }
+  </section>
+  
+  <!-- Video Guides -->
+  <section class="video-guides" id="video-guides" (click)="scrollToVideoGuides($event)">
+    <h2 class="video-section-title">Watch Video Guides</h2>
+    
+    <div class="video-grid">
+      <!-- Marketer Video -->
+      @if(isMarketer()) {
+        <div class="video-card">
+        <div class="video-header">
+          <h3 class="video-title">
+            <mat-icon>ondemand_video</mat-icon>
+            Marketer's Complete Guide
+          </h3>
+          <p class="video-description">
+            Learn how to create effective campaigns, set budgets, and track performance in 5 minutes.
+          </p>
+        </div>
+        
+        <div class="video-container">
+          <!-- Replace with your actual Facebook video URL -->
+          <iframe 
+            [src]="marketerVideoUrl" 
+            frameborder="0" 
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+            allowfullscreen>
+          </iframe>
+          
+          <!-- Fallback if video fails to load -->
+          <div class="video-placeholder" *ngIf="!marketerVideoUrl">
+            <mat-icon>ondemand_video</mat-icon>
+            <span>Marketer video guide loading...</span>
+          </div>
+        </div>
+      </div>
+      }
+      
+      <!-- Promoter Video -->
+       @if (isPromoter()) {
+        <div class="video-card">
+            <div class="video-header">
+            <h3 class="video-title">
+                <mat-icon>ondemand_video</mat-icon>
+                Promoter's Complete Guide
+            </h3>
+            <p class="video-description">
+                Learn how to share campaigns, maximize earnings, and get paid in 5 minutes.
+            </p>
+            </div>
+            
+            <div class="video-container">
+            <!-- Replace with your actual Facebook video URL -->
+            <iframe 
+                [src]="promoterVideoUrl" 
+                frameborder="0" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                allowfullscreen>
+            </iframe>
+            
+            <!-- Fallback if video fails to load -->
+            <div class="video-placeholder" *ngIf="!promoterVideoUrl">
+                <mat-icon>ondemand_video</mat-icon>
+                <span>Promoter video guide loading...</span>
+            </div>
+            </div>
+        </div>
+       }
+      
+    </div>
+  </section>
+  
+  <!-- FAQ Section -->
+  <!-- <section class="faq-section">
+    <h2 class="faq-title">Frequently Asked Questions</h2>
+    
+    <div class="faq-grid">
+      @for (faq of faqItems(); track trackByFaqQuestion($index, faq); let i = $index) {
+        <div class="faq-card" [style.animation-delay]="i * 100 + 'ms'">
+          <h3 class="faq-question">
+            <mat-icon>help_outline</mat-icon>
+            {{ faq.question }}
+          </h3>
+          <p class="faq-answer">{{ faq.answer }}</p>
+        </div>
+      }
+    </div>
+  </section> -->
+
+
+
+  <!-- FAQ Section with Role-Based Filtering -->
+    <section class="faq-section">
+    <div class="faq-header">
+        <h2 class="faq-title">Frequently Asked Questions</h2>
+        <p class="faq-subtitle">
+        @if (user()?.role) {
+            Questions for {{ user()?.role === 'marketer' ? 'Marketers' : user()?.role === 'promoter' ? 'Promoters' : 'Users' }}
+        } @else {
+            Common questions about MarketSpase
+        }
+        </p>
+    </div>
+    
+    <!-- FAQ Category Tabs -->
+    <div class="faq-categories">
+        <div class="categories-container">
+            <!-- Always show these -->
+            <button class="category-tab" [class.active]="activeFaqCategory() === 'all'" (click)="activeFaqCategory.set('all')">
+            <mat-icon>all_inclusive</mat-icon>
+            <span>All Questions</span>
+            </button>
+
+            <!-- Show based on user role -->
+            @if (isMarketer() || user()?.role === 'admin' || !user()?.role) {
+            <button class="category-tab" [class.active]="activeFaqCategory() === 'marketer'" (click)="activeFaqCategory.set('marketer')">
+                <mat-icon>storefront</mat-icon>
+                <span>Marketer Questions</span>
+            </button>
+            }
+
+            @if (isPromoter() || user()?.role === 'admin' || !user()?.role) {
+            <button class="category-tab" [class.active]="activeFaqCategory() === 'promoter'" (click)="activeFaqCategory.set('promoter')">
+                <mat-icon>groups</mat-icon>
+                <span>Promoter Questions</span>
+            </button>
+            }
+
+            <button class="category-tab" [class.active]="activeFaqCategory() === 'general'" (click)="activeFaqCategory.set('general')">
+            <mat-icon>help</mat-icon>
+            <span>General Questions</span>
+            </button>
+        </div>
+        </div>
+    
+    <!-- FAQ Grid -->
+    <div class="faq-grid">
+        @if (categorizedFaqItems().length > 0) {
+        @for (faq of categorizedFaqItems(); track trackByFaqQuestion($index, faq); let i = $index) {
+            <div class="faq-card" [class.marketer-faq]="faq.target === 'marketer'" [class.promoter-faq]="faq.target === 'promoter'">
+            <div class="faq-card-header">
+                <div class="faq-role-badge" [class]="faq.target + '-badge'">
+                @if (faq.target === 'marketer') {
+                    <mat-icon>storefront</mat-icon>
+                    <span>For Marketers</span>
+                } @else if (faq.target === 'promoter') {
+                    <mat-icon>groups</mat-icon>
+                    <span>For Promoters</span>
+                } @else {
+                    <mat-icon>public</mat-icon>
+                    <span>General</span>
+                }
+                </div>
+            </div>
+            
+            <div class="faq-card-content">
+                <h3 class="faq-question">
+                <mat-icon>help_outline</mat-icon>
+                {{ faq.question }}
+                </h3>
+                <div class="faq-answer">
+                <p>{{ faq.answer }}</p>
+                </div>
+            </div>
+            
+            <!-- Action buttons for relevant FAQs -->
+            <!-- <div class="faq-actions" *ngIf="isRelevantFaq(faq)">
+                @if (faq.target === 'marketer' && (isMarketer() || !user()?.role)) {
+                <button mat-stroked-button color="primary" class="faq-action-button" routerLink="/dashboard/campaigns/new">
+                    <mat-icon>campaign</mat-icon>
+                    Create Campaign
+                </button>
+                }
+                @if (faq.target === 'promoter' && (isPromoter() || !user()?.role)) {
+                <button mat-stroked-button color="accent" class="faq-action-button" routerLink="/dashboard/campaigns">
+                    <mat-icon>share</mat-icon>
+                    Browse Campaigns
+                </button>
+                }
+            </div> -->
+            </div>
+        }
+        } @else {
+        <div class="no-faqs">
+            <mat-icon>search_off</mat-icon>
+            <h3>No questions found for this category</h3>
+            <p>Try selecting a different category or check back later for more questions.</p>
+        </div>
+        }
+    </div>
+    
+    <!-- Additional Help -->
+    <div class="faq-help">
+        <div class="help-card">
+        <mat-icon>support_agent</mat-icon>
+        <div class="help-content">
+            <h3>Still have questions?</h3>
+            <p>Can't find what you're looking for? Our support team is here to help.</p>
+        </div>
+        <button mat-flat-button color="primary" class="contact-button" routerLink="/dashboard/settings/share">
+            <mat-icon>chat</mat-icon>
+            Contact Support
+        </button>
+        </div>
+    </div>
+    </section>
+
+
+  
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <h2 class="cta-title">Ready to Get Started?</h2>
+    <p class="cta-subtitle">
+      Join thousands of businesses and promoters who are already growing with MarketSpase.
+    </p>
+    
+    <div class="cta-buttons">
+      <!-- @if (!isOnboardingComplete()) {
+        <button 
+          mat-flat-button 
+          color="primary" 
+          class="primary-cta"
+          (click)="navigateToStep(isMarketer() ? marketerSteps()[0] : promoterSteps()[0])">
+          <mat-icon>rocket_launch</mat-icon>
+          Start My Journey
+        </button>
+      } -->
+      
+      <button 
+        mat-stroked-button 
+        color="primary" 
+        class="secondary-cta"
+        routerLink="/dashboard/settings/account">
+        <mat-icon>dashboard</mat-icon>
+        Start My Journey
+      </button>
+    </div>
+  </section>
+</div>

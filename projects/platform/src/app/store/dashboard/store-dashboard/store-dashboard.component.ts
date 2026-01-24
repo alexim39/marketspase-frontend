@@ -30,7 +30,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
-
+import { MatDialog } from '@angular/material/dialog';
+import { StoreManagerComponent } from '../../store-manager/store-manager.component';
 interface StoreStat {
   icon: string;
   label: string;
@@ -109,6 +110,8 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
   public viewMode = signal<'grid' | 'list'>('grid');
   public searchQuery = signal<string>('');
   public selectedCategory = signal<string>('all');
+
+   private dialog = inject(MatDialog);
 
   // Performance metrics - FIXED: Added proper typing
   public performanceMetrics = computed((): PerformanceMetric[] => {
@@ -214,15 +217,19 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
 
   // Enhanced low stock alert with severity levels
   public lowStockProducts = computed(() => {
-    const products = this.products().filter(product => 
-      product.quantity <= product.lowStockAlert && product.isActive
-    );
-    
-    return products.map(product => ({
-      ...product,
-      severity: product.quantity === 0 ? 'critical' : 
-                product.quantity <= 2 ? 'high' : 'medium'
-    }));
+    if (this.products()) {
+        const products = this.products().filter(product => 
+          product.quantity <= product.lowStockAlert && product.isActive
+        );
+        
+        return products.map(product => ({
+          ...product,
+          severity: product.quantity === 0 ? 'critical' : 
+                    product.quantity <= 2 ? 'high' : 'medium'
+        }));
+    }
+    return []
+  
   });
 
   // Filtered products based on search and category - FIXED VERSION
@@ -308,14 +315,14 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
   });
 
   // Real-time updates effect
-  private realTimeEffect = effect(() => {
-    if (this.realTimeUpdates() && this.currentStore()) {
-      this.setupRealTimeUpdates();
-    } else if (this.realTimeSubscription) {
-      this.realTimeSubscription.unsubscribe();
-      this.realTimeSubscription = undefined;
-    }
-  });
+  // private realTimeEffect = effect(() => {
+  //   if (this.realTimeUpdates() && this.currentStore()) {
+  //     this.setupRealTimeUpdates();
+  //   } else if (this.realTimeSubscription) {
+  //     this.realTimeSubscription.unsubscribe();
+  //     this.realTimeSubscription = undefined;
+  //   }
+  // });
 
   ngOnInit(): void {
     this.loadStores();
@@ -334,33 +341,65 @@ export class StoreDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-loadStores(): void {
-  const userId = this.user()?._id;
-  if (!userId) {
-    this.showError('User not found. Please log in again.');
-    return;
+  openStoreManager(): void {
+    const dialogRef = this.dialog.open(StoreManagerComponent, {
+      width: '600px',
+      maxHeight: '80vh',
+      data: {
+        stores: this.stores() // Pass the current stores as data
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh stores if changes were made
+        this.loadStores();
+      }
+    });
   }
 
-  this.storeService.getStores(userId).subscribe({
-    next: (stores) => {
-      // Successfully loaded stores
-      console.log('Stores loaded:', stores.data[0]);
-      
-      // If no current store is selected, auto-select the first one
-      if (stores.data.length > 0 && !this.currentStore()) {
-        // Directly set the first store as current
-        this.storeService.currentStore.set(stores.data[0]);
-        
-        // Also load products for this store
-        this.storeService.getStoreProducts(stores.data[0]._id!).subscribe();
-      }
-    },
-    error: (error) => {
-      console.error('Failed to load stores:', error);
-      this.showError('Failed to load stores. Please try again.');
+  viewStoreProducts(storeId: string) {
+    this.router.navigate(['/dashboard/stores', storeId, 'products']);
+  }
+
+  loadStores(): void {
+    const userId = this.user()?._id;
+    if (!userId) {
+      this.showError('User not found. Please log in again.');
+      return;
     }
-  });
-}
+
+    this.storeService.getStores(userId).subscribe({
+      next: (stores) => {
+        
+        if (stores.data.length > 0) {
+          // Find the store with isDefaultStore: true
+          const defaultStore = stores.data.find((store: Store) => store.isDefaultStore);
+          
+          // If no current store is selected OR we found a default store, select it
+          if (!this.currentStore() || defaultStore) {
+            const storeToSelect = defaultStore || stores.data[0];
+            
+            // Directly set the default or first store as current
+            this.storeService.currentStore.set(storeToSelect);
+            
+            // Also load products for this store
+            this.storeService.getStoreProducts(storeToSelect._id!).subscribe();
+            
+            // if (defaultStore) {
+            //   console.log('Default store selected:', defaultStore.name);
+            // } else {
+            //   console.log('No default store found, selecting first store');
+            // }
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Failed to load stores:', error);
+        this.showError('Failed to load stores. Please try again.');
+      }
+    });
+  }
 
   refreshStoreData(): void {
     const store = this.currentStore();
@@ -380,30 +419,30 @@ loadStores(): void {
     }
   }
 
-  setupRealTimeUpdates(): void {
-    // Clear existing subscription
-    if (this.realTimeSubscription) {
-      this.realTimeSubscription.unsubscribe();
-    }
+  // setupRealTimeUpdates(): void {
+  //   // Clear existing subscription
+  //   if (this.realTimeSubscription) {
+  //     this.realTimeSubscription.unsubscribe();
+  //   }
 
-    // Simulate real-time updates (in production, use WebSockets or SSE)
-    this.realTimeSubscription = interval(10000) // 10 seconds
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        const store = this.currentStore();
-        if (store) {
-          // Simulate real-time data changes
-          const updatedAnalytics: StoreAnalytics = {
-            ...store.analytics,
-            totalViews: store.analytics.totalViews + Math.floor(Math.random() * 5),
-            promoterTraffic: store.analytics.promoterTraffic + Math.floor(Math.random() * 3)
-          };
+  //   // Simulate real-time updates (in production, use WebSockets or SSE)
+  //   this.realTimeSubscription = interval(10000) // 10 seconds
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe(() => {
+  //       const store = this.currentStore();
+  //       if (store) {
+  //         // Simulate real-time data changes
+  //         const updatedAnalytics: StoreAnalytics = {
+  //           ...store.analytics,
+  //           totalViews: store.analytics.totalViews + Math.floor(Math.random() * 5),
+  //           promoterTraffic: store.analytics.promoterTraffic + Math.floor(Math.random() * 3)
+  //         };
           
-          // Update the store analytics in the service
-          this.storeService.updateStoreAnalytics(store._id!, updatedAnalytics);
-        }
-      });
-  }
+  //         // Update the store analytics in the service
+  //         this.storeService.updateStoreAnalytics(store._id!, updatedAnalytics);
+  //       }
+  //     });
+  // }
 
   createStore(): void {
     this.router.navigate(['/dashboard/stores/create']);
@@ -432,18 +471,18 @@ loadStores(): void {
   }
 
   verifyStore(): void {
-    const store = this.currentStore();
-    if (store && store._id) {
-      this.storeService.verifyStore(store._id, 'premium').subscribe({
-        next: () => {
-          this.showSuccess('Store verification submitted!');
-        },
-        error: (error) => {
-          console.error('Verification failed:', error);
-          this.showError('Verification failed. Please try again.');
-        }
-      });
-    }
+    // const store = this.currentStore();
+    // if (store && store._id) {
+    //   this.storeService.verifyStore(store._id, 'premium').subscribe({
+    //     next: () => {
+    //       this.showSuccess('Store verification submitted!');
+    //     },
+    //     error: (error) => {
+    //       console.error('Verification failed:', error);
+    //       this.showError('Verification failed. Please try again.');
+    //     }
+    //   });
+    // }
   }
 
   toggleRealTimeUpdates(): void {
@@ -553,8 +592,12 @@ loadStores(): void {
     return stat.value;
   }
 
-  getUniqueCategories(): string[] {
-    const categories = new Set(this.products().map(p => p.category).filter(Boolean));
-    return Array.from(categories);
-  }
+  uniqueCategories = computed(() => {
+    if (this.products()) {
+      const categories = new Set(this.products().map(p => p.category).filter(Boolean));
+      return Array.from(categories);
+    }
+    return []
+    
+  });
 }

@@ -454,44 +454,10 @@ export class UserService {
     });
   }
   
-  /**
-   * Transform user data to ensure consistent structure
-   */
-  // private transformUserData(user: any): any {
-  //   // Ensure wallet data exists
-  //   const wallets = user.wallets || {
-  //     marketer: { balance: 0, reserved: 0, currency: 'NGN' },
-  //     promoter: { balance: 0, reserved: 0, currency: 'NGN' }
-  //   };
-    
-  //   // Ensure all required fields exist
-  //   return {
-  //     _id: user._id,
-  //     uid: user.uid,
-  //     username: user.username,
-  //     displayName: user.displayName,
-  //     email: user.email,
-  //     role: user.role,
-  //     avatar: user.avatar || '/img/avatar.png',
-  //     isActive: user.isActive !== undefined ? user.isActive : true,
-  //     isVerified: user.isVerified !== undefined ? user.isVerified : false,
-  //     isDeleted: user.isDeleted !== undefined ? user.isDeleted : false,
-  //     wallets: {
-  //       marketer: {
-  //         balance: wallets.marketer?.balance || 0,
-  //         reserved: wallets.marketer?.reserved || 0,
-  //         currency: wallets.marketer?.currency || 'NGN'
-  //       },
-  //       promoter: {
-  //         balance: wallets.promoter?.balance || 0,
-  //         reserved: wallets.promoter?.reserved || 0,
-  //         currency: wallets.promoter?.currency || 'NGN'
-  //       }
-  //     },
-  //     createdAt: user.createdAt ? new Date(user.createdAt) : new Date(),
-  //     updatedAt: user.updatedAt ? new Date(user.updatedAt) : new Date()
-  //   };
-  // }
+  // update user to marketing rep
+  updateMarketingStatus(newValue: boolean, userId: string): any {
+    return this.apiService.patch<any>(`${this.apiUrl}/admin/make-marketing-rep`, {newValue, userId}).pipe(map(response => response));
+  }
   
   /**
    * Clean up expired cache entries

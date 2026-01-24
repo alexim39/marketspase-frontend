@@ -97,7 +97,7 @@
 
     <div class="progress-container">
       <div class="progress-header">
-        <span>Progress</span>
+        <span>Current progress</span>
         <span>{{ campaign.progress | number:'1.0-0' }}%</span>
       </div>
       <div class="progress-bar">
@@ -111,10 +111,11 @@
 
     <div class="budget-info">
       <div class="budget-amount">
-        <span class="spent">{{formatCurrency( campaign.spentBudget )}}</span>
-        <span class="total">/ {{formatCurrency(campaign.budget)}}</span>
+        <span class="spent">{{formatCurrency( campaign.spentBudget, campaign.currency)}}</span>
+        <span class="total">/ {{formatCurrency(campaign.budget, campaign.currency)}}</span>
       </div>
       <div class="budget-label">Budget Spent</div>
+      <div class="budget-label payout">Promoter Payout: {{formatCurrency(campaign.payoutPerPromotion, campaign.currency)}}</div>
     </div>
   </div>
 

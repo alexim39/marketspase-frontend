@@ -1,0 +1,77 @@
+<!-- components/product-management/add-product/add-product.component.html -->
+<div class="add-product-container">
+  <!-- Header -->
+  <app-add-product-header
+    [loading]="loading()"
+    [storeId]="storeId"
+    (cancel)="onCancel()"
+    (submit)="onSubmit()">
+  </app-add-product-header>
+
+  <!-- Stepper -->
+  <app-product-stepper
+    [currentStep]="currentStep()"
+    [stepLabels]="stepLabels"
+    [isStepValid]="isStepValid(currentStep())"
+    [loading]="loading()"
+    (previous)="previousStep()"
+    (next)="nextStep()"
+    (submit)="onSubmit()">
+  </app-product-stepper>
+
+  <!-- Step Content -->
+  <div class="product-form-wrapper">
+    @if (currentStep() === 0) {
+      <app-basic-info-form
+        [formGroup]="basicInfo"
+        [categories]="productCategories()"
+        [images]="imagePreviews()"
+        [maxImages]="maxImages"
+        (imagesChanged)="onImagesChanged($event)"
+        (tagsChanged)="onTagsChanged($event)">
+      </app-basic-info-form>
+    }
+
+    @if (currentStep() === 1) {
+      <app-pricing-inventory-form
+        [pricingForm]="pricing"
+        [inventoryForm]="inventory">
+      </app-pricing-inventory-form>
+    }
+
+    @if (currentStep() === 2) {
+      <app-product-variants
+        [formGroup]="variants"
+        (attributeAdded)="onAttributeAdded($event)"
+        (attributeRemoved)="onAttributeRemoved($event)"
+        (attributeValueAdded)="onAttributeValueAdded($event)"
+        (attributeValueRemoved)="onAttributeValueRemoved($event)"
+        (variantsGenerated)="onVariantsGenerated($event)"
+        (variantChanged)="onVariantChanged($event)">
+      </app-product-variants>
+    }
+
+    @if (currentStep() === 3) {
+      <app-shipping-form
+        [formGroup]="shipping">
+      </app-shipping-form>
+    }
+
+    @if (currentStep() === 4) {
+      <app-seo-advanced-form
+        [seoForm]="seo"
+        [advancedForm]="advanced"
+        [digitalForm]="digital"
+        (keywordsChanged)="onKeywordsChanged($event)">
+      </app-seo-advanced-form>
+    }
+
+    @if (currentStep() === 5) {
+      <app-product-review
+        [productForm]="productForm"
+        [imagesCount]="imagePreviews().length"
+        (editStep)="goToStep($event)">
+      </app-product-review>
+    }
+  </div>
+</div>

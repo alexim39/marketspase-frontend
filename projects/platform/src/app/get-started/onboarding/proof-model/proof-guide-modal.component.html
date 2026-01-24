@@ -1,0 +1,314 @@
+<div class="proof-guide-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>
+      <mat-icon class="title-icon">photo_library</mat-icon>
+      How to Submit Valid Proof Screenshots
+    </h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <mat-tab-group animationDuration="500ms" color="primary">
+      <!-- What to Include Tab -->
+      <mat-tab label="Requirements">
+        <div class="tab-content">
+          <div class="requirement-list">
+            <div class="requirement-item success">
+              <mat-icon>check_circle</mat-icon>
+              <div class="requirement-text">
+                <strong>Must Include:</strong>
+                <ul>
+                  <li>Minimum of 3 screenshots covering each view capture</li>
+                  <li>Full WhatsApp status screenshot</li>
+                  <li>Clear view count number</li>
+                  <li>Promotion timestamp (date/time)</li>
+                  <li>Promotion ID in the status</li>
+                  <li>Your WhatsApp profile visible</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="requirement-item warning">
+              <mat-icon>warning</mat-icon>
+              <div class="requirement-text">
+                <strong>Avoid Rejection:</strong>
+                <ul>
+                  <li>No edited or filtered images</li>
+                  <li>No AI-generated content</li>
+                  <li>No blurry or cropped screenshots</li>
+                  <li>Don't remove status before 22 hours</li>
+                  <li>Don't submit fake or repeated views</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-tips">
+            <h3><mat-icon>lightbulb</mat-icon> Quick Tips</h3>
+            <div class="tips-grid">
+              <div class="tip-card">
+                <mat-icon>schedule</mat-icon>
+                <p>Keep status for <strong>22+ hours</strong></p>
+              </div>
+              <div class="tip-card">
+                <mat-icon>screenshot</mat-icon>
+                <p>Take <strong>clear screenshot</strong></p>
+              </div>
+              <div class="tip-card">
+                <mat-icon>upload</mat-icon>
+                <p>Submit within <strong>24 hours</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Good Examples Tab -->
+      <mat-tab label="Good Examples">
+        <div class="tab-content">
+          <h3>Accepted Proof Examples</h3>
+          <p class="example-subtitle">These are actual screenshots from successful submissions</p>
+          
+          <div class="example-grid">
+            <!-- Example 1: Complete View with Promo ID -->
+            <div class="example-card">
+              <div class="example-header">
+                <mat-chip color="primary" selected>
+                  <mat-icon>verified</mat-icon>
+                  Complete View
+                </mat-chip>
+                <span class="example-label">Promo ID & Views</span>
+              </div>
+              <div class="example-image-placeholder" (click)="openImageLightbox('img/proof-samples/proof-sample1.jpg')">
+                <div class="example-image-container">
+                  <img 
+                    src="img/proof-samples/proof-sample1.jpg" 
+                    alt="Example 1: WhatsApp status showing promotion ID and view count"
+                    class="example-image"
+                    loading="lazy">
+                  <div class="image-overlay">
+                    <div class="highlight-box" style="top: 20%; left: 10%; width: 80%;">
+                      <div class="highlight-label">Promotion ID: 830894</div>
+                    </div>
+                    <div class="highlight-box" style="bottom: 15%; right: 10%;">
+                      <div class="highlight-label">74 views</div>
+                    </div>
+                  </div>
+                  <!-- Click hint -->
+                  <div class="click-hint">
+                    <mat-icon>zoom_in</mat-icon>
+                    <span>Click to zoom</span>
+                  </div>
+                </div>
+              </div>
+              <div class="example-notes">
+                <mat-icon>check_circle</mat-icon>
+                <div class="note-content">
+                  <span class="note-title">✓ Perfect Example!</span>
+                  <span class="note-details">Promo ID and view count clearly visible, timestamp shown</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example 2: Viewer List -->
+            <div class="example-card">
+              <div class="example-header">
+                <mat-chip color="accent" selected>
+                  <mat-icon>groups</mat-icon>
+                  Viewer List
+                </mat-chip>
+                <span class="example-label">Verified Viewers</span>
+              </div>
+              <div class="example-image-placeholder" (click)="openImageLightbox('img/proof-samples/proof-sample2.png')">
+                <div class="example-image-container">
+                  <img 
+                    src="img/proof-samples/proof-sample2.png" 
+                    alt="Example 2: WhatsApp status viewer list showing multiple viewers with timestamps"
+                    class="example-image"
+                    loading="lazy">
+                  <div class="image-overlay">
+                    <div class="highlight-box" style="top: 10%; left: 5%; width: 90%;">
+                      <div class="highlight-label">"Viewed by 74" counter</div>
+                    </div>
+                    <div class="highlight-box" style="bottom: 30%; left: 10%;">
+                      <div class="highlight-label">Viewer names & times</div>
+                    </div>
+                  </div>
+                  <!-- Click hint -->
+                  <div class="click-hint">
+                    <mat-icon>zoom_in</mat-icon>
+                    <span>Click to zoom</span>
+                  </div>
+                </div>
+              </div>
+              <div class="example-notes">
+                <mat-icon>check_circle</mat-icon>
+                <div class="note-content">
+                  <span class="note-title">✓ Great for verification!</span>
+                  <span class="note-details">Shows viewer list with timestamps, proving real engagement</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Example 3: Multiple Status Updates -->
+            <div class="example-card">
+              <div class="example-header">
+                <mat-chip color="primary" selected>
+                  <mat-icon>view_carousel</mat-icon>
+                  Post Views
+                </mat-chip>
+                <span class="example-label">Post Tracking</span>
+              </div>
+              <div class="example-image-placeholder" (click)="openImageLightbox('img/proof-samples/proof-sample3.png')">
+                <div class="example-image-container">
+                  <img 
+                    src="img/proof-samples/proof-sample3.png" 
+                    alt="Example 3: Multiple status updates showing view growth over time"
+                    class="example-image"
+                    loading="lazy">
+                  <div class="image-overlay">
+                    <div class="highlight-box" style="top: 15%; right: 15%;">
+                      <div class="highlight-label">View growth: 6 → 74</div>
+                    </div>
+                    <div class="highlight-box" style="bottom: 25%; left: 10%;">
+                      <div class="highlight-label">Time progression visible</div>
+                    </div>
+                  </div>
+                  <!-- Click hint -->
+                  <div class="click-hint">
+                    <mat-icon>zoom_in</mat-icon>
+                    <span>Click to zoom</span>
+                  </div>
+                </div>
+              </div>
+              <div class="example-notes">
+                <mat-icon>check_circle</mat-icon>
+                <div class="note-content">
+                  <span class="note-title">✓ Shows progression!</span>
+                  <span class="note-details">Demonstrates view growth over time, excellent for validation</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Image Display Tips -->
+          <div class="image-tips">
+            <div class="tip-item">
+              <mat-icon>zoom_in</mat-icon>
+              <div class="tip-text">
+                <strong>Pro Tip:</strong> You can click on any image to view it in full size
+              </div>
+            </div>
+            <div class="tip-item">
+              <mat-icon>info</mat-icon>
+              <div class="tip-text">
+                These are real examples from successful promoters. Use them as a reference!
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Bad Examples Tab -->
+      <mat-tab label="Bad Examples">
+        <div class="tab-content">
+          <h3>Rejected Proof Examples</h3>
+          <p class="rejection-subtitle">These mistakes will get your submission rejected</p>
+          
+          <div class="rejection-grid">
+            <div class="rejection-card error">
+              <div class="rejection-header">
+                <mat-icon color="warn">block</mat-icon>
+                <span>Blurry Screenshot</span>
+              </div>
+              <div class="rejection-image-placeholder">
+                <mat-icon>blur_on</mat-icon>
+              </div>
+              <div class="rejection-details">
+                <p>Image is unclear or text is unreadable</p>
+                <mat-icon class="rejection-icon">blur_on</mat-icon>
+              </div>
+            </div>
+
+            <div class="rejection-card error">
+              <div class="rejection-header">
+                <mat-icon color="warn">block</mat-icon>
+                <span>Cropped Image</span>
+              </div>
+              <div class="rejection-image-placeholder">
+                <mat-icon>crop</mat-icon>
+              </div>
+              <div class="rejection-details">
+                <p>Important details (views, time) are cut off</p>
+                <mat-icon class="rejection-icon">crop</mat-icon>
+              </div>
+            </div>
+
+            <div class="rejection-card error">
+              <div class="rejection-header">
+                <mat-icon color="warn">block</mat-icon>
+                <span>Edited/Fake</span>
+              </div>
+              <div class="rejection-image-placeholder">
+                <mat-icon>edit</mat-icon>
+              </div>
+              <div class="rejection-details">
+                <p>AI-generated or manipulated content</p>
+                <mat-icon class="rejection-icon">edit</mat-icon>
+              </div>
+            </div>
+
+            <div class="rejection-card error">
+              <div class="rejection-header">
+                <mat-icon color="warn">block</mat-icon>
+                <span>Early Removal</span>
+              </div>
+              <div class="rejection-image-placeholder">
+                <mat-icon>schedule</mat-icon>
+              </div>
+              <div class="rejection-details">
+                <p>Status removed before 22 hours</p>
+                <mat-icon class="rejection-icon">schedule</mat-icon>
+              </div>
+            </div>
+          </div>
+          
+          <div class="rejection-warning">
+            <mat-icon>warning</mat-icon>
+            <div class="warning-content">
+              <strong>Important:</strong> Submitting rejected proofs multiple times may result in account restrictions.
+              Always ensure your screenshots meet all requirements before submitting.
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onClose()">Close</button>
+    <button mat-flat-button color="primary" (click)="onGotIt()">
+      <mat-icon>thumb_up</mat-icon>
+      Got It, I'll Submit Properly!
+    </button>
+  </mat-dialog-actions>
+</div>
+
+<!-- Lightbox overlay -->
+@if (selectedImage) {
+  <div class="image-lightbox" (click)="closeLightbox()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <img [src]="selectedImage" [alt]="'Zoomed proof example'" class="lightbox-image">
+      <button mat-icon-button class="close-lightbox" (click)="closeLightbox()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <div class="lightbox-actions">
+        <button mat-mini-fab color="primary" (click)="closeLightbox()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+}

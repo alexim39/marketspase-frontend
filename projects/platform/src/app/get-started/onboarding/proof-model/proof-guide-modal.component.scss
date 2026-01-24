@@ -1,0 +1,900 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+
+.proof-guide-modal {
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-4 $spacing-6 0 $spacing-6;
+  border-bottom: $border-width solid $border-color;
+
+  .title-icon {
+    margin-right: $spacing-3;
+    color: var(--primary-color);
+    vertical-align: middle;
+  }
+
+  .close-button {
+    margin: -$spacing-2 -$spacing-2 0 0;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+mat-dialog-content {
+  padding: $spacing-6;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.tab-content {
+  padding: $spacing-4 0;
+}
+
+.requirement-list {
+  display: grid;
+  gap: $spacing-5;
+  margin-bottom: $spacing-8;
+}
+
+.requirement-item {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-4;
+  border-radius: $border-radius-md;
+  gap: $spacing-4;
+  transition: all $transition-normal;
+
+  &.success {
+    background: rgba($success-color-hex, 0.1);
+    border-left: 4px solid $success-color;
+
+    mat-icon {
+      color: $success-color;
+    }
+  }
+
+  &.warning {
+    background: rgba($warning-color-hex, 0.1);
+    border-left: 4px solid $warning-color;
+
+    mat-icon {
+      color: $warning-color;
+    }
+  }
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: $shadow-sm;
+  }
+
+  mat-icon {
+    flex-shrink: 0;
+    margin-top: $spacing-1;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .requirement-text {
+    ul {
+      margin: $spacing-2 0 0 0;
+      padding-left: $spacing-5;
+
+      li {
+        margin-bottom: $spacing-1;
+        line-height: $line-height-relaxed;
+        color: $text-primary;
+      }
+    }
+
+    strong {
+      display: block;
+      margin-bottom: $spacing-2;
+      color: $text-primary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+}
+
+.quick-tips {
+  background: rgba(var(--primary-color-hex), 0.05);
+  padding: $spacing-5;
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(var(--primary-color-hex), 0.1);
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    margin: 0 0 $spacing-5 0;
+    color: var(--primary-color);
+    @include heading-small;
+  }
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-4;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tip-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  background: var(--surface-color);
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+  transition: all $transition-normal;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+    border-color: var(--primary-color);
+  }
+
+  mat-icon {
+    color: var(--primary-color);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  p {
+    margin: 0;
+    @include body-small;
+    color: $text-primary;
+    
+    strong {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-5;
+  margin-top: $spacing-5;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.example-card {
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  background: var(--surface-color);
+  transition: all $transition-normal;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.example-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-3 $spacing-4;
+  background: $gray-800;
+  border-bottom: 1px solid $border-color;
+
+  .example-label {
+    @include body-small;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+  }
+}
+
+.example-image-placeholder {
+  padding: $spacing-5;
+  background: $gray-900;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.example-notes {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-4;
+  background: rgba($success-color-hex, 0.1);
+  border-top: 1px solid rgba($success-color-hex, 0.2);
+
+  mat-icon {
+    color: $success-color;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  span {
+    @include body-small;
+    color: $success-color;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.rejection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: $spacing-4;
+  margin-top: $spacing-5;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rejection-card {
+  padding: $spacing-5;
+  border-radius: $border-radius-md;
+  text-align: center;
+  transition: all $transition-normal;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &.error {
+    background: rgba($error-color-hex, 0.1);
+    border: 1px solid $error-color;
+  }
+
+  .rejection-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    margin-bottom: $spacing-3;
+    @include body-medium;
+    font-weight: $font-weight-medium;
+    color: $error-color;
+
+    mat-icon {
+      color: $error-color;
+    }
+  }
+
+  .rejection-details {
+    p {
+      margin: 0 0 $spacing-3 0;
+      @include body-small;
+      color: $text-secondary;
+    }
+
+    mat-icon {
+      font-size: 32px;
+      color: $error-color;
+      opacity: 0.7;
+    }
+  }
+}
+
+// Fake UI Components
+.fake-status-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  background: #075e54;
+  color: $white;
+  border-radius: $border-radius-md $border-radius-md 0 0;
+}
+
+.fake-profile {
+  width: 40px;
+  height: 40px;
+  background: #128c7e;
+  border-radius: 50%;
+}
+
+.fake-profile-info {
+  .fake-name {
+    font-weight: $font-weight-medium;
+    color: $white;
+  }
+
+  .fake-time {
+    @include caption;
+    opacity: 0.8;
+    color: rgba($white, 0.9);
+  }
+}
+
+.fake-status-content {
+  padding: $spacing-4;
+  background: $white;
+}
+
+.fake-promo-id {
+  background: $gray-100;
+  padding: $spacing-2;
+  border-radius: $border-radius-sm;
+  margin-bottom: $spacing-3;
+  //font-family: $font-family-mono;
+  @include body-small;
+  color: $text-primary;
+}
+
+.fake-content {
+  line-height: $line-height-relaxed;
+  color: $text-primary;
+}
+
+.fake-views {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-3 $spacing-4;
+  background: $gray-100;
+  border-top: 1px solid $border-color;
+  color: $text-secondary;
+  
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.fake-viewers-list {
+  width: 100%;
+  max-width: 300px;
+  background: $white;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  border: 1px solid $border-color;
+}
+
+.viewer-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  border-bottom: 1px solid $border-color;
+}
+
+.viewer-avatar {
+  width: 32px;
+  height: 32px;
+  background: $gray-300;
+  border-radius: 50%;
+}
+
+.viewer-info {
+  flex: 1;
+
+  .viewer-name {
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+  }
+
+  .viewer-time {
+    @include caption;
+    color: $text-secondary;
+  }
+}
+
+.viewer-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-4;
+  background: $gray-100;
+  color: $text-secondary;
+  margin-top: $spacing-2;
+  border-radius: $border-radius-md;
+  
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+mat-dialog-actions {
+  padding: $spacing-4 $spacing-6;
+  border-top: $border-width solid $border-color;
+  margin: 0;
+  background: var(--surface-color);
+  
+  button {
+    min-width: 160px;
+    
+    @include mobile {
+      min-width: auto;
+      width: 100%;
+      margin-bottom: $spacing-2;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@include mobile {
+  .modal-header {
+    padding: $spacing-3 $spacing-4 0 $spacing-4;
+    h2 {
+        font-size: 0.8em;
+    }
+  }
+  
+  mat-dialog-content {
+    padding: $spacing-4;
+  }
+  
+  mat-dialog-actions {
+    padding: $spacing-3 $spacing-4;
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .fake-status-header,
+  .fake-status-content,
+  .viewer-item {
+    padding: $spacing-3;
+  }
+}
+
+// Animation for modal entrance
+@keyframes modalEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.proof-guide-modal {
+  animation: modalEntrance 0.3s ease-out;
+}
+
+// Ensure proper theming support
+::ng-deep {
+  .mat-mdc-dialog-surface {
+    border-radius: $border-radius-xl !important;
+    overflow: hidden !important;
+  }
+  
+  .proof-guide-dialog {
+    .mat-mdc-dialog-container {
+      padding: 0 !important;
+    }
+  }
+  
+  .mat-mdc-tab-group {
+    .mat-mdc-tab-header {
+      border-bottom: 1px solid $border-color;
+      margin-bottom: $spacing-4;
+    }
+    
+    .mat-mdc-tab-label-container {
+      background: var(--surface-color);
+    }
+    
+    .mat-mdc-tab {
+      opacity: 0.7;
+      transition: opacity $transition-normal;
+      
+      &:hover {
+        opacity: 1;
+      }
+      
+      &.mdc-tab--active {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+
+// Add these styles to your proof-guide-modal.component.scss
+
+.example-subtitle,
+.rejection-subtitle {
+  @include body-medium;
+  color: $text-secondary;
+  margin-bottom: $spacing-6;
+  text-align: center;
+}
+
+.example-image-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  border-radius: $border-radius-md;
+  background: $gray-900;
+  
+  .example-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform $transition-normal;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+  
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+  
+  .highlight-box {
+    position: absolute;
+    border: 2px solid $success-color;
+    border-radius: $border-radius-sm;
+    background: rgba($success-color, 0.1);
+    padding: $spacing-1 $spacing-2;
+    animation: pulseHighlight 2s infinite;
+    
+    .highlight-label {
+      @include caption;
+      font-weight: $font-weight-bold;
+      color: $success-color;
+      white-space: nowrap;
+    }
+  }
+}
+
+@keyframes pulseHighlight {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.note-content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+  
+  .note-title {
+    @include body-small;
+    font-weight: $font-weight-semibold;
+    color: $success-color;
+  }
+  
+  .note-details {
+    @include caption;
+    color: $text-secondary;
+  }
+}
+
+.image-tips {
+  margin-top: $spacing-8;
+  padding: $spacing-4;
+  background: rgba($primary-color-hex, 0.05);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($primary-color-hex, 0.1);
+  
+  .tip-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    margin-bottom: $spacing-2;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    mat-icon {
+      color: $primary-color;
+      flex-shrink: 0;
+    }
+    
+    .tip-text {
+      @include body-small;
+      color: $text-primary;
+      
+      strong {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+.rejection-image-placeholder {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: $spacing-3 0;
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: $error-color;
+    opacity: 0.5;
+  }
+}
+
+.rejection-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  margin-top: $spacing-8;
+  padding: $spacing-4;
+  background: rgba($warning-color-hex, 0.1);
+  border-radius: $border-radius-lg;
+  border-left: 4px solid $warning-color;
+  
+  mat-icon {
+    color: $warning-color;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  .warning-content {
+    @include body-small;
+    color: $text-primary;
+    
+    strong {
+      color: $warning-color;
+    }
+  }
+}
+
+// Modal image lightbox styles (optional)
+.image-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+  
+  .lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+    
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .close-lightbox {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      color: $white;
+      background: rgba(0, 0, 0, 0.5);
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// Responsive adjustments for images
+@include mobile {
+  .example-image-container {
+    height: 200px;
+  }
+  
+  .highlight-box {
+    .highlight-label {
+      font-size: 10px;
+      padding: 2px 4px;
+    }
+  }
+}
+
+// Accessibility improvements
+.example-image {
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Loading state for images
+.image-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: $gray-100;
+  border-radius: $border-radius-md;
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: $gray-400;
+    animation: spin 2s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Add these to your proof-guide-modal.component.scss
+
+// Click hint for images
+.click-hint {
+  position: absolute;
+  bottom: $spacing-2;
+  right: $spacing-2;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-1 $spacing-2;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: $border-radius-sm;
+  color: $white;
+  @include caption;
+  font-weight: $font-weight-medium;
+  opacity: 0;
+  transition: opacity $transition-normal;
+  pointer-events: none;
+  
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.example-image-container:hover .click-hint {
+  opacity: 1;
+}
+
+// Make image placeholder clickable
+.example-image-placeholder {
+  cursor: pointer;
+  transition: transform $transition-normal;
+  
+  &:hover {
+    transform: translateY(-2px);
+    
+    .example-image-container {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// Lightbox styles (updated)
+.image-lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+  
+  .lightbox-content {
+    max-width: 95vw;
+    max-height: 95vh;
+    position: relative;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    background: $gray-900;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    
+    .lightbox-image {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      display: block;
+    }
+    
+    .close-lightbox {
+      position: absolute;
+      top: $spacing-3;
+      right: $spacing-3;
+      color: $white;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.1);
+      }
+    }
+    
+    .lightbox-actions {
+      position: absolute;
+      bottom: $spacing-3;
+      right: $spacing-3;
+      display: flex;
+      gap: $spacing-2;
+      z-index: 2;
+      
+      button {
+        background: rgba(0, 0, 0, 0.5);
+        color: $white;
+        
+        &:hover {
+          background: rgba(0, 0, 0, 0.8);
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+}
+
+// Add a pulsing animation for the image placeholder on hover
+@keyframes pulseScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.example-image-placeholder:hover .example-image {
+  animation: pulseScale 2s ease-in-out infinite;
+}
+
+// Add cursor pointer to show it's clickable
+.example-image-container {
+  cursor: pointer;
+  
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+    border-radius: $border-radius-md;
+  }
+}
+
+// Add a visual feedback for click
+.example-image-placeholder:active {
+  transform: scale(0.98);
+}

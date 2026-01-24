@@ -65,7 +65,7 @@ export class StoreHeaderComponent {
       views: store.analytics.totalViews,
       sales: store.analytics.totalSales,
       conversion: store.analytics.conversionRate,
-      revenue: store.analytics.salesData.totalRevenue
+      revenue: 0 //store.analytics.salesData.totalRevenue
     };
   });
 
