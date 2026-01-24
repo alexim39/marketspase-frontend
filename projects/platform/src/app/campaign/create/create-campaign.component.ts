@@ -94,7 +94,8 @@ export class CreateCampaignComponent implements OnInit {
   // Signals to track validity of each step
   isContentValid = signal(false);
   isBudgetValid = signal(false);
-  isScheduleValid = signal(false);
+  isScheduleValid = signal(true);
+  // isScheduleValid = signal(false);
   selectedMedia = signal<MediaFile | null>(null);
 
   // Computed signals for derived state

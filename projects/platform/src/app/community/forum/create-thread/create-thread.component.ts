@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { map, Observable, startWith, Subscription } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserService } from '../../common/services/user.service';
+import { UserService } from '../../../common/services/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({

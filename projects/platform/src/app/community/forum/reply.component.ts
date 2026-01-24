@@ -3,9 +3,9 @@ import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnDestroy, O
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { timeAgo as timeAgoUtil, } from '../common/utils/time.util';
+import { timeAgo as timeAgoUtil, } from '../../common/utils/time.util';
 import { Subject, Subscription, takeUntil } from 'rxjs';
-import { UserService } from '../common/services/user.service';
+import { UserService } from '../../common/services/user.service';
 import { ForumService } from './forum.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';

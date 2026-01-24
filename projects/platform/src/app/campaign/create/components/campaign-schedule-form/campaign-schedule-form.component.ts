@@ -96,7 +96,7 @@ export class CampaignScheduleFormComponent implements OnInit {
    * This accesses the current value of the 'hasEndDate' FormControl.
    */
   getEndDateLabel(): string {
-    const isChecked = this.formGroup.get('hasEndDate')?.value;
+    const isChecked = this.formGroup.get('hasEndDate')?.value || false;
     
     // Ternary operation: (condition) ? value_if_true : value_if_false
     return isChecked ? 'Turn off end date' : 'Set an end date';

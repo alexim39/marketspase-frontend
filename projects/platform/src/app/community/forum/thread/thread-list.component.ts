@@ -3,17 +3,17 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { timeAgo as timeAgoUtil } from '../../common/utils/time.util';
+import { timeAgo as timeAgoUtil } from '../../../common/utils/time.util';
 import { CommonModule } from '@angular/common';
 import { ForumService, Thread } from '../forum.service';
 import { MatButtonModule } from '@angular/material/button';
-import { UserService } from '../../common/services/user.service';
+import { UserService } from '../../../common/services/user.service';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '../../../../../../shared-services/src/public-api';
 import { ConfirmDialogComponent } from '../confirmationDialog.component';
-import { TruncatePipe } from '../../store/shared';
+import { TruncatePipe } from '../../../store/shared';
 
 @Component({
   selector: 'app-thread-list',

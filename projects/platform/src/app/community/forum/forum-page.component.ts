@@ -29,9 +29,11 @@ import { ChangeDetectorRef } from '@angular/core';
   template: `
     <div class="forum-container">
       <mat-toolbar color="primary" class="forum-header">
-        <button mat-icon-button *ngIf="currentView === 'detail'" (click)="backToList()">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
+        @if (currentView === 'detail') {
+          <button mat-icon-button (click)="backToList()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+        }
         <span class="title">Community Forum</span>
         <span class="spacer"></span>
         <button mat-raised-button color="accent" (click)="openCreateThreadDialog()">
@@ -41,37 +43,39 @@ import { ChangeDetectorRef } from '@angular/core';
       </mat-toolbar>
 
       <div class="forum-content">
-        <div *ngIf="currentView === 'list'">
-          <div class="popular-tags">
-            <h3>Popular Tags</h3>
-            <div class="tags-container">
-              <mat-chip *ngFor="let tag of popularTags" (click)="filterByTag(tag)">
-                {{tag}}
-              </mat-chip>
+        @if (currentView === 'list') {
+          <div>
+            <div class="popular-tags">
+              <h3>Popular Tags</h3>
+              <div class="tags-container">
+                <mat-chip *ngFor="let tag of popularTags" (click)="filterByTag(tag)">
+                  {{tag}}
+                </mat-chip>
+              </div>
             </div>
-          </div>
 
-          @if (isLoading) {
-            <div class="loading-spinner">
-              <mat-spinner diameter="40"/>
-              <span>Loading threads...</span>
-            </div>
-          } @else {
-            <app-thread-list 
-            [threads]="threads"
-            (threadClicked)="navigateToThread($event)"
-            />
-          }
-          @if (!isLoading && threads.length === 0) {
-            <div class="no-threads">
-              <mat-icon>forum</mat-icon>
-              <p>No discussions found</p>
-              <button mat-raised-button color="primary" (click)="openCreateThreadDialog()">
-                Start a discussion
-              </button>
-            </div>
-          }
-        </div>
+            @if (isLoading) {
+              <div class="loading-spinner">
+                <mat-spinner diameter="40"/>
+                <span>Loading threads...</span>
+              </div>
+            } @else {
+              <app-thread-list 
+              [threads]="threads"
+              (threadClicked)="navigateToThread($event)"
+              />
+            }
+            @if (!isLoading && threads.length === 0) {
+              <div class="no-threads">
+                <mat-icon>forum</mat-icon>
+                <p>No discussions found</p>
+                <button mat-raised-button color="primary" (click)="openCreateThreadDialog()">
+                  Start a discussion
+                </button>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
   `,

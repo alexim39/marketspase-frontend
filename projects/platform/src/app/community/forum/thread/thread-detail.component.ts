@@ -20,10 +20,10 @@ import { Subject, takeUntil, switchMap, tap } from 'rxjs';
 
 import { ForumService, Thread, Comment } from '../forum.service';
 import { CommentComponent } from '../comment/comment.component';
-import { timeAgo as timeAgoUtil } from '../../common/utils/time.util';
-import { SanitizeHtmlPipe } from '../../common/pipes/sanitize-html.pipe';
-import { UserService } from '../../common/services/user.service';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { timeAgo as timeAgoUtil } from '../../../common/utils/time.util';
+import { SanitizeHtmlPipe } from '../../../common/pipes/sanitize-html.pipe';
+import { UserService } from '../../../common/services/user.service';
+import { ApiService } from '../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-thread-detail',
