@@ -285,7 +285,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
       urlLink = this.promotion.campaign.link;
     } else {
       //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
-      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}`; 
+      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`; 
     }
     const textToCopy = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
     if (navigator.clipboard) {
@@ -309,7 +309,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
       urlLink = this.promotion.campaign.link;
     } else {
       //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
-      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}`; 
+      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`; 
     }
     const captionText = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${promotion.campaign?.caption || 'Visit the link for more details.'}`;
 

@@ -99,3 +99,27 @@
     }
   }
 }
+
+/* In your component's CSS file */
+.toggle-section {
+  margin: 20px 0;
+  padding: 10px;
+  background-color: color-mix(in srgb, $background-color, black 5%);
+  // background-color: rgba($gray-900, 0.9);
+  border-radius: 4px;
+}
+
+.toggle-description {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: $text-primary;
+}
+
+.note {
+  font-size: 10px;
+  color: $warning-color;
+}
+
+.full-width-toggle {
+  width: 100%;
+}
