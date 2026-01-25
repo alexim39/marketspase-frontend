@@ -112,6 +112,7 @@ export class CreateCampaignComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForms();
+    this.setupFormListeners(); 
   }
 
   private initializeForms(): void {
@@ -119,6 +120,7 @@ export class CreateCampaignComponent implements OnInit {
       title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
       caption: ['', [Validators.required, Validators.maxLength(300)]],
       link: ['', [this.urlValidator]],
+      enableDirectChat: [false], // Add this line
       category: ['other', Validators.required]
     });
 
@@ -278,6 +280,21 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   private urlValidator(control: AbstractControl): { [key: string]: any } | null {
+
+     // Get the parent form group to check the enableDirectChat value
+    const formGroup = control.parent;
+    
+    if (!formGroup) {
+      return null;
+    }
+    
+    const enableDirectChat = formGroup.get('enableDirectChat')?.value;
+    
+    // If direct chat is enabled, link is optional
+    if (enableDirectChat) {
+      return null;
+    }
+  
     if (!control.value) return null;
     
     const urlPattern = /^(https?|ftp):\/\/(-\.)?([^\s\/?\.#]+\.?)+(\/[^\s]*)?$/i;
@@ -387,6 +404,27 @@ export class CreateCampaignComponent implements OnInit {
 
   fundWallet(): void {
     this.dialog.open(WalletFundingComponent, { panelClass: 'custom-dialog-container' });
+  }
+
+  private setupFormListeners(): void {
+    // Listen to enableDirectChat changes
+    this.contentForm.get('enableDirectChat')?.valueChanges.subscribe((enabled) => {
+      const linkControl = this.contentForm.get('link');
+      
+      if (enabled) {
+        // Disable and clear validation
+        linkControl?.disable();
+        linkControl?.clearValidators();
+        linkControl?.setValue('');
+      } else {
+        // Enable and set validation
+        linkControl?.enable();
+        linkControl?.setValidators([this.urlValidator.bind(this)]);
+      }
+      
+      // Update validation status
+      linkControl?.updateValueAndValidity();
+    });
   }
 
 }
