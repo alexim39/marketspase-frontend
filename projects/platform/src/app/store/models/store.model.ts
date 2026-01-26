@@ -20,6 +20,7 @@ export interface Store {
   settings?: StoreSettings;
   isActive: boolean;
   isDefaultStore: boolean;
+  storeLink: string;
 }
 
 export interface StoreAnalytics {

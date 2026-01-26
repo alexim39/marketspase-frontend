@@ -1,17 +1,16 @@
 import { Routes } from '@angular/router';
-import { ForumPageComponent } from './forum-page.component';
 import { ThreadDetailComponent } from './thread/thread-detail.component';
 
 export const ForumRoutes: Routes = [
   {
     path: '',
-    component: ForumPageComponent,
+    loadComponent: () => import('./forum-page.component').then(c => c.ForumPageComponent),
     title: 'Forum - Explore discussions, ask questions, and share knowledge',
   },
 
   {
     path: 'my-threads',
-    component: ForumPageComponent,
+    loadComponent: () => import('./forum-page.component').then(c => c.ForumPageComponent),
     data: {
       filterByUser: true,
       breadcrumb: 'My Threads',
@@ -20,7 +19,7 @@ export const ForumRoutes: Routes = [
 
   {
     path: 'search',
-    component: ForumPageComponent,
+    loadComponent: () => import('./forum-page.component').then(c => c.ForumPageComponent),
     data: {
       searchMode: true,
       breadcrumb: 'Search Results',
@@ -29,7 +28,7 @@ export const ForumRoutes: Routes = [
 
   {
     path: 'tags/:tag',
-    component: ForumPageComponent,
+    loadComponent: () => import('./forum-page.component').then(c => c.ForumPageComponent),
     data: {
       filterByTag: true,
       breadcrumb: 'Tag',
@@ -39,15 +38,12 @@ export const ForumRoutes: Routes = [
   {
     path: 'create',
     outlet: 'modal',
-    loadComponent: () =>
-      import('./create-thread/create-thread.component').then(
-        (c) => c.CreateThreadComponent
-      ),
+    loadComponent: () => import('./create-thread/create-thread.component').then((c) => c.CreateThreadComponent),
   },
 
   {
     path: 'categories/:category',
-    component: ForumPageComponent,
+    loadComponent: () => import('./forum-page.component').then(c => c.ForumPageComponent),
     data: {
       filterByCategory: true,
       breadcrumb: 'Category',

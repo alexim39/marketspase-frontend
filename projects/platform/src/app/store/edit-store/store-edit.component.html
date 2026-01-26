@@ -1,28 +1,44 @@
-<!-- components/store-create/store-create.component.html -->
-<div class="store-create">
-  <div class="create-container">
+<!-- components/store-edit/store-edit.component.html -->
+<div class="store-edit">
+  <div class="edit-container">
     <!-- Header -->
-    <div class="create-header">
+    <div class="edit-header">
       <button mat-icon-button class="back-button" (click)="onCancel()" [disabled]="isSubmitting()">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-content">
-        <h1>Create New Store</h1>
-        <p>Set up your virtual store to start selling and promoting products</p>
+        <h1>Update Store Record</h1>
+        <p>Modify your virtual store details</p>
       </div>
     </div>
 
-    <!-- Progress Bar -->
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-overlay">
+        <mat-card class="loading-card">
+          <mat-card-content>
+            <div class="loading-content">
+              <mat-spinner diameter="40" color="primary"></mat-spinner>
+              <div class="loading-text">
+                <h3>Loading Store Data...</h3>
+                <p>Please wait while we load your store information.</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Progress Bar for Submission -->
     @if (isSubmitting()) {
       <div class="loading-overlay">
         <mat-card class="loading-card">
           <mat-card-content>
             <div class="loading-content">
-              <!-- <mat-spinner diameter="40" color="primary"></mat-spinner> -->
-               <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
               <div class="loading-text">
-                <h3>Creating Your Store...</h3>
-                <p>Please wait while we set up your store. This may take a moment.</p>
+                <h3>Updating Your Store...</h3>
+                <p>Please wait while we update your store. This may take a moment.</p>
               </div>
             </div>
           </mat-card-content>
@@ -79,28 +95,6 @@
               </mat-form-field>
             </mat-card-content>
           </mat-card>
-
-          <!-- Contact Information -->
-          <mat-card class="form-section">
-            <mat-card-header>
-              <mat-card-title>
-                <mat-icon>contact_phone</mat-icon>
-                Contact Information
-              </mat-card-title>
-              <mat-card-subtitle>How customers can reach you</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>WhatsApp Business Number</mat-label>
-                <input matInput formControlName="whatsappNumber" placeholder="e.g., 08012345678 or +2348012345678">
-                <mat-icon matSuffix>whatsapp</mat-icon>
-                <mat-hint>Enter your Nigerian WhatsApp business number</mat-hint>
-                <mat-error *ngIf="isFieldInvalid('whatsappNumber')">
-                  {{ getFieldError('whatsappNumber') }}
-                </mat-error>
-              </mat-form-field>
-            </mat-card-content>
-          </mat-card>
         </div>
 
         <!-- Right Column -->
@@ -112,7 +106,7 @@
                 <mat-icon>image</mat-icon>
                 Store Logo
               </mat-card-title>
-              <mat-card-subtitle>Upload your store logo (required)</mat-card-subtitle>
+              <mat-card-subtitle>Update your store logo (optional)</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <div class="logo-upload-section">
@@ -182,10 +176,6 @@
                 <div class="preview-description">
                   {{ storeForm.value.description || 'Store description will appear here...' }}
                 </div>
-                <div class="preview-contact">
-                  <mat-icon>phone</mat-icon>
-                  <span>{{ storeForm.value.whatsappNumber || user()?.personalInfo?.phone || 'No WhatsApp number' }}</span>
-                </div>
               </div>
             </mat-card-content>
           </mat-card>
@@ -203,49 +193,13 @@
               @if (isSubmitting()) {
                 <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
               } @else {
-                <mat-icon>add_business</mat-icon>
+                <mat-icon>update</mat-icon>
               }
-              {{ isSubmitting() ? 'Creating...' : 'Create Store' }}
+              {{ isSubmitting() ? 'Updating...' : 'Update Store' }}
             </button>
-
           </div>
         </div>
       </div>
     </form>
-
-    <!-- Help Section -->
-    <mat-card class="help-section">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>help</mat-icon>
-          Need Help?
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="help-content">
-          <div class="help-item">
-            <mat-icon>info</mat-icon>
-            <div class="help-text">
-              <h4>Store Name Tips</h4>
-              <p>Choose a memorable name that reflects your brand and is easy to spell.</p>
-            </div>
-          </div>
-          <div class="help-item">
-            <mat-icon>description</mat-icon>
-            <div class="help-text">
-              <h4>Description Guidelines</h4>
-              <p>Clearly describe what you sell and what makes your store unique.</p>
-            </div>
-          </div>
-          <div class="help-item">
-            <mat-icon>phone</mat-icon>
-            <div class="help-text">
-              <h4>WhatsApp Business</h4>
-              <p>Use a dedicated WhatsApp Business number for customer inquiries and orders.</p>
-            </div>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
   </div>
 </div>

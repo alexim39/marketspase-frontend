@@ -1,0 +1,32 @@
+
+    <div class="products-page">
+      @if (loading()) {
+        <div class="loading-spinner">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading products...</p>
+        </div>
+      } @else if (error()) {
+        <div class="error-state">
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <h3>Failed to load products</h3>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="loadProducts()">
+            Retry
+          </button>
+        </div>
+      } @else {
+        <app-product-management
+          [store]="store()!"
+          [products]="products()"
+          (productUpdated)="loadProducts()"
+          (pageChanged)="onPageChange($event)"
+        ></app-product-management>
+        <!-- <app-product-management
+          [store]="store()!"
+          [products]="products()"
+          [paginationData]="paginationData()"
+          (productUpdated)="loadProducts()"
+          (pageChanged)="onPageChange($event)"
+        ></app-product-management> -->
+      }
+    </div>

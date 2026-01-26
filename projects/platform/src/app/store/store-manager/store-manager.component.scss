@@ -143,10 +143,14 @@
             }
           }
 
-        //   &:active {
-        //     background-color: $primary-color !important;
-        //     color: $primary-color;
-        //   }
+          &:active {
+            background-color: $primary-color !important;
+            color: $white;
+          }
+          &:hover {
+            background-color: rgba($gray-800, 0.8) !important;
+            color: $white;
+          }
         }
         
         mat-menu {

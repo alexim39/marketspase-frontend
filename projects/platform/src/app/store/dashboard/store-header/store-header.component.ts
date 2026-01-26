@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '../../models/store.model';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-store-header',
@@ -37,6 +38,7 @@ export class StoreHeaderComponent {
   store = input<Store | null>(null);
   stores = input<Store[]>([]);
   loading = input<boolean>(false);
+  private snackBar = inject(MatSnackBar);
 
   // Outputs
   createStore = output<void>();
@@ -124,4 +126,26 @@ export class StoreHeaderComponent {
   trackByStoreId(index: number, store: Store): string {
     return store._id!;
   }
+
+ copyStoreLink(storeLink: string) {
+    const fullLink = `https://marketspase.com/store/${storeLink}`;
+
+    navigator.clipboard.writeText(fullLink)
+      .then(() => {
+        this.snackBar.open('Store link copied successfully!', 'OK', { 
+          duration: 3000,
+          verticalPosition: 'bottom',
+          horizontalPosition: 'center'
+        });
+      })
+      .catch(() => {
+        this.snackBar.open('Failed to copy store link', 'OK', { 
+          duration: 3000,
+          verticalPosition: 'bottom',
+          horizontalPosition: 'center'
+        });
+      })
+  }
+
+
 }

@@ -46,10 +46,12 @@
                       <mat-icon>star_outline</mat-icon>
                       Set as Default
                     </button>
+                  } @else {
+                    <button mat-button [matMenuTriggerFor]="storeMenu">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
                   }
-                  <button mat-button [matMenuTriggerFor]="storeMenu">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
+                  
                   
                   <mat-menu #storeMenu="matMenu">
                     <button mat-menu-item (click)="viewStore(store)">
@@ -65,6 +67,8 @@
                       Archive Store
                     </button>
                   </mat-menu>
+
+                  
                 </div>
               </div>
             </mat-card-content>

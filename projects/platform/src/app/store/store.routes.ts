@@ -1,9 +1,4 @@
 import { Routes } from "@angular/router";
-import { StoreDashboardComponent } from "./dashboard/store-dashboard/store-dashboard.component";
-import { StoreCreateComponent } from "./store-create/store-create.component";
-import { AddProductComponent } from "./products/add-products/add-product.component";
-import { ProductsComponent } from "./products/view-products/view-products-index.component";
-
 
 export const StoreRoutes: Routes = [
     {
@@ -11,22 +6,27 @@ export const StoreRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: StoreDashboardComponent,
+        loadComponent: () => import('./dashboard').then(c => c.StoreIndexComponent),
         title: "Marketer Store Dashboard - Manage all store campaign and promotion",
     },
     {
         path: 'create',
-        component: StoreCreateComponent,
+        loadComponent: () => import('./store-create/store-create.component').then(c => c.StoreCreateComponent),
         title: "Create New Store - New Store Setup",
     }, 
+    { 
+        path: 'edit/:id', 
+        loadComponent: () => import('./edit-store/store-edit.component').then(c => c.StoreEditComponent),
+        title: "Update Store Information - Store Setup",
+    },
     {
         path: ':storeId/products/create',
-        component: AddProductComponent,
+        loadComponent: () => import('./products/add-products/add-product.component').then(c => c.AddProductComponent),
         title: "Create New Product - Add Product to Store",
     },
     {
         path: ':storeId/products',
-        component: ProductsComponent,
+        loadComponent: () => import('./products/view-products/view-products-index.component').then(c => c.ProductsComponent),
         title: "Store Product Management - List Products in Store",
     },
 

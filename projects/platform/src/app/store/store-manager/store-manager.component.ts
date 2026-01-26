@@ -73,11 +73,10 @@ export class StoreManagerComponent {
   }
   
   editStore(store: Store) {
-    // Navigate to edit page
     this.dialogRef.close();
-    // You'd implement navigation here
+    this.router.navigate(['/dashboard/stores/edit', store._id]);
   }
-  
+    
   archiveStore(store: Store) {
     // Implement archive logic
   }

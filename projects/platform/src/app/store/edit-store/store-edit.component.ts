@@ -1,5 +1,5 @@
 // components/store-create/store-create.component.ts
-import { Component, inject, signal, OnDestroy, Signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy, Signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -14,14 +14,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, takeUntil } from 'rxjs';
 import { StoreService } from '../services/store.service';
-import { CreateStoreRequest } from '../models';
 import { CATEGORIES } from '../../common/utils/categories';
 import { UserService } from '../../common/services/user.service';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
-  selector: 'app-store-create',
+  selector: 'app-store-edit',
   standalone: true,
   providers: [StoreService],
   imports: [
@@ -37,10 +36,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatTooltipModule,
     MatProgressBarModule
   ],
-  templateUrl: './store-create.component.html',
-  styleUrls: ['./store-create.component.scss']
+  templateUrl: './store-edit.component.html',
+  styleUrls: ['./store-edit.component.scss']
 })
-export class StoreCreateComponent implements OnDestroy {
+export class StoreEditComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
@@ -48,11 +47,14 @@ export class StoreCreateComponent implements OnDestroy {
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
+  // Store data
+  storeToEdit = signal<any>(null);
+  storeId = signal<string>('');
+
   // Signals
   loading = signal<boolean>(false);
   previewImage = signal<string | null>(null);
   isSubmitting = signal<boolean>(false);
-
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
@@ -63,7 +65,7 @@ export class StoreCreateComponent implements OnDestroy {
     return CATEGORIES;
   }
 
-  // Form
+  // Form - logo is not required for editing
   storeForm: FormGroup = this.fb.group({
     name: ['', [
       Validators.required,
@@ -76,47 +78,62 @@ export class StoreCreateComponent implements OnDestroy {
       Validators.maxLength(500)
     ]],
     category: ['', Validators.required],
-    whatsappNumber: [this.user()?.personalInfo.phone ?? '', [
-      Validators.required,
-      Validators.pattern(/^(\+234|0)[789][01]\d{8}$/) // Nigerian phone number pattern
-    ]],
-    logo: [null, Validators.required] // Add Validators.required here
+    logo: [null],
+    userId: this.user()?._id
   });
 
   // Character counters
   nameLength = signal<number>(0);
   descriptionLength = signal<number>(0);
 
-  // Validation messages
-  validationMessages = {
-    name: {
-      required: 'Store name is required',
-      minlength: 'Store name must be at least 2 characters long',
-      maxlength: 'Store name cannot exceed 50 characters'
-    },
-    description: {
-      required: 'Store description is required',
-      minlength: 'Description must be at least 10 characters long',
-      maxlength: 'Description cannot exceed 500 characters'
-    },
-    category: {
-      required: 'Please select a category'
-    },
-    whatsappNumber: {
-      required: 'WhatsApp number is required',
-      pattern: 'Please enter a valid Nigerian phone number'
-    },
-    logo: {
-      required: 'Store logo is required' // Add this
-    }
-  };
-
   ngOnInit(): void {
     this.setupFormListeners();
-    // Disable the whatsappNumber control
-    this.storeForm.get('whatsappNumber')?.disable();
-    // Set initial logo error state
-    this.logoError.set(this.storeForm.get('logo')?.hasError('required') || false);
+    
+    this.route.params.subscribe(params => {
+      const storeId = params['id'];
+      if (storeId) {
+        this.storeId.set(storeId);
+        this.loadStoreData(storeId);
+      }
+    });
+  }
+
+  private loadStoreData(storeId: string): void {
+    this.loading.set(true);
+    this.storeService.getStoreById(storeId).subscribe({
+      next: (response) => {
+        console.log('Store data loaded:', response);
+        this.storeToEdit.set(response.data);
+        this.populateFormWithStoreData(response.data);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load store:', error);
+        this.snackBar.open('Failed to load store data', 'OK', { duration: 3000 });
+        this.router.navigate(['/dashboard/stores']);
+        this.loading.set(false);
+      }
+    });
+  }
+  
+  private populateFormWithStoreData(store: any): void {
+    // Populate form with existing store data
+    this.storeForm.patchValue({
+      name: store.name,
+      description: store.description,
+      category: store.category,
+      userId: this.user()?._id
+    });
+    
+    // Handle logo preview if it exists
+    if (store.logo) {
+      this.previewImage.set(store.logo);
+      this.storeForm.patchValue({ logo: store.logo });
+    }
+    
+    // Update character counters
+    this.nameLength.set(store.name?.length || 0);
+    this.descriptionLength.set(store.description?.length || 0);
   }
 
   ngOnDestroy(): void {
@@ -157,7 +174,6 @@ export class StoreCreateComponent implements OnDestroy {
       }
 
       this.storeForm.patchValue({ logo: file });
-      // Mark the logo field as touched and update validation
       this.storeForm.get('logo')?.markAsTouched();
       this.logoError.set(false);
       
@@ -173,7 +189,6 @@ export class StoreCreateComponent implements OnDestroy {
   removeLogo(): void {
     this.storeForm.patchValue({ logo: null });
     this.previewImage.set(null);
-    // Mark the logo field as touched and set error
     this.storeForm.get('logo')?.markAsTouched();
     this.logoError.set(true);
     
@@ -184,12 +199,6 @@ export class StoreCreateComponent implements OnDestroy {
     }
   }
 
-  // Add a method to check if logo is required:
-  isLogoRequired(): boolean | undefined {
-    return this.storeForm.get('logo')?.hasError('required') && this.storeForm.get('logo')?.touched;
-  }
-
-  // Alternative simpler getFieldError method
   getFieldError(fieldName: string): string {
     const field = this.storeForm.get(fieldName);
     
@@ -211,10 +220,6 @@ export class StoreCreateComponent implements OnDestroy {
       return `Maximum ${errors['maxlength'].requiredLength} characters allowed`;
     }
     
-    if (errors['pattern']) {
-      return 'Please enter a valid format';
-    }
-    
     return 'Invalid value';
   }
 
@@ -223,68 +228,45 @@ export class StoreCreateComponent implements OnDestroy {
     return !!(field?.invalid && field.touched);
   }
 
-  onSubmit(): void {  // Changed from async Promise<void> to void
+  onSubmit(): void {
     // Mark all fields as touched to trigger validation messages
     this.storeForm.markAllAsTouched();
-
+    
     if (this.storeForm.valid && !this.isSubmitting()) {
       this.isSubmitting.set(true);
-      this.loading.set(true);
-
-      const formData: CreateStoreRequest = {
-        name: this.storeForm.value.name.trim(),
-        description: this.storeForm.value.description.trim(),
-        category: this.storeForm.value.category,
-        whatsappNumber: this.formatPhoneNumber(this.storeForm.value.whatsappNumber),
-        logo: this.storeForm.value.logo,
-        userId: this.user()?._id || '',
-        settings: {
-          notifications: {
-            lowStock: true,
-            newOrder: true,
-            promotionEnding: true,
-            weeklyReport: true
-          },
-          inventory: {
-            lowStockThreshold: 5,
-            autoArchiveOutOfStock: false,
-            restockNotifications: true
-          },
-          promotions: {
-            autoApprovePromoters: false,
-            minPromoterRating: 4.0,
-            defaultCommission: 10
-          },
-          appearance: {
-            theme: 'light',
-            primaryColor: '#667eea',
-            logoPosition: 'left'
-          },
-        }
-      };
-
-      this.storeService.createStore(formData).pipe(
-        takeUntil(this.destroy$)  // Clean up subscription
+      
+      const formData = new FormData();
+      formData.append('name', this.storeForm.value.name.trim());
+      formData.append('description', this.storeForm.value.description.trim());
+      formData.append('category', this.storeForm.value.category);
+      formData.append('userId', this.storeForm.value.userId);
+      
+      // Handle logo - if it's a File, append it; if it's a string (URL), skip it
+      const logoValue = this.storeForm.value.logo;
+      if (logoValue instanceof File) {
+        formData.append('logo', logoValue, logoValue.name);
+      } else if (logoValue === null && this.previewImage() === null) {
+        // If logo was removed, send null to remove it on backend
+        formData.append('logo', 'null');
+      }
+      // If logoValue is a string (existing URL), don't append anything to keep it
+      
+      // Update store
+      this.storeService.updateStore(this.storeId(), formData).pipe(
+        takeUntil(this.destroy$)
       ).subscribe({
-        next: (store) => {
-          this.snackBar.open('Store created successfully!', 'OK', { duration: 3000 });
+        next: (response) => {
+          this.snackBar.open('Store updated successfully!', 'OK', { duration: 3000 });
           this.router.navigate(['/dashboard/stores']);
-          // this.router.navigate(['/dashboard/stores', store._id]);
         },
         error: (error) => {
-          console.error('Store creation failed:', error);
-          const errorMessage = error.error?.message || 'Failed to create store. Please try again.';
+          console.error('Store update failed:', error);
+          const errorMessage = error.error?.message || 'Failed to update store. Please try again.';
           this.snackBar.open(errorMessage, 'OK', { duration: 5000 });
           this.isSubmitting.set(false);
-          this.loading.set(false);
         },
         complete: () => {
-          // This will be called after success or error, but we handle it in next/error
-          // Add a slight delay to ensure smooth UX
-          setTimeout(() => {
-            this.isSubmitting.set(false);
-            this.loading.set(false);
-          }, 500);
+          this.isSubmitting.set(false);
         }
       });
     }
@@ -300,33 +282,8 @@ export class StoreCreateComponent implements OnDestroy {
     this.router.navigate(['/dashboard/stores']);
   }
 
-  private formatPhoneNumber(phone: string): string {
-    if (!phone) return ''
-    // Format Nigerian phone numbers to international format
-    let formatted = phone.trim();
-    
-    // Remove any non-digit characters
-    formatted = formatted.replace(/\D/g, '');
-    
-    // Handle numbers starting with 0
-    if (formatted.startsWith('0')) {
-      formatted = '+234' + formatted.substring(1);
-    }
-    // Handle numbers without country code
-    else if (formatted.length === 10) {
-      formatted = '+234' + formatted;
-    }
-    // Handle numbers with 234 but without +
-    else if (formatted.startsWith('234') && formatted.length === 12) {
-      formatted = '+' + formatted;
-    }
-    
-    return formatted;
-  }
-
   // Getters for template
   get name() { return this.storeForm.get('name'); }
   get description() { return this.storeForm.get('description'); }
   get category() { return this.storeForm.get('category'); }
-  get whatsappNumber() { return this.storeForm.get('whatsappNumber'); }
 }

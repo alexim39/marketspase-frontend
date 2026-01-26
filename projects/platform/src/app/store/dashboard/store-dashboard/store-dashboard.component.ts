@@ -1,5 +1,5 @@
 // components/store-dashboard/store-dashboard.component.ts - FIXED VERSION
-import { Component, inject, signal, computed, OnInit, OnDestroy, effect, WritableSignal } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, effect, WritableSignal, Signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +17,7 @@ import { Subject, takeUntil, interval, Subscription } from 'rxjs';
 
 import { StoreService } from '../../services/store.service';
 import { UserService } from '../../../common/services/user.service';
-import { DeviceService } from '../../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
 import { Store, StoreAnalytics } from '../../models/store.model';
 import { ProductManagementComponent } from '../product-management/product-management.component';
 import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';
@@ -53,7 +53,7 @@ interface PerformanceMetric {
 }
 
 @Component({
-  selector: 'app-store-dashboard',
+  selector: 'app-marketer-store-dashboard',
   standalone: true,
   providers: [StoreService],
   imports: [
@@ -84,16 +84,18 @@ interface PerformanceMetric {
   templateUrl: './store-dashboard.component.html',
   styleUrls: ['./store-dashboard.component.scss']
 })
-export class StoreDashboardComponent implements OnInit, OnDestroy {
+export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected storeService = inject(StoreService);
-  private userService = inject(UserService);
+  //private userService = inject(UserService);
+  //public user = this.userService.user;
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private deviceService = inject(DeviceService);
 
+  @Input({ required: true }) user!: Signal<UserInterface | null>;;
+
   // Enhanced Signals
-  public user = this.userService.user;
   public stores = this.storeService.storesState;
   public currentStore = this.storeService.currentStoreState;
   public products = this.storeService.productsState;
