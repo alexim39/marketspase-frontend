@@ -64,8 +64,8 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
     CommissionPipe,
     MatTableModule,
   ],
-  templateUrl: './products-list.component.html',
-  styleUrls: ['./products-list.component.scss']
+  templateUrl: './promoter-products-list.component.html',
+  styleUrls: ['./promoter-products-list.component.scss']
 })
 export class PromoterProductsListComponent implements OnInit, OnDestroy {
   private productService = inject(PromoterProductService);
@@ -333,7 +333,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   // Product actions
   viewProductDetails(product: PromoterProduct): void {
-    this.router.navigate(['/promoter/products', product._id]);
+    this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
   copyPromotionLink(product: PromoterProduct): void {

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { UserService } from '../common/services/user.service';
 import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 import { MarketerStoreDashboardComponent } from './marketer/dashboard/store-dashboard/store-dashboard.component';
-import { PromoterProductsListComponent } from './promoter/products-list/products-list.component';
+import { PromoterProductsListComponent } from './promoter/products-list/promoter-products-list.component';
 
 @Component({
   selector: 'campaign-index',

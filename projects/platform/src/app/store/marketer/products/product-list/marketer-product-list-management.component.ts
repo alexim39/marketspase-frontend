@@ -42,7 +42,7 @@ interface StockStatus {
 }
 
 @Component({
-  selector: 'app-product-list-management',
+  selector: 'app-marketer-product-list-management',
   standalone: true,
   imports: [
     CommonModule,
@@ -67,10 +67,10 @@ interface StockStatus {
     MatDividerModule,
     MatDialogModule
   ],
-  templateUrl: './product-list-management.component.html',
-  styleUrls: ['./product-list-management.component.scss']
+  templateUrl: './marketer-product-list-management.component.html',
+  styleUrls: ['./marketer-product-list-management.component.scss']
 })
-export class ProductManagementComponent {
+export class MarketerProductListManagementComponent {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);

@@ -32,6 +32,18 @@ export class StoreService {
 
   private cache: Map<string, any> = new Map();
 
+  // Clear store state
+  clearStoreState(): void {
+    this.currentStore.set(null);
+    this.storeProducts.set([]);
+    this.promotions.set([]);
+    this.performanceMetrics.set([]);
+  }
+
+  // Set current store
+  setCurrentStore(store: Store | null): void {
+    this.currentStore.set(store);
+  }
 
   // Store creation
   createStore(storeData: CreateStoreRequest): Observable<Store> {
@@ -157,6 +169,7 @@ export class StoreService {
     );
   }
 
+  // Get specific store product
   getProduct(storeId: string, productId: string): Observable<any> {
     this.loading.set(true);
     
@@ -172,6 +185,8 @@ export class StoreService {
       })
     );
   }
+
+
 
   // Store Analytics
   // getStoreAnalytics(storeId: string): Observable<StoreAnalytics> {
@@ -262,18 +277,7 @@ export class StoreService {
   //   }
   // }
 
-  // Clear store state
-  clearStoreState(): void {
-    this.currentStore.set(null);
-    this.storeProducts.set([]);
-    this.promotions.set([]);
-    this.performanceMetrics.set([]);
-  }
-
-  // Set current store
-  setCurrentStore(store: Store | null): void {
-    this.currentStore.set(store);
-  }
+  
 
 
   // Add this method to StoreService class (after getStoreProducts method)

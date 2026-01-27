@@ -35,7 +35,7 @@ interface Review {
 }
 
 @Component({
-  selector: 'app-product-detail',
+  selector: 'app-marketer-product-detail',
   standalone: true,
   providers: [StoreService],
   imports: [
@@ -53,10 +53,10 @@ interface Review {
     MatDialogModule,
     TruncatePipe,
   ],
-  templateUrl: './product-detail.component.html',
-  styleUrls: ['./product-detail.component.scss']
+  templateUrl: './marketer-product-detail.component.html',
+  styleUrls: ['./marketer-product-detail.component.scss']
 })
-export class ProductDetailComponent implements OnInit {
+export class MarketerProductDetailComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);

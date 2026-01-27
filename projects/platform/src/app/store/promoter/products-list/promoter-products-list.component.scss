@@ -450,6 +450,7 @@
         }
         
         .product-card {
+          background-color: color-mix(in srgb, $background-color, black 85%);
           position: relative;
           transition: transform $transition-normal, box-shadow $transition-normal;
           overflow: visible;
@@ -728,6 +729,7 @@
       
       // Products List View
       .products-list {
+        background-color: color-mix(in srgb, $background-color, black 85%);
         margin-bottom: $spacing-8;
         background: var(--surface-color);
         border-radius: $border-radius-lg;

@@ -40,7 +40,7 @@ export class PromoterProductService {
         .set('sortDirection', filters.sortDirection || 'desc');
     }
 
-    return this.apiService.get<any>(`${this.apiUrl}/list`, params).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/list`, params, undefined, true).pipe(
       catchError(error => {
         console.error('Error fetching promoter products:', error);
         return of([]);
@@ -48,15 +48,19 @@ export class PromoterProductService {
     );
   }
 
-  getProductDetails(productId: string): Observable<PromoterProduct> {
-    return this.apiService.get<PromoterProduct>(`${this.apiUrl}/${productId}`);
+  getProductById(productId: string, promoterId: string): Observable<any> {
+    return this.apiService.get<any>(`${this.apiUrl}/${productId}`, new HttpParams().set('promoterId', promoterId), undefined, true);
+  }
+
+  getRelatedProducts(productId: string, category: string): Observable<PromoterProduct> {
+    return this.apiService.get<PromoterProduct>(`${this.apiUrl}/${productId}`, undefined, undefined, true);
   }
 
   trackView(productId: string, promoterId?: string): Observable<void> {
-    return this.apiService.post<void>(`${this.apiUrl}/${productId}/view`, { promoterId });
+    return this.apiService.post<void>(`${this.apiUrl}/${productId}/view`, { promoterId }, undefined, true);
   }
 
   getPromotionStats(productId: string): Observable<any> {
-    return this.apiService.get(`${this.apiUrl}/${productId}/stats`);
+    return this.apiService.get(`${this.apiUrl}/${productId}/stats`, undefined, undefined, true);
   }
 }

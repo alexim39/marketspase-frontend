@@ -15,12 +15,12 @@
           </button>
         </div>
       } @else {
-        <app-product-list-management
+        <app-marketer-product-list-management
           [store]="store()!"
           [products]="products()"
           (productUpdated)="loadProducts()"
           (pageChanged)="onPageChange($event)"
-        ></app-product-list-management>
+        ></app-marketer-product-list-management>
         <!-- <app-product-management
           [store]="store()!"
           [products]="products()"

@@ -299,7 +299,7 @@
 
               <!-- Product Image -->
               <div class="product-image">
-                @if (product.images && product.images[0]?.url) {
+                @if (product.images && product.images[0].url) {
                   <img
                     [src]="product.images[0].url"
                     [alt]="product.name"
@@ -444,7 +444,7 @@
               <td mat-cell *matCellDef="let product" class="product-cell">
                 <div class="product-info" (click)="viewProductDetails(product)">
                   <div class="product-image">
-                    @if (product.images && product.images[0]?.url) {
+                    @if (product.images && product.images[0].url) {
                       <img [src]="product.images[0].url" [alt]="product.name">
                     } @else {
                       <div class="image-placeholder">
