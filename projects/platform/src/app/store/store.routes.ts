@@ -7,27 +7,32 @@ export const StoreRoutes: Routes = [
         pathMatch: 'full' */
         path: '',
         loadComponent: () => import('./dashboard').then(c => c.StoreIndexComponent),
-        title: "Marketer Store Dashboard - Manage all store campaign and promotion",
+        title: "Store Dashboard - View and Manage all store",
     },
     {
         path: 'create',
         loadComponent: () => import('./store-create/store-create.component').then(c => c.StoreCreateComponent),
-        title: "Create New Store - New Store Setup",
+        title: "Create New Store - Setup your Marketer Store",
     }, 
     { 
         path: 'edit/:id', 
         loadComponent: () => import('./edit-store/store-edit.component').then(c => c.StoreEditComponent),
-        title: "Update Store Information - Store Setup",
+        title: "Edit Store - Update Store Information",
     },
     {
         path: ':storeId/products/create',
         loadComponent: () => import('./products/add-products/add-product.component').then(c => c.AddProductComponent),
-        title: "Create New Product - Add Product to Store",
+        title: "Add New Product - Create Product for Store",
     },
     {
         path: ':storeId/products',
-        loadComponent: () => import('./products/view-products/view-products-index.component').then(c => c.ProductsComponent),
-        title: "Store Product Management - List Products in Store",
+        loadComponent: () => import('./products/product-list/product-list-index.component').then(c => c.ProductListComponent),
+        title: "Product List - View and Manage Store Products",
+    },
+    {
+        path: ':storeId/products/:productId',
+        loadComponent: () => import('./products/product-detail/product-detail.component').then(c => c.ProductDetailComponent),
+        title: "Product Details - View and Manage Product Information",
     },
 
     

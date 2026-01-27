@@ -8,12 +8,12 @@ import { Store } from '../../models/store.model';
 import { Product } from '../../models';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ProductManagementComponent } from './product-management.component';
+import { ProductManagementComponent } from './product-list-management.component';
 import { MatIconModule } from '@angular/material/icon';
 import { StoreService } from '../../services/store.service';
 
 @Component({
-  selector: 'app-products',
+  selector: 'app-product-list-index',
   standalone: true,
   providers: [StoreService],
   imports: [
@@ -22,10 +22,10 @@ import { StoreService } from '../../services/store.service';
     ProductManagementComponent,
     MatIconModule
   ],
-  templateUrl: './view-products-index.component.html',
-  styleUrls: ['./view-products-index.component.scss']
+  templateUrl: './product-list-index.component.html',
+  styleUrls: ['./product-list-index.component.scss']
 })
-export class ProductsComponent implements OnInit, OnDestroy {
+export class ProductListComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);

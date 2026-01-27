@@ -33,7 +33,7 @@ export class StoreService {
   private cache: Map<string, any> = new Map();
 
 
-  // Store CRUD Operations
+  // Store creation
   createStore(storeData: CreateStoreRequest): Observable<Store> {
     this.loading.set(true);
     
@@ -59,6 +59,7 @@ export class StoreService {
     );
   }
 
+  // Get Stores
   getStores(userId: string): Observable<any> {
   // getStores(userId: string): Observable<Store[]> {
     this.loading.set(true);
@@ -75,6 +76,7 @@ export class StoreService {
     );
   }
 
+  // Get Store by ID
   getStoreById(storeId: string): Observable<any> {
     this.loading.set(true);
     return this.apiService.get<any>(`${this.apiUrl}/${storeId}`).pipe(
@@ -90,6 +92,7 @@ export class StoreService {
     );
   }
 
+  // Update Store
   updateStore(storeId: string, formData: FormData): Observable<any> {
     return this.apiService.patch<any>(`${this.apiUrl}/${storeId}`, formData).pipe(
       tap({
@@ -121,8 +124,7 @@ export class StoreService {
     );
   }
 
-   
-
+  // Set Default Store
   setDefaultStore(store: Store): Observable<any> {
     return this.apiService.patch<Store>(
       `${this.apiUrl}/${store._id}/set-default`, 
@@ -150,6 +152,22 @@ export class StoreService {
         },
         error: () => {
           this.loading.set(false);
+        }
+      })
+    );
+  }
+
+  getProduct(storeId: string, productId: string): Observable<any> {
+    this.loading.set(true);
+    
+    return this.apiService.get<any>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
+      tap({
+        next: () => {
+          this.loading.set(false);
+        },
+        error: (error) => {
+          this.loading.set(false);
+          console.error('Failed to get product:', error);
         }
       })
     );
@@ -360,20 +378,6 @@ export class StoreService {
   //   );
   // }
 
-  // getStoreProduct(storeId: string, productId: string): Observable<Product> {
-  //   this.loading.set(true);
-    
-  //   return this.apiService.get<Product>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
-  //     tap({
-  //       next: () => {
-  //         this.loading.set(false);
-  //       },
-  //       error: (error) => {
-  //         this.loading.set(false);
-  //         console.error('Failed to get product:', error);
-  //       }
-  //     })
-  //   );
-  // }
+ 
 
 }

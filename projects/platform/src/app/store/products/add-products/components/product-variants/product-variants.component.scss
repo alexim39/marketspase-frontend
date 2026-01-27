@@ -44,7 +44,7 @@
     @include card-base;
     padding: $spacing-4;
     margin-bottom: $spacing-4;
-    background: $gray-50;
+    background: $gray-900;
 
     .attribute-header {
       @include flex-between;

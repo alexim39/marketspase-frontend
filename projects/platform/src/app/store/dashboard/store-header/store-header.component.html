@@ -109,12 +109,10 @@
                 <div class="store-link-label">
                   <mat-icon>link</mat-icon>
                   <span>Store URL</span>
+                  <a class="preview-link" [href]="'https://marketspase.com/store/' + store()?.storeLink" target="_blank">Preview Store</a>
                 </div>
                 <div class="store-link-input">
-                  <input type="text" 
-                         [value]="'https://marketspase.com/store/' + store()?.storeLink"
-                         readonly
-                         class="link-input">
+                  <input [value]="'https://marketspase.com/store/' + store()?.storeLink" readonly class="link-input">
                   <button class="copy-link-btn" (click)="copyStoreLink(store()!.storeLink!)">
                     <mat-icon>content_copy</mat-icon>
                     <span class="btn-text">Copy</span>

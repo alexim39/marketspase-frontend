@@ -1,7 +1,7 @@
 // components/product-management/add-product/components/basic-info-form/basic-info-form.component.ts
-import { Component, input, output, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, input, output, OnInit, OnDestroy, ViewChild, ElementRef, InputSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -41,9 +41,10 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
-  // Inputs
-  formGroup = input.required<FormGroup>();
+  @ViewChild('tagInput') tagInput!: ElementRef<HTMLInputElement>;
+  
+  // Inputs - KEEP as input signal for parent component to pass data
+  formGroup: InputSignal<FormGroup> = input.required<FormGroup>();
   categories = input<CategoryOption[]>([]);
   images = input<string[]>([]);
   maxImages = input<number>(5);
@@ -51,13 +52,19 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
   // Outputs
   imagesChanged = output<{ files: File[], previews: string[] }>();
   tagsChanged = output<string[]>();
+  
+  // Remove this local formGroup and use the input signal instead
+  // formGroup = new FormGroup({
+  //   tags: new FormArray([]),
+  //   // ...other form controls
+  // });
 
   // Local state
   selectedFiles: File[] = [];
   tagSuggestions = ['New', 'Popular', 'Sale', 'Limited', 'Exclusive', 'Trending'];
 
-  get tagsArray() {
-    return this.formGroup().get('tags') as any;
+  get tagsArray(): FormArray {
+    return this.formGroup().get('tags') as FormArray;
   }
 
   ngOnInit(): void {
@@ -74,17 +81,77 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  addTag(event: any): void {
-    const input = event.input;
-    const value = (event.value ?? '').trim();
+  // Fix method name to match HTML template
+  addTagFromInput(event: any): void {
+    let value: string;
+    let inputElement: HTMLInputElement | null = null;
+
+    if (event.input) {
+        // Called from matChipInputTokenEnd
+        value = (event.value ?? '').trim();
+        inputElement = event.input;
+    } else if (event.option) {
+        // Called from autocomplete optionSelected
+        value = (event.option.value ?? '').trim();
+        // Set the input field value to the selected tag
+        this.tagInput.nativeElement.value = value;
+    } else {
+        // Direct call
+        value = (event ?? '').trim();
+    }
+
     if (value) {
-      this.tagsArray.push(value);
-      if (input) input.value = '';
+        // Check if tag already exists
+        const currentTags = this.tagsArray.value as string[];
+        if (!currentTags.includes(value)) {
+            // Push a new FormControl with the tag value
+            this.tagsArray.push(new FormControl(value));
+            this.tagsChanged.emit(this.tagsArray.value);
+        }
+
+        // Clear the input if it was from a token end
+        if (inputElement) {
+            inputElement.value = '';
+        }
     }
   }
 
-  removeTag(index: number): void {
+  // Add this method to handle autocomplete selection
+  addTag(event: any): void {
+    const value = (event.option?.value ?? '').trim();
+    if (value) {
+      const currentTags = this.tagsArray.value as string[];
+      if (!currentTags.includes(value)) {
+        this.tagsArray.push(new FormControl(value));
+      }
+      // Clear the input
+      if (this.tagInput?.nativeElement) {
+        this.tagInput.nativeElement.value = '';
+      }
+    }
+  }
+
+ removeTag(index: number): void {
+    // Remove the tag at the specified index
     this.tagsArray.removeAt(index);
+
+    // Automatically select the next tag, if available
+    const remainingTags = this.tagsArray.controls;
+    if (remainingTags.length > 0) {
+      const nextIndex = index < remainingTags.length ? index : remainingTags.length - 1;
+      const nextTag = remainingTags[nextIndex] as FormControl;
+      if (nextTag) {
+        // Set the value of the input to the next tag
+        this.tagInput.nativeElement.value = nextTag.value;
+        this.tagInput.nativeElement.focus();
+      }
+    } else {
+      // Clear the input if no tags are left
+      this.tagInput.nativeElement.value = '';
+    }
+
+    // Emit the updated tags
+    this.tagsChanged.emit(this.tagsArray.value);
   }
 
   onImageSelect(event: any): void {

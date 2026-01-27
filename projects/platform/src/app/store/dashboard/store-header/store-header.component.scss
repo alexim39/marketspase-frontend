@@ -356,6 +356,19 @@
         color: $text-secondary;
         font-weight: $font-weight-medium;
       }
+
+      .preview-link {
+        margin-left: auto;
+        @include body-small;
+        color: $success-color;
+        font-weight: $font-weight-medium;
+        text-decoration: underline;
+        
+        &:hover {
+          color: $primary-dark;
+        }
+      }
+      
     }
     
     .store-link-input {

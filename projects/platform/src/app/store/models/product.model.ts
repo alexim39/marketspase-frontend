@@ -24,6 +24,17 @@ export interface Product {
     width: number;
     height: number;
   };
+  // dimensions?: {
+  //   length: number;
+  //   width: number;
+  //   height: number;
+  // };
+  costPrice?: number;
+  taxRate?: number;
+  specifications?: any;
+  weightUnit?: 'kg' | 'lb' | 'g' | 'oz';
+  returnRate?: number;
+  reviews?: any[];
 
   
   

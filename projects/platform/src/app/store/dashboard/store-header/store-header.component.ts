@@ -28,7 +28,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatTooltipModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './store-header.component.html',
   styleUrls: ['./store-header.component.scss']
