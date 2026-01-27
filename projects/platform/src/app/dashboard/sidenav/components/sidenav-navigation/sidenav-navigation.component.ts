@@ -4,8 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
-import { NavigationItem } from '../../sidenav.component';
-
+import { NavigationItem } from '../../navigation';
 @Component({
   selector: 'app-sidenav-navigation',
   standalone: true,
@@ -232,10 +231,10 @@ export class SidenavNavigationComponent implements OnInit {
     this.navigationItems.forEach(item => {
       item.expanded = item.expanded || false;
       if (item.children) {
-        item.children.forEach(child => {
+        item.children.forEach((child: NavigationItem) => {
           child.expanded = child.expanded || false;
           if (child.children) {
-            child.children.forEach(grandChild => {
+            child.children.forEach((grandChild: NavigationItem) => {
               grandChild.expanded = grandChild.expanded || false;
             });
           }
