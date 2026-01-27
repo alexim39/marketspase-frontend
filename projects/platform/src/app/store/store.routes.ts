@@ -16,7 +16,7 @@ export const StoreRoutes: Routes = [
         title: "Edit Store - Update Store Information",
     },
 
-     {
+    {
         path: 'product/:productId',
         loadComponent: () => import('./promoter/product-detail/promoter-product-details.component').then(c => c.PromoterProductDetailsComponent),
         title: "Product Details - View Product Information",

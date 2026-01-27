@@ -74,7 +74,7 @@ export class MarketerProductListComponent implements OnInit, OnDestroy {
             isVerified: false,
             isDefaultStore: false,
             verificationTier: 'basic'
-          } as Store);
+          } as unknown as Store);
           
           // Set products from response.data.products
           this.products.set(response.data.products || []);

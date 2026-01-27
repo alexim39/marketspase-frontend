@@ -4,7 +4,10 @@ import { StoreSettings } from "./store-promotion.model";
 // models/store.model.ts
 export interface Store {
   _id?: string;
-  owner: string;
+  owner: {
+    _id: string;
+    email: string;
+  };
   name: string;
   description: string;
   logo: string;
@@ -21,6 +24,7 @@ export interface Store {
   isActive: boolean;
   isDefaultStore: boolean;
   storeLink: string;
+
 }
 
 export interface StoreAnalytics {
