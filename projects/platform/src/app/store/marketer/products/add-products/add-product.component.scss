@@ -1,0 +1,57 @@
+// components/product-management/add-product/add-product.component.scss
+@import '../../../../../styles/mixins';
+@import '../../../../../styles/variables';
+
+.add-product-container {
+  padding: $spacing-6;
+  background: linear-gradient(135deg, $background-color 0%, $gray-700 100%);
+  min-height: 100vh;
+
+  @include mobile {
+    padding: $spacing-3;
+  }
+}
+
+.product-form-wrapper {
+  .form-step {
+    animation: slideInUp 0.3s ease-out;
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .add-product-container {
+    padding: $spacing-3;
+  }
+}
+
+// High Contrast Mode
+@media (prefers-contrast: high) {
+  ::ng-deep {
+    .form-card {
+      border: 2px solid $black;
+    }
+
+    .upload-area {
+      border: 2px dashed $black;
+    }
+  }
+}
+
+// Reduced Motion
+@media (prefers-reduced-motion: reduce) {
+  .form-step {
+    animation: none;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

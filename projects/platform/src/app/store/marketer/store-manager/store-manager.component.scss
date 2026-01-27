@@ -1,0 +1,260 @@
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+
+.store-manager {
+  padding: $spacing-5;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: $background-color;
+  color: $text-primary;
+  
+  @include scrollbar();
+  
+  .manager-header {
+    @include flex-between();
+    margin-bottom: $spacing-5;
+    
+    h2 {
+      @include heading-small();
+      margin: 0;
+      color: $text-primary;
+    }
+    
+    button {
+      color: $text-secondary;
+      
+      &:hover {
+        background: color-mix(in srgb, var(--surface-color), var(--text-secondary) 8%);
+      }
+    }
+  }
+  
+  .stores-list {
+    @include flex-column();
+    gap: $spacing-3;
+    margin-bottom: $spacing-5;
+  }
+  
+  mat-card {
+    @include card-base();
+    @include card-hover();
+    border: $border-width solid $border-color;
+    
+    &.default-store {
+      border-color: $success-color;
+      background: color-mix(in srgb, $success-color-hex, transparent 92%);
+    }
+    
+    mat-card-content {
+      padding: $spacing-4 !important;
+    }
+    
+    .store-card {
+      @include flex-between();
+      gap: $spacing-4;
+      
+      .store-info {
+        @include flex-center();
+        gap: $spacing-3;
+        flex: 1;
+        
+        .store-icon {
+          width: 48px;
+          height: 48px;
+          background: color-mix(in srgb, $primary-color-hex, transparent 92%);
+          border-radius: $border-radius-md;
+          @include flex-center();
+          color: $primary-color;
+        }
+        
+        .store-details {
+          h3 {
+            margin: 0 0 $spacing-1 0;
+            @include body-medium();
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+          }
+          
+          .store-description {
+            margin: 0 0 $spacing-2 0;
+            @include body-small();
+            color: $text-secondary;
+          }
+          
+          .store-tags {
+            display: flex;
+            gap: $spacing-2;
+            
+            .tag {
+              @include caption();
+              display: inline-flex;
+              align-items: center;
+              gap: $spacing-1;
+              padding: $spacing-1 $spacing-2;
+              border-radius: $border-radius-full;
+              font-weight: $font-weight-medium;
+              
+              &.verified {
+                background: color-mix(in srgb, $success-color-hex, transparent 90%);
+                color: $success-color-hex;
+                
+                mat-icon {
+                  color: $success-color-hex;
+                }
+              }
+              
+              &.default {
+                background: color-mix(in srgb, $warning-color-hex, transparent 90%);
+                color: $warning-color-hex;
+                
+                mat-icon {
+                  color: $warning-color-hex;
+                }
+              }
+              
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+              }
+            }
+          }
+        }
+      }
+      
+      .store-actions {
+        @include flex-center();
+        gap: $spacing-2;
+        
+        button {
+          @include button-ghost();
+          
+          &[color="primary"] {
+            @include button-outline();
+            font-size: $font-size-xs;
+            padding: $spacing-1 $spacing-3;
+            
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+          }
+
+          &:active {
+            background-color: $primary-color !important;
+            color: $white;
+          }
+          &:hover {
+            background-color: rgba($gray-800, 0.8) !important;
+            color: $white;
+          }
+        }
+        
+        mat-menu {
+          .warn {
+            color: $error-color-hex;
+            
+            &:hover {
+              background: color-mix(in srgb, $error-color-hex, transparent 22%);
+            }
+            
+            mat-icon {
+              color: $error-color-hex;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .empty-stores {
+    @include flex-column-center();
+    padding: $spacing-16 $spacing-5;
+    color: $text-tertiary;
+    
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: $spacing-4;
+      opacity: 0.5;
+    }
+    
+    p {
+      @include body-medium();
+      margin: 0;
+    }
+  }
+  
+  .manager-actions {
+    border-top: $border-width solid $divider-color;
+    padding-top: $spacing-5;
+    
+    button {
+      @include button-primary();
+      width: 100%;
+      
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+.loading-indicator {
+  @include flex-column-center();
+  padding: $spacing-16 $spacing-5;
+  color: $text-secondary;
+  
+  .spinner {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+    margin-bottom: $spacing-4;
+    color: $primary-color;
+  }
+  
+  p {
+    @include body-medium();
+    margin: 0;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+}
+
+// Media Queries
+@include mobile() {
+  .store-manager {
+    padding: $spacing-3;
+    
+    .manager-header {
+      margin-bottom: $spacing-3;
+    }
+    
+    mat-card {
+      mat-card-content {
+        padding: $spacing-3 !important;
+      }
+      
+      .store-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-3;
+        
+        .store-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}

@@ -6,32 +6,32 @@ export const StoreRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        loadComponent: () => import('./dashboard').then(c => c.StoreIndexComponent),
+        loadComponent: () => import('.').then(c => c.StoreIndexComponent),
         title: "Store Dashboard - View and Manage all store",
     },
     {
         path: 'create',
-        loadComponent: () => import('./store-create/store-create.component').then(c => c.StoreCreateComponent),
+        loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
         title: "Create New Store - Setup your Marketer Store",
     }, 
     { 
         path: 'edit/:id', 
-        loadComponent: () => import('./edit-store/store-edit.component').then(c => c.StoreEditComponent),
+        loadComponent: () => import('./marketer/edit-store/store-edit.component').then(c => c.StoreEditComponent),
         title: "Edit Store - Update Store Information",
     },
     {
         path: ':storeId/products/create',
-        loadComponent: () => import('./products/add-products/add-product.component').then(c => c.AddProductComponent),
+        loadComponent: () => import('./marketer/products/add-products/add-product.component').then(c => c.AddProductComponent),
         title: "Add New Product - Create Product for Store",
     },
     {
         path: ':storeId/products',
-        loadComponent: () => import('./products/product-list/product-list-index.component').then(c => c.ProductListComponent),
+        loadComponent: () => import('./marketer/products/product-list/product-list-index.component').then(c => c.ProductListComponent),
         title: "Product List - View and Manage Store Products",
     },
     {
         path: ':storeId/products/:productId',
-        loadComponent: () => import('./products/product-detail/product-detail.component').then(c => c.ProductDetailComponent),
+        loadComponent: () => import('./marketer/products/product-detail/product-detail.component').then(c => c.ProductDetailComponent),
         title: "Product Details - View and Manage Product Information",
     },
 

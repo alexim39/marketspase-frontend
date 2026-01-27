@@ -26,7 +26,8 @@ export function getPromoterNavigation(
       label: 'Storefronts',
       expanded: false,
       children: [
-        { icon: 'search', label: 'Browse Products', route: '/dashboard/storefronts/products' },
+        { icon: 'search', label: 'Browse Products', route: '/dashboard/stores' },
+        // { icon: 'search', label: 'Browse Products', route: '/dashboard/storefronts/products' },
         { icon: 'inventory', label: 'My Promoted Products', route: '/dashboard/storefronts/my-products' },
         { icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
         { icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },

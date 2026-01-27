@@ -1,0 +1,606 @@
+<!-- promoter-products-list.component.html -->
+<div class="promoter-products-container">
+  <!-- Header Section -->
+  <header class="page-header">
+    <div class="header-background">
+      <div class="header-content">
+        <div class="header-text">
+          <h1 class="page-title">Find Products to Promote</h1>
+          <p class="page-subtitle">
+            Browse available products from verified stores and start earning commissions
+          </p>
+        </div>
+        <div class="header-stats">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <mat-icon>inventory</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ stats().total | number }}</span>
+              <span class="stat-label">Products</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <mat-icon>store</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ stats().stores | number }}</span>
+              <span class="stat-label">Stores</span>
+            </div>
+          </div>
+          <div class="stat-card highlight">
+            <div class="stat-icon">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ stats().avgCommission | number:'1.0-1' }}%</span>
+              <span class="stat-label">Avg. Commission</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+      <div class="filters-header">
+        <h3>Filters</h3>
+        <button mat-button color="primary" (click)="clearFilters()">
+          <mat-icon>refresh</mat-icon>
+          Reset
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="filter-section">
+        <div class="search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            placeholder="Search products, stores, categories..."
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)"
+            aria-label="Search products"
+          >
+          @if (searchQuery()) {
+            <button mat-icon-button class="clear-search" (click)="clearSearch()" aria-label="Clear search">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="filter-section">
+        <h4>Categories</h4>
+        <div class="categories-list">
+          @for (category of categories(); track category) {
+            <mat-checkbox
+              [checked]="selectedCategories().includes(category)"
+              (change)="toggleCategorySelection($event.checked, category)"
+              class="category-checkbox"
+            >
+              {{ category }}
+            </mat-checkbox>
+
+          }
+        </div>
+      </div>
+
+      <!-- Price Range -->
+      <div class="filter-section">
+        <h4>Price Range</h4>
+        <div class="range-slider">
+          <mat-slider
+            [min]="priceRange()[0]"
+            [max]="priceRange()[1]"
+            [step]="10"
+            discrete
+          >
+            <input 
+              matSliderStartThumb 
+              [value]="selectedPriceRange()[0]" 
+              (valueChange)="onPriceRangeChange([$event, selectedPriceRange()[1]])"
+            >
+            <input 
+              matSliderEndThumb 
+              [value]="selectedPriceRange()[1]" 
+              (valueChange)="onPriceRangeChange([selectedPriceRange()[0], $event])"
+            >
+          </mat-slider>
+          <div class="range-values">
+            <span>{{ selectedPriceRange()[0] | currency }}</span>
+            <span>{{ selectedPriceRange()[1] | currency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission Range -->
+      <div class="filter-section">
+        <h4>Commission Rate</h4>
+        <div class="range-slider">
+          <mat-slider
+            [min]="commissionRange()[0]"
+            [max]="commissionRange()[1]"
+            [step]="1"
+            discrete
+          >
+            <input 
+              matSliderStartThumb 
+              [value]="selectedCommissionRange()[0]" 
+              (valueChange)="onCommissionRangeChange([$event, selectedCommissionRange()[1]])"
+            >
+            <input 
+              matSliderEndThumb 
+              [value]="selectedCommissionRange()[1]" 
+              (valueChange)="onCommissionRangeChange([selectedCommissionRange()[0], $event])"
+            >
+          </mat-slider>
+
+          <div class="range-values">
+            <span>{{ selectedCommissionRange()[0] }}%</span>
+            <span>{{ selectedCommissionRange()[1] }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sorting -->
+      <div class="filter-section">
+        <h4>Sort By</h4>
+        <div class="sort-options">
+          <button
+            mat-button
+            [class.active]="sortBy() === 'commission'"
+            (click)="onSortChange('commission')"
+            class="sort-option"
+          >
+            <mat-icon>trending_up</mat-icon>
+            Commission
+            @if (sortBy() === 'commission') {
+              <mat-icon>{{ sortDirection() === 'desc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+            }
+          </button>
+          <button
+            mat-button
+            [class.active]="sortBy() === 'popularity'"
+            (click)="onSortChange('popularity')"
+            class="sort-option"
+          >
+            <mat-icon>whatshot</mat-icon>
+            Popularity
+          </button>
+          <button
+            mat-button
+            [class.active]="sortBy() === 'price'"
+            (click)="onSortChange('price')"
+            class="sort-option"
+          >
+            <mat-icon>attach_money</mat-icon>
+            Price
+          </button>
+          <button
+            mat-button
+            [class.active]="sortBy() === 'newest'"
+            (click)="onSortChange('newest')"
+            class="sort-option"
+          >
+            <mat-icon>schedule</mat-icon>
+            Newest
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Products Content -->
+    <div class="products-content">
+      <!-- Content Header -->
+      <div class="content-header">
+        <div class="results-info">
+          <h3>Products ({{ filteredProducts().length }})</h3>
+          <p class="filter-info">
+            @if (selectedCategories().length > 0) {
+              <mat-chip>
+                {{ selectedCategories().length }} categories selected
+              </mat-chip>
+            }
+            @if (selectedPriceRange()[0] > priceRange()[0] || selectedPriceRange()[1] < priceRange()[1]) {
+              <mat-chip>
+                Price: {{ selectedPriceRange()[0] | currency }} - {{ selectedPriceRange()[1] | currency }}
+              </mat-chip>
+            }
+          </p>
+        </div>
+        <div class="content-actions">
+          <div class="view-toggle">
+            <button
+              mat-icon-button
+              [class.active]="viewMode() === 'grid'"
+              (click)="setGridView()"
+              matTooltip="Grid View"
+            >
+              <mat-icon>grid_view</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [class.active]="viewMode() === 'list'"
+              (click)="setListView()"
+              matTooltip="List View"
+            >
+              <mat-icon>list</mat-icon>
+            </button>
+          </div>
+          <button mat-button [matMenuTriggerFor]="exportMenu">
+            <mat-icon>download</mat-icon>
+            Export
+          </button>
+          <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>description</mat-icon>
+              CSV
+            </button>
+            <button mat-menu-item>
+              <mat-icon>table_chart</mat-icon>
+              Excel
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Loading products...</p>
+        </div>
+      }
+
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <div class="error-state">
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <h3>Unable to Load Products</h3>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="loadProducts()">
+            <mat-icon>refresh</mat-icon>
+            Try Again
+          </button>
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && !error() && filteredProducts().length === 0) {
+        <div class="empty-state">
+          <div class="empty-state-content">
+            <mat-icon class="empty-icon">search_off</mat-icon>
+            <h3>No Products Found</h3>
+            <p>Try adjusting your filters or search terms to find more products.</p>
+            <button mat-raised-button color="primary" (click)="clearFilters()">
+              <mat-icon>filter_alt_off</mat-icon>
+              Clear All Filters
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Grid View -->
+      @if (viewMode() === 'grid' && filteredProducts().length > 0 && !loading() && !error()) {
+        <div class="products-grid">
+          @for (product of paginatedProducts(); track trackByProductId($index, product)) {
+            <mat-card class="product-card" appearance="outlined">
+              <!-- Commission Badge -->
+              <div class="commission-badge" [class]="getPerformanceColor(product.promotion.commissionRate)">
+                <mat-icon>trending_up</mat-icon>
+                <span>{{ product.promotion.commissionRate }}%</span>
+              </div>
+
+              <!-- Product Image -->
+              <div class="product-image">
+                @if (product.images && product.images[0]?.url) {
+                  <img
+                    [src]="product.images[0].url"
+                    [alt]="product.name"
+                    loading="lazy"
+                    (click)="viewProductDetails(product)"
+                  >
+                } @else {
+                  <div class="image-placeholder" (click)="viewProductDetails(product)">
+                    <mat-icon>image</mat-icon>
+                    <span>No Image</span>
+                  </div>
+                }
+
+                <!-- Quick Actions Overlay -->
+                <div class="quick-actions">
+                  <button
+                    mat-icon-button
+                    color="primary"
+                    (click)="copyPromotionLink(product); $event.stopPropagation()"
+                    matTooltip="Copy promotion link"
+                  >
+                    <mat-icon>link</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    color="accent"
+                    (click)="generateWhatsAppMessage(product); $event.stopPropagation()"
+                    matTooltip="Share via WhatsApp"
+                  >
+                    <mat-icon>whatsapp</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Store Info -->
+              <div class="store-info">
+                @if (product.store.logo) {
+                  <img [src]="product.store.logo" [alt]="product.store.name" class="store-logo">
+                } @else {
+                  <div class="store-logo placeholder">
+                    <mat-icon>store</mat-icon>
+                  </div>
+                }
+                <div class="store-details">
+                  <span class="store-name">{{ product.store.name | truncate:20 }}</span>
+                  <span class="store-tier" [class]="getStoreBadgeClass(product.store.verificationTier || 'basic')">
+                    {{ product.store.verificationTier === 'premium' ? 'Premium' : 'Basic' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Product Details -->
+              <mat-card-content>
+                <h3 class="product-title" (click)="viewProductDetails(product)">
+                  {{ product.name | truncate:50 }}
+                </h3>
+                
+                @if (product.description) {
+                  <p class="product-description">{{ product.description | truncate:80 }}</p>
+                }
+
+                <div class="product-meta">
+                  <div class="price-info">
+                    <span class="current-price">{{ product.price | currency }}</span>
+                    @if (product.originalPrice && product.originalPrice > product.price) {
+                      <span class="original-price">{{ product.originalPrice | currency }}</span>
+                    }
+                  </div>
+
+                  <div class="performance-stats">
+                    <div class="stat" matTooltip="Views">
+                      <mat-icon>visibility</mat-icon>
+                      <span>{{ product.promotion.views | number }}</span>
+                    </div>
+                    <div class="stat" matTooltip="Clicks">
+                      <mat-icon>touch_app</mat-icon>
+                      <span>{{ product.promotion.clicks | number }}</span>
+                    </div>
+                    <div class="stat" matTooltip="Conversions">
+                      <mat-icon>shopping_cart</mat-icon>
+                      <span>{{ product.promotion.conversions | number }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Performance Bar -->
+                <div class="performance-bar">
+                  <div class="bar-label">
+                    <span>Conversion Rate</span>
+                    <span>{{ getConversionRate(product) | number:'1.1-1' }}%</span>
+                  </div>
+                  <mat-progress-bar
+                    [value]="getConversionRate(product)"
+                    mode="determinate"
+                    [color]="getPerformanceColor(product.promotion.commissionRate)"
+                  ></mat-progress-bar>
+                </div>
+
+                <!-- Tags -->
+                @if (product.tags && product.tags.length > 0) {
+                  <div class="product-tags">
+                    @for (tag of product.tags.slice(0, 3); track tag) {
+                      <mat-chip>{{ tag }}</mat-chip>
+                    }
+                  </div>
+                }
+              </mat-card-content>
+
+              <!-- Actions -->
+              <mat-card-actions>
+                <button
+                  mat-button
+                  color="primary"
+                  (click)="viewProductDetails(product)"
+                  class="details-btn"
+                >
+                  <mat-icon>visibility</mat-icon>
+                  Details
+                </button>
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="copyPromotionLink(product)"
+                  class="promote-btn"
+                >
+                  <mat-icon>share</mat-icon>
+                  Promote
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      }
+
+      <!-- List View -->
+      @if (viewMode() === 'list' && filteredProducts().length > 0 && !loading() && !error()) {
+        <div class="products-list">
+          <table mat-table [dataSource]="paginatedProducts()" class="products-table">
+            <!-- Product Column -->
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef>Product</th>
+              <td mat-cell *matCellDef="let product" class="product-cell">
+                <div class="product-info" (click)="viewProductDetails(product)">
+                  <div class="product-image">
+                    @if (product.images && product.images[0]?.url) {
+                      <img [src]="product.images[0].url" [alt]="product.name">
+                    } @else {
+                      <div class="image-placeholder">
+                        <mat-icon>image</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  <div class="product-details">
+                    <div class="product-name-row">
+                      <span class="product-name">{{ product.name }}</span>
+                      @if (product.sku) {
+                        <span class="product-sku">{{ product.sku }}</span>
+                      }
+                    </div>
+                    @if (product.description) {
+                      <span class="product-description">{{ product.description | truncate:60 }}</span>
+                    }
+                    <div class="store-info-row">
+                      <img [src]="product.store.logo" [alt]="product.store.name" class="store-logo-small">
+                      <span class="store-name">{{ product.store.name }}</span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Category Column -->
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Category</th>
+              <td mat-cell *matCellDef="let product">
+                <mat-chip>{{ product.category }}</mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Price Column -->
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef>Price</th>
+              <td mat-cell *matCellDef="let product">
+                <div class="price-cell">
+                  <span class="current-price">{{ product.price | currency }}</span>
+                  @if (product.originalPrice && product.originalPrice > product.price) {
+                    <span class="original-price">{{ product.originalPrice | currency }}</span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Commission Column -->
+            <ng-container matColumnDef="commission">
+              <th mat-header-cell *matHeaderCellDef>Commission</th>
+              <td mat-cell *matCellDef="let product">
+                <div class="commission-cell" [class]="getPerformanceColor(product.promotion.commissionRate)">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>{{ product.promotion.commissionRate }}%</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Performance Column -->
+            <ng-container matColumnDef="performance">
+              <th mat-header-cell *matHeaderCellDef>Performance</th>
+              <td mat-cell *matCellDef="let product">
+                <div class="performance-cell">
+                  <div class="performance-stats">
+                    <div class="stat">
+                      <mat-icon>visibility</mat-icon>
+                      <span>{{ product.promotion.views }}</span>
+                    </div>
+                    <div class="stat">
+                      <mat-icon>touch_app</mat-icon>
+                      <span>{{ product.promotion.clicks }}</span>
+                    </div>
+                    <div class="stat">
+                      <mat-icon>shopping_cart</mat-icon>
+                      <span>{{ product.promotion.conversions }}</span>
+                    </div>
+                  </div>
+                  <mat-progress-bar
+                    [value]="getConversionRate(product)"
+                    mode="determinate"
+                    [color]="getPerformanceColor(product.promotion.commissionRate)"
+                    class="performance-bar"
+                  ></mat-progress-bar>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+              <td mat-cell *matCellDef="let product" class="actions-cell">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  (click)="viewProductDetails(product)"
+                  matTooltip="View Details"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="accent"
+                  (click)="copyPromotionLink(product)"
+                  matTooltip="Copy Link"
+                >
+                  <mat-icon>link</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  [matMenuTriggerFor]="moreMenu"
+                  class="more-btn"
+                  matTooltip="More Actions"
+                >
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #moreMenu="matMenu">
+                  <button mat-menu-item (click)="generateWhatsAppMessage(product)">
+                    <mat-icon>whatsapp</mat-icon>
+                    Share via WhatsApp
+                  </button>
+                  <button mat-menu-item (click)="viewProductDetails(product)">
+                    <mat-icon>info</mat-icon>
+                    View Full Details
+                  </button>
+                </mat-menu>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['product', 'category', 'price', 'commission', 'performance', 'actions']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['product', 'category', 'price', 'commission', 'performance', 'actions'];"
+                class="product-row"
+                (click)="viewProductDetails(row)">
+            </tr>
+          </table>
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (filteredProducts().length > 0 && !loading() && !error()) {
+        <div class="pagination-container">
+          <div class="pagination-info">
+            Showing {{ (currentPage() * pageSize()) + 1 }} - 
+            <!-- {{ Math.min((currentPage() + 1) * pageSize(), filteredProducts().length) }} -->
+            of {{ filteredProducts().length }} products
+          </div>
+          <mat-paginator
+            [length]="filteredProducts().length"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[12, 24, 48, 96]"
+            [pageIndex]="currentPage()"
+            (page)="onPageChange($event)"
+            showFirstLastButtons
+          >
+          </mat-paginator>
+        </div>
+      }
+    </div>
+  </main>
+</div>
