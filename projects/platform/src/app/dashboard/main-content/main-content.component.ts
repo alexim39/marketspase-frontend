@@ -86,8 +86,12 @@ export class DashboardMainContainer {
       return { active: 0, completed: 0, totalBudget: 0, spentBudget: 0, totalPromoters: 0 };
     }
 
+    //console.log('Calculating campaign summary for user:', userData);
+
     const activeCampaigns = userData.campaigns.filter(c => c.status === 'active');
-    const completedCampaigns = userData.campaigns.filter(c => c.status === 'completed');
+    //const completedCampaigns = userData.campaigns.filter(c => c.status === 'completed');
+    const completedCampaigns = userData.campaigns.filter(c => c.status === 'completed' || c.status === 'expired' || c.status === 'paused');
+
     
     const totalBudget = userData.campaigns.reduce((sum, c) => sum + c.budget, 0);
     const spentBudget = userData.campaigns.reduce((sum, c) => sum + c.spentBudget, 0);
@@ -154,6 +158,8 @@ export class DashboardMainContainer {
     if (userData.role === 'marketer') {
       const summary = this.campaignSummary();
       const wallet = userData.wallets?.marketer;
+
+      //console.log('Dashboard Stats - Marketer:', { summary, wallet });
       
       return [
         {
@@ -299,7 +305,7 @@ export class DashboardMainContainer {
           this.router.navigate(['/']);
         },
         error: (error: HttpErrorResponse) => {
-          console.error('Sign-out failed:', error.error.message);
+          //console.error('Sign-out failed:', error.error.message);
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
       });
