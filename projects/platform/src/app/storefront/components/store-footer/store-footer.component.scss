@@ -1,0 +1,201 @@
+// store-footer.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.store-footer {
+  background: $surface-color;
+  border-top: 1px solid $border-color;
+  padding: $spacing-12 0 $spacing-6;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: $gradient-primary;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 $spacing-4;
+    
+    @include desktop {
+      padding: 0 $spacing-8;
+    }
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-12;
+    margin-bottom: $spacing-12;
+
+    @include tablet {
+      grid-template-columns: 1fr 2fr;
+    }
+
+    .footer-brand {
+      @include flex-column;
+      gap: $spacing-4;
+
+      .footer-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: $border-radius-lg;
+        object-fit: cover;
+        border: 3px solid $border-color;
+        box-shadow: $shadow-lg;
+        margin-bottom: $spacing-4;
+      }
+
+      .brand-info {
+        h3 {
+          @include heading-small;
+          color: $text-primary;
+          margin: 0 0 $spacing-2;
+        }
+
+        p {
+          @include body-medium;
+          color: $text-secondary;
+          margin: 0 0 $spacing-4;
+          line-height: $line-height-relaxed;
+        }
+
+        .newsletter {
+          margin-top: $spacing-4;
+
+          h4 {
+            @include body-medium;
+            font-weight: $font-weight-semibold;
+            color: $text-primary;
+            margin: 0 0 $spacing-3;
+          }
+
+          .newsletter-form {
+            display: flex;
+            gap: $spacing-2;
+
+            input {
+              flex: 1;
+              @include form-input;
+              border-radius: $border-radius-full;
+            }
+
+            button {
+              border-radius: $border-radius-full;
+            }
+          }
+        }
+      }
+    }
+
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: $spacing-8;
+
+      .link-group {
+        h4 {
+          @include body-medium;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          margin: 0 0 $spacing-4;
+          position: relative;
+          padding-bottom: $spacing-2;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: $primary-color;
+          }
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            margin-bottom: $spacing-2;
+
+            a {
+              @include body-small;
+              color: $text-secondary;
+              text-decoration: none;
+              transition: all $transition-fast;
+              display: inline-flex;
+              align-items: center;
+              gap: $spacing-1;
+
+              &:hover {
+                color: $primary-color;
+                transform: translateX(4px);
+              }
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                opacity: 0.7;
+              }
+            }
+          }
+        }
+
+        .social-links {
+          display: flex;
+          gap: $spacing-1;
+          margin-top: $spacing-4;
+
+          a {
+            width: 36px;
+            height: 36px;
+            border-radius: $border-radius;
+            background: $background-color;
+            color: $text-secondary;
+            @include flex-center;
+            transition: all $transition-fast;
+            cursor: pointer;
+
+            &:hover {
+              background: $primary-color;
+              color: $white;
+              transform: translateY(-2px);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    text-align: center;
+    padding-top: $spacing-6;
+    border-top: 1px solid $border-color;
+
+    p {
+      @include body-small;
+      color: $text-tertiary;
+      margin: $spacing-1 0;
+
+      a {
+        color: $primary-color;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

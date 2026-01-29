@@ -1,0 +1,240 @@
+// store-header.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.store-header {
+  position: relative;
+  min-height: 420px;
+  background: $gradient-primary;
+  color: $white;
+  padding-top: $spacing-8;
+  overflow: hidden;
+  transition: transform 0.3s ease-out;
+
+  @include desktop {
+    min-height: 500px;
+    padding-top: $spacing-12;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba($white, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba($white, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  &.scrolled {
+    transform: translateY(-100%);
+  }
+
+  .header-content {
+    position: relative;
+    z-index: 2;
+    padding-bottom: $spacing-8;
+  }
+
+  .store-brand {
+    text-align: center;
+    margin-bottom: $spacing-8;
+
+    .logo-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto $spacing-6;
+      
+      @include desktop {
+        width: 160px;
+        height: 160px;
+      }
+
+      .store-logo {
+        width: 100%;
+        height: 100%;
+        border-radius: $border-radius-lg;
+        object-fit: cover;
+        border: 4px solid rgba($white, 0.3);
+        box-shadow: $shadow-2xl;
+        transition: all $transition-normal;
+        
+        &:hover {
+          transform: scale(1.05) rotate(2deg);
+          box-shadow: $shadow-2xl, 0 0 40px rgba($white, 0.2);
+        }
+
+        &.placeholder {
+          background: rgba($white, 0.1);
+          @include flex-center;
+          
+          mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            color: rgba($white, 0.5);
+          }
+        }
+      }
+
+      .verification-badge {
+        position: absolute;
+        bottom: -8px;
+        right: -8px;
+        background: $white;
+        color: $primary-color;
+        border-radius: $border-radius-full;
+        padding: $spacing-1 $spacing-3;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        box-shadow: $shadow-lg;
+        z-index: 3;
+        @include flex-center;
+        gap: $spacing-1;
+        
+        &.premium {
+          background: $warning-color;
+          color: $white;
+        }
+      }
+    }
+
+    .store-info {
+      h1 {
+        @include heading-large;
+        color: $white;
+        margin-bottom: $spacing-2;
+        font-weight: $font-weight-bold;
+        text-shadow: 0 2px 10px rgba($black, 0.2);
+      }
+
+      .store-description {
+        @include body-large;
+        color: rgba($white, 0.9);
+        max-width: 600px;
+        margin: 0 auto $spacing-4;
+        line-height: $line-height-relaxed;
+      }
+
+      .store-meta {
+        @include flex-center;
+        gap: $spacing-4;
+        flex-wrap: wrap;
+
+        .meta-item {
+          @include flex-center;
+          gap: $spacing-1;
+          color: rgba($white, 0.8);
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+    }
+  }
+
+  .store-actions {
+    @include flex-center;
+    gap: $spacing-3;
+    margin-bottom: $spacing-8;
+
+    .action-button {
+      backdrop-filter: blur(10px);
+      background: rgba($white, 0.1);
+      border: 1px solid rgba($white, 0.2);
+      transition: all $transition-fast;
+      
+      &:hover {
+        background: rgba($white, 0.2);
+        transform: translateY(-2px);
+      }
+
+      &.primary {
+        background: $white;
+        color: $primary-color;
+        font-weight: $font-weight-semibold;
+        
+        &:hover {
+          background: rgba($white, 0.95);
+          box-shadow: $shadow-lg;
+        }
+      }
+
+      &.favorited {
+        background: rgba($error-color, 0.2);
+        border-color: $error-color;
+        color: $white;
+      }
+    }
+  }
+
+  .store-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-4;
+    padding: $spacing-6;
+    background: rgba($white, 0.1);
+    backdrop-filter: blur(20px);
+    border-radius: $border-radius-lg;
+    border: 1px solid rgba($white, 0.15);
+    max-width: 800px;
+    margin: 0 auto;
+
+    @include tablet {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: $spacing-4;
+
+      .stat-value {
+        @include heading-medium;
+        color: $white;
+        margin-bottom: $spacing-1;
+        font-weight: $font-weight-bold;
+        font-feature-settings: "tnum";
+      }
+
+      .stat-label {
+        @include caption;
+        color: rgba($white, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 11px;
+      }
+    }
+  }
+}
+
+// Responsive
+@include mobile {
+  .store-header {
+    min-height: 320px;
+    padding-top: $spacing-6;
+
+    .store-brand {
+      .logo-container {
+        width: 80px;
+        height: 80px;
+      }
+
+      .store-info h1 {
+        font-size: $font-size-2xl;
+      }
+    }
+
+    .store-stats {
+      grid-template-columns: repeat(2, 1fr);
+      padding: $spacing-4;
+      gap: $spacing-3;
+    }
+  }
+}

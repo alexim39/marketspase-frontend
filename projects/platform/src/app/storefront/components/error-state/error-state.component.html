@@ -1,0 +1,12 @@
+<!-- error-state.component.html -->
+<div class="error-state">
+  <mat-icon class="error-icon">error_outline</mat-icon>
+  <h3>Unable to Load Store</h3>
+  <p>{{ errorMessage }}</p>
+  <button mat-raised-button 
+          color="primary" 
+          (click)="retry.emit()">
+    <mat-icon>refresh</mat-icon>
+    {{ retryLabel }}
+  </button>
+</div>

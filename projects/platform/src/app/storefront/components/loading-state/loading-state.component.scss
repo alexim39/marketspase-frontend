@@ -1,0 +1,37 @@
+// loading-state.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.loading-state {
+  @include flex-column-center;
+  min-height: 400px;
+  text-align: center;
+  padding: $spacing-20 0;
+
+  .spinner-container {
+    position: relative;
+    margin-bottom: $spacing-6;
+
+    .store-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: $primary-color;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .loading-text {
+    @include body-large;
+    color: $text-secondary;
+    margin-bottom: $spacing-2;
+  }
+
+  .loading-subtext {
+    @include body-medium;
+    color: $text-tertiary;
+  }
+}

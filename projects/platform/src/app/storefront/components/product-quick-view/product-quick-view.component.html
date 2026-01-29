@@ -1,0 +1,271 @@
+<!-- components/product-quick-view/product-quick-view.component.html -->
+<div class="quick-view-dialog" (click)="close()">
+  <div class="quick-view-content" (click)="onDialogClick($event)">
+    <!-- Close Button -->
+    <button mat-icon-button class="close-button" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+    
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-overlay">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
+    }
+    
+    <div class="product-container">
+      <!-- Left Column: Images -->
+      <div class="image-section">
+        <!-- Main Image -->
+        <div class="main-image-container">
+          @if (selectedImage()) {
+            <img [src]="selectedImage()?.url" 
+                 [alt]="product().name"
+                 class="main-image"
+                 (error)="onImageError($event)">
+          } @else {
+            <div class="image-placeholder">
+              <mat-icon>image</mat-icon>
+            </div>
+          }
+          
+          <!-- Image Navigation -->
+          @if (images().length > 1) {
+            <button mat-icon-button class="nav-button prev" (click)="prevImage()">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button class="nav-button next" (click)="nextImage()">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
+          
+          <!-- Discount Badge -->
+          @if (discountPercentage() > 0) {
+            <div class="discount-badge">
+              {{ discountPercentage() }}% OFF
+            </div>
+          }
+        </div>
+        
+        <!-- Thumbnails -->
+        @if (images().length > 1) {
+          <div class="thumbnail-container">
+            @for (image of images(); track image.url; let i = $index) {
+              <div class="thumbnail" 
+                   [class.active]="selectedImageIndex() === i"
+                   (click)="selectImage(i)">
+                <img [src]="image.url" 
+                     [alt]="image.altText || product().name + ' thumbnail ' + (i + 1)">
+              </div>
+            }
+          </div>
+        }
+      </div>
+      
+      <!-- Right Column: Product Info -->
+      <div class="info-section">
+        <!-- Store Info -->
+        @if (store()) {
+          <div class="store-info">
+            @if (store()?.logo) {
+              <img [src]="store()?.logo" 
+                   [alt]="store()?.name + ' logo'"
+                   class="store-logo">
+            }
+            <div class="store-details">
+              <h3 class="store-name">{{ store()?.name }}</h3>
+              @if (store()?.isVerified) {
+                <span class="verified-badge">
+                  <mat-icon>verified</mat-icon>
+                  Verified Store
+                </span>
+              }
+            </div>
+          </div>
+        }
+        
+        <!-- Product Header -->
+        <div class="product-header">
+          <h1 class="product-name">{{ product().name }}</h1>
+          
+          <div class="product-meta">
+            <span class="category">{{ product().category }}</span>
+            @if (product().brand) {
+              <span class="brand">by {{ product().brand }}</span>
+            }
+            @if (product().sku) {
+              <span class="sku">SKU: {{ product().sku }}</span>
+            }
+          </div>
+        </div>
+        
+        <!-- Rating -->
+        @if (product().averageRating > 0) {
+          <div class="product-rating">
+            <app-rating [rating]="product().averageRating" 
+                        [size]="'medium'"></app-rating>
+            <span class="rating-count">({{ product().ratingCount }} reviews)</span>
+            <span class="separator">•</span>
+            <span class="purchase-count">{{ product().purchaseCount }} sold</span>
+          </div>
+        }
+        
+        <!-- Price -->
+        <div class="product-price">
+          <div class="current-price">{{ getVariantPrice() | currency }}</div>
+          @if (product()?.originalPrice) {
+            <div class="original-price">{{ product().originalPrice | currency }}</div>
+            <div class="savings">Save {{ discountPercentage() }}%</div>
+          }
+        </div>
+        
+        <!-- Stock Status -->
+        <div class="stock-status" [class]="stockStatus()">
+          <mat-icon>
+            @switch (stockStatus()) {
+              @case ('out-of-stock') { block }
+              @case ('low-stock') { warning }
+              @default { check_circle }
+            }
+          </mat-icon>
+          <span>{{ stockText() }}</span>
+        </div>
+        
+        <!-- Description -->
+        <div class="product-description">
+          <h3>Description</h3>
+          <p>{{ product().description || 'No description available.' }}</p>
+        </div>
+        
+        <!-- Variants -->
+        @if (hasVariants()) {
+          <div class="variants-section">
+            <h3>Options</h3>
+            @for (attribute of attributes(); track attribute.name) {
+              <div class="attribute-group">
+                <h4>{{ attribute.name }}</h4>
+                <div class="attribute-options">
+                  @for (value of attribute.values; track value) {
+                    <button mat-stroked-button
+                            [class.active]="getAttributeValue(attribute.name) === value"
+                            (click)="selectVariantByAttribute(attribute.name, value)">
+                      {{ value }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            
+            <!-- Variant Selection -->
+            @if (variants().length > 0) {
+              <div class="variant-selection">
+                <h4>Select Variant</h4>
+                <div class="variant-options">
+                  @for (variant of variants(); track variant._id) {
+                    <button mat-stroked-button
+                            [class.active]="selectedVariant()?._id === variant._id"
+                            (click)="selectVariant(variant)"
+                            [disabled]="variant.quantity === 0">
+                      {{ variant.name }}
+                      @if (variant.price !== product().price) {
+                        <span class="variant-price">(+{{ variant.price - product().price | currency }})</span>
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+        
+        <!-- Tags -->
+        @if (product()?.tags) {
+          <div class="product-tags">
+            <h3>Tags</h3>
+            <div class="tags-container">
+              @for (tag of product()?.tags; track tag) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </div>
+          </div>
+        }
+        
+        <!-- Quantity & Actions -->
+        <div class="action-section">
+          <!-- Quantity Selector -->
+          <div class="quantity-selector">
+            <h3>Quantity</h3>
+            <div class="quantity-controls">
+              <button mat-icon-button (click)="decrementQuantity()" [disabled]="quantity() <= 1">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <input type="number" 
+                     [value]="quantity()"
+                     (change)="setQuantity($event)"
+                     [min]="1"
+                     [max]="maxQuantity()"
+                     class="quantity-input">
+              <button mat-icon-button (click)="incrementQuantity()" [disabled]="quantity() >= maxQuantity()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button mat-raised-button 
+                    color="primary" 
+                    class="add-to-cart-btn"
+                    (click)="addToCart()"
+                    [disabled]="!canAddToCart()">
+              <mat-icon>add_shopping_cart</mat-icon>
+              Add to Cart
+            </button>
+            
+            <div class="secondary-actions">
+              <button mat-icon-button 
+                      [class.active]="isInWishlist()"
+                      (click)="toggleWishlist()">
+                <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+              </button>
+              
+              <button mat-icon-button (click)="shareProduct()">
+                <mat-icon>share</mat-icon>
+              </button>
+              
+              @if (store()?.whatsappNumber) {
+                <button mat-icon-button (click)="contactStore()">
+                  <mat-icon>whatsapp</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+          
+          <!-- Additional Info -->
+          <div class="additional-info">
+            <div class="info-item">
+              <mat-icon>local_shipping</mat-icon>
+              <span>Free shipping on orders over $50</span>
+            </div>
+            <div class="info-item">
+              <mat-icon>assignment_return</mat-icon>
+              <span>30-day return policy</span>
+            </div>
+            <div class="info-item">
+              <mat-icon>verified</mat-icon>
+              <span>Authenticity guaranteed</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- View Full Details -->
+        <div class="full-details-link">
+          <button mat-stroked-button (click)="viewFullDetails()">
+            <mat-icon>open_in_new</mat-icon>
+            View Full Product Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

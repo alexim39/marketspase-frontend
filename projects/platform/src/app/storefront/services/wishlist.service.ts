@@ -20,9 +20,10 @@ export interface WishlistItem {
 export interface FavoriteStore {
   storeId: string;
   storeName: string;
-  logo?: string;
+  storeLogo?: string;
   category?: string;
   addedAt: Date;
+  storeLink?: string;
 }
 
 @Injectable()

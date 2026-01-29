@@ -1,0 +1,49 @@
+<!-- pagination.component.html -->
+<div class="pagination">
+  <div class="pagination-info">
+    Page {{ currentPage }} of {{ totalPages }}
+    @if (totalItems > 0) {
+      <span class="total-items">({{ totalItems }} items)</span>
+    }
+  </div>
+  
+  <div class="pagination-controls">
+    <button mat-button 
+            [disabled]="currentPage === 1" 
+            (click)="onPrevious()">
+      <mat-icon>chevron_left</mat-icon>
+      Previous
+    </button>
+    
+    <div class="page-numbers">
+      @for (page of getPageNumbers(); track page) {
+        @if (page === '...') {
+          <span class="ellipsis">...</span>
+        } @else {
+          <button mat-button 
+                  [class.active]="currentPage === page" 
+                  (click)="onGoToPage(page)">
+            {{ page }}
+          </button>
+        }
+      }
+    </div>
+    
+    <button mat-button 
+            [disabled]="currentPage === totalPages" 
+            (click)="onNext()">
+      Next
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+  
+  <mat-form-field class="page-size-selector">
+    <mat-label>Items per page</mat-label>
+    <mat-select [value]="pageSize" (selectionChange)="onPageSizeChange($event.value)">
+      <mat-option [value]="12">12</mat-option>
+      <mat-option [value]="24">24</mat-option>
+      <mat-option [value]="48">48</mat-option>
+      <mat-option [value]="96">96</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

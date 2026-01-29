@@ -1,0 +1,283 @@
+<!-- components/filter-sidebar/filter-sidebar.component.html -->
+<div class="filter-overlay" 
+     [class.show]="show"
+     (click)="onClose()">
+  
+  <aside class="filter-sidebar" 
+         [class.show]="show"
+         (click)="onSidebarClick($event)">
+    
+    <!-- Header -->
+    <div class="filter-header">
+      <h2>Filters</h2>
+      <div class="header-actions">
+        @if (hasActiveFilters()) {
+          <button mat-button 
+                  color="warn" 
+                  (click)="clearAllFilters()">
+            Clear All
+          </button>
+        }
+        <button mat-icon-button (click)="onClose()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Filters Summary -->
+    @if (hasActiveFilters()) {
+      <div class="active-filters-summary">
+        <div class="active-filters-chips">
+          @if (localPriceRange()[0] > minPrice || localPriceRange()[1] < maxPrice) {
+            <mat-chip (removed)="clearPriceFilter()">
+              Price: ${{ localPriceRange()[0] }} - ${{ localPriceRange()[1] }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          }
+          
+          @if (localAvailability() !== 'all') {
+            <mat-chip (removed)="clearAvailabilityFilter()">
+              {{ localAvailability() === 'in-stock' ? 'In Stock' : 'Out of Stock' }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          }
+          
+          @if (localRatingFilter() > 0) {
+            <mat-chip (removed)="clearRatingFilter()">
+              {{ localRatingFilter() }}+ Stars
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          }
+          
+          @for (tag of localSelectedTags(); track tag) {
+            <mat-chip (removed)="removeTag(tag)">
+              {{ tag }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          }
+          
+          @for (brand of localSelectedBrands(); track brand) {
+            <mat-chip (removed)="removeBrand(brand)">
+              {{ brand }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Filter Content -->
+    <div class="filter-content">
+      <!-- Price Range -->
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>attach_money</mat-icon>
+            <span>Price Range</span>
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ formattedPriceRange() }}
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        
+        <div class="price-filter">
+         <mat-slider 
+            [min]="minPrice" 
+            [max]="maxPrice" 
+            [step]="10" 
+            [displayWith]="formatLabel"
+            discrete
+            >
+            <input 
+                matSliderThumb 
+                [(ngModel)]="localPriceRange" 
+                (change)="onPriceRangeInputChange()"
+                (valueChange)="onPriceRangeChange($event)"
+            >
+            </mat-slider>
+
+          
+          <div class="price-inputs">
+            <div class="price-input">
+              <label>Min</label>
+              <input type="number"
+                     [min]="minPrice"
+                     [max]="localPriceRange()[1]"
+                     [value]="localPriceRange()[0]"
+                     (change)="onMinPriceChange($event)">
+            </div>
+            <div class="price-input">
+              <label>Max</label>
+              <input type="number"
+                     [min]="localPriceRange()[0]"
+                     [max]="maxPrice"
+                     [value]="localPriceRange()[1]"
+                     (change)="onMaxPriceChange($event)">
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Availability -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>inventory</mat-icon>
+            <span>Availability</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="availability-filter">
+          <mat-radio-group [(ngModel)]="localAvailability"
+                          (change)="onAvailabilityChange($event.value)">
+            <mat-radio-button value="all">
+              All Products
+            </mat-radio-button>
+            <mat-radio-button value="in-stock">
+              In Stock Only
+            </mat-radio-button>
+            <mat-radio-button value="out-of-stock">
+              Out of Stock
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Rating -->
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>star</mat-icon>
+            <span>Customer Rating</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="rating-filter">
+          @for (option of ratingOptions; track option.value) {
+            <button mat-stroked-button
+                    [class.active]="localRatingFilter() === option.value"
+                    (click)="onRatingChange(option.value)">
+              <div class="rating-stars">
+                @for (star of [1,2,3,4,5]; track star) {
+                  <mat-icon>
+                    {{ star <= option.value ? 'star' : 
+                       star - 0.5 <= option.value ? 'star_half' : 'star_border' }}
+                  </mat-icon>
+                }
+              </div>
+              <span>{{ option.label }}</span>
+              @if (option.count > 0) {
+                <span class="count">({{ option.count }})</span>
+              }
+            </button>
+          }
+          
+          <button mat-stroked-button
+                  [class.active]="localRatingFilter() === 0"
+                  (click)="onRatingChange(0)">
+            Clear Rating
+          </button>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Categories -->
+      @if (categories.length > 0) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>category</mat-icon>
+              <span>Categories</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ categories.length }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          
+          <div class="categories-filter">
+            @for (item of categories; track item.category) {
+              <button mat-stroked-button
+                      class="category-item"
+                      (click)="onCategorySelect(item.category)">
+                <span class="category-name">{{ item.category }}</span>
+                <span class="category-count">{{ item.count }}</span>
+              </button>
+            }
+          </div>
+        </mat-expansion-panel>
+      }
+
+      <!-- Brands -->
+      @if (brands.length > 0) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>branding_watermark</mat-icon>
+              <span>Brands</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ localSelectedBrands().length }} selected
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          
+          <div class="brands-filter">
+            @for (item of brands; track item.brand) {
+              <mat-checkbox [(ngModel)]="localSelectedBrands"
+                          [value]="item.brand"
+                          (change)="onBrandToggle(item.brand)">
+                <span class="brand-name">{{ item.brand }}</span>
+                <span class="brand-count">({{ item.count }})</span>
+              </mat-checkbox>
+            }
+          </div>
+        </mat-expansion-panel>
+      }
+
+      <!-- Tags -->
+      @if (tags.length > 0) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>tag</mat-icon>
+              <span>Tags</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ localSelectedTags().length }} selected
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          
+          <div class="tags-filter">
+            @for (item of tags; track item.tag) {
+              <mat-checkbox [(ngModel)]="localSelectedTags"
+                          [value]="item.tag"
+                          (change)="onTagToggle(item.tag)">
+                <span class="tag-name">{{ item.tag }}</span>
+                <span class="tag-count">({{ item.count }})</span>
+              </mat-checkbox>
+            }
+          </div>
+        </mat-expansion-panel>
+      }
+    </div>
+
+    <!-- Mobile Apply Button -->
+    <div class="filter-footer">
+      <button mat-raised-button 
+              color="primary" 
+              class="apply-button"
+              (click)="applyFilters()">
+        Apply Filters
+        <span class="result-count">({{ calculateFilteredCount() }})</span>
+      </button>
+    </div>
+  </aside>
+</div>

@@ -36,6 +36,7 @@ export interface StoreAnalytics {
   salesData: SalesData;
   promoterPerformance: PromoterPerformance[];
   performanceMetrics: PerformanceMetric[];
+  rating: number;
 }
 
 export interface DailyView {

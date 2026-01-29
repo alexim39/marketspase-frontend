@@ -1,0 +1,32 @@
+// error-state.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.error-state {
+  @include flex-column-center;
+  min-height: 400px;
+  text-align: center;
+  padding: $spacing-20 0;
+
+  .error-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: $spacing-6;
+    color: $error-color;
+    opacity: 0.8;
+  }
+
+  h3 {
+    @include heading-medium;
+    color: $text-primary;
+    margin: 0 0 $spacing-2;
+  }
+
+  p {
+    @include body-medium;
+    color: $text-secondary;
+    max-width: 400px;
+    margin-bottom: $spacing-6;
+  }
+}

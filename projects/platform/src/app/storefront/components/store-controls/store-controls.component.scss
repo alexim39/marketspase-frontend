@@ -1,0 +1,159 @@
+// store-controls.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.store-controls {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  padding: $spacing-6;
+  margin-bottom: $spacing-8;
+  box-shadow: $shadow-lg;
+  border: 1px solid $border-color;
+  position: sticky;
+  top: 16px;
+  z-index: $z-index-sticky;
+  backdrop-filter: blur(10px);
+  transition: all $transition-normal;
+
+  &.sticky {
+    box-shadow: $shadow-xl;
+    transform: translateY(-2px);
+  }
+
+  .controls-header {
+    @include flex-between;
+    margin-bottom: $spacing-4;
+
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-3;
+      align-items: stretch;
+    }
+
+    .results-info {
+      @include body-medium;
+      color: $text-secondary;
+      font-weight: $font-weight-medium;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: $spacing-1;
+      background: $background-color;
+      padding: $spacing-1;
+      border-radius: $border-radius;
+
+      button {
+        padding: $spacing-2 $spacing-3;
+        border-radius: $border-radius-sm;
+        color: $text-secondary;
+        transition: all $transition-fast;
+
+        &.active {
+          background: $primary-color;
+          color: $white;
+          box-shadow: $shadow-sm;
+        }
+
+        &:hover:not(.active) {
+          background: $divider-color;
+        }
+      }
+    }
+  }
+
+  .search-filter-row {
+    display: grid;
+    gap: $spacing-4;
+    grid-template-columns: 1fr;
+
+    @include tablet {
+      grid-template-columns: 1fr auto auto;
+    }
+
+    .search-box {
+      position: relative;
+
+      mat-icon {
+        position: absolute;
+        left: $spacing-3;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-tertiary;
+        z-index: 1;
+      }
+
+      input {
+        @include form-input;
+        padding-left: $spacing-10;
+        padding-right: $spacing-10;
+        border-radius: $border-radius-full;
+        font-size: $font-size-base;
+        height: 48px;
+        background: $background-color;
+        border: 2px solid $border-color;
+        width: 100%;
+
+        &:focus {
+          border-color: $primary-color;
+          outline: none;
+        }
+      }
+
+      .search-actions {
+        position: absolute;
+        right: $spacing-2;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: $spacing-1;
+      }
+    }
+
+    .filter-toggle {
+      white-space: nowrap;
+      height: 48px;
+
+      mat-icon {
+        margin-right: $spacing-2;
+      }
+    }
+
+    .sort-select {
+      min-width: 180px;
+    }
+  }
+
+  .active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    margin-top: $spacing-4;
+    padding-top: $spacing-4;
+    border-top: 1px solid $border-color;
+
+    .filter-chip {
+      @include body-small;
+      background: $background-color;
+      border: 1px solid $border-color;
+      border-radius: $border-radius-full;
+      padding: $spacing-1 $spacing-3;
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-1;
+
+      button {
+        margin-left: $spacing-1;
+        opacity: 0.6;
+        
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    .clear-all {
+      margin-left: auto;
+    }
+  }
+}

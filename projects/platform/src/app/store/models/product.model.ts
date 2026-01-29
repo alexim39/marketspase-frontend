@@ -86,7 +86,7 @@ export interface ProductSEO {
 }
 
 export interface ProductVariant {
-  id: string;
+  _id: string;
   name: string;
   options: VariantOption[];
   priceAdjustment: number;

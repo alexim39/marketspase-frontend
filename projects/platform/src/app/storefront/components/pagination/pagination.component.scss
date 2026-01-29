@@ -1,0 +1,67 @@
+// pagination.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.pagination {
+  @include flex-center;
+  gap: $spacing-4;
+  padding: $spacing-8 0;
+  border-top: 1px solid $border-color;
+
+  .pagination-info {
+    @include body-medium;
+    color: $text-secondary;
+    margin-right: auto;
+
+    .total-items {
+      margin-left: $spacing-2;
+      color: $text-tertiary;
+      font-size: $font-size-sm;
+    }
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    button {
+      @include button-secondary;
+      min-width: 40px;
+      height: 40px;
+      padding: 0;
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &.active {
+        background: $primary-color;
+        color: $white;
+        box-shadow: $shadow-sm;
+      }
+
+      &:hover:not(:disabled):not(.active) {
+        background: $divider-color;
+      }
+    }
+
+    .page-numbers {
+      display: flex;
+      gap: $spacing-1;
+
+      .ellipsis {
+        color: $text-tertiary;
+        padding: $spacing-2;
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .page-size-selector {
+    margin-left: auto;
+    min-width: 120px;
+  }
+}

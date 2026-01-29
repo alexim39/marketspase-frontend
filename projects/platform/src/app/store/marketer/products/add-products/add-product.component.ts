@@ -548,7 +548,7 @@ onSubmit(): void {
   }>): ProductVariant[] {
     const basePrice = this.pricing.get('price')?.value ?? 0;
     return variantData.map((v, i) => ({
-      id: `variant-${i + 1}`,
+      _id: `variant-${i + 1}`,
       name: v.name,
       options: this.prepareVariantOptions(v.attributes),
       priceAdjustment: (v.price ?? 0) - basePrice,

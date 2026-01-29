@@ -1,0 +1,104 @@
+<!-- store-header.component.html -->
+<header class="store-header" [class.scrolled]="!headerVisible">
+  <div class="header-content">
+    <!-- Store Brand -->
+    <div class="store-brand">
+      <div class="logo-container">
+        @if (store?.logo) {
+          <img [src]="store?.logo ?? ''" 
+               [alt]="store?.name + ' logo'" 
+               class="store-logo"
+               appLazyImage
+               [defaultImage]="'assets/images/store-placeholder.svg'"
+               (error)="onImageError($event)">
+        } @else {
+          <div class="store-logo placeholder">
+            <mat-icon>storefront</mat-icon>
+          </div>
+        }
+        
+        @if (store?.verificationTier === 'premium') {
+          <div class="verification-badge premium">
+            <mat-icon>verified</mat-icon>
+            <span>Premium</span>
+          </div>
+        } @else if (store?.isVerified) {
+          <div class="verification-badge">
+            <mat-icon>check_circle</mat-icon>
+            <span>Verified</span>
+          </div>
+        }
+      </div>
+      
+      <div class="store-info">
+        <h1>{{ store?.name }}</h1>
+        
+        @if (store?.description) {
+          <p class="store-description">{{ store?.description }}</p>
+        }
+        
+        <div class="store-meta">
+          <div class="meta-item">
+            <mat-icon>category</mat-icon>
+            <span>{{ store?.category }}</span>
+          </div>
+          <div class="meta-item">
+            <mat-icon>star</mat-icon>
+            <span>{{ store?.analytics?.rating || 'New' }}</span>
+          </div>
+          <div class="meta-item">
+            <mat-icon>location_on</mat-icon>
+            <span>Online Store</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Store Actions -->
+    <div class="store-actions">
+      <button mat-raised-button 
+              color="primary" 
+              class="action-button primary"
+              (click)="onContactViaWhatsApp()"
+              *ngIf="store?.whatsappNumber">
+        <mat-icon>whatsapp</mat-icon>
+        Contact Store
+      </button>
+      
+      <button mat-stroked-button 
+              class="action-button"
+              (click)="onToggleFavorite()"
+              [class.favorited]="isFavorited">
+        <mat-icon>{{ isFavorited ? 'favorite' : 'favorite_border' }}</mat-icon>
+        {{ isFavorited ? 'Saved' : 'Save Store' }}
+      </button>
+      
+      <button mat-stroked-button 
+              class="action-button"
+              (click)="onShareStore()">
+        <mat-icon>share</mat-icon>
+        Share
+      </button>
+    </div>
+    
+    <!-- Store Stats -->
+    <div class="store-stats">
+      <div class="stat-item">
+        <div class="stat-value">{{ storeStats.productCount | number }}</div>
+        <div class="stat-label">Products</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ storeStats.totalViews | number:'1.0-0' }}</div>
+        <div class="stat-label">Views</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ storeStats.totalSales | number:'1.0-0' }}</div>
+        <div class="stat-label">Sales</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ storeStats.conversionRate | number:'1.1-1' }}%</div>
+        <div class="stat-label">Conversion</div>
+      </div>
+    </div>
+  </div>
+</header>

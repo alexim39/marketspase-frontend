@@ -1,0 +1,328 @@
+// components/filter-sidebar/filter-sidebar.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($black, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal-backdrop;
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-normal;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+
+    .filter-sidebar {
+      transform: translateX(0);
+    }
+  }
+}
+
+.filter-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface-color);
+  box-shadow: $shadow-2xl;
+  transform: translateX(100%);
+  transition: transform $transition-normal;
+  display: flex;
+  flex-direction: column;
+  z-index: $z-index-modal;
+
+  @include mobile {
+    max-width: 100%;
+  }
+
+  .filter-header {
+    padding: $spacing-4;
+    border-bottom: 1px solid var(--border-color);
+    @include flex-between;
+    background: var(--surface-color);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    h2 {
+      @include heading-small;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+    }
+  }
+
+  .active-filters-summary {
+    padding: $spacing-4;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-color);
+
+    .active-filters-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+
+      mat-chip {
+        @include body-small;
+        background: var(--surface-color);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+
+        &:hover {
+          background: var(--divider-color);
+        }
+      }
+    }
+  }
+
+  .filter-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-4;
+    @include scrollbar;
+
+    mat-expansion-panel {
+      margin-bottom: $spacing-2;
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      box-shadow: none !important;
+
+      &::before {
+        display: none;
+      }
+
+      &:hover {
+        background: var(--background-color);
+      }
+
+      mat-expansion-panel-header {
+        padding: 0 $spacing-4;
+        height: 56px;
+
+        mat-panel-title {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+
+          mat-icon {
+            color: var(--text-tertiary);
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          span {
+            @include body-medium;
+            font-weight: $font-weight-semibold;
+            color: var(--text-primary);
+          }
+        }
+
+        mat-panel-description {
+          @include body-small;
+          color: var(--text-secondary);
+        }
+      }
+
+      .mat-expansion-panel-body {
+        padding: $spacing-4;
+
+        // Price Filter
+        .price-filter {
+          .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: $spacing-4;
+            margin-top: $spacing-4;
+
+            .price-input {
+              label {
+                @include caption;
+                color: var(--text-secondary);
+                display: block;
+                margin-bottom: $spacing-1;
+              }
+
+              input {
+                @include form-input;
+                width: 100%;
+              }
+            }
+          }
+        }
+
+        // Availability Filter
+        .availability-filter {
+          mat-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-3;
+
+            mat-radio-button {
+              @include body-medium;
+              color: var(--text-primary);
+
+              ::ng-deep .mat-radio-label-content {
+                padding-left: $spacing-2;
+              }
+            }
+          }
+        }
+
+        // Rating Filter
+        .rating-filter {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+
+          button {
+            justify-content: flex-start;
+            padding: $spacing-2 $spacing-3;
+            text-align: left;
+
+            &.active {
+              background: var(--primary-color);
+              color: $white;
+              border-color: var(--primary-color);
+            }
+
+            .rating-stars {
+              display: flex;
+              align-items: center;
+              margin-right: $spacing-2;
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                color: inherit;
+              }
+            }
+
+            span {
+              flex: 1;
+            }
+
+            .count {
+              color: var(--text-tertiary);
+              font-size: $font-size-sm;
+            }
+          }
+        }
+
+        // Categories Filter
+        .categories-filter {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+
+          .category-item {
+            justify-content: space-between;
+            padding: $spacing-2 $spacing-3;
+            text-transform: capitalize;
+
+            .category-name {
+              @include body-medium;
+              color: var(--text-primary);
+            }
+
+            .category-count {
+              @include body-small;
+              color: var(--text-tertiary);
+              background: var(--background-color);
+              padding: $spacing-1 $spacing-2;
+              border-radius: $border-radius-sm;
+            }
+          }
+        }
+
+        // Brands & Tags Filter
+        .brands-filter,
+        .tags-filter {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-3;
+          max-height: 300px;
+          overflow-y: auto;
+          padding-right: $spacing-2;
+          @include scrollbar;
+
+          mat-checkbox {
+            @include body-medium;
+            color: var(--text-primary);
+
+            ::ng-deep {
+              .mat-checkbox-label {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+              }
+
+              .brand-name,
+              .tag-name {
+                flex: 1;
+              }
+
+              .brand-count,
+              .tag-count {
+                color: var(--text-tertiary);
+                font-size: $font-size-sm;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .filter-footer {
+    padding: $spacing-4;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface-color);
+
+    .apply-button {
+      width: 100%;
+      height: 48px;
+      font-weight: $font-weight-semibold;
+
+      .result-count {
+        margin-left: $spacing-1;
+        opacity: 0.9;
+      }
+    }
+  }
+}
+
+// Helper function for slider label
+::ng-deep {
+  .mat-slider-thumb-label-text {
+    @include body-small;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Dark mode adjustments
+[data-theme="dark"] {
+  .filter-sidebar {
+    background: color-mix(in srgb, var(--surface-color), black 5%);
+
+    mat-expansion-panel {
+      background: color-mix(in srgb, var(--surface-color), black 5%);
+
+      &:hover {
+        background: color-mix(in srgb, var(--surface-color), black 10%);
+      }
+    }
+  }
+}

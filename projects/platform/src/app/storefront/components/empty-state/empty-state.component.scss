@@ -1,0 +1,40 @@
+// empty-state.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.empty-state {
+  @include flex-column-center;
+  min-height: 400px;
+  text-align: center;
+  padding: $spacing-20 0;
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  border: 2px dashed $border-color;
+
+  .empty-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: $spacing-6;
+    color: $text-tertiary;
+    opacity: 0.5;
+  }
+
+  h3 {
+    @include heading-medium;
+    color: $text-primary;
+    margin: 0 0 $spacing-2;
+  }
+
+  p {
+    @include body-medium;
+    color: $text-secondary;
+    max-width: 400px;
+    margin-bottom: $spacing-6;
+  }
+
+  .empty-actions {
+    @include flex-center;
+    gap: $spacing-3;
+  }
+}

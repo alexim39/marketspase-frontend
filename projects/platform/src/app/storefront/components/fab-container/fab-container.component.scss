@@ -1,0 +1,52 @@
+// fab-container.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.fab-container {
+  position: fixed;
+  bottom: $spacing-6;
+  right: $spacing-6;
+  z-index: $z-index-fixed;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  align-items: flex-end;
+
+  .fab-button {
+    background: $surface-color;
+    color: $text-primary;
+    box-shadow: $shadow-xl;
+    border: 1px solid $border-color;
+    transition: all $transition-normal;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: $shadow-2xl;
+    }
+
+    &.back-to-top {
+      background: $primary-color;
+      color: $white;
+
+      &:hover {
+        background: $primary-dark;
+      }
+    }
+  }
+
+  @include mobile {
+    bottom: $spacing-4;
+    right: $spacing-4;
+    
+    .fab-button {
+      width: 48px;
+      height: 48px;
+      
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
