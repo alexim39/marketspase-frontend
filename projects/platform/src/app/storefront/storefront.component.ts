@@ -656,7 +656,8 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
         onAddToCart: () => this.addToCart(product),
         onToggleWishlist: () => this.toggleWishlist(product),
         isInWishlist: this.isInWishlist(product._id ?? '')
-      }
+      },
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe(result => {

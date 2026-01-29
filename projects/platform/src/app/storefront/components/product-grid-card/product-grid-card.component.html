@@ -1,129 +1,154 @@
 <!-- product-grid-card.component.html -->
-<mat-card class="product-card">
-  <!-- Product Badges -->
-  <div class="product-badges">
-    @if (product.isFeatured) {
-      <span class="badge featured">Featured</span>
-    }
-    @if (product.originalPrice && product.originalPrice > product.price) {
-      <span class="badge discount">
-        {{ calculateDiscount(product.price, product.originalPrice) }}% OFF
-      </span>
-    }
-    @if (!product.originalPrice && product.createdAt && isNewProduct(product.createdAt)) {
-      <span class="badge new">New</span>
-    }
-  </div>
-  
-  <!-- Product Image -->
-  <div class="product-image">
-    @if (product.images && product.images[0]?.url) {
-      <img [src]="product.images[0].url" 
-           [alt]="product.name"
-           appLazyImage
-           [defaultImage]="'assets/images/product-placeholder.svg'"
-           (error)="onImageError($event)">
-    } @else {
-      <div class="image-placeholder">
-        <mat-icon>image</mat-icon>
-      </div>
-    }
-    
-    <!-- Quick View Button -->
-    <button mat-fab 
-            class="quick-view-btn"
-            (click)="onQuickView($event)"
-            matTooltip="Quick View">
-      <mat-icon>visibility</mat-icon>
+<article class="product-card" (click)="onViewDetails($event)">
+  <!-- Product Image Container -->
+  <div class="product-image-wrapper">
+    <!-- Badges Overlay -->
+    <div class="product-badges">
+      @if (product.isFeatured) {
+        <span class="badge badge-featured">
+          <mat-icon>star</mat-icon>
+          Featured
+        </span>
+      }
+      @if (product.originalPrice && product.originalPrice > product.price) {
+        <span class="badge badge-discount">
+          -{{ calculateDiscount(product.price, product.originalPrice) }}%
+        </span>
+      }
+      @if (!product.originalPrice && product.createdAt && isNewProduct(product.createdAt)) {
+        <span class="badge badge-new">New</span>
+      }
+    </div>
+
+    <!-- Wishlist Toggle (Top Right) -->
+    <button 
+      mat-icon-button 
+      class="wishlist-btn"
+      (click)="onToggleWishlist($event)"
+      [class.active]="isInWishlist"
+      [matTooltip]="isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'"
+      aria-label="Toggle wishlist">
+      <mat-icon>{{ isInWishlist ? 'favorite' : 'favorite_border' }}</mat-icon>
     </button>
-    
-    <!-- Stock Indicator -->
-    @if (product.manageStock && (product.quantity === 0 || product.quantity <= product.lowStockAlert)) {
-      <div class="stock-indicator" 
-           [class.low-stock]="product.quantity > 0 && product.quantity <= product.lowStockAlert"
-           [class.out-of-stock]="product.quantity === 0">
-        @if (product.quantity === 0) {
-          <span>Out of Stock</span>
-        } @else {
-          <span>Only {{ product.quantity }} left</span>
-        }
+
+    <!-- Product Image -->
+    <div class="product-image">
+      @if (product.images && product.images[0]?.url) {
+        <img 
+          [src]="product.images[0].url" 
+          [alt]="product.name"
+          appLazyImage
+          [defaultImage]="'assets/images/product-placeholder.svg'"
+          (error)="onImageError($event)"
+          loading="lazy">
+      } @else {
+        <div class="image-placeholder">
+          <mat-icon>image</mat-icon>
+          <span>No Image</span>
+        </div>
+      }
+    </div>
+
+    <!-- Stock Status Overlay -->
+    @if (product.manageStock && product.quantity === 0) {
+      <div class="stock-overlay out-of-stock">
+        <mat-icon>block</mat-icon>
+        <span>Out of Stock</span>
+      </div>
+    } @else if (product.manageStock && product.quantity <= product.lowStockAlert) {
+      <div class="stock-badge low-stock">
+        <mat-icon>warning</mat-icon>
+        Only {{ product.quantity }} left
       </div>
     }
+
+    <!-- Quick Actions Overlay (Visible on Hover) -->
+    <div class="quick-actions">
+      <button 
+        mat-mini-fab 
+        class="quick-action-btn"
+        (click)="onQuickView($event)"
+        matTooltip="Quick View"
+        aria-label="Quick view product">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button 
+        mat-mini-fab 
+        class="quick-action-btn"
+        (click)="onShare($event)"
+        matTooltip="Share"
+        aria-label="Share product">
+        <mat-icon>share</mat-icon>
+      </button>
+    </div>
   </div>
-  
-  <!-- Product Info -->
-  <div class="product-info">
+
+  <!-- Product Details -->
+  <div class="product-details">
+    <!-- Category & Title -->
     <div class="product-header">
       <span class="product-category">{{ product.category }}</span>
-      <h3 class="product-name" (click)="onViewDetails($event)">{{ product.name }}</h3>
+      <h3 class="product-title">{{ product.name }}</h3>
     </div>
-    
-    <div class="product-description">
-      {{ (product.description ?? '') | truncate:100 }}
-    </div>
-    
+
     <!-- Rating -->
     @if (product.averageRating > 0) {
       <div class="product-rating">
-        <app-rating [rating]="product.averageRating" 
-                    [size]="'small'"></app-rating>
-        <span class="rating-count">({{ product.ratingCount }})</span>
+        <app-rating 
+          [rating]="product.averageRating" 
+          [size]="'small'">
+        </app-rating>
+        <span class="rating-text">
+          <strong>{{ product.averageRating }}</strong>
+          <span class="rating-count">({{ product.ratingCount }})</span>
+        </span>
       </div>
     }
-    
-    <!-- Price -->
-    <div class="product-price">
-      <span class="current-price">{{ product.price | currency }}</span>
+
+    <!-- Description (Hidden on Mobile) -->
+    <p class="product-description">
+      {{ (product.description ?? '') | truncate:80 }}
+    </p>
+
+    <!-- Price Section -->
+    <div class="product-pricing">
+      <div class="price-group">
+        <span class="current-price">{{ product.price | currency }}</span>
+        @if (product.originalPrice && product.originalPrice > product.price) {
+          <span class="original-price">{{ product.originalPrice | currency }}</span>
+        }
+      </div>
       @if (product.originalPrice && product.originalPrice > product.price) {
-        <span class="original-price">{{ product.originalPrice | currency }}</span>
-        <span class="discount-percent">
-          Save {{ calculateDiscount(product.price, product.originalPrice) }}%
+        <span class="savings-text">
+          Save {{ (product.originalPrice - product.price) | currency }}
         </span>
       }
     </div>
-    
-    <!-- Actions -->
+
+    <!-- Action Buttons -->
     <div class="product-actions">
-      <button mat-raised-button 
-              color="primary" 
-              class="add-to-cart-btn"
-              (click)="onAddToCart($event)"
-              [disabled]="product.manageStock && product.quantity === 0"
-              [class.disabled]="product.manageStock && product.quantity === 0">
-        <mat-icon>add_shopping_cart</mat-icon>
-        Add to Cart
+      <button 
+        mat-raised-button 
+        color="primary"
+        class="add-to-cart-btn"
+        (click)="onAddToCart($event)"
+        [disabled]="product.manageStock && product.quantity === 0"
+        [attr.aria-label]="'Add ' + product.name + ' to cart'">
+        <mat-icon>shopping_cart</mat-icon>
+        <span class="btn-text">Add to Cart</span>
       </button>
-      
-      <div class="secondary-actions">
-        <button mat-icon-button 
-                (click)="onToggleWishlist($event)"
-                [class.wishlisted]="isInWishlist"
-                matTooltip="Add to wishlist">
-          <mat-icon>{{ isInWishlist ? 'favorite' : 'favorite_border' }}</mat-icon>
-        </button>
-        <button mat-icon-button 
-                (click)="onShare($event)"
-                matTooltip="Share product">
-          <mat-icon>share</mat-icon>
-        </button>
-        <button mat-icon-button 
-                (click)="onQuickView($event)"
-                matTooltip="Quick view">
-          <mat-icon>visibility</mat-icon>
-        </button>
+    </div>
+
+    <!-- Trust Badges (Footer) -->
+    <div class="trust-badges">
+      <div class="trust-item">
+        <mat-icon>local_shipping</mat-icon>
+        <span>Free Shipping</span>
+      </div>
+      <div class="trust-item">
+        <mat-icon>verified_user</mat-icon>
+        <span>Secure</span>
       </div>
     </div>
   </div>
-  
-  <!-- Product Footer -->
-  <div class="product-footer">
-    <div class="footer-item">
-      <mat-icon>local_shipping</mat-icon>
-      <span>Free Shipping</span>
-    </div>
-    <div class="footer-item">
-      <mat-icon>verified</mat-icon>
-      <span>30-Day Returns</span>
-    </div>
-  </div>
-</mat-card>
+</article>

@@ -1,8 +1,10 @@
 // store-header.component.ts
-import { Component, Input, Output, EventEmitter, ElementRef, Renderer2, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { Subject, takeUntil } from 'rxjs';
 import { Store } from '../../../store/models';
@@ -10,17 +12,22 @@ import { Store } from '../../../store/models';
 @Component({
   selector: 'app-store-header',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, LazyImageDirective],
+  imports: [
+    CommonModule, 
+    MatIconModule, 
+    MatButtonModule, 
+    MatTooltipModule,
+    MatBadgeModule,
+    LazyImageDirective
+  ],
   templateUrl: './store-header.component.html',
   styleUrls: ['./store-header.component.scss']
 })
 export class StoreHeaderComponent implements OnInit, OnDestroy {
-  private renderer = inject(Renderer2);
   private destroy$ = new Subject<void>();
 
   @Input() store: Store | null = null;
   @Input() isFavorited = false;
-  @Input() isScrolled = false;
   @Input() storeStats = {
     productCount: 0,
     totalViews: 0,
@@ -31,13 +38,15 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
   @Output() toggleFavorite = new EventEmitter<void>();
   @Output() shareStore = new EventEmitter<void>();
   @Output() contactViaWhatsApp = new EventEmitter<void>();
+  @Output() reportStore = new EventEmitter<void>();
   @Output() headerTransform = new EventEmitter<number>();
 
-  private lastScrollTop = 0;
-  public headerVisible = true;
+  public isCompactHeader = false;
+  public showActions = true;
+  private scrollThreshold = 200;
 
   ngOnInit(): void {
-    this.setupScrollListener();
+    this.checkInitialScroll();
   }
 
   ngOnDestroy(): void {
@@ -45,27 +54,20 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private setupScrollListener(): void {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
-      // Emit transform value for parallax
-      this.headerTransform.emit(scrollTop * 0.5);
-      
-      // Header show/hide logic
-      if (scrollTop > this.lastScrollTop && scrollTop > 100) {
-        this.headerVisible = false;
-      } else {
-        this.headerVisible = true;
-      }
-      this.lastScrollTop = scrollTop;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     
-    this.destroy$.subscribe(() => {
-      window.removeEventListener('scroll', handleScroll);
-    });
+    // Emit transform value for parallax
+    this.headerTransform.emit(scrollTop * 0.5);
+    
+    // Update compact mode
+    this.isCompactHeader = scrollTop > this.scrollThreshold;
+  }
+
+  private checkInitialScroll(): void {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    this.isCompactHeader = scrollTop > this.scrollThreshold;
   }
 
   onToggleFavorite(): void {
@@ -80,7 +82,32 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
     this.contactViaWhatsApp.emit();
   }
 
+  onReportStore(): void {
+    this.reportStore.emit();
+  }
+
   onImageError(event: any): void {
     event.target.src = 'assets/images/store-placeholder.svg';
+  }
+
+  get formattedRating(): string {
+    const rating = this.store?.analytics?.rating;
+    return rating ? rating.toFixed(1) : 'New';
+  }
+
+  get hasWhatsApp(): boolean {
+    return !!(this.store?.whatsappNumber);
+  }
+
+  get verificationLabel(): string {
+    if (this.store?.verificationTier === 'premium') return 'Premium';
+    if (this.store?.isVerified) return 'Verified';
+    return '';
+  }
+
+  get verificationIcon(): string {
+    if (this.store?.verificationTier === 'premium') return 'verified';
+    if (this.store?.isVerified) return 'check_circle';
+    return '';
   }
 }

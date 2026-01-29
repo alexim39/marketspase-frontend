@@ -7,7 +7,7 @@
         <img [src]="product.images[0].url" 
              [alt]="product.name"
              appLazyImage
-             [defaultImage]="'assets/images/product-placeholder.svg'"
+             [defaultImage]="'img/avatar.png'"
              (error)="onImageError($event)">
       } @else {
         <div class="image-placeholder">
