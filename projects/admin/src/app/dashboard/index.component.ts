@@ -59,7 +59,8 @@ export class AdminDashboardComponent implements OnInit {
         { id: 'promoters', title: 'Promoters', icon: 'share', route: '/dashboard/users/promoters' },
         { id: 'kyc', title: 'KYC Verification', icon: 'verified_user', route: '/dashboard/users/kyc' },
         { id: 'trust-scores', title: 'Trust Scores & Ratings', icon: 'star_rate', route: '/dashboard/users/trust-scores' },
-        { id: 'blacklist', title: 'Blacklist Management', icon: 'block', route: '/dashboard/users/blacklist' }
+        { id: 'blacklist', title: 'Blacklist Management', icon: 'block', route: '/dashboard/users/blacklist' },
+        { id: 'contacts', title: 'Contact Management', icon: 'contact_page', route: '/dashboard/users/contacts' }
       ]
     },
     {

@@ -4,7 +4,8 @@
 
 .storefront-page {
   min-height: 100vh;
-  background-color: color-mix(in srgb, $background-color, $surface-color 50%);
+  //background-color: color-mix(in srgb, $background-color, $surface-color 50%);
+  background-color: color-mix(in srgb, $primary-color, $gray-900 95%);
   color: $text-primary;
   position: relative;
   overflow-x: hidden;

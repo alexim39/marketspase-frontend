@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { ThreadDetailComponent } from './thread/thread-detail.component';
 
 export const ForumRoutes: Routes = [
   {
@@ -52,7 +51,7 @@ export const ForumRoutes: Routes = [
 
   {
     path: 'thread/:threadId',
-    component: ThreadDetailComponent,
+    loadComponent: () => import('./thread/thread-detail.component').then(c => c.ThreadDetailComponent),
     data: {
       breadcrumb: 'Thread Details',
       animation: 'thread-detail',

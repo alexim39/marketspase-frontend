@@ -1,0 +1,456 @@
+
+<div class="admin-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Contact Message Management</h1>
+        <p class="page-subtitle">Manage and respond to user contact messages</p>
+      </div>
+      <div class="header-actions">
+        @if (selectedContacts().length > 0) {
+          <span class="selection-count">
+            {{ selectedContacts().length }} selected
+          </span>
+        }
+        <button mat-raised-button color="primary" (click)="openExportDialog()" [disabled]="isProcessing()">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    @if (stats()) {
+      <div class="stats-container">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon" color="primary">email</mat-icon>
+              <div class="stat-details">
+                <span class="stat-value">{{ stats()!.total }}</span>
+                <span class="stat-label">Total Messages</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card urgent-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon" color="warn">warning</mat-icon>
+              <div class="stat-details">
+                <span class="stat-value">{{ stats()!.openTickets }}</span>
+                <span class="stat-label">Open Tickets</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon" color="accent">schedule</mat-icon>
+              <div class="stat-details">
+                <span class="stat-value">{{ stats()!.averageResponseTime | date:'HH:mm':'UTC' }}</span>
+                <span class="stat-label">Avg Response Time</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon" color="warn">priority_high</mat-icon>
+              <div class="stat-details">
+                <span class="stat-value">{{ stats()!.highPriority }}</span>
+                <span class="stat-label">High Priority</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  </div>
+
+  <!-- Filters Card -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-container">
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="filter-field search-field">
+          <mat-label>Search Messages</mat-label>
+          <input matInput 
+                 (input)="onSearchChange($event)" 
+                 placeholder="Search by subject, user, message, or request ID"
+                 #searchInput>
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Status Filter -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value)">
+            <mat-option value="all">All Statuses</mat-option>
+            <mat-option value="open">Open</mat-option>
+            <mat-option value="in_progress">In Progress</mat-option>
+            <mat-option value="resolved">Resolved</mat-option>
+            <mat-option value="closed">Closed</mat-option>
+            <mat-option value="spam">Spam</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Priority Filter -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Priority</mat-label>
+          <mat-select [value]="priorityFilter()" (selectionChange)="priorityFilter.set($event.value)">
+            <mat-option value="all">All Priorities</mat-option>
+            <mat-option value="low">Low</mat-option>
+            <mat-option value="medium">Medium</mat-option>
+            <mat-option value="high">High</mat-option>
+            <mat-option value="urgent">Urgent</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Category Filter -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Category</mat-label>
+          <mat-select 
+            [value]="categoryFilter()" 
+            (selectionChange)="categoryFilter.set($event.value)">
+
+            <mat-option value="all">All Categories</mat-option>
+            <mat-option value="support">Support</mat-option>
+            <mat-option value="feature_request">Feature Request</mat-option>
+            <mat-option value="bug_report">Bug Report</mat-option>
+            <mat-option value="complaint">Complaint</mat-option>
+            <mat-option value="praise">Praise</mat-option>
+            <mat-option value="partnership">Partnership</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="filter-row">
+          <!-- Date Range Filters -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>From Date</mat-label>
+            <input matInput [matDatepicker]="fromPicker" [(ngModel)]="dateFromFilter" (dateChange)="onFilterChange()">
+            <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>To Date</mat-label>
+            <input matInput [matDatepicker]="toPicker" [(ngModel)]="dateToFilter" (dateChange)="onFilterChange()">
+            <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+          </mat-form-field>
+
+          <!-- Assignee Filter -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Assigned To</mat-label>
+            <mat-select [value]="assigneeFilter()" (selectionChange)="yourUpdateMethod($event.value)">
+              <mat-option value="all">All Assignees</mat-option>
+              @for (admin of admins(); track admin._id) {
+                <mat-option [value]="admin._id">{{ admin.displayName }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Archived Filter -->
+          <mat-checkbox [(ngModel)]="showArchived" (change)="onFilterChange()" class="archive-checkbox">
+            Show Archived
+          </mat-checkbox>
+        </div>
+
+        <div class="filter-actions">
+          <button mat-raised-button color="primary" (click)="applyFilters()" [disabled]="isLoading()">
+            <mat-icon>filter_list</mat-icon>
+            Apply Filters
+          </button>
+          <button mat-button (click)="resetFilters()">
+            <mat-icon>refresh</mat-icon>
+            Reset
+          </button>
+          
+          @if (selectedContacts().length > 0) {
+            <button mat-raised-button color="accent" (click)="openBulkActions()">
+              <mat-icon>playlist_add_check</mat-icon>
+              Bulk Actions ({{ selectedContacts().length }})
+            </button>
+          }
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Messages Table -->
+  <mat-card>
+    <mat-card-content>
+      <div class="table-container">
+        <!-- Loading State -->
+        @if (isLoading()) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading contact messages...</p>
+          </div>
+        } @else {
+          <!-- Table Content -->
+          <table mat-table [dataSource]="dataSource" class="contacts-table">
+            <!-- Select Column -->
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef class="checkbox-column">
+                <mat-checkbox [checked]="isAllSelected()"
+                              [indeterminate]="selectedContacts().length > 0 && !isAllSelected()"
+                              (change)="toggleSelectAll()">
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let contact" class="checkbox-column">
+                <mat-checkbox [checked]="selectedContacts().includes(contact._id)"
+                              (change)="toggleSelectContact(contact._id)">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+
+            <!-- Request ID Column -->
+            <ng-container matColumnDef="requestID">
+              <th mat-header-cell *matHeaderCellDef> Request ID </th>
+              <td mat-cell *matCellDef="let contact">
+                <div class="request-id" [matTooltip]="contact.requestID">
+                  {{ contact.requestID }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- User Column -->
+            <ng-container matColumnDef="user">
+              <th mat-header-cell *matHeaderCellDef> User </th>
+              <td mat-cell *matCellDef="let contact">
+                <div class="user-info">
+                  <img [src]="contact.user.avatar || '/img/avatar.png'" 
+                       alt="User avatar" 
+                       class="user-avatar">
+                  <div class="user-details">
+                    <span class="user-name">{{ contact.user.displayName }}</span>
+                    <span class="user-email">{{ contact.userEmail }}</span>
+                    @if (contact.userPhone) {
+                      <span class="user-phone">{{ contact.userPhone }}</span>
+                    }
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Subject Column -->
+            <ng-container matColumnDef="subject">
+              <th mat-header-cell *matHeaderCellDef> Subject </th>
+              <td mat-cell *matCellDef="let contact" class="subject-cell">
+                <div class="subject-content">
+                  <span class="subject-text" [matTooltip]="contact.subject">
+                    {{ contact.subject }}
+                  </span>
+                  @if (!contact.isRead) {
+                    <mat-icon class="unread-icon" color="primary">fiber_manual_record</mat-icon>
+                  }
+                </div>
+                <div class="message-preview">
+                  {{ contact.message | slice:0:100 }}{{ contact.message.length > 100 ? '...' : '' }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Reason Column -->
+            <ng-container matColumnDef="reason">
+              <th mat-header-cell *matHeaderCellDef> Reason </th>
+              <td mat-cell *matCellDef="let contact">
+                <mat-chip [ngClass]="'reason-' + contact.reason">
+                  {{ contact.reason | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Priority Column -->
+            <ng-container matColumnDef="priority">
+              <th mat-header-cell *matHeaderCellDef> Priority </th>
+              <td mat-cell *matCellDef="let contact">
+                <mat-chip [color]="getPriorityColor(contact.priority)" selected>
+                  <mat-icon class="priority-icon">
+                    @if (contact.priority === 'urgent') {
+                      emergency
+                    } @else if (contact.priority === 'high') {
+                      priority_high
+                    } @else if (contact.priority === 'medium') {
+                      schedule
+                    } @else {
+                      low_priority
+                    }
+                  </mat-icon>
+                  {{ contact.priority | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef> Status </th>
+              <td mat-cell *matCellDef="let contact">
+                <mat-chip [color]="getStatusColor(contact.status)" selected>
+                  {{ contact.status.replace('_', ' ') | titlecase }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Assigned To Column -->
+            <ng-container matColumnDef="assignedTo">
+              <th mat-header-cell *matHeaderCellDef> Assigned To </th>
+              <td mat-cell *matCellDef="let contact">
+                @if (contact.assignedTo) {
+                  <div class="assignee-info">
+                    <span>{{ contact.assignedTo.displayName }}</span>
+                  </div>
+                } @else {
+                  <span class="unassigned">Unassigned</span>
+                }
+              </td>
+            </ng-container>
+
+            <!-- Date Column -->
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef> Date </th>
+              <td mat-cell *matCellDef="let contact">
+                <div class="date-info">
+                  <span class="date">{{ contact.createdAt | date:'shortDate' }}</span>
+                  <span class="time">{{ contact.createdAt | date:'shortTime' }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="actions-column"> Actions </th>
+              <td mat-cell *matCellDef="let contact">
+                <div class="action-buttons">
+                  <!-- View Details -->
+                  <button mat-icon-button 
+                          class="action-button"
+                          title="View details"
+                          (click)="viewDetails(contact)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+
+                  <!-- Status Menu -->
+                  <button mat-icon-button 
+                          [matMenuTriggerFor]="statusMenu"
+                          class="action-button"
+                          title="Change status">
+                    <mat-icon>swap_vert</mat-icon>
+                  </button>
+                  <mat-menu #statusMenu="matMenu">
+                    @for (status of ['open', 'in_progress', 'resolved', 'closed', 'spam']; track status) {
+                      <button mat-menu-item 
+                              (click)="updateStatus(contact,  $any(status))"
+                              [disabled]="contact.status === status">
+                        <mat-icon>{{ contact.status === status ? 'check' : '' }}</mat-icon>
+                        {{ status.replace('_', ' ') | titlecase }}
+                      </button>
+                    }
+                  </mat-menu>
+
+                  <!-- Priority Menu -->
+                  <button mat-icon-button 
+                          [matMenuTriggerFor]="priorityMenu"
+                          class="action-button"
+                          title="Change priority">
+                    <mat-icon>flag</mat-icon>
+                  </button>
+                  <mat-menu #priorityMenu="matMenu">
+                    @for (priority of ['low', 'medium', 'high', 'urgent']; track priority) {
+                      <button mat-menu-item 
+                              (click)="updatePriority(contact, $any(priority))"
+                              [disabled]="contact.priority === priority">
+                        <mat-icon>{{ contact.priority === priority ? 'check' : '' }}</mat-icon>
+                        {{ priority | titlecase }}
+                      </button>  
+                    }
+                  </mat-menu>
+
+                  <!-- Assign Menu -->
+                  <button mat-icon-button 
+                          [matMenuTriggerFor]="assignMenu"
+                          class="action-button"
+                          title="Assign to admin">
+                    <mat-icon>person_add</mat-icon>
+                  </button>
+                  <mat-menu #assignMenu="matMenu">
+                    <button mat-menu-item (click)="assignToAdmin(contact, '')">
+                      <mat-icon>clear</mat-icon>
+                      Unassign
+                    </button>
+                    <mat-divider></mat-divider>
+                    @for (admin of admins(); track admin._id) {
+                      <button mat-menu-item 
+                              (click)="assignToAdmin(contact, admin._id)"
+                              [disabled]="contact.assignedTo?._id === admin._id">
+                        <mat-icon>{{ contact.assignedTo?._id === admin._id ? 'check' : '' }}</mat-icon>
+                        {{ admin.displayName }}
+                      </button>
+                    }
+                  </mat-menu>
+
+                  <!-- Archive/Unarchive -->
+                  <button mat-icon-button 
+                          class="action-button"
+                          [title]="contact.isArchived ? 'Unarchive' : 'Archive'"
+                          (click)="markAsArchived(contact, !contact.isArchived)">
+                    <mat-icon>{{ contact.isArchived ? 'unarchive' : 'archive' }}</mat-icon>
+                  </button>
+
+                  <!-- Delete -->
+                  <button mat-icon-button 
+                          class="action-button"
+                          title="Delete"
+                          (click)="deleteContact(contact)">
+                    <mat-icon color="warn">delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- Empty State -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                <div class="empty-state">
+                  <mat-icon>email</mat-icon>
+                  <h3>No contact messages found</h3>
+                  <p>Try adjusting your filters or check back later</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (!isLoading() && totalContacts() > 0) {
+        <mat-paginator [length]="totalContacts()"
+                       [pageSize]="pageSize()"
+                       [pageIndex]="pageIndex()"
+                       [pageSizeOptions]="[10, 20, 50, 100]"
+                       (page)="onPageChange($event)"
+                       aria-label="Select page"
+                       class="contacts-paginator">
+        </mat-paginator>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Processing Overlay -->
+  @if (isProcessing()) {
+    <div class="processing-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  }
+</div>

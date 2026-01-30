@@ -3,10 +3,18 @@
   <mat-icon class="error-icon">error_outline</mat-icon>
   <h3>Unable to Load Store</h3>
   <p>{{ errorMessage }}</p>
-  <button mat-raised-button 
+  
+
+   <div class="actions">
+    <button mat-raised-button 
           color="primary" 
-          (click)="retry.emit()">
-    <mat-icon>refresh</mat-icon>
-    {{ retryLabel }}
-  </button>
+            (click)="retry.emit()">
+      <mat-icon>refresh</mat-icon>
+      {{ retryLabel }}
+    </button>
+    <button mat-flat-button color="accent" (click)="goHome()">
+      Go to Homepage
+    </button>
+  </div>
+
 </div>

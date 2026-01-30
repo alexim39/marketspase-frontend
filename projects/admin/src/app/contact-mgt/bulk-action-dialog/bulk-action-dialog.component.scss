@@ -1,0 +1,88 @@
+
+.bulk-action-dialog {
+  min-width: 400px;
+  
+  .selected-count {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0 0 20px 0;
+    color: #666;
+  }
+
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .email-checkbox {
+    margin: 16px 0;
+
+    .checkbox-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .archive-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #fff3e0;
+    border-radius: 4px;
+    margin: 16px 0;
+
+    mat-icon {
+      color: #f57c00;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #5d4037;
+      line-height: 1.5;
+    }
+  }
+
+  mat-dialog-actions {
+    margin-top: 20px;
+    padding: 16px 0 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .bulk-action-dialog {
+    .selected-count {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .archive-warning {
+      background: rgba(255, 152, 0, 0.1);
+
+      p {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    mat-dialog-actions {
+      border-top-color: rgba(255, 255, 255, 0.12);
+    }
+  }
+}

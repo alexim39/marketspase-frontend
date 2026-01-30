@@ -16,4 +16,8 @@ export class ErrorStateComponent {
   @Input() retryLabel = 'Try Again';
   
   @Output() retry = new EventEmitter<void>();
+
+  goHome() {
+    window.location.href = '/';
+  }
 }

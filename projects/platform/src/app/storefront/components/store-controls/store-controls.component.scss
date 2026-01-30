@@ -3,7 +3,7 @@
 @import '../../../../styles/variables';
 
 .store-controls {
-  background: $surface-color;
+  background-color: color-mix(in srgb, $primary-color, $gray-900 85%);
   border-radius: $border-radius-lg;
   padding: $spacing-6;
   margin-bottom: $spacing-8;

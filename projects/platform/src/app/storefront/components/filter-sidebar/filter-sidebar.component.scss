@@ -5,7 +5,7 @@
 .filter-overlay {
   position: fixed;
   inset: 0;
-  background: rgba($black, 0.5);
+  background: rgba($black, 0.3);
   backdrop-filter: blur(4px);
   z-index: $z-index-modal-backdrop;
   opacity: 0;
@@ -29,7 +29,7 @@
   bottom: 0;
   width: 100%;
   max-width: 380px;
-  background: var(--surface-color);
+  background-color: color-mix(in srgb, $primary-color, $gray-900 85%);
   box-shadow: $shadow-2xl;
   transform: translateX(100%);
   transition: transform $transition-normal;
