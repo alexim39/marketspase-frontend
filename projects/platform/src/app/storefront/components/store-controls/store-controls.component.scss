@@ -1,0 +1,251 @@
+// store-controls.component.scss (DARK THEME ONLY)
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.store-controls {
+  background-color: color-mix(in srgb, $primary-light-hex, $gray-900 15%); // Dark theme mix
+  border-radius: $border-radius-lg;
+  padding: $spacing-6;
+  margin-bottom: $spacing-8;
+  margin-top: $spacing-4;
+  box-shadow: $shadow-lg;
+  border: 1px solid $gray-700; // Dark border
+  position: sticky;
+  top: 16px;
+  z-index: $z-index-sticky;
+  backdrop-filter: blur(10px);
+  transition: all $transition-normal;
+
+  &.sticky {
+    box-shadow: $shadow-xl;
+    transform: translateY(-2px);
+    border-color: $gray-600; // Lighter border when sticky
+  }
+
+  .controls-header {
+    @include flex-between;
+    margin-bottom: $spacing-4;
+
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-3;
+      align-items: stretch;
+    }
+
+    .results-info {
+      @include body-medium;
+      color: $gray-300; // Light gray
+      font-weight: $font-weight-medium;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: $spacing-1;
+      background: $gray-800; // Dark background
+      padding: $spacing-1;
+      border-radius: $border-radius;
+      border: 1px solid $gray-700;
+
+      button {
+        padding: $spacing-2 $spacing-3;
+        border-radius: $border-radius-sm;
+        color: $gray-400; // Light gray
+        background: transparent;
+        border: none;
+        transition: all $transition-fast;
+
+        &.active {
+          background: $primary-light-hex; // Light primary
+          color: $gray-900; // Dark text on primary
+          box-shadow: $shadow-sm;
+        }
+
+        &:hover:not(.active) {
+          background: $gray-700; // Lighter on hover
+          color: $gray-200;
+        }
+      }
+    }
+  }
+
+  .search-filter-row {
+    display: grid;
+    gap: $spacing-4;
+    grid-template-columns: 1fr;
+
+    @include tablet {
+      grid-template-columns: 1fr auto auto;
+    }
+
+    .search-box {
+      position: relative;
+
+      mat-icon {
+        position: absolute;
+        left: $spacing-3;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $gray-500; // Mid gray
+        z-index: 1;
+      }
+
+      input {
+        width: 100%;
+        padding: $spacing-2 $spacing-3;
+        border: 2px solid $gray-700; // Dark border
+        border-radius: $border-radius-full;
+        font-size: $font-size-base;
+        line-height: $line-height-normal;
+        transition: border-color $transition-normal, box-shadow $transition-normal;
+        background-color: $gray-800; // Dark input background
+        color: $gray-100; // Light text
+        padding-left: $spacing-10;
+        padding-right: $spacing-10;
+        height: 48px;
+
+        &:focus {
+          outline: none;
+          border-color: $primary-light-hex; // Light primary
+          box-shadow: 0 0 0 3px rgba($primary-light-hex, 0.15);
+        }
+
+        &::placeholder {
+          color: $gray-500; // Mid gray
+        }
+      }
+
+      .search-actions {
+        position: absolute;
+        right: $spacing-2;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: $spacing-1;
+
+        button {
+          background: $gray-700;
+          color: $gray-300;
+          border: 1px solid $gray-600;
+
+          &:hover {
+            background: $gray-600;
+            color: $gray-100;
+          }
+        }
+      }
+    }
+
+    .filter-toggle {
+      white-space: nowrap;
+      height: 48px;
+      background: $gray-700; // Dark button
+      color: $gray-100; // Light text
+      border: 1px solid $gray-600;
+
+      &:hover {
+        background: $gray-600;
+        color: $white-hex;
+      }
+
+      mat-icon {
+        margin-right: $spacing-2;
+      }
+    }
+
+    .sort-select {
+      min-width: 180px;
+      
+      ::ng-deep {
+        .mat-form-field {
+          .mat-form-field-wrapper {
+            .mat-form-field-flex {
+              background: $gray-800; // Dark background
+              border: 1px solid $gray-700; // Dark border
+              border-radius: $border-radius;
+              
+              .mat-form-field-infix {
+                border-top: none;
+                
+                .mat-select {
+                  .mat-select-value {
+                    color: $gray-200; // Light text
+                  }
+                  
+                  .mat-select-arrow {
+                    color: $gray-400; // Light gray
+                  }
+                }
+              }
+            }
+            
+            .mat-form-field-underline {
+              display: none;
+            }
+          }
+        }
+        
+        .mat-select-panel {
+          background: $gray-800; // Dark dropdown
+          border: 1px solid $gray-700;
+          
+          .mat-option {
+            color: $gray-200; // Light text
+            
+            &:hover:not(.mat-option-disabled) {
+              background: $gray-700; // Lighter on hover
+            }
+            
+            &.mat-selected:not(.mat-option-multiple) {
+              background: rgba($primary-light-hex, 0.15); // Primary tint
+              color: $primary-light-hex; // Light primary
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    margin-top: $spacing-4;
+    padding-top: $spacing-4;
+    border-top: 1px solid $gray-700; // Dark border
+
+    .filter-chip {
+      @include body-small;
+      background: $gray-800; // Dark background
+      border: 1px solid $gray-700; // Dark border
+      border-radius: $border-radius-full;
+      padding: $spacing-1 $spacing-3;
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-1;
+      color: $gray-300; // Light gray
+
+      button {
+        margin-left: $spacing-1;
+        opacity: 0.6;
+        color: $gray-500;
+        
+        &:hover {
+          opacity: 1;
+          color: $gray-300;
+        }
+      }
+    }
+
+    .clear-all {
+      margin-left: auto;
+      background: $gray-700;
+      color: $gray-200;
+      border: 1px solid $gray-600;
+
+      &:hover {
+        background: $gray-600;
+        color: $gray-100;
+      }
+    }
+  }
+}

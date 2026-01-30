@@ -100,7 +100,8 @@ export class ContactComponent implements OnInit, OnDestroy {
       reason: ['', [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
       message: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]],
-      userId: [this.user()?._id || '']
+      userId: [this.user()?._id || ''],
+      userEmail: [this.user()?.email || '']
     });
 
     this.contactForm.set(form);

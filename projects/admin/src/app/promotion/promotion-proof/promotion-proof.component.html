@@ -83,6 +83,11 @@
         </div>
         
         <div class="detail-item">
+          <span class="detail-label">Created:</span>
+          <span class="detail-value">{{ promotion()?.createdAt ? (promotion()?.createdAt | date:'medium') : 'No created time' }}</span>
+        </div>
+
+        <div class="detail-item">
           <span class="detail-label">Submitted:</span>
           <span class="detail-value">{{ promotion()?.submittedAt ? (promotion()?.submittedAt | date:'medium') : 'Not submitted' }}</span>
         </div>

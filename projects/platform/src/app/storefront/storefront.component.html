@@ -1,0 +1,187 @@
+<!-- storefront.component.html (UPDATED) -->
+<div class="storefront-page">
+  <!-- Store Header Component -->
+  <app-store-header
+    [store]="store()"
+    [isFavorited]="isFavorited()"
+    [storeStats]="storeStats()"
+    (toggleFavorite)="toggleFavorite()"
+    (shareStore)="shareStore()"
+    (contactViaWhatsApp)="contactViaWhatsApp()"
+    (headerTransform)="onHeaderTransform($event)">
+  </app-store-header>
+
+  <!-- Main Content -->
+  <main class="store-main">
+    <div class="container">
+      <!-- Featured Products (Optional) -->
+      @if (featuredProducts().length > 0) {
+        <section class="featured-section">
+          <div class="section-header">
+            <h2>
+              <mat-icon>star</mat-icon>
+              Featured Products
+            </h2>
+            <a [routerLink]="['/store', store()?.storeLink, 'featured']" mat-button>
+              View All
+              <mat-icon>chevron_right</mat-icon>
+            </a>
+          </div>
+          
+          <div class="featured-carousel">
+            @for (product of featuredProducts(); track trackByProductId($index, product)) {
+              <div class="featured-card">
+                <!-- Featured product card content -->
+              </div>
+            }
+          </div>
+        </section>
+      }
+      
+      <!-- Store Controls Component -->
+      <app-store-controls
+        [viewMode]="viewMode()"
+        [searchControl]="searchControl"
+        [sortControl]="sortControl"
+        [isScrolled]="isScrolled()"
+        [filteredProductsCount]="filteredProducts().length"
+        [totalProductsCount]="products().length"
+        [activeFilters]="activeFilters()"
+        (viewModeChange)="toggleViewMode($event)"
+        (clearFilters)="clearFilters()"
+        (toggleFilterSidebar)="toggleFilterSidebar()"
+        (clearSearch)="clearSearch()"
+        (setCategory)="setCategory($event)"
+        (priceRangeReset)="priceRange.set([minPrice(), maxPrice()])"
+        (ratingFilterReset)="ratingFilter.set(0)"
+        (tagFilterRemove)="toggleTagFilter($event)"
+        (brandFilterRemove)="toggleBrandFilter($event)">
+      </app-store-controls>
+      
+      <!-- Loading State -->
+      @if (loading()) {
+        <app-loading-state></app-loading-state>
+      }
+      
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <app-error-state 
+          [errorMessage]="error()!"
+          (retry)="retryLoad()">
+        </app-error-state>
+      }
+      
+      <!-- Products Display -->
+      @if (products().length > 0 && !loading() && !error()) {
+        <!-- Grid View -->
+        @if (viewMode() === 'grid') {
+          <div class="products-grid">
+            @for (product of filteredProducts(); track trackByProductId($index, product)) {
+              <app-product-grid-card
+                [product]="product"
+                [store]="store()"
+                [isInWishlist]="isInWishlist(product._id ?? '')"
+                (addToCart)="addToCart($event)"
+                (toggleWishlist)="toggleWishlist($event)"
+                (quickView)="openQuickView($event)"
+                (share)="shareProduct($event)"
+                (viewDetails)="viewProductDetails($event)">
+              </app-product-grid-card>
+            }
+          </div>
+        }
+        
+        <!-- List View -->
+        @if (viewMode() === 'list') {
+          <div class="products-list">
+            @for (product of filteredProducts(); track trackByProductId($index, product)) {
+              <app-product-list-item
+                [product]="product"
+                [store]="store()"
+                [isInWishlist]="isInWishlist(product._id ?? '')"
+                (addToCart)="addToCart($event)"
+                (toggleWishlist)="toggleWishlist($event)"
+                (quickView)="openQuickView($event)"
+                (share)="shareProduct($event)"
+                (viewDetails)="viewProductDetails($event)">
+              </app-product-list-item>
+            }
+          </div>
+        }
+        
+        <!-- Pagination Component -->
+        @if (totalPages() > 1) {
+          <app-pagination
+            [currentPage]="currentPage()"
+            [pageSize]="pageSize()"
+            [totalPages]="totalPages()"
+            [totalItems]="products().length"
+            (pageChange)="goToPage($event)"
+            (pageSizeChange)="pageSize.set($event); currentPage.set(1)">
+          </app-pagination>
+        }
+      }
+      
+      <!-- Empty State for No Products -->
+      @if (products().length === 0 && !loading() && !error()) {
+        <app-empty-state
+          icon="inventory_2"
+          title="No Products Found"
+          message="This store doesn't have any products available at the moment."
+          [actionLabel]="'Browse Marketplace'"
+          (action)="router.navigate(['/'])">
+        </app-empty-state>
+      }
+      
+      <!-- Empty State for No Matching Products -->
+      @if (filteredProducts().length === 0 && products().length > 0 && !loading()) {
+        <app-empty-state
+          icon="search_off"
+          title="No Matching Products"
+          message="No products match your current filters. Try adjusting your search criteria."
+          [actionLabel]="'Search Something Else'"
+          [secondaryActionLabel]="'Clear Filters'"
+          (action)="clearSearch()"
+          (secondaryAction)="clearFilters()">
+        </app-empty-state>
+      }
+    </div>
+  </main>
+  
+  <!-- Store Footer Component -->
+  <app-store-footer
+    [store]="store()"
+    [currentYear]="currentYear"
+    (contactViaWhatsApp)="contactViaWhatsApp()">
+  </app-store-footer>
+  
+  <!-- FAB Container Component -->
+  <app-fab-container
+    [isScrolled]="isScrolled()"
+    [cartCount]="getCartCount()"
+    (scrollToTop)="scrollToTop()"
+    (shareStore)="shareStore()">
+  </app-fab-container>
+  
+  <!-- Filter Sidebar (Component) -->
+  <app-filter-sidebar 
+    [show]="showFilters()"
+    (close)="showFilters.set(false)"
+    [categories]="categories()"
+    [brands]="brands()"
+    [tags]="tags()"
+    [priceRange]="priceRange()"
+    [minPrice]="minPrice()"
+    [maxPrice]="maxPrice()"
+    (priceRangeChange)="priceRange.set($event); currentPage.set(1)"
+    [availability]="availability()"
+    (availabilityChange)="availability.set($event); currentPage.set(1)"
+    [ratingFilter]="ratingFilter()"
+    (ratingFilterChange)="ratingFilter.set($event); currentPage.set(1)"
+    [selectedTags]="tagsFilter()"
+    (tagToggle)="toggleTagFilter($event)"
+    [selectedBrands]="brandFilter()"
+    (brandToggle)="toggleBrandFilter($event)"
+    (clearAll)="clearFilters()">
+  </app-filter-sidebar>
+</div>

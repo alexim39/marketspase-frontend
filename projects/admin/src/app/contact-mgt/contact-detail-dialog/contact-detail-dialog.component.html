@@ -1,0 +1,267 @@
+
+<div class="contact-detail-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Contact Message Details</h2>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <!-- Request Info -->
+    <div class="request-info">
+      <div class="request-id">
+        <mat-icon>fingerprint</mat-icon>
+        <span>{{ contact.requestID }}</span>
+      </div>
+      <div class="request-date">
+        <mat-icon>schedule</mat-icon>
+        <span>Created: {{ contact.createdAt | date:'medium' }}</span>
+      </div>
+      @if (contact.resolvedAt) {
+        <div class="request-date">
+          <mat-icon>check_circle</mat-icon>
+          <span>Resolved: {{ contact.resolvedAt | date:'medium' }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- User Info Card -->
+    <mat-card class="user-card">
+      <mat-card-header>
+        <img mat-card-avatar [src]="contact.user.avatar || '/img/avatar.png'" alt="User avatar">
+        <mat-card-title>{{ contact.user.displayName }}</mat-card-title>
+        <mat-card-subtitle>@{{ contact.user.username }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="contact-info">
+          <div class="contact-item">
+            <mat-icon>email</mat-icon>
+            <span>{{ contact.userEmail }}</span>
+          </div>
+          @if (contact.userPhone) {
+            <div class="contact-item">
+              <mat-icon>phone</mat-icon>
+              <span>{{ contact.userPhone }}</span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Message Content -->
+    <mat-card class="message-card">
+      <mat-card-header>
+        <mat-card-title>{{ contact.subject }}</mat-card-title>
+        <mat-card-subtitle>
+          <mat-chip [color]="getPriorityColor(contact.priority)" selected class="priority-chip">
+            {{ contact.priority | titlecase }}
+          </mat-chip>
+          <mat-chip [color]="getStatusColor(contact.status)" selected class="status-chip">
+            {{ contact.status.replace('_', ' ') | titlecase }}
+          </mat-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="message-content">
+          {{ contact.message }}
+        </div>
+        
+        <!-- Tags -->
+        @if (contact.tags && contact.tags.length > 0) {
+          <div class="tags-section">
+            <h4>Tags</h4>
+            <div class="tags-container">
+              @for (tag of contact.tags; track tag; let i = $index) {
+                <mat-chip (removed)="removeTag(i)">
+                  {{ tag }}
+                  <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+              }
+              <mat-form-field class="tag-input">
+                <input matInput 
+                       #tagInput
+                       placeholder="Add tag"
+                       (keyup.enter)="addTag(tagInput.value); tagInput.value=''">
+                <mat-icon matSuffix>add</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+        }
+
+        <!-- Attachments -->
+        @if (contact.attachments && contact.attachments.length > 0) {
+          <div class="attachments-section">
+            <h4>Attachments</h4>
+            <div class="attachments-container">
+              @for (attachment of contact.attachments; track attachment.filename) {
+                <div class="attachment-item" (click)="downloadAttachment(attachment)">
+                  <mat-icon class="attachment-icon">
+                    {{ getAttachmentIcon(attachment.fileType) }}
+                  </mat-icon>
+                  <div class="attachment-info">
+                    <span class="attachment-filename">{{ attachment.filename }}</span>
+                    <span class="attachment-size">{{ attachment.size | fileSize }}</span>
+                  </div>
+                  <mat-icon class="download-icon">download</mat-icon>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Quick Actions -->
+    <mat-card class="actions-card">
+      <mat-card-header>
+        <mat-card-title>Quick Actions</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="quick-actions">
+          <!-- Status Actions -->
+          <div class="action-group">
+            <h4>Status</h4>
+            <div class="action-buttons">
+              @for (status of ['open', 'in_progress', 'resolved', 'closed']; track status) {
+                <button mat-button 
+                        [color]="contact.status === status ? 'primary' : ''"
+                        (click)="updateStatus($any(status))"
+                        [disabled]="contact.status === status || isSaving">
+                  {{ status.replace('_', ' ') | titlecase }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Priority Actions -->
+          <div class="action-group">
+            <h4>Priority</h4>
+            <div class="action-buttons">
+              @for (priority of ['low', 'medium', 'high', 'urgent']; track priority) {
+                <button mat-button 
+                        [color]="contact.priority === priority ? 'primary' : ''"
+                        (click)="updatePriority($any(priority))"
+                        [disabled]="contact.priority === priority || isSaving">
+                  {{ priority | titlecase }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Assignment -->
+          <div class="action-group">
+            <h4>Assign To</h4>
+            <mat-form-field appearance="outline" class="assign-field">
+              <mat-label>Select Admin</mat-label>
+              <mat-select
+                [value]="contact.assignedTo?._id" 
+                (selectionChange)="contact.assignedTo = { _id: $event.value }" [disabled]="isSaving">
+
+                <mat-option [value]="null">Unassigned</mat-option>
+                @for (admin of admins; track admin._id) {
+                  <mat-option [value]="admin._id">{{ admin.displayName }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Follow-up Date -->
+          <div class="action-group">
+            <h4>Follow-up Date</h4>
+            <mat-form-field appearance="outline">
+              <mat-label>Follow-up Date</mat-label>
+              <input matInput 
+                     [matDatepicker]="picker" 
+                     [(ngModel)]="contact.followUpDate"
+                     (dateChange)="setFollowUpDate($event.value)"
+                     [disabled]="isSaving">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              @if (contact.followUpDate) {
+                <button matSuffix mat-icon-button (click)="setFollowUpDate(null)" [disabled]="isSaving">
+                  <mat-icon>clear</mat-icon>
+                </button>
+              }
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Admin Notes -->
+    <mat-card class="notes-card">
+      <mat-card-header>
+        <mat-card-title>Admin Notes</mat-card-title>
+        <mat-card-subtitle>Internal notes and communication</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Notes List -->
+        @if (contact.adminNotes && contact.adminNotes.length > 0) {
+          <div class="notes-list">
+            @for (note of contact.adminNotes; track note.createdAt) {
+              <div class="note-item">
+                <div class="note-header">
+                  <span class="note-admin">Admin {{ note.admin?.displayName || 'System' }}</span>
+                  <span class="note-date">{{ note.createdAt | date:'short' }}</span>
+                </div>
+                <div class="note-content">{{ note.note }}</div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-notes">
+            <mat-icon>notes</mat-icon>
+            <p>No notes yet</p>
+          </div>
+        }
+
+        <!-- Add Note Form -->
+        <div class="add-note-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Add a note</mat-label>
+            <textarea matInput 
+                      [(ngModel)]="newNote" 
+                      rows="3"
+                      placeholder="Add internal notes here..."
+                      [disabled]="isSaving"></textarea>
+          </mat-form-field>
+          <div class="note-actions">
+            <button mat-raised-button 
+                    color="primary" 
+                    (click)="addNote()"
+                    [disabled]="!newNote.trim() || isSaving">
+              <mat-icon>add</mat-icon>
+              Add Note
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Resolution Notes -->
+    @if (contact.status === 'resolved' || contact.status === 'closed') {
+      <mat-card class="resolution-card">
+        <mat-card-header>
+          <mat-card-title>Resolution Notes</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ contact.resolutionNotes || 'No resolution notes provided' }}</p>
+        </mat-card-content>
+      </mat-card>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+    <button mat-raised-button color="primary" (click)="close()">Done</button>
+  </mat-dialog-actions>
+
+  <!-- Loading Overlay -->
+  @if (isSaving) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  }
+</div>

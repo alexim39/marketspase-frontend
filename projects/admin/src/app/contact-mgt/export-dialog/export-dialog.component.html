@@ -1,0 +1,72 @@
+
+<div class="export-dialog">
+  <h2 mat-dialog-title>Export Contacts</h2>
+  
+  <mat-dialog-content>
+    <!-- Export Format -->
+    <div class="format-section">
+      <h3>Export Format</h3>
+      <mat-radio-group [(ngModel)]="exportFormat" class="format-grid">
+        @for (format of formats; track format.value) {
+          <mat-card class="format-card" [class.selected]="exportFormat === format.value">
+            <mat-radio-button [value]="format.value" class="format-radio"></mat-radio-button>
+            <div class="format-content">
+              <mat-icon class="format-icon">{{ format.icon }}</mat-icon>
+              <div class="format-details">
+                <h4>{{ format.label }}</h4>
+                <p>{{ format.description }}</p>
+              </div>
+            </div>
+          </mat-card>
+        }
+      </mat-radio-group>
+    </div>
+
+    <!-- Fields to Include -->
+    <div class="fields-section">
+      <div class="fields-header">
+        <h3>Fields to Include</h3>
+        <div class="field-actions">
+          <button mat-button (click)="selectAll(true)">Select All</button>
+          <button mat-button (click)="selectAll(false)">Clear All</button>
+        </div>
+      </div>
+      <p class="fields-info">{{ getSelectedCount() }} of {{ includeFields.length }} fields selected</p>
+      
+      <div class="fields-grid">
+        @for (field of includeFields; track field.id) {
+          <mat-checkbox [(ngModel)]="field.checked" class="field-checkbox">
+            {{ field.label }}
+          </mat-checkbox>
+        }
+      </div>
+    </div>
+
+    <!-- Export Summary -->
+    <div class="summary-section">
+      <h3>Export Summary</h3>
+      <div class="summary-content">
+        <div class="summary-item">
+          <mat-icon>filter_list</mat-icon>
+          <span>Current filters will be applied</span>
+        </div>
+        <div class="summary-item">
+          <mat-icon>file_download</mat-icon>
+          <span>Export will start immediately</span>
+        </div>
+        <div class="summary-item">
+          <mat-icon>warning</mat-icon>
+          <span>Large exports may take several minutes</span>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="export()">
+      <mat-icon>download</mat-icon>
+      Export Contacts
+    </button>
+  </mat-dialog-actions>
+</div>

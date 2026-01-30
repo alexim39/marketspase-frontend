@@ -4,7 +4,15 @@ import { StoreSettings } from "./store-promotion.model";
 // models/store.model.ts
 export interface Store {
   _id?: string;
-  owner: string;
+  owner: {
+    _id: string;
+    email: string;
+    personalInfo: {
+      phone: string;
+    };
+    displayName: string;
+    avatar: string;
+  };
   name: string;
   description: string;
   logo: string;
@@ -20,6 +28,8 @@ export interface Store {
   settings?: StoreSettings;
   isActive: boolean;
   isDefaultStore: boolean;
+  storeLink: string;
+
 }
 
 export interface StoreAnalytics {
@@ -31,6 +41,7 @@ export interface StoreAnalytics {
   salesData: SalesData;
   promoterPerformance: PromoterPerformance[];
   performanceMetrics: PerformanceMetric[];
+  rating: number;
 }
 
 export interface DailyView {

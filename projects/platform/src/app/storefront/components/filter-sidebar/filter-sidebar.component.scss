@@ -1,0 +1,399 @@
+// components/filter-sidebar/filter-sidebar.component.scss (DARK THEME ONLY)
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($gray-900, 0.7); // Dark overlay
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal-backdrop;
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-normal;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+
+    .filter-sidebar {
+      transform: translateX(0);
+    }
+  }
+}
+
+.filter-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 380px;
+  background-color: color-mix(in srgb, $primary-light-hex, $gray-900 15%); // Dark theme mix
+  box-shadow: $shadow-2xl;
+  transform: translateX(100%);
+  transition: transform $transition-normal;
+  display: flex;
+  flex-direction: column;
+  z-index: $z-index-modal;
+  border-left: 1px solid $gray-700; // Dark border
+
+  @include mobile {
+    max-width: 100%;
+  }
+
+  .filter-header {
+    padding: $spacing-4;
+    border-bottom: 1px solid $gray-700; // Dark border
+    @include flex-between;
+    background: $gray-800; // Dark background
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    h2 {
+      @include heading-small;
+      color: $gray-100; // Light text
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+
+      button {
+        background: $gray-700;
+        color: $gray-200;
+        border: 1px solid $gray-600;
+
+        &:hover {
+          background: $gray-600;
+          color: $gray-100;
+        }
+      }
+    }
+  }
+
+  .active-filters-summary {
+    padding: $spacing-4;
+    border-bottom: 1px solid $gray-700; // Dark border
+    background: $gray-900; // Darker background
+
+    .active-filters-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+
+      mat-chip {
+        @include body-small;
+        background: $gray-800; // Dark background
+        color: $gray-200; // Light text
+        border: 1px solid $gray-600; // Dark border
+
+        &:hover {
+          background: $gray-700; // Lighter on hover
+          border-color: $gray-500;
+        }
+      }
+    }
+  }
+
+  .filter-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-4;
+    @include scrollbar;
+    background: $gray-900; // Dark background
+
+    mat-expansion-panel {
+      margin-bottom: $spacing-2;
+      background: $gray-800; // Dark panel background
+      border: 1px solid $gray-700; // Dark border
+      box-shadow: none !important;
+
+      &::before {
+        display: none;
+      }
+
+      &:hover {
+        background: $gray-700; // Lighter on hover
+      }
+
+      mat-expansion-panel-header {
+        padding: 0 $spacing-4;
+        height: 56px;
+        background: $gray-800; // Dark header
+
+        &:hover {
+          background: $gray-700 !important; // Lighter on hover
+        }
+
+        mat-panel-title {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+
+          mat-icon {
+            color: $gray-500; // Mid gray
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          span {
+            @include body-medium;
+            font-weight: $font-weight-semibold;
+            color: $gray-100; // Light text
+          }
+        }
+
+        mat-panel-description {
+          @include body-small;
+          color: $gray-400; // Light gray
+        }
+      }
+
+      .mat-expansion-panel-body {
+        padding: $spacing-4;
+        background: $gray-800; // Dark body
+
+        // Price Filter
+        .price-filter {
+          .price-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: $spacing-4;
+            margin-top: $spacing-4;
+
+            .price-input {
+              label {
+                @include caption;
+                color: $gray-400; // Light gray
+                display: block;
+                margin-bottom: $spacing-1;
+              }
+
+              input {
+                @include form-input;
+                width: 100%;
+                background: $gray-700; // Dark input background
+                color: $gray-100; // Light text
+                border-color: $gray-600;
+
+                &:focus {
+                  border-color: $primary-light-hex; // Light primary
+                  box-shadow: 0 0 0 3px rgba($primary-light-hex, 0.15);
+                }
+              }
+            }
+          }
+        }
+
+        // Availability Filter
+        .availability-filter {
+          mat-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: $spacing-3;
+
+            mat-radio-button {
+              @include body-medium;
+              color: $gray-200; // Light text
+
+              ::ng-deep .mat-radio-label-content {
+                padding-left: $spacing-2;
+              }
+            }
+          }
+        }
+
+        // Rating Filter
+        .rating-filter {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+
+          button {
+            justify-content: flex-start;
+            padding: $spacing-2 $spacing-3;
+            text-align: left;
+            background: $gray-800;
+            color: $gray-200;
+            border: 1px solid $gray-700;
+
+            &.active {
+              background: $primary-light-hex; // Light primary
+              color: $gray-900; // Dark text on primary
+              border-color: $primary-light-hex;
+            }
+
+            &:hover:not(.active) {
+              background: $gray-700;
+              border-color: $gray-600;
+            }
+
+            .rating-stars {
+              display: flex;
+              align-items: center;
+              margin-right: $spacing-2;
+
+              mat-icon {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+                color: inherit;
+              }
+            }
+
+            span {
+              flex: 1;
+            }
+
+            .count {
+              color: $gray-500; // Mid gray
+              font-size: $font-size-sm;
+            }
+          }
+        }
+
+        // Categories Filter
+        .categories-filter {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+
+          .category-item {
+            justify-content: space-between;
+            padding: $spacing-2 $spacing-3;
+            text-transform: capitalize;
+            background: $gray-800;
+            color: $gray-200;
+            border: 1px solid $gray-700;
+            border-radius: $border-radius;
+
+            &:hover {
+              background: $gray-700;
+              border-color: $gray-600;
+            }
+
+            .category-name {
+              @include body-medium;
+              color: $gray-100; // Light text
+            }
+
+            .category-count {
+              @include body-small;
+              color: $gray-500; // Mid gray
+              background: $gray-900; // Dark background
+              padding: $spacing-1 $spacing-2;
+              border-radius: $border-radius-sm;
+              border: 1px solid $gray-700;
+            }
+          }
+        }
+
+        // Brands & Tags Filter
+        .brands-filter,
+        .tags-filter {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-3;
+          max-height: 300px;
+          overflow-y: auto;
+          padding-right: $spacing-2;
+          @include scrollbar;
+
+          mat-checkbox {
+            @include body-medium;
+            color: $gray-200; // Light text
+
+            ::ng-deep {
+              .mat-checkbox-label {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+              }
+
+              .brand-name,
+              .tag-name {
+                flex: 1;
+                color: $gray-100; // Light text
+              }
+
+              .brand-count,
+              .tag-count {
+                color: $gray-500; // Mid gray
+                font-size: $font-size-sm;
+              }
+
+              .mat-checkbox-frame {
+                border-color: $gray-600; // Dark border
+              }
+
+              .mat-checkbox-checked {
+                .mat-checkbox-background {
+                  background-color: $primary-light-hex; // Light primary
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .filter-footer {
+    padding: $spacing-4;
+    border-top: 1px solid $gray-700; // Dark border
+    background: $gray-800; // Dark background
+
+    .apply-button {
+      width: 100%;
+      height: 48px;
+      font-weight: $font-weight-semibold;
+      background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
+      color: $gray-900; // Dark text on gradient
+      border: none;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: $shadow-lg;
+      }
+
+      .result-count {
+        margin-left: $spacing-1;
+        opacity: 0.9;
+        color: $gray-800; // Dark text
+      }
+    }
+  }
+}
+
+// Helper function for slider label
+::ng-deep {
+  .mat-slider-thumb-label-text {
+    @include body-small;
+    font-weight: $font-weight-medium;
+    color: $gray-900; // Dark text
+  }
+
+  // Material slider dark theme adjustments
+  .mat-slider-track-background {
+    background-color: $gray-700 !important; // Dark track
+  }
+
+  .mat-slider-track-fill {
+    background-color: $primary-light-hex !important; // Light primary
+  }
+
+  .mat-slider-thumb {
+    background-color: $primary-light-hex !important; // Light primary
+    border-color: $primary-light-hex !important;
+  }
+
+  .mat-slider-thumb-label {
+    background-color: $gray-800 !important; // Dark background
+    border: 1px solid $gray-700 !important;
+  }
+}

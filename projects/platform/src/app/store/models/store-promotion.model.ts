@@ -18,6 +18,7 @@ export interface UpdateStoreRequest {
   logo?: File;
   settings?: Partial<StoreSettings>;
   status?: 'active' | 'inactive' | 'suspended';
+  userId?: string;
 }
 
 

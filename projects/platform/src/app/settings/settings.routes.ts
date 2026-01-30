@@ -1,8 +1,4 @@
 import { Routes } from '@angular/router';
-import { SettingsIndexComponent } from './index.component';
-import { AccountComponent } from './account/account.component';
-import { SupportComponent } from './support/support.component';
-import { SystemSettingComponent } from './system/system.component';
 
 export const SettingsRoutes: Routes = [
   // {
@@ -12,7 +8,7 @@ export const SettingsRoutes: Routes = [
   // },
   {
     path: '',
-    component: SettingsIndexComponent,
+    loadComponent: () => import('./index.component').then(c => c.SettingsIndexComponent),
     title: 'Settings - Configure your account and system settings',
     children: [
       {
@@ -22,17 +18,17 @@ export const SettingsRoutes: Routes = [
       },
       {
         path: 'system',
-        component: SystemSettingComponent,
+        loadComponent: () => import('./system/system.component').then(c => c.SystemSettingComponent),
         title: "System Setting - Configure the look and feel",
       },
       {
         path: 'account',
-        component: AccountComponent,
+        loadComponent: () => import('./account/account.component').then(c => c.AccountComponent),
         title: "Account Setting - Configure your profile settings",
       },
       {
         path: 'share',
-        component: SupportComponent,
+        loadComponent: () => import('./support/support.component').then(c => c.SupportComponent),
         title: "Support & Testimonial - Get support and testify about MarketSpase",
       },
     ],

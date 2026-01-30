@@ -6,7 +6,6 @@ export interface Product {
   description?: string;
   price: number;
   originalPrice?: number; // For discounts
-  // images: string[];
   images: Array<{
     url: string;
     altText?: string;
@@ -24,6 +23,12 @@ export interface Product {
     width: number;
     height: number;
   };
+  costPrice?: number;
+  taxRate?: number;
+  specifications?: any;
+  weightUnit?: 'kg' | 'lb' | 'g' | 'oz';
+  returnRate?: number;
+  reviews?: any[];
 
   
   
@@ -58,6 +63,9 @@ export interface Product {
   
   createdAt?: Date;
   updatedAt?: Date;
+
+  manageStock?: boolean;
+  ratingCount?: number;
 }
 
 export interface PromoterTracking {
@@ -78,7 +86,7 @@ export interface ProductSEO {
 }
 
 export interface ProductVariant {
-  id: string;
+  _id: string;
   name: string;
   options: VariantOption[];
   priceAdjustment: number;

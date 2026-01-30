@@ -1,0 +1,21 @@
+<!-- empty-state.component.html -->
+<div class="empty-state">
+  <mat-icon class="empty-icon">{{ icon }}</mat-icon>
+  <h3>{{ title }}</h3>
+  <p>{{ message }}</p>
+  
+  @if (showActions) {
+    <div class="empty-actions">
+      @if (secondaryActionLabel) {
+        <button mat-button (click)="secondaryAction.emit()">
+          <mat-icon>clear_all</mat-icon>
+          {{ secondaryActionLabel }}
+        </button>
+      }
+      <button mat-raised-button color="primary" (click)="action.emit()">
+        <mat-icon>storefront</mat-icon>
+        {{ actionLabel }}
+      </button>
+    </div>
+  }
+</div>

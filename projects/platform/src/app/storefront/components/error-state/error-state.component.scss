@@ -1,0 +1,67 @@
+// error-state.component.scss (DARK THEME ONLY)
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.error-state {
+  @include flex-column-center;
+  min-height: 400px;
+  text-align: center;
+  padding: $spacing-20 0;
+  background: $gray-900; // Dark background
+
+  .error-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    margin-bottom: $spacing-6;
+    color: lighten($error-color-hex, 10%); // Brighter error color for dark theme
+    opacity: 0.8;
+  }
+
+  h3 {
+    @include heading-medium;
+    color: $gray-100; // Light text
+    margin: 0 0 $spacing-2;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+  }
+
+  p {
+    @include body-medium;
+    color: $gray-300; // Light gray
+    max-width: 400px;
+    margin-bottom: $spacing-6;
+  }
+
+  .actions {
+    display: flex;
+    gap: $spacing-4;
+    justify-content: center;
+
+    button {
+      &:first-child {
+        background: $gray-700; // Dark button
+        color: $gray-100; // Light text
+        border: 1px solid $gray-600;
+
+        &:hover {
+          background: $gray-600;
+          color: $white-hex;
+          border-color: $gray-500;
+        }
+      }
+
+      &:last-child {
+        background: rgba($error-color-hex, 0.15); // Error tint
+        color: lighten($error-color-hex, 10%); // Brighter error text
+        border: 1px solid rgba($error-color-hex, 0.3);
+
+        &:hover {
+          background: rgba($error-color-hex, 0.25);
+          color: lighten($error-color-hex, 15%);
+          border-color: rgba($error-color-hex, 0.4);
+        }
+      }
+    }
+  }
+}

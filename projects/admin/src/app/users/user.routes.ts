@@ -1,8 +1,4 @@
 import { Routes } from "@angular/router";
-import { AllUsersListComponent } from "./all-users-list.component";
-import { UserDetailsComponent } from "./user-details/user-details.component";
-import { MarketerUserMgtComponent } from "./marketers/marketer-users.component";
-import { PromoterUserMgtComponent } from "./promoters/promoter-users.component";
 
 export const UserRoutes: Routes = [
     {
@@ -10,19 +6,23 @@ export const UserRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: AllUsersListComponent,
+        loadComponent: () => import('./all-users-list.component').then(c => c.AllUsersListComponent),
         title: 'User Management - Admin Dashboard'
     },
     {   path: 'marketers', 
-        component: MarketerUserMgtComponent,
+        loadComponent: () => import('./marketers/marketer-users.component').then(c => c.MarketerUserMgtComponent),
         title: 'Marketers Details - Admin Dashboard'
     },
     {   path: 'promoters', 
-        component: PromoterUserMgtComponent,
+        loadComponent: () => import('./promoters/promoter-users.component').then(c => c.PromoterUserMgtComponent),
         title: 'Promoters Details - Admin Dashboard'
     },
+    {   path: 'contacts', 
+        loadComponent: () => import('./../contact-mgt/contact-management.component').then(c => c.ContactManagementComponent),
+        title: 'Contacts Management - Admin Dashboard'
+    }, 
     {   path: ':id', 
-        component: UserDetailsComponent,
+        loadComponent: () => import('./user-details/user-details.component').then(c => c.UserDetailsComponent),
         title: 'User Details - Admin Dashboard'
     },
    

@@ -1,0 +1,137 @@
+<!-- product-list-item.component.html -->
+<mat-card class="product-list-item" (click)="onViewDetails($event)">
+  <div class="list-item-content">
+    <!-- Image -->
+    <div class="list-image">
+      @if (product.images && product.images[0]?.url) {
+        <img [src]="product.images[0].url" 
+             [alt]="product.name"
+             appLazyImage
+             [defaultImage]="'img/avatar.png'"
+             (error)="onImageError($event)">
+      } @else {
+        <div class="image-placeholder">
+          <mat-icon>image</mat-icon>
+        </div>
+      }
+      <div class="image-overlay"></div>
+    </div>
+    
+    <!-- Details -->
+    <div class="list-details">
+      <div class="product-header">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <div class="product-meta">
+          <span class="meta-item">
+            <mat-icon>category</mat-icon>
+            {{ product.category }}
+          </span>
+          @if (product.brand) {
+            <span class="meta-item">
+              <mat-icon>branding_watermark</mat-icon>
+              {{ product.brand }}
+            </span>
+          }
+          @if (product.sku) {
+            <span class="meta-item">
+              <mat-icon>tag</mat-icon>
+              {{ product.sku }}
+            </span>
+          }
+        </div>
+      </div>
+      
+      <div class="product-description">
+        {{ product.description ?? 'No description available' }}
+      </div>
+      
+      <div class="product-features">
+        @if (product.isDigital) {
+          <div class="feature">
+            <mat-icon>cloud_download</mat-icon>
+            <span>Digital Download</span>
+          </div>
+        }
+        @if (product.weight) {
+          <div class="feature">
+            <mat-icon>fitness_center</mat-icon>
+            <span>{{ product.weight }} {{ product.weightUnit }}</span>
+          </div>
+        }
+        @if (product.tags && product.tags.length > 0) {
+          <div class="feature">
+            <mat-icon>label</mat-icon>
+            <span>{{ product.tags.slice(0, 2).join(', ') }}</span>
+          </div>
+        }
+      </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="list-actions">
+      <!-- Price -->
+      <div class="price-section">
+        <div class="current-price">{{ product.price | currency }}</div>
+        @if (product.originalPrice && product.originalPrice > product.price) {
+          <div class="original-price">{{ product.originalPrice | currency }}</div>
+          <div class="savings">
+            Save {{ calculateDiscount(product.price, product.originalPrice) }}%
+          </div>
+        }
+      </div>
+      
+      <!-- Stock -->
+      @if (product.manageStock) {
+        <div class="stock-section">
+          <div class="stock-status" 
+               [class.in-stock]="product.quantity > 0 && product.quantity > product.lowStockAlert"
+               [class.low-stock]="product.quantity > 0 && product.quantity <= product.lowStockAlert"
+               [class.out-of-stock]="product.quantity === 0">
+            <mat-icon>
+              @if (product.quantity === 0) { block }
+              @else if (product.quantity <= product.lowStockAlert) { warning }
+              @else { check_circle }
+            </mat-icon>
+            <span>{{ getStockText() }}</span>
+          </div>
+        </div>
+      }
+      
+      <!-- Actions -->
+      <div class="action-buttons">
+        <button mat-raised-button 
+                color="primary" 
+                class="primary-action"
+                (click)="onContactSeller($event)"
+                [disabled]="product.manageStock && product.quantity === 0">
+          <mat-icon>contact_support</mat-icon>
+          Contact Seller
+        </button>
+       <!--  <button mat-raised-button 
+                color="primary" 
+                class="primary-action"
+                (click)="onAddToCart($event)"
+                [disabled]="product.manageStock && product.quantity === 0">
+          <mat-icon>add_shopping_cart</mat-icon>
+          Add to Cart
+        </button> -->
+        
+        <div class="secondary-actions">
+          <button mat-icon-button 
+                  (click)="onToggleWishlist($event)"
+                  [class.active]="isInWishlist">
+            <mat-icon>{{ isInWishlist ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+          <button mat-icon-button 
+                  (click)="onShare($event)">
+            <mat-icon>share</mat-icon>
+          </button>
+          <button mat-icon-button 
+                  (click)="onQuickView($event)">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-card>

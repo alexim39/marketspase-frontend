@@ -1,0 +1,146 @@
+<!-- store-header.component.html -->
+<header class="store-header" [class.compact]="isCompactHeader">
+  <!-- Background Pattern -->
+  <div class="header-background">
+    <div class="pattern-overlay"></div>
+  </div>
+
+  <div class="header-container">
+    <!-- Store Identity Section -->
+    <div class="store-identity">
+      <!-- Store Logo with Verification Badge -->
+      <div class="logo-wrapper">
+        @if (store?.logo) {
+          <img 
+            [src]="store?.logo ?? '/img/avatar.png'" 
+            [alt]="store?.name + ' logo'" 
+            class="store-logo"
+            appLazyImage
+            [defaultImage]="'/img/avatar.png'"
+            (error)="onImageError($event)">
+        } @else {
+          <div class="store-logo-placeholder">
+            <mat-icon>storefront</mat-icon>
+          </div>
+        }
+        
+        @if (verificationIcon) {
+          <div class="verification-badge" 
+               [class.premium]="store?.verificationTier === 'premium'"
+               [matTooltip]="verificationLabel + ' Store'">
+            <mat-icon>{{ verificationIcon }}</mat-icon>
+          </div>
+        }
+      </div>
+
+      <!-- Store Info -->
+      <div class="store-details">
+        <h1 class="store-name">{{ store?.name }}</h1>
+        
+        @if (store?.description) {
+          <p class="store-description">{{ store?.description }}</p>
+        }
+
+        <!-- Store Metadata -->
+        <div class="store-metadata">
+          @if (store?.category) {
+            <div class="meta-chip">
+              <mat-icon>category</mat-icon>
+              <span>{{ store?.category }}</span>
+            </div>
+          }
+          
+          <div class="meta-chip rating">
+            <mat-icon [class.filled]="store?.analytics?.rating">star</mat-icon>
+            <span>{{ formattedRating }}</span>
+          </div>
+
+          <div class="meta-chip">
+            <mat-icon>schedule</mat-icon>
+            <span>Available 24/7</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-section">
+      <div class="primary-actions">
+        @if (hasWhatsApp) {
+          <button 
+            mat-raised-button 
+            color="primary" 
+            class="btn-primary btn-contact"
+            (click)="onContactViaWhatsApp()"
+            matTooltip="Chat on WhatsApp">
+            <mat-icon class="whatsapp-icon">chat</mat-icon>
+            <span class="btn-text">Contact Store</span>
+          </button>
+        }
+        
+        <button 
+          mat-stroked-button 
+          class="btn-secondary btn-favorite"
+          [class.favorited]="isFavorited"
+          (click)="onToggleFavorite()"
+          [matTooltip]="isFavorited ? 'Remove from favorites' : 'Add to favorites'">
+          <mat-icon>{{ isFavorited ? 'favorite' : 'favorite_border' }}</mat-icon>
+          <span class="btn-text">{{ isFavorited ? 'Saved' : 'Save' }}</span>
+        </button>
+      </div>
+
+      <div class="secondary-actions">
+        <button 
+          mat-icon-button 
+          class="btn-icon"
+          (click)="onShareStore()"
+          matTooltip="Share this store">
+          <mat-icon>share</mat-icon>
+        </button>
+        
+        <button 
+          mat-icon-button 
+          class="btn-icon"
+          (click)="onReportStore()"
+          matTooltip="Report store">
+          <mat-icon>flag</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Store Statistics -->
+    <div class="store-statistics">
+      <div class="stat-card">
+        <mat-icon class="stat-icon">inventory_2</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ storeStats.productCount | number }}</div>
+          <div class="stat-label">Products</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <mat-icon class="stat-icon">visibility</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ storeStats.totalViews | number:'1.0-0' }}</div>
+          <div class="stat-label">Store Views</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <mat-icon class="stat-icon">shopping_bag</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ storeStats.totalSales | number:'1.0-0' }}</div>
+          <div class="stat-label">Total Sales</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <mat-icon class="stat-icon">trending_up</mat-icon>
+        <div class="stat-content">
+          <div class="stat-value">{{ storeStats.conversionRate | number:'1.1-1' }}%</div>
+          <div class="stat-label">Conversion</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

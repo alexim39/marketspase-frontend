@@ -1,0 +1,247 @@
+// components/share-bottom-sheet/share-bottom-sheet.component.scss (DARK THEME ONLY)
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.share-bottom-sheet {
+  padding: $spacing-4;
+  max-width: 500px;
+  margin: 0 auto;
+  background: $gray-900; // Dark background
+
+  .share-header {
+    @include flex-between;
+    margin-bottom: $spacing-6;
+
+    h2 {
+      @include heading-medium;
+      color: $gray-100; // Light text
+      margin: 0;
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+    }
+
+    button {
+      background: $gray-800;
+      color: $gray-200;
+      border: 1px solid $gray-700;
+
+      &:hover {
+        background: $gray-700;
+        color: $gray-100;
+      }
+    }
+  }
+
+  .loading-state {
+    @include flex-center;
+    gap: $spacing-3;
+    padding: $spacing-4;
+    background: $gray-800; // Dark background
+    border-radius: $border-radius;
+    margin-bottom: $spacing-4;
+    border: 1px solid $gray-700;
+
+    span {
+      @include body-medium;
+      color: $gray-300; // Light gray
+    }
+  }
+
+  .share-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: $spacing-3;
+    margin-bottom: $spacing-6;
+
+    .share-option {
+      @include flex-column;
+      align-items: center;
+      padding: $spacing-3;
+      border-radius: $border-radius;
+      background: $gray-800; // Dark background
+      border: 1px solid $gray-700; // Dark border
+      transition: all $transition-fast;
+      cursor: pointer;
+
+      &:hover:not(:disabled) {
+        background: $gray-700; // Lighter on hover
+        transform: translateY(-2px);
+        box-shadow: $shadow-sm;
+        border-color: $gray-600;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .option-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: $border-radius;
+        @include flex-center;
+        margin-bottom: $spacing-2;
+        color: $white-hex;
+        border: 2px solid rgba($white-hex, 0.1);
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      .option-name {
+        @include body-small;
+        font-weight: $font-weight-medium;
+        color: $gray-100; // Light text
+        text-align: center;
+        margin-bottom: $spacing-1;
+      }
+
+      .option-description {
+        @include caption;
+        color: $gray-500; // Mid gray
+        text-align: center;
+      }
+
+      // Specific platform colors (kept as they are for brand recognition)
+      &.whatsapp { .option-icon { background: #25D366; } }
+      &.facebook { .option-icon { background: #1877F2; } }
+      &.twitter { .option-icon { background: #1DA1F2; } }
+      &.telegram { .option-icon { background: #0088cc; } }
+      &.email { .option-icon { background: $gray-600; } }
+      &.copy { .option-icon { background: $primary-light-hex; } } // Light primary
+      &.sms { .option-icon { background: $success-color-hex; } }
+    }
+  }
+
+  .share-preview {
+    background: $gray-800; // Dark background
+    border-radius: $border-radius;
+    padding: $spacing-4;
+    margin-bottom: $spacing-6;
+    border: 1px solid $gray-700; // Dark border
+
+    .preview-content {
+      display: flex;
+      gap: $spacing-4;
+      margin-bottom: $spacing-4;
+
+      .preview-text {
+        flex: 1;
+
+        strong {
+          @include body-medium;
+          font-weight: $font-weight-semibold;
+          color: $gray-100; // Light text
+          display: block;
+          margin-bottom: $spacing-1;
+        }
+
+        p {
+          @include body-small;
+          color: $gray-300; // Light gray
+          margin: 0;
+        }
+      }
+
+      .preview-image {
+        width: 80px;
+        height: 80px;
+        border-radius: $border-radius;
+        object-fit: cover;
+        border: 1px solid $gray-700;
+      }
+    }
+
+    .preview-url {
+      @include flex-between;
+      background: $gray-900; // Darker background
+      padding: $spacing-2 $spacing-3;
+      border-radius: $border-radius;
+      border: 1px solid $gray-700; // Dark border
+
+      code {
+        @include body-small;
+        color: $gray-400; // Light gray
+        font-family: monospace;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      button {
+        margin-left: $spacing-2;
+        background: $gray-700;
+        color: $gray-200;
+        border: 1px solid $gray-600;
+
+        &:hover {
+          background: $gray-600;
+          color: $gray-100;
+        }
+      }
+    }
+  }
+
+  .qr-section {
+    text-align: center;
+    padding: $spacing-4;
+    background: $gray-800; // Dark background
+    border-radius: $border-radius;
+    border: 1px solid $gray-700; // Dark border
+
+    h3 {
+      @include body-medium;
+      font-weight: $font-weight-semibold;
+      color: $gray-100; // Light text
+      margin: 0 0 $spacing-3 0;
+    }
+
+    .qr-button {
+      width: 100%;
+      height: 48px;
+      background: $gray-700;
+      color: $gray-100;
+      border: 1px solid $gray-600;
+
+      &:hover {
+        background: $gray-600;
+        color: $white-hex;
+      }
+
+      mat-icon {
+        margin-right: $spacing-2;
+      }
+    }
+  }
+}
+
+// Responsive
+@include mobile {
+  .share-bottom-sheet {
+    padding: $spacing-3;
+
+    .share-options-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-2;
+
+      .share-option {
+        padding: $spacing-2;
+
+        .option-icon {
+          width: 40px;
+          height: 40px;
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+    }
+  }
+}

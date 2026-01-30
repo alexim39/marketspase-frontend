@@ -1,0 +1,64 @@
+@import '../../../../../../../styles/mixins';
+@import '../../../../../../../styles/variables';
+
+.product-header {
+  margin-bottom: $spacing-8;
+
+  .header-content {
+    @include flex-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-6;
+
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-4;
+    }
+
+    .header-left {
+      flex: 1;
+
+      .back-btn {
+        margin-bottom: $spacing-3;
+        color: $text-secondary;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+
+      .header-title {
+        h1 {
+          @include heading-large;
+          margin: 0 0 $spacing-2 0;
+          color: $text-primary;
+        }
+
+        .subtitle {
+          @include body-medium;
+          color: $text-secondary;
+          margin: 0;
+        }
+      }
+    }
+
+    .header-right {
+      @include flex-center;
+      gap: $spacing-3;
+
+      @include mobile {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .cancel-btn {
+        color: $text-secondary;
+      }
+
+      button[mat-raised-button] {
+        padding: $spacing-3 $spacing-6;
+        @include flex-center;
+        gap: $spacing-2;
+      }
+    }
+  }
+}

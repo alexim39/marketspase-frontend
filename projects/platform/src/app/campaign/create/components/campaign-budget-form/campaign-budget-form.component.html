@@ -2,7 +2,7 @@
   <mat-card-header>
     <mat-card-title>Campaign Budget & Targeting</mat-card-title>
     <mat-card-subtitle>
-      Set your budget. Promoters earn based on real views.
+      Set your budget. Promoters earn based on impressions and conversaion.
     </mat-card-subtitle>
   </mat-card-header>
 
@@ -28,7 +28,7 @@
           placeholder="e.g. 5000"
         />
         <mat-hint>
-          Your budget is spent gradually as promoters generate views.
+          Your budget is spent gradually as promoters promote your campaign.
         </mat-hint>
         @if (formGroup.get('budget')?.hasError('required')) {
           <mat-error>
@@ -51,8 +51,7 @@
       <div class="performance-info">
         <mat-icon>info</mat-icon>
         <p>
-          Promoters are paid based on how many real views they generate.
-          Higher views earn higher payouts.
+          Promoters are paid based on impressions and leads they generate.
         </p>
       </div>
 

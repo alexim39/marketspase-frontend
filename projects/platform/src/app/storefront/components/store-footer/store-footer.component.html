@@ -1,0 +1,92 @@
+<!-- store-footer.component.html -->
+<footer class="store-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        @if (store?.logo) {
+          <img [src]="store?.logo" 
+               [alt]="store?.name" 
+               class="footer-logo">
+        }
+        <div class="brand-info">
+          <h3>{{ store?.name }}</h3>
+          @if (store?.description) {
+            <p>{{ store?.description }}</p>
+          }
+          <div class="newsletter">
+            <h4>Stay Updated</h4>
+            <div class="newsletter-form">
+              <input type="email" placeholder="Enter your email">
+              <button mat-raised-button color="primary">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <div class="link-group">
+          <h4>Shop</h4>
+          <ul>
+            <li><a [routerLink]="['/store', store?.storeLink, 'products']">All Products</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'featured']">Featured</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'new']">New Arrivals</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'sale']">On Sale</a></li>
+          </ul>
+        </div>
+        
+        <div class="link-group">
+          <h4>Support</h4>
+          <ul>
+            <li><a [routerLink]="['/store', store?.storeLink, 'contact']">Contact Us</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'shipping']">Shipping Policy</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'returns']">Returns & Refunds</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'faq']">FAQ</a></li>
+          </ul>
+        </div>
+        
+        <div class="link-group">
+          <h4>Company</h4>
+          <ul>
+            <li><a [routerLink]="['/store', store?.storeLink, 'about']">About Us</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'careers']">Careers</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'blog']">Blog</a></li>
+            <li><a [routerLink]="['/store', store?.storeLink, 'press']">Press</a></li>
+          </ul>
+        </div>
+        
+        <div class="link-group">
+          <h4>Connect</h4>
+          <div class="social-links">
+            <a href="#" matTooltip="Facebook">
+              <mat-icon>facebook</mat-icon>
+            </a>
+            <a href="#" matTooltip="Twitter">
+              <mat-icon>twitter</mat-icon>
+            </a>
+            <a href="#" matTooltip="Instagram">
+              <mat-icon>instagram</mat-icon>
+            </a>
+            <a href="#" matTooltip="YouTube">
+              <mat-icon>youtube</mat-icon>
+            </a>
+            @if (store?.whatsappNumber) {
+              <a (click)="onContactViaWhatsApp()" matTooltip="WhatsApp">
+                <mat-icon>whatsapp</mat-icon>
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} {{ store?.name }}. All rights reserved.</p>
+      <p>Powered by <a href="/">MarketSpase</a> - The Future of E-commerce</p>
+      <p>
+        <a href="#">Privacy Policy</a> • 
+        <a href="#">Terms of Service</a> • 
+        <a href="#">Cookie Policy</a>
+      </p>
+    </div>
+  </div>
+</footer>

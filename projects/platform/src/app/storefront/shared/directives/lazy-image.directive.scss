@@ -1,0 +1,26 @@
+// shared/directives/lazy-image.directive.scss
+.lazy-image {
+  transition: all 0.3s ease;
+  opacity: 0;
+  
+  &.loading {
+    opacity: 0.3;
+    filter: blur(4px);
+  }
+  
+  &.loaded {
+    opacity: 1;
+    filter: blur(0);
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  &.error {
+    opacity: 0.8;
+    filter: grayscale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
