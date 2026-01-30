@@ -1,5 +1,5 @@
 // product-grid-card.component.ts
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, Signal, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,8 @@ import { RatingComponent } from '../../shared/rating/rating.component';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { TruncatePipe } from '../../../store/shared';
 import { Product, Store } from '../../../store/models';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { UserService } from '../../../common/services/user.service';
 
 /**
  * Product Grid Card Component
@@ -46,9 +48,9 @@ export class ProductGridCardComponent {
   // INPUTS
   // =========================================
   
-  @Input() product!: Product;
-  @Input() store: Store | null = null;
-  @Input() isInWishlist = false;
+  @Input({ required: true }) product!: Product;
+  @Input({ required: true }) store: Store | null = null;
+  @Input({ required: true }) isInWishlist = false;
 
   // =========================================
   // OUTPUTS
@@ -59,6 +61,9 @@ export class ProductGridCardComponent {
   @Output() quickView = new EventEmitter<Product>();
   @Output() share = new EventEmitter<Product>();
   @Output() viewDetails = new EventEmitter<Product>();
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
 
   // =========================================
   // PRODUCT STATUS METHODS
@@ -195,6 +200,32 @@ export class ProductGridCardComponent {
       this.addToCart.emit(this.product);
     }
   }
+
+  onContactSeller(event: Event): void {
+    event.stopPropagation();
+
+    //console.log('user phone number', this.store);
+    
+    // const phoneNumber = this.user()?.personalInfo?.phone; // Replace with your actual data path
+    const phoneNumber = this.store?.owner?.personalInfo?.phone; // Replace with your actual data path
+    const storeName = this.store?.name || 'the store';
+
+    if (phoneNumber) {
+      // 1. Clean the phone number (remove spaces, +, or dashes)
+      const cleanNumber = phoneNumber.replace(/\D/g, '');
+      
+      // 2. Create an optional encoded message
+      const message = encodeURIComponent(`Hello! I'm interested in a product from ${storeName} on MarketSpase.`);
+      
+      // 3. Open the WhatsApp link in a new tab
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+      window.open(whatsappUrl, '_blank');
+    } else {
+      // Optional: Show a toast or snackbar error if no number exists
+      console.error('No phone number available for this seller');
+    }
+  }
+
 
   /**
    * Handles wishlist toggle action

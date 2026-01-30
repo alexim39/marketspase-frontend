@@ -1,11 +1,11 @@
-// components/filter-sidebar/filter-sidebar.component.scss
+// components/filter-sidebar/filter-sidebar.component.scss (DARK THEME ONLY)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
 .filter-overlay {
   position: fixed;
   inset: 0;
-  background: rgba($black, 0.3);
+  background: rgba($gray-900, 0.7); // Dark overlay
   backdrop-filter: blur(4px);
   z-index: $z-index-modal-backdrop;
   opacity: 0;
@@ -29,13 +29,14 @@
   bottom: 0;
   width: 100%;
   max-width: 380px;
-  background-color: color-mix(in srgb, $primary-color, $gray-900 85%);
+  background-color: color-mix(in srgb, $primary-light-hex, $gray-900 15%); // Dark theme mix
   box-shadow: $shadow-2xl;
   transform: translateX(100%);
   transition: transform $transition-normal;
   display: flex;
   flex-direction: column;
   z-index: $z-index-modal;
+  border-left: 1px solid $gray-700; // Dark border
 
   @include mobile {
     max-width: 100%;
@@ -43,16 +44,16 @@
 
   .filter-header {
     padding: $spacing-4;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid $gray-700; // Dark border
     @include flex-between;
-    background: var(--surface-color);
+    background: $gray-800; // Dark background
     position: sticky;
     top: 0;
     z-index: 2;
 
     h2 {
       @include heading-small;
-      color: var(--text-primary);
+      color: $gray-100; // Light text
       margin: 0;
     }
 
@@ -60,13 +61,24 @@
       display: flex;
       align-items: center;
       gap: $spacing-2;
+
+      button {
+        background: $gray-700;
+        color: $gray-200;
+        border: 1px solid $gray-600;
+
+        &:hover {
+          background: $gray-600;
+          color: $gray-100;
+        }
+      }
     }
   }
 
   .active-filters-summary {
     padding: $spacing-4;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--background-color);
+    border-bottom: 1px solid $gray-700; // Dark border
+    background: $gray-900; // Darker background
 
     .active-filters-chips {
       display: flex;
@@ -75,12 +87,13 @@
 
       mat-chip {
         @include body-small;
-        background: var(--surface-color);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
+        background: $gray-800; // Dark background
+        color: $gray-200; // Light text
+        border: 1px solid $gray-600; // Dark border
 
         &:hover {
-          background: var(--divider-color);
+          background: $gray-700; // Lighter on hover
+          border-color: $gray-500;
         }
       }
     }
@@ -91,11 +104,12 @@
     overflow-y: auto;
     padding: $spacing-4;
     @include scrollbar;
+    background: $gray-900; // Dark background
 
     mat-expansion-panel {
       margin-bottom: $spacing-2;
-      background: var(--surface-color);
-      border: 1px solid var(--border-color);
+      background: $gray-800; // Dark panel background
+      border: 1px solid $gray-700; // Dark border
       box-shadow: none !important;
 
       &::before {
@@ -103,12 +117,17 @@
       }
 
       &:hover {
-        background: var(--background-color);
+        background: $gray-700; // Lighter on hover
       }
 
       mat-expansion-panel-header {
         padding: 0 $spacing-4;
         height: 56px;
+        background: $gray-800; // Dark header
+
+        &:hover {
+          background: $gray-700 !important; // Lighter on hover
+        }
 
         mat-panel-title {
           display: flex;
@@ -116,7 +135,7 @@
           gap: $spacing-2;
 
           mat-icon {
-            color: var(--text-tertiary);
+            color: $gray-500; // Mid gray
             font-size: 20px;
             width: 20px;
             height: 20px;
@@ -125,18 +144,19 @@
           span {
             @include body-medium;
             font-weight: $font-weight-semibold;
-            color: var(--text-primary);
+            color: $gray-100; // Light text
           }
         }
 
         mat-panel-description {
           @include body-small;
-          color: var(--text-secondary);
+          color: $gray-400; // Light gray
         }
       }
 
       .mat-expansion-panel-body {
         padding: $spacing-4;
+        background: $gray-800; // Dark body
 
         // Price Filter
         .price-filter {
@@ -149,7 +169,7 @@
             .price-input {
               label {
                 @include caption;
-                color: var(--text-secondary);
+                color: $gray-400; // Light gray
                 display: block;
                 margin-bottom: $spacing-1;
               }
@@ -157,6 +177,14 @@
               input {
                 @include form-input;
                 width: 100%;
+                background: $gray-700; // Dark input background
+                color: $gray-100; // Light text
+                border-color: $gray-600;
+
+                &:focus {
+                  border-color: $primary-light-hex; // Light primary
+                  box-shadow: 0 0 0 3px rgba($primary-light-hex, 0.15);
+                }
               }
             }
           }
@@ -171,7 +199,7 @@
 
             mat-radio-button {
               @include body-medium;
-              color: var(--text-primary);
+              color: $gray-200; // Light text
 
               ::ng-deep .mat-radio-label-content {
                 padding-left: $spacing-2;
@@ -190,11 +218,19 @@
             justify-content: flex-start;
             padding: $spacing-2 $spacing-3;
             text-align: left;
+            background: $gray-800;
+            color: $gray-200;
+            border: 1px solid $gray-700;
 
             &.active {
-              background: var(--primary-color);
-              color: $white;
-              border-color: var(--primary-color);
+              background: $primary-light-hex; // Light primary
+              color: $gray-900; // Dark text on primary
+              border-color: $primary-light-hex;
+            }
+
+            &:hover:not(.active) {
+              background: $gray-700;
+              border-color: $gray-600;
             }
 
             .rating-stars {
@@ -215,7 +251,7 @@
             }
 
             .count {
-              color: var(--text-tertiary);
+              color: $gray-500; // Mid gray
               font-size: $font-size-sm;
             }
           }
@@ -231,18 +267,28 @@
             justify-content: space-between;
             padding: $spacing-2 $spacing-3;
             text-transform: capitalize;
+            background: $gray-800;
+            color: $gray-200;
+            border: 1px solid $gray-700;
+            border-radius: $border-radius;
+
+            &:hover {
+              background: $gray-700;
+              border-color: $gray-600;
+            }
 
             .category-name {
               @include body-medium;
-              color: var(--text-primary);
+              color: $gray-100; // Light text
             }
 
             .category-count {
               @include body-small;
-              color: var(--text-tertiary);
-              background: var(--background-color);
+              color: $gray-500; // Mid gray
+              background: $gray-900; // Dark background
               padding: $spacing-1 $spacing-2;
               border-radius: $border-radius-sm;
+              border: 1px solid $gray-700;
             }
           }
         }
@@ -260,7 +306,7 @@
 
           mat-checkbox {
             @include body-medium;
-            color: var(--text-primary);
+            color: $gray-200; // Light text
 
             ::ng-deep {
               .mat-checkbox-label {
@@ -272,12 +318,23 @@
               .brand-name,
               .tag-name {
                 flex: 1;
+                color: $gray-100; // Light text
               }
 
               .brand-count,
               .tag-count {
-                color: var(--text-tertiary);
+                color: $gray-500; // Mid gray
                 font-size: $font-size-sm;
+              }
+
+              .mat-checkbox-frame {
+                border-color: $gray-600; // Dark border
+              }
+
+              .mat-checkbox-checked {
+                .mat-checkbox-background {
+                  background-color: $primary-light-hex; // Light primary
+                }
               }
             }
           }
@@ -288,17 +345,26 @@
 
   .filter-footer {
     padding: $spacing-4;
-    border-top: 1px solid var(--border-color);
-    background: var(--surface-color);
+    border-top: 1px solid $gray-700; // Dark border
+    background: $gray-800; // Dark background
 
     .apply-button {
       width: 100%;
       height: 48px;
       font-weight: $font-weight-semibold;
+      background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
+      color: $gray-900; // Dark text on gradient
+      border: none;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: $shadow-lg;
+      }
 
       .result-count {
         margin-left: $spacing-1;
         opacity: 0.9;
+        color: $gray-800; // Dark text
       }
     }
   }
@@ -309,20 +375,25 @@
   .mat-slider-thumb-label-text {
     @include body-small;
     font-weight: $font-weight-medium;
+    color: $gray-900; // Dark text
   }
-}
 
-// Dark mode adjustments
-[data-theme="dark"] {
-  .filter-sidebar {
-    background: color-mix(in srgb, var(--surface-color), black 5%);
+  // Material slider dark theme adjustments
+  .mat-slider-track-background {
+    background-color: $gray-700 !important; // Dark track
+  }
 
-    mat-expansion-panel {
-      background: color-mix(in srgb, var(--surface-color), black 5%);
+  .mat-slider-track-fill {
+    background-color: $primary-light-hex !important; // Light primary
+  }
 
-      &:hover {
-        background: color-mix(in srgb, var(--surface-color), black 10%);
-      }
-    }
+  .mat-slider-thumb {
+    background-color: $primary-light-hex !important; // Light primary
+    border-color: $primary-light-hex !important;
+  }
+
+  .mat-slider-thumb-label {
+    background-color: $gray-800 !important; // Dark background
+    border: 1px solid $gray-700 !important;
   }
 }

@@ -1,36 +1,37 @@
 // components/product-quick-view/product-quick-view.component.scss
-@use '../../../../styles/variables' as vars;
-@use '../../../../styles/mixins' as mix;
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
 
 // =========================================
-// QUICK VIEW MODAL - MOBILE FIRST DESIGN
+// QUICK VIEW MODAL - DARK THEME ONLY
 // =========================================
 
 .quick-view-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(vars.$black-hex, 0.75);
-  @include mix.backdrop-blur;
-  z-index: vars.$z-index-modal;
-  @include mix.flex-center;
+  background: rgba($black-hex, 0.85); // Darker overlay for dark theme
+  @include backdrop-blur;
+  z-index: $z-index-modal;
+  @include flex-center;
   padding: 0;
   animation: overlayFadeIn 0.2s ease-out;
   overscroll-behavior: contain;
   
   // Mobile: Full screen
-  @include mix.mobile {
+  @include mobile {
     padding: 0;
   }
   
   // Desktop: Padded overlay
-  @include mix.desktop {
-    padding: vars.$spacing-4;
+  @include desktop {
+    padding: $spacing-4;
   }
 }
 
 .quick-view-modal {
   position: relative;
-  background: var(--surface-color);
+  background-color: $gray-900; // Dark background
+  color: $primary-light-hex; // Light primary for text
   width: 100%;
   height: 100%;
   display: flex;
@@ -38,19 +39,21 @@
   overflow: hidden;
   animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
+  
   // Mobile: Full screen modal
-  @include mix.mobile {
+  @include mobile {
     border-radius: 0;
     max-width: 100%;
     max-height: 100%;
   }
   
   // Desktop: Centered modal
-  @include mix.desktop {
+  @include desktop {
     max-width: 1100px;
     max-height: 90vh;
-    border-radius: vars.$border-radius-xl;
-    box-shadow: vars.$shadow-2xl;
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-2xl;
+    border: 1px solid $gray-700; // Dark border
   }
 }
 
@@ -64,22 +67,26 @@
   z-index: 100;
   display: flex;
   justify-content: flex-end;
-  padding: vars.$spacing-3;
-  background: var(--surface-color);
-  border-bottom: 1px solid transparent;
+  padding: $spacing-3;
+  background: $gray-800; // Dark header background
+  color: $gray-100; // Light text
+  border-bottom: 1px solid $gray-700; // Dark border
   
-  @include mix.desktop {
-    padding: vars.$spacing-4;
+  @include desktop {
+    padding: $spacing-4;
   }
   
   .close-btn {
-    background: var(--background-color);
-    color: var(--text-primary);
-    transition: all vars.$transition-fast;
+    background: $gray-800; // Dark background
+    color: $gray-100; // Light text
+    border: 1px solid $gray-700; // Dark border
+    transition: all $transition-fast;
     
     &:hover {
-      background: var(--border-color);
+      background: $gray-700; // Slightly lighter on hover
+      color: $white-hex;
       transform: rotate(90deg);
+      border-color: $gray-600;
     }
   }
 }
@@ -89,13 +96,13 @@
 // =========================================
 
 .loading-state {
-  @include mix.flex-column-center;
-  gap: vars.$spacing-4;
-  padding: vars.$spacing-12 vars.$spacing-4;
-  color: var(--text-secondary);
+  @include flex-column-center;
+  gap: $spacing-4;
+  padding: $spacing-12 $spacing-4;
+  color: $gray-300; // Light gray text
   
   p {
-    @include mix.body-small;
+    @include body-small;
     margin: 0;
   }
 }
@@ -108,22 +115,23 @@
   flex: 1;
   display: grid;
   overflow: hidden;
+  padding: 16px;
   
   // Mobile: Stacked layout
-  @include mix.mobile {
+  @include mobile {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
   
   // Desktop: Two-column layout
-  @include mix.desktop {
+  @include desktop {
     grid-template-columns: 1fr 1fr;
-    gap: vars.$spacing-6;
+    gap: $spacing-6;
   }
   
-  @include mix.large-screen {
+  @include large-screen {
     grid-template-columns: 55% 45%;
-    gap: vars.$spacing-8;
+    gap: $spacing-8;
   }
 }
 
@@ -134,23 +142,23 @@
 .gallery-section {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-3;
-  padding: 0 vars.$spacing-4 vars.$spacing-4;
+  gap: $spacing-3;
+  padding: 0 $spacing-4 $spacing-4;
   
-  @include mix.desktop {
-    padding: 0 0 vars.$spacing-6 vars.$spacing-6;
-    gap: vars.$spacing-4;
+  @include desktop {
+    padding: 0 0 $spacing-6 $spacing-6;
+    gap: $spacing-4;
   }
 }
 
 .main-image-wrapper {
   position: relative;
   aspect-ratio: 1 / 1;
-  border-radius: vars.$border-radius-lg;
+  border-radius: $border-radius-lg;
   overflow: hidden;
-  background: var(--background-color);
+  background: $gray-800; // Dark background
   
-  @include mix.mobile {
+  @include mobile {
     aspect-ratio: 4 / 3;
   }
   
@@ -158,30 +166,32 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: vars.$white-hex;
-    padding: vars.$spacing-4;
+    background: color-mix(in srgb, $gray-800, white 5%); // Slightly lighter dark
+    padding: $spacing-4;
     
-    @include mix.desktop {
-      padding: vars.$spacing-6;
+    @include desktop {
+      padding: $spacing-6;
     }
   }
   
   .image-placeholder {
-    @include mix.flex-column-center;
+    @include flex-column-center;
     width: 100%;
     height: 100%;
-    gap: vars.$spacing-3;
-    color: var(--text-tertiary);
+    gap: $spacing-3;
+    color: $gray-500; // Mid gray
     
     mat-icon {
       font-size: 64px;
       width: 64px;
       height: 64px;
       opacity: 0.5;
+      color: $gray-600;
     }
     
     span {
-      @include mix.body-small;
+      @include body-small;
+      color: $gray-400;
     }
   }
 }
@@ -189,34 +199,34 @@
 // Badges Overlay
 .badges-overlay {
   position: absolute;
-  top: vars.$spacing-3;
-  left: vars.$spacing-3;
+  top: $spacing-3;
+  left: $spacing-3;
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
   z-index: 10;
   
   .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: vars.$spacing-1 vars.$spacing-3;
-    border-radius: vars.$border-radius-full;
-    font-size: vars.$font-size-xs;
-    font-weight: vars.$font-weight-bold;
+    padding: $spacing-1 $spacing-3;
+    border-radius: $border-radius-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: vars.$shadow-md;
+    box-shadow: $shadow-md;
     width: fit-content;
     
     &.badge-discount {
-      background: vars.$error-color-hex;
-      color: vars.$white-hex;
+      background: $error-color-hex;
+      color: $white-hex;
     }
     
     &.badge-new {
-      background: vars.$success-color-hex;
-      color: vars.$white-hex;
+      background: $success-color-hex;
+      color: $white-hex;
     }
   }
 }
@@ -230,27 +240,21 @@
   transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
-  padding: 0 vars.$spacing-2;
+  padding: 0 $spacing-2;
   pointer-events: none;
   
   .nav-btn {
     pointer-events: auto;
-    background: rgba(vars.$white-hex, 0.95);
-    color: var(--text-primary);
-    box-shadow: vars.$shadow-md;
-    transition: all vars.$transition-fast;
+    background: rgba($gray-800, 0.95); // Dark semi-transparent
+    color: $gray-100;
+    border: 1px solid $gray-700;
+    box-shadow: $shadow-md;
+    transition: all $transition-fast;
     
     &:hover {
-      background: vars.$white-hex;
+      background: $gray-700;
+      color: $white-hex;
       transform: scale(1.1);
-    }
-    
-    &.nav-prev {
-      /* Positioned by flex */
-    }
-    
-    &.nav-next {
-      /* Positioned by flex */
     }
   }
 }
@@ -258,14 +262,14 @@
 // Thumbnail Gallery
 .thumbnail-gallery {
   display: flex;
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: vars.$spacing-1;
-  @include mix.scrollbar;
+  padding: $spacing-1;
+  @include scrollbar;
   scroll-behavior: smooth;
   
-  @include mix.mobile {
+  @include mobile {
     justify-content: flex-start;
   }
   
@@ -273,27 +277,27 @@
     flex: 0 0 auto;
     width: 64px;
     height: 64px;
-    border-radius: vars.$border-radius;
+    border-radius: $border-radius;
     overflow: hidden;
-    border: 2px solid transparent;
+    border: 2px solid $gray-700; // Dark border
     cursor: pointer;
-    transition: all vars.$transition-fast;
+    transition: all $transition-fast;
     padding: 0;
-    background: vars.$white-hex;
+    background: color-mix(in srgb, $gray-800, white 3%); // Slightly lighter dark
     
-    @include mix.desktop {
+    @include desktop {
       width: 80px;
       height: 80px;
     }
     
     &:hover {
-      border-color: var(--border-color);
+      border-color: $gray-600;
       transform: translateY(-2px);
     }
     
     &.active {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 1px var(--primary-color);
+      border-color: $primary-light-hex; // Light primary for selection
+      box-shadow: 0 0 0 1px $primary-light-hex;
     }
     
     img {
@@ -313,12 +317,13 @@
   flex-direction: column;
   overflow: hidden;
   
-  @include mix.mobile {
-    background: var(--surface-color);
+  
+  @include mobile {
+    background: $gray-800; // Dark background
   }
   
-  @include mix.desktop {
-    padding: 0 vars.$spacing-6 vars.$spacing-6 0;
+  @include desktop {
+    padding: 0 $spacing-6 $spacing-6 0;
   }
 }
 
@@ -326,14 +331,14 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: vars.$spacing-4;
-  @include mix.scrollbar;
+  padding: $spacing-4;
+  @include scrollbar;
   
   // Smooth scroll on mobile
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   
-  @include mix.desktop {
+  @include desktop {
     padding: 0;
   }
 }
@@ -342,17 +347,17 @@
 .store-badge {
   display: flex;
   align-items: center;
-  gap: vars.$spacing-3;
-  padding: vars.$spacing-3;
-  background: var(--background-color);
-  border-radius: vars.$border-radius-md;
-  border: 1px solid var(--border-color);
-  margin-bottom: vars.$spacing-4;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  background: $gray-800; // Dark background
+  border-radius: $border-radius-md;
+  border: 1px solid $gray-700; // Dark border
+  margin-bottom: $spacing-4;
   
   .store-logo {
     width: 40px;
     height: 40px;
-    border-radius: vars.$border-radius;
+    border-radius: $border-radius;
     object-fit: cover;
     flex-shrink: 0;
   }
@@ -364,22 +369,22 @@
   
   .store-name {
     display: block;
-    @include mix.body-medium;
-    font-weight: vars.$font-weight-semibold;
-    color: var(--text-primary);
-    @include mix.text-ellipsis;
-    margin-bottom: vars.$spacing-1;
+    @include body-medium;
+    font-weight: $font-weight-semibold;
+    color: $gray-100; // Light text
+    @include text-ellipsis;
+    margin-bottom: $spacing-1;
   }
   
   .verified-tag {
     display: inline-flex;
     align-items: center;
-    gap: vars.$spacing-1;
-    @include mix.caption;
-    color: vars.$success-color-hex;
-    background: rgba(vars.$success-color-hex, 0.1);
-    padding: 2px vars.$spacing-2;
-    border-radius: vars.$border-radius-sm;
+    gap: $spacing-1;
+    @include caption;
+    color: $success-color-hex;
+    background: rgba($success-color-hex, 0.15);
+    padding: 2px $spacing-2;
+    border-radius: $border-radius-sm;
     
     mat-icon {
       font-size: 14px;
@@ -391,49 +396,50 @@
 
 // Product Title Section
 .product-title-section {
-  margin-bottom: vars.$spacing-4;
+  margin-bottom: $spacing-4;
   
   .product-title {
-    @include mix.body-large;
-    font-size: vars.$font-size-xl;
-    font-weight: vars.$font-weight-bold;
-    color: var(--text-primary);
-    line-height: vars.$line-height-tight;
-    margin: 0 0 vars.$spacing-3 0;
+    @include body-large;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $gray-50; // Very light text
+    line-height: $line-height-tight;
+    margin: 0 0 $spacing-3 0;
     
-    @include mix.desktop {
-      @include mix.heading-small;
+    @include desktop {
+      @include heading-small;
+      color: $gray-50;
     }
   }
   
   .product-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: vars.$spacing-2;
+    gap: $spacing-2;
     align-items: center;
     
     .meta-item {
-      @include mix.caption;
+      @include caption;
       display: inline-flex;
       align-items: center;
-      padding: vars.$spacing-1 vars.$spacing-2;
-      border-radius: vars.$border-radius-sm;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-sm;
     }
     
     .category-tag {
-      background: rgba(var(--primary-rgb), 0.1);
-      color: var(--primary-color);
-      font-weight: vars.$font-weight-medium;
+      background: rgba($primary-light-hex, 0.15);
+      color: $primary-light-hex; // Light primary
+      font-weight: $font-weight-medium;
     }
     
     .brand-tag {
-      background: var(--background-color);
-      color: var(--text-secondary);
-      font-weight: vars.$font-weight-medium;
+      background: $gray-800;
+      color: $gray-300; // Light gray
+      font-weight: $font-weight-medium;
     }
     
     .sku {
-      color: var(--text-tertiary);
+      color: $gray-500; // Mid gray
       background: transparent;
     }
   }
@@ -443,26 +449,26 @@
 .rating-section {
   display: flex;
   align-items: center;
-  gap: vars.$spacing-2;
+  gap: $spacing-2;
   flex-wrap: wrap;
-  margin-bottom: vars.$spacing-4;
-  padding-bottom: vars.$spacing-4;
-  border-bottom: 1px solid var(--border-color);
+  margin-bottom: $spacing-4;
+  padding-bottom: $spacing-4;
+  border-bottom: 1px solid $gray-700; // Dark border
   
   .rating-text {
-    @include mix.body-small;
-    font-weight: vars.$font-weight-semibold;
-    color: var(--text-primary);
+    @include body-small;
+    font-weight: $font-weight-semibold;
+    color: $gray-100; // Light text
   }
   
   .rating-count,
   .sold-count {
-    @include mix.caption;
-    color: var(--text-secondary);
+    @include caption;
+    color: $gray-400; // Light gray
   }
   
   .divider {
-    color: var(--text-tertiary);
+    color: $gray-600; // Mid gray
   }
 }
 
@@ -470,34 +476,34 @@
 .price-section {
   display: flex;
   align-items: baseline;
-  gap: vars.$spacing-3;
+  gap: $spacing-3;
   flex-wrap: wrap;
-  margin-bottom: vars.$spacing-4;
+  margin-bottom: $spacing-4;
   
   .price-main {
-    font-size: vars.$font-size-3xl;
-    font-weight: vars.$font-weight-bold;
-    color: var(--primary-color);
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $primary-light-hex; // Light primary
     line-height: 1;
     
-    @include mix.desktop {
-      font-size: vars.$font-size-4xl;
+    @include desktop {
+      font-size: $font-size-4xl;
     }
   }
   
   .price-original {
-    @include mix.body-large;
-    color: var(--text-tertiary);
+    @include body-large;
+    color: $gray-600; // Mid gray
     text-decoration: line-through;
   }
   
   .price-save {
-    @include mix.body-small;
-    font-weight: vars.$font-weight-bold;
-    color: vars.$error-color-hex;
-    background: rgba(vars.$error-color-hex, 0.1);
-    padding: vars.$spacing-1 vars.$spacing-2;
-    border-radius: vars.$border-radius-sm;
+    @include body-small;
+    font-weight: $font-weight-bold;
+    color: lighten($error-color-hex, 10%);
+    background: rgba($error-color-hex, 0.15);
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-sm;
   }
 }
 
@@ -505,13 +511,13 @@
 .stock-indicator {
   display: inline-flex;
   align-items: center;
-  gap: vars.$spacing-2;
-  padding: vars.$spacing-2 vars.$spacing-3;
-  border-radius: vars.$border-radius-md;
-  font-size: vars.$font-size-sm;
-  font-weight: vars.$font-weight-medium;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   width: fit-content;
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
   
   .stock-icon {
     font-size: 18px;
@@ -520,43 +526,43 @@
   }
   
   &.in-stock {
-    background: rgba(vars.$success-color-hex, 0.1);
-    color: vars.$success-color-hex;
-    border: 1px solid rgba(vars.$success-color-hex, 0.2);
+    background: rgba($success-color-hex, 0.15);
+    color: lighten($success-color-hex, 10%);
+    border: 1px solid rgba($success-color-hex, 0.3);
   }
   
   &.low-stock {
-    background: rgba(vars.$warning-color-hex, 0.1);
-    color: vars.$warning-color-hex;
-    border: 1px solid rgba(vars.$warning-color-hex, 0.2);
+    background: rgba($warning-color-hex, 0.15);
+    color: lighten($warning-color-hex, 10%);
+    border: 1px solid rgba($warning-color-hex, 0.3);
   }
   
   &.out-of-stock {
-    background: rgba(vars.$error-color-hex, 0.1);
-    color: vars.$error-color-hex;
-    border: 1px solid rgba(vars.$error-color-hex, 0.2);
+    background: rgba($error-color-hex, 0.15);
+    color: lighten($error-color-hex, 10%);
+    border: 1px solid rgba($error-color-hex, 0.3);
   }
 }
 
 // Description Section
 .description-section {
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
   
   .section-title {
-    @include mix.body-medium;
-    font-weight: vars.$font-weight-semibold;
-    color: var(--text-primary);
-    margin: 0 0 vars.$spacing-2 0;
+    @include body-medium;
+    font-weight: $font-weight-semibold;
+    color: $gray-100; // Light text
+    margin: 0 0 $spacing-2 0;
   }
   
   .description-text {
-    @include mix.body-small;
-    color: var(--text-secondary);
-    line-height: vars.$line-height-relaxed;
+    @include body-small;
+    color: $gray-300; // Light gray
+    line-height: $line-height-relaxed;
     margin: 0;
-    @include mix.text-multiline-ellipsis(3);
+    @include text-multiline-ellipsis(3);
     
-    @include mix.desktop {
+    @include desktop {
       -webkit-line-clamp: 4;
     }
   }
@@ -564,17 +570,17 @@
 
 // Variants Section
 .variants-section {
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
   
   .section-title {
-    @include mix.body-medium;
-    font-weight: vars.$font-weight-semibold;
-    color: var(--text-primary);
-    margin: 0 0 vars.$spacing-4 0;
+    @include body-medium;
+    font-weight: $font-weight-semibold;
+    color: $gray-100; // Light text
+    margin: 0 0 $spacing-4 0;
   }
   
   .variant-group {
-    margin-bottom: vars.$spacing-4;
+    margin-bottom: $spacing-4;
     
     &:last-child {
       margin-bottom: 0;
@@ -582,32 +588,36 @@
     
     .variant-label {
       display: block;
-      @include mix.body-small;
-      font-weight: vars.$font-weight-medium;
-      color: var(--text-primary);
-      margin-bottom: vars.$spacing-2;
+      @include body-small;
+      font-weight: $font-weight-medium;
+      color: $gray-100; // Light text
+      margin-bottom: $spacing-2;
     }
     
     .variant-options {
       display: flex;
       flex-wrap: wrap;
-      gap: vars.$spacing-2;
+      gap: $spacing-2;
       
       .variant-btn {
         min-width: 60px;
-        padding: vars.$spacing-2 vars.$spacing-3;
-        border-radius: vars.$border-radius;
-        font-size: vars.$font-size-sm;
-        transition: all vars.$transition-fast;
+        padding: $spacing-2 $spacing-3;
+        border-radius: $border-radius;
+        font-size: $font-size-sm;
+        background: $gray-800;
+        color: $gray-200;
+        border: 1px solid $gray-700;
+        transition: all $transition-fast;
         
         &.selected {
-          background: var(--primary-color);
-          color: vars.$white-hex;
-          border-color: var(--primary-color);
+          background: $primary-light-hex; // Light primary
+          color: $gray-900; // Dark text on light background
+          border-color: $primary-light-hex;
         }
         
         &:hover:not(.selected) {
-          border-color: var(--primary-color);
+          border-color: $primary-light-hex;
+          background: $gray-700;
         }
       }
     }
@@ -616,23 +626,25 @@
 
 // Tags Section
 .tags-section {
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
   
   .tag-list {
     display: flex;
     flex-wrap: wrap;
-    gap: vars.$spacing-2;
+    gap: $spacing-2;
     
     .product-tag {
-      background: var(--background-color);
-      color: var(--text-secondary);
-      font-size: vars.$font-size-xs;
+      background: $gray-800;
+      color: $gray-300; // Light gray
+      font-size: $font-size-xs;
       height: auto;
-      padding: vars.$spacing-1 vars.$spacing-2;
-      border-radius: vars.$border-radius-sm;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-sm;
+      border: 1px solid $gray-700;
       
       &:hover {
-        background: var(--border-color);
+        background: $gray-700;
+        border-color: $gray-600;
       }
     }
   }
@@ -640,38 +652,41 @@
 
 // Quantity Section
 .quantity-section {
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
   
   .quantity-label {
     display: block;
-    @include mix.body-small;
-    font-weight: vars.$font-weight-medium;
-    color: var(--text-primary);
-    margin-bottom: vars.$spacing-2;
+    @include body-small;
+    font-weight: $font-weight-medium;
+    color: $gray-100; // Light text
+    margin-bottom: $spacing-2;
   }
   
   .quantity-selector {
     display: inline-flex;
     align-items: center;
     gap: 0;
-    background: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: vars.$border-radius-md;
+    background: $gray-800;
+    border: 1px solid $gray-700;
+    border-radius: $border-radius-md;
     overflow: hidden;
     
     .qty-btn {
       width: 44px;
       height: 44px;
       border-radius: 0;
-      color: var(--text-primary);
-      transition: background-color vars.$transition-fast;
+      color: $gray-100;
+      background: $gray-800;
+      border: none;
+      transition: background-color $transition-fast;
       
       &:hover:not(:disabled) {
-        background: var(--border-color);
+        background: $gray-700;
       }
       
       &:disabled {
         opacity: 0.4;
+        color: $gray-600;
         cursor: not-allowed;
       }
       
@@ -684,16 +699,17 @@
       width: 60px;
       height: 44px;
       border: none;
-      background: transparent;
+      background: $gray-800;
       text-align: center;
-      font-size: vars.$font-size-base;
-      font-weight: vars.$font-weight-semibold;
-      color: var(--text-primary);
-      border-left: 1px solid var(--border-color);
-      border-right: 1px solid var(--border-color);
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      color: $gray-100;
+      border-left: 1px solid $gray-700;
+      border-right: 1px solid $gray-700;
       
       &:focus {
         outline: none;
+        background: $gray-700;
       }
       
       // Hide number input spinners
@@ -712,20 +728,27 @@
 
 // Action Buttons
 .action-buttons {
-  margin-bottom: vars.$spacing-5;
+  margin-bottom: $spacing-5;
   
   .btn-add-cart {
     width: 100%;
     height: 56px;
-    font-size: vars.$font-size-base;
-    font-weight: vars.$font-weight-semibold;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: vars.$spacing-3;
-    border-radius: vars.$border-radius-md;
+    margin-bottom: $spacing-3;
+    border-radius: $border-radius-md;
+    background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%);
+    color: $gray-900; // Dark text on gradient
     
     mat-icon {
-      margin-right: vars.$spacing-2;
+      margin-right: $spacing-2;
+    }
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: $shadow-lg;
     }
     
     &:disabled {
@@ -737,31 +760,35 @@
   .secondary-actions {
     display: flex;
     justify-content: center;
-    gap: vars.$spacing-2;
+    gap: $spacing-2;
     
     .action-btn {
       width: 48px;
       height: 48px;
-      background: var(--background-color);
-      color: var(--text-secondary);
-      border-radius: vars.$border-radius-md;
-      transition: all vars.$transition-fast;
+      background: $gray-800;
+      color: $gray-400;
+      border: 1px solid $gray-700;
+      border-radius: $border-radius-md;
+      transition: all $transition-fast;
       
       &:hover {
-        background: var(--border-color);
-        color: var(--text-primary);
+        background: $gray-700;
+        color: $gray-100;
+        border-color: $gray-600;
         transform: translateY(-2px);
       }
       
       &.active {
-        color: vars.$error-color-hex;
-        background: rgba(vars.$error-color-hex, 0.1);
+        color: lighten($error-color-hex, 10%);
+        background: rgba($error-color-hex, 0.15);
+        border-color: rgba($error-color-hex, 0.3);
       }
       
       &.whatsapp-btn {
         &:hover {
           color: #25D366;
-          background: rgba(#25D366, 0.1);
+          background: rgba(#25D366, 0.15);
+          border-color: rgba(#25D366, 0.3);
         }
       }
     }
@@ -772,25 +799,25 @@
 .trust-section {
   display: flex;
   flex-direction: column;
-  gap: vars.$spacing-3;
-  padding: vars.$spacing-4;
-  background: var(--background-color);
-  border-radius: vars.$border-radius-md;
-  border: 1px solid var(--border-color);
-  margin-bottom: vars.$spacing-5;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  background: $gray-800;
+  border-radius: $border-radius-md;
+  border: 1px solid $gray-700;
+  margin-bottom: $spacing-5;
   
   .trust-item {
     display: flex;
     align-items: center;
-    gap: vars.$spacing-3;
-    @include mix.body-small;
-    color: var(--text-secondary);
+    gap: $spacing-3;
+    @include body-small;
+    color: $gray-300;
     
     mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
-      color: var(--primary-color);
+      color: $primary-light-hex; // Light primary
       flex-shrink: 0;
     }
   }
@@ -799,21 +826,22 @@
 // Full Details Link
 .full-details {
   text-align: center;
-  padding-top: vars.$spacing-4;
-  border-top: 1px solid var(--border-color);
+  padding-top: $spacing-4;
+  border-top: 1px solid $gray-700;
   
   .btn-full-details {
     width: 100%;
-    color: var(--primary-color);
-    font-weight: vars.$font-weight-medium;
+    color: $primary-light-hex; // Light primary
+    font-weight: $font-weight-medium;
+    background: transparent;
     
     mat-icon {
-      margin-left: vars.$spacing-2;
+      margin-left: $spacing-2;
       font-size: 18px;
     }
     
     &:hover {
-      background: rgba(var(--primary-rgb), 0.05);
+      background: rgba($primary-light-hex, 0.1);
     }
   }
 }
@@ -843,39 +871,19 @@
 }
 
 // =========================================
-// DARK MODE ADJUSTMENTS
-// =========================================
-
-[data-theme="dark"] {
-  .quick-view-modal {
-    .main-image-wrapper {
-      .main-image {
-        background: color-mix(in srgb, var(--surface-color), white 3%);
-      }
-    }
-    
-    .thumbnail-gallery {
-      .thumbnail {
-        background: color-mix(in srgb, var(--surface-color), white 3%);
-      }
-    }
-  }
-}
-
-// =========================================
 // RESPONSIVE REFINEMENTS
 // =========================================
 
-@include mix.small-screen {
+@include small-screen {
   .product-title-section {
     .product-title {
-      font-size: vars.$font-size-lg;
+      font-size: $font-size-lg;
     }
   }
   
   .price-section {
     .price-main {
-      font-size: vars.$font-size-2xl;
+      font-size: $font-size-2xl;
     }
   }
 }

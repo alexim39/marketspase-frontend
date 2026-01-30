@@ -9,7 +9,7 @@
     (manageStore)="manageStore($event)"
     (verifyStore)="verifyStore()"
     (addProduct)="addProduct()"
-    />
+  />
   
 
   <!-- Store Selection/Overview -->
@@ -89,12 +89,12 @@
 
           <mat-form-field appearance="outline" class="category-filter">
             <mat-label>Category</mat-label>
-            <!-- <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
+            <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
               <mat-option value="all">All Categories</mat-option>
              @for (category of uniqueCategories(); track category) {
                 <mat-option [value]="category">{{ category }}</mat-option>
               }
-            </mat-select> -->
+            </mat-select>
           </mat-form-field>
         </div>
       </div>

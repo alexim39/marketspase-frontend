@@ -1,4 +1,4 @@
-// pagination.component.scss
+// pagination.component.scss (DARK THEME ONLY)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -6,16 +6,16 @@
   @include flex-center;
   gap: $spacing-4;
   padding: $spacing-8 0;
-  border-top: 1px solid $border-color;
+  border-top: 1px solid $gray-700; // Dark border
 
   .pagination-info {
     @include body-medium;
-    color: $text-secondary;
+    color: $gray-300; // Light gray
     margin-right: auto;
 
     .total-items {
       margin-left: $spacing-2;
-      color: $text-tertiary;
+      color: $gray-500; // Mid gray
       font-size: $font-size-sm;
     }
   }
@@ -26,24 +26,45 @@
     gap: $spacing-2;
 
     button {
-      @include button-secondary;
       min-width: 40px;
       height: 40px;
       padding: 0;
+      background: $gray-800; // Dark button background
+      color: $gray-200; // Light text
+      border: 1px solid $gray-700; // Dark border
+      border-radius: $border-radius;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all $transition-normal;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
 
       &:disabled {
-        opacity: 0.5;
+        background: $gray-700;
+        color: $gray-600;
+        opacity: 0.6;
         cursor: not-allowed;
+        border-color: $gray-600;
       }
 
       &.active {
-        background: $primary-color;
-        color: $white;
+        background: $primary-light-hex; // Light primary
+        color: $gray-900; // Dark text on primary
         box-shadow: $shadow-sm;
+        border-color: $primary-light-hex;
       }
 
       &:hover:not(:disabled):not(.active) {
-        background: $divider-color;
+        background: $gray-700; // Lighter on hover
+        color: $gray-100;
+        border-color: $gray-600;
+      }
+      
+      &:focus-visible {
+        outline: 2px solid $primary-light-hex;
+        outline-offset: 2px;
       }
     }
 
@@ -52,10 +73,11 @@
       gap: $spacing-1;
 
       .ellipsis {
-        color: $text-tertiary;
+        color: $gray-600; // Mid gray
         padding: $spacing-2;
         display: flex;
         align-items: center;
+        font-size: $font-size-sm;
       }
     }
   }
@@ -63,5 +85,52 @@
   .page-size-selector {
     margin-left: auto;
     min-width: 120px;
+    
+    ::ng-deep {
+      .mat-form-field {
+        .mat-form-field-wrapper {
+          .mat-form-field-flex {
+            background: $gray-800; // Dark background
+            border: 1px solid $gray-700; // Dark border
+            
+            .mat-form-field-infix {
+              border-top: none;
+              
+              .mat-select {
+                .mat-select-value {
+                  color: $gray-200; // Light text
+                }
+                
+                .mat-select-arrow {
+                  color: $gray-400; // Light gray
+                }
+              }
+            }
+          }
+          
+          .mat-form-field-underline {
+            display: none;
+          }
+        }
+      }
+      
+      .mat-select-panel {
+        background: $gray-800; // Dark dropdown
+        border: 1px solid $gray-700;
+        
+        .mat-option {
+          color: $gray-200; // Light text
+          
+          &:hover:not(.mat-option-disabled) {
+            background: $gray-700; // Lighter on hover
+          }
+          
+          &.mat-selected:not(.mat-option-multiple) {
+            background: rgba($primary-light-hex, 0.15); // Primary tint
+            color: $primary-light-hex; // Light primary
+          }
+        }
+      }
+    }
   }
 }

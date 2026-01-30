@@ -7,6 +7,11 @@ export interface Store {
   owner: {
     _id: string;
     email: string;
+    personalInfo: {
+      phone: string;
+    };
+    displayName: string;
+    avatar: string;
   };
   name: string;
   description: string;

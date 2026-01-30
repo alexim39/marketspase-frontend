@@ -40,7 +40,9 @@
           appLazyImage
           [defaultImage]="'assets/images/product-placeholder.svg'"
           (error)="onImageError($event)"
-          loading="lazy">
+          loading="lazy"
+          (click)="onQuickView($event)"
+        >
       } @else {
         <div class="image-placeholder">
           <mat-icon>image</mat-icon>
@@ -131,19 +133,29 @@
         mat-raised-button 
         color="primary"
         class="add-to-cart-btn"
+        (click)="onContactSeller($event)"
+        [disabled]="product.manageStock && product.quantity === 0"
+        [attr.aria-label]="'Contact seller for ' + product.name">
+        <mat-icon>contact_support</mat-icon>
+        <span class="btn-text">Contact Seller</span>
+      </button>
+      <!-- <button 
+        mat-raised-button 
+        color="primary"
+        class="add-to-cart-btn"
         (click)="onAddToCart($event)"
         [disabled]="product.manageStock && product.quantity === 0"
         [attr.aria-label]="'Add ' + product.name + ' to cart'">
         <mat-icon>shopping_cart</mat-icon>
         <span class="btn-text">Add to Cart</span>
-      </button>
+      </button> -->
     </div>
 
     <!-- Trust Badges (Footer) -->
     <div class="trust-badges">
       <div class="trust-item">
         <mat-icon>local_shipping</mat-icon>
-        <span>Free Shipping</span>
+        <span>Shipping Available</span>
       </div>
       <div class="trust-item">
         <mat-icon>verified_user</mat-icon>

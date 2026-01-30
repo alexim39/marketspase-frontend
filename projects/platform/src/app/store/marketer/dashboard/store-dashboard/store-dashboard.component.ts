@@ -594,11 +594,15 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   }
 
   uniqueCategories = computed(() => {
-    if (this.products()) {
-      const categories = new Set(this.products().map(p => p.category).filter(Boolean));
-      return Array.from(categories);
-    }
-    return []
+    // Use optional chaining and default to empty array immediately
+    const products = this.products() || [];
     
+    // Ensure we are mapping over an array
+    const categories = new Set(
+      products.map((p: any) => p.category).filter(Boolean)
+    );
+    
+    return Array.from(categories);
   });
+
 }

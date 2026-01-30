@@ -1,4 +1,4 @@
-// fab-container.component.scss
+// fab-container.component.scss (DARK THEME ONLY)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -13,23 +13,27 @@
   align-items: flex-end;
 
   .fab-button {
-    background: $surface-color;
-    color: $text-primary;
+    background: $gray-800; // Dark background
+    color: $gray-100; // Light text
     box-shadow: $shadow-xl;
-    border: 1px solid $border-color;
+    border: 1px solid $gray-700; // Dark border
     transition: all $transition-normal;
 
     &:hover {
       transform: scale(1.1);
       box-shadow: $shadow-2xl;
+      background: $gray-700; // Lighter on hover
+      border-color: $gray-600;
     }
 
     &.back-to-top {
-      background: $primary-color;
-      color: $white;
+      background: $primary-light-hex; // Light primary for dark theme
+      color: $gray-900; // Dark text on primary
+      border: 1px solid $primary-light-hex;
 
       &:hover {
-        background: $primary-dark;
+        background: lighten($primary-light-hex, 10%); // Brighter on hover
+        border-color: lighten($primary-light-hex, 10%);
       }
     }
   }

@@ -1,10 +1,10 @@
-// store-header.component.scss
+// store-header.component.scss (DARK THEME ONLY)
 @use '../../../../styles/variables' as vars;
 @use '../../../../styles/mixins' as mix;
 
 .store-header {
   position: relative;
-  background: vars.$gradient-primary;
+  background: linear-gradient(135deg, vars.$primary-light-hex 0%, vars.$secondary-light-hex 100%); // Dark theme gradient
   padding: vars.$spacing-6 vars.$spacing-4;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,9 +72,9 @@
       position: absolute;
       inset: 0;
       background: 
-        radial-gradient(circle at 15% 85%, rgba(vars.$white, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 85% 15%, rgba(vars.$white, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(vars.$white, 0.03) 0%, transparent 60%);
+        radial-gradient(circle at 15% 85%, rgba(vars.$white-hex, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(vars.$white-hex, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(vars.$white-hex, 0.03) 0%, transparent 60%);
       
       &::before {
         content: '';
@@ -82,7 +82,7 @@
         inset: 0;
         background: linear-gradient(
           135deg,
-          rgba(vars.$white, 0.05) 0%,
+          rgba(vars.$white-hex, 0.05) 0%,
           transparent 100%
         );
       }
@@ -139,19 +139,20 @@
         height: 100%;
         border-radius: vars.$border-radius-xl;
         object-fit: cover;
-        background: rgba(vars.$white, 0.1);
-        border: 3px solid rgba(vars.$white, 0.25);
+        background: rgba(vars.$gray-800, 0.8); // Dark semi-transparent
+        border: 3px solid rgba(vars.$white-hex, 0.25);
         box-shadow: 
-          0 8px 24px rgba(vars.$black, 0.15),
-          0 2px 8px rgba(vars.$black, 0.1);
+          0 8px 24px rgba(vars.$black-hex, 0.25), // Darker shadow
+          0 2px 8px rgba(vars.$black-hex, 0.15);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:hover {
           transform: translateY(-4px) scale(1.03);
           box-shadow: 
-            0 16px 40px rgba(vars.$black, 0.2),
-            0 4px 12px rgba(vars.$black, 0.15);
-          border-color: rgba(vars.$white, 0.4);
+            0 16px 40px rgba(vars.$black-hex, 0.3),
+            0 4px 12px rgba(vars.$black-hex, 0.2);
+          border-color: rgba(vars.$white-hex, 0.4);
+          background: rgba(vars.$gray-800, 0.9);
         }
       }
 
@@ -163,7 +164,7 @@
           font-size: 40px;
           width: 40px;
           height: 40px;
-          color: rgba(vars.$white, 0.6);
+          color: rgba(vars.$white-hex, 0.6);
 
           @include mix.tablet {
             font-size: 48px;
@@ -180,12 +181,12 @@
         width: 32px;
         height: 32px;
         @include mix.flex-center;
-        background: vars.$white;
-        color: vars.$success-color;
+        background: vars.$white-hex;
+        color: lighten(vars.$success-color-hex, 10%); // Brighter success
         border-radius: vars.$border-radius-full;
         box-shadow: 
-          0 4px 12px rgba(vars.$black, 0.15),
-          0 0 0 3px rgba(vars.$white, 0.3);
+          0 4px 12px rgba(vars.$black-hex, 0.25),
+          0 0 0 3px rgba(vars.$white-hex, 0.3);
         z-index: 2;
         transition: all 0.3s ease;
 
@@ -208,10 +209,10 @@
 
         &.premium {
           background: linear-gradient(135deg, #FFD700, #FFA500);
-          color: vars.$white;
+          color: vars.$gray-900; // Dark text on gold
           box-shadow: 
             0 4px 16px rgba(#FFD700, 0.4),
-            0 0 0 3px rgba(vars.$white, 0.3);
+            0 0 0 3px rgba(vars.$white-hex, 0.3);
         }
 
         &:hover {
@@ -226,10 +227,10 @@
 
       .store-name {
         @include mix.heading-large;
-        color: vars.$white;
+        color: vars.$white-hex;
         margin: 0 0 vars.$spacing-2;
         font-weight: vars.$font-weight-bold;
-        text-shadow: 0 2px 12px rgba(vars.$black, 0.2);
+        text-shadow: 0 2px 12px rgba(vars.$black-hex, 0.3); // Darker shadow
         line-height: 1.2;
         
         // Mobile: smaller heading
@@ -247,7 +248,7 @@
 
       .store-description {
         @include mix.body-large;
-        color: rgba(vars.$white, 0.9);
+        color: rgba(vars.$white-hex, 0.9);
         margin: 0 0 vars.$spacing-4;
         line-height: vars.$line-height-relaxed;
         max-width: 100%;
@@ -282,14 +283,14 @@
           align-items: center;
           gap: vars.$spacing-1;
           padding: vars.$spacing-1 vars.$spacing-3;
-          background: rgba(vars.$white, 0.15);
+          background: rgba(vars.$gray-800, 0.3); // Dark semi-transparent
           backdrop-filter: blur(10px);
           border-radius: vars.$border-radius-full;
           font-size: vars.$font-size-sm;
-          color: rgba(vars.$white, 0.95);
+          color: rgba(vars.$white-hex, 0.95);
           font-weight: vars.$font-weight-medium;
           transition: all 0.2s ease;
-          border: 1px solid rgba(vars.$white, 0.2);
+          border: 1px solid rgba(vars.$white-hex, 0.2);
 
           @include mix.tablet {
             padding: vars.$spacing-2 vars.$spacing-4;
@@ -315,15 +316,15 @@
           }
 
           &:hover {
-            background: rgba(vars.$white, 0.2);
-            border-color: rgba(vars.$white, 0.3);
+            background: rgba(vars.$gray-800, 0.4);
+            border-color: rgba(vars.$white-hex, 0.3);
             transform: translateY(-1px);
           }
 
           &.rating {
-            background: rgba(#FFD700, 0.2);
-            border-color: rgba(#FFD700, 0.3);
-            color: vars.$white;
+            background: rgba(#FFD700, 0.3); // More visible gold tint
+            border-color: rgba(#FFD700, 0.4);
+            color: vars.$white-hex;
 
             mat-icon {
               color: #FFD700;
@@ -388,18 +389,18 @@
       }
 
       .btn-contact {
-        background: vars.$white;
-        color: vars.$primary-color-hex;
-        box-shadow: 0 4px 12px rgba(vars.$black, 0.15);
+        background: vars.$white-hex;
+        color: vars.$primary-light-hex; // Light primary for dark theme
+        box-shadow: 0 4px 12px rgba(vars.$black-hex, 0.2); // Darker shadow
 
         .whatsapp-icon {
           color: #25D366;
         }
 
         &:hover:not(:disabled) {
-          background: rgba(vars.$white, 0.95);
+          background: rgba(vars.$white-hex, 0.95);
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(vars.$black, 0.2);
+          box-shadow: 0 8px 20px rgba(vars.$black-hex, 0.3); // Darker shadow
         }
 
         &:active:not(:disabled) {
@@ -408,19 +409,19 @@
       }
 
       .btn-favorite {
-        background: rgba(vars.$white, 0.1);
+        background: rgba(vars.$gray-800, 0.3);
         backdrop-filter: blur(10px);
-        border: 2px solid rgba(vars.$white, 0.3);
-        color: vars.$white;
+        border: 2px solid rgba(vars.$white-hex, 0.3);
+        color: vars.$white-hex;
 
         &:hover:not(:disabled) {
-          background: rgba(vars.$white, 0.2);
-          border-color: rgba(vars.$white, 0.4);
+          background: rgba(vars.$gray-800, 0.4);
+          border-color: rgba(vars.$white-hex, 0.4);
           transform: translateY(-2px);
         }
 
         &.favorited {
-          background: rgba(#FF4081, 0.2);
+          background: rgba(#FF4081, 0.3); // More visible pink
           border-color: #FF4081;
 
           mat-icon {
@@ -428,7 +429,7 @@
           }
 
           &:hover:not(:disabled) {
-            background: rgba(#FF4081, 0.3);
+            background: rgba(#FF4081, 0.4);
           }
         }
       }
@@ -441,10 +442,10 @@
       .btn-icon {
         width: 44px;
         height: 44px;
-        background: rgba(vars.$white, 0.1);
+        background: rgba(vars.$gray-800, 0.3);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(vars.$white, 0.2);
-        color: vars.$white;
+        border: 1px solid rgba(vars.$white-hex, 0.2);
+        color: vars.$white-hex;
         border-radius: vars.$border-radius-lg;
         transition: all 0.2s ease;
 
@@ -466,8 +467,8 @@
         }
 
         &:hover:not(:disabled) {
-          background: rgba(vars.$white, 0.2);
-          border-color: rgba(vars.$white, 0.3);
+          background: rgba(vars.$gray-800, 0.4);
+          border-color: rgba(vars.$white-hex, 0.3);
           transform: translateY(-2px);
         }
       }
@@ -480,13 +481,13 @@
     grid-template-columns: repeat(2, 1fr);
     gap: vars.$spacing-3;
     padding: vars.$spacing-4;
-    background: rgba(vars.$white, 0.1);
+    background: rgba(vars.$gray-800, 0.3);
     backdrop-filter: blur(20px);
     border-radius: vars.$border-radius-xl;
-    border: 1px solid rgba(vars.$white, 0.2);
+    border: 1px solid rgba(vars.$white-hex, 0.2);
     box-shadow: 
-      0 4px 20px rgba(vars.$black, 0.1),
-      inset 0 1px 0 rgba(vars.$white, 0.1);
+      0 4px 20px rgba(vars.$black-hex, 0.2),
+      inset 0 1px 0 rgba(vars.$white-hex, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 2em;
 
@@ -499,7 +500,7 @@
     @include mix.desktop {
       padding: vars.$spacing-6;
       gap: vars.$spacing-5;
-       margin-bottom: 0;
+      margin-bottom: 0;
     }
 
     .stat-card {
@@ -507,9 +508,9 @@
       align-items: center;
       gap: vars.$spacing-2;
       padding: vars.$spacing-3;
-      background: rgba(vars.$white, 0.05);
+      background: rgba(vars.$gray-800, 0.2);
       border-radius: vars.$border-radius-lg;
-      border: 1px solid rgba(vars.$white, 0.1);
+      border: 1px solid rgba(vars.$white-hex, 0.15);
       transition: all 0.2s ease;
 
       @include mix.tablet {
@@ -520,8 +521,8 @@
       }
 
       &:hover {
-        background: rgba(vars.$white, 0.1);
-        border-color: rgba(vars.$white, 0.2);
+        background: rgba(vars.$gray-800, 0.3);
+        border-color: rgba(vars.$white-hex, 0.25);
         transform: translateY(-2px);
       }
 
@@ -529,7 +530,7 @@
         font-size: 24px;
         width: 24px;
         height: 24px;
-        color: rgba(vars.$white, 0.8);
+        color: rgba(vars.$white-hex, 0.8);
         flex-shrink: 0;
 
         @include mix.tablet {
@@ -545,7 +546,7 @@
 
         .stat-value {
           @include mix.heading-medium;
-          color: vars.$white;
+          color: vars.$white-hex;
           margin-bottom: vars.$spacing-1;
           font-weight: vars.$font-weight-bold;
           font-feature-settings: "tnum";
@@ -565,7 +566,7 @@
 
         .stat-label {
           @include mix.caption;
-          color: rgba(vars.$white, 0.7);
+          color: rgba(vars.$white-hex, 0.7);
           text-transform: uppercase;
           letter-spacing: 0.5px;
           font-size: 10px;
@@ -598,6 +599,7 @@
     .btn-icon,
     .stat-card {
       border-width: 2px;
+      border-color: vars.$white-hex !important;
     }
   }
 }
@@ -613,7 +615,7 @@
       display: none;
     }
     
-    background: vars.$white;
-    color: vars.$black;
+    background: vars.$white-hex;
+    color: vars.$black-hex;
   }
 }

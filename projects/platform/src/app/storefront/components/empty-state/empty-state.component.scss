@@ -1,4 +1,4 @@
-// empty-state.component.scss
+// empty-state.component.scss (DARK THEME ONLY)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -7,28 +7,30 @@
   min-height: 400px;
   text-align: center;
   padding: $spacing-20 0;
-  background: $surface-color;
+  background: rgba($gray-800, 0.7); // Dark semi-transparent background
   border-radius: $border-radius-lg;
-  border: 2px dashed $border-color;
+  border: 2px dashed $gray-700; // Dark dashed border
 
   .empty-icon {
     font-size: 80px;
     width: 80px;
     height: 80px;
     margin-bottom: $spacing-6;
-    color: $text-tertiary;
+    color: $gray-500; // Mid gray
     opacity: 0.5;
   }
 
   h3 {
     @include heading-medium;
-    color: $text-primary;
+    color: $gray-100; // Light text
     margin: 0 0 $spacing-2;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
   }
 
   p {
     @include body-medium;
-    color: $text-secondary;
+    color: $gray-300; // Light gray
     max-width: 400px;
     margin-bottom: $spacing-6;
   }
@@ -36,5 +38,17 @@
   .empty-actions {
     @include flex-center;
     gap: $spacing-3;
+
+    button {
+      background: $gray-700; // Dark button background
+      color: $gray-100; // Light text
+      border: 1px solid $gray-600;
+
+      &:hover {
+        background: $gray-600;
+        color: $white-hex;
+        border-color: $gray-500;
+      }
+    }
   }
 }

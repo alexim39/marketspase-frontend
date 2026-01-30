@@ -102,11 +102,19 @@
         <button mat-raised-button 
                 color="primary" 
                 class="primary-action"
+                (click)="onContactSeller($event)"
+                [disabled]="product.manageStock && product.quantity === 0">
+          <mat-icon>contact_support</mat-icon>
+          Contact Seller
+        </button>
+       <!--  <button mat-raised-button 
+                color="primary" 
+                class="primary-action"
                 (click)="onAddToCart($event)"
                 [disabled]="product.manageStock && product.quantity === 0">
           <mat-icon>add_shopping_cart</mat-icon>
           Add to Cart
-        </button>
+        </button> -->
         
         <div class="secondary-actions">
           <button mat-icon-button 

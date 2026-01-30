@@ -1,12 +1,11 @@
-// storefront.component.scss (UPDATED)
+// storefront.component.scss (DARK THEME ONLY)
 @import '../../styles/mixins';
 @import '../../styles/variables';
 
 .storefront-page {
   min-height: 100vh;
-  //background-color: color-mix(in srgb, $background-color, $surface-color 50%);
-  background-color: color-mix(in srgb, $primary-color, $gray-900 95%);
-  color: $text-primary;
+  background-color: $gray-900; // Dark background
+  color: $gray-100; // Light text for contrast
   position: relative;
   overflow-x: hidden;
 
@@ -30,10 +29,10 @@
     .featured-section {
       margin-bottom: $spacing-12;
       padding: $spacing-6;
-      background: $surface-color;
+      background: $gray-800; // Dark surface
       border-radius: $border-radius-lg;
       box-shadow: $shadow-lg;
-      border: 1px solid $border-color;
+      border: 1px solid $gray-700; // Dark border
 
       .section-header {
         @include flex-between;
@@ -41,14 +40,14 @@
 
         h2 {
           @include heading-small;
-          color: $text-primary;
+          color: $gray-50; // Very light text
           margin: 0;
           display: flex;
           align-items: center;
           gap: $spacing-2;
 
           mat-icon {
-            color: $warning-color;
+            color: $warning-color-hex; // Using hex value
           }
         }
       }
@@ -66,11 +65,12 @@
         .featured-card {
           scroll-snap-align: start;
           min-width: 280px;
-          background: $surface-color;
+          background: $gray-800; // Dark card background
           border-radius: $border-radius-lg;
           overflow: hidden;
           @include card-hover;
           position: relative;
+          border: 1px solid $gray-700; // Dark border
 
           &::before {
             content: '';
@@ -79,11 +79,12 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: $gradient-primary;
+            background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
           }
 
           .card-content {
             padding: $spacing-4;
+            color: $gray-100; // Light text in cards
           }
         }
       }
@@ -124,12 +125,16 @@
 
       .featured-section {
         padding: $spacing-4;
+        background: $gray-800;
+        border-color: $gray-700;
 
         .featured-carousel {
           gap: $spacing-3;
           
           .featured-card {
             min-width: 240px;
+            background: $gray-800;
+            border-color: $gray-700;
           }
         }
       }

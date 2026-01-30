@@ -9,6 +9,12 @@ export const StoreRoutes: Routes = [
         loadComponent: () => import('.').then(c => c.StoreIndexComponent),
         title: "Store Dashboard - View and Manage all store",
     },
+
+    {
+        path: 'create',
+        loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
+        title: "Create New Store - Setup your Marketer Store",
+    }, 
    
     { 
         path: 'edit/:id', 
