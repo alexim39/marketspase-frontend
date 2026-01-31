@@ -1,0 +1,67 @@
+<!-- components/share-bottom-sheet/share-bottom-sheet.component.html -->
+<div class="share-bottom-sheet">
+  <!-- Header -->
+  <div class="share-header">
+    <h2>Share</h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Sharing...</span>
+    </div>
+  }
+
+  <!-- Share Options Grid -->
+  <div class="share-options-grid">
+    @for (option of shareOptions(); track option.id) {
+      <button mat-button 
+              class="share-option"
+              (click)="share(option.id)"
+              [disabled]="isLoading()">
+        <div class="option-icon" [style.background-color]="option.color">
+          <mat-icon>{{ option.icon }}</mat-icon>
+        </div>
+        <span class="option-name">{{ option.name }}</span>
+        <span class="option-description">{{ option.description }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Share URL Preview -->
+  <div class="share-preview">
+    <div class="preview-content">
+      <div class="preview-text">
+        <strong>{{ data.title }}</strong>
+        <p>{{ data.text | truncate:100 }}</p>
+      </div>
+      @if (data.image) {
+        <img [src]="data.image" 
+             alt="Share preview"
+             class="preview-image">
+      }
+    </div>
+    
+    <div class="preview-url">
+      <code>{{ data.url | truncate:50 }}</code>
+      <button mat-icon-button 
+              (click)="share('copy')"
+              matTooltip="Copy link">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- QR Code Option -->
+  <div class="qr-section">
+    <h3>Share via QR Code</h3>
+    <button mat-stroked-button class="qr-button">
+      <mat-icon>qr_code_2</mat-icon>
+      Generate QR Code
+    </button>
+  </div>
+</div>

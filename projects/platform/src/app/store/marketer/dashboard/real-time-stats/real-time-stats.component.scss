@@ -1,0 +1,321 @@
+// components/real-time-stats/real-time-stats.component.scss
+@use '../../../../../styles/mixins' as mixins;
+@use '../../../../../styles/variables' as vars;
+
+.real-time-stats {
+  margin-bottom: vars.$spacing-6;
+
+  .stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: vars.$white;
+    border: none;
+    overflow: hidden;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f, #4d96ff);
+      animation: gradientShift 3s ease infinite;
+    }
+  }
+
+  .stats-header {
+    @include mixins.flex-between;
+    margin-bottom: vars.$spacing-6;
+    position: relative;
+    z-index: 2;
+
+    .header-left {
+      @include mixins.flex-center;
+      gap: vars.$spacing-2;
+      position: relative;
+
+      .live-indicator {
+        color: #ff6b6b;
+        animation: pulse 2s infinite;
+      }
+
+      .stats-title {
+        @include mixins.heading-small;
+        margin: 0;
+        color: vars.$white;
+        font-weight: vars.$font-weight-semibold;
+      }
+
+      .live-pulse {
+        width: 8px;
+        height: 8px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        animation: livePulse 1.5s ease-in-out infinite;
+      }
+
+      .live-badge {
+        background: rgba(vars.$white, 0.2);
+        padding: vars.$spacing-1 vars.$spacing-2;
+        border-radius: vars.$border-radius-full;
+        font-size: vars.$font-size-xs;
+        font-weight: vars.$font-weight-bold;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(10px);
+      }
+    }
+
+    .header-right {
+      .last-updated {
+        @include mixins.caption;
+        color: rgba(vars.$white, 0.8);
+      }
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: vars.$spacing-4;
+    margin-bottom: vars.$spacing-6;
+    position: relative;
+    z-index: 2;
+  }
+
+  .stat-item {
+    background: rgba(vars.$white, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: vars.$border-radius-lg;
+    padding: vars.$spacing-4;
+    border: 1px solid transparent;
+    transition: all vars.$transition-normal;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      background: rgba(vars.$white, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: inherit;
+      opacity: 0.8;
+    }
+
+    .stat-header {
+      @include mixins.flex-between;
+      margin-bottom: vars.$spacing-3;
+
+      .stat-icon-container {
+        width: 40px;
+        height: 40px;
+        border-radius: vars.$border-radius-md;
+        @include mixins.flex-center;
+        backdrop-filter: blur(20px);
+
+        .stat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .stat-trend {
+        @include mixins.flex-center;
+        gap: vars.$spacing-1;
+        font-size: vars.$font-size-xs;
+        font-weight: vars.$font-weight-semibold;
+        padding: vars.$spacing-1 vars.$spacing-2;
+        border-radius: vars.$border-radius-full;
+        background: rgba(vars.$white, 0.2);
+
+        .trend-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+
+    .stat-content {
+      .stat-value {
+        @include mixins.heading-large;
+        margin: 0 0 vars.$spacing-1 0;
+        color: vars.$white;
+        font-weight: vars.$font-weight-bold;
+        font-feature-settings: 'tnum';
+      }
+
+      .stat-label {
+        @include mixins.body-medium;
+        font-weight: vars.$font-weight-semibold;
+        color: rgba(vars.$white, 0.9);
+        margin: 0 0 vars.$spacing-1 0;
+      }
+
+      .stat-description {
+        @include mixins.caption;
+        color: rgba(vars.$white, 0.7);
+        line-height: 1.4;
+      }
+    }
+
+    .stat-visualization {
+      margin-top: vars.$spacing-3;
+
+      .activity-bar {
+        height: 4px;
+        background: rgba(vars.$white, 0.2);
+        border-radius: vars.$border-radius-full;
+        overflow: hidden;
+        margin-bottom: vars.$spacing-2;
+
+        .activity-fill {
+          height: 100%;
+          border-radius: vars.$border-radius-full;
+          transition: width 1s ease;
+          position: relative;
+
+          &::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(vars.$white, 0.5), transparent);
+            animation: shimmer 2s infinite;
+          }
+        }
+      }
+
+      .activity-dots {
+        @include mixins.flex-between;
+
+        .activity-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          opacity: 0.3;
+          transition: all vars.$transition-normal;
+ &.active {
+            opacity: 1;
+            transform: scale(1.2);
+          }
+        }
+      }
+    }
+  }
+
+  .stats-footer {
+    @include mixins.flex-between;
+    padding-top: vars.$spacing-4;
+    border-top: 1px solid rgba(vars.$white, 0.2);
+    position: relative;
+    z-index: 2;
+
+    .connection-status,
+    .update-frequency {
+      @include mixins.flex-center;
+      gap: vars.$spacing-1;
+      font-size: vars.$font-size-xs;
+      color: rgba(vars.$white, 0.8);
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// Helper methods for the template
+:host {
+  // These would be implemented in the component class
+}
+
+// Responsive Design
+@include mixins.mobile {
+  .real-time-stats {
+    margin-bottom: vars.$spacing-4;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: vars.$spacing-3 !important;
+  }
+
+  .stats-header {
+    flex-direction: column;
+    gap: vars.$spacing-2;
+    align-items: flex-start;
+  }
+
+  .stat-item {
+    padding: vars.$spacing-3;
+  }
+}
+
+// Reduced Motion Support
+@media (prefers-reduced-motion: reduce) {
+  .stat-item {
+    transition: none;
+  }
+
+  .activity-fill::after {
+    animation: none;
+  }
+
+  .live-pulse,
+  .live-indicator {
+    animation: none;
+  }
+}

@@ -1,0 +1,37 @@
+<!-- shared/components/rating/rating.component.html -->
+<div class="rating-container" [class]="sizeClass()">
+  <div class="stars-container">
+    @for (star of stars(); track star.value) {
+      <button mat-icon-button
+              class="star-button"
+              [class.interactive]="interactive && !readOnly"
+              [style.width]="getIconSize()"
+              [style.height]="getIconSize()"
+              (click)="setRating(star.value)"
+              (mouseenter)="onStarHover(star.value)"
+              (mouseleave)="onStarLeave()"
+              [disabled]="readOnly">
+        <mat-icon [style.color]="getStarColor(star)"
+                  [style.font-size]="getIconSize()"
+                  [style.width]="getIconSize()"
+                  [style.height]="getIconSize()">
+          {{ getStarIcon(star) }}
+        </mat-icon>
+      </button>
+    }
+  </div>
+  
+  @if (showValue || showCount) {
+    <div class="rating-info">
+      @if (showValue) {
+        <span class="rating-value">{{ formattedRating() }}</span>
+      }
+      @if (showValue && showCount) {
+        <span class="separator">•</span>
+      }
+      @if (showCount) {
+        <span class="rating-count">{{ formattedCount() }} reviews</span>
+      }
+    </div>
+  }
+</div>

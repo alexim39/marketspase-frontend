@@ -1,0 +1,305 @@
+<!-- components/product-quick-view/product-quick-view.component.html -->
+<div class="quick-view-overlay" (click)="close()">
+  <div class="quick-view-modal" (click)="onDialogClick($event)">
+    <!-- Header -->
+    <div class="modal-header">
+      <button mat-icon-button class="close-btn" (click)="close()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading product...</p>
+      </div>
+    }
+    
+    <div class="modal-content">
+      <!-- Product Gallery Section -->
+      <div class="gallery-section">
+        <!-- Main Image -->
+        <div class="main-image-wrapper">
+          @if (selectedImage()) {
+            <img 
+              [src]="selectedImage()?.url" 
+              [alt]="product().name"
+              class="main-image"
+              (error)="onImageError($event)">
+          } @else {
+            <div class="image-placeholder">
+              <mat-icon>image_not_supported</mat-icon>
+              <span>No image available</span>
+            </div>
+          }
+          
+          <!-- Badges Overlay -->
+          <div class="badges-overlay">
+            @if (discountPercentage() > 0) {
+              <span class="badge badge-discount">-{{ discountPercentage() }}%</span>
+            }
+            <!-- @if (product()?.isNew) {
+              <span class="badge badge-new">New</span>
+            } -->
+          </div>
+          
+          <!-- Image Navigation Arrows -->
+          @if (images().length > 1) {
+            <div class="image-nav">
+              <button 
+                mat-icon-button 
+                class="nav-btn nav-prev" 
+                (click)="prevImage()"
+                aria-label="Previous image">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                class="nav-btn nav-next" 
+                (click)="nextImage()"
+                aria-label="Next image">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+        
+        <!-- Thumbnail Gallery -->
+        @if (images().length > 1) {
+          <div class="thumbnail-gallery">
+            @for (image of images(); track image.url; let i = $index) {
+              <button 
+                class="thumbnail"
+                [class.active]="selectedImageIndex() === i"
+                (click)="selectImage(i)"
+                [attr.aria-label]="'View image ' + (i + 1)">
+                <img [src]="image.url" [alt]="image.altText || 'Product image ' + (i + 1)">
+              </button>
+            }
+          </div>
+        }
+      </div>
+      
+      <!-- Product Info Section -->
+      <div class="info-section">
+        <div class="info-scroll">
+          <!-- Store Badge -->
+          @if (store()) {
+            <div class="store-badge">
+              @if (store()?.logo) {
+                <img [src]="store()?.logo" [alt]="store()?.name" class="store-logo">
+              }
+              <div class="store-info">
+                <span class="store-name">{{ store()?.name }}</span>
+                @if (store()?.isVerified) {
+                  <span class="verified-tag">
+                    <mat-icon>verified</mat-icon>
+                    Verified
+                  </span>
+                }
+              </div>
+            </div>
+          }
+          
+          <!-- Product Title & Meta -->
+          <div class="product-title-section">
+            <h1 class="product-title">{{ product().name }}</h1>
+            
+            <div class="product-meta">
+              @if (product().category) {
+                <span class="meta-item category-tag">{{ product().category }}</span>
+              }
+              @if (product().brand) {
+                <span class="meta-item brand-tag">{{ product().brand }}</span>
+              }
+              @if (product().sku) {
+                <span class="meta-item sku">SKU: {{ product().sku }}</span>
+              }
+            </div>
+          </div>
+          
+          <!-- Rating & Social Proof -->
+          @if (product().averageRating > 0) {
+            <div class="rating-section">
+              <app-rating 
+                [rating]="product().averageRating" 
+                [size]="'small'">
+              </app-rating>
+              <span class="rating-text">{{ product().averageRating }}</span>
+              <span class="rating-count">({{ product().ratingCount }})</span>
+              @if (product().purchaseCount > 0) {
+                <span class="divider">•</span>
+                <span class="sold-count">{{ product().purchaseCount }} sold</span>
+              }
+            </div>
+          }
+          
+          <!-- Price Section -->
+          <div class="price-section">
+            <div class="price-main">{{ getVariantPrice() | currency }}</div>
+            @if (product()?.originalPrice) {
+              <div class="price-original">{{ product().originalPrice | currency }}</div>
+              <div class="price-save">Save {{ discountPercentage() }}%</div>
+            }
+          </div>
+          
+          <!-- Stock Indicator -->
+          <div class="stock-indicator" [class]="stockStatus()">
+            <mat-icon class="stock-icon">
+              @switch (stockStatus()) {
+                @case ('out-of-stock') { block }
+                @case ('low-stock') { warning }
+                @default { check_circle }
+              }
+            </mat-icon>
+            <span class="stock-text">{{ stockText() }}</span>
+          </div>
+          
+          <!-- Description -->
+          @if (product().description) {
+            <div class="description-section">
+              <h3 class="section-title">Description</h3>
+              <p class="description-text">{{ product().description }}</p>
+            </div>
+          }
+          
+          <!-- Variant Selection -->
+          @if (hasVariants() && attributes().length > 0) {
+            <div class="variants-section">
+              <h3 class="section-title">Select Options</h3>
+              
+              @for (attribute of attributes(); track attribute.name) {
+                <div class="variant-group">
+                  <label class="variant-label">{{ attribute.name }}</label>
+                  <div class="variant-options">
+                    @for (value of attribute.values; track value) {
+                      <button 
+                        mat-stroked-button
+                        class="variant-btn"
+                        [class.selected]="getAttributeValue(attribute.name) === value"
+                        (click)="selectVariantByAttribute(attribute.name, value)">
+                        {{ value }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          
+          <!-- Tags -->
+          @if (product()?.tags) {
+            <div class="tags-section">
+              <div class="tag-list">
+                @for (tag of product()?.tags; track tag) {
+                  <mat-chip class="product-tag">{{ tag }}</mat-chip>
+                }
+              </div>
+            </div>
+          }
+          
+          <!-- Quantity Selector -->
+          <div class="quantity-section">
+            <label class="quantity-label">Quantity</label>
+            <div class="quantity-selector">
+              <button 
+                mat-icon-button 
+                class="qty-btn"
+                (click)="decrementQuantity()" 
+                [disabled]="quantity() <= 1"
+                aria-label="Decrease quantity">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <input 
+                type="number" 
+                class="qty-input"
+                [value]="quantity()"
+                (change)="setQuantity($event)"
+                [min]="1"
+                [max]="maxQuantity()"
+                readonly>
+              <button 
+                mat-icon-button 
+                class="qty-btn"
+                (click)="incrementQuantity()" 
+                [disabled]="quantity() >= maxQuantity()"
+                aria-label="Increase quantity">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              class="btn-add-cart"
+              (click)="addToCart()"
+              [disabled]="!canAddToCart()">
+              <mat-icon>shopping_cart</mat-icon>
+              Add to Cart
+            </button>
+            
+            <div class="secondary-actions">
+              <button 
+                mat-icon-button 
+                class="action-btn"
+                [class.active]="isInWishlist()"
+                (click)="toggleWishlist()"
+                [attr.aria-label]="isInWishlist() ? 'Remove from wishlist' : 'Add to wishlist'">
+                <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+              </button>
+              
+              <button 
+                mat-icon-button 
+                class="action-btn"
+                (click)="shareProduct()"
+                aria-label="Share product">
+                <mat-icon>share</mat-icon>
+              </button>
+              
+              @if (store()?.whatsappNumber) {
+                <button 
+                  mat-icon-button 
+                  class="action-btn whatsapp-btn"
+                  (click)="contactStore()"
+                  aria-label="Contact on WhatsApp">
+                  <mat-icon>chat</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+          
+          <!-- Trust Signals -->
+          <div class="trust-section">
+            <div class="trust-item">
+              <mat-icon>local_shipping</mat-icon>
+              <span>Free shipping on orders over $50</span>
+            </div>
+            <div class="trust-item">
+              <mat-icon>assignment_return</mat-icon>
+              <span>30-day return policy</span>
+            </div>
+            <div class="trust-item">
+              <mat-icon>verified_user</mat-icon>
+              <span>Secure checkout</span>
+            </div>
+          </div>
+          
+          <!-- Full Details Link -->
+          <div class="full-details">
+            <button 
+              mat-button 
+              class="btn-full-details"
+              (click)="viewFullDetails()">
+              View Full Product Details
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

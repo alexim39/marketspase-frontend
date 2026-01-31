@@ -1,0 +1,135 @@
+<!-- store-controls.component.html -->
+<div class="store-controls" [class.sticky]="isScrolled">
+  <div class="controls-header">
+    <div class="results-info">
+      Showing {{ filteredProductsCount }} of {{ totalProductsCount }} products
+    </div>
+    
+    <div class="view-toggle">
+      <button mat-button 
+              [class.active]="viewMode === 'grid'"
+              (click)="onViewModeChange('grid')">
+        <mat-icon>grid_view</mat-icon>
+      </button>
+      <button mat-button 
+              [class.active]="viewMode === 'list'"
+              (click)="onViewModeChange('list')">
+        <mat-icon>view_list</mat-icon>
+      </button>
+      <button mat-button 
+              [class.active]="viewMode === 'compact'"
+              (click)="onViewModeChange('compact')">
+        <mat-icon>view_compact</mat-icon>
+      </button>
+    </div>
+  </div>
+  
+  <div class="search-filter-row">
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input type="text" 
+             placeholder="Search products, brands, categories..."
+             [formControl]="searchControl">
+      
+      <div class="search-actions">
+        @if (searchControl.value) {
+          <button mat-icon-button (click)="onClearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        <button mat-icon-button>
+          <mat-icon>tune</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <mat-form-field class="sort-select">
+      <mat-label>Sort by</mat-label>
+      <mat-select [formControl]="sortControl">
+        <mat-option value="newest">Newest First</mat-option>
+        <mat-option value="price-low">Price: Low to High</mat-option>
+        <mat-option value="price-high">Price: High to Low</mat-option>
+        <mat-option value="popular">Most Popular</mat-option>
+        <mat-option value="rating">Highest Rated</mat-option>
+        <mat-option value="discount">Biggest Discount</mat-option>
+      </mat-select>
+    </mat-form-field>
+    
+    <button mat-stroked-button 
+            class="filter-toggle"
+            (click)="onToggleFilterSidebar()">
+      <mat-icon>filter_list</mat-icon>
+      Filters
+    </button>
+  </div>
+  
+  <!-- Active Filters -->
+  @if (hasActiveFilters()) {
+    <div class="active-filters">
+      @if (activeFilters.selectedCategory) {
+        <span class="filter-chip">
+          Category: {{ activeFilters.selectedCategory }}
+          <button mat-icon-button (click)="onSetCategoryNull()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
+      
+      @if (searchControl.value) {
+        <span class="filter-chip">
+          Search: "{{ searchControl.value }}"
+          <button mat-icon-button (click)="onClearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
+      
+      @if (activeFilters.priceRange && activeFilters.minPrice !== undefined && activeFilters.maxPrice !== undefined && 
+           (activeFilters.priceRange[0] > activeFilters.minPrice || activeFilters.priceRange[1] < activeFilters.maxPrice)) {
+        <span class="filter-chip">
+          Price: {{ activeFilters.priceRange[0] | currency }} - {{ activeFilters.priceRange[1] | currency }}
+          <button mat-icon-button (click)="onPriceRangeReset()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
+      
+      @if (activeFilters.ratingFilter && activeFilters.ratingFilter > 0) {
+        <span class="filter-chip">
+          Rating: {{ activeFilters.ratingFilter }}+ stars
+          <button mat-icon-button (click)="onRatingFilterReset()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </span>
+      }
+      
+      @if (activeFilters.tagsFilter) {
+        @for (tag of activeFilters.tagsFilter; track tag) {
+          <span class="filter-chip">
+            {{ tag }}
+            <button mat-icon-button (click)="onTagFilterRemove(tag)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        }
+      }
+      
+      @if (activeFilters.brandFilter) {
+        @for (brand of activeFilters.brandFilter; track brand) {
+          <span class="filter-chip">
+            {{ brand }}
+            <button mat-icon-button (click)="onBrandFilterRemove(brand)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </span>
+        }
+      }
+      
+      <button mat-button 
+              class="clear-all"
+              (click)="clearFilters.emit()">
+        Clear All
+      </button>
+    </div>
+  }
+</div>

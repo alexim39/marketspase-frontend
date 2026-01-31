@@ -1,10 +1,4 @@
 import { Routes } from "@angular/router";
-import { CampaignIndexComponent } from "./index";
-import { CreateCampaignComponent } from "./create/create-campaign.component";
-import { PromotionComponent } from "../promoter/promotion/promotion.component";
-import { CampaignDetailsComponent } from "./campaign-details/campaign-details.component";
-import { CampaignEditComponent } from "./campaign-edit/campaign-edit.component";
-import { PromotionDetailComponent } from "../promoter/promotion/promotion-details/promotion-detail.component";
 
 export const CampaignRoutes: Routes = [
     {
@@ -12,32 +6,32 @@ export const CampaignRoutes: Routes = [
         redirectTo: 'partner',
         pathMatch: 'full' */
         path: '',
-        component: CampaignIndexComponent,
+        loadComponent: () => import('./index').then(c => c.CampaignIndexComponent),
         title: "Marketer, Promoter Dashboard - Manage all campaign and promotion",
     },
     {
         path: 'create',
-        component: CreateCampaignComponent,
+        loadComponent: () => import('./create/create-campaign.component').then(c => c.CreateCampaignComponent),
         title: "Campaign Creation - Create New Campaign",
     }, 
     {
         path: 'promotions',
-        component: PromotionComponent,
+        loadComponent: () => import('../promoter/promotion/promotion.component').then(c => c.PromotionComponent),
         title: "Promotions - List all accepted promoter promotions",
     }, 
     {
         path: 'edit/:id',
-        component: CampaignEditComponent,
+        loadComponent: () => import('./campaign-edit/campaign-edit.component').then(c => c.CampaignEditComponent),
         title: "Campaign Edit - Edit a campaign",
     },
     {
         path: ':id',
-        component: CampaignDetailsComponent,
+        loadComponent: () => import('./campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
         title: "Campaign Details - List all accepted promoter promotions",
     },
     {
         path: 'promotions/:id',
-        component: PromotionDetailComponent,
+        loadComponent: () => import('../promoter/promotion/promotion-details/promotion-detail.component').then(c => c.PromotionDetailComponent),
         title: "Promotion Details - List all accepted promoter promotions",
     },
     

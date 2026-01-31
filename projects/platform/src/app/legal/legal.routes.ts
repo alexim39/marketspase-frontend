@@ -1,8 +1,4 @@
 import { Routes } from "@angular/router";
-import { LegalComponent } from "./legal.component";
-import { TermsComponent } from "./terms/terms.component";
-import { PrivacyComponent } from "./privacy/privacy.component";
-import { CookiesComponent } from "./cookies/cookies.component";
 
 export const legalRoutes: Routes = [
     { 
@@ -11,21 +7,21 @@ export const legalRoutes: Routes = [
 
         children: [
             { path: '', 
-                component: LegalComponent, 
+                loadComponent: () => import('./legal.component').then(c => c.LegalComponent),
                 title: "MarketSpase Legal - Terms and conditions of website use",
                 //redirectTo: 'terms',
                 //pathMatch: 'prefix',
                 children: [
                     { path: 'cookies', 
-                        component: CookiesComponent, 
+                        loadComponent: () => import('./cookies/cookies.component').then(c => c.CookiesComponent),
                         title: "Legal - Cookies terms of use"
                     },
                     { path: 'terms', 
-                        component: TermsComponent, 
+                        loadComponent: () => import('./terms/terms.component').then(c => c.TermsComponent),
                         title: "Legal - Terms of use"
                     },
                     { path: 'privacy', 
-                        component: PrivacyComponent, 
+                        loadComponent: () => import('./privacy/privacy.component').then(c => c.PrivacyComponent),
                         title: "Legal - Privacy terms of use"
                     },
                 ]

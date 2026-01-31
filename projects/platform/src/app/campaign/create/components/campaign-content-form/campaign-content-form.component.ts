@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MediaFile } from '../../media-file.model';
 import { CATEGORIES } from '../../../../common/utils/categories';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-campaign-content-form',
@@ -23,7 +24,8 @@ import { CATEGORIES } from '../../../../common/utils/categories';
     MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatSlideToggleModule
   ],
   templateUrl: './campaign-content-form.component.html',
   styleUrls: ['./campaign-content-form.component.scss']

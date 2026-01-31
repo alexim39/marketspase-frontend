@@ -7,7 +7,7 @@
 
 $my-app-theme: mat.define-theme((
   color: (
-    theme-type: light, // Start with light
+    theme-type: dark, // Start with dark
     primary: mat.$azure-palette,
     tertiary: mat.$blue-palette,
   ),
@@ -25,7 +25,7 @@ html {
   @include mat.all-component-themes($my-app-theme);
   
   // NATIVE BROWSER SUPPORT
-  color-scheme: light dark;
+  color-scheme: dark light;
 }
 
 // 3. DARK MODE OVERRIDES

@@ -1,0 +1,320 @@
+<!-- components/store-header/store-header.component.html -->
+<div class="store-header">
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <div class="loading-container">
+        <mat-progress-spinner diameter="36" mode="indeterminate" color="primary"/>
+        <span>Loading store data...</span>
+      </div>
+    </div>
+  }
+
+  <!-- No Store State -->
+  @if (!store()) {
+    <div class="no-store-state">
+      <div class="no-store-content">
+        <div class="no-store-illustration">
+          <mat-icon class="store-illustration-icon">storefront</mat-icon>
+        </div>
+        <div class="no-store-info">
+          <h1>Welcome to Store Management</h1>
+          <p>Create your first store to start selling online. Manage products, track performance, and grow your business.</p>
+        </div>
+        <div class="no-store-actions">
+          <button mat-raised-button color="primary" (click)="onCreateStore()" class="create-store-btn">
+            <mat-icon>add</mat-icon>
+            Create Your First Store
+          </button>
+          <div class="no-store-secondary-actions">
+            <button mat-stroked-button [matMenuTriggerFor]="helpMenu">
+              <mat-icon>help_outline</mat-icon>
+              Help & Resources
+            </button>
+            <mat-menu #helpMenu="matMenu" class="help-menu">
+              <button mat-menu-item routerLink="/dashboard/stores/guide">
+                <div class="menu-item-content">
+                  <mat-icon class="menu-icon">menu_book</mat-icon>
+                  <div class="menu-text">
+                    <span class="menu-title">Getting Started Guide</span>
+                    <span class="menu-subtitle">Learn the basics</span>
+                  </div>
+                </div>
+              </button>
+              <button mat-menu-item routerLink="/dashboard/stores/tutorials">
+                <div class="menu-item-content">
+                  <mat-icon class="menu-icon">ondemand_video</mat-icon>
+                  <div class="menu-text">
+                    <span class="menu-title">Video Tutorials</span>
+                    <span class="menu-subtitle">Step-by-step videos</span>
+                  </div>
+                </div>
+              </button>
+              <button mat-menu-item routerLink="/dashboard/support">
+                <div class="menu-item-content">
+                  <mat-icon class="menu-icon">support</mat-icon>
+                  <div class="menu-text">
+                    <span class="menu-title">Contact Support</span>
+                    <span class="menu-subtitle">24/7 assistance</span>
+                  </div>
+                </div>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- Store Header with Data -->
+    <div class="store-header-container">
+      <!-- Main Header Section -->
+      <div class="store-main-header">
+        <!-- Store Identity -->
+        <div class="store-identity">
+          <div class="store-avatar-container">
+            <div class="store-avatar">
+              <img [src]="store()?.logo || '/img/avatar.png'" 
+                   [alt]="store()?.name"
+                   class="avatar-image">
+              @if (store()?.isVerified) {
+                <div class="avatar-badge verified">
+                  <mat-icon>verified</mat-icon>
+                </div>
+              }
+            </div>
+          </div>
+          
+          <div class="store-info">
+            <div class="store-header-row">
+              <h1 class="store-title">{{ store()?.name }}</h1>
+              <div class="store-status-container">
+                <div class="store-status" [class]="storeStatus()">
+                  <mat-icon class="status-icon">{{ statusIcon() }}</mat-icon>
+                  <span class="status-text">{{ storeStatus() | titlecase }}</span>
+                </div>
+                @if (store()?.verificationTier === 'premium') {
+                  <div class="premium-badge">
+                    <mat-icon>stars</mat-icon>
+                    <span>Premium</span>
+                  </div>
+                }
+              </div>
+            </div>
+            
+            <p class="store-description">{{ store()?.description }}</p>
+            
+            <!-- Store Link Section -->
+            @if (store()?.storeLink) {
+              <div class="store-link-container">
+                <div class="store-link-label">
+                  <mat-icon>link</mat-icon>
+                  <span>Store URL</span>
+                  <a class="preview-link" [href]="'https://marketspase.com/store/' + store()?.storeLink" target="_blank">Preview Store</a>
+                </div>
+                <div class="store-link-input">
+                  <input [value]="'https://marketspase.com/store/' + store()?.storeLink" readonly class="link-input">
+                  <button class="copy-link-btn" (click)="copyStoreLink(store()!.storeLink!)">
+                    <mat-icon>content_copy</mat-icon>
+                    <span class="btn-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+            }
+            
+            <div class="store-meta-info">
+              <div class="meta-item">
+                <mat-icon class="meta-icon">category</mat-icon>
+                <span class="meta-text">{{ store()?.category }}</span>
+              </div>
+              <div class="meta-divider"></div>
+              <div class="meta-item">
+                <mat-icon class="meta-icon">fingerprint</mat-icon>
+                <span class="meta-text">ID: {{ store()?._id?.slice(-8) }}</span>
+              </div>
+              <div class="meta-divider"></div>
+              <div class="meta-item">
+                <mat-icon class="meta-icon">calendar_today</mat-icon>
+                <span class="meta-text">Created {{ store()?.createdAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Header Actions -->
+        <div class="header-actions-section">
+          <div class="primary-actions">
+            <button mat-raised-button 
+                    color="primary" 
+                    (click)="onAddProduct()" 
+                    class="add-product-btn">
+              <mat-icon>add_circle</mat-icon>
+              <span>Add Product</span>
+            </button>
+            
+            @if (!store()?.isVerified) {
+              <button mat-stroked-button 
+                      color="primary" 
+                      (click)="onVerifyStore()" 
+                      class="verify-store-btn">
+                <mat-icon>verified</mat-icon>
+                <span>Verify Store</span>
+              </button>
+            }
+          </div>
+          
+          <div class="secondary-actions">
+            <button mat-icon-button 
+                    [matMenuTriggerFor]="storeActionsMenu"
+                    class="store-actions-btn"
+                    aria-label="Store actions">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            
+            <mat-menu #storeActionsMenu="matMenu" class="store-actions-menu">
+              <button mat-menu-item (click)="onCreateStore()">
+                <mat-icon>add_business</mat-icon>
+                <span>Create New Store</span>
+              </button>
+              
+              <button mat-menu-item [matMenuTriggerFor]="switchStoreMenu">
+                <mat-icon>storefront</mat-icon>
+                <span>Switch Store</span>
+                <mat-icon class="menu-arrow">chevron_right</mat-icon>
+              </button>
+              
+              <mat-divider></mat-divider>
+              
+              <button mat-menu-item (click)="onExportData()">
+                <mat-icon>download</mat-icon>
+                <span>Export Store Data</span>
+              </button>
+              
+              <button mat-menu-item (click)="onDuplicateStore()">
+                <mat-icon>content_copy</mat-icon>
+                <span>Duplicate Store</span>
+              </button>
+              
+              <mat-divider></mat-divider>
+              
+              <button mat-menu-item (click)="onArchiveStore()" class="archive-action">
+                <mat-icon>archive</mat-icon>
+                <span>Archive Store</span>
+              </button>
+            </mat-menu>
+            
+            <!-- Switch Store Submenu -->
+            <mat-menu #switchStoreMenu="matMenu" class="switch-store-menu">
+              @if (stores().length === 0) {
+                <div class="no-stores-message">
+                  <mat-icon>storefront</mat-icon>
+                  <span>No other stores available</span>
+                </div>
+              } @else {
+                @for (storeItem of stores(); track trackByStoreId($index, storeItem)) {
+                  <button mat-menu-item 
+                          (click)="onManageStore(storeItem._id!)"
+                          [class.active-store]="storeItem._id === store()?._id">
+                    <div class="store-menu-item-content">
+                      <div class="store-menu-item-icon">
+                        @if (storeItem.isVerified) {
+                          <mat-icon class="verified-store-icon">verified</mat-icon>
+                        } @else {
+                          <mat-icon class="store-icon">store</mat-icon>
+                        }
+                      </div>
+                      <div class="store-menu-item-info">
+                        <span class="store-menu-item-name">{{ storeItem.name }}</span>
+                        <span class="store-menu-item-category">{{ storeItem.category }}</span>
+                      </div>
+                      @if (storeItem._id === store()?._id) {
+                        <mat-icon class="current-store-indicator">check_circle</mat-icon>
+                      }
+                    </div>
+                  </button>
+                }
+              }
+              
+              <mat-divider></mat-divider>
+              
+              <button mat-menu-item (click)="onCreateStore()" class="create-store-menu-item">
+                <mat-icon>add</mat-icon>
+                <span>Create New Store</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Store Statistics -->
+      @if (storeStats()) {
+        <div class="store-statistics">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-icon-container">
+                  <mat-icon class="stat-icon">visibility</mat-icon>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value">{{ storeStats()!.views | number }}</div>
+                  <div class="stat-label">Total Views</div>
+                </div>
+                <div class="stat-trend trend-up">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>12%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-icon-container">
+                  <mat-icon class="stat-icon">shopping_cart</mat-icon>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value">{{ storeStats()!.sales | number }}</div>
+                  <div class="stat-label">Total Sales</div>
+                </div>
+                <div class="stat-trend trend-up">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>8%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-icon-container">
+                  <mat-icon class="stat-icon">percent</mat-icon>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value">{{ storeStats()!.conversion | number:'1.1-1' }}%</div>
+                  <div class="stat-label">Conversion Rate</div>
+                </div>
+                <div class="stat-trend trend-up">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>5%</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-icon-container">
+                  <mat-icon class="stat-icon">attach_money</mat-icon>
+                </div>
+                <div class="stat-details">
+                  <div class="stat-value">₦{{ storeStats()!.revenue | number }}</div>
+                  <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-trend trend-up">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>15%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,700 @@
+<!-- product-details.component.html -->
+<div class="promoter-product-details">
+  <!-- Back Navigation -->
+  <div class="back-nav">
+    <div class="back-container">
+      <button mat-button routerLink="/dashboard/stores" [queryParams]="{tab: 'all'}">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Products
+      </button>
+      @if (product()) {
+        <h2 class="product-title-nav">{{ product()?.name ?? '' | truncate:40 }}</h2>
+      }
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading product details...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error() && !loading()) {
+      <div class="error-state">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h3>Unable to Load Product</h3>
+        <p>{{ error() }}</p>
+        <button mat-raised-button color="primary" routerLink="/dashboard/stores">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Products
+        </button>
+      </div>
+    }
+
+    <!-- Product Details -->
+    @if (product() && !loading() && !error()) {
+      <div class="product-details-container">
+        <!-- Product Card -->
+        <mat-card class="product-card">
+          <!-- Image Gallery -->
+          <div class="image-gallery">
+            <!-- Desktop Thumbnails -->
+            <div class="thumbnails">
+              @for (image of product()?.images ?? []; track image.url; let i = $index) {
+                <div 
+                  class="thumbnail" 
+                  [class.active]="selectedImageIndex() === i"
+                  (click)="selectImage(i)"
+                >
+                  @if (image.url) {
+                    <img [src]="image.url" [alt]="image.altText || 'Product image ' + (i + 1)">
+                  } @else {
+                    <div class="placeholder">
+                      <mat-icon>image</mat-icon>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Main Image -->
+            <div class="main-image-container">
+              <!-- Commission Badge -->
+              @if (product()?.promotion) {
+                <div class="commission-badge" 
+                     [class.high]="(product()?.promotion?.commissionRate ?? 0) >= 20"
+                     [class.medium]="(product()?.promotion?.commissionRate ?? 0) >= 10 && (product()?.promotion?.commissionRate ?? 0) < 20">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>{{ product()?.promotion?.commissionRate ?? 0 }}%</span>
+                </div>
+              }
+
+              <!-- Main Image -->
+              @if (product()?.images?.[selectedImageIndex()]?.url) {
+                <img 
+                  [src]="product()?.images?.[selectedImageIndex()]?.url" 
+                  [alt]="product()?.images?.[selectedImageIndex()]?.altText || product()?.name"
+                  class="main-image"
+                >
+              } @else {
+                <div class="main-image-placeholder">
+                  <mat-icon>image_not_supported</mat-icon>
+                  <span>No Image Available</span>
+                </div>
+              }
+
+              <!-- Navigation Arrows -->
+              @if ((product()?.images?.length ?? 0) > 1) {
+                <div class="image-nav prev">
+                  <button 
+                    mat-icon-button 
+                    (click)="selectImage(selectedImageIndex() - 1 < 0 ? (product()?.images?.length ?? 0) - 1 : selectedImageIndex() - 1)"
+                  >
+                    <mat-icon>chevron_left</mat-icon>
+                  </button>
+                </div>
+                <div class="image-nav next">
+                  <button 
+                    mat-icon-button 
+                    (click)="selectImage((selectedImageIndex() + 1) % (product()?.images?.length ?? 1))"
+                  >
+                    <mat-icon>chevron_right</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <!-- Mobile Thumbnails -->
+            @if (product()?.images) {
+              <div class="mobile-thumbnails">
+                @for (image of product()?.images ?? []; track image.url; let i = $index) {
+                  <div 
+                    class="thumbnail" 
+                    [class.active]="selectedImageIndex() === i"
+                    (click)="selectImage(i)"
+                  >
+                    @if (image.url) {
+                      <img [src]="image.url" [alt]="image.altText || 'Product thumbnail ' + (i + 1)">
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <div class="product-header">
+              <!-- Store Badge -->
+              <div class="store-badge" [class.premium]="product()?.store?.verificationTier === 'premium'">
+                @if (product()?.store?.logo) {
+                  <img [src]="product()?.store?.logo" [alt]="product()?.store?.name">
+                }
+                <span>{{ product()?.store?.name }}</span>
+                @if (product()?.store?.verificationTier === 'premium') {
+                  <mat-icon>verified</mat-icon>
+                }
+              </div>
+
+              <!-- Product Title -->
+              <h1 class="product-title">{{ product()?.name }}</h1>
+
+              <!-- Product Meta -->
+              <div class="product-meta">
+                @if (product()?.sku) {
+                  <span class="sku">SKU: {{ product()?.sku }}</span>
+                }
+                @if (product()?.averageRating ?? 0 > 0) {
+                  <div class="rating">
+                    <mat-icon>star</mat-icon>
+                    <span>{{ product()?.averageRating | number:'1.1-1' }} ({{ product()?.ratingCount }})</span>
+                  </div>
+                }
+                <span class="category">{{ product()?.category }}</span>
+              </div>
+
+              <!-- Price Section -->
+              <div class="price-section">
+                <h2 class="current-price">{{ product()?.price | currency }}</h2>
+                @if (product()?.originalPrice && (product()?.originalPrice ?? 0) > (product()?.price ?? 0)) {
+                  <h3 class="original-price">{{ product()?.originalPrice | currency }}</h3>
+                  <span class="discount-badge">
+                    {{ calculateDiscount(product()?.price ?? 0, product()?.originalPrice ?? 0) }}% OFF
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- Description -->
+            @if (product()?.description) {
+              <div class="product-description">
+                {{ product()?.description }}
+              </div>
+            }
+
+            <!-- Tags -->
+            @if ((product()?.tags?.length ?? 0) > 0) {
+              <div class="product-tags">
+                @for (tag of product()?.tags ?? []; track tag) {
+                  <mat-chip>{{ tag }}</mat-chip>
+                }
+              </div>
+            }
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+              <div class="stat-card">
+                <div class="stat-label">Views</div>
+                <h3 class="stat-value">{{ product()?.viewCount ?? 0 | number }}</h3>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Sales</div>
+                <h3 class="stat-value">{{ product()!.purchaseCount | number }}</h3>
+              </div>
+              <div class="stat-card highlight">
+                <div class="stat-label">Conversion Rate</div>
+                <h3 class="stat-value">
+                    @if (product(); as p) {
+                        @if (p.purchaseCount && p.viewCount) {
+                            {{ ((p.purchaseCount / p.viewCount) * 100) | number:'1.1-1' }}%
+                        } @else {
+                            0%
+                        }
+                    }
+
+                </h3>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Listed</div>
+                <h3 class="stat-value">{{ getFormattedDate(product()!.createdAt) }}</h3>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                class="promote-btn"
+                (click)="copyPromotionLink()"
+              >
+                <mat-icon>share</mat-icon>
+                Copy Promotion Link
+              </button>
+              <button 
+                mat-button 
+                (click)="generateWhatsAppMessage()"
+              >
+                <mat-icon>whatsapp</mat-icon>
+                Share on WhatsApp
+              </button>
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- Tabs -->
+        <div class="product-tabs">
+          <mat-tab-group 
+            [(selectedIndex)]="activeTab"
+            (selectedIndexChange)="setActiveTab(['overview', 'performance', 'store', 'promotion'][$event])"
+          >
+            <!-- Overview Tab -->
+            <mat-tab label="Overview">
+              <div class="tab-content overview-content">
+                <div class="details-grid">
+                  <div class="detail-item">
+                    <div class="label">Category</div>
+                    <div class="value">{{ product()!.category }}</div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="label">Brand</div>
+                    <div class="value">{{ product()?.brand ?? 'Not specified' }}</div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="label">Stock Status</div>
+                    <div class="value">
+                      @if ((product()?.quantity ?? 0) > 10) {
+                        <span class="success-color">In Stock</span>
+                      } @else if ((product()?.quantity ?? 0) > 0) {
+                        <span class="warning-color">Low Stock</span>
+                      } @else {
+                        <span class="error-color">Out of Stock</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="label">Availability</div>
+                    <div class="value">
+                      {{ product()?.isActive ? 'Available' : 'Unavailable' }}
+                    </div>
+                  </div>
+                </div>
+
+                @if (product()!.specifications?.length ?? 0 > 0) {
+                  <h4>Specifications</h4>
+                  <div class="specifications">
+                    <div class="spec-list">
+                      @for (spec of product()?.specifications ?? []; track spec.name) {
+                        <div class="spec-item">
+                          <span class="spec-name">{{ spec.name }}</span>
+                          <!-- <span class="spec-value">{{ spec.value }}</span> -->
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-tab>
+
+            <!-- Performance Tab -->
+            <mat-tab label="Performance">
+              <div class="tab-content performance-content">
+                <div class="performance-grid">
+                  <div class="metric-card">
+                    <div class="metric-header">
+                      <span class="metric-title">Click-Through Rate</span>
+                      <span class="metric-trend up">
+                        <mat-icon>trending_up</mat-icon>
+                        12%
+                      </span>
+                    </div>
+                    <h3 class="metric-value">
+                      {{ performanceStats()?.ctr | number:'1.1-1' }}%
+                    </h3>
+                    <div class="metric-bar">
+                      <mat-progress-bar 
+                        [value]="performanceStats()?.ctr" 
+                        [color]="getPerformanceColor(performanceStats()?.ctr || 0)"
+                      ></mat-progress-bar>
+                    </div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-header">
+                      <span class="metric-title">Conversion Rate</span>
+                      <span class="metric-trend up">
+                        <mat-icon>trending_up</mat-icon>
+                        8%
+                      </span>
+                    </div>
+                    <h3 class="metric-value">
+                      {{ performanceStats()?.cvr | number:'1.1-1' }}%
+                    </h3>
+                    <div class="metric-bar">
+                      <mat-progress-bar 
+                        [value]="performanceStats()?.cvr" 
+                        [color]="getPerformanceColor(performanceStats()?.cvr || 0)"
+                      ></mat-progress-bar>
+                    </div>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-header">
+                      <span class="metric-title">Avg. Order Value</span>
+                      <span class="metric-trend down">
+                        <mat-icon>trending_down</mat-icon>
+                        3%
+                      </span>
+                    </div>
+                    <h3 class="metric-value">
+                      {{ performanceStats()?.avgOrderValue | currency }}
+                    </h3>
+                  </div>
+                  <div class="metric-card">
+                    <div class="metric-header">
+                      <span class="metric-title">Performance Score</span>
+                    </div>
+                    <h3 class="metric-value">
+                      {{ performanceStats()?.performanceScore }}/10
+                    </h3>
+                    <div class="metric-label">
+                      {{ getPerformanceLabel(+(performanceStats()?.performanceScore || 0)) }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="performance-summary">
+                  <h4>Performance Summary</h4>
+                  <div class="summary-stats">
+                    <div class="summary-item">
+                      <div class="summary-value">
+                        {{ product()!.promotion.views | number }}
+                      </div>
+                      <div class="summary-label">Total Views</div>
+                    </div>
+                    <div class="summary-item">
+                      <div class="summary-value">
+                        {{ product()!.promotion.clicks | number }}
+                      </div>
+                      <div class="summary-label">Total Clicks</div>
+                    </div>
+                    <div class="summary-item">
+                      <div class="summary-value">
+                        {{ product()!.promotion.conversions | number }}
+                      </div>
+                      <div class="summary-label">Total Conversions</div>
+                    </div>
+                    <div class="summary-item">
+                      <div class="summary-value">
+                        {{ product()!.promotion.earnings | currency }}
+                      </div>
+                      <div class="summary-label">Total Earnings</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Store Tab -->
+            <mat-tab label="Store">
+              <div class="tab-content store-content">
+                <div class="store-profile">
+                  <div class="store-logo">
+                    @if (product()!.store.logo) {
+                      <img [src]="product()!.store.logo" [alt]="product()!.store.name">
+                    } @else {
+                      <div class="logo-placeholder">
+                        <mat-icon>store</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  <div class="store-info">
+                    <h3 class="store-name">{{ product()!.store.name }}</h3>
+                    @if (product()!.store.description) {
+                      <p class="store-description">
+                        {{ product()!.store.description }}
+                      </p>
+                    }
+                    <div class="store-stats">
+                      <div class="store-stat">
+                        <div class="stat-label">Products</div>
+                        <h4 class="stat-value">{{ product()!.store.productCount || 0 }}</h4>
+                      </div>
+                      <div class="store-stat">
+                        <div class="stat-label">Rating</div>
+                        <h4 class="stat-value">{{ product()!.store.rating || 'N/A' }}</h4>
+                      </div>
+                      <div class="store-stat">
+                        <div class="stat-label">Joined</div>
+                        <h4 class="stat-value">{{ getFormattedDate(product()!.store.createdAt) }}</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="store-verification">
+                  <div class="verification-header">
+                    <mat-icon>verified</mat-icon>
+                    <h4>Store Verification</h4>
+                  </div>
+                  <div class="verification-badges">
+                    <span class="badge">
+                      <mat-icon>check_circle</mat-icon>
+                      {{ product()!.store.verificationTier === 'premium' ? 'Premium Verified' : 'Basic Verified' }}
+                    </span>
+                    @if (product()!.store.isVerified) {
+                      <span class="badge">
+                        <mat-icon>security</mat-icon>
+                        Secure Store
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                @if (product()!.store.storeLink) {
+                <!-- Replace <button> with <a> -->
+                <a 
+                mat-raised-button 
+                color="primary" 
+                [href]="product()?.store?.storeLink" 
+                target="_blank"
+                class="visit-store-btn"
+                >
+                <mat-icon>storefront</mat-icon>
+                Visit Store
+                </a>
+
+
+                }
+              </div>
+            </mat-tab>
+
+            <!-- Promotion Tab -->
+            <mat-tab label="Promotion">
+              <div class="tab-content promotion-content">
+                <div class="promotion-stats">
+                  <div class="stat-card">
+                    <div class="stat-label">Commission Type</div>
+                    <h3 class="stat-value">
+                      {{ commissionDetails()?.type === 'percentage' ? 'Percentage' : 'Fixed' }}
+                    </h3>
+                  </div>
+                  <div class="stat-card highlight">
+                    <div class="stat-label">Potential per Sale</div>
+                    <h3 class="stat-value highlight">
+                      {{ commissionDetails()?.potentialPerSale | currency }}
+                    </h3>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-label">Total Earned</div>
+                    <h3 class="stat-value">
+                      {{ commissionDetails()?.totalEarned | currency }}
+                    </h3>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-label">Tracking Code</div>
+                    <h3 class="stat-value">
+                      {{ product()!.promotion.trackingCode }}
+                    </h3>
+                  </div>
+                </div>
+
+                <div class="tracking-info">
+                  <div class="tracking-header">
+                    <h4>Your Tracking Link</h4>
+                    <button 
+                      mat-icon-button 
+                      (click)="copyPromotionLink()"
+                      matTooltip="Copy link"
+                    >
+                      <mat-icon>content_copy</mat-icon>
+                    </button>
+                  </div>
+                  <div class="tracking-code">
+                    tracking code
+                    <!-- {{ window.location.origin }}/promote/{{ product()!.promotion.trackingCode }} -->
+                  </div>
+                </div>
+
+                <div class="promotion-tools">
+                  <h4>Promotion Tools</h4>
+                  <div class="tool-buttons">
+                    <button mat-raised-button (click)="shareProduct('whatsapp')">
+                      <mat-icon>whatsapp</mat-icon>
+                      WhatsApp
+                    </button>
+                    <button mat-raised-button (click)="shareProduct('facebook')">
+                      <mat-icon>facebook</mat-icon>
+                      Facebook
+                    </button>
+                    <button mat-raised-button (click)="shareProduct('twitter')">
+                      <mat-icon>twitter</mat-icon>
+                      Twitter
+                    </button>
+                    <button mat-button (click)="shareProduct('copy')">
+                      <mat-icon>link</mat-icon>
+                      Copy All Links
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="product-sidebar">
+        <!-- Commission Card -->
+        <div class="commission-card">
+          <div class="commission-header">
+            <mat-icon>trending_up</mat-icon>
+            <h3>Commission Details</h3>
+          </div>
+          <h2 class="commission-rate">{{ product()!.promotion.commissionRate }}%</h2>
+          <p class="commission-details">
+            Earn {{ commissionDetails()?.value }} commission on every sale through your promotion link.
+          </p>
+          
+          <div class="commission-breakdown">
+            <div class="breakdown-item">
+              <span class="label">Product Price</span>
+              <span class="value">{{ product()!.price | currency }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Commission Rate</span>
+              <span class="value">{{ product()!.promotion.commissionRate }}%</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Your Earnings per Sale</span>
+              <span class="value">{{ commissionDetails()?.potentialPerSale | currency }}</span>
+            </div>
+          </div>
+
+          <div class="commission-cta">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              class="primary"
+              (click)="copyPromotionLink()"
+            >
+              <mat-icon>share</mat-icon>
+              Get Promotion Link
+            </button>
+            <button 
+              mat-button 
+              (click)="generateWhatsAppMessage()"
+            >
+              <mat-icon>whatsapp</mat-icon>
+              Share on WhatsApp
+            </button>
+          </div>
+        </div>
+
+        <!-- Store Info Card -->
+        <div class="store-info-card">
+          <div class="store-header">
+            <div class="store-avatar">
+              @if (product()!.store.logo) {
+                <img [src]="product()!.store.logo" [alt]="product()!.store.name">
+              } @else {
+                <div class="avatar-placeholder">
+                  <mat-icon>store</mat-icon>
+                </div>
+              }
+            </div>
+            <div class="store-info">
+              <h4 class="store-name">{{ product()!.store.name }}</h4>
+              <span class="store-tier" [class.premium]="product()!.store.verificationTier === 'premium'">
+                {{ product()!.store.verificationTier === 'premium' ? 'Premium Store' : 'Verified Store' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="store-stats">
+            <div class="stat">
+              <h4 class="stat-value">{{ product()!.store?.productCount || 0 }}</h4>
+              <div class="stat-label">Products</div>
+            </div>
+            <div class="stat">
+              <h4 class="stat-value">{{ product()!.store.rating || 'N/A' }}</h4>
+              <div class="stat-label">Rating</div>
+            </div>
+            <div class="stat">
+              <h4 class="stat-value">
+                {{ product()!.store.isVerified ? 'Yes' : 'No' }}
+              </h4>
+              <div class="stat-label">Verified</div>
+            </div>
+          </div>
+
+          <div class="store-actions">
+            @if (product()!.store.storeLink) {
+              <a 
+                mat-button 
+                [href]="product()?.store?.storeLink" 
+                target="_blank"
+                >
+                <mat-icon>storefront</mat-icon>
+                Visit Store
+              </a>
+
+            }
+            <a 
+              mat-button 
+              routerLink="/dashboard/stores/{{ product()!.store._id }}"
+            >
+              <mat-icon>info</mat-icon>
+              View Store Details
+            </a>
+          </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="related-products">
+          <div class="section-header">
+            <h3>Related Products</h3>
+            <a 
+              mat-button 
+              routerLink="/dashboard/stores" 
+              [queryParams]="{category: product()!.category}"
+            >
+              View All
+            </a>
+          </div>
+
+          @if (loadingRelated()) {
+            <div class="loading-related">
+              <mat-spinner diameter="32"></mat-spinner>
+            </div>
+          } @else if (relatedProducts().length > 0) {
+            <div class="related-list">
+              @for (related of relatedProducts(); track related._id) {
+                <div class="related-item" (click)="navigateToProduct(related._id)">
+                  <div class="item-image">
+                    @if (related.images && related.images[0]?.url) {
+                      <img [src]="related.images[0].url" [alt]="related.name">
+                    } @else {
+                      <div class="placeholder">
+                        <mat-icon>image</mat-icon>
+                      </div>
+                    }
+                  </div>
+                  <div class="item-info">
+                    <h4 class="item-name">{{ related.name | truncate:40 }}</h4>
+                    <p class="item-price">{{ related.price | currency }}</p>
+                    <div class="item-commission">
+                      <span>Commission:</span>
+                      <span class="commission-badge" 
+                            [class]="getPerformanceColor(related.promotion.commissionRate)">
+                        {{ related.promotion.commissionRate }}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-related">
+              <mat-icon>search_off</mat-icon>
+              <p>No related products found</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

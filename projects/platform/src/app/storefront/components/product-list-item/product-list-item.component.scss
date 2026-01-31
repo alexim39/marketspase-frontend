@@ -1,0 +1,313 @@
+// product-list-item.component.scss (DARK THEME ONLY)
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.product-list-item {
+  background: $gray-800; // Dark background
+  border: 1px solid $gray-700; // Dark border
+  transition: all $transition-normal;
+  animation: slideInUp 0.3s ease-out;
+  animation-fill-mode: both;
+  cursor: pointer;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateX(8px);
+    border-color: $primary-light-hex; // Light primary for dark theme
+    box-shadow: $shadow-xl;
+    background: $gray-700; // Slightly lighter on hover
+
+    .list-image img {
+      transform: scale(1.1);
+    }
+
+    .list-image .image-overlay {
+      opacity: 1;
+    }
+  }
+
+  .list-item-content {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: $spacing-6;
+    padding: $spacing-6;
+
+    @include tablet {
+      grid-template-columns: 150px 1fr 200px;
+    }
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-4;
+    }
+
+    .list-image {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border-radius: $border-radius;
+      overflow: hidden;
+      background: linear-gradient(135deg, $gray-800, $gray-700); // Dark gradient
+
+      @include mobile {
+        width: 100%;
+        height: 250px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+      }
+
+      .image-placeholder {
+        width: 100%;
+        height: 100%;
+        @include flex-center;
+        background: $gray-900; // Dark background
+        
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          color: $gray-500; // Mid gray
+        }
+      }
+
+      .image-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 60%, rgba($gray-900, 0.6)); // Dark overlay
+        opacity: 0;
+        transition: opacity $transition-normal;
+      }
+    }
+
+    .list-details {
+      flex: 1;
+
+      .product-header {
+        margin-bottom: $spacing-3;
+
+        .product-name {
+          @include heading-medium;
+          color: $gray-100; // Light text
+          margin: 0 0 $spacing-2;
+          line-height: $line-height-tight;
+          font-size: $font-size-2xl;
+          font-weight: $font-weight-semibold;
+        }
+
+        .product-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: $spacing-2;
+          margin-bottom: $spacing-3;
+
+          .meta-item {
+            @include caption;
+            background: $gray-900; // Dark background
+            padding: $spacing-1 $spacing-2;
+            border-radius: $border-radius-sm;
+            color: $gray-400; // Light gray
+            display: flex;
+            align-items: center;
+            gap: $spacing-1;
+            border: 1px solid $gray-700;
+          }
+        }
+      }
+
+      .product-description {
+        @include body-medium;
+        color: $gray-300; // Light gray
+        margin-bottom: $spacing-4;
+        line-height: $line-height-normal;
+        @include text-multiline-ellipsis(3);
+      }
+
+      .product-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-3;
+        margin-bottom: $spacing-4;
+
+        .feature {
+          @include flex-center;
+          gap: $spacing-1;
+          @include caption;
+          color: $gray-400; // Light gray
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            color: $primary-light-hex; // Light primary
+          }
+        }
+      }
+    }
+
+    .list-actions {
+      min-width: 200px;
+      @include flex-column;
+      justify-content: space-between;
+
+      @include mobile {
+        min-width: 100%;
+      }
+
+      .price-section {
+        text-align: right;
+        margin-bottom: $spacing-4;
+
+        .current-price {
+          @include heading-large;
+          color: $primary-light-hex; // Light primary
+          font-weight: $font-weight-bold;
+          margin-bottom: $spacing-1;
+          font-size: $font-size-3xl;
+        }
+
+        .original-price {
+          @include body-medium;
+          color: $gray-600; // Mid gray
+          text-decoration: line-through;
+          margin-bottom: $spacing-1;
+        }
+
+        .savings {
+          @include caption;
+          color: lighten($success-color-hex, 10%); // Brighter success
+          font-weight: $font-weight-bold;
+          background: rgba($success-color-hex, 0.15);
+          padding: $spacing-1 $spacing-2;
+          border-radius: $border-radius-sm;
+          display: inline-block;
+          border: 1px solid rgba($success-color-hex, 0.3);
+        }
+      }
+
+      .stock-section {
+        margin-bottom: $spacing-4;
+
+        .stock-status {
+          @include flex-center;
+          gap: $spacing-1;
+          padding: $spacing-2 $spacing-3;
+          border-radius: $border-radius;
+          font-size: $font-size-sm;
+          font-weight: $font-weight-medium;
+
+          &.in-stock {
+            background: rgba($success-color-hex, 0.15);
+            color: lighten($success-color-hex, 10%);
+            border: 1px solid rgba($success-color-hex, 0.3);
+          }
+
+          &.low-stock {
+            background: rgba($warning-color-hex, 0.15);
+            color: lighten($warning-color-hex, 10%);
+            border: 1px solid rgba($warning-color-hex, 0.3);
+          }
+
+          &.out-of-stock {
+            background: rgba($error-color-hex, 0.15);
+            color: lighten($error-color-hex, 10%);
+            border: 1px solid rgba($error-color-hex, 0.3);
+          }
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+
+      .action-buttons {
+        @include flex-column;
+        gap: $spacing-2;
+
+        .primary-action {
+          width: 100%;
+          height: 44px;
+          font-weight: $font-weight-semibold;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
+          color: $gray-900; // Dark text on gradient
+          border: none;
+          border-radius: $border-radius;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: $spacing-2;
+          cursor: pointer;
+          transition: all $transition-normal;
+          font-size: $font-size-sm;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: $shadow-lg;
+          }
+
+          &:disabled {
+            background: $gray-700 !important;
+            color: $gray-500 !important;
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+          }
+          
+          &:focus-visible {
+            outline: 2px solid $primary-light-hex;
+            outline-offset: 2px;
+          }
+        }
+
+        .secondary-actions {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: $spacing-1;
+
+          button {
+            height: 40px;
+            background: $gray-900; // Dark background
+            color: $gray-400; // Light gray
+            border-radius: $border-radius;
+            border: 1px solid $gray-700;
+            transition: all $transition-fast;
+
+            &:hover {
+              background: $gray-700;
+              color: $gray-100;
+              border-color: $gray-600;
+            }
+
+            &.active {
+              color: $primary-light-hex; // Light primary
+              background: rgba($primary-light-hex, 0.15);
+              border-color: rgba($primary-light-hex, 0.3);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

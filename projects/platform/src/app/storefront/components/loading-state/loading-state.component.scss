@@ -1,0 +1,59 @@
+// loading-state.component.scss (DARK THEME ONLY)
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.loading-state {
+  @include flex-column-center;
+  min-height: 400px;
+  text-align: center;
+  padding: $spacing-20 0;
+  background: $gray-900; // Dark background
+
+  .spinner-container {
+    position: relative;
+    margin-bottom: $spacing-6;
+
+    ::ng-deep mat-spinner {
+      circle {
+        stroke: $primary-light-hex !important; // Light primary for spinner
+      }
+    }
+
+    .store-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: $primary-light-hex; // Light primary
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+
+  .loading-text {
+    @include body-large;
+    color: $gray-200; // Light gray
+    margin-bottom: $spacing-2;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+  }
+
+  .loading-subtext {
+    @include body-medium;
+    color: $gray-400; // Mid gray
+  }
+}
+
+// Pulse animation for the icon
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}

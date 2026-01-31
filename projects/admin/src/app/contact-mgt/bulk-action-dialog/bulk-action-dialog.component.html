@@ -1,0 +1,87 @@
+
+<div class="bulk-action-dialog">
+  <h2 mat-dialog-title>Bulk Actions</h2>
+  
+  <mat-dialog-content>
+    <p class="selected-count">{{ data.selectedCount }} contact(s) selected</p>
+    
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Select Action</mat-label>
+      <mat-select [(ngModel)]="selectedAction">
+        @for (action of availableActions; track action.value) {
+          <mat-option [value]="action.value">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            {{ action.label }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Status Update -->
+    @if (selectedAction === 'updateStatus') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>New Status</mat-label>
+        <mat-select [(ngModel)]="selectedStatus">
+          @for (status of statuses; track status.value) {
+            <mat-option [value]="status.value">{{ status.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <!-- Priority Update -->
+    @if (selectedAction === 'updatePriority') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>New Priority</mat-label>
+        <mat-select [(ngModel)]="selectedPriority">
+          @for (priority of priorities; track priority.value) {
+            <mat-option [value]="priority.value">{{ priority.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <!-- Assign to Admin -->
+    @if (selectedAction === 'assign') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Assign To Admin</mat-label>
+        <mat-select [(ngModel)]="selectedAdmin">
+          @for (admin of data.availableAdmins; track admin._id) {
+            <mat-option [value]="admin._id">{{ admin.displayName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <!-- Send Message -->
+    @if (selectedAction === 'sendMessage') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Message to Users</mat-label>
+        <textarea matInput 
+                  [(ngModel)]="customMessage" 
+                  rows="4"
+                  placeholder="Enter the message you want to send to selected users..."></textarea>
+      </mat-form-field>
+
+      <mat-checkbox [(ngModel)]="sendEmailNotification" class="email-checkbox">
+        <div class="checkbox-content">
+          <mat-icon>email</mat-icon>
+          <span>Send email notification</span>
+        </div>
+      </mat-checkbox>
+    }
+
+    <!-- Archive/Unarchive -->
+    @if (selectedAction === 'archive') {
+      <div class="archive-warning">
+        <mat-icon>warning</mat-icon>
+        <p>This will archive all selected contacts. Archived contacts are hidden by default but can be restored.</p>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="confirm()">Apply Action</button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,237 @@
+@import '../../../../../styles/mixins';
+@import '../../../../../styles/variables';
+
+.products-page {
+  padding: $spacing-6;
+  min-height: 100vh;
+  background-color: $background-color;
+  transition: background-color $transition-normal;
+  
+  @include mobile {
+    padding: $spacing-4;
+  }
+  
+  .loading-spinner {
+    @include flex-column-center;
+    height: 60vh;
+    gap: $spacing-4;
+    
+    p {
+      color: $text-secondary;
+      font-size: $font-size-sm;
+    }
+    
+    // You could add a spinner animation here
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid $border-color;
+      border-top-color: $primary-color;
+      border-radius: $border-radius-full;
+      animation: spin 1s linear infinite;
+    }
+  }
+  
+  .error-state {
+    @include flex-column-center;
+    height: 60vh;
+    text-align: center;
+    padding: 0 $spacing-5;
+    
+    .error-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: $error-color;
+      margin-bottom: $spacing-4;
+    }
+    
+    h3 {
+      margin: 0 0 $spacing-2 0;
+      color: $text-primary;
+      font-size: $font-size-xl;
+      font-weight: $font-weight-semibold;
+    }
+    
+    p {
+      color: $text-secondary;
+      margin: 0 0 $spacing-6 0;
+      max-width: 400px;
+      @include body-medium;
+    }
+    
+    // Example of using a button mixin
+    .retry-button {
+      @include button-primary;
+      padding: $spacing-2 $spacing-4;
+    }
+  }
+  
+  // Optional: Add container for product grid/cards
+  .products-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    
+    .products-header {
+      @include flex-between;
+      margin-bottom: $spacing-6;
+      
+      h1 {
+        @include heading-large;
+        color: $text-primary;
+        margin: 0;
+      }
+      
+      .actions {
+        display: flex;
+        gap: $spacing-3;
+      }
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: $spacing-6;
+      
+      @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      @include mobile {
+        grid-template-columns: 1fr;
+        gap: $spacing-4;
+      }
+    }
+    
+    // Example product card using mixins
+    .product-card {
+      @include card-base;
+      @include card-hover;
+      
+      .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: linear-gradient(135deg, $gray-100, $gray-200);
+      }
+      
+      .product-content {
+        padding: $spacing-4;
+        
+        .product-title {
+          @include heading-small;
+          margin: 0 0 $spacing-2 0;
+          color: $text-primary;
+        }
+        
+        .product-description {
+          @include body-small;
+          color: $text-secondary;
+          margin: 0 0 $spacing-3 0;
+          @include text-multiline-ellipsis(2);
+        }
+        
+        .product-price {
+          @include body-large;
+          font-weight: $font-weight-bold;
+          color: $primary-color;
+          margin: 0 0 $spacing-4 0;
+        }
+        
+        .product-actions {
+          display: flex;
+          gap: $spacing-2;
+          
+          .add-to-cart {
+            @include button-primary;
+            flex: 1;
+          }
+          
+          .view-details {
+            @include button-outline;
+            flex: 1;
+          }
+        }
+      }
+    }
+  }
+  
+  // Empty state
+  .empty-state {
+    @include flex-column-center;
+    text-align: center;
+    padding: $spacing-12 $spacing-4;
+    
+    .empty-icon {
+      font-size: 64px;
+      color: $gray-400;
+      margin-bottom: $spacing-4;
+    }
+    
+    h3 {
+      @include heading-medium;
+      color: $text-primary;
+      margin: 0 0 $spacing-2 0;
+    }
+    
+    p {
+      @include body-medium;
+      color: $text-secondary;
+      margin: 0 0 $spacing-6 0;
+      max-width: 400px;
+    }
+    
+    .add-product-button {
+      @include button-primary;
+    }
+  }
+  
+  // Pagination example
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: $spacing-2;
+    margin-top: $spacing-8;
+    
+    .page-button {
+      @include button-ghost;
+      min-width: 40px;
+      height: 40px;
+      padding: 0;
+      
+      &.active {
+        background-color: $primary-color;
+        color: $white;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Animation for spinner
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Dark mode specific adjustments (using CSS variables directly)
+[data-theme="dark"] {
+  .products-page {
+    .product-card {
+      .product-image {
+        background: linear-gradient(135deg, $gray-800, $gray-700);
+      }
+    }
+    
+    .empty-state {
+      .empty-icon {
+        color: $gray-600;
+      }
+    }
+  }
+}

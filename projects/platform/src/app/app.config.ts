@@ -4,7 +4,7 @@ import {
   provideZonelessChangeDetection 
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 
@@ -21,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     // 1. Initialize and provide the Firebase App
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideAnimationsAsync(),
 
     // 2. Initialize and provide the Firebase Authentication service
     provideAuth(() => getAuth()),

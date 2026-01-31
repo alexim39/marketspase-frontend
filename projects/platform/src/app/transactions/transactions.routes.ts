@@ -1,16 +1,14 @@
 import { Routes } from "@angular/router";
-import { TransactionsIndexComponent } from ".";
-import { WithdrawalComponent } from "../wallet/withdrawal/withdrawal.component";
 
 export const TransactionsRoutes: Routes = [
     {
         path: '',
-        component: TransactionsIndexComponent,
+        loadComponent: () => import('./').then(c => c.TransactionsIndexComponent),
         title: "Transactions for Marketer, Promoter  - View all transaction details",
     },
     {
         path: 'withdrawal',
-        component: WithdrawalComponent,
+        loadComponent: () => import('../wallet/withdrawal/withdrawal.component').then(c => c.WithdrawalComponent),
         title: "Withfrawl Transanction - Request fund withdrawal",
     }, 
     // {

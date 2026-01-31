@@ -1,0 +1,27 @@
+<!-- fab-container.component.html -->
+<div class="fab-container">
+  @if (isScrolled) {
+    <button mat-fab 
+            class="fab-button back-to-top"
+            (click)="scrollToTop.emit()">
+      <mat-icon>keyboard_arrow_up</mat-icon>
+    </button>
+  }
+  
+  <button mat-fab 
+          class="fab-button"
+          (click)="shareStore.emit()">
+    <mat-icon>share</mat-icon>
+  </button>
+  
+  <button mat-fab 
+          class="fab-button"
+          [routerLink]="['/cart']"
+          matTooltip="View Cart">
+    @if (cartCount > 0) {
+      <mat-icon [matBadge]="cartCount" matBadgeColor="warn">shopping_cart</mat-icon>
+    } @else {
+      <mat-icon>shopping_cart</mat-icon>
+    }
+  </button>
+</div>

@@ -1,5 +1,4 @@
 import { Routes } from "@angular/router";
-import { GetStartedComponent } from "./onboarding/get-started.component";
 
 export const GetStartedRoutes: Routes = [
     {
@@ -9,7 +8,7 @@ export const GetStartedRoutes: Routes = [
     },
     {
         path: 'onboarding',
-        component: GetStartedComponent,
+        loadComponent: () => import('./onboarding/get-started.component').then(c => c.GetStartedComponent),
         title: "Get Started - Onboarding process",
     },
     // {

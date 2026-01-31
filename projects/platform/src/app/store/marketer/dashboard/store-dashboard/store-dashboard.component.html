@@ -1,0 +1,361 @@
+<!-- components/store-dashboard/store-dashboard.component.html -->
+<div class="store-dashboard">
+  <!-- Enhanced Header with Controls -->
+  <app-store-header
+    [store]="currentStore()"
+    [stores]="stores()"
+    [loading]="loading()"
+    (createStore)="createStore()"
+    (manageStore)="manageStore($event)"
+    (verifyStore)="verifyStore()"
+    (addProduct)="addProduct()"
+  />
+  
+
+  <!-- Store Selection/Overview -->
+  @if (!currentStore()) {
+    <div class="store-selection">
+      <mat-card class="selection-card">
+        <mat-card-content>
+          <div class="empty-state">
+            <div class="empty-icon-container">
+              <mat-icon class="empty-icon">storefront</mat-icon>
+              <div class="empty-pulse"></div>
+            </div>
+            <h2>No Store Created/Selected</h2>
+            <p>Choose a store to manage or create a new one to get started with your virtual store</p>
+            <div class="empty-actions">
+              <button mat-raised-button color="primary" (click)="createStore()" class="create-btn">
+                <mat-icon>add_business</mat-icon>
+                Create Your First Store
+              </button>
+              <button mat-stroked-button color="primary" routerLink="#">
+                <mat-icon>info</mat-icon>
+                Learn More
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <!-- Enhanced Store Overview -->
+    <div class="store-overview">
+      <!-- Control Bar -->
+      <div class="control-bar">
+        <div class="control-group">
+          <button mat-stroked-button (click)="toggleRealTimeUpdates()" 
+                  [color]="realTimeUpdates() ? 'primary' : ''">
+            <mat-icon>{{ realTimeUpdates() ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+            Real-time {{ realTimeUpdates() ? 'On' : 'Off' }}
+          </button>
+          
+          <button mat-stroked-button (click)="toggleAutoRefresh()"
+                  [color]="autoRefresh() ? 'primary' : ''">
+            <mat-icon>refresh</mat-icon>
+            Auto-refresh {{ autoRefresh() ? 'On' : 'Off' }}
+          </button>
+
+          <button mat-stroked-button (click)="openStoreManager()" [color]="autoRefresh() ? 'primary' : ''">
+            <mat-icon>store</mat-icon>
+            Store Manager
+          </button>
+
+          <button mat-stroked-button (click)="viewStoreProducts(currentStore()?._id || '')" [color]="autoRefresh() ? 'primary' : ''">
+            <mat-icon>store</mat-icon>
+            Store Products
+          </button>
+
+          <div class="view-controls">
+            <button mat-icon-button (click)="switchViewMode('grid')"
+                    [color]="viewMode() === 'grid' ? 'primary' : ''">
+              <mat-icon>grid_view</mat-icon>
+            </button>
+            <button mat-icon-button (click)="switchViewMode('list')"
+                    [color]="viewMode() === 'list' ? 'primary' : ''">
+              <mat-icon>view_list</mat-icon>
+            </button>
+          </div>
+          
+        </div>
+
+        <div class="control-group">
+          <div class="search-box">
+            <mat-icon>search</mat-icon>
+            <input type="text" placeholder="Search products..." 
+                   [value]="searchQuery()"
+                   (input)="onSearch($any($event.target).value)">
+          </div>
+
+          <mat-form-field appearance="outline" class="category-filter">
+            <mat-label>Category</mat-label>
+            <mat-select [value]="selectedCategory()" (selectionChange)="onCategoryChange($event.value)">
+              <mat-option value="all">All Categories</mat-option>
+             @for (category of uniqueCategories(); track category) {
+                <mat-option [value]="category">{{ category }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Real-time Stats Bar -->
+      @if (realTimeUpdates()) {
+        <app-real-time-stats
+          [store]="currentStore()!"
+          [metrics]="performanceMetrics()">
+        </app-real-time-stats>
+      }
+
+      <!-- Enhanced Navigation Tabs -->
+      <nav mat-tab-nav-bar class="store-tabs" [mat-stretch-tabs]="false">
+        <a mat-tab-link
+           *ngFor="let tab of tabs"
+           [active]="activeTab() === tab"
+           (click)="activeTab.set(tab)"
+           class="store-tab">
+          <mat-icon class="tab-icon">
+            {{ getTabIcon(tab) }}
+          </mat-icon>
+          <span class="tab-label">{{ tab | titlecase }}</span>
+          @if (tab === 'products' && lowStockProducts().length > 0) {
+            <mat-icon class="tab-badge" color="warn">warning</mat-icon>
+          }
+        </a>
+      </nav>
+
+      <!-- Enhanced Tab Content -->
+      <div class="tab-content">
+        <!-- Overview Tab -->
+        @if (activeTab() === 'overview') {
+          <div class="overview-tab">
+
+            <!-- Enhanced Stats Grid -->
+           <!--  <div class="stats-grid">
+              @for (stat of dashboardStats(); track trackByStatId($index, stat)) {
+                <mat-card class="stat-card" [class]="stat.trend + '-trend'">
+                  <mat-card-content>
+                    <div class="stat-header">
+                      <div class="stat-icon-container" [style.background]="stat.color + '15'">
+                        <mat-icon class="stat-icon" [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+                      </div>
+                      <div class="stat-controls">
+                        @if (stat.trend) {
+                          <div class="stat-trend" [class]="stat.trend">
+                            <mat-icon>{{ getTrendIcon(stat.trend) }}</mat-icon>
+                            <span>{{ stat.change }}</span>
+                          </div>
+                        }
+                        <button mat-icon-button class="stat-menu-btn">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div class="stat-content">
+                      <h2 class="stat-value" [class]="stat.format">
+                        {{ formatStatValue(stat) }}
+                      </h2>
+                      <p class="stat-label">{{ stat.label }}</p>
+                      @if (stat.subtitle) {
+                        <p class="stat-subtitle">{{ stat.subtitle }}</p>
+                      }
+                    </div>
+
+                    @if (stat.progress !== undefined) {
+                      <div class="stat-progress">
+                        <mat-progress-bar
+                          mode="determinate"
+                          [value]="stat.progress"
+                          [color]="getProgressColor(stat)">
+                        </mat-progress-bar>
+                        <span class="progress-label">{{ stat.progress | number:'1.0-0' }}%</span>
+                      </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div> -->
+
+            <!-- Two-column Layout for Alerts and Performance -->
+            <div class="overview-content">
+              <!-- Left Column: Alerts & Quick Actions -->
+              <div class="overview-left">
+                <!-- Enhanced Alerts Section -->
+                <div class="alerts-section">
+                  <!-- @if (lowStockProducts().length > 0) {
+                    <mat-card class="alert-card critical">
+                      <mat-card-content>
+                        <div class="alert-content">
+                          <div class="alert-icon">
+                            <mat-icon>warning</mat-icon>
+                          </div>
+                          <div class="alert-text">
+                            <h3>Inventory Alert</h3>
+                            <p>{{ lowStockProducts().length }} products need attention</p>
+                            <div class="alert-details">
+                              @for (product of lowStockProducts().slice(0, 3); track product._id) {
+                                <span class="product-alert" [class]="product.severity">
+                                  {{ product.name }} ({{ product.quantity }} left)
+                                </span>
+                              }
+                              @if (lowStockProducts().length > 3) {
+                                <span class="more-alerts">+{{ lowStockProducts().length - 3 }} more</span>
+                              }
+                            </div>
+                          </div>
+                          <button mat-button color="warn" (click)="activeTab.set('products')">
+                            Manage Inventory
+                          </button>
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  } -->
+
+                  <!-- Performance Metrics -->
+                  <!-- <mat-card class="performance-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>trending_up</mat-icon>
+                        Performance Metrics
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="metrics-list">
+                        @for (metric of performanceMetrics(); track trackByMetricId($index, metric)) {
+                          <div class="metric-item">
+                            <div class="metric-info">
+                              <span class="metric-label">{{ metric.label }}</span>
+                              <span class="metric-value">{{ metric.current | number }}</span>
+                            </div>
+                            <div class="metric-trend" [class]="metric.trend">
+                              <mat-icon>{{ getTrendIcon(metric.trend) }}</mat-icon>
+                              <span>{{ metric.changePercent }}%</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </mat-card-content>
+                  </mat-card> -->
+                </div>
+              </div>
+
+              <!-- Right Column: Quick Actions & Insights -->
+              <div class="overview-right">
+                <!-- Enhanced Quick Actions -->
+                <!-- <mat-card class="quick-actions-card">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <mat-icon>flash_on</mat-icon>
+                      Quick Actions
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="quick-actions-grid">
+                      @for (action of quickActions(); track trackByActionId($index, action)) {
+                        <button mat-raised-button 
+                                [color]="action.color"
+                                [disabled]="action.disabled"
+                                (click)="action.action()"
+                                class="quick-action-btn">
+                          <mat-icon>{{ action.icon }}</mat-icon>
+                          <div class="action-content">
+                            <span class="action-label">{{ action.label }}</span>
+                            <span class="action-description">{{ action.description }}</span>
+                          </div>
+                        </button>
+                      }
+                    </div>
+                  </mat-card-content>
+                </mat-card> -->
+
+                <!-- Store Insights -->
+                <!-- <mat-card class="insights-card">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <mat-icon>insights</mat-icon>
+                      Store Insights
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="insights-list">
+                      <div class="insight-item positive">
+                        <mat-icon>arrow_upward</mat-icon>
+                        <div class="insight-content">
+                          <span class="insight-title">Sales trending up</span>
+                          <span class="insight-desc">12% increase this week</span>
+                        </div>
+                      </div>
+                      <div class="insight-item neutral">
+                        <mat-icon>trending_flat</mat-icon>
+                        <div class="insight-content">
+                          <span class="insight-title">Visitor engagement stable</span>
+                          <span class="insight-desc">Consistent traffic patterns</span>
+                        </div>
+                      </div>
+                      <div class="insight-item action">
+                        <mat-icon>campaign</mat-icon>
+                        <div class="insight-content">
+                          <span class="insight-title">Promotion opportunity</span>
+                          <span class="insight-desc">Top products ready for campaigns</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card> -->
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Other Tabs -->
+        @if (activeTab() === 'products') {
+          
+          <!-- In your parent template -->
+          <!-- <app-product-management 
+            [store]="currentStore()!"
+            [products]="filteredProducts()"
+            (productUpdated)="refreshStoreData()"
+          /> -->
+        }
+
+        @if (activeTab() === 'analytics') {
+         <!--  <app-store-analytics 
+            [store]="currentStore()!"
+            [realTimeUpdates]="realTimeUpdates()">
+          </app-store-analytics> -->
+        }
+
+        @if (activeTab() === 'promotions') {
+         <!--  <app-store-promotions 
+            [store]="currentStore()!"
+            [products]="products()">
+          </app-store-promotions> -->
+        }
+
+        @if (activeTab() === 'settings') {
+          <div class="settings-tab">
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Store Settings</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <!-- Settings content will be implemented -->
+                <p>Store configuration settings coming soon...</p>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Enhanced Quick Action Bar -->
+  <app-quick-action-bar
+    [store]="currentStore()"
+    [isMobile]="isMobile()"
+    (addProduct)="addProduct()"
+    (createPromotion)="activeTab.set('promotions')"
+    (viewAnalytics)="activeTab.set('analytics')">
+  </app-quick-action-bar>
+</div>

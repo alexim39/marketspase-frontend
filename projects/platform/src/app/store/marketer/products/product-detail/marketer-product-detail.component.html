@@ -1,0 +1,615 @@
+<!-- product-detail.component.html -->
+<div class="product-detail">
+  <!-- Header with back button -->
+  <div class="detail-header">
+    <div class="header-top">
+      <button 
+        mat-icon-button 
+        class="back-button"
+        (click)="goBack()"
+        matTooltip="Back to Products"
+        aria-label="Back to Products"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      
+      <div class="header-content">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a [routerLink]="['/dashboard/stores', storeId]">Stores</a>
+            <mat-icon>chevron_right</mat-icon>
+            <a [routerLink]="['/dashboard/stores', storeId, 'products']">Products</a>
+            <mat-icon>chevron_right</mat-icon>
+            <span class="current">{{ product?.name || 'Product Details' }}</span>
+          </div>
+          <h1 class="product-name">{{ product?.name }}</h1>
+          <div class="product-subtitle">
+            @if (product?.sku) {
+              <span class="sku">SKU: {{ product?.sku }}</span>
+            }
+            <span class="product-id">ID: {{ product?._id ?? '' | truncate:8 }}</span>
+            <span class="last-updated">
+              Last updated: {{ product?.updatedAt | date:'medium' }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <div class="status-chip">
+            <mat-chip-option 
+              [color]="product?.isActive ? 'primary' : 'warn'" 
+              [selected]="product?.isActive"
+              (click)="toggleProductStatus()"
+            >
+              <mat-icon>{{ product?.isActive ? 'check_circle' : 'pause_circle' }}</mat-icon>
+              {{ product?.isActive ? 'Active' : 'Inactive' }}
+            </mat-chip-option>
+          </div>
+          
+          <button 
+            mat-stroked-button 
+            [matMenuTriggerFor]="actionMenu"
+            class="action-btn"
+          >
+            <mat-icon>more_vert</mat-icon>
+            <span class="button-text">Actions</span>
+          </button>
+          
+          <mat-menu #actionMenu="matMenu">
+            <button mat-menu-item (click)="editProduct()">
+              <mat-icon>edit</mat-icon>
+              <span>Edit Product</span>
+            </button>
+            <button mat-menu-item (click)="duplicateProduct()">
+              <mat-icon>content_copy</mat-icon>
+              <span>Duplicate Product</span>
+            </button>
+            <button mat-menu-item (click)="exportProductData()">
+              <mat-icon>download</mat-icon>
+              <span>Export Data</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button 
+              mat-menu-item 
+              (click)="deleteProduct()"
+              class="delete-action"
+            >
+              <mat-icon color="warn">delete</mat-icon>
+              <span class="warn-text">Delete Product</span>
+            </button>
+          </mat-menu>
+          
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="editProduct()"
+            class="edit-btn"
+          >
+            <mat-icon>edit</mat-icon>
+            <span class="button-text">Edit Product</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-icon">
+          <mat-icon>visibility</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ product?.viewCount || 0 }}</span>
+          <span class="stat-label">Views</span>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">
+          <mat-icon>shopping_cart</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ product?.purchaseCount || 0 }}</span>
+          <span class="stat-label">Sales</span>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">
+          <mat-icon>star</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ product?.averageRating || 0 | number:'1.1-1' }}</span>
+          <span class="stat-label">Rating</span>
+        </div>
+      </div>
+      
+      <div class="stat-item" [class]="getStockStatus().color + '-bg'">
+        <div class="stat-icon">
+          <mat-icon>{{ getStockStatus().icon }}</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ product?.quantity || 0 }}</span>
+          <span class="stat-label">In Stock</span>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">
+          <mat-icon>attach_money</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">${{ product?.price | number:'1.2-2' }}</span>
+          <span class="stat-label">Price</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="detail-content">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <mat-spinner diameter="48"></mat-spinner>
+          <p>Loading product details...</p>
+        </div>
+      </div>
+    }
+    
+    <!-- Error State -->
+    @if (error()) {
+      <div class="error-state">
+        <div class="error-content">
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <h3>Product Not Found</h3>
+          <p>The product you're looking for doesn't exist or you don't have permission to view it.</p>
+          <div class="error-actions">
+            <button mat-stroked-button (click)="goBack()">
+              <mat-icon>arrow_back</mat-icon>
+              Back to Products
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+    
+    <!-- Product Content -->
+    @if (product && !loading() && !error()) {
+      <div class="product-detail-grid">
+        <!-- Left Column - Images & Basic Info -->
+        <div class="left-column">
+          <!-- Image Gallery -->
+          <div class="image-gallery">
+            <div class="main-image">
+              @if (selectedImage) {
+                <img 
+                  [src]="selectedImage.url" 
+                  [alt]="product.name"
+                  (error)="handleImageError($event)"
+                  class="product-image"
+                >
+              } @else if (product.images && product.images[0]?.url) {
+                <img 
+                  [src]="product.images[0].url" 
+                  [alt]="product.name"
+                  (error)="handleImageError($event)"
+                  class="product-image"
+                >
+              } @else {
+                <div class="image-placeholder">
+                  <mat-icon>image</mat-icon>
+                  <span>No Image Available</span>
+                </div>
+              }
+              
+              <!-- Image Badges -->
+              <div class="image-badges">
+                @if (!product.isActive) {
+                  <span class="badge inactive">Inactive</span>
+                }
+                @if (product.isFeatured) {
+                  <span class="badge featured">Featured</span>
+                }
+                @if (product.hasVariants) {
+                  <span class="badge variants">Has Variants</span>
+                }
+                @if (product.price < (product.originalPrice || 0)) {
+                  <span class="badge sale">On Sale</span>
+                }
+              </div>
+            </div>
+            
+            <!-- Thumbnail Gallery -->
+            @if (product.images && product.images.length > 1) {
+              <div class="thumbnail-gallery">
+                @for (image of product.images; track image.url; let i = $index) {
+                  <div 
+                    class="thumbnail"
+                    [class.active]="selectedImage?.url === image.url || (!selectedImage && i === 0)"
+                    (click)="selectImage(image)"
+                  >
+                    <img 
+                      [src]="image.url" 
+                      [alt]="'Thumbnail ' + (i + 1)"
+                      (error)="handleThumbnailError($event)"
+                    >
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          
+          <!-- Quick Info Card -->
+          <div class="info-card">
+            <h3 class="card-title">Quick Info</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Category</span>
+                <span class="info-value">
+                  <mat-icon class="info-icon">category</mat-icon>
+                  {{ product.category || 'Uncategorized' }}
+                </span>
+              </div>
+              
+              <div class="info-item">
+                <span class="info-label">Brand</span>
+                <span class="info-value">
+                  {{ product.brand || 'Not specified' }}
+                </span>
+              </div>
+              
+              <div class="info-item">
+                <span class="info-label">Status</span>
+                <span class="info-value status" [class]="product.isActive ? 'active' : 'inactive'">
+                  <mat-icon>{{ product.isActive ? 'check_circle' : 'pause_circle' }}</mat-icon>
+                  {{ product.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+              
+              <div class="info-item">
+                <span class="info-label">Stock Status</span>
+                <span class="info-value stock" [class]="getStockStatus().color">
+                  <mat-icon>{{ getStockStatus().icon }}</mat-icon>
+                  {{ getStockStatus().text }}
+                </span>
+              </div>
+              
+              <div class="info-item">
+                <span class="info-label">Low Stock Alert</span>
+                <span class="info-value">
+                  {{ product.lowStockAlert || 10 }}
+                </span>
+              </div>
+              
+              <div class="info-item">
+                <span class="info-label">Created</span>
+                <span class="info-value">
+                  {{ product.createdAt | date:'medium' }}
+                </span>
+              </div>
+              
+              <div class="info-item">
+                <span class="info-label">Last Updated</span>
+                <span class="info-value">
+                  {{ product.updatedAt | date:'medium' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pricing Card -->
+          <div class="info-card pricing-card">
+            <h3 class="card-title">Pricing</h3>
+            <div class="pricing-info">
+              <div class="price-row">
+                <span class="price-label">Current Price</span>
+                <span class="current-price">${{ product.price | number:'1.2-2' }}</span>
+              </div>
+              
+              @if (product.originalPrice && product.originalPrice > product.price) {
+                <div class="price-row">
+                  <span class="price-label">Original Price</span>
+                  <span class="original-price">${{ product.originalPrice | number:'1.2-2' }}</span>
+                </div>
+                
+                <div class="price-row">
+                  <span class="price-label">Discount</span>
+                  <span class="discount">
+                    {{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}% off
+                  </span>
+                </div>
+              }
+              
+              @if (product.costPrice) {
+                <div class="price-row">
+                  <span class="price-label">Cost Price</span>
+                  <span class="cost-price">${{ product.costPrice | number:'1.2-2' }}</span>
+                </div>
+                
+                <div class="price-row">
+                  <span class="price-label">Profit Margin</span>
+                  <span class="profit-margin">
+                    {{ ((product.price - product.costPrice) / product.costPrice * 100) | number:'1.1-1' }}%
+                  </span>
+                </div>
+              }
+              
+              @if (product.taxRate) {
+                <div class="price-row">
+                  <span class="price-label">Tax Rate</span>
+                  <span class="tax-rate">{{ product.taxRate }}%</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column - Detailed Information -->
+        <div class="right-column">
+          <!-- Product Details Card -->
+          <div class="details-card">
+            <div class="card-header">
+              <h2 class="card-title">Product Details</h2>
+              <button 
+                mat-icon-button 
+                (click)="editProduct()"
+                matTooltip="Edit Details"
+                aria-label="Edit product details"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+            
+            <div class="card-content">
+              <!-- Description -->
+              <div class="section">
+                <h3 class="section-title">Description</h3>
+                <div class="section-content">
+                  @if (product.description) {
+                    <p class="description">{{ product.description }}</p>
+                  } @else {
+                    <p class="no-data">No description provided</p>
+                  }
+                </div>
+              </div>
+              
+              <!-- Tags -->
+              @if (product.tags && product.tags.length > 0) {
+                <div class="section">
+                  <h3 class="section-title">Tags</h3>
+                  <div class="section-content">
+                    <div class="tags-container">
+                      @for (tag of product.tags; track tag) {
+                        <span class="tag">{{ tag }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+              
+              <!-- Specifications -->
+              @if (product.specifications) {
+                <div class="section">
+                  <h3 class="section-title">Specifications</h3>
+                  <div class="section-content">
+                    <div class="specifications-grid">
+                      @for (spec of product.specifications; track spec.keys) {
+                        <div class="spec-item">
+                          <span class="spec-key">{{ spec.key }}:</span>
+                          <span class="spec-value">{{ spec.value }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+              
+              <!-- Variants -->
+              @if (product.hasVariants && product.variants && product.variants.length > 0) {
+                <div class="section">
+                  <h3 class="section-title">Variants</h3>
+                  <div class="section-content">
+                    <div class="variants-table">
+                      <table mat-table [dataSource]="product.variants" class="variants-table">
+                        <ng-container matColumnDef="name">
+                          <th mat-header-cell *matHeaderCellDef>Variant Name</th>
+                          <td mat-cell *matCellDef="let variant">{{ variant.name }}</td>
+                        </ng-container>
+                        
+                        <ng-container matColumnDef="sku">
+                          <th mat-header-cell *matHeaderCellDef>SKU</th>
+                          <td mat-cell *matCellDef="let variant">{{ variant.sku || '-' }}</td>
+                        </ng-container>
+                        
+                        <ng-container matColumnDef="price">
+                          <th mat-header-cell *matHeaderCellDef>Price</th>
+                          <td mat-cell *matCellDef="let variant">${{ variant.price | number:'1.2-2' }}</td>
+                        </ng-container>
+                        
+                        <ng-container matColumnDef="stock">
+                          <th mat-header-cell *matHeaderCellDef>Stock</th>
+                          <td mat-cell *matCellDef="let variant">{{ variant.quantity }}</td>
+                        </ng-container>
+                        
+                        <tr mat-header-row *matHeaderRowDef="['name', 'sku', 'price', 'stock']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['name', 'sku', 'price', 'stock'];"></tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              }
+              
+              <!-- Shipping Info -->
+              <div class="section">
+                <h3 class="section-title">Shipping & Dimensions</h3>
+                <div class="section-content">
+                  <div class="shipping-grid">
+                    <div class="shipping-item">
+                      <span class="shipping-label">Weight</span>
+                      <span class="shipping-value">
+                        {{ product.weight ? product.weight + ' ' + (product.weightUnit || 'kg') : 'Not specified' }}
+                      </span>
+                    </div>
+                    
+                    <div class="shipping-item">
+                      <span class="shipping-label">Dimensions</span>
+                      <span class="shipping-value">
+                        <!-- @if (product.dimensions) {
+                          {{ product.dimensions.length }}×{{ product.dimensions.width }}×{{ product.dimensions.height }} {{ product.dimensions.unit || 'cm' }}
+                        } @else {
+                          Not specified
+                        } -->
+                      </span>
+                    </div>
+                    
+                    <div class="shipping-item">
+                      <span class="shipping-label">Shipping Class</span>
+                      <span class="shipping-value">
+                        {{ product.shippingClass || 'Standard' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Analytics Card -->
+          <div class="analytics-card">
+            <div class="card-header">
+              <h2 class="card-title">Product Analytics</h2>
+              <span class="time-range">Last 30 days</span>
+            </div>
+            
+            <div class="card-content">
+              <div class="analytics-grid">
+                <div class="metric">
+                  <div class="metric-icon primary">
+                    <mat-icon>visibility</mat-icon>
+                  </div>
+                  <div class="metric-content">
+                    <span class="metric-value">{{ product.viewCount || 0 }}</span>
+                    <span class="metric-label">Total Views</span>
+                    <span class="metric-change positive">
+                      <mat-icon>trending_up</mat-icon>
+                      +12%
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="metric">
+                  <div class="metric-icon success">
+                    <mat-icon>shopping_cart</mat-icon>
+                  </div>
+                  <div class="metric-content">
+                    <span class="metric-value">{{ product.purchaseCount || 0 }}</span>
+                    <span class="metric-label">Total Sales</span>
+                    <span class="metric-change positive">
+                      <mat-icon>trending_up</mat-icon>
+                      +8%
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="metric">
+                  <div class="metric-icon warning">
+                    <mat-icon>star</mat-icon>
+                  </div>
+                  <div class="metric-content">
+                    <span class="metric-value">{{ product.averageRating || 0 | number:'1.1-1' }}</span>
+                    <span class="metric-label">Avg. Rating</span>
+                    <span class="metric-change neutral">
+                      <mat-icon>trending_flat</mat-icon>
+                      ±0
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="metric">
+                  <div class="metric-icon info">
+                    <mat-icon>refresh</mat-icon>
+                  </div>
+                  <div class="metric-content">
+                    <span class="metric-value">{{ product.returnRate || 0 }}%</span>
+                    <span class="metric-label">Return Rate</span>
+                    <span class="metric-change negative">
+                      <mat-icon>trending_down</mat-icon>
+                      -2%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Sales Chart (Placeholder) -->
+              <div class="chart-container">
+                <div class="chart-placeholder">
+                  <mat-icon>bar_chart</mat-icon>
+                  <p>Sales Performance Chart</p>
+                  <small>Sales data visualization would appear here</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Reviews Card -->
+          @if (product.reviews && product.reviews.length > 0) {
+            <div class="reviews-card">
+              <div class="card-header">
+                <h2 class="card-title">Customer Reviews</h2>
+                <div class="rating-summary">
+                  <span class="average-rating">{{ product.averageRating | number:'1.1-1' }}</span>
+                  <mat-icon class="star">star</mat-icon>
+                  <span class="review-count">({{ product.reviews.length }})</span>
+                </div>
+              </div>
+              
+              <div class="card-content">
+                <div class="reviews-list">
+                  @for (review of product.reviews.slice(0, 3); track review.id) {
+                    <div class="review-item">
+                      <div class="review-header">
+                        <div class="reviewer">
+                          <span class="reviewer-name">{{ review.customerName }}</span>
+                          <div class="review-rating">
+                            @for (star of [1,2,3,4,5]; track star) {
+                              <mat-icon class="star" [class.filled]="star <= review.rating">star</mat-icon>
+                            }
+                          </div>
+                        </div>
+                        <span class="review-date">{{ review.date | date:'mediumDate' }}</span>
+                      </div>
+                      <p class="review-comment">{{ review.comment }}</p>
+                    </div>
+                  }
+                </div>
+                
+                @if (product.reviews.length > 3) {
+                  <div class="view-all-reviews">
+                    <button mat-button (click)="viewAllReviews()">
+                      View all {{ product.reviews.length }} reviews
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Image Modal -->
+<ng-template #imageModal>
+  <div class="image-modal">
+    <button mat-icon-button class="close-button" (click)="closeImageModal()">
+      <mat-icon>close</mat-icon>
+    </button>
+    @if (selectedImage) {
+      <img [src]="selectedImage.url" [alt]="product?.name" class="modal-image">
+    }
+  </div>
+</ng-template>

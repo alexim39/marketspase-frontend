@@ -1,0 +1,90 @@
+// shared/components/rating/rating.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.rating-container {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+
+  .stars-container {
+    display: flex;
+    gap: 2px;
+
+    .star-button {
+      padding: 0;
+      width: auto;
+      height: auto;
+      min-width: auto;
+      line-height: 1;
+
+      &.interactive {
+        cursor: pointer;
+        
+        &:hover {
+          transform: scale(1.2);
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+
+      &:disabled {
+        cursor: default;
+        
+        &:hover {
+          transform: none;
+        }
+      }
+
+      mat-icon {
+        transition: all $transition-fast;
+      }
+    }
+  }
+
+  .rating-info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+
+    .rating-value {
+      @include body-medium;
+      font-weight: $font-weight-bold;
+      color: var(--text-primary);
+    }
+
+    .separator {
+      color: var(--text-tertiary);
+    }
+
+    .rating-count {
+      @include caption;
+      color: var(--text-secondary);
+    }
+  }
+
+  // Size variations
+  &.rating-small {
+    .rating-value {
+      font-size: $font-size-sm;
+    }
+
+    .rating-count {
+      font-size: $font-size-xs;
+    }
+  }
+
+  &.rating-large {
+    gap: $spacing-3;
+
+    .rating-value {
+      font-size: $font-size-lg;
+    }
+
+    .rating-count {
+      font-size: $font-size-base;
+    }
+  }
+}

@@ -1,0 +1,166 @@
+<!-- product-grid-card.component.html -->
+<article class="product-card" (click)="onViewDetails($event)">
+  <!-- Product Image Container -->
+  <div class="product-image-wrapper">
+    <!-- Badges Overlay -->
+    <div class="product-badges">
+      @if (product.isFeatured) {
+        <span class="badge badge-featured">
+          <mat-icon>star</mat-icon>
+          Featured
+        </span>
+      }
+      @if (product.originalPrice && product.originalPrice > product.price) {
+        <span class="badge badge-discount">
+          -{{ calculateDiscount(product.price, product.originalPrice) }}%
+        </span>
+      }
+      @if (!product.originalPrice && product.createdAt && isNewProduct(product.createdAt)) {
+        <span class="badge badge-new">New</span>
+      }
+    </div>
+
+    <!-- Wishlist Toggle (Top Right) -->
+    <button 
+      mat-icon-button 
+      class="wishlist-btn"
+      (click)="onToggleWishlist($event)"
+      [class.active]="isInWishlist"
+      [matTooltip]="isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'"
+      aria-label="Toggle wishlist">
+      <mat-icon>{{ isInWishlist ? 'favorite' : 'favorite_border' }}</mat-icon>
+    </button>
+
+    <!-- Product Image -->
+    <div class="product-image">
+      @if (product.images && product.images[0]?.url) {
+        <img 
+          [src]="product.images[0].url" 
+          [alt]="product.name"
+          appLazyImage
+          [defaultImage]="'assets/images/product-placeholder.svg'"
+          (error)="onImageError($event)"
+          loading="lazy"
+          (click)="onQuickView($event)"
+        >
+      } @else {
+        <div class="image-placeholder">
+          <mat-icon>image</mat-icon>
+          <span>No Image</span>
+        </div>
+      }
+    </div>
+
+    <!-- Stock Status Overlay -->
+    @if (product.manageStock && product.quantity === 0) {
+      <div class="stock-overlay out-of-stock">
+        <mat-icon>block</mat-icon>
+        <span>Out of Stock</span>
+      </div>
+    } @else if (product.manageStock && product.quantity <= product.lowStockAlert) {
+      <div class="stock-badge low-stock">
+        <mat-icon>warning</mat-icon>
+        Only {{ product.quantity }} left
+      </div>
+    }
+
+    <!-- Quick Actions Overlay (Visible on Hover) -->
+    <div class="quick-actions">
+      <button 
+        mat-mini-fab 
+        class="quick-action-btn"
+        (click)="onQuickView($event)"
+        matTooltip="Quick View"
+        aria-label="Quick view product">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button 
+        mat-mini-fab 
+        class="quick-action-btn"
+        (click)="onShare($event)"
+        matTooltip="Share"
+        aria-label="Share product">
+        <mat-icon>share</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Details -->
+  <div class="product-details">
+    <!-- Category & Title -->
+    <div class="product-header">
+      <span class="product-category">{{ product.category }}</span>
+      <h3 class="product-title">{{ product.name }}</h3>
+    </div>
+
+    <!-- Rating -->
+    @if (product.averageRating > 0) {
+      <div class="product-rating">
+        <app-rating 
+          [rating]="product.averageRating" 
+          [size]="'small'">
+        </app-rating>
+        <span class="rating-text">
+          <strong>{{ product.averageRating }}</strong>
+          <span class="rating-count">({{ product.ratingCount }})</span>
+        </span>
+      </div>
+    }
+
+    <!-- Description (Hidden on Mobile) -->
+    <p class="product-description">
+      {{ (product.description ?? '') | truncate:80 }}
+    </p>
+
+    <!-- Price Section -->
+    <div class="product-pricing">
+      <div class="price-group">
+        <span class="current-price">{{ product.price | currency }}</span>
+        @if (product.originalPrice && product.originalPrice > product.price) {
+          <span class="original-price">{{ product.originalPrice | currency }}</span>
+        }
+      </div>
+      @if (product.originalPrice && product.originalPrice > product.price) {
+        <span class="savings-text">
+          Save {{ (product.originalPrice - product.price) | currency }}
+        </span>
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="product-actions">
+      <button 
+        mat-raised-button 
+        color="primary"
+        class="add-to-cart-btn"
+        (click)="onContactSeller($event)"
+        [disabled]="product.manageStock && product.quantity === 0"
+        [attr.aria-label]="'Contact seller for ' + product.name">
+        <mat-icon>contact_support</mat-icon>
+        <span class="btn-text">Contact Seller</span>
+      </button>
+      <!-- <button 
+        mat-raised-button 
+        color="primary"
+        class="add-to-cart-btn"
+        (click)="onAddToCart($event)"
+        [disabled]="product.manageStock && product.quantity === 0"
+        [attr.aria-label]="'Add ' + product.name + ' to cart'">
+        <mat-icon>shopping_cart</mat-icon>
+        <span class="btn-text">Add to Cart</span>
+      </button> -->
+    </div>
+
+    <!-- Trust Badges (Footer) -->
+    <div class="trust-badges">
+      <div class="trust-item">
+        <mat-icon>local_shipping</mat-icon>
+        <span>Shipping Available</span>
+      </div>
+      <div class="trust-item">
+        <mat-icon>verified_user</mat-icon>
+        <span>Secure</span>
+      </div>
+    </div>
+  </div>
+</article>

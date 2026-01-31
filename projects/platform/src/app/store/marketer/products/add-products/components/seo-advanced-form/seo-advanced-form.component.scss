@@ -1,0 +1,109 @@
+@import '../../../../../../../styles/mixins';
+@import '../../../../../../../styles/variables';
+
+
+.form-step {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.form-card {
+  @include card-base;
+  margin-bottom: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  mat-card-header {
+    margin-bottom: $spacing-4;
+
+    mat-card-title {
+      @include flex-center;
+      gap: $spacing-2;
+      @include heading-small;
+      color: $text-primary;
+
+      mat-icon {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-6;
+
+  @include tablet {
+    grid-template-columns: 1fr;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-4;
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.keywords-field {
+  width: 100%;
+
+  ::ng-deep {
+    .mat-form-field-wrapper {
+      padding-bottom: 0;
+    }
+  }
+}
+
+.advanced-settings {
+  .setting-group {
+    margin-bottom: $spacing-6;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h4 {
+      @include body-medium;
+      font-weight: $font-weight-semibold;
+      margin: 0 0 $spacing-3 0;
+      color: $text-primary;
+    }
+
+    .setting-description {
+      @include body-small;
+      color: $text-secondary;
+      margin: 0 0 $spacing-3 0;
+    }
+
+    .digital-options {
+      margin-top: $spacing-3;
+      padding-left: $spacing-4;
+      border-left: 2px solid $primary-color;
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

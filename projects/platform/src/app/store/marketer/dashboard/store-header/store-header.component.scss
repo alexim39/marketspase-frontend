@@ -1,0 +1,736 @@
+// components/store-header/store-header.component.scss
+@import '../../../../../styles/mixins';
+@import '../../../../../styles/variables';
+
+.store-header {
+  margin-bottom: 2rem;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Loading State
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($gray-800, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-4;
+    
+    span {
+      @include body-medium;
+      color: $text-secondary;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+// No Store State
+.no-store-state {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  border-radius: $border-radius-xl;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba($primary-color, 0.2);
+  
+  .no-store-content {
+    padding: $spacing-8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: $white;
+    
+    @include mobile {
+      padding: $spacing-6;
+    }
+  }
+  
+  .no-store-illustration {
+    width: 120px;
+    height: 120px;
+    background: rgba($white, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-6;
+    
+    .store-illustration-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      opacity: 0.9;
+    }
+  }
+  
+  .no-store-info {
+    max-width: 500px;
+    margin-bottom: $spacing-6;
+    
+    h1 {
+      @include heading-large;
+      margin: 0 0 $spacing-3 0;
+      color: $white;
+      font-weight: $font-weight-bold;
+    }
+    
+    p {
+      @include body-large;
+      margin: 0;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+  }
+  
+  .no-store-actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    align-items: center;
+    
+    .create-store-btn {
+      background: $white;
+      color: $primary-color;
+      font-weight: $font-weight-semibold;
+      padding: $spacing-3 $spacing-8;
+      border-radius: $border-radius-lg;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba($white, 0.3);
+      }
+    }
+    
+    .no-store-secondary-actions {
+      button {
+        color: $white;
+        border-color: rgba($white, 0.3);
+        
+        &:hover {
+          background: rgba($white, 0.1);
+        }
+      }
+    }
+  }
+  
+  .help-menu {
+    .menu-item-content {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      
+      .menu-icon {
+        color: $primary-color;
+      }
+      
+      .menu-text {
+        display: flex;
+        flex-direction: column;
+        
+        .menu-title {
+          font-weight: $font-weight-medium;
+          color: $text-primary;
+        }
+        
+        .menu-subtitle {
+          font-size: $font-size-xs;
+          color: $text-secondary;
+        }
+      }
+    }
+  }
+}
+
+// Store Header with Data
+.store-header-container {
+  background: $white;
+  border-radius: $border-radius-xl;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid $border-color;
+  overflow: hidden;
+}
+
+.store-main-header {
+  padding: $spacing-6;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  
+  @include tablet {
+    flex-direction: column;
+    gap: $spacing-6;
+  }
+  
+  @include mobile {
+    padding: $spacing-4;
+  }
+}
+
+.store-identity {
+  display: flex;
+  gap: $spacing-6;
+  flex: 1;
+  
+  @include mobile {
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+}
+
+.store-avatar-container {
+  .store-avatar {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    border: 3px solid $white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    @include mobile {
+      width: 80px;
+      height: 80px;
+    }
+    
+    .avatar-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .avatar-badge {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid $white;
+      
+      &.verified {
+        background: linear-gradient(135deg, $surface-color 0%, $surface-color 100%);
+        color: $white;
+        
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+}
+
+.store-info {
+  flex: 1;
+  
+  .store-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-3;
+    
+    @include mobile {
+      flex-direction: column;
+      gap: $spacing-2;
+    }
+  }
+  
+  .store-title {
+    @include heading-large;
+    margin: 0;
+    color: $text-primary;
+    font-weight: $font-weight-bold;
+  }
+  
+  .store-status-container {
+    display: flex;
+    gap: $spacing-2;
+    align-items: center;
+    
+    .store-status {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-1;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-full;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      
+      &.active {
+        background: rgba($success-color, 0.1);
+        color: $success-color;
+      }
+      
+      &.verified {
+        background: rgba($surface-color, 0.1);
+        color: $surface-color;
+      }
+      
+      &.inactive {
+        background: rgba($error-color, 0.1);
+        color: $error-color;
+      }
+      
+      .status-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+    
+    .premium-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-1;
+      padding: $spacing-1 $spacing-3;
+      background: linear-gradient(135deg, $surface-color 0%, $surface-color 100%);
+      color: $white;
+      border-radius: $border-radius-full;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+  
+  .store-description {
+    @include body-medium;
+    color: $text-secondary;
+    margin: $spacing-2 0 $spacing-4;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+  
+  .store-link-container {
+    background: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius-lg;
+    padding: $spacing-3;
+    margin-bottom: $spacing-4;
+    
+    .store-link-label {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      margin-bottom: $spacing-2;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: $text-tertiary;
+      }
+      
+      span {
+        @include body-small;
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+      }
+
+      .preview-link {
+        margin-left: auto;
+        @include body-small;
+        color: $success-color;
+        font-weight: $font-weight-medium;
+        text-decoration: underline;
+        
+        &:hover {
+          color: $primary-dark;
+        }
+      }
+      
+    }
+    
+    .store-link-input {
+      display: flex;
+      gap: $spacing-2;
+      
+      @include mobile {
+        flex-direction: column;
+      }
+      
+      .link-input {
+        flex: 1;
+        padding: $spacing-2 $spacing-3;
+        border: 1px solid $border-color;
+        border-radius: $border-radius-md;
+        background: $gray-800;
+        @include body-small;
+        color: $text-primary;
+        
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
+        }
+      }
+      
+      .copy-link-btn {
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
+        padding: $spacing-2 $spacing-3;
+        background: $primary-color;
+        color: $white;
+        border: none;
+        border-radius: $border-radius-md;
+        font-weight: $font-weight-medium;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        
+        &:hover {
+          background: $primary-dark;
+        }
+        
+        @include mobile {
+          justify-content: center;
+        }
+        
+        .btn-text {
+          @include body-small;
+        }
+      }
+    }
+  }
+  
+  .store-meta-info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    flex-wrap: wrap;
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      
+      .meta-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: $text-tertiary;
+      }
+      
+      .meta-text {
+        @include caption;
+        color: $text-tertiary;
+      }
+    }
+    
+    .meta-divider {
+      width: 1px;
+      height: 16px;
+      background: $border-color;
+    }
+  }
+}
+
+.header-actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  align-items: flex-end;
+  
+  @include tablet {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .primary-actions {
+    display: flex;
+    gap: $spacing-2;
+    
+    @include mobile {
+      flex-direction: column;
+    }
+    
+    .add-product-btn,
+    .verify-store-btn {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      font-weight: $font-weight-medium;
+    }
+  }
+  
+  .secondary-actions {
+    .store-actions-btn {
+      color: $text-secondary;
+    }
+  }
+}
+
+.store-actions-menu {
+  min-width: 220px;
+  
+  .menu-arrow {
+    margin-left: auto;
+    font-size: 18px;
+    color: $text-tertiary;
+  }
+  
+  .archive-action {
+    color: $error-color;
+    
+    mat-icon {
+      color: $error-color;
+    }
+  }
+}
+
+.switch-store-menu {
+  min-width: 280px;
+  
+  .no-stores-message {
+    padding: $spacing-3 $spacing-4;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    color: $text-tertiary;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .store-menu-item-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    width: 100%;
+    
+    .store-menu-item-icon {
+      .verified-store-icon {
+        color: $surface-color;
+      }
+      
+      .store-icon {
+        color: $text-secondary;
+      }
+    }
+    
+    .store-menu-item-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      .store-menu-item-name {
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+      }
+      
+      .store-menu-item-category {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+      }
+    }
+    
+    .current-store-indicator {
+      color: $success-color;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .active-store {
+    background: rgba($primary-color, 0.04);
+  }
+  
+  .create-store-menu-item {
+    mat-icon {
+      color: $primary-color;
+    }
+  }
+}
+
+// Store Statistics
+.store-statistics {
+  background: $gray-50;
+  border-top: 1px solid $border-color;
+  padding: $spacing-4 $spacing-6;
+  
+  @include mobile {
+    padding: $spacing-3;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-4;
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-3;
+  }
+}
+
+.stat-card {
+  background: $white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-4;
+  border: 1px solid $border-color;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.stat-icon-container {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  background: rgba($primary-color, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .stat-icon {
+    color: $primary-color;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.stat-details {
+  flex: 1;
+  
+  .stat-value {
+    @include heading-medium;
+    color: $text-primary;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-1;
+  }
+  
+  .stat-label {
+    @include caption;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  
+  &.trend-up {
+    color: $success-color;
+  }
+  
+  &.trend-down {
+    color: $error-color;
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .store-header {
+    margin-bottom: $spacing-4;
+  }
+  
+  .store-avatar {
+    align-self: center;
+  }
+  
+  .primary-actions {
+    width: 100%;
+    
+    button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+  
+  .secondary-actions {
+    align-self: stretch;
+    
+    .store-actions-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .store-header-container {
+    background: $surface-color;
+    border-color: $border-color;
+  }
+  
+  .store-statistics {
+    background: $surface-color;
+    border-color: $border-color;
+  }
+  
+  .stat-card {
+    background: $surface-color;
+    border-color: $border-color;
+  }
+  
+  .store-link-container {
+    background: $surface-color;
+  }
+  
+  .link-input {
+    background: $surface-color;
+    border-color: $border-color;
+    color: $text-primary;
+  }
+}

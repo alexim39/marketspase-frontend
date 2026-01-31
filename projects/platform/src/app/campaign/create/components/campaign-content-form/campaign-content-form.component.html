@@ -77,6 +77,21 @@
         }
       </mat-form-field>
 
+      <div class="toggle-section">
+        <mat-slide-toggle 
+          formControlName="enableDirectChat" 
+          color="primary"
+          class="full-width-toggle">
+          Allow customers to chat with me directly
+        </mat-slide-toggle>
+        <p class="toggle-description">
+          When enabled, customers can chat with you directly on WhatsApp instead of being redirected through a link.
+        </p>
+        <small class="note">
+          Note: Please ensure the phone number in your profile is your WhatsApp number.
+        </small>
+      </div>
+
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Link</mat-label>
         <input matInput formControlName="link" placeholder="e.g., www.yourwebsite.com">

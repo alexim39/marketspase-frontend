@@ -1,0 +1,165 @@
+// storefront.component.scss (DARK THEME ONLY)
+@import '../../styles/mixins';
+@import '../../styles/variables';
+
+.storefront-page {
+  min-height: 100vh;
+  background-color: $gray-900; // Dark background
+  color: $gray-100; // Light text for contrast
+  position: relative;
+  overflow-x: hidden;
+
+  // Main Content Area
+  .store-main {
+    position: relative;
+    z-index: 2;
+    padding-bottom: $spacing-16;
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 $spacing-4;
+      
+      @include desktop {
+        padding: 0 $spacing-8;
+      }
+    }
+
+    // Featured Products Carousel
+    .featured-section {
+      margin-bottom: $spacing-12;
+      padding: $spacing-6;
+      background: $gray-800; // Dark surface
+      border-radius: $border-radius-lg;
+      box-shadow: $shadow-lg;
+      border: 1px solid $gray-700; // Dark border
+
+      .section-header {
+        @include flex-between;
+        margin-bottom: $spacing-6;
+
+        h2 {
+          @include heading-small;
+          color: $gray-50; // Very light text
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+
+          mat-icon {
+            color: $warning-color-hex; // Using hex value
+          }
+        }
+      }
+
+      .featured-carousel {
+        display: grid;
+        grid-auto-flow: column;
+        gap: $spacing-4;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        padding: $spacing-2;
+        @include scrollbar;
+
+        .featured-card {
+          scroll-snap-align: start;
+          min-width: 280px;
+          background: $gray-800; // Dark card background
+          border-radius: $border-radius-lg;
+          overflow: hidden;
+          @include card-hover;
+          position: relative;
+          border: 1px solid $gray-700; // Dark border
+
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
+          }
+
+          .card-content {
+            padding: $spacing-4;
+            color: $gray-100; // Light text in cards
+          }
+        }
+      }
+    }
+
+    // Products Grid View container
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: $spacing-6;
+      margin-bottom: $spacing-12;
+      animation: fadeIn 0.5s ease-out;
+
+      @include tablet {
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: $spacing-8;
+      }
+
+      @include desktop {
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      }
+    }
+
+    // Products List View container
+    .products-list {
+      @include flex-column;
+      gap: $spacing-4;
+      margin-bottom: $spacing-12;
+    }
+  }
+}
+
+// Responsive Design
+@include mobile {
+  .storefront-page {
+    .store-main {
+      margin-top: -40px;
+
+      .featured-section {
+        padding: $spacing-4;
+        background: $gray-800;
+        border-color: $gray-700;
+
+        .featured-carousel {
+          gap: $spacing-3;
+          
+          .featured-card {
+            min-width: 240px;
+            background: $gray-800;
+            border-color: $gray-700;
+          }
+        }
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+        gap: $spacing-4;
+      }
+    }
+  }
+}
+
+// Tablet Responsive
+@include tablet {
+  .storefront-page {
+    .store-main {
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
