@@ -91,6 +91,19 @@ export class AdminDashboardComponent implements OnInit {
       ]
     },
     {
+      id: 'store-management',
+      title: 'Store Management',
+      icon: 'storefront',
+      isExpanded: false,
+      children: [
+        { id: 'view-stores', title: 'View Stores', icon: 'store', route: '/dashboard/stores' },
+        { id: 'add-store', title: 'Add New Store', icon: 'add_business', route: '/dashboard/stores/add' },
+        { id: 'store-analytics', title: 'Store Analytics', icon: 'insights', route: '/dashboard/stores/analytics' },
+        { id: 'store-promotions', title: 'Store Promotions', icon: 'local_offer', route: '/dashboard/stores/promotions' },
+        { id: 'store-reviews', title: 'Store Reviews', icon: 'rate_review', route: '/dashboard/stores/reviews' }
+      ]
+    },
+    {
       id: 'view-verification',
       title: 'View Verification',
       icon: 'visibility',
