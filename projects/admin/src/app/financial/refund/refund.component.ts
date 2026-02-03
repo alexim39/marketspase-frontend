@@ -212,7 +212,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     MatAutocompleteModule,
     MatOptionModule,
     // Dialog components
-    EditBulkItemDialogComponent
+    //EditBulkItemDialogComponent
   ],
   templateUrl: './refund.component.html',
   styleUrls: ['./refund.component.scss'],

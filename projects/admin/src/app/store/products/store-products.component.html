@@ -1,0 +1,585 @@
+<div class="products-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="header-content">
+            <button mat-icon-button class="back-button" (click)="goBackToStores()" matTooltip="Back to Stores">
+                <mat-icon>arrow_back</mat-icon>
+            </button>
+            
+            <div class="header-text">
+                <h1 class="page-title">
+                    @if (store()) {
+                        {{ store()!.name }} - Products
+                    } @else {
+                        Store Products
+                    }
+                </h1>
+                <p class="page-subtitle">Manage and monitor all products in this store</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button mat-raised-button color="primary" (click)="navigateToAddProduct()">
+                <mat-icon>add</mat-icon>
+                Add Product
+            </button>
+            
+            <button mat-raised-button color="accent" (click)="refreshData()" [disabled]="isLoading()">
+                <mat-icon>refresh</mat-icon>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Store Info Card -->
+    @if (store() && !isLoadingStore()) {
+        <mat-card class="store-info-card">
+            <mat-card-content>
+                <div class="store-info-content">
+                    <div class="store-logo-section">
+                        @if (store()!.logo) {
+                            <img [src]="store()!.logo" alt="Store logo" class="store-logo" onerror="this.src='/img/store-default.png'">
+                        } @else {
+                            <div class="store-logo-placeholder">
+                                <mat-icon>store</mat-icon>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="store-details">
+                        <div class="store-name-row">
+                            <h2 class="store-name">{{ store()!.name }}</h2>
+                            <mat-chip class="verification-chip" [ngClass]="store()!.verificationTier">
+                                @if (store()!.verificationTier === 'premium') {
+                                    <mat-icon>diamond</mat-icon>
+                                    Premium
+                                } @else if (store()!.isVerified) {
+                                    <mat-icon>verified</mat-icon>
+                                    Verified
+                                }
+                            </mat-chip>
+                            <mat-chip class="status-chip" [ngClass]="store()!.isActive ? 'active' : 'inactive'">
+                                {{ store()!.isActive ? 'Active' : 'Inactive' }}
+                            </mat-chip>
+                        </div>
+                        
+                        <p class="store-description">{{ store()!.description }}</p>
+                        
+                        <div class="store-meta">
+                            <div class="meta-item">
+                                <mat-icon>category</mat-icon>
+                                <span>{{ store()!.category || 'Uncategorized' }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <mat-icon>link</mat-icon>
+                                <a [href]="'/store/' + store()!.storeLink" target="_blank" class="store-link">
+                                    /{{ store()!.storeLink }}
+                                </a>
+                            </div>
+                            <div class="meta-item">
+                                <mat-icon>inventory</mat-icon>
+                                <span>{{ products().length }} Products</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    }
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <div class="stat-content">
+                    <mat-icon class="stat-icon" color="primary">inventory</mat-icon>
+                    <div class="stat-details">
+                        <span class="stat-label">Total Products</span>
+                        <span class="stat-value">{{ stats().totalProducts }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <div class="stat-content">
+                    <mat-icon class="stat-icon" color="accent">check_circle</mat-icon>
+                    <div class="stat-details">
+                        <span class="stat-label">Active Products</span>
+                        <span class="stat-value">{{ stats().activeProducts }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <div class="stat-content">
+                    <mat-icon class="stat-icon" color="warn">warning</mat-icon>
+                    <div class="stat-details">
+                        <span class="stat-label">Out of Stock</span>
+                        <span class="stat-value">{{ stats().outOfStock }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <div class="stat-content">
+                    <mat-icon class="stat-icon" color="warning">trending_down</mat-icon>
+                    <div class="stat-details">
+                        <span class="stat-label">Low Stock</span>
+                        <span class="stat-value">{{ stats().lowStock }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <div class="stat-content">
+                    <mat-icon class="stat-icon" color="success">attach_money</mat-icon>
+                    <div class="stat-details">
+                        <span class="stat-label">Total Value</span>
+                        <span class="stat-value">{{ stats().totalValue | currency:'USD':'symbol':'1.0-0' }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <mat-card-content>
+                <div class="stat-content">
+                    <mat-icon class="stat-icon" color="info">monetization_on</mat-icon>
+                    <div class="stat-details">
+                        <span class="stat-label">Avg Price</span>
+                        <span class="stat-value">{{ stats().averagePrice | currency:'USD':'symbol':'1.2-2' }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    @if (selectedCount > 0) {
+        <div class="bulk-actions-bar">
+            <div class="bulk-info">
+                <mat-icon>check_circle</mat-icon>
+                <span class="selected-count">{{ selectedCount }} product{{ selectedCount > 1 ? 's' : '' }} selected</span>
+                <button mat-button (click)="clearSelection()" class="clear-selection">
+                    Clear selection
+                </button>
+            </div>
+            
+            <div class="bulk-buttons">
+                <button mat-raised-button color="primary" (click)="openBulkActionsDialog()">
+                    <mat-icon>playlist_add_check</mat-icon>
+                    Bulk Actions
+                </button>
+                
+                <button mat-button color="warn" (click)="bulkDeleteProducts()">
+                    <mat-icon>delete</mat-icon>
+                    Delete Selected
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Filters Card -->
+    <div class="card">
+        <div class="card-content">
+            <h3 class="card-title">Filters</h3>
+            <div class="filters-container">
+                <mat-form-field appearance="outline" class="filter-field search-field">
+                    <mat-label>Search Products</mat-label>
+                    <input matInput (input)="onSearchChange($event)" placeholder="Search by name, SKU, description, tags" #searchInput>
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <div class="filter-row">
+                    <mat-form-field appearance="outline" class="filter-field">
+                        <mat-label>Category</mat-label>
+                        <mat-select [value]="categoryFilter()" (selectionChange)="onCategoryFilterChange($event)">
+                            <mat-option value="all">All Categories</mat-option>
+                            @for (category of categories(); track category) {
+                                <mat-option [value]="category">{{ category }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="filter-field">
+                        <mat-label>Status</mat-label>
+                        <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilterChange($event)">
+                            <mat-option value="all">All Statuses</mat-option>
+                            <mat-option value="active">Active</mat-option>
+                            <mat-option value="draft">Draft</mat-option>
+                            <mat-option value="archived">Archived</mat-option>
+                        </mat-select>
+
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="filter-field">
+                        <mat-label>Stock Status</mat-label>
+                        <mat-select [value]="stockFilter()" (selectionChange)="onStockFilterChange($event)">
+                            <mat-option value="all">All Stock Status</mat-option>
+                            <mat-option value="in-stock">In Stock</mat-option>
+                            <mat-option value="low-stock">Low Stock</mat-option>
+                            <mat-option value="out-of-stock">Out of Stock</mat-option>
+                            <mat-option value="no-tracking">No Tracking</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="filter-row">
+                    <div class="price-range-field filter-field">
+                        <mat-form-field appearance="outline" class="price-input">
+                            <mat-label>Min Price</mat-label>
+                            <input matInput type="number" min="0" step="0.01" placeholder="0" #minPriceInput (change)="onPriceRangeChange(minPriceInput.value, maxPriceInput.value)">
+                        </mat-form-field>
+                        
+                        <span class="price-separator">to</span>
+                        
+                        <mat-form-field appearance="outline" class="price-input">
+                            <mat-label>Max Price</mat-label>
+                            <input matInput type="number" min="0" step="0.01" placeholder="1000" #maxPriceInput (change)="onPriceRangeChange(minPriceInput.value, maxPriceInput.value)">
+                        </mat-form-field>
+                    </div>
+
+                    <div class="date-range-field filter-field">
+                        <mat-form-field appearance="outline">
+                            <mat-label>From Date</mat-label>
+                            <input matInput [matDatepicker]="startPicker" [value]="dateRangeFilter().start">
+                            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #startPicker></mat-datepicker>
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline">
+                            <mat-label>To Date</mat-label>
+                            <input matInput [matDatepicker]="endPicker" [value]="dateRangeFilter().end" (dateChange)="onDateRangeChange(dateRangeFilter().start, $event.value)">
+                            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #endPicker></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button mat-raised-button color="primary" (click)="applyFilters()">
+                        <mat-icon>filter_list</mat-icon>
+                        Apply Filters
+                    </button>
+                    
+                    <button mat-button color="warn" (click)="clearFilters()">
+                        <mat-icon>clear_all</mat-icon>
+                        Clear Filters
+                    </button>
+                    
+                    <button mat-raised-button color="accent" [matMenuTriggerFor]="exportMenu">
+                        <mat-icon>download</mat-icon>
+                        Export
+                    </button>
+                    <mat-menu #exportMenu="matMenu">
+                        <button mat-menu-item (click)="exportProducts('csv')">
+                            <mat-icon>text_snippet</mat-icon>
+                            Export as CSV
+                        </button>
+                        <button mat-menu-item (click)="exportProducts('excel')">
+                            <mat-icon>table_chart</mat-icon>
+                            Export as Excel
+                        </button>
+                        @if (selectedCount > 0) {
+                            <mat-divider></mat-divider>
+                            <button mat-menu-item (click)="exportProducts('csv')">
+                                <mat-icon>text_snippet</mat-icon>
+                                Export Selected ({{ selectedCount }})
+                            </button>
+                        }
+                    </mat-menu>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="card">
+        <div class="card-content">
+            <div class="table-header">
+                <h3 class="card-title">Products ({{ totalProducts() }})</h3>
+                @if (!isLoading()) {
+                    <span class="filtered-count">{{ filteredProducts().length }} of {{ products().length }} products</span>
+                }
+            </div>
+            
+            <div class="table-container">
+                <!-- Loading State -->
+                @if (isLoading()) {
+                    <div class="loading-spinner">
+                        <mat-spinner diameter="40"></mat-spinner>
+                        <p>Loading products...</p>
+                    </div>
+                } @else {
+                    <!-- Table Content -->
+                    <table mat-table [dataSource]="dataSource" class="products-table">
+                        <!-- Select Column -->
+                        <ng-container matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <mat-checkbox 
+                                    [checked]="isAllSelected()"
+                                    [indeterminate]="selectedCount > 0 && !isAllSelected()"
+                                    (change)="toggleAllSelection()"
+                                    aria-label="Select all">
+                                </mat-checkbox>
+                            </th>
+                            <td mat-cell *matCellDef="let product">
+                                <mat-checkbox 
+                                    [checked]="isProductSelected(product._id)"
+                                    (change)="toggleProductSelection(product._id)"
+                                    aria-label="Select product">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
+
+                        <!-- Product Column -->
+                        <ng-container matColumnDef="product">
+                            <th mat-header-cell *matHeaderCellDef> Product </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="product-info">
+                                    <div class="product-image">
+                                        @if (product.images && product.images.length > 0) {
+                                            <img [src]="product.mainImage || product.images[0].url" 
+                                                 alt="{{ product.name }}"
+                                                 class="product-thumbnail"
+                                                 onerror="this.src='/img/product-default.png'">
+                                        } @else {
+                                            <div class="product-thumbnail-placeholder">
+                                                <mat-icon>photo</mat-icon>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="product-details">
+                                        <div class="product-name-row">
+                                            <span class="product-name">{{ product.name }}</span>
+                                            @if (product.isFeatured) {
+                                                <mat-chip class="featured-chip">
+                                                    <mat-icon>star</mat-icon>
+                                                    Featured
+                                                </mat-chip>
+                                            }
+                                            @if (product.sku) {
+                                                <span class="product-sku">SKU: {{ product.sku }}</span>
+                                            }
+                                        </div>
+                                        
+                                        <p class="product-description" [matTooltip]="product.description">
+                                            {{ product.description  }}
+                                            <!-- {{ product.description | truncate:80 }} -->
+                                        </p>
+                                        
+                                        @if (product.tags && product.tags.length > 0) {
+                                            <div class="product-tags">
+                                                @for (tag of product.tags.slice(0, 3); track tag) {
+                                                    <mat-chip class="tag-chip">{{ tag }}</mat-chip>
+                                                }
+                                                @if (product.tags.length > 3) {
+                                                    <span class="more-tags">+{{ product.tags.length - 3 }} more</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Category Column -->
+                        <ng-container matColumnDef="category">
+                            <th mat-header-cell *matHeaderCellDef> Category </th>
+                            <td mat-cell *matCellDef="let product">
+                                <mat-chip class="category-chip">
+                                    {{ product.category || 'Uncategorized' }}
+                                </mat-chip>
+                            </td>
+                        </ng-container>
+
+                        <!-- Price Column -->
+                        <ng-container matColumnDef="price">
+                            <th mat-header-cell *matHeaderCellDef> Price </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="price-info">
+                                    <span class="current-price">{{ product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+                                    @if (product.originalPrice && product.originalPrice > product.price) {
+                                        <span class="original-price">{{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+                                        <span class="discount-badge">
+                                            -{{ ((product.originalPrice - product.price) / product.originalPrice * 100) | number:'1.0-0' }}%
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Stock Column -->
+                        <ng-container matColumnDef="stock">
+                            <th mat-header-cell *matHeaderCellDef> Stock </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="stock-info">
+                                    <div class="stock-status">
+                                        <mat-icon class="stock-icon" [ngClass]="getStockColor(product)">
+                                            @switch (getStockColor(product)) {
+                                                @case ('in-stock') { inventory }
+                                                @case ('low-stock') { warning }
+                                                @case ('out-of-stock') { error_outline }
+                                                @default { remove_circle_outline }
+                                            }
+                                        </mat-icon>
+                                        <span class="stock-text">{{ getStockText(product) }}</span>
+                                    </div>
+                                    
+                                    @if (product.manageStock && product.quantity !== undefined) {
+                                        <div class="stock-progress">
+                                            <mat-progress-bar 
+                                                mode="determinate" 
+                                                [value]="getStockPercentage(product)"
+                                                [color]="getStockColor(product) === 'low-stock' ? 'warn' : 
+                                                        getStockColor(product) === 'out-of-stock' ? 'warn' : 'primary'">
+                                            </mat-progress-bar>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Status Column -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef> Status </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="status-info">
+                                    <mat-chip class="status-chip" [ngClass]="product.status">
+                                        {{ product.status | titlecase }}
+                                    </mat-chip>
+                                    
+                                    <mat-slide-toggle
+                                        [checked]="product.status === 'active'"
+                                        (change)="toggleProductStatus(product)"
+                                        class="status-toggle"
+                                        color="primary">
+                                    </mat-slide-toggle>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Performance Column -->
+                        <ng-container matColumnDef="performance">
+                            <th mat-header-cell *matHeaderCellDef> Performance </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="performance-info">
+                                    <div class="performance-metrics">
+                                        <div class="metric">
+                                            <mat-icon>visibility</mat-icon>
+                                            <span class="metric-value">{{ product.viewCount || 0 }}</span>
+                                            <span class="metric-label">Views</span>
+                                        </div>
+                                        
+                                        <div class="metric">
+                                            <mat-icon>shopping_cart</mat-icon>
+                                            <span class="metric-value">{{ product.purchaseCount || 0 }}</span>
+                                            <span class="metric-label">Sales</span>
+                                        </div>
+                                        
+                                        <div class="metric">
+                                            <mat-icon>trending_up</mat-icon>
+                                            <span class="metric-value">{{ product.averageRating || 0 | number:'1.1-1' }}</span>
+                                            <span class="metric-label">Rating</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="performance-rating">
+                                        @for (star of [1,2,3,4,5]; track star) {
+                                            <mat-icon class="star-icon" 
+                                                      [class.filled]="star <= getPerformanceRating(product)">
+                                                star
+                                            </mat-icon>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Date Column -->
+                        <ng-container matColumnDef="date">
+                            <th mat-header-cell *matHeaderCellDef> Created </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="date-info">
+                                    <span class="created-date">{{ product.createdAt | date:'mediumDate' }}</span>
+                                    <span class="created-time">{{ product.createdAt | date:'shortTime' }}</span>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef> Actions </th>
+                            <td mat-cell *matCellDef="let product">
+                                <div class="action-buttons">
+                                    <button mat-icon-button class="action-button" 
+                                            matTooltip="View Details"
+                                            (click)="viewProductDetails(product)">
+                                        <mat-icon>visibility</mat-icon>
+                                    </button>
+
+                                    <button mat-icon-button class="action-button" 
+                                            matTooltip="Edit Product"
+                                            (click)="editProduct(product)">
+                                        <mat-icon color="primary">edit</mat-icon>
+                                    </button>
+
+                                    <button mat-icon-button class="action-button" 
+                                            matTooltip="Toggle Featured"
+                                            (click)="toggleFeatured(product)">
+                                        <mat-icon [color]="product.isFeatured ? 'accent' : ''">star</mat-icon>
+                                    </button>
+
+                                    <button mat-icon-button class="action-button" 
+                                            matTooltip="Delete Product"
+                                            (click)="deleteProduct(product)">
+                                        <mat-icon color="warn">delete</mat-icon>
+                                    </button>
+                                </div>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <!-- Empty State -->
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                                <div class="empty-state">
+                                    <mat-icon>inventory_2</mat-icon>
+                                    <h3>No products found</h3>
+                                    <p>No products match your current filters. Try adjusting your search criteria or add new products.</p>
+                                    <button mat-raised-button color="primary" (click)="navigateToAddProduct()">
+                                        <mat-icon>add</mat-icon>
+                                        Add First Product
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (!isLoading() && totalProducts() > 0) {
+                <mat-paginator [length]="totalProducts()"
+                    [pageSize]="pageSize()"
+                    [pageIndex]="pageIndex()"
+                    [pageSizeOptions]="[15, 30, 50, 100]"
+                    (page)="onPageChange($event)"
+                    aria-label="Select page"
+                >
+                </mat-paginator>
+            }
+        </div>
+    </div>
+</div>
