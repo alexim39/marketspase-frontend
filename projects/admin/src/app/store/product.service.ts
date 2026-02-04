@@ -30,7 +30,7 @@ export class ProductService {
     }
     
     return this.apiService.get<{ data: Product[], pagination: any, success: boolean }>(
-      `/api/stores/${storeId}/products`,
+      `${this.apiUrl}/${storeId}/products`,
        params 
     ).pipe(
       map(response => ({
@@ -60,7 +60,7 @@ export class ProductService {
   // Create new product
   createProduct(productData: Partial<Product>, storeId: string): Observable<Product> {
     return this.apiService.post<{ data: Product, success: boolean }>(
-      `/api/stores/${storeId}/products`,
+      `${this.apiUrl}/${storeId}/products`,
       productData
     ).pipe(
       map(response => this.transformProduct(response.data)),
@@ -189,7 +189,7 @@ export class ProductService {
     });
     
     return this.apiService.post<Blob>(
-      `/api/stores/${storeId}/products/export/${format}`,
+      `${this.apiUrl}/${storeId}/products/export/${format}`,
       { productIds },
       // { 
       //   headers,
@@ -206,7 +206,7 @@ export class ProductService {
   // Get product statistics
   getProductStats(storeId: string): Observable<ProductStats> {
     return this.apiService.get<{ data: ProductStats, success: boolean }>(
-      `/api/stores/${storeId}/products/stats`
+      `${this.apiUrl}/${storeId}/products/stats`
     ).pipe(
       map(response => response.data),
       catchError(error => {
@@ -219,7 +219,7 @@ export class ProductService {
   // Search products
   searchProducts(storeId: string, query: string): Observable<Product[]> {
     return this.apiService.get<{ data: Product[], success: boolean }>(
-      `/api/stores/${storeId}/products/search`,
+      `${this.apiUrl}/${storeId}/products/search`,
       //{ params: { q: query } }
     ).pipe(
       map(response => this.transformProducts(response.data)),
@@ -233,7 +233,7 @@ export class ProductService {
   // Get low stock products
   getLowStockProducts(storeId: string): Observable<Product[]> {
     return this.apiService.get<{ data: Product[], success: boolean }>(
-      `/api/stores/${storeId}/products/low-stock`
+      `${this.apiUrl}/${storeId}/products/low-stock`
     ).pipe(
       map(response => this.transformProducts(response.data)),
       catchError(error => {
@@ -246,7 +246,7 @@ export class ProductService {
   // Get out of stock products
   getOutOfStockProducts(storeId: string): Observable<Product[]> {
     return this.apiService.get<{ data: Product[], success: boolean }>(
-      `/api/stores/${storeId}/products/out-of-stock`
+      `${this.apiUrl}/${storeId}/products/out-of-stock`
     ).pipe(
       map(response => this.transformProducts(response.data)),
       catchError(error => {
@@ -259,7 +259,7 @@ export class ProductService {
   // Get featured products
   getFeaturedProducts(storeId: string): Observable<Product[]> {
     return this.apiService.get<{ data: Product[], success: boolean }>(
-      `/api/stores/${storeId}/products/featured`
+      `${this.apiUrl}/${storeId}/products/featured`
     ).pipe(
       map(response => this.transformProducts(response.data)),
       catchError(error => {

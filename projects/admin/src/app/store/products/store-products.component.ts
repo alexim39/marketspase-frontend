@@ -243,6 +243,7 @@ export class StoreProductsComponent implements OnInit, AfterViewInit {
       this.isLoading.set(true);
       this.productService.getStoreProducts(this.storeId()).subscribe({
         next: (response) => {
+          console.log('Products loaded:', response.data);
           this.products.set(response.data || []);
           this.applyFilters();
           this.isLoading.set(false);
@@ -656,11 +657,12 @@ export class StoreProductsComponent implements OnInit, AfterViewInit {
   }
 
   goBackToStores(): void {
-    this.router.navigate(['/admin/stores']);
+    this.router.navigate(['/dashboard/stores']);
   }
 
   navigateToAddProduct(): void {
-    this.router.navigate(['/admin/stores', this.storeId(), 'products', 'new']);
+    this.router.navigate(['/dashboard/stores']);
+    // this.router.navigate(['/admin/stores', this.storeId(), 'products', 'new']);
   }
 
   private showSnackbar(message: string, type: 'success' | 'error' | 'info' | 'warning'): void {
