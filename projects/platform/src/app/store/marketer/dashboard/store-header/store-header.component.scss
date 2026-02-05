@@ -329,7 +329,10 @@
     color: $text-secondary;
     margin: $spacing-2 0 $spacing-4;
     line-height: 1.6;
-    max-width: 600px;
+    //max-width: 600px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
   }
   
   .store-link-container {
@@ -384,7 +387,7 @@
         padding: $spacing-2 $spacing-3;
         border: 1px solid $border-color;
         border-radius: $border-radius-md;
-        background: $gray-800;
+        //background: $gray-800;
         @include body-small;
         color: $text-primary;
         

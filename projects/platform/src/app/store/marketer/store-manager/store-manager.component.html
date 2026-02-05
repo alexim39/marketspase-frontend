@@ -10,7 +10,7 @@
       @if (loading()) {
         <div class="loading-indicator">
           <!-- <mat-icon class="spinner">refresh</mat-icon> -->
-          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <mat-progress-bar mode="indeterminate"/>
           <p>Loading stores...</p>
         </div>
       }
@@ -32,10 +32,12 @@
                         <mat-icon>verified</mat-icon>
                         Verified
                       </span>
-                      <span class="tag default" *ngIf="store.isDefaultStore">
-                        <mat-icon>star</mat-icon>
-                        Default Store
-                      </span>
+                      @if (store.isDefaultStore) {
+                        <span class="tag default">
+                          <mat-icon>star</mat-icon>
+                          Default Store
+                        </span>
+                      }
                     </div>
                   </div>
                 </div>

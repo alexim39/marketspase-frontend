@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '../../../models/store.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TruncatePipe } from '../../../shared';
 
 @Component({
   selector: 'app-store-header',
@@ -29,6 +30,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatChipsModule,
     MatProgressSpinnerModule,
     MatDividerModule,
+    TruncatePipe
   ],
   templateUrl: './store-header.component.html',
   styleUrls: ['./store-header.component.scss']

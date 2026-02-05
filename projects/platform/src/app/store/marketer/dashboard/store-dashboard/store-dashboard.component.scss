@@ -2,65 +2,247 @@
 @import '../../../../../styles/mixins';
 @import '../../../../../styles/variables';
 
+// === MOBILE FIRST BASE STYLES ===
 .store-dashboard {
   flex: 1;
-  padding: $spacing-6;
-  background: linear-gradient(135deg, $background-color 0%, $gray-700 100%);
   min-height: 100vh;
   position: relative;
+  background: linear-gradient(135deg, $background-color 0%, $gray-700 100%);
+  padding: $spacing-4;
 
-  @include mobile {
-    padding: $spacing-4;
+  @include tablet {
+    padding: $spacing-5;
+  }
+
+  @include desktop {
+    padding: $spacing-6;
   }
 }
 
-// Control Bar
-.control-bar {
-  @include flex-between;
-  background: $surface-color;
-  padding: $spacing-4;
-  border-radius: $border-radius-lg;
+// === UTILITY CLASSES ===
+.section-spacing {
   margin-bottom: $spacing-6;
+
+  @include tablet {
+    margin-bottom: $spacing-8;
+  }
+}
+
+.card-base-mobile {
+  @include card-base;
+  border-radius: $border-radius-lg;
+  background: $surface-color;
+  border: $border-width solid $border-color;
+  transition: all $transition-normal;
+
+  &:hover {
+    @include card-hover;
+  }
+}
+
+// === STORE SELECTION (EMPTY STATE) ===
+.store-selection {
+  @include flex-center;
+  padding: $spacing-12 0;
+
+  @include tablet {
+    padding: $spacing-16 0;
+  }
+
+  @include desktop {
+    padding: $spacing-20 0;
+  }
+
+  .selection-card {
+    @extend .card-base-mobile;
+    max-width: 100%;
+    width: 100%;
+    text-align: center;
+    border: 2px dashed rgba($primary-color, 0.3);
+    background: transparent;
+    margin: 0 $spacing-4;
+
+    @include tablet {
+      max-width: 480px;
+      margin: 0;
+    }
+
+    .empty-state {
+      padding: $spacing-8;
+
+      @include tablet {
+        padding: $spacing-12 $spacing-8;
+      }
+
+      .empty-icon-container {
+        position: relative;
+        margin-bottom: $spacing-4;
+
+        @include tablet {
+          margin-bottom: $spacing-6;
+        }
+
+        .empty-icon {
+          font-size: 64px;
+          width: 64px;
+          height: 64px;
+          color: $primary-color;
+          opacity: 0.8;
+
+          @include tablet {
+            font-size: 80px;
+            width: 80px;
+            height: 80px;
+          }
+        }
+
+        .empty-pulse {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 80px;
+          height: 80px;
+          border: 2px solid $primary-color;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+          opacity: 0.3;
+
+          @include tablet {
+            width: 100px;
+            height: 100px;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+            opacity: 0.2;
+          }
+        }
+      }
+
+      h2 {
+        @include heading-small;
+        margin: 0 0 $spacing-2 0;
+        color: $text-primary;
+        font-weight: $font-weight-semibold;
+
+        @include tablet {
+          @include heading-medium;
+        }
+      }
+
+      p {
+        @include body-medium;
+        color: $text-secondary;
+        margin: 0 0 $spacing-6 0;
+        line-height: $line-height-relaxed;
+
+        @include tablet {
+          @include body-large;
+          margin-bottom: $spacing-8;
+        }
+      }
+
+      .empty-actions {
+        @include flex-center;
+        gap: $spacing-3;
+        flex-direction: column;
+
+        @include tablet {
+          flex-direction: row;
+          gap: $spacing-4;
+        }
+
+        button {
+          @include flex-center;
+          gap: $spacing-2;
+          width: 100%;
+
+          @include tablet {
+            width: auto;
+          }
+        }
+
+        .create-btn {
+          padding: $spacing-3 $spacing-4;
+          
+          @include tablet {
+            padding: $spacing-3 $spacing-6;
+          }
+        }
+      }
+    }
+  }
+}
+
+// === CONTROL BAR ===
+.control-bar {
+  @extend .section-spacing;
+  @include flex-column;
+  gap: $spacing-4;
+  background: $surface-color;
+  padding: $spacing-3;
+  border-radius: $border-radius-lg;
   box-shadow: $shadow-sm;
   border: $border-width solid $border-color;
 
-  @include mobile {
-    flex-direction: column;
-    gap: $spacing-4;
+  @include tablet {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-4;
   }
 
   .control-group {
     @include flex-center;
     gap: $spacing-3;
+    flex-wrap: wrap;
 
-    @include mobile {
-      width: 100%;
-      justify-content: space-between;
+    &:first-child {
+      order: 2;
+
+      @include tablet {
+        order: 1;
+      }
+    }
+
+    &:last-child {
+      order: 1;
+
+      @include tablet {
+        order: 2;
+      }
     }
   }
 
   .view-controls {
     @include flex-center;
-    background: $gray-700;
+    //background: $gray-700;
+    background: color-mix(in srgb, $background-color, black 5%);
     border-radius: $border-radius;
     padding: $spacing-1;
+    margin-left: auto;
 
     button {
       border-radius: $border-radius-sm;
+      min-width: 36px;
+      min-height: 36px;
     }
   }
 
   .search-box {
     @include flex-center;
-    background: $gray-700;
+    //background: $gray-700;
+    background: color-mix(in srgb, $background-color, black 5%);
     border-radius: $border-radius;
     padding: $spacing-2 $spacing-3;
     gap: $spacing-2;
-    min-width: 250px;
+    flex: 1;
+    min-width: 0;
 
-    @include mobile {
-      min-width: auto;
-      flex: 1;
+    @include tablet {
+      min-width: 250px;
+      flex: none;
     }
 
     mat-icon {
@@ -68,6 +250,7 @@
       font-size: 20px;
       width: 20px;
       height: 20px;
+      flex-shrink: 0;
     }
 
     input {
@@ -76,6 +259,8 @@
       outline: none;
       flex: 1;
       font-size: $font-size-sm;
+      color: $text-primary;
+      min-width: 0;
 
       &::placeholder {
         color: $text-tertiary;
@@ -84,159 +269,115 @@
   }
 
   .category-filter {
-    width: 160px;
-
-    @include mobile {
-      width: 140px;
-    }
-  }
-}
-
-// Enhanced Store Selection
-.store-selection {
-  @include flex-center;
-  padding: $spacing-20 0;
-
-  .selection-card {
-    @include card-base;
-    max-width: 480px;
     width: 100%;
-    text-align: center;
-    border: 2px dashed $border-color;
-    background: transparent;
 
-    .empty-state {
-      padding: $spacing-16 $spacing-8;
-
-      .empty-icon-container {
-        position: relative;
-        margin-bottom: $spacing-6;
-
-        .empty-icon {
-          font-size: 80px;
-          width: 80px;
-          height: 80px;
-          color: $primary-color;
-          opacity: 0.7;
-        }
-
-        .empty-pulse {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 100px;
-          height: 100px;
-          border: 2px solid $primary-color;
-          border-radius: 50%;
-          animation: pulse 2s infinite;
-          opacity: 0.3;
-        }
-      }
-
-      h2 {
-        @include heading-medium;
-        margin: 0 0 $spacing-3 0;
-        color: $text-primary;
-      }
-
-      p {
-        @include body-large;
-        color: $text-secondary;
-        margin: 0 0 $spacing-8 0;
-        line-height: $line-height-relaxed;
-      }
-
-      .empty-actions {
-        @include flex-center;
-        gap: $spacing-4;
-
-        @include mobile {
-          flex-direction: column;
-          width: 100%;
-        }
-
-        .create-btn {
-          padding: $spacing-3 $spacing-6;
-        }
-
-        button {
-          @include flex-center;
-          gap: $spacing-2;
-        }
-      }
+    @include tablet {
+      width: 160px;
     }
   }
 }
 
-// Enhanced Store Overview
-.store-overview {
-  .store-tabs {
-    margin-bottom: $spacing-6;
-    border-bottom: $border-width solid $border-color;
-    background: $surface-color;
-    border-radius: $border-radius-lg $border-radius-lg 0 0;
-    padding: 0 $spacing-4;
+// === STORE TABS ===
+.store-tabs {
+  @extend .section-spacing;
+  border-bottom: $border-width solid $border-color;
+  background: $surface-color;
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
+  padding: 0 $spacing-2;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 
-    .store-tab {
-      @include flex-center;
-      gap: $spacing-2;
+  @include tablet {
+    padding: 0 $spacing-4;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .store-tab {
+    @include flex-center;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-2;
+    min-width: 100px;
+    position: relative;
+    white-space: nowrap;
+
+    @include tablet {
       padding: $spacing-3 $spacing-4;
       min-width: 120px;
-      position: relative;
+    }
 
-      .tab-icon {
+    .tab-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+
+      @include tablet {
         font-size: 20px;
         width: 20px;
         height: 20px;
       }
+    }
 
-      .tab-label {
-        font-weight: $font-weight-medium;
+    .tab-label {
+      font-weight: $font-weight-medium;
+      font-size: $font-size-sm;
+
+      @include tablet {
+        font-size: $font-size-base;
       }
+    }
 
-      .tab-badge {
-        position: absolute;
-        top: 8px;
+    .tab-badge {
+      position: absolute;
+      top: 8px;
+      right: 4px;
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+
+      @include tablet {
         right: 8px;
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
       }
     }
   }
 }
 
-// Enhanced Overview Tab
+// === OVERVIEW TAB ===
 .overview-tab {
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: 1fr;
     gap: $spacing-4;
     margin-bottom: $spacing-6;
+
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include desktop {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
   }
 
   .overview-content {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr;
     gap: $spacing-6;
 
-    @include tablet {
-      grid-template-columns: 1fr;
-    }
-
-    @include mobile {
-      grid-template-columns: 1fr;
+    @include desktop {
+      grid-template-columns: 1fr 400px;
     }
   }
 }
 
-// Enhanced Stat Cards
+// === STAT CARDS ===
 .stat-card {
-  @include card-base;
-  @include card-hover;
+  @extend .card-base-mobile;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
+  animation: slideInUp 0.3s ease-out;
 
   &::before {
     content: '';
@@ -245,7 +386,6 @@
     left: 0;
     right: 0;
     height: 4px;
-    border-radius: $border-radius-lg $border-radius-lg 0 0;
     background: transparent;
     transition: background-color $transition-normal;
   }
@@ -264,7 +404,29 @@
 
   .stat-header {
     @include flex-between;
-    margin-bottom: $spacing-4;
+    margin-bottom: $spacing-3;
+
+    .stat-icon-container {
+      width: 48px;
+      height: 48px;
+      border-radius: $border-radius-lg;
+      @include flex-center;
+      transition: all $transition-normal;
+
+      @include tablet {
+        width: 56px;
+        height: 56px;
+      }
+
+      .stat-icon {
+        font-size: 24px;
+        transition: transform $transition-normal;
+
+        @include tablet {
+          font-size: 28px;
+        }
+      }
+    }
 
     .stat-controls {
       @include flex-center;
@@ -272,20 +434,7 @@
     }
   }
 
-  .stat-icon-container {
-    width: 56px;
-    height: 56px;
-    border-radius: $border-radius-lg;
-    @include flex-center;
-    transition: all $transition-normal;
-
-    .stat-icon {
-      font-size: 28px;
-      transition: transform $transition-normal;
-    }
-  }
-
-  .stat-card:hover {
+  &:hover {
     .stat-icon-container {
       transform: scale(1.05);
     }
@@ -320,17 +469,28 @@
     }
 
     mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+
+      @include tablet {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 
   .stat-value {
-    @include heading-large;
-    margin: 0 0 $spacing-2 0;
+    @include heading-small;
+    margin: 0 0 $spacing-1 0;
     color: $text-primary;
     font-feature-settings: 'tnum';
+
+    @include tablet {
+      @include heading-medium;
+      margin-bottom: $spacing-2;
+    }
 
     &.currency::before {
       content: '₦';
@@ -342,20 +502,33 @@
   }
 
   .stat-label {
-    @include body-medium;
+    @include body-small;
     font-weight: $font-weight-semibold;
     color: $text-primary;
     margin: 0 0 $spacing-1 0;
+
+    @include tablet {
+      @include body-medium;
+    }
   }
 
   .stat-subtitle {
-    @include body-small;
+    @include caption;
     color: $text-secondary;
-    margin: 0 0 $spacing-4 0;
+    margin: 0 0 $spacing-3 0;
+
+    @include tablet {
+      @include body-small;
+      margin-bottom: $spacing-4;
+    }
   }
 
   .stat-progress {
-    margin-top: $spacing-4;
+    margin-top: $spacing-3;
+
+    @include tablet {
+      margin-top: $spacing-4;
+    }
 
     .progress-label {
       display: block;
@@ -367,12 +540,17 @@
   }
 }
 
-// Enhanced Alerts Section
+// === ALERTS SECTION ===
 .alerts-section {
   .alert-card {
+    @extend .card-base-mobile;
     margin-bottom: $spacing-4;
-    border-left: 6px solid transparent;
+    border-left: 4px solid transparent;
     transition: all $transition-normal;
+
+    @include tablet {
+      border-left-width: 6px;
+    }
 
     &.critical {
       border-left-color: $error-color;
@@ -385,27 +563,39 @@
     }
 
     .alert-content {
-      @include flex-between;
-      gap: $spacing-4;
+      @include flex-column;
+      gap: $spacing-3;
 
-      @include mobile {
-        flex-direction: column;
-        align-items: flex-start;
+      @include tablet {
+        flex-direction: row;
+        align-items: center;
+        gap: $spacing-4;
       }
 
       .alert-icon {
         @include flex-center;
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         border-radius: $border-radius-full;
         background: $error-color;
         color: $white;
         flex-shrink: 0;
 
+        @include tablet {
+          width: 48px;
+          height: 48px;
+        }
+
         mat-icon {
-          font-size: 24px;
-          width: 24px;
-          height: 24px;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+
+          @include tablet {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
         }
       }
 
@@ -413,7 +603,7 @@
         flex: 1;
 
         h3 {
-          @include body-large;
+          @include body-medium;
           font-weight: $font-weight-semibold;
           margin: 0 0 $spacing-1 0;
           color: $text-primary;
@@ -462,6 +652,7 @@
   }
 
   .performance-card {
+    @extend .card-base-mobile;
     margin-top: $spacing-4;
 
     .metrics-list {
@@ -476,16 +667,24 @@
 
         .metric-info {
           .metric-label {
-            @include body-small;
+            @include caption;
             color: $text-secondary;
             display: block;
             margin-bottom: $spacing-1;
+
+            @include tablet {
+              @include body-small;
+            }
           }
 
           .metric-value {
-            @include body-large;
+            @include body-medium;
             font-weight: $font-weight-semibold;
             color: $text-primary;
+
+            @include tablet {
+              @include body-large;
+            }
           }
         }
 
@@ -517,19 +716,34 @@
   }
 }
 
-// Enhanced Quick Actions
+// === QUICK ACTIONS ===
 .quick-actions-card {
+  @extend .card-base-mobile;
+
   .quick-actions-grid {
     display: grid;
+    grid-template-columns: 1fr;
     gap: $spacing-3;
 
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
     .quick-action-btn {
-      @include flex-between;
-      padding: $spacing-4;
+      @include flex-column;
+      align-items: flex-start;
+      padding: $spacing-3;
       text-align: left;
       height: auto;
-      min-height: 80px;
+      min-height: 72px;
       transition: all $transition-normal;
+
+      @include tablet {
+        flex-direction: row;
+        align-items: center;
+        padding: $spacing-4;
+        min-height: 80px;
+      }
 
       &:hover:not(:disabled) {
         transform: translateY(-2px);
@@ -537,36 +751,51 @@
       }
 
       mat-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
-        margin-right: $spacing-3;
-        flex-shrink: 0;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        margin-bottom: $spacing-2;
+
+        @include tablet {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+          margin-right: $spacing-3;
+          margin-bottom: 0;
+        }
       }
 
       .action-content {
-        flex: 1;
         text-align: left;
 
         .action-label {
-          @include body-medium;
+          @include body-small;
           font-weight: $font-weight-semibold;
           display: block;
           margin-bottom: $spacing-1;
+
+          @include tablet {
+            @include body-medium;
+          }
         }
 
         .action-description {
-          @include body-small;
+          @include caption;
           color: $text-secondary;
           display: block;
+
+          @include tablet {
+            @include body-small;
+          }
         }
       }
     }
   }
 }
 
-// Insights Card
+// === INSIGHTS CARD ===
 .insights-card {
+  @extend .card-base-mobile;
   margin-top: $spacing-4;
 
   .insights-list {
@@ -581,28 +810,28 @@
       }
 
       mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
         flex-shrink: 0;
-      }
 
-      &.positive {
-        mat-icon {
-          color: $success-color;
+        @include tablet {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
         }
       }
 
-      &.neutral {
-        mat-icon {
-          color: $warning-color;
-        }
+      &.positive mat-icon {
+        color: $success-color;
       }
 
-      &.action {
-        mat-icon {
-          color: $primary-color;
-        }
+      &.neutral mat-icon {
+        color: $warning-color;
+      }
+
+      &.action mat-icon {
+        color: $primary-color;
       }
 
       .insight-content {
@@ -626,7 +855,7 @@
   }
 }
 
-// Animations
+// === ANIMATIONS ===
 @keyframes pulse {
   0% {
     transform: translate(-50%, -50%) scale(1);
@@ -645,7 +874,7 @@
 @keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -653,70 +882,63 @@
   }
 }
 
-// Snackbar Styles
-::ng-deep {
-  .success-snackbar {
-    background: $success-color;
-    color: $white;
-  }
-
-  .error-snackbar {
-    background: $error-color;
-    color: $white;
+// === ACCESSIBILITY ENHANCEMENTS ===
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-// Utility Classes
+@media (prefers-contrast: high) {
+  .card-base-mobile {
+    border: 2px solid $black;
+  }
+
+  .alert-card {
+    border: 2px solid $black !important;
+  }
+
+  .stat-card::before {
+    height: 6px;
+  }
+}
+
+// Focus styles for keyboard navigation
+:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+  border-radius: $border-radius-sm;
+}
+
+// Touch target sizing for mobile
+button, 
+a {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+// === UTILITY CLASSES ===
 .stat-menu-btn {
   color: $text-tertiary;
+  min-width: 36px;
+  min-height: 36px;
 
   &:hover {
     color: $text-primary;
   }
 }
 
-// Responsive Enhancements
-@include mobile {
-  .store-dashboard {
-    padding: $spacing-3;
+// Responsive text utilities
+.text-responsive {
+  font-size: $font-size-sm;
+  
+  @include tablet {
+    font-size: $font-size-base;
   }
-
-  .control-bar {
-    padding: $spacing-3;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .overview-content {
-    grid-template-columns: 1fr !important;
-  }
-
-  .quick-actions-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-// High Contrast Mode
-@media (prefers-contrast: high) {
-  .stat-card {
-    border: 2px solid $black;
-  }
-
-  .alert-card {
-    border: 2px solid $black;
-  }
-}
-
-// Reduced Motion
-@media (prefers-reduced-motion: reduce) {
-  .stat-card,
-  .quick-action-btn {
-    transition: none;
-  }
-
-  .empty-pulse {
-    animation: none;
+  
+  @include desktop {
+    font-size: $font-size-lg;
   }
 }
