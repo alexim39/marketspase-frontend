@@ -72,7 +72,15 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'person', label: 'Profile Settings', route: '/dashboard/settings/account' },
-        { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+       // { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+        {
+          icon: 'hvac',
+          label: 'System',
+          expanded: false,
+          children: [
+           { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+          ]
+        }
       ]
     },
     {

@@ -141,12 +141,6 @@ export class DashboardMainContainer {
     return this.deviceService.deviceState().isMobile;
   });
 
-
-
-
-
-
-
   private likedPosts = signal<Set<string>>(new Set());
   private savedPosts = signal<Set<string>>(new Set());
   // New social community signals

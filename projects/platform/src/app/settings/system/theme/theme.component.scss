@@ -247,8 +247,9 @@
 
   .additional-options {
     margin-top: $spacing-8;
-    padding-top: $spacing-6;
-    border-top: $border-width solid $border-color;
+    padding: $spacing-6;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
     background: rgba($primary-color, 0.54);
 
     h5 {

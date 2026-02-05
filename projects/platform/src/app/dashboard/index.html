@@ -1,0 +1,69 @@
+
+
+    @if (loadingService.isLoading$ | async) {
+        <mat-progress-bar mode="indeterminate"/>
+    }
+
+    <div class="dashboard-container">
+      <!-- Loading State -->
+      @if (authState().isLoading) {
+        <div class="loading-overlay" 
+             role="status" 
+             aria-label="Loading authentication status">
+          <div class="loading-content">
+            <div class="spinner-container">
+              <div class="spinner" aria-hidden="true"></div>
+            </div>
+            <h2 class="loading-title">Authenticating</h2>
+            <p class="loading-subtitle">Please wait while we verify your credentials...</p>
+          </div>
+        </div>
+      }
+      
+      <!-- Main Content -->
+      @else if (authState().isAuthenticated) {
+        <div class="dashboard-wrapper" [attr.data-device]="deviceType()">
+          <!-- Mobile Notice (Optional) -->
+          @if (deviceType() === 'mobile') {
+            <!-- Dashboard Content -->
+            <main class="dashboard-main" role="main">
+              @if (user()) {
+                <!-- <app-main-container-mobile/> -->
+                 <app-dashboard [user]="user" />
+              }              
+            </main>
+          }
+          
+          <!-- Tablet Notice (Optional) -->
+          @if (deviceType() === 'tablet') {
+            <!-- Dashboard Content -->
+           <main class="dashboard-main" role="main">
+              @if (user()) {
+                <app-dashboard [user]="user" />
+              }              
+            </main>
+          }
+
+          <!-- Desktop Notice (Optional) -->
+          @if (deviceType() === 'desktop') {
+            <!-- Dashboard Content -->
+            <main class="dashboard-main" role="main">
+              @if (user()) {
+                <app-dashboard [user]="user" />
+              }              
+            </main>
+          }
+          
+        </div>
+      }
+      
+      <!-- Fallback for unauthenticated users (shouldn't normally show due to redirect) -->
+      @else {
+        <div class="error-state" role="alert">
+          <div class="error-content">
+            <h2 class="error-title">Access Denied</h2>
+            <p class="error-subtitle">Redirecting to login page...</p>
+          </div>
+        </div>
+      }
+    </div>

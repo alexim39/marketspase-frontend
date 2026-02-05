@@ -1,0 +1,125 @@
+<div class="theme-settings">
+  <h3 class="section-title">Theme Preferences</h3>
+  <p class="section-description">Customize your visual experience with light or dark mode</p>
+
+  <mat-card class="setting-card">
+    <!-- Theme Mode Selection -->
+    <div class="setting-row">
+      <div class="setting-info">
+        <mat-icon>palette</mat-icon>
+        <div>
+          <h4>Theme Mode</h4>
+          <p>Choose between light and dark theme for the application</p>
+        </div>
+      </div>
+
+      <div class="theme-toggle-container">
+        <mat-slide-toggle
+          [checked]="isDarkMode()"
+          (change)="toggleTheme($event)"
+          [disabled]="systemDefault()"
+          color="primary">
+          {{ isDarkMode() ? 'Dark' : 'Light' }}
+        </mat-slide-toggle>
+      </div>
+    </div>
+
+    <!-- Theme Preview Section -->
+    <div class="theme-preview-section">
+      <h5>Theme Preview</h5>
+      <div class="theme-previews">
+        <div
+          class="theme-preview light-theme"
+          [class.active]="!isDarkMode() && !systemDefault()"
+          [class.disabled]="systemDefault()"
+          (click)="!systemDefault() && setLightTheme()">
+          <div class="preview-header">
+            <div class="preview-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="preview-content">
+            <div class="preview-card"></div>
+            <div class="preview-text">
+              <div class="text-line short"></div>
+              <div class="text-line medium"></div>
+            </div>
+          </div>
+          <div class="theme-label">
+            <mat-icon>light_mode</mat-icon>
+            <span>Light</span>
+            <span class="badge" *ngIf="systemDefault() && !isDarkMode()">System</span>
+          </div>
+        </div>
+
+        <div
+          class="theme-preview dark-theme"
+          [class.active]="isDarkMode() && !systemDefault()"
+          [class.disabled]="systemDefault()"
+          (click)="!systemDefault() && setDarkTheme()">
+          <div class="preview-header">
+            <div class="preview-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="preview-content">
+            <div class="preview-card"></div>
+            <div class="preview-text">
+              <div class="text-line short"></div>
+              <div class="text-line medium"></div>
+            </div>
+          </div>
+          <div class="theme-label">
+            <mat-icon>dark_mode</mat-icon>
+            <span>Dark</span>
+            @if (systemDefault() && isDarkMode()) {
+              <span class="badge">System</span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Theme Options -->
+    <div class="additional-options">
+      <h5>Additional Options</h5>
+      <div class="option-list">
+        <div class="option-item">
+          <div class="option-info">
+            <mat-icon>auto_mode</mat-icon>
+            <div>
+              <h6>System Default</h6>
+              <p>Automatically match your system theme</p>
+              @if (systemDefault()) {
+                <small class="option-note">
+                    Using system theme: {{ systemTheme() }}
+                </small>
+              }
+              
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="systemDefault()"
+            (change)="toggleSystemDefault($event)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+
+        <div class="option-item">
+          <div class="option-info">
+            <mat-icon>contrast</mat-icon>
+            <div>
+              <h6>High Contrast Mode</h6>
+              <p>Increase contrast for better readability</p>
+            </div>
+          </div>
+          <mat-slide-toggle
+            [checked]="highContrastMode()"
+            (change)="toggleHighContrast($event)"
+            color="primary">
+          </mat-slide-toggle>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+</div>

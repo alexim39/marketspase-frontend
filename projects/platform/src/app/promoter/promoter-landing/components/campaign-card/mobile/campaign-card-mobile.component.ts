@@ -50,14 +50,16 @@ export class CampaignCardMobileComponent {
   //     );
   // });
 
-   // Computed signal to explicitly check if there is a PENDING promotion for this campaign
+  // Computed signal to explicitly check if there is a PENDING promotion for this campaign
   hasPendingPromotion = computed(() => {
     return (campaign: CampaignInterface) =>
-      this.promotions.some(
+      this.promotions.some( // Added () assuming promotions is a Signal
         (promotion: PromotionInterface) =>
-          promotion.campaign._id === campaign._id && promotion.status === 'accepted'
+          promotion.campaign._id === campaign._id && 
+          ['accepted', 'downloaded'].includes(promotion.status)
       );
   });
+
 
   getStatusBadgeClass(campaign: CampaignInterface): string {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
