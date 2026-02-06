@@ -80,8 +80,9 @@
       <payment-status
         [status]="paymentStatus()"
         [retryCount]="retryCount()"
-        [maxRetries]="maxRetries">
-      </payment-status>
+        [maxRetries]="maxRetries"
+        [user]="user()"
+      />
     }
 
     <!-- Helpful Tips -->
@@ -115,5 +116,6 @@
     (pay)="initiatePayment()"
     (retry)="resetPayment()"
     (continue)="continueWithCampaign()"
+    [user]="user()"
   />
 </div>
