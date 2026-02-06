@@ -36,7 +36,7 @@ export interface WithdrawalRequestData {
 @Injectable()
 export class WithdrawalService {
 
- public readonly PAYSTACK_SECRET_KEY = 'sk_live_31139039a3e109121ff97248e06ee567563cede4';
+ public readonly PAYSTACK_SECRET_KEY = '';
   
   constructor(private apiService: ApiService) {}
   
