@@ -89,6 +89,7 @@ export interface UserInterface {
     marketer: {
       balance: number;
       reserved: number;
+      currency: string;
      transactions: {
         _id: string;
         amount?: number;
@@ -110,6 +111,7 @@ export interface UserInterface {
     promoter: {
       balance: number;
       reserved: number;
+      currency: string;
       transactions: {
         _id: string;
         amount?: number;

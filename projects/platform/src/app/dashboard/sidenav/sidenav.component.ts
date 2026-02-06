@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -19,7 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { UserInterface, DeviceService } from '../../../../../shared-services/src/public-api';
+import { UserInterface, DeviceService, CurrencyUtilsPipe } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Import new components
@@ -57,12 +57,12 @@ import {
     MatTooltipModule,
     MatProgressBarModule,
     MatExpansionModule,
-    CurrencyPipe,
     UserProfileCardComponent,
     SidenavNavigationComponent,
     QuickActionsComponent,
     CartDialogComponent,
-    NotificationBellComponent
+    NotificationBellComponent,
+    CurrencyUtilsPipe
   ],
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss']

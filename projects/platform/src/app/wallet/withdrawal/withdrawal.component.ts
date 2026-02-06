@@ -1,6 +1,5 @@
 import {
   Component,
-  Input,
   OnInit,
   ViewChild,
   ElementRef,
@@ -19,9 +18,6 @@ import {
   FormsModule,
   Validators,
   ReactiveFormsModule,
-  AbstractControl,
-  ValidationErrors,
-  ValidatorFn
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';

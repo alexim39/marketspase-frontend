@@ -1,18 +1,18 @@
 // product-list-item.component.ts
 import { Component, Input, Output, EventEmitter, inject, Signal } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { Product, Store } from '../../../store/models';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../shared-services/src/public-api';
 import { UserService } from '../../../common/services/user.service';
 
 @Component({
   selector: 'app-product-list-item',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule, CurrencyPipe, LazyImageDirective],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule, LazyImageDirective, CurrencyUtilsPipe],
   templateUrl: './product-list-item.component.html',
   styleUrls: ['./product-list-item.component.scss']
 })

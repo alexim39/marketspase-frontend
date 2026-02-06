@@ -87,11 +87,11 @@
   <!-- Budget Info -->
   <div class="mobile-budget">
     <div class="budget-amount">
-       <span class="spent">{{formatCurrency( campaign.spentBudget, campaign.currency)}}</span>
-        <span class="total">/ {{formatCurrency(campaign.budget, campaign.currency)}}</span>
+       <span class="spent">{{ campaign.spentBudget | currencyUtils:campaign.currency }}</span>
+        <span class="total">/ {{ campaign.budget | currencyUtils:campaign.currency }}</span>
     </div>
     <div class="budget-label">Budget Spent</div>
-    <div class="budget-label payout">Promoter Payout: {{formatCurrency(campaign.payoutPerPromotion, campaign.currency)}}</div>
+    <div class="budget-label payout">Promoter Payout: {{ campaign.payoutPerPromotion | currencyUtils:campaign.currency }}</div>
   </div>
 
   <!-- Action Buttons - Bottom fixed style -->

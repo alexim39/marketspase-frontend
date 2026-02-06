@@ -18,8 +18,7 @@
 
 .skeleton-header {
   height: 60px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -28,8 +27,7 @@
   height: 200px;
   margin: 16px 20px 0;
   border-radius: 12px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -40,8 +38,7 @@
 
 .skeleton-line {
   height: 12px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 6px;
@@ -54,8 +51,7 @@
 
 .skeleton-metrics {
   height: 40px;
-  //background: linear-gradient(90deg, $gray-700 25%, $gray-500 50%, $gray-900 75%);
-   background: $gray-700;
+  background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 6px;

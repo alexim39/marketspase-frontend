@@ -1,6 +1,6 @@
 // product-grid-card.component.ts
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, Signal, inject } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,7 @@ import { RatingComponent } from '../../shared/rating/rating.component';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { TruncatePipe } from '../../../store/shared';
 import { Product, Store } from '../../../store/models';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../shared-services/src/public-api';
 import { UserService } from '../../../common/services/user.service';
 
 /**
@@ -35,9 +35,9 @@ import { UserService } from '../../../common/services/user.service';
     MatTooltipModule,
     RouterModule,
     TruncatePipe,
-    CurrencyPipe,
     RatingComponent,
-    LazyImageDirective
+    LazyImageDirective,
+    CurrencyUtilsPipe
   ],
   templateUrl: './product-grid-card.component.html',
   styleUrls: ['./product-grid-card.component.scss'],
@@ -68,6 +68,11 @@ export class ProductGridCardComponent {
   // =========================================
   // PRODUCT STATUS METHODS
   // =========================================
+
+  ngOnInit(): void {
+    // Initialization logic if needed
+    console.log('Product Grid Card initialized for product:', this.product);
+  }
 
   /**
    * Determines the current stock status of the product

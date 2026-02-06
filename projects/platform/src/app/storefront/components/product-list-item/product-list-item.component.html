@@ -71,9 +71,9 @@
     <div class="list-actions">
       <!-- Price -->
       <div class="price-section">
-        <div class="current-price">{{ product.price | currency }}</div>
+        <div class="current-price">{{ product.price | currencyUtils:product.currency }}</div>
         @if (product.originalPrice && product.originalPrice > product.price) {
-          <div class="original-price">{{ product.originalPrice | currency }}</div>
+          <div class="original-price">{{ product.originalPrice | currencyUtils:product.currency }}</div>
           <div class="savings">
             Save {{ calculateDiscount(product.price, product.originalPrice) }}%
           </div>

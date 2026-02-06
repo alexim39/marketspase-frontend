@@ -115,14 +115,14 @@
     <!-- Price Section -->
     <div class="product-pricing">
       <div class="price-group">
-        <span class="current-price">{{ product.price | currency }}</span>
+        <span class="current-price">{{ product.price | currencyUtils:product.currency }}</span>
         @if (product.originalPrice && product.originalPrice > product.price) {
-          <span class="original-price">{{ product.originalPrice | currency }}</span>
+          <span class="original-price">{{ product.originalPrice | currencyUtils:product.currency }}</span>
         }
       </div>
       @if (product.originalPrice && product.originalPrice > product.price) {
         <span class="savings-text">
-          Save {{ (product.originalPrice - product.price) | currency }}
+          Save {{ (product.originalPrice - product.price) | currencyUtils:product.currency }}
         </span>
       }
     </div>

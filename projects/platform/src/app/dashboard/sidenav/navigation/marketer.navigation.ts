@@ -78,7 +78,7 @@ export function getMarketerNavigation(
           label: 'System',
           expanded: false,
           children: [
-           { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+           { icon: 'notifications', label: 'Theme & Notifications', route: '/dashboard/settings/system' }
           ]
         }
       ]

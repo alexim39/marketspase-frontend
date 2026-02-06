@@ -7,7 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TitleCasePipe } from '@angular/common';
 import { ShortNumberPipe } from '../../../../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
-import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { CampaignInterface, CurrencyUtilsPipe, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
 import { TruncatePipe } from '../../../../../store/shared';
 
 @Component({
@@ -21,7 +21,8 @@ import { TruncatePipe } from '../../../../../store/shared';
     ShortNumberPipe,
     CategoryPlaceholderPipe,
     TitleCasePipe,
-    TruncatePipe
+    TruncatePipe,
+    CurrencyUtilsPipe
   ],
   templateUrl: './campaign-card-mobile.component.html',
   styleUrls: ['./campaign-card-mobile.component.scss']
@@ -77,8 +78,5 @@ export class CampaignCardMobileComponent {
     return totalViews;
   }
 
- formatCurrency(amount: number, currency: string): string {
-    if (!amount || isNaN(amount)) return `${currency}0`;
-    return `${currency}${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
-  }
+
 }
