@@ -37,8 +37,7 @@ export interface WithdrawalRequestData {
 export class WithdrawalService {
 
  public readonly PAYSTACK_SECRET_KEY = '';
-  
-  constructor(private apiService: ApiService) {}
+ constructor(private apiService: ApiService) {}
   
   /**
  * Submits the  form data to the backend.
