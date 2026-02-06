@@ -57,20 +57,26 @@
         <div class="link-group">
           <h4>Connect</h4>
           <div class="social-links">
-            <a href="#" matTooltip="Facebook">
+            <a href="https://www.facebook.com/marketspase" matTooltip="Facebook" target="_blank" rel="noopener">
               <mat-icon>facebook</mat-icon>
             </a>
-            <a href="#" matTooltip="Twitter">
-              <mat-icon>twitter</mat-icon>
+            <a href="https://x.com/MarketSpase" matTooltip="Twitter" target="_blank" rel="noopener">
+              <!-- <mat-icon>twitter</mat-icon> -->
+               <img src="/img/social/x.jpg" width="18px" height="18px" border-radius="20px">
             </a>
-            <a href="#" matTooltip="Instagram">
-              <mat-icon>instagram</mat-icon>
+            <a href="https://www.instagram.com/MarketSpaseOnline/" matTooltip="Instagram" target="_blank" rel="noopener">
+              <!-- <mat-icon>instagram</mat-icon> -->
+                <img src="/img/social/instagram.png" width="18px" height="18px" border-radius="20px">
             </a>
-            <a href="#" matTooltip="YouTube">
+            <a href="http://tiktok.com/@marketspaseonline" matTooltip="TikTok" target="_blank" rel="noopener">
+              <!-- <mat-icon>tiktok</mat-icon> -->
+               <img src="/img/social/tiktok.png" width="18px" height="18px" border-radius="20px">
+            </a>
+           <!--  <a href="#" matTooltip="YouTube" target="_blank" rel="noopener">
               <mat-icon>youtube</mat-icon>
-            </a>
+            </a> -->
             @if (store?.whatsappNumber) {
-              <a (click)="onContactViaWhatsApp()" matTooltip="WhatsApp">
+              <a (click)="onContactViaWhatsApp()" matTooltip="WhatsApp" target="_blank" rel="noopener">
                 <mat-icon>whatsapp</mat-icon>
               </a>
             }
@@ -81,8 +87,8 @@
     
     <div class="footer-bottom">
       <p>&copy; {{ currentYear }} {{ store?.name }}. All rights reserved.</p>
-      <p>Powered by <a href="/">MarketSpase</a> - The Future of E-commerce</p>
-      <p>
+      <p>Powered by <a href="/">Async Solutions - MarketSpase:</a>  Social Micro-influencer marketplace</p>
+      <p class="legal-links">
         <a href="#">Privacy Policy</a> • 
         <a href="#">Terms of Service</a> • 
         <a href="#">Cookie Policy</a>
