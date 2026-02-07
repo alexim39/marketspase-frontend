@@ -1,6 +1,7 @@
+// targeting.service.ts (updated)
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService, CampaignInterface } from '../../../../../shared-services/src/public-api';
+import { ApiService, CampaignInterface, TargetingArea } from '../../../../../shared-services/src/public-api';
 
 @Injectable()
 export class CampaignTargetingService {
@@ -12,13 +13,19 @@ export class CampaignTargetingService {
     return this.apiService.get<CampaignInterface>(`${this.apiUrl}/${id}`);
   }
 
-  updateCampaign(id: string, userId: string, campaignData: any): Observable<any> {
-    console.log('id ', id, 'and userid ', userId, 'and campaign data ', campaignData)
+  // New: Get only targeting data
+  getCampaignTargeting(id: string): Observable<any> {
+    return this.apiService.get<any>(`${this.apiUrl}/targeting/${id}`);
+  }
+
+  // Updated: Send only targeting data
+  updateCampaignTargeting(id: string, userId: string, targetingData: any): Observable<any> {
     return this.apiService.put<any>(
-      `${this.apiUrl}/edit/${id}/${userId}`, 
-      campaignData, 
+      `${this.apiUrl}/targeting/${id}/${userId}`, 
+      targetingData,
       undefined, 
       true
     );
   }
+
 }

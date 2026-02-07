@@ -15,10 +15,18 @@
       <div class="container">
         <form [formGroup]="campaignForm" class="edit-form">
           <!-- Basic Information -->
-          <app-basic-info-form
-            [form]="campaignForm"
-            [categories]="categories"
-          />
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Basic Information</h2>
+              <p>Update your campaign details</p>
+            </div>
+            <div class="card-content">
+              <app-basic-info-form
+                [form]="campaignForm"
+                [categories]="categories"
+              />
+            </div>
+          </div>
 
           <!-- Media Upload -->
           <!-- <div class="form-card">
@@ -39,19 +47,62 @@
           </div> -->
 
           <!-- Budget & Promotion Settings -->
-          <app-budget-settings
-            [form]="campaignForm"
-          />
-          <!-- <app-budget-settings
-            [form]="campaignForm"
-            (calculateMaxPromoters)="calculateMaxPromoters()"
-          /> -->
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Budget Settings</h2>
+              <p>Configure your campaign budget</p>
+            </div>
+            <div class="card-content">
+              <app-budget-settings [form]="campaignForm" />
+            </div>
+          </div>
 
           <!-- Schedule -->
-          <app-schedule-form [form]="campaignForm"/>
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Schedule</h2>
+              <p>Set your campaign timeline</p>
+            </div>
+            <div class="card-content">
+              <app-schedule-form [form]="campaignForm"/>
+            </div>
+          </div>
 
           <!-- Requirements -->
-          <app-requirements-form [form]="campaignForm"/>
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Promoter Requirements</h2>
+              <p>Set requirements for promoters</p>
+            </div>
+            <div class="card-content">
+              <app-requirements-form [form]="campaignForm"/>
+            </div>
+          </div>
+
+          <!-- Navigation to Targeting -->
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Location Targeting</h2>
+              <p>Configure geographic targeting for your campaign</p>
+            </div>
+            <div class="card-content">
+              <div class="targeting-navigation">
+                <p>Location targeting helps your ads reach the right audience and improves performance.</p>
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  class="targeting-button"
+                  (click)="navigateToTargeting()"
+                >
+                  <mat-icon>location_on</mat-icon>
+                  Edit Location Targeting
+                </button>
+                <p class="targeting-hint">
+                  Manage geographic targeting, precision levels, and location-specific settings.
+                </p>
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     </main>

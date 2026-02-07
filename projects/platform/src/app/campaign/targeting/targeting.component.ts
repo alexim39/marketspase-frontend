@@ -137,7 +137,7 @@ export class CampaignTargetingComponent implements OnInit {
       enableTarget: this.enableTarget()
     };
 
-    this.campaignTargetingService.updateCampaign(
+    this.campaignTargetingService.updateCampaignTargeting(
       this.campaign()?._id || '', 
       this.campaign()?.owner._id, 
       campaignData
