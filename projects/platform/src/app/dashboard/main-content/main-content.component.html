@@ -45,21 +45,21 @@
             </button>
           }
           <!-- Community Quick Access -->
-          <button mat-stroked-button color="accent" (click)="openCommunityFeed()" class="community-btn">
+          <!-- <button mat-stroked-button color="accent" (click)="openCommunityFeed()" class="community-btn">
             <mat-icon>forum</mat-icon>
             <span class="button-text">Community</span>
             @if (communityNotifications() > 0) {
               <span class="notification-count">{{ communityNotifications() }}</span>
             }
-          </button>
+          </button> -->
         </div>
         
-        <div class="action-menu">
+        <!-- <div class="action-menu">
           <button mat-icon-button [matMenuTriggerFor]="quickMenu" class="quick-menu-btn">
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #quickMenu="matMenu" class="action-menu-content">
-            <!-- Community Menu Items -->
+
             <button mat-menu-item (click)="openCommunityFeed()" class="menu-item">
               <mat-icon class="menu-icon">forum</mat-icon>
               <span class="menu-text">Community Feed</span>
@@ -84,9 +84,8 @@
               }
             </button>
             
-            <mat-divider class="menu-divider"></mat-divider>
+            <mat-divider class="menu-divider"/>
             
-            <!-- Role Specific Actions -->
             @if (user()?.role === 'marketer') {
               <button mat-menu-item (click)="createCampaign()" class="menu-item">
                 <mat-icon class="menu-icon">add</mat-icon>
@@ -117,9 +116,8 @@
               </button>
             }
             
-            <mat-divider class="menu-divider"></mat-divider>
+            <mat-divider class="menu-divider"/>
             
-            <!-- Learning & Growth -->
             <button mat-menu-item (click)="openAdSchool()" class="menu-item">
               <mat-icon class="menu-icon">school</mat-icon>
               <span class="menu-text">Ad School</span>
@@ -131,9 +129,8 @@
               <span class="menu-text">Leaderboards</span>
             </button>
             
-            <mat-divider class="menu-divider"></mat-divider>
+            <mat-divider class="menu-divider"/>
             
-            <!-- Settings & Logout -->
             <button mat-menu-item (click)="openSettings()" class="menu-item">
               <mat-icon class="menu-icon">settings</mat-icon>
               <span class="menu-text">Settings</span>
@@ -144,13 +141,13 @@
               <span class="menu-text">Logout</span>
             </button>
           </mat-menu>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
 
   <!-- Community Feed Section -->
-  <div class="community-feed-section">
+  <!-- <div class="community-feed-section">
     <div class="section-header">
       <div class="section-title-wrapper">
         <h2 class="section-title">Community Feed</h2>
@@ -266,7 +263,7 @@
         </mat-card>
       }
     </div>
-  </div>
+  </div> -->
 
   <!-- Main Dashboard Content -->
   <div class="dashboard-content-grid">
@@ -499,8 +496,9 @@
     </div>
 
     <!-- Trending & Connections -->
-    <div class="trending-connections-grid">
-      <!-- Trending Now -->
+    <!-- <div class="trending-connections-grid">
+      
+      
       <div class="trending-section">
         <div class="section-header">
           <div class="section-title-wrapper">
@@ -535,7 +533,8 @@
         </mat-card>
       </div>
 
-      <!-- Suggested Connections -->
+      
+      
       <div class="connections-section">
         <div class="section-header">
           <h2 class="section-title">Suggested Connections</h2>
@@ -575,11 +574,11 @@
           </mat-card-content>
         </mat-card>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <!-- Learning Section -->
-  <div class="learning-section">
+  <!-- <div class="learning-section">
     <div class="section-header">
       <div class="section-title-wrapper">
         <h2 class="section-title">Continue Learning</h2>
@@ -634,7 +633,7 @@
         </mat-card>
       }
     </div>
-  </div>
+  </div> -->
 
   <!-- Testimonials Section -->
   <div class="testimonials-section">

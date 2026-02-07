@@ -1389,7 +1389,10 @@
 
 /* Testimonials Section */
 .testimonials-section {
-  margin-top: 48px;
+  margin-top: 8em;
+  @include mobile {
+    margin: 11em 1em 1em 1em;
+  }
 }
 
 /* Animations */
