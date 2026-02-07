@@ -271,7 +271,7 @@
                                 <div class="products-info">
                                     <span class="products-count">{{ store.storeProducts?.length || 0 }} products</span>
                                     @if (store.storeProducts && store.storeProducts.length > 0) {
-                                        <button mat-button color="primary" class="view-products-btn">
+                                        <button mat-button color="primary" class="view-products-btn" (click)="viewStoreProducts(store)">
                                             View Products
                                         </button>
                                     }

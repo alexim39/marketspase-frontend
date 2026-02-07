@@ -124,6 +124,10 @@
         <span class="detail-label">End Date</span>
         <span class="detail-value">{{scheduleForm().get('endDate')?.value ? (scheduleForm().get('endDate')?.value | date:'shortDate') : 'No end date'}}</span>
       </div>
+      <div class="detail-item">
+        <span class="detail-label">Duration</span>
+        <span class="detail-value">{{ getDuration() }}</span>
+      </div>
     </div>
 
     <div class="final-cost-summary">

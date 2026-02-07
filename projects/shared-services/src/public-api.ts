@@ -10,3 +10,4 @@ export * from './lib/device.service';
 export * from './lib/help-dialog.component';
 export * from './lib/format-currency.pipe';
 export * from './lib/loading.service';
+export * from './lib/currency.utils';

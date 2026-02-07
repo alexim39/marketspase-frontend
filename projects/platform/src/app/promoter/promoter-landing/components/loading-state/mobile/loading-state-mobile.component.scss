@@ -17,7 +17,7 @@
 
 .skeleton-header-mobile {
   height: 48px;
-  background: $gray-700;
+ background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -26,7 +26,7 @@
   height: 150px;
   margin: 12px;
   border-radius: 8px;
-  background: $gray-700;
+  background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
@@ -37,7 +37,7 @@
 
 .skeleton-line-mobile {
   height: 10px;
-  background: $gray-700;
+  background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 4px;
@@ -50,7 +50,7 @@
 
 .skeleton-metrics-mobile {
   height: 32px;
-  background: $gray-700;
+ background: color-mix(in srgb, $background-color, black 5%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
   border-radius: 4px;

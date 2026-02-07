@@ -27,28 +27,30 @@
     <wallet-balance-card
       [currentBalance]="data.currentBalance"
       [showFundingRequirement]="showFundingRequirement()"
-      [fundingShortfall]="getFundingShortfall()">
-    </wallet-balance-card>
-  }
-    
+      [fundingShortfall]="getFundingShortfall()"
+      [user]="user()"
+    />
 
     <!-- Quick Amount Selector -->
     <quick-amount-selector
       [amounts]="quickAmounts"
       [selectedAmount]="selectedAmount()"
       [disabled]="isProcessingPayment() || paymentStatus() !== null"
-      (amountSelected)="selectQuickAmount($event)">
-    </quick-amount-selector>
+      (amountSelected)="selectQuickAmount($event)"
+      [user]="user()"
+    />
+  }
 
-    <!-- Custom Amount Form -->
-    <custom-amount-form
-      [form]="fundingForm"
-      [minAmount]="minFundingAmount"
-      [maxAmount]="maxFundingAmount"
-      [disabled]="isProcessingPayment() || paymentStatus() !== null"
-      (amountChange)="onCustomAmountChange($event)"
-      (clearSelection)="clearQuickSelection()">
-    </custom-amount-form>
+  <!-- Custom Amount Form -->
+  <custom-amount-form
+    [form]="fundingForm"
+    [minAmount]="minFundingAmount"
+    [maxAmount]="maxFundingAmount"
+    [disabled]="isProcessingPayment() || paymentStatus() !== null"
+    (amountChange)="onCustomAmountChange($event)"
+    (clearSelection)="clearQuickSelection()"
+    [user]="user()"
+  />
 
     <!-- Payment Summary -->
     @if (selectedAmount() > 0 && !paymentStatus()) {
@@ -57,28 +59,30 @@
         [feeRate]="processingFeeRate"
         [processingFee]="processingFee()"
         [totalAmount]="totalAmount()"
-        [newBalance]="newBalance()">
-      </payment-summary>
+        [newBalance]="newBalance()"
+        [user]="user()"
+      />
     }
 
     <!-- Payment Method -->
     @if (!paymentStatus()) {
-      <payment-method></payment-method>
+      <payment-method/>
     }
 
     <!-- Payment Processing -->
     <payment-processing
       [isProcessing]="isProcessingPayment()"
-      [processingTime]="processingTime()">
-    </payment-processing>
+      [processingTime]="processingTime()"
+    />
 
     <!-- Payment Status -->
     @if (paymentStatus()) {
       <payment-status
         [status]="paymentStatus()"
         [retryCount]="retryCount()"
-        [maxRetries]="maxRetries">
-      </payment-status>
+        [maxRetries]="maxRetries"
+        [user]="user()"
+      />
     }
 
     <!-- Helpful Tips -->
@@ -111,6 +115,7 @@
     (close)="closeDialog()"
     (pay)="initiatePayment()"
     (retry)="resetPayment()"
-    (continue)="continueWithCampaign()">
-  </dialog-actions>
+    (continue)="continueWithCampaign()"
+    [user]="user()"
+  />
 </div>

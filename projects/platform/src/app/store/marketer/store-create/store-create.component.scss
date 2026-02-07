@@ -165,7 +165,8 @@
         border: 2px dashed $border-color;
         border-radius: $border-radius-lg;
         margin: 0 auto $spacing-4 auto;
-        background: $gray-800;
+        //background: $gray-800;
+        background: color-mix(in srgb, $background-color, black 5%);
         color: $text-tertiary;
 
         .placeholder-icon {
@@ -230,7 +231,8 @@
 
     .preview-section {
       .store-preview {
-        background: $gray-800;
+        //background: $gray-800;
+        background: color-mix(in srgb, $background-color, black 5%);
         border-radius: $border-radius;
         padding: $spacing-4;
         border: 1px solid $border-color;

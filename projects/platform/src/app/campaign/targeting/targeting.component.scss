@@ -1,0 +1,169 @@
+// campaign-edit.component.scss
+@use '../../../styles/variables' as vars;
+@use '../../../styles/mixins' as mixins;
+
+.campaign-edit-container {
+  min-height: 100vh;
+  background-color: vars.$background-color;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 1.5em;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: vars.$primary-color;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        font-size: 0.9rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+
+        &.save-btn {
+          background-color: vars.$primary-color;
+          color: vars.$white;
+
+          &:hover {
+            background-color: color-mix(in srgb, #{vars.$primary-color}, black 10%);
+          }
+        }
+
+        &.cancel-btn {
+          background-color: vars.$background-color;
+          color: vars.$text-secondary;
+          border: 1px solid vars.$border-color;
+
+          &:hover {
+            background-color: color-mix(in srgb, #{vars.$background-color}, white 5%);
+          }
+        }
+      }
+    }
+  }
+}
+
+.main-content {
+  padding: 2rem;
+  margin: 0 auto;
+  width: 800px;
+  background-color: vars.$surface-color;
+  border-radius: 12px;
+  box-shadow: vars.$shadow-md;
+
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .form-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .form-group {
+        flex: 1 1 calc(50% - 1rem);
+        min-width: 300px;
+
+        mat-form-field {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@include mixins.mobile {
+  .main-content {
+    padding: 1.5rem;
+    margin: 0 1rem;
+    width: auto;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    .action-buttons {
+      width: 100%;
+      justify-content: flex-start;
+
+      button {
+        flex: 1;
+      }
+    }
+  }
+
+  .edit-form {
+    .form-section {
+      flex-direction: column;
+
+      .form-group {
+        flex: 1 1 100%;
+      }
+    }
+  }
+}
+
+// Form validation styles
+mat-form-field.ng-invalid.ng-touched {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: vars.$error-color;
+  }
+}
+
+.form-card {
+  background-color: vars.$surface-color;
+  border-radius: 12px;
+  box-shadow: vars.$shadow;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: vars.$shadow-lg;
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    margin-bottom: 1rem;
+
+    h2 {
+      margin: 0;
+      color: vars.$text-primary;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: vars.$text-secondary;
+      margin: 0.25rem 0 0;
+    }
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}

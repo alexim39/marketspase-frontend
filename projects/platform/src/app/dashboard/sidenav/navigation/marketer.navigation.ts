@@ -29,17 +29,17 @@ export function getMarketerNavigation(
       children: [
         { icon: 'store', label: 'My Stores', route: '/dashboard/stores' },
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
-        { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
-        {
-          icon: 'inventory',
-          label: 'Product Management',
-          expanded: false,
-          children: [
-            { icon: 'inventory_2', label: 'All Products', route: '/dashboard/stores/products' },
-            { icon: 'add_shopping_cart', label: 'Add Product', route: '/dashboard/stores/products/create' },
-            { icon: 'category', label: 'Categories', route: '/dashboard/stores/categories' }
-          ]
-        }
+        // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
+        // {
+        //   icon: 'inventory',
+        //   label: 'Product Management',
+        //   expanded: false,
+        //   children: [
+        //     { icon: 'inventory_2', label: 'All Products', route: '/dashboard/stores/products' },
+        //     { icon: 'add_shopping_cart', label: 'Add Product', route: '/dashboard/stores/products/create' },
+        //     { icon: 'category', label: 'Categories', route: '/dashboard/stores/categories' }
+        //   ]
+        // }
       ]
     },
     {
@@ -72,7 +72,15 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'person', label: 'Profile Settings', route: '/dashboard/settings/account' },
-        { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+       // { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+        {
+          icon: 'hvac',
+          label: 'System',
+          expanded: false,
+          children: [
+           { icon: 'notifications', label: 'Theme & Notifications', route: '/dashboard/settings/system' }
+          ]
+        }
       ]
     },
     {

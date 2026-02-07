@@ -25,6 +25,11 @@ export const CampaignRoutes: Routes = [
         title: "Campaign Edit - Edit a campaign",
     },
     {
+        path: ':id/targeting',
+        loadComponent: () => import('./targeting/targeting.component').then(c => c.CampaignTargetingComponent),
+        title: "Campaign Targeting - target your audience",
+    },
+    {
         path: ':id',
         loadComponent: () => import('./campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
         title: "Campaign Details - List all accepted promoter promotions",

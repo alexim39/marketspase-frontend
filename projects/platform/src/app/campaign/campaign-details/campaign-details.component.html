@@ -21,6 +21,10 @@
             <mat-icon>edit</mat-icon>
             Edit Campaign
           </button>
+          <!-- <button class="btn btn-outline" mat-raised-button (click)="targetAudienceByLocation()">
+            <mat-icon>edit_location</mat-icon>
+            Set Location Target
+          </button> -->
         </div>
       </div>
     </div>
@@ -50,10 +54,10 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #campaignMenu="matMenu">
-              <!-- <button mat-menu-item (click)="editCampaign()">
-                <mat-icon>edit</mat-icon>
-                Edit Campaign
-              </button> -->
+              <button mat-menu-item (click)="targetAudienceByLocation()">
+                <mat-icon>edit_location</mat-icon>
+                Set Location Target
+              </button>
               @if (campaign.status === 'active') {
                   <button mat-menu-item (click)="pauseCampaign(campaign)">
                   <mat-icon>pause_circle</mat-icon>

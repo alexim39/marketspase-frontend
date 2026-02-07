@@ -68,7 +68,7 @@ export class WalletFundingComponent implements OnInit {
   deviceType = computed(() => this.deviceService.type());
 
   // Configuration
-  readonly minFundingAmount = 500;
+  readonly minFundingAmount = 1000;
   readonly maxFundingAmount = 1000000;
   //readonly processingFeeRate = 0.015; // 1.5%
   readonly processingFeeRate = 0.1; // 10%
@@ -130,8 +130,6 @@ export class WalletFundingComponent implements OnInit {
       currentBalance: this.data?.wallets?.marketer?.balance,
       ...data
     };
-
-    //console.log('sent data ',this.data)
   }
 
   ngOnInit(): void {

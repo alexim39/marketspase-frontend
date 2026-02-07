@@ -21,20 +21,20 @@ export function getPromoterNavigation(
         { icon: 'list_alt', label: 'My Promotions', route: '/dashboard/campaigns/promotions' }
       ]
     },
-    {
-      icon: 'storefront',
-      label: 'Storefronts',
-      expanded: false,
-      children: [
-        { icon: 'search', label: 'Browse Products', route: '/dashboard/stores' },
-        // { icon: 'search', label: 'Browse Products', route: '/dashboard/storefronts/products' },
-        { icon: 'inventory', label: 'My Promoted Products', route: '/dashboard/storefronts/my-products' },
-        { icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
-        { icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
-        { icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },
-        { icon: 'rate_review', label: 'Store Reviews', route: '/dashboard/storefronts/reviews' }
-      ]
-    },
+    // {
+    //   icon: 'storefront',
+    //   label: 'Storefronts',
+    //   expanded: false,
+    //   children: [
+    //     { icon: 'search', label: 'Browse Products', route: '/dashboard/stores' },
+    //     // { icon: 'search', label: 'Browse Products', route: '/dashboard/storefronts/products' },
+    //     { icon: 'inventory', label: 'My Promoted Products', route: '/dashboard/storefronts/my-products' },
+    //     { icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
+    //     { icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
+    //     { icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },
+    //     { icon: 'rate_review', label: 'Store Reviews', route: '/dashboard/storefronts/reviews' }
+    //   ]
+    // },
     {
       icon: 'currency_exchange',
       label: 'Earnings',
@@ -58,7 +58,15 @@ export function getPromoterNavigation(
       expanded: false,
       children: [
         { icon: 'person', label: 'Profile', route: '/dashboard/settings/account' },
-        { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+       // { icon: 'notifications', label: 'Notifications', route: '/dashboard/settings/system' }
+        {
+          icon: 'hvac',
+          label: 'System',
+          expanded: false,
+          children: [
+           { icon: 'notifications', label: 'Theme & Notifications', route: '/dashboard/settings/system' }
+          ]
+        }
       ]
     },
     {

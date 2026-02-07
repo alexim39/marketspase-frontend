@@ -50,14 +50,16 @@ export class CampaignCardMobileComponent {
   //     );
   // });
 
-   // Computed signal to explicitly check if there is a PENDING promotion for this campaign
+  // Computed signal to explicitly check if there is a PENDING promotion for this campaign
   hasPendingPromotion = computed(() => {
     return (campaign: CampaignInterface) =>
-      this.promotions.some(
+      this.promotions.some( // Added () assuming promotions is a Signal
         (promotion: PromotionInterface) =>
-          promotion.campaign._id === campaign._id && promotion.status === 'accepted'
+          promotion.campaign._id === campaign._id && 
+          ['accepted', 'downloaded'].includes(promotion.status)
       );
   });
+
 
   getStatusBadgeClass(campaign: CampaignInterface): string {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
@@ -100,16 +102,16 @@ export class CampaignCardMobileComponent {
   getDifficultyLevel(campaign: CampaignInterface): string {
     const minViews = campaign.minViewsPerPromotion || 0;
     
-    if (minViews <= 25) return 'Easy';
-    if (minViews <= 35) return 'Medium';
+    if (minViews <= 35) return 'Easy';
+    if (minViews <= 66) return 'Medium';
     return 'Hard';
   }
 
   getDifficultyDots(campaign: CampaignInterface): number {
     const minViews = campaign.minViewsPerPromotion || 0;
     
-    if (minViews <= 25) return 1;
-    if (minViews <= 35) return 2;
+    if (minViews <= 35) return 1;
+    if (minViews <= 66) return 2;
     return 3;
   }
 

@@ -57,10 +57,10 @@
             <div class="wallet-display" (click)="openWallet()">
               <mat-icon>account_balance_wallet</mat-icon>
               @if (user()!.role === 'promoter') {
-                <span class="wallet-amount">{{user()?.wallets?.promoter?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+                <span class="wallet-amount">{{user()?.wallets?.promoter?.balance || 0 | currencyUtils:user()?.wallets?.promoter?.currency}}</span>
               }
               @if (user()!.role === 'marketer') {
-                <span class="wallet-amount">{{user()?.wallets?.marketer?.balance || 0 | currency: '₦':'symbol':'1.2-2'}}</span>
+                <span class="wallet-amount">{{user()?.wallets?.marketer?.balance || 0 | currencyUtils:user()?.wallets?.marketer?.currency}}</span>
               }
             </div>
 
