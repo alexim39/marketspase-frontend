@@ -13,13 +13,12 @@ import { CampaignEditHeaderComponent } from './components/campaign-edit-header/c
 import { BasicInfoFormComponent } from './components/basic-info-form/basic-info-form.component';
 import { MediaUploadComponent } from './components/media-upload/media-upload.component';
 import { BudgetSettingsComponent } from './components/budget-settings/budget-settings.component';
-import { TargetingComponent } from './components/targeting/targeting.component';
 import { ScheduleFormComponent } from './components/schedule-form/schedule-form.component';
 import { RequirementsFormComponent } from './components/requirements-form/requirements-form.component';
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { ErrorStateComponent } from './components/error-state/error-state.component';
 
-import { CampaignInterface, TargetingArea, TargetingSettings } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface } from '../../../../../shared-services/src/public-api';
 import { CampaignEditService } from './campaign-edit.service';
 import { CATEGORIES } from '../../common/utils/categories';
 
@@ -38,7 +37,6 @@ import { CATEGORIES } from '../../common/utils/categories';
     BasicInfoFormComponent,
     //MediaUploadComponent,
     BudgetSettingsComponent,
-    TargetingComponent,
     ScheduleFormComponent,
     RequirementsFormComponent,
     LoadingStateComponent,
@@ -63,55 +61,10 @@ export class CampaignEditComponent implements OnInit {
   previewVideoUrl = signal<string | null>(null);
 
   campaignForm!: FormGroup;
-  locationInputControl = new FormControl('');
 
   public readonly api = this.campaignEditService.api;
 
   categories = CATEGORIES;
-
-
-  // Change targetLocations to handle TargetingArea objects
-  targetLocations = signal<TargetingArea[]>([]);
-
-// Update the addLocation method to handle TargetingArea objects
-  addLocation(area: TargetingArea): void {
-    this.targetLocations.update(locations => {
-      const exists = locations.some(loc => 
-        loc.place_id === area.place_id || 
-        (loc.name.toLowerCase() === area.name.toLowerCase() && loc.type === area.type)
-      );
-      
-      if (!exists) {
-        return [...locations, area];
-      }
-      return locations;
-    });
-  }
-
-// Update removeLocation to handle TargetingArea IDs
-removeLocation(areaId: string): void {
-    if (areaId === 'all') {
-      this.targetLocations.set([]);
-    } else {
-      this.targetLocations.update(locations => locations.filter(l => l.id !== areaId));
-    }
-  }
-
-filteredLocationSuggestions = computed(() => {
-  const inputValue = this.locationInputControl.value?.toLowerCase() || '';
-  const existingLocationNames = this.targetLocations().map(area => area.name);
-  
-});
-
-
-onTargetingSettingsChange(settings: TargetingSettings): void {
-    //console.log('Targeting settings changed:', settings);
-    
-    // Only update if there are actual changes to avoid loops
-    if (JSON.stringify(this.targetLocations()) !== JSON.stringify(settings.areas)) {
-      this.targetLocations.set(settings.areas);
-    }
-  }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -131,7 +84,6 @@ onTargetingSettingsChange(settings: TargetingSettings): void {
       //maxPromoters: [{ value: null, disabled: true }],
       //minViewsPerPromotion: [{ value: 25, disabled: true }, [Validators.required, Validators.min(25)]],
       campaignType: ['standard'],
-      enableTarget: [false],
       startDate: [null, Validators.required],
       endDate: [null],
       hasEndDate: [true],
@@ -199,10 +151,6 @@ onTargetingSettingsChange(settings: TargetingSettings): void {
           enableTarget: campaign.enableTarget || false
         });
 
-    if (campaign.targetLocations && Array.isArray(campaign.targetLocations)) {
-      this.targetLocations.set(campaign.targetLocations as TargetingArea[]);
-    }
-
     if (campaign.mediaUrl) {
       if (campaign.mediaType === 'image') {
         this.previewImageUrl.set(this.api + campaign.mediaUrl);
@@ -268,8 +216,6 @@ onTargetingSettingsChange(settings: TargetingSettings): void {
     const campaignData = {
       ...formValue,
       requirements: formValue.requirements ? formValue.requirements.split(',').map((r: string) => r.trim()) : [],
-      targetLocations: this.targetLocations(), // *** FIX: Use the signal value ***
-      enableTarget: this.campaignForm.get('enableTarget')?.value || false // *** FIX: Include enableTarget ***
     };
 
     this.campaignEditService.updateCampaign(this.campaign()?._id || '', this.campaign()?.owner._id, campaignData).subscribe({

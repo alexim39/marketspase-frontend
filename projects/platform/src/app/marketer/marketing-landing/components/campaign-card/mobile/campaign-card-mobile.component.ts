@@ -1,5 +1,5 @@
 // campaign-card-mobile.component.ts
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { ShortNumberPipe } from '../../../../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
 import { CampaignInterface, CurrencyUtilsPipe, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
 import { TruncatePipe } from '../../../../../store/shared';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-campaign-card-mobile',
@@ -28,6 +29,7 @@ import { TruncatePipe } from '../../../../../store/shared';
   styleUrls: ['./campaign-card-mobile.component.scss']
 })
 export class CampaignCardMobileComponent {
+  private router = inject(Router);
   @Input({ required: true }) campaign!: CampaignInterface;
   @Input() apiBaseUrl = '';
   @Input() view: 'grid' | 'list' = 'grid';
@@ -56,6 +58,13 @@ export class CampaignCardMobileComponent {
 
   onEditCampaign(): void {
     this.editCampaign.emit(this.campaign._id);
+  }
+
+  targetAudienceByLocation() {
+    const campaign = this.campaign;
+    if (campaign) {
+      this.router.navigate([`/dashboard/campaigns/${campaign._id}/targeting`]);
+    }
   }
 
   onPauseCampaign(): void {

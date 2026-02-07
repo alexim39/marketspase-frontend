@@ -1,0 +1,49 @@
+// error-state.component.scss
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 2rem;
+}
+
+.error-content {
+  text-align: center;
+  
+  mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    // UPDATED: Use error-color variable for dynamic theming
+    color: $error-color;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    margin: 0 0 0.5rem;
+    // UPDATED: Use error-color variable for dynamic theming
+    color: $error-color;
+  }
+  
+  p {
+    margin-bottom: 1.5rem;
+    // UPDATED: Use text-secondary variable for dynamic theming
+    color: $text-secondary;
+  }
+}
+
+.btn {
+  &-primary {
+    // UPDATED: Use primary-color variable for dynamic theming
+    background-color: $primary-color;
+    color: white;
+    
+    &:hover {
+      // UPDATED: Use darken-bg mixin for consistent theming
+      @include darken-bg($primary-color, 10%);
+    }
+  }
+}

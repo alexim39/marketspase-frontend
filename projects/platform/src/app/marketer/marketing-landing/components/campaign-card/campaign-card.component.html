@@ -16,6 +16,10 @@
         <mat-icon>edit</mat-icon>
         Edit Campaign
       </button>
+      <button mat-menu-item (click)="targetAudienceByLocation()">
+        <mat-icon>edit_location</mat-icon>
+        Set Location Target
+      </button>
       <!-- @if (campaign.status === 'active') {
         <button mat-menu-item (click)="onPauseCampaign()">
           <mat-icon>pause</mat-icon>
