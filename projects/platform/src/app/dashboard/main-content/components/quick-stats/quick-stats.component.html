@@ -1,0 +1,149 @@
+    <!-- Quick Stats -->
+    <div class="quick-stats-section">
+      <div class="section-header">
+        <h2 class="section-title">Quick Stats</h2>
+        <mat-icon class="info-icon" matTooltip="Real-time updates">info</mat-icon>
+      </div>
+      <mat-card class="stats-card">
+        <mat-card-content>
+          <!-- Campaign/Profile Stats -->
+          <div class="stats-item">
+            <div class="stats-header">
+              <h3 class="stats-title">
+                @if (user()?.role === 'marketer') {
+                  Campaign Performance
+                } @else {
+                  Promotion Status
+                }
+              </h3>
+              <p class="stats-subtitle">
+                @if (user()?.role === 'marketer') {
+                  {{campaignSummary()?.active || 0}} active campaigns
+                } @else {
+                  {{promotionSummary()?.total || 0}} total promotions
+                }
+              </p>
+            </div>
+            <div class="stats-body">
+              @if (user()?.role === 'marketer') {
+                <div class="progress-container">
+                  <div class="progress-label">
+                    <span>Budget Usage</span>
+                    <span>
+                      @if (campaignSummary()?.totalBudget ?? 0 > 0) {
+                        {{(campaignSummary()!.spentBudget / campaignSummary()!.totalBudget) * 100 | number:'1.0-0'}}%
+                      } @else {
+                        0%
+                      }
+                    </span>
+                  </div>
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="campaignSummary()?.totalBudget ? (campaignSummary()!.spentBudget / campaignSummary()!.totalBudget) * 100 : 0"
+                    class="progress-bar"
+                  ></mat-progress-bar>
+                  <div class="budget-details">
+                    <span class="budget-spent">₦{{(campaignSummary()?.spentBudget || 0) | number:'1.0-0'}} spent</span>
+                    <span class="budget-remaining">₦{{(campaignSummary()?.totalBudget || 0) - (campaignSummary()?.spentBudget || 0) | number:'1.0-0'}} remaining</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="status-chips">
+                  <div class="chip-row">
+                    <span class="status-chip accepted">
+                      <mat-icon>check_circle</mat-icon>
+                      {{promotionSummary()?.accepted || 0}} accepted
+                    </span>
+                    <span class="status-chip submitted">
+                      <mat-icon>pending</mat-icon>
+                      {{promotionSummary()?.submitted || 0}} submitted
+                    </span>
+                  </div>
+                  <div class="chip-row">
+                    <span class="status-chip validated">
+                      <mat-icon>verified</mat-icon>
+                      {{promotionSummary()?.validated || 0}} validated
+                    </span>
+                    <span class="status-chip paid">
+                      <mat-icon>paid</mat-icon>
+                      {{promotionSummary()?.paid || 0}} paid
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+          
+          <!-- Wallet Balance -->
+          <div class="stats-item wallet-item">
+            <div class="stats-header">
+              <h3 class="stats-title">Wallet Balance</h3>
+              <p class="stats-subtitle">Available funds</p>
+            </div>
+            <div class="stats-body">
+              <div class="wallet-balance">
+                <div class="balance-info">
+                  <span class="balance-amount">
+                    @if (user()?.role === 'marketer') {
+                      ₦{{(user()?.wallets?.marketer?.balance || 0) | number:'1.0-0'}}
+                    } @else {
+                      ₦{{(user()?.wallets?.promoter?.balance || 0) | number:'1.0-0'}}
+                    }
+                  </span>
+                  <span class="balance-label">Available for use</span>
+                </div>
+                @if (user()?.role === 'promoter') {
+                  <div class="wallet-actions">
+                    <button mat-stroked-button color="primary" (click)="withdrawWallet.emit()" class="withdraw-btn">
+                      Withdraw
+                    </button>
+                    <button mat-button color="accent" (click)="viewWallet.emit()" class="view-btn">
+                      View Details
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+          
+          <!-- Community Stats -->
+          <div class="stats-item community-item">
+            <div class="stats-header">
+              <h3 class="stats-title">Community Engagement</h3>
+              <p class="stats-subtitle">Your social presence</p>
+            </div>
+            <div class="stats-body">
+              <div class="engagement-stats">
+                <div class="engagement-stat">
+                  <div class="stat-icon-wrapper connections">
+                    <mat-icon>people</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <span class="stat-number">{{ communityStats()?.connections || 0 }}</span>
+                    <span class="stat-label">Connections</span>
+                  </div>
+                </div>
+                <div class="engagement-stat">
+                  <div class="stat-icon-wrapper likes">
+                    <mat-icon>thumb_up</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <span class="stat-number">{{ communityStats()?.likes || 0 }}</span>
+                    <span class="stat-label">Likes</span>
+                  </div>
+                </div>
+                <div class="engagement-stat">
+                  <div class="stat-icon-wrapper posts">
+                    <mat-icon>forum</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <span class="stat-number">{{ communityStats()?.posts || 0 }}</span>
+                    <span class="stat-label">Posts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>

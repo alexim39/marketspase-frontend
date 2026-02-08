@@ -11,7 +11,6 @@ import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
 
 import { PromoterProduct } from '../models/promoter-product.model';
 import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
-import { CommissionPipe } from '../../shared/pipes/commission.pipe';
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
@@ -61,7 +60,6 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
     MatTabsModule,
     MatProgressBarModule,
     TruncatePipe,
-    CommissionPipe,
     MatTableModule,
   ],
   templateUrl: './promoter-products-list.component.html',

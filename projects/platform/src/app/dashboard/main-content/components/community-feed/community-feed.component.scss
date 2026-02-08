@@ -1,0 +1,386 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.community-feed-section {
+  .section-header {
+    @include flex-between;
+    margin: $spacing-8 $spacing-4 $spacing-5;
+    
+    @include tablet {
+      margin: $spacing-10 $spacing-6 $spacing-6;
+    }
+    
+    @include desktop {
+      margin: $spacing-12 0 $spacing-6;
+    }
+
+    .section-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+
+      .section-title {
+        @include heading-small;
+        margin: 0;
+        color: $text-primary;
+        
+        @include tablet {
+          font-size: $font-size-3xl;
+        }
+      }
+      
+      .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
+        background: rgba($error-color, 0.1);
+        color: $error-color;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-xl;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        
+        .pulse-dot {
+          width: 6px;
+          height: 6px;
+          background: $error-color;
+          border-radius: $border-radius-full;
+          @include pulse;
+        }
+      }
+    }
+
+    .section-actions {
+      display: flex;
+      gap: $spacing-2;
+      
+      .create-post-btn {
+        @include button-primary;
+        border-radius: $border-radius-xl;
+        
+        &:hover:not(:disabled) {
+          background: $primary-dark;
+        }
+      }
+    }
+  }
+
+  .feed-preview {
+    padding: 0 $spacing-4;
+    
+    @include tablet {
+      padding: 0 $spacing-6;
+    }
+    
+    @include desktop {
+      padding: 0;
+    }
+    
+    .feed-posts {
+      display: grid;
+      gap: $spacing-4;
+      
+      @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      @include desktop {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  }
+}
+
+.community-post-card {
+  @include card-base;
+  border-radius: $border-radius-xl;
+  transition: all $transition-normal;
+  border: $border-width solid $border-color;
+  overflow: hidden;
+  
+  &:hover {
+    @include card-hover;
+    border-color: transparent;
+  }
+  
+  &.featured {
+    border: $border-width-2 solid $primary-color;
+    
+    @include tablet {
+      grid-column: span 2;
+    }
+    
+    @include desktop {
+      grid-column: span 1;
+    }
+  }
+  
+  .post-header {
+    padding: $spacing-4 $spacing-4 0;
+    
+    .post-user-info {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      
+      .user-avatar-wrapper {
+        position: relative;
+        
+        .post-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: $border-radius-md;
+          object-fit: cover;
+        }
+        
+        .badge-indicator {
+          position: absolute;
+          bottom: -4px;
+          right: -4px;
+          width: 16px;
+          height: 16px;
+          border: 2px solid $white;
+          border-radius: $border-radius-full;
+          
+          &.top-promoter {
+            background: $success-color;
+          }
+          
+          &.verified {
+            background: $primary-color;
+          }
+          
+          &.rising-star {
+            background: $warning-color;
+          }
+        }
+      }
+      
+      .user-details {
+        .user-name {
+          @include body-small;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          margin: 0 0 $spacing-1 0;
+        }
+        
+        .user-meta {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+          
+          .user-role {
+            font-size: $font-size-xs;
+            color: $text-secondary;
+            font-weight: $font-weight-medium;
+          }
+          
+          .post-time {
+            font-size: 0.6875rem; // 11px equivalent
+            color: $text-tertiary;
+          }
+        }
+      }
+    }
+    
+    .post-menu-btn {
+      margin-left: auto;
+      color: $text-tertiary;
+    }
+  }
+  
+  .post-content {
+    padding: $spacing-4;
+    
+    .post-text {
+      @include body-small;
+      line-height: $line-height-normal;
+      color: $text-primary;
+      margin: 0 0 $spacing-4 0;
+    }
+    
+    .post-highlight {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      padding: $spacing-3;
+      margin: $spacing-4 0;
+      border-radius: $border-radius-xl;
+      
+      .highlight-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba($white, 0.9);
+        border-radius: $border-radius;
+        @include flex-center;
+        
+        mat-icon {
+          font-size: $font-size-lg;
+        }
+      }
+      
+      .highlight-content {
+        @include flex-column;
+        
+        .highlight-title {
+          font-size: $font-size-xs;
+          font-weight: $font-weight-medium;
+          color: $text-secondary;
+        }
+        
+        .highlight-value {
+          font-size: $font-size-base;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+        }
+      }
+      
+      &.earnings-highlight {
+        background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($success-color, 0.05) 100%);
+        
+        .highlight-icon {
+          background: rgba($success-color, 0.1);
+          
+          mat-icon {
+            color: $success-color;
+          }
+        }
+      }
+      
+      &.campaign-highlight {
+        background: linear-gradient(135deg, rgba($primary-color, 0.1) 0%, rgba($primary-color, 0.05) 100%);
+        
+        .highlight-icon {
+          background: rgba($primary-color, 0.1);
+          
+          mat-icon {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+    
+    .post-actions {
+      display: flex;
+      justify-content: space-between;
+      padding-top: $spacing-4;
+      border-top: $border-width solid $border-color;
+      
+      .post-action {
+        @include flex-center;
+        gap: $spacing-1;
+        color: $text-secondary;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        min-width: 0;
+        padding: $spacing-2;
+        border-radius: $border-radius;
+        cursor: pointer;
+        transition: all $transition-fast;
+        
+        .action-icon {
+          font-size: $font-size-lg;
+          transition: color $transition-fast;
+        }
+        
+        .action-count {
+          font-size: $font-size-sm;
+        }
+        
+        .action-text {
+          @include mobile {
+            display: none;
+          }
+        }
+        
+        &:hover {
+          @include lighten-bg($background-color, 10%);
+          
+          .action-icon {
+            color: $primary-color;
+          }
+        }
+        
+        &.like-btn.active {
+          color: $error-color;
+          
+          .action-icon {
+            color: $error-color;
+          }
+        }
+        
+        &.save-btn.active {
+          color: $primary-color;
+          
+          .action-icon {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+.empty-feed-card {
+  @include card-base;
+  border: $border-width-2 dashed $border-color;
+  background: transparent;
+  box-shadow: none;
+  
+  .empty-state-content {
+    padding: $spacing-10 $spacing-5;
+    text-align: center;
+    
+    .empty-icon-container {
+      width: 80px;
+      height: 80px;
+      background: rgba($primary-color, 0.1);
+      border-radius: $border-radius-full;
+      @include flex-center;
+      margin: 0 auto $spacing-5;
+      
+      mat-icon {
+        font-size: $font-size-4xl;
+        color: $primary-color;
+      }
+    }
+    
+    .empty-title {
+      @include heading-small;
+      margin: 0 0 $spacing-3 0;
+      color: $text-primary;
+    }
+    
+    .empty-description {
+      @include body-medium;
+      color: $text-secondary;
+      margin: 0 0 $spacing-6 0;
+      line-height: $line-height-normal;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .empty-action-btn {
+      @include button-primary;
+      padding: $spacing-3 $spacing-6;
+      font-weight: $font-weight-semibold;
+      border-radius: $border-radius-xl;
+    }
+  }
+}
+
+@include mobile {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-4;
+  }
+  
+  .feed-preview {
+    .feed-posts {
+      grid-template-columns: 1fr;
+    }
+  }
+}

@@ -3,7 +3,7 @@
   <div class="list-item-content">
     <!-- Image -->
     <div class="list-image">
-      @if (product.images && product.images[0]?.url) {
+      @if (product.images && product.images[0].url) {
         <img [src]="product.images[0].url" 
              [alt]="product.name"
              appLazyImage

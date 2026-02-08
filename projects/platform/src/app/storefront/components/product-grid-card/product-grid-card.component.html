@@ -33,7 +33,7 @@
 
     <!-- Product Image -->
     <div class="product-image">
-      @if (product.images && product.images[0]?.url) {
+      @if (product.images && product.images[0].url) {
         <img 
           [src]="product.images[0].url" 
           [alt]="product.name"

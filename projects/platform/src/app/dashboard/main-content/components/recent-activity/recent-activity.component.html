@@ -1,0 +1,88 @@
+ <!-- Recent Activity -->
+    <div class="activity-section">
+      <div class="section-header">
+        <h2 class="section-title">Recent Activity</h2>
+        <button mat-button color="primary" (click)="viewAll.emit()">View All</button>
+      </div>
+      <mat-card class="activity-card">
+        <mat-card-content>
+          @if (activities().length > 0) {
+            <div class="activity-list">
+              @for (activity of activities(); track activity.id) {
+                <div class="activity-item" (click)="onActivityClick(activity)">
+                  <div class="activity-icon-container" [class]="activity.type">
+                    <mat-icon class="activity-icon">
+                      {{activity.type === 'credit' ? 'arrow_downward' : 'arrow_upward'}}
+                    </mat-icon>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-header">
+                      <p class="activity-description">{{activity.description}}</p>
+                      @if (activity.status) {
+                        <span class="activity-status" [class]="activity.status">
+                          {{activity.status}}
+                        </span>
+                      }
+                    </div>
+                    <div class="activity-footer">
+                      <span class="activity-time">{{activity.createdAt | date:'MMM d, h:mm a'}}</span>
+                      @if (activity.walletType) {
+                        <span class="activity-wallet">{{activity.walletType}}</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="activity-amount" [class]="activity.type">
+                    {{activity.type === 'credit' ? '+' : '-'}}₦{{activity.amount | number:'1.0-0'}}
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="activity-empty">
+              <div class="empty-icon-container">
+                <mat-icon>receipt_long</mat-icon>
+              </div>
+              <h3 class="empty-title">No Recent Activity</h3>
+              <p class="empty-description">
+                @if (userRole() === 'promoter') {
+                  Start promoting to see your earnings activity here.
+                } @else {
+                  Create campaigns to see your spending activity here.
+                }
+              </p>
+              @if (userRole() === 'promoter') {
+                <button mat-raised-button color="primary" (click)="browseCampaigns.emit()" class="empty-action-btn">
+                  <mat-icon>search</mat-icon>
+                  Browse Campaigns
+                </button>
+              } @else {
+                <button mat-raised-button color="primary" (click)="createCampaign.emit()" class="empty-action-btn">
+                  <mat-icon>add</mat-icon>
+                  Create Campaign
+                </button>
+              }
+            </div>
+          }
+          
+          <!-- Activity Summary -->
+          @if (activities().length > 0) {
+            <div class="activity-summary">
+              <div class="summary-item">
+                <div class="summary-label">Total Credits</div>
+                <div class="summary-value credit">+₦{{totalCredits() | number:'1.0-0'}}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Total Debits</div>
+                <div class="summary-value debit">-₦{{totalDebits() | number:'1.0-0'}}</div>
+              </div>
+              <div class="summary-item">
+                <div class="summary-label">Net Change</div>
+                <div class="summary-value" [class]="netChange() >= 0 ? 'credit' : 'debit'">
+                  {{netChange() >= 0 ? '+' : ''}}₦{{netChange() | number:'1.0-0'}}
+                </div>
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>

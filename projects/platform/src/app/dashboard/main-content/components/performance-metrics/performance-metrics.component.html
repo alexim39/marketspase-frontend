@@ -1,0 +1,72 @@
+    <!-- Performance Metrics -->
+    <div class="metrics-section">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <h2 class="section-title">Performance Overview</h2>
+          <span class="section-subtitle">Last 7 days</span>
+        </div>
+        <div class="period-selector">
+          <button 
+            mat-button 
+            [class.active]="period() === 'weekly'" 
+            (click)="periodChange.emit('weekly')"
+            class="period-btn"
+          >
+            Week
+          </button>
+          <button 
+            mat-button 
+            [class.active]="period() === 'monthly'" 
+            (click)="periodChange.emit('monthly')"
+            class="period-btn"
+          >
+            Month
+          </button>
+          <button 
+            mat-button 
+            [class.active]="period() === 'yearly'" 
+            (click)="periodChange.emit('yearly')"
+            class="period-btn"
+          >
+            Year
+          </button>
+        </div>
+      </div>
+      
+      <div class="metrics-grid">
+        @for (stat of stats(); track stat.label; let i = $index) {
+          <mat-card class="metric-card" [class]="'metric-' + (i + 1)">
+            <mat-card-content>
+              <div class="metric-header">
+                <div class="metric-icon" [style.background]="stat.color + '15'">
+                  <mat-icon [style.color]="stat.color">{{stat.icon}}</mat-icon>
+                </div>
+                @if (stat.trend) {
+                  <div class="metric-trend" [class]="stat.trend">
+                    <mat-icon class="trend-icon">
+                      {{stat.trend === 'up' ? 'trending_up' : 'trending_down'}}
+                    </mat-icon>
+                    <span class="trend-value">{{stat.change}}%</span>
+                  </div>
+                }
+              </div>
+              <div class="metric-body">
+                <h3 class="metric-value">{{stat.value}}</h3>
+                <p class="metric-label">{{stat.label}}</p>
+                @if (stat.subtitle) {
+                  <p class="metric-subtitle">{{stat.subtitle}}</p>
+                }
+              </div>
+              <div class="metric-footer">
+                <span class="period-indicator">{{ period() | titlecase }}</span>
+                @if (stat.trend === 'up') {
+                  <span class="positive-trend">+{{stat.change}}% vs last period</span>
+                } @else if (stat.trend === 'down') {
+                  <span class="negative-trend">-{{stat.change}}% vs last period</span>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </div>

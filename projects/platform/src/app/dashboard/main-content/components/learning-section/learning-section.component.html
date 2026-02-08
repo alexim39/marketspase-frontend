@@ -1,0 +1,159 @@
+    <!-- Learning Section -->
+    <div class="learning-section">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <h2 class="section-title">Continue Learning</h2>
+          <span class="section-subtitle">Grow your skills with Ad School</span>
+        </div>
+        <button mat-button color="primary" (click)="viewAll.emit()">View All Courses</button>
+      </div>
+      
+      <div class="learning-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>menu_book</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{totalCourses()}}</div>
+            <div class="stat-label">Courses Available</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>school</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{enrolledCount()}}</div>
+            <div class="stat-label">Enrolled</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>timer</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{totalProgress()}}%</div>
+            <div class="stat-label">Average Progress</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="learning-cards">
+        @for (course of courses(); track course.id) {
+          <mat-card class="learning-card">
+            <div class="course-image">
+              <img [src]="course.image" [alt]="course.title">
+              <div class="course-overlay">
+                @if (course.progress > 0) {
+                  <div class="progress-badge">
+                    {{course.progress}}% Complete
+                  </div>
+                } @else {
+                  <div class="new-badge">
+                    <mat-icon>new_releases</mat-icon>
+                    New
+                  </div>
+                }
+                <div class="course-badge" [class]="course.difficulty.toLowerCase()">
+                  {{course.difficulty}}
+                </div>
+              </div>
+            </div>
+            <mat-card-content class="course-content">
+              <div class="course-header">
+                <h3 class="course-title">{{course.title}}</h3>
+                @if (course.category) {
+                  <span class="course-category">{{course.category}}</span>
+                }
+              </div>
+              <p class="course-description">{{course.description}}</p>
+              
+              <div class="course-meta">
+                <span class="meta-item">
+                  <mat-icon>schedule</mat-icon>
+                  {{course.duration}}
+                </span>
+                <span class="meta-item">
+                  <mat-icon>menu_book</mat-icon>
+                  {{course.lessons}} lessons
+                </span>
+                @if (course.instructor) {
+                  <span class="meta-item">
+                    <mat-icon>person</mat-icon>
+                    {{course.instructor}}
+                  </span>
+                }
+              </div>
+              
+              @if (course.rating !== undefined && course.enrolled !== undefined) {
+                <div class="course-rating">
+                  <div class="rating-stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <mat-icon [class.active]="star <= course.rating!">
+                        {{star <= course.rating! ? 'star' : 'star_border'}}
+                      </mat-icon>
+                    }
+                    <span class="rating-value">{{course.rating.toFixed(1)}}</span>
+                  </div>
+                  <span class="enrolled-count">{{course.enrolled}} enrolled</span>
+                </div>
+              }
+              
+              <div class="progress-container">
+                <div class="progress-info">
+                  <span>Your Progress</span>
+                  <span>{{course.progress}}%</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="course.progress"
+                  class="course-progress"
+                  [class.completed]="course.progress === 100"
+                ></mat-progress-bar>
+                @if (course.progress === 100) {
+                  <div class="completion-badge">
+                    <mat-icon>verified</mat-icon>
+                    Course Completed!
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="course-actions">
+              <button 
+                mat-button 
+                color="primary" 
+                (click)="continueCourse.emit(course.id)"
+                class="course-btn"
+              >
+                <mat-icon>{{ course.progress > 0 ? 'play_arrow' : 'play_circle' }}</mat-icon>
+                {{ course.progress > 0 ? 'Continue' : 'Start Course' }}
+              </button>
+              <button 
+                mat-icon-button 
+                color="accent" 
+                (click)="saveCourse.emit(course.id)"
+                [matTooltip]="isSaved(course.id) ? 'Remove from saved' : 'Save for later'"
+                class="save-btn"
+              >
+                <mat-icon>{{ isSaved(course.id) ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+      
+      <div class="learning-footer">
+        <div class="achievement-banner">
+          <mat-icon>emoji_events</mat-icon>
+          <div class="banner-content">
+            <h4>Complete 5 courses to earn the Expert badge!</h4>
+            <p>{{completedCount()}}/5 courses completed</p>
+          </div>
+          <mat-progress-bar 
+            mode="determinate" 
+            [value]="(completedCount() / 5) * 100"
+            class="achievement-progress"
+          ></mat-progress-bar>
+        </div>
+      </div>
+    </div>
