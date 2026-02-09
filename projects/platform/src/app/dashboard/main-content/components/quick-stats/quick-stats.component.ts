@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
 
 export interface CampaignSummary {
   active: number;
@@ -42,7 +42,8 @@ export interface CommunityStats {
     MatButtonModule,
     MatCardModule,
     MatProgressBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    CurrencyUtilsPipe
   ],
   templateUrl: './quick-stats.component.html',
   styleUrls: ['./quick-stats.component.scss']

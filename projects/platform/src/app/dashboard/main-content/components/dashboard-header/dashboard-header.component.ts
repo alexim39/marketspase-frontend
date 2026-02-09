@@ -40,9 +40,23 @@ export class DashboardHeaderComponent {
 
   getCommunityGreeting(): string {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning! Ready to grow your business today?';
-    if (hour < 17) return 'Good afternoon! How\'s your day going?';
-    return 'Good evening! Time to review your progress!';
+    const role = this.user()?.role;
+
+    if (hour < 12) {
+      return role === 'marketer'
+        ? 'Good morning! Ready to grow your business today?'
+        : 'Good morning! Ready to earn by promoting great brands today?';
+    }
+
+    if (hour < 17) {
+      return role === 'marketer'
+        ? 'Good afternoon! How are your campaigns performing today?'
+        : 'Good afternoon! Any promotions bringing in engagement yet?';
+    }
+
+    return role === 'marketer'
+      ? 'Good evening! Time to review your sales and performance.'
+      : 'Good evening! Check your earnings and completed promotions.';
   }
 
   getOnlineCount(): string {

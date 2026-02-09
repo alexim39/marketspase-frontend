@@ -85,9 +85,9 @@
                 <div class="balance-info">
                   <span class="balance-amount">
                     @if (user()?.role === 'marketer') {
-                      ₦{{(user()?.wallets?.marketer?.balance || 0) | number:'1.0-0'}}
+                      {{(user()?.wallets?.marketer?.balance || 0) | currencyUtils:user()?.wallets?.marketer?.currency}}
                     } @else {
-                      ₦{{(user()?.wallets?.promoter?.balance || 0) | number:'1.0-0'}}
+                      {{(user()?.wallets?.promoter?.balance || 0) | currencyUtils:user()?.wallets?.promoter?.currency}}
                     }
                   </span>
                   <span class="balance-label">Available for use</span>
