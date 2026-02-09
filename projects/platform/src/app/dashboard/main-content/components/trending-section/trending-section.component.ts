@@ -1,5 +1,5 @@
 // trending-section.component.ts
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, computed } from '@angular/core'; // Added computed
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,7 @@ export interface TrendingItem {
 
 @Component({
   selector: 'trending-section',
+  standalone: true, // Ensure standalone if using with modern Angular
   imports: [
     CommonModule,
     MatIconModule,
@@ -39,29 +40,29 @@ export class TrendingSectionComponent {
   follow = output<string>();
   categoryChange = output<string>();
 
-  filteredTrends = () => {
+  // Use computed for filtering to improve performance
+  filteredTrends = computed(() => {
     const items = this.trendingItems();
     const activeCat = this.activeCategory();
-    
     if (activeCat === 'All') return items;
     return items.filter(item => item.category === activeCat);
-  }
+  });
 
-  totalMentions = () => {
+  totalMentions = computed(() => {
     return this.filteredTrends().reduce((sum, item) => sum + item.mentions, 0);
-  }
+  });
 
-  trendingGrowth = () => {
-    // Simulated growth percentage
+  // FIXED: Computed memoizes the random value so it doesn't change during Angular's check
+  trendingGrowth = computed(() => {
     return Math.floor(Math.random() * 30) + 10;
-  }
+  });
 
-  uniqueUsers = () => {
-    // Simulated unique user count
+  // FIXED: Computed memoizes the random value
+  uniqueUsers = computed(() => {
     return Math.floor(Math.random() * 1000) + 500;
-  }
+  });
 
-  topCategory = () => {
+  topCategory = computed(() => {
     const items = this.filteredTrends();
     if (items.length === 0) return 'N/A';
     
@@ -72,7 +73,7 @@ export class TrendingSectionComponent {
     
     return Object.entries(categoryCounts)
       .sort(([,a], [,b]) => b - a)[0][0];
-  }
+  });
 
   isFollowing(trendId: string): boolean {
     return this.following().has(trendId);

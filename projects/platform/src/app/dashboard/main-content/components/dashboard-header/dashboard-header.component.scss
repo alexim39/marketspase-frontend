@@ -2,7 +2,8 @@
 @import '../../../../../styles/mixins';
 
 .welcome-header {
-  background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  //background: linear-gradient(135deg, $primary-color 0%, $primary-dark 100%);
+  background: $gradient-primary;
   padding: $spacing-4;
   position: relative;
   overflow: hidden;

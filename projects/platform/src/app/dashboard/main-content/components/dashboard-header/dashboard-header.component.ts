@@ -1,5 +1,5 @@
 // dashboard-header.component.ts
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { DashboardService } from '../../../dashboard.service';
 
 
 @Component({
@@ -23,8 +24,9 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
   templateUrl: './dashboard-header.component.html',
   styleUrls: ['./dashboard-header.component.scss']
 })
-export class DashboardHeaderComponent {
+export class DashboardHeaderComponent implements OnInit {
   private router = inject(Router);
+  private dashboardService = inject(DashboardService);
 
   user = input<UserInterface | null>();
   communityNotifications = input(0);
@@ -37,6 +39,46 @@ export class DashboardHeaderComponent {
   viewPromotions = output<void>();
   withdrawWallet = output<void>();
   logout = output<void>();
+
+  // state
+  onlineCount = signal<number | null>(null);
+  loadingOnlineCount = signal(true);
+
+  // derived state (pure, no side effects)
+  onlineCountLabel = computed(() => {
+    if (this.loadingOnlineCount()) return '—';
+
+    const count = this.onlineCount();
+    if (!count || count <= 0) return '0';
+
+    return `${count}+`;
+  });
+
+  ngOnInit(): void {
+    this.loadOnlineCount();
+  }
+
+  loadOnlineCount(): void {
+    this.loadingOnlineCount.set(true);
+
+    this.dashboardService
+    .getUsersOnlineCount(this.user()?._id ?? '')
+    .subscribe({
+      next: (res) => {
+        //console.log('res ',res)
+        this.onlineCount.set(res?.count ?? 0);
+        this.loadingOnlineCount.set(false);
+      },
+      error: () => {
+        this.onlineCount.set(0);
+        this.loadingOnlineCount.set(false);
+      }
+    });
+  }
+
+
+
+  
 
   getCommunityGreeting(): string {
     const hour = new Date().getHours();
@@ -59,10 +101,7 @@ export class DashboardHeaderComponent {
       : 'Good evening! Check your earnings and completed promotions.';
   }
 
-  getOnlineCount(): string {
-    const count = Math.floor(Math.random() * 500) + 100;
-    return `${count}+`;
-  }
+
 
   openCommunityFeed(): void {
     this.router.navigate(['dashboard/community']);
