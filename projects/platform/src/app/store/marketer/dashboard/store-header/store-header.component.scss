@@ -310,11 +310,13 @@
       align-items: center;
       gap: $spacing-1;
       padding: $spacing-1 $spacing-3;
-      background: linear-gradient(135deg, $surface-color 0%, $surface-color 100%);
-      color: $white;
+      //background: linear-gradient(135deg, $surface-color 0%, $surface-color 100%);
+      background-color: color-mix(in srgb, $background-color, black 45%);
+      color: gold;
       border-radius: $border-radius-full;
       font-size: $font-size-sm;
       font-weight: $font-weight-medium;
+      margin-right: 0.5em;
       
       mat-icon {
         font-size: 14px;

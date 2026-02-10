@@ -103,12 +103,13 @@
       padding: $spacing-2 $spacing-4;
       border-radius: $border-radius-lg;
 
-      background-color: rgba($white, 0.08);
+      background-color: rgba($success-color, 0.08);
+      // background-color: rgba($white, 0.08);
       border: 1px solid rgba($success-color, 0.2);
 
       font-size: $font-size-xs;
       font-weight: $font-weight-medium;
-      color: rgba($white, 0.85);
+      color: rgba($white, 0.7);
 
       .online-icon {
         width: 8px;
