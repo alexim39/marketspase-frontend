@@ -77,12 +77,12 @@
         border-radius: $border-radius-xl;
         font-size: $font-size-xs;
         font-weight: $font-weight-medium;
-        background-color: color-mix(in srgb, $background-color, black 25%);
+        background-color: color-mix(in srgb, $background-color, black 12%);
         color: $text-secondary;
         transition: all $transition-fast;
         
         &:hover:not(:disabled) {
-          @include darken-bg($gray-50, 5%);
+          color: color-mix(in srgb, $background-color, black 25%);
         }
         
         &.active {

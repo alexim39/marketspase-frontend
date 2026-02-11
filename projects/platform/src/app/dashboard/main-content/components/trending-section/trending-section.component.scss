@@ -69,7 +69,7 @@
         transition: all $transition-fast;
         
         &:hover:not(:disabled) {
-          @include darken-bg($gray-50, 5%);
+         color: color-mix(in srgb, $background-color, black 25%);
         }
         
         &.active {
