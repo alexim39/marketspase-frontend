@@ -51,7 +51,7 @@
                         <h3>Quick Settings</h3>
                         <div class="status-indicator" [class.online]="isOnline" matTooltip="{{isOnline ? 'Online' : 'Offline'}}">
                             <div class="status-dot"></div>
-                            <span class="status-text">You and {{ onlineCountLabel() }} endorsed users are {{isOnline ? 'online' : 'offline'}}</span>
+                            <span class="status-text"> You and {{ onlineCountLabel() }} nearby users are {{ isOnline ? 'online' : 'offline' }}</span>
                         </div>
                     </div>
                 </div>
