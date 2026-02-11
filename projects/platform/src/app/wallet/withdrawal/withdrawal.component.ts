@@ -44,7 +44,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HelpDialogComponent, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, HelpDialogComponent, UserInterface } from '../../../../../shared-services/src/public-api';
 import { UserService } from '../../common/services/user.service';
 
 interface BankInterface {
@@ -83,7 +83,8 @@ interface AccountResolutionResponse {
     MatCardModule,
     MatExpansionModule,
     MatTooltipModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    CurrencyUtilsPipe
   ],
   providers: [WithdrawalService],
   templateUrl: './withdrawal.component.html',
@@ -125,7 +126,7 @@ export class WithdrawalComponent implements OnInit {
 
   // Constants
   private readonly MIN_WITHDRAWAL_AMOUNT = 100;
-  private readonly WITHDRAWAL_FEE_RATE = 0.15; // 15%
+  private readonly WITHDRAWAL_FEE_RATE = 0.18; // 18%
 
   readonly payableAmount = signal<number>(0);
 
@@ -139,7 +140,7 @@ readonly totalDeduction = computed(() => {
   const amount = this.withdrawForm?.get('amount')?.value || 0;
   const withdrawalAmount = parseFloat(amount) || 0;
   
-  // Total deduction = withdrawal amount + 15% fee
+  // Total deduction = withdrawal amount + 18% fee
   return withdrawalAmount + (withdrawalAmount * this.WITHDRAWAL_FEE_RATE);
 });
 
@@ -160,7 +161,7 @@ readonly totalDeduction = computed(() => {
     return;
   }
   
-  // Calculate payable amount: withdrawal amount minus 15% fee
+  // Calculate payable amount: withdrawal amount minus 18% fee
   const payable = withdrawalAmount * (1 - this.WITHDRAWAL_FEE_RATE);
   this.payableAmount.set(Math.max(0, Math.round(payable * 100) / 100));
 }
