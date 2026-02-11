@@ -24,7 +24,7 @@ import { DashboardService } from '../../../dashboard.service';
   templateUrl: './dashboard-header.component.html',
   styleUrls: ['./dashboard-header.component.scss']
 })
-export class DashboardHeaderComponent implements OnInit {
+export class DashboardHeaderComponent {
   private router = inject(Router);
   private dashboardService = inject(DashboardService);
 
@@ -40,44 +40,42 @@ export class DashboardHeaderComponent implements OnInit {
   withdrawWallet = output<void>();
   logout = output<void>();
 
+
   // state
-  onlineCount = signal<number | null>(null);
-  loadingOnlineCount = signal(true);
+  // onlineCount = signal<number | null>(null);
+  // loadingOnlineCount = signal(true);
 
-  // derived state (pure, no side effects)
-  onlineCountLabel = computed(() => {
-    if (this.loadingOnlineCount()) return '—';
+  // // derived state (pure, no side effects)
+  // onlineCountLabel = computed(() => {
+  //   if (this.loadingOnlineCount()) return '—';
 
-    const count = this.onlineCount();
-    if (!count || count <= 0) return '0';
+  //   const count = this.onlineCount();
+  //   if (!count || count <= 0) return '0';
 
-    return `${count}+`;
-  });
+  //   return `${count}+`;
+  // });
 
-  ngOnInit(): void {
-    this.loadOnlineCount();
-  }
+  // ngOnInit(): void {
+  //   this.loadOnlineCount();
+  // }
 
-  loadOnlineCount(): void {
-    this.loadingOnlineCount.set(true);
+  // loadOnlineCount(): void {
+  //   this.loadingOnlineCount.set(true);
 
-    this.dashboardService
-    .getUsersOnlineCount(this.user()?._id ?? '')
-    .subscribe({
-      next: (res) => {
-        //console.log('res ',res)
-        this.onlineCount.set(res?.count ?? 0);
-        this.loadingOnlineCount.set(false);
-      },
-      error: () => {
-        this.onlineCount.set(0);
-        this.loadingOnlineCount.set(false);
-      }
-    });
-  }
-
-
-
+  //   this.dashboardService
+  //   .getUsersOnlineCount(this.user()?._id ?? '')
+  //   .subscribe({
+  //     next: (res) => {
+  //       //console.log('res ',res)
+  //       this.onlineCount.set(res?.count ?? 0);
+  //       this.loadingOnlineCount.set(false);
+  //     },
+  //     error: () => {
+  //       this.onlineCount.set(0);
+  //       this.loadingOnlineCount.set(false);
+  //     }
+  //   });
+  // }
   
 
   getCommunityGreeting(): string {
