@@ -25,7 +25,6 @@ import { Subject, takeUntil } from 'rxjs';
 import { PromoterProduct } from '../models/promoter-product.model';
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
-import { CommissionPipe } from '../../shared/pipes/commission.pipe';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ShareService } from '../../services/share.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -56,7 +55,6 @@ import { UserService } from '../../../common/services/user.service';
     MatFormFieldModule,
     MatMenuModule,
     TruncatePipe,
-    CommissionPipe,
     CurrencyPipe,
   ],
   templateUrl: './promoter-product-details.component.html',

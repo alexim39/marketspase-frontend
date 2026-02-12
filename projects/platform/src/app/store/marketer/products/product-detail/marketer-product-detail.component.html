@@ -190,7 +190,7 @@
                   (error)="handleImageError($event)"
                   class="product-image"
                 >
-              } @else if (product.images && product.images[0]?.url) {
+              } @else if (product.images && product.images[0].url) {
                 <img 
                   [src]="product.images[0].url" 
                   [alt]="product.name"

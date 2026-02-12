@@ -1,0 +1,136 @@
+    <!-- Suggested Connections -->
+    <div class="connections-section">
+      <div class="section-header">
+        <h2 class="section-title">Suggested Connections</h2>
+        <button mat-button color="primary" (click)="viewAll.emit()">See All</button>
+      </div>
+      <mat-card class="connections-card">
+        <mat-card-content>
+          <div class="connections-header">
+            <div class="connections-stats">
+              <div class="stat-item">
+                <div class="stat-value">{{totalConnections()}}</div>
+                <div class="stat-label">Total Suggestions</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{mutualConnections()}}</div>
+                <div class="stat-label">Mutual Connections</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{onlineCount()}}</div>
+                <div class="stat-label">Online Now</div>
+              </div>
+            </div>
+            
+            <div class="connection-filters">
+              <button 
+                mat-button 
+                *ngFor="let filter of filters()" 
+                [class.active]="activeFilter() === filter"
+                (click)="filterChange.emit(filter)"
+                class="filter-btn"
+              >
+                {{filter}}
+              </button>
+            </div>
+          </div>
+          
+          <div class="connections-list">
+            @for (connection of filteredConnections(); track connection.id) {
+              <div class="connection-item">
+                <div class="connection-profile" (click)="onProfileClick(connection)">
+                  <div class="avatar-container">
+                    <img 
+                      [src]="connection.avatar" 
+                      [alt]="connection.name" 
+                      class="connection-avatar"
+                    >
+                    @if (connection.status) {
+                      <div class="status-indicator" [class]="connection.status"></div>
+                    }
+                  </div>
+                  <div class="connection-info">
+                    <div class="connection-header">
+                      <h4 class="connection-name">{{connection.name}}</h4>
+                      @if (connection.mutualConnections) {
+                        <span class="mutual-badge">
+                          <mat-icon>people</mat-icon>
+                          {{connection.mutualConnections}} mutual
+                        </span>
+                      }
+                    </div>
+                    <p class="connection-role">{{connection.role}}</p>
+                    <div class="connection-stats">
+                      <span class="connection-rating">
+                        <mat-icon>star</mat-icon>
+                        {{connection.rating}} ⭐
+                      </span>
+                      <span class="connection-completed">
+                        <mat-icon>check_circle</mat-icon>
+                        {{connection.completed}} campaigns
+                      </span>
+                    </div>
+                    @if (connection.skills && connection.skills.length > 0) {
+                      <div class="connection-skills">
+                        @for (skill of connection.skills.slice(0, 2); track skill) {
+                          <span class="skill-tag">{{skill}}</span>
+                        }
+                        @if (connection.skills.length > 2) {
+                          <span class="skill-more">+{{connection.skills.length - 2}} more</span>
+                        }
+                      </div>
+                    }
+                    @if (connection.location) {
+                      <div class="connection-location">
+                        <mat-icon>location_on</mat-icon>
+                        {{connection.location}}
+                      </div>
+                    }
+                  </div>
+                </div>
+                <div class="connection-actions">
+                  <button 
+                    mat-stroked-button 
+                    color="primary" 
+                    (click)="onConnect(connection.id)"
+                    class="connect-btn"
+                    [matTooltip]="isPending(connection.id) ? 'Request sent' : 'Connect'"
+                  >
+                    @if (isPending(connection.id)) {
+                      <mat-icon>pending</mat-icon>
+                      Pending
+                    } @else if (isConnected(connection.id)) {
+                      <mat-icon>check</mat-icon>
+                      Connected
+                    } @else {
+                      <mat-icon>person_add</mat-icon>
+                      Connect
+                    }
+                  </button>
+                  <button 
+                    mat-icon-button 
+                    color="accent" 
+                    (click)="onMessage(connection.id)"
+                    class="message-btn"
+                    matTooltip="Send message"
+                  >
+                    <mat-icon>chat</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+          
+          <div class="connections-footer">
+            <button mat-button color="primary" (click)="refresh.emit()" class="refresh-btn">
+              <mat-icon>refresh</mat-icon>
+              Refresh Suggestions
+            </button>
+            <div class="disclaimer">
+              <mat-icon>info</mat-icon>
+              <span>Suggestions are based on your activity and interests</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>

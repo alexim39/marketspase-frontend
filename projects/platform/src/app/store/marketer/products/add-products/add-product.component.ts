@@ -198,7 +198,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
     this.productForm = this.fb.group({
       basicInfo: this.fb.group({
         name: this.fb.control<string>('', { validators: [Validators.required, Validators.minLength(3), Validators.maxLength(200)] }),
-        description: this.fb.control<string>('', { validators: [Validators.maxLength(2000)] }),
+        description: this.fb.control<string>('', { validators: [Validators.required, Validators.maxLength(2000)] }),
         category: this.fb.control<string>('', { validators: [Validators.required] }),
         brand: this.fb.control<string>(''),
         tags: this.fb.array<StrCtrl>([]),

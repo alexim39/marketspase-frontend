@@ -1,0 +1,467 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.learning-section {
+  .section-header {
+    @include flex-between;
+    margin: $spacing-8 $spacing-4 $spacing-5;
+    
+    @include tablet {
+      margin: $spacing-10 $spacing-6 $spacing-6;
+    }
+    
+    @include desktop {
+      margin: $spacing-12 0 $spacing-6;
+    }
+
+    .section-title-wrapper {
+      .section-title {
+        @include heading-small;
+        margin: 0;
+        color: $text-primary;
+        
+        @include tablet {
+          font-size: $font-size-3xl;
+        }
+      }
+      
+      .section-subtitle {
+        @include body-small;
+        color: $text-secondary;
+        font-weight: $font-weight-medium;
+        margin-top: $spacing-1;
+      }
+    }
+  }
+  
+  .learning-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-4;
+    margin: 0 $spacing-4 $spacing-6;
+    
+    @include tablet {
+      margin: 0 $spacing-6 $spacing-8;
+    }
+    
+    @include desktop {
+      margin: 0 0 $spacing-8;
+    }
+
+    .stat-card {
+      @include card-base;
+      background-color: color-mix(in srgb, $background-color, black 20%);
+      border-radius: $border-radius-md;
+      padding: $spacing-5;
+      display: flex;
+      align-items: center;
+      gap: $spacing-4;
+      transition: all $transition-normal;
+      border: none;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-lg;
+      }
+      
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: $primary-color;
+        border-radius: $border-radius-xl;
+        @include flex-center;
+        
+        mat-icon {
+          font-size: $font-size-2xl;
+          color: $white;
+        }
+      }
+      
+      .stat-content {
+        .stat-value {
+          font-size: $font-size-3xl;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+          line-height: $line-height-tight;
+          margin-bottom: $spacing-1;
+        }
+        
+        .stat-label {
+          @include caption;
+          color: $text-secondary;
+          font-size: $font-size-xs;
+        }
+      }
+    }
+  }
+  
+  .learning-cards {
+    display: grid;
+    gap: $spacing-5;
+    margin: 0 $spacing-4;
+    
+    @include tablet {
+      margin: 0 $spacing-6;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include desktop {
+      margin: 0;
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .learning-footer {
+    margin-top: $spacing-8;
+    padding: 0 $spacing-4;
+    
+    @include tablet {
+      padding: 0 $spacing-6;
+    }
+    
+    @include desktop {
+      padding: 0;
+    }
+    
+    .achievement-banner {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      border-radius: $border-radius-md;
+      padding: $spacing-5;
+      display: flex;
+      align-items: center;
+      gap: $spacing-4;
+      color: $white;
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        transform: translate(30%, -30%);
+      }
+      
+      mat-icon {
+        font-size: $font-size-4xl;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .banner-content {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+        
+        h4 {
+          @include heading-small;
+          color: $white;
+          margin: 0 0 $spacing-1 0;
+          font-size: $font-size-base;
+          font-weight: $font-weight-semibold;
+        }
+        
+        p {
+          @include body-small;
+          opacity: 0.9;
+          margin: 0;
+          color: rgba($white, 0.9);
+        }
+      }
+      
+      .achievement-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        
+        ::ng-deep .mat-progress-bar-fill::after {
+          background-color: rgba($white, 0.8);
+        }
+      }
+    }
+  }
+}
+
+.learning-card {
+  @include card-base;
+  border-radius: $border-radius-xl;
+  border: $border-width solid $border-color;
+  transition: all $transition-normal;
+  height: 100%;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-xl;
+    border-color: transparent;
+  }
+  
+  .course-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform $transition-normal;
+    }
+    
+    .course-overlay {
+      position: absolute;
+      top: $spacing-3;
+      left: $spacing-3;
+      right: $spacing-3;
+      display: flex;
+      justify-content: space-between;
+      
+      .progress-badge,
+      .new-badge,
+      .course-badge {
+        padding: $spacing-1 $spacing-3;
+        border-radius: $border-radius-xl;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        color: $white;
+        @include flex-center;
+        gap: $spacing-1;
+      }
+      
+      .progress-badge {
+        background: rgba($black, 0.7);
+        backdrop-filter: blur(4px);
+      }
+      
+      .new-badge {
+        background: rgba($success-color, 0.9);
+        
+        mat-icon {
+          font-size: $font-size-sm;
+        }
+      }
+      
+      .course-badge {
+        &.beginner {
+          background: $success-color;
+        }
+        
+        &.intermediate {
+          background: $warning-color;
+        }
+        
+        &.advanced {
+          background: $error-color;
+        }
+      }
+    }
+  }
+  
+  .course-content {
+    padding: $spacing-5;
+    
+    .course-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: $spacing-2;
+      margin-bottom: $spacing-2;
+      
+      .course-title {
+        @include body-large;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        margin: 0;
+        line-height: $line-height-tight;
+      }
+      
+      .course-category {
+        font-size: $font-size-xs;
+        color: $primary-color;
+        background: rgba($primary-color, 0.1);
+        padding: 2px $spacing-2;
+        border-radius: $border-radius-lg;
+        font-weight: $font-weight-medium;
+        flex-shrink: 0;
+      }
+    }
+    
+    .course-description {
+      @include body-small;
+      color: $text-secondary;
+      margin: 0 0 $spacing-4 0;
+      line-height: $line-height-normal;
+      @include text-multiline-ellipsis(2);
+    }
+    
+    .course-meta {
+      display: flex;
+      gap: $spacing-3;
+      margin-bottom: $spacing-4;
+      flex-wrap: wrap;
+      
+      .meta-item {
+        @include flex-center;
+        gap: $spacing-1;
+        font-size: $font-size-xs;
+        color: $text-tertiary;
+        
+        mat-icon {
+          font-size: $font-size-base;
+        }
+      }
+    }
+    
+    .course-rating {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-4;
+      
+      .rating-stars {
+        @include flex-center;
+        gap: 2px;
+        
+        mat-icon {
+          font-size: $font-size-base;
+          color: #ffd700;
+          
+          &.active {
+            color: #ffd700;
+          }
+          
+          &:not(.active) {
+            color: $gray-200;
+          }
+        }
+        
+        .rating-value {
+          margin-left: $spacing-1;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-semibold;
+          color: $text-secondary;
+        }
+      }
+      
+      .enrolled-count {
+        font-size: $font-size-xs;
+        color: $text-tertiary;
+      }
+    }
+    
+    .progress-container {
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        margin-bottom: $spacing-2;
+      }
+      
+      .course-progress {
+        height: 6px;
+        border-radius: $border-radius-full;
+        
+        &.completed ::ng-deep .mat-progress-bar-fill::after {
+          background-color: $success-color;
+        }
+      }
+      
+      .completion-badge {
+        @include flex-center;
+        gap: $spacing-1;
+        font-size: $font-size-xs;
+        color: $success-color;
+        font-weight: $font-weight-semibold;
+        margin-top: $spacing-2;
+        
+        mat-icon {
+          font-size: $font-size-base;
+        }
+      }
+    }
+  }
+  
+  .course-actions {
+    padding: 0 $spacing-5 $spacing-5;
+    @include flex-between;
+    
+    .course-btn {
+      @include button-primary;
+      border-radius: $border-radius-xl;
+      padding: $spacing-2 $spacing-4;
+      font-weight: $font-weight-semibold;
+      
+      mat-icon {
+        margin-right: $spacing-1;
+      }
+      
+      &.secondary-btn {
+        @include button-secondary;
+      }
+    }
+    
+    .save-btn {
+      @include button-ghost;
+      border-radius: $border-radius;
+      min-width: auto;
+      padding: $spacing-2;
+      
+      &.saved {
+        color: $primary-color;
+        
+        .action-icon {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+@include mobile {
+  .learning-section {
+    .learning-stats {
+      grid-template-columns: 1fr;
+    }
+    
+    .learning-cards {
+      grid-template-columns: 1fr;
+    }
+    
+    .achievement-banner {
+      flex-direction: column;
+      text-align: center;
+      gap: $spacing-3;
+      
+      mat-icon {
+        font-size: $font-size-3xl;
+      }
+    }
+  }
+  
+  .learning-card {
+    .course-content {
+      .course-header {
+        flex-direction: column;
+        gap: $spacing-1;
+      }
+    }
+    
+    .course-actions {
+      flex-direction: column;
+      gap: $spacing-2;
+      
+      .course-btn,
+      .save-btn {
+        width: 100%;
+      }
+    }
+  }
+}

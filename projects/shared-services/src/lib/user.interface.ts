@@ -9,7 +9,7 @@ export interface UserInterface {
   email: string;
   username: string;
   biography?: string;
-  role: string;
+  role: 'marketer' | 'promoter' | 'marketing_rep' | 'admin' | undefined;
   avatar?: string;
   createdAt?: Date;
   preferences?: {

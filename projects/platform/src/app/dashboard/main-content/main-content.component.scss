@@ -17,640 +17,6 @@
   }
 }
 
-/* Community Welcome Header */
-.welcome-header {
-  background: $gradient-primary;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-  
-  @include tablet {
-    padding: 24px;
-    border-radius: 0 0 24px 24px;
-  }
-  
-  @include desktop {
-    border-radius: 24px;
-    margin: 24px 24px 0;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-    transform: translate(30%, -30%);
-  }
-
-  .welcome-content {
-    position: relative;
-    z-index: 1;
-  }
-
-  .user-greeting {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-
-    .avatar-container {
-      position: relative;
-      
-      .user-avatar {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        border: 3px solid rgba(255, 255, 255, 0.3);
-        object-fit: cover;
-        
-        @include tablet {
-          width: 64px;
-          height: 64px;
-        }
-      }
-      
-      .online-indicator {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 14px;
-        height: 14px;
-        background: $success-color;
-        border: 2px solid white;
-        border-radius: 50%;
-      }
-    }
-
-    .greeting-text {
-      .greeting-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: white;
-        margin: 0 0 4px 0;
-        line-height: 1.2;
-        
-        @include tablet {
-          font-size: 24px;
-        }
-        
-        @include desktop {
-          font-size: 28px;
-        }
-      }
-
-      .community-subtitle {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 14px;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        
-        @include tablet {
-          flex-direction: row;
-          align-items: center;
-        }
-
-        .online-count {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(255, 255, 255, 0.15);
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 13px;
-          font-weight: 500;
-          
-          .online-icon {
-            font-size: 8px;
-            color: $success-color;
-          }
-        }
-      }
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .quick-action-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      
-      @include tablet {
-        flex-wrap: nowrap;
-      }
-
-      .desktop-action {
-        @include mobile {
-          display: none;
-        }
-      }
-
-      .community-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .notification-count {
-          margin-left: 8px;
-          background: $error-color;
-          color: white;
-          font-size: 11px;
-          padding: 2px 6px;
-          border-radius: 10px;
-          font-weight: 600;
-        }
-      }
-    }
-
-    .action-menu {
-      .quick-menu-btn {
-        color: white;
-        background: rgba(255, 255, 255, 0.1);
-        
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-      }
-    }
-  }
-}
-
-/* Action Menu Styles */
-.action-menu-content {
-  min-width: 240px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: $shadow-xl;
-  margin-top: 8px;
-  
-  .menu-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    font-size: 14px;
-    
-    .menu-icon {
-      margin-right: 12px;
-      font-size: 20px;
-      color: $text-secondary;
-    }
-    
-    .menu-text {
-      flex: 1;
-      color: $text-primary;
-    }
-    
-    .menu-badge {
-      background: $error-color;
-      color: white;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      margin-left: 8px;
-    }
-    
-    .new-badge {
-      background: $success-color;
-      color: white;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-      margin-left: 8px;
-      text-transform: uppercase;
-    }
-    
-    &:hover {
-      background: $gray-50;
-    }
-    
-    &.logout-item {
-      color: $error-color;
-      
-      .menu-icon {
-        color: $error-color;
-      }
-    }
-  }
-  
-  .menu-divider {
-    margin: 8px 0;
-  }
-}
-
-/* Section Headers */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 32px 16px 20px;
-  
-  @include tablet {
-    margin: 40px 24px 24px;
-  }
-  
-  @include desktop {
-    margin: 48px 0 24px;
-  }
-
-  .section-title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    
-    .section-title {
-      @include heading-medium;
-      margin: 0;
-      color: $text-primary;
-    }
-    
-    .section-subtitle {
-      font-size: 14px;
-      color: $text-secondary;
-      font-weight: 500;
-    }
-    
-    .live-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba($error-color, 0.1);
-      color: $error-color;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      
-      .pulse-dot {
-        width: 6px;
-        height: 6px;
-        background: $error-color;
-        border-radius: 50%;
-        animation: pulse 2s infinite;
-      }
-    }
-  }
-
-  .section-actions {
-    display: flex;
-    gap: 8px;
-    
-    .create-post-btn {
-      background: $primary-color;
-      color: white;
-      
-      &:hover {
-        background: darken($primary-color, 10%);
-      }
-    }
-  }
-
-  .period-selector {
-    display: flex;
-    background: $surface-color;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-    padding: 4px;
-    
-    .period-btn {
-      min-width: 70px;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 8px;
-      transition: all $transition-fast;
-      
-      &.active {
-        background: $primary-color;
-        color: white;
-        box-shadow: $shadow-sm;
-      }
-      
-      &:not(.active):hover {
-        background: $gray-50;
-      }
-    }
-  }
-}
-
-/* Community Feed Section */
-.community-feed-section {
-  .feed-preview {
-    padding: 0 16px;
-    
-    @include tablet {
-      padding: 0 24px;
-    }
-    
-    @include desktop {
-      padding: 0;
-    }
-    
-    .feed-posts {
-      display: grid;
-      gap: 16px;
-      
-      @include tablet {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      @include desktop {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-  }
-}
-
-.community-post-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  transition: all $transition-normal;
-  border: 1px solid $border-color;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-lg;
-    border-color: transparent;
-  }
-  
-  &.featured {
-    border: 2px solid $primary-color;
-    
-    @include tablet {
-      grid-column: span 2;
-    }
-    
-    @include desktop {
-      grid-column: span 1;
-    }
-  }
-  
-  .post-header {
-    padding: 16px 16px 0;
-    
-    .post-user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      
-      .user-avatar-wrapper {
-        position: relative;
-        
-        .post-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 14px;
-          object-fit: cover;
-        }
-        
-        .badge-indicator {
-          position: absolute;
-          bottom: -4px;
-          right: -4px;
-          width: 16px;
-          height: 16px;
-          border: 2px solid white;
-          border-radius: 50%;
-          
-          &.top-promoter {
-            background: $success-color;
-          }
-          
-          &.verified {
-            background: $primary-color;
-          }
-          
-          &.rising-star {
-            background: $warning-color;
-          }
-        }
-      }
-      
-      .user-details {
-        .user-name {
-          font-size: 15px;
-          font-weight: 600;
-          color: $text-primary;
-          margin: 0 0 4px 0;
-        }
-        
-        .user-meta {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          
-          .user-role {
-            font-size: 12px;
-            color: $text-secondary;
-            font-weight: 500;
-          }
-          
-          .post-time {
-            font-size: 11px;
-            color: $text-tertiary;
-          }
-        }
-      }
-    }
-    
-    .post-menu-btn {
-      margin-left: auto;
-      color: $text-tertiary;
-    }
-  }
-  
-  .post-content {
-    padding: 16px;
-    
-    .post-text {
-      font-size: 15px;
-      line-height: 1.5;
-      color: $text-primary;
-      margin: 0 0 16px 0;
-    }
-    
-    .post-highlight {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      margin: 16px 0;
-      border-radius: 12px;
-      
-      .highlight-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(white, 0.9);
-        border-radius: 10px;
-        @include flex-center;
-        
-        mat-icon {
-          font-size: 20px;
-        }
-      }
-      
-      .highlight-content {
-        display: flex;
-        flex-direction: column;
-        
-        .highlight-title {
-          font-size: 13px;
-          font-weight: 500;
-          color: $text-secondary;
-        }
-        
-        .highlight-value {
-          font-size: 16px;
-          font-weight: 700;
-          color: $text-primary;
-        }
-      }
-      
-      &.earnings-highlight {
-        background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($success-color, 0.05) 100%);
-        
-        .highlight-icon {
-          background: rgba($success-color, 0.1);
-          
-          mat-icon {
-            color: $success-color;
-          }
-        }
-      }
-      
-      &.campaign-highlight {
-        background: linear-gradient(135deg, rgba($primary-color, 0.1) 0%, rgba($primary-color, 0.05) 100%);
-        
-        .highlight-icon {
-          background: rgba($primary-color, 0.1);
-          
-          mat-icon {
-            color: $primary-color;
-          }
-        }
-      }
-    }
-    
-    .post-actions {
-      display: flex;
-      justify-content: space-between;
-      padding-top: 16px;
-      border-top: 1px solid $border-color;
-      
-      .post-action {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: $text-secondary;
-        font-size: 14px;
-        font-weight: 500;
-        min-width: 0;
-        padding: 8px;
-        
-        .action-icon {
-          font-size: 20px;
-          transition: color $transition-fast;
-        }
-        
-        .action-count {
-          font-size: 14px;
-        }
-        
-        .action-text {
-          @include mobile {
-            display: none;
-          }
-        }
-        
-        &:hover {
-          .action-icon {
-            color: $primary-color;
-          }
-        }
-        
-        &.like-btn.active {
-          color: $error-color;
-          
-          .action-icon {
-            color: $error-color;
-          }
-        }
-        
-        &.save-btn.active {
-          color: $primary-color;
-          
-          .action-icon {
-            color: $primary-color;
-          }
-        }
-      }
-    }
-  }
-}
-
-.empty-feed-card {
-  border-radius: 20px;
-  border: 2px dashed $border-color;
-  background: transparent;
-  box-shadow: none;
-  
-  .empty-state-content {
-    padding: 40px 20px;
-    text-align: center;
-    
-    .empty-icon-container {
-      width: 80px;
-      height: 80px;
-      background: rgba($primary-color, 0.1);
-      border-radius: 50%;
-      @include flex-center;
-      margin: 0 auto 20px;
-      
-      mat-icon {
-        font-size: 40px;
-        color: $primary-color;
-      }
-    }
-    
-    .empty-title {
-      @include heading-small;
-      margin: 0 0 12px 0;
-      color: $text-primary;
-    }
-    
-    .empty-description {
-      font-size: 15px;
-      color: $text-secondary;
-      margin: 0 0 24px 0;
-      line-height: 1.5;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    .empty-action-btn {
-      padding: 12px 24px;
-      font-weight: 600;
-      border-radius: 12px;
-    }
-  }
-}
-
 /* Dashboard Content Grid */
 .dashboard-content-grid {
   padding: 0 16px;
@@ -667,121 +33,6 @@
   }
 }
 
-/* Metrics Section */
-.metrics-section {
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    
-    @include mobile {
-      grid-template-columns: 1fr;
-    }
-    
-    @include desktop {
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-  }
-}
-
-.metric-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid $border-color;
-  transition: all $transition-normal;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $shadow-md;
-  }
-  
-  mat-card-content {
-    padding: 24px;
-  }
-  
-  .metric-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    
-    .metric-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      @include flex-center;
-      
-      mat-icon {
-        font-size: 24px;
-      }
-    }
-    
-    .metric-trend {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 10px;
-      border-radius: 12px;
-      
-      &.up {
-        background: rgba($success-color, 0.1);
-        color: $success-color;
-      }
-      
-      &.down {
-        background: rgba($error-color, 0.1);
-        color: $error-color;
-      }
-      
-      .trend-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
-    }
-  }
-  
-  .metric-body {
-    .metric-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: $text-primary;
-      margin: 0 0 8px 0;
-      line-height: 1;
-    }
-    
-    .metric-label {
-      font-size: 15px;
-      font-weight: 600;
-      color: $text-primary;
-      margin: 0 0 4px 0;
-    }
-    
-    .metric-subtitle {
-      font-size: 13px;
-      color: $text-secondary;
-      margin: 0;
-    }
-  }
-  
-  .metric-footer {
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid $border-color;
-    
-    .period-indicator {
-      font-size: 11px;
-      color: $text-tertiary;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-  }
-}
-
 /* Stats & Activity Grid */
 .stats-activity-grid {
   display: grid;
@@ -794,491 +45,17 @@
   }
 }
 
-/* Stats Card */
-.stats-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  
-  mat-card-content {
-    padding: 24px;
-  }
-  
-  .stats-item {
-    padding: 20px 0;
-    
-    &:not(:last-child) {
-      border-bottom: 1px solid $border-color;
-    }
-    
-    .stats-header {
-      margin-bottom: 16px;
-      
-      .stats-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: $text-primary;
-        margin: 0 0 4px 0;
-      }
-      
-      .stats-subtitle {
-        font-size: 14px;
-        color: $text-secondary;
-        margin: 0;
-      }
-    }
-    
-    &.wallet-item {
-      .wallet-balance {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        
-        .balance-amount {
-          font-size: 28px;
-          font-weight: 700;
-          color: $success-color;
-        }
-        
-        .withdraw-btn {
-          border-radius: 12px;
-          padding: 8px 20px;
-          font-weight: 600;
-        }
-      }
-    }
-    
-    &.community-item {
-      .engagement-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        
-        .engagement-stat {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          
-          .stat-icon-wrapper {
-            width: 40px;
-            height: 40px;
-            background: $gray-50;
-            border-radius: 10px;
-            @include flex-center;
-            
-            mat-icon {
-              font-size: 20px;
-              color: $primary-color;
-            }
-          }
-          
-          .stat-content {
-            .stat-number {
-              display: block;
-              font-size: 18px;
-              font-weight: 700;
-              color: $text-primary;
-              line-height: 1;
-            }
-            
-            .stat-label {
-              display: block;
-              font-size: 12px;
-              color: $text-secondary;
-              margin-top: 2px;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-/* Activity Card */
-.activity-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  height: 100%;
-  
-  mat-card-content {
-    padding: 20px;
-  }
-  
-  .activity-list {
-    .activity-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 12px 0;
-      
-      &:not(:last-child) {
-        border-bottom: 1px solid $border-color;
-      }
-      
-      .activity-icon-container {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        @include flex-center;
-        
-        &.credit {
-          background: rgba($success-color, 0.1);
-          
-          .activity-icon {
-            color: $success-color;
-          }
-        }
-        
-        &.debit {
-          background: rgba($error-color, 0.1);
-          
-          .activity-icon {
-            color: $error-color;
-          }
-        }
-        
-        .activity-icon {
-          font-size: 20px;
-        }
-      }
-      
-      .activity-content {
-        flex: 1;
-        
-        .activity-description {
-          font-size: 14px;
-          font-weight: 500;
-          color: $text-primary;
-          margin: 0 0 4px 0;
-        }
-        
-        .activity-time {
-          font-size: 12px;
-          color: $text-tertiary;
-        }
-      }
-      
-      .activity-amount {
-        font-size: 16px;
-        font-weight: 600;
-        
-        &.credit {
-          color: $success-color;
-        }
-        
-        &.debit {
-          color: $error-color;
-        }
-      }
-    }
-  }
-  
-  .activity-empty {
-    @include flex-column-center;
-    padding: 40px 20px;
-    text-align: center;
-    
-    mat-icon {
-      font-size: 48px;
-      color: $text-tertiary;
-      margin-bottom: 16px;
-    }
-    
-    p {
-      color: $text-secondary;
-      margin: 0 0 20px 0;
-    }
-  }
-}
-
 /* Trending & Connections Grid */
 .trending-connections-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 100px;
   margin: 5em 0;
+  
   @include desktop {
     grid-template-columns: 1fr 1fr;
     gap: 32px;
-  }
-}
-
-/* Trending Card */
-.trending-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  height: 100%;
-  
-  mat-card-content {
-    padding: 20px;
-  }
-  
-  .trending-list {
-    .trending-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 0;
-      
-      &:not(:last-child) {
-        border-bottom: 1px solid $border-color;
-      }
-      
-      .trend-rank {
-        .rank-number {
-          display: block;
-          width: 32px;
-          height: 32px;
-          background: $primary-color;
-          color: white;
-          border-radius: 50%;
-          @include flex-center;
-          font-weight: 700;
-          font-size: 14px;
-        }
-      }
-      
-      .trend-content {
-        flex: 1;
-        
-        .trend-title {
-          font-size: 15px;
-          font-weight: 600;
-          color: $text-primary;
-          margin: 0 0 6px 0;
-        }
-        
-        .trend-description {
-          font-size: 13px;
-          color: $text-secondary;
-          margin: 0 0 8px 0;
-          line-height: 1.4;
-        }
-        
-        .trend-meta {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          
-          .meta-icon {
-            font-size: 16px;
-            color: $success-color;
-          }
-          
-          .meta-text {
-            font-size: 12px;
-            color: $text-tertiary;
-          }
-        }
-      }
-      
-      .trend-action {
-        color: $primary-color;
-      }
-    }
-  }
-}
-
-/* Connections Card */
-.connections-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  height: 100%;
-  
-  mat-card-content {
-    padding: 20px;
-  }
-  
-  .connections-list {
-    .connection-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 0;
-      
-      &:not(:last-child) {
-        border-bottom: 1px solid $border-color;
-      }
-      
-      .connection-profile {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        
-        .connection-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          object-fit: cover;
-        }
-        
-        .connection-info {
-          .connection-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: $text-primary;
-            margin: 0 0 4px 0;
-          }
-          
-          .connection-role {
-            font-size: 13px;
-            color: $text-secondary;
-            margin: 0 0 6px 0;
-          }
-          
-          .connection-stats {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            
-            .connection-rating,
-            .connection-completed {
-              font-size: 12px;
-              color: $text-tertiary;
-            }
-          }
-        }
-      }
-      
-      .connect-btn {
-        border-radius: 12px;
-        padding: 6px 16px;
-        font-size: 13px;
-        font-weight: 600;
-      }
-    }
-  }
-}
-
-/* Learning Section */
-.learning-section {
-  .learning-cards {
-    display: grid;
-    gap: 20px;
-    
-    @include tablet {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    @include desktop {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-}
-
-.learning-card {
-  @include card-base;
-  border-radius: 20px;
-  overflow: hidden;
-  border: 1px solid $border-color;
-  transition: all $transition-normal;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: $shadow-lg;
-  }
-  
-  .course-image {
-    position: relative;
-    height: 160px;
-    overflow: hidden;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .course-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: white;
-      
-      &.beginner {
-        background: $success-color;
-      }
-      
-      &.intermediate {
-        background: $warning-color;
-      }
-      
-      &.advanced {
-        background: $error-color;
-      }
-    }
-  }
-  
-  .course-content {
-    padding: 20px;
-    
-    .course-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: $text-primary;
-      margin: 0 0 8px 0;
-      line-height: 1.3;
-    }
-    
-    .course-description {
-      font-size: 14px;
-      color: $text-secondary;
-      margin: 0 0 16px 0;
-      line-height: 1.5;
-      @include text-multiline-ellipsis(2);
-    }
-    
-    .course-meta {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-      
-      .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 13px;
-        color: $text-tertiary;
-        
-        mat-icon {
-          font-size: 16px;
-        }
-      }
-    }
-    
-    .progress-container {
-      .progress-info {
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-        color: $text-secondary;
-        margin-bottom: 8px;
-      }
-      
-      .course-progress {
-        height: 6px;
-        border-radius: 3px;
-      }
-    }
-  }
-  
-  .course-actions {
-    padding: 0 20px 20px;
-    
-    .course-btn {
-      width: 100%;
-      border-radius: 12px;
-      padding: 12px;
-      font-weight: 600;
-    }
+    margin: 0;
   }
 }
 
@@ -1381,6 +158,7 @@
   border-radius: 50%;
   box-shadow: $shadow-lg;
   z-index: 999;
+  background: color-mix(in srgb, $surface-color, black 5%);
   
   mat-icon {
     font-size: 28px;
@@ -1389,9 +167,79 @@
 
 /* Testimonials Section */
 .testimonials-section {
-  margin-top: 8em;
+  margin-top: 2em;
+  
   @include mobile {
-    margin: 11em 1em 1em 1em;
+    margin: 1em;
+  }
+}
+
+/* Section Headers (Common styles for all sections) */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 32px 16px 20px;
+  
+  @include tablet {
+    margin: 40px 24px 24px;
+  }
+  
+  @include desktop {
+    margin: 48px 0 24px;
+  }
+
+  .section-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .section-title {
+      @include heading-medium;
+      margin: 0;
+      color: $text-primary;
+    }
+    
+    .section-subtitle {
+      font-size: 14px;
+      color: $text-secondary;
+      font-weight: 500;
+    }
+    
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba($error-color, 0.1);
+      color: $error-color;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: $error-color;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+    }
+  }
+
+  .section-actions {
+    display: flex;
+    gap: 8px;
+    
+    .create-post-btn {
+      background: $primary-color;
+      color: white;
+      
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
   }
 }
 
@@ -1417,16 +265,40 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    
+    .section-title-wrapper {
+      .section-title {
+        font-size: 20px;
+      }
+    }
+    
+    .section-actions {
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
   
-  .welcome-header {
-    .header-actions {
-      .quick-action-buttons {
-        .community-btn {
-          .button-text {
-            display: none;
-          }
-        }
+  .dashboard-content-grid {
+    padding: 0 12px;
+  }
+  
+  .stats-activity-grid,
+  .trending-connections-grid {
+    gap: 16px;
+  }
+}
+
+@include tablet {
+  .dashboard-content-grid {
+    padding: 0 20px;
+  }
+  
+  .section-header {
+    margin: 32px 20px 20px;
+    
+    .section-title-wrapper {
+      .section-title {
+        font-size: 22px;
       }
     }
   }
@@ -1440,32 +312,24 @@
     box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.3);
   }
   
-  .metric-card,
-  .stats-card,
-  .activity-card,
-  .trending-card,
-  .connections-card,
-  .learning-card,
-  .community-post-card {
-    background: $surface-color;
-    border-color: $border-color;
-  }
-  
-  .engagement-stat .stat-icon-wrapper {
-    background: rgba(255, 255, 255, 0.05);
+  .fab-create {
+    background: $primary-color;
+    color: white;
   }
 }
 
 /* Performance Optimizations */
 @media (prefers-reduced-motion: reduce) {
-  .metric-card,
-  .learning-card,
-  .community-post-card {
+  .pulse-dot {
+    animation: none;
+  }
+  
+  .fab-create {
     transition: none;
   }
   
-  .pulse-dot {
-    animation: none;
+  .mobile-bottom-nav .nav-item {
+    transition: none;
   }
 }
 
@@ -1474,5 +338,299 @@
   .mobile-bottom-nav,
   .fab-create {
     display: none;
+  }
+  
+  .dashboard-content {
+    padding-bottom: 0;
+  }
+}
+
+/* Accessibility Improvements */
+@media (prefers-contrast: high) {
+  .mobile-bottom-nav {
+    border-top: 2px solid $border-color;
+    
+    .nav-item {
+      .nav-badge {
+        border: 1px solid white;
+      }
+    }
+  }
+  
+  .fab-create {
+    border: 2px solid darken($primary-color, 20%);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion) {
+  .fab-create {
+    transition: none;
+  }
+  
+  .mobile-bottom-nav .nav-item {
+    transition: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (forced-colors: active) {
+  .mobile-bottom-nav {
+    border-top: 2px solid CanvasText;
+  }
+  
+  .fab-create {
+    border: 2px solid CanvasText;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-bottom-nav {
+    .nav-item {
+      padding: 12px 16px;
+      min-width: 72px;
+      
+      &.primary-action {
+        width: 64px;
+        height: 64px;
+        margin-top: -24px;
+      }
+    }
+  }
+  
+  .fab-create {
+    width: 64px;
+    height: 64px;
+    bottom: 24px;
+    right: 24px;
+  }
+}
+
+/* Large Screen Optimizations */
+@media (min-width: 1920px) {
+  .dashboard-content {
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+  
+  .dashboard-content-grid {
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+}
+
+/* Loading States */
+.loading-skeleton {
+  .section-header,
+  .stats-activity-grid,
+  .trending-connections-grid,
+  .learning-section {
+    opacity: 0.7;
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .empty-icon {
+    font-size: 48px;
+    color: $text-tertiary;
+    margin-bottom: 16px;
+  }
+  
+  .empty-title {
+    @include heading-small;
+    color: $text-primary;
+    margin-bottom: 8px;
+  }
+  
+  .empty-description {
+    color: $text-secondary;
+    margin-bottom: 24px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-0 { margin-top: 0 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mt-1 { margin-top: 8px !important; }
+.mb-1 { margin-bottom: 8px !important; }
+.mt-2 { margin-top: 16px !important; }
+.mb-2 { margin-bottom: 16px !important; }
+.mt-3 { margin-top: 24px !important; }
+.mb-3 { margin-bottom: 24px !important; }
+.mt-4 { margin-top: 32px !important; }
+.mb-4 { margin-bottom: 32px !important; }
+
+/* Grid Utilities */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  @include desktop {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Scrollbar Styling */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: $gray-50;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: $gray-300;
+    border-radius: 4px;
+    
+    &:hover {
+      background: $gray-400;
+    }
+  }
+  
+  [data-theme="dark"] {
+    ::-webkit-scrollbar-track {
+      background: $gray-800;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: $gray-600;
+      
+      &:hover {
+        background: $gray-500;
+      }
+    }
+  }
+}
+
+/* Focus States for Accessibility */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced Data Mode */
+@media (prefers-reduced-data: reduce) {
+  .dashboard-content {
+    .background-images {
+      display: none;
+    }
+  }
+}
+
+/* Color Scheme Adjustments */
+@media (prefers-color-scheme: dark) {
+  .mobile-bottom-nav {
+    background: $surface-color;
+    border-top-color: $border-color;
+  }
+}
+
+/* Orientation Specific */
+@media (orientation: portrait) {
+  .dashboard-content {
+    padding-bottom: 88px; // Slightly more for portrait
+  }
+}
+
+@media (orientation: landscape) {
+  .mobile-bottom-nav {
+    padding: 6px 12px 10px;
+    
+    .nav-item {
+      min-width: 56px;
+      padding: 6px 10px;
+    }
+  }
+}
+
+/* Safe Area Insets for Notched Devices */
+@supports (padding: max(0px)) {
+  .mobile-bottom-nav {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  
+  .fab-create {
+    bottom: max(32px, env(safe-area-inset-bottom));
+    right: max(32px, env(safe-area-inset-right));
+  }
+}
+
+/* Performance Enhancements */
+.will-change-transform {
+  will-change: transform;
+}
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Print Styles Enhancement */
+@media print {
+  .dashboard-content {
+    background: white !important;
+    color: black !important;
+  }
+  
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    font-weight: normal;
+  }
+  
+  .no-print {
+    display: none !important;
   }
 }

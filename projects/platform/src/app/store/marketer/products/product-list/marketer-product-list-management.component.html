@@ -257,9 +257,9 @@
             <!-- Product Image -->
             <div class="product-image">
               <div class="image-container">
-                @if (product.images && product.images[0]?.url) {
+                @if (product.images && product.images[0].url) {
                   <img 
-                    [src]="product.images[0]?.url" 
+                    [src]="product.images[0].url" 
                     [alt]="product.name"
                     (error)="handleImageError($event)"
                     loading="lazy"

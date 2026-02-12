@@ -1,0 +1,139 @@
+    <!-- Community Welcome Header -->
+    <div class="welcome-header">
+      <div class="welcome-content">
+        <div class="user-greeting">
+          <div class="avatar-container">
+            <img 
+              [src]="user()?.avatar || 'img/avatar.png'" 
+              [alt]="user()?.displayName || 'User'" 
+              class="user-avatar"
+            >
+            <div class="online-indicator"></div>
+          </div>
+          <div class="greeting-text">
+            <h1 class="greeting-title">Welcome back, {{user()?.displayName}}! 👋</h1>
+            <p class="community-subtitle">
+              {{ getCommunityGreeting() }}
+              <!-- <span class="online-count">
+                <mat-icon class="online-icon">circle</mat-icon>
+                {{ onlineCountLabel() }} endorsed users online
+              </span> -->
+            </p>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <!-- Quick Action Buttons -->
+          <div class="quick-action-buttons">
+            @if (user()?.role === 'marketer') {
+              <button mat-raised-button color="primary" (click)="createCampaign.emit()" class="desktop-action">
+                <mat-icon>add</mat-icon>
+                <span class="button-text">Create Campaign</span>
+              </button>
+            }
+            @if (user()?.role === 'promoter') {
+              <button mat-raised-button color="primary" (click)="browseCampaign.emit()" class="desktop-action">
+                <mat-icon>search</mat-icon>
+                <span class="button-text">Find Campaigns</span>
+              </button>
+            }
+            <!-- Community Quick Access -->
+            <button mat-stroked-button color="accent" (click)="openCommunityFeed()" class="community-btn">
+              <mat-icon>forum</mat-icon>
+              <span class="button-text">Community</span>
+              @if (communityNotifications() > 0) {
+                <span class="notification-count">{{ communityNotifications() }}</span>
+              }
+            </button>
+          </div>
+          
+          <div class="action-menu">
+            <button mat-icon-button [matMenuTriggerFor]="quickMenu" class="quick-menu-btn">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #quickMenu="matMenu" class="action-menu-content">
+              <button mat-menu-item (click)="openCommunityFeed()" class="menu-item">
+                <mat-icon class="menu-icon">forum</mat-icon>
+                <span class="menu-text">Community Feed</span>
+                @if (communityNotifications() > 0) {
+                  <span class="menu-badge">{{ communityNotifications() }}</span>
+                }
+              </button>
+              
+              <button mat-menu-item (click)="openMessages()" class="menu-item">
+                <mat-icon class="menu-icon">chat</mat-icon>
+                <span class="menu-text">Messages</span>
+                @if (unreadMessages() > 0) {
+                  <span class="menu-badge">{{ unreadMessages() }}</span>
+                }
+              </button>
+              
+              <button mat-menu-item (click)="openNotifications()" class="menu-item">
+                <mat-icon class="menu-icon">notifications</mat-icon>
+                <span class="menu-text">Notifications</span>
+                @if (unreadNotifications() > 0) {
+                  <span class="menu-badge">{{ unreadNotifications() }}</span>
+                }
+              </button>
+              
+              <mat-divider class="menu-divider"/>
+              
+              @if (user()?.role === 'marketer') {
+                <button mat-menu-item (click)="createCampaign.emit()" class="menu-item">
+                  <mat-icon class="menu-icon">add</mat-icon>
+                  <span class="menu-text">Create Campaign</span>
+                </button>
+                <button mat-menu-item (click)="viewCampaigns.emit()" class="menu-item">
+                  <mat-icon class="menu-icon">campaign</mat-icon>
+                  <span class="menu-text">My Campaigns</span>
+                </button>
+                <button mat-menu-item (click)="openStorefront()" class="menu-item">
+                  <mat-icon class="menu-icon">storefront</mat-icon>
+                  <span class="menu-text">Storefront</span>
+                </button>
+              }
+              
+              @if (user()?.role === 'promoter') {
+                <button mat-menu-item (click)="withdrawWallet.emit()" class="menu-item">
+                  <mat-icon class="menu-icon">account_balance_wallet</mat-icon>
+                  <span class="menu-text">Withdraw Funds</span>
+                </button>
+                <button mat-menu-item (click)="viewPromotions.emit()" class="menu-item">
+                  <mat-icon class="menu-icon">assignment</mat-icon>
+                  <span class="menu-text">My Promotions</span>
+                </button>
+                <button mat-menu-item (click)="openPromoterProfile()" class="menu-item">
+                  <mat-icon class="menu-icon">person</mat-icon>
+                  <span class="menu-text">My Profile</span>
+                </button>
+              }
+              
+              <mat-divider class="menu-divider"/>
+              
+              <button mat-menu-item (click)="openAdSchool()" class="menu-item">
+                <mat-icon class="menu-icon">school</mat-icon>
+                <span class="menu-text">Ad School</span>
+                <span class="new-badge">NEW</span>
+              </button>
+              
+              <button mat-menu-item (click)="openLeaderboard()" class="menu-item">
+                <mat-icon class="menu-icon">leaderboard</mat-icon>
+                <span class="menu-text">Leaderboards</span>
+              </button>
+              
+              <mat-divider class="menu-divider"/>
+              
+              <button mat-menu-item (click)="openSettings()" class="menu-item">
+                <mat-icon class="menu-icon">settings</mat-icon>
+                <span class="menu-text">Settings</span>
+              </button>
+              
+              <button mat-menu-item (click)="logout.emit()" class="menu-item logout-item">
+                <mat-icon class="menu-icon">logout</mat-icon>
+                <span class="menu-text">Logout</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+    </div>

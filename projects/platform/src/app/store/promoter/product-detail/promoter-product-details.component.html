@@ -606,7 +606,7 @@
 
           <div class="store-stats">
             <div class="stat">
-              <h4 class="stat-value">{{ product()!.store?.productCount || 0 }}</h4>
+              <h4 class="stat-value">{{ product()!.store.productCount || 0 }}</h4>
               <div class="stat-label">Products</div>
             </div>
             <div class="stat">
@@ -665,7 +665,7 @@
               @for (related of relatedProducts(); track related._id) {
                 <div class="related-item" (click)="navigateToProduct(related._id)">
                   <div class="item-image">
-                    @if (related.images && related.images[0]?.url) {
+                    @if (related.images && related.images[0].url) {
                       <img [src]="related.images[0].url" [alt]="related.name">
                     } @else {
                       <div class="placeholder">

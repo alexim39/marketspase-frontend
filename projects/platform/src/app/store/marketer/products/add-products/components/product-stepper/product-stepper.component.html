@@ -1,41 +1,76 @@
+<!-- Stepper visible on desktop, hidden on mobile -->
+<mat-stepper 
+  [linear]="true" 
+  [selectedIndex]="currentStep()" 
+  class="product-stepper desktop-stepper">
+  @for (step of stepLabels(); track $index; let i = $index) {
+    <mat-step [completed]="i < currentStep()">
+      <ng-template matStepLabel>{{ step }}</ng-template>
+    </mat-step>
+  }
+</mat-stepper>
 
-    <mat-stepper [linear]="true" [selectedIndex]="currentStep()" class="product-stepper">
-      @for (step of stepLabels(); track $index; let i = $index) {
-        <mat-step [completed]="i < currentStep()">
-          <ng-template matStepLabel>{{ step }}</ng-template>
-        </mat-step>
-      }
-    </mat-stepper>
+<!-- Mobile step header -->
+<div class="mobile-step-header">
+  <div class="mobile-step-info">
+    <span class="step-counter">Step {{ currentStep() + 1 }} of {{ stepLabels().length }}</span>
+    <span class="step-title">{{ stepLabels()[currentStep()] }}</span>
+  </div>
+  <mat-progress-bar 
+    mode="determinate" 
+    [value]="((currentStep() + 1) / stepLabels().length) * 100"
+    color="primary"
+    class="mobile-progress">
+  </mat-progress-bar>
+</div>
 
-    <div class="stepper-navigation">
-      <button mat-stroked-button (click)="previous.emit()" [disabled]="currentStep() === 0">
-        <mat-icon>arrow_back</mat-icon>
-        Previous
-      </button>
-      
-      <div class="step-indicator">
-        <span>Step {{ currentStep() + 1 }} of {{ stepLabels().length }}</span>
-        <mat-progress-bar 
-          mode="determinate" 
-          [value]="((currentStep() + 1) / stepLabels().length) * 100"
-          color="primary">
-        </mat-progress-bar>
-      </div>
-      
-      @if (currentStep() < stepLabels().length - 1) {
-        <button mat-raised-button color="primary" (click)="next.emit()" [disabled]="!isStepValid()">
-          Next
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
+<!-- Navigation buttons -->
+<div class="stepper-navigation">
+  <button 
+    mat-stroked-button 
+    (click)="previous.emit()" 
+    [disabled]="currentStep() === 0"
+    class="nav-button prev-button">
+    <mat-icon class="button-icon">arrow_back</mat-icon>
+    <span class="button-text">Previous</span>
+  </button>
+  
+  <!-- Desktop step indicator (centered) -->
+  <div class="step-indicator desktop-only">
+    <span>Step {{ currentStep() + 1 }} of {{ stepLabels().length }}</span>
+    <mat-progress-bar 
+      mode="determinate" 
+      [value]="((currentStep() + 1) / stepLabels().length) * 100"
+      color="primary">
+    </mat-progress-bar>
+  </div>
+  
+  @if (currentStep() < stepLabels().length - 1) {
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="next.emit()" 
+      [disabled]="!isStepValid()"
+      class="nav-button next-button">
+      <span class="button-text">Next</span>
+      <mat-icon class="button-icon">arrow_forward</mat-icon>
+    </button>
+  } @else {
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="submit.emit()" 
+      [disabled]="loading()"
+      class="nav-button submit-button">
+      @if (loading()) {
+        <div class="loading-content">
+          <mat-spinner diameter="20" mode="indeterminate"></mat-spinner>
+          <span class="loading-text">Saving...</span>
+        </div>
       } @else {
-        <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
-          @if (loading()) {
-            <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
-            <span>Saving...</span>
-          } @else {
-            <mat-icon>save</mat-icon>
-            <span>Save Product</span>
-          }
-        </button>
+        <mat-icon class="button-icon">save</mat-icon>
+        <span class="button-text">Save Product</span>
       }
-    </div>
+    </button>
+  }
+</div>

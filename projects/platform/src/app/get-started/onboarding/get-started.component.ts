@@ -213,7 +213,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
       if (faq.target === 'both') return true;
       
       // If user has no specific role, show both marketer and promoter FAQs
-      if (!userRole || userRole === 'user') {
+      if (!userRole || userRole === undefined) {
         return faq.target === 'marketer' || faq.target === 'promoter';
       }
       
@@ -699,7 +699,7 @@ categorizedFaqItems = computed(() => {
         const userRole = this.user()?.role;
         
         if (faq.target === 'both') return true;
-        if (!userRole || userRole === 'user') return true; // Show all to new users
+        if (!userRole || userRole === undefined) return true; // Show all to new users
         if (userRole === 'admin') return true; // Admin sees all
         
         return faq.target === userRole;

@@ -11,6 +11,7 @@ import { AuthService } from './auth/auth.service';
 import { UserCredential } from '@angular/fire/auth'; // Import UserCredential for type safety
 import { AuthError } from 'firebase/auth'; // Import AuthError for better error typing
 import { UserService } from './common/services/user.service';
+import { Platform } from '@angular/cdk/platform';
 
 export interface SocialProvider {
   name: string;
@@ -48,6 +49,8 @@ export class IndexComponent implements OnDestroy, OnInit {
   private destroy$ = new Subject<void>();
 
   referralCode: string | null = null;
+
+  userDevice: string = '';
 
   socialProviders: SocialProvider[] = [
     {
@@ -87,7 +90,16 @@ export class IndexComponent implements OnDestroy, OnInit {
 
   constructor(
     private router: Router,
-  ) {}
+    private platform: Platform
+  ) {
+    if (this.platform.ANDROID || this.platform.IOS) {
+      //console.log('User is using a mobile device.');
+      this.userDevice = 'mobile'
+    } else {
+      //console.log('User is using a desktop device.');
+      this.userDevice = 'desktop'
+    }
+  }
 
   ngOnInit(): void {
     // Check for referral code from various sources
@@ -194,7 +206,8 @@ export class IndexComponent implements OnDestroy, OnInit {
     if (response.success) {    
       const signupData = {
         ...response.user,
-        referralCode: this.referralCode // Include referral code in signup data
+        referralCode: this.referralCode, // Include referral code in signup data
+        userDevice: this.userDevice,
       }; 
         this.userService.auth(signupData)
         .pipe(takeUntil(this.destroy$))

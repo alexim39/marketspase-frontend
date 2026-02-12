@@ -1,5 +1,4 @@
 // transactions.component.scss
-@use '@angular/material' as mat;
 @import './../../styles/variables';
 @import './../../styles/mixins';
 
@@ -22,7 +21,7 @@
   width: 100%;
   max-width: 1200px;
   border-radius: $border-radius-md;
-  background: var(--gradient-primary);
+  background: $gradient-primary;
   color: $white;
   padding: $spacing-4 $spacing-6;
   box-shadow: $shadow-lg;

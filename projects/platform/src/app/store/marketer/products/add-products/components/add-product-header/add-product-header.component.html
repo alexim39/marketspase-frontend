@@ -18,15 +18,26 @@
           <button mat-stroked-button (click)="cancel.emit()" class="cancel-btn">
             Cancel
           </button>
-          <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
+          
+            <!-- @if (loading()) {
+              <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
+                <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+                <span>Saving...</span>
+              </button>
+            } @else {
+              <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
+                <mat-icon>save</mat-icon>
+                <span>Save Product</span>
+              </button>
+            } -->
+
             @if (loading()) {
+            <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
               <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
               <span>Saving...</span>
-            } @else {
-              <mat-icon>save</mat-icon>
-              <span>Save Product</span>
-            }
-          </button>
+            </button>
+          }
+          
         </div>
       </div>
     </div>

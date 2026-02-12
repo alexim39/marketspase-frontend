@@ -14,6 +14,7 @@ import { Store } from '../../../models/store.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TruncatePipe } from '../../../shared';
+import { DeviceService } from '../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-store-header',
@@ -41,6 +42,8 @@ export class StoreHeaderComponent {
   stores = input<Store[]>([]);
   loading = input<boolean>(false);
   private snackBar = inject(MatSnackBar);
+  private readonly deviceService = inject(DeviceService);
+  protected readonly deviceType = computed(() => this.deviceService.type());
 
   // Outputs
   createStore = output<void>();

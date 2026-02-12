@@ -42,8 +42,8 @@
         <div class="balance-content">
           @if (!isBalanceLoading()) {
             <div class="balance-amount">
-            <span class="currency">₦</span>
-            <span class="amount">{{ availableBalance()  | number:'1.2-2' }}</span>
+            <!-- <span class="currency">₦</span> -->
+            <span class="amount">{{ availableBalance() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
           </div>
           }@else {
             <mat-spinner diameter="20"/>
@@ -54,7 +54,7 @@
               <mat-icon class="detail-icon">arrow_upward</mat-icon>
               <div class="detail-text">
                 <div class="detail-label">Available</div>
-                <div class="detail-value">₦{{ availableBalance()   | number:'1.2-2' }}</div>
+                <div class="detail-value">{{ availableBalance() | currencyUtils:user()?.wallets?.promoter?.currency }}</div>
               </div>
             </div> -->
 
@@ -62,7 +62,7 @@
               <mat-icon class="detail-icon">pending</mat-icon>
               <div class="detail-text">
                 <div class="detail-label">Pending</div>
-                <div class="detail-value">₦{{ pendingBalance() | number:'1.2-2' }}</div>
+                <div class="detail-value">{{ pendingBalance() | currencyUtils:user()?.wallets?.promoter?.currency }}</div>
               </div>
             </div>
           </div>
@@ -179,16 +179,16 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
-                  <mat-label>Amount to Withdraw (₦)</mat-label>
+                  <mat-label>Amount to Withdraw</mat-label>
                   <input
                     matInput
                     type="number"
                     formControlName="amount"
-                    placeholder="Minimum ₦100"
+                    placeholder="Minimum NGN100"
                     min="100" />
                   <mat-hint class="hint">
-                    Service Fee: 15% |
-                    <strong>You'll Receive: ₦{{ payableAmount() | number:'1.2-2' }}</strong>
+                    Service Fee: 18% |
+                    <strong>You'll Receive: {{ payableAmount() | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
                   </mat-hint>
                   @if (withdrawForm.get('amount')?.hasError('required')) {
                     <mat-error>
@@ -198,13 +198,13 @@
 
                   @if (withdrawForm.get('amount')?.hasError('min')) {
                     <mat-error>
-                    Minimum withdrawal amount is ₦100
+                    Minimum withdrawal amount is {{ 100 | currencyUtils:user()?.wallets?.promoter?.currency }}
                   </mat-error>
                   }
 
                   @if (withdrawForm.get('amount')?.hasError('maxWithdrawal')) {
                     <mat-error>
-                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a 15% fee.
+                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a 18% fee.
                     </mat-error>
                   }
                 </mat-form-field>

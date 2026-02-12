@@ -1,23 +1,98 @@
 @import '../../../../../../../styles/mixins';
 @import '../../../../../../../styles/variables';
 
-
+// Desktop stepper - hidden on mobile
 .product-stepper {
   background: transparent;
   padding: 0;
   margin-bottom: $spacing-6;
 
+  &.desktop-stepper {
+    @include mobile {
+      display: none;
+    }
+  }
+
   ::ng-deep {
     .mat-step-header {
       padding: $spacing-2;
+      
+      @include mobile {
+        padding: $spacing-1;
+      }
     }
 
     .mat-step-label {
       font-weight: $font-weight-medium;
     }
+    
+    // Make stepper responsive
+    .mat-horizontal-stepper-header-container {
+      @include mobile {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: $spacing-2;
+      }
+    }
+    
+    .mat-step-text-label {
+      @include mobile {
+        font-size: 12px;
+      }
+    }
   }
 }
 
+// Mobile step header - hidden on desktop
+.mobile-step-header {
+  display: none;
+  
+  @include mobile {
+    display: block;
+    width: 100%;
+    margin-bottom: $spacing-4;
+    padding: $spacing-3;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile-step-info {
+    @include flex-between;
+    margin-bottom: $spacing-2;
+    align-items: flex-start;
+    
+    .step-counter {
+      @include caption;
+      color: $text-secondary;
+      font-weight: $font-weight-medium;
+      display: block;
+    }
+    
+    .step-title {
+      font-size: 16px;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      text-align: right;
+      max-width: 60%;
+      line-height: 1.3;
+    }
+  }
+  
+  .mobile-progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    
+    ::ng-deep {
+      .mat-progress-bar-buffer {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+// Navigation section
 .stepper-navigation {
   @include flex-between;
   align-items: center;
@@ -26,14 +101,28 @@
   border-top: 1px solid $divider-color;
 
   @include mobile {
-    flex-direction: column;
-    gap: $spacing-4;
+    flex-direction: row;
+    gap: $spacing-2;
+    padding: $spacing-4;
+    margin-top: 0;
+    border-top: none;
+    position: sticky;
+    bottom: 0;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    z-index: 10;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   }
 
   .step-indicator {
     @include flex-column;
     align-items: center;
     gap: $spacing-2;
+
+    &.desktop-only {
+      @include mobile {
+        display: none;
+      }
+    }
 
     span {
       @include caption;
@@ -50,9 +139,104 @@
     }
   }
 
-  button {
+  .nav-button {
+    min-width: 120px;
+    height: 44px; // Better touch target
+    
     @include mobile {
-      width: 100%;
+      min-width: 0;
+      flex: 1;
+      height: 48px;
+      padding: 0 $spacing-2;
+      border-radius: 8px;
+      
+      &.prev-button {
+        order: 1;
+        border: 1px solid $divider-color;
+      }
+      
+      &.next-button,
+      &.submit-button {
+        order: 3;
+      }
+    }
+    
+    .button-icon {
+      @include mobile {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+    
+    .button-text {
+      @include mobile {
+        font-size: 15px;
+        font-weight: $font-weight-medium;
+      }
+    }
+  }
+  
+  // Mobile button layout
+  @include mobile {
+    .prev-button {
+      flex: 1;
+      justify-content: flex-start;
+      
+      .button-icon {
+        margin-right: $spacing-1;
+      }
+    }
+    
+    .step-indicator.desktop-only {
+      display: none;
+    }
+    
+    .next-button,
+    .submit-button {
+      flex: 2;
+      justify-content: center;
+      
+      .button-icon {
+        margin-left: $spacing-1;
+      }
+    }
+  }
+  
+  .loading-content {
+    @include flex-center;
+    gap: $spacing-2;
+    
+    mat-spinner {
+      @include mobile {
+        width: 20px !important;
+        height: 20px !important;
+        
+        ::ng-deep circle {
+          stroke-width: 3;
+          stroke: white !important;
+        }
+      }
+    }
+    
+    .loading-text {
+      @include mobile {
+        font-size: 15px;
+        font-weight: $font-weight-medium;
+      }
+    }
+  }
+}
+
+// Responsive button text visibility
+@media (max-width: 360px) {
+  .stepper-navigation {
+    .nav-button .button-text {
+      font-size: 14px;
+    }
+    
+    .loading-content .loading-text {
+      font-size: 14px;
     }
   }
 }

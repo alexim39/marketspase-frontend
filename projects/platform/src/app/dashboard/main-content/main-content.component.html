@@ -1,687 +1,155 @@
-<!-- main-content.component.html -->
-<promo-banner [user]="user" />
-<profile-notifier-banner [user]="user" />
-<general-msg-notifier-banner [user]="user" />
+    <promo-banner [user]="user" />
+    <profile-notifier-banner [user]="user" />
+    <general-msg-notifier-banner [user]="user" />
 
-<!-- Dashboard Content -->
-<div class="dashboard-content">
-  <!-- Community Welcome Header -->
-  <div class="welcome-header">
-    <div class="welcome-content">
-      <div class="user-greeting">
-        <div class="avatar-container">
-          <img 
-            [src]="user()?.avatar || 'img/avatar.png'" 
-            alt="{{user()?.displayName}}" 
-            class="user-avatar"
-          >
-          <div class="online-indicator"></div>
-        </div>
-        <div class="greeting-text">
-          <h1 class="greeting-title">Welcome back, {{user()?.displayName}}! 👋</h1>
-          <p class="community-subtitle">
-            {{ getCommunityGreeting() }}
-            <span class="online-count">
-              <mat-icon class="online-icon">circle</mat-icon>
-              {{ getOnlineCount() }} online
-            </span>
-          </p>
-        </div>
-      </div>
-      
-      <div class="header-actions">
-        <!-- Quick Action Buttons -->
-        <div class="quick-action-buttons">
-          @if (user()?.role === 'marketer') {
-            <button mat-raised-button color="primary" (click)="createCampaign()" class="desktop-action">
-              <mat-icon>add</mat-icon>
-              <span class="button-text">Create Campaign</span>
-            </button>
-          }
-          @if (user()?.role === 'promoter') {
-            <button mat-raised-button color="primary" (click)="browseCampaign()" class="desktop-action">
-              <mat-icon>search</mat-icon>
-              <span class="button-text">Find Campaigns</span>
-            </button>
-          }
-          <!-- Community Quick Access -->
-          <!-- <button mat-stroked-button color="accent" (click)="openCommunityFeed()" class="community-btn">
-            <mat-icon>forum</mat-icon>
-            <span class="button-text">Community</span>
-            @if (communityNotifications() > 0) {
-              <span class="notification-count">{{ communityNotifications() }}</span>
-            }
-          </button> -->
-        </div>
-        
-        <!-- <div class="action-menu">
-          <button mat-icon-button [matMenuTriggerFor]="quickMenu" class="quick-menu-btn">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #quickMenu="matMenu" class="action-menu-content">
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <!-- Dashboard Header -->
+      <dashboard-header
+        [user]="user()"
+        [communityNotifications]="communityNotifications()"
+        [unreadMessages]="unreadMessages()"
+        [unreadNotifications]="unreadNotifications()"
+        (createCampaign)="createCampaign()"
+        (browseCampaign)="browseCampaign()"
+        (viewCampaigns)="viewCampaigns()"
+        (viewPromotions)="viewPromotions()"
+        (withdrawWallet)="withdrawWallet()"
+        (logout)="logout()"
+      />
 
-            <button mat-menu-item (click)="openCommunityFeed()" class="menu-item">
-              <mat-icon class="menu-icon">forum</mat-icon>
-              <span class="menu-text">Community Feed</span>
-              @if (communityNotifications() > 0) {
-                <span class="menu-badge">{{ communityNotifications() }}</span>
-              }
-            </button>
-            
-            <button mat-menu-item (click)="openMessages()" class="menu-item">
-              <mat-icon class="menu-icon">chat</mat-icon>
-              <span class="menu-text">Messages</span>
-              @if (unreadMessages() > 0) {
-                <span class="menu-badge">{{ unreadMessages() }}</span>
-              }
-            </button>
-            
-            <button mat-menu-item (click)="openNotifications()" class="menu-item">
-              <mat-icon class="menu-icon">notifications</mat-icon>
-              <span class="menu-text">Notifications</span>
-              @if (unreadNotifications() > 0) {
-                <span class="menu-badge">{{ unreadNotifications() }}</span>
-              }
-            </button>
-            
-            <mat-divider class="menu-divider"/>
-            
-            @if (user()?.role === 'marketer') {
-              <button mat-menu-item (click)="createCampaign()" class="menu-item">
-                <mat-icon class="menu-icon">add</mat-icon>
-                <span class="menu-text">Create Campaign</span>
-              </button>
-              <button mat-menu-item (click)="viewCampaigns()" class="menu-item">
-                <mat-icon class="menu-icon">campaign</mat-icon>
-                <span class="menu-text">My Campaigns</span>
-              </button>
-              <button mat-menu-item (click)="openStorefront()" class="menu-item">
-                <mat-icon class="menu-icon">storefront</mat-icon>
-                <span class="menu-text">Storefront</span>
-              </button>
-            }
-            
-            @if (user()?.role === 'promoter') {
-              <button mat-menu-item (click)="withdrawWallet()" class="menu-item">
-                <mat-icon class="menu-icon">account_balance_wallet</mat-icon>
-                <span class="menu-text">Withdraw Funds</span>
-              </button>
-              <button mat-menu-item (click)="viewPromotions()" class="menu-item">
-                <mat-icon class="menu-icon">assignment</mat-icon>
-                <span class="menu-text">My Promotions</span>
-              </button>
-              <button mat-menu-item (click)="openPromoterProfile()" class="menu-item">
-                <mat-icon class="menu-icon">person</mat-icon>
-                <span class="menu-text">My Profile</span>
-              </button>
-            }
-            
-            <mat-divider class="menu-divider"/>
-            
-            <button mat-menu-item (click)="openAdSchool()" class="menu-item">
-              <mat-icon class="menu-icon">school</mat-icon>
-              <span class="menu-text">Ad School</span>
-              <span class="new-badge">NEW</span>
-            </button>
-            
-            <button mat-menu-item (click)="openLeaderboard()" class="menu-item">
-              <mat-icon class="menu-icon">leaderboard</mat-icon>
-              <span class="menu-text">Leaderboards</span>
-            </button>
-            
-            <mat-divider class="menu-divider"/>
-            
-            <button mat-menu-item (click)="openSettings()" class="menu-item">
-              <mat-icon class="menu-icon">settings</mat-icon>
-              <span class="menu-text">Settings</span>
-            </button>
-            
-            <button mat-menu-item (click)="logout()" class="menu-item logout-item">
-              <mat-icon class="menu-icon">logout</mat-icon>
-              <span class="menu-text">Logout</span>
-            </button>
-          </mat-menu>
-        </div> -->
-      </div>
-    </div>
-  </div>
+      <!-- Community Feed -->
+      <community-feed
+        [posts]="communityPosts()"
+        [likedPosts]="likedPosts()"
+        [savedPosts]="savedPosts()"
+        (createPost)="createCommunityPost()"
+        (viewAll)="openCommunityFeed()"
+        (like)="onLike($event)"
+        (save)="onSave($event)"
+        (comment)="openComments($event)"
+        (share)="sharePost($event)"
+        (postMenu)="onPostMenu($event)"
+      />
 
-  <!-- Community Feed Section -->
-  <!-- <div class="community-feed-section">
-    <div class="section-header">
-      <div class="section-title-wrapper">
-        <h2 class="section-title">Community Feed</h2>
-        <div class="live-indicator">
-          <div class="pulse-dot"></div>
-          <span>LIVE</span>
-        </div>
-      </div>
-      <div class="section-actions">
-        <button mat-button color="primary" (click)="createCommunityPost()" class="create-post-btn">
-          <mat-icon>edit</mat-icon>
-          Create Post
-        </button>
-        <button mat-stroked-button color="accent" (click)="openCommunityFeed()">
-          View All
-        </button>
-      </div>
-    </div>
-    
-    <div class="feed-preview">
-      @if (communityPosts().length > 0) {
-        <div class="feed-posts">
-          @for (post of communityPosts(); track post.id; let i = $index) {
-            <mat-card class="community-post-card" [class.featured]="i === 0">
-              <mat-card-header class="post-header">
-                <div class="post-user-info">
-                  <div class="user-avatar-wrapper">
-                    <img 
-                      [src]="post.avatar || 'assets/default-avatar.png'" 
-                      alt="{{post.author}}" 
-                      class="post-avatar"
-                    >
-                    @if (post.badge) {
-                      <div class="badge-indicator" [class]="post.badge"></div>
-                    }
-                  </div>
-                  <div class="user-details">
-                    <h3 class="user-name">{{post.author}}</h3>
-                    <div class="user-meta">
-                      <span class="user-role">{{post.role}}</span>
-                      <span class="post-time">{{post.time}}</span>
-                    </div>
-                  </div>
-                </div>
-                <button mat-icon-button class="post-menu-btn">
-                  <mat-icon>more_horiz</mat-icon>
-                </button>
-              </mat-card-header>
-              
-              <mat-card-content class="post-content">
-                <p class="post-text">{{post.content}}</p>
-                
-                @if (post.type === 'earnings') {
-                  <div class="post-highlight earnings-highlight">
-                    <div class="highlight-icon">
-                      <mat-icon>celebration</mat-icon>
-                    </div>
-                    <div class="highlight-content">
-                      <span class="highlight-title">Earnings Achievement</span>
-                      <span class="highlight-value">₦{{post.earnings | number:'1.0-0'}}</span>
-                    </div>
-                  </div>
-                }
-                
-                @if (post.type === 'campaign') {
-                  <div class="post-highlight campaign-highlight">
-                    <div class="highlight-icon">
-                      <mat-icon>campaign</mat-icon>
-                    </div>
-                    <div class="highlight-content">
-                      <span class="highlight-title">{{post.campaignName}}</span>
-                      <span class="highlight-value">Budget: ₦{{post.budget | number:'1.0-0'}}</span>
-                    </div>
-                  </div>
-                }
-                
-                <div class="post-actions">
-                  <button mat-button class="post-action like-btn" (click)="toggleLike(post.id)">
-                    <mat-icon class="action-icon">{{ isLiked(post.id) ? 'favorite' : 'favorite_border' }}</mat-icon>
-                    <span class="action-count">{{post.likes}}</span>
-                  </button>
-                  <button mat-button class="post-action comment-btn" (click)="openComments(post.id)">
-                    <mat-icon class="action-icon">chat_bubble_outline</mat-icon>
-                    <span class="action-count">{{post.comments}}</span>
-                  </button>
-                  <button mat-button class="post-action share-btn" (click)="sharePost(post.id)">
-                    <mat-icon class="action-icon">share</mat-icon>
-                    <span class="action-text">Share</span>
-                  </button>
-                  <button mat-button class="post-action save-btn" (click)="toggleSave(post.id)">
-                    <mat-icon class="action-icon">{{ isSaved(post.id) ? 'bookmark' : 'bookmark_border' }}</mat-icon>
-                  </button>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          }
-        </div>
-      } @else {
-        <mat-card class="empty-feed-card">
-          <mat-card-content>
-            <div class="empty-state-content">
-              <div class="empty-icon-container">
-                <mat-icon>forum</mat-icon>
-              </div>
-              <h3 class="empty-title">Welcome to the Community!</h3>
-              <p class="empty-description">Share your success story, ask questions, or connect with fellow marketers and promoters.</p>
-              <button mat-raised-button color="primary" (click)="createCommunityPost()" class="empty-action-btn">
-                <mat-icon>edit</mat-icon>
-                Create Your First Post
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-    </div>
-  </div> -->
+      <!-- Dashboard Content Grid -->
+      <div class="dashboard-content-grid">
+        <!-- Performance Metrics -->
+        <performance-metrics
+          [stats]="dashboardStats()"
+          [period]="viewPeriod()"
+          (periodChange)="setViewPeriod($event)"
+        />
 
-  <!-- Main Dashboard Content -->
-  <div class="dashboard-content-grid">
-    <!-- Performance Metrics -->
-    <div class="metrics-section">
-      <div class="section-header">
-        <div class="section-title-wrapper">
-          <h2 class="section-title">Performance Overview</h2>
-          <span class="section-subtitle">Last 7 days</span>
+        <!-- Stats & Activity Grid -->
+        <div class="stats-activity-grid">
+          <!-- Quick Stats -->
+          <quick-stats
+            [user]="user()"
+            [campaignSummary]="campaignSummary()"
+            [promotionSummary]="promotionSummary()"
+            [communityStats]="communityStats()"
+            (withdrawWallet)="withdrawWallet()"
+            (viewWallet)="viewWallet()"
+          />
+
+          <!-- Recent Activity -->
+          <recent-activity
+            [activities]="recentActivity()"
+            [userRole]="user()?.role"
+            (viewAll)="viewWallet()"
+            (activityClick)="onActivityClick($event)"
+            (browseCampaigns)="browseCampaign()"
+            (createCampaign)="createCampaign()"
+          />
         </div>
-        <div class="period-selector">
-          <button 
-            mat-button 
-            [class.active]="viewPeriod() === 'weekly'" 
-            (click)="setViewPeriod('weekly')"
-            class="period-btn"
-          >
-            Week
-          </button>
-          <button 
-            mat-button 
-            [class.active]="viewPeriod() === 'monthly'" 
-            (click)="setViewPeriod('monthly')"
-            class="period-btn"
-          >
-            Month
-          </button>
-          <button 
-            mat-button 
-            [class.active]="viewPeriod() === 'yearly'" 
-            (click)="setViewPeriod('yearly')"
-            class="period-btn"
-          >
-            Year
-          </button>
+
+        <!-- Trending & Connections Grid -->
+        <div class="trending-connections-grid">
+          <trending-section
+            [trendingItems]="trendingItems()"
+            [following]="followingTrends()"
+            [categories]="trendingCategories()"
+            [activeCategory]="activeTrendingCategory()"
+            (viewAll)="viewTrending()"
+            (trendClick)="onTrendClick($event)"
+            (follow)="followTrend($event)"
+            (categoryChange)="onTrendingCategoryChange($event)"
+          />
+
+          <!-- Connections Section -->
+          <connections-section
+            [connections]="suggestedConnections()"
+            [pendingConnections]="pendingConnections()"
+            [connectedConnections]="connectedConnections()"
+            [filters]="connectionFilters()"
+            [activeFilter]="activeConnectionFilter()"
+            (viewAll)="viewAllConnections()"
+            (connect)="connectUser($event)"
+            (message)="onMessageConnection($event)"
+            (profileClick)="onProfileClick($event)"
+            (filterChange)="onConnectionFilterChange($event)"
+            (refresh)="refreshConnections()"
+          />
         </div>
       </div>
-      
-      <div class="metrics-grid">
-        @for (stat of dashboardStats(); track stat.label; let i = $index) {
-          <mat-card class="metric-card" [class]="'metric-' + (i + 1)">
-            <mat-card-content>
-              <div class="metric-header">
-                <div class="metric-icon" [style.background]="stat.color + '15'">
-                  <mat-icon [style.color]="stat.color">{{stat.icon}}</mat-icon>
-                </div>
-                @if (stat.trend) {
-                  <div class="metric-trend" [class]="stat.trend">
-                    <mat-icon class="trend-icon">
-                      {{stat.trend === 'up' ? 'trending_up' : 'trending_down'}}
-                    </mat-icon>
-                    <span class="trend-value">{{stat.change}}%</span>
-                  </div>
-                }
-              </div>
-              <div class="metric-body">
-                <h3 class="metric-value">{{stat.value}}</h3>
-                <p class="metric-label">{{stat.label}}</p>
-                @if (stat.subtitle) {
-                  <p class="metric-subtitle">{{stat.subtitle}}</p>
-                }
-              </div>
-              <div class="metric-footer">
-                <span class="period-indicator">{{ viewPeriod() | titlecase }}</span>
-              </div>
-            </mat-card-content>
-          </mat-card>
+
+      <!-- Learning Section -->
+      <learning-section
+        [courses]="learningCourses()"
+        [savedCourses]="savedCourses()"
+        (viewAll)="openAdSchool()"
+        (continueCourse)="continueCourse($event)"
+        (saveCourse)="onSaveCourse($event)"
+      />
+
+      <!-- Testimonials Section -->
+      <div class="testimonials-section">
+        @if (user()) {
+          <async-dashboard-testimonials />
         }
       </div>
-    </div>
 
-    <!-- Quick Stats & Activity -->
-    <div class="stats-activity-grid">
-      <!-- Quick Stats -->
-      <div class="quick-stats-section">
-        <div class="section-header">
-          <h2 class="section-title">Quick Stats</h2>
-          <mat-icon class="info-icon" matTooltip="Real-time updates">info</mat-icon>
-        </div>
-        <mat-card class="stats-card">
-          <mat-card-content>
-            <!-- Campaign/Profile Stats -->
-            <div class="stats-item">
-              <div class="stats-header">
-                <h3 class="stats-title">
-                  @if (user()?.role === 'marketer') {
-                    Campaign Performance
-                  } @else {
-                    Promotion Status
-                  }
-                </h3>
-                <p class="stats-subtitle">
-                  @if (user()?.role === 'marketer') {
-                    {{campaignSummary().active}} active campaigns
-                  } @else {
-                    {{promotionSummary().total}} total promotions
-                  }
-                </p>
-              </div>
-              <div class="stats-body">
-                @if (user()?.role === 'marketer') {
-                  <div class="progress-container">
-                    <div class="progress-label">
-                      <span>Budget Usage</span>
-                      <span>{{(campaignSummary().spentBudget / campaignSummary().totalBudget) * 100 | number:'1.0-0'}}%</span>
-                    </div>
-                    <mat-progress-bar 
-                      mode="determinate" 
-                      [value]="(campaignSummary().spentBudget / campaignSummary().totalBudget) * 100"
-                      class="progress-bar"
-                    ></mat-progress-bar>
-                  </div>
-                } @else {
-                  <div class="status-chips">
-                    <span class="status-chip accepted">{{promotionSummary().accepted}} accepted</span>
-                    <span class="status-chip submitted">{{promotionSummary().submitted}} submitted</span>
-                    <span class="status-chip paid">{{promotionSummary().paid}} paid</span>
-                  </div>
-                }
-              </div>
-            </div>
-            
-            <!-- Wallet Balance -->
-            <div class="stats-item wallet-item">
-              <div class="stats-header">
-                <h3 class="stats-title">Wallet Balance</h3>
-                <p class="stats-subtitle">Available funds</p>
-              </div>
-              <div class="stats-body">
-                <div class="wallet-balance">
-                  <span class="balance-amount">
-                    @if (user()?.role === 'marketer') {
-                      ₦{{(user()?.wallets?.marketer?.balance || 0) | number:'1.0-0'}}
-                    } @else {
-                      ₦{{(user()?.wallets?.promoter?.balance || 0) | number:'1.0-0'}}
-                    }
-                  </span>
-                  @if (user()?.role === 'promoter') {
-                    <button mat-stroked-button color="primary" (click)="withdrawWallet()" class="withdraw-btn">
-                      Withdraw
-                    </button>
-                  }
-                </div>
-              </div>
-            </div>
-            
-            <!-- Community Stats -->
-            <div class="stats-item community-item">
-              <div class="stats-header">
-                <h3 class="stats-title">Community Engagement</h3>
-                <p class="stats-subtitle">Your social presence</p>
-              </div>
-              <div class="stats-body">
-                <div class="engagement-stats">
-                  <div class="engagement-stat">
-                    <div class="stat-icon-wrapper">
-                      <mat-icon>people</mat-icon>
-                    </div>
-                    <div class="stat-content">
-                      <span class="stat-number">{{ communityStats().connections }}</span>
-                      <span class="stat-label">Connections</span>
-                    </div>
-                  </div>
-                  <div class="engagement-stat">
-                    <div class="stat-icon-wrapper">
-                      <mat-icon>thumb_up</mat-icon>
-                    </div>
-                    <div class="stat-content">
-                      <span class="stat-number">{{ communityStats().likes }}</span>
-                      <span class="stat-label">Likes</span>
-                    </div>
-                  </div>
-                  <div class="engagement-stat">
-                    <div class="stat-icon-wrapper">
-                      <mat-icon>forum</mat-icon>
-                    </div>
-                    <div class="stat-content">
-                      <span class="stat-number">{{ communityStats().posts }}</span>
-                      <span class="stat-label">Posts</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Recent Activity -->
-      <div class="activity-section">
-        <div class="section-header">
-          <h2 class="section-title">Recent Activity</h2>
-          <button mat-button color="primary" (click)="viewWallet()">View All</button>
-        </div>
-        <mat-card class="activity-card">
-          <mat-card-content>
-            @if (recentActivity().length > 0) {
-              <div class="activity-list">
-                @for (activity of recentActivity(); track activity.id) {
-                  <div class="activity-item">
-                    <div class="activity-icon-container" [class]="activity.type">
-                      <mat-icon class="activity-icon">
-                        {{activity.type === 'credit' ? 'arrow_downward' : 'arrow_upward'}}
-                      </mat-icon>
-                    </div>
-                    <div class="activity-content">
-                      <p class="activity-description">{{activity.description}}</p>
-                      <span class="activity-time">{{activity.createdAt | date:'short'}}</span>
-                    </div>
-                    <div class="activity-amount" [class]="activity.type">
-                      {{activity.type === 'credit' ? '+' : '-'}}₦{{activity.amount | number:'1.0-0'}}
-                    </div>
-                  </div>
-                }
-              </div>
-            } @else {
-              <div class="activity-empty">
-                <mat-icon>receipt_long</mat-icon>
-                <p>No recent activity</p>
-                @if (user()?.role === 'promoter') {
-                  <button mat-button color="primary" (click)="browseCampaign()">
-                    Start Promoting
-                  </button>
-                }
-              </div>
-            }
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </div>
-
-    <!-- Trending & Connections -->
-    <!-- <div class="trending-connections-grid">
-      
-      
-      <div class="trending-section">
-        <div class="section-header">
-          <div class="section-title-wrapper">
-            <h2 class="section-title">Trending Now</h2>
-            <mat-icon class="trending-icon">whatshot</mat-icon>
-          </div>
-          <button mat-button color="primary" (click)="viewTrending()">View All</button>
-        </div>
-        <mat-card class="trending-card">
-          <mat-card-content>
-            <div class="trending-list">
-              @for (trend of trendingItems(); track trend.id) {
-                <div class="trending-item">
-                  <div class="trend-rank">
-                    <span class="rank-number">#{{trend.rank}}</span>
-                  </div>
-                  <div class="trend-content">
-                    <h4 class="trend-title">{{trend.title}}</h4>
-                    <p class="trend-description">{{trend.description}}</p>
-                    <div class="trend-meta">
-                      <mat-icon class="meta-icon">trending_up</mat-icon>
-                      <span class="meta-text">{{trend.mentions}} mentions</span>
-                    </div>
-                  </div>
-                  <button mat-icon-button class="trend-action" (click)="followTrend(trend.id)">
-                    <mat-icon>add</mat-icon>
-                  </button>
-                </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      
-      
-      <div class="connections-section">
-        <div class="section-header">
-          <h2 class="section-title">Suggested Connections</h2>
-          <button mat-button color="primary" (click)="viewAllConnections()">See All</button>
-        </div>
-        <mat-card class="connections-card">
-          <mat-card-content>
-            <div class="connections-list">
-              @for (connection of suggestedConnections(); track connection.id) {
-                <div class="connection-item">
-                  <div class="connection-profile">
-                    <img 
-                      [src]="connection.avatar" 
-                      alt="{{connection.name}}" 
-                      class="connection-avatar"
-                    >
-                    <div class="connection-info">
-                      <h4 class="connection-name">{{connection.name}}</h4>
-                      <p class="connection-role">{{connection.role}}</p>
-                      <div class="connection-stats">
-                        <span class="connection-rating">{{connection.rating}} ⭐</span>
-                        <span class="connection-completed">{{connection.completed}} campaigns</span>
-                      </div>
-                    </div>
-                  </div>
-                  <button 
-                    mat-stroked-button 
-                    color="primary" 
-                    (click)="connectUser(connection.id)"
-                    class="connect-btn"
-                  >
-                    Connect
-                  </button>
-                </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </div> -->
-  </div>
-
-  <!-- Learning Section -->
-  <!-- <div class="learning-section">
-    <div class="section-header">
-      <div class="section-title-wrapper">
-        <h2 class="section-title">Continue Learning</h2>
-        <span class="section-subtitle">Grow your skills with Ad School</span>
-      </div>
-      <button mat-button color="primary" (click)="openAdSchool()">View All Courses</button>
-    </div>
-    <div class="learning-cards">
-      @for (course of learningCourses(); track course.id) {
-        <mat-card class="learning-card">
-          <div class="course-image">
-            <img [src]="course.image" alt="{{course.title}}">
-            <div class="course-badge" [class]="course.difficulty.toLowerCase()">
-              {{course.difficulty}}
-            </div>
-          </div>
-          <mat-card-content class="course-content">
-            <h3 class="course-title">{{course.title}}</h3>
-            <p class="course-description">{{course.description}}</p>
-            <div class="course-meta">
-              <span class="meta-item">
-                <mat-icon>schedule</mat-icon>
-                {{course.duration}}
-              </span>
-              <span class="meta-item">
-                <mat-icon>menu_book</mat-icon>
-                {{course.lessons}} lessons
-              </span>
-            </div>
-            <div class="progress-container">
-              <div class="progress-info">
-                <span>Progress</span>
-                <span>{{course.progress}}%</span>
-              </div>
-              <mat-progress-bar 
-                mode="determinate" 
-                [value]="course.progress"
-                class="course-progress"
-              ></mat-progress-bar>
-            </div>
-          </mat-card-content>
-          <mat-card-actions class="course-actions">
-            <button 
-              mat-button 
-              color="primary" 
-              (click)="continueCourse(course.id)"
-              class="course-btn"
-            >
-              {{ course.progress > 0 ? 'Continue Learning' : 'Start Course' }}
+      <!-- Mobile Bottom Navigation -->
+      @if (isMobile()) {
+        <div class="mobile-bottom-nav">
+          <nav class="nav-container">
+            <button class="nav-item" (click)="router.navigate(['dashboard'])">
+              <mat-icon>home</mat-icon>
+              <span class="nav-label">Home</span>
             </button>
-          </mat-card-actions>
-        </mat-card>
+            <button class="nav-item" (click)="openCommunityFeed()">
+              <mat-icon>forum</mat-icon>
+              <span class="nav-label">Community</span>
+              @if (communityNotifications() > 0) {
+                <span class="nav-badge">{{ communityNotifications() }}</span>
+              }
+            </button>
+            <button class="nav-item primary-action" (click)="createCommunityPost()">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button class="nav-item" (click)="openMessages()">
+              <mat-icon>chat</mat-icon>
+              <span class="nav-label">Messages</span>
+              @if (unreadMessages() > 0) {
+                <span class="nav-badge">{{ unreadMessages() }}</span>
+              }
+            </button>
+            <button class="nav-item" (click)="openNotifications()">
+              <mat-icon>notifications</mat-icon>
+              <span class="nav-label">Alerts</span>
+              @if (unreadNotifications() > 0) {
+                <span class="nav-badge">{{ unreadNotifications() }}</span>
+              }
+            </button>
+          </nav>
+        </div>
+      }
+
+      <!-- Floating Action Button (Desktop) -->
+      @if (!isMobile()) {
+        <button mat-fab color="primary" class="fab-create" (click)="createCommunityPost()">
+          <mat-icon>edit</mat-icon>
+        </button>
       }
     </div>
-  </div> -->
-
-  <!-- Testimonials Section -->
-  <div class="testimonials-section">
-    @if (user()) {
-      <async-dashboard-testimonials />
-    }
-  </div>
-
-  <!-- Mobile Bottom Navigation -->
-  @if (isMobile()) {
-    <div class="mobile-bottom-nav">
-      <nav class="nav-container">
-        <button class="nav-item" (click)="router.navigate(['dashboard'])">
-          <mat-icon>home</mat-icon>
-          <span class="nav-label">Home</span>
-        </button>
-        <button class="nav-item" (click)="openCommunityFeed()">
-          <mat-icon>forum</mat-icon>
-          <span class="nav-label">Community</span>
-          @if (communityNotifications() > 0) {
-            <span class="nav-badge">{{ communityNotifications() }}</span>
-          }
-        </button>
-        <button class="nav-item primary-action" (click)="createCommunityPost()">
-          <mat-icon>add</mat-icon>
-        </button>
-        <button class="nav-item" (click)="openMessages()">
-          <mat-icon>chat</mat-icon>
-          <span class="nav-label">Messages</span>
-          @if (unreadMessages() > 0) {
-            <span class="nav-badge">{{ unreadMessages() }}</span>
-          }
-        </button>
-        <button class="nav-item" (click)="openNotifications()">
-          <mat-icon>notifications</mat-icon>
-          <span class="nav-label">Alerts</span>
-          @if (unreadNotifications() > 0) {
-            <span class="nav-badge">{{ unreadNotifications() }}</span>
-          }
-        </button>
-      </nav>
-    </div>
-  }
-
-  <!-- Floating Action Button (Desktop) -->
-  @if (!isMobile()) {
-    <button mat-fab color="primary" class="fab-create" (click)="createCommunityPost()">
-      <mat-icon>edit</mat-icon>
-    </button>
-  }
-</div>

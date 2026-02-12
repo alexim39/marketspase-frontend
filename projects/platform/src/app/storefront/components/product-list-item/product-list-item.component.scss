@@ -216,7 +216,7 @@
 
           &.out-of-stock {
             background: rgba($error-color-hex, 0.15);
-            color: lighten($error-color-hex, 10%);
+            color: rgba($error-color-hex, 10%);
             border: 1px solid rgba($error-color-hex, 0.3);
           }
 
