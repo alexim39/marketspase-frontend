@@ -63,7 +63,7 @@ export function getMarketerNavigation(
       label: 'Community',
       expanded: false,
       children: [
-        { icon: 'chat', label: 'Forum', route: '/dashboard/forum' }
+        { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' }
       ]
     },
     {
