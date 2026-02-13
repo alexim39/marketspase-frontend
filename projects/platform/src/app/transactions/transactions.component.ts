@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
-import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 import { Transaction } from './transactions.model';
 import { ShortenIdPipe } from './shorten-id.pipe';
 
@@ -41,7 +41,8 @@ import { ShortenIdPipe } from './shorten-id.pipe';
     MatProgressSpinnerModule,
     FormsModule,
     TitleCasePipe,
-    ShortenIdPipe
+    ShortenIdPipe,
+    CurrencyUtilsPipe
   ],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss',
@@ -190,9 +191,9 @@ export class TransactionComponent {
     }, 1000);
   }
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(value);
-  }
+  // formatCurrency(value: number): string {
+  //   return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(value);
+  // }
 
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('en-NG', { 
