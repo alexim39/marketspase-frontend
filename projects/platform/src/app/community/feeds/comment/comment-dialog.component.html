@@ -1,0 +1,152 @@
+    <div class="comment-dialog">
+      <h2 mat-dialog-title class="dialog-title">
+        Comments
+        <button mat-icon-button mat-dialog-close class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </h2>
+
+      <mat-dialog-content class="dialog-content">
+        
+        <!-- Comments List -->
+        <div class="comments-list">
+          @if (loading()) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          } @else if (comments().length === 0) {
+            <div class="empty-state">
+              <div class="empty-icon">
+                <mat-icon>chat</mat-icon>
+              </div>
+              <h3>No comments yet</h3>
+              <p>Be the first to share your thoughts!</p>
+            </div>
+          } @else {
+            @for (comment of comments(); track comment._id) {
+              <div class="comment-item">
+                <div class="comment-header">
+                  <div class="user-info">
+                    <img 
+                      [src]="comment.user.avatar || 'img/avatar.png'" 
+                      [alt]="comment.user.displayName"
+                      class="avatar">
+                    <div class="user-details">
+                      <span class="user-name">{{ comment.user.displayName }}</span>
+                      <span class="comment-time">{{ comment.time }}</span>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    class="like-btn" 
+                    [class.active]="comment.isLiked"
+                    (click)="toggleCommentLike(comment)">
+                    <mat-icon>{{ comment.isLiked ? 'favorite' : 'favorite_border' }}</mat-icon>
+                    <span>{{ comment.likes }}</span>
+                  </button>
+                </div>
+                
+                <p class="comment-content">{{ comment.content }}</p>
+                
+                <div class="comment-actions">
+                  <button class="reply-btn" (click)="setReplyTo(comment)">
+                    <mat-icon>reply</mat-icon>
+                    Reply
+                  </button>
+                </div>
+                
+                <!-- Replies -->
+                @if (comment.replies && comment.replies.length > 0) {
+                  <div class="replies-list">
+                    @for (reply of comment.replies; track reply._id) {
+                      <div class="reply-item">
+                        <div class="reply-header">
+                          <div class="user-info">
+                            <img 
+                              [src]="reply.user.avatar || 'img/avatar.png'" 
+                              [alt]="reply.user.displayName"
+                              class="avatar small">
+                            <span class="user-name">{{ reply.user.displayName }}</span>
+                            <span class="reply-time">{{ reply.time }}</span>
+                          </div>
+                          <button 
+                            class="like-btn small" 
+                            [class.active]="reply.isLiked"
+                            (click)="toggleReplyLike(comment, reply)">
+                            <mat-icon>{{ reply.isLiked ? 'favorite' : 'favorite_border' }}</mat-icon>
+                            <span>{{ reply.likes }}</span>
+                          </button>
+                        </div>
+                        <p class="reply-content">{{ reply.content }}</p>
+                      </div>
+                    }
+                  </div>
+                }
+                
+                <!-- Reply Input -->
+                @if (replyingTo() === comment) {
+                  <div class="reply-input">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <textarea 
+                        matInput 
+                        [(ngModel)]="replyText"
+                        rows="2"
+                        placeholder="Write a reply..."
+                        (keydown.enter)="!$event && submitReply(comment); $event.preventDefault()">
+                      </textarea>
+                    </mat-form-field>
+                    <div class="reply-actions">
+                      <button mat-button (click)="cancelReply()">Cancel</button>
+                      <button 
+                        mat-raised-button 
+                        color="primary" 
+                        (click)="submitReply(comment)"
+                        [disabled]="!replyText.trim()">
+                        Reply
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+              
+              @if (!$last) {
+                <mat-divider></mat-divider>
+              }
+            }
+          }
+        </div>
+
+      </mat-dialog-content>
+
+      <mat-dialog-actions class="dialog-actions">
+        <div class="comment-input-wrapper">
+          <img 
+            [src]="currentUserAvatar || 'img/avatar.png'" 
+            alt="Your avatar"
+            class="current-user-avatar">
+          
+          <mat-form-field appearance="outline" class="comment-input">
+            <textarea 
+              matInput 
+              [(ngModel)]="newComment"
+              rows="2"
+              placeholder="Add a comment..."
+              (keydown.enter)="!$event && submitComment(); $event.preventDefault()">
+            </textarea>
+          </mat-form-field>
+          
+          <button 
+            mat-icon-button 
+            color="primary" 
+            class="send-btn"
+            [disabled]="!newComment.trim() || submitting()"
+            (click)="submitComment()">
+            @if (submitting()) {
+              <mat-spinner diameter="24"></mat-spinner>
+            } @else {
+              <mat-icon>send</mat-icon>
+            }
+          </button>
+        </div>
+      </mat-dialog-actions>
+    </div>

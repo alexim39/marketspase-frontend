@@ -63,7 +63,16 @@ export function getMarketerNavigation(
       label: 'Community',
       expanded: false,
       children: [
-        { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' }
+        { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' },
+        {
+          icon: 'dynamic_feed',
+          label: 'Feed',
+          expanded: false,
+          children: [
+           { icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' },
+           { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
+          ]
+        }
       ]
     },
     {

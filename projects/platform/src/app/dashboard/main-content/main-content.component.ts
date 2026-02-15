@@ -142,7 +142,6 @@ export class DashboardMainContainer {
   private readonly destroyRef = inject(DestroyRef);
   private readonly deviceService = inject(DeviceService);
   private userService = inject(UserService);
-  
   public user = this.userService.user;
 
   // === Existing Signals ===
@@ -376,11 +375,11 @@ export class DashboardMainContainer {
   }
 
   createCommunityPost(): void {
-    this.router.navigate(['dashboard/community/create']);
+    this.router.navigate(['dashboard/community/feeds/create']);
   }
 
   openCommunityFeed(): void {
-    this.router.navigate(['dashboard/community']);
+    this.router.navigate(['dashboard/community/feeds']);
   }
 
   openMessages(): void {

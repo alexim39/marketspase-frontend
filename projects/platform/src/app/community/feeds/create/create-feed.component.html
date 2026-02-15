@@ -1,0 +1,627 @@
+<div class="create-feed-page" [@pageTransition]>
+  
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="onDiscard()" matTooltip="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      
+      <div class="header-title">
+        <h1>Create Post</h1>
+        <span class="step-indicator">Step {{ currentStep() + 1 }} of 3</span>
+      </div>
+      
+      <div class="header-actions">
+        <button 
+          class="preview-toggle" 
+          (click)="togglePreview()"
+          matTooltip="Toggle preview">
+          <mat-icon>{{ showPreview() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        
+        <button 
+          class="save-draft-btn"
+          mat-stroked-button
+          [disabled]="!isDirty()">
+          <mat-icon>save</mat-icon>
+          Save Draft
+        </button>
+      </div>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div 
+        class="progress-fill" 
+        [style.width.%]="((currentStep() + 1) / 3) * 100">
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <div class="main-content" [class.with-preview]="showPreview()">
+    
+    <!-- Form Section -->
+    <div class="form-section" @slideIn>
+      
+      <!-- Step 1: Content -->
+      <div class="step-container" *ngIf="currentStep() === 0">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h2>What would you like to share?</h2>
+        </div>
+        
+        <div class="step-content">
+          
+          <!-- Post Type Selection -->
+          <mat-form-field appearance="outline" class="post-type-field">
+            <mat-label>Post Type</mat-label>
+            <mat-select 
+              [(ngModel)]="postData.type" 
+              name="type"
+              (selectionChange)="onTypeChange()">
+              <mat-option value="earnings">
+                <div class="option-content">
+                  <mat-icon>emoji_events</mat-icon>
+                  <div>
+                    <div class="option-title">Earnings Achievement</div>
+                    <div class="option-desc">Share your earnings milestones</div>
+                  </div>
+                </div>
+              </mat-option>
+              <mat-option value="campaign">
+                <div class="option-content">
+                  <mat-icon>campaign</mat-icon>
+                  <div>
+                    <div class="option-title">Campaign Update</div>
+                    <div class="option-desc">Share campaign progress or results</div>
+                  </div>
+                </div>
+              </mat-option>
+              <mat-option value="question">
+                <div class="option-content">
+                  <mat-icon>help</mat-icon>
+                  <div>
+                    <div class="option-title">Question</div>
+                    <div class="option-desc">Ask the community for advice</div>
+                  </div>
+                </div>
+              </mat-option>
+              <mat-option value="tip">
+                <div class="option-content">
+                  <mat-icon>lightbulb</mat-icon>
+                  <div>
+                    <div class="option-title">Tip & Advice</div>
+                    <div class="option-desc">Share valuable insights</div>
+                  </div>
+                </div>
+              </mat-option>
+              <mat-option value="achievement">
+                <div class="option-content">
+                  <mat-icon>military_tech</mat-icon>
+                  <div>
+                    <div class="option-title">Achievement</div>
+                    <div class="option-desc">Celebrate your wins</div>
+                  </div>
+                </div>
+              </mat-option>
+              <mat-option value="milestone">
+                <div class="option-content">
+                  <mat-icon>flag</mat-icon>
+                  <div>
+                    <div class="option-title">Milestone</div>
+                    <div class="option-desc">Mark important milestones</div>
+                  </div>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <!-- Topic Suggestions -->
+          <div class="suggestions-section">
+            <h3>Need inspiration?</h3>
+            <div class="suggestions-list">
+              @for (topic of suggestedTopics(); track topic) {
+                <button class="suggestion-chip" (click)="applySuggestion(topic)">
+                  <mat-icon>auto_awesome</mat-icon>
+                  {{ topic }}
+                </button>
+              }
+            </div>
+          </div>
+          
+          <!-- Content Input -->
+          <div class="content-input-wrapper">
+            <mat-form-field appearance="outline" class="content-field">
+              <mat-label>Your story</mat-label>
+              <textarea 
+                #contentTextarea
+                matInput 
+                [(ngModel)]="postData.content" 
+                name="content"
+                rows="8"
+                placeholder="Share your thoughts, achievements, or questions..."
+                (input)="onContentInput($any($event.target).value)"
+                maxlength="5000"></textarea>
+              <mat-hint align="end">
+                <span [class.limit-warning]="characterCount() > 4500">
+                  {{ characterCount() }}/5000
+                </span>
+              </mat-hint>
+            </mat-form-field>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+              <button 
+                type="button" 
+                class="action-btn"
+                (click)="fileInput.click()"
+                matTooltip="Add media">
+                <mat-icon>image</mat-icon>
+              </button>
+              <button 
+                type="button" 
+                class="action-btn"
+                matTooltip="Add link">
+                <mat-icon>link</mat-icon>
+              </button>
+              <button 
+                type="button" 
+                class="action-btn"
+                matTooltip="Add emoji">
+                <mat-icon>emoji_emotions</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Media Preview -->
+          @if (selectedFiles().length > 0) {
+            <div class="media-grid" @staggerItems>
+              @for (file of selectedFiles(); track file.preview; let i = $index) {
+                <div class="media-item">
+                  @if (file.type === 'image') {
+                    <img [src]="file.preview" [alt]="file.file.name">
+                  } @else {
+                    <div class="video-placeholder">
+                      <mat-icon>play_circle</mat-icon>
+                    </div>
+                  }
+                  <button class="remove-media" (click)="removeFile(i)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                  <div class="file-name">{{ file.file.name }}</div>
+                </div>
+              }
+            </div>
+          }
+          
+          <!-- Hidden File Input -->
+          <input 
+            #fileInput 
+            type="file" 
+            multiple 
+            accept="image/*,video/*"
+            style="display: none"
+            (change)="onFileSelected($event)">
+          
+          <!-- Hashtags -->
+          <div class="hashtags-section">
+            <div class="hashtags-header">
+              <mat-icon>tag</mat-icon>
+              <span>Hashtags</span>
+            </div>
+            
+            <div class="hashtags-input">
+              <mat-form-field appearance="outline" class="hashtag-field">
+                <input 
+                  matInput 
+                  [(ngModel)]="hashtagInput" 
+                  name="hashtagInput"
+                  placeholder="Add hashtag"
+                  (keydown.enter)="$event.preventDefault(); addHashtag(hashtagInput())">
+              </mat-form-field>
+              <button 
+                class="add-hashtag-btn"
+                (click)="addHashtag(hashtagInput())">
+                Add
+              </button>
+            </div>
+            
+            @if (hashtags().length > 0) {
+              <div class="hashtags-list">
+                @for (tag of hashtags(); track tag; let i = $index) {
+                  <div class="hashtag-chip">
+                    <span>#{{ tag }}</span>
+                    <button class="remove-hashtag" (click)="removeHashtag(i)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+            
+            <div class="suggested-hashtags">
+              <span class="label">Suggested:</span>
+              @for (tag of suggestedHashtags(); track tag) {
+                <button 
+                  class="suggested-tag"
+                  (click)="addSuggestedHashtag(tag)">
+                  #{{ tag }}
+                </button>
+              }
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Step 2: Details -->
+      <div class="step-container" *ngIf="currentStep() === 1">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h2>Add more details</h2>
+        </div>
+        
+        <div class="step-content">
+          
+          <!-- Type-specific Fields -->
+          @if (postData.type === 'earnings') {
+            <div class="type-fields" @slideIn>
+              <h3 class="fields-title">Earnings Details</h3>
+              
+              <div class="row">
+                <mat-form-field appearance="outline" class="flex-1">
+                  <mat-label>Currency</mat-label>
+                  <mat-select [(ngModel)]="postData.earnings!.currency" name="currency">
+                    <mat-option value="NGN">₦ NGN</mat-option>
+                    <mat-option value="USD">$ USD</mat-option>
+                    <mat-option value="EUR">€ EUR</mat-option>
+                    <mat-option value="GBP">£ GBP</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="flex-2">
+                  <mat-label>Amount</mat-label>
+                  <input 
+                    matInput 
+                    type="number" 
+                    [(ngModel)]="postData.earnings!.amount" 
+                    name="amount"
+                    min="0"
+                    step="0.01"
+                    required>
+                  <span matTextSuffix *ngIf="postData.earnings!.currency === 'NGN'">₦</span>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Milestone (Optional)</mat-label>
+                <input 
+                  matInput 
+                  [(ngModel)]="postData.earnings!.milestone" 
+                  name="milestone"
+                  placeholder="e.g., First ₦100k, Monthly Target">
+                <mat-icon matSuffix>emoji_events</mat-icon>
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Related Campaign (Optional)</mat-label>
+                <input 
+                  matInput 
+                  [(ngModel)]="postData.earnings!.campaignId" 
+                  name="earningsCampaignId"
+                  placeholder="Campaign ID">
+              </mat-form-field>
+            </div>
+          }
+
+          @if (postData.type === 'campaign') {
+            <div class="type-fields" @slideIn>
+              <h3 class="fields-title">Campaign Details</h3>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Campaign Name</mat-label>
+                <input 
+                  matInput 
+                  [(ngModel)]="postData.campaign!.name" 
+                  name="campaignName"
+                  required
+                  placeholder="Enter campaign name">
+                <mat-icon matSuffix>campaign</mat-icon>
+              </mat-form-field>
+
+              <div class="row">
+                <mat-form-field appearance="outline" class="flex-2">
+                  <mat-label>Budget</mat-label>
+                  <input 
+                    matInput 
+                    type="number" 
+                    [(ngModel)]="postData.campaign!.budget" 
+                    name="budget"
+                    min="0"
+                    required>
+                  <span matTextSuffix>₦</span>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="flex-2">
+                  <mat-label>Status</mat-label>
+                  <mat-select [(ngModel)]="postData.campaign!.status" name="status">
+                    <mat-option value="active">Active</mat-option>
+                    <mat-option value="completed">Completed</mat-option>
+                    <mat-option value="paused">Paused</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Campaign ID (Optional)</mat-label>
+                <input 
+                  matInput 
+                  [(ngModel)]="postData.campaign!.campaignId" 
+                  name="campaignId"
+                  placeholder="Enter campaign ID">
+              </mat-form-field>
+            </div>
+          }
+
+          @if (postData.type === 'tip') {
+            <div class="type-fields" @slideIn>
+              <h3 class="fields-title">Tip Details</h3>
+              
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Tip Title</mat-label>
+                <input 
+                  matInput 
+                  [(ngModel)]="postData.tip!.title" 
+                  name="tipTitle"
+                  required
+                  placeholder="e.g., How to close more deals">
+                <mat-icon matSuffix>lightbulb</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Category</mat-label>
+                <mat-select [(ngModel)]="postData.tip!.category" name="category" required>
+                  <mat-option value="marketing">Marketing</mat-option>
+                  <mat-option value="promotion">Promotion</mat-option>
+                  <mat-option value="sales">Sales</mat-option>
+                  <mat-option value="negotiation">Negotiation</mat-option>
+                  <mat-option value="networking">Networking</mat-option>
+                  <mat-option value="productivity">Productivity</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+          
+          <!-- Additional Options -->
+          <div class="additional-options">
+            <h3 class="fields-title">Additional Options</h3>
+            
+            <div class="options-grid">
+              <button class="option-card">
+                <mat-icon>public</mat-icon>
+                <div class="option-info">
+                  <span class="option-label">Post to</span>
+                  <span class="option-value">Public</span>
+                </div>
+                <mat-icon class="chevron">chevron_right</mat-icon>
+              </button>
+              
+              <button class="option-card">
+                <mat-icon>schedule</mat-icon>
+                <div class="option-info">
+                  <span class="option-label">Schedule</span>
+                  <span class="option-value">Post now</span>
+                </div>
+                <mat-icon class="chevron">chevron_right</mat-icon>
+              </button>
+              
+              <button class="option-card">
+                <mat-icon>notifications</mat-icon>
+                <div class="option-info">
+                  <span class="option-label">Notifications</span>
+                  <span class="option-value">Notify followers</span>
+                </div>
+                <mat-icon class="chevron">chevron_right</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Step 3: Review & Publish -->
+      <div class="step-container" *ngIf="currentStep() === 2">
+        <div class="step-header">
+          <div class="step-number">3</div>
+          <h2>Review & Publish</h2>
+        </div>
+        
+        <div class="step-content">
+          
+          <!-- Post Summary -->
+          <div class="post-summary" @slideIn>
+            <div class="summary-header">
+              <mat-icon>assignment</mat-icon>
+              <h3>Post Summary</h3>
+            </div>
+            
+            <div class="summary-content">
+              <div class="summary-item">
+                <span class="summary-label">Type:</span>
+                <span class="summary-value">
+                  <mat-icon>{{ 
+                    postData.type === 'earnings' ? 'emoji_events' :
+                    postData.type === 'campaign' ? 'campaign' :
+                    postData.type === 'question' ? 'help' :
+                    postData.type === 'tip' ? 'lightbulb' :
+                    postData.type === 'achievement' ? 'military_tech' : 'flag'
+                  }}</mat-icon>
+                  {{ postData.type | titlecase }}
+                </span>
+              </div>
+              
+              <div class="summary-item">
+                <span class="summary-label">Content:</span>
+                <span class="summary-value">{{ postData.content | slice:0:100 }}...</span>
+              </div>
+              
+              @if (postData.type === 'earnings' && postData.earnings) {
+                <div class="summary-item">
+                  <span class="summary-label">Earnings:</span>
+                  <span class="summary-value highlight">
+                    {{ postData.earnings.currency }} {{ postData.earnings.amount | number }}
+                    @if (postData.earnings.milestone) {
+                      <span class="milestone">({{ postData.earnings.milestone }})</span>
+                    }
+                  </span>
+                </div>
+              }
+              
+              @if (postData.type === 'campaign' && postData.campaign) {
+                <div class="summary-item">
+                  <span class="summary-label">Campaign:</span>
+                  <span class="summary-value">
+                    {{ postData.campaign.name }} (₦{{ postData.campaign.budget | number }})
+                  </span>
+                </div>
+              }
+              
+              @if (postData.type === 'tip' && postData.tip) {
+                <div class="summary-item">
+                  <span class="summary-label">Tip:</span>
+                  <span class="summary-value">
+                    {{ postData.tip.title }} ({{ postData.tip.category }})
+                  </span>
+                </div>
+              }
+              
+              <div class="summary-item">
+                <span class="summary-label">Hashtags:</span>
+                <span class="summary-value">
+                  @for (tag of hashtags(); track tag) {
+                    <span class="summary-hashtag">#{{ tag }}</span>
+                  } @empty {
+                    <span class="text-muted">None</span>
+                  }
+                </span>
+              </div>
+              
+              <div class="summary-item">
+                <span class="summary-label">Media:</span>
+                <span class="summary-value">
+                  {{ selectedFiles().length }} file(s) attached
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tips -->
+          <div class="tips-section">
+            <mat-icon class="tips-icon">tips_and_updates</mat-icon>
+            <div class="tips-content">
+              <h4>Tips for better engagement</h4>
+              <ul>
+                <li>Add a question to encourage comments</li>
+                <li>Use relevant hashtags to reach more people</li>
+                <li>Include media to increase visibility by 40%</li>
+                <li>Share specific numbers and results</li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Publish Options -->
+          <div class="publish-options">
+            <mat-checkbox>Post anonymously</mat-checkbox>
+            <mat-checkbox>Disable comments</mat-checkbox>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Navigation Buttons -->
+      <div class="step-navigation">
+        <button 
+          *ngIf="currentStep() > 0" 
+          class="nav-btn prev"
+          (click)="previousStep()">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </button>
+        
+        <div class="step-dots">
+          @for (step of [0,1,2]; track step) {
+            <button 
+              class="step-dot" 
+              [class.active]="currentStep() === step"
+              [class.completed]="step < currentStep()"
+              (click)="goToStep(step)">
+            </button>
+          }
+        </div>
+        
+        <button 
+          *ngIf="currentStep() < 2" 
+          class="nav-btn next"
+          [disabled]="!isStepValid(currentStep())"
+          (click)="nextStep()">
+          Next
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+        
+        <button 
+          *ngIf="currentStep() === 2" 
+          class="nav-btn publish"
+          [disabled]="isSubmitting()"
+          (click)="onSubmit()">
+          @if (isSubmitting()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Publishing...</span>
+          } @else {
+            <mat-icon>publish</mat-icon>
+            <span>Publish Post</span>
+          }
+        </button>
+      </div>
+      
+    </div>
+    
+    <!-- Preview Section -->
+    <div class="preview-section" *ngIf="showPreview()" [@slideIn]>
+      <div class="preview-header">
+        <h3>Live Preview</h3>
+        <button class="close-preview" (click)="showPreview.set(false)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <div class="preview-content">
+        @if (previewPost()) {
+          <app-feed-post-card
+            [post]="previewPost()!"
+            [isLiked]="false"
+            [isSaved]="false"
+            (like)="{}"
+            (save)="{}"
+            (comment)="{}"
+            (share)="{}">
+          </app-feed-post-card>
+        }
+      </div>
+      
+      <div class="preview-tips">
+        <mat-icon>info</mat-icon>
+        <span>This is how your post will appear in the feed</span>
+      </div>
+    </div>
+    
+  </div>
+  
+  <!-- Draft Saved Toast (would be shown when auto-saving) -->
+  <!-- <div class="draft-toast" *ngIf="showDraftToast">
+    <mat-icon>check_circle</mat-icon>
+    <span>Draft saved</span>
+  </div> -->
+  
+</div>
