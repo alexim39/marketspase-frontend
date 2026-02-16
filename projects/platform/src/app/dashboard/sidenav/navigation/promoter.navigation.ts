@@ -55,7 +55,7 @@ export function getPromoterNavigation(
           label: 'Feed',
           expanded: false,
           children: [
-           { icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' },
+           //{ icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' }, Promoters should not be able to create post at the time
            { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
           ]
         }

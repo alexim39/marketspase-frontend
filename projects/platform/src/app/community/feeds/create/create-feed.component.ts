@@ -10,11 +10,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatStepperModule } from '@angular/material/stepper';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FeedService } from '../feed.service';
 import { 
   trigger, 
@@ -22,44 +21,36 @@ import {
   style, 
   animate, 
   query, 
-  stagger,
-  state 
+  stagger 
 } from '@angular/animations';
 import { FeedPostCardComponent } from '../feed-post-card/feed-post-card.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { UserService } from '../../../common/services/user.service';
+
+export interface CampaignOption {
+  _id: string;
+  title: string;
+  mediaUrl: string;
+  mediaType: 'image' | 'video';
+  thumbnailUrl?: string;
+  status: string;
+  budget: number;
+  // Optional fields that might not exist
+  spentBudget?: number;
+  progress?: number;
+}
 
 export interface CreatePostData {
   content: string;
-  type: 'earnings' | 'campaign' | 'question' | 'tip' | 'achievement' | 'milestone';
-  earnings?: {
-    amount: number;
-    currency: string;
-    milestone?: string;
-    campaignId?: string;
-  };
-  campaign?: {
-    campaignId: string;
-    name: string;
-    budget: number;
-    status?: string;
-  };
-  tip?: {
-    title: string;
-    category: string;
-    content?: string;
-  };
-  media?: {
-    file: File;
-    preview: string;
-    type: 'image' | 'video';
-  }[];
+  campaignId: string;
   hashtags?: string[];
+  postAnonymously?: boolean;
+  disableComments?: boolean;
 }
 
 @Component({
   selector: 'app-create-feed-page',
   standalone: true,
+  providers: [FeedService],
   imports: [
     CommonModule,
     FormsModule,
@@ -71,11 +62,9 @@ export interface CreatePostData {
     MatSelectModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatStepperModule,
     MatCardModule,
     MatDividerModule,
     MatTooltipModule,
-    MatTabsModule,
     FeedPostCardComponent,
     MatCheckboxModule
   ],
@@ -103,11 +92,6 @@ export interface CreatePostData {
           ])
         ], { optional: true })
       ])
-    ]),
-    trigger('expandCollapse', [
-      state('collapsed', style({ height: '0', opacity: 0, overflow: 'hidden' })),
-      state('expanded', style({ height: '*', opacity: 1 })),
-      transition('collapsed <=> expanded', animate('300ms ease-in-out'))
     ])
   ]
 })
@@ -115,84 +99,118 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
   private feedService = inject(FeedService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
-
   private userService = inject(UserService);
+
   public user = this.userService.user;
 
   @ViewChild('contentTextarea') contentTextarea!: ElementRef<HTMLTextAreaElement>;
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('postForm') postForm!: NgForm;
 
   // State signals
   isSubmitting = signal(false);
-  currentStep = signal(0);
-  selectedFiles = signal<{ file: File; preview: string; type: 'image' | 'video' }[]>([]);
   hashtagInput = signal('');
   hashtags = signal<string[]>([]);
   characterCount = signal(0);
-  showPreview = signal(false);
   isDirty = signal(false);
-  suggestedHashtags = signal<string[]>(['marketing', 'success', 'tips', 'campaign', 'earnings', 'growth']);
+  showPreview = signal(false);
+  
+  suggestedHashtags = signal<string[]>(['campaign', 'progress', 'update', 'marketing', 'success', 'results']);
   suggestedTopics = signal<string[]>([
-    'How I earned my first ₦100k',
-    'Top marketing strategies',
-    'Campaign success story',
-    'Daily tips for promoters',
-    'Avoid these mistakes'
+    'Campaign is performing well!',
+    'Just hit our first milestone',
+    'Excited about the results so far',
+    'Learning from this campaign',
+    'Campaign insights and tips'
   ]);
+
+  // Campaigns
+  userCampaigns = signal<CampaignOption[]>([]);
+  selectedCampaign = signal<CampaignOption | null>(null);
+  isLoadingCampaigns = signal(false);
 
   // Form data
   postData: CreatePostData = {
     content: '',
-    type: 'question',
-    earnings: {
-      amount: 0,
-      currency: 'NGN',
-      milestone: ''
-    },
-    campaign: {
-      campaignId: '',
-      name: '',
-      budget: 0
-    },
-    tip: {
-      title: '',
-      category: 'marketing'
-    },
-    hashtags: []
+    campaignId: '',
+    hashtags: [],
+    postAnonymously: false,
+    disableComments: false
   };
 
-  // Preview post for live preview
+  // Preview post
   previewPost = signal<any>(null);
 
   ngOnInit(): void {
+    this.loadUserCampaigns();
     this.updatePreview();
   }
 
   ngAfterViewInit(): void {
-    // Focus on content textarea after view init
     setTimeout(() => {
       this.contentTextarea?.nativeElement.focus();
     }, 300);
   }
 
-  // Handle type change
-  onTypeChange(): void {
-    // Reset type-specific fields
-    if (this.postData.type !== 'earnings') {
-      this.postData.earnings = { amount: 0, currency: 'NGN', milestone: '' };
+  loadUserCampaigns(): void {
+    const currentUser = this.user();
+    if (!currentUser?._id || currentUser.role !== 'marketer') {
+      console.log('User not authorized to load campaigns', currentUser);
+      return;
     }
-    if (this.postData.type !== 'campaign') {
-      this.postData.campaign = { campaignId: '', name: '', budget: 0 };
-    }
-    if (this.postData.type !== 'tip') {
-      this.postData.tip = { title: '', category: 'marketing' };
-    }
+
+    this.isLoadingCampaigns.set(true);
+    
+    // Based on your API response structure
+    this.feedService.getMarketerCampaigns(currentUser._id).subscribe({
+      next: (response) => {
+        // console.log('Campaigns loaded:', response);
+        
+        // Extract campaigns from response - adjust based on your API structure
+        let campaigns: any[] = [];
+        
+        if (response.data && Array.isArray(response.data)) {
+          // If data is directly an array
+          campaigns = response.data;
+        } else if (response.data?.campaigns && Array.isArray(response.data.campaigns)) {
+          // If data has campaigns property
+          campaigns = response.data.campaigns;
+        } else if (response.campaigns && Array.isArray(response.campaigns)) {
+          // If response has campaigns property
+          campaigns = response.campaigns;
+        }
+
+        // Map to our interface with safe defaults
+        this.userCampaigns.set(campaigns.map((c: any) => ({
+          _id: c._id,
+          title: c.title || 'Untitled Campaign',
+          mediaUrl: c.mediaUrl || '',
+          mediaType: c.mediaType || 'image',
+          thumbnailUrl: c.thumbnailUrl,
+          status: c.status || 'unknown',
+          budget: c.budget || 0,
+          // These might not exist, provide defaults
+          spentBudget: c.spentBudget || 0,
+          progress: c.progress || 0
+        })));
+        
+        this.isLoadingCampaigns.set(false);
+      },
+      error: (error) => {
+        console.error('Failed to load campaigns:', error);
+        this.snackBar.open('Failed to load your campaigns', 'Dismiss', { duration: 3000 });
+        this.isLoadingCampaigns.set(false);
+      }
+    });
+  }
+
+  onCampaignSelect(campaignId: string): void {
+    const campaign = this.userCampaigns().find(c => c._id === campaignId);
+    this.selectedCampaign.set(campaign || null);
+    this.postData.campaignId = campaignId;
     this.updatePreview();
     this.isDirty.set(true);
   }
 
-  // Handle content input
   onContentInput(content: string): void {
     this.characterCount.set(content.length);
     this.updatePreview();
@@ -205,29 +223,6 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
       const extractedHashtags = matches.map(tag => tag.substring(1).toLowerCase());
       this.hashtags.set(extractedHashtags);
     }
-  }
-
-  // File handling
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      const newFiles = Array.from(input.files).map(file => ({
-        file,
-        preview: URL.createObjectURL(file),
-        type: file.type.startsWith('image/') ? 'image' as const : 'video' as const
-      }));
-      
-      this.selectedFiles.update(files => [...files, ...newFiles]);
-      this.updatePreview();
-      this.isDirty.set(true);
-    }
-  }
-
-  removeFile(index: number): void {
-    const files = this.selectedFiles();
-    URL.revokeObjectURL(files[index].preview); // Clean up object URL
-    this.selectedFiles.update(files => files.filter((_, i) => i !== index));
-    this.updatePreview();
   }
 
   // Hashtag handling
@@ -250,135 +245,101 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     this.addHashtag(tag);
   }
 
-  // Topic suggestions
   applySuggestion(topic: string): void {
     this.postData.content = topic;
     this.onContentInput(topic);
   }
 
-  // Form navigation
-  nextStep(): void {
-    if (this.currentStep() < 2) {
-      this.currentStep.update(step => step + 1);
-    }
-  }
-
-  previousStep(): void {
-    if (this.currentStep() > 0) {
-      this.currentStep.update(step => step - 1);
-    }
-  }
-
-  goToStep(step: number): void {
-    if (step >= 0 && step <= 2) {
-      this.currentStep.set(step);
-    }
-  }
-
-  // Preview
   togglePreview(): void {
     this.showPreview.update(val => !val);
   }
 
   private updatePreview(): void {
+    const campaign = this.selectedCampaign();
+    
     this.previewPost.set({
-      author: {
-        displayName: 'You',
-        avatar: 'img/avatar.png',
-        role: 'Member',
-        rating: 4.8
+      author: this.postData.postAnonymously ? null : {
+        displayName: this.user()?.displayName || 'You',
+        avatar: this.user()?.avatar || 'img/avatar.png',
+        role: 'Marketer',
+        rating: this.user()?.rating || 0
       },
       content: this.postData.content,
-      type: this.postData.type,
-      earnings: this.postData.earnings,
-      campaign: this.postData.campaign,
-      tip: this.postData.tip,
-      media: this.selectedFiles().map(f => ({
-        url: f.preview,
-        type: f.type
-      })),
+      type: 'campaign',
+      campaign: campaign ? {
+        campaignId: campaign._id,
+        name: campaign.title,
+        budget: campaign.budget,
+        spentBudget: campaign.spentBudget || 0,
+        status: campaign.status,
+        progress: campaign.progress || 0
+      } : null,
+      media: campaign ? [{
+        url: campaign.mediaUrl,
+        type: campaign.mediaType,
+        thumbnail: campaign.thumbnailUrl
+      }] : [],
       hashtags: this.hashtags().map(tag => ({ tag })),
       likeCount: 0,
       commentCount: 0,
       shareCount: 0,
       time: 'Just now',
       isLiked: false,
-      isSaved: false
+      isSaved: false,
+      disableComments: this.postData.disableComments
     });
   }
 
-  // Form validation
-  isStepValid(step: number): boolean {
-    switch (step) {
-      case 0: // Content step
-        return this.postData.content.trim().length >= 10;
-      case 1: // Details step
-        if (this.postData.type === 'earnings') {
-          return (this.postData.earnings?.amount ?? 0) > 0;
-        }
-        if (this.postData.type === 'campaign') {
-          return !!(this.postData.campaign?.name && (this.postData.campaign?.budget ?? 0) > 0);
-        }
-        if (this.postData.type === 'tip') {
-          return !!(this.postData.tip?.title && this.postData.tip?.category);
-        }
-        return true; // Question type doesn't need additional validation
-      case 2: // Review step
-        return true;
-      default:
-        return false;
-    }
+  isFormValid(): boolean {
+    return (
+      this.postData.content.trim().length >= 10 &&
+      !!this.postData.campaignId
+    );
   }
 
-  // Submit form
   onSubmit(): void {
-    if (this.isSubmitting()) return;
+    if (this.isSubmitting() || !this.isFormValid()) return;
 
     this.isSubmitting.set(true);
 
     const postPayload = {
-      ...this.postData,
+      content: this.postData.content,
+      campaignId: this.postData.campaignId,
       hashtags: this.hashtags().map(tag => ({ tag })),
-      media: this.selectedFiles().map(f => ({
-        file: f.file,
-        type: f.type
-      })),
-      userId: this.user()?._id
+      userId: this.user()?._id,
+      settings: {
+        postAnonymously: this.postData.postAnonymously,
+        disableComments: this.postData.disableComments
+      }
     };
 
+    // Make sure this method exists in your feed service
     this.feedService.createPost(postPayload).subscribe({
       next: (post) => {
         this.snackBar.open(
-          '🎉 Post created successfully!',
+          '🎉 Campaign update posted successfully!',
           'View Post',
-          { 
-            duration: 5000,
-            panelClass: 'success-snackbar'
-          }
+          { duration: 5000, panelClass: 'success-snackbar' }
         ).onAction().subscribe(() => {
           this.router.navigate(['/feed', post._id]);
         });
         
-        // Navigate back to feed after short delay
         setTimeout(() => {
           this.router.navigate(['/feed']);
         }, 2000);
       },
       error: (error) => {
+        console.error('Failed to create post:', error);
         this.snackBar.open(
           'Failed to create post. Please try again.',
           'Dismiss',
-          { 
-            duration: 5000,
-            panelClass: 'error-snackbar'
-          }
+          { duration: 5000, panelClass: 'error-snackbar' }
         );
         this.isSubmitting.set(false);
       }
     });
   }
 
-  // Discard draft
   onDiscard(): void {
     if (this.isDirty()) {
       const confirmed = confirm('You have unsaved changes. Are you sure you want to leave?');
@@ -390,10 +351,7 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // Clean up object URLs
   ngOnDestroy(): void {
-    this.selectedFiles().forEach(file => {
-      URL.revokeObjectURL(file.preview);
-    });
+    // Clean up if needed
   }
 }

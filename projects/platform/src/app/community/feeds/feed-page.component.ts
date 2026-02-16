@@ -46,6 +46,7 @@ import { UserService } from '../../common/services/user.service';
 @Component({
   selector: 'app-feed-page',
   standalone: true,
+  providers: [FeedService],
   imports: [
     CommonModule,
     RouterModule,

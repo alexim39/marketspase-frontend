@@ -69,9 +69,7 @@ export interface Hashtag {
   posts: string[];
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class FeedService {
   private apiService: ApiService = inject(ApiService);
   private destroyRef = inject(DestroyRef);
@@ -373,5 +371,14 @@ loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = 
       month: 'short', 
       day: 'numeric' 
     });
+  }
+
+
+  // createCampaignUpdate(data: any): Observable<any> {
+  //   return this.apiService.post(`${this.apiUrl}/feed/campaign-update`, data);
+  // }
+
+  getMarketerCampaigns(userId: string, params?: any): Observable<any> {
+    return this.apiService.get(`campaign/user/${userId}`, params );
   }
 }
