@@ -201,6 +201,119 @@ export class WalletFundingComponent implements OnInit {
     }
 
     if (!this.user()) {
+      this.showError('User information not available');
+      return;
+    }
+
+    this.isProcessingPayment.set(true);
+    this.paymentStatus.set(null);
+    this.startProcessingTimer();
+
+    try {
+      // Generate reference with user ID for webhook to identify user
+      const reference = this.generatePaymentReference();
+      
+      const paymentRequest: PaymentRequest = {
+        amount: this.totalAmount(),
+        user: this.user()!,
+        metadata: {
+          purpose: 'wallet_funding',
+          fundingAmount: this.selectedAmount(),
+          processingFee: this.processingFee(),
+          userId: this.data.userId || this.user()?._id,
+          userEmail: this.user()?.email,
+          username: this.user()?.username,
+          // Store in metadata for webhook to use
+          webhookIdentifier: `wallet_${this.user()?._id}_${Date.now()}`
+        },
+        reference: reference
+      };
+
+      // Just initialize payment with Paystack
+      this.paystackService.initiatePayment(paymentRequest)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (result) => {
+            // Payment popup opened successfully
+            // Don't call backend here - wait for webhook
+            this.paymentStatus.set({
+              success: true,
+              message: 'Payment initiated. Your wallet will be updated automatically after confirmation.',
+              reference: reference,
+              amount: this.selectedAmount(),
+              timestamp: new Date()
+            });
+            
+            // Start polling for payment confirmation
+            this.startPaymentPolling(reference);
+          },
+          error: (error) => this.handlePaymentError(error.message || 'Payment failed'),
+          complete: () => this.stopProcessingTimer()
+        });
+
+    } catch (error) {
+      this.handlePaymentError('Failed to initiate payment');
+      this.stopProcessingTimer();
+    }
+  }
+
+  private startPaymentPolling(reference: string): void {
+    // Poll every 3 seconds for 2 minutes to check if webhook processed payment
+    let attempts = 0;
+    const maxAttempts = 40; // 2 minutes with 3s interval
+    
+    const pollingSubscription = timer(0, 3000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(async () => {
+        attempts++;
+        
+        try {
+          const response = await this.walletService.verifyPayment(reference).toPromise();
+          
+          if (response?.recorded) {
+            // Payment has been recorded by webhook
+            this.paymentStatus.set({
+              success: true,
+              message: 'Payment successful! Wallet updated.',
+              reference: reference,
+              amount: this.selectedAmount(),
+              timestamp: new Date()
+            });
+            
+            this.updateLocalWalletBalance();
+            pollingSubscription.unsubscribe();
+            
+            // Refresh user data
+            if (this.user()?.uid) {
+              this.userService.getUser(this.user()!.uid).subscribe();
+            }
+          }
+        } catch (error) {
+          console.log('Polling error:', error);
+        }
+        
+        if (attempts >= maxAttempts) {
+          pollingSubscription.unsubscribe();
+          // Don't show error - webhook might still arrive later
+          this.paymentStatus.set({
+            success: true,
+            message: 'Payment confirmed by Paystack. Your wallet will be updated shortly.',
+            reference: reference,
+            amount: this.selectedAmount(),
+            timestamp: new Date()
+          });
+        }
+      });
+  }
+
+
+  /* async initiatePayment(): Promise<void> {
+    if (!this.canProceedWithPayment()) {
+      this.showError('Please enter a valid amount');
+      return;
+    }
+
+    if (!this.user()) {
       this.showError('User information not available. Please refresh and try again.');
       return;
     }
@@ -236,7 +349,7 @@ export class WalletFundingComponent implements OnInit {
       this.handlePaymentError('Failed to initiate payment');
       this.stopProcessingTimer();
     }
-  }
+  } */
 
   private startProcessingTimer(): void {
     this.processingTime.set(0);
@@ -251,7 +364,86 @@ export class WalletFundingComponent implements OnInit {
     this.isProcessingPayment.set(false);
   }
 
-  private handlePaymentResult(paystackResult: PaymentResult): void {
+  private async handlePaymentResult(paystackResult: PaymentResult): Promise<void> {
+    this.stopProcessingTimer();
+
+    if (!paystackResult.success || !paystackResult.response) {
+      this.handlePaymentError(paystackResult.error || 'Payment was cancelled or failed');
+      return;
+    }
+
+    // Set initial status
+    const paymentStatusData: PaymentStatusData = {
+      success: true,
+      message: 'Processing your wallet update...',
+      reference: paystackResult.response.reference,
+      amount: this.selectedAmount(),
+      timestamp: new Date()
+    };
+    this.paymentStatus.set(paymentStatusData);
+
+    const payload: RecordPaymentPayload = {
+      userId: this.data.userId || this.user()?._id || 'unknown',
+      amount: this.selectedAmount(),
+      paystackResult: paystackResult
+    };
+
+    try {
+      // Record payment with retry logic
+      const response = await this.walletService.recordPayment(payload).toPromise();
+
+      if (response?.success || response?.alreadyExists) {
+        // Payment recorded successfully
+        this.paymentStatus.set({
+          ...paymentStatusData,
+          success: true,
+          message: response.message || 'Wallet funded successfully!'
+        });
+
+        // Update local balance
+        this.updateLocalWalletBalance();
+
+        // Refresh user data
+        if (this.user()?.uid) {
+          this.userService.getUser(this.user()!.uid).subscribe({
+            error: (err) => console.error('Failed to refresh user:', err)
+          });
+        }
+
+        // Show success message
+        this.showSuccess('Payment successful! Your wallet has been funded.');
+
+      } else {
+        throw new Error(response?.message || 'Failed to record payment');
+      }
+
+    } catch (error) {
+      console.error('Payment recording failed:', error);
+      
+      // Check if we should retry
+      if (this.retryCount() < this.maxRetries) {
+        this.retryCount.update(count => count + 1);
+        this.paymentStatus.set({
+          ...paymentStatusData,
+          message: `Recording failed. Retrying (${this.retryCount()}/${this.maxRetries})...`
+        });
+        
+        // Auto-retry after delay
+        setTimeout(() => {
+          this.handlePaymentResult(paystackResult);
+        }, 3000);
+        
+      } else {
+        this.handlePaymentError(
+          'Payment was successful but we couldn\'t update your wallet. ' +
+          'Your reference is: ' + paystackResult.response.reference + '. ' +
+          'Please contact support with this reference.'
+        );
+      }
+    }
+  }
+
+ /*  private handlePaymentResult(paystackResult: PaymentResult): void {
     this.stopProcessingTimer();
 
     if (paystackResult.success && paystackResult.response) {
@@ -298,7 +490,7 @@ export class WalletFundingComponent implements OnInit {
     } else {
       this.handlePaymentError(paystackResult.error || 'Payment was cancelled or failed');
     }
-  }
+  } */
 
   private handlePaymentError(errorMessage: string): void {
     this.stopProcessingTimer();

@@ -1,0 +1,265 @@
+<div class="create-feed-page" [@pageTransition]>
+  
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="onDiscard()" matTooltip="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      
+      <div class="header-title">
+        <h1>Campaign Update</h1>
+      </div>
+      
+      <div class="header-actions">
+        <button 
+          class="preview-toggle" 
+          (click)="togglePreview()"
+          matTooltip="Toggle preview">
+          <mat-icon>{{ showPreview() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Content -->
+  <div class="main-content" [class.with-preview]="showPreview()">
+    
+    <!-- Form Section -->
+    <div class="form-section" @slideIn>
+      
+      <!-- Campaign Selection -->
+      <div class="step-container">
+        <div class="step-header">
+          <div class="step-number">1</div>
+          <h2>Select Campaign</h2>
+        </div>
+        
+        <div class="step-content">
+          <mat-form-field appearance="outline" class="full-width select-campaign">
+            <mat-label>Choose a campaign</mat-label>
+            <mat-select 
+              [(ngModel)]="postData.campaignId" 
+              name="campaign"
+              (selectionChange)="onCampaignSelect($event.value)"
+              [disabled]="isLoadingCampaigns()">
+              
+              @if (isLoadingCampaigns()) {
+                <mat-option disabled>Loading campaigns...</mat-option>
+              } @else {
+                @for (campaign of userCampaigns(); track campaign._id) {
+                  <mat-option [value]="campaign._id">
+                    <div class="campaign-option">
+                      <span class="campaign-title">{{ campaign.title }}</span>
+                      <span class="campaign-status" [class]="campaign.status">
+                        {{ campaign.status | titlecase }}
+                      </span>
+                      <span class="campaign-progress">
+                        {{ campaign.progress | number:'1.0-0' }}% complete
+                      </span>
+                    </div>
+                  </mat-option>
+                }
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (selectedCampaign()) {
+            <div class="selected-campaign-preview" @slideIn>
+              <div class="campaign-media">
+                @if (selectedCampaign()?.mediaType === 'image') {
+                  <img [src]="selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
+                } @else {
+                  <div class="video-placeholder">
+                    <mat-icon>play_circle</mat-icon>
+                    <span>Video Campaign</span>
+                  </div>
+                }
+              </div>
+              <div class="campaign-details">
+                <h4>{{ selectedCampaign()?.title }}</h4>
+                <div class="campaign-stats">
+                  <div class="stat">
+                    <span class="label">Budget:</span>
+                    <span class="value">₦{{ selectedCampaign()?.budget | number }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">Spent:</span>
+                    <span class="value">₦{{ selectedCampaign()?.spentBudget | number }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="label">Progress:</span>
+                    <span class="value">{{ selectedCampaign()?.progress | number:'1.0-0' }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Step 2: Content -->
+      <div class="step-container">
+        <div class="step-header">
+          <div class="step-number">2</div>
+          <h2>Share Your Update</h2>
+        </div>
+        
+        <div class="step-content">
+          
+          <!-- Topic Suggestions -->
+          <div class="suggestions-section">
+            <h3>Need inspiration?</h3>
+            <div class="suggestions-list">
+              @for (topic of suggestedTopics(); track topic) {
+                <button class="suggestion-chip" (click)="applySuggestion(topic)">
+                  <mat-icon>auto_awesome</mat-icon>
+                  {{ topic }}
+                </button>
+              }
+            </div>
+          </div>
+          
+          <!-- Content Input -->
+          <div class="content-input-wrapper">
+            <mat-form-field appearance="outline" class="content-field">
+              <mat-label>Your campaign update</mat-label>
+              <textarea 
+                #contentTextarea
+                matInput 
+                [(ngModel)]="postData.content" 
+                name="content"
+                rows="6"
+                placeholder="Share your campaign progress, results, or insights..."
+                (input)="onContentInput($any($event.target).value)"
+                maxlength="5000"></textarea>
+              <mat-hint align="end">
+                <span [class.limit-warning]="characterCount() > 4500">
+                  {{ characterCount() }}/5000
+                </span>
+              </mat-hint>
+            </mat-form-field>
+          </div>
+          
+          <!-- Hashtags -->
+          <div class="hashtags-section">
+            <div class="hashtags-header">
+              <mat-icon>tag</mat-icon>
+              <span>Hashtags</span>
+            </div>
+            
+            <div class="hashtags-input">
+              <mat-form-field appearance="outline" class="hashtag-field">
+                <input 
+                  matInput 
+                  [(ngModel)]="hashtagInput" 
+                  name="hashtagInput"
+                  placeholder="Add hashtag"
+                  (keydown.enter)="$event.preventDefault(); addHashtag(hashtagInput())">
+              </mat-form-field>
+              <button 
+                class="add-hashtag-btn"
+                (click)="addHashtag(hashtagInput())">
+                Add
+              </button>
+            </div>
+            
+            @if (hashtags().length > 0) {
+              <div class="hashtags-list">
+                @for (tag of hashtags(); track tag; let i = $index) {
+                  <div class="hashtag-chip">
+                    <span>#{{ tag }}</span>
+                    <button class="remove-hashtag" (click)="removeHashtag(i)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+            
+            <div class="suggested-hashtags">
+              <span class="label">Suggested:</span>
+              @for (tag of suggestedHashtags(); track tag) {
+                <button 
+                  class="suggested-tag"
+                  (click)="addSuggestedHashtag(tag)">
+                  #{{ tag }}
+                </button>
+              }
+            </div>
+          </div>
+          
+          <!-- Post Options -->
+          <div class="post-options">
+            <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">
+              Post anonymously
+            </mat-checkbox>
+            <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">
+              Disable comments
+            </mat-checkbox>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Publish Button -->
+      <div class="publish-section">
+        <button 
+          class="publish-btn"
+          [disabled]="!isFormValid() || isSubmitting()"
+          (click)="onSubmit()">
+          @if (isSubmitting()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Publishing...</span>
+          } @else {
+            <mat-icon>publish</mat-icon>
+            <span>Publish Campaign Update</span>
+          }
+        </button>
+        
+        @if (!isFormValid()) {
+          <div class="validation-message">
+            @if (!postData.campaignId) {
+              <p>👉 Select a campaign to continue</p>
+            } @else if (postData.content.length < 10) {
+              <p>👉 Write at least 10 characters for your update</p>
+            }
+          </div>
+        }
+      </div>
+      
+    </div>
+    
+    <!-- Preview Section -->
+    @if (showPreview()) {
+      <div class="preview-section" [@slideIn]>
+        <div class="preview-header">
+          <h3>Live Preview</h3>
+          <button class="close-preview" (click)="showPreview.set(false)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        
+        <div class="preview-content">
+          @if (previewPost()) {
+            <app-feed-post-card
+              [post]="previewPost()!"
+              [isLiked]="false"
+              [isSaved]="false"
+              (like)="{}"
+              (save)="{}"
+              (comment)="{}"
+              (share)="{}">
+            </app-feed-post-card>
+          }
+        </div>
+        
+        <div class="preview-tips">
+          <mat-icon>info</mat-icon>
+          <span>Campaign media will be automatically attached</span>
+        </div>
+      </div>
+    }
+    
+  </div>
+</div>

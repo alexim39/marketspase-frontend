@@ -1,0 +1,173 @@
+<mat-card class="post-card" [class.featured]="post().isFeatured">
+  
+  <!-- Post Header -->
+  <mat-card-header class="post-header">
+    <div class="user-info">
+      <div class="avatar-wrapper">
+        <img 
+          [src]="post().author.avatar || 'img/avatar.png'" 
+          [alt]="post().author.displayName"
+          class="avatar">
+        @if (post().badge) {
+          <div 
+            class="badge" 
+            [style.background]="getBadgeColor(post().badge ?? '')"
+            [matTooltip]="post().badge | titlecase">
+            <mat-icon>stars</mat-icon>
+          </div>
+        }
+      </div>
+      
+      <div class="user-details">
+        <h4 class="user-name">
+          {{ post().author.displayName }}
+         @if (isVerified()) {
+            <mat-icon class="verified" matTooltip="Verified">verified</mat-icon>
+         }
+        </h4>
+        <div class="meta">
+          <span class="role">{{ post().author.role }}</span>
+          <span class="time">{{ post().time }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-btn">
+      <mat-icon>more_horiz</mat-icon>
+    </button>
+    
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="onSave()">
+        <mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+        <span>{{ isSaved() ? 'Unsave' : 'Save' }}</span>
+      </button>
+      <button mat-menu-item (click)="onHide()">
+        <mat-icon>visibility_off</mat-icon>
+        <span>Hide post</span>
+      </button>
+      <button mat-menu-item (click)="onReport()">
+        <mat-icon>flag</mat-icon>
+        <span>Report</span>
+      </button>
+    </mat-menu>
+  </mat-card-header>
+  
+  <!-- Post Content -->
+  <mat-card-content class="post-content">
+    <p class="content-text">{{ post().content }}</p>
+    
+    <!-- Post Type Highlight -->
+    @if (post().type === 'earnings' && post().earnings) {
+      <div class="highlight earnings-highlight">
+        <div class="highlight-icon">
+          <mat-icon>emoji_events</mat-icon>
+        </div>
+        <div class="highlight-details">
+          <span class="highlight-label">Earned</span>
+          <span class="highlight-value">
+            {{ post().earnings?.currency }} {{ post().earnings?.amount | number }}
+          </span>
+          @if (post().earnings?.milestone) {
+            <span class="highlight-milestone">{{ post().earnings?.milestone }}</span>
+          }
+        </div>
+      </div>
+    }
+    
+    @if (post().type === 'campaign' && post().campaign) {
+      <div class="highlight campaign-highlight">
+        <div class="highlight-icon">
+          <mat-icon>campaign</mat-icon>
+        </div>
+        <div class="highlight-details">
+          <span class="highlight-label">Campaign</span>
+          <span class="highlight-value">{{ post().campaign?.name }}</span>
+          <span class="highlight-meta">
+            Budget: {{ post().campaign?.budget | number }} • 
+            Status: {{ post().campaign?.status }}
+          </span>
+        </div>
+      </div>
+    }
+    
+    @if (post().type === 'tip' && post().tip) {
+      <div class="highlight tip-highlight">
+        <div class="highlight-icon">
+          <mat-icon>lightbulb</mat-icon>
+        </div>
+        <div class="highlight-details">
+          <span class="highlight-label">{{ post().tip?.category }} Tip</span>
+          <span class="highlight-value">{{ post().tip?.title }}</span>
+          <span class="highlight-meta">{{ post().tip?.views }} views</span>
+        </div>
+      </div>
+    }
+    
+    <!-- Hashtags -->
+    @if (post().hashtags && post().hashtags.length > 0) {
+      <div class="hashtags">
+        @for (tag of post().hashtags; track tag.tag) {
+          <button 
+            class="hashtag" 
+            (click)="onHashtagClick(tag.tag); $event.stopPropagation()">
+            #{{ tag.tag }}
+          </button>
+        }
+      </div>
+    }
+    
+    <!-- Media Preview -->
+   @if (post().media; as media) {
+        @if (media.length > 0) {
+            <div class="media-preview">
+            @if (media[0].type === 'image') {
+                <img [src]="media[0].url" alt="Post media" class="media-image">
+            }
+            @if (media[0].type === 'video') {
+                <div class="video-placeholder">
+                <mat-icon>play_circle</mat-icon>
+                <span>Video content</span>
+                </div>
+            }
+            </div>
+        }
+    }
+  </mat-card-content>
+  
+  <!-- Post Actions -->
+  <mat-card-actions class="post-actions">
+    <button 
+      class="action-btn like-btn" 
+      [class.active]="isLiked()"
+      (click)="onLike()"
+      [matTooltip]="isLiked() ? 'Unlike' : 'Like'">
+      <mat-icon>{{ isLiked() ? 'favorite' : 'favorite_border' }}</mat-icon>
+      <span>{{ post().likeCount }}</span>
+    </button>
+    
+    <button 
+      class="action-btn comment-btn"
+      (click)="onComment()"
+      [matTooltip]="'Comment'">
+      <mat-icon>chat_bubble_outline</mat-icon>
+      <span>{{ post().commentCount }}</span>
+    </button>
+    
+    <button 
+      class="action-btn share-btn"
+      (click)="onShare()"
+      [matTooltip]="'Share'">
+      <mat-icon>share</mat-icon>
+      <span>{{ post().shareCount }}</span>
+    </button>
+    
+    <button 
+      class="action-btn save-btn"
+      [class.active]="isSaved()"
+      (click)="onSave()"
+      [matTooltip]="isSaved() ? 'Unsave' : 'Save'">
+      <mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+    </button>
+  </mat-card-actions>
+  
+</mat-card>

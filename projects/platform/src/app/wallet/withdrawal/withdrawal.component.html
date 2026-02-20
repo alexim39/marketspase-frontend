@@ -112,9 +112,9 @@
                         #searchInput
                         matInput
                         type="search"
+                        value="Search Banks"
                         (input)="onSearchChange($event)"
-                        placeholder="Search Bank"
-                        style="background-color: #fff;"
+                        class="search-banks"
                         (focus)="true" />
                     </div>
                     @for (bank of filteredBanks(); track bank) {
@@ -187,7 +187,7 @@
                     placeholder="Minimum NGN100"
                     min="100" />
                   <mat-hint class="hint">
-                    Service Fee: 18% |
+                    Service Fee: 20% |
                     <strong>You'll Receive: {{ payableAmount() | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
                   </mat-hint>
                   @if (withdrawForm.get('amount')?.hasError('required')) {
@@ -204,7 +204,7 @@
 
                   @if (withdrawForm.get('amount')?.hasError('maxWithdrawal')) {
                     <mat-error>
-                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a 18% fee.
+                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a 20% fee.
                     </mat-error>
                   }
                 </mat-form-field>

@@ -1,6 +1,6 @@
 <!-- financial-management.component.html -->
 <main class="financial-content">
-  <!-- Stats Overview -->
+  <!-- Stats Overview with real data -->
   <section class="stats-section">
     <div class="stats-grid">
       <div class="stat-card primary">
@@ -12,63 +12,49 @@
           <div class="stat-value">₦{{ financialStats().totalRevenue.toLocaleString() }}</div>
           <div class="stat-change positive">
             <mat-icon>trending_up</mat-icon>
-            +15% this month
+            +{{ ((financialStats().successfulWithdrawals || 0) / (financialStats().totalWithdrawals || 1) * 100).toFixed(1) }}% success rate
           </div>
         </div>
       </div>
 
       <div class="stat-card success">
         <div class="stat-icon">
-          <mat-icon>savings</mat-icon>
+          <mat-icon>check_circle</mat-icon>
         </div>
         <div class="stat-content">
-          <div class="stat-label">Platform Earnings</div>
-          <div class="stat-value">₦{{ financialStats().platformEarnings.toLocaleString() }}</div>
+          <div class="stat-label">Completed Withdrawals</div>
+          <div class="stat-value">₦{{ totalSuccessfulAmount().toLocaleString() }}</div>
           <div class="stat-change positive">
-            <mat-icon>trending_up</mat-icon>
-            +12% this month
+            <mat-icon>check</mat-icon>
+            {{ financialStats().successfulWithdrawals || 0 }} transactions
           </div>
         </div>
       </div>
 
       <div class="stat-card warning">
         <div class="stat-icon">
-          <mat-icon>pending_actions</mat-icon>
+          <mat-icon>pending</mat-icon>
         </div>
         <div class="stat-content">
-          <div class="stat-label">Pending Withdrawals</div>
-          <div class="stat-value">₦{{ financialStats().pendingWithdrawals.toLocaleString() }}</div>
-          <div class="stat-change negative">
-            <mat-icon>warning</mat-icon>
-            Needs attention
+          <div class="stat-label">Processing</div>
+          <div class="stat-value">₦{{ totalProcessingAmount().toLocaleString() }}</div>
+          <div class="stat-change">
+            <mat-icon>schedule</mat-icon>
+            {{ financialStats().processingWithdrawals || 0 }} pending
           </div>
         </div>
       </div>
 
-      <div class="stat-card warning">
+      <div class="stat-card danger">
         <div class="stat-icon">
-          <mat-icon>change_circle</mat-icon>
+          <mat-icon>error</mat-icon>
         </div>
         <div class="stat-content">
-          <div class="stat-label">Processing Withdrawals</div>
-          <div class="stat-value">₦{{ financialStats().processingWithdrawals.toLocaleString() }}</div>
+          <div class="stat-label">Failed</div>
+          <div class="stat-value">₦{{ totalFailedAmount().toLocaleString() }}</div>
           <div class="stat-change negative">
             <mat-icon>warning</mat-icon>
-            Needs attention
-          </div>
-        </div>
-      </div>
-
-      <div class="stat-card info">
-        <div class="stat-icon">
-          <mat-icon>account_balance_wallet</mat-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-label">Active Balance</div>
-          <div class="stat-value">₦{{ financialStats().activeBalance.toLocaleString() }}</div>
-          <div class="stat-change positive">
-            <mat-icon>trending_up</mat-icon>
-            +8% this week
+            {{ financialStats().failedWithdrawals || 0 }} failed
           </div>
         </div>
       </div>
@@ -77,9 +63,9 @@
 
   <!-- Financial Management Tabs -->
   <section class="management-section">
-    <mat-tab-group>
+    <mat-tab-group (selectedTabChange)="onTabChange($event)">
       <!-- Withdrawal Requests Tab -->
-      <mat-tab label="Withdrawal Requests">
+      <mat-tab label="Withdrawals">
         <div class="tab-content">
           <!-- Filters and Actions -->
           <div class="section-header">
@@ -88,8 +74,9 @@
                 <mat-icon>search</mat-icon>
                 <input 
                   type="text" 
-                  placeholder="Search by name, email, or bank..." 
+                  placeholder="Search by name, email, bank, or reference..." 
                   (input)="onSearchChange($event)"
+                  [value]="searchTerm()"
                   class="search-input">
               </div>
               
@@ -98,33 +85,44 @@
                   class="filter-btn" 
                   [class.active]="statusFilter() === 'all'"
                   (click)="onStatusFilterChange('all')">
-                  All
+                  All 
                 </button>
                 <button 
                   class="filter-btn warning" 
+                  [class.active]="statusFilter() === 'pending_approval'"
+                  (click)="onStatusFilterChange('pending_approval')">
+                  Pending Approval
+                </button>
+                <button 
+                  class="filter-btn info" 
                   [class.active]="statusFilter() === 'processing'"
                   (click)="onStatusFilterChange('processing')">
                   Processing
                 </button>
                 <button 
                   class="filter-btn success" 
-                  [class.active]="statusFilter() === 'approved'"
-                  (click)="onStatusFilterChange('approved')">
-                  Approved
+                  [class.active]="statusFilter() === 'successful'"
+                  (click)="onStatusFilterChange('successful')">
+                  Completed
                 </button>
                 <button 
                   class="filter-btn danger" 
-                  [class.active]="statusFilter() === 'rejected'"
-                  (click)="onStatusFilterChange('rejected')">
-                  Rejected
+                  [class.active]="statusFilter() === 'failed'"
+                  (click)="onStatusFilterChange('failed')">
+                  Failed
                 </button>
               </div>
             </div>
 
-            <!-- <button class="btn btn-primary" (click)="exportTransactions()">
-              <mat-icon>download</mat-icon>
-              Export Report
-            </button> -->
+            <div class="action-buttons">
+              <button class="btn btn-secondary" (click)="clearFilters()" matTooltip="Clear all filters">
+                <mat-icon>clear</mat-icon>
+              </button>
+              <button class="btn btn-primary" (click)="exportWithdrawals()" matTooltip="Export to CSV">
+                <mat-icon>download</mat-icon>
+                Export
+              </button>
+            </div>
           </div>
 
           <!-- Withdrawal Requests Table -->
@@ -152,19 +150,26 @@
                   <th mat-header-cell *matHeaderCellDef>Amount</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="amount-cell">
-                      <div class="amount">₦{{ request.amount.toLocaleString() }}</div>
+                      <div class="amount" [class.text-danger]="request.status === 'failed'">
+                        ₦{{ request.amount.toLocaleString() }}
+                      </div>
                       <div class="date">{{ request.createdAt | date:'MMM d, y' }}</div>
                     </div>
                   </td>
                 </ng-container>
 
+                <!-- Payable Amount Column -->
                 <ng-container matColumnDef="amountPayable">
-                  <th mat-header-cell *matHeaderCellDef>Payable</th>
+                  <th mat-header-cell *matHeaderCellDef>Net Amount</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="amount-cell">
                       @if (request.amountPayable) {
-                      <div class="amount" style="color: green; font-weight: bolder;">₦{{ request.amountPayable.toLocaleString() }}</div>
-                      <div class="date">15% service charge (₦{{request.amount - request.amountPayable }})</div>
+                        <div class="amount success-text">
+                          ₦{{ request.amountPayable.toLocaleString() }}
+                        </div>
+                        <div class="date">Fee: ₦{{ (request.amount - request.amountPayable).toLocaleString() }}</div>
+                      } @else {
+                        <div class="amount">—</div>
                       }
                     </div>
                   </td>
@@ -182,15 +187,40 @@
                   </td>
                 </ng-container>
 
+                <!-- Reference Column -->
+                <ng-container matColumnDef="reference">
+                  <th mat-header-cell *matHeaderCellDef>Reference</th>
+                  <td mat-cell *matCellDef="let request">
+                    <div class="reference-info">
+                      <div class="ref" matTooltip="{{ request.reference }}">
+                        {{ request.reference | slice:0:12 }}...
+                      </div>
+                      @if (request.providerReference) {
+                        <div class="provider-ref" matTooltip="Paystack ref: {{ request.providerReference }}">
+                          <mat-icon class="small-icon">paid</mat-icon>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </ng-container>
+
                 <!-- Status Column -->
                 <ng-container matColumnDef="status">
                   <th mat-header-cell *matHeaderCellDef>Status</th>
                   <td mat-cell *matCellDef="let request">
-                    <span 
-                      class="status-badge" 
-                      [class]="'status-' + request.status">
-                      {{ request.status | titlecase }}
-                    </span>
+                    <div class="status-container">
+                      <mat-icon class="status-icon" [class]="getStatusClass(request.status)">
+                        {{ getStatusIcon(request.status) }}
+                      </mat-icon>
+                      <span class="status-badge" [class]="getStatusClass(request.status)">
+                        {{ getStatusLabel(request.status) }}
+                      </span>
+                    </div>
+                    @if (request.failureReason) {
+                      <div class="failure-reason" matTooltip="{{ request.failureReason }}">
+                        <mat-icon class="error-icon">error_outline</mat-icon>
+                      </div>
+                    }
                   </td>
                 </ng-container>
 
@@ -201,6 +231,11 @@
                     <div class="date-cell">
                       <div class="created-date">{{ request.createdAt | date:'MMM d, y' }}</div>
                       <div class="time">{{ request.createdAt | date:'shortTime' }}</div>
+                      @if (request.processedAt) {
+                        <div class="processed-date" matTooltip="Processed: {{ request.processedAt | date:'medium' }}">
+                          <mat-icon class="small-icon">schedule</mat-icon>
+                        </div>
+                      }
                     </div>
                   </td>
                 </ng-container>
@@ -210,24 +245,36 @@
                   <th mat-header-cell *matHeaderCellDef>Actions</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="action-buttons">
-                      @if (request.status === 'processing') {
-                      <!-- @if (request.status === 'pending') { -->
+                      <button 
+                        class="btn-icon" 
+                        (click)="viewWithdrawalDetails(request)"
+                        matTooltip="View Details">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+
+                      @if (request.status === 'pending_approval') {
                         <button 
                           class="btn-icon success" 
                           (click)="approveWithdrawal(request)"
-                          title="Approve Withdrawal">
+                          matTooltip="Approve Withdrawal">
                           <mat-icon>check_circle</mat-icon>
                         </button>
                         <button 
                           class="btn-icon danger" 
                           (click)="rejectWithdrawal(request)"
-                          title="Reject Withdrawal">
+                          matTooltip="Reject Withdrawal">
                           <mat-icon>cancel</mat-icon>
                         </button>
                       }
-                      <button class="btn-icon" title="View Details">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
+
+                      @if (request.status === 'failed') {
+                        <button 
+                          class="btn-icon warning" 
+                          (click)="retryWithdrawal(request)"
+                          matTooltip="Retry Failed Withdrawal">
+                          <mat-icon>refresh</mat-icon>
+                        </button>
+                      }
                     </div>
                   </td>
                 </ng-container>
@@ -242,6 +289,11 @@
                   <mat-icon>payments</mat-icon>
                   <h3>No withdrawal requests found</h3>
                   <p>There are no withdrawal requests matching your current filters.</p>
+                  @if (statusFilter() !== 'all' || searchTerm()) {
+                    <button class="btn btn-secondary" (click)="clearFilters()">
+                      Clear Filters
+                    </button>
+                  }
                 </div>
               }
 
@@ -251,9 +303,10 @@
                   [length]="totalItems()"
                   [pageSize]="pageSize()"
                   [pageIndex]="currentPage()"
-                  [pageSizeOptions]="[50, 100, 400, 600]"
+                  [pageSizeOptions]="[50, 100, 200, 500]"
                   (page)="onPageChange($event)"
-                  aria-label="Select page">
+                  aria-label="Select page"
+                  showFirstLastButtons>
                 </mat-paginator>
               }
             }
@@ -264,34 +317,25 @@
       <!-- Transaction History Tab -->
       <mat-tab label="Transaction History">
         <div class="tab-content">
-          <!-- Transaction filters would go here -->
           <div class="section-header">
             <h3>All Transactions</h3>
-            <button class="btn btn-secondary">
-              <mat-icon>filter_list</mat-icon>
-              Filter Transactions
+            <button class="btn btn-secondary" (click)="exportTransactions()">
+              <mat-icon>download</mat-icon>
+              Export
             </button>
           </div>
 
-          <!-- Transaction table would go here -->
           <div class="table-container">
-            <!-- Similar table structure for transactions -->
-            <p>Transaction history table implementation...</p>
+            @if (isTransactionsLoading()) {
+              <div class="loading-state">
+                <mat-spinner diameter="40"/>
+                <p>Loading transactions...</p>
+              </div>
+            } @else {
+              <!-- Transaction table would go here -->
+              <p>Transaction history table implementation...</p>
+            }
           </div>
-        </div>
-      </mat-tab>
-
-      <!-- Financial Reports Tab -->
-      <mat-tab label="Reports & Analytics">
-        <div class="tab-content">
-          <div class="section-header">
-            <h3>Financial Reports</h3>
-            <button class="btn btn-primary">
-              <mat-icon>analytics</mat-icon>
-              Generate Report
-            </button>
-          </div>
-          <!-- Reports content would go here -->
         </div>
       </mat-tab>
     </mat-tab-group>

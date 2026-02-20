@@ -7,7 +7,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true // Allows it to be imported directly into any component
 })
 export class CurrencyUtilsPipe implements PipeTransform {
-  transform(amount: number | null | undefined, currency?: string): string {
+  transform(amount: number | null | undefined | any, currency?: string): string {
     return formatAppCurrency(amount, currency);
   }
 }

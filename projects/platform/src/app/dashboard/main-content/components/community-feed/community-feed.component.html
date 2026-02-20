@@ -10,10 +10,12 @@
           </div>
         </div>
         <div class="section-actions">
-          <button mat-button color="primary" (click)="createPost.emit()" class="create-post-btn">
-            <mat-icon>edit</mat-icon>
-            Create Post
-          </button>
+          @if(userRole().has('marketer') ) {
+            <button mat-button color="primary" (click)="createPost.emit()" class="create-post-btn">
+              <mat-icon>edit</mat-icon>
+              Create Post
+            </button>
+          }
           <button mat-stroked-button color="accent" (click)="viewAll.emit()">
             View All
           </button>
@@ -107,21 +109,40 @@
             }
           </div>
         } @else {
-          <mat-card class="empty-feed-card">
-            <mat-card-content>
-              <div class="empty-state-content">
-                <div class="empty-icon-container">
-                  <mat-icon>forum</mat-icon>
+          @if(userRole().has('marketer') ) {
+            <mat-card class="empty-feed-card">
+              <mat-card-content>
+                <div class="empty-state-content">
+                  <div class="empty-icon-container">
+                    <mat-icon>forum</mat-icon>
+                  </div>
+                  <h3 class="empty-title">Welcome to the Community!</h3>
+                  <p class="empty-description">Share your success story, ask questions, or connect with fellow marketers and promoters.</p>
+                  <button mat-raised-button color="primary" (click)="createPost.emit()" class="empty-action-btn">
+                    <mat-icon>edit</mat-icon>
+                    Create Your First Post
+                  </button>
                 </div>
-                <h3 class="empty-title">Welcome to the Community!</h3>
-                <p class="empty-description">Share your success story, ask questions, or connect with fellow marketers and promoters.</p>
-                <button mat-raised-button color="primary" (click)="createPost.emit()" class="empty-action-btn">
-                  <mat-icon>edit</mat-icon>
-                  Create Your First Post
-                </button>
-              </div>
-            </mat-card-content>
-          </mat-card>
+              </mat-card-content>
+            </mat-card>
+          }@else {
+            <mat-card class="empty-feed-card">
+              <mat-card-content>
+                <div class="empty-state-content">
+                  <div class="empty-icon-container">
+                    <mat-icon>forum</mat-icon>
+                  </div>
+                  <h3 class="empty-title">Welcome to the Community!</h3>
+                  <p class="empty-description">View success story, see responses, and connect with fellow marketers and promoters.</p>
+                  <button mat-raised-button color="primary" (click)="viewPost.emit()" class="empty-action-btn">
+                    <mat-icon>edit</mat-icon>
+                    View Posts
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
         }
       </div>
     </div>

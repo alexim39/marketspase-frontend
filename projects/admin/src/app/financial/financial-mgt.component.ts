@@ -1,5 +1,5 @@
-// In financial-management.component.ts
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
+// financial-management.component.ts
+import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,10 +11,13 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Subject, debounceTime, distinctUntilChanged, Subscription, interval } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-// Import the service
 import { FinancialService, Transaction, WithdrawalRequest, FinancialStats } from './financial.service';
+import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+import { WithdrawalDetailsDialogComponent } from './withdrawal-details-dialog/withdrawal-details-dialog.component';
 
 @Component({
   selector: 'app-financial-management',
@@ -33,10 +36,11 @@ import { FinancialService, Transaction, WithdrawalRequest, FinancialStats } from
     MatDialogModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   providers: [FinancialService]
 })
-export class FinancialMgtComponent implements OnInit {
+export class FinancialMgtComponent implements OnInit, OnDestroy {
   private readonly financialService = inject(FinancialService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -48,6 +52,8 @@ export class FinancialMgtComponent implements OnInit {
     totalRevenue: 0,
     platformEarnings: 0,
     totalWithdrawals: 0,
+    successfulWithdrawals: 0,
+    failedWithdrawals: 0,
     pendingWithdrawals: 0,
     processingWithdrawals: 0,
     marketerSpend: 0,
@@ -62,47 +68,48 @@ export class FinancialMgtComponent implements OnInit {
   readonly isWithdrawalsLoading = signal(true);
   readonly isTransactionsLoading = signal(true);
 
-  // Filter and pagination
+  // Filter and pagination - ALL SERVER-SIDE NOW
   readonly searchTerm = signal('');
-  readonly statusFilter = signal<'all' | 'pending' | 'approved' | 'rejected' | 'processing'>('all');
+  readonly statusFilter = signal<'all' | 'processing' | 'successful' | 'failed' | 'reversed' | 'pending_approval'>('all');
+  readonly dateRange = signal<{ start: Date | null; end: Date | null }>({ start: null, end: null });
   readonly currentPage = signal(0);
-  readonly pageSize = signal(10);
+  readonly pageSize = signal(50);
   readonly totalItems = signal(0);
 
   private searchSubject = new Subject<string>();
+  private pollingSubscription?: Subscription;
 
-  // Computed values
-  // NOTE: This computed is pure — it does NOT write to other signals.
-  readonly filteredWithdrawals = computed(() => {
-    const requests = this.withdrawalRequests();
-    const search = this.searchTerm().toLowerCase();
-    const status = this.statusFilter();
+  // Status badge mapping
+  readonly statusConfig: Record<string, { class: string; icon: string; label: string }> = {
+    'pending_approval': { class: 'status-warning', icon: 'hourglass_empty', label: 'Pending Approval' },
+    'processing': { class: 'status-info', icon: 'pending', label: 'Processing' },
+    'successful': { class: 'status-success', icon: 'check_circle', label: 'Completed' },
+    'failed': { class: 'status-danger', icon: 'error', label: 'Failed' },
+    'reversed': { class: 'status-default', icon: 'swap_horiz', label: 'Reversed' }
+  };
 
-    let filtered = requests;
-
-    if (search) {
-      filtered = filtered.filter(request =>
-        (request.userName || '').toLowerCase().includes(search) ||
-        (request.userEmail || '').toLowerCase().includes(search) ||
-        (request.bankName || '').toLowerCase().includes(search) ||
-        (request.accountNumber || '').includes(search)
-      );
-    }
-
-    if (status !== 'all') {
-      filtered = filtered.filter(request => request.status === status);
-    }
-
-    // <-- Removed this.totalItems.set(...) from here (computed must be pure)
-    return filtered;
+  // SIMPLIFIED: Just return the current page data (already paginated from server)
+  readonly paginatedWithdrawals = computed(() => {
+    return this.withdrawalRequests(); // Server already paginates
   });
 
-  readonly paginatedWithdrawals = computed(() => {
-    const filtered = this.filteredWithdrawals();
-    const page = this.currentPage();
-    const size = this.pageSize();
+  // Stats calculations (still client-side, works on current page data)
+  readonly totalProcessingAmount = computed(() => {
+    return this.withdrawalRequests()
+      .filter(r => r.status === 'processing')
+      .reduce((sum, r) => sum + r.amount, 0);
+  });
 
-    return filtered.slice(page * size, (page + 1) * size);
+  readonly totalSuccessfulAmount = computed(() => {
+    return this.withdrawalRequests()
+      .filter(r => r.status === 'successful')
+      .reduce((sum, r) => sum + r.amount, 0);
+  });
+
+  readonly totalFailedAmount = computed(() => {
+    return this.withdrawalRequests()
+      .filter(r => r.status === 'failed')
+      .reduce((sum, r) => sum + r.amount, 0);
   });
 
   // Table columns
@@ -111,6 +118,7 @@ export class FinancialMgtComponent implements OnInit {
     'amount',
     'amountPayable',
     'bankDetails',
+    'reference',
     'status',
     'date',
     'actions'
@@ -130,6 +138,11 @@ export class FinancialMgtComponent implements OnInit {
     this.loadFinancialData();
     this.setupSearch();
     this.loadWithdrawalRequests();
+    this.setupRealTimeUpdates();
+  }
+
+  ngOnDestroy() {
+    this.pollingSubscription?.unsubscribe();
   }
 
   private setupSearch() {
@@ -138,8 +151,15 @@ export class FinancialMgtComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe(search => {
       this.searchTerm.set(search);
-      this.currentPage.set(0);
-      this.loadWithdrawalRequests();
+      this.currentPage.set(0); // Reset to first page
+      this.loadWithdrawalRequests(); // Reload with new search
+    });
+  }
+
+  private setupRealTimeUpdates() {
+    // Poll for updates every 30 seconds
+    this.pollingSubscription = interval(30000).subscribe(() => {
+      this.loadWithdrawalRequests(true); // silent reload
     });
   }
 
@@ -148,16 +168,30 @@ export class FinancialMgtComponent implements OnInit {
     this.searchSubject.next(value);
   }
 
-  onStatusFilterChange(status: 'all' | 'pending' | 'approved' | 'rejected' | 'processing') {
+  onStatusFilterChange(status: 'all' | 'processing' | 'successful' | 'failed' | 'reversed' | 'pending_approval') {
     this.statusFilter.set(status);
+    this.currentPage.set(0); // Reset to first page
+    this.loadWithdrawalRequests(); // Reload with new filter
+  }
+
+  onDateRangeChange(start: Date, end: Date) {
+    this.dateRange.set({ start, end });
     this.currentPage.set(0);
     this.loadWithdrawalRequests();
+  }
+
+  clearFilters() {
+    this.searchTerm.set('');
+    this.statusFilter.set('all');
+    this.dateRange.set({ start: null, end: null });
+    this.currentPage.set(0);
+    this.loadWithdrawalRequests(); // Reload with cleared filters
   }
 
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
-    this.loadWithdrawalRequests();
+    this.loadWithdrawalRequests(); // Load new page from server
   }
 
   loadFinancialData() {
@@ -167,207 +201,235 @@ export class FinancialMgtComponent implements OnInit {
       next: (data) => {
         this.financialStats.set(data.stats);
         this.transactions.set(data.recentTransactions || []);
-
-        // If the overview endpoint returns pendingWithdrawals we can seed them,
-        // but we'll still call loadWithdrawalRequests() for canonical paginated data.
-        if (data.pendingWithdrawals && data.pendingWithdrawals.length > 0) {
-          this.withdrawalRequests.set(data.pendingWithdrawals);
-          // set totalItems only from real server counts when appropriate
-          this.totalItems.set(data.pendingWithdrawals.length);
-        }
-        if (data.processingWithdrawals && data.processingWithdrawals.length > 0) {
-          this.withdrawalRequests.set(data.processingWithdrawals);
-          // set totalItems only from real server counts when appropriate
-          this.totalItems.set(data.processingWithdrawals.length);
-        }
-
         this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading financial data:', error);
         this.isLoading.set(false);
-        this.snackBar.open('Error loading financial data', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.showError('Error loading financial data');
       }
     });
   }
 
-  loadWithdrawalRequests() {
-    this.isWithdrawalsLoading.set(true);
+  loadWithdrawalRequests(silent: boolean = false) {
+    if (!silent) {
+      this.isWithdrawalsLoading.set(true);
+    }
 
-    const params = {
-      status: this.statusFilter(),
+    // Convert status 'all' to undefined so server returns all statuses
+    const status = this.statusFilter() === 'all' ? undefined : this.statusFilter();
+    
+    const params: any = {
       page: this.currentPage() + 1, // backend uses 1-indexed page
       limit: this.pageSize(),
-      search: this.searchTerm()
     };
+    
+    // Only add params if they have values
+    if (status) params.status = status;
+    if (this.searchTerm()) params.search = this.searchTerm();
+    if (this.dateRange().start) params.fromDate = this.dateRange().start?.toISOString();
+    if (this.dateRange().end) params.toDate = this.dateRange().end?.toISOString();
+
+    //console.log('Loading withdrawals with params:', params); // Debug log
 
     this.financialService.getWithdrawalRequests(params).subscribe({
       next: (response) => {
-        // Expecting server to return { requests: [], total, page, limit }
+        //console.log('Withdrawals response:', response); // Debug log
+        
         const requests = response?.requests ?? [];
-        const total = response?.total ?? requests.length;
+        const total = response?.total ?? 0;
 
         this.withdrawalRequests.set(requests);
         this.totalItems.set(total);
-        this.isWithdrawalsLoading.set(false);
-
-        //console.log('requests: ', requests);
+        
+        if (!silent) {
+          this.isWithdrawalsLoading.set(false);
+        }
       },
       error: (error) => {
         console.error('Error loading withdrawal requests:', error);
-        this.isWithdrawalsLoading.set(false);
-        this.snackBar.open('Error loading withdrawal requests', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        if (!silent) {
+          this.isWithdrawalsLoading.set(false);
+          this.showError('Error loading withdrawal requests');
+        }
+      }
+    });
+  }
+
+  viewWithdrawalDetails(request: WithdrawalRequest) {
+    const dialogRef = this.dialog.open(WithdrawalDetailsDialogComponent, {
+       //width: '100vw',        // Sets the width to 100% of the viewport width
+        maxWidth: '100vw', 
+      data: { withdrawalId: request.withdrawalId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.updated) {
+        this.loadWithdrawalRequests(true);
+        this.loadFinancialData();
       }
     });
   }
 
   approveWithdrawal(request: WithdrawalRequest) {
-    //console.log('Approving withdrawal for request:', request);
-    this.financialService.approveWithdrawal(request.withdrawalId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Update local state
-          this.withdrawalRequests.update(requests =>
-            requests.map(r => r.withdrawalId === request.withdrawalId ? { ...r, status: 'approved' } : r)
-          );
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Approve Withdrawal',
+        message: `Are you sure you want to approve withdrawal of ₦${request.amount.toLocaleString()} for ${request.userName}?`,
+        confirmText: 'Approve',
+        cancelText: 'Cancel'
+      }
+    });
 
-          this.snackBar.open('Withdrawal approved successfully', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-
-          // Reload stats to reflect changes
-          this.loadFinancialData();
-        }
-      },
-      error: (error) => {
-        console.error('Error approving withdrawal:', error);
-        this.snackBar.open('Error approving withdrawal', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.confirmed) {
+        this.financialService.approveWithdrawal(request.withdrawalId).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.showSuccess('Withdrawal approved successfully');
+              this.loadWithdrawalRequests(true);
+              this.loadFinancialData();
+            }
+          },
+          error: (error) => this.showError('Error approving withdrawal')
         });
       }
     });
   }
 
   rejectWithdrawal(request: WithdrawalRequest) {
-    const notes = 'Withdrawal rejected by administrator';
-
-    this.financialService.rejectWithdrawal(request.withdrawalId, notes).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Update local state
-          this.withdrawalRequests.update(requests =>
-            requests.map(r => r.withdrawalId === request.withdrawalId ? { ...r, status: 'rejected' } : r)
-          );
-
-          this.snackBar.open('Withdrawal rejected successfully', 'Close', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-
-          // Reload stats to reflect changes
-          this.loadFinancialData();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Reject Withdrawal',
+        message: `Are you sure you want to reject withdrawal of ₦${request.amount.toLocaleString()} for ${request.userName}?`,
+        confirmText: 'Reject',
+        cancelText: 'Cancel',
+        input: {
+          label: 'Reason for rejection',
+          required: true,
+          type: 'textarea'
         }
-      },
-      error: (error) => {
-        console.error('Error rejecting withdrawal:', error);
-        this.snackBar.open('Error rejecting withdrawal', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.confirmed && result?.input) {
+        this.financialService.rejectWithdrawal(request.withdrawalId, result.input).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.showSuccess('Withdrawal rejected successfully');
+              this.loadWithdrawalRequests(true);
+              this.loadFinancialData();
+            }
+          },
+          error: (error) => this.showError('Error rejecting withdrawal')
         });
       }
     });
   }
 
-  processWithdrawal(request: WithdrawalRequest) {
-    this.financialService.processWithdrawal(request.withdrawalId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Update local state
-          this.withdrawalRequests.update(requests =>
-            requests.map(r => r.withdrawalId === request.withdrawalId ? { ...r, status: 'processing' } : r)
-          );
+  retryWithdrawal(request: WithdrawalRequest) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Retry Withdrawal',
+        message: `Are you sure you want to retry this failed withdrawal for ₦${request.amount.toLocaleString()}?`,
+        confirmText: 'Retry',
+        cancelText: 'Cancel'
+      }
+    });
 
-          this.snackBar.open('Withdrawal marked as processing', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error processing withdrawal:', error);
-        this.snackBar.open('Error processing withdrawal', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.confirmed) {
+        this.financialService.retryWithdrawal(request.withdrawalId).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.showSuccess('Withdrawal retry initiated');
+              this.loadWithdrawalRequests(true);
+            }
+          },
+          error: (error) => this.showError('Error retrying withdrawal')
         });
       }
     });
   }
 
-  exportTransactions() {
-    this.financialService.exportTransactions({
-      format: 'csv',
-      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // Last 30 days
-      endDate: new Date().toISOString()
-    }).subscribe({
-      next: (response) => {
-        if (response.success) {
-          // Create download link
-          const link = document.createElement('a');
-          link.href = response.data.url;
-          link.download = `transactions_export_${new Date().toISOString().split('T')[0]}.csv`;
-          link.click();
+  getStatusClass(status: string): string {
+    return this.statusConfig[status]?.class || 'status-default';
+  }
 
-          this.snackBar.open('Transactions exported successfully', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Error exporting transactions:', error);
-        this.snackBar.open('Error exporting transactions', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
+  getStatusIcon(status: string): string {
+    return this.statusConfig[status]?.icon || 'help';
+  }
+
+  getStatusLabel(status: string): string {
+    return this.statusConfig[status]?.label || status;
   }
 
   exportWithdrawals() {
     this.financialService.exportWithdrawals({
       format: 'csv',
       status: this.statusFilter() === 'all' ? undefined : this.statusFilter(),
-      startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-      endDate: new Date().toISOString()
+      startDate: this.dateRange().start?.toISOString(),
+      endDate: this.dateRange().end?.toISOString()
     }).subscribe({
       next: (response) => {
         if (response.success) {
-          // Create download link
           const link = document.createElement('a');
           link.href = response.data.url;
-          link.download = `withdrawals_export_${new Date().toISOString().split('T')[0]}.csv`;
+          link.download = `withdrawals_${new Date().toISOString().split('T')[0]}.csv`;
           link.click();
-
-          this.snackBar.open('Withdrawals exported successfully', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.showSuccess('Withdrawals exported successfully');
         }
       },
+      error: (error) => this.showError('Error exporting withdrawals')
+    });
+  }
+
+  exportTransactions() {
+    // Implement if needed
+    this.showError('Export transactions not implemented');
+  }
+
+  private showSuccess(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  private showError(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  onTabChange(event: any): void {
+    if (event.index === 0) { // Withdrawals tab
+      this.loadWithdrawalRequests();
+    } else if (event.index === 1) { // Transactions tab
+      this.loadTransactions();
+    }
+  }
+
+  loadTransactions(): void {
+    this.isTransactionsLoading.set(true);
+    
+    this.financialService.getTransactions({
+      page: 1,
+      limit: 50
+    }).subscribe({
+      next: (response) => {
+        this.transactions.set(response.transactions);
+        this.isTransactionsLoading.set(false);
+      },
       error: (error) => {
-        console.error('Error exporting withdrawals:', error);
-        this.snackBar.open('Error exporting withdrawals', 'Close', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        console.error('Error loading transactions:', error);
+        this.isTransactionsLoading.set(false);
+        this.showError('Error loading transactions');
       }
     });
   }

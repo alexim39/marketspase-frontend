@@ -157,7 +157,7 @@
     }
 
     .amount {
-      font-size: 48px;
+      font-size: 28px;
       font-weight: 600;
       color: $text-primary;
       letter-spacing: -1px;
@@ -384,7 +384,7 @@ mat-spinner {
       }
 
       .amount {
-        font-size: 36px;
+        font-size: 22px;
       }
     }
 
@@ -402,4 +402,10 @@ mat-spinner {
   .balance-details {
     grid-template-columns: 1fr !important;
   }
+}
+
+.search-banks {
+  background-color: #bbb; 
+  color: black; 
+  padding: 2em 1em;
 }

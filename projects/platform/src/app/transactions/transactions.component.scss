@@ -267,7 +267,7 @@
   overflow-y: auto;
   border-radius: $border-radius-md;
   border: $border-width solid $border-color;
-  background: $surface-color;
+  background: $background-color !important;
 }
 
 .transaction-table {
@@ -419,7 +419,8 @@
   
   .amount {
     font-weight: $font-weight-bold;
-    font-size: 0.9375rem;
+    font-size: 0.7rem;
+    min-width: 100%;
     
     &.credit {
       color: $success-color;
@@ -449,14 +450,30 @@
       color: $warning-color;
     }
 
+    &.processing {
+      background-color: rgba($warning-color, 0.5);
+      color: $warning-color;
+    }
+
     &.reserved {
       background-color: rgba($warning-color, 0.1);
-      color: rgba($warning-color, 30%);
+      color: rgba($warning-color, 10%);
+      // color: darken($warning-color, 30%);
+    }
+
+    &.reversed {
+      background-color: rgba($warning-color, 0.1);
+      color: rgba($warning-color, 10%);
       // color: darken($warning-color, 30%);
     }
     
     &.failed {
       background-color: rgba($error-color, 0.1);
+      color: $error-color;
+    }
+
+    &.rejected {
+      background-color: rgba($error-color, 0.5);
       color: $error-color;
     }
     
@@ -521,6 +538,10 @@
 
 .text-right {
   text-align: right;
+  .payable {
+    display: block; 
+    color: gray;
+  }
 }
 
 .text-center {

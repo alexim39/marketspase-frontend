@@ -49,7 +49,16 @@ export function getPromoterNavigation(
       label: 'Community',
       expanded: false,
       children: [
-        { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' }
+        { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' },
+        {
+          icon: 'dynamic_feed',
+          label: 'Feed',
+          expanded: false,
+          children: [
+           //{ icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' }, Promoters should not be able to create post at the time
+           { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
+          ]
+        }
       ]
     },
     {
