@@ -109,6 +109,8 @@ export class TransactionComponent {
   // Filtered transactions based on active filters
   filteredTransactions = computed(() => {
     let filtered = this.transactions();
+
+    //console.log('transaction ',this.transactions())
     
     // Apply type filter
     if (this.currentFilter() !== 'all') {

@@ -538,6 +538,10 @@
 
 .text-right {
   text-align: right;
+  .payable {
+    display: block; 
+    color: gray;
+  }
 }
 
 .text-center {

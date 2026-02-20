@@ -378,6 +378,10 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/community/feeds/create']);
   }
 
+  viewCommunityPost(): void {
+    this.router.navigate(['dashboard/community/feeds']);
+  }
+
   openCommunityFeed(): void {
     this.router.navigate(['dashboard/community/feeds']);
   }

@@ -1,5 +1,5 @@
 // community-feed.component.ts
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, inject, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +23,9 @@ export interface CommunityPost {
   badge?: 'top-promoter' | 'verified' | 'rising-star';
 }
 
+// 1. Define the type at the top for clean code
+type AllowedRole = "marketer" | "promoter" | "marketing_rep" | "admin" | undefined;
+
 @Component({
   selector: 'community-feed',
   imports: [
@@ -34,7 +37,7 @@ export interface CommunityPost {
   templateUrl: './community-feed.component.html',
   styleUrls: ['./community-feed.component.scss']
 })
-export class CommunityFeedComponent {
+export class CommunityFeedComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
 
@@ -42,13 +45,24 @@ export class CommunityFeedComponent {
   likedPosts = input<Set<string>>(new Set());
   savedPosts = input<Set<string>>(new Set());
 
+  
+  // 2. Use the two-type generic syntax for the transform
+  userRole = input<Set<AllowedRole>, AllowedRole>(new Set(), {
+    transform: (role) => new Set(role ? [role] : [])
+  });
+
   createPost = output<void>();
+  viewPost = output<void>();
   viewAll = output<void>();
   like = output<CommunityPost>();
   save = output<string>();
   comment = output<string>();
   share = output<CommunityPost>();
   postMenu = output<string>();
+
+  ngOnInit() {
+    console.log('role ',this.userRole())
+  }
 
   isLiked(postId: string): boolean {
     return this.likedPosts().has(postId);
@@ -71,6 +85,7 @@ export class CommunityFeedComponent {
   }
 
   onShare(post: CommunityPost): void {
+    
     if (navigator.share) {
       navigator.share({
         title: `${post.author} on MarketSpase`,

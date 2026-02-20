@@ -368,3 +368,121 @@
     padding: 16px;
   }
 }
+
+// Add to financial-mgt.component.scss
+
+// Status variations
+.status-pending_approval {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.status-processing {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.status-successful {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.status-failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.status-reversed {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
+
+// Status container with icon
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .status-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Reference info
+.reference-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  
+  .ref {
+    font-family: monospace;
+    font-size: 12px;
+  }
+  
+  .provider-ref {
+    color: #667eea;
+    cursor: help;
+  }
+}
+
+// Failure reason
+.failure-reason {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: help;
+  
+  .error-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Text variations
+.text-danger {
+  color: #ef4444;
+}
+
+.success-text {
+  color: #10b981;
+}
+
+// Small icons
+.small-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+// Processed date indicator
+.processed-date {
+  font-size: 10px;
+  color: #6b7280;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+// Add to financial-mgt.component.scss for debugging
+.mat-paginator {
+  border-top: 1px solid #e5e7eb;
+  margin-top: 16px;
+}
+
+// Make sure the table container doesn't hide paginator
+.table-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  
+  .mat-paginator {
+    margin-top: auto;
+  }
+}

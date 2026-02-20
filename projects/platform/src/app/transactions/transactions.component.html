@@ -139,9 +139,11 @@
                 <div class="description-content">
                   <div class="description-main">{{ transaction.description || 'Transaction' }}</div>
                   <div class="description-category">{{ transaction.category | titlecase }}</div>
-                  <div class="campaign-reference" *ngIf="transaction.relatedCampaign">
-                    Campaign ID: {{ transaction.relatedCampaign | shortenId }}
-                  </div>
+                  @if(transaction.relatedCampaign) {
+                    <div class="campaign-reference">
+                      Campaign ID: {{ transaction.relatedCampaign | shortenId }}
+                    </div>
+                  }
                 </div>
               </div>
             </td>
@@ -156,6 +158,9 @@
                 [matTooltip]="transaction.type | titlecase">
                 {{ (transaction.type === 'credit' ? '+' : '-') + transaction.amount | currencyUtils:user()?.wallets?.promoter?.currency }}
               </span>
+                @if(user()?.role === 'promoter') {
+                  <small class="payable">Recieved: {{transaction.amountPayable | currencyUtils:user()?.wallets?.promoter?.currency }}</small>
+                }
             </td>
           </ng-container>
 

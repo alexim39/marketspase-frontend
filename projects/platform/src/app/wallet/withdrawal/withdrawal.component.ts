@@ -126,7 +126,7 @@ export class WithdrawalComponent implements OnInit {
 
   // Constants
   private readonly MIN_WITHDRAWAL_AMOUNT = 100;
-  private readonly WITHDRAWAL_FEE_RATE = 0.18; // 18%
+  private readonly WITHDRAWAL_FEE_RATE = 0.20; // 20%
 
   readonly payableAmount = signal<number>(0);
 
@@ -328,7 +328,6 @@ private setupFormSubscriptions(): void {
     this.searchControl.next(target.value);
   }
 
-  // Account resolution
   private resolveAccountName(): void {
     const accountNumber = this.withdrawForm.get('accountNumber')?.value;
     const bankCode = this.withdrawForm.get('bank')?.value;
@@ -340,16 +339,11 @@ private setupFormSubscriptions(): void {
 
     this.isResolvingAccount.set(true);
 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.withdrawalService.PAYSTACK_SECRET_KEY}`
-    });
-
-    const url = `https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`;
-
-    this.http.get<AccountResolutionResponse>(url, { headers })
+    // Call your internal service instead of Paystack directly
+    this.withdrawalService.resolveAccount(accountNumber, bankCode)
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          const errorMessage = error.error?.message || 'Failed to resolve account name. Please check account details.';
+          const errorMessage = error.error?.message || 'Failed to resolve account name.';
           this.showErrorMessage(errorMessage);
           return EMPTY;
         }),
@@ -366,6 +360,7 @@ private setupFormSubscriptions(): void {
         }
       });
   }
+
 
   // Saved accounts
   private loadSavedAccounts(): void {

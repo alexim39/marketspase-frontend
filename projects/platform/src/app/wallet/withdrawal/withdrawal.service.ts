@@ -35,8 +35,6 @@ export interface WithdrawalRequestData {
 
 @Injectable()
 export class WithdrawalService {
-
- public readonly PAYSTACK_SECRET_KEY = 'sk_live_31139039a3e109121ff97248e06ee567563cede4';
  constructor(private apiService: ApiService) {}
   
   /**
@@ -56,6 +54,13 @@ export class WithdrawalService {
   withdrawRequest(payload: WithdrawalRequestData): Observable<any> {
     //console.log('withdrawRequest', payload);
     return this.apiService.post<any>('wallet/withdraw-request', payload, undefined, true);
+  }
+
+  resolveAccount(accountNumber: string, bankCode: string) {
+    // Point to your local Node.js endpoint instead of Paystack's URL
+    return this.apiService.get<any>(
+      `wallet/resolve-account?accountNumber=${accountNumber}&bankCode=${bankCode}`
+    );
   }
 
 
