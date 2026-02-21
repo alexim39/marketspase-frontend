@@ -1,148 +1,244 @@
-
-    <!-- Community Feed Section -->
-    <div class="community-feed-section">
-      <div class="section-header">
-        <div class="section-title-wrapper">
-          <h2 class="section-title">Community Feed</h2>
-          <div class="live-indicator">
-            <div class="pulse-dot"></div>
-            <span>LIVE</span>
-          </div>
-        </div>
-        <div class="section-actions">
-          @if(userRole().has('marketer') ) {
-            <button mat-button color="primary" (click)="createPost.emit()" class="create-post-btn">
-              <mat-icon>edit</mat-icon>
-              Create Post
-            </button>
-          }
-          <button mat-stroked-button color="accent" (click)="viewAll.emit()">
-            View All
-          </button>
+<!-- community-feed.component.html -->
+<div class="community-feed-section">
+  <!-- Section Header -->
+  @if (showHeader()) {
+    <div class="section-header">
+      <div class="section-title-wrapper">
+        <h2 class="section-title">Community Pulse</h2>
+        <div class="live-indicator">
+          <div class="pulse-dot"></div>
+          <span>LIVE</span>
         </div>
       </div>
-      
-      <div class="feed-preview">
-        @if (posts().length > 0) {
-          <div class="feed-posts">
-            @for (post of posts(); track post.id; let i = $index) {
-              <mat-card class="community-post-card" [class.featured]="i === 0">
+      <div class="section-actions">
+        @if (userRole() === 'marketer') {
+          <button mat-button color="primary" (click)="createPost.emit()" class="create-post-btn">
+            <mat-icon>edit</mat-icon>
+            Create Post
+          </button>
+        }
+        <button mat-stroked-button color="accent" (click)="viewAll.emit()">
+          View All
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Live Activity Toast -->
+  @if (liveActivities().length > 0) {
+    <div class="live-activity-toast">
+      <div class="activity-content">
+        <span class="activity-text">
+          <strong>{{ liveActivities()[0].author }}</strong> {{ liveActivities()[0].message }}
+        </span>
+        <span class="activity-time">{{ liveActivities()[0].time }}</span>
+      </div>
+    </div>
+  }
+  
+  <div class="feed-preview">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-icon class="spin">autorenew</mat-icon>
+        <span>Loading community updates...</span>
+      </div>
+    } @else {
+      <!-- Feed Content -->
+      @if (posts().length > 0) {
+        <!-- Trending Topics Banner -->
+        @if (trendingHashtags().length > 0) {
+          <div class="trending-banner">
+            <div class="trending-left">
+              <mat-icon>trending_up</mat-icon>
+              <span>Trending now:</span>
+            </div>
+            <div class="trending-tags">
+              @for (tag of trendingHashtags().slice(0, 5); track tag.tag) {
+                <button class="trending-tag" (click)="onHashtagClick($event, tag.tag)">
+                  #{{ tag.tag }}
+                  @if (tag.count > 0) {
+                    <span class="tag-count">{{ tag.count }}</span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Today's Activity Stats -->
+        <div class="activity-stats">
+          <div class="stat-card">
+            <mat-icon class="stat-icon">people</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ activityStats().activeUsers }}</span>
+              <span class="stat-label">active now</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon class="stat-icon">post_add</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ activityStats().postsToday }}</span>
+              <span class="stat-label">posts today</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon class="stat-icon">whatshot</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ activityStats().totalEngagement }}</span>
+              <span class="stat-label">engagements</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Posts Grid -->
+        <div class="recent-posts-grid">
+          <h3 class="grid-title">
+            <mat-icon>update</mat-icon>
+            Latest from the community
+          </h3>
+          
+          <div class="posts-grid">
+            @for (post of recentPosts(); track post._id) {
+              <mat-card class="community-post-card" 
+                        [class.new]="isNewPost(post)"
+                        (click)="onPostClick(post._id)">
+                
+                <!-- New indicator -->
+                @if (isNewPost(post)) {
+                  <div class="new-post-badge">
+                    <mat-icon>fiber_new</mat-icon>
+                    <span>Just posted</span>
+                  </div>
+                }
+
                 <mat-card-header class="post-header">
                   <div class="post-user-info">
                     <div class="user-avatar-wrapper">
                       <img 
-                        [src]="post.avatar || 'img/avatar.png'" 
-                        [alt]="post.author" 
+                        [src]="post.author?.avatar || 'img/avatar.png'" 
+                        [alt]="post.author?.displayName" 
                         class="post-avatar"
                       >
-                      @if (post.badge) {
-                        <div class="badge-indicator" [class]="post.badge"></div>
+                      @if (post.author?.badge) {
+                        <div class="badge-indicator" [class]="post.author?.badge" 
+                             [matTooltip]="getBadgeTooltip(post.author?.badge ?? '')">
+                        </div>
                       }
                     </div>
                     <div class="user-details">
-                      <h3 class="user-name">{{post.author}}</h3>
+                      <h3 class="user-name">{{ post.author?.displayName || 'Community Member' }}</h3>
                       <div class="user-meta">
-                        <span class="user-role">{{post.role}}</span>
-                        <span class="post-time">{{post.time}}</span>
+                        <span class="user-role">{{ post.author?.role || 'Member' }}</span>
+                        <span class="post-time">{{ feedService.formatTime(post.createdAt) }}</span>
                       </div>
                     </div>
                   </div>
-                  <button mat-icon-button class="post-menu-btn" (click)="onPostMenu(post.id)">
-                    <mat-icon>more_horiz</mat-icon>
-                  </button>
                 </mat-card-header>
                 
                 <mat-card-content class="post-content">
-                  <p class="post-text">{{post.content}}</p>
+                  <p class="post-text">{{ post.content | slice:0:100 }}{{ post.content.length > 100 ? '...' : '' }}</p>
                   
-                  @if (post.type === 'earnings') {
-                    <div class="post-highlight earnings-highlight">
-                      <div class="highlight-icon">
-                        <mat-icon>celebration</mat-icon>
-                      </div>
-                      <div class="highlight-content">
-                        <span class="highlight-title">Earnings Achievement</span>
-                        <span class="highlight-value">₦{{post.earnings | number:'1.0-0'}}</span>
-                      </div>
+                  <!-- Post type specific preview -->
+                  @if (post.type === 'earnings' && post.earnings) {
+                    <div class="type-preview earnings-preview">
+                      <mat-icon>emoji_events</mat-icon>
+                      <span>Earned ₦{{ post.earnings.amount | number:'1.0-0' }}</span>
+                      @if (post.earnings.milestone) {
+                        <span class="milestone">• {{ post.earnings.milestone }}</span>
+                      }
                     </div>
                   }
                   
-                  @if (post.type === 'campaign') {
-                    <div class="post-highlight campaign-highlight">
-                      <div class="highlight-icon">
-                        <mat-icon>campaign</mat-icon>
-                      </div>
-                      <div class="highlight-content">
-                        <span class="highlight-title">{{post.campaignName}}</span>
-                        <span class="highlight-value">Budget: ₦{{post.budget | number:'1.0-0'}}</span>
-                      </div>
+                  @if (post.type === 'campaign' && post.campaign?.name) {
+                    <div class="type-preview campaign-preview">
+                      <mat-icon>campaign</mat-icon>
+                      <span>{{ post.campaign?.name | slice:0:30 }}</span>
+                      @if (post.campaign?.progress) {
+                        <span class="progress">• {{ post.campaign?.progress }}% complete</span>
+                      }
                     </div>
                   }
                   
-                  <div class="post-actions">
-                    <button mat-button class="post-action like-btn" 
-                            [class.active]="isLiked(post.id)"
-                            (click)="onLike(post)">
-                      <mat-icon class="action-icon">
-                        {{isLiked(post.id) ? 'favorite' : 'favorite_border'}}
-                      </mat-icon>
-                      <span class="action-count">{{post.likes + (isLiked(post.id) ? 1 : 0)}}</span>
+                  <!-- Engagement preview -->
+                  <div class="post-actions-mini">
+                    <button class="action-item" (click)="onLike($event, post)">
+                      <mat-icon [class.liked]="likedPosts().has(post._id)">favorite</mat-icon>
+                      <span>{{ post.likeCount }}</span>
                     </button>
-                    <button mat-button class="post-action comment-btn" (click)="onComment(post.id)">
-                      <mat-icon class="action-icon">chat_bubble_outline</mat-icon>
-                      <span class="action-count">{{post.comments}}</span>
+                    <button class="action-item" (click)="onSave($event, post._id)">
+                      <mat-icon [class.saved]="savedPosts().has(post._id)">bookmark</mat-icon>
+                      <span>Save</span>
                     </button>
-                    <button mat-button class="post-action share-btn" (click)="onShare(post)">
-                      <mat-icon class="action-icon">share</mat-icon>
-                      <span class="action-text">Share</span>
-                    </button>
-                    <button mat-button class="post-action save-btn" 
-                            [class.active]="isSaved(post.id)"
-                            (click)="onSave(post.id)">
-                      <mat-icon class="action-icon">
-                        {{isSaved(post.id) ? 'bookmark' : 'bookmark_border'}}
-                      </mat-icon>
+                    <div class="action-item">
+                      <mat-icon>chat</mat-icon>
+                      <span>{{ post.commentCount }}</span>
+                    </div>
+                    <button class="action-item" (click)="onShare($event, post)">
+                      <mat-icon>share</mat-icon>
+                      <span>{{ post.shareCount }}</span>
                     </button>
                   </div>
+                  
+                  <!-- Hashtags -->
+                  @if (post.hashtags && post.hashtags.length > 0) {
+                    <div class="post-hashtags">
+                      @for (tag of post.hashtags.slice(0, 3); track tag) {
+                        <button class="hashtag" (click)="onHashtagClick($event, tag)">
+                          #{{ tag }}
+                        </button>
+                      }
+                      @if (post.hashtags.length > 3) {
+                        <span class="more-hashtags">+{{ post.hashtags.length - 3 }}</span>
+                      }
+                    </div>
+                  }
                 </mat-card-content>
               </mat-card>
             }
           </div>
-        } @else {
-          @if(userRole().has('marketer') ) {
-            <mat-card class="empty-feed-card">
-              <mat-card-content>
-                <div class="empty-state-content">
-                  <div class="empty-icon-container">
-                    <mat-icon>forum</mat-icon>
-                  </div>
-                  <h3 class="empty-title">Welcome to the Community!</h3>
-                  <p class="empty-description">Share your success story, ask questions, or connect with fellow marketers and promoters.</p>
-                  <button mat-raised-button color="primary" (click)="createPost.emit()" class="empty-action-btn">
-                    <mat-icon>edit</mat-icon>
-                    Create Your First Post
-                  </button>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          }@else {
-            <mat-card class="empty-feed-card">
-              <mat-card-content>
-                <div class="empty-state-content">
-                  <div class="empty-icon-container">
-                    <mat-icon>forum</mat-icon>
-                  </div>
-                  <h3 class="empty-title">Welcome to the Community!</h3>
-                  <p class="empty-description">View success story, see responses, and connect with fellow marketers and promoters.</p>
-                  <button mat-raised-button color="primary" (click)="viewPost.emit()" class="empty-action-btn">
-                    <mat-icon>edit</mat-icon>
-                    View Posts
-                  </button>
-                </div>
-              </mat-card-content>
-            </mat-card>
+          
+          <!-- View All Link -->
+          @if (posts().length > limit()) {
+            <div class="view-all-link">
+              <a (click)="viewAll.emit()">
+                View all {{ posts().length }} posts 
+                <mat-icon>arrow_forward</mat-icon>
+              </a>
+            </div>
           }
-
-        }
-      </div>
-    </div>
+        </div>
+        
+      } @else {
+        <!-- Empty State -->
+        <mat-card class="empty-feed-card">
+          <mat-card-content>
+            <div class="empty-state-content">
+              <div class="empty-illustration">
+                <mat-icon class="empty-main-icon">forum</mat-icon>
+              </div>
+              
+              <h3 class="empty-title">Welcome to the Community!</h3>
+              <p class="empty-description">
+                Be the first to share your journey! Post updates, celebrate wins, 
+                and connect with others in the community.
+              </p>
+              
+              <button mat-raised-button color="primary" 
+                      (click)="createPost.emit()" 
+                      class="empty-action-btn">
+                <mat-icon>add_comment</mat-icon>
+                Start the Conversation
+              </button>
+              
+              <p class="social-hint">
+                <mat-icon>group</mat-icon>
+                Join {{ activityStats().activeUsers }} others in the community
+              </p>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+  </div>
+</div>

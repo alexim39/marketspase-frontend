@@ -30,7 +30,7 @@ export class FeedPostCardComponent {
   
   // Computed property for verified status
   isVerified = computed(() => {
-    const rating = this.post().author.rating;
+    const rating = this.post().author?.rating;
     return rating !== undefined && rating !== null && rating > 4.5;
   });
   

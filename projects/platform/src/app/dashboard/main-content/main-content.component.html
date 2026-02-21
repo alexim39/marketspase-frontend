@@ -1,157 +1,152 @@
-    <promo-banner [user]="user" />
-    <profile-notifier-banner [user]="user" />
-    <general-msg-notifier-banner [user]="user" />
+<promo-banner [user]="user" />
+<profile-notifier-banner [user]="user" />
+<general-msg-notifier-banner [user]="user" />
 
-    <!-- Dashboard Content -->
-    <div class="dashboard-content">
-      <!-- Dashboard Header -->
-      <dashboard-header
+<!-- Dashboard Content -->
+<div class="dashboard-content">
+  <!-- Dashboard Header -->
+  <dashboard-header
+    [user]="user()"
+    [communityNotifications]="communityNotifications()"
+    [unreadMessages]="unreadMessages()"
+    [unreadNotifications]="unreadNotifications()"
+    (createCampaign)="createCampaign()"
+    (browseCampaign)="browseCampaign()"
+    (viewCampaigns)="viewCampaigns()"
+    (viewPromotions)="viewPromotions()"
+    (withdrawWallet)="withdrawWallet()"
+    (logout)="logout()"
+  />
+
+  <!-- Community Feed - Enhanced with real data -->
+   <community-feed
+    [userId]="user()?._id"
+    [limit]="3"
+    (createPost)="createCommunityPost()"
+    (viewPost)="onViewPost($event)"
+    (viewAll)="openCommunityFeed()"
+    (hashtagClick)="onHashtagClick($event)"
+    [userRole]="user()?.role"
+  />
+
+  <!-- Dashboard Content Grid -->
+  <div class="dashboard-content-grid">
+    <!-- Performance Metrics -->
+    <performance-metrics
+      [stats]="dashboardStats()"
+      [period]="viewPeriod()"
+      (periodChange)="setViewPeriod($event)"
+    />
+
+    <!-- Stats & Activity Grid -->
+    <div class="stats-activity-grid">
+      <!-- Quick Stats -->
+      <quick-stats
         [user]="user()"
-        [communityNotifications]="communityNotifications()"
-        [unreadMessages]="unreadMessages()"
-        [unreadNotifications]="unreadNotifications()"
-        (createCampaign)="createCampaign()"
-        (browseCampaign)="browseCampaign()"
-        (viewCampaigns)="viewCampaigns()"
-        (viewPromotions)="viewPromotions()"
+        [campaignSummary]="campaignSummary()"
+        [promotionSummary]="promotionSummary()"
+        [communityStats]="communityStats()"
         (withdrawWallet)="withdrawWallet()"
-        (logout)="logout()"
+        (viewWallet)="viewWallet()"
       />
 
-      <!-- Community Feed -->
-      <community-feed
-        [posts]="communityPosts()"
-        [likedPosts]="likedPosts()"
-        [savedPosts]="savedPosts()"
-         [userRole]="user()?.role"
-        (createPost)="createCommunityPost()"
-        (viewPost)="viewCommunityPost()"
-        (viewAll)="openCommunityFeed()"
-        (like)="onLike($event)"
-        (save)="onSave($event)"
-        (comment)="openComments($event)"
-        (share)="sharePost($event)"
-        (postMenu)="onPostMenu($event)"
+      <!-- Recent Activity -->
+      <recent-activity
+        [activities]="recentActivity()"
+        [userRole]="user()?.role"
+        (viewAll)="viewWallet()"
+        (activityClick)="onActivityClick($event)"
+        (browseCampaigns)="browseCampaign()"
+        (createCampaign)="createCampaign()"
       />
-
-      <!-- Dashboard Content Grid -->
-      <div class="dashboard-content-grid">
-        <!-- Performance Metrics -->
-        <performance-metrics
-          [stats]="dashboardStats()"
-          [period]="viewPeriod()"
-          (periodChange)="setViewPeriod($event)"
-        />
-
-        <!-- Stats & Activity Grid -->
-        <div class="stats-activity-grid">
-          <!-- Quick Stats -->
-          <quick-stats
-            [user]="user()"
-            [campaignSummary]="campaignSummary()"
-            [promotionSummary]="promotionSummary()"
-            [communityStats]="communityStats()"
-            (withdrawWallet)="withdrawWallet()"
-            (viewWallet)="viewWallet()"
-          />
-
-          <!-- Recent Activity -->
-          <recent-activity
-            [activities]="recentActivity()"
-            [userRole]="user()?.role"
-            (viewAll)="viewWallet()"
-            (activityClick)="onActivityClick($event)"
-            (browseCampaigns)="browseCampaign()"
-            (createCampaign)="createCampaign()"
-          />
-        </div>
-
-        <!-- Trending & Connections Grid -->
-        <div class="trending-connections-grid">
-          <trending-section
-            [trendingItems]="trendingItems()"
-            [following]="followingTrends()"
-            [categories]="trendingCategories()"
-            [activeCategory]="activeTrendingCategory()"
-            (viewAll)="viewTrending()"
-            (trendClick)="onTrendClick($event)"
-            (follow)="followTrend($event)"
-            (categoryChange)="onTrendingCategoryChange($event)"
-          />
-
-          <!-- Connections Section -->
-          <connections-section
-            [connections]="suggestedConnections()"
-            [pendingConnections]="pendingConnections()"
-            [connectedConnections]="connectedConnections()"
-            [filters]="connectionFilters()"
-            [activeFilter]="activeConnectionFilter()"
-            (viewAll)="viewAllConnections()"
-            (connect)="connectUser($event)"
-            (message)="onMessageConnection($event)"
-            (profileClick)="onProfileClick($event)"
-            (filterChange)="onConnectionFilterChange($event)"
-            (refresh)="refreshConnections()"
-          />
-        </div>
-      </div>
-
-      <!-- Learning Section -->
-      <learning-section
-        [courses]="learningCourses()"
-        [savedCourses]="savedCourses()"
-        (viewAll)="openAdSchool()"
-        (continueCourse)="continueCourse($event)"
-        (saveCourse)="onSaveCourse($event)"
-      />
-
-      <!-- Testimonials Section -->
-      <div class="testimonials-section">
-        @if (user()) {
-          <async-dashboard-testimonials />
-        }
-      </div>
-
-      <!-- Mobile Bottom Navigation -->
-      @if (isMobile()) {
-        <div class="mobile-bottom-nav">
-          <nav class="nav-container">
-            <button class="nav-item" (click)="router.navigate(['dashboard'])">
-              <mat-icon>home</mat-icon>
-              <span class="nav-label">Home</span>
-            </button>
-            <button class="nav-item" (click)="openCommunityFeed()">
-              <mat-icon>forum</mat-icon>
-              <span class="nav-label">Community</span>
-              @if (communityNotifications() > 0) {
-                <span class="nav-badge">{{ communityNotifications() }}</span>
-              }
-            </button>
-            <button class="nav-item primary-action" (click)="createCommunityPost()">
-              <mat-icon>add</mat-icon>
-            </button>
-            <button class="nav-item" (click)="openMessages()">
-              <mat-icon>chat</mat-icon>
-              <span class="nav-label">Messages</span>
-              @if (unreadMessages() > 0) {
-                <span class="nav-badge">{{ unreadMessages() }}</span>
-              }
-            </button>
-            <button class="nav-item" (click)="openNotifications()">
-              <mat-icon>notifications</mat-icon>
-              <span class="nav-label">Alerts</span>
-              @if (unreadNotifications() > 0) {
-                <span class="nav-badge">{{ unreadNotifications() }}</span>
-              }
-            </button>
-          </nav>
-        </div>
-      }
-
-      <!-- Floating Action Button (Desktop) -->
-      @if (!isMobile()) {
-        <button mat-fab color="primary" class="fab-create" (click)="createCommunityPost()">
-          <mat-icon>edit</mat-icon>
-        </button>
-      }
     </div>
+
+    <!-- Trending & Connections Grid -->
+    <div class="trending-connections-grid">
+      <trending-section
+        [trendingItems]="trendingItems()"
+        [following]="followingTrends()"
+        [categories]="trendingCategories()"
+        [activeCategory]="activeTrendingCategory()"
+        (viewAll)="viewTrending()"
+        (trendClick)="onTrendClick($event)"
+        (follow)="followTrend($event)"
+        (categoryChange)="onTrendingCategoryChange($event)"
+      />
+
+      <!-- Connections Section -->
+      <connections-section
+        [connections]="suggestedConnections()"
+        [pendingConnections]="pendingConnections()"
+        [connectedConnections]="connectedConnections()"
+        [filters]="connectionFilters()"
+        [activeFilter]="activeConnectionFilter()"
+        (viewAll)="viewAllConnections()"
+        (connect)="connectUser($event)"
+        (message)="onMessageConnection($event)"
+        (profileClick)="onProfileClick($event)"
+        (filterChange)="onConnectionFilterChange($event)"
+        (refresh)="refreshConnections()"
+      />
+    </div>
+  </div>
+
+  <!-- Learning Section -->
+  <learning-section
+    [courses]="learningCourses()"
+    [savedCourses]="savedCourses()"
+    (viewAll)="openAdSchool()"
+    (continueCourse)="continueCourse($event)"
+    (saveCourse)="onSaveCourse($event)"
+  />
+
+  <!-- Testimonials Section -->
+  <div class="testimonials-section">
+    @if (user()) {
+      <async-dashboard-testimonials />
+    }
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  @if (isMobile()) {
+    <div class="mobile-bottom-nav">
+      <nav class="nav-container">
+        <button class="nav-item" (click)="router.navigate(['dashboard'])">
+          <mat-icon>home</mat-icon>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" (click)="openCommunityFeed()">
+          <mat-icon>forum</mat-icon>
+          <span class="nav-label">Community</span>
+          @if (communityNotifications() > 0) {
+            <span class="nav-badge">{{ communityNotifications() }}</span>
+          }
+        </button>
+        <button class="nav-item primary-action" (click)="createCommunityPost()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button class="nav-item" (click)="openMessages()">
+          <mat-icon>chat</mat-icon>
+          <span class="nav-label">Messages</span>
+          @if (unreadMessages() > 0) {
+            <span class="nav-badge">{{ unreadMessages() }}</span>
+          }
+        </button>
+        <button class="nav-item" (click)="openNotifications()">
+          <mat-icon>notifications</mat-icon>
+          <span class="nav-label">Alerts</span>
+          @if (unreadNotifications() > 0) {
+            <span class="nav-badge">{{ unreadNotifications() }}</span>
+          }
+        </button>
+      </nav>
+    </div>
+  }
+
+  <!-- Floating Action Button (Desktop) -->
+  @if (!isMobile()) {
+    <button mat-fab color="primary" class="fab-create" (click)="createCommunityPost()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  }
+</div>

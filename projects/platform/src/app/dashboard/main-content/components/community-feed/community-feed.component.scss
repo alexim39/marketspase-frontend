@@ -1,10 +1,80 @@
 @import '../../../../../styles/variables';
 @import '../../../../../styles/mixins';
 
+// Animation Keyframes
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInOut {
+  0% { opacity: 0; transform: translateX(100%); }
+  10% { opacity: 1; transform: translateX(0); }
+  90% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes softGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba($primary-color, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba($primary-color, 0.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -60%); }
+}
+
+@keyframes bubbleFloat {
+  0%, 100% { opacity: 0.3; transform: translate(0, 0); }
+  50% { opacity: 0.5; transform: translate(0, -10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+// Mixins
+@mixin gradient-text {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin activity-badge($color) {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  border-radius: $border-radius-full;
+  border: 2px solid $white;
+  background: $color;
+  @include flex-center;
+  
+  mat-icon {
+    font-size: 10px;
+    width: 10px;
+    height: 10px;
+    color: $white;
+  }
+}
+
+// Main Section
 .community-feed-section {
+  position: relative;
+  
   .section-header {
     @include flex-between;
     margin: $spacing-8 $spacing-4 $spacing-5;
+    flex-wrap: wrap;
+    gap: $spacing-4;
     
     @include tablet {
       margin: $spacing-10 $spacing-6 $spacing-6;
@@ -18,11 +88,13 @@
       display: flex;
       align-items: center;
       gap: $spacing-3;
+      flex-wrap: wrap;
 
       .section-title {
         @include heading-small;
         margin: 0;
         color: $text-primary;
+        @include gradient-text;
         
         @include tablet {
           font-size: $font-size-3xl;
@@ -46,7 +118,7 @@
           height: 6px;
           background: $error-color;
           border-radius: $border-radius-full;
-          @include pulse;
+          animation: pulse 1.5s ease-in-out infinite;
         }
       }
     }
@@ -54,65 +126,248 @@
     .section-actions {
       display: flex;
       gap: $spacing-2;
+      flex-wrap: wrap;
       
       .create-post-btn {
         @include button-primary;
         border-radius: $border-radius-xl;
+        transition: all $transition-fast;
         
         &:hover:not(:disabled) {
           background: $primary-dark;
+          transform: translateY(-2px);
         }
       }
     }
   }
 
-  .feed-preview {
-    padding: 0 $spacing-4;
+  // Trending Banner
+  .trending-banner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    background: linear-gradient(135deg, rgba($primary-color, 0.1), rgba($secondary-color, 0.1));
+    border-radius: $border-radius-xl;
+    margin-bottom: $spacing-4;
     
-    @include tablet {
-      padding: 0 $spacing-6;
+    .trending-left {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      
+      mat-icon {
+        color: $primary-color;
+        animation: pulse 2s infinite;
+      }
+      
+      span {
+        font-size: $font-size-sm;
+        color: var(--text-secondary);
+      }
     }
     
-    @include desktop {
-      padding: 0;
+    .trending-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      
+      .trending-tag {
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
+        padding: $spacing-1 $spacing-2;
+        background: var(--surface-color);
+        border: $border-width solid var(--border-color);
+        border-radius: $border-radius-xl;
+        font-size: $font-size-xs;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all $transition-fast;
+        
+        &:hover {
+          background: $primary-color;
+          color: $white;
+          border-color: $primary-color;
+          
+          .tag-count {
+            color: $white;
+          }
+        }
+        
+        .tag-count {
+          font-size: $font-size-xs;
+          color: var(--text-tertiary);
+        }
+      }
+    }
+  }
+
+  // Activity Stats
+  .activity-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-4;
+    margin-bottom: $spacing-6;
+    padding: $spacing-4;
+    background: var(--surface-color);
+    border-radius: $border-radius-xl;
+    border: $border-width solid var(--border-color);
+    
+    @include mobile {
+      grid-template-columns: 1fr;
     }
     
-    .feed-posts {
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      
+      mat-icon {
+        color: $primary-color;
+        font-size: $font-size-2xl;
+        width: $font-size-2xl;
+        height: $font-size-2xl;
+      }
+      
+      .stat-info {
+        display: flex;
+        flex-direction: column;
+        
+        .stat-value {
+          font-size: $font-size-lg;
+          font-weight: $font-weight-bold;
+          color: var(--text-primary);
+          line-height: 1.2;
+        }
+        
+        .stat-label {
+          font-size: $font-size-xs;
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+
+  // Recent Posts Grid
+  .recent-posts-grid {
+    margin-top: $spacing-6;
+    
+    .grid-title {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      color: $text-primary;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      margin-bottom: $spacing-4;
+      
+      mat-icon {
+        color: $primary-color;
+      }
+    }
+    
+    .posts-grid {
       display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: $spacing-4;
       
       @include tablet {
         grid-template-columns: repeat(2, 1fr);
       }
       
-      @include desktop {
-        grid-template-columns: repeat(3, 1fr);
+      @include mobile {
+        grid-template-columns: 1fr;
       }
+    }
+    
+    .view-all-link {
+      text-align: center;
+      margin-top: $spacing-6;
+      
+      a {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2;
+        color: $primary-color;
+        cursor: pointer;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        padding: $spacing-2 $spacing-4;
+        border-radius: $border-radius-xl;
+        transition: all $transition-fast;
+        
+        &:hover {
+          background: rgba($primary-color, 0.1);
+          gap: $spacing-3;
+        }
+        
+        mat-icon {
+          font-size: $font-size-base;
+          width: $font-size-base;
+          height: $font-size-base;
+        }
+      }
+    }
+  }
+
+  // Loading State
+  .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    padding: $spacing-10;
+    color: var(--text-secondary);
+    
+    .spin {
+      animation: spin 1s linear infinite;
     }
   }
 }
 
+// Community Post Card
 .community-post-card {
   @include card-base;
   border-radius: $border-radius-xl;
-  transition: all $transition-normal;
   border: $border-width solid $border-color;
   overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all $transition-normal;
   
   &:hover {
     @include card-hover;
     border-color: transparent;
+    transform: translateY(-4px);
   }
   
-  &.featured {
-    border: $border-width-2 solid $primary-color;
+  &.new {
+    animation: softGlow 2s ease-in-out infinite;
+    border-color: $success-color;
+  }
+  
+  .new-post-badge {
+    position: absolute;
+    top: $spacing-2;
+    left: $spacing-2;
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    background: $success-color;
+    color: $white;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-xl;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    z-index: 1;
+    animation: slideInLeft 0.3s ease-out;
     
-    @include tablet {
-      grid-column: span 2;
-    }
-    
-    @include desktop {
-      grid-column: span 1;
+    mat-icon {
+      font-size: $font-size-sm;
+      width: $font-size-sm;
+      height: $font-size-sm;
     }
   }
   
@@ -126,6 +381,7 @@
       
       .user-avatar-wrapper {
         position: relative;
+        flex-shrink: 0;
         
         .post-avatar {
           width: 48px;
@@ -143,31 +399,29 @@
           border: 2px solid $white;
           border-radius: $border-radius-full;
           
-          &.top-promoter {
-            background: $success-color;
-          }
-          
-          &.verified {
-            background: $primary-color;
-          }
-          
-          &.rising-star {
-            background: $warning-color;
-          }
+          &.top-promoter { background: $success-color; }
+          &.verified { background: $primary-color; }
+          &.rising-star { background: $warning-color; }
         }
       }
       
       .user-details {
+        min-width: 0; // For text truncation
+        
         .user-name {
           @include body-small;
           font-weight: $font-weight-semibold;
           color: $text-primary;
           margin: 0 0 $spacing-1 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         
         .user-meta {
           display: flex;
           align-items: center;
+          flex-wrap: wrap;
           gap: $spacing-2;
           
           .user-role {
@@ -177,16 +431,11 @@
           }
           
           .post-time {
-            font-size: 0.6875rem; // 11px equivalent
+            font-size: 0.6875rem;
             color: $text-tertiary;
           }
         }
       }
-    }
-    
-    .post-menu-btn {
-      margin-left: auto;
-      color: $text-tertiary;
     }
   }
   
@@ -198,165 +447,165 @@
       line-height: $line-height-normal;
       color: $text-primary;
       margin: 0 0 $spacing-4 0;
+      word-wrap: break-word;
     }
     
-    .post-highlight {
+    .post-actions-mini {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
       gap: $spacing-3;
-      padding: $spacing-3;
-      margin: $spacing-4 0;
-      border-radius: $border-radius-xl;
+      margin: $spacing-3 0;
+      padding-top: $spacing-3;
+      border-top: 1px solid $border-color;
       
-      .highlight-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba($white, 0.9);
-        border-radius: $border-radius;
-        @include flex-center;
-        
-        mat-icon {
-          font-size: $font-size-lg;
-        }
-      }
-      
-      .highlight-content {
-        @include flex-column;
-        
-        .highlight-title {
-          font-size: $font-size-xs;
-          font-weight: $font-weight-medium;
-          color: $text-secondary;
-        }
-        
-        .highlight-value {
-          font-size: $font-size-base;
-          font-weight: $font-weight-bold;
-          color: $text-primary;
-        }
-      }
-      
-      &.earnings-highlight {
-        background: linear-gradient(135deg, rgba($success-color, 0.1) 0%, rgba($success-color, 0.05) 100%);
-        
-        .highlight-icon {
-          background: rgba($success-color, 0.1);
-          
-          mat-icon {
-            color: $success-color;
-          }
-        }
-      }
-      
-      &.campaign-highlight {
-        background: linear-gradient(135deg, rgba($primary-color, 0.1) 0%, rgba($primary-color, 0.05) 100%);
-        
-        .highlight-icon {
-          background: rgba($primary-color, 0.1);
-          
-          mat-icon {
-            color: $primary-color;
-          }
-        }
-      }
-    }
-    
-    .post-actions {
-      display: flex;
-      justify-content: space-between;
-      padding-top: $spacing-4;
-      border-top: $border-width solid $border-color;
-      
-      .post-action {
-        @include flex-center;
-        gap: $spacing-1;
-        color: $text-secondary;
-        font-size: $font-size-sm;
-        font-weight: $font-weight-medium;
-        min-width: 0;
-        padding: $spacing-2;
-        border-radius: $border-radius;
+      .action-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: $text-tertiary;
+        font-size: $font-size-xs;
+        background: none;
+        border: none;
         cursor: pointer;
-        transition: all $transition-fast;
-        
-        .action-icon {
-          font-size: $font-size-lg;
-          transition: color $transition-fast;
-        }
-        
-        .action-count {
-          font-size: $font-size-sm;
-        }
-        
-        .action-text {
-          @include mobile {
-            display: none;
-          }
-        }
+        transition: color $transition-fast;
         
         &:hover {
-          @include lighten-bg($background-color, 10%);
-          
-          .action-icon {
-            color: $primary-color;
-          }
-        }
-        
-        &.like-btn.active {
-          color: $error-color;
-          
-          .action-icon {
-            color: $error-color;
-          }
-        }
-        
-        &.save-btn.active {
           color: $primary-color;
-          
-          .action-icon {
-            color: $primary-color;
-          }
         }
+        
+        mat-icon {
+          font-size: $font-size-base;
+          width: $font-size-base;
+          height: $font-size-base;
+          
+          &.liked { color: $error-color; }
+          &.saved { color: $primary-color; }
+        }
+      }
+    }
+    
+    .post-hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      margin-top: $spacing-2;
+      
+      .hashtag {
+        background: none;
+        border: none;
+        color: $primary-color;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        cursor: pointer;
+        padding: 0;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      .more-hashtags {
+        font-size: $font-size-xs;
+        color: $text-tertiary;
       }
     }
   }
 }
 
+// Type Preview
+.type-preview {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $border-radius;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  margin: $spacing-2 0;
+  
+  mat-icon {
+    font-size: $font-size-sm;
+    width: $font-size-sm;
+    height: $font-size-sm;
+  }
+  
+  &.earnings-preview {
+    background: rgba($success-color, 0.1);
+    color: $success-color;
+    
+    .milestone {
+      opacity: 0.8;
+    }
+  }
+  
+  &.campaign-preview {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    
+    .progress {
+      opacity: 0.8;
+    }
+  }
+}
+
+// Empty State
 .empty-feed-card {
   @include card-base;
-  border: $border-width-2 dashed $border-color;
-  background: transparent;
-  box-shadow: none;
+  border: 2px dashed $border-color;
+  background: linear-gradient(135deg, var(--surface-color), var(--background-color));
   
   .empty-state-content {
     padding: $spacing-10 $spacing-5;
     text-align: center;
+    position: relative;
+    overflow: hidden;
     
-    .empty-icon-container {
-      width: 80px;
-      height: 80px;
-      background: rgba($primary-color, 0.1);
-      border-radius: $border-radius-full;
-      @include flex-center;
-      margin: 0 auto $spacing-5;
+    .empty-illustration {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto $spacing-6;
       
-      mat-icon {
-        font-size: $font-size-4xl;
+      .empty-main-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 60px;
+        width: 60px;
+        height: 60px;
         color: $primary-color;
+        z-index: 2;
+        animation: float 3s ease-in-out infinite;
       }
+      
+      @for $i from 1 through 3 {
+        .bubble-#{$i} {
+          position: absolute;
+          border-radius: $border-radius-full;
+          background: rgba($primary-color, 0.1);
+          animation: bubbleFloat 3s ease-in-out infinite;
+          animation-delay: ($i - 1) * 0.5s;
+        }
+      }
+      
+      .bubble-1 { width: 40px; height: 40px; top: 0; left: 20px; }
+      .bubble-2 { width: 60px; height: 60px; bottom: 0; right: 10px; }
+      .bubble-3 { width: 30px; height: 30px; bottom: 20px; left: 0; }
     }
     
     .empty-title {
       @include heading-small;
-      margin: 0 0 $spacing-3 0;
-      color: $text-primary;
+      margin: 0 0 $spacing-3;
+      @include gradient-text;
     }
     
     .empty-description {
       @include body-medium;
       color: $text-secondary;
-      margin: 0 0 $spacing-6 0;
-      line-height: $line-height-normal;
+      margin: 0 0 $spacing-8;
+      line-height: 1.6;
       max-width: 400px;
       margin-left: auto;
       margin-right: auto;
@@ -364,23 +613,117 @@
     
     .empty-action-btn {
       @include button-primary;
-      padding: $spacing-3 $spacing-6;
+      padding: $spacing-3 $spacing-8;
       font-weight: $font-weight-semibold;
       border-radius: $border-radius-xl;
+      margin-bottom: $spacing-4;
+      transition: all $transition-fast;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba($primary-color, 0.4);
+      }
+    }
+    
+    .social-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: $spacing-1;
+      color: $text-tertiary;
+      font-size: $font-size-xs;
+      
+      mat-icon {
+        font-size: $font-size-base;
+        width: $font-size-base;
+        height: $font-size-base;
+      }
     }
   }
 }
 
-@include mobile {
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: $spacing-4;
+// Live Activity Toast
+.live-activity-toast {
+  position: fixed;
+  top: 80px;
+  right: $spacing-4;
+  left: $spacing-4;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  background: var(--surface-color);
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  padding: $spacing-3;
+  box-shadow: $shadow-lg;
+  backdrop-filter: blur(10px);
+  background: rgba(var(--surface-color-rgb), 0.95);
+  max-width: 320px;
+  margin: 0 auto;
+  cursor: pointer;
+  animation: slideInOut 5s ease-in-out forwards;
+  
+  @include tablet {
+    right: $spacing-6;
+    left: auto;
+    margin: 0;
   }
   
-  .feed-preview {
-    .feed-posts {
-      grid-template-columns: 1fr;
+  &:hover {
+    border-color: $primary-color;
+    transform: translateX(-4px);
+  }
+  
+  .activity-avatar {
+    position: relative;
+    flex-shrink: 0;
+    
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: $border-radius-full;
+      object-fit: cover;
+    }
+    
+    .activity-badge {
+      @include activity-badge($primary-color);
+      
+      &.like { background: $error-color; }
+      &.comment { background: $primary-color; }
+      &.post { background: $success-color; }
+      &.earnings { background: $warning-color; }
     }
   }
+  
+  .activity-content {
+    flex: 1;
+    min-width: 0; // For text truncation
+    
+    .activity-text {
+      font-size: $font-size-sm;
+      color: $text-primary;
+      display: block;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      
+      strong {
+        color: $primary-color;
+      }
+    }
+    
+    .activity-time {
+      font-size: $font-size-xs;
+      color: $text-tertiary;
+    }
+  }
+}
+
+// Utility Animations
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

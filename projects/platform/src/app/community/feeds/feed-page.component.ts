@@ -120,8 +120,8 @@ export class FeedPageComponent implements OnInit, OnDestroy, AfterViewInit {
     if (query) {
       posts = posts.filter(post => 
         post.content.toLowerCase().includes(query) ||
-        post.author.displayName.toLowerCase().includes(query) ||
-        post.hashtags?.some(tag => tag.tag.includes(query))
+        post.author?.displayName.toLowerCase().includes(query) ||
+        post.hashtags?.some((tag: any) => tag.tag.includes(query))
       );
     }
     
@@ -242,7 +242,7 @@ export class FeedPageComponent implements OnInit, OnDestroy, AfterViewInit {
   onShare(post: FeedPost): void {
     if (navigator.share) {
       navigator.share({
-        title: `${post.author.displayName} on MarketSpase`,
+        title: `${post.author?.displayName} on MarketSpase`,
         text: post.content,
         url: `${window.location.origin}/feed/${post._id}`
       }).catch(() => {
