@@ -15,32 +15,41 @@ export interface FeedAuthor {
   badge?: 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
 }
 
+// feed.service.ts - Update the FeedPost interface
+
 export interface FeedPost {
   _id: string;
-  author: FeedAuthor | null;
+  author?: {
+    _id: string;
+    displayName: string;
+    username?: string;
+    avatar: string;
+    role: string;
+    rating?: number;
+    badge?: string;
+  } | null;
   content: string;
   type: 'earnings' | 'campaign' | 'question' | 'tip' | 'achievement' | 'milestone';
   earnings?: {
     amount: number;
-    currency: string;
+    currency?: string;
     milestone?: string;
     campaignId?: string;
   };
   campaign?: {
-    campaignId: string;
+    campaignId?: string;
     name: string;
-    budget: number;
-    spentBudget?: number;
-    status: string;
+    budget?: number;
+    status?: string;
     progress?: number;
+    spentBudget?: number;
     mediaUrl?: string;
     mediaType?: string;
-    thumbnailUrl?: string;
   };
   tip?: {
-    title: string;
-    category: string;
-    views: number;
+    title?: string;
+    category?: string;
+    views?: number;
   };
   media?: Array<{
     url: string;
@@ -50,21 +59,18 @@ export interface FeedPost {
   likeCount: number;
   commentCount: number;
   shareCount: number;
-  saveCount: number;
   isLiked: boolean;
   isSaved: boolean;
-  badge?: string;
-  hashtags: string[];
-  mentions: Array<{ username: string }>;
-  isFeatured: boolean;
-  featuredUntil?: Date;
-  status: 'published' | 'draft' | 'archived' | 'reported';
+  hashtags: Array<{ tag: string }> | string[];
   createdAt: string;
-  updatedAt: string;
-  settings?: {
-    postAnonymously?: boolean;
-    disableComments?: boolean;
-  };
+  isFeatured?: boolean;
+  badge?: string;
+  saveCount?: number;
+  mentions?: any;
+  featuredUntil?: any;
+  status?: string;
+  updatedAt?: Date;
+  settings?: any;
 }
 
 export interface FeedResponse {
@@ -199,28 +205,37 @@ export class FeedService {
   }
 
   // ============ POST LOADING ============
-  loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = false): void {
-    if (!userId) {
-      console.error('[FeedService] No userId provided');
-      return;
-    }
-
-    if (reset) this.resetFeedState();
-    if (!this.shouldLoadMore()) return;
-
-    this.setLoadingState(true);
-    
-    const params = this.buildFeedParams(userId, type, hashtag);
-    
-    this.apiService.get<any>(`${this.apiUrl}/list`, params, undefined, true)
-      .pipe(
-        map(response => this.extractPostsFromResponse(response)),
-        tap((result: any) => this.handleFeedResponse(result, reset)),
-        catchError(error => this.handleFeedError(error)),
-        finalize(() => this.setLoadingState(false))
-      )
-      .subscribe();
+loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = false): void {
+  if (!userId) {
+    return;
   }
+
+  //console.log('[FeedService] loadFeedPosts', { userId, type, hashtag, reset, page: this.currentPageSignal() });
+
+  if (reset) this.resetFeedState();
+  if (!this.shouldLoadMore()) return;
+
+  this.setLoadingState(true);
+  
+  const params = this.buildFeedParams(userId, type, hashtag);
+  
+  this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
+   .pipe(
+      map(response => {
+        //console.log('[FeedService] Raw API response:', response);
+        const extracted = this.extractPostsFromResponse(response);
+        //console.log('[FeedService] After extractPostsFromResponse:', extracted);
+        return extracted;
+      }),
+      tap((result: any) => {
+        //console.log('[FeedService] Before handleFeedResponse, result.posts length:', result.posts?.length);
+        this.handleFeedResponse(result, reset);
+      }),
+      catchError(error => this.handleFeedError(error)),
+      finalize(() => this.setLoadingState(false))
+    )
+    .subscribe();
+}
 
   private shouldLoadMore(): boolean {
     return this.hasMoreSignal() && !this.loadingSignal();
@@ -255,7 +270,10 @@ export class FeedService {
     const data = response?.data || response;
     
     if (data?.posts && Array.isArray(data.posts)) {
-      return { posts: data.posts, pagination: data.pagination };
+      return { 
+        posts: data.posts, 
+        pagination: data.pagination || this.getDefaultPagination() 
+      };
     }
     
     if (Array.isArray(data)) {
@@ -266,7 +284,7 @@ export class FeedService {
       return { posts: response, pagination: this.getDefaultPagination() };
     }
     
-    console.warn('[FeedService] Unexpected response structure:', response);
+    //console.warn('[FeedService] Unexpected response structure:', response);
     return { posts: [], pagination: this.getDefaultPagination() };
   }
 
@@ -274,20 +292,31 @@ export class FeedService {
     return { page: 1, limit: FEED_CONFIG.POSTS_PER_PAGE, total: 0, pages: 1 };
   }
 
-  private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
-    if (!result.posts.length) {
-      if (reset) this.postsSignal.set([]);
-      this.hasMoreSignal.set(false);
-      return;
-    }
 
-    const newPosts = result.posts.map(post => this.processPost(post));
-    
-    this.updatePostsSignal(newPosts, reset);
-    this.updatePagination(result.pagination);
-    this.updateLikedSavedSets(newPosts);
-    this.updateActivityStats();
+private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
+  //console.log('[FeedService] handleFeedResponse called with posts length:', result.posts.length);
+  if (!result.posts.length) {
+    if (reset) this.postsSignal.set([]);
+    this.hasMoreSignal.set(false);
+    return;
   }
+
+  const newPosts = result.posts.map(post => {
+    try {
+      return this.processPost(post);
+    } catch (err) {
+      console.error('[FeedService] Error processing post:', post._id, err);
+      return null;
+    }
+  }).filter(p => p !== null) as FeedPost[];
+
+  //console.log('[FeedService] Mapped newPosts length:', newPosts.length);
+  
+  this.updatePostsSignal(newPosts, reset);
+  this.updatePagination(result.pagination);
+  this.updateLikedSavedSets(newPosts);
+  this.updateActivityStats();
+}
 
   private updatePostsSignal(newPosts: FeedPost[], reset: boolean): void {
     if (reset) {
@@ -295,6 +324,7 @@ export class FeedService {
     } else {
       this.postsSignal.update(current => [...current, ...newPosts]);
     }
+    //console.log('[FeedService] postsSignal length:', this.postsSignal().length);
   }
 
   private updatePagination(pagination: any): void {
@@ -415,7 +445,7 @@ export class FeedService {
     return 0;
   }
 
-  private extractHashtags(hashtags: any[]): string[] {
+  private extractHashtags(hashtags: Hashtag[]): any[] {
     if (!Array.isArray(hashtags)) return [];
     
     return hashtags
@@ -424,17 +454,22 @@ export class FeedService {
   }
 
   // ============ POST INTERACTIONS ============
-  toggleLike(post: FeedPost): Observable<any> {
+  toggleLike(post: FeedPost, id: string): Observable<any> {
+
+    // 1. Ensure the key matches backend expectations
+    const body = { userId: id }; 
+
     const wasLiked = this.likedPostsSignal().has(post._id);
-    
     this.updateLikeOptimistically(post._id, !wasLiked);
     
-    return this.apiService.post(`${this.apiUrl}/${post._id}/like`, {})
+    // 2. Remove the 'undefined' if it's blocking the body slot
+    return this.apiService.post(`${this.apiUrl}/${post._id}/like`, body, undefined, true)
       .pipe(
         tap(() => this.handleLikeSuccess(post, wasLiked)),
         catchError(error => this.handleLikeError(post._id, wasLiked, error))
       );
   }
+
 
   private updateLikeOptimistically(postId: string, liked: boolean): void {
     this.likedPostsSignal.update(set => {
@@ -497,7 +532,8 @@ export class FeedService {
         if (p._id === postId) {
           return {
             ...p,
-            saveCount: p.saveCount + (saved ? 1 : -1),
+            // Use ?? 0 to safely handle potentially undefined saveCount
+            saveCount: (p.saveCount ?? 0) + (saved ? 1 : -1),
             isSaved: saved
           };
         }
@@ -611,6 +647,7 @@ export class FeedService {
   }
 
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {
+    console.log('user ',userId)
     return this.apiService.get(`campaign/user/${userId}`, params, undefined, true);
   }
 
@@ -673,7 +710,7 @@ export class FeedService {
     const hashtagCounts = new Map<string, number>();
     
     posts.forEach(post => {
-      post.hashtags?.forEach(tag => {
+      post.hashtags?.forEach((tag: any) => {
         hashtagCounts.set(tag, (hashtagCounts.get(tag) || 0) + 1);
       });
     });
@@ -769,4 +806,69 @@ export class FeedService {
     // This would normally come from the API
     return [];
   }
+
+  // In feed.service.ts - update the mapToFeedPost function
+
+private mapToFeedPost(post: any): FeedPost {
+  // Handle author
+  const author = post.author ? {
+    _id: post.author._id,
+    displayName: post.author.displayName || post.author.username || 'Anonymous',
+    username: post.author.username,
+    avatar: post.author.avatar || 'img/avatar.png',
+    role: post.author.role || 'user',
+    rating: post.author.rating,
+    badge: post.author.badge
+  } : null;
+
+  // Handle hashtags - convert to array of strings for easier display
+  let hashtags: any[] = [];
+  if (post.hashtags) {
+    if (Array.isArray(post.hashtags)) {
+      hashtags = post.hashtags.map((h: any) => {
+        if (typeof h === 'string') return h;
+        return h.tag || '';
+      }).filter((h: string) => h);
+    }
+  }
+
+  return {
+    _id: post._id,
+    author,
+    content: post.content || '',
+    type: post.type || 'campaign',
+    earnings: post.earnings ? {
+      amount: post.earnings.amount || 0,
+      currency: post.earnings.currency || '₦',
+      milestone: post.earnings.milestone,
+      campaignId: post.earnings.campaignId
+    } : undefined,
+    campaign: post.campaign ? {
+      campaignId: post.campaign.campaignId,
+      name: post.campaign.name || '',
+      budget: post.campaign.budget,
+      status: post.campaign.status,
+      progress: post.campaign.progress
+    } : undefined,
+    tip: post.tip ? {
+      title: post.tip.title,
+      category: post.tip.category,
+      views: post.tip.views
+    } : undefined,
+    media: post.media ? post.media.map((m: any) => ({
+      url: m.url,
+      type: m.type,
+      thumbnail: m.thumbnail
+    })) : undefined,
+    likeCount: post.likeCount || 0,
+    commentCount: post.commentCount || 0,
+    shareCount: post.shareCount || 0,
+    isLiked: post.isLiked || false,
+    isSaved: post.isSaved || false,
+    hashtags,
+    createdAt: post.createdAt,
+    isFeatured: post.isFeatured,
+    badge: post.badge
+  };
+}
 }

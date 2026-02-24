@@ -27,6 +27,12 @@ export interface CommunityPost {
   hashtags: string[];
   createdAt: string;
   isFeatured?: boolean;
+  // Add media field
+  media?: Array<{
+    url: string;
+    type: 'image' | 'video' | 'link';
+    thumbnail?: string;
+  }>;
 }
 
 export interface TrendingHashtag {
@@ -49,9 +55,7 @@ export interface ActivityStats {
   topHashtag: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class CommunityFeedService {
   private apiService = inject(ApiService);
   private destroyRef = inject(DestroyRef);
@@ -128,13 +132,17 @@ export class CommunityFeedService {
   /**
    * Toggle like on a post
    */
-  toggleLike(postId: string): Observable<any> {
+  toggleLike(postId: string, id: string): Observable<any> {
+
+     // 1. Ensure the key matches backend expectations
+    const body = { userId: id }; 
+
     const wasLiked = this.likedPostsSignal().has(postId);
     
     // Optimistic update
     this.updatePostLike(postId, !wasLiked);
 
-    return this.apiService.post(`${this.apiUrl}/${postId}/like`, {})
+    return this.apiService.post(`${this.apiUrl}/${postId}/like`, body, undefined, true)
       .pipe(
         catchError(error => {
           // Revert on error
@@ -243,7 +251,13 @@ export class CommunityFeedService {
       isSaved: post.isSaved || false,
       hashtags,
       createdAt: post.createdAt,
-      isFeatured: post.isFeatured
+      isFeatured: post.isFeatured,
+      // Add media mapping
+      media: post.media ? post.media.map((m: any) => ({
+        url: m.url,
+        type: m.type,
+        thumbnail: m.thumbnail
+      })) : undefined
     };
   }
 

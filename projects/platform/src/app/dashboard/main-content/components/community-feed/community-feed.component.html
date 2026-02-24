@@ -138,6 +138,114 @@
                 
                 <mat-card-content class="post-content">
                   <p class="post-text">{{ post.content | slice:0:100 }}{{ post.content.length > 100 ? '...' : '' }}</p>
+
+              <!-- Media Preview Section -->
+              @if (post.media && post.media.length > 0) {
+                <div class="post-media-preview" (click)="$event.stopPropagation()">
+                  <!-- Check if this media is expanded -->
+                  @if (expandedMedia()?.postId === post._id && expandedMedia()?.mediaIndex === 0) {
+                    <!-- Expanded view for images -->
+                    @if (post.media[0].type === 'image') {
+                      <div class="expanded-media-container">
+                        <img 
+                          [src]="post.media[0].url" 
+                          alt="Expanded image"
+                          class="expanded-image"
+                        >
+                        <div class="expanded-media-controls">
+                          <button class="media-nav-btn prev-btn" (click)="navigateMedia('prev', post, $event)">
+                            <mat-icon>chevron_left</mat-icon>
+                          </button>
+                          <button class="media-nav-btn next-btn" (click)="navigateMedia('next', post, $event)">
+                            <mat-icon>chevron_right</mat-icon>
+                          </button>
+                          <button class="close-media-btn" (click)="closeExpandedMedia($event)">
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                        <div class="media-counter">
+                          {{ expandedMedia()?.mediaIndex! + 1 }} / {{ post.media.length }}
+                        </div>
+                      </div>
+                    }
+                    
+                    <!-- Expanded view for videos -->
+                    @if (post.media[0].type === 'video' && isVideoPlaying(post._id)) {
+                      <div class="expanded-media-container video-expanded">
+                        <iframe 
+                          [src]="getSafeVideoUrl(post.media[0].url)"
+                          frameborder="0"
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowfullscreen
+                          class="video-iframe"
+                        ></iframe>
+                        <button class="close-media-btn" (click)="closeExpandedMedia($event)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  } @else {
+                    <!-- Thumbnail view -->
+                    @if (post.media[0].type === 'image') {
+                      <div class="media-container" (click)="toggleImage(post._id, 0, $event)">
+                        <img 
+                          [src]="post.media[0].url" 
+                          [alt]="'Post image'"
+                          class="media-image"
+                          loading="lazy"
+                        >
+                        @if (post.media.length > 1) {
+                          <div class="media-count-badge">
+                            <mat-icon>collections</mat-icon>
+                            <span>+{{ post.media.length - 1 }}</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                    
+                    @if (post.media[0].type === 'video') {
+                      <div class="media-container video-container" 
+                          [class.playing]="isVideoPlaying(post._id)"
+                          (click)="playVideo(post._id, post.media[0], $event)">
+                        
+                        @if (!isVideoPlaying(post._id)) {
+                          <!-- Thumbnail with play button -->
+                          <img 
+                            [src]="post.media[0].thumbnail || 'img/video-placeholder.jpg'" 
+                            alt="Video thumbnail"
+                            class="media-image"
+                          >
+                          <div class="video-play-overlay">
+                            <mat-icon class="play-icon">play_circle</mat-icon>
+                          </div>
+                        } @else {
+                          <!-- Inline video player -->
+                          <div class="inline-video-player">
+                            <video 
+                              [src]="post.media[0].url" 
+                              controls
+                              autoplay
+                              class="inline-video"
+                              (click)="$event.stopPropagation()"
+                            ></video>
+                            <button class="close-video-btn" (click)="playVideo(post._id, post.media[0], $event)">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                    
+                    @if (post.media[0].type === 'link') {
+                      <div class="link-preview" (click)="openLink(post.media[0].url, $event)">
+                        <mat-icon>link</mat-icon>
+                        <span class="link-url">{{ post.media[0].url | slice:0:40 }}</span>
+                        <mat-icon class="open-link">open_in_new</mat-icon>
+                      </div>
+                    }
+                  }
+                </div>
+              }
                   
                   <!-- Post type specific preview -->
                   @if (post.type === 'earnings' && post.earnings) {
@@ -202,7 +310,8 @@
           @if (posts().length > limit()) {
             <div class="view-all-link">
               <a (click)="viewAll.emit()">
-                View all {{ posts().length }} posts 
+                <!-- View all {{ posts().length }} posts  -->
+                View all posts 
                 <mat-icon>arrow_forward</mat-icon>
               </a>
             </div>
@@ -223,14 +332,21 @@
                 Be the first to share your journey! Post updates, celebrate wins, 
                 and connect with others in the community.
               </p>
-              
-              <button mat-raised-button color="primary" 
+
+              @if (userRole() === 'marketer') {
+               <button mat-raised-button color="primary" 
                       (click)="createPost.emit()" 
-                      class="empty-action-btn">
-                <mat-icon>add_comment</mat-icon>
-                Start the Conversation
-              </button>
+                        class="empty-action-btn">
+                  <mat-icon>add_comment</mat-icon>
+                  Start the Conversation
+                </button>
+              } @else {
+                <button mat-raised-button color="primary" (click)="viewAll.emit()" class="empty-action-btn">
+                  View All Conversation
+                </button>
               
+              }
+             
               <p class="social-hint">
                 <mat-icon>group</mat-icon>
                 Join {{ activityStats().activeUsers }} others in the community

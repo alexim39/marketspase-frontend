@@ -186,25 +186,28 @@
                     formControlName="amount"
                     placeholder="Minimum NGN100"
                     min="100" />
-                  <mat-hint class="hint">
-                    Service Fee: 20% |
-                    <strong>You'll Receive: {{ payableAmount() | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
-                  </mat-hint>
+
+                  <!-- Hint only shows if there is a value and it's not empty -->
+                  @if (withdrawForm.get('amount')?.value) {
+                    <mat-hint class="hint">
+                      After a 20% service fee, 
+                      <strong>you'll take home: {{ payableAmount() | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
+                    </mat-hint>
+                  }
+
                   @if (withdrawForm.get('amount')?.hasError('required')) {
-                    <mat-error>
-                      Amount is required
-                    </mat-error>
+                    <mat-error>Amount is required</mat-error>
                   }
 
                   @if (withdrawForm.get('amount')?.hasError('min')) {
                     <mat-error>
-                    Minimum withdrawal amount is {{ 100 | currencyUtils:user()?.wallets?.promoter?.currency }}
-                  </mat-error>
+                      Minimum withdrawal amount is {{ 100 | currencyUtils:user()?.wallets?.promoter?.currency }}
+                    </mat-error>
                   }
 
                   @if (withdrawForm.get('amount')?.hasError('maxWithdrawal')) {
                     <mat-error>
-                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus a 20% fee.
+                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus service fee.
                     </mat-error>
                   }
                 </mat-form-field>

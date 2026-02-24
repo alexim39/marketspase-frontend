@@ -1,4 +1,4 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,13 +27,36 @@ export class FeedPostCardComponent {
   post = input.required<FeedPost>();
   isLiked = input<boolean>(false);
   isSaved = input<boolean>(false);
-  
+
+  // Read more state
+  showFullContent = signal(false);
+
+  // Computed for truncated content
+  displayContent = computed(() => {
+    const content = this.post().content;
+    if (this.showFullContent() || content.length <= 200) {
+      return content;
+    }
+    return content.substring(0, 200) + '…';
+  });
+
   // Computed property for verified status
   isVerified = computed(() => {
     const rating = this.post().author?.rating;
     return rating !== undefined && rating !== null && rating > 4.5;
   });
-  
+
+  // Helper to convert hashtags to array of strings
+  getHashtagsAsArray = computed(() => {
+    const hashtags = this.post().hashtags;
+    if (!hashtags || hashtags.length === 0) return [];
+
+    return hashtags.map(tag => {
+      if (typeof tag === 'string') return tag;
+      return (tag as any).tag || '';
+    }).filter(tag => tag);
+  });
+
   // Output events
   like = output<FeedPost>();
   save = output<string>();
@@ -43,7 +66,10 @@ export class FeedPostCardComponent {
   report = output<string>();
   hashtagClick = output<string>();
 
-  // Event handler methods
+  toggleReadMore(): void {
+    this.showFullContent.update(v => !v);
+  }
+
   onLike(): void {
     this.like.emit(this.post());
   }
@@ -71,7 +97,18 @@ export class FeedPostCardComponent {
   onHashtagClick(tag: string): void {
     this.hashtagClick.emit(tag);
   }
-  
+
+  playVideo(media: any): void {
+    // Optional: could open in a modal, but now we use inline <video>
+    if (media.url) {
+      // For inline, we rely on the video element; this method could be removed.
+    }
+  }
+
+  openLink(url: string): void {
+    window.open(url, '_blank');
+  }
+
   getBadgeColor(badge: string): string {
     const colors: Record<BadgeType, string> = {
       'top-promoter': '#10b981',
@@ -80,17 +117,15 @@ export class FeedPostCardComponent {
       'expert': '#8b5cf6',
       'veteran': '#6b7280'
     };
-    
+
     if (this.isValidBadge(badge)) {
       return colors[badge];
     }
-    
+
     return '#667eea';
   }
 
   private isValidBadge(badge: string): badge is BadgeType {
     return ['top-promoter', 'verified', 'rising-star', 'expert', 'veteran'].includes(badge);
   }
-
-  
 }

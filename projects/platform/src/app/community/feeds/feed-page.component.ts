@@ -28,15 +28,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { 
-  trigger, 
-  transition, 
-  style, 
-  animate, 
-  query, 
-  stagger 
-} from '@angular/animations';
+//import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 import { FeedService, FeedPost } from './feed.service';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
@@ -64,179 +56,195 @@ import { UserService } from '../../common/services/user.service';
     MatDividerModule,
     MatInputModule,
     MatSelectModule,
-    MatSlideToggleModule,
-    //InfiniteScrollDirective,
+    //InfiniteScrollModule,
     FeedPostCardComponent
   ],
   templateUrl: './feed-page.component.html',
   styleUrls: ['./feed-page.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  animations: [
-    trigger('feedAnimation', [
-      transition('* => *', [
-        query(':enter', [
-          style({ opacity: 0, transform: 'translateY(20px)' }),
-          stagger(100, [
-            animate('400ms ease-out', 
-              style({ opacity: 1, transform: 'translateY(0)' }))
-          ])
-        ], { optional: true })
-      ])
-    ])
-  ]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeedPageComponent implements OnInit, OnDestroy, AfterViewInit {
+export class FeedPageComponent {
   private feedService = inject(FeedService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
-
   private userService = inject(UserService);
+
   public user = this.userService.user;
   
-  @ViewChild('feedContainer') feedContainer!: ElementRef;
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
 
-  // Signals
+  // Feed service signals
   posts = this.feedService.posts;
   likedPosts = this.feedService.likedPosts;
   savedPosts = this.feedService.savedPosts;
   loading = this.feedService.loading;
-  error = this.feedService.error;
   hasMore = this.feedService.hasMore;
   trendingHashtags = this.feedService.trendingHashtags;
-  
+  featuredPost = this.feedService.featuredPost;
+
   // UI state signals
-  selectedTab = signal<'all' | 'trending' | 'following' | 'saved'>('all');
+  mobileMenuOpen = signal<boolean>(false);
+  selectedTab = signal<'for-you' | 'following' | 'trending' | 'explore' | 'notifications' | 'profile'>('for-you');
   selectedType = signal<string>('all');
   searchQuery = signal<string>('');
   showFilters = signal<boolean>(false);
+  unreadNotifications = signal<number>(3);
+  unreadMessages = signal<number>(2);
   
-  // Computed signals
-  filteredPosts = computed(() => {
-    let posts = this.posts();
-    const query = this.searchQuery().toLowerCase();
-    
-    if (query) {
-      posts = posts.filter(post => 
-        post.content.toLowerCase().includes(query) ||
-        post.author?.displayName.toLowerCase().includes(query) ||
-        post.hashtags?.some((tag: any) => tag.tag.includes(query))
-      );
+  // Suggested users for "Who to follow"
+  suggestedUsers = signal<any[]>([
+    {
+      _id: '1',
+      displayName: 'John Doe',
+      username: 'johndoe',
+      avatar: 'img/avatar.png'
+    },
+    {
+      _id: '2',
+      displayName: 'Jane Smith',
+      username: 'janesmith',
+      avatar: 'img/avatar.png'
+    },
+    {
+      _id: '3',
+      displayName: 'Mike Johnson',
+      username: 'mikej',
+      avatar: 'img/avatar.png'
     }
-    
-    if (this.selectedType() !== 'all') {
-      posts = posts.filter(post => post.type === this.selectedType());
-    }
-    
-    if (this.selectedTab() === 'saved') {
-      posts = posts.filter(post => this.savedPosts().has(post._id));
-    }
-    
-    return posts;
+  ]);
+
+  // Following set
+  following = signal<Set<string>>(new Set());
+
+filteredPosts = computed(() => this.posts() ?? []);
+
+regularPosts = computed(() => {
+  // Return all posts without featured filtering
+  return this.filteredPosts();
+});
+
+private readonly _ = effect(() => {
+  const user = this.user();
+  if (!user?._id) return;
+
+  queueMicrotask(() => {
+    this.loadFeed();
   });
+});
 
-  featuredPost = this.feedService.featuredPost;
-  regularPosts = computed(() => {
-    return this.filteredPosts().filter(post => !post.isFeatured);
-  });
+constructor() {
 
-  // Intersection Observer for infinite scroll
-  private observer!: IntersectionObserver;
+  // Feed loader effect (reacts to user + tab safely)
+  effect(() => {
+    const currentUser = this.user();
+    const tab = this.selectedTab();
 
-  constructor() {
-    // Effect to show errors
-    effect(() => {
-      const error = this.error();
-      if (error) {
-        this.snackBar.open(error, 'Dismiss', { 
-          duration: 5000,
-          panelClass: 'error-snackbar'
-        });
+    if (!currentUser?._id) return;
+
+    console.log('[Feed Effect] Loading feed for tab:', tab);
+
+    queueMicrotask(() => {
+      if (tab === 'following') {
+        this.loadFollowingFeed();
+      } else {
+        this.loadFeed();
       }
     });
+  });
+
+
+  // Error display effect
+  effect(() => {
+    const error = this.feedService.error();
+    if (!error) return;
+
+    this.snackBar.open(error, 'Dismiss', { 
+      duration: 5000,
+      panelClass: 'error-snackbar'
+    });
+  });
+
+}
+
+
+
+
+  // Navigation methods
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.set(!this.mobileMenuOpen());
   }
 
-  ngOnInit(): void {
-    this.loadFeed();
-  }
-
-  ngAfterViewInit(): void {
-    this.setupIntersectionObserver();
-  }
-
-  ngOnDestroy(): void {
-    if (this.observer) {
-      this.observer.disconnect();
+  navigateTo(route: string): void {
+    this.mobileMenuOpen.set(false);
+    switch(route) {
+      case 'feed':
+        this.selectedTab.set('for-you');
+        break;
+      case 'explore':
+        this.router.navigate(['/dashboard/explore']);
+        break;
+      case 'notifications':
+        this.router.navigate(['/dashboard/notifications']);
+        break;
+      case 'messages':
+        this.router.navigate(['/dashboard/messages']);
+        break;
+      case 'profile':
+        this.router.navigate(['/dashboard/profile', this.user()?._id]);
+        break;
+      case 'bookmarks':
+        this.router.navigate(['/dashboard/bookmarks']);
+        break;
+      case 'settings':
+        this.router.navigate(['/dashboard/settings']);
+        break;
     }
   }
 
-  private setupIntersectionObserver(): void {
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && this.hasMore() && !this.loading()) {
-          this.loadMore();
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (this.scrollAnchor) {
-      this.observer.observe(this.scrollAnchor.nativeElement);
-    }
-  }
-
+  // Feed methods
   loadFeed(): void {
-    this.feedService.loadFeedPosts(this.user()?._id ?? '', this.selectedType() !== 'all' ? this.selectedType() : undefined, undefined, true);
+    this.feedService.loadFeedPosts(
+      this.user()?._id ?? '', 
+      this.selectedType() !== 'all' ? this.selectedType() : undefined,
+      undefined,
+      true
+    );
+  }
+
+  loadFollowingFeed(): void {
+    // Load feed from followed users
+    this.feedService.loadFeedPosts(
+      this.user()?._id ?? '',
+      this.selectedType() !== 'all' ? this.selectedType() : undefined,
+      undefined,
+      true,
+      //'following'
+    );
   }
 
   loadMore(): void {
-    this.feedService.loadFeedPosts(
-      this.user()?._id ?? '',
-      this.selectedType() !== 'all' ? this.selectedType() : undefined
-    );
-  }
-
-  onTabChange(tab: string): void {
-    this.selectedTab.set(tab as any);
-    if (tab === 'saved') {
-      // Load saved posts
-      this.feedService.loadFeedPosts(this.user()?._id ?? '', undefined, undefined, true);
+    if (!this.loading() && this.hasMore()) {
+      this.feedService.loadFeedPosts(
+        this.user()?._id ?? '',
+        this.selectedType() !== 'all' ? this.selectedType() : undefined,
+        undefined,
+        false
+      );
     }
   }
 
-  onTypeChange(type: string): void {
-    this.selectedType.set(type);
-    this.loadFeed();
-  }
-
-  onSearch(query: string): void {
+  onSearch(query: string = ''): void {
+  // onSearch(query: string): void {
     this.searchQuery.set(query);
   }
 
   onLike(post: FeedPost): void {
-    this.feedService.toggleLike(post).subscribe({
-      next: () => {
-        this.snackBar.open(
-          post.isLiked ? 'Post liked!' : 'Post unliked',
-          'OK',
-          { duration: 2000 }
-        );
-      }
-    });
+    this.feedService.toggleLike(post, this.user()?._id ?? '').subscribe();
   }
 
   onSave(postId: string): void {
-    this.feedService.toggleSave(postId).subscribe({
-      next: () => {
-        this.snackBar.open(
-          this.savedPosts().has(postId) ? 'Post saved!' : 'Post removed from saved',
-          'OK',
-          { duration: 2000 }
-        );
-      }
-    });
+    this.feedService.toggleSave(postId).subscribe();
   }
 
   onShare(post: FeedPost): void {
@@ -270,56 +278,43 @@ export class FeedPageComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onCreatePost(): void {
     this.router.navigate(['/dashboard/community/feeds/create']);
-
-    // const dialogRef = this.dialog.open(CreatePostComponent, {
-    //   width: '700px',
-    //   maxWidth: '95vw',
-    //   panelClass: 'create-post-dialog'
-    // });
-
-    // dialogRef.afterClosed().subscribe(result => {
-    //   if (result) {
-    //     this.loadFeed(); // Refresh feed
-    //   }
-    // });
   }
 
   onHashtagClick(hashtag: string): void {
-    this.searchQuery.set(`#${hashtag}`);
+    this.searchQuery.set(hashtag);
+    this.selectedTab.set('for-you');
   }
 
   onRefresh(): void {
     this.loadFeed();
   }
 
-  getPostIcon(type: string): string {
-    // const icons = {
-    //   earnings: 'emoji_events',
-    //   campaign: 'campaign',
-    //   question: 'help',
-    //   tip: 'lightbulb',
-    //   achievement: 'military_tech',
-    //   milestone: 'flag'
-    // };
-    const icons: Record<string, string> = {
-        earnings: 'emoji_events',
-      campaign: 'campaign',
-      question: 'help',
-      tip: 'lightbulb',
-      achievement: 'military_tech',
-      milestone: 'flag'
-    };
-    return icons[type] || 'post_add';
+  // Follow methods
+  isFollowing(userId: string): boolean {
+    return this.following().has(userId);
   }
 
-  getBadgeColor(badge: string): string {
-    const colors: Record<string, string> = {
-      'top-promoter': '#10b981',
-      'verified': '#3b82f6',
-      'rising-star': '#f59e0b',
-      'expert': '#8b5cf6',
-      'veteran': '#6b7280'
-    };
-    return colors[badge] || '#667eea';
+  toggleFollow(userId: string): void {
+    const following = new Set(this.following());
+    if (following.has(userId)) {
+      following.delete(userId);
+      this.snackBar.open('Unfollowed', 'OK', { duration: 2000 });
+    } else {
+      following.add(userId);
+      this.snackBar.open('Following', 'OK', { duration: 2000 });
+    }
+    this.following.set(following);
+  }
+
+  showMoreTrending(): void {
+    this.router.navigate(['/dashboard/trending']);
+  }
+
+  onNotifications(): void {
+    this.router.navigate(['/dashboard/notifications']);
+  }
+
+  onMessages(): void {
+    this.router.navigate(['/dashboard/messages']);
   }
 }

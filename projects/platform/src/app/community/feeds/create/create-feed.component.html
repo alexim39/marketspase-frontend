@@ -8,7 +8,8 @@
       </button>
       
       <div class="header-title">
-        <h1>Campaign Update</h1>
+        <h1>Start a Campaign Discussion</h1>
+        <p>Start a conversation around your ads to boost visibility and reach.</p>
       </div>
       
       <div class="header-actions">
@@ -71,8 +72,13 @@
                   <img [src]="selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
                 } @else {
                   <div class="video-placeholder">
-                    <mat-icon>play_circle</mat-icon>
-                    <span>Video Campaign</span>
+                    <!-- <mat-icon>play_circle</mat-icon>-->
+                    <span>Video Campaign</span> 
+                    <img 
+                      [src]="selectedCampaign()?.thumbnailUrl" 
+                      class="media-preview placeholder-img" 
+                      [alt]="selectedCampaign()?.title"
+                    />
                   </div>
                 }
               </div>

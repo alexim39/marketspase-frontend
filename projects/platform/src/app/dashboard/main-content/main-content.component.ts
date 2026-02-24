@@ -666,7 +666,7 @@ onLike(post: CommunityPost): void {
   // Find the original post from feed service
   const originalPost = this.feedPosts().find(p => p._id === post.id);
   if (originalPost) {
-    this.feedService.toggleLike(originalPost).subscribe({
+    this.feedService.toggleLike(originalPost,  this.user()?._id ?? '').subscribe({
       next: () => {
         // Success message is handled in the service
       },

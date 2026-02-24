@@ -388,6 +388,7 @@ private setupFormSubscriptions(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
+            console.log('searchPromoters ',response.data)
             this.promoters.set(response.data || []);
           } else {
             this.showError(response.message || 'Search failed');
@@ -462,7 +463,7 @@ validateSingleRefund(): void {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
-        console.log('Validation response:', response);
+        console.log('validateRefund', response);
         if (response.success) {
           this.validationResult.set(response.data);
           if (!response.data?.valid) {
@@ -504,6 +505,7 @@ validateSingleRefund(): void {
       lastValueFrom(this.adminRefundService.validateRefund(item.promoterUserId, item.amount))
         .then(response => {
           this.bulkProcessingProgress.set(((index + 1) / items.length) * 100);
+          console.log('validateRefund ',response.data)
           return { 
             ...item, 
             validation: response.data,
@@ -573,6 +575,7 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
+            console.log('refundPromoterBalance ',response.data)
             this.showSuccess(response.message || `Successfully refunded ${formValue.amount} to promoter`);
             this.resetSingleRefundForm();
             this.loadRefundHistory();
@@ -630,6 +633,7 @@ validateSingleRefund(): void {
         }
       }))
         .then(response => {
+          console.log('refundPromoterBalance ',response)
           this.bulkProcessingProgress.set(((index + 1) / validItems.length) * 100);
           return { ...item, result: response };
         })
@@ -795,6 +799,7 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
+            console.log('getRefundHistory ',response.data)
             // Fix: Check if response.data exists before accessing
             const transactions = response.data?.refunds?.transactions || [];
             const mappedTransactions = transactions.map(transaction => ({
@@ -826,6 +831,7 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
+            console.log('getPromoterWalletDetails ',response.data)
             this.selectedPromoter.set(response.data.promoter);
           }
           this.isLoading.set(false);
@@ -1044,6 +1050,7 @@ triggerFormValidation(): void {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
         next: (response) => {
+          console.log('downloadRefundReceipt ',response.data)
             if (response.success && response.data.receiptUrl) {
             window.open(response.data.receiptUrl, '_blank');
             } else {

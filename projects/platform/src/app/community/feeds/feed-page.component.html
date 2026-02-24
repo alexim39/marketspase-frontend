@@ -1,213 +1,437 @@
-<div class="feed-page">
+<div class="feed-container">
   
-  <!-- Header -->
-  <header class="feed-header">
-    <div class="header-content">
-      <div class="header-left">
-        <h1 class="page-title">Community Feed</h1>
-        <span class="live-badge" *ngIf="posts().length > 0">
-          <span class="live-dot"></span>
-          {{ posts().length }} posts
-        </span>
-      </div>
-      
-      <div class="header-actions">
-        <button 
-          mat-icon-button 
-          class="refresh-btn"
-          (click)="onRefresh()"
-          [disabled]="loading()"
-          matTooltip="Refresh feed">
-          <mat-icon>refresh</mat-icon>
-        </button>
-        
-        <button 
-          mat-raised-button 
-          color="primary"
-          class="create-post-btn"
-          (click)="onCreatePost()">
-          <mat-icon>add</mat-icon>
-          <span>Create Post</span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Search Bar -->
-    <div class="search-bar">
-      <mat-icon class="search-icon">search</mat-icon>
-      <input 
-        type="text" 
-        placeholder="Search posts, people, or hashtags..."
-        (input)="onSearch($any($event.target).value)"
-        class="search-input">
-    </div>
-    
-    <!-- Tabs -->
-    <mat-tab-group 
-      [selectedIndex]="selectedTab() === 'all' ? 0 : selectedTab() === 'trending' ? 1 : selectedTab() === 'following' ? 2 : 3"
-      (selectedIndexChange)="onTabChange($any($event) === 0 ? 'all' : $any($event) === 1 ? 'trending' : $any($event) === 2 ? 'following' : 'saved')"
-      class="feed-tabs">
-      <mat-tab label="For You"></mat-tab>
-      <mat-tab label="Trending"></mat-tab>
-      <mat-tab label="Following"></mat-tab>
-      <mat-tab label="Saved"></mat-tab>
-    </mat-tab-group>
-    
-    <!-- Filters -->
-    <div class="filters-wrapper" [class.expanded]="showFilters()">
-      <button 
-        class="filter-toggle"
-        (click)="showFilters.set(!showFilters())">
-        <mat-icon>tune</mat-icon>
-        <span>Filters</span>
-        <mat-icon class="chevron">
-          {{ showFilters() ? 'expand_less' : 'expand_more' }}
-        </mat-icon>
+  <!-- Mobile Header (Hamburger Menu + Logo + Actions) -->
+  <header class="mobile-header">
+    <div class="header-left">
+      <button class="menu-btn" (click)="toggleMobileMenu()" aria-label="Menu">
+        <mat-icon>menu</mat-icon>
       </button>
-      
-      <div class="filters-content" *ngIf="showFilters()">
-        <div class="filter-group">
-          <label>Post Type</label>
-          <div class="filter-chips">
-            <button 
-              class="filter-chip" 
-              [class.active]="selectedType() === 'all'"
-              (click)="onTypeChange('all')">
-              All
-            </button>
-            <button 
-              class="filter-chip" 
-              [class.active]="selectedType() === 'earnings'"
-              (click)="onTypeChange('earnings')">
-              <mat-icon>emoji_events</mat-icon>
-              Earnings
-            </button>
-            <button 
-              class="filter-chip" 
-              [class.active]="selectedType() === 'campaign'"
-              (click)="onTypeChange('campaign')">
-              <mat-icon>campaign</mat-icon>
-              Campaigns
-            </button>
-            <button 
-              class="filter-chip" 
-              [class.active]="selectedType() === 'question'"
-              (click)="onTypeChange('question')">
-              <mat-icon>help</mat-icon>
-              Questions
-            </button>
-            <button 
-              class="filter-chip" 
-              [class.active]="selectedType() === 'tip'"
-              (click)="onTypeChange('tip')">
-              <mat-icon>lightbulb</mat-icon>
-              Tips
-            </button>
-          </div>
-        </div>
-      </div>
+      <h1 class="logo">MarketSpase</h1>
+    </div>
+    
+    <div class="header-right">
+      <button class="icon-btn" (click)="onSearch()" aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button class="icon-btn" (click)="onNotifications()" aria-label="Notifications">
+        <mat-icon>notifications_outline</mat-icon>
+        @if (unreadNotifications() > 0) {
+          <span class="badge">{{ unreadNotifications() }}</span>
+        }
+      </button>
+      <button class="icon-btn" (click)="onMessages()" aria-label="Messages">
+        <mat-icon>chat_outline</mat-icon>
+        @if (unreadMessages() > 0) {
+          <span class="badge">{{ unreadMessages() }}</span>
+        }
+      </button>
     </div>
   </header>
-  
-  <!-- Main Content -->
-  <main class="feed-content" #feedContainer>
-    
-    <!-- Trending Hashtags -->
-    <div class="trending-section" *ngIf="trendingHashtags().length > 0">
-      <h3 class="section-title">
-        <mat-icon>trending_up</mat-icon>
-        Trending Hashtags
-      </h3>
-      <div class="hashtags-list">
-        <button 
-          *ngFor="let hashtag of trendingHashtags()"
-          class="hashtag-chip"
-          (click)="onHashtagClick(hashtag.tag)">
-          <span class="hash">#</span>{{ hashtag.tag }}
-          <span class="count">{{ hashtag.count }}</span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Feed Posts -->
-    <div 
-      class="feed-posts"
-      [@feedAnimation]="filteredPosts().length">
-      
-      <!-- Featured Post -->
-      <div class="featured-post" *ngIf="featuredPost() as post">
-        <div class="featured-badge">
-          <mat-icon>stars</mat-icon>
-          <span>Featured Post</span>
+
+  <!-- Mobile Menu Overlay -->
+  @if (mobileMenuOpen()) {
+    <div class="mobile-menu-overlay" (click)="toggleMobileMenu()">
+      <div class="mobile-menu" (click)="$event.stopPropagation()">
+        <div class="menu-header">
+          <div class="user-info-mini">
+            <img [src]="user()?.avatar || 'img/avatar.png'" alt="Profile" class="menu-avatar">
+            <div class="menu-user-details">
+              <span class="menu-user-name">{{ user()?.displayName || 'User' }}</span>
+              <span class="menu-user-role">@{{ user()?.username || 'username' }}</span>
+            </div>
+          </div>
+          <button class="close-menu" (click)="toggleMobileMenu()">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
         
-        <app-feed-post-card
-          [post]="post"
-          [isLiked]="likedPosts().has(post._id)"
-          [isSaved]="savedPosts().has(post._id)"
-          (like)="onLike(post)"
-          (save)="onSave(post._id)"
-          (comment)="onComment(post._id)"
-          (share)="onShare(post)"
-          (hashtagClick)="onHashtagClick($event)">
-        </app-feed-post-card>
-      </div>
-      
-      <!-- Regular Posts -->
-      <div class="posts-grid">
-        <app-feed-post-card
-          *ngFor="let post of regularPosts();"
-          [post]="post"
-          [isLiked]="likedPosts().has(post._id)"
-          [isSaved]="savedPosts().has(post._id)"
-          (like)="onLike(post)"
-          (save)="onSave(post._id)"
-          (comment)="onComment(post._id)"
-          (share)="onShare(post)"
-          (hashtagClick)="onHashtagClick($event)">
-        </app-feed-post-card>
-      </div>
-      
-      <!-- Loading Indicator -->
-      <div class="loading-container" *ngIf="loading()">
-        <mat-spinner diameter="40"></mat-spinner>
-      </div>
-      
-      <!-- Scroll Anchor -->
-      <div #scrollAnchor class="scroll-anchor"></div>
-      
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="!loading() && filteredPosts().length === 0">
-        <div class="empty-icon">
-          <mat-icon>forum</mat-icon>
+        <nav class="mobile-nav">
+          <a class="nav-item active" (click)="navigateTo('feed')">
+            <mat-icon>home</mat-icon>
+            <span>Home</span>
+          </a>
+          <a class="nav-item" (click)="navigateTo('explore')">
+            <mat-icon>explore</mat-icon>
+            <span>Explore</span>
+          </a>
+          <a class="nav-item" (click)="navigateTo('notifications')">
+            <mat-icon>notifications</mat-icon>
+            <span>Notifications</span>
+            @if (unreadNotifications() > 0) {
+              <span class="nav-badge">{{ unreadNotifications() }}</span>
+            }
+          </a>
+          <a class="nav-item" (click)="navigateTo('messages')">
+            <mat-icon>chat</mat-icon>
+            <span>Messages</span>
+            @if (unreadMessages() > 0) {
+              <span class="nav-badge">{{ unreadMessages() }}</span>
+            }
+          </a>
+          <a class="nav-item" (click)="navigateTo('profile')">
+            <mat-icon>person</mat-icon>
+            <span>Profile</span>
+          </a>
+          <a class="nav-item" (click)="navigateTo('bookmarks')">
+            <mat-icon>bookmark</mat-icon>
+            <span>Bookmarks</span>
+          </a>
+          <a class="nav-item" (click)="navigateTo('settings')">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+          </a>
+        </nav>
+        
+        <div class="menu-footer">
+          <button class="create-post-btn-mobile" (click)="onCreatePost()">
+            <mat-icon>add</mat-icon>
+            <span>Create Post</span>
+          </button>
         </div>
-        <h3>No posts found</h3>
-        <p>Be the first to share something with the community!</p>
-        <button 
-          mat-raised-button 
-          color="primary"
-          (click)="onCreatePost()">
-          Create Post
-        </button>
-      </div>
-      
-      <!-- End of Feed -->
-      <div class="end-feed" *ngIf="!hasMore() && filteredPosts().length > 0">
-        <mat-divider></mat-divider>
-        <p>You've reached the end! 🎉</p>
       </div>
     </div>
-    
-  </main>
-  
-  <!-- Floating Action Button (Mobile) -->
-  <button 
-    class="fab-mobile"
-    mat-fab
-    color="primary"
-    (click)="onCreatePost()"
-    *ngIf="(posts().length > 0)">
-    <mat-icon>add</mat-icon>
-  </button>
-  
+  }
+
+  <!-- Desktop Layout (Twitter-style) -->
+  <div class="desktop-layout">
+    <!-- Desktop Sidebar -->
+    <aside class="desktop-sidebar">
+      <div class="sidebar-content">
+        <h1 class="desktop-logo">MarketSpase</h1>
+        
+        <nav class="desktop-nav">
+          <a class="nav-link active">
+            <mat-icon>home</mat-icon>
+            <span>Home</span>
+          </a>
+          <a class="nav-link" (click)="navigateTo('explore')">
+            <mat-icon>explore</mat-icon>
+            <span>Explore</span>
+          </a>
+          <a class="nav-link" (click)="navigateTo('notifications')">
+            <mat-icon>notifications</mat-icon>
+            <span>Notifications</span>
+            @if (unreadNotifications() > 0) {
+              <span class="nav-badge">{{ unreadNotifications() }}</span>
+            }
+          </a>
+          <a class="nav-link" (click)="navigateTo('messages')">
+            <mat-icon>chat</mat-icon>
+            <span>Messages</span>
+            @if (unreadMessages() > 0) {
+              <span class="nav-badge">{{ unreadMessages() }}</span>
+            }
+          </a>
+          <a class="nav-link" (click)="navigateTo('bookmarks')">
+            <mat-icon>bookmark</mat-icon>
+            <span>Bookmarks</span>
+          </a>
+          <a class="nav-link" (click)="navigateTo('profile')">
+            <mat-icon>person</mat-icon>
+            <span>Profile</span>
+          </a>
+          <a class="nav-link" (click)="navigateTo('settings')">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+          </a>
+        </nav>
+        
+        <button class="desktop-create-btn" (click)="onCreatePost()">
+          <mat-icon>add</mat-icon>
+          <span>Post</span>
+        </button>
+        
+        <div class="user-profile-card">
+          <img [src]="user()?.avatar || 'img/avatar.png'" alt="Profile" class="profile-avatar">
+          <div class="profile-info">
+            <span class="profile-name">{{ user()?.displayName || 'User' }}</span>
+            <span class="profile-handle">@{{ user()?.username || 'username' }}</span>
+          </div>
+          <button class="more-btn" mat-icon-button>
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Feed Content -->
+    <main class="main-content">
+      
+      <!-- Feed Header (Desktop) -->
+      <div class="feed-header">
+        <div class="feed-tabs">
+          <button 
+            class="tab-btn" 
+            [class.active]="selectedTab() === 'for-you'"
+            (click)="selectedTab.set('for-you')">
+            For You
+          </button>
+          <button 
+            class="tab-btn" 
+            [class.active]="selectedTab() === 'following'"
+            (click)="selectedTab.set('following')">
+            Following
+          </button>
+          <button 
+            class="tab-btn" 
+            [class.active]="selectedTab() === 'trending'"
+            (click)="selectedTab.set('trending')">
+            Trending
+          </button>
+        </div>
+        
+        <div class="feed-actions">
+          <button class="filter-btn" (click)="showFilters.set(!showFilters())">
+            <mat-icon>tune</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Create Post Box (Desktop) -->
+      <div class="create-post-box">
+        <img [src]="user()?.avatar || 'img/avatar.png'" alt="Your avatar" class="post-avatar">
+        <input 
+          type="text" 
+          placeholder="What's happening?" 
+          class="post-input"
+          (click)="onCreatePost()"
+          readonly>
+        <button class="post-media-btn">
+          <mat-icon>image</mat-icon>
+        </button>
+      </div>
+
+      <!-- Filters Panel -->
+      @if (showFilters()) {
+        <div class="filters-panel">
+          <div class="filter-section">
+            <h4>Post Type</h4>
+            <div class="filter-chips">
+              <button 
+                class="chip" 
+                [class.active]="selectedType() === 'all'"
+                (click)="selectedType.set('all')">
+                All
+              </button>
+              <button 
+                class="chip" 
+                [class.active]="selectedType() === 'campaign'"
+                (click)="selectedType.set('campaign')">
+                <mat-icon>campaign</mat-icon>
+                Campaigns
+              </button>
+              <button 
+                class="chip" 
+                [class.active]="selectedType() === 'earnings'"
+                (click)="selectedType.set('earnings')">
+                <mat-icon>emoji_events</mat-icon>
+                Earnings
+              </button>
+              <button 
+                class="chip" 
+                [class.active]="selectedType() === 'question'"
+                (click)="selectedType.set('question')">
+                <mat-icon>help</mat-icon>
+                Questions
+              </button>
+              <button 
+                class="chip" 
+                [class.active]="selectedType() === 'tip'"
+                (click)="selectedType.set('tip')">
+                <mat-icon>lightbulb</mat-icon>
+                Tips
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Trending Topics (Desktop) -->
+     <!--  @if (trendingHashtags().length > 0) {
+        <div class="trending-box">
+          <h3 class="trending-title">
+            <mat-icon>trending_up</mat-icon>
+            Trending Topics
+          </h3>
+          <div class="trending-list">
+            @for (hashtag of trendingHashtags(); track hashtag.tag) {
+              <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
+                <span class="trending-tag">#{{ hashtag.tag }}</span>
+                <span class="trending-count">{{ hashtag.count }} posts</span>
+              </button>
+            }
+          </div>
+        </div>
+      } -->
+
+      <!-- Feed Posts (Infinite Scroll) -->
+      <div class="feed-posts">
+        
+        <!-- Featured Post -->
+        @if (featuredPost(); as post) {
+          <div class="featured-post-container">
+            <div class="featured-badge">
+              <mat-icon>stars</mat-icon>
+              <span>Featured</span>
+            </div>
+            <app-feed-post-card
+              [post]="post"
+              [isLiked]="likedPosts().has(post._id)"
+              [isSaved]="savedPosts().has(post._id)"
+              (like)="onLike(post)"
+              (save)="onSave(post._id)"
+              (comment)="onComment(post._id)"
+              (share)="onShare(post)"
+              (hashtagClick)="onHashtagClick($event)">
+            </app-feed-post-card>
+          </div>
+        }
+
+        <!-- Regular Posts -->
+      <div class="posts-grid">
+       @for (post of regularPosts(); track post._id) {
+          <app-feed-post-card
+            [post]="post"
+            [isLiked]="likedPosts().has(post._id)"
+            [isSaved]="savedPosts().has(post._id)"
+            (like)="onLike($event)"
+            (save)="onSave($event)"
+            (comment)="onComment($event)"
+            (share)="onShare($event)"
+            (hashtagClick)="onHashtagClick($event)"
+          />
+        }
+      </div>
+
+        <!-- Loading Indicator -->
+        @if (loading()) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="30"></mat-spinner>
+          </div>
+        }
+
+        <!-- End of Feed -->
+        @if (!hasMore() && filteredPosts().length > 0) {
+          <div class="feed-end">
+            <div class="end-message">
+              <mat-icon>check_circle</mat-icon>
+              <span>You're all caught up!</span>
+            </div>
+          </div>
+        }
+
+        <!-- Empty State -->
+        @if (!loading() && filteredPosts().length === 0) {
+          <div class="empty-feed">
+            <div class="empty-icon">
+              <mat-icon>forum</mat-icon>
+            </div>
+            <h3>No posts yet</h3>
+            <p>Be the first to share something with the community!</p>
+            <button mat-raised-button color="primary" (click)="onCreatePost()">
+              Create Post
+            </button>
+          </div>
+        }
+
+        <!-- Scroll Anchor for Infinite Scroll -->
+        <div #scrollAnchor class="scroll-anchor"></div>
+      </div>
+    </main>
+
+    <!-- Right Sidebar (Desktop) -->
+    <aside class="right-sidebar">
+      <!-- Search Box -->
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          placeholder="Search MarketSpase" 
+          class="search-input"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch($event)">
+      </div>
+
+      <!-- Trending Section -->
+      @if (trendingHashtags().length > 0) {
+        <div class="trending-card">
+          <h3 class="card-title">What's happening</h3>
+          <div class="trending-items">
+            @for (hashtag of trendingHashtags().slice(0, 5); track hashtag.tag) {
+              <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
+                <span class="trending-tag">#{{ hashtag.tag }}</span>
+                <span class="trending-count">{{ hashtag.count }} posts</span>
+              </button>
+            }
+          </div>
+          <a class="show-more" (click)="showMoreTrending()">Show more</a>
+        </div>
+      }
+
+      <!-- Who to Follow -->
+      <div class="follow-card">
+        <h3 class="card-title">Who to follow</h3>
+        <div class="follow-items">
+          @for (user of suggestedUsers(); track user._id) {
+            <div class="follow-item">
+              <img [src]="user.avatar || 'img/avatar.png'" alt="User" class="follow-avatar">
+              <div class="follow-info">
+                <span class="follow-name">{{ user.displayName }}</span>
+                <span class="follow-handle">@{{ user.username }}</span>
+              </div>
+              <button class="follow-btn" [class.following]="isFollowing(user._id)" (click)="toggleFollow(user._id)">
+                {{ isFollowing(user._id) ? 'Following' : 'Follow' }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <div class="sidebar-footer">
+       <!--  <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Accessibility</a>
+        <a href="#">Ads Info</a>
+        <span class="copyright">© 2024 MarketSpase</span> -->
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile Bottom Navigation (TikTok-style) -->
+  <nav class="mobile-bottom-nav">
+    <button class="nav-item" [class.active]="selectedTab() === 'for-you'" (click)="selectedTab.set('for-you')">
+      <mat-icon>home</mat-icon>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" [class.active]="selectedTab() === 'explore'" (click)="navigateTo('explore')">
+      <mat-icon>explore</mat-icon>
+      <span class="nav-label">Explore</span>
+    </button>
+    <button class="nav-item create-nav-item" (click)="onCreatePost()">
+      <div class="create-button">
+        <mat-icon>add</mat-icon>
+      </div>
+    </button>
+    <button class="nav-item" [class.active]="selectedTab() === 'notifications'" (click)="navigateTo('notifications')">
+      <mat-icon>notifications</mat-icon>
+      <span class="nav-label">Alerts</span>
+      @if (unreadNotifications() > 0) {
+        <span class="nav-badge">{{ unreadNotifications() }}</span>
+      }
+    </button>
+    <button class="nav-item" [class.active]="selectedTab() === 'profile'" (click)="navigateTo('profile')">
+      <mat-icon>person</mat-icon>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+
+  <!-- Mobile Create Post FAB (Hidden when bottom nav is visible) -->
+  @if (!mobileMenuOpen() && selectedTab() !== 'for-you') {
+  <!-- @if (!mobileMenuOpen() && selectedTab() !== 'create') { -->
+    <button class="mobile-fab" (click)="onCreatePost()" aria-label="Create post">
+      <mat-icon>add</mat-icon>
+    </button>
+  }
 </div>

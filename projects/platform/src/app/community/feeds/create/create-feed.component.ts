@@ -25,6 +25,7 @@ import {
 } from '@angular/animations';
 import { FeedPostCardComponent } from '../feed-post-card/feed-post-card.component';
 import { UserService } from '../../../common/services/user.service';
+import { finalize } from 'rxjs';
 
 export interface CampaignOption {
   _id: string;
@@ -116,12 +117,26 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
   
   suggestedHashtags = signal<string[]>(['campaign', 'progress', 'update', 'marketing', 'success', 'results']);
   suggestedTopics = signal<string[]>([
-    'Campaign is performing well!',
-    'Just hit our first milestone',
-    'Excited about the results so far',
-    'Learning from this campaign',
-    'Campaign insights and tips'
+    // Milestone/Celebration
+    'We just hit our first [Number] conversions! 🚀',
+    'Celebrating a major campaign milestone today!',
+    
+    // Behind-the-Scenes/Transparency
+    'The strategy behind our latest ad creative.',
+    'What we learned from A/B testing our caption.',
+    //'A peek into our campaign dashboard this morning.',
+    
+    // Educational/Value-Driven
+    'Top 3 insights from our current marketing push.',
+    'Why we chose [Target Audience] for this specific run.',
+    'How we are optimizing for better ROI in real-time.',
+    
+    // Engagement/Questions
+    'Which ad version do you find more compelling? (Poll)',
+    //'Help us choose the creative for our next phase!',
+    'What metrics do you track most closely in your campaigns?'
   ]);
+
 
   // Campaigns
   userCampaigns = signal<CampaignOption[]>([]);
@@ -153,6 +168,7 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
 
   loadUserCampaigns(): void {
     const currentUser = this.user();
+    //console.log('currentUser loaded:', currentUser);
     if (!currentUser?._id || currentUser.role !== 'marketer') {
       console.log('User not authorized to load campaigns', currentUser);
       return;
@@ -163,7 +179,7 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     // Based on your API response structure
     this.feedService.getMarketerCampaigns(currentUser._id).subscribe({
       next: (response) => {
-        // console.log('Campaigns loaded:', response);
+         console.log('Campaigns loaded:', response);
         
         // Extract campaigns from response - adjust based on your API structure
         let campaigns: any[] = [];
@@ -297,7 +313,7 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     );
   }
 
-  onSubmit(): void {
+/*   onSubmit(): void {
     if (this.isSubmitting() || !this.isFormValid()) return;
 
     this.isSubmitting.set(true);
@@ -317,7 +333,7 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     this.feedService.createPost(postPayload).subscribe({
       next: (post) => {
         this.snackBar.open(
-          '🎉 Campaign update posted successfully!',
+          '🎉 Campaign feed posted successfully!',
           'View Post',
           { duration: 5000, panelClass: 'success-snackbar' }
         ).onAction().subscribe(() => {
@@ -338,16 +354,50 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
         this.isSubmitting.set(false);
       }
     });
-  }
+  } */
+
+    onSubmit(): void {
+      if (this.isSubmitting() || !this.isFormValid()) return;
+
+      this.isSubmitting.set(true);
+
+       const postPayload = {
+        content: this.postData.content,
+        campaignId: this.postData.campaignId,
+        hashtags: this.hashtags().map(tag => ({ tag })),
+        userId: this.user()?._id,
+        settings: {
+          postAnonymously: this.postData.postAnonymously,
+          disableComments: this.postData.disableComments
+        }
+      };
+
+      this.feedService.createPost(postPayload)
+        .pipe(
+          // This runs no matter what (success or error)
+          finalize(() => this.isSubmitting.set(false)) 
+        )
+        .subscribe({
+          next: (post) => {
+            this.snackBar.open('🎉 Posted successfully!', 'View', { duration: 5000 });
+            this.router.navigate(['/feed']);
+          },
+          error: (error) => {
+            console.error('Failed to create post:', error);
+            this.snackBar.open('Error: ' + error.message, 'Dismiss');
+            // finalize() handles the loader reset here
+          }
+        });
+    }
 
   onDiscard(): void {
     if (this.isDirty()) {
       const confirmed = confirm('You have unsaved changes. Are you sure you want to leave?');
       if (confirmed) {
-        this.router.navigate(['/feed']);
+        this.router.navigate(['/dashboard/community/feeds']);
       }
     } else {
-      this.router.navigate(['/feed']);
+      this.router.navigate(['/dashboard/community/feeds']);
     }
   }
 

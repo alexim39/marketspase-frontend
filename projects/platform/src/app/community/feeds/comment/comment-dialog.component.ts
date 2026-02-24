@@ -35,6 +35,7 @@ interface Comment {
 @Component({
   selector: 'app-comment-dialog',
   standalone: true,
+  providers: [FeedService],
   imports: [
     CommonModule,
     FormsModule,

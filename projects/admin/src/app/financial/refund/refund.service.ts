@@ -254,12 +254,7 @@ validateRefund(promoterUserId: string, amount: number): Observable<ApiResponse<V
       params.page = options.page;
     }
     
-    return this.apiService.get<ApiResponse<RefundHistoryData>>(
-      endpoint,
-      params,
-      undefined,
-      true
-    );
+    return this.apiService.get<ApiResponse<RefundHistoryData>>(endpoint, params, undefined, true);
   }
 
  /**
