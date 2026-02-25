@@ -32,7 +32,7 @@ import { TruncatePipe } from '../../../store/shared';
       <div *ngFor="let thread of threads" class="thread-item">
         <mat-card (click)="openThread(thread._id)" class="thread-card">
           <mat-card-header>
-            <img mat-card-avatar [src]="thread.author.avatar || 'assets/default-avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
+            <img mat-card-avatar [src]="thread.author.avatar || 'img/avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
             <mat-card-title>{{thread.title}}</mat-card-title>
             <mat-card-subtitle>
               <span class="author-info">{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>

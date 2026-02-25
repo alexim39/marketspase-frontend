@@ -67,11 +67,12 @@ import { ApiService } from '../../../../../../shared-services/src/public-api';
     </div>
 
     <!-- Thread Content -->
-    <ng-container *ngIf="thread && !loadingStates">
+    @if (thread && !loadingStates) {
+    <ng-container>
       <mat-card class="thread-card">
         <mat-card-header>
           <img mat-card-avatar 
-               [src]="thread.author.avatar || 'assets/default-avatar.png'" 
+               [src]="thread.author.avatar || 'img/avatar.png'" 
                [alt]="thread.author.displayName">
           <mat-card-title>{{ thread.title }}</mat-card-title>
           <mat-card-subtitle>
@@ -85,24 +86,26 @@ import { ApiService } from '../../../../../../shared-services/src/public-api';
 
         <mat-card-content>
           <!-- Media Display -->
-          <div *ngIf="thread.media" class="thread-media">
-            <img *ngIf="thread.media.type === 'image'" 
-                 [src]="thread.media.url" 
-                 [alt]="thread.media.originalName"
-                 class="media-content">
-            <video *ngIf="thread.media.type === 'video'" 
-                   controls 
-                   class="media-content">
-              <source [src]="thread.media.url">
-              <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
-            </video>
-            <audio *ngIf="thread.media.type === 'audio'" 
-                   controls 
-                   class="media-content">
-              <source [src]=" thread.media.url">
-              <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
-            </audio>
-          </div>
+           @if (thread.media) {
+            <div class="thread-media">
+              <img *ngIf="thread.media.type === 'image'" 
+                  [src]="thread.media.url" 
+                  [alt]="thread.media.originalName"
+                  class="media-content">
+              <video *ngIf="thread.media.type === 'video'" 
+                    controls 
+                    class="media-content">
+                <source [src]="thread.media.url">
+                <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
+              </video>
+              <audio *ngIf="thread.media.type === 'audio'" 
+                    controls 
+                    class="media-content">
+                <source [src]=" thread.media.url">
+                <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
+              </audio>
+            </div>
+           }
 
           <div class="thread-content" [innerHTML]="thread.content | sanitizeHtml"></div>
           
@@ -176,13 +179,16 @@ import { ApiService } from '../../../../../../shared-services/src/public-api';
           </app-comment>
 
           <!-- Empty State -->
-          <div *ngIf="comments.length === 0" class="no-comments">
+           @if (comments.length === 0) {
+          <div class="no-comments">
             <mat-icon>forum</mat-icon>
             <p>No comments yet. Be the first to comment!</p>
           </div>
+           }
         </div>
       </section>
     </ng-container>
+    }
   </div>
   `,
   styleUrls: ['./thread-detail.component.scss'],
@@ -388,7 +394,7 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
   }
 
   handleBack(): void {
-    this.router.navigate(['/dashboard/forum']);
+    this.router.navigate(['/dashboard/community/discussion']);
   }
 
   get remainingChars(): number {
