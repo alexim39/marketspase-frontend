@@ -388,7 +388,6 @@ private setupFormSubscriptions(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            console.log('searchPromoters ',response.data)
             this.promoters.set(response.data || []);
           } else {
             this.showError(response.message || 'Search failed');
@@ -445,7 +444,7 @@ validateSingleRefund(): void {
   const promoterIdentifier = formValue.promoterIdentifier || (promoter?.username || promoter?.email || promoter?._id);
   
   if (!promoterIdentifier || !formValue.amount || formValue.amount <= 0) {
-    console.log('Validation failed: Missing promoter or amount');
+    //console.log('Validation failed: Missing promoter or amount');
     this.validationResult.set({ 
       valid: false, 
       error: 'Please select a promoter and enter a valid amount' 
@@ -463,7 +462,6 @@ validateSingleRefund(): void {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
-        console.log('validateRefund', response);
         if (response.success) {
           this.validationResult.set(response.data);
           if (!response.data?.valid) {
@@ -473,7 +471,7 @@ validateSingleRefund(): void {
             this.singleRefundForm.setErrors(null);
           }
         } else {
-          console.log('Validation failed with message:', response.message);
+          //console.log('Validation failed with message:', response.message);
           this.validationResult.set({ 
             valid: false, 
             error: response.message || 'Validation failed' 
@@ -505,7 +503,6 @@ validateSingleRefund(): void {
       lastValueFrom(this.adminRefundService.validateRefund(item.promoterUserId, item.amount))
         .then(response => {
           this.bulkProcessingProgress.set(((index + 1) / items.length) * 100);
-          console.log('validateRefund ',response.data)
           return { 
             ...item, 
             validation: response.data,
@@ -575,7 +572,6 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            console.log('refundPromoterBalance ',response.data)
             this.showSuccess(response.message || `Successfully refunded ${formValue.amount} to promoter`);
             this.resetSingleRefundForm();
             this.loadRefundHistory();
@@ -633,7 +629,6 @@ validateSingleRefund(): void {
         }
       }))
         .then(response => {
-          console.log('refundPromoterBalance ',response)
           this.bulkProcessingProgress.set(((index + 1) / validItems.length) * 100);
           return { ...item, result: response };
         })
@@ -799,7 +794,6 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            console.log('getRefundHistory ',response.data)
             // Fix: Check if response.data exists before accessing
             const transactions = response.data?.refunds?.transactions || [];
             const mappedTransactions = transactions.map(transaction => ({
@@ -831,7 +825,6 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            console.log('getPromoterWalletDetails ',response.data)
             this.selectedPromoter.set(response.data.promoter);
           }
           this.isLoading.set(false);
@@ -1050,7 +1043,6 @@ triggerFormValidation(): void {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
         next: (response) => {
-          console.log('downloadRefundReceipt ',response.data)
             if (response.success && response.data.receiptUrl) {
             window.open(response.data.receiptUrl, '_blank');
             } else {
