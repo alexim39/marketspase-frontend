@@ -247,10 +247,14 @@ constructor() {
     this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe();
   }
 
- onShare(post: FeedPost): void {
+  onShare(post: FeedPost): void {
+    //event.stopPropagation();
+
+    console.log('Sharing post:', post);
+    
     if (navigator.share) {
       navigator.share({
-        title: `${post.author?.displayName} on MarketSpase`,
+        title: `${post.author?.displayName || 'Community'} on MarketSpase`,
         text: post.content,
         url: `${window.location.origin}/feed/${post._id}`
       }).catch(() => {
@@ -259,7 +263,9 @@ constructor() {
     } else {
       this.copyToClipboard(post._id);
     }
-  } 
+    
+    this.feedService.sharePost(post._id, this.user()?._id ?? '').subscribe();
+  }
   
   private copyToClipboard(postId: string): void {
     const url = `${window.location.origin}/feed/${postId}`;

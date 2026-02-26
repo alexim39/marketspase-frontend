@@ -576,14 +576,24 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
     return throwError(() => error);
   }
 
-  sharePost(post: FeedPost, platform: string = 'copy'): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${post._id}/share`, { platform })
+  sharePost(postId: string, userId: string): Observable<any> {
+    return this.apiService.post(`${this.apiUrl}/${postId}/share`, { platform: 'copy', userId })
       .pipe(
         tap(() => {
-          this.updateShareCount(post._id);
-          this.addShareActivity(post);
+          this.incrementShareCount(postId);
         })
       );
+  }
+
+  private incrementShareCount(postId: string): void {
+    this.postsSignal.update(posts =>
+      posts.map(p => {
+        if (p._id === postId) {
+          return { ...p, shareCount: p.shareCount + 1 };
+        }
+        return p;
+      })
+    );
   }
 
   private updateShareCount(postId: string): void {

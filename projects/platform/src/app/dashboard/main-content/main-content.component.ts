@@ -705,7 +705,7 @@ sharePost(post: CommunityPost): void {
       this.copyToClipboard(post.id);
     }
     
-    this.feedService.sharePost(originalPost).subscribe();
+    this.feedService.sharePost(originalPost._id, this.user()?._id ?? '').subscribe();
   }
 }
 
