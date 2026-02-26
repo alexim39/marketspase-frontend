@@ -32,7 +32,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { FeedService, FeedPost } from './feed.service';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
-import { CommentDialogComponent } from './comment/comment-dialog.component';
+import { CommentDialogComponent } from './comment-dialog/comment-dialog.component';
 import { UserService } from '../../common/services/user.service';
 
 @Component({
@@ -244,10 +244,10 @@ constructor() {
   }
 
   onSave(postId: string): void {
-    this.feedService.toggleSave(postId).subscribe();
+    this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe();
   }
 
-  onShare(post: FeedPost): void {
+ onShare(post: FeedPost): void {
     if (navigator.share) {
       navigator.share({
         title: `${post.author?.displayName} on MarketSpase`,
@@ -259,8 +259,8 @@ constructor() {
     } else {
       this.copyToClipboard(post._id);
     }
-  }
-
+  } 
+  
   private copyToClipboard(postId: string): void {
     const url = `${window.location.origin}/feed/${postId}`;
     navigator.clipboard.writeText(url).then(() => {
@@ -272,6 +272,8 @@ constructor() {
     this.dialog.open(CommentDialogComponent, {
       width: '600px',
       maxWidth: '95vw',
+      panelClass: 'comment-dialog-panel', 
+      disableClose: true,
       data: { postId }
     });
   }
@@ -317,4 +319,6 @@ constructor() {
   onMessages(): void {
     this.router.navigate(['/dashboard/messages']);
   }
+
+  
 }

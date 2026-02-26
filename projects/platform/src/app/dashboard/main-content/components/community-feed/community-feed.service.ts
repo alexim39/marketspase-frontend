@@ -155,13 +155,13 @@ export class CommunityFeedService {
   /**
    * Toggle save on a post
    */
-  toggleSave(postId: string): Observable<any> {
+  toggleSave(postId: string, userId: string): Observable<any> {
     const wasSaved = this.savedPostsSignal().has(postId);
     
     // Optimistic update
     this.updatePostSave(postId, !wasSaved);
 
-    return this.apiService.post(`${this.apiUrl}/${postId}/save`, {})
+    return this.apiService.post(`${this.apiUrl}/${postId}/save`, { userId })
       .pipe(
         catchError(error => {
           this.updatePostSave(postId, wasSaved);
@@ -173,8 +173,8 @@ export class CommunityFeedService {
   /**
    * Share a post
    */
-  sharePost(postId: string): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${postId}/share`, { platform: 'copy' })
+  sharePost(postId: string, userId: string): Observable<any> {
+    return this.apiService.post(`${this.apiUrl}/${postId}/share`, { platform: 'copy', userId })
       .pipe(
         tap(() => {
           this.incrementShareCount(postId);

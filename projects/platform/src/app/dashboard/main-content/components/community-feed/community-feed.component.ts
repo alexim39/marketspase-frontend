@@ -83,7 +83,7 @@ export class CommunityFeedComponent implements OnInit {
 
   onSave(event: Event, postId: string): void {
     event.stopPropagation();
-    this.feedService.toggleSave(postId).subscribe();
+    this.feedService.toggleSave(postId, this.userId() ?? '').subscribe();
   }
 
   onShare(event: Event, post: any): void {
@@ -101,7 +101,7 @@ export class CommunityFeedComponent implements OnInit {
       this.copyToClipboard(post._id);
     }
     
-    this.feedService.sharePost(post._id).subscribe();
+    this.feedService.sharePost(post._id, this.userId() ?? '').subscribe();
   }
 
   onPostClick(postId: string): void {

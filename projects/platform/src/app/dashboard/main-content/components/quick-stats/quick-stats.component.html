@@ -28,7 +28,7 @@
               @if (user()?.role === 'marketer') {
                 <div class="progress-container">
                   <div class="progress-label">
-                    <span>Budget Usage</span>
+                    <span class="progress-label-text">Budget Usage</span>
                     <span>
                       @if (campaignSummary()?.totalBudget ?? 0 > 0) {
                         {{(campaignSummary()!.spentBudget / campaignSummary()!.totalBudget) * 100 | number:'1.0-0'}}%

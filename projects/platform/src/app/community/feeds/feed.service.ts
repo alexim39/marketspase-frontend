@@ -108,6 +108,32 @@ export interface ActivityStats {
   topHashtag: string;
 }
 
+
+export interface FeedComment {
+  _id: string;
+  user: {
+    _id: string;
+    displayName: string;
+    username: string;
+    avatar: string;
+  };
+  content: string;
+  likeCount: number;      // changed from `likes`
+  isLiked: boolean;
+  createdAt: string;
+  replies?: FeedComment[]; // replies use same shape
+  data: any; // to hold any additional data from the backend
+}
+
+export interface CommentsResponse {
+  comments: FeedComment[];
+  total: number;
+  page: number;
+  pages: number;
+  data?: any; // to handle cases where comments are nested inside a data object
+}
+
+
 // ============ CONFIGURATION ============
 const FEED_CONFIG = {
   POSTS_PER_PAGE: 10,
@@ -172,6 +198,8 @@ export class FeedService {
   public filteredByType = (type: string) => computed(() => 
     this.postsSignal().filter(post => post.type === type)
   );
+
+  private commentLikedMap = new Map<string, boolean>();
 
   constructor() {
     this.initializeService();
@@ -509,12 +537,12 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
     return throwError(() => error);
   }
 
-  toggleSave(postId: string): Observable<any> {
+  toggleSave(postId: string, userId: string): Observable<any> {
     const wasSaved = this.savedPostsSignal().has(postId);
     
     this.updateSaveOptimistically(postId, !wasSaved);
     
-    return this.apiService.post(`${this.apiUrl}/${postId}/save`, {})
+    return this.apiService.post(`${this.apiUrl}/${postId}/save`, { userId })
       .pipe(
         catchError(error => this.handleSaveError(postId, wasSaved, error))
       );
@@ -576,24 +604,21 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
   }
 
   // ============ COMMENTS ============
-  getComments(postId: string, page: number = 1, limit: number = 20): Observable<any> {
-    const params = new HttpParams({ 
-      fromObject: { page: page.toString(), limit: limit.toString() } 
-    });
-    
-    return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true);
+  getComments(postId: string, page: number = 1, limit: number = 20): Observable<CommentsResponse> {
+    const params = new HttpParams({ fromObject: { page: page.toString(), limit: limit.toString() } });
+    return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true)
+      .pipe(
+        map((response: any) => response?.data || response)  // ensure we have the inner data
+      );
   }
 
-  addComment(postId: string, content: string, parentCommentId?: string): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${postId}/comments`, {
-      content,
-      parentCommentId
-    }).pipe(
-      tap(() => {
-        this.incrementCommentCount(postId);
-        this.addCommentActivity(postId);
-      })
-    );
+  addComment(postId: string, content: string, userId: string, parentCommentId?: string): Observable<FeedComment> {
+    const body: any = { content, userId };
+    if (parentCommentId) body.parentCommentId = parentCommentId;
+    return this.apiService.post(`${this.apiUrl}/${postId}/comments`, body)
+      .pipe(
+        map((response: any) => response?.data || response) 
+      );
   }
 
   private incrementCommentCount(postId: string): void {
@@ -807,68 +832,13 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
     return [];
   }
 
-  // In feed.service.ts - update the mapToFeedPost function
+ /*  likeComment(postId: string, commentId: string, userId: string): Observable<any> {
+    return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId });
+  } */
 
-private mapToFeedPost(post: any): FeedPost {
-  // Handle author
-  const author = post.author ? {
-    _id: post.author._id,
-    displayName: post.author.displayName || post.author.username || 'Anonymous',
-    username: post.author.username,
-    avatar: post.author.avatar || 'img/avatar.png',
-    role: post.author.role || 'user',
-    rating: post.author.rating,
-    badge: post.author.badge
-  } : null;
-
-  // Handle hashtags - convert to array of strings for easier display
-  let hashtags: any[] = [];
-  if (post.hashtags) {
-    if (Array.isArray(post.hashtags)) {
-      hashtags = post.hashtags.map((h: any) => {
-        if (typeof h === 'string') return h;
-        return h.tag || '';
-      }).filter((h: string) => h);
+    likeComment(postId: string, commentId: string, userId: string): Observable<any> {
+      return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId })
+        .pipe(map((response: any) => response?.data || response));
     }
-  }
 
-  return {
-    _id: post._id,
-    author,
-    content: post.content || '',
-    type: post.type || 'campaign',
-    earnings: post.earnings ? {
-      amount: post.earnings.amount || 0,
-      currency: post.earnings.currency || '₦',
-      milestone: post.earnings.milestone,
-      campaignId: post.earnings.campaignId
-    } : undefined,
-    campaign: post.campaign ? {
-      campaignId: post.campaign.campaignId,
-      name: post.campaign.name || '',
-      budget: post.campaign.budget,
-      status: post.campaign.status,
-      progress: post.campaign.progress
-    } : undefined,
-    tip: post.tip ? {
-      title: post.tip.title,
-      category: post.tip.category,
-      views: post.tip.views
-    } : undefined,
-    media: post.media ? post.media.map((m: any) => ({
-      url: m.url,
-      type: m.type,
-      thumbnail: m.thumbnail
-    })) : undefined,
-    likeCount: post.likeCount || 0,
-    commentCount: post.commentCount || 0,
-    shareCount: post.shareCount || 0,
-    isLiked: post.isLiked || false,
-    isSaved: post.isSaved || false,
-    hashtags,
-    createdAt: post.createdAt,
-    isFeatured: post.isFeatured,
-    badge: post.badge
-  };
-}
 }

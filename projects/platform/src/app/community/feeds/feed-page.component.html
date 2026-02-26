@@ -188,18 +188,20 @@
       </div>
 
       <!-- Create Post Box (Desktop) -->
-      <div class="create-post-box">
-        <img [src]="user()?.avatar || 'img/avatar.png'" alt="Your avatar" class="post-avatar">
-        <input 
-          type="text" 
-          placeholder="What's happening?" 
-          class="post-input"
-          (click)="onCreatePost()"
-          readonly>
-        <button class="post-media-btn">
-          <mat-icon>image</mat-icon>
-        </button>
-      </div>
+       @if (user()?.role === 'marketer' || user()?.role === 'admin') {
+        <div class="create-post-box">
+          <img [src]="user()?.avatar || 'img/avatar.png'" alt="Your avatar" class="post-avatar">
+          <input 
+            type="text" 
+            placeholder="What's happening?" 
+            class="post-input"
+            (click)="onCreatePost()"
+            readonly>
+          <button class="post-media-btn">
+            <mat-icon>image</mat-icon>
+          </button>
+        </div>
+      }
 
       <!-- Filters Panel -->
       @if (showFilters()) {
@@ -246,24 +248,6 @@
         </div>
       }
 
-      <!-- Trending Topics (Desktop) -->
-     <!--  @if (trendingHashtags().length > 0) {
-        <div class="trending-box">
-          <h3 class="trending-title">
-            <mat-icon>trending_up</mat-icon>
-            Trending Topics
-          </h3>
-          <div class="trending-list">
-            @for (hashtag of trendingHashtags(); track hashtag.tag) {
-              <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
-                <span class="trending-tag">#{{ hashtag.tag }}</span>
-                <span class="trending-count">{{ hashtag.count }} posts</span>
-              </button>
-            }
-          </div>
-        </div>
-      } -->
-
       <!-- Feed Posts (Infinite Scroll) -->
       <div class="feed-posts">
         
@@ -306,7 +290,7 @@
         <!-- Loading Indicator -->
         @if (loading()) {
           <div class="loading-spinner">
-            <mat-spinner diameter="30"></mat-spinner>
+            <mat-spinner diameter="30"/>
           </div>
         }
 
@@ -365,6 +349,24 @@
             }
           </div>
           <a class="show-more" (click)="showMoreTrending()">Show more</a>
+        </div>
+      }
+
+      <!-- Trending Topics (Desktop) -->
+      @if (trendingHashtags().length > 0) {
+        <div class="trending-box">
+          <h3 class="trending-title">
+            <mat-icon>trending_up</mat-icon>
+            Trending Topics
+          </h3>
+          <div class="trending-list">
+            @for (hashtag of trendingHashtags(); track hashtag.tag) {
+              <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
+                <span class="trending-tag">#{{ hashtag.tag }}</span>
+                <span class="trending-count">{{ hashtag.count }} posts</span>
+              </button>
+            }
+          </div>
         </div>
       }
 

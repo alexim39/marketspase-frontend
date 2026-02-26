@@ -679,7 +679,7 @@ onLike(post: CommunityPost): void {
 
 // Update the onSave method to use the feed service
 onSave(postId: string): void {
-  this.feedService.toggleSave(postId).subscribe({
+  this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe({
     next: () => {
       // Success message is handled in the service
     },

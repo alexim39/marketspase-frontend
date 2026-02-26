@@ -68,13 +68,13 @@
 
         <!-- Today's Activity Stats -->
         <div class="activity-stats">
-          <div class="stat-card">
+          <!-- <div class="stat-card">
             <mat-icon class="stat-icon">people</mat-icon>
             <div class="stat-info">
               <span class="stat-value">{{ activityStats().activeUsers }}</span>
               <span class="stat-label">active now</span>
             </div>
-          </div>
+          </div> -->
           <div class="stat-card">
             <mat-icon class="stat-icon">post_add</mat-icon>
             <div class="stat-info">
@@ -278,10 +278,10 @@
                       <mat-icon [class.saved]="savedPosts().has(post._id)">bookmark</mat-icon>
                       <span>Save</span>
                     </button>
-                    <div class="action-item">
+                    <!-- <div class="action-item">
                       <mat-icon>chat</mat-icon>
                       <span>{{ post.commentCount }}</span>
-                    </div>
+                    </div> -->
                     <button class="action-item" (click)="onShare($event, post)">
                       <mat-icon>share</mat-icon>
                       <span>{{ post.shareCount }}</span>
@@ -309,11 +309,11 @@
           <!-- View All Link -->
           @if (posts().length > limit()) {
             <div class="view-all-link">
-              <a (click)="viewAll.emit()">
+              <button mat-stroked-button (click)="viewAll.emit()">
                 <!-- View all {{ posts().length }} posts  -->
                 View all posts 
                 <mat-icon>arrow_forward</mat-icon>
-              </a>
+              </button>
             </div>
           }
         </div>
