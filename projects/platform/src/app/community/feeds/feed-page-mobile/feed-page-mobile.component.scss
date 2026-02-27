@@ -1,0 +1,379 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.mobile-feed-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  position: relative;
+}
+
+/* Header */
+.feed-header {
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-3 $spacing-4;
+  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+  z-index: 10;
+
+  .header-tabs {
+    display: flex;
+    gap: $spacing-4;
+
+    .tab {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.6);
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: $spacing-2 0;
+      position: relative;
+      transition: color 0.2s;
+
+      &.active {
+        color: white;
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: white;
+        }
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: $spacing-3;
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: white;
+      position: relative;
+
+      .badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: $error-color;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 5px;
+        border-radius: 10px;
+        min-width: 18px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+/* Feed Scroll Container */
+.feed-scroll {
+  flex: 1;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  height: 100vh;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  margin-top: -4em;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Full‑screen Post */
+.post-full {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #000;
+}
+
+/* Media fills entire post */
+.post-media {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  padding: 0 $spacing-2;
+  
+
+  .media-video,
+  .media-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .link-preview {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-4;
+    background: rgba(255,255,255,0.1);
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    max-width: 90%;
+
+    .link-url {
+      @include body-small;
+      color: white;
+      word-break: break-all;
+    }
+
+    .open-link {
+      margin-left: auto;
+    }
+  }
+
+  .no-media-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: #222;
+
+    mat-icon {
+      font-size: 4rem;
+      width: auto;
+      height: auto;
+      color: rgba(255,255,255,0.2);
+    }
+  }
+}
+
+/* Overlay UI */
+.post-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none; // Allow clicks to pass through to media, but buttons capture
+
+  > * {
+    pointer-events: auto; // Buttons/interactive elements capture clicks
+  }
+
+  // Sound control (top right)
+  .sound-control {
+    position: absolute;
+    top: $spacing-4;
+    right: $spacing-4;
+    z-index: 5;
+
+    .control-btn {
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+
+      mat-icon {
+        font-size: 1.3rem;
+      }
+
+      &:hover {
+        background: rgba(0,0,0,0.8);
+      }
+    }
+  }
+
+  // Bottom left: user & caption
+  .post-info {
+    position: absolute;
+    bottom: $spacing-20; // Above bottom nav
+    left: $spacing-4;
+    right: 80px; // Leave space for action buttons
+    z-index: 5;
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      margin-bottom: $spacing-2;
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid rgba($primary-color, 0.6);
+      }
+
+      .username {
+        font-weight: 300;
+        font-size: 0.9rem;
+        color: rgba($primary-color, 0.8);
+      }
+
+      .follow-btn {
+        background: $primary-color;
+        border: none;
+        color: white;
+        padding: $spacing-1 $spacing-3;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: $spacing-2;
+        cursor: pointer;
+      }
+    }
+
+    .caption {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      background-color: #000;
+
+      .hashtag {
+        color: $primary-color;
+        margin-left: $spacing-1;
+        cursor: pointer;
+        display: inline-block;
+      }
+    }
+  }
+
+  // Right side: action buttons
+  .action-buttons {
+    position: absolute;
+    bottom: $spacing-20;
+    right: $spacing-4;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    z-index: 5;
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-1;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+
+      mat-icon {
+        font-size: 2rem;
+        width: auto;
+        height: auto;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+      }
+
+      .fa-whatsapp {
+        font-size: 2rem;
+        width: auto;
+        height: auto;
+        //color: #25D366;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+      }
+    }
+  }
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(10px);
+  padding: $spacing-2 $spacing-4 $spacing-4;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  z-index: 10;
+
+  .nav-item {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    padding: $spacing-2;
+    position: relative;
+
+    &.active {
+      color: white;
+    }
+
+    mat-icon {
+      font-size: 1.8rem;
+      width: auto;
+      height: auto;
+    }
+  }
+
+  .create-btn {
+    background: $primary-color;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -20px;
+    box-shadow: 0 4px 10px rgba($primary-color, 0.3);
+
+    mat-icon {
+      color: white;
+      font-size: 2.2rem;
+    }
+  }
+}
+
+/* Empty State & Loading */
+.empty-feed {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-4;
+  color: white;
+
+  mat-icon {
+    font-size: 5rem;
+    width: auto;
+    height: auto;
+  }
+}
+
+.loading-spinner {
+  position: absolute;
+  bottom: $spacing-20;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.scroll-anchor {
+  height: 1px;
+}

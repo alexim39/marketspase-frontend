@@ -28,6 +28,7 @@ import { GeneralMsgNotifierBannerComponent } from './notification-banner/general
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { FeedPost, FeedService } from '../../community/feeds/feed.service';
+import { CommunityFeedService } from './components/community-feed/community-feed.service';
 
 
 interface DashboardStat {
@@ -143,7 +144,7 @@ interface CommunityStats {
     GeneralMsgNotifierBannerComponent,
     MatIconModule
   ],
-  providers: [FeedService],
+  providers: [FeedService, CommunityFeedService],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
@@ -157,6 +158,9 @@ export class DashboardMainContainer {
   private userService = inject(UserService);
   public user = this.userService.user;
    private feedService = inject(FeedService);
+   private communityFeedService = inject(CommunityFeedService);
+
+   commactivityStats = this.communityFeedService.activityStats;
 
 
   public router = inject(Router);
@@ -179,7 +183,7 @@ export class DashboardMainContainer {
     effect(() => {
       const currentUser = this.user();
       if (currentUser?._id) {
-        this.feedService.loadFeedPosts(currentUser._id, 'all', undefined, true);
+        this.feedService.loadFeedPosts(currentUser._id, 'all');
       } 
     });
   
@@ -189,7 +193,7 @@ export class DashboardMainContainer {
   savedPostsSet = computed(() => this.savedPosts());
 
   // === Existing Signals ===
-  communityNotifications = signal(3);
+  //communityNotifications = signal(3);
   unreadMessages = signal(2);
   unreadNotifications = signal(5);
   viewPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
@@ -637,89 +641,77 @@ export class DashboardMainContainer {
     // You could implement a menu or modal here
   }
 
+  // Handle view post navigation
+  onViewPost(postId: string): void {
+    this.router.navigate(['/dashboard/community/post', postId]);
+  }
 
-  
+  // Handle hashtag click navigation
+  onHashtagClick(tag: string): void {
+    this.router.navigate(['/dashboard/community'], { 
+      queryParams: { hashtag: tag }
+    });
+  }
 
+  // Update the onLike method to use the feed service
+  onLike(post: CommunityPost): void {
+    // Find the original post from feed service
+    const originalPost = this.feedPosts().find(p => p._id === post.id);
+    if (originalPost) {
+      this.feedService.toggleLike(originalPost,  this.user()?._id ?? '').subscribe({
+        next: () => {
+          // Success message is handled in the service
+        },
+        error: (error) => {
+          this.snackBar.open('Failed to like post', 'OK', { duration: 3000 });
+        }
+      });
+    }
+  }
 
-
-
-
-
-
-
-  // Add these methods if they don't exist or update them:
-
-// Handle view post navigation
-onViewPost(postId: string): void {
-  this.router.navigate(['/dashboard/community/post', postId]);
-}
-
-// Handle hashtag click navigation
-onHashtagClick(tag: string): void {
-  this.router.navigate(['/dashboard/community'], { 
-    queryParams: { hashtag: tag }
-  });
-}
-
-// Update the onLike method to use the feed service
-onLike(post: CommunityPost): void {
-  // Find the original post from feed service
-  const originalPost = this.feedPosts().find(p => p._id === post.id);
-  if (originalPost) {
-    this.feedService.toggleLike(originalPost,  this.user()?._id ?? '').subscribe({
+  // Update the onSave method to use the feed service
+  onSave(postId: string): void {
+    this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe({
       next: () => {
         // Success message is handled in the service
       },
       error: (error) => {
-        this.snackBar.open('Failed to like post', 'OK', { duration: 3000 });
+        this.snackBar.open('Failed to save post', 'OK', { duration: 3000 });
       }
     });
   }
-}
 
-// Update the onSave method to use the feed service
-onSave(postId: string): void {
-  this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe({
-    next: () => {
-      // Success message is handled in the service
-    },
-    error: (error) => {
-      this.snackBar.open('Failed to save post', 'OK', { duration: 3000 });
-    }
-  });
-}
-
-// Update sharePost to use the feed service
-sharePost(post: CommunityPost): void {
-  const originalPost = this.feedPosts().find(p => p._id === post.id);
-  if (originalPost) {
-    if (navigator.share) {
-      navigator.share({
-        title: `${post.author} on MarketSpase`,
-        text: post.content,
-        url: `${window.location.origin}/dashboard/community/post/${post.id}`
-      }).catch(() => {
+  // Update sharePost to use the feed service
+  sharePost(post: CommunityPost): void {
+    const originalPost = this.feedPosts().find(p => p._id === post.id);
+    if (originalPost) {
+      if (navigator.share) {
+        navigator.share({
+          title: `${post.author} on MarketSpase`,
+          text: post.content,
+          url: `${window.location.origin}/dashboard/community/post/${post.id}`
+        }).catch(() => {
+          this.copyToClipboard(post.id);
+        });
+      } else {
         this.copyToClipboard(post.id);
-      });
-    } else {
-      this.copyToClipboard(post.id);
+      }
+      
+      this.feedService.sharePost(originalPost._id, this.user()?._id ?? '').subscribe();
     }
-    
-    this.feedService.sharePost(originalPost._id, this.user()?._id ?? '').subscribe();
   }
-}
 
-private copyToClipboard(postId: string): void {
-  const url = `${window.location.origin}/dashboard/community/post/${postId}`;
-  navigator.clipboard.writeText(url).then(() => {
-    this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
-  });
-}
+  private copyToClipboard(postId: string): void {
+    const url = `${window.location.origin}/dashboard/community/post/${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
+    });
+  }
 
-// Update openComments to navigate to the post with comments fragment
-openComments(postId: string): void {
-  this.router.navigate(['/dashboard/community/post', postId], {
-    fragment: 'comments'
-  });
-}
+  // Update openComments to navigate to the post with comments fragment
+  openComments(postId: string): void {
+    this.router.navigate(['/dashboard/community/post', postId], {
+      fragment: 'comments'
+    });
+  }
 }

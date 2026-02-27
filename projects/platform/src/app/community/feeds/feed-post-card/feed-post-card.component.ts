@@ -1,4 +1,4 @@
-import { Component, input, output, computed, signal } from '@angular/core';
+import { Component, input, output, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FeedPost } from '../feed.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
 
@@ -27,6 +28,7 @@ export class FeedPostCardComponent {
   post = input.required<FeedPost>();
   isLiked = input<boolean>(false);
   isSaved = input<boolean>(false);
+  private snackBar = inject(MatSnackBar);
 
   // Read more state
   showFullContent = signal(false);
@@ -128,4 +130,18 @@ export class FeedPostCardComponent {
   private isValidBadge(badge: string): badge is BadgeType {
     return ['top-promoter', 'verified', 'rising-star', 'expert', 'veteran'].includes(badge);
   }
+
+  // Open WhatsApp chat (example – you can adjust the link structure)
+  openWhatsApp(post: FeedPost): void {
+    // Assuming the post has a contact number or WhatsApp link
+    // e.g., post.campaign?.contactWhatsapp or post.author?.phone
+    const phone = post.phone;
+    if (phone) {
+        const url = `https://wa.me/${post.phone}`;
+        window.open(url, '_blank');
+    } else {
+        this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
+    }
+  }
+  
 }

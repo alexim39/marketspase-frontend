@@ -1,0 +1,203 @@
+<div class="mobile-feed-container">
+  <!-- Top Header -->
+ <!--  <header class="feed-header">
+    <div class="header-tabs">
+      <button
+        class="tab"
+        [class.active]="selectedTab() === 'following'"
+        (click)="selectedTab.set('following')"
+      >
+        Following
+      </button>
+      <button
+        class="tab"
+        [class.active]="selectedTab() === 'for-you'"
+        (click)="selectedTab.set('for-you')"
+      >
+        For You
+      </button>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" (click)="onSearch()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+  </header> -->
+
+  <!-- Main Feed – Vertical Snap Scrolling -->
+  <main class="feed-scroll" #scrollContainer>
+    @for (post of regularPosts(); track post._id) {
+      <section class="post-full" [attr.data-post-id]="post._id">
+        <!-- Media fills entire post -->
+        <div class="post-media">
+          @if (post.media && post.media.length > 0) {
+            @let firstMedia = post.media[0];
+            @if (firstMedia.type === 'video') {
+              <video
+                #videoPlayer
+                [src]="firstMedia.url"
+                [poster]="firstMedia.thumbnail || ''"
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                class="media-video"
+                (click)="togglePlayPause($event, videoPlayer)"
+              ></video>
+            } @else if (firstMedia.type === 'image') {
+              <img
+                [src]="firstMedia.url"
+                alt="Post media"
+                class="media-image"
+                loading="lazy"
+              />
+            } @else if (firstMedia.type === 'link') {
+              <div class="link-preview" (click)="openLink(firstMedia.url)">
+                <mat-icon>link</mat-icon>
+                <span class="link-url">{{ firstMedia.url }}</span>
+                <mat-icon class="open-link">open_in_new</mat-icon>
+              </div>
+            }
+          } @else {
+            <div class="no-media-placeholder">
+              <mat-icon>article</mat-icon>
+            </div>
+          }
+        </div>
+
+        <!-- Overlay UI -->
+        <div class="post-overlay">
+          <!-- Sound control (top right) -->
+          @if (post.media?.[0]?.type === 'video') {
+            <div class="sound-control">
+              <button class="control-btn" (click)="toggleMute(post._id)">
+                <mat-icon>{{ isVideoMuted(post._id) ? 'volume_off' : 'volume_up' }}</mat-icon>
+              </button>
+            </div>
+          }
+
+          <!-- Bottom left: user & caption (conditionally visible) -->
+          <div class="post-info">
+            <div class="user-row">
+              <img
+                [src]="post.author?.avatar || 'img/avatar.png'"
+                class="user-avatar"
+                alt="avatar"
+              />
+              <span class="username">&#64;{{ post.author?.username }}</span>
+              @if (post.author?._id !== user()?._id) {
+                <button
+                  class="follow-btn"
+                  (click)="toggleFollow(post.author!._id)"
+                >
+                  {{ isFollowing(post.author!._id) ? 'Following' : 'Follow' }}
+                </button>
+              }
+            </div>
+
+            <!-- Caption – shown only when toggled on -->
+            @if (isCaptionVisible(post._id)) {
+              <div class="caption">
+                <span class="caption-text">{{ post.content }}</span>
+                @for (tag of post.hashtags; track tag) {
+                  <span class="hashtag" (click)="onHashtagClick(typeof tag === 'string' ? tag : tag.tag)">#{{ typeof tag === 'string' ? tag : tag.tag }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Right side: action buttons -->
+          <div class="action-buttons">
+            <!-- Like -->
+            <button class="action-btn" (click)="onLike(post)">
+              <mat-icon>{{
+                likedPosts().has(post._id) ? 'favorite' : 'favorite_border'
+              }}</mat-icon>
+              <span>{{ post.likeCount || 0 }}</span>
+            </button>
+
+            <!-- Comment -->
+            <button class="action-btn" (click)="onComment(post._id)">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <span>{{ post.commentCount || 0 }}</span>
+            </button>
+
+            <!-- Share -->
+            <button class="action-btn" (click)="onShare(post)">
+              <mat-icon>send</mat-icon>
+              <span>{{ post.shareCount || 0 }}</span>
+            </button>
+
+            <!-- Save -->
+            <button class="action-btn" (click)="onSave(post._id)">
+              <mat-icon>{{
+                savedPosts().has(post._id) ? 'bookmark' : 'bookmark_border'
+              }}</mat-icon>
+            </button>
+
+            <!-- WhatsApp contact (only for campaign posts) -->
+            @if (post.type === 'campaign') {
+              <button class="action-btn" (click)="openWhatsApp(post)">
+                <i class="fa fa-whatsapp" aria-hidden="true" style="height: 2em; width: 2em;"></i>
+                <!-- <span>Contact</span> -->
+              </button>
+            }
+
+            <!-- Show/Hide caption toggle -->
+            <button class="action-btn" (click)="toggleCaption(post._id)">
+              <mat-icon>{{ isCaptionVisible(post._id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+              <span>{{ isCaptionVisible(post._id) ? 'Hide' : 'Read' }}</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    } @empty {
+      @if (!loading()) {
+        <div class="empty-feed">
+          <mat-icon>smart_display</mat-icon>
+          <p>No posts yet</p>
+          <button mat-raised-button color="primary" (click)="onCreatePost()">
+            Create the first one
+          </button>
+        </div>
+      }
+    }
+
+    <!-- Loading Spinner -->
+    @if (loading()) {
+      <div class="loading-spinner">
+        <mat-spinner diameter="36"></mat-spinner>
+      </div>
+    }
+
+    <!-- End Anchor for Infinite Scroll -->
+    <div #scrollAnchor class="scroll-anchor"></div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+
+    <!-- <button class="nav-item" [class.active]="selectedTab() === 'for-you'" (click)="selectedTab.set('for-you'); router.navigate(['dashboard'])">
+      <mat-icon>home</mat-icon>
+    </button> -->
+
+    <!-- <button class="nav-item" (click)="navigateTo('explore')">
+      <mat-icon>explore</mat-icon>
+    </button> -->
+
+    @if(user()?.role === 'marketer') {
+        <button class="nav-item create-btn" (click)="onCreatePost()">
+            <mat-icon>add</mat-icon>
+        </button>
+    }
+
+   <!--  <button class="nav-item" (click)="onNotifications()">
+      <mat-icon>notifications</mat-icon>
+    </button> -->
+
+    <!-- <button class="nav-item" (click)="navigateTo('profile')">
+      <mat-icon>person</mat-icon>
+    </button> -->
+
+  </nav>
+</div>

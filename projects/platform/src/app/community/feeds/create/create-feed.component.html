@@ -63,6 +63,13 @@
                 }
               }
             </mat-select>
+            @if (isLoadingCampaigns()) {
+              <div class="loading-container">
+                <!-- Set diameter to 20 or 24 for a "small" look -->
+                <mat-spinner [diameter]="20" class="loading-spinner"></mat-spinner>
+                <small class="loading-hint">Loading your campaigns...</small>
+              </div>
+            }
           </mat-form-field>
 
           @if (selectedCampaign()) {

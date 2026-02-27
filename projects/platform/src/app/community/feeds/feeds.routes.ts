@@ -2,9 +2,9 @@ import { Routes } from '@angular/router';
 
 export const FeedsRoutes: Routes = [
   {
-    path: '',
-    loadComponent: () => import('./feed-page.component').then(c => c.FeedPageComponent),
-    title: 'Feeds - Explore discussions, ask questions, and share knowledge',
+      path: '',
+      loadComponent: () => import('./index').then(c => c.FeedIndexComponent),
+      title: "Feeds - Explore discussions, ask questions, and share knowledge",
   },
   {
     path: 'create',

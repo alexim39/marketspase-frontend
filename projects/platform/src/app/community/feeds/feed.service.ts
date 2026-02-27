@@ -59,6 +59,7 @@ export interface FeedPost {
   likeCount: number;
   commentCount: number;
   shareCount: number;
+  chatCount: number;
   isLiked: boolean;
   isSaved: boolean;
   hashtags: Array<{ tag: string }> | string[];
@@ -71,6 +72,7 @@ export interface FeedPost {
   status?: string;
   updatedAt?: Date;
   settings?: any;
+  phone?: string; // new field to hold contact number for WhatsApp integration
 }
 
 export interface FeedResponse {
@@ -199,8 +201,6 @@ export class FeedService {
     this.postsSignal().filter(post => post.type === type)
   );
 
-  private commentLikedMap = new Map<string, boolean>();
-
   constructor() {
     this.initializeService();
   }
@@ -233,37 +233,32 @@ export class FeedService {
   }
 
   // ============ POST LOADING ============
-loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = false): void {
-  if (!userId) {
-    return;
+  loadFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, reset: boolean = false): void {
+    if (!userId) return;
+
+    if (reset) this.resetFeedState();
+    if (!this.shouldLoadMore()) return;
+
+    this.setLoadingState(true);
+
+    const params: any = {
+      page: this.currentPageSignal(),
+      limit: FEED_CONFIG.POSTS_PER_PAGE,
+      userId
+    };
+    if (type && type !== 'all') params.type = type;
+    if (hashtag) params.hashtag = hashtag;
+    if (search) params.search = search;   // new
+
+    this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
+      .pipe(
+        map(response => this.extractPostsFromResponse(response)),
+        tap(result => this.handleFeedResponse(result, reset)),
+        catchError(error => this.handleFeedError(error)),
+        finalize(() => this.setLoadingState(false))
+      )
+      .subscribe();
   }
-
-  //console.log('[FeedService] loadFeedPosts', { userId, type, hashtag, reset, page: this.currentPageSignal() });
-
-  if (reset) this.resetFeedState();
-  if (!this.shouldLoadMore()) return;
-
-  this.setLoadingState(true);
-  
-  const params = this.buildFeedParams(userId, type, hashtag);
-  
-  this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
-   .pipe(
-      map(response => {
-        //console.log('[FeedService] Raw API response:', response);
-        const extracted = this.extractPostsFromResponse(response);
-        //console.log('[FeedService] After extractPostsFromResponse:', extracted);
-        return extracted;
-      }),
-      tap((result: any) => {
-        //console.log('[FeedService] Before handleFeedResponse, result.posts length:', result.posts?.length);
-        this.handleFeedResponse(result, reset);
-      }),
-      catchError(error => this.handleFeedError(error)),
-      finalize(() => this.setLoadingState(false))
-    )
-    .subscribe();
-}
 
   private shouldLoadMore(): boolean {
     return this.hasMoreSignal() && !this.loadingSignal();
@@ -296,6 +291,8 @@ loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = 
   private extractPostsFromResponse(response: any): { posts: any[], pagination: any } {
     // Handle different API response structures
     const data = response?.data || response;
+
+    //console.log('[FeedService] Raw API response:', response);
     
     if (data?.posts && Array.isArray(data.posts)) {
       return { 
@@ -312,7 +309,6 @@ loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = 
       return { posts: response, pagination: this.getDefaultPagination() };
     }
     
-    //console.warn('[FeedService] Unexpected response structure:', response);
     return { posts: [], pagination: this.getDefaultPagination() };
   }
 
@@ -321,30 +317,28 @@ loadFeedPosts(userId: string, type?: string, hashtag?: string, reset: boolean = 
   }
 
 
-private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
-  //console.log('[FeedService] handleFeedResponse called with posts length:', result.posts.length);
-  if (!result.posts.length) {
-    if (reset) this.postsSignal.set([]);
-    this.hasMoreSignal.set(false);
-    return;
-  }
-
-  const newPosts = result.posts.map(post => {
-    try {
-      return this.processPost(post);
-    } catch (err) {
-      console.error('[FeedService] Error processing post:', post._id, err);
-      return null;
+  private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
+    //console.log('[FeedService] handleFeedResponse called with posts length:', result.posts.length);
+    if (!result.posts.length) {
+      if (reset) this.postsSignal.set([]);
+      this.hasMoreSignal.set(false);
+      return;
     }
-  }).filter(p => p !== null) as FeedPost[];
 
-  //console.log('[FeedService] Mapped newPosts length:', newPosts.length);
-  
-  this.updatePostsSignal(newPosts, reset);
-  this.updatePagination(result.pagination);
-  this.updateLikedSavedSets(newPosts);
-  this.updateActivityStats();
-}
+    const newPosts = result.posts.map(post => {
+      try {
+        return this.processPost(post);
+      } catch (err) {
+        console.error('[FeedService] Error processing post:', post._id, err);
+        return null;
+      }
+    }).filter(p => p !== null) as FeedPost[];
+    
+    this.updatePostsSignal(newPosts, reset);
+    this.updatePagination(result.pagination);
+    this.updateLikedSavedSets(newPosts);
+    this.updateActivityStats();
+  }
 
   private updatePostsSignal(newPosts: FeedPost[], reset: boolean): void {
     if (reset) {
@@ -352,7 +346,6 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
     } else {
       this.postsSignal.update(current => [...current, ...newPosts]);
     }
-    //console.log('[FeedService] postsSignal length:', this.postsSignal().length);
   }
 
   private updatePagination(pagination: any): void {
@@ -374,7 +367,6 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
   }
 
   private handleFeedError(error: any): Observable<null> {
-    console.error('[FeedService] Feed loading error:', error);
     this.errorSignal.set(error.error?.message || 'Failed to load feed');
     this.postsSignal.set([]);
     return of(null);
@@ -393,6 +385,7 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
       media: post.media || [],
       likeCount: this.getCount(post, ['likes', 'likeCount']),
       commentCount: this.getCount(post, ['comments', 'commentCount']),
+      chatCount: this.getCount(post, ['chats', 'chatCount']),
       shareCount: this.getCount(post, ['shares', 'shareCount']),
       saveCount: this.getCount(post, ['savedBy', 'saveCount']),
       isLiked: post.isLiked || false,
@@ -405,7 +398,8 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
       status: post.status || 'published',
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
-      settings: post.settings
+      settings: post.settings,
+      phone: post.phone 
     };
   }
 
@@ -596,6 +590,17 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
     );
   }
 
+  private incrementChatCount(postId: string): void {
+    this.postsSignal.update(posts =>
+      posts.map(p => {
+        if (p._id === postId) {
+          return { ...p, chatCount: p.chatCount + 1 };
+        }
+        return p;
+      })
+    );
+  }
+
   private updateShareCount(postId: string): void {
     this.postsSignal.update(posts => 
       posts.map(p => p._id === postId ? { ...p, shareCount: p.shareCount + 1 } : p)
@@ -682,7 +687,6 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
   }
 
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {
-    console.log('user ',userId)
     return this.apiService.get(`campaign/user/${userId}`, params, undefined, true);
   }
 
@@ -842,13 +846,9 @@ private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boo
     return [];
   }
 
- /*  likeComment(postId: string, commentId: string, userId: string): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId });
-  } */
-
-    likeComment(postId: string, commentId: string, userId: string): Observable<any> {
-      return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId })
-        .pipe(map((response: any) => response?.data || response));
-    }
+  likeComment(postId: string, commentId: string, userId: string): Observable<any> {
+    return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId })
+      .pipe(map((response: any) => response?.data || response));
+  }
 
 }

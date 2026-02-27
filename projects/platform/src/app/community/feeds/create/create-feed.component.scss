@@ -464,7 +464,7 @@
             
             .fields-title {
               @include body-small;
-              font-weight: $font-weight-semibold;
+              font-weight: $font-weight-semibold;   
               color: $text-primary;
               margin: 0 0 $spacing-4;
               padding-bottom: $spacing-2;
@@ -484,7 +484,22 @@
             
           }
 
-          .select-campaign { width: 100% !important; }
+          .select-campaign { 
+            width: 100% !important; 
+
+            .loading-container {
+              display: flex;
+              align-items: center; 
+              gap: 8px;            
+            }
+
+            
+            .loading-hint {
+              margin-top: 0.7em;
+              font-size: $font-size-xs;
+              color: $text-secondary;
+            }
+          }
           
           // Post Summary
           .post-summary {

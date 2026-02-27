@@ -7,7 +7,7 @@
   <!-- Dashboard Header -->
   <dashboard-header
     [user]="user()"
-    [communityNotifications]="communityNotifications()"
+    [communityNotifications]="commactivityStats().postsToday"
     [unreadMessages]="unreadMessages()"
     [unreadNotifications]="unreadNotifications()"
     (createCampaign)="createCampaign()"
@@ -118,27 +118,27 @@
         <button class="nav-item" (click)="openCommunityFeed()">
           <mat-icon>forum</mat-icon>
           <span class="nav-label">Community</span>
-          @if (communityNotifications() > 0) {
-            <span class="nav-badge">{{ communityNotifications() }}</span>
+          @if (commactivityStats().postsToday > 0) {
+            <span class="nav-badge">{{ commactivityStats().postsToday }}</span>
           }
         </button>
-        <button class="nav-item primary-action" (click)="createCommunityPost()">
+        <!-- <button class="nav-item primary-action" (click)="createCommunityPost()">
           <mat-icon>add</mat-icon>
-        </button>
+        </button> -->
         <button class="nav-item" (click)="openMessages()">
-          <mat-icon>chat</mat-icon>
-          <span class="nav-label">Messages</span>
-          @if (unreadMessages() > 0) {
-            <span class="nav-badge">{{ unreadMessages() }}</span>
+          <mat-icon>whatshot</mat-icon>
+          <span class="nav-label">activity</span>
+          @if (commactivityStats().totalEngagement > 0) {
+            <span class="nav-badge">{{ commactivityStats().totalEngagement }}</span>
           }
         </button>
-        <button class="nav-item" (click)="openNotifications()">
+        <!-- <button class="nav-item" (click)="openNotifications()">
           <mat-icon>notifications</mat-icon>
           <span class="nav-label">Alerts</span>
           @if (unreadNotifications() > 0) {
             <span class="nav-badge">{{ unreadNotifications() }}</span>
           }
-        </button>
+        </button> -->
       </nav>
     </div>
   }

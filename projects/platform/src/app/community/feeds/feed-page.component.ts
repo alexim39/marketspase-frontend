@@ -9,7 +9,9 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  Input,
+  Signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -34,9 +36,12 @@ import { FeedService, FeedPost } from './feed.service';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
 import { CommentDialogComponent } from './comment-dialog/comment-dialog.component';
 import { UserService } from '../../common/services/user.service';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
+import { UserInterface } from '../../../../../shared-services/src/public-api';
 
 @Component({
-  selector: 'app-feed-page',
+  selector: 'app-feed-page-desktop',
   standalone: true,
   providers: [FeedService],
   imports: [
@@ -64,13 +69,14 @@ import { UserService } from '../../common/services/user.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedPageComponent {
+  currentYear: number = new Date().getFullYear();
+  
   private feedService = inject(FeedService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
-  private userService = inject(UserService);
 
-  public user = this.userService.user;
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
   
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
 
@@ -124,6 +130,9 @@ regularPosts = computed(() => {
   return this.filteredPosts();
 });
 
+private searchSubscription: any;
+
+
 private readonly _ = effect(() => {
   const user = this.user();
   if (!user?._id) return;
@@ -165,9 +174,47 @@ constructor() {
     });
   });
 
+    // Search effect with debounce
+  effect(() => {
+    const query = this.searchQuery();
+    const currentUser = this.user();
+    if (!currentUser?._id) return;
+
+    // Debounce manually using a subscription (or use toObservable)
+    // Simpler: use a separate Subject in a more advanced setup.
+    // For brevity, I'll show a basic approach with setTimeout (not ideal).
+    // Better to use rxjs with toObservable.
+  });
+
+   // Convert searchQuery signal to observable and debounce
+  this.searchSubscription = toObservable(this.searchQuery)
+    .pipe(
+      debounceTime(500),               // wait 500ms after last keystroke
+      distinctUntilChanged(),           // only if value changed
+      filter(query => query.length === 0 || query.length > 2) // optional: minimum length
+    )
+    .subscribe(query => {
+      const currentUser = this.user();
+      if (!currentUser?._id) return;
+      this.loadFeedWithSearch(query);
+    });
 }
 
 
+ngOnDestroy() {
+  this.searchSubscription?.unsubscribe();
+}
+
+private loadFeedWithSearch(searchTerm: string): void {
+  // Reset feed and load with search term
+  this.feedService.loadFeedPosts(
+    this.user()?._id ?? '',
+    this.selectedType() !== 'all' ? this.selectedType() : undefined,
+    undefined,
+    searchTerm || undefined,   // pass undefined if empty
+    true                       // reset
+  );
+}
 
 
   // Navigation methods
@@ -204,11 +251,7 @@ constructor() {
 
   // Feed methods
   loadFeed(): void {
-    this.feedService.loadFeedPosts(
-      this.user()?._id ?? '', 
-      this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      undefined,
-      true
+    this.feedService.loadFeedPosts(this.user()?._id ?? '',  this.selectedType() !== 'all' ? this.selectedType() : undefined, 
     );
   }
 
@@ -217,8 +260,7 @@ constructor() {
     this.feedService.loadFeedPosts(
       this.user()?._id ?? '',
       this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      undefined,
-      true,
+      
       //'following'
     );
   }
@@ -228,8 +270,7 @@ constructor() {
       this.feedService.loadFeedPosts(
         this.user()?._id ?? '',
         this.selectedType() !== 'all' ? this.selectedType() : undefined,
-        undefined,
-        false
+       
       );
     }
   }

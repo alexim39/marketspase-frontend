@@ -191,6 +191,14 @@
       <mat-icon>share</mat-icon>
       <span>{{ post().shareCount || 0 }}</span>
     </button>
+
+    <button 
+      class="action-btn share-btn"
+      (click)="openWhatsApp(post())"
+      [matTooltip]="'Chat on WhatsApp'">
+      <i class="fa fa-whatsapp" aria-hidden="true"></i>
+      <!-- <span>{{ post().chatCount || 0 }}</span> -->
+    </button>
     
     <button 
       class="action-btn save-btn"

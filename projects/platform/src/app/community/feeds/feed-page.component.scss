@@ -2,1028 +2,405 @@
 @import '../../../styles/mixins';
 
 // Variables specific to feed page
-$header-height: 60px;
-$bottom-nav-height: 70px;
 $sidebar-width: 280px;
 $main-content-max-width: 680px;
 
-// Main Container
+// Main Container – now always uses desktop layout
 .feed-container {
   min-height: 100vh;
   background: $background-color;
-  
-  @include desktop {
-    display: flex;
-    padding-left: $sidebar-width;
-  }
+  display: flex;
+  padding-left: $sidebar-width;
 }
 
-// ====================
-// Mobile Styles (Default)
-// ====================
+.desktop-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
 
-// Mobile Header
-.mobile-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: $header-height;
-  background: $surface-color;
-  border-bottom: $border-width solid $border-color;
-  @include flex-between;
-  padding: 0 $spacing-4;
-  z-index: $z-index-fixed;
-  
-  .header-left {
+
+// Main Content
+.main-content {
+  flex: 1;
+  max-width: $main-content-max-width;
+  margin: 0 auto;
+  padding: $spacing-4;
+
+  .feed-header {
+    @include flex-between;
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-4;
+    border-bottom: $border-width solid $border-color;
+
+    .feed-tabs {
+      display: flex;
+      gap: $spacing-4;
+
+      .tab-btn {
+        background: none;
+        border: none;
+        padding: $spacing-2 $spacing-4;
+        @include body-medium;
+        font-weight: $font-weight-medium;
+        color: $text-secondary;
+        cursor: pointer;
+        position: relative;
+
+        &.active {
+          color: $primary-color;
+          font-weight: $font-weight-semibold;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: -$spacing-4;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: $primary-color;
+            border-radius: 3px 3px 0 0;
+          }
+        }
+      }
+    }
+
+    .filter-btn {
+      background: none;
+      border: $border-width solid $border-color;
+      border-radius: $border-radius-lg;
+      padding: $spacing-2;
+      color: $text-secondary;
+      cursor: pointer;
+
+      &:hover {
+        background: $background-color;
+      }
+    }
+  }
+
+  .create-post-box {
     display: flex;
     align-items: center;
     gap: $spacing-3;
-    
-    .menu-btn {
+    padding: $spacing-4;
+    background: $surface-color;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-xl;
+    margin-bottom: $spacing-6;
+
+    .post-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .post-input {
+      flex: 1;
+      padding: $spacing-3;
+      background: $background-color;
+      border: none;
+      border-radius: $border-radius-xl;
+      color: $text-primary;
+      @include body-small;
+      cursor: pointer;
+
+      &::placeholder {
+        color: $text-tertiary;
+      }
+
+      &:hover {
+        background: $surface-color;
+      }
+    }
+
+    .post-media-btn {
       background: none;
       border: none;
-      color: $text-primary;
-      padding: $spacing-2;
+      color: $primary-color;
       cursor: pointer;
-      
+
       mat-icon {
         font-size: 24px;
       }
     }
-    
-    .logo {
-      @include heading-small;
-      margin: 0;
-      background: $gradient-primary;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
   }
-  
-  .header-right {
-    display: flex;
-    gap: $spacing-2;
-    
-    .icon-btn {
-      position: relative;
-      background: none;
-      border: none;
-      color: $text-primary;
-      padding: $spacing-2;
-      cursor: pointer;
-      
-      .badge {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        min-width: 18px;
-        height: 18px;
-        background: $primary-color;
-        color: $white;
-        @include caption;
-        font-weight: $font-weight-semibold;
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 4px;
-      }
-    }
-  }
-}
 
-// Mobile Menu
-.mobile-menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba($black, 0.5);
-  z-index: $z-index-modal;
-  @include fade-in;
-  
-  .mobile-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 85%;
-    max-width: 320px;
+  .filters-panel {
     background: $surface-color;
-    display: flex;
-    flex-direction: column;
-    animation: slideInLeft 0.3s ease;
-    
-    .menu-header {
-      padding: $spacing-4;
-      border-bottom: $border-width solid $border-color;
-      @include flex-between;
-      
-      .user-info-mini {
-        display: flex;
-        align-items: center;
-        gap: $spacing-3;
-        
-        .menu-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-        
-        .menu-user-details {
-          @include flex-column;
-          
-          .menu-user-name {
-            @include body-small;
-            font-weight: $font-weight-semibold;
-            color: $text-primary;
-          }
-          
-          .menu-user-role {
-            @include caption;
-          }
-        }
-      }
-      
-      .close-menu {
-        background: none;
-        border: none;
-        color: $text-primary;
-        cursor: pointer;
-      }
-    }
-    
-    .mobile-nav {
-      flex: 1;
-      padding: $spacing-4;
-      
-      .nav-item {
-        display: flex;
-        align-items: center;
-        gap: $spacing-3;
-        padding: $spacing-3;
-        color: $text-primary;
-        text-decoration: none;
-        border-radius: $border-radius-lg;
-        margin-bottom: $spacing-1;
-        cursor: pointer;
-        position: relative;
-        
-        &.active {
-          background: rgba($primary-rgb, 0.1);
-          color: $primary-color;
-          font-weight: $font-weight-medium;
-        }
-        
-        mat-icon {
-          font-size: 24px;
-        }
-        
-        .nav-badge {
-          margin-left: auto;
-          background: $primary-color;
-          color: $white;
-          padding: 2px 8px;
-          border-radius: 12px;
-          @include caption;
-        }
-      }
-    }
-    
-    .menu-footer {
-      padding: $spacing-4;
-      border-top: $border-width solid $border-color;
-      
-      .create-post-btn-mobile {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: $spacing-2;
-        padding: $spacing-3;
-        background: $primary-color;
-        color: $white;
-        border: none;
-        border-radius: $border-radius-xl;
-        font-weight: $font-weight-semibold;
-        cursor: pointer;
-        transition: all $transition-fast;
-        
-        &:active {
-          transform: scale(0.98);
-          opacity: 0.9;
-        }
-      }
-    }
-  }
-}
-
-// Mobile Bottom Navigation (TikTok-style)
-.mobile-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: $bottom-nav-height;
-  background: $surface-color;
-  border-top: $border-width solid $border-color;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 $spacing-2;
-  z-index: $z-index-fixed;
-  
-  .nav-item {
-    position: relative;
-    @include flex-column-center;
-    background: none;
-    border: none;
-    color: $text-secondary;
-    padding: $spacing-1;
-    cursor: pointer;
-    flex: 1;
-    
-    &.active {
-      color: $primary-color;
-      
-      mat-icon {
-        transform: scale(1.1);
-      }
-    }
-    
-    mat-icon {
-      font-size: 24px;
-      margin-bottom: 2px;
-      transition: transform $transition-fast;
-    }
-    
-    .nav-label {
-      @include caption;
-      font-weight: $font-weight-medium;
-    }
-    
-    .nav-badge {
-      position: absolute;
-      top: -2px;
-      right: 50%;
-      transform: translateX(10px);
-      min-width: 18px;
-      height: 18px;
-      background: $primary-color;
-      color: $white;
-      @include caption;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4px;
-    }
-    
-    &.create-nav-item {
-      .create-button {
-        width: 48px;
-        height: 48px;
-        background: $gradient-primary;
-        border-radius: 50%;
-        @include flex-center;
-        margin-top: -24px;
-        box-shadow: $shadow-lg;
-        
-        mat-icon {
-          color: $white;
-          font-size: 28px;
-          margin: 0;
-        }
-      }
-    }
-  }
-}
-
-// Mobile FAB
-.mobile-fab {
-  position: fixed;
-  bottom: $spacing-4;
-  right: $spacing-4;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: $primary-color;
-  color: $white;
-  border: none;
-  box-shadow: $shadow-lg;
-  @include flex-center;
-  cursor: pointer;
-  z-index: $z-index-fixed - 1;
-  transition: all $transition-fast;
-  
-  &:active {
-    transform: scale(0.95);
-  }
-  
-  mat-icon {
-    font-size: 28px;
-  }
-}
-
-// ====================
-// Desktop Styles
-// ====================
-@include desktop {
-  .mobile-header,
-  .mobile-bottom-nav,
-  .mobile-fab {
-    display: none;
-  }
-  
-  .desktop-layout {
-    display: flex;
-    width: 100%;
-    min-height: 100vh;
-  }
-  
-  // Desktop Sidebar (Left)
-  .desktop-sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: $sidebar-width;
-    background: $surface-color;
-    border-right: $border-width solid $border-color;
-    padding: $spacing-6 $spacing-4;
-    @include flex-column;
-    
-    .sidebar-content {
-      height: 100%;
-      @include flex-column;
-    }
-    
-    .desktop-logo {
-      @include heading-medium;
-      margin: 0 0 $spacing-8 $spacing-3;
-      background: $gradient-primary;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .desktop-nav {
-      flex: 1;
-      
-      .nav-link {
-        display: flex;
-        align-items: center;
-        gap: $spacing-4;
-        padding: $spacing-3 $spacing-3;
-        color: $text-primary;
-        text-decoration: none;
-        border-radius: $border-radius-xl;
-        margin-bottom: $spacing-1;
-        @include body-medium;
-        cursor: pointer;
-        transition: all $transition-fast;
-        position: relative;
-        
-        &:hover {
-          background: rgba($primary-rgb, 0.1);
-        }
-        
-        &.active {
-          color: $primary-color;
-          font-weight: $font-weight-semibold;
-          background: rgba($primary-rgb, 0.1);
-        }
-        
-        mat-icon {
-          font-size: 26px;
-        }
-        
-        .nav-badge {
-          margin-left: auto;
-          background: $primary-color;
-          color: $white;
-          padding: 2px 8px;
-          border-radius: 12px;
-          @include caption;
-        }
-      }
-    }
-    
-    .desktop-create-btn {
-      @include button-primary;
-      width: 100%;
-      padding: $spacing-4;
-      @include body-medium;
-      margin-bottom: $spacing-4;
-      
-      mat-icon {
-        font-size: 20px;
-      }
-    }
-    
-    .user-profile-card {
-      display: flex;
-      align-items: center;
-      gap: $spacing-3;
-      padding: $spacing-3;
-      border-radius: $border-radius-xl;
-      cursor: pointer;
-      transition: all $transition-fast;
-      
-      &:hover {
-        background: $background-color;
-      }
-      
-      .profile-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-      
-      .profile-info {
-        flex: 1;
-        @include flex-column;
-        
-        .profile-name {
-          @include body-small;
-          font-weight: $font-weight-semibold;
-          color: $text-primary;
-        }
-        
-        .profile-handle {
-          @include caption;
-        }
-      }
-      
-      .more-btn {
-        color: $text-secondary;
-      }
-    }
-  }
-  
-  // Main Content
-  .main-content {
-    flex: 1;
-    max-width: $main-content-max-width;
-    margin: 0 auto;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
     padding: $spacing-4;
-    
-    .feed-header {
-      @include flex-between;
-      margin-bottom: $spacing-4;
-      padding-bottom: $spacing-4;
-      border-bottom: $border-width solid $border-color;
-      
-      .feed-tabs {
-        display: flex;
-        gap: $spacing-4;
-        
-        .tab-btn {
-          background: none;
-          border: none;
-          padding: $spacing-2 $spacing-4;
-          @include body-medium;
-          font-weight: $font-weight-medium;
-          color: $text-secondary;
-          cursor: pointer;
-          position: relative;
-          
-          &.active {
-            color: $primary-color;
-            font-weight: $font-weight-semibold;
-            
-            &::after {
-              content: '';
-              position: absolute;
-              bottom: -$spacing-4;
-              left: 0;
-              right: 0;
-              height: 3px;
-              background: $primary-color;
-              border-radius: 3px 3px 0 0;
-            }
-          }
-        }
-      }
-      
-      .filter-btn {
-        background: none;
-        border: $border-width solid $border-color;
-        border-radius: $border-radius-lg;
-        padding: $spacing-2;
-        color: $text-secondary;
-        cursor: pointer;
-        
-        &:hover {
-          background: $background-color;
-        }
-      }
-    }
-    
-    .create-post-box {
-      display: flex;
-      align-items: center;
-      gap: $spacing-3;
-      padding: $spacing-4;
-      background: $surface-color;
-      border: $border-width solid $border-color;
-      border-radius: $border-radius-xl;
-      margin-bottom: $spacing-6;
-      
-      .post-avatar {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-      
-      .post-input {
-        flex: 1;
-        padding: $spacing-3;
-        background: $background-color;
-        border: none;
-        border-radius: $border-radius-xl;
-        color: $text-primary;
-        @include body-small;
-        cursor: pointer;
-        
-        &::placeholder {
-          color: $text-tertiary;
-        }
-        
-        &:hover {
-          background: $surface-color;
-        }
-      }
-      
-      .post-media-btn {
-        background: none;
-        border: none;
-        color: $primary-color;
-        cursor: pointer;
-        
-        mat-icon {
-          font-size: 24px;
-        }
-      }
-    }
-    
-    .filters-panel {
-      background: $surface-color;
-      border: $border-width solid $border-color;
-      border-radius: $border-radius-lg;
-      padding: $spacing-4;
-      margin-bottom: $spacing-4;
-      
-      .filter-section {
-        h4 {
-          margin: 0 0 $spacing-3 0;
-          @include caption;
-          color: $text-secondary;
-        }
-        
-        .filter-chips {
-          display: flex;
-          flex-wrap: wrap;
-          gap: $spacing-2;
-          
-          .chip {
-            display: flex;
-            align-items: center;
-            gap: $spacing-1;
-            padding: $spacing-2 $spacing-3;
-            background: $background-color;
-            border: $border-width solid $border-color;
-            border-radius: $border-radius-xl;
-            @include body-small;
-            color: $text-secondary;
-            cursor: pointer;
-            transition: all $transition-fast;
-            
-            mat-icon {
-              font-size: 18px;
-              width: 18px;
-              height: 18px;
-            }
-            
-            &.active {
-              background: $primary-color;
-              border-color: $primary-color;
-              color: $white;
-            }
-            
-            &:hover:not(.active) {
-              background: rgba($primary-rgb, 0.1);
-              border-color: $primary-color;
-            }
-          }
-        }
-      }
-    }
-    
+    margin-bottom: $spacing-4;
 
-    
-    .feed-posts {
-      .featured-post-container {
-        position: relative;
-        margin-bottom: $spacing-6;
-        
-        .featured-badge {
-          position: absolute;
-          top: $spacing-2;
-          left: $spacing-2;
+    .filter-section {
+      h4 {
+        margin: 0 0 $spacing-3 0;
+        @include caption;
+        color: $text-secondary;
+      }
+
+      .filter-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-2;
+
+        .chip {
           display: flex;
           align-items: center;
           gap: $spacing-1;
-          padding: $spacing-1 $spacing-2;
-          background: $gradient-primary;
-          color: $white;
+          padding: $spacing-2 $spacing-3;
+          background: $background-color;
+          border: $border-width solid $border-color;
           border-radius: $border-radius-xl;
-          @include caption;
-          font-weight: $font-weight-semibold;
-          z-index: 1;
-          
-          mat-icon {
-            font-size: 16px;
-            width: 16px;
-            height: 16px;
-          }
-        }
-      }
-      
-      .loading-spinner {
-        @include flex-center;
-        padding: $spacing-8;
-      }
-      
-      .feed-end {
-        text-align: center;
-        padding: $spacing-8;
-        
-        .end-message {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: $spacing-2;
+          @include body-small;
           color: $text-secondary;
-          
+          cursor: pointer;
+          transition: all $transition-fast;
+
           mat-icon {
-            color: $success-color;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+
+          &.active {
+            background: $primary-color;
+            border-color: $primary-color;
+            color: $white;
+          }
+
+          &:hover:not(.active) {
+            background: rgba($primary-rgb, 0.1);
+            border-color: $primary-color;
           }
         }
-      }
-      
-      .empty-feed {
-        text-align: center;
-        padding: $spacing-12 $spacing-4;
-        
-        .empty-icon {
-          width: 80px;
-          height: 80px;
-          margin: 0 auto $spacing-4;
-          background: rgba($primary-rgb, 0.1);
-          border-radius: 50%;
-          @include flex-center;
-          
-          mat-icon {
-            font-size: 40px;
-            color: $primary-color;
-          }
-        }
-        
-        h3 {
-          @include heading-small;
-          margin: 0 0 $spacing-2 0;
-          color: $text-primary;
-        }
-        
-        p {
-          @include body-medium;
-          color: $text-secondary;
-          margin: 0 0 $spacing-6 0;
-        }
-      }
-      
-      .scroll-anchor {
-        height: 1px;
       }
     }
   }
-  
-  // Right Sidebar
-  .right-sidebar {
-    width: $sidebar-width;
-    padding: $spacing-4;
-    
-    .search-box {
+
+  .feed-posts {
+    .featured-post-container {
       position: relative;
-      margin-bottom: $spacing-4;
-      
-      .search-icon {
+      margin-bottom: $spacing-6;
+
+      .featured-badge {
         position: absolute;
-        left: $spacing-3;
-        top: 50%;
-        transform: translateY(-50%);
-        color: $text-tertiary;
-      }
-      
-      .search-input {
-        @include form-input;
-        padding-left: $spacing-8;
-      }
-    }
-    
-   
-    .follow-card {
-      background: $surface-color;
-      border: $border-width solid $border-color;
-      border-radius: $border-radius-lg;
-      padding: $spacing-4;
-      margin-bottom: $spacing-4;
-      margin-top: $spacing-4;
-      
-      .card-title {
-        margin: 0 0 $spacing-3 0;
-        @include body-medium;
-        font-weight: $font-weight-semibold;
-        color: $text-primary;
-      }
-      
-      .trending-items,
-      .follow-items {
-        .trending-item,
-        .follow-item {
-          width: 100%;
-          text-align: left;
-          padding: $spacing-3;
-          background: none;
-          border: none;
-          border-bottom: $border-width solid $border-color;
-          cursor: pointer;
-          
-          &:last-child {
-            border-bottom: none;
-          }
-          
-          &:hover {
-            background: $background-color;
-          }
-        }
-        
-        .follow-item {
-          display: flex;
-          align-items: center;
-          gap: $spacing-3;
-          
-          .follow-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-          }
-          
-          .follow-info {
-            flex: 1;
-            @include flex-column;
-            
-            .follow-name {
-              @include body-small;
-              font-weight: $font-weight-semibold;
-              color: $text-primary;
-            }
-            
-            .follow-handle {
-              @include caption;
-            }
-          }
-          
-          .follow-btn {
-            padding: $spacing-1 $spacing-3;
-            background: $primary-color;
-            color: $white;
-            border: none;
-            border-radius: $border-radius-xl;
-            @include caption;
-            font-weight: $font-weight-semibold;
-            cursor: pointer;
-            
-            &.following {
-              background: transparent;
-              border: $border-width solid $border-color;
-              color: $text-secondary;
-            }
-          }
-        }
-      }
-      
-      .show-more {
-        display: block;
-        margin-top: $spacing-3;
-        color: $primary-color;
-        @include caption;
-        cursor: pointer;
-        
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-    
-
-
-
-
-     .trending-card {
-      background: $surface-color;
-      border-radius: $border-radius-lg;
-      padding: $spacing-3 0;
-
-      .card-title {
-        padding: 0 $spacing-4 $spacing-2;
-        font-size: 1.25rem;
-        font-weight: $font-weight-bold;
-        margin: 0;
-      }
-
-      .trending-items {
-        .trending-item {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          width: 100%;
-          padding: $spacing-3 $spacing-4;
-          background: none;
-          border: none;
-          border-bottom: $border-width solid $border-color;
-          cursor: pointer;
-          transition: background $transition-fast;
-
-          &:hover {
-            background: $background-color;
-          }
-
-          &:last-child {
-            border-bottom: none;
-          }
-
-          .trending-tag {
-            font-weight: $font-weight-semibold;
-            color: $text-primary;
-          }
-
-          .trending-count {
-            font-size: $font-size-xs;
-            color: $text-tertiary;
-          }
-        }
-      }
-
-      .show-more {
-        display: block;
-        padding: $spacing-3 $spacing-4;
-        color: $primary-color;
-        font-size: $font-size-sm;
-        cursor: pointer;
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-
-
-    .trending-box {
-      background: $surface-color;
-      border: $border-width solid $border-color;
-      border-radius: $border-radius-lg;
-      padding: $spacing-4;
-      margin-bottom: $spacing-4;
-      margin-top: $spacing-4;
-      
-      .trending-title {
+        top: $spacing-2;
+        left: $spacing-2;
         display: flex;
         align-items: center;
-        gap: $spacing-2;
-        margin: 0 0 $spacing-3 0;
-        @include body-medium;
+        gap: $spacing-1;
+        padding: $spacing-1 $spacing-2;
+        background: $gradient-primary;
+        color: $white;
+        border-radius: $border-radius-xl;
+        @include caption;
         font-weight: $font-weight-semibold;
-        color: $text-primary;
-        
+        z-index: 1;
+
         mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .loading-spinner {
+      @include flex-center;
+      padding: $spacing-8;
+    }
+
+    .feed-end {
+      text-align: center;
+      padding: $spacing-8;
+
+      .end-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2;
+        color: $text-secondary;
+
+        mat-icon {
+          color: $success-color;
+        }
+      }
+    }
+
+    .empty-feed {
+      text-align: center;
+      padding: $spacing-12 $spacing-4;
+
+      .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto $spacing-4;
+        background: rgba($primary-rgb, 0.1);
+        border-radius: 50%;
+        @include flex-center;
+
+        mat-icon {
+          font-size: 40px;
           color: $primary-color;
         }
       }
-      
-      .trending-list {
-        .trending-item {
-          width: 100%;
-          text-align: left;
-          padding: $spacing-3;
-          background: none;
-          border: none;
-          border-radius: $border-radius-lg;
-          cursor: pointer;
-          
-          &:hover {
-            background: $background-color;
-          }
-          
-          .trending-tag {
-            display: block;
-            @include body-small;
-            font-weight: $font-weight-semibold;
-            color: $text-primary;
-            margin-bottom: 2px;
-          }
-          
-          .trending-count {
-            @include caption;
-          }
-        }
+
+      h3 {
+        @include heading-small;
+        margin: 0 0 $spacing-2 0;
+        color: $text-primary;
+      }
+
+      p {
+        @include body-medium;
+        color: $text-secondary;
+        margin: 0 0 $spacing-6 0;
       }
     }
 
-
-    .sidebar-footer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: $spacing-2;
-      padding: $spacing-4;
-      
-      a {
-        color: $text-tertiary;
-        @include caption;
-        text-decoration: none;
-        
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-      
-      .copyright {
-        width: 100%;
-        color: $text-tertiary;
-        @include caption;
-        margin-top: $spacing-2;
-      }
+    .scroll-anchor {
+      height: 1px;
     }
   }
 }
 
-
-
+// Right Sidebar
 .right-sidebar {
+  width: $sidebar-width;
+  padding: $spacing-4;
+
+  .search-box {
+    position: relative;
+    margin-bottom: $spacing-4;
+
+    .search-icon {
+      position: absolute;
+      left: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-tertiary;
+    }
+
+    .clear-search {
+      position: absolute;
+      right: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: $text-tertiary;
+      cursor: pointer;
+    }
+
+    .search-input {
+      @include form-input;
+      padding-left: $spacing-8;
+    }
+  }
+
+  .trending-box {
+    background: $surface-color;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
+    padding: $spacing-4;
+    margin-bottom: $spacing-4;
+    margin-top: $spacing-4;
+
+    .trending-title {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      margin: 0 0 $spacing-3 0;
+      @include body-medium;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+
+      mat-icon {
+        color: $primary-color;
+      }
+    }
+
+    .trending-list {
+      .trending-item {
+        width: 100%;
+        text-align: left;
+        padding: $spacing-3;
+        background: none;
+        border: none;
+        border-radius: $border-radius-lg;
+        cursor: pointer;
+
+        &:hover {
+          background: $background-color;
+        }
+
+        .trending-tag {
+          display: block;
+          @include body-small;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          margin-bottom: 2px;
+        }
+
+        .trending-count {
+          @include caption;
+        }
+      }
+    }
+  }
+
+  .sidebar-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    padding: $spacing-4;
+
+    a {
+      color: $text-tertiary;
+      @include caption;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .copyright {
+      width: 100%;
+      color: $text-tertiary;
+      @include caption;
+      margin-top: $spacing-2;
+    }
+  }
+
+  // Sticky behaviour
   position: sticky;
   top: $spacing-4;
   height: fit-content;
   max-height: calc(100vh - #{$spacing-4 * 2});
   overflow-y: auto;
-  padding-right: $spacing-2;
 
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
-// Animations
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
-}
-
+// Posts grid
 .feed-posts {
   .posts-grid {
     display: flex;
     flex-direction: column;
     gap: $spacing-4;
     width: 100%;
-    max-width: 600px;    // Twitter's feed width
+    max-width: 600px;
     margin: 0 auto;
   }
 }
 
-
-@include mobile {
-  .feed-posts {
-    .posts-grid {
-      app-feed-post-card {
-        min-height: 100vh;                // each post fills the screen
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-    }
-  }
-
-  .mobile-bottom-nav {
-    background: rgba($surface-color, 0.9);
-    backdrop-filter: blur(10px);
-  }
-}
-
-// Ensure the post card component is visible
+// Ensure post cards are visible
 :host ::ng-deep app-feed-post-card {
   display: block;
   width: 100%;
