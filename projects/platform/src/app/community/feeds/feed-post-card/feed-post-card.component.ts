@@ -137,8 +137,8 @@ export class FeedPostCardComponent {
     // e.g., post.campaign?.contactWhatsapp or post.author?.phone
     const phone = post.phone;
     if (phone) {
-        const url = `https://wa.me/${post.phone}`;
-        window.open(url, '_blank');
+      const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
+      window.open(url, '_blank');
     } else {
         this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
     }
