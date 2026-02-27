@@ -143,5 +143,11 @@ export class FeedPostCardComponent {
         this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
     }
   }
+
+  toggleFollow(post: FeedPost): void {
+    // This would ideally emit an event to the parent to handle follow/unfollow logic
+    // For now, we can just show a snackbar as a placeholder
+    this.snackBar.open('Follow/unfollow functionality not implemented', 'OK', { duration: 2000 });
+  }
   
 }

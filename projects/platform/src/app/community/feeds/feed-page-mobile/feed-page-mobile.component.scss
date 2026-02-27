@@ -226,7 +226,7 @@
       .username {
         font-weight: 300;
         font-size: 0.9rem;
-        color: rgba($primary-color, 0.8);
+        color: rgba($primary-color, 1);
       }
 
       .follow-btn {
@@ -267,6 +267,7 @@
     flex-direction: column;
     gap: $spacing-4;
     z-index: 5;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
 
     .action-btn {
       background: none;

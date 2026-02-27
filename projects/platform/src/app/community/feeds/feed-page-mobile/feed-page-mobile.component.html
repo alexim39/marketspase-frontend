@@ -85,14 +85,14 @@
                 alt="avatar"
               />
               <span class="username">&#64;{{ post.author?.username }}</span>
-              @if (post.author?._id !== user()?._id) {
+             <!--  @if (post.author?._id !== user()?._id) {
                 <button
                   class="follow-btn"
                   (click)="toggleFollow(post.author!._id)"
                 >
                   {{ isFollowing(post.author!._id) ? 'Following' : 'Follow' }}
                 </button>
-              }
+              } -->
             </div>
 
             <!-- Caption – shown only when toggled on -->
