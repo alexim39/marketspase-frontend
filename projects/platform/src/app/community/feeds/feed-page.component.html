@@ -168,6 +168,7 @@
         <!-- Scroll Anchor for Infinite Scroll -->
         <div #scrollAnchor class="scroll-anchor"></div>
       </div>
+
     </main>
 
     <!-- Right Sidebar (Desktop) -->
@@ -205,6 +206,25 @@
           </div>
         </div>
       }
+
+        <!-- Who to Follow -->
+      <div class="follow-card">
+        <h3 class="card-title">Who to follow</h3>
+        <div class="follow-items">
+          @for (user of suggestedUsers(); track user._id) {
+            <div class="follow-item">
+              <img [src]="user.avatar || 'img/avatar.png'" alt="User" class="follow-avatar">
+              <div class="follow-info">
+                <span class="follow-name">{{ user.displayName }}</span>
+                <span class="follow-handle">@{{ user.username }}</span>
+              </div>
+              <button class="follow-btn" [class.following]="isFollowing(user._id)" (click)="toggleFollow(user._id)">
+                {{ isFollowing(user._id) ? 'Following' : 'Follow' }}
+              </button>
+              </div>
+            }
+        </div>
+      </div>
 
       <!-- Footer Links -->
       <div class="sidebar-footer">

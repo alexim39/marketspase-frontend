@@ -380,7 +380,7 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
         .subscribe({
           next: (post) => {
             this.snackBar.open('🎉 Posted successfully!', 'View', { duration: 5000 });
-            this.router.navigate(['/feed']);
+            this.router.navigate(['/dashboard/community/feeds']);
           },
           error: (error) => {
             console.error('Failed to create post:', error);

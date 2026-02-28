@@ -352,6 +352,105 @@ $main-content-max-width: 680px;
     }
   }
 
+
+
+      .follow-card {
+      background: $surface-color;
+      border: $border-width solid $border-color;
+      border-radius: $border-radius-lg;
+      padding: $spacing-4;
+      margin-bottom: $spacing-4;
+      margin-top: $spacing-4;
+      
+      .card-title {
+        margin: 0 0 $spacing-3 0;
+        @include body-medium;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+      }
+      
+      .trending-items,
+      .follow-items {
+        .trending-item,
+        .follow-item {
+          width: 100%;
+          text-align: left;
+          padding: $spacing-3;
+          background: none;
+          border: none;
+          border-bottom: $border-width solid $border-color;
+          cursor: pointer;
+          
+          &:last-child {
+            border-bottom: none;
+          }
+          
+          &:hover {
+            background: $background-color;
+          }
+        }
+        
+        .follow-item {
+          display: flex;
+          align-items: center;
+          gap: $spacing-3;
+          
+          .follow-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          
+          .follow-info {
+            flex: 1;
+            @include flex-column;
+            
+            .follow-name {
+              @include body-small;
+              font-weight: $font-weight-semibold;
+              color: $text-primary;
+            }
+            
+            .follow-handle {
+              @include caption;
+            }
+          }
+          
+          .follow-btn {
+            padding: $spacing-1 $spacing-3;
+            background: $primary-color;
+            color: $white;
+            border: none;
+            border-radius: $border-radius-xl;
+            @include caption;
+            font-weight: $font-weight-semibold;
+            cursor: pointer;
+            
+            &.following {
+              background: transparent;
+              border: $border-width solid $border-color;
+              color: $text-secondary;
+            }
+          }
+        }
+      }
+      
+      .show-more {
+        display: block;
+        margin-top: $spacing-3;
+        color: $primary-color;
+        @include caption;
+        cursor: pointer;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+    
+    
+
   .sidebar-footer {
     display: flex;
     flex-wrap: wrap;
