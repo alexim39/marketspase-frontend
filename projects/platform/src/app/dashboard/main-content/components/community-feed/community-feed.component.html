@@ -12,13 +12,16 @@
       </div>
       <div class="section-actions">
         @if (userRole() === 'marketer') {
-          <button mat-button color="primary" (click)="createPost.emit()" class="create-post-btn">
+          <button mat-button color="primary" (click)="createPost.emit()" class="create-post-btn full">
             <mat-icon>edit</mat-icon>
-            Create Post
+            What's on your mind?
           </button>
         }
-        <button mat-stroked-button color="accent" (click)="viewAll.emit()">
-          View All
+       <button 
+          mat-stroked-button 
+          color="accent" class="full"
+          (click)="viewAll.emit()">
+          Explore the Community
         </button>
       </div>
     </div>
@@ -311,7 +314,7 @@
             <div class="view-all-link">
               <button mat-stroked-button (click)="viewAll.emit()">
                 <!-- View all {{ posts().length }} posts  -->
-                View all posts 
+                See what's happening
                 <mat-icon>arrow_forward</mat-icon>
               </button>
             </div>

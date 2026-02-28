@@ -132,6 +132,12 @@
       display: flex;
       gap: $spacing-2;
       flex-wrap: wrap;
+
+      @include mobile {
+        flex-direction: column;
+         gap: $spacing-3;
+         width: 100%;
+      }
       
       .create-post-btn {
         @include button-primary;
@@ -142,6 +148,9 @@
           background: $primary-dark;
           transform: translateY(-2px);
         }
+      }
+      .full {
+        width: 100% !important;
       }
     }
   }
@@ -221,7 +230,11 @@
     border: $border-width solid var(--border-color);
     
     @include mobile {
-      grid-template-columns: 1fr;
+      //grid-template-columns: 1fr;
+       margin: 1em;
+    }
+
+    @include tablet {
        margin: 1em;
     }
     
@@ -262,6 +275,10 @@
 
     @include mobile {
       margin: 1em;
+    }
+
+     @include tablet {
+       margin: 1em;
     }
     
     .grid-title {
