@@ -116,22 +116,37 @@
           <span class="nav-label">Home</span>
         </button>
         <button class="nav-item" (click)="openCommunityFeed()">
-          <mat-icon>forum</mat-icon>
+          <mat-icon>chat</mat-icon>
           <span class="nav-label">Community</span>
           @if (commactivityStats().postsToday > 0) {
             <span class="nav-badge">{{ commactivityStats().postsToday }}</span>
           }
         </button>
-        <!-- <button class="nav-item primary-action" (click)="createCommunityPost()">
-          <mat-icon>add</mat-icon>
+        @if (user()?.role ==='marketer') {
+          <button class="nav-item primary-action" (click)="createCommunityPost()">
+            <mat-icon>add</mat-icon>
+          </button>
+        }
+        <!-- <button class="nav-item" (click)="openCommunityFeed()">
+          <mat-icon>communities</mat-icon>
+          <span class="nav-label">Community</span>
         </button> -->
-        <button class="nav-item" (click)="openMessages()">
+        <button class="nav-item" (click)="openCommunityForum()">
+          <mat-icon>forum</mat-icon>
+          <span class="nav-label">Discussions</span>
+        </button>
+        <button class="nav-item" (click)="openCampaigns()">
+          <mat-icon>campaign</mat-icon>
+          <span class="nav-label">Campaign</span>
+        </button>
+      
+        <!-- <button class="nav-item" (click)="openMessages()">
           <mat-icon>whatshot</mat-icon>
           <span class="nav-label">activity</span>
           @if (commactivityStats().totalEngagement > 0) {
             <span class="nav-badge">{{ commactivityStats().totalEngagement }}</span>
           }
-        </button>
+        </button> -->
         <!-- <button class="nav-item" (click)="openNotifications()">
           <mat-icon>notifications</mat-icon>
           <span class="nav-label">Alerts</span>

@@ -129,15 +129,16 @@
       &.primary-action {
         background: $primary-color;
         color: white;
-        border-radius: 50%;
-        width: 56px;
-        height: 56px;
-        margin-top: -20px;
+        border-radius: 30%;
+        width: 30px;
+        height: 50px;
+        padding-top: 15px;
+        margin-top: 2px;
         box-shadow: $shadow-md;
         
         mat-icon {
           color: white;
-          font-size: 28px;
+          font-size: 20px;
         }
         
         .nav-label {

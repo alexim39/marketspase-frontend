@@ -423,19 +423,23 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/community/feeds/create']);
   }
 
-  viewCommunityPost(): void {
-    this.router.navigate(['dashboard/community/feeds']);
-  }
-
   openCommunityFeed(): void {
     this.router.navigate(['dashboard/community/feeds']);
   }
 
-  openMessages(): void {
-    this.router.navigate(['dashboard/messages']);
+  openCommunityForum(): void {
+    this.router.navigate(['dashboard/community/discussion']);
   }
 
-  openNotifications(): void {
+  openCampaigns(): void {
+    this.router.navigate(['dashboard/campaigns']);
+  }
+
+  /* openMessages(): void {
+    this.router.navigate(['dashboard/messages']);
+  } */
+
+ /*  openNotifications(): void {
     this.router.navigate(['dashboard/notifications']);
   }
 
@@ -447,12 +451,12 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/profile']);
   }
 
-  openAdSchool(): void {
-    this.router.navigate(['dashboard/learning']);
-  }
-
   openLeaderboard(): void {
     this.router.navigate(['dashboard/leaderboard']);
+  } */
+
+  openAdSchool(): void {
+    this.router.navigate(['dashboard/learning']);
   }
 
   setViewPeriod(period: 'weekly' | 'monthly' | 'yearly'): void {
