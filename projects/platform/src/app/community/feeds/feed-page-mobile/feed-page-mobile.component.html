@@ -148,6 +148,18 @@
               <mat-icon>{{ isCaptionVisible(post._id) ? 'expand_less' : 'expand_more' }}</mat-icon>
               <span>{{ isCaptionVisible(post._id) ? 'Hide' : 'Read' }}</span>
             </button>
+
+          @if (post.author?._id === user()?._id || user()?.role === 'admin') {
+            <div class="admin-actions">
+              <button mat-icon-button class="edit-btn" (click)="onEdit(post)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="delete-btn" (click)="onDelete(post)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+
           </div>
         </div>
       </section>

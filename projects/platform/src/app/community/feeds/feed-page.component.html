@@ -41,7 +41,7 @@
           <img [src]="user()?.avatar || 'img/avatar.png'" alt="Your avatar" class="post-avatar">
           <input
             type="text"
-            placeholder="What's happening?"
+            placeholder="Create a post around your campaigns"
             class="post-input"
             (click)="onCreatePost()"
             readonly>
@@ -107,6 +107,7 @@
             </div>
             <app-feed-post-card
               [post]="post"
+              [user]="user()"
               [isLiked]="likedPosts().has(post._id)"
               [isSaved]="savedPosts().has(post._id)"
               (like)="onLike(post)"
@@ -123,6 +124,7 @@
           @for (post of regularPosts(); track post._id) {
             <app-feed-post-card
               [post]="post"
+              [user]="user()"
               [isLiked]="likedPosts().has(post._id)"
               [isSaved]="savedPosts().has(post._id)"
               (like)="onLike($event)"

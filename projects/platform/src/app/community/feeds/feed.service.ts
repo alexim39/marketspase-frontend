@@ -851,4 +851,15 @@ export class FeedService {
       .pipe(map((response: any) => response?.data || response));
   }
 
+  editPost(postId: string, userId: string, content: string, hashtags: string[]): Observable<any> {
+    return this.apiService.put(`${this.apiUrl}/${postId}`, { content, hashtags, userId }, undefined, true);
+  }
+
+  deletePost(postId: string, userId: string): Observable<any> {
+    const params = new HttpParams().set('userId', userId);
+    return this.apiService.delete(`${this.apiUrl}/${postId}`, params, undefined, true);
+  }
+
+
+
 }

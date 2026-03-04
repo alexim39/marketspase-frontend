@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild, ElementRef, AfterViewInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -155,9 +155,28 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
   // Preview post
   previewPost = signal<any>(null);
 
+
+  // Inside the class
+private route = inject(ActivatedRoute);
+
+// New signals
+postId = signal<string | null>(null);
+isEditMode = computed(() => !!this.postId());
+isLoadingPost = signal(false);
+originalPost: any = null; // store original post data
+
   ngOnInit(): void {
     this.loadUserCampaigns();
     this.updatePreview();
+
+     const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.postId.set(id);
+      this.loadPost(id);
+    } else {
+      this.loadUserCampaigns();
+      this.updatePreview();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -166,7 +185,55 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     }, 300);
   }
 
-  loadUserCampaigns(): void {
+loadPost(id: string): void {
+  this.isLoadingPost.set(true);
+  this.feedService.getPostById(id).subscribe({
+    next: (post) => {
+      console.log('Loaded post for edit:', post); // Debug: check structure
+      this.originalPost = post;
+      
+      // Populate form fields
+      this.postData.content = post.content || '';
+      this.postData.campaignId = post.campaign?.campaignId || '';
+      this.postData.postAnonymously = post.settings?.postAnonymously || false;
+      this.postData.disableComments = post.settings?.disableComments || false;
+      
+      // Safely extract hashtags (handles both string[] and { tag: string }[] formats)
+      const rawHashtags = post.hashtags || [];
+      const hashtagStrings = rawHashtags.map((h: any) => {
+        if (typeof h === 'string') return h;
+        if (h && typeof h === 'object' && 'tag' in h) return h.tag;
+        return '';
+      }).filter(tag => tag); // remove empty strings
+      
+      this.hashtags.set(hashtagStrings);
+      console.log('Extracted hashtags:', this.hashtags()); // Debug: check result
+
+      this.characterCount.set(this.postData.content.length);
+      
+      // Load campaigns (if needed for preview)
+      if (this.postData.campaignId) {
+        this.loadUserCampaigns().then(() => {
+          const campaign = this.userCampaigns().find(c => c._id === this.postData.campaignId);
+          this.selectedCampaign.set(campaign || null);
+          this.updatePreview(); // update preview after campaign is loaded
+        });
+      } else {
+        this.updatePreview();
+      }
+      
+      this.isLoadingPost.set(false);
+    },
+    error: (err) => {
+      console.error('Failed to load post', err);
+      this.snackBar.open('Could not load post for editing', 'OK', { duration: 3000 });
+      this.isLoadingPost.set(false);
+      this.router.navigate(['/dashboard/community/feeds']);
+    }
+  });
+}
+
+ /*  loadUserCampaigns(): void {
     const currentUser = this.user();
     //console.log('currentUser loaded:', currentUser);
     if (!currentUser?._id || currentUser.role !== 'marketer') {
@@ -217,7 +284,61 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
         this.isLoadingCampaigns.set(false);
       }
     });
-  }
+  } */
+
+loadUserCampaigns(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const currentUser = this.user();
+    if (!currentUser?._id || currentUser.role !== 'marketer') {
+      resolve();
+      return;
+    }
+
+    this.isLoadingCampaigns.set(true);
+    this.feedService.getMarketerCampaigns(currentUser._id).subscribe({
+      next: (response) => {
+        
+         // Extract campaigns from response - adjust based on your API structure
+        let campaigns: any[] = [];
+        
+        if (response.data && Array.isArray(response.data)) {
+          // If data is directly an array
+          campaigns = response.data;
+        } else if (response.data?.campaigns && Array.isArray(response.data.campaigns)) {
+          // If data has campaigns property
+          campaigns = response.data.campaigns;
+        } else if (response.campaigns && Array.isArray(response.campaigns)) {
+          // If response has campaigns property
+          campaigns = response.campaigns;
+        }
+
+        //this.userCampaigns.set(campaigns);
+
+        this.userCampaigns.set(campaigns.map((c: any) => ({
+          _id: c._id,
+          title: c.title || 'Untitled Campaign',
+          mediaUrl: c.mediaUrl || '',
+          mediaType: c.mediaType || 'image',
+          thumbnailUrl: c.thumbnailUrl,
+          status: c.status || 'unknown',
+          budget: c.budget || 0,
+          // These might not exist, provide defaults
+          spentBudget: c.spentBudget || 0,
+          progress: c.progress || 0
+        })));
+
+        this.isLoadingCampaigns.set(false);
+        resolve();
+      },
+      error: (error) => {
+        console.error('Failed to load campaigns:', error);
+        this.snackBar.open('Failed to load your campaigns', 'Dismiss', { duration: 3000 });
+        this.isLoadingCampaigns.set(false);
+        reject(error);
+      }
+    });
+  });
+}
 
   onCampaignSelect(campaignId: string): void {
     const campaign = this.userCampaigns().find(c => c._id === campaignId);
@@ -313,12 +434,12 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     );
   }
 
-/*   onSubmit(): void {
+ /*  onSubmit(): void {
     if (this.isSubmitting() || !this.isFormValid()) return;
 
     this.isSubmitting.set(true);
 
-    const postPayload = {
+      const postPayload = {
       content: this.postData.content,
       campaignId: this.postData.campaignId,
       hashtags: this.hashtags().map(tag => ({ tag })),
@@ -329,66 +450,71 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
       }
     };
 
-    // Make sure this method exists in your feed service
-    this.feedService.createPost(postPayload).subscribe({
-      next: (post) => {
-        this.snackBar.open(
-          '🎉 Campaign feed posted successfully!',
-          'View Post',
-          { duration: 5000, panelClass: 'success-snackbar' }
-        ).onAction().subscribe(() => {
-          this.router.navigate(['/feed', post._id]);
-        });
-        
-        setTimeout(() => {
-          this.router.navigate(['/feed']);
-        }, 2000);
-      },
-      error: (error) => {
-        console.error('Failed to create post:', error);
-        this.snackBar.open(
-          'Failed to create post. Please try again.',
-          'Dismiss',
-          { duration: 5000, panelClass: 'error-snackbar' }
-        );
-        this.isSubmitting.set(false);
-      }
-    });
+    this.feedService.createPost(postPayload)
+      .pipe(
+        // This runs no matter what (success or error)
+        finalize(() => this.isSubmitting.set(false)) 
+      )
+      .subscribe({
+        next: (post) => {
+          this.snackBar.open('🎉 Posted successfully!', 'View', { duration: 5000 });
+          this.router.navigate(['/dashboard/community/feeds']);
+        },
+        error: (error) => {
+          console.error('Failed to create post:', error);
+          this.snackBar.open('Error: ' + error.message, 'Dismiss');
+          // finalize() handles the loader reset here
+        }
+      });
   } */
 
-    onSubmit(): void {
-      if (this.isSubmitting() || !this.isFormValid()) return;
+onSubmit(): void {
+  if (this.isSubmitting() || !this.isFormValid()) return;
 
-      this.isSubmitting.set(true);
+  this.isSubmitting.set(true);
 
-       const postPayload = {
-        content: this.postData.content,
-        campaignId: this.postData.campaignId,
-        hashtags: this.hashtags().map(tag => ({ tag })),
-        userId: this.user()?._id,
-        settings: {
-          postAnonymously: this.postData.postAnonymously,
-          disableComments: this.postData.disableComments
-        }
-      };
-
-      this.feedService.createPost(postPayload)
-        .pipe(
-          // This runs no matter what (success or error)
-          finalize(() => this.isSubmitting.set(false)) 
-        )
-        .subscribe({
-          next: (post) => {
-            this.snackBar.open('🎉 Posted successfully!', 'View', { duration: 5000 });
-            this.router.navigate(['/dashboard/community/feeds']);
-          },
-          error: (error) => {
-            console.error('Failed to create post:', error);
-            this.snackBar.open('Error: ' + error.message, 'Dismiss');
-            // finalize() handles the loader reset here
-          }
-        });
+  const basePayload = {
+    content: this.postData.content,
+    hashtags: this.hashtags().map(tag => ({ tag })),
+    userId: this.user()?._id,
+    settings: {
+      postAnonymously: this.postData.postAnonymously,
+      disableComments: this.postData.disableComments
     }
+  };
+
+  let request$;
+  if (this.isEditMode()) {
+    // Edit existing post
+    request$ = this.feedService.editPost(
+      this.postId()!,
+      this.user()?._id!,
+      basePayload.content,
+      basePayload.hashtags.map(h => h.tag) // service expects string[]
+    );
+  } else {
+    // Create new post (includes campaignId)
+    const createPayload = { ...basePayload, campaignId: this.postData.campaignId };
+    request$ = this.feedService.createPost(createPayload);
+  }
+
+  request$
+    .pipe(finalize(() => this.isSubmitting.set(false)))
+    .subscribe({
+      next: (response) => {
+        this.snackBar.open(
+          this.isEditMode() ? '✅ Post updated!' : '🎉 Posted successfully!',
+          'View',
+          { duration: 5000 }
+        );
+        this.router.navigate(['/dashboard/community/feeds']);
+      },
+      error: (error) => {
+        console.error('Failed to save post:', error);
+        this.snackBar.open('Error: ' + error.message, 'Dismiss');
+      }
+    });
+}
 
   onDiscard(): void {
     if (this.isDirty()) {
@@ -401,7 +527,4 @@ export class CreateFeedPageComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngOnDestroy(): void {
-    // Clean up if needed
-  }
 }

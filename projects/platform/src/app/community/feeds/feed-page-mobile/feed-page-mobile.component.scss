@@ -378,3 +378,35 @@
 .scroll-anchor {
   height: 1px;
 }
+
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Space between buttons */
+  justify-content: flex-end; /* Align buttons to the right */
+  align-items: center;
+
+  .edit-btn {
+    //background-color: #e3f2fd; /* Light blue background */
+    color: #1976d2; /* Blue icon color */
+    border-radius: 50%; /* Circular button */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: #bbdefb; /* Darker blue on hover */
+      transform: scale(1.1); /* Slight zoom effect */
+    }
+  }
+
+  .delete-btn {
+    //background-color: #ffebee; /* Light red background */
+    color: #d32f2f; /* Red icon color */
+    border-radius: 50%; /* Circular button */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &:hover {
+      background-color: #ffcdd2; /* Darker red on hover */
+      transform: scale(1.1); /* Slight zoom effect */
+    }
+  }
+}

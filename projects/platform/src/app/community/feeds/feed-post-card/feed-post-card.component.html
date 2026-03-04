@@ -37,18 +37,28 @@
     </button>
     
     <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="onSave()">
+      <button mat-menu-item (click)="onSave()" class="save-btn">
         <mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
         <span>{{ isSaved() ? 'Unsave' : 'Save' }}</span>
       </button>
-      <button mat-menu-item (click)="onHide()">
+     <!--  <button mat-menu-item (click)="onHide()">
         <mat-icon>visibility_off</mat-icon>
         <span>Hide post</span>
-      </button>
-      <button mat-menu-item (click)="onReport()">
+      </button> -->
+      <!-- <button mat-menu-item (click)="onReport()">
         <mat-icon>flag</mat-icon>
         <span>Report</span>
-      </button>
+      </button> -->
+      @if (post().author?._id === user()?._id || user()?.role === 'admin') {
+        <button mat-menu-item (click)="onEdit(post())">
+          <mat-icon>edit</mat-icon>
+          <span>Edit post</span>
+        </button>
+        <button mat-menu-item (click)="onDelete(post())">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
+      }
     </mat-menu>
   </mat-card-header>
   

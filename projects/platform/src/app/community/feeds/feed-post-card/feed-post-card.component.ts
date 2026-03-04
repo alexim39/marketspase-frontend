@@ -5,8 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FeedPost } from '../feed.service';
+import { FeedPost, FeedService } from '../feed.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { Router } from '@angular/router';
 
 type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
 
@@ -21,14 +23,21 @@ type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veter
     MatMenuModule,
     MatTooltipModule
   ],
+  providers: [FeedService],
   templateUrl: './feed-post-card.component.html',
   styleUrls: ['./feed-post-card.component.scss']
 })
 export class FeedPostCardComponent {
   post = input.required<FeedPost>();
+  user = input.required<UserInterface | null>();
   isLiked = input<boolean>(false);
   isSaved = input<boolean>(false);
   private snackBar = inject(MatSnackBar);
+  private feedService = inject(FeedService);
+  private router = inject(Router);
+
+  postDeleted = output<string>();        // emits post ID after successful delete
+  postUpdated = output<FeedPost>();
 
   // Read more state
   showFullContent = signal(false);
@@ -148,6 +157,32 @@ export class FeedPostCardComponent {
     // This would ideally emit an event to the parent to handle follow/unfollow logic
     // For now, we can just show a snackbar as a placeholder
     this.snackBar.open('Follow/unfollow functionality not implemented', 'OK', { duration: 2000 });
+  }
+
+  onDelete(post: FeedPost): void {
+    const userId = this.user()?._id;
+    if (!userId) {
+      this.snackBar.open('You must be logged in', 'OK', { duration: 2000 });
+      return;
+    }
+
+    const confirmed = window.confirm('Are you sure you want to delete this post?');
+    if (!confirmed) return;
+
+    this.feedService.deletePost(post._id, userId).subscribe({
+      next: () => {
+        this.snackBar.open('Post deleted successfully', 'OK', { duration: 2000 });
+        this.postDeleted.emit(post._id);   // notify parent to remove it
+      },
+      error: (err) => {
+        console.error('Delete failed', err);
+        this.snackBar.open('Failed to delete post', 'OK', { duration: 2000 });
+      }
+    });
+  }
+
+  onEdit(post: FeedPost): void {
+    this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
   }
   
 }

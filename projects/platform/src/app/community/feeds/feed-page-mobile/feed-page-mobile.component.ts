@@ -353,4 +353,30 @@ isCaptionVisible(postId: string): boolean {
           this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
       }
     }
+
+    onDelete(post: FeedPost): void {
+      const userId = this.user()?._id;
+      if (!userId) {
+        this.snackBar.open('You must be logged in', 'OK', { duration: 2000 });
+        return;
+      }
+
+      const confirmed = window.confirm('Are you sure you want to delete this post?');
+      if (!confirmed) return;
+
+      this.feedService.deletePost(post._id, userId).subscribe({
+        next: () => {
+          this.snackBar.open('Post deleted successfully', 'OK', { duration: 2000 });
+          //this.postDeleted.emit(post._id);   // notify parent to remove it
+        },
+        error: (err) => {
+          console.error('Delete failed', err);
+          this.snackBar.open('Failed to delete post', 'OK', { duration: 2000 });
+        }
+      });
+    }
+
+    onEdit(post: FeedPost): void {
+     this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
+    }
 }
