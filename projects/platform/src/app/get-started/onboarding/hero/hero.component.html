@@ -1,0 +1,18 @@
+<section class="hero-section">
+  <h1 class="hero-title">Welcome to MarketSpase, {{ roleDisplay }}! 🚀</h1>
+  @if (user) {
+    <div class="progress-container">
+      <div class="progress-header">
+        <span class="progress-label">Your Onboarding Progress</span>
+        <span class="progress-percentage">{{ progress }}%</span>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="progress" color="primary"></mat-progress-bar>
+      @if (isComplete) {
+        <div class="complete-badge">
+          <mat-icon>check_circle</mat-icon>
+          <span>Onboarding Complete! Ready to go! 🎉</span>
+        </div>
+      }
+    </div>
+  }
+</section>

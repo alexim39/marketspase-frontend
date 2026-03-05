@@ -1,0 +1,35 @@
+<div class="role-switcher">
+  <div 
+    class="role-button" 
+    [class.active]="isMarketer"
+    (click)="onSwitch('marketer')"
+    matRipple>
+    <div class="role-icon">
+      <mat-icon>storefront</mat-icon>
+    </div>
+    <h3 class="role-title">I'm a Marketer</h3>
+    <p class="role-description">I want to advertise my business</p>
+    @if (isMarketer) {
+      <mat-chip color="primary" selected>
+        <span class="active">Active</span>
+      </mat-chip>
+    }
+  </div>
+  
+  <div 
+    class="role-button" 
+    [class.active]="isPromoter"
+    (click)="onSwitch('promoter')"
+    matRipple>
+    <div class="role-icon">
+      <mat-icon>groups</mat-icon>
+    </div>
+    <h3 class="role-title">I'm a Promoter</h3>
+    <p class="role-description">I want to earn by promoting people's business</p>
+    @if (isPromoter) {
+      <mat-chip color="accent" selected >
+        <span class="active">Active</span>
+      </mat-chip>
+    }
+  </div>
+</div>

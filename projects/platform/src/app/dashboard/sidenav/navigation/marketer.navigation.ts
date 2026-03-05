@@ -12,6 +12,12 @@ export function getMarketerNavigation(
       expanded: false
     },
     {
+      icon: 'account_box',
+      label: 'Me',
+      route: '/dashboard',
+      expanded: false
+    },
+    {
       icon: 'campaign',
       label: 'Campaigns',
       badge: pendingCampaigns,
