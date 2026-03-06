@@ -46,15 +46,15 @@
             </span>
           </div>
           <div class="stats-row">
-            <div class="stat" (click)="activeTab.set('posts')">
+            <div class="stat" (click)="activeTabIndex.set(0)">
               <span class="stat-value">{{ profile.postsCount }}</span>
               <span class="stat-label">Posts</span>
             </div>
-            <div class="stat" (click)="showFollowers()">
+            <div class="stat" (click)="activeTabIndex.set(1)">
               <span class="stat-value">{{ profile.followersCount }}</span>
               <span class="stat-label">Followers</span>
             </div>
-            <div class="stat" (click)="showFollowing()">
+            <div class="stat" (click)="activeTabIndex.set(2)">
               <span class="stat-value">{{ profile.followingCount }}</span>
               <span class="stat-label">Following</span>
             </div>
@@ -85,7 +85,7 @@
     </div>
 
     <!-- Tabs -->
-    <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="0ms">
+    <mat-tab-group [(selectedIndex)]="activeTabIndex" animationDuration="0ms">
       <!-- Posts Tab -->
       <mat-tab label="Posts">
         <div class="tab-content">
@@ -94,13 +94,13 @@
               <p>No posts yet</p>
             </div>
           } @else {
-            <div class="posts-grid">
+           <div class="posts-grid">
               @for (post of posts(); track post._id) {
                 <app-feed-post-card
                   [post]="post"
                   [user]="currentUser()"
-                  [isLiked]="false"
-                  [isSaved]="false"
+                  [isLiked]="likedPosts().has(post._id)"
+                  [isSaved]="savedPosts().has(post._id)"
                   (like)="onLike($event)"
                   (save)="onSave($event)"
                   (comment)="onComment($event)"
@@ -120,13 +120,70 @@
       </mat-tab>
 
       <!-- Followers Tab -->
-      <mat-tab label="Followers" (click)="showFollowers()">
-        <!-- Content will be in dialog, but we keep tab for consistency -->
+      <mat-tab label="Followers">
+        <div class="tab-content followers-tab">
+          @if (loadingFollowers()) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="30"></mat-spinner>
+            </div>
+          } @else {
+            <div class="user-list">
+              @for (user of followers(); track user._id) {
+                <div class="user-item" (click)="viewProfile(user._id)">
+                  <img [src]="user.avatar || 'img/avatar.png'" alt="" class="user-avatar">
+                  <div class="user-info">
+                    <span class="user-name">{{ user.displayName }}</span>
+                    <span class="user-handle">@{{ user.username }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <p>No followers yet</p>
+                </div>
+              }
+              @if (followersLoadingMore()) {
+                <div class="loading-more">
+                  <mat-spinner diameter="20"></mat-spinner>
+                </div>
+              }
+              <div #followersScrollAnchor class="scroll-anchor"></div>
+            </div>
+          }
+        </div>
       </mat-tab>
 
+
       <!-- Following Tab -->
-      <mat-tab label="Following" (click)="showFollowing()">
-        <!-- Content will be in dialog -->
+        <mat-tab label="Following">
+        <div class="tab-content following-tab">
+          @if (loadingFollowing()) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="30"></mat-spinner>
+            </div>
+          } @else {
+            <div class="user-list">
+              @for (user of following(); track user._id) {
+                <div class="user-item" (click)="viewProfile(user._id)">
+                  <img [src]="user.avatar || 'img/avatar.png'" alt="" class="user-avatar">
+                  <div class="user-info">
+                    <span class="user-name">{{ user.displayName }}</span>
+                    <span class="user-handle">@{{ user.username }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <p>Not following anyone yet</p>
+                </div>
+              }
+              @if (followingLoadingMore()) {
+                <div class="loading-more">
+                  <mat-spinner diameter="20"></mat-spinner>
+                </div>
+              }
+              <div #followingScrollAnchor class="scroll-anchor"></div>
+            </div>
+          }
+        </div>
       </mat-tab>
     </mat-tab-group>
   }

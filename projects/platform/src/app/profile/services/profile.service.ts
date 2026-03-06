@@ -53,20 +53,39 @@ export class ProfileService {
   private apiService: ApiService = inject(ApiService);
   private baseUrl = 'profile';
 
-  getProfile(userId: string): Observable<ProfileUser> {
-    return this.apiService.get<ProfileUser>(`${this.baseUrl}/${userId}/profile`);
+  getProfile(userId: string, currentUserId: string | null): Observable<ProfileUser> {
+    const url = currentUserId 
+      ? `${this.baseUrl}/${userId}/profile?currentUserId=${currentUserId}` 
+      : `${this.baseUrl}/${userId}/profile`;
+    return this.apiService.get<ProfileUser>(url);
   }
 
-  getUserPosts(userId: string, page: number = 1, limit: number = 10): Observable<PaginatedResponse<FeedPost>> {
+  /* getUserPosts(userId: string, page: number = 1, limit: number = 10): Observable<PaginatedResponse<FeedPost>> {
     return this.apiService.get<PaginatedResponse<FeedPost>>(
       `${this.baseUrl}/${userId}/posts?page=${page}&limit=${limit}`
     );
+  } */
+
+  getUserPosts(userId: string, page: number = 1, limit: number = 10, currentUserId: string | null = null): Observable<PaginatedResponse<FeedPost>> {
+    let url = `${this.baseUrl}/${userId}/posts?page=${page}&limit=${limit}`;
+    if (currentUserId) {
+      url += `&currentUserId=${currentUserId}`;
+    }
+    return this.apiService.get<PaginatedResponse<FeedPost>>(url);
   }
 
-  getFollowers(userId: string, page: number = 1, limit: number = 20): Observable<PaginatedResponse<FollowUser>> {
+  /* getFollowers(userId: string, page: number = 1, limit: number = 20): Observable<PaginatedResponse<FollowUser>> {
     return this.apiService.get<PaginatedResponse<FollowUser>>(
       `${this.baseUrl}/${userId}/followers?page=${page}&limit=${limit}`
     );
+  } */
+
+  getFollowers(userId: string, page: number = 1, limit: number = 20, currentUserId?: string): Observable<PaginatedResponse<FollowUser>> {
+    let url = `${this.baseUrl}/${userId}/followers?page=${page}&limit=${limit}`;
+    if (currentUserId) {
+      url += `&currentUserId=${currentUserId}`;
+    }
+    return this.apiService.get<PaginatedResponse<FollowUser>>(url);
   }
 
   getFollowing(userId: string, page: number = 1, limit: number = 20): Observable<PaginatedResponse<FollowUser>> {
@@ -75,7 +94,7 @@ export class ProfileService {
     );
   }
 
-  toggleFollow(userId: string): Observable<{ followed: boolean }> {
-    return this.apiService.post<{ followed: boolean }>(`${this.baseUrl}/${userId}/follow`, {});
+  toggleFollow(userId: string, currentUserId: string | null): Observable<{ followed: boolean }> {
+    return this.apiService.post<{ followed: boolean }>(`${this.baseUrl}/${userId}/follow`, { currentUserId });
   }
 }

@@ -110,6 +110,10 @@
               [user]="user()"
               [isLiked]="likedPosts().has(post._id)"
               [isSaved]="savedPosts().has(post._id)"
+              (like)="onLike(post)"
+              (save)="onSave(post._id)"
+              (comment)="onComment(post._id)"
+              (share)="onShare(post)"
               (hashtagClick)="onHashtagClick($event)">
             </app-feed-post-card>
           </div>
@@ -123,6 +127,10 @@
               [user]="user()"
               [isLiked]="likedPosts().has(post._id)"
               [isSaved]="savedPosts().has(post._id)"
+              (like)="onLike($event)"
+              (save)="onSave($event)"
+              (comment)="onComment($event)"
+              (share)="onShare( post)"
               (hashtagClick)="onHashtagClick($event)"
             />
           }
