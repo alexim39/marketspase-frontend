@@ -29,6 +29,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { FeedService, FeedPost } from './../feed.service';
 import { CommentDialogComponent } from './../comment-dialog/comment-dialog.component';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { ProfileService } from '../../../profile/services/profile.service';
 
 @Component({
   selector: 'app-feed-page-mobile',
@@ -43,14 +44,15 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
   ],
   templateUrl: './feed-page-mobile.component.html',
   styleUrls: ['./feed-page-mobile.component.scss'],
-  providers: [FeedService],
+  providers: [FeedService, ProfileService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MobileFeedComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   private feedService = inject(FeedService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   public router = inject(Router);
+  private profileService = inject(ProfileService);
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
@@ -97,6 +99,16 @@ isCaptionVisible(postId: string): boolean {
   private visibilityObserver!: IntersectionObserver;
 
   constructor() {
+
+    effect(() => {
+      const currentUser = this.user();
+      if (!currentUser?._id) return;
+      queueMicrotask(() => {
+        this.loadFollowingList();
+      });
+    });
+
+
     // Load feed when user or tab changes
     effect(() => {
       const currentUser = this.user();
@@ -118,19 +130,42 @@ isCaptionVisible(postId: string): boolean {
 
     // Debounced search
     this.searchSubscription = toObservable(this.searchQuery)
-      .pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        filter(q => q.length === 0 || q.length > 2)
-      )
-      .subscribe(query => {
-        const currentUser = this.user();
-        if (!currentUser?._id) return;
-        this.loadFeedWithSearch(query);
-      });
+    .pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter(q => q.length === 0 || q.length > 2)
+    )
+    .subscribe(query => {
+      const currentUser = this.user();
+      if (!currentUser?._id) return;
+      this.loadFeedWithSearch(query);
+    });
   }
 
-  ngOnInit() {}
+  loadFollowingFeed(): void {
+    // Load feed from followed users
+    this.feedService.loadFeedPosts(
+      this.user()?._id ?? '',
+      this.selectedType() !== 'all' ? this.selectedType() : undefined,
+      
+      //'following'
+    );
+  }
+
+
+  // Add this method to load the list of users the current user follows
+  loadFollowingList(): void {
+    const currentUserId = this.user()?._id;
+    if (!currentUserId) return;
+
+    this.profileService.getFollowing(currentUserId, 1, 100).subscribe({
+      next: (res) => {
+        const followingIds = (res.following || []).map((u: any) => u._id);
+        this.following.set(new Set(followingIds));
+      },
+      error: (err) => console.error('Failed to load following list', err)
+    });
+  }
 
   ngAfterViewInit() {
     this.setupInfiniteScroll();
@@ -272,15 +307,32 @@ isCaptionVisible(postId: string): boolean {
   }
 
   toggleFollow(userId: string): void {
-    const following = new Set(this.following());
-    if (following.has(userId)) {
-      following.delete(userId);
-      this.snackBar.open('Unfollowed', 'OK', { duration: 2000 });
-    } else {
-      following.add(userId);
-      this.snackBar.open('Following', 'OK', { duration: 2000 });
-    }
-    this.following.set(following);
+    const currentUserId = this.user()?._id;
+    if (!currentUserId) return;
+
+    const wasFollowing = this.following().has(userId);
+
+    // Optimistic update
+    this.following.update(set => {
+      const newSet = new Set(set);
+      wasFollowing ? newSet.delete(userId) : newSet.add(userId);
+      return newSet;
+    });
+
+    this.profileService.toggleFollow(userId, currentUserId).subscribe({
+      next: (res) => {
+        this.snackBar.open(res.followed ? 'Followed' : 'Unfollowed', 'OK', { duration: 2000 });
+      },
+      error: () => {
+        // Revert on error
+        this.following.update(set => {
+          const newSet = new Set(set);
+          wasFollowing ? newSet.add(userId) : newSet.delete(userId);
+          return newSet;
+        });
+        this.snackBar.open('Action failed', 'Dismiss', { duration: 3000 });
+      }
+    });
   }
 
   navigateTo(route: string): void {
@@ -333,50 +385,50 @@ isCaptionVisible(postId: string): boolean {
   }
 
   // Toggle caption visibility
-    toggleCaption(postId: string): void {
+  toggleCaption(postId: string): void {
     this.captionVisible.update(map => {
         const current = map.get(postId) ?? false;
         map.set(postId, !current);
         return new Map(map);
     });
+  }
+
+  // Open WhatsApp chat (example – you can adjust the link structure)
+  openWhatsApp(post: FeedPost): void {
+    // Assuming the post has a contact number or WhatsApp link
+    // e.g., post.campaign?.contactWhatsapp or post.author?.phone
+    const phone = post.phone;
+    if (phone) {
+      const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
+      window.open(url, '_blank');
+    } else {
+        this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
+    }
+  }
+
+  onDelete(post: FeedPost): void {
+    const userId = this.user()?._id;
+    if (!userId) {
+      this.snackBar.open('You must be logged in', 'OK', { duration: 2000 });
+      return;
     }
 
-    // Open WhatsApp chat (example – you can adjust the link structure)
-    openWhatsApp(post: FeedPost): void {
-      // Assuming the post has a contact number or WhatsApp link
-      // e.g., post.campaign?.contactWhatsapp or post.author?.phone
-      const phone = post.phone;
-      if (phone) {
-        const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
-        window.open(url, '_blank');
-      } else {
-          this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
+    const confirmed = window.confirm('Are you sure you want to delete this post?');
+    if (!confirmed) return;
+
+    this.feedService.deletePost(post._id, userId).subscribe({
+      next: () => {
+        this.snackBar.open('Post deleted successfully', 'OK', { duration: 2000 });
+        //this.postDeleted.emit(post._id);   // notify parent to remove it
+      },
+      error: (err) => {
+        console.error('Delete failed', err);
+        this.snackBar.open('Failed to delete post', 'OK', { duration: 2000 });
       }
-    }
+    });
+  }
 
-    onDelete(post: FeedPost): void {
-      const userId = this.user()?._id;
-      if (!userId) {
-        this.snackBar.open('You must be logged in', 'OK', { duration: 2000 });
-        return;
-      }
-
-      const confirmed = window.confirm('Are you sure you want to delete this post?');
-      if (!confirmed) return;
-
-      this.feedService.deletePost(post._id, userId).subscribe({
-        next: () => {
-          this.snackBar.open('Post deleted successfully', 'OK', { duration: 2000 });
-          //this.postDeleted.emit(post._id);   // notify parent to remove it
-        },
-        error: (err) => {
-          console.error('Delete failed', err);
-          this.snackBar.open('Failed to delete post', 'OK', { duration: 2000 });
-        }
-      });
-    }
-
-    onEdit(post: FeedPost): void {
-     this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
-    }
+  onEdit(post: FeedPost): void {
+    this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
+  }
 }

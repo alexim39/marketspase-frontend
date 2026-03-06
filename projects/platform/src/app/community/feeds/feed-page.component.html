@@ -215,16 +215,16 @@
         <div class="follow-items">
           @for (user of suggestedUsers(); track user._id) {
             <div class="follow-item">
-              <img [src]="user.avatar || 'img/avatar.png'" alt="User" class="follow-avatar">
-              <div class="follow-info">
+              <img [src]="user.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewProfile(user)">
+              <div class="follow-info" (click)="viewProfile(user)">
                 <span class="follow-name">{{ user.displayName }}</span>
                 <span class="follow-handle">@{{ user.username }}</span>
               </div>
               <button class="follow-btn" [class.following]="isFollowing(user._id)" (click)="toggleFollow(user._id)">
                 {{ isFollowing(user._id) ? 'Following' : 'Follow' }}
               </button>
-              </div>
-            }
+            </div>
+          }
         </div>
       </div>
 

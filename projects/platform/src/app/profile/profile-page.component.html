@@ -3,6 +3,7 @@
   @if (loading()) {
     <div class="loading-state">
       <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading profile...</p>
     </div>
   } 
   @if (error()) {
@@ -91,6 +92,7 @@
         <div class="tab-content">
           @if (posts().length === 0 && !postsLoading()) {
             <div class="empty-state">
+              <mat-icon>post_add</mat-icon>
               <p>No posts yet</p>
             </div>
           } @else {
@@ -138,6 +140,7 @@
                 </div>
               } @empty {
                 <div class="empty-state">
+                  <mat-icon>post_add</mat-icon>
                   <p>No followers yet</p>
                 </div>
               }
@@ -172,6 +175,7 @@
                 </div>
               } @empty {
                 <div class="empty-state">
+                  <mat-icon>post_add</mat-icon>
                   <p>Not following anyone yet</p>
                 </div>
               }

@@ -305,7 +305,7 @@ $main-content-max-width: 680px;
     background: $surface-color;
     border: $border-width solid $border-color;
     border-radius: $border-radius-lg;
-    padding: $spacing-4;
+    padding: $spacing-2;
     margin-bottom: $spacing-4;
     margin-top: $spacing-4;
 
@@ -354,11 +354,11 @@ $main-content-max-width: 680px;
 
 
 
-      .follow-card {
+  .follow-card {
       background: $surface-color;
       border: $border-width solid $border-color;
       border-radius: $border-radius-lg;
-      padding: $spacing-4;
+      padding: $spacing-4 $spacing-2;
       margin-bottom: $spacing-4;
       margin-top: $spacing-4;
       
@@ -414,6 +414,7 @@ $main-content-max-width: 680px;
             
             .follow-handle {
               @include caption;
+              font-size: 11px;
             }
           }
           

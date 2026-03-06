@@ -39,11 +39,12 @@ import { UserService } from '../../common/services/user.service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
 
 @Component({
   selector: 'app-feed-page-desktop',
   standalone: true,
-  providers: [FeedService],
+  providers: [FeedService, ProfileService],
   imports: [
     CommonModule,
     RouterModule,
@@ -72,6 +73,7 @@ export class FeedPageComponent {
   currentYear: number = new Date().getFullYear();
   
   private feedService = inject(FeedService);
+  private profileService = inject(ProfileService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
@@ -99,26 +101,7 @@ export class FeedPageComponent {
   unreadMessages = signal<number>(2);
   
   // Suggested users for "Who to follow"
-  suggestedUsers = signal<any[]>([
-    {
-      _id: '1',
-      displayName: 'John Doe',
-      username: 'johndoe',
-      avatar: 'img/avatar.png'
-    },
-    {
-      _id: '2',
-      displayName: 'Jane Smith',
-      username: 'janesmith',
-      avatar: 'img/avatar.png'
-    },
-    {
-      _id: '3',
-      displayName: 'Mike Johnson',
-      username: 'mikej',
-      avatar: 'img/avatar.png'
-    }
-  ]);
+  suggestedUsers = this.profileService.suggestedUsers;
 
   // Following set
   following = signal<Set<string>>(new Set());
@@ -133,14 +116,16 @@ regularPosts = computed(() => {
 private searchSubscription: any;
 
 
-private readonly _ = effect(() => {
-  const user = this.user();
-  if (!user?._id) return;
+  private readonly _ = effect(() => {
+    const user = this.user();
+    if (!user?._id) return;
 
-  queueMicrotask(() => {
-    this.loadFeed();
+    queueMicrotask(() => {
+      this.loadFeed();
+      this.loadFollowingList();
+      this.profileService.fetchSuggestedUsers(user._id).subscribe();
+    });
   });
-});
 
 constructor() {
 
@@ -200,6 +185,19 @@ constructor() {
     });
 }
 
+  // Load the list of users the current user follows (to populate the following set)
+  loadFollowingList(): void {
+    const currentUserId = this.user()?._id;
+    if (!currentUserId) return;
+
+    this.profileService.getFollowing(currentUserId, 1, 100).subscribe({
+      next: (res) => {
+        const followingIds = (res.following || []).map((u: any) => u._id);
+        this.following.set(new Set(followingIds));
+      },
+      error: (err) => console.error('Failed to load following list', err)
+    });
+  }
 
 ngOnDestroy() {
   this.searchSubscription?.unsubscribe();
@@ -343,7 +341,7 @@ private loadFeedWithSearch(searchTerm: string): void {
     return this.following().has(userId);
   }
 
-  toggleFollow(userId: string): void {
+ /*  toggleFollow(userId: string): void {
     const following = new Set(this.following());
     if (following.has(userId)) {
       following.delete(userId);
@@ -353,7 +351,35 @@ private loadFeedWithSearch(searchTerm: string): void {
       this.snackBar.open('Following', 'OK', { duration: 2000 });
     }
     this.following.set(following);
-  }
+  } */
+
+    toggleFollow(userId: string): void {
+      const currentUserId = this.user()?._id;
+      if (!currentUserId) return;
+
+      const wasFollowing = this.following().has(userId);
+      this.profileService.toggleFollow(userId, currentUserId).subscribe({
+        next: (res) => {
+          // Update local set optimistically (already reflected by button)
+          this.following.update(set => {
+            const newSet = new Set(set);
+            if (res.followed) {
+              newSet.add(userId);
+              this.snackBar.open('Followed', 'OK', { duration: 2000 });
+            } else {
+              newSet.delete(userId);
+              this.snackBar.open('Unfollowed', 'OK', { duration: 2000 });
+            }
+            return newSet;
+          });
+          // Optionally refresh suggested users to get new recommendations
+          // this.feedService.fetchSuggestedUsers(currentUserId).subscribe();
+        },
+        error: () => {
+          this.snackBar.open('Action failed', 'Dismiss', { duration: 3000 });
+        }
+      });
+    }
 
   showMoreTrending(): void {
     this.router.navigate(['/dashboard/trending']);
@@ -367,5 +393,8 @@ private loadFeedWithSearch(searchTerm: string): void {
     this.router.navigate(['/dashboard/messages']);
   }
 
+  viewProfile(user: SuggestedUser) {
+    this.router.navigate(['/dashboard/profile', user._id]);
+  }
   
 }
