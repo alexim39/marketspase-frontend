@@ -1,0 +1,242 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.faq-section {
+  .faq-header {
+    text-align: center;
+    margin-bottom: $spacing-8;
+    
+    .faq-title {
+      @include heading-medium;
+      margin-bottom: $spacing-2;
+    }
+    
+    .faq-subtitle {
+      @include body-medium;
+      color: $text-secondary;
+    }
+  }
+  
+  .faq-categories {
+    margin-bottom: $spacing-8;
+    
+    .categories-container {
+      display: flex;
+      gap: $spacing-2;
+      justify-content: center;
+      flex-wrap: wrap;
+      
+      .category-tab {
+        @include flex-center;
+        gap: $spacing-2;
+        padding: $spacing-2 $spacing-4;
+        border: $border-width solid $border-color;
+        border-radius: $border-radius-full;
+        background: var(--surface-color);
+        cursor: pointer;
+        transition: all $transition-normal;
+        @include body-small;
+        font-weight: $font-weight-medium;
+        
+        &.active {
+          background: $primary-color;
+          color: $white;
+          border-color: $primary-color;
+          
+          mat-icon {
+            color: $white;
+          }
+        }
+        
+        &:hover:not(.active) {
+          transform: translateY(-2px);
+          box-shadow: $shadow-md;
+        }
+        
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+  
+  .faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $spacing-6;
+    margin-bottom: $spacing-12;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+    
+    .faq-card {
+      @include card-base;
+      padding: $spacing-6;
+      position: relative;
+      transition: all $transition-normal;
+      
+      &.marketer-faq {
+        border-top: 3px solid $primary-color-hex;
+      }
+      
+      &.promoter-faq {
+        border-top: 3px solid $secondary-color-hex;
+      }
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: $shadow-xl;
+      }
+      
+      .faq-card-header {
+        margin-bottom: $spacing-4;
+        
+        .faq-role-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: $spacing-1;
+          padding: $spacing-1 $spacing-3;
+          border-radius: $border-radius-full;
+          @include body-small;
+          font-weight: $font-weight-medium;
+          
+          &.marketer-badge {
+            background: rgba($primary-color-hex, 0.1);
+            color: $primary-color-hex;
+          }
+          
+          &.promoter-badge {
+            background: rgba($secondary-color-hex, 0.1);
+            color: $secondary-color-hex;
+          }
+          
+          &.both-badge {
+            background: rgba($gray-400, 0.1);
+            color: $gray-600;
+          }
+          
+          mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+      
+      .faq-card-content {
+        .faq-question {
+          @include heading-small;
+          margin-bottom: $spacing-3;
+          display: flex;
+          align-items: flex-start;
+          gap: $spacing-2;
+          color: $text-primary;
+          
+          mat-icon {
+            color: $primary-color;
+            flex-shrink: 0;
+            margin-top: 2px;
+          }
+        }
+        
+        .faq-answer {
+          @include body-medium;
+          color: $text-secondary;
+          line-height: $line-height-relaxed;
+          
+          p {
+            margin: 0;
+          }
+        }
+      }
+    }
+    
+    .no-faqs {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: $spacing-12;
+      background: var(--surface-color);
+      border-radius: $border-radius-lg;
+      border: 1px dashed $border-color;
+      
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: $gray-400;
+        margin-bottom: $spacing-4;
+      }
+      
+      h3 {
+        @include heading-small;
+        margin-bottom: $spacing-2;
+      }
+      
+      p {
+        @include body-medium;
+        color: $text-secondary;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+    }
+  }
+  
+  .faq-help {
+    .help-card {
+      @include flex-between;
+      align-items: center;
+      padding: $spacing-6;
+      background: linear-gradient(135deg, rgba($primary-color-hex, 0.05), rgba($secondary-color-hex, 0.05));
+      border-radius: $border-radius-lg;
+      
+      @include mobile {
+        flex-direction: column;
+        text-align: center;
+        gap: $spacing-4;
+      }
+      
+      mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: $primary-color;
+      }
+      
+      .help-content {
+        flex: 1;
+        margin: 0 $spacing-6;
+        
+        @include mobile {
+          margin: 0;
+        }
+        
+        h3 {
+          @include heading-small;
+          margin-bottom: $spacing-1;
+        }
+        
+        p {
+          @include body-medium;
+          color: $text-secondary;
+          margin: 0;
+        }
+      }
+      
+      .contact-button {
+        @include button-primary;
+        white-space: nowrap;
+        
+        mat-icon {
+          color: $white;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          margin-right: $spacing-2;
+        }
+      }
+    }
+  }
+}

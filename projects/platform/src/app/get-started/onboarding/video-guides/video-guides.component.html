@@ -1,0 +1,67 @@
+<section class="video-guides" id="video-guides">
+  <h2 class="video-section-title">Watch Video Guides</h2>
+  
+  <div class="video-grid">
+    <!-- Marketer Video -->
+    @if(isMarketer) {
+      <div class="video-card">
+        <div class="video-header">
+          <h3 class="video-title">
+            <mat-icon>ondemand_video</mat-icon>
+            Marketer's Complete Guide
+          </h3>
+          <p class="video-description">
+            Learn how to create effective campaigns, set budgets, and track performance in 5 minutes.
+          </p>
+        </div>
+        
+        <div class="video-container">
+          @if (marketerVideoUrl) {
+            <iframe 
+              [src]="marketerVideoUrl" 
+              frameborder="0" 
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          } @else {
+            <div class="video-placeholder">
+              <mat-icon>ondemand_video</mat-icon>
+              <span>Marketer video guide loading...</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    
+    <!-- Promoter Video -->
+    @if (isPromoter) {
+      <div class="video-card">
+        <div class="video-header">
+          <h3 class="video-title">
+            <mat-icon>ondemand_video</mat-icon>
+            Promoter's Complete Guide
+          </h3>
+          <p class="video-description">
+            Learn how to share campaigns, maximize earnings, and get paid in 5 minutes.
+          </p>
+        </div>
+        
+        <div class="video-container">
+          @if (promoterVideoUrl) {
+            <iframe 
+              [src]="promoterVideoUrl" 
+              frameborder="0" 
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+              allowfullscreen>
+            </iframe>
+          } @else {
+            <div class="video-placeholder">
+              <mat-icon>ondemand_video</mat-icon>
+              <span>Promoter video guide loading...</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>

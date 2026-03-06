@@ -50,7 +50,7 @@ export const ForumRoutes: Routes = [
   },
 
   {
-    path: 'thread/:threadId',
+    path: ':threadId',
     loadComponent: () => import('./thread/thread-detail.component').then(c => c.ThreadDetailComponent),
     data: {
       breadcrumb: 'Thread Details',

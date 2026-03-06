@@ -444,7 +444,7 @@ validateSingleRefund(): void {
   const promoterIdentifier = formValue.promoterIdentifier || (promoter?.username || promoter?.email || promoter?._id);
   
   if (!promoterIdentifier || !formValue.amount || formValue.amount <= 0) {
-    console.log('Validation failed: Missing promoter or amount');
+    //console.log('Validation failed: Missing promoter or amount');
     this.validationResult.set({ 
       valid: false, 
       error: 'Please select a promoter and enter a valid amount' 
@@ -462,7 +462,6 @@ validateSingleRefund(): void {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
-        console.log('Validation response:', response);
         if (response.success) {
           this.validationResult.set(response.data);
           if (!response.data?.valid) {
@@ -472,7 +471,7 @@ validateSingleRefund(): void {
             this.singleRefundForm.setErrors(null);
           }
         } else {
-          console.log('Validation failed with message:', response.message);
+          //console.log('Validation failed with message:', response.message);
           this.validationResult.set({ 
             valid: false, 
             error: response.message || 'Validation failed' 

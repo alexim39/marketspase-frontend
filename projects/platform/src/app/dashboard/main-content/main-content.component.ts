@@ -1,5 +1,5 @@
 // main-content.component.ts (Updated)
-import { Component, inject, signal, computed, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, DestroyRef, effect, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -26,6 +26,9 @@ import { ProfileNotifierBannerComponent } from './notification-banner/profiile-n
 import { PromoBannerComponent } from './notification-banner/promo/promo-banner.component';
 import { GeneralMsgNotifierBannerComponent } from './notification-banner/general-msg-notifier/general-msg-notifier-banner.component';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { FeedPost, FeedService } from '../../community/feeds/feed.service';
+import { CommunityFeedService } from './components/community-feed/community-feed.service';
 
 
 interface DashboardStat {
@@ -57,22 +60,33 @@ interface PromotionSummary {
   availableEarnings: number;
 }
 
-
-
-interface CommunityPost {
+export interface CommunityPost {
   id: string;
   author: string;
   role: string;
   avatar?: string;
   content: string;
-  type: 'earnings' | 'campaign' | 'question' | 'tip';
+  type: 'earnings' | 'campaign' | 'question' | 'tip' | 'achievement' | 'milestone';
   earnings?: number;
   campaignName?: string;
   budget?: number;
+  progress?: number;
+  milestone?: string;
   time: string;
+  fullTime: string; // Make sure this is included
   likes: number;
   comments: number;
+  shares: number;
   badge?: 'top-promoter' | 'verified' | 'rising-star';
+  isOnline?: boolean;
+  hashtags?: string[];
+  recentComments?: Array<{
+    id: string;
+    author: string;
+    content: string;
+  }>;
+  isFeatured?: boolean;
+  createdAt: Date;
 }
 
 interface TrendingItem {
@@ -130,12 +144,12 @@ interface CommunityStats {
     GeneralMsgNotifierBannerComponent,
     MatIconModule
   ],
+  providers: [FeedService, CommunityFeedService],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
 export class DashboardMainContainer {
 
-    public router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
@@ -143,12 +157,43 @@ export class DashboardMainContainer {
   private readonly deviceService = inject(DeviceService);
   private userService = inject(UserService);
   public user = this.userService.user;
+  private feedService = inject(FeedService);
+  private communityFeedService = inject(CommunityFeedService);
+
+  commactivityStats = this.communityFeedService.activityStats;
+
+
+  public router = inject(Router);
+  private dialog = inject(MatDialog);
+
+    // Get data from feed service
+  private feedPosts = this.feedService.posts;
+  // likedPosts = this.feedService.likedPosts;
+   likedPosts: WritableSignal<Set<string>> = signal(new Set<string>());
+  // savedPosts = this.feedService.savedPosts;
+  savedPosts: WritableSignal<Set<string>> = signal(new Set<string>());
+  trendingHashtags = this.feedService.trendingHashtags;
+  liveActivities = this.feedService.liveActivities;
+  activityStats = this.feedService.activityStats;
+
+
+  constructor() {
+    
+    // Load feed data when component initializes
+    effect(() => {
+      const currentUser = this.user();
+      if (currentUser?._id) {
+        this.feedService.loadFeedPosts(currentUser._id, 'all');
+      } 
+    });
+  
+  }
+
+  likedPostsSet = computed(() => this.likedPosts());
+  savedPostsSet = computed(() => this.savedPosts());
 
   // === Existing Signals ===
-  likedPosts = signal<Set<string>>(new Set());
-  savedPosts = signal<Set<string>>(new Set());
-  communityPosts = signal<CommunityPost[]>([]); // Your existing posts
-  communityNotifications = signal(3);
+  //communityNotifications = signal(3);
   unreadMessages = signal(2);
   unreadNotifications = signal(5);
   viewPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
@@ -378,19 +423,23 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/community/feeds/create']);
   }
 
-  viewCommunityPost(): void {
-    this.router.navigate(['dashboard/community/feeds']);
-  }
-
   openCommunityFeed(): void {
     this.router.navigate(['dashboard/community/feeds']);
   }
 
-  openMessages(): void {
-    this.router.navigate(['dashboard/messages']);
+  openCommunityForum(): void {
+    this.router.navigate(['dashboard/community/discussion']);
   }
 
-  openNotifications(): void {
+  openCampaigns(): void {
+    this.router.navigate(['dashboard/campaigns']);
+  }
+
+  /* openMessages(): void {
+    this.router.navigate(['dashboard/messages']);
+  } */
+
+ /*  openNotifications(): void {
     this.router.navigate(['dashboard/notifications']);
   }
 
@@ -402,12 +451,12 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/profile']);
   }
 
-  openAdSchool(): void {
-    this.router.navigate(['dashboard/learning']);
-  }
-
   openLeaderboard(): void {
     this.router.navigate(['dashboard/leaderboard']);
+  } */
+
+  openAdSchool(): void {
+    this.router.navigate(['dashboard/learning']);
   }
 
   setViewPeriod(period: 'weekly' | 'monthly' | 'yearly'): void {
@@ -478,22 +527,6 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/connections']);
   }
 
-  openComments(postId: string): void {
-    this.router.navigate(['dashboard/community', postId]);
-  }
-
-  sharePost(post: CommunityPost): void {
-    if (navigator.share) {
-      navigator.share({
-        title: 'MarketSpase Community Post',
-        text: 'Check out this post on MarketSpase!',
-        url: `${window.location.origin}/dashboard/community/${post.id}`
-      });
-    } else {
-      this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
-      navigator.clipboard.writeText(`${window.location.origin}/dashboard/community/${post.id}`);
-    }
-  }
 
   createCampaign(): void {
     this.router.navigate(['dashboard/campaigns/create']);
@@ -558,29 +591,7 @@ export class DashboardMainContainer {
   }
 
   // === NEW METHODS (Add these) ===
-  onLike(post: CommunityPost): void {
-    const currentLikes = new Set(this.likedPosts());
-    if (currentLikes.has(post.id)) {
-      currentLikes.delete(post.id);
-      this.snackBar.open('Post unliked', 'OK', { duration: 2000 });
-    } else {
-      currentLikes.add(post.id);
-      this.snackBar.open('Post liked!', 'OK', { duration: 2000 });
-    }
-    this.likedPosts.set(currentLikes);
-  }
 
-  onSave(postId: string): void {
-    const currentSaved = new Set(this.savedPosts());
-    if (currentSaved.has(postId)) {
-      currentSaved.delete(postId);
-      this.snackBar.open('Post unsaved', 'OK', { duration: 2000 });
-    } else {
-      currentSaved.add(postId);
-      this.snackBar.open('Post saved!', 'OK', { duration: 2000 });
-    }
-    this.savedPosts.set(currentSaved);
-  }
 
   onSaveCourse(courseId: string): void {
     const currentSaved = new Set(this.savedCourses());
@@ -632,5 +643,79 @@ export class DashboardMainContainer {
   onPostMenu(postId: string): void {
     console.log('Post menu clicked:', postId);
     // You could implement a menu or modal here
+  }
+
+  // Handle view post navigation
+  onViewPost(postId: string): void {
+    this.router.navigate(['/dashboard/community/post', postId]);
+  }
+
+  // Handle hashtag click navigation
+  onHashtagClick(tag: string): void {
+    this.router.navigate(['/dashboard/community'], { 
+      queryParams: { hashtag: tag }
+    });
+  }
+
+  // Update the onLike method to use the feed service
+  onLike(post: CommunityPost): void {
+    // Find the original post from feed service
+    const originalPost = this.feedPosts().find(p => p._id === post.id);
+    if (originalPost) {
+      this.feedService.toggleLike(originalPost,  this.user()?._id ?? '').subscribe({
+        next: () => {
+          // Success message is handled in the service
+        },
+        error: (error) => {
+          this.snackBar.open('Failed to like post', 'OK', { duration: 3000 });
+        }
+      });
+    }
+  }
+
+  // Update the onSave method to use the feed service
+  onSave(postId: string): void {
+    this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe({
+      next: () => {
+        // Success message is handled in the service
+      },
+      error: (error) => {
+        this.snackBar.open('Failed to save post', 'OK', { duration: 3000 });
+      }
+    });
+  }
+
+  // Update sharePost to use the feed service
+  sharePost(post: CommunityPost): void {
+    const originalPost = this.feedPosts().find(p => p._id === post.id);
+    if (originalPost) {
+      if (navigator.share) {
+        navigator.share({
+          title: `${post.author} on MarketSpase`,
+          text: post.content,
+          url: `${window.location.origin}/dashboard/community/post/${post.id}`
+        }).catch(() => {
+          this.copyToClipboard(post.id);
+        });
+      } else {
+        this.copyToClipboard(post.id);
+      }
+      
+      this.feedService.sharePost(originalPost._id, this.user()?._id ?? '').subscribe();
+    }
+  }
+
+  private copyToClipboard(postId: string): void {
+    const url = `${window.location.origin}/dashboard/community/post/${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
+    });
+  }
+
+  // Update openComments to navigate to the post with comments fragment
+  openComments(postId: string): void {
+    this.router.navigate(['/dashboard/community/post', postId], {
+      fragment: 'comments'
+    });
   }
 }

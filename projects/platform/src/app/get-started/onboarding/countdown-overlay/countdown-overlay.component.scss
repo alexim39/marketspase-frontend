@@ -1,0 +1,126 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.countdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  @include flex-center;
+  animation: fadeIn 0.3s ease;
+}
+
+.countdown-container {
+  max-width: 400px;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.countdown-card {
+  background: var(--surface-color);
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-2xl;
+  
+  .countdown-content {
+    text-align: center;
+    padding: $spacing-6;
+    
+    .countdown-icon {
+      margin-bottom: $spacing-4;
+      
+      .spinner {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: var(--primary-color);
+        animation: spin 2s linear infinite;
+      }
+    }
+    
+    .countdown-title {
+      @include heading-small;
+      margin-bottom: $spacing-2;
+      color: var(--text-primary);
+    }
+    
+    .countdown-message {
+      @include body-medium;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-6;
+    }
+    
+    .countdown-timer {
+      margin: $spacing-6 0;
+      
+      .countdown-circle {
+        position: relative;
+        display: inline-block;
+        
+        svg {
+          circle {
+            transition: stroke-dashoffset 1s linear;
+          }
+        }
+        
+        .countdown-number {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          @include heading-medium;
+          font-weight: $font-weight-bold;
+          color: var(--primary-color);
+        }
+      }
+    }
+    
+    .countdown-hint {
+      @include body-small;
+      color: var(--text-tertiary);
+      margin-bottom: $spacing-6;
+    }
+    
+    .countdown-actions {
+      display: flex;
+      gap: $spacing-3;
+      justify-content: center;
+      
+      @include mobile {
+        flex-direction: column;
+      }
+      
+      .cancel-button, .reload-now-button {
+        @include button-base;
+        min-width: 140px;
+        
+        @include mobile {
+          width: 100%;
+        }
+      }
+      
+      .cancel-button {
+        background: transparent;
+        border-color: $error-color;
+        color: $error-color;
+        
+        &:hover {
+          background: rgba($error-color, 0.1);
+        }
+      }
+      
+      .reload-now-button {
+        @include button-primary;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

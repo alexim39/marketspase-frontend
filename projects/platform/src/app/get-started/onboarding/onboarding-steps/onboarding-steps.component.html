@@ -1,0 +1,51 @@
+<div class="steps-container">
+  <h3 class="section-title">{{ role === 'marketer' ? 'Marketer Journey' : 'Promoter Journey' }}</h3>
+  <p class="section-subtitle">{{ role === 'marketer' ? '4 steps to launch your first campaign' : '5 steps to start earning money' }}</p>
+  
+  @for (step of steps; track trackByStepId($index, step); let i = $index) {
+    <div 
+      class="step-card" 
+      [class.completed]="step.completed"
+      [class.current]="isCurrentStep(step, i)"
+    >
+      <div class="step-header">
+        <div class="step-info">
+          <div class="step-number">{{ step.id }}</div>
+          <div class="step-text">
+            <h4 class="step-title">{{ step.title }}</h4>
+            <p class="step-description">{{ step.description }}</p>
+          </div>
+        </div>
+        
+        <div class="step-status" [class]="step.completed ? 'completed' : 'pending'">
+          {{ step.completed ? 'Completed' : 'Pending' }}
+        </div>
+      </div>
+      
+      @if (step.action && !step.completed) {
+        <div class="step-action">
+          <button 
+            mat-flat-button 
+            [color]="getButtonColor()"
+            [disabled]="true"
+            (click)="navigate.emit(step)">
+            <mat-icon>{{ step.icon }}</mat-icon>
+            {{ step.action }}
+          </button>
+        </div>
+      }
+      
+      @if (step.completed) {
+        <div class="step-action">
+          <button 
+            mat-stroked-button 
+            [color]="getButtonColor()"
+            (click)="navigate.emit(step)">
+            <mat-icon>refresh</mat-icon>
+            Revisit
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

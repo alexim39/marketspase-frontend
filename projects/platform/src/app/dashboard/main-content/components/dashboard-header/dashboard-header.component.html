@@ -52,15 +52,15 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #quickMenu="matMenu" class="action-menu-content">
-              <button mat-menu-item (click)="openCommunityFeed()" class="menu-item">
+             <!--  <button mat-menu-item (click)="openCommunityFeed()" class="menu-item">
                 <mat-icon class="menu-icon">forum</mat-icon>
                 <span class="menu-text">Community Feed</span>
                 @if (communityNotifications() > 0) {
                   <span class="menu-badge">{{ communityNotifications() }}</span>
                 }
-              </button>
+              </button> -->
               
-              <button mat-menu-item (click)="openMessages()" class="menu-item">
+             <!--  <button mat-menu-item (click)="openMessages()" class="menu-item">
                 <mat-icon class="menu-icon">chat</mat-icon>
                 <span class="menu-text">Messages</span>
                 @if (unreadMessages() > 0) {
@@ -76,9 +76,9 @@
                 }
               </button>
               
-              <mat-divider class="menu-divider"/>
+              <mat-divider class="menu-divider"/> -->
               
-              @if (user()?.role === 'marketer') {
+              <!-- @if (user()?.role === 'marketer') {
                 <button mat-menu-item (click)="createCampaign.emit()" class="menu-item">
                   <mat-icon class="menu-icon">add</mat-icon>
                   <span class="menu-text">Create Campaign</span>
@@ -91,9 +91,9 @@
                   <mat-icon class="menu-icon">storefront</mat-icon>
                   <span class="menu-text">Storefront</span>
                 </button>
-              }
+              } -->
               
-              @if (user()?.role === 'promoter') {
+              <!-- @if (user()?.role === 'promoter') {
                 <button mat-menu-item (click)="withdrawWallet.emit()" class="menu-item">
                   <mat-icon class="menu-icon">account_balance_wallet</mat-icon>
                   <span class="menu-text">Withdraw Funds</span>
@@ -106,9 +106,9 @@
                   <mat-icon class="menu-icon">person</mat-icon>
                   <span class="menu-text">My Profile</span>
                 </button>
-              }
+              } -->
               
-              <mat-divider class="menu-divider"/>
+              <!-- <mat-divider class="menu-divider"/>
               
               <button mat-menu-item (click)="openAdSchool()" class="menu-item">
                 <mat-icon class="menu-icon">school</mat-icon>
@@ -119,9 +119,12 @@
               <button mat-menu-item (click)="openLeaderboard()" class="menu-item">
                 <mat-icon class="menu-icon">leaderboard</mat-icon>
                 <span class="menu-text">Leaderboards</span>
-              </button>
-              
+              </button> 
+
               <mat-divider class="menu-divider"/>
+
+              -->
+              
               
               <button mat-menu-item (click)="openSettings()" class="menu-item">
                 <mat-icon class="menu-icon">settings</mat-icon>

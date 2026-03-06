@@ -6,10 +6,12 @@
       <button class="back-btn" (click)="onDiscard()" matTooltip="Go back">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      
+
       <div class="header-title">
-        <h1>Campaign Update</h1>
+        <h1>{{ isEditMode() ? 'Update post' : 'Start a Campaign Discussion' }}</h1>
+        <p>{{ isEditMode() ? 'Update your post' : 'Start a conversation around your ads to boost visibility and reach.' }}</p>
       </div>
+
       
       <div class="header-actions">
         <button 
@@ -42,7 +44,7 @@
               [(ngModel)]="postData.campaignId" 
               name="campaign"
               (selectionChange)="onCampaignSelect($event.value)"
-              [disabled]="isLoadingCampaigns()">
+              [disabled]="isLoadingCampaigns() || isEditMode()">
               
               @if (isLoadingCampaigns()) {
                 <mat-option disabled>Loading campaigns...</mat-option>
@@ -62,6 +64,13 @@
                 }
               }
             </mat-select>
+            @if (isLoadingCampaigns()) {
+              <div class="loading-container">
+                <!-- Set diameter to 20 or 24 for a "small" look -->
+                <mat-spinner [diameter]="20" class="loading-spinner"></mat-spinner>
+                <small class="loading-hint">Loading your campaigns...</small>
+              </div>
+            }
           </mat-form-field>
 
           @if (selectedCampaign()) {
@@ -71,8 +80,13 @@
                   <img [src]="selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
                 } @else {
                   <div class="video-placeholder">
-                    <mat-icon>play_circle</mat-icon>
-                    <span>Video Campaign</span>
+                    <!-- <mat-icon>play_circle</mat-icon>-->
+                    <span>Video Campaign</span> 
+                    <img 
+                      [src]="selectedCampaign()?.thumbnailUrl" 
+                      class="media-preview placeholder-img" 
+                      [alt]="selectedCampaign()?.title"
+                    />
                   </div>
                 }
               </div>
@@ -190,14 +204,14 @@
           </div>
           
           <!-- Post Options -->
-          <div class="post-options">
+          <!-- <div class="post-options">
             <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">
               Post anonymously
             </mat-checkbox>
             <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">
               Disable comments
             </mat-checkbox>
-          </div>
+          </div> -->
           
         </div>
       </div>
@@ -206,14 +220,14 @@
       <div class="publish-section">
         <button 
           class="publish-btn"
-          [disabled]="!isFormValid() || isSubmitting()"
+          [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()"
           (click)="onSubmit()">
           @if (isSubmitting()) {
             <mat-spinner diameter="20"></mat-spinner>
-            <span>Publishing...</span>
+            <span>{{ isEditMode() ? 'Updating...' : 'Posting...' }}</span>
           } @else {
-            <mat-icon>publish</mat-icon>
-            <span>Publish Campaign Update</span>
+            <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
+            <span>{{ isEditMode() ? 'Update' : 'Post' }}</span>
           }
         </button>
         
@@ -243,14 +257,15 @@
         <div class="preview-content">
           @if (previewPost()) {
             <app-feed-post-card
+              [user]="user()"
               [post]="previewPost()!"
               [isLiked]="false"
               [isSaved]="false"
               (like)="{}"
               (save)="{}"
               (comment)="{}"
-              (share)="{}">
-            </app-feed-post-card>
+              (share)="{}"
+            />
           }
         </div>
         

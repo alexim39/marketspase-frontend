@@ -77,6 +77,10 @@
           @include body-small;
           color: $text-secondary;
           margin-bottom: $spacing-2;
+          .progress-label-text {
+            font-weight: $font-weight-medium;
+            color:  rgba($info-color, 0.7);
+          }
         }
         
         .progress-bar {

@@ -1,428 +1,507 @@
 @import '../../../styles/variables';
 @import '../../../styles/mixins';
 
-.feed-page {
+// Variables specific to feed page
+$sidebar-width: 280px;
+$main-content-max-width: 680px;
+
+// Main Container – now always uses desktop layout
+.feed-container {
   min-height: 100vh;
-  background: var(--background-color);
-  
+  background: $background-color;
+  display: flex;
+  padding-left: $sidebar-width;
+}
+
+.desktop-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+
+// Main Content
+.main-content {
+  flex: 1;
+  max-width: $main-content-max-width;
+  margin: 0 auto;
+  padding: $spacing-4;
+
   .feed-header {
-    position: sticky;
-    top: 0;
-    z-index: $z-index-sticky;
-    background: var(--surface-color);
-    border-bottom: $border-width solid var(--border-color);
-    padding: $spacing-4;
-    
-    @include tablet {
-      padding: $spacing-6;
-    }
-    
-    .header-content {
-      @include flex-between;
-      margin-bottom: $spacing-4;
-      
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: $spacing-3;
-        
-        .page-title {
-          @include heading-small;
-          margin: 0;
-          color: var(--text-primary);
-          
-          @include tablet {
-            font-size: $font-size-3xl;
-          }
-        }
-        
-        .live-badge {
-          display: flex;
-          align-items: center;
-          gap: $spacing-1;
-          padding: $spacing-1 $spacing-2;
-          background: rgba($error-color, 0.1);
-          color: $error-color;
-          border-radius: $border-radius-xl;
-          font-size: $font-size-xs;
-          font-weight: $font-weight-semibold;
-          
-          .live-dot {
-            width: 6px;
-            height: 6px;
-            background: $error-color;
-            border-radius: $border-radius-full;
-            @include pulse;
-          }
-        }
-      }
-      
-      .header-actions {
-        display: flex;
-        gap: $spacing-2;
-        
-        .refresh-btn {
-          color: var(--text-secondary);
-          
-          &:hover {
-            color: $primary-color;
-          }
-        }
-        
-        .create-post-btn {
-          @include button-primary;
-          
-          @include mobile {
-            span {
-              display: none;
-            }
-            
-            mat-icon {
-              margin: 0;
-            }
-          }
-        }
-      }
-    }
-    
-    .search-bar {
-      position: relative;
-      margin-bottom: $spacing-4;
-      
-      .search-icon {
-        position: absolute;
-        left: $spacing-3;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-tertiary);
-        font-size: $font-size-lg;
-      }
-      
-      .search-input {
-        width: 100%;
-        padding: $spacing-3 $spacing-3 $spacing-3 $spacing-8;
-        background: var(--background-color);
-        border: $border-width solid var(--border-color);
-        border-radius: $border-radius-xl;
-        font-size: $font-size-sm;
-        color: var(--text-primary);
-        transition: all $transition-normal;
-        
-        &:focus {
-          outline: none;
-          border-color: $primary-color;
-          box-shadow: 0 0 0 3px rgba($primary-rgb, 0.1);
-        }
-        
-        &::placeholder {
-          color: var(--text-tertiary);
-        }
-      }
-    }
-    
-    .filters-wrapper {
-      margin-top: $spacing-4;
-      
-      .filter-toggle {
-        display: flex;
-        align-items: center;
-        gap: $spacing-2;
-        padding: $spacing-2;
+    @include flex-between;
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-4;
+    border-bottom: $border-width solid $border-color;
+
+    .feed-tabs {
+      display: flex;
+      gap: $spacing-4;
+
+      .tab-btn {
         background: none;
         border: none;
-        color: var(--text-secondary);
-        font-size: $font-size-sm;
+        padding: $spacing-2 $spacing-4;
+        @include body-medium;
         font-weight: $font-weight-medium;
+        color: $text-secondary;
         cursor: pointer;
-        
-        .chevron {
-          transition: transform $transition-normal;
+        position: relative;
+
+        &.active {
+          color: $primary-color;
+          font-weight: $font-weight-semibold;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: -$spacing-4;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: $primary-color;
+            border-radius: 3px 3px 0 0;
+          }
         }
       }
-      
-      .filters-content {
-        margin-top: $spacing-4;
-        padding: $spacing-4;
-        background: var(--background-color);
-        border-radius: $border-radius-lg;
-        
-        .filter-group {
-          label {
-            display: block;
-            margin-bottom: $spacing-2;
-            font-size: $font-size-sm;
-            font-weight: $font-weight-medium;
-            color: var(--text-primary);
-          }
-          
-          .filter-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: $spacing-2;
-            
-            .filter-chip {
-              display: flex;
-              align-items: center;
-              gap: $spacing-1;
-              padding: $spacing-2 $spacing-3;
-              background: var(--surface-color);
-              border: $border-width solid var(--border-color);
-              border-radius: $border-radius-xl;
-              font-size: $font-size-sm;
-              color: var(--text-secondary);
-              cursor: pointer;
-              transition: all $transition-fast;
-              
-              mat-icon {
-                font-size: $font-size-base;
-                width: $font-size-base;
-                height: $font-size-base;
-              }
-              
-              &:hover {
-                border-color: $primary-color;
-                color: $primary-color;
-              }
-              
-              &.active {
-                background: $primary-color;
-                border-color: $primary-color;
-                color: $white;
-              }
-            }
-          }
-        }
+    }
+
+    .filter-btn {
+      background: none;
+      border: $border-width solid $border-color;
+      border-radius: $border-radius-lg;
+      padding: $spacing-2;
+      color: $text-secondary;
+      cursor: pointer;
+
+      &:hover {
+        background: $background-color;
       }
     }
   }
-  
-  .feed-content {
-    max-width: 1200px;
-    margin: 0 auto;
+
+  .create-post-box {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
     padding: $spacing-4;
-    
-    @include tablet {
-      padding: $spacing-6;
+    background: $surface-color;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-xl;
+    margin-bottom: $spacing-6;
+
+    .post-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
     }
-    
-    .trending-section {
-      margin-bottom: $spacing-6;
-      
-      .section-title {
-        display: flex;
-        align-items: center;
-        gap: $spacing-2;
-        margin-bottom: $spacing-3;
-        font-size: $font-size-base;
-        font-weight: $font-weight-semibold;
-        color: var(--text-primary);
-        
-        mat-icon {
-          color: $primary-color;
-        }
+
+    .post-input {
+      flex: 1;
+      padding: $spacing-3;
+      background: $background-color;
+      border: none;
+      border-radius: $border-radius-xl;
+      color: $text-primary;
+      @include body-small;
+      cursor: pointer;
+
+      &::placeholder {
+        color: $text-tertiary;
       }
-      
-      .hashtags-list {
+
+      &:hover {
+        background: $surface-color;
+      }
+    }
+
+    .post-media-btn {
+      background: none;
+      border: none;
+      color: $primary-color;
+      cursor: pointer;
+
+      mat-icon {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .filters-panel {
+    background: $surface-color;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
+    padding: $spacing-4;
+    margin-bottom: $spacing-4;
+
+    .filter-section {
+      h4 {
+        margin: 0 0 $spacing-3 0;
+        @include caption;
+        color: $text-secondary;
+      }
+
+      .filter-chips {
         display: flex;
         flex-wrap: wrap;
         gap: $spacing-2;
-        
-        .hashtag-chip {
+
+        .chip {
           display: flex;
           align-items: center;
           gap: $spacing-1;
           padding: $spacing-2 $spacing-3;
-          background: var(--surface-color);
-          border: $border-width solid var(--border-color);
+          background: $background-color;
+          border: $border-width solid $border-color;
           border-radius: $border-radius-xl;
-          font-size: $font-size-sm;
-          color: var(--text-secondary);
+          @include body-small;
+          color: $text-secondary;
           cursor: pointer;
           transition: all $transition-fast;
-          
-          .hash {
-            color: $primary-color;
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
           }
+
+          &.active {
+            background: $primary-color;
+            border-color: $primary-color;
+            color: $white;
+          }
+
+          &:hover:not(.active) {
+            background: rgba($primary-rgb, 0.1);
+            border-color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+
+  .feed-posts {
+    .featured-post-container {
+      position: relative;
+      margin-bottom: $spacing-6;
+
+      .featured-badge {
+        position: absolute;
+        top: $spacing-2;
+        left: $spacing-2;
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
+        padding: $spacing-1 $spacing-2;
+        background: $gradient-primary;
+        color: $white;
+        border-radius: $border-radius-xl;
+        @include caption;
+        font-weight: $font-weight-semibold;
+        z-index: 1;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .loading-spinner {
+      @include flex-center;
+      padding: $spacing-8;
+    }
+
+    .feed-end {
+      text-align: center;
+      padding: $spacing-8;
+
+      .end-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2;
+        color: $text-secondary;
+
+        mat-icon {
+          color: $success-color;
+        }
+      }
+    }
+
+    .empty-feed {
+      text-align: center;
+      padding: $spacing-12 $spacing-4;
+
+      .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto $spacing-4;
+        background: rgba($primary-rgb, 0.1);
+        border-radius: 50%;
+        @include flex-center;
+
+        mat-icon {
+          font-size: 40px;
+          color: $primary-color;
+        }
+      }
+
+      h3 {
+        @include heading-small;
+        margin: 0 0 $spacing-2 0;
+        color: $text-primary;
+      }
+
+      p {
+        @include body-medium;
+        color: $text-secondary;
+        margin: 0 0 $spacing-6 0;
+      }
+    }
+
+    .scroll-anchor {
+      height: 1px;
+    }
+  }
+}
+
+// Right Sidebar
+.right-sidebar {
+  width: $sidebar-width;
+  padding: $spacing-4;
+
+  .search-box {
+    position: relative;
+    margin-bottom: $spacing-4;
+
+    .search-icon {
+      position: absolute;
+      left: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-tertiary;
+    }
+
+    .clear-search {
+      position: absolute;
+      right: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: $text-tertiary;
+      cursor: pointer;
+    }
+
+    .search-input {
+      @include form-input;
+      padding-left: $spacing-8;
+    }
+  }
+
+  .trending-box {
+    background: $surface-color;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
+    padding: $spacing-2;
+    margin-bottom: $spacing-4;
+    margin-top: $spacing-4;
+
+    .trending-title {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      margin: 0 0 $spacing-3 0;
+      @include body-medium;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+
+      mat-icon {
+        color: $primary-color;
+      }
+    }
+
+    .trending-list {
+      .trending-item {
+        width: 100%;
+        text-align: left;
+        padding: $spacing-3;
+        background: none;
+        border: none;
+        border-radius: $border-radius-lg;
+        cursor: pointer;
+
+        &:hover {
+          background: $background-color;
+        }
+
+        .trending-tag {
+          display: block;
+          @include body-small;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          margin-bottom: 2px;
+        }
+
+        .trending-count {
+          @include caption;
+        }
+      }
+    }
+  }
+
+
+
+  .follow-card {
+      background: $surface-color;
+      border: $border-width solid $border-color;
+      border-radius: $border-radius-lg;
+      padding: $spacing-4 $spacing-2;
+      margin-bottom: $spacing-4;
+      margin-top: $spacing-4;
+      
+      .card-title {
+        margin: 0 0 $spacing-3 0;
+        @include body-medium;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+      }
+      
+      .trending-items,
+      .follow-items {
+        .trending-item,
+        .follow-item {
+          width: 100%;
+          text-align: left;
+          padding: $spacing-3;
+          background: none;
+          border: none;
+          border-bottom: $border-width solid $border-color;
+          cursor: pointer;
           
-          .count {
-            font-size: $font-size-xs;
-            color: var(--text-tertiary);
+          &:last-child {
+            border-bottom: none;
           }
           
           &:hover {
-            background: rgba($primary-rgb, 0.05);
-            border-color: $primary-color;
-            transform: translateY(-2px);
+            background: $background-color;
           }
+        }
+        
+        .follow-item {
+          display: flex;
+          align-items: center;
+          gap: $spacing-3;
+          
+          .follow-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          
+          .follow-info {
+            flex: 1;
+            @include flex-column;
+            
+            .follow-name {
+              @include body-small;
+              font-weight: $font-weight-semibold;
+              color: $text-primary;
+            }
+            
+            .follow-handle {
+              @include caption;
+              font-size: 11px;
+            }
+          }
+          
+          .follow-btn {
+            padding: $spacing-1 $spacing-3;
+            background: $primary-color;
+            color: $white;
+            border: none;
+            border-radius: $border-radius-xl;
+            @include caption;
+            font-weight: $font-weight-semibold;
+            cursor: pointer;
+            
+            &.following {
+              background: transparent;
+              border: $border-width solid $border-color;
+              color: $text-secondary;
+            }
+          }
+        }
+      }
+      
+      .show-more {
+        display: block;
+        margin-top: $spacing-3;
+        color: $primary-color;
+        @include caption;
+        cursor: pointer;
+        
+        &:hover {
+          text-decoration: underline;
         }
       }
     }
     
-    .feed-posts {
-      .featured-post {
-        margin-bottom: $spacing-6;
-        
-        .featured-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: $spacing-1;
-          margin-bottom: $spacing-2;
-          padding: $spacing-1 $spacing-2;
-          background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
-          border-radius: $border-radius-xl;
-          font-size: $font-size-xs;
-          font-weight: $font-weight-semibold;
-          color: $white;
-          
-          mat-icon {
-            font-size: $font-size-sm;
-            width: $font-size-sm;
-            height: $font-size-sm;
-          }
-        }
+    
+
+  .sidebar-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    padding: $spacing-4;
+
+    a {
+      color: $text-tertiary;
+      @include caption;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
       }
-      
-      .posts-grid {
-        display: grid;
-        gap: $spacing-4;
-        
-        @include tablet {
-          grid-template-columns: repeat(2, 1fr);
-        }
-        
-        @include desktop {
-          grid-template-columns: repeat(3, 1fr);
-        }
-      }
-      
-      .loading-container {
-        display: flex;
-        justify-content: center;
-        padding: $spacing-8 0;
-      }
-      
-      .empty-state {
-        text-align: center;
-        padding: $spacing-12 $spacing-4;
-        
-        .empty-icon {
-          width: 80px;
-          height: 80px;
-          margin: 0 auto $spacing-4;
-          background: rgba($primary-rgb, 0.1);
-          border-radius: $border-radius-full;
-          @include flex-center;
-          
-          mat-icon {
-            font-size: $font-size-4xl;
-            color: $primary-color;
-          }
-        }
-        
-        h3 {
-          @include heading-small;
-          margin: 0 0 $spacing-2;
-          color: var(--text-primary);
-        }
-        
-        p {
-          @include body-medium;
-          color: var(--text-secondary);
-          margin: 0 0 $spacing-6;
-        }
-      }
-      
-      .end-feed {
-        text-align: center;
-        margin-top: $spacing-8;
-        
-        mat-divider {
-          margin-bottom: $spacing-4;
-        }
-        
-        p {
-          @include body-small;
-          color: var(--text-secondary);
-        }
-      }
+    }
+
+    .copyright {
+      width: 100%;
+      color: $text-tertiary;
+      @include caption;
+      margin-top: $spacing-2;
     }
   }
-  
-  .fab-mobile {
-    position: fixed;
-    bottom: $spacing-6;
-    right: $spacing-6;
+
+  // Sticky behaviour
+  position: sticky;
+  top: $spacing-4;
+  height: fit-content;
+  max-height: calc(100vh - #{$spacing-4 * 2});
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
     display: none;
-    
-    @include mobile {
-      display: flex;
-    }
   }
 }
 
-// Post Card Component
+// Posts grid
+.feed-posts {
+  .posts-grid {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// Ensure post cards are visible
 :host ::ng-deep app-feed-post-card {
   display: block;
-  height: fit-content;
-}
-
-// Responsive Adjustments
-@include mobile {
-  .feed-header {
-    .header-content {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: $spacing-3;
-    }
-  }
-  
-  .filters-wrapper {
-    .filter-chips {
-      overflow-x: auto;
-      padding-bottom: $spacing-2;
-      -webkit-overflow-scrolling: touch;
-      
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-  }
-}
-
-// Dark Mode Adjustments
-[data-theme="dark"] {
-  .feed-header {
-    background: var(--surface-color);
-    border-bottom-color: var(--border-color);
-  }
-  
-  .search-input {
-    background: var(--background-color);
-    
-    &:focus {
-      box-shadow: 0 0 0 3px rgba($primary-rgb, 0.2);
-    }
-  }
-  
-  .hashtag-chip {
-    &:hover {
-      background: rgba($primary-rgb, 0.1);
-    }
-  }
-}
-
-// Animations
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.feed-posts {
-  animation: slideIn 0.5s ease-out;
+  width: 100%;
 }

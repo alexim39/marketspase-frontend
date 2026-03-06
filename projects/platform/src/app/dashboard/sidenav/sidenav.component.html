@@ -94,3 +94,11 @@
     (switchUser)="closeCartDialog(); switchUser($event)"
   />
 </ng-template>
+
+@if (currentCountdown() !== null) {
+  <marketspase-countdown-overlay
+    [seconds]="currentCountdown()!"
+    (cancel)="cancelCountdown()"
+    (reload)="reloadPage()"
+  />
+}

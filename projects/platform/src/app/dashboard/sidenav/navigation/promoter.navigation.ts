@@ -11,6 +11,12 @@ export function getPromoterNavigation(
       expanded: false
     },
     {
+      icon: 'account_box',
+      label: 'Profile',
+      route: '/dashboard/profile',
+      expanded: false
+    },
+    {
       icon: 'work',
       label: 'Promotions',
       badge: pendingPromotions,

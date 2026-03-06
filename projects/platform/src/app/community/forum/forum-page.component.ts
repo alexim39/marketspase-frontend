@@ -114,8 +114,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
 
   navigateToThread(threadId: any): void {
     //console.log('Navigating to thread ID:', threadId);
-    if (threadId) {  // Remove the !
-      this.router.navigate(['/dashboard/forum/thread', threadId]);  
+    if (threadId) { 
+      this.router.navigate(['/dashboard/community/discussion', threadId]);  
     }
   }
 
