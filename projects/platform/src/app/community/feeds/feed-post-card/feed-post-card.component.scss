@@ -27,7 +27,7 @@
           
           .avatar-wrapper {
             position: relative;
-            
+            cursor: pointer;
             .avatar {
               width: 48px;
               height: 48px;
@@ -55,6 +55,7 @@
           }
           
           .user-details {
+            cursor: pointer;
             .user-name {
               @include body-small;
               font-weight: $font-weight-semibold;

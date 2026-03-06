@@ -280,15 +280,15 @@ private loadFeedWithSearch(searchTerm: string): void {
     this.searchQuery.set(query);
   }
 
-  onLike(post: FeedPost): void {
+  /* onLike(post: FeedPost): void {
     this.feedService.toggleLike(post, this.user()?._id ?? '').subscribe();
-  }
+  } */
 
-  onSave(postId: string): void {
+ /*  onSave(postId: string): void {
     this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe();
-  }
+  } */
 
-  onShare(post: FeedPost): void {
+  /* onShare(post: FeedPost): void {
     //event.stopPropagation();
 
     console.log('Sharing post:', post);
@@ -306,7 +306,7 @@ private loadFeedWithSearch(searchTerm: string): void {
     }
     
     this.feedService.sharePost(post._id, this.user()?._id ?? '').subscribe();
-  }
+  } */
   
   private copyToClipboard(postId: string): void {
     const url = `${window.location.origin}/feed/${postId}`;
@@ -314,7 +314,7 @@ private loadFeedWithSearch(searchTerm: string): void {
       this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
     });
   }
-
+/* 
   onComment(postId: string): void {
     this.dialog.open(CommentDialogComponent, {
       width: '600px',
@@ -323,7 +323,7 @@ private loadFeedWithSearch(searchTerm: string): void {
       disableClose: true,
       data: { postId }
     });
-  }
+  } */
 
   onCreatePost(): void {
     this.router.navigate(['/dashboard/community/feeds/create']);

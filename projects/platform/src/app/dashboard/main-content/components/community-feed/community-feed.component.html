@@ -43,7 +43,8 @@
     <!-- Loading State -->
     @if (loading()) {
       <div class="loading-state">
-        <mat-icon class="spin">autorenew</mat-icon>
+        <!-- <mat-icon class="spin">autorenew</mat-icon> -->
+         <mat-progress-bar mode="indeterminate" class="progress"/>
         <span>Loading community updates...</span>
       </div>
     } @else {

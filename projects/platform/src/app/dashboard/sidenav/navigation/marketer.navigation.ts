@@ -13,8 +13,8 @@ export function getMarketerNavigation(
     },
     {
       icon: 'account_box',
-      label: 'Me',
-      route: '/dashboard',
+      label: 'Profile',
+      route: '/dashboard/profile',
       expanded: false
     },
     {

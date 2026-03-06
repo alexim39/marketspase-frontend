@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommunityFeedService } from './community-feed.service';
-
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 @Component({
   selector: 'community-feed',
   standalone: true,
@@ -19,7 +19,8 @@ import { CommunityFeedService } from './community-feed.service';
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatProgressBarModule
   ],
   providers: [CommunityFeedService],
   templateUrl: './community-feed.component.html',

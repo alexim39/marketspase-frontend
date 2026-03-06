@@ -9,6 +9,8 @@ import { FeedPost, FeedService } from '../feed.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { Router } from '@angular/router';
+import { CommentDialogComponent } from '../comment-dialog/comment-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
 
@@ -38,6 +40,8 @@ export class FeedPostCardComponent {
 
   postDeleted = output<string>();        // emits post ID after successful delete
   postUpdated = output<FeedPost>();
+
+   private dialog = inject(MatDialog);
 
   // Read more state
   showFullContent = signal(false);
@@ -69,7 +73,7 @@ export class FeedPostCardComponent {
   });
 
   // Output events
-  like = output<FeedPost>();
+  //like = output<FeedPost>();
   save = output<string>();
   comment = output<string>();
   share = output<FeedPost>();
@@ -82,19 +86,49 @@ export class FeedPostCardComponent {
   }
 
   onLike(): void {
-    this.like.emit(this.post());
+    //this.like.emit(this.post());
+    this.feedService.toggleLike(this.post(), this.user()?._id ?? '').subscribe();
+
   }
 
   onSave(): void {
-    this.save.emit(this.post()._id);
+    //this.save.emit(this.post()._id);
+     this.feedService.toggleSave(this.post()._id, this.user()?._id ?? '').subscribe();
   }
 
   onComment(): void {
-    this.comment.emit(this.post()._id);
+    //this.comment.emit(this.post()._id);
+     this.dialog.open(CommentDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      panelClass: 'comment-dialog-panel', 
+      disableClose: true,
+      data: { postId: this.post()._id }
+    });
   }
 
   onShare(): void {
-    this.share.emit(this.post());
+    //this.share.emit(this.post());
+     if (navigator.share) {
+      navigator.share({
+        title: `${this.post().author?.displayName || 'Community'} on MarketSpase`,
+        text: this.post().content,
+        url: `${window.location.origin}/feed/${this.post()._id}`
+      }).catch(() => {
+        this.copyToClipboard(this.post()._id);
+      });
+    } else {
+      this.copyToClipboard(this.post()._id);
+    }
+    
+    this.feedService.sharePost(this.post()._id, this.user()?._id ?? '').subscribe();
+  }
+
+  private copyToClipboard(postId: string): void {
+    const url = `${window.location.origin}/feed/${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
+    });
   }
 
   onHide(): void {
@@ -185,4 +219,7 @@ export class FeedPostCardComponent {
     this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
   }
   
+  viewProfile(post: FeedPost) {
+     this.router.navigate(['/dashboard/profile', post.author?._id]); 
+  }
 }

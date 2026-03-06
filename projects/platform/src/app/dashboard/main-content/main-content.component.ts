@@ -157,10 +157,10 @@ export class DashboardMainContainer {
   private readonly deviceService = inject(DeviceService);
   private userService = inject(UserService);
   public user = this.userService.user;
-   private feedService = inject(FeedService);
-   private communityFeedService = inject(CommunityFeedService);
+  private feedService = inject(FeedService);
+  private communityFeedService = inject(CommunityFeedService);
 
-   commactivityStats = this.communityFeedService.activityStats;
+  commactivityStats = this.communityFeedService.activityStats;
 
 
   public router = inject(Router);

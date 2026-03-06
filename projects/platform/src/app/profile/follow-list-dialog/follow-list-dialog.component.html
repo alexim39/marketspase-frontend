@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{ data.type === 'followers' ? 'Followers' : 'Following' }}</h2>
+<mat-dialog-content>
+  @if (loading()) {
+    <div class="loading-spinner">
+      <mat-spinner diameter="30"></mat-spinner>
+    </div>
+  } @else {
+    <div class="user-list">
+      @for (user of users(); track user._id) {
+        <div class="user-item" (click)="viewProfile(user._id)">
+          <img [src]="user.avatar || 'img/avatar.png'" alt="" class="user-avatar">
+          <div class="user-info">
+            <span class="user-name">{{ user.displayName }}</span>
+            <span class="user-handle">@{{ user.username }}</span>
+          </div>
+        </div>
+      }
+      @if (loadingMore()) {
+        <div class="loading-more">
+          <mat-spinner diameter="20"></mat-spinner>
+        </div>
+      }
+      <div #scrollAnchor class="scroll-anchor"></div>
+    </div>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

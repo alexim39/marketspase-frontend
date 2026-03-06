@@ -3,7 +3,7 @@
   <!-- Post Header -->
   <mat-card-header class="post-header">
     <div class="user-info">
-      <div class="avatar-wrapper">
+      <div class="avatar-wrapper" (click)="viewProfile(post())">
         <img 
           [src]="post().author?.avatar || 'img/avatar.png'" 
           [alt]="post().author?.displayName"
@@ -18,7 +18,7 @@
         }
       </div>
       
-      <div class="user-details">
+      <div class="user-details" (click)="viewProfile(post())">
         <h4 class="user-name">
           {{ post().author?.displayName || 'Anonymous' }}
           @if (isVerified()) {
