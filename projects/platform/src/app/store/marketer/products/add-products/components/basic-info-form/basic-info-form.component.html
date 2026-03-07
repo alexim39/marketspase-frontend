@@ -76,7 +76,7 @@
 
         <!-- Description -->
         <mat-form-field appearance="outline" class="full-width description-field">
-          <mat-label>Description</mat-label>
+          <mat-label>Description *</mat-label>
           <textarea matInput formControlName="description" rows="4"></textarea>
           <mat-icon matSuffix>description</mat-icon>
           <mat-hint>Describe your product in detail. You can use rich text formatting.</mat-hint>
@@ -99,7 +99,7 @@
       <div class="images-upload">
         <!-- Image Upload Area -->
         <div class="upload-area" (click)="fileInput.click()">
-          <input type="file" #fileInput accept="image/*" multiple (change)="onImageSelect($event)" hidden>
+          <input type="file" required #fileInput accept="image/*" multiple (change)="onImageSelect($event)" hidden>
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
           <p>Drag & drop images here or click to browse</p>
           <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>

@@ -1,21 +1,14 @@
 import { Routes } from "@angular/router";
-import { FinancialMgtComponent } from "./financial-mgt.component";
-import { RefundComponent } from "./refund/refund.component";
-// import { SubmittedPromotionListComponent, } from "./submitted-promotion-list/submitted-promotion-list.component";
-// import { AllPromotionListMgtComponent } from "./all-promotion-list/all-promotion-list.component";
 
 export const FinancialRoutes: Routes = [
-    {
-        /* path: '',
-        redirectTo: 'partner',
-        pathMatch: 'full' */
-        path: '',
-        component: FinancialMgtComponent,
+
+    {   path: '', 
+        loadComponent: () => import('./financial-mgt.component').then(c => c.FinancialMgtComponent),
         title: 'Financial Management - Admin Dashboard'
-    },
+    }, 
     {
         path: 'refunds',
-        component: RefundComponent,
+        loadComponent: () => import('./refund/refund.component').then(c => c.RefundComponent),
         title: "Refund Management - Financial Dashboard",
     }, 
    

@@ -14,7 +14,7 @@
         @if (amount.popular) {
           <span class="popular-badge">Popular</span>
         }
-        <div class="amount-value">{{ amount.value | currency: '₦':'symbol':'1.0-0' }}</div>
+        <div class="amount-value">{{ amount.value | currencyUtils:user?.wallets?.marketer?.currency }}</div>
         <div class="amount-label">{{ amount.label }}</div>
       </button>
     }

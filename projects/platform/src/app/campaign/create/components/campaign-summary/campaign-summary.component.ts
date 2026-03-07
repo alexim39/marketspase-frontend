@@ -154,4 +154,17 @@ export class CampaignSummaryComponent {
   public getAgeIcon(): string {
     return this.selectedAgeGroup().icon;
   }
+
+  getDuration(): string {
+    const start = this.scheduleForm().get('startDate')?.value;
+    const end = this.scheduleForm().get('endDate')?.value;
+
+    if (start && end) {
+      const diffInMs = new Date(end).getTime() - new Date(start).getTime();
+      const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+      return `${days} days`;
+    }
+    return 'Budget Based';
+  }
+
 }

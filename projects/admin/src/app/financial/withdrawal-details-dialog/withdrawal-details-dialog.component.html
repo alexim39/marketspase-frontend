@@ -1,0 +1,271 @@
+
+    <div class="details-dialog">
+      <div class="dialog-header">
+        <div class="header-content">
+          <h2 mat-dialog-title>Withdrawal Details</h2>
+          @let ref = reference();
+          @if (ref) {
+            <span class="reference-badge" [matTooltip]="ref">
+              {{ ref | slice:0:16 }}...
+            </span>
+          }
+        </div>
+        <button mat-icon-button class="close-btn" (click)="onClose()" matTooltip="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-dialog-content>
+        @if (isLoading()) {
+          <div class="loading-state">
+            <mat-spinner diameter="40"/>
+            <p>Loading withdrawal details...</p>
+          </div>
+        } 
+        @let w = withdrawal();
+        @if (w) {
+          <!-- Status Banner -->
+          <div class="status-banner" [class]="statusClass()">
+            <div class="status-icon">
+              <mat-icon>{{ statusIcon() }}</mat-icon>
+            </div>
+            <div class="status-info">
+              <div class="status-label">{{ statusLabel() }}</div>
+              <div class="status-time">
+                @if (w.processedAt) {
+                  <span>Processed: {{ w.processedAt | date:'medium' }}</span>
+                } @else {
+                  <span>Created: {{ w.createdAt | date:'medium' }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Amount Cards -->
+          <div class="amount-grid">
+            <mat-card class="amount-card gross">
+              <mat-card-content>
+                <div class="amount-label">Gross Amount</div>
+                <div class="amount-value">₦{{ w.amount.toLocaleString() }}</div>
+                <div class="amount-desc">Requested by user</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="amount-card fee">
+              <mat-card-content>
+                <div class="amount-label">Service Fee (18%)</div>
+                <div class="amount-value">-₦{{ feeAmount().toLocaleString() }}</div>
+                <div class="amount-desc">Platform charge</div>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="amount-card net">
+              <mat-card-content>
+                <div class="amount-label">Net Amount</div>
+                <div class="amount-value">₦{{ netAmount().toLocaleString() }}</div>
+                <div class="amount-desc">Sent to bank</div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Tabs for different sections -->
+          <mat-tab-group>
+            <!-- User Info Tab -->
+            <mat-tab label="User Information">
+              <div class="tab-pane">
+                <div class="info-grid">
+                  <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">{{ w.userName }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ w.userEmail || 'N/A' }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">User ID:</span>
+                    <span class="info-value monospace">{{ w.userId }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Role:</span>
+                    <span class="info-value">
+                      <span class="role-badge" [class]="'role-' + w.userRole">
+                        {{ w.userRole | titlecase }}
+                      </span>
+                    </span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Wallet:</span>
+                    <span class="info-value">
+                      <span class="wallet-badge" [class]="'wallet-' + w.walletType">
+                        {{ w.walletType | titlecase }}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Bank Details Tab -->
+            <mat-tab label="Bank Details">
+              <div class="tab-pane">
+                <div class="bank-details-card">
+                  <div class="bank-header">
+                    <mat-icon class="bank-icon">account_balance</mat-icon>
+                    <h3>{{ w.bankName }}</h3>
+                  </div>
+                  
+                  <mat-divider></mat-divider>
+
+                  <div class="bank-details">
+                    <div class="detail-row">
+                      <span class="detail-label">Account Name:</span>
+                      <span class="detail-value">{{ w.accountName }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Account Number:</span>
+                      <span class="detail-value monospace">{{ w.accountNumber }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="detail-label">Bank Code:</span>
+                      <span class="detail-value monospace">{{ w.bankCode }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+
+            <!-- Transaction Details Tab -->
+            <mat-tab label="Transaction Details">
+              <div class="tab-pane">
+                <div class="transaction-details">
+                  <div class="detail-group">
+                    <h4>References</h4>
+                    <div class="info-row">
+                      <span class="info-label">Our Reference:</span>
+                      <span class="info-value monospace">{{ w.reference }}</span>
+                    </div>
+                    
+                    @if (providerReference(); as providerRef) {
+                      <div class="info-row">
+                        <span class="info-label">Paystack Ref:</span>
+                        <span class="info-value monospace">{{ providerRef }}</span>
+                      </div>
+                    }
+                    
+                    @if (w.transferCode) {
+                      <div class="info-row">
+                        <span class="info-label">Transfer Code:</span>
+                        <span class="info-value monospace">{{ w.transferCode }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="detail-group">
+                    <h4>Timeline</h4>
+                    <div class="timeline">
+                      <div class="timeline-item">
+                        <mat-icon class="timeline-icon">event</mat-icon>
+                        <div class="timeline-content">
+                          <div class="timeline-title">Request Created</div>
+                          <div class="timeline-time">{{ w.createdAt | date:'medium' }}</div>
+                        </div>
+                      </div>
+                      
+                      @if (w.processedAt) {
+                        <div class="timeline-item">
+                          <mat-icon class="timeline-icon">check_circle</mat-icon>
+                          <div class="timeline-content">
+                            <div class="timeline-title">Processed</div>
+                            <div class="timeline-time">{{ w.processedAt | date:'medium' }}</div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  @if (w.failureReason) {
+                    <mat-divider></mat-divider>
+                    
+                    <div class="detail-group error">
+                      <h4>Failure Reason</h4>
+                      <div class="error-message">
+                        <mat-icon>error_outline</mat-icon>
+                        <span>{{ w.failureReason }}</span>
+                      </div>
+                    </div>
+                  }
+
+                  @if (w.notes) {
+                    <mat-divider></mat-divider>
+                    
+                    <div class="detail-group">
+                      <h4>Admin Notes</h4>
+                      <div class="notes">
+                        {{ w.notes }}
+                      </div>
+                    </div>
+                  }
+
+                  <!-- Raw Meta Data (for debugging) -->
+                  @if (w.meta) {
+                    <mat-divider></mat-divider>
+                    
+                    <mat-expansion-panel class="meta-panel">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          <mat-icon>code</mat-icon>
+                          Raw Metadata
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      
+                      <pre class="raw-meta">{{ w.meta | json }}</pre>
+                    </mat-expansion-panel>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        } @else {
+          <div class="error-state">
+            <mat-icon>error_outline</mat-icon>
+            <h3>Withdrawal not found</h3>
+            <p>The requested withdrawal could not be found.</p>
+          </div>
+        }
+      </mat-dialog-content>
+
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="onClose()">
+          <mat-icon>close</mat-icon>
+          Close
+        </button>
+        
+        @if (withdrawal()?.status === 'pending_approval') {
+          <button mat-raised-button color="primary" (click)="onApprove()" matTooltip="Approve this withdrawal">
+            <mat-icon>check_circle</mat-icon>
+            Approve
+          </button>
+          <button mat-raised-button color="warn" (click)="onReject()" matTooltip="Reject this withdrawal">
+            <mat-icon>cancel</mat-icon>
+            Reject
+          </button>
+        }
+        
+        @if (withdrawal()?.status === 'failed') {
+          <button mat-raised-button color="primary" (click)="onRetry()" matTooltip="Retry this failed withdrawal">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        }
+
+        @if (withdrawal()?.status === 'processing') {
+          <button mat-raised-button color="accent" (click)="refreshStatus()" matTooltip="Check latest status">
+            <mat-icon>sync</mat-icon>
+            Refresh
+          </button>
+        }
+      </mat-dialog-actions>
+    </div>

@@ -1,26 +1,34 @@
-import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+// main-content.component.ts (Updated)
+import { Component, inject, signal, computed, DestroyRef, effect, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
-import { TestimonialsComponent } from '../testimonial/testimonial.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ProfileNotifierBannerComponent } from './notification-banner/profiile-notifier/profile-notifier-banner.component';
-import { MatMenuModule } from '@angular/material/menu';
 import { DeviceService } from '../../../../../shared-services/src/public-api';
+
+// Import child components
+import { DashboardHeaderComponent } from './components/dashboard-header/dashboard-header.component';
+import { CommunityFeedComponent } from './components/community-feed/community-feed.component';
+import { PerformanceMetricsComponent } from './components/performance-metrics/performance-metrics.component';
+import { QuickStatsComponent } from './components/quick-stats/quick-stats.component';
+import { Activity, RecentActivityComponent } from './components/recent-activity/recent-activity.component';
+import { TrendingSectionComponent } from './components/trending-section/trending-section.component';
+import { ConnectionsSectionComponent } from './components/connections-section/connections-section.component';
+import { LearningSectionComponent } from './components/learning-section/learning-section.component';
+import { TestimonialsComponent } from '../testimonial/testimonial.component';
+
+// Import banner components
+import { ProfileNotifierBannerComponent } from './notification-banner/profiile-notifier/profile-notifier-banner.component';
 import { PromoBannerComponent } from './notification-banner/promo/promo-banner.component';
 import { GeneralMsgNotifierBannerComponent } from './notification-banner/general-msg-notifier/general-msg-notifier-banner.component';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { TitleCasePipe } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { FeedPost, FeedService } from '../../community/feeds/feed.service';
+import { CommunityFeedService } from './components/community-feed/community-feed.service';
 
 
 interface DashboardStat {
@@ -52,22 +60,33 @@ interface PromotionSummary {
   availableEarnings: number;
 }
 
-
-
-interface CommunityPost {
+export interface CommunityPost {
   id: string;
   author: string;
   role: string;
   avatar?: string;
   content: string;
-  type: 'earnings' | 'campaign' | 'question' | 'tip';
+  type: 'earnings' | 'campaign' | 'question' | 'tip' | 'achievement' | 'milestone';
   earnings?: number;
   campaignName?: string;
   budget?: number;
+  progress?: number;
+  milestone?: string;
   time: string;
+  fullTime: string; // Make sure this is included
   likes: number;
   comments: number;
+  shares: number;
   badge?: 'top-promoter' | 'verified' | 'rising-star';
+  isOnline?: boolean;
+  hashtags?: string[];
+  recentComments?: Array<{
+    id: string;
+    author: string;
+    content: string;
+  }>;
+  isFeatured?: boolean;
+  createdAt: Date;
 }
 
 interface TrendingItem {
@@ -105,124 +124,97 @@ interface CommunityStats {
   comments: number;
 }
 
-
 @Component({
   selector: 'main-container',
   imports: [
     CommonModule,
-    RouterModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressBarModule,
-    MatMenuModule,
-    MatTooltipModule,
-    MatDividerModule,
+    // Child components
+    DashboardHeaderComponent,
+    CommunityFeedComponent,
+    PerformanceMetricsComponent,
+    QuickStatsComponent,
+    RecentActivityComponent,
+    TrendingSectionComponent,
+    ConnectionsSectionComponent,
+    LearningSectionComponent,
+    // Existing components
     TestimonialsComponent,
     ProfileNotifierBannerComponent,
     PromoBannerComponent,
-    GeneralMsgNotifierBannerComponent
+    GeneralMsgNotifierBannerComponent,
+    MatIconModule
   ],
+  providers: [FeedService, CommunityFeedService],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
 export class DashboardMainContainer {
-  public router = inject(Router);
+
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly deviceService = inject(DeviceService);
-
   private userService = inject(UserService);
   public user = this.userService.user;
+  private feedService = inject(FeedService);
+  private communityFeedService = inject(CommunityFeedService);
 
-   isMobile = computed(() => {
+  commactivityStats = this.communityFeedService.activityStats;
+
+
+  public router = inject(Router);
+  private dialog = inject(MatDialog);
+
+    // Get data from feed service
+  private feedPosts = this.feedService.posts;
+  // likedPosts = this.feedService.likedPosts;
+   likedPosts: WritableSignal<Set<string>> = signal(new Set<string>());
+  // savedPosts = this.feedService.savedPosts;
+  savedPosts: WritableSignal<Set<string>> = signal(new Set<string>());
+  trendingHashtags = this.feedService.trendingHashtags;
+  liveActivities = this.feedService.liveActivities;
+  activityStats = this.feedService.activityStats;
+
+
+  constructor() {
+    
+    // Load feed data when component initializes
+    effect(() => {
+      const currentUser = this.user();
+      if (currentUser?._id) {
+        this.feedService.loadFeedPosts(currentUser._id, 'all');
+      } 
+    });
+  
+  }
+
+  likedPostsSet = computed(() => this.likedPosts());
+  savedPostsSet = computed(() => this.savedPosts());
+
+  // === Existing Signals ===
+  //communityNotifications = signal(3);
+  unreadMessages = signal(2);
+  unreadNotifications = signal(5);
+  viewPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
+  trendingItems = signal<TrendingItem[]>([]); // Your existing trends
+  suggestedConnections = signal<SuggestedConnection[]>([]); // Your existing connections
+  learningCourses = signal<LearningCourse[]>([]); // Your existing courses
+
+  // === NEW SIGNALS (Add these) ===
+  followingTrends = signal<Set<string>>(new Set());
+  savedCourses = signal<Set<string>>(new Set());
+  pendingConnections = signal<Set<string>>(new Set());
+  connectedConnections = signal<Set<string>>(new Set());
+  trendingCategories = signal<string[]>(['All', 'Marketing', 'Promotion', 'Earnings', 'Technology']);
+  activeTrendingCategory = signal<string>('All');
+  connectionFilters = signal<string[]>(['All', 'Marketers', 'Promoters', 'Top Rated']);
+  activeConnectionFilter = signal<string>('All');
+
+  // === Computed Properties ===
+  isMobile = computed(() => {
     return this.deviceService.deviceState().isMobile;
   });
-
-
-
-
-
-
-
-  private likedPosts = signal<Set<string>>(new Set());
-  private savedPosts = signal<Set<string>>(new Set());
-  // New social community signals
-  communityPosts = signal<CommunityPost[]>([
-    {
-      id: '1',
-      author: 'Sarah Johnson',
-      role: 'Top Promoter',
-      content: 'Just completed a 5-day campaign for a local restaurant! The engagement was amazing. Pro tip: Post during lunch hours for food-related promotions!',
-      type: 'tip',
-      time: '2h ago',
-      likes: 42,
-      comments: 8,
-      badge: 'top-promoter'
-    },
-    {
-      id: '2',
-      author: 'Mike Chen',
-      role: 'Marketer',
-      content: 'Looking for promoters interested in tech products. We have new gadgets launching next week! Budget: ₦50,000',
-      type: 'campaign',
-      campaignName: 'Tech Gadgets Launch',
-      budget: 50000,
-      time: '4h ago',
-      likes: 28,
-      comments: 15,
-      badge: 'verified'
-    },
-    {
-      id: '3',
-      author: 'Priya Sharma',
-      role: 'Promoter',
-      content: 'Earned ₦15,000 this week! Consistency is key. I post 3 times daily at optimal times.',
-      type: 'earnings',
-      earnings: 15000,
-      time: '1d ago',
-      likes: 56,
-      comments: 12,
-      badge: 'rising-star'
-    }
-  ]);
-
-  trendingItems = signal<TrendingItem[]>([
-    { id: '1', rank: 1, title: 'Festival Campaigns', description: 'Holiday season promotions', mentions: 245 },
-    { id: '2', rank: 2, title: 'WhatsApp Reels', description: 'Video content strategies', mentions: 189 },
-    { id: '3', rank: 3, title: 'Micro-Influencer', description: 'Building personal brand', mentions: 156 }
-  ]);
-
-  suggestedConnections = signal<SuggestedConnection[]>([
-    { id: '1', name: 'Alex Turner', role: 'Fashion Marketer', avatar: 'assets/avatars/1.png', rating: 4.8, completed: 42 },
-    { id: '2', name: 'Maya Rodriguez', role: 'Lifestyle Promoter', avatar: 'assets/avatars/2.png', rating: 4.9, completed: 67 },
-    { id: '3', name: 'David Kim', role: 'Tech Entrepreneur', avatar: 'assets/avatars/3.png', rating: 4.7, completed: 31 }
-  ]);
-
-  learningCourses = signal<LearningCourse[]>([
-    { 
-      id: '1', 
-      title: 'WhatsApp Marketing Mastery', 
-      description: 'Learn to maximize engagement on WhatsApp status', 
-      image: 'assets/courses/1.jpg',
-      difficulty: 'Beginner',
-      duration: '2h 30m',
-      lessons: 12,
-      progress: 30
-    },
-    { 
-      id: '2', 
-      title: 'Campaign Optimization', 
-      description: 'Advanced strategies for better ROI', 
-      image: 'assets/courses/2.jpg',
-      difficulty: 'Intermediate',
-      duration: '3h 45m',
-      lessons: 18,
-      progress: 0
-    }
-  ]);
 
   communityStats = computed((): CommunityStats => {
     return {
@@ -233,186 +225,14 @@ export class DashboardMainContainer {
     };
   });
 
-  communityNotifications = signal(3);
-  unreadMessages = signal(2);
-  unreadNotifications = signal(5);
-  viewPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
-
-  // New methods for social features
-  getCommunityGreeting(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning! Ready to grow your business today?';
-    if (hour < 17) return 'Good afternoon! How\'s your day going?';
-    return 'Good evening! Time to review your progress!';
-  }
-
-  getOnlineCount(): string {
-    const count = Math.floor(Math.random() * 500) + 100;
-    return `${count}+`;
-  }
-
-  createCommunityPost(): void {
-    this.router.navigate(['dashboard/community/create']);
-  }
-
-  openCommunityFeed(): void {
-    this.router.navigate(['dashboard/community']);
-  }
-
-  openMessages(): void {
-    this.router.navigate(['dashboard/messages']);
-  }
-
-  openNotifications(): void {
-    this.router.navigate(['dashboard/notifications']);
-  }
-
-  openStorefront(): void {
-    this.router.navigate(['dashboard/storefront']);
-  }
-
-  openPromoterProfile(): void {
-    this.router.navigate(['dashboard/profile']);
-  }
-
-  openAdSchool(): void {
-    this.router.navigate(['dashboard/learning']);
-  }
-
-  openLeaderboard(): void {
-    this.router.navigate(['dashboard/leaderboard']);
-  }
-
-  setViewPeriod(period: 'weekly' | 'monthly' | 'yearly'): void {
-    this.viewPeriod.set(period);
-    // Here you would typically fetch data for the selected period
-  }
-
-  viewTrending(): void {
-    this.router.navigate(['dashboard/trending']);
-  }
-
-  connectUser(userId: string): void {
-    // Implement connection logic
-    this.snackBar.open('Connection request sent!', 'OK', { duration: 3000 });
-  }
-
-  continueCourse(courseId: string): void {
-    this.router.navigate(['dashboard/learning', courseId]);
-  }
-
-  // Add these methods
-isLiked(postId: string): boolean {
-  return this.likedPosts().has(postId);
-}
-
-isSaved(postId: string): boolean {
-  return this.savedPosts().has(postId);
-}
-
-toggleLike(postId: string): void {
-  const currentLikes = new Set(this.likedPosts());
-  if (currentLikes.has(postId)) {
-    currentLikes.delete(postId);
-    this.snackBar.open('Post unliked', 'OK', { duration: 2000 });
-  } else {
-    currentLikes.add(postId);
-    this.snackBar.open('Post liked!', 'OK', { duration: 2000 });
-  }
-  this.likedPosts.set(currentLikes);
-}
-
-toggleSave(postId: string): void {
-  const currentSaved = new Set(this.savedPosts());
-  if (currentSaved.has(postId)) {
-    currentSaved.delete(postId);
-    this.snackBar.open('Post unsaved', 'OK', { duration: 2000 });
-  } else {
-    currentSaved.add(postId);
-    this.snackBar.open('Post saved!', 'OK', { duration: 2000 });
-  }
-  this.savedPosts.set(currentSaved);
-}
-
-followTrend(trendId: string): void {
-  this.snackBar.open('Now following this trend', 'OK', { duration: 2000 });
-}
-
-openSettings(): void {
-  this.router.navigate(['dashboard/settings']);
-}
-
-viewAllConnections(): void {
-  this.router.navigate(['dashboard/connections']);
-}
-
-openComments(postId: string): void {
-  // Navigate to post comments or open modal
-  this.router.navigate(['dashboard/community', postId]);
-}
-
-sharePost(postId: string): void {
-  // Implement share functionality
-  if (navigator.share) {
-    navigator.share({
-      title: 'MarketSpase Community Post',
-      text: 'Check out this post on MarketSpase!',
-      url: `${window.location.origin}/dashboard/community/${postId}`
-    });
-  } else {
-    this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
-    // Fallback: Copy to clipboard
-    navigator.clipboard.writeText(`${window.location.origin}/dashboard/community/${postId}`);
-  }
-}
-
-// Enhanced recent activity computation
-recentActivity = computed(() => {
-  const userData = this.user();
-  if (!userData) return [];
-  
-  const transactions = [];
-  
-  if (userData.wallets?.marketer?.transactions) {
-    transactions.push(...userData.wallets.marketer.transactions.map(t => ({
-      ...t,
-      walletType: 'marketer',
-      id: `marketer-${t._id || Date.now()}`,
-      type: t.type || ((t.amount ?? 0) > 0 ? 'credit' : 'debit')
-    })));
-  }
-  
-  if (userData.wallets?.promoter?.transactions) {
-    transactions.push(...userData.wallets.promoter.transactions.map(t => ({
-      ...t,
-      walletType: 'promoter',
-      id: `promoter-${t._id || Date.now()}`,
-      type: t.type || ((t.amount ?? 0) > 0 ? 'credit' : 'debit')
-    })));
-  }
-  
-  // Sort by date, newest first and take the 5 most recent
-  return transactions
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
-});
-
-
-
-
   campaignSummary = computed((): CampaignSummary => {
     const userData = this.user();
     if (!userData?.campaigns) {
       return { active: 0, completed: 0, totalBudget: 0, spentBudget: 0, totalPromoters: 0 };
     }
 
-    //console.log('Calculating campaign summary for user:', userData);
-
     const activeCampaigns = userData.campaigns.filter(c => c.status === 'active');
-    //const completedCampaigns = userData.campaigns.filter(c => c.status === 'completed');
     const completedCampaigns = userData.campaigns.filter(c => c.status === 'completed' || c.status === 'expired' || c.status === 'paused');
-
-    
     const totalBudget = userData.campaigns.reduce((sum, c) => sum + c.budget, 0);
     const spentBudget = userData.campaigns.reduce((sum, c) => sum + c.spentBudget, 0);
     const totalPromoters = userData.campaigns.reduce((sum, c) => sum + c.currentPromoters, 0);
@@ -449,12 +269,10 @@ recentActivity = computed(() => {
     const validated = promotions.filter(p => p.status === 'validated').length;
     const paid = promotions.filter(p => p.status === 'paid').length;
 
-    // Calculate earnings from paid promotions
     const totalEarnings = promotions
       .filter(p => p.status === 'paid')
       .reduce((sum, p) => sum + (p.payoutAmount ?? 0), 0);
     
-    // Calculate pending earnings (validated but not paid)
     const pendingEarnings = promotions
       .filter(p => p.status === 'validated')
       .reduce((sum, p) => sum + (p.payoutAmount ?? 0), 0);
@@ -478,8 +296,6 @@ recentActivity = computed(() => {
     if (userData.role === 'marketer') {
       const summary = this.campaignSummary();
       const wallet = userData.wallets?.marketer;
-
-      //console.log('Dashboard Stats - Marketer:', { summary, wallet });
       
       return [
         {
@@ -507,15 +323,6 @@ recentActivity = computed(() => {
           color: '#4caf50',
           subtitle: `₦${((wallet?.reserved || 0) / 1000).toFixed(0)}K reserved`
         },
-        // {
-        //   icon: 'trending_up',
-        //   label: 'Total Reach',
-        //   value: '37K',
-        //   change: '+25',
-        //   trend: 'up',
-        //   color: '#e91e63',
-        //   subtitle: 'Last 30 days'
-        // }
       ];
     } else {
       const summary = this.promotionSummary();
@@ -554,39 +361,172 @@ recentActivity = computed(() => {
           change: '+0.2',
           trend: 'up',
           color: '#ff5722',
-          subtitle: `${ 0 } reviews`
-          //subtitle: `${userData.ratingCount || 0} reviews`
+          subtitle: `0 reviews`
         }
       ];
     }
   });
 
-  // recentActivity = computed(() => {
-  //   const userData = this.user();
-  //   if (!userData) return [];
+  recentActivity = computed((): Activity[] => {
+    const userData = this.user();
+    if (!userData) return [];
     
-  //   // Combine transactions from both wallets if available
-  //   const transactions = [];
+    const transactions: Activity[] = [];
     
-  //   if (userData.wallets?.marketer?.transactions) {
-  //     transactions.push(...userData.wallets.marketer.transactions.map(t => ({
-  //       ...t,
-  //       walletType: 'marketer'
-  //     })));
-  //   }
+    if (userData.wallets?.marketer?.transactions) {
+      transactions.push(...userData.wallets.marketer.transactions.map(t => ({
+        id: t._id || `marketer-${Date.now()}`,
+        description: t.description || 'Transaction',
+        amount: t.amount || 0,
+        type: (t.type || ((t.amount ?? 0) > 0 ? 'credit' : 'debit')) as 'credit' | 'debit',
+        createdAt: t.createdAt || new Date(),
+        status: (t.status as 'completed' | 'pending' | 'failed') || 'completed',
+        walletType: 'marketer' as const,
+        _id: t._id,
+        category: t.category
+      })));
+    }
     
-  //   if (userData.wallets?.promoter?.transactions) {
-  //     transactions.push(...userData.wallets.promoter.transactions.map(t => ({
-  //       ...t,
-  //       walletType: 'promoter'
-  //     })));
-  //   }
+    if (userData.wallets?.promoter?.transactions) {
+      transactions.push(...userData.wallets.promoter.transactions.map(t => ({
+        id: t._id || `promoter-${Date.now()}`,
+        description: t.description || 'Transaction',
+        amount: t.amount || 0,
+        type: (t.type || ((t.amount ?? 0) > 0 ? 'credit' : 'debit')) as 'credit' | 'debit',
+        createdAt: t.createdAt || new Date(),
+        status: (t.status as 'completed' | 'pending' | 'failed') || 'completed',
+        walletType: 'promoter' as const,
+        _id: t._id,
+        category: t.category
+      })));
+    }
     
-  //   // Sort by date, newest first and take the 5 most recent
-  //   return transactions
-  //     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  //     .slice(0, 5);
-  // });
+    return transactions
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5);
+  });
+
+  // === EXISTING METHODS ===
+  getCommunityGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning! Ready to grow your business today?';
+    if (hour < 17) return 'Good afternoon! How\'s your day going?';
+    return 'Good evening! Time to review your progress!';
+  }
+
+  getOnlineCount(): string {
+    const count = Math.floor(Math.random() * 500) + 100;
+    return `${count}+`;
+  }
+
+  createCommunityPost(): void {
+    this.router.navigate(['dashboard/community/feeds/create']);
+  }
+
+  openCommunityFeed(): void {
+    this.router.navigate(['dashboard/community/feeds']);
+  }
+
+  openCommunityForum(): void {
+    this.router.navigate(['dashboard/community/discussion']);
+  }
+
+  openCampaigns(): void {
+    this.router.navigate(['dashboard/campaigns']);
+  }
+
+  /* openMessages(): void {
+    this.router.navigate(['dashboard/messages']);
+  } */
+
+ /*  openNotifications(): void {
+    this.router.navigate(['dashboard/notifications']);
+  }
+
+  openStorefront(): void {
+    this.router.navigate(['dashboard/storefront']);
+  }
+
+  openPromoterProfile(): void {
+    this.router.navigate(['dashboard/profile']);
+  }
+
+  openLeaderboard(): void {
+    this.router.navigate(['dashboard/leaderboard']);
+  } */
+
+  openAdSchool(): void {
+    this.router.navigate(['dashboard/learning']);
+  }
+
+  setViewPeriod(period: 'weekly' | 'monthly' | 'yearly'): void {
+    this.viewPeriod.set(period);
+  }
+
+  viewTrending(): void {
+    this.router.navigate(['dashboard/trending']);
+  }
+
+  connectUser(userId: string): void {
+    this.snackBar.open('Connection request sent!', 'OK', { duration: 3000 });
+  }
+
+  continueCourse(courseId: string): void {
+    this.router.navigate(['dashboard/learning', courseId]);
+  }
+
+  isLiked(postId: string): boolean {
+    return this.likedPosts().has(postId);
+  }
+
+  isSaved(postId: string): boolean {
+    return this.savedPosts().has(postId);
+  }
+
+  toggleLike(postId: string): void {
+    const currentLikes = new Set(this.likedPosts());
+    if (currentLikes.has(postId)) {
+      currentLikes.delete(postId);
+      this.snackBar.open('Post unliked', 'OK', { duration: 2000 });
+    } else {
+      currentLikes.add(postId);
+      this.snackBar.open('Post liked!', 'OK', { duration: 2000 });
+    }
+    this.likedPosts.set(currentLikes);
+  }
+
+  toggleSave(postId: string): void {
+    const currentSaved = new Set(this.savedPosts());
+    if (currentSaved.has(postId)) {
+      currentSaved.delete(postId);
+      this.snackBar.open('Post unsaved', 'OK', { duration: 2000 });
+    } else {
+      currentSaved.add(postId);
+      this.snackBar.open('Post saved!', 'OK', { duration: 2000 });
+    }
+    this.savedPosts.set(currentSaved);
+  }
+
+  followTrend(trendId: string): void {
+    const following = new Set(this.followingTrends());
+    if (following.has(trendId)) {
+      following.delete(trendId);
+      this.snackBar.open('Unfollowed trend', 'OK', { duration: 2000 });
+    } else {
+      following.add(trendId);
+      this.snackBar.open('Now following this trend', 'OK', { duration: 2000 });
+    }
+    this.followingTrends.set(following);
+  }
+
+  openSettings(): void {
+    this.router.navigate(['dashboard/settings']);
+  }
+
+  viewAllConnections(): void {
+    this.router.navigate(['dashboard/connections']);
+  }
+
 
   createCampaign(): void {
     this.router.navigate(['dashboard/campaigns/create']);
@@ -612,7 +552,6 @@ recentActivity = computed(() => {
     this.router.navigate(['dashboard/transactions']);
   }
 
-
   formatCurrency(amount: number): string {
     return `₦${amount.toLocaleString()}`;
   }
@@ -625,7 +564,6 @@ recentActivity = computed(() => {
           this.router.navigate(['/']);
         },
         error: (error: HttpErrorResponse) => {
-          //console.error('Sign-out failed:', error.error.message);
           this.snackBar.open('Sign-out failed', 'OK', { duration: 3000 });
         }
       });
@@ -650,5 +588,134 @@ recentActivity = computed(() => {
           this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
         }
       });
+  }
+
+  // === NEW METHODS (Add these) ===
+
+
+  onSaveCourse(courseId: string): void {
+    const currentSaved = new Set(this.savedCourses());
+    if (currentSaved.has(courseId)) {
+      currentSaved.delete(courseId);
+      this.snackBar.open('Course removed from saved', 'OK', { duration: 2000 });
+    } else {
+      currentSaved.add(courseId);
+      this.snackBar.open('Course saved for later!', 'OK', { duration: 2000 });
+    }
+    this.savedCourses.set(currentSaved);
+  }
+
+  onTrendingCategoryChange(category: string): void {
+    this.activeTrendingCategory.set(category);
+  }
+
+  onConnectionFilterChange(filter: string): void {
+    this.activeConnectionFilter.set(filter);
+  }
+
+  refreshConnections(): void {
+    this.snackBar.open('Refreshing connections...', 'OK', { duration: 2000 });
+    // In a real app, you would fetch new connections here
+  }
+
+  onActivityClick(activity: Activity): void {
+    this.router.navigate(['dashboard/transactions'], { 
+      queryParams: { transactionId: activity.id } 
+    });
+  }
+
+  onTrendClick(trend: TrendingItem): void {
+    this.router.navigate(['dashboard/trending'], { 
+      queryParams: { trend: trend.id } 
+    });
+  }
+
+  onMessageConnection(connectionId: string): void {
+    this.router.navigate(['dashboard/messages'], { 
+      queryParams: { userId: connectionId } 
+    });
+  }
+
+  onProfileClick(connection: SuggestedConnection): void {
+    this.router.navigate(['dashboard/profile', connection.id]);
+  }
+
+  onPostMenu(postId: string): void {
+    console.log('Post menu clicked:', postId);
+    // You could implement a menu or modal here
+  }
+
+  // Handle view post navigation
+  onViewPost(postId: string): void {
+    this.router.navigate(['/dashboard/community/post', postId]);
+  }
+
+  // Handle hashtag click navigation
+  onHashtagClick(tag: string): void {
+    this.router.navigate(['/dashboard/community'], { 
+      queryParams: { hashtag: tag }
+    });
+  }
+
+  // Update the onLike method to use the feed service
+  onLike(post: CommunityPost): void {
+    // Find the original post from feed service
+    const originalPost = this.feedPosts().find(p => p._id === post.id);
+    if (originalPost) {
+      this.feedService.toggleLike(originalPost,  this.user()?._id ?? '').subscribe({
+        next: () => {
+          // Success message is handled in the service
+        },
+        error: (error) => {
+          this.snackBar.open('Failed to like post', 'OK', { duration: 3000 });
+        }
+      });
+    }
+  }
+
+  // Update the onSave method to use the feed service
+  onSave(postId: string): void {
+    this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe({
+      next: () => {
+        // Success message is handled in the service
+      },
+      error: (error) => {
+        this.snackBar.open('Failed to save post', 'OK', { duration: 3000 });
+      }
+    });
+  }
+
+  // Update sharePost to use the feed service
+  sharePost(post: CommunityPost): void {
+    const originalPost = this.feedPosts().find(p => p._id === post.id);
+    if (originalPost) {
+      if (navigator.share) {
+        navigator.share({
+          title: `${post.author} on MarketSpase`,
+          text: post.content,
+          url: `${window.location.origin}/dashboard/community/post/${post.id}`
+        }).catch(() => {
+          this.copyToClipboard(post.id);
+        });
+      } else {
+        this.copyToClipboard(post.id);
+      }
+      
+      this.feedService.sharePost(originalPost._id, this.user()?._id ?? '').subscribe();
+    }
+  }
+
+  private copyToClipboard(postId: string): void {
+    const url = `${window.location.origin}/dashboard/community/post/${postId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
+    });
+  }
+
+  // Update openComments to navigate to the post with comments fragment
+  openComments(postId: string): void {
+    this.router.navigate(['/dashboard/community/post', postId], {
+      fragment: 'comments'
+    });
   }
 }

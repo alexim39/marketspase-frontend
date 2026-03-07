@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,8 +6,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TitleCasePipe } from '@angular/common';
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
 import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
-import { CampaignInterface, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
+import { CampaignInterface, CurrencyUtilsPipe, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
 import { TruncatePipe } from '../../../../store/shared';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-campaign-card',
@@ -20,12 +21,14 @@ import { TruncatePipe } from '../../../../store/shared';
     ShortNumberPipe,
     CategoryPlaceholderPipe,
     TitleCasePipe,
-    TruncatePipe
+    TruncatePipe,
+    CurrencyUtilsPipe
   ],
   templateUrl: './campaign-card.component.html',
   styleUrls: ['./campaign-card.component.scss']
 })
 export class CampaignCardComponent {
+  private router = inject(Router);
   @Input({ required: true }) campaign!: CampaignInterface;
   @Input() apiBaseUrl = '';
   @Input() view: 'grid' | 'list' = 'grid';
@@ -56,6 +59,13 @@ export class CampaignCardComponent {
     this.editCampaign.emit(this.campaign._id);
   }
 
+  targetAudienceByLocation() {
+    const campaign = this.campaign;
+    if (campaign) {
+      this.router.navigate([`/dashboard/campaigns/${campaign._id}/targeting`]);
+    }
+  }
+
   onPauseCampaign(): void {
     this.pauseCampaign.emit(this.campaign._id);
   }
@@ -82,8 +92,4 @@ export class CampaignCardComponent {
     return 'danger';
   }
 
-  formatCurrency(amount: number, currency: string): string {
-    if (!amount || isNaN(amount)) return `${currency}0`;
-    return `${currency}${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
-  }
 }

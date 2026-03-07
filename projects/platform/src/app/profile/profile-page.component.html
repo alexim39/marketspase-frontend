@@ -1,0 +1,194 @@
+<div class="profile-container">
+  <!-- Loading / Error states -->
+  @if (loading()) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading profile...</p>
+    </div>
+  } 
+  @if (error()) {
+    <div class="error-state">
+      <mat-icon>error</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="ngOnInit()">Retry</button>
+    </div>
+  } 
+  @if (profile(); as profile) {
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-cover">
+        <!-- Optional cover image -->
+      </div>
+      <div class="profile-info">
+        <img [src]="profile.avatar || 'img/avatar.png'" alt="Avatar" class="profile-avatar">
+        <div class="profile-details">
+          <div class="name-row">
+            <h1>{{ profile.displayName }}</h1>
+            @if (profile.isVerified) {
+              <mat-icon class="verified-badge" color="primary">verified</mat-icon>
+            }
+          </div>
+          <div class="username">@{{ profile.username }}</div>
+          <div class="bio">{{ profile.personalInfo?.biography || 'No bio yet' }}</div>
+          <div class="meta-row">
+            @if (profile.personalInfo?.address?.city || profile.personalInfo?.address?.country) {
+              <span class="meta-item">
+                <mat-icon>location_on</mat-icon>
+                {{ profile.personalInfo?.address?.city }}{{ profile.personalInfo?.address?.city && profile.personalInfo?.address?.country ? ', ' : '' }}{{ profile.personalInfo?.address?.country }}
+              </span>
+            }
+            <span class="meta-item">
+              <mat-icon>calendar_today</mat-icon>
+              Joined {{ profile.createdAt | date:'mediumDate' }}
+            </span>
+            <span class="meta-item">
+              <mat-icon>star</mat-icon>
+              {{ profile.rating.toFixed(1) }} ({{ profile.ratingCount }} ratings)
+            </span>
+          </div>
+          <div class="stats-row">
+            <div class="stat" (click)="activeTabIndex.set(0)">
+              <span class="stat-value">{{ profile.postsCount }}</span>
+              <span class="stat-label">Posts</span>
+            </div>
+            <div class="stat" (click)="activeTabIndex.set(1)">
+              <span class="stat-value">{{ profile.followersCount }}</span>
+              <span class="stat-label">Followers</span>
+            </div>
+            <div class="stat" (click)="activeTabIndex.set(2)">
+              <span class="stat-value">{{ profile.followingCount }}</span>
+              <span class="stat-label">Following</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">{{ profile.totalLikes }}</span>
+              <span class="stat-label">Likes</span>
+            </div>
+          </div>
+          <div class="action-row">
+            @if (profile.isOwnProfile) {
+              <button mat-raised-button color="primary" (click)="editProfile()">
+                <mat-icon>edit</mat-icon> Edit Profile
+              </button>
+            } @else {
+              <button mat-raised-button 
+                      [color]="profile.isFollowing ? 'basic' : 'primary'"
+                      (click)="toggleFollow()">
+                <mat-icon>person_add</mat-icon>
+                {{ profile.isFollowing ? 'Following' : 'Follow' }}
+              </button>
+              <button mat-icon-button matTooltip="Message">
+                <mat-icon>message</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group [(selectedIndex)]="activeTabIndex" animationDuration="0ms">
+      <!-- Posts Tab -->
+      <mat-tab label="Posts">
+        <div class="tab-content">
+          @if (posts().length === 0 && !postsLoading()) {
+            <div class="empty-state">
+              <mat-icon>post_add</mat-icon>
+              <p>No posts yet</p>
+            </div>
+          } @else {
+           <div class="posts-grid">
+              @for (post of posts(); track post._id) {
+                <app-feed-post-card
+                  [post]="post"
+                  [user]="currentUser()"
+                  [isLiked]="likedPosts().has(post._id)"
+                  [isSaved]="savedPosts().has(post._id)"
+                  (like)="onLike($event)"
+                  (save)="onSave($event)"
+                  (comment)="onComment($event)"
+                  (share)="onShare($event)"
+                  (hashtagClick)="onHashtagClick($event)">
+                </app-feed-post-card>
+              }
+            </div>
+            @if (postsLoading()) {
+              <div class="loading-more">
+                <mat-spinner diameter="30"></mat-spinner>
+              </div>
+            }
+            <div #scrollAnchor class="scroll-anchor"></div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Followers Tab -->
+      <mat-tab label="Followers">
+        <div class="tab-content followers-tab">
+          @if (loadingFollowers()) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="30"></mat-spinner>
+            </div>
+          } @else {
+            <div class="user-list">
+              @for (user of followers(); track user._id) {
+                <div class="user-item" (click)="viewProfile(user._id)">
+                  <img [src]="user.avatar || 'img/avatar.png'" alt="" class="user-avatar">
+                  <div class="user-info">
+                    <span class="user-name">{{ user.displayName }}</span>
+                    <span class="user-handle">@{{ user.username }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <mat-icon>post_add</mat-icon>
+                  <p>No followers yet</p>
+                </div>
+              }
+              @if (followersLoadingMore()) {
+                <div class="loading-more">
+                  <mat-spinner diameter="20"></mat-spinner>
+                </div>
+              }
+              <div #followersScrollAnchor class="scroll-anchor"></div>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+
+      <!-- Following Tab -->
+        <mat-tab label="Following">
+        <div class="tab-content following-tab">
+          @if (loadingFollowing()) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="30"></mat-spinner>
+            </div>
+          } @else {
+            <div class="user-list">
+              @for (user of following(); track user._id) {
+                <div class="user-item" (click)="viewProfile(user._id)">
+                  <img [src]="user.avatar || 'img/avatar.png'" alt="" class="user-avatar">
+                  <div class="user-info">
+                    <span class="user-name">{{ user.displayName }}</span>
+                    <span class="user-handle">@{{ user.username }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <mat-icon>post_add</mat-icon>
+                  <p>Not following anyone yet</p>
+                </div>
+              }
+              @if (followingLoadingMore()) {
+                <div class="loading-more">
+                  <mat-spinner diameter="20"></mat-spinner>
+                </div>
+              }
+              <div #followingScrollAnchor class="scroll-anchor"></div>
+            </div>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

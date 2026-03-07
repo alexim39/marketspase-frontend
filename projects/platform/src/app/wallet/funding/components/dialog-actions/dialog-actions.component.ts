@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter, inject, computed } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PaymentStatusData } from '../payment-status/payment-status.component';
 import { DeviceService } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'dialog-actions',
@@ -16,7 +17,7 @@ import { DeviceService } from '../../../../../../../shared-services/src/public-a
     MatIconModule, 
     MatProgressSpinnerModule, 
     MatTooltipModule,
-    CurrencyPipe
+    CurrencyUtilsPipe
   ],
   templateUrl: './dialog-actions.component.html',
   styleUrls: ['./dialog-actions.component.scss']
@@ -36,6 +37,7 @@ export class DialogActionsComponent {
   @Output() pay = new EventEmitter<void>();
   @Output() retry = new EventEmitter<void>();
   @Output() continue = new EventEmitter<void>();
+   @Input({ required: true }) user: UserInterface | null = null;
 
   getPayButtonTooltip(): string {
     if (!this.canProceed) {

@@ -1,0 +1,354 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.connections-section {
+  .section-header {
+    @include flex-between;
+    margin: $spacing-8 $spacing-4 $spacing-5;
+    
+    @include tablet {
+      margin: $spacing-10 $spacing-6 $spacing-6;
+    }
+    
+    @include desktop {
+      margin: $spacing-12 0 $spacing-6;
+    }
+
+    .section-title {
+      @include heading-small;
+      margin: 0;
+      color: $text-primary;
+      
+      @include tablet {
+        font-size: $font-size-3xl;
+      }
+    }
+  }
+}
+
+.connections-card {
+  @include card-base;
+  border-radius: $border-radius-xl;
+  border: $border-width solid $border-color;
+  box-shadow: $shadow-sm;
+  height: 100%;
+  
+  mat-card-content {
+    padding: $spacing-5;
+  }
+  
+  .connections-header {
+    margin-bottom: $spacing-5;
+    
+    .connections-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-4;
+      margin-bottom: $spacing-5;
+      
+      .stat-item {
+        text-align: center;
+        padding: $spacing-3;
+        background-color: color-mix(in srgb, $background-color, black 5%);
+        border-radius: $border-radius-xl;
+        
+        .stat-value {
+          font-size: $font-size-2xl;
+          font-weight: $font-weight-bold;
+          color: $primary-color;
+          margin-bottom: $spacing-1;
+        }
+        
+        .stat-label {
+          font-size: $font-size-xs;
+          color: $text-secondary;
+        }
+      }
+    }
+    
+    .connection-filters {
+      display: flex;
+      gap: $spacing-2;
+      flex-wrap: wrap;
+      
+      .filter-btn {
+        @include button-ghost;
+        padding: $spacing-1 $spacing-4;
+        border-radius: $border-radius-xl;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        background-color: color-mix(in srgb, $background-color, black 12%);
+        color: $text-secondary;
+        transition: all $transition-fast;
+        
+        &:hover:not(:disabled) {
+          color: color-mix(in srgb, $background-color, black 25%);
+        }
+        
+        &.active {
+          @include button-primary;
+          background: $primary-color;
+          color: $white;
+          box-shadow: $shadow-sm;
+          
+          &:hover:not(:disabled) {
+            background: $primary-dark;
+          }
+        }
+      }
+    }
+  }
+  
+  .connections-list {
+    .connection-item {
+      @include flex-between;
+      padding: $spacing-5 0;
+      gap: $spacing-4;
+      
+      &:not(:last-child) {
+        border-bottom: $border-width solid $border-color;
+      }
+      
+      .connection-profile {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-4;
+        flex: 1;
+        cursor: pointer;
+        
+        .avatar-container {
+          position: relative;
+          flex-shrink: 0;
+          
+          .connection-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: $border-radius-md;
+            object-fit: cover;
+          }
+          
+          .status-indicator {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 14px;
+            height: 14px;
+            border: 2px solid $white;
+            border-radius: $border-radius-full;
+            
+            &.online {
+              background: $success-color;
+            }
+            
+            &.offline {
+              background: $gray-400;
+            }
+            
+            &.away {
+              background: $warning-color;
+            }
+          }
+        }
+        
+        .connection-info {
+          flex: 1;
+          min-width: 0;
+          
+          .connection-header {
+            display: flex;
+            align-items: center;
+            gap: $spacing-2;
+            margin-bottom: $spacing-1;
+            
+            .connection-name {
+              @include body-medium;
+              font-weight: $font-weight-semibold;
+              color: $text-primary;
+              margin: 0;
+            }
+            
+            .mutual-badge {
+              @include flex-center;
+              gap: $spacing-1;
+              font-size: 0.6875rem; // 11px equivalent
+              color: $text-secondary;
+              background: $gray-50;
+              padding: 2px $spacing-2;
+              border-radius: $border-radius-lg;
+              
+              mat-icon {
+                font-size: $font-size-sm;
+                width: 14px;
+                height: 14px;
+              }
+            }
+          }
+          
+          .connection-role {
+            @include body-small;
+            color: $text-secondary;
+            margin: 0 0 $spacing-2 0;
+          }
+          
+          .connection-stats {
+            display: flex;
+            gap: $spacing-3;
+            margin-bottom: $spacing-2;
+            
+            .connection-rating,
+            .connection-completed {
+              @include flex-center;
+              gap: $spacing-1;
+              font-size: $font-size-xs;
+              color: $text-secondary;
+              
+              mat-icon {
+                font-size: $font-size-sm;
+                color: $warning-color;
+              }
+            }
+          }
+          
+          .connection-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: $spacing-1;
+            margin-bottom: $spacing-2;
+            
+            .skill-tag {
+              font-size: $font-size-xs;
+              color: $primary-color;
+              background: rgba($primary-color, 0.1);
+              padding: 2px $spacing-2;
+              border-radius: $border-radius-lg;
+            }
+            
+            .skill-more {
+              font-size: $font-size-xs;
+              color: $text-tertiary;
+            }
+          }
+          
+          .connection-location {
+            @include flex-center;
+            gap: $spacing-1;
+            font-size: $font-size-xs;
+            color: $text-tertiary;
+            
+            mat-icon {
+              font-size: $font-size-sm;
+              width: 14px;
+              height: 14px;
+            }
+          }
+        }
+      }
+      
+      .connection-actions {
+        display: flex;
+        gap: $spacing-2;
+        flex-shrink: 0;
+        
+        .connect-btn {
+          @include button-primary;
+          border-radius: $border-radius-xl;
+          padding: $spacing-1 $spacing-4;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-semibold;
+          min-width: 100px;
+          
+          mat-icon {
+            margin-right: $spacing-1;
+          }
+          
+          &.connected {
+            @include button-secondary;
+            background: $gray-50;
+          }
+        }
+        
+        .message-btn {
+          @include button-ghost;
+          border-radius: $border-radius;
+        }
+      }
+    }
+  }
+  
+  .connections-footer {
+    margin-top: $spacing-6;
+    padding-top: $spacing-5;
+    border-top: $border-width solid $border-color;
+    @include flex-between;
+    
+    .refresh-btn {
+      @include button-secondary;
+      border-radius: $border-radius-xl;
+      
+      mat-icon {
+        margin-right: $spacing-1;
+      }
+    }
+    
+    .disclaimer {
+      @include flex-center;
+      gap: $spacing-2;
+      font-size: $font-size-xs;
+      color: $text-tertiary;
+      
+      mat-icon {
+        font-size: $font-size-base;
+      }
+    }
+  }
+}
+
+@include mobile {
+  .connections-card {
+    .connections-header {
+      .connections-stats {
+        grid-template-columns: 1fr;
+        gap: $spacing-3;
+      }
+    }
+    
+    .connection-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-3;
+      
+      .connection-profile {
+        .connection-info {
+          .connection-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: $spacing-1;
+          }
+        }
+      }
+      
+      .connection-actions {
+        width: 100%;
+        justify-content: space-between;
+        
+        .connect-btn {
+          flex: 1;
+        }
+        
+        .message-btn {
+          flex-shrink: 0;
+        }
+      }
+    }
+    
+    .connections-footer {
+      flex-direction: column;
+      gap: $spacing-3;
+      align-items: stretch;
+      
+      .refresh-btn {
+        width: 100%;
+      }
+    }
+  }
+}

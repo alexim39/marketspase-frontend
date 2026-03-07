@@ -20,7 +20,7 @@
         <mat-progress-spinner diameter="20" color="accent"/>
         Processing...
       } @else {
-        Pay {{ totalAmount | currency: '₦':'symbol':'1.0-2' }}
+        Pay {{ totalAmount | currencyUtils:user?.wallets?.marketer?.currency }}
       }
     </button>
   } @else {

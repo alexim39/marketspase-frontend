@@ -1,6 +1,6 @@
-// src/app/common/services/transaction.service.ts
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError, timer } from 'rxjs';
+import { retry, catchError, timeout, map } from 'rxjs/operators';
 import { ApiService } from '../../../../shared-services/src/public-api';
 
 export interface RecordPaymentPayload {
@@ -9,16 +9,63 @@ export interface RecordPaymentPayload {
   paystackResult: any;
 }
 
+export interface RecordPaymentResponse {
+  success: boolean;
+  message: string;
+  newBalance?: number;
+  transactionId?: string;
+  alreadyExists?: boolean;
+  isFirstCampaignFunding?: boolean;
+}
+
 @Injectable()
 export class WalletService {
   private apiService: ApiService = inject(ApiService);
+  private readonly maxRetries = 3;
+  private readonly timeoutMs = 30000; // 30 seconds
 
   /**
    * Records a successful payment transaction to the backend.
-   * The backend will verify the transaction with Paystack before saving.
-   * @param payload The transaction data to record.
+   * Includes retry logic and timeout.
    */
-  recordPayment(payload: RecordPaymentPayload): Observable<any> {
-    return this.apiService.post<any>(`wallet/verify-and-record`, payload, undefined, true);
+  recordPayment(payload: RecordPaymentPayload): Observable<RecordPaymentResponse> {
+    return this.apiService.post<RecordPaymentResponse>(
+      `wallet/verify-and-record`, 
+      payload, 
+      undefined, 
+      true
+    ).pipe(
+      timeout(this.timeoutMs),
+      retry({
+        count: this.maxRetries,
+        delay: (error, retryCount) => {
+          // Don't retry if it's a client error (4xx)
+          if (error.status >= 400 && error.status < 500) {
+            return throwError(() => error);
+          }
+          // Exponential backoff: 1s, 2s, 4s
+          const delayMs = Math.pow(2, retryCount - 1) * 1000;
+          return timer(delayMs);
+        }
+      }),
+      map(response => {
+        if (!response.success && !response.alreadyExists) {
+          throw new Error(response.message || 'Failed to record payment');
+        }
+        return response;
+      }),
+      catchError(error => {
+        console.error('Record payment error:', error);
+        return throwError(() => error);
+      })
+    );
   }
+
+  /**
+   * Verify if payment has been recorded by webhook
+   */
+  verifyPayment(reference: string): Observable<{ recorded: boolean; payment?: any }> {
+    return this.apiService.get(`wallet/verify-payment/${reference}`);
+  }
+
 }

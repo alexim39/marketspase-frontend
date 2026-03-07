@@ -13,14 +13,18 @@
             <span class="stat-value">{{ products().length }}</span>
             <span class="stat-label">Total Products</span>
           </div>
-          <div class="stat-item" *ngIf="lowStockProducts().length > 0">
-            <span class="stat-value warn">{{ lowStockProducts().length }}</span>
-            <span class="stat-label">Low Stock</span>
-          </div>
-          <div class="stat-item" *ngIf="outOfStockProducts().length > 0">
-            <span class="stat-value error">{{ outOfStockProducts().length }}</span>
-            <span class="stat-label">Out of Stock</span>
-          </div>
+          @if (lowStockProducts().length > 0) {
+            <div class="stat-item">
+              <span class="stat-value warn">{{ lowStockProducts().length }}</span>
+              <span class="stat-label">Low Stock</span>
+            </div>
+          }
+          @if (outOfStockProducts().length > 0) {
+            <div class="stat-item">
+              <span class="stat-value error">{{ outOfStockProducts().length }}</span>
+              <span class="stat-label">Out of Stock</span>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -90,7 +94,7 @@
         @for (product of paginatedProducts(); track trackByProductId($index, product)) {
           <mat-card class="product-card">
             <div class="product-image">
-              <img [src]="product.images[0] || '/assets/default-product.png'" [alt]="product.name">
+              <img [src]="product.images[0] || '/img/default-product.png'" [alt]="product.name">
               <div class="product-badges">
                 @if (!product.isActive) {
                   <span class="badge inactive">Inactive</span>

@@ -1,15 +1,15 @@
-@use '@angular/material' as mat;
-@use './styles/variables' as vars;
+@import '@angular/material';
+@import './styles/variables';
 
 // 1. SETUP THEME
 // We rely on the automatic palette generation of M3/recent Angular versions
 // If you need specific azure/blue colors, we define them in the config directly.
 
-$my-app-theme: mat.define-theme((
+$my-app-theme: define-theme((
   color: (
-    theme-type: dark, // Start with dark
-    primary: mat.$azure-palette,
-    tertiary: mat.$blue-palette,
+    theme-type: light, // Start with light
+    primary: $azure-palette,
+    tertiary: $blue-palette,
   ),
   typography: (
     plain-family: 'Roboto, sans-serif',
@@ -22,10 +22,10 @@ $my-app-theme: mat.define-theme((
 // 2. APPLY THEME
 html {
   // Apply the base theme
-  @include mat.all-component-themes($my-app-theme);
+  @include all-component-themes($my-app-theme);
   
   // NATIVE BROWSER SUPPORT
-  color-scheme: dark light;
+  color-scheme: light dark;
 }
 
 // 3. DARK MODE OVERRIDES
@@ -34,12 +34,12 @@ html {
 body[data-theme="dark"] {
   // This mixin automatically flips the Material System Colors (surface, on-surface, etc)
   // to dark mode values without needing to redefine the whole palette.
-  @include mat.all-component-colors(
-    mat.define-theme((
+  @include all-component-colors(
+    define-theme((
       color: (
         theme-type: dark,
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: $azure-palette,
+        tertiary: $blue-palette,
       )
     ))
   );
@@ -50,8 +50,8 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 
   // CONNECT TO OUR VARIABLES
-  background-color: var(--background-color);
-  color: var(--text-primary);
+  background-color: $background-color;
+  color: $text-primary;
   
   // Transition for smooth toggle
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -62,8 +62,8 @@ html, body { height: 100%; }
 // --- DIALOG STYLES (Unchanged) ---
 .confirm-dialog-panel {
   .mat-mdc-dialog-surface {
-    background-color: var(--surface-color) !important;
-    color: var(--text-primary) !important;
+    background-color: $surface-color !important;
+    color: $text-primary !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
   }

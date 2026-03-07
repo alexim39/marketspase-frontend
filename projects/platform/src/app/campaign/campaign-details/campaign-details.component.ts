@@ -158,6 +158,13 @@ export class CampaignDetailsComponent implements OnInit {
     }
   }
 
+  targetAudienceByLocation() {
+    const campaign = this.campaign();
+    if (campaign) {
+      this.router.navigate([`/dashboard/campaigns/${campaign._id}/targeting`]);
+    }
+  }
+
   duplicateCampaign() {
     const campaign = this.campaign();
     if (campaign) {

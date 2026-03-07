@@ -16,6 +16,10 @@
         <mat-icon>edit</mat-icon>
         Edit Campaign
       </button>
+      <button mat-menu-item (click)="targetAudienceByLocation()">
+        <mat-icon>edit_location</mat-icon>
+        Set Location Target
+      </button>
       <!-- @if (campaign.status === 'active') {
         <button mat-menu-item (click)="onPauseCampaign()">
           <mat-icon>pause</mat-icon>
@@ -111,11 +115,11 @@
 
     <div class="budget-info">
       <div class="budget-amount">
-        <span class="spent">{{formatCurrency( campaign.spentBudget, campaign.currency)}}</span>
-        <span class="total">/ {{formatCurrency(campaign.budget, campaign.currency)}}</span>
+        <span class="spent">{{ campaign.spentBudget | currencyUtils:campaign.currency }}</span>
+        <span class="total">/ {{ campaign.budget | currencyUtils:campaign.currency }}</span>
       </div>
       <div class="budget-label">Budget Spent</div>
-      <div class="budget-label payout">Promoter Payout: {{formatCurrency(campaign.payoutPerPromotion, campaign.currency)}}</div>
+      <div class="budget-label payout">Promoter Payout: {{ campaign.payoutPerPromotion | currencyUtils:campaign.currency }}</div>
     </div>
   </div>
 

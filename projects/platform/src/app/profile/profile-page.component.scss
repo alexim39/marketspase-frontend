@@ -1,0 +1,368 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+
+:host {
+  background: $background-color !important;
+  display: block; // ensures the host takes up full width/height
+  min-height: 100vh; // if you want full viewport height
+}
+
+.profile-container {
+ max-width: 800px;
+  margin: 0 auto;
+  padding: $spacing-4;
+
+
+  .loading-state, .error-state {
+    @include flex-center;
+    flex-direction: column;
+    min-height: 300px;
+  }
+
+  .error-state {
+    mat-icon {
+      font-size: 48px;
+      color: $error-color;
+      margin-bottom: $spacing-4;
+    }
+  }
+
+  .profile-header {
+    background: $surface-color;
+    border-radius: $border-radius-xl;
+    overflow: hidden;
+    margin-bottom: $spacing-6;
+    box-shadow: $shadow-sm;
+
+    .profile-cover {
+      height: 200px;
+      background: linear-gradient(135deg, $primary-color, $secondary-color);
+    }
+
+    .profile-info {
+      display: flex;
+      gap: $spacing-6;
+      padding: $spacing-6;
+      margin-top: -60px;
+
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid $surface-color;
+        object-fit: cover;
+      }
+
+      .profile-details {
+        flex: 1;
+
+        .name-row {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+
+          h1 {
+            margin: 0;
+            @include heading-medium;
+          }
+
+          .verified-badge {
+            color: $primary-color;
+          }
+        }
+
+        .username {
+          @include body-large;
+          color: $text-secondary;
+          margin-bottom: $spacing-3;
+        }
+
+        .bio {
+          @include body-medium;
+          margin-bottom: $spacing-4;
+        }
+
+        .meta-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: $spacing-4;
+          margin-bottom: $spacing-4;
+
+          .meta-item {
+            display: flex;
+            align-items: center;
+            gap: $spacing-1;
+            color: $text-secondary;
+            @include caption;
+
+            mat-icon {
+              font-size: 18px;
+            }
+          }
+        }
+
+        .stats-row {
+          display: flex;
+          gap: $spacing-6;
+          margin-bottom: $spacing-4;
+
+          .stat {
+            cursor: pointer;
+            text-align: center;
+
+            .stat-value {
+              display: block;
+              @include heading-small;
+              font-weight: $font-weight-semibold;
+            }
+
+            .stat-label {
+              @include caption;
+              color: $text-secondary;
+            }
+
+            &:hover .stat-value {
+              color: $primary-color;
+            }
+          }
+        }
+
+        .action-row {
+          display: flex;
+          gap: $spacing-2;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    padding: $spacing-4 0;
+
+    .empty-state {
+      text-align: center;
+      padding: $spacing-8;
+      color: $text-secondary;
+    }
+
+    .posts-grid {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-4;
+    }
+
+    .loading-more {
+      @include flex-center;
+      padding: $spacing-4;
+    }
+
+    .scroll-anchor {
+      height: 1px;
+    }
+  }
+}
+
+@include mobile {
+  // Profile info section (mobile)
+  .profile-info {
+    display: flex;
+    flex-direction: column; // stack vertically on mobile
+    gap: $spacing-4;        // smaller gap
+    padding: $spacing-4;    // reduced padding
+    margin-top: -40px;      // adjust negative margin (smaller)
+
+    .profile-avatar {
+      width: 80px;           // smaller avatar
+      height: 80px;
+      border-width: 3px;     // slightly thinner border
+      margin: 0 auto;        // center on mobile
+    }
+
+    .profile-details {
+      width: 100%;
+      text-align: center;    // center text for mobile
+
+      .name-row {
+        justify-content: center;
+        flex-wrap: wrap;      // allow wrapping if needed
+        gap: $spacing-1;
+
+        h1 {
+          @include heading-small; // smaller heading
+        }
+      }
+
+      .username {
+        @include body-medium;     // smaller username
+        margin-bottom: $spacing-2;
+      }
+
+      .bio {
+        @include body-small;      // smaller bio
+        margin-bottom: $spacing-3;
+      }
+
+      .meta-row {
+        justify-content: center;  // center meta items
+        gap: $spacing-3;
+        margin-bottom: $spacing-3;
+
+        .meta-item {
+          @include caption;       // keep small
+          mat-icon {
+            font-size: 16px;      // smaller icons
+          }
+        }
+      }
+
+      .stats-row {
+        justify-content: space-around; // spread stats evenly
+        gap: $spacing-2;
+        margin-bottom: $spacing-3;
+
+        .stat {
+          .stat-value {
+            @include body-medium;     // smaller value
+          }
+          .stat-label {
+            @include caption;         // keep label small
+          }
+        }
+      }
+
+      .action-row {
+        justify-content: center;
+        flex-wrap: wrap;            // wrap buttons if needed
+        gap: $spacing-2;
+      }
+    }
+  }
+}
+
+// ----------------------------------------
+// Followers / Following List – Professional Design
+// ----------------------------------------
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2; // subtle separation between items
+
+  .user-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    cursor: pointer;
+    border-radius: $border-radius-lg;
+    background: $surface-color; // subtle background for each item
+    transition: all 0.2s ease;
+    border: 1px solid transparent; // placeholder for hover effect
+
+    &:hover {
+      background: color-mix(in srgb, $surface-color, black 3%);
+      border-color: rgba($primary-color, 0.1);
+      box-shadow: $shadow-sm;
+
+      // Optional: slight scale effect
+      // transform: translateY(-1px);
+    }
+
+    // Active/pressed state
+    &:active {
+      background: color-mix(in srgb, $surface-color, black 6%);
+      transform: scale(0.99);
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba($primary-color, 0.1); // subtle ring
+      transition: border-color 0.2s;
+
+      &:hover {
+        border-color: rgba($primary-color, 0.3);
+      }
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0; // enable truncation
+
+      .user-name {
+        display: block;
+        font-weight: $font-weight-semibold;
+        @include body-small;
+        color: $text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 2px;
+      }
+
+      .user-handle {
+        @include caption;
+        color: $text-secondary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    // Optional follow button (add if you want quick action)
+    .follow-btn {
+      opacity: 0;
+      transition: opacity 0.2s;
+      margin-left: auto;
+      background: $primary-color;
+      color: white;
+      border: none;
+      padding: $spacing-1 $spacing-3;
+      border-radius: $border-radius-xl;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      cursor: pointer;
+
+      &:hover {
+        background: darken($primary-color, 5%);
+      }
+    }
+
+    &:hover .follow-btn {
+      opacity: 1;
+    }
+  }
+}
+
+// Loading spinner – centered with nice spacing
+.loading-spinner {
+  @include flex-center;
+  padding: $spacing-8;
+
+  mat-spinner {
+    opacity: 0.7;
+  }
+}
+
+// Enhanced empty state (already present, but you can refine)
+.empty-state {
+  text-align: center;
+  padding: $spacing-8 $spacing-4;
+  color: $text-secondary;
+
+  p {
+    @include body-medium;
+    margin: 0;
+  }
+
+  // Optional icon
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: $spacing-3;
+    opacity: 0.5;
+  }
+}

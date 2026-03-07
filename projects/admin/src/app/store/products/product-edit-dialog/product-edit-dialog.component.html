@@ -1,0 +1,465 @@
+    <div class="product-edit-dialog">
+      <h2 mat-dialog-title>
+        @if (data.product._id) {
+          Edit Product
+        } @else {
+          Add New Product
+        }
+      </h2>
+      
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+        <mat-dialog-content>
+          <mat-tab-group class="edit-tabs">
+            <!-- Basic Information Tab -->
+            <mat-tab label="Basic Information">
+              <div class="tab-content">
+                <div class="form-section">
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field full-width">
+                      <mat-label>Product Name *</mat-label>
+                      <input matInput formControlName="name" placeholder="Enter product name">
+                      @if (productForm.get('name')?.hasError('required')) {
+                        <mat-error>Product name is required</mat-error>
+                      }
+                      @if (productForm.get('name')?.hasError('minlength')) {
+                        <mat-error>Minimum 3 characters required</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field full-width">
+                      <mat-label>Description</mat-label>
+                      <textarea matInput formControlName="description" 
+                              placeholder="Enter product description"
+                              rows="4"></textarea>
+                      <mat-hint align="end">{{ descriptionLength }}/2000</mat-hint>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Category *</mat-label>
+                      <mat-select formControlName="category">
+                        <mat-option>-- Select Category --</mat-option>
+                        @for (category of data.categories; track category) {
+                          <mat-option [value]="category">{{ category }}</mat-option>
+                        }
+                      </mat-select>
+                      <mat-hint>Or type to create new category</mat-hint>
+                      @if (productForm.get('category')?.hasError('required')) {
+                        <mat-error>Category is required</mat-error>
+                      }
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Brand</mat-label>
+                      <input matInput formControlName="brand" placeholder="Enter brand name">
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>SKU</mat-label>
+                      <input matInput formControlName="sku" placeholder="Enter SKU">
+                      <mat-hint>Leave empty to auto-generate</mat-hint>
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Slug</mat-label>
+                      <input matInput formControlName="slug" placeholder="product-url-slug">
+                      <mat-hint>Leave empty to auto-generate</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+                
+                <div class="form-section">
+                  <h3 class="section-title">Tags</h3>
+                  <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label>Tags</mat-label>
+                    <mat-chip-grid #chipGrid aria-label="Tag selection">
+                      @for (tag of tagsArray.controls; track $index) {
+                        <mat-chip-row (removed)="removeTag($index)">
+                          {{ tag.value }}
+                          <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                          </button>
+                        </mat-chip-row>
+                      }
+                    </mat-chip-grid>
+                    <input placeholder="Add tag..." 
+                           [matChipInputFor]="chipGrid" 
+                           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                           [matChipInputAddOnBlur]="true"
+                           (matChipInputTokenEnd)="addTag($event)">
+                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="addTagFromAutocomplete($event)">
+                      @for (tag of filteredTags; track tag) {
+                        <mat-option [value]="tag">{{ tag }}</mat-option>
+                      }
+                    </mat-autocomplete>
+                  </mat-form-field>
+                </div>
+              </div>
+            </mat-tab>
+            
+            <!-- Pricing Tab -->
+            <mat-tab label="Pricing">
+              <div class="tab-content">
+                <div class="form-section">
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Price *</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="price" placeholder="0.00">
+                      <span matPrefix>$</span>
+                      @if (productForm.get('price')?.hasError('required')) {
+                        <mat-error>Price is required</mat-error>
+                      }
+                      @if (productForm.get('price')?.hasError('min')) {
+                        <mat-error>Price must be positive</mat-error>
+                      }
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Original Price</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="originalPrice" placeholder="0.00">
+                      <span matPrefix>$</span>
+                      @if (productForm.get('originalPrice')?.hasError('min')) {
+                        <mat-error>Price must be positive</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Cost Price</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="costPrice" placeholder="0.00">
+                      <span matPrefix>$</span>
+                    </mat-form-field>
+                    
+                    <div class="form-field">
+                      <div class="price-info">
+                        @if (priceDifference > 0) {
+                          <div class="discount-info">
+                            <span class="discount-label">Discount:</span>
+                            <span class="discount-value">{{ discountPercentage | number:'1.0-0' }}%</span>
+                            <span class="discount-amount">(${{ priceDifference | number:'1.2-2' }})</span>
+                          </div>
+                        }
+                        
+                        @if (costPrice && costPrice > 0 && price > 0) {
+                          <div class="margin-info">
+                            <span class="margin-label">Margin:</span>
+                            <span class="margin-value">{{ marginPercentage | number:'1.0-0' }}%</span>
+                            <span class="margin-amount">(${{ price - costPrice | number:'1.2-2' }})</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+            
+            <!-- Inventory Tab -->
+            <mat-tab label="Inventory">
+              <div class="tab-content">
+                <div class="form-section">
+                  <div class="form-row">
+                    <mat-slide-toggle formControlName="manageStock" class="full-width">
+                      Track Inventory
+                    </mat-slide-toggle>
+                    <p class="toggle-description">Enable inventory tracking for this product</p>
+                  </div>
+                  
+                  @if (productForm.get('manageStock')?.value) {
+                    <div class="inventory-section">
+                      <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Quantity *</mat-label>
+                          <input matInput type="number" min="0" formControlName="quantity" placeholder="0">
+                          @if (productForm.get('quantity')?.hasError('required')) {
+                            <mat-error>Quantity is required</mat-error>
+                          }
+                          @if (productForm.get('quantity')?.hasError('min')) {
+                            <mat-error>Quantity must be positive</mat-error>
+                          }
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Low Stock Alert</mat-label>
+                          <input matInput type="number" min="0" formControlName="lowStockAlert" placeholder="5">
+                          <mat-hint>Get notified when stock reaches this level</mat-hint>
+                        </mat-form-field>
+                      </div>
+                      
+                      <div class="form-row">
+                        <mat-slide-toggle formControlName="backorderAllowed">
+                          Allow Backorders
+                        </mat-slide-toggle>
+                        <p class="toggle-description">Allow customers to purchase out of stock items</p>
+                      </div>
+                      
+                      <div class="form-row">
+                        <mat-slide-toggle formControlName="soldIndividually">
+                          Sold Individually
+                        </mat-slide-toggle>
+                        <p class="toggle-description">Limit purchase to 1 item per order</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+            
+            <!-- Shipping Tab -->
+            <mat-tab label="Shipping">
+              <div class="tab-content">
+                <div class="form-section">
+                  <div class="form-row">
+                    <mat-slide-toggle formControlName="requiresShipping" class="full-width">
+                      Requires Shipping
+                    </mat-slide-toggle>
+                    <p class="toggle-description">This product requires physical shipping</p>
+                  </div>
+                  
+                  @if (productForm.get('requiresShipping')?.value) {
+                    <div class="shipping-section">
+                      <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Weight</mat-label>
+                          <input matInput type="number" min="0" formControlName="weight" placeholder="0.00">
+                          <span matSuffix>kg</span>
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Weight Unit</mat-label>
+                          <mat-select formControlName="weightUnit">
+                            <mat-option value="kg">kg</mat-option>
+                            <mat-option value="g">g</mat-option>
+                            <mat-option value="lb">lb</mat-option>
+                            <mat-option value="oz">oz</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      
+                      <div class="form-row">
+                        <h4 class="section-subtitle">Dimensions</h4>
+                      </div>
+                      
+                      <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Length</mat-label>
+                          <input matInput type="number" min="0" formControlName="length" placeholder="0">
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Width</mat-label>
+                          <input matInput type="number" min="0" formControlName="width" placeholder="0">
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Height</mat-label>
+                          <input matInput type="number" min="0" formControlName="height" placeholder="0">
+                        </mat-form-field>
+                        
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Unit</mat-label>
+                          <mat-select formControlName="dimensionUnit">
+                            <mat-option value="cm">cm</mat-option>
+                            <mat-option value="m">m</mat-option>
+                            <mat-option value="in">in</mat-option>
+                            <mat-option value="ft">ft</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      
+                      <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field full-width">
+                          <mat-label>Shipping Class</mat-label>
+                          <mat-select formControlName="shippingClass">
+                            <mat-option value="">Standard Shipping</mat-option>
+                            <mat-option value="fragile">Fragile</mat-option>
+                            <mat-option value="oversized">Oversized</mat-option>
+                            <mat-option value="refrigerated">Refrigerated</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+            
+            <!-- Advanced Tab -->
+            <mat-tab label="Advanced">
+              <div class="tab-content">
+                <div class="form-section">
+                  <mat-expansion-panel class="expansion-panel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>Tax Settings</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    
+                    <div class="form-row">
+                      <mat-slide-toggle formControlName="taxable">
+                        Taxable Product
+                      </mat-slide-toggle>
+                      <p class="toggle-description">This product is subject to sales tax</p>
+                    </div>
+                    
+                    @if (productForm.get('taxable')?.value) {
+                      <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                          <mat-label>Tax Class</mat-label>
+                          <mat-select formControlName="taxClass">
+                            <mat-option value="standard">Standard Rate</mat-option>
+                            <mat-option value="reduced">Reduced Rate</mat-option>
+                            <mat-option value="zero">Zero Rate</mat-option>
+                            <mat-option value="exempt">Exempt</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    }
+                  </mat-expansion-panel>
+                  
+                  <mat-expansion-panel class="expansion-panel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>Digital Product</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    
+                    <div class="form-row">
+                      <mat-slide-toggle formControlName="isDigital">
+                        Digital Product
+                      </mat-slide-toggle>
+                      <p class="toggle-description">This is a digital product (no shipping required)</p>
+                    </div>
+                    
+                    @if (productForm.get('isDigital')?.value) {
+                      <div class="digital-section">
+                        <div class="form-row">
+                          <mat-form-field appearance="outline" class="form-field full-width">
+                            <mat-label>Download File URL</mat-label>
+                            <input matInput formControlName="digitalFileUrl" placeholder="https://example.com/file.zip">
+                          </mat-form-field>
+                        </div>
+                        
+                        <div class="form-row">
+                          <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Download Limit</mat-label>
+                            <input matInput type="number" min="0" formControlName="downloadLimit" placeholder="0">
+                            <mat-hint>0 = unlimited downloads</mat-hint>
+                          </mat-form-field>
+                          
+                          <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Download Expiry (days)</mat-label>
+                            <input matInput type="number" min="0" formControlName="downloadExpiry" placeholder="0">
+                            <mat-hint>0 = never expires</mat-hint>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                    }
+                  </mat-expansion-panel>
+                  
+                  <mat-expansion-panel class="expansion-panel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>SEO Settings</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    
+                    <div class="form-row">
+                      <mat-form-field appearance="outline" class="form-field full-width">
+                        <mat-label>SEO Title</mat-label>
+                        <input matInput formControlName="seoTitle" placeholder="Optimized title for search engines">
+                        <mat-hint>Recommended: 50-60 characters</mat-hint>
+                      </mat-form-field>
+                    </div>
+                    
+                    <div class="form-row">
+                      <mat-form-field appearance="outline" class="form-field full-width">
+                        <mat-label>Meta Description</mat-label>
+                        <textarea matInput formControlName="seoDescription" 
+                                placeholder="Product description for search results"
+                                rows="3"></textarea>
+                        <mat-hint>Recommended: 150-160 characters</mat-hint>
+                      </mat-form-field>
+                    </div>
+                    
+                    <div class="form-row">
+                      <mat-form-field appearance="outline" class="form-field full-width">
+                        <mat-label>SEO Keywords</mat-label>
+                        <textarea matInput formControlName="seoKeywords" 
+                                placeholder="Comma-separated keywords"
+                                rows="2"></textarea>
+                      </mat-form-field>
+                    </div>
+                  </mat-expansion-panel>
+                </div>
+              </div>
+            </mat-tab>
+            
+            <!-- Status Tab -->
+            <mat-tab label="Status">
+              <div class="tab-content">
+                <div class="form-section">
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Status</mat-label>
+                      <mat-select formControlName="status">
+                        <mat-option value="draft">Draft</mat-option>
+                        <mat-option value="active">Active</mat-option>
+                        <mat-option value="archived">Archived</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    
+                    <div class="form-field">
+                      <div class="status-info">
+                        <mat-slide-toggle formControlName="isFeatured">
+                          Featured Product
+                        </mat-slide-toggle>
+                        <p class="toggle-description">Highlight this product in featured sections</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <h4 class="section-subtitle">Scheduling</h4>
+                  </div>
+                  
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Scheduled Start</mat-label>
+                      <input matInput [matDatepicker]="startPicker" formControlName="scheduledStart">
+                      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #startPicker></mat-datepicker>
+                      <mat-hint>Leave empty to publish immediately</mat-hint>
+                    </mat-form-field>
+                    
+                    <mat-form-field appearance="outline" class="form-field">
+                      <mat-label>Scheduled End</mat-label>
+                      <input matInput [matDatepicker]="endPicker" formControlName="scheduledEnd">
+                      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #endPicker></mat-datepicker>
+                      <mat-hint>Leave empty for no end date</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-dialog-content>
+        
+        <mat-dialog-actions align="end">
+          <button mat-button type="button" (click)="onCancel()">Cancel</button>
+          <button mat-raised-button 
+                  color="primary" 
+                  type="submit"
+                  [disabled]="!productForm.valid || productForm.pristine">
+            @if (data.product._id) {
+              <mat-icon>save</mat-icon>
+              Save Changes
+            } @else {
+              <mat-icon>add</mat-icon>
+              Create Product
+            }
+          </button>
+        </mat-dialog-actions>
+      </form>
+    </div>

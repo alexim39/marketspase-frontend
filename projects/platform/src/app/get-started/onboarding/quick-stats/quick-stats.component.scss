@@ -1,0 +1,62 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-4;
+  margin-bottom: $spacing-12;
+  
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-3;
+  }
+  
+  .stat-card {
+    @include card-base;
+    @include card-hover;
+    @include flex-column-center;
+    padding: $spacing-6 $spacing-4;
+    text-align: center;
+    
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      @include flex-center;
+      border-radius: $border-radius-full;
+      margin-bottom: $spacing-4;
+      font-size: 24px;
+      
+      &.color-primary {
+        background: rgba($primary-color-hex, 0.1);
+        color: $primary-color-hex;
+      }
+      
+      &.color-accent {
+        background: rgba($secondary-color-hex, 0.1);
+        color: $secondary-color-hex;
+      }
+      
+      &.color-warn {
+        background: rgba($warning-color-hex, 0.1);
+        color: $warning-color-hex;
+      }
+      
+      &.color-success {
+        background: rgba($success-color-hex, 0.1);
+        color: $success-color-hex;
+      }
+    }
+    
+    .stat-value {
+      @include heading-medium;
+      margin-bottom: $spacing-1;
+    }
+    
+    .stat-label {
+      @include caption;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}

@@ -1,9 +1,11 @@
 <div class="custom-amount-section">
-  <h3>Or Enter Custom Amount</h3>
+  <h3>Enter Custom Amount</h3>
   <form [formGroup]="form" class="funding-form">
     <mat-form-field class="amount-field" appearance="outline">
-      <mat-label>Amount (₦)</mat-label>
-      <span matTextPrefix>₦ </span>
+      <mat-label>Amount</mat-label>
+      <span matTextPrefix>
+        <mat-icon>currency_exchange</mat-icon>  
+      </span>
       <input 
         matInput 
         type="number" 
@@ -15,16 +17,16 @@
         min="0"
         max="1000000"
         step="100">
-      <mat-hint>Minimum: ₦{{ minAmount | number:'1.0-0' }} | Maximum: ₦{{ maxAmount | number:'1.0-0' }}</mat-hint>
+      <mat-hint>Minimum: {{ minAmount | currencyUtils:user?.wallets?.marketer?.currency }} | Maximum: {{ maxAmount | currencyUtils:user?.wallets?.marketer?.currency }}</mat-hint>
       
       @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
         <mat-error>Amount is required</mat-error>
       }
       @if (form.get('amount')?.hasError('min')) {
-        <mat-error>Minimum amount is ₦{{ minAmount | number:'1.0-0' }}</mat-error>
+        <mat-error>Minimum amount is {{ minAmount | currencyUtils:user?.wallets?.marketer?.currency }}</mat-error>
       }
       @if (form.get('amount')?.hasError('max')) {
-        <mat-error>Maximum amount is ₦{{ maxAmount | number:'1.0-0' }}</mat-error>
+        <mat-error>Maximum amount is {{ maxAmount | currencyUtils:user?.wallets?.marketer?.currency }}</mat-error>
       }
       @if (form.get('amount')?.hasError('pattern')) {
         <mat-error>Please enter a valid amount</mat-error>

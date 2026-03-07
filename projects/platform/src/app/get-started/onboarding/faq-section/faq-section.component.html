@@ -1,0 +1,79 @@
+<section class="faq-section">
+  <div class="faq-header">
+    <h2 class="faq-title">Frequently Asked Questions</h2>
+    <p class="faq-subtitle">
+      @if (userRole) {
+        Questions for {{ userRole === 'marketer' ? 'Marketers' : userRole === 'promoter' ? 'Promoters' : 'Users' }}
+      } @else {
+        Common questions about MarketSpase
+      }
+    </p>
+  </div>
+  
+  <!-- FAQ Category Tabs -->
+  <div class="faq-categories">
+    <div class="categories-container">
+      @for (cat of categories; track cat.id) {
+        <button class="category-tab" [class.active]="activeCategory === cat.id" (click)="setCategory(cat.id)">
+          <mat-icon>{{ cat.icon }}</mat-icon>
+          <span>{{ cat.label }}</span>
+        </button>
+      }
+    </div>
+  </div>
+  
+  <!-- FAQ Grid -->
+  <div class="faq-grid">
+    @if (categorizedFaqItems.length > 0) {
+      @for (faq of categorizedFaqItems; track trackByFaqQuestion($index, faq)) {
+        <div class="faq-card" [class.marketer-faq]="faq.target === 'marketer'" [class.promoter-faq]="faq.target === 'promoter'">
+          <div class="faq-card-header">
+            <div class="faq-role-badge" [class]="faq.target + '-badge'">
+              @if (faq.target === 'marketer') {
+                <mat-icon>storefront</mat-icon>
+                <span>For Marketers</span>
+              } @else if (faq.target === 'promoter') {
+                <mat-icon>groups</mat-icon>
+                <span>For Promoters</span>
+              } @else {
+                <mat-icon>public</mat-icon>
+                <span>General</span>
+              }
+            </div>
+          </div>
+          
+          <div class="faq-card-content">
+            <h3 class="faq-question">
+              <mat-icon>help_outline</mat-icon>
+              {{ faq.question }}
+            </h3>
+            <div class="faq-answer">
+              <p>{{ faq.answer }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="no-faqs">
+        <mat-icon>search_off</mat-icon>
+        <h3>No questions found for this category</h3>
+        <p>Try selecting a different category or check back later for more questions.</p>
+      </div>
+    }
+  </div>
+  
+  <!-- Additional Help -->
+  <div class="faq-help">
+    <div class="help-card">
+      <mat-icon>support_agent</mat-icon>
+      <div class="help-content">
+        <h3>Still have questions?</h3>
+        <p>Can't find what you're looking for? Our support team is here to help.</p>
+      </div>
+      <button mat-flat-button color="primary" class="contact-button" routerLink="/dashboard/settings/share">
+        <mat-icon>chat</mat-icon>
+        Contact Support
+      </button>
+    </div>
+  </div>
+</section>

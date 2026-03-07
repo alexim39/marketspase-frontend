@@ -1,0 +1,51 @@
+<!-- campaign-targeting.component.html -->
+<div class="campaign-targeting-container">
+  <!-- Header Section -->
+  <app-targeting-header
+    [isFormValid]="true"
+    [isSaving]="isSaving()"
+    (goBack)="goBack()"
+    (cancel)="cancelEdit()"
+    (save)="saveCampaign()"
+  />
+
+  <!-- Main Content -->
+  @if (campaign()) {
+    <main class="main-content">
+      <div class="container">
+        <div class="targeting-form">
+          <!-- Targeting -->
+          <div class="form-card">
+            <div class="card-header">
+              <h2>Campaign Location Targeting</h2>
+              <p>Set geographic targeting for your campaign</p>
+            </div>
+            <div class="card-content">
+              <app-targeting
+                [enableTarget]="enableTarget()"
+                [targetLocations]="targetLocations()"
+                (enableTargetChange)="onEnableTargetChange($event)"
+                (addLocation)="addLocation($event)"
+                (removeLocation)="removeLocation($event)"
+                (targetingSettingsChange)="onTargetingSettingsChange($event)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <app-loading-state message="Loading campaign targeting data..."/>
+  }
+
+  <!-- Error State -->
+  @if (error()) {
+    <app-error-state
+      [error]="error()!"
+      (retry)="loadCampaign()"
+    />
+  }
+</div>

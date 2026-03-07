@@ -85,7 +85,7 @@
 
         .search-box {
           @include flex-center;
-          background: $gray-50;
+          //background: $gray-50;
           border-radius: $border-radius;
           padding: $spacing-2 $spacing-3;
           gap: $spacing-2;

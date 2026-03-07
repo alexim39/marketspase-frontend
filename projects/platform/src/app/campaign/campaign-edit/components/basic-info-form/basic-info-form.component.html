@@ -22,7 +22,7 @@
       <mat-form-field appearance="outline" class="form-field-full">
         <mat-label>Caption/Description</mat-label>
         <textarea matInput formControlName="caption" rows="3" placeholder="Describe your campaign"></textarea>
-        <mat-hint>{{ form.get('caption')?.value?.length || 0 }}/150 characters</mat-hint>
+        <mat-hint>{{ form.get('caption')?.value?.length || 0 }}/300 characters</mat-hint>
         @if (form.get('caption')?.hasError('maxlength')) {
           <mat-error>Description cannot exceed 150 characters</mat-error>
         }

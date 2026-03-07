@@ -1,0 +1,39 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.cta-section {
+  text-align: center;
+  padding: $spacing-12 0;
+  background: linear-gradient(135deg, rgba($primary-color-hex, 0.05), rgba($secondary-color-hex, 0.05));
+  border-radius: $border-radius-xl;
+  margin-top: $spacing-12;
+  
+  .cta-title {
+    @include heading-medium;
+    margin-bottom: $spacing-4;
+  }
+  
+  .cta-subtitle {
+    @include body-large;
+    color: $text-secondary;
+    max-width: 600px;
+    margin: 0 auto $spacing-8;
+  }
+  
+  .cta-buttons {
+    display: flex;
+    gap: $spacing-4;
+    justify-content: center;
+    
+    @include mobile {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .secondary-cta {
+      @include button-outline;
+      padding: $spacing-4 $spacing-8;
+      font-size: $font-size-base;
+    }
+  }
+}

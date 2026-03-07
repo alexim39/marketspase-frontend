@@ -7,7 +7,7 @@
       
       @if (status.success) {
         <div class="success-details">
-          <p><strong>Amount Added:</strong> {{ status.amount | currency: '₦':'symbol':'1.0-2' }}</p>
+          <p><strong>Amount Added:</strong> {{ status.amount | currencyUtils:user?.wallets?.marketer?.currency }}</p>
           <p><strong>Transaction Reference:</strong> {{ status.reference }}</p>
           <p><strong>Date:</strong> {{ status.timestamp | date:'medium' }}</p>
           <div class="celebration-animation">🎉</div>

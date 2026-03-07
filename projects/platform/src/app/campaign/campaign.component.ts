@@ -23,5 +23,5 @@ import { PromoterLandingComponent } from '../promoter/promoter-landing/promoter-
 })
 export class CampaignComponent {
   // Required input that expects a signal of type UserInterface or undefined
-  @Input({ required: true }) user!: Signal<UserInterface | null>;;
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
 }
