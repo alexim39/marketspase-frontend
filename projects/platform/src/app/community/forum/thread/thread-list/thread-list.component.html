@@ -1,0 +1,128 @@
+              
+<!-- Edit Mode -->
+@if (isEditing) {
+  <div class="thread-edit-form" id="edit">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title</mat-label>
+      <input matInput [formControl]="editTitleControl" />
+      @if (editTitleControl.hasError('required')) {
+        <mat-error>Title is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Content</mat-label>
+      <textarea matInput [formControl]="editContentControl" rows="5"></textarea>
+      @if (editContentControl.hasError('required')) {
+        <mat-error>Content is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tags (comma separated)</mat-label>
+      <input matInput [formControl]="editTagsControl" placeholder="e.g. angular, help, discussion" />
+    </mat-form-field>
+
+    <div class="edit-actions">
+      <button mat-button (click)="cancelEdit()" [disabled]="isUpdating">Cancel</button>
+      <button mat-raised-button color="primary" (click)="saveEdit()" [disabled]="editTitleControl.invalid || editContentControl.invalid || isUpdating">
+        @if (!isUpdating) {
+          <span>Save</span>
+        } @else {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+      </button>
+    </div>
+  </div>
+}
+
+<div class="thread-list">
+  <div *ngFor="let thread of threads" class="thread-item">
+    <mat-card (click)="openThread(thread._id)" class="thread-card">
+      <mat-card-header>
+        <img mat-card-avatar [src]="thread.author.avatar || 'img/avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
+        <mat-card-title>{{thread.title}}</mat-card-title>
+        <mat-card-subtitle>
+          <span class="author-info">{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
+          <span class="spacer"></span>
+          <span class="time">{{timeAgo(thread.createdAt) }}</span>
+        </mat-card-subtitle>
+      </mat-card-header>        
+      
+      <mat-card-content>
+        <!-- Media Preview -->
+        @if (thread.media) {
+          <div class="media-preview">
+            <img *ngIf="thread.media.type === 'image'" 
+                [src]="thread.media.url" 
+                [alt]="thread.media.originalName"
+                class="preview-image">
+            @if (thread.media.type === 'video') {
+              <video controls class="preview-video">
+                <source [src]="thread.media.url">
+                <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
+              </video>
+            }
+            @if (thread.media.type === 'audio') {
+              <audio controls class="preview-audio">
+                <source [src]=" thread.media.url">
+                <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
+              </audio>
+            }
+          </div>
+        }
+
+        <p class="thread-content">{{thread.content | truncate:150}}</p>
+        
+        <div class="thread-tags">
+          <mat-chip-listbox>
+            <mat-chip *ngFor="let tag of thread.tags" color="primary" selected>
+              {{tag}}
+            </mat-chip>
+          </mat-chip-listbox>
+        </div>
+      </mat-card-content>
+      
+      <mat-card-actions>
+        <button mat-button class="like-btn">
+          <mat-icon>thumb_up</mat-icon>
+          {{thread.likeCount}}
+        </button>
+        <button mat-button class="comment-btn">
+          <mat-icon>comment</mat-icon>
+          {{thread.commentCount}}
+        </button>
+        <button mat-button class="view-btn">
+          <mat-icon>visibility</mat-icon>
+          {{thread.viewCount}}
+        </button>
+        @if (isThreadOwner(thread)) {
+          <button 
+            mat-button 
+            color="warn" 
+            (click)="onDeleteThread(thread._id, $event)"
+            class="delete-button">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+          <button 
+            mat-button 
+            color="primary" 
+            (click)="onEditThread(thread, $event)"
+            class="edit-button">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  
+  @if (threads.length === 0) {
+    <div class="no-threads">
+      <mat-icon>forum</mat-icon>
+      <h3>No threads yet</h3>
+      <p>Be the first to start a discussion!</p>
+    </div>
+  }
+</div>

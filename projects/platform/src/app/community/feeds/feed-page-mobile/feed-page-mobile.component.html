@@ -83,8 +83,9 @@
                 [src]="post.author?.avatar || 'img/avatar.png'"
                 class="user-avatar"
                 alt="avatar"
+                (click)="viewProfile(post.author?._id || '')"
               />
-              <span class="username">&#64;{{ post.author?.username }}</span>
+              <span class="username" (click)="viewProfile(post.author?._id || '')">&#64;{{ post.author?.username }}</span>
               @if (post.author?._id !== user()?._id) {
                 <button
                   class="follow-btn"

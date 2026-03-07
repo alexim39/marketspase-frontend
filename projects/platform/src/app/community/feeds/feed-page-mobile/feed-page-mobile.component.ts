@@ -29,7 +29,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { FeedService, FeedPost } from './../feed.service';
 import { CommentDialogComponent } from './../comment-dialog/comment-dialog.component';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
-import { ProfileService } from '../../../profile/services/profile.service';
+import { ProfileService, SuggestedUser } from '../../../profile/services/profile.service';
 
 @Component({
   selector: 'app-feed-page-mobile',
@@ -430,5 +430,9 @@ isCaptionVisible(postId: string): boolean {
 
   onEdit(post: FeedPost): void {
     this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
+  }
+
+  viewProfile(userId: string) {
+    this.router.navigate(['/dashboard/profile', userId]);
   }
 }
