@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, signal, HostListener, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, signal, HostListener, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   MAT_DIALOG_DATA, 
@@ -69,6 +69,7 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
   public maxViewsPerPromotion: number | null = null;
 
   constructor(
+    private cd: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: {
       promotion: Promotion;
       campaigns: Campaign[];
@@ -87,6 +88,9 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // After your initialization logic
+    this.cd.detectChanges(); 
+    
     if (this.campaigns().length === 0) {
       this.loadCampaigns();
     }

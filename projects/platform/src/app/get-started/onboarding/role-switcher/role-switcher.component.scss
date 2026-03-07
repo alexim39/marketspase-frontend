@@ -1,0 +1,68 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.role-switcher {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+  
+  @include mobile {
+    flex-direction: column;
+  }
+  
+  .role-button {
+    flex: 1;
+    padding: $spacing-4;
+    @include flex-column;
+    align-items: center;
+    gap: $spacing-2;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-lg;
+    background: var(--surface-color);
+    cursor: pointer;
+    transition: all $transition-normal;
+    
+    &.active {
+      border-color: $primary-color;
+      background: rgba($primary-color-hex, 0.05);
+      
+      .role-icon {
+        background: $primary-color;
+        color: $white;
+      }
+    }
+    
+    &:hover:not(.active) {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+    
+    .role-icon {
+      width: 56px;
+      height: 56px;
+      @include flex-center;
+      border-radius: $border-radius-full;
+      background: $gray-100;
+      color: $gray-600;
+      font-size: 28px;
+      margin-bottom: $spacing-2;
+    }
+    
+    .role-title {
+      @include heading-small;
+      margin-bottom: $spacing-1;
+    }
+    
+    .role-description {
+      @include body-small;
+      color: $text-secondary;
+      text-align: center;
+    }
+   
+  }
+  
+  span.active {
+    border-color: $success-color-hex;
+    color: rgba($success-color-hex, 1);
+  }
+}

@@ -1,0 +1,476 @@
+ .details-dialog {
+      width: 800px;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        h2 {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 600;
+          //color: #1f2937;
+        }
+
+        .reference-badge {
+          background: #f3f4f6;
+          color: #6b7280;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-family: monospace;
+          cursor: help;
+        }
+      }
+
+      .close-btn {
+        color: #6b7280;
+
+        &:hover {
+          background: #f3f4f6;
+        }
+      }
+    }
+
+    mat-dialog-content {
+      padding: 24px !important;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      
+      p {
+        margin-top: 16px;
+        color: #6b7280;
+      }
+    }
+
+    .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #ef4444;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        //color: #1f2937;
+      }
+
+      p {
+        color: #6b7280;
+      }
+    }
+
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+
+      &.status-pending_approval {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+      }
+
+      &.status-processing {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
+
+      &.status-successful {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+
+      &.status-failed {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
+      &.status-reversed {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+      }
+
+      .status-icon {
+        mat-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+        }
+      }
+
+      .status-info {
+        .status-label {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        .status-time {
+          font-size: 13px;
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+
+      .amount-card {
+        padding: 16px;
+
+        &.gross {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+        }
+
+        &.fee {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+        }
+
+        &.net {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+        }
+
+        .amount-label {
+          font-size: 12px;
+          opacity: 0.9;
+          margin-bottom: 8px;
+        }
+
+        .amount-value {
+          font-size: 20px;
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
+
+        .amount-desc {
+          font-size: 11px;
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .tab-pane {
+      padding: 20px 0;
+    }
+
+    .info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .info-row {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+
+        .info-label {
+          width: 120px;
+          color: #6b7280;
+          font-size: 14px;
+        }
+
+        .info-value {
+          flex: 1;
+          //color: #1f2937;
+          font-weight: 500;
+
+          &.monospace {
+            font-family: monospace;
+            font-size: 13px;
+          }
+        }
+      }
+    }
+
+    .bank-details-card {
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+
+      .bank-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+
+        .bank-icon {
+          color: #667eea;
+        }
+
+        h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+        }
+      }
+
+      .bank-details {
+        margin-top: 16px;
+
+        .detail-row {
+          display: flex;
+          align-items: center;
+          padding: 8px 0;
+
+          .detail-label {
+            width: 120px;
+            color: #6b7280;
+          }
+
+          .detail-value {
+            flex: 1;
+            //color: #1f2937;
+            font-weight: 500;
+
+            &.monospace {
+              font-family: monospace;
+            }
+          }
+        }
+      }
+    }
+
+    .transaction-details {
+      .detail-group {
+        padding: 16px 0;
+
+        h4 {
+          margin: 0 0 16px 0;
+          //color: #374151;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        &.error {
+          h4 {
+            color: #ef4444;
+          }
+        }
+      }
+
+      .timeline {
+        .timeline-item {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 16px;
+
+          .timeline-icon {
+            color: #667eea;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          .timeline-content {
+            flex: 1;
+
+            .timeline-title {
+              font-weight: 500;
+              //color: #1f2937;
+              margin-bottom: 4px;
+            }
+
+            .timeline-time {
+              font-size: 12px;
+              color: #6b7280;
+            }
+          }
+        }
+      }
+
+      .error-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: #fee2e2;
+        border-radius: 6px;
+        color: #ef4444;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .notes {
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+        color: #4b5563;
+        font-style: italic;
+      }
+
+      .meta-panel {
+        margin-top: 16px;
+        
+        mat-panel-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          mat-icon {
+            color: #6b7280;
+          }
+        }
+      }
+
+      .raw-meta {
+        //background: #1f2937;
+        color: #e5e7eb;
+        padding: 16px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        margin: 0;
+      }
+    }
+
+    .role-badge, .wallet-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+
+      &.role-marketer {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+
+      &.role-promoter {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      &.role-admin {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      &.wallet-promoter {
+        background: #e0e7ff;
+        color: #3730a3;
+      }
+
+      &.wallet-marketer {
+        background: #fae8ff;
+        color: #6b21a8;
+      }
+    }
+
+    mat-dialog-actions {
+      padding: 16px 24px !important;
+      margin: 0;
+      border-top: 1px solid #e5e7eb;
+      gap: 8px;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+    // Dark mode support
+    :host-context(.dark-theme) {
+      .dialog-header {
+        //border-bottom-color: #374151;
+
+        h2 {
+          color: #f3f4f6;
+        }
+
+        .reference-badge {
+          //background: #374151;
+          color: #9ca3af;
+        }
+      }
+
+      .info-row {
+        .info-label {
+          color: #9ca3af;
+        }
+
+        .info-value {
+          color: #f3f4f6;
+        }
+      }
+
+      .bank-details-card {
+        //border-color: #374151;
+
+        .bank-details {
+          .detail-label {
+            color: #9ca3af;
+          }
+
+          .detail-value {
+            color: #f3f4f6;
+          }
+        }
+      }
+
+      .transaction-details {
+        .detail-group {
+          h4 {
+            color: #e5e7eb;
+          }
+        }
+
+        .timeline-item {
+          .timeline-content {
+            .timeline-title {
+              color: #f3f4f6;
+            }
+          }
+        }
+
+        .notes {
+          //background: #1f2937;
+          color: #d1d5db;
+        }
+      }
+
+      mat-dialog-actions {
+        //border-top-color: #374151;
+      }
+    }

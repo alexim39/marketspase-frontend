@@ -1,0 +1,242 @@
+<div class="feed-container">
+  <!-- Desktop Layout (Twitter-style) -->
+  <div class="desktop-layout">
+
+
+    <!-- Main Feed Content -->
+    <main class="main-content">
+      <!-- Feed Header (Desktop) -->
+      <div class="feed-header">
+        <div class="feed-tabs">
+          <button
+            class="tab-btn"
+            [class.active]="selectedTab() === 'for-you'"
+            (click)="selectedTab.set('for-you')">
+            For You
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="selectedTab() === 'following'"
+            (click)="selectedTab.set('following')">
+            Following
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="selectedTab() === 'trending'"
+            (click)="selectedTab.set('trending')">
+            Trending
+          </button>
+        </div>
+
+        <div class="feed-actions">
+          <button class="filter-btn" (click)="showFilters.set(!showFilters())">
+            <mat-icon>tune</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Create Post Box (Desktop) -->
+      @if (user()?.role === 'marketer' || user()?.role === 'admin') {
+        <div class="create-post-box">
+          <img [src]="user()?.avatar || 'img/avatar.png'" alt="Your avatar" class="post-avatar">
+          <input
+            type="text"
+            placeholder="Create a post around your campaigns"
+            class="post-input"
+            (click)="onCreatePost()"
+            readonly>
+          <button class="post-media-btn">
+            <mat-icon>image</mat-icon>
+          </button>
+        </div>
+      }
+
+      <!-- Filters Panel -->
+      @if (showFilters()) {
+        <div class="filters-panel">
+          <div class="filter-section">
+            <h4>Post Type</h4>
+            <div class="filter-chips">
+              <button
+                class="chip"
+                [class.active]="selectedType() === 'all'"
+                (click)="selectedType.set('all')">
+                All
+              </button>
+              <button
+                class="chip"
+                [class.active]="selectedType() === 'campaign'"
+                (click)="selectedType.set('campaign')">
+                <mat-icon>campaign</mat-icon>
+                Campaigns
+              </button>
+              <button
+                class="chip"
+                [class.active]="selectedType() === 'earnings'"
+                (click)="selectedType.set('earnings')">
+                <mat-icon>emoji_events</mat-icon>
+                Earnings
+              </button>
+              <button
+                class="chip"
+                [class.active]="selectedType() === 'question'"
+                (click)="selectedType.set('question')">
+                <mat-icon>help</mat-icon>
+                Questions
+              </button>
+              <button
+                class="chip"
+                [class.active]="selectedType() === 'tip'"
+                (click)="selectedType.set('tip')">
+                <mat-icon>lightbulb</mat-icon>
+                Tips
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Feed Posts (Infinite Scroll) -->
+      <div class="feed-posts">
+        <!-- Featured Post -->
+        @if (featuredPost(); as post) {
+          <div class="featured-post-container">
+            <div class="featured-badge">
+              <mat-icon>stars</mat-icon>
+              <span>Featured</span>
+            </div>
+            <app-feed-post-card
+              [post]="post"
+              [user]="user()"
+              [isLiked]="likedPosts().has(post._id)"
+              [isSaved]="savedPosts().has(post._id)"
+              (like)="onLike(post)"
+              (save)="onSave(post._id)"
+              (comment)="onComment(post._id)"
+              (share)="onShare(post)"
+              (hashtagClick)="onHashtagClick($event)">
+            </app-feed-post-card>
+          </div>
+        }
+
+        <!-- Regular Posts -->
+        <div class="posts-grid">
+          @for (post of regularPosts(); track post._id) {
+            <app-feed-post-card
+              [post]="post"
+              [user]="user()"
+              [isLiked]="likedPosts().has(post._id)"
+              [isSaved]="savedPosts().has(post._id)"
+              (like)="onLike($event)"
+              (save)="onSave($event)"
+              (comment)="onComment($event)"
+              (share)="onShare( post)"
+              (hashtagClick)="onHashtagClick($event)"
+            />
+          }
+        </div>
+
+        <!-- Loading Indicator -->
+        @if (loading()) {
+          <div class="loading-spinner">
+            <mat-spinner diameter="30"/>
+          </div>
+        }
+
+        <!-- End of Feed -->
+        @if (!hasMore() && filteredPosts().length > 0) {
+          <div class="feed-end">
+            <div class="end-message">
+              <mat-icon>check_circle</mat-icon>
+              <span>You're all caught up!</span>
+            </div>
+          </div>
+        }
+
+        <!-- Empty State -->
+        @if (!loading() && filteredPosts().length === 0) {
+          <div class="empty-feed">
+            <div class="empty-icon">
+              <mat-icon>forum</mat-icon>
+            </div>
+            <h3>No posts yet</h3>
+            <p>Be the first to share something with the community!</p>
+            <button mat-raised-button color="primary" (click)="onCreatePost()">
+              Create Post
+            </button>
+          </div>
+        }
+
+        <!-- Scroll Anchor for Infinite Scroll -->
+        <div #scrollAnchor class="scroll-anchor"></div>
+      </div>
+
+    </main>
+
+    <!-- Right Sidebar (Desktop) -->
+    <aside class="right-sidebar">
+      <!-- Search Box -->
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search MarketSpase"
+          class="search-input"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch($event)">
+        @if (searchQuery()) {
+          <button class="clear-search" (click)="searchQuery.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <!-- Trending Topics -->
+      @if (trendingHashtags().length > 0) {
+        <div class="trending-box">
+          <h3 class="trending-title">
+            <mat-icon>trending_up</mat-icon>
+            Trending Topics
+          </h3>
+          <div class="trending-list">
+            @for (hashtag of trendingHashtags().slice(0, 5); track hashtag.tag) {
+              <button class="trending-item" (click)="onHashtagClick(hashtag.tag)">
+                <span class="trending-tag">#{{ hashtag.tag }}</span>
+                <span class="trending-count">{{ hashtag.count }} posts</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+        <!-- Who to Follow -->
+      <div class="follow-card">
+        <h3 class="card-title">Who to follow</h3>
+        <div class="follow-items">
+          @for (user of suggestedUsers(); track user._id) {
+            <div class="follow-item">
+              <img [src]="user.avatar || 'img/avatar.png'" alt="User" class="follow-avatar" (click)="viewProfile(user)">
+              <div class="follow-info" (click)="viewProfile(user)">
+                <span class="follow-name">{{ user.displayName }}</span>
+                <span class="follow-handle">@{{ user.username }}</span>
+              </div>
+              <button class="follow-btn" [class.following]="isFollowing(user._id)" (click)="toggleFollow(user._id)">
+                {{ isFollowing(user._id) ? 'Following' : 'Follow' }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <div class="sidebar-footer">
+        <a routerLink="/legal/privacy" target="_blank">Terms of Service</a>
+        <a routerLink="/legal/privacy" target="_blank">Privacy Policy</a>
+        <a routerLink="/legal/cookies" target="_blank">Cookie Policy</a>
+        <!-- <a routerLink="/legal/accessibility" target="_blank">Accessibility</a> -->
+        <!-- <a routerLink="/legal/ads-info" target="_blank">Ads Info</a> -->
+        <span class="copyright">© {{ currentYear }} MarketSpase by Async Groups</span>
+      </div>
+    </aside>
+  </div>
+</div>

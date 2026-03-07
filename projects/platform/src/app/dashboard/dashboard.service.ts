@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
 import { ApiService } from '../../../../shared-services/src/public-api';
+import { HttpParams } from '@angular/common/http';
 
 export interface TestimonialInterface {
   name: string;
@@ -30,6 +31,12 @@ export class DashboardService {
   */
   getRandomTestimonials(): Observable<any> {
     return this.apiService.get<any>(`settings/testimonial/dashboard`, undefined, undefined, true);
+  }
+
+
+  getUsersOnlineCount(userId: string): Observable<{count: number, success: string}> {
+    const params = new HttpParams().set('userId', userId);
+    return this.apiService.get(`dashboard/stats/online-count`, params, undefined, true);
   }
 
 }

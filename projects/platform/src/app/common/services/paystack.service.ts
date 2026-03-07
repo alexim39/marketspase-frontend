@@ -1,5 +1,5 @@
-import { Injectable, Inject, Optional, OnDestroy, DestroyRef, inject } from '@angular/core';
-import { Observable, Subject, takeUntil, throwError } from 'rxjs';
+import { Injectable, Inject, Optional, DestroyRef, inject } from '@angular/core';
+import { Observable, Subject, throwError } from 'rxjs';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -117,13 +117,12 @@ export class PaystackService {
       });
       subject.complete();
     }
-
     return subject.asObservable();
   }
 
   /**
    * Alternative method that uses callback pattern for backward compatibility
-   */
+  */
   initiatePaymentWithCallback(
     request: PaymentRequest,
     onSuccess: (response: PaymentResponse, amount: number) => void,

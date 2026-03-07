@@ -2,6 +2,7 @@
 @import './../../../../../styles/mixins';
 
 .payment-method-section {
+  // Section heading
   h3 {
     font-size: $font-size-lg;
     font-weight: $font-weight-semibold;
@@ -15,24 +16,62 @@
       left: 0;
       width: 40px;
       height: 3px;
-      background: var(--gradient-primary);
+      background: $gradient-primary;
       border-radius: 2px;
+    }
+
+    // Mobile optimization for heading
+    @include mobile {
+      font-size: $font-size-base;
+      margin-bottom: $spacing-4;
+      
+      &::after {
+        width: 30px;
+        height: 2px;
+        bottom: -$spacing-1;
+      }
     }
   }
 
+  // Main payment card
   .payment-method-card {
     background: $surface-color;
     border-radius: $border-radius-lg;
     padding: $spacing-6;
     box-shadow: $shadow-lg;
     border: $border-width solid $primary-color-hex;
+    transition: all $transition-normal;
 
+    // Mobile optimization for card
+    @include mobile {
+      padding: $spacing-4;
+      border-radius: $border-radius;
+    }
+
+    @include small-screen {
+      padding: $spacing-3;
+      box-shadow: $shadow-md;
+    }
+
+    // Payment information section
     .payment-info {
       display: flex;
       align-items: center;
       gap: $spacing-4;
       margin-bottom: $spacing-5;
 
+      // Desktop/Tablet: horizontal layout
+      @media (min-width: #{$breakpoint-md}) {
+        flex-direction: row;
+      }
+
+      // Mobile: option to stack vertically for very small screens
+      @include small-screen {
+        gap: $spacing-3;
+        margin-bottom: $spacing-4;
+      }
+
+      // Payment icon styling
       mat-icon {
         color: $primary-color-hex;
         font-size: $font-size-3xl;
@@ -42,47 +81,84 @@
         border-radius: 50%;
         padding: $spacing-2;
         box-sizing: content-box;
+        flex-shrink: 0; // Prevent icon from shrinking
+
+        // Mobile icon adjustments
+        @include mobile {
+          font-size: $font-size-2xl;
+          width: $font-size-2xl;
+          height: $font-size-2xl;
+          padding: $spacing-2;
+        }
+
+        @include small-screen {
+          font-size: $font-size-xl;
+          width: $font-size-xl;
+          height: $font-size-xl;
+          padding: $spacing-1;
+        }
       }
 
+      // Text content wrapper
+      .method-details {
+        flex: 1;
+        min-width: 0; // Allow text truncation if needed
+      }
+
+      // Method name
       .method-name {
         font-size: $font-size-lg;
         font-weight: $font-weight-bold;
         color: $text-primary;
         margin: 0 0 $spacing-1 0;
+        line-height: $line-height-tight;
+
+        @include mobile {
+          font-size: $font-size-base;
+          margin-bottom: $spacing-1;
+        }
+
+        @include small-screen {
+          font-size: $font-size-sm;
+        }
       }
 
+      // Method description
       .method-description {
         font-size: $font-size-sm;
         color: $text-secondary;
         margin: 0;
         line-height: $line-height-normal;
-      }
 
-      @media (max-width: #{$breakpoint-md - 1px}) {
-        gap: $spacing-3;
-
-        mat-icon {
-          font-size: $font-size-2xl;
-          width: $font-size-2xl;
-          height: $font-size-2xl;
-          padding: $spacing-5;
+        @include mobile {
+          font-size: $font-size-xs;
         }
 
-        .method-name {
-          font-size: $font-size-base;
-        }
-
-        .method-description {
-          font-size: 13px;
+        @include small-screen {
+          font-size: 11px;
+          line-height: 1.4;
         }
       }
     }
 
+    // Security badges section
     .security-badges {
       display: flex;
       gap: $spacing-4;
       flex-wrap: wrap;
+      align-items: center;
 
+      // Mobile optimization for badges container
+      @include mobile {
+        gap: $spacing-2;
+      }
+
+      @include small-screen {
+        gap: $spacing-2;
+        justify-content: flex-start;
+      }
+
+      // Individual badge
       .badge {
         display: flex;
         align-items: center;
@@ -94,23 +170,77 @@
         font-size: $font-size-xs;
         font-weight: $font-weight-semibold;
         color: $success-color;
+        white-space: nowrap;
+        transition: all $transition-fast;
 
+        // Badge icon
         mat-icon {
           font-size: $font-size-base;
           width: $font-size-base;
           height: $font-size-base;
           color: $success-color;
+          flex-shrink: 0;
         }
-      }
 
-      @media (max-width: #{$breakpoint-md - 1px}) {
-        gap: 10px;
-
-        .badge {
-          padding: $spacing-5 $spacing-2;
+        // Mobile badge adjustments
+        @include mobile {
+          padding: $spacing-1 $spacing-2;
           font-size: 11px;
+          gap: $spacing-1;
+
+          mat-icon {
+            font-size: $font-size-sm;
+            width: $font-size-sm;
+            height: $font-size-sm;
+          }
+        }
+
+        @include small-screen {
+          padding: 4px 8px;
+          font-size: 10px;
+
+          mat-icon {
+            font-size: 12px;
+            width: 12px;
+            height: 12px;
+          }
+        }
+
+        // Interactive states
+        &:hover {
+          background: rgba($success-color, 0.15);
+          transform: translateY(-1px);
+        }
+
+        &:active {
+          transform: translateY(0);
         }
       }
+    }
+
+    // Additional mobile-specific enhancements
+    @include mobile {
+      // Add touch-friendly tap states
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+
+  // Accessibility improvements
+  @media (prefers-reduced-motion: reduce) {
+    .payment-method-card,
+    .security-badges .badge {
+      transition: none;
+    }
+  }
+
+  // Print styles
+  @media print {
+    .payment-method-card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+      break-inside: avoid;
     }
   }
 }

@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService, CampaignInterface, PromotionInterface } from '../../../../../shared-services/src/public-api';
-
+import { Observable } from 'rxjs';
+import { ApiService, CampaignInterface } from '../../../../../shared-services/src/public-api';
 
 @Injectable()
 export class CampaignEditService {
@@ -9,41 +8,43 @@ export class CampaignEditService {
   public api = this.apiService.getBaseUrl();
   private apiUrl = 'campaign';
 
-
   /**
-   * @get campaignObject The user data to be submitted.
-   * @returns An Observable that emits the API response or an error.
+   * Get campaign by ID
    */
   getCampaignById(id: string): Observable<any> {
     return this.apiService.get<CampaignInterface>(`${this.apiUrl}/${id}`);
   }
 
+  /**
+   * Update campaign general details (excluding targeting)
+   */
+  updateCampaign(id: string, userId: string, campaignData: any): Observable<any> {
+    return this.apiService.put<any>(
+      `${this.apiUrl}/edit/${id}/${userId}`, 
+      campaignData, 
+      undefined, 
+      true
+    );
+  }
 
   /**
-   * Submits the user data to the backend API.
-   * @post campaignObject The user data to be submitted.
-   * @returns An Observable that emits the API response or an error.
+   * Partial update for specific fields
    */
-  updateCampaign(id: string, userId: string, campaignData: FormData): Observable<any> {
-    // We send a stripped-down version of the data to the backend.
-    // const payload = {
-    //   title: campaignData.title,
-    //   caption: campaignData.caption,
-    //   link: campaignData.link,
-    //   category: campaignData.category,
-    //   budget: campaignData.budget,
-    //   startDate: campaignData.startDate,
-    //   endDate: campaignData.hasEndDate ? campaignData.endDate : null,
-    //   mediaUrl: campaignData.mediaUrl,
-    //   currency: campaignData.currency,
-    //   owner: campaignData.owner
-    // };
-
-    return this.apiService.put<any>(`${this.apiUrl}/edit/${id}/${userId}`, campaignData, undefined, true);
+  updateCampaignPartial(id: string, userId: string, campaignData: any): Observable<any> {
+    return this.apiService.patch<any>(
+      `${this.apiUrl}/edit/${id}/${userId}`, 
+      campaignData, 
+      undefined, 
+      true
+    );
   }
 
 
 
-
-
+  /**
+   * Get campaign targeting settings
+   */
+  getCampaignTargeting(id: string): Observable<any> {
+    return this.apiService.get<any>(`${this.apiUrl}/targeting/${id}`);
+  }
 }

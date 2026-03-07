@@ -19,7 +19,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { StoreService } from '../store.service';
 import { Store } from '../shared/store.model';
@@ -63,6 +63,7 @@ export class StoreManagementComponent implements OnInit {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  readonly router = inject(Router);
 
   // State with signals
   stores = signal<Store[]>([]);
@@ -475,5 +476,9 @@ export class StoreManagementComponent implements OnInit {
       duration: 3000,
       panelClass: `snackbar-${type}`
     });
+  }
+
+  viewStoreProducts(store: Store): void {
+    this.router.navigate(['/dashboard/stores/products', store._id]);
   }
 }

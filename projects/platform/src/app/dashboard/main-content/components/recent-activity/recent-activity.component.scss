@@ -1,0 +1,273 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.activity-section {
+  .section-header {
+    @include flex-between;
+    margin: $spacing-8 $spacing-4 $spacing-5;
+    
+    @include tablet {
+      margin: $spacing-10 $spacing-6 $spacing-6;
+    }
+    
+    @include desktop {
+      margin: $spacing-12 0 $spacing-6;
+    }
+
+    .section-title {
+      @include heading-small;
+      margin: 0;
+      color: $text-primary;
+      
+      @include tablet {
+        font-size: $font-size-3xl;
+      }
+    }
+  }
+}
+
+.activity-card {
+  @include card-base;
+  border-radius: $border-radius-xl;
+  border: $border-width solid $border-color;
+  box-shadow: $shadow-sm;
+  height: 100%;
+  overflow: hidden;
+  
+  mat-card-content {
+    padding: $spacing-5;
+  }
+  
+  .activity-list {
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-4;
+      padding: $spacing-4 0;
+      cursor: pointer;
+      border-radius: $border-radius-xl;
+      transition: background-color $transition-fast;
+      
+      &:not(:last-child) {
+        border-bottom: $border-width solid $border-color;
+      }
+      
+      &:hover {
+        @include lighten-bg($background-color, 5%);
+      }
+      
+      .activity-icon-container {
+        width: 48px;
+        height: 48px;
+        border-radius: $border-radius-xl;
+        @include flex-center;
+        flex-shrink: 0;
+        
+        &.credit {
+          background: rgba($success-color, 0.1);
+          
+          .activity-icon {
+            color: $success-color;
+          }
+        }
+        
+        &.debit {
+          background: rgba($error-color, 0.1);
+          
+          .activity-icon {
+            color: $error-color;
+          }
+        }
+        
+        .activity-icon {
+          font-size: $font-size-2xl;
+        }
+      }
+      
+      .activity-content {
+        flex: 1;
+        min-width: 0;
+        
+        .activity-header {
+          @include flex-between;
+          align-items: flex-start;
+          gap: $spacing-2;
+          margin-bottom: $spacing-1;
+          
+          .activity-description {
+            @include body-medium;
+            font-weight: $font-weight-light;
+            font-size: $font-size-xs;
+            color: color-mix($gray-800 85%);
+            margin: 0;
+            line-height: $line-height-normal;
+          }
+          
+          .activity-status {
+            font-size: $font-size-xs;
+            font-weight: $font-weight-semibold;
+            padding: 3px $spacing-2;
+            border-radius: $border-radius-lg;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            color: color-mix($gray-800 85%);
+            
+            &.completed {
+              background: rgba($success-color, 0.1);
+              color: $success-color;
+            }
+            
+            &.pending {
+              background: rgba($warning-color, 0.1);
+              color: $warning-color;
+            }
+            
+            &.failed {
+              background: rgba($error-color, 0.1);
+              color: $error-color;
+            }
+          }
+        }
+        
+        .activity-footer {
+          display: flex;
+          align-items: center;
+          gap: $spacing-3;
+          
+          .activity-time {
+            @include caption;
+            color: $text-tertiary;
+            font-size: $font-size-xs;
+          }
+          
+          .activity-wallet {
+            font-size: $font-size-xs;
+            color: $primary-color;
+            background: rgba($primary-color, 0.1);
+            padding: 2px $spacing-2;
+            border-radius: $border-radius-lg;
+            font-weight: $font-weight-medium;
+            text-transform: capitalize;
+          }
+        }
+      }
+      
+      .activity-amount {
+        @include body-large;
+        font-weight: $font-weight-semibold;
+        flex-shrink: 0;
+        
+        &.credit {
+          color: $success-color;
+        }
+        
+        &.debit {
+          color: $error-color;
+        }
+      }
+    }
+  }
+  
+  .activity-empty {
+    padding: $spacing-10 $spacing-5;
+    text-align: center;
+    
+    .empty-icon-container {
+      width: 80px;
+      height: 80px;
+      background: rgba($primary-color, 0.1);
+      border-radius: $border-radius-full;
+      @include flex-center;
+      margin: 0 auto $spacing-5;
+      
+      mat-icon {
+        font-size: $font-size-4xl;
+        color: $primary-color;
+      }
+    }
+    
+    .empty-title {
+      @include heading-small;
+      margin: 0 0 $spacing-3 0;
+      color: $text-primary;
+      font-size: $font-size-xl;
+    }
+    
+    .empty-description {
+      @include body-medium;
+      color: $text-secondary;
+      margin: 0 0 $spacing-6 0;
+      line-height: $line-height-normal;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .empty-action-btn {
+      @include button-primary;
+      padding: $spacing-3 $spacing-6;
+      font-weight: $font-weight-semibold;
+      border-radius: $border-radius-xl;
+    }
+  }
+  
+  .activity-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-4;
+    margin-top: $spacing-6;
+    padding-top: $spacing-6;
+    border-top: $border-width solid $border-color;
+    
+    .summary-item {
+      text-align: center;
+      
+      .summary-label {
+        @include caption;
+        color: $text-secondary;
+        margin-bottom: $spacing-1;
+      }
+      
+      .summary-value {
+        @include body-medium;
+        font-weight: $font-weight-bold;
+        
+        &.credit {
+          color: $success-color;
+        }
+        
+        &.debit {
+          color: $error-color;
+        }
+      }
+    }
+  }
+}
+
+@include mobile {
+  .activity-card {
+    .activity-item {
+      .activity-content {
+        .activity-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .activity-footer {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: $spacing-1;
+        }
+      }
+      
+      .activity-amount {
+        font-size: $font-size-base;
+      }
+    }
+    
+    .activity-summary {
+      grid-template-columns: 1fr;
+      gap: $spacing-3;
+    }
+  }
+}

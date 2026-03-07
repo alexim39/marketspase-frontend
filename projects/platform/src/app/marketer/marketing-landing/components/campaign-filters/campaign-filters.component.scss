@@ -87,7 +87,7 @@
 
   &:hover {
     // UPDATED: Use gray-900 variable for hover background
-    background: $gray-900;
+    background: rgba($gray-400, 20%);
   }
 
   &.active {

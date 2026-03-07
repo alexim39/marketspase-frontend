@@ -359,29 +359,31 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
 
   // Optimized Dialog Methods with Immediate UI Update
   viewProofMedia(promotion: Promotion): void {
-    this.selectedPromotion.set(promotion);
-    
-    const dialogRef = this.dialog.open(ProofMediaDialogComponent, {
-      width: '1200px',
-      maxWidth: '100vw',
-      height: '90vh',
-      data: {
-        promotion: promotion,
-        campaigns: this.campaigns(),
-        onValidate: (promo: Promotion) => this.validatePromotion(promo),
-        onReject: (promo: Promotion) => this.openRejectDialog(promo)
-      },
-      disableClose: true
-    });
+    // Use setTimeout to push this to the next execution cycle
+    setTimeout(() => {
+      this.selectedPromotion.set(promotion);
+      
+      const dialogRef = this.dialog.open(ProofMediaDialogComponent, {
+        width: '1200px',
+        maxWidth: '100vw',
+        height: '90vh',
+        data: {
+          promotion: promotion,
+          campaigns: this.campaigns(),
+          onValidate: (promo: Promotion) => this.validatePromotion(promo),
+          onReject: (promo: Promotion) => this.openRejectDialog(promo)
+        },
+        disableClose: true
+      });
 
-    // Auto-close dialog on successful action
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'validated' || result === 'rejected') {
-        // Dialog was closed by action, no need to do anything
-        // Promotion already removed from UI via the action methods
-      }
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === 'validated' || result === 'rejected') {
+          // logic...
+        }
+      });
     });
   }
+
 
   validatePromotion(promotion: Promotion): void {
     // Find the promotion in the current data

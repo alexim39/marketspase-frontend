@@ -5,6 +5,7 @@ export interface Product {
   name: string;
   description?: string;
   price: number;
+  currency: string;
   originalPrice?: number; // For discounts
   images: Array<{
     url: string;

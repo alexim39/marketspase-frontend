@@ -167,3 +167,30 @@ mat-form-field.ng-invalid.ng-touched {
     gap: 1.5rem;
   }
 }
+// targeting navigation
+.targeting-navigation {
+  padding: 1.5rem;
+  //background-color: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+  
+  p {
+    margin-bottom: 1rem;
+    //color: #666;
+    line-height: 1.5;
+  }
+  
+  .targeting-button {
+    margin: 1rem 0;
+    
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+  
+  .targeting-hint {
+    font-size: 0.875rem;
+    //color: #888;
+    margin-top: 0.5rem;
+  }
+}

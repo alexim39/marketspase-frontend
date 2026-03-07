@@ -165,7 +165,8 @@
   // Tips Section (stays in main component)
   .tips-section {
     .tips-card {
-      background: linear-gradient(145deg, $gray-900 0%, $black-hex 80%);
+      //background: linear-gradient(145deg, $gray-900 0%, $black-hex 80%);
+      background-color: color-mix(in srgb, $background-color, black 25%);
       border-radius: $border-radius-md;
       padding: $spacing-5;
       border-left: $border-width-2 solid $info-color;

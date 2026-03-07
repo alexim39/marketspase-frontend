@@ -101,7 +101,7 @@
               </div>
             </div>
             
-            <p class="store-description">{{ store()?.description }}</p>
+            <p class="store-description">{{ store()?.description ?? '' | truncate:100 }}</p>
             
             <!-- Store Link Section -->
             @if (store()?.storeLink) {
@@ -143,13 +143,23 @@
         <!-- Header Actions -->
         <div class="header-actions-section">
           <div class="primary-actions">
-            <button mat-raised-button 
+            @if (deviceType() === 'mobile') {
+              <button mat-fab 
+                    extended 
                     color="primary" 
                     (click)="onAddProduct()" 
                     class="add-product-btn">
-              <mat-icon>add_circle</mat-icon>
-              <span>Add Product</span>
-            </button>
+                <mat-icon>add</mat-icon>
+              </button>
+            } @else {
+              <button mat-raised-button 
+                    color="primary" 
+                      (click)="onAddProduct()" 
+                      class="add-product-btn">
+                <mat-icon>add_circle</mat-icon>
+                <span>Add Product</span>
+              </button>
+            }
             
             @if (!store()?.isVerified) {
               <button mat-stroked-button 
@@ -182,7 +192,7 @@
                 <mat-icon class="menu-arrow">chevron_right</mat-icon>
               </button>
               
-              <mat-divider></mat-divider>
+              <mat-divider/>
               
               <button mat-menu-item (click)="onExportData()">
                 <mat-icon>download</mat-icon>
@@ -194,7 +204,7 @@
                 <span>Duplicate Store</span>
               </button>
               
-              <mat-divider></mat-divider>
+              <mat-divider/>
               
               <button mat-menu-item (click)="onArchiveStore()" class="archive-action">
                 <mat-icon>archive</mat-icon>
@@ -234,7 +244,7 @@
                 }
               }
               
-              <mat-divider></mat-divider>
+              <mat-divider/>
               
               <button mat-menu-item (click)="onCreateStore()" class="create-store-menu-item">
                 <mat-icon>add</mat-icon>

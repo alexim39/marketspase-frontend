@@ -1,0 +1,98 @@
+ <!-- Trending Now -->
+    <div class="trending-section">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <h2 class="section-title">Trending Now</h2>
+          <mat-icon class="trending-icon">whatshot</mat-icon>
+        </div>
+        <button mat-button color="primary" (click)="viewAll.emit()">View All</button>
+      </div>
+      <mat-card class="trending-card">
+        <mat-card-content>
+          <div class="trending-filters">
+            <div class="filter-chips">
+              <button 
+                mat-button 
+                *ngFor="let category of categories()" 
+                [class.active]="activeCategory() === category"
+                (click)="categoryChange.emit(category)"
+                class="filter-chip"
+              >
+                {{category}}
+              </button>
+            </div>
+            <div class="trending-meta">
+              <span class="meta-item">
+                <mat-icon>update</mat-icon>
+                Updated 1h ago
+              </span>
+              <span class="meta-item">
+                <mat-icon>visibility</mat-icon>
+                {{totalMentions()}} mentions
+              </span>
+            </div>
+          </div>
+          
+          <div class="trending-list">
+            @for (trend of filteredTrends(); track trend.id) {
+              <div class="trending-item" (click)="onTrendClick(trend)">
+                <div class="trend-rank">
+                  <span class="rank-number">#{{trend.rank}}</span>
+                  <div class="rank-change" [class]="trend.trend">
+                    @if (trend.trend === 'up') {
+                      <mat-icon>trending_up</mat-icon>
+                    } @else if (trend.trend === 'down') {
+                      <mat-icon>trending_down</mat-icon>
+                    } @else {
+                      <mat-icon>fiber_new</mat-icon>
+                    }
+                  </div>
+                </div>
+                <div class="trend-content">
+                  <div class="trend-header">
+                    <h4 class="trend-title">{{trend.title}}</h4>
+                    @if (trend.category) {
+                      <span class="trend-category">{{trend.category}}</span>
+                    }
+                  </div>
+                  <p class="trend-description">{{trend.description}}</p>
+                  <div class="trend-meta">
+                    <div class="meta-stat">
+                      <mat-icon class="meta-icon">trending_up</mat-icon>
+                      <span class="meta-text">{{trend.mentions}} mentions</span>
+                    </div>
+                    <div class="meta-stat">
+                      <mat-icon class="meta-icon">schedule</mat-icon>
+                      <span class="meta-text">Trending</span>
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  mat-icon-button 
+                  class="trend-action" 
+                  (click)="onFollowTrend(trend.id)"
+                  [matTooltip]="isFollowing(trend.id) ? 'Unfollow' : 'Follow'"
+                >
+                  <mat-icon>{{isFollowing(trend.id) ? 'remove' : 'add'}}</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+          
+          <div class="trending-stats">
+            <div class="stat-item">
+              <div class="stat-value">+{{trendingGrowth()}}%</div>
+              <div class="stat-label">Growth this week</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{uniqueUsers()}}</div>
+              <div class="stat-label">Active users</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{topCategory()}}</div>
+              <div class="stat-label">Top category</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>

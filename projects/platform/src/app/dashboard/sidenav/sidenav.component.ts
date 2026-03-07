@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
@@ -19,7 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { UserInterface, DeviceService } from '../../../../../shared-services/src/public-api';
+import { UserInterface, DeviceService, CurrencyUtilsPipe } from '../../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Import new components
@@ -36,6 +36,9 @@ import {
   ADMIN_NAVIGATION,
   NavigationItem
 } from './navigation';
+import { interval } from 'rxjs/internal/observable/interval';
+import { take } from 'rxjs/internal/operators/take';
+import { CountdownOverlayComponent } from '../../get-started/onboarding/countdown-overlay/countdown-overlay.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -57,12 +60,13 @@ import {
     MatTooltipModule,
     MatProgressBarModule,
     MatExpansionModule,
-    CurrencyPipe,
     UserProfileCardComponent,
     SidenavNavigationComponent,
     QuickActionsComponent,
     CartDialogComponent,
-    NotificationBellComponent
+    NotificationBellComponent,
+    CurrencyUtilsPipe,
+    CountdownOverlayComponent
   ],
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss']
@@ -92,6 +96,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.deviceService.deviceState().isMobile;
   });
 
+  // Countdown state
+  currentCountdown = signal<number | null>(null);
+  isSwitchingRole = signal(false);
 
   navigationItems: Signal<NavigationItem[]> = computed(() => {
     const userRole = this.user()?.role;
@@ -235,7 +242,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  public switchUser(role: string): void {
+ /*  public switchUser(role: string): void {
     //console.log('the role ',role)
     const roleObject = {
       role,
@@ -257,6 +264,75 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
         }
       });
+  } */
+
+  public switchUser(role: string): void {
+    // Prevent multiple simultaneous switches
+    if (this.isSwitchingRole()) return;
+    this.isSwitchingRole.set(true);
+
+    const roleObject = {
+      role,
+      userId: this.user()?._id
+    };
+
+    this.dashboardService.switchUser(roleObject)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Start countdown instead of immediate reload
+            const countdownSeconds = 5; // you can make this configurable
+            this.currentCountdown.set(countdownSeconds);
+            this.startCountdown(countdownSeconds);
+          } else {
+            this.isSwitchingRole.set(false);
+          }
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isSwitchingRole.set(false);
+          let errorMessage = 'Server error occurred, please try again.';
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+          this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
+        }
+      });
+  }
+
+    private startCountdown(seconds: number): void {
+    interval(1000)
+      .pipe(
+        take(seconds),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (count) => {
+          const remaining = seconds - count - 1;
+          this.currentCountdown.set(remaining);
+          if (remaining === 0) {
+            setTimeout(() => window.location.reload(), 500);
+          }
+        },
+        complete: () => {
+          // Clean up when countdown finishes or is cancelled
+          this.currentCountdown.set(null);
+          this.isSwitchingRole.set(false);
+        }
+      });
+  }
+
+  public cancelCountdown(): void {
+    this.currentCountdown.set(null);
+    this.isSwitchingRole.set(false);
+    this.snackBar.open('Role switch cancelled. No reload will occur.', 'Ok', {
+      duration: 2000,
+      panelClass: 'snackbar-info' // optional
+    });
+  }
+
+  public reloadPage(): void {
+    window.location.reload();
   }
 
   calculateActiveCampaigns(): void {

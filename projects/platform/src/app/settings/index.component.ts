@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit, ViewChild, HostListener, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, ViewChild, HostListener, signal, computed } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
@@ -18,6 +18,7 @@ import { SettingsService } from './settings.service';
 import { UserService } from '../common/services/user.service';
 import { RecentActivityComponent } from './components/recent-activity/recent-activity.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DashboardService } from '../dashboard/dashboard.service';
 
 // Define the activity interface based on your user model
 interface UserActivity {
@@ -50,7 +51,7 @@ interface UserWithActivities extends UserInterface {
 @Component({
   selector: 'settings-index',
   standalone: true,
-  providers: [SettingsService],
+  providers: [SettingsService, DashboardService],
   imports: [
     CommonModule,
     MatIconModule,
@@ -81,6 +82,7 @@ export class SettingsIndexComponent implements OnInit {
   private router = inject(Router);
   private settingsService = inject(SettingsService);
   private readonly snackBar = inject(MatSnackBar);
+  private dashboardService = inject(DashboardService);
 
   // Enhanced Properties
   isMobile = false;
@@ -94,6 +96,40 @@ export class SettingsIndexComponent implements OnInit {
   storageUsed = 2.4;
   storageTotal = 15;
   defaultAvatar = '/img/avatar.png';
+
+    // state
+  onlineCount = signal<number | null>(null);
+  loadingOnlineCount = signal(true);
+
+  // derived state (pure, no side effects)
+  onlineCountLabel = computed(() => {
+    if (this.loadingOnlineCount()) return '—';
+
+    const count = this.onlineCount();
+    if (!count || count <= 0) return '0';
+
+    return `${count}+`;
+  });
+
+
+
+  loadOnlineCount(): void {
+    this.loadingOnlineCount.set(true);
+
+    this.dashboardService
+    .getUsersOnlineCount(this.user()?._id ?? '')
+    .subscribe({
+      next: (res) => {
+        //console.log('res ',res)
+        this.onlineCount.set(res?.count ?? 0);
+        this.loadingOnlineCount.set(false);
+      },
+      error: () => {
+        this.onlineCount.set(0);
+        this.loadingOnlineCount.set(false);
+      }
+    });
+  }
 
   // Completion Status
   completionStatus = {
@@ -130,6 +166,8 @@ export class SettingsIndexComponent implements OnInit {
   ngOnInit() {
     this.isMobile = window.innerWidth <= 768;
     this.loadRecentActivities();
+
+    this.loadOnlineCount();
   }
 
   // Load recent activities from user model

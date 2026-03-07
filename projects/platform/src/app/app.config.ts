@@ -1,16 +1,30 @@
-import { 
-  ApplicationConfig, 
-  provideBrowserGlobalErrorListeners, 
-  provideZonelessChangeDetection 
+// src/app/app.config.ts
+import {
+  ApplicationConfig,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+  inject,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+<<<<<<< HEAD
 //import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 // Import Firebase and AngularFire modules
+=======
+import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+// Firebase
+>>>>>>> f6598d18a36ef448fc542138fd365755ae648ba2
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { firebaseConfig } from './firebase.config';
+
+// Theme service
+import { AppThemeService } from './app-theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,12 +32,19 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    // 1. Initialize and provide the Firebase App
-    provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    //provideAnimationsAsync(),
 
-    // 2. Initialize and provide the Firebase Authentication service
+    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+<<<<<<< HEAD
+    //provideAnimationsAsync(),
+=======
     provideAuth(() => getAuth()),
-    
-  ]
+    provideAnimationsAsync(),
+>>>>>>> f6598d18a36ef448fc542138fd365755ae648ba2
+
+    AppThemeService,
+    provideAppInitializer(() => {
+      // Force early instantiation; constructor applies theme immediately
+      inject(AppThemeService);
+    }),
+  ],
 };

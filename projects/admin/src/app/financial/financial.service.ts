@@ -1,6 +1,6 @@
-/* // financial.service.ts */
+/* financial.service.ts */
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, interval, switchMap } from 'rxjs';
 import { ApiService } from '../../../../shared-services/src/public-api';
 import { HttpParams } from '@angular/common/http';
 
@@ -12,11 +12,23 @@ export interface Transaction {
   type: 'credit' | 'debit';
   category: 'withdrawal' | 'campaign' | 'promotion' | 'deposit' | 'bonus' | 'fee' | 'refund' | 'transfer' | 'commission';
   amount: number;
+  amountPayable?: number;
+  fee?: number;
   description: string;
-  status: 'pending' | 'successful' | 'failed' | 'processing' | 'approved' | 'declined' | 'reversed' | 'cancelled';
+  // Updated status types to match backend
+  status: 'pending' | 'processing' | 'successful' | 'failed' | 'reversed' | 'cancelled' | 'approved' | 'rejected';
   createdAt: Date;
   processedAt?: Date;
   reference: string;
+  providerReference?: string;
+  transferCode?: string;
+  failureReason?: string;
+  bankDetails?: {
+    bank: string;
+    bankCode: string;
+    accountNumber: string;
+    accountName: string;
+  };
   relatedCampaign?: string;
   relatedPromotion?: string;
 }
@@ -29,24 +41,35 @@ export interface WithdrawalRequest {
   userEmail: string;
   userRole: 'promoter' | 'marketer';
   amount: number;
+  amountPayable?: number; // Amount after fees
+  fee?: number; // Service fee
   bankName: string;
   bankCode: string;
   accountNumber: string;
   accountName: string;
-  status: 'pending' | 'approved' | 'rejected' | 'processing';
+  // Updated status to match actual flow
+  status: 'processing' | 'successful' | 'failed' | 'reversed' | 'pending_approval';
+  reference: string;
+  providerReference?: string;
+  transferCode?: string;
+  failureReason?: string;
   createdAt: Date;
   processedAt?: Date;
   processedBy?: string;
   notes?: string;
   walletType: 'promoter' | 'marketer';
+  meta: any;
+  timeline: any;
 }
 
 export interface FinancialStats {
   totalRevenue: number;
   platformEarnings: number;
   totalWithdrawals: number;
-  pendingWithdrawals: number;
-  processingWithdrawals: number;
+  successfulWithdrawals: number; // Added
+  failedWithdrawals: number; // Added
+  pendingWithdrawals: number; // processing + pending_approval
+  processingWithdrawals: number; // currently processing
   marketerSpend: number;
   promoterEarnings: number;
   activeBalance: number;
@@ -64,8 +87,10 @@ export interface WithdrawalResponse {
 export interface FinancialOverview {
   stats: FinancialStats;
   recentTransactions: Transaction[];
-  pendingWithdrawals: WithdrawalRequest[];
+  pendingWithdrawals: WithdrawalRequest[]; // For admin review if needed
   processingWithdrawals: WithdrawalRequest[];
+  successfulWithdrawals: WithdrawalRequest[];
+  failedWithdrawals: WithdrawalRequest[];
 }
 
 @Injectable()
@@ -83,33 +108,57 @@ export class FinancialService {
       .pipe(map(response => response.data));
   }
 
-
-
-  getWithdrawalRequests(params?: {
+  // Real-time updates - poll every 30 seconds for status changes
+  pollWithdrawalUpdates(params?: {
     status?: string;
     page?: number;
     limit?: number;
     search?: string;
   }): Observable<{requests: WithdrawalRequest[], total: number, page: number, limit: number}> {
-    let httpParams = new HttpParams();
-    
-    if (params) {
-      Object.keys(params).forEach(key => {
-        const value = params[key as keyof typeof params];
-        if (value !== undefined && value !== null) {
-          httpParams = httpParams.set(key, value.toString());
-        }
-      });
-    }
-
-    return this.apiService
-      .get<{ success: boolean; data: { requests: WithdrawalRequest[]; total: number; page: number; limit: number } }>(
-        `${this.baseUrl}/withdrawals`,
-        httpParams
-      )
-      .pipe(map(response => response.data)); // ✅ ensures response has requests, total, page, limit
+    return interval(30000).pipe(
+      switchMap(() => this.getWithdrawalRequests(params))
+    );
   }
 
+// In financial.service.ts, update the getWithdrawalRequests method
+getWithdrawalRequests(params?: {
+  status?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
+  fromDate?: string;
+  toDate?: string;
+}): Observable<{requests: WithdrawalRequest[], total: number, page: number, limit: number}> {
+  let httpParams = new HttpParams();
+  
+  if (params) {
+    Object.keys(params).forEach(key => {
+      const value = params[key as keyof typeof params];
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, value.toString());
+      }
+    });
+  }
+
+  console.log('Fetching withdrawals with params:', params); // Debug log
+
+  return this.apiService
+    .get<{ success: boolean; data: { requests: WithdrawalRequest[]; total: number; page: number; limit: number } }>(
+      `${this.baseUrl}/withdrawals`,
+      httpParams
+    )
+    .pipe(
+      map(response => {
+        //console.log('Received withdrawals:', response.data); // Debug log
+        return response.data;
+      })
+    );
+}
+
+  getWithdrawalById(withdrawalId: string): Observable<WithdrawalRequest> {
+    return this.apiService.get<{success: boolean, data: WithdrawalRequest}>(`${this.baseUrl}/withdrawals/${withdrawalId}`)
+      .pipe(map(response => response.data));
+  }
 
   getTransactions(params?: {
     type?: string;
@@ -135,6 +184,7 @@ export class FinancialService {
       .pipe(map(response => response.data));
   }
 
+  // Admin actions
   approveWithdrawal(withdrawalId: string, notes?: string): Observable<WithdrawalResponse> {
     return this.apiService.patch<WithdrawalResponse>(`${this.baseUrl}/withdrawals/${withdrawalId}/approve`, { notes })
       .pipe(map(response => response));
@@ -145,8 +195,15 @@ export class FinancialService {
       .pipe(map(response => response));
   }
 
+  // Mark as processing (when admin initiates payout)
   processWithdrawal(withdrawalId: string): Observable<WithdrawalResponse> {
     return this.apiService.patch<WithdrawalResponse>(`${this.baseUrl}/withdrawals/${withdrawalId}/process`, {})
+      .pipe(map(response => response));
+  }
+
+  // Retry failed withdrawal
+  retryWithdrawal(withdrawalId: string): Observable<WithdrawalResponse> {
+    return this.apiService.post<WithdrawalResponse>(`${this.baseUrl}/withdrawals/${withdrawalId}/retry`, {})
       .pipe(map(response => response));
   }
 
@@ -179,11 +236,18 @@ export class FinancialService {
     description: string;
     reference?: string;
   }): Observable<{success: boolean, data: Transaction}> {
-    return this.apiService.post<{success: boolean, data: Transaction}>(`${this.baseUrl}/transactions/manual`, transactionData).pipe(map(response => response)); // Return full response object
+    return this.apiService.post<{success: boolean, data: Transaction}>(`${this.baseUrl}/transactions/manual`, transactionData)
+      .pipe(map(response => response));
   }
 
   reverseTransaction(transactionId: string, reason: string): Observable<{success: boolean, message: string}> {
     return this.apiService.post<{success: boolean, message: string}>(`${this.baseUrl}/transactions/${transactionId}/reverse`, { reason })
+      .pipe(map(response => response));
+  }
+
+  // Get webhook delivery status for debugging
+  getWebhookStatus(withdrawalId: string): Observable<any> {
+    return this.apiService.get(`${this.baseUrl}/withdrawals/${withdrawalId}/webhook-status`)
       .pipe(map(response => response));
   }
 }

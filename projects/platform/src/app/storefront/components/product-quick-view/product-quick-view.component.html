@@ -23,7 +23,7 @@
         <div class="main-image-wrapper">
           @if (selectedImage()) {
             <img 
-              [src]="selectedImage()?.url" 
+              [src]="selectedImage().url" 
               [alt]="product().name"
               class="main-image"
               (error)="onImageError($event)">
@@ -138,7 +138,7 @@
           <!-- Price Section -->
           <div class="price-section">
             <div class="price-main">{{ getVariantPrice() | currency }}</div>
-            @if (product()?.originalPrice) {
+            @if (product().originalPrice) {
               <div class="price-original">{{ product().originalPrice | currency }}</div>
               <div class="price-save">Save {{ discountPercentage() }}%</div>
             }
@@ -189,10 +189,10 @@
           }
           
           <!-- Tags -->
-          @if (product()?.tags) {
+          @if (product().tags) {
             <div class="tags-section">
               <div class="tag-list">
-                @for (tag of product()?.tags; track tag) {
+                @for (tag of product().tags; track tag) {
                   <mat-chip class="product-tag">{{ tag }}</mat-chip>
                 }
               </div>
