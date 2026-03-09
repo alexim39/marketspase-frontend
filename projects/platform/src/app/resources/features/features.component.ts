@@ -7,8 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
+import { HeaderComponent } from '../core/header/header.component';
+import { FooterComponent } from '../core/footer/footer.component';
 import { TestimonialsComponent } from '../../dashboard/testimonial/testimonial.component';
 
 interface Feature {

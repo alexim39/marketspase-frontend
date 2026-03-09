@@ -3,13 +3,13 @@
 @import '../../../../styles/mixins';
 
 // =========================================
-// QUICK VIEW MODAL - DARK THEME ONLY
+// QUICK VIEW MODAL - DYNAMIC THEMING
 // =========================================
 
 .quick-view-overlay {
   position: fixed;
   inset: 0;
-  background: rgba($black-hex, 0.85); // Darker overlay for dark theme
+  background: color-mix(in srgb, $surface-color, $black 95%);
   @include backdrop-blur;
   z-index: $z-index-modal;
   @include flex-center;
@@ -30,15 +30,14 @@
 
 .quick-view-modal {
   position: relative;
-  background-color: $gray-900; // Dark background
-  color: $primary-light-hex; // Light primary for text
+  background-color: $surface-color;
+  color: $text-primary;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
   
   // Mobile: Full screen modal
   @include mobile {
@@ -53,7 +52,7 @@
     max-height: 90vh;
     border-radius: $border-radius-xl;
     box-shadow: $shadow-2xl;
-    border: 1px solid $gray-700; // Dark border
+    border: 1px solid $border-color;
   }
 }
 
@@ -68,25 +67,25 @@
   display: flex;
   justify-content: flex-end;
   padding: $spacing-3;
-  background: $gray-800; // Dark header background
-  color: $gray-100; // Light text
-  border-bottom: 1px solid $gray-700; // Dark border
+  background: $surface-color;
+  color: $text-primary;
+  border-bottom: 1px solid $border-color;
   
   @include desktop {
     padding: $spacing-4;
   }
   
   .close-btn {
-    background: $gray-800; // Dark background
-    color: $gray-100; // Light text
-    border: 1px solid $gray-700; // Dark border
+    background: $surface-color;
+    color: $text-secondary;
+    border: 1px solid $border-color;
     transition: all $transition-fast;
     
     &:hover {
-      background: $gray-700; // Slightly lighter on hover
-      color: $white-hex;
+      background: color-mix(in srgb, $surface-color, $black 15%);
+      color: $text-primary;
       transform: rotate(90deg);
-      border-color: $gray-600;
+      border-color: color-mix(in srgb, $border-color, $black 10%);
     }
   }
 }
@@ -99,7 +98,7 @@
   @include flex-column-center;
   gap: $spacing-4;
   padding: $spacing-12 $spacing-4;
-  color: $gray-300; // Light gray text
+  color: $text-secondary;
   
   p {
     @include body-small;
@@ -156,7 +155,8 @@
   aspect-ratio: 1 / 1;
   border-radius: $border-radius-lg;
   overflow: hidden;
-  background: $gray-800; // Dark background
+  background: $gradient-primary;
+  opacity: 0.9;
   
   @include mobile {
     aspect-ratio: 4 / 3;
@@ -166,7 +166,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: color-mix(in srgb, $gray-800, white 5%); // Slightly lighter dark
+    background: color-mix(in srgb, $surface-color, $white 5%);
     padding: $spacing-4;
     
     @include desktop {
@@ -179,19 +179,19 @@
     width: 100%;
     height: 100%;
     gap: $spacing-3;
-    color: $gray-500; // Mid gray
+    color: $text-tertiary;
     
     mat-icon {
       font-size: 64px;
       width: 64px;
       height: 64px;
       opacity: 0.5;
-      color: $gray-600;
+      color: $text-tertiary;
     }
     
     span {
       @include body-small;
-      color: $gray-400;
+      color: $text-secondary;
     }
   }
 }
@@ -220,13 +220,13 @@
     width: fit-content;
     
     &.badge-discount {
-      background: $error-color-hex;
-      color: $white-hex;
+      background: $error-color;
+      color: $white;
     }
     
     &.badge-new {
-      background: $success-color-hex;
-      color: $white-hex;
+      background: $success-color;
+      color: $white;
     }
   }
 }
@@ -245,15 +245,15 @@
   
   .nav-btn {
     pointer-events: auto;
-    background: rgba($gray-800, 0.95); // Dark semi-transparent
-    color: $gray-100;
-    border: 1px solid $gray-700;
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    color: $text-primary;
+    border: 1px solid $border-color;
     box-shadow: $shadow-md;
     transition: all $transition-fast;
     
     &:hover {
-      background: $gray-700;
-      color: $white-hex;
+      background: color-mix(in srgb, $surface-color, $black 15%);
+      color: $text-primary;
       transform: scale(1.1);
     }
   }
@@ -279,11 +279,11 @@
     height: 64px;
     border-radius: $border-radius;
     overflow: hidden;
-    border: 2px solid $gray-700; // Dark border
+    border: 2px solid $border-color;
     cursor: pointer;
     transition: all $transition-fast;
     padding: 0;
-    background: color-mix(in srgb, $gray-800, white 3%); // Slightly lighter dark
+    background: color-mix(in srgb, $surface-color, $white 3%);
     
     @include desktop {
       width: 80px;
@@ -291,13 +291,13 @@
     }
     
     &:hover {
-      border-color: $gray-600;
+      border-color: color-mix(in srgb, $border-color, $black 10%);
       transform: translateY(-2px);
     }
     
     &.active {
-      border-color: $primary-light-hex; // Light primary for selection
-      box-shadow: 0 0 0 1px $primary-light-hex;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 1px $primary-color;
     }
     
     img {
@@ -317,9 +317,8 @@
   flex-direction: column;
   overflow: hidden;
   
-  
   @include mobile {
-    background: $gray-800; // Dark background
+    background: $surface-color;
   }
   
   @include desktop {
@@ -349,9 +348,9 @@
   align-items: center;
   gap: $spacing-3;
   padding: $spacing-3;
-  background: $gray-800; // Dark background
+  background: color-mix(in srgb, $surface-color, $black 5%);
   border-radius: $border-radius-md;
-  border: 1px solid $gray-700; // Dark border
+  border: 1px solid $border-color;
   margin-bottom: $spacing-4;
   
   .store-logo {
@@ -371,7 +370,7 @@
     display: block;
     @include body-medium;
     font-weight: $font-weight-semibold;
-    color: $gray-100; // Light text
+    color: $text-primary;
     @include text-ellipsis;
     margin-bottom: $spacing-1;
   }
@@ -381,8 +380,8 @@
     align-items: center;
     gap: $spacing-1;
     @include caption;
-    color: $success-color-hex;
-    background: rgba($success-color-hex, 0.15);
+    color: $success-color;
+    background: color-mix(in srgb, $success-color, transparent 85%);
     padding: 2px $spacing-2;
     border-radius: $border-radius-sm;
     
@@ -402,13 +401,13 @@
     @include body-large;
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
-    color: $gray-50; // Very light text
+    color: $text-primary;
     line-height: $line-height-tight;
     margin: 0 0 $spacing-3 0;
     
     @include desktop {
       @include heading-small;
-      color: $gray-50;
+      color: $text-primary;
     }
   }
   
@@ -427,19 +426,19 @@
     }
     
     .category-tag {
-      background: rgba($primary-light-hex, 0.15);
-      color: $primary-light-hex; // Light primary
+      background: color-mix(in srgb, $primary-color, transparent 85%);
+      color: $primary-color;
       font-weight: $font-weight-medium;
     }
     
     .brand-tag {
-      background: $gray-800;
-      color: $gray-300; // Light gray
+      background: color-mix(in srgb, $surface-color, $black 10%);
+      color: $text-secondary;
       font-weight: $font-weight-medium;
     }
     
     .sku {
-      color: $gray-500; // Mid gray
+      color: $text-tertiary;
       background: transparent;
     }
   }
@@ -453,22 +452,22 @@
   flex-wrap: wrap;
   margin-bottom: $spacing-4;
   padding-bottom: $spacing-4;
-  border-bottom: 1px solid $gray-700; // Dark border
+  border-bottom: 1px solid $border-color;
   
   .rating-text {
     @include body-small;
     font-weight: $font-weight-semibold;
-    color: $gray-100; // Light text
+    color: $text-primary;
   }
   
   .rating-count,
   .sold-count {
     @include caption;
-    color: $gray-400; // Light gray
+    color: $text-tertiary;
   }
   
   .divider {
-    color: $gray-600; // Mid gray
+    color: $border-color;
   }
 }
 
@@ -483,7 +482,7 @@
   .price-main {
     font-size: $font-size-3xl;
     font-weight: $font-weight-bold;
-    color: $primary-light-hex; // Light primary
+    color: $primary-color;
     line-height: 1;
     
     @include desktop {
@@ -493,15 +492,15 @@
   
   .price-original {
     @include body-large;
-    color: $gray-600; // Mid gray
+    color: $text-tertiary;
     text-decoration: line-through;
   }
   
   .price-save {
     @include body-small;
     font-weight: $font-weight-bold;
-    color: rgba($error-color-hex, 10%);
-    background: rgba($error-color-hex, 0.15);
+    color: $error-color;
+    background: color-mix(in srgb, $error-color, transparent 85%);
     padding: $spacing-1 $spacing-2;
     border-radius: $border-radius-sm;
   }
@@ -526,21 +525,21 @@
   }
   
   &.in-stock {
-    background: rgba($success-color-hex, 0.15);
-    color: rgba($success-color-hex, 10%);
-    border: 1px solid rgba($success-color-hex, 0.3);
+    background: color-mix(in srgb, $success-color, transparent 85%);
+    color: $success-color;
+    border: 1px solid color-mix(in srgb, $success-color, transparent 70%);
   }
   
   &.low-stock {
-    background: rgba($warning-color-hex, 0.15);
-    color: rgba($warning-color-hex, 10%);
-    border: 1px solid rgba($warning-color-hex, 0.3);
+    background: color-mix(in srgb, $warning-color, transparent 85%);
+    color: $warning-color;
+    border: 1px solid color-mix(in srgb, $warning-color, transparent 70%);
   }
   
   &.out-of-stock {
-    background: rgba($error-color-hex, 0.15);
-    color: rgba($error-color-hex, 10%);
-    border: 1px solid rgba($error-color-hex, 0.3);
+    background: color-mix(in srgb, $error-color, transparent 85%);
+    color: $error-color;
+    border: 1px solid color-mix(in srgb, $error-color, transparent 70%);
   }
 }
 
@@ -551,13 +550,13 @@
   .section-title {
     @include body-medium;
     font-weight: $font-weight-semibold;
-    color: $gray-100; // Light text
+    color: $text-primary;
     margin: 0 0 $spacing-2 0;
   }
   
   .description-text {
     @include body-small;
-    color: $gray-300; // Light gray
+    color: $text-secondary;
     line-height: $line-height-relaxed;
     margin: 0;
     @include text-multiline-ellipsis(3);
@@ -575,7 +574,7 @@
   .section-title {
     @include body-medium;
     font-weight: $font-weight-semibold;
-    color: $gray-100; // Light text
+    color: $text-primary;
     margin: 0 0 $spacing-4 0;
   }
   
@@ -590,7 +589,7 @@
       display: block;
       @include body-small;
       font-weight: $font-weight-medium;
-      color: $gray-100; // Light text
+      color: $text-primary;
       margin-bottom: $spacing-2;
     }
     
@@ -604,20 +603,20 @@
         padding: $spacing-2 $spacing-3;
         border-radius: $border-radius;
         font-size: $font-size-sm;
-        background: $gray-800;
-        color: $gray-200;
-        border: 1px solid $gray-700;
+        background: color-mix(in srgb, $surface-color, $black 5%);
+        color: $text-secondary;
+        border: 1px solid $border-color;
         transition: all $transition-fast;
         
         &.selected {
-          background: $primary-light-hex; // Light primary
-          color: $gray-900; // Dark text on light background
-          border-color: $primary-light-hex;
+          background: $primary-color;
+          color: $white;
+          border-color: $primary-color;
         }
         
         &:hover:not(.selected) {
-          border-color: $primary-light-hex;
-          background: $gray-700;
+          border-color: $primary-color;
+          background: color-mix(in srgb, $surface-color, $black 10%);
         }
       }
     }
@@ -634,17 +633,17 @@
     gap: $spacing-2;
     
     .product-tag {
-      background: $gray-800;
-      color: $gray-300; // Light gray
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      color: $text-secondary;
       font-size: $font-size-xs;
       height: auto;
       padding: $spacing-1 $spacing-2;
       border-radius: $border-radius-sm;
-      border: 1px solid $gray-700;
+      border: 1px solid $border-color;
       
       &:hover {
-        background: $gray-700;
-        border-color: $gray-600;
+        background: color-mix(in srgb, $surface-color, $black 10%);
+        border-color: color-mix(in srgb, $border-color, $black 10%);
       }
     }
   }
@@ -658,7 +657,7 @@
     display: block;
     @include body-small;
     font-weight: $font-weight-medium;
-    color: $gray-100; // Light text
+    color: $text-primary;
     margin-bottom: $spacing-2;
   }
   
@@ -666,8 +665,8 @@
     display: inline-flex;
     align-items: center;
     gap: 0;
-    background: $gray-800;
-    border: 1px solid $gray-700;
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    border: 1px solid $border-color;
     border-radius: $border-radius-md;
     overflow: hidden;
     
@@ -675,18 +674,18 @@
       width: 44px;
       height: 44px;
       border-radius: 0;
-      color: $gray-100;
-      background: $gray-800;
+      color: $text-primary;
+      background: color-mix(in srgb, $surface-color, $black 5%);
       border: none;
       transition: background-color $transition-fast;
       
       &:hover:not(:disabled) {
-        background: $gray-700;
+        background: color-mix(in srgb, $surface-color, $black 15%);
       }
       
       &:disabled {
         opacity: 0.4;
-        color: $gray-600;
+        color: $text-tertiary;
         cursor: not-allowed;
       }
       
@@ -699,17 +698,17 @@
       width: 60px;
       height: 44px;
       border: none;
-      background: $gray-800;
+      background: color-mix(in srgb, $surface-color, $black 5%);
       text-align: center;
       font-size: $font-size-base;
       font-weight: $font-weight-semibold;
-      color: $gray-100;
-      border-left: 1px solid $gray-700;
-      border-right: 1px solid $gray-700;
+      color: $text-primary;
+      border-left: 1px solid $border-color;
+      border-right: 1px solid $border-color;
       
       &:focus {
         outline: none;
-        background: $gray-700;
+        background: color-mix(in srgb, $surface-color, $black 10%);
       }
       
       // Hide number input spinners
@@ -731,29 +730,23 @@
   margin-bottom: $spacing-5;
   
   .btn-add-cart {
+    @include button-primary;
     width: 100%;
     height: 56px;
     font-size: $font-size-base;
-    font-weight: $font-weight-semibold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
     margin-bottom: $spacing-3;
-    border-radius: $border-radius-md;
-    background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%);
-    color: $gray-900; // Dark text on gradient
     
     mat-icon {
       margin-right: $spacing-2;
     }
     
-    &:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: $shadow-lg;
-    }
-    
     &:disabled {
-      opacity: 0.5;
+      @include darken-bg($surface-color, 50%);
+      color: $text-tertiary !important;
+      opacity: 0.6;
       cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
   }
   
@@ -765,31 +758,38 @@
     .action-btn {
       width: 48px;
       height: 48px;
-      background: $gray-800;
-      color: $gray-400;
-      border: 1px solid $gray-700;
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      color: $text-secondary;
+      border: 1px solid $border-color;
       border-radius: $border-radius-md;
       transition: all $transition-fast;
+      @include flex-center;
       
       &:hover {
-        background: $gray-700;
-        color: $gray-100;
-        border-color: $gray-600;
+        background: color-mix(in srgb, $surface-color, $black 15%);
+        color: $text-primary;
+        border-color: color-mix(in srgb, $border-color, $black 10%);
         transform: translateY(-2px);
       }
       
       &.active {
-        color: rgba($error-color-hex, 10%);
-        background: rgba($error-color-hex, 0.15);
-        border-color: rgba($error-color-hex, 0.3);
+        color: $error-color;
+        background: color-mix(in srgb, $error-color, transparent 85%);
+        border-color: color-mix(in srgb, $error-color, transparent 70%);
       }
       
       &.whatsapp-btn {
         &:hover {
           color: #25D366;
-          background: rgba(#25D366, 0.15);
-          border-color: rgba(#25D366, 0.3);
+          background: color-mix(in srgb, #25D366, transparent 85%);
+          border-color: color-mix(in srgb, #25D366, transparent 70%);
         }
+      }
+      
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
       }
     }
   }
@@ -801,9 +801,9 @@
   flex-direction: column;
   gap: $spacing-3;
   padding: $spacing-4;
-  background: $gray-800;
+  background: color-mix(in srgb, $surface-color, $black 5%);
   border-radius: $border-radius-md;
-  border: 1px solid $gray-700;
+  border: 1px solid $border-color;
   margin-bottom: $spacing-5;
   
   .trust-item {
@@ -811,13 +811,13 @@
     align-items: center;
     gap: $spacing-3;
     @include body-small;
-    color: $gray-300;
+    color: $text-secondary;
     
     mat-icon {
       font-size: 20px;
       width: 20px;
       height: 20px;
-      color: $primary-light-hex; // Light primary
+      color: $primary-color;
       flex-shrink: 0;
     }
   }
@@ -827,13 +827,13 @@
 .full-details {
   text-align: center;
   padding-top: $spacing-4;
-  border-top: 1px solid $gray-700;
+  border-top: 1px solid $border-color;
   
   .btn-full-details {
+    @include button-ghost;
     width: 100%;
-    color: $primary-light-hex; // Light primary
+    color: $primary-color;
     font-weight: $font-weight-medium;
-    background: transparent;
     
     mat-icon {
       margin-left: $spacing-2;
@@ -841,7 +841,7 @@
     }
     
     &:hover {
-      background: rgba($primary-light-hex, 0.1);
+      background: color-mix(in srgb, $primary-color, transparent 90%);
     }
   }
 }
@@ -885,5 +885,54 @@
     .price-main {
       font-size: $font-size-2xl;
     }
+  }
+}
+
+// =========================================
+// ACCESSIBILITY IMPROVEMENTS
+// =========================================
+
+.quick-view-modal {
+  &:focus-within {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+button {
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+    z-index: 20;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .quick-view-overlay,
+  .quick-view-modal,
+  .close-btn,
+  .nav-btn,
+  .thumbnail,
+  .action-btn,
+  .btn-add-cart {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .quick-view-modal {
+    border-width: 2px;
+    border-color: $text-primary;
+  }
+  
+  .badge {
+    border: 1px solid $white;
+  }
+  
+  .stock-indicator {
+    border-width: 2px;
   }
 }

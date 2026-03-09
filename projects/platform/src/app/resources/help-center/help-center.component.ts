@@ -11,8 +11,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
+import { HeaderComponent } from '../core/header/header.component';
+import { FooterComponent } from '../core/footer/footer.component';
 
 interface FAQ {
   question: string;

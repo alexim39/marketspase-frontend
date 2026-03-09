@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
+import { HeaderComponent } from '../core/header/header.component';
+import { FooterComponent } from '../core/footer/footer.component';
 
 interface Statistic {
   value: string;
@@ -53,7 +53,7 @@ export class AboutComponent {
   public heroStatistics = signal<Statistic[]>([
     { value: '2B', label: 'WhatsApp Users Worldwide', icon: 'group', suffix: '+' },
     { value: '24', label: 'Hour Status Duration', icon: 'schedule', suffix: 'h' },
-    { value: '25', label: 'Minimum Views Required', icon: 'visibility', suffix: '+' },
+    { value: '35', label: 'Minimum Views Required', icon: 'visibility', suffix: '+' },
     { value: '100', label: 'Secure Payment Guarantee', icon: 'security', suffix: '%' }
   ]);
 

@@ -27,7 +27,7 @@ export const SettingsRoutes: Routes = [
         title: "Account Setting - Configure your profile settings",
       },
       {
-        path: 'share',
+        path: 'support',
         loadComponent: () => import('./support/support.component').then(c => c.SupportComponent),
         title: "Support & Testimonial - Get support and testify about MarketSpase",
       },

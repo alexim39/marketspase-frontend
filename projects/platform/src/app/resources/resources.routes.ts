@@ -31,6 +31,11 @@ export const RosourcesRoutes: Routes = [
                 title: "Success Stories - Our customer stories",
             },
             {
+                path: 'community',
+                loadComponent: () => import('./community/community.component').then(m => m.CommunityComponent),
+                title: "Community - Join our community",
+            },
+            {
                 path: 'help-center',
                 loadComponent: () => import('./help-center/help-center.component').then(m => m.HelpCenterComponent),
                 title: "Help Center - Get support and find answers",

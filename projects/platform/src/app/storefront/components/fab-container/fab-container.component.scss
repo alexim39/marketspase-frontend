@@ -1,4 +1,4 @@
-// fab-container.component.scss (DARK THEME ONLY)
+// fab-container.component.scss (DYNAMIC THEMING)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -13,28 +13,39 @@
   align-items: flex-end;
 
   .fab-button {
-    background: $gray-800; // Dark background
-    color: $gray-100; // Light text
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    color: $text-primary;
     box-shadow: $shadow-xl;
-    border: 1px solid $gray-700; // Dark border
+    border: 1px solid $border-color;
     transition: all $transition-normal;
 
     &:hover {
       transform: scale(1.1);
       box-shadow: $shadow-2xl;
-      background: $gray-700; // Lighter on hover
-      border-color: $gray-600;
+      background: color-mix(in srgb, $surface-color, $black 15%);
+      border-color: color-mix(in srgb, $border-color, $black 10%);
     }
 
     &.back-to-top {
-      background: $primary-light-hex; // Light primary for dark theme
-      color: $gray-900; // Dark text on primary
-      border: 1px solid $primary-light-hex;
+      background: $primary-color;
+      color: $white;
+      border: 1px solid $primary-color;
 
       &:hover {
-        background: lighten($primary-light-hex, 10%); // Brighter on hover
-        border-color: lighten($primary-light-hex, 10%);
+        background: color-mix(in srgb, $primary-color, $white 20%);
+        border-color: color-mix(in srgb, $primary-color, $white 20%);
       }
+    }
+
+    // Badge styling for cart
+    ::ng-deep .mat-badge-content {
+      background: $error-color !important;
+      color: $white !important;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
     }
   }
 
@@ -51,6 +62,31 @@
         width: 20px;
         height: 20px;
       }
+    }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .fab-button {
+    transition: none !important;
+    animation: none !important;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .fab-button {
+    border-width: 2px;
+    border-color: $text-primary;
+    
+    &.back-to-top {
+      border-width: 2px;
+      border-color: $text-primary;
     }
   }
 }

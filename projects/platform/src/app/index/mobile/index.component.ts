@@ -7,11 +7,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { UserCredential } from '@angular/fire/auth'; // Import UserCredential for type safety
 import { AuthError } from 'firebase/auth'; // Import AuthError for better error typing
-import { UserService } from './common/services/user.service';
-import { Platform } from '@angular/cdk/platform';
+import { UserService } from '../../common/services/user.service';
 
 export interface SocialProvider {
   name: string;
@@ -23,7 +22,7 @@ export interface SocialProvider {
 }
 
 @Component({
-  selector: 'app-index',
+  selector: 'app-mobile-index',
   providers: [],
   imports: [
     MatButtonModule,
@@ -36,12 +35,13 @@ export interface SocialProvider {
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss'],
 })
-export class IndexComponent implements OnDestroy, OnInit {
+export class MobileIndexComponent implements OnDestroy, OnInit {
   isLoading: boolean = false;
   currentProvider: string = '';
   currentYear: number = new Date().getFullYear();
 
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private authService: AuthService = inject(AuthService);
   private userService: UserService = inject(UserService);
@@ -88,18 +88,6 @@ export class IndexComponent implements OnDestroy, OnInit {
    
   ];
 
-  constructor(
-    private router: Router,
-    private platform: Platform
-  ) {
-    if (this.platform.ANDROID || this.platform.IOS) {
-      //console.log('User is using a mobile device.');
-      this.userDevice = 'mobile'
-    } else {
-      //console.log('User is using a desktop device.');
-      this.userDevice = 'desktop'
-    }
-  }
 
   ngOnInit(): void {
     // Check for referral code from various sources

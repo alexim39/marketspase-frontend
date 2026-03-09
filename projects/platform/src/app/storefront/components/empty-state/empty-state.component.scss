@@ -1,4 +1,4 @@
-// empty-state.component.scss (DARK THEME ONLY)
+// empty-state.component.scss (DYNAMIC THEMING)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -7,22 +7,22 @@
   min-height: 400px;
   text-align: center;
   padding: $spacing-20 0;
-  background: rgba($gray-800, 0.7); // Dark semi-transparent background
+  background: color-mix(in srgb, $surface-color, transparent 30%);
   border-radius: $border-radius-lg;
-  border: 2px dashed $gray-700; // Dark dashed border
+  border: 2px dashed $border-color;
 
   .empty-icon {
     font-size: 80px;
     width: 80px;
     height: 80px;
     margin-bottom: $spacing-6;
-    color: $gray-500; // Mid gray
+    color: $text-tertiary;
     opacity: 0.5;
   }
 
   h3 {
     @include heading-medium;
-    color: $gray-100; // Light text
+    color: $text-primary;
     margin: 0 0 $spacing-2;
     font-size: $font-size-2xl;
     font-weight: $font-weight-semibold;
@@ -30,7 +30,7 @@
 
   p {
     @include body-medium;
-    color: $gray-300; // Light gray
+    color: $text-secondary;
     max-width: 400px;
     margin-bottom: $spacing-6;
   }
@@ -39,16 +39,54 @@
     @include flex-center;
     gap: $spacing-3;
 
-    button {
-      background: $gray-700; // Dark button background
-      color: $gray-100; // Light text
-      border: 1px solid $gray-600;
+    @include mobile {
+      flex-direction: column;
+      width: 100%;
+      max-width: 300px;
+    }
 
-      &:hover {
-        background: $gray-600;
-        color: $white-hex;
-        border-color: $gray-500;
+    button {
+      min-width: 160px;
+
+      @include mobile {
+        width: 100%;
+      }
+
+      &:first-child {
+        @include button-secondary;
+        
+        mat-icon {
+          margin-right: $spacing-1;
+        }
+      }
+
+      &:last-child {
+        @include button-primary;
+        
+        mat-icon {
+          margin-right: $spacing-1;
+        }
       }
     }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .empty-state button {
+    transition: none !important;
+    animation: none !important;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .empty-state {
+    border-width: 3px;
+    border-color: $text-primary;
   }
 }
