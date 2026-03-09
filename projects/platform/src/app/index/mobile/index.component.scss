@@ -3,486 +3,404 @@ This is the SCSS file for the index component of the platform application.
 It styles the authentication page, including the container, header, welcome section, authentication card, social login buttons, loading overlay, divider, security features section, and footer. 
 The styles focus on a modern, clean design with responsiveness for mobile devices, as well as support for high contrast mode and reduced motion
 
-NOTE: The  file should not include the dynmaic theming styles as those are now applied globally.
+NOTE: The file now uses dynamic theming variables from the global styles.
 */
 
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .auth-container {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
+  min-height: 100vh;
+  background: $gradient-primary;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.15"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    pointer-events: none;
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+  z-index: 1;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+  margin-bottom: $spacing-6;
+}
+
+.logo-icon {
+  img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+}
+
+.brand-title {
+  color: $white;
+  font-size: 32px;
+  font-weight: $font-weight-bold;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.welcome-section {
+  color: $white;
+}
+
+.welcome-title {
+  font-size: 18px;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-2 0;
+  opacity: 0.95;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.8;
+  max-width: 400px;
+  line-height: $line-height-relaxed;
+}
+
+.auth-card {
+  background-color: color-mix(in srgb, $surface-color, white 1%);
+  backdrop-filter: blur(20px);
+  border-radius: $border-radius-xl;
+  padding: $spacing-10;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: $shadow-xl, 0 0 0 1px rgba($white, 0.2);
+  border: 1px solid rgba($white, 0.2);
+  z-index: 1;
+
+  @include mobile {
+    padding: $spacing-6;
+    border-radius: $border-radius-lg;
+  }
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+
+  h3 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-2 0;
+    color: $text-primary;
+  }
+
+  p {
+    color: $text-secondary;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+}
+
+.auth-providers {
+  position: relative;
+}
+
+.social-btn {
+  width: 100%;
+  height: 56px;
+  margin-bottom: $spacing-4;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  transition: all $transition-normal;
+  border-width: $border-width-2;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: color-mix(in srgb, $background-color, black 5%);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: $border-radius-lg;
+  z-index: 10;
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $border-color;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: $spacing-3;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: $spacing-8 0;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $gray-300, transparent);
+  }
+}
+
+.divider-text {
+  background: color-mix(in srgb, $surface-color, $white 90%);
+  padding: 0 $spacing-5;
+  font-size: $font-size-xs;
+  color: $text-tertiary;
+  font-weight: $font-weight-light;
+  z-index: 1;
+  position: relative;
+  border-radius: $border-radius-full;
+}
+
+.security-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-4;
+  margin-top: $spacing-6;
+  padding: $spacing-3;
+  background: color-mix(in srgb, $surface-color, $white 10%);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include mobile {
+    padding: $spacing-2;
+    gap: $spacing-3;
+    grid-template-columns: 1fr;
+  }
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  background: color-mix(in srgb, $surface-color, $white 5%);
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  transition: transform $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  @include mobile {
+    padding: $spacing-2;
+  }
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: $primary-color;
+  border-radius: 50%;
+  box-shadow: $shadow-sm;
+
+  @include mobile {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.feature-icon {
+  color: $white;
+  font-size: 25px;
+
+  @include mobile {
+    font-size: 24px;
+  }
+}
+
+.feature-text {
+  h4 {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+
+    @include mobile {
+      font-size: $font-size-sm;
+    }
+  }
+
+  p {
+    margin: $spacing-1 0 0;
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    line-height: $line-height-normal;
+
+    @include mobile {
+      font-size: $font-size-xs;
+    }
+  }
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: $spacing-8;
+  z-index: 1;
+}
+
+.footer-text {
+  color: $white;
+  margin: 0 0 $spacing-3 0;
+  font-size: $font-size-base;
+}
+
+.signup-link {
+  color: $white;
+  text-decoration: none;
+  font-weight: $font-weight-semibold;
+  border-bottom: 1px solid rgba($white, 0.5);
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-bottom-color: $white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $white;
+    outline-offset: 2px;
+  }
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+
+  @include mobile {
+    flex-direction: row;
+    gap: $spacing-1;
+  }
+
+  a {
+    color: rgba($white, 0.8);
+    text-decoration: none;
+    font-size: $font-size-xs;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $white;
     }
 
-    .auth-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.15"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
-      pointer-events: none;
+    &:focus-visible {
+      outline: 2px solid $white;
+      outline-offset: 2px;
     }
-
-    .auth-header {
-      text-align: center;
-      margin-bottom: 32px;
-      z-index: 1;
-    }
-
-    .logo-section {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .logo-icon {
-     
-     // background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-     // border: 1px solid rgba(255, 255, 255, 0.3);
-     img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-     }
-    }
-
-    .logo-icon mat-icon {
-      color: white;
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-    }
-
-    .brand-title {
-      color: white;
-      font-size: 32px;
-      font-weight: 700;
-      margin: 0;
-      letter-spacing: -0.5px;
-    }
-
-    .welcome-section {
-      color: white;
-    }
-
-    .welcome-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-      opacity: 0.95;
-    }
-
-    .welcome-subtitle {
-      font-size: 14px;
-      margin: 0;
-      opacity: 0.8;
-      max-width: 400px;
-      line-height: 1.5;
-    }
-
-    .auth-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 40px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.1),
-        0 0 0 1px rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      z-index: 1;
-    }
-
-    .card-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .card-header h3 {
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-      color: #1a1a1a;
-    }
-
-    .card-header p {
-      color: #666;
-      margin: 0;
-      font-size: 15px;
-    }
-
-    .auth-providers {
-      position: relative;
-    }
-
-    .social-btn {
-      width: 100%;
-      height: 56px;
-      margin-bottom: 16px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 500;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      border-width: 2px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .social-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .social-btn:active {
-      transform: translateY(0);
-    }
-
-    .btn-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .btn-content mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-
-    .loading-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(4px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      z-index: 10;
-    }
-
-    .loading-spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid #e3e3e3;
-      border-top: 3px solid #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 12px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .loading-overlay p {
-      margin: 0;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 32px 0;
-      position: relative;
-    }
-
-    .divider::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
-    }
-
-    .divider-text {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 0 20px;
-      font-size: 12px;
-      color: #888;
-      font-weight: 300;
-      z-index: 1;
-      position: relative;
-      border-radius: 25px;
-    }
-
-
-  .security-features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Smaller grid items */
-      gap: 16px; /* Reduced spacing between items */
-      margin-top: 24px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.9); /* Subtle background for better readability */
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 12px; /* Reduced space between icon and text */
-      padding: 12px;
-      background: #f5f5f5; /* Slightly lighter background */
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .feature-item:hover {
-      transform: translateY(-2px); /* Slight lift effect on hover */
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Stronger shadow on hover */
-    }
-
-    .icon-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px; /* Smaller icon size */
-      height: 36px;
-      background: #667eea; /* Primary color for icons */
-      border-radius: 50%;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Shadow for the icon background */
-    }
-
-    .feature-icon {
-      color: white;
-      font-size: 25px; /* Smaller icon size */
-    }
-
-    .feature-text h4 {
-      margin: 0;
-      font-size: 16px; /* Smaller heading font size */
-      font-weight: 500;
-      color: rgba(51, 51, 51, 1);
-    }
-
-    .feature-text p {
-      margin: 2px 0 0;
-      font-size: 12px; /* Smaller paragraph font size */
-      color: #666;
-      line-height: 1.4;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-      .security-features {
-        padding: 8px;
-        gap: 12px;
-      }
-
-      .feature-item {
-        padding: 8px;
-      }
-
-      .icon-wrapper {
-        width: 32px; /* Smaller icon size for mobile */
-        height: 32px;
-      }
-
-      .feature-icon {
-        font-size: 24px;
-      }
-
-      .feature-text h4 {
-        font-size: 14px;
-      }
-
-      .feature-text p {
-        font-size: 11px;
-      }
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 32px;
-      z-index: 1;
-    }
-
-    .footer-text {
-      color: white;
-      margin: 0 0 12px 0;
-      font-size: 15px;
-    }
-
-    .signup-link {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-      transition: border-color 0.2s ease;
-    }
-
-    .signup-link:hover {
-      border-bottom-color: white;
-    }
-
-    .footer-links {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      //flex-direction: row;
-    }
-
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      font-size: 10px;
-      transition: color 0.2s ease;
-    }
-
-    .footer-links a:hover {
-      color: white;
-    }
-
-    .separator {
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 12px;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-      .auth-container {
-        padding: 16px;
-      }
-
-      .auth-card {
-        padding: 24px;
-        border-radius: 20px;
-      }
-
-      .brand-title {
-        font-size: 28px;
-      }
-
-      .welcome-title {
-        font-size: 14px;
-      }
-
-      .welcome-subtitle {
-        font-size: 12px;
-      }
-
-      .card-header h3 {
-        font-size: 22px;
-      }
-
-      .social-btn {
-        height: 52px;
-      }
-
-      .security-features {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-
-      .footer-links {
-        flex-direction: row;
-        gap: 4px;
-      }
-
-      .separator {
-        display: block;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .auth-card {
-        padding: 20px;
-      }
-
-      .logo-section {
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .brand-title {
-        font-size: 24px;
-      }
-
-      .welcome-title {
-        font-size: 15px;
-      }
-    }
-
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-      .auth-card {
-        background: white;
-        border: 2px solid #000;
-      }
-      
-      .social-btn {
-        border-width: 2px;
-      }
-    }
-
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-      .social-btn {
-        transition: none;
-      }
-      
-      .loading-spinner {
-        animation: none;
-      }
-    }
-
+  }
+}
+
+.separator {
+  color: rgba($white, 0.6);
+  font-size: $font-size-xs;
+}
 
 .new-user-banner {
   text-align: center;
-  margin-top: 24px;
+  margin-top: $spacing-6;
   z-index: 1;
   width: 100%;
   max-width: 480px;
 }
 
 .new-user-text {
-  color: white;
+  color: $white;
   margin: 0;
-  font-size: 15px;
-  background: rgba(255, 255, 255, 0.1);
+  font-size: $font-size-base;
+  background: color-mix(in srgb, $surface-color, transparent 90%);
   backdrop-filter: blur(10px);
-  padding: 12px 20px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
+  padding: $spacing-3 $spacing-5;
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($white, 0.2);
 
-.signup-link {
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  transition: border-color 0.2s ease;
-}
+  @include mobile {
+    font-size: $font-size-sm;
+    padding: $spacing-2 $spacing-4;
+  }
 
-.signup-link:hover {
-  border-bottom-color: white;
+  @include small-screen {
+    font-size: $font-size-sm;
+    padding: $spacing-2 $spacing-3;
+  }
 }
 
 /* Remove the old footer-text styles since we're moving it */
@@ -491,21 +409,87 @@ NOTE: The  file should not include the dynmaic theming styles as those are now a
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .new-user-banner {
-    margin-top: 20px;
-    max-width: 100%;
+@include mobile {
+  .auth-container {
+    padding: $spacing-4;
   }
-  
-  .new-user-text {
-    font-size: 14px;
-    padding: 10px 16px;
+
+  .brand-title {
+    font-size: 28px;
+  }
+
+  .welcome-title {
+    font-size: $font-size-sm;
+  }
+
+  .welcome-subtitle {
+    font-size: $font-size-xs;
+  }
+
+  .card-header h3 {
+    font-size: $font-size-xl;
+  }
+
+  .social-btn {
+    height: 52px;
+  }
+
+  .new-user-banner {
+    margin-top: $spacing-5;
+    max-width: 100%;
   }
 }
 
-@media (max-width: 480px) {
-  .new-user-text {
-    font-size: 13px;
-    padding: 8px 12px;
+@include small-screen {
+  .auth-card {
+    padding: $spacing-5;
+  }
+
+  .logo-section {
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  .brand-title {
+    font-size: 24px;
+  }
+
+  .welcome-title {
+    font-size: $font-size-base;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .auth-card {
+    background: $white;
+    border: $border-width-2 solid $text-primary;
+  }
+  
+  .social-btn {
+    border-width: $border-width-2;
+  }
+
+  .feature-item {
+    border: 1px solid $text-primary;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .social-btn,
+  .feature-item,
+  .signup-link,
+  .footer-links a {
+    transition: none;
+  }
+  
+  .loading-spinner {
+    animation: none;
+  }
+
+  .social-btn:hover,
+  .feature-item:hover {
+    transform: none;
   }
 }

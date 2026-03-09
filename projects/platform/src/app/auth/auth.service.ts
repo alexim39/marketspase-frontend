@@ -90,8 +90,8 @@ export class AuthService {
 
     // Optional: You can add custom scopes to request more data from Facebook
     // For example, to get email and public profile:
-    // provider.addScope('email');
-    // provider.addScope('public_profile');
+    provider.addScope('email');
+    provider.addScope('public_profile');
     // Learn more about Facebook scopes here:
     // https://developers.facebook.com/docs/permissions/reference
 
