@@ -1,0 +1,202 @@
+<!-- Navbar -->
+<nav class="landing-nav">
+  <div class="nav-container">
+    <a class="logo" routerLink="/">
+      <img class="logo-icon" src="./img/x_logo.png">
+      <span class="logo-text">MarketSpase</span>
+    </a>
+    <div class="nav-links">
+      <a routerLink="/resources/benefits" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Why choose us</a>
+      <a routerLink="/resources/features" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">What we offer</a>
+      <a routerLink="/resources/how-it-works" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">How it works</a>
+      <a routerLink="/resources/community" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Community</a>
+    </div>
+    <button mat-stroked-button class="nav-cta" (click)="signInWithGoogle()">
+      <mat-icon>login</mat-icon> Sign in
+    </button>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-container">
+    <!-- Left column: value proposition -->
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Turn WhatsApp into a<br><span class="gradient-text">growth engine</span>
+      </h1>
+      <p class="hero-subtitle">
+        MarketSpase connects businesses to customers on WhatsApp through everyday micro-influencers. 
+        Advertize your business, earn commissions to promote businessses. – all inside the world's 
+        most popular advertizing platform.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">10k+</span>
+          <span class="stat-label">Active Influencers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">Brand Partners</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">2M+</span>
+          <span class="stat-label">Customers Reached</span>
+        </div>
+      </div>
+      <div class="hero-cta">
+        <a routerLink="/resources" class="cta-button primary">Get to know us →</a>
+      </div>
+    </div>
+
+    <!-- Right column: authentication card (reused from original) -->
+    <div class="hero-card-wrapper">
+      <div class="auth-card">
+        <div class="card-header">
+          <h3>Sign in to your account</h3>
+          <p>Choose your preferred sign-in method</p>
+        </div>
+
+        <div class="auth-providers">
+          @for (provider of socialProviders; track provider) {
+            <div>
+              <button
+                mat-stroked-button
+                class="social-btn"
+                [style.border-color]="provider.color"
+                [style.color]="provider.color"
+                (click)="provider.method()"
+                matRipple
+                [matRippleColor]="provider.color + '20'"
+              >
+                <div class="btn-content">
+                  <mat-icon [style.color]="provider.color">{{ provider.icon }}</mat-icon>
+                  <span>Continue with {{ provider.name }}</span>
+                </div>
+              </button>
+            </div>
+          }
+
+          @if (isLoading) {
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+              <p>
+                @if (currentProvider === 'Verifying') {
+                  Verifying your account...
+                } @else {
+                  Connecting to {{ currentProvider }}...
+                }
+              </p>
+            </div>
+          }
+        </div>
+
+        <div class="divider">
+          <span class="divider-text">Secure & Trusted</span>
+        </div>
+
+        <div class="security-features compact">
+          <div class="feature-item">
+            <mat-icon class="feature-icon-small">security</mat-icon>
+            <span>End-to-end encrypted</span>
+          </div>
+          <div class="feature-item">
+            <mat-icon class="feature-icon-small">verified</mat-icon>
+            <span>Verified campaigns</span>
+          </div>
+        </div>
+
+        <p class="terms-note">By signing up, you agree to our <a href="/legal/terms">Terms</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+  <div class="section-header">
+    <h2>Why choose MarketSpase?</h2>
+    <p>Everything you need to succeed in WhatsApp marketing</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>campaign</mat-icon></div>
+      <h4>Easy Campaign Management</h4>
+      <p>Create and manage ads that promoters can easily discover and promote.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>payments</mat-icon></div>
+      <h4>Secure Wallet System</h4>
+      <p>Manage campaign funding, track earnings, and receive commissions through the MarketSpase wallet.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>insights</mat-icon></div>
+      <h4>Real‑time Analytics</h4>
+      <p>Track campaign performance, clicks, and conversions in one dashboard.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper fa fa-whatsapp"></div>
+      <h4>Promote via WhatsApp Status</h4>
+      <p>Promoters pick ads or products from store and share them on their WhatsApp Status.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>verified_user</mat-icon></div>
+      <h4>Fraud Protection</h4>
+      <p>AI verification ensures genuine engagement and protects against bots.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>support_agent</mat-icon></div>
+      <h4>24/7 Support</h4>
+      <p>Dedicated support for both influencers and businesses.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>share</mat-icon></div>
+      <h4>Community Forum</h4>
+      <p>Connect with marketers and promoters, discuss, and learn new ways to grow and earn.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon-wrapper"><mat-icon>language</mat-icon></div>
+      <h4>Expand Your Reach</h4>
+      <p>Promoters help businesses reach new customers by sharing ads and products across their networks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section id="how-it-works" class="how-it-works">
+  <div class="section-header">
+    <h2>How it works</h2>
+    <p>Three simple steps to start your first campaign</p>
+  </div>
+  <div class="steps-container">
+    <div class="step">
+      <div class="step-number">1</div>
+      <mat-icon class="step-icon">person_add</mat-icon>
+      <h4>Sign up</h4>
+      <p>Create your free account using any of your prefered social network – takes less than 30 seconds.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">2</div>
+      <mat-icon class="step-icon">connect_without_contact</mat-icon>
+      <h4>Profile Setup</h4>
+      <p>Go to settings and complete your profile by entering your WhatsApp number other details.</p>
+    </div>
+    <div class="step">
+      <div class="step-number">3</div>
+      <mat-icon class="step-icon">rocket_launch</mat-icon>
+      <h4>Start</h4>
+      <p>Choose business to promote or create your business for others to promote.</p>
+    </div>
+  </div>
+  <div class="cta-center">
+    <a routerLink="/resources" class="cta-button secondary">Learn more →</a>
+  </div>
+</section>
+
+<!-- Testimonials / Influencer Highlights -->
+<section id="testimonials" class="testimonials-section">
+  <async-dashboard-testimonials />
+</section>
+
+<!-- Footer -->
+<app-footer/>

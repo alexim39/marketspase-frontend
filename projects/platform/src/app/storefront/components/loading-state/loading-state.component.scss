@@ -1,4 +1,4 @@
-// loading-state.component.scss (DARK THEME ONLY)
+// loading-state.component.scss (DYNAMIC THEMING)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -7,7 +7,7 @@
   min-height: 400px;
   text-align: center;
   padding: $spacing-20 0;
-  background: $gray-900; // Dark background
+  background: $background-color;
 
   .spinner-container {
     position: relative;
@@ -15,7 +15,7 @@
 
     ::ng-deep mat-spinner {
       circle {
-        stroke: $primary-light-hex !important; // Light primary for spinner
+        stroke: $primary-color !important;
       }
     }
 
@@ -24,7 +24,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: $primary-light-hex; // Light primary
+      color: $primary-color;
       font-size: 24px;
       width: 24px;
       height: 24px;
@@ -34,7 +34,7 @@
 
   .loading-text {
     @include body-large;
-    color: $gray-200; // Light gray
+    color: $text-primary;
     margin-bottom: $spacing-2;
     font-size: $font-size-lg;
     font-weight: $font-weight-medium;
@@ -42,7 +42,7 @@
 
   .loading-subtext {
     @include body-medium;
-    color: $gray-400; // Mid gray
+    color: $text-secondary;
   }
 }
 
@@ -55,5 +55,24 @@
   50% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .store-icon {
+    animation: none !important;
+  }
+  
+  ::ng-deep mat-spinner circle {
+    animation: none !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .loading-state {
+    border: 2px solid $text-primary;
+    border-radius: $border-radius-lg;
   }
 }

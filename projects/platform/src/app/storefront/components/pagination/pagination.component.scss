@@ -1,4 +1,4 @@
-// pagination.component.scss (DARK THEME ONLY)
+// pagination.component.scss (DYNAMIC THEMING)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
@@ -6,16 +6,16 @@
   @include flex-center;
   gap: $spacing-4;
   padding: $spacing-8 0;
-  border-top: 1px solid $gray-700; // Dark border
+  border-top: 1px solid $border-color;
 
   .pagination-info {
     @include body-medium;
-    color: $gray-300; // Light gray
+    color: $text-secondary;
     margin-right: auto;
 
     .total-items {
       margin-left: $spacing-2;
-      color: $gray-500; // Mid gray
+      color: $text-tertiary;
       font-size: $font-size-sm;
     }
   }
@@ -28,10 +28,10 @@
     button {
       min-width: 40px;
       height: 40px;
-      padding: 0;
-      background: $gray-800; // Dark button background
-      color: $gray-200; // Light text
-      border: 1px solid $gray-700; // Dark border
+      padding: 0 $spacing-2;
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      color: $text-primary;
+      border: 1px solid $border-color;
       border-radius: $border-radius;
       display: inline-flex;
       align-items: center;
@@ -42,29 +42,35 @@
       font-weight: $font-weight-medium;
 
       &:disabled {
-        background: $gray-700;
-        color: $gray-600;
+        background: color-mix(in srgb, $surface-color, $black 15%);
+        color: $text-tertiary;
         opacity: 0.6;
         cursor: not-allowed;
-        border-color: $gray-600;
+        border-color: $border-color;
       }
 
       &.active {
-        background: $primary-light-hex; // Light primary
-        color: $gray-900; // Dark text on primary
+        background: $primary-color;
+        color: $white;
         box-shadow: $shadow-sm;
-        border-color: $primary-light-hex;
+        border-color: $primary-color;
       }
 
       &:hover:not(:disabled):not(.active) {
-        background: $gray-700; // Lighter on hover
-        color: $gray-100;
-        border-color: $gray-600;
+        background: color-mix(in srgb, $surface-color, $black 15%);
+        color: $text-primary;
+        border-color: color-mix(in srgb, $border-color, $black 10%);
       }
       
       &:focus-visible {
-        outline: 2px solid $primary-light-hex;
+        outline: 2px solid $primary-color;
         outline-offset: 2px;
+      }
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
     }
 
@@ -73,11 +79,13 @@
       gap: $spacing-1;
 
       .ellipsis {
-        color: $gray-600; // Mid gray
+        color: $text-tertiary;
         padding: $spacing-2;
         display: flex;
         align-items: center;
         font-size: $font-size-sm;
+        min-width: 40px;
+        justify-content: center;
       }
     }
   }
@@ -89,21 +97,34 @@
     ::ng-deep {
       .mat-form-field {
         .mat-form-field-wrapper {
+          padding-bottom: 0;
+          
           .mat-form-field-flex {
-            background: $gray-800; // Dark background
-            border: 1px solid $gray-700; // Dark border
+            background: color-mix(in srgb, $surface-color, $black 5%);
+            border: 1px solid $border-color;
+            border-radius: $border-radius;
+            padding: 0 $spacing-2;
+            height: 40px;
+            align-items: center;
             
             .mat-form-field-infix {
               border-top: none;
+              padding: $spacing-2 0;
               
               .mat-select {
                 .mat-select-value {
-                  color: $gray-200; // Light text
+                  color: $text-primary;
                 }
                 
                 .mat-select-arrow {
-                  color: $gray-400; // Light gray
+                  color: $text-tertiary;
                 }
+              }
+            }
+            
+            .mat-form-field-label-wrapper {
+              .mat-form-field-label {
+                color: $text-tertiary;
               }
             }
           }
@@ -111,25 +132,94 @@
           .mat-form-field-underline {
             display: none;
           }
+          
+          .mat-form-field-subscript-wrapper {
+            display: none;
+          }
         }
       }
       
       .mat-select-panel {
-        background: $gray-800; // Dark dropdown
-        border: 1px solid $gray-700;
+        background: $surface-color;
+        border: 1px solid $border-color;
+        border-radius: $border-radius;
+        box-shadow: $shadow-lg;
         
         .mat-option {
-          color: $gray-200; // Light text
+          color: $text-secondary;
+          height: 40px;
           
           &:hover:not(.mat-option-disabled) {
-            background: $gray-700; // Lighter on hover
+            background: color-mix(in srgb, $surface-color, $black 10%);
           }
           
           &.mat-selected:not(.mat-option-multiple) {
-            background: rgba($primary-light-hex, 0.15); // Primary tint
-            color: $primary-light-hex; // Light primary
+            background: color-mix(in srgb, $primary-color, transparent 85%);
+            color: $primary-color;
+          }
+          
+          .mat-option-text {
+            color: inherit;
           }
         }
+      }
+    }
+  }
+}
+
+// Mobile Responsive
+@include mobile {
+  .pagination {
+    flex-direction: column;
+    gap: $spacing-4;
+    
+    .pagination-info {
+      margin-right: 0;
+      text-align: center;
+    }
+    
+    .pagination-controls {
+      flex-wrap: wrap;
+      justify-content: center;
+      
+      button {
+        min-width: 36px;
+        height: 36px;
+      }
+      
+      .page-numbers {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: $spacing-2;
+      }
+    }
+    
+    .page-size-selector {
+      margin-left: 0;
+      width: 100%;
+      max-width: 150px;
+    }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .pagination button {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .pagination {
+    button {
+      border-width: 2px;
+      
+      &.active {
+        border-width: 3px;
+        border-color: $text-primary;
       }
     }
   }

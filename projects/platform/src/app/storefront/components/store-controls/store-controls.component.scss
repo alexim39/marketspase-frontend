@@ -1,15 +1,15 @@
-// store-controls.component.scss (DARK THEME ONLY)
+// store-controls.component.scss (DYNAMIC THEMING)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
 .store-controls {
-  background-color: color-mix(in srgb, $primary-light-hex, $gray-900 15%); // Dark theme mix
+  background-color: color-mix(in srgb, $primary-color, $surface-color 90%);
   border-radius: $border-radius-lg;
   padding: $spacing-6;
   margin-bottom: $spacing-8;
   margin-top: $spacing-4;
   box-shadow: $shadow-lg;
-  border: 1px solid $gray-700; // Dark border
+  border: 1px solid $border-color;
   position: sticky;
   top: 16px;
   z-index: $z-index-sticky;
@@ -19,7 +19,7 @@
   &.sticky {
     box-shadow: $shadow-xl;
     transform: translateY(-2px);
-    border-color: $gray-600; // Lighter border when sticky
+    border-color: color-mix(in srgb, $border-color, $black 10%);
   }
 
   .controls-header {
@@ -34,35 +34,47 @@
 
     .results-info {
       @include body-medium;
-      color: $gray-300; // Light gray
+      color: $text-secondary;
       font-weight: $font-weight-medium;
     }
 
     .view-toggle {
       display: flex;
       gap: $spacing-1;
-      background: $gray-800; // Dark background
+      background: color-mix(in srgb, $surface-color, $black 5%);
       padding: $spacing-1;
       border-radius: $border-radius;
-      border: 1px solid $gray-700;
+      border: 1px solid $border-color;
 
       button {
         padding: $spacing-2 $spacing-3;
         border-radius: $border-radius-sm;
-        color: $gray-400; // Light gray
+        color: $text-tertiary;
         background: transparent;
         border: none;
         transition: all $transition-fast;
+        @include flex-center;
 
         &.active {
-          background: $primary-light-hex; // Light primary
-          color: $gray-900; // Dark text on primary
+          background: $primary-color;
+          color: $white;
           box-shadow: $shadow-sm;
         }
 
         &:hover:not(.active) {
-          background: $gray-700; // Lighter on hover
-          color: $gray-200;
+          background: color-mix(in srgb, $surface-color, $black 15%);
+          color: $text-primary;
+        }
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+        
+        &:focus-visible {
+          outline: 2px solid $primary-color;
+          outline-offset: 2px;
         }
       }
     }
@@ -85,32 +97,32 @@
         left: $spacing-3;
         top: 50%;
         transform: translateY(-50%);
-        color: $gray-500; // Mid gray
+        color: $text-tertiary;
         z-index: 1;
       }
 
       input {
         width: 100%;
         padding: $spacing-2 $spacing-3;
-        border: 2px solid $gray-700; // Dark border
+        border: 2px solid $border-color;
         border-radius: $border-radius-full;
         font-size: $font-size-base;
         line-height: $line-height-normal;
         transition: border-color $transition-normal, box-shadow $transition-normal;
-        background-color: $gray-800; // Dark input background
-        color: $gray-100; // Light text
+        background-color: color-mix(in srgb, $surface-color, $black 5%);
+        color: $text-primary;
         padding-left: $spacing-10;
         padding-right: $spacing-10;
         height: 48px;
 
         &:focus {
           outline: none;
-          border-color: $primary-light-hex; // Light primary
-          box-shadow: 0 0 0 3px rgba($primary-light-hex, 0.15);
+          border-color: $primary-color;
+          box-shadow: 0 0 0 3px color-mix(in srgb, $primary-color, transparent 85%);
         }
 
         &::placeholder {
-          color: $gray-500; // Mid gray
+          color: $text-tertiary;
         }
       }
 
@@ -123,32 +135,45 @@
         gap: $spacing-1;
 
         button {
-          background: $gray-700;
-          color: $gray-300;
-          border: 1px solid $gray-600;
-
+          background: color-mix(in srgb, $surface-color, $black 15%);
+          color: $text-secondary;
+          border: 1px solid $border-color;
+          transition: all $transition-fast;
+          
           &:hover {
-            background: $gray-600;
-            color: $gray-100;
+            background: color-mix(in srgb, $surface-color, $black 25%);
+            color: $text-primary;
+          }
+          
+          &:focus-visible {
+            outline: 2px solid $primary-color;
+            outline-offset: 2px;
           }
         }
       }
     }
 
     .filter-toggle {
+      @include button-outline;
       white-space: nowrap;
       height: 48px;
-      background: $gray-700; // Dark button
-      color: $gray-100; // Light text
-      border: 1px solid $gray-600;
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      color: $text-primary;
+      border: 1px solid $border-color;
+      @include flex-center;
+      gap: $spacing-2;
 
       &:hover {
-        background: $gray-600;
-        color: $white-hex;
+        background: color-mix(in srgb, $surface-color, $black 15%);
+        color: $text-primary;
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
       }
 
       mat-icon {
-        margin-right: $spacing-2;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
     }
 
@@ -159,21 +184,31 @@
         .mat-form-field {
           .mat-form-field-wrapper {
             .mat-form-field-flex {
-              background: $gray-800; // Dark background
-              border: 1px solid $gray-700; // Dark border
+              background: color-mix(in srgb, $surface-color, $black 5%);
+              border: 1px solid $border-color;
               border-radius: $border-radius;
+              padding: 0 $spacing-2;
+              height: 48px;
+              align-items: center;
               
               .mat-form-field-infix {
                 border-top: none;
+                padding: $spacing-2 0;
                 
                 .mat-select {
                   .mat-select-value {
-                    color: $gray-200; // Light text
+                    color: $text-primary;
                   }
                   
                   .mat-select-arrow {
-                    color: $gray-400; // Light gray
+                    color: $text-tertiary;
                   }
+                }
+              }
+              
+              .mat-form-field-label-wrapper {
+                .mat-form-field-label {
+                  color: $text-tertiary;
                 }
               }
             }
@@ -181,23 +216,33 @@
             .mat-form-field-underline {
               display: none;
             }
+            
+            .mat-form-field-subscript-wrapper {
+              display: none;
+            }
           }
         }
         
         .mat-select-panel {
-          background: $gray-800; // Dark dropdown
-          border: 1px solid $gray-700;
+          background: $surface-color;
+          border: 1px solid $border-color;
+          border-radius: $border-radius;
+          box-shadow: $shadow-lg;
           
           .mat-option {
-            color: $gray-200; // Light text
+            color: $text-secondary;
             
             &:hover:not(.mat-option-disabled) {
-              background: $gray-700; // Lighter on hover
+              background: color-mix(in srgb, $surface-color, $black 10%);
             }
             
             &.mat-selected:not(.mat-option-multiple) {
-              background: rgba($primary-light-hex, 0.15); // Primary tint
-              color: $primary-light-hex; // Light primary
+              background: color-mix(in srgb, $primary-color, transparent 85%);
+              color: $primary-color;
+            }
+            
+            .mat-option-text {
+              color: inherit;
             }
           }
         }
@@ -211,41 +256,99 @@
     gap: $spacing-2;
     margin-top: $spacing-4;
     padding-top: $spacing-4;
-    border-top: 1px solid $gray-700; // Dark border
+    border-top: 1px solid $border-color;
 
     .filter-chip {
       @include body-small;
-      background: $gray-800; // Dark background
-      border: 1px solid $gray-700; // Dark border
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      border: 1px solid $border-color;
       border-radius: $border-radius-full;
       padding: $spacing-1 $spacing-3;
       display: inline-flex;
       align-items: center;
       gap: $spacing-1;
-      color: $gray-300; // Light gray
+      color: $text-secondary;
 
       button {
         margin-left: $spacing-1;
         opacity: 0.6;
-        color: $gray-500;
+        color: $text-tertiary;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        @include flex-center;
         
         &:hover {
           opacity: 1;
-          color: $gray-300;
+          color: $text-primary;
+          background: color-mix(in srgb, $surface-color, $black 15%);
+          border-radius: 50%;
+        }
+        
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
         }
       }
     }
 
     .clear-all {
+      @include button-ghost;
       margin-left: auto;
-      background: $gray-700;
-      color: $gray-200;
-      border: 1px solid $gray-600;
+      background: transparent;
+      color: $primary-color;
+      border: 1px solid $border-color;
+      padding: $spacing-1 $spacing-3;
+      font-size: $font-size-sm;
 
       &:hover {
-        background: $gray-600;
-        color: $gray-100;
+        background: color-mix(in srgb, $primary-color, transparent 90%);
+        color: $primary-color;
+        transform: translateY(-1px);
+      }
+      
+      &:focus-visible {
+        outline: 2px solid $primary-color;
+        outline-offset: 2px;
       }
     }
+  }
+}
+
+// =========================================
+// ACCESSIBILITY IMPROVEMENTS
+// =========================================
+
+.store-controls {
+  &:focus-within {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .store-controls,
+  .store-controls button,
+  .store-controls input {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .store-controls {
+    border-width: 2px;
+    border-color: $text-primary;
+  }
+  
+  .filter-chip {
+    border-width: 2px;
+  }
+  
+  input {
+    border-width: 2px;
   }
 }

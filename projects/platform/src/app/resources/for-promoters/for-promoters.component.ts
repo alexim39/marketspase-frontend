@@ -7,8 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
-import { HeaderComponent } from '../header/header.component';
-import { FooterComponent } from '../footer/footer.component';
+import { HeaderComponent } from '../core/header/header.component';
+import { FooterComponent } from '../core/footer/footer.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 interface Benefit {

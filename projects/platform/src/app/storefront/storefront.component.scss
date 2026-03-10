@@ -1,11 +1,11 @@
-// storefront.component.scss (DARK THEME ONLY)
+// storefront.component.scss (DYNAMIC THEMING)
 @import '../../styles/mixins';
 @import '../../styles/variables';
 
 .storefront-page {
   min-height: 100vh;
-  background-color: $gray-900; // Dark background
-  color: $gray-100; // Light text for contrast
+  background-color: $background-color;
+  color: $text-primary;
   position: relative;
   overflow-x: hidden;
 
@@ -29,10 +29,10 @@
     .featured-section {
       margin-bottom: $spacing-12;
       padding: $spacing-6;
-      background: $gray-800; // Dark surface
+      background: $surface-color;
       border-radius: $border-radius-lg;
       box-shadow: $shadow-lg;
-      border: 1px solid $gray-700; // Dark border
+      border: 1px solid $border-color;
 
       .section-header {
         @include flex-between;
@@ -40,14 +40,25 @@
 
         h2 {
           @include heading-small;
-          color: $gray-50; // Very light text
+          color: $text-primary;
           margin: 0;
           display: flex;
           align-items: center;
           gap: $spacing-2;
 
           mat-icon {
-            color: $warning-color-hex; // Using hex value
+            color: $warning-color;
+          }
+        }
+
+        a {
+          color: $primary-color;
+          display: flex;
+          align-items: center;
+          gap: $spacing-1;
+          
+          &:hover {
+            color: color-mix(in srgb, $primary-color, $white 20%);
           }
         }
       }
@@ -65,12 +76,12 @@
         .featured-card {
           scroll-snap-align: start;
           min-width: 280px;
-          background: $gray-800; // Dark card background
+          background: $surface-color;
           border-radius: $border-radius-lg;
           overflow: hidden;
           @include card-hover;
           position: relative;
-          border: 1px solid $gray-700; // Dark border
+          border: 1px solid $border-color;
 
           &::before {
             content: '';
@@ -79,12 +90,12 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
+            background: $gradient-primary;
           }
 
           .card-content {
             padding: $spacing-4;
-            color: $gray-100; // Light text in cards
+            color: $text-primary;
           }
         }
       }
@@ -125,16 +136,16 @@
 
       .featured-section {
         padding: $spacing-4;
-        background: $gray-800;
-        border-color: $gray-700;
+        background: $surface-color;
+        border-color: $border-color;
 
         .featured-carousel {
           gap: $spacing-3;
           
           .featured-card {
             min-width: 240px;
-            background: $gray-800;
-            border-color: $gray-700;
+            background: $surface-color;
+            border-color: $border-color;
           }
         }
       }
@@ -158,8 +169,44 @@
   }
 }
 
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .storefront-page,
+  .storefront-page * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .storefront-page {
+    .featured-section,
+    .featured-card,
+    .products-grid,
+    .products-list {
+      border-width: 2px;
+      border-color: $text-primary;
+    }
+  }
+}
+
 // Animations
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+// Print styles
+@media print {
+  .storefront-page {
+    background: $white;
+    color: $black;
+    
+    .featured-section,
+    .products-grid,
+    .products-list {
+      break-inside: avoid;
+    }
+  }
 }

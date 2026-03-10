@@ -106,9 +106,12 @@
               (click)="onSubmit()"
               [disabled]="threadForm.invalid || !user || isSubmitting">
         <div class="submit-button-content">
-          <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
-          <span *ngIf="!isSubmitting">Create Thread</span>
-          <span *ngIf="isSubmitting">Creating...</span>
+          @if (!isSubmitting) {
+            <span>Create Thread</span>
+          } @else {
+            <mat-spinner diameter="20"/>
+            <span>Creating...</span>
+          }
         </div>
       </button>
     </mat-dialog-actions>

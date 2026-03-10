@@ -18,12 +18,12 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, switchMap, tap } from 'rxjs';
 
-import { ForumService, Thread, Comment } from '../forum.service';
-import { CommentComponent } from '../comment/comment.component';
-import { timeAgo as timeAgoUtil } from '../../../common/utils/time.util';
-import { SanitizeHtmlPipe } from '../../../common/pipes/sanitize-html.pipe';
-import { UserService } from '../../../common/services/user.service';
-import { ApiService } from '../../../../../../shared-services/src/public-api';
+import { ForumService, Thread, Comment } from '../../forum.service';
+import { CommentComponent } from '../../comment/comment.component';
+import { timeAgo as timeAgoUtil } from '../../../../common/utils/time.util';
+import { SanitizeHtmlPipe } from '../../../../common/pipes/sanitize-html.pipe';
+import { UserService } from '../../../../common/services/user.service';
+import { ApiService } from '../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-thread-detail',
@@ -43,154 +43,7 @@ import { ApiService } from '../../../../../../shared-services/src/public-api';
     CommentComponent,
     SanitizeHtmlPipe
   ],
-  template: `
-  <div class="thread-detail-container">
-    <!-- Back Navigation -->
-    <button mat-button class="back-button" (click)="handleBack()">
-      <mat-icon>arrow_back</mat-icon>
-      Back to Forum
-    </button>
-
-    <!-- Loading State -->
-    <div *ngIf="loadingStates" class="loading-state">
-      <mat-spinner diameter="50"></mat-spinner>
-      <p>Loading thread...</p>
-    </div>
-
-    <!-- Error State -->
-    <div *ngIf="error && !loadingStates" class="error-state">
-      <mat-icon color="warn">error_outline</mat-icon>
-      <p>{{ error }}</p>
-      <button mat-raised-button color="primary" (click)="loadThreadData()">
-        Retry
-      </button>
-    </div>
-
-    <!-- Thread Content -->
-    @if (thread && !loadingStates) {
-    <ng-container>
-      <mat-card class="thread-card">
-        <mat-card-header>
-          <img mat-card-avatar 
-               [src]="thread.author.avatar || 'img/avatar.png'" 
-               [alt]="thread.author.displayName">
-          <mat-card-title>{{ thread.title }}</mat-card-title>
-          <mat-card-subtitle>
-            <span class="author-info">
-              <span>{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
-            </span>
-            <span class="spacer"></span>
-            <span class="time">{{ timeAgo(thread.createdAt) }}</span>
-          </mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <!-- Media Display -->
-           @if (thread.media) {
-            <div class="thread-media">
-              <img *ngIf="thread.media.type === 'image'" 
-                  [src]="thread.media.url" 
-                  [alt]="thread.media.originalName"
-                  class="media-content">
-              <video *ngIf="thread.media.type === 'video'" 
-                    controls 
-                    class="media-content">
-                <source [src]="thread.media.url">
-                <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
-              </video>
-              <audio *ngIf="thread.media.type === 'audio'" 
-                    controls 
-                    class="media-content">
-                <source [src]=" thread.media.url">
-                <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
-              </audio>
-            </div>
-           }
-
-          <div class="thread-content" [innerHTML]="thread.content | sanitizeHtml"></div>
-          
-          <mat-chip-listbox class="thread-tags">
-            <mat-chip *ngFor="let tag of thread.tags" 
-                     color="primary">
-              {{ tag }}
-            </mat-chip>
-          </mat-chip-listbox>
-        </mat-card-content>
-
-        <mat-card-actions class="thread-actions">
-          <button mat-button 
-                  [color]="thread.isLiked ? 'accent' : 'primary'"
-                  (click)="toggleLikeThread()"
-                  aria-label="Like thread"
-                  [attr.aria-pressed]="thread.isLiked">
-            <mat-icon>thumb_up</mat-icon>
-            {{ thread.likeCount }}
-          </button>
-          <button mat-button color="primary" disabled>
-            <mat-icon>comment</mat-icon>
-            {{ thread.commentCount }}
-          </button>
-          <button mat-button color="primary" disabled>
-            <mat-icon>visibility</mat-icon>
-            {{ thread.viewCount }}
-          </button>
-        </mat-card-actions>
-        
-      </mat-card>
-
-      <!-- Comment Section -->
-      <section class="comment-section" aria-labelledby="comments-heading">
-        <h3 id="comments-heading">Comments ({{ thread.commentCount }})</h3>
-
-        <!-- Comment Form -->
-        <form [formGroup]="commentForm" class="comment-form">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Add your comment</mat-label>
-            <textarea matInput 
-                    formControlName="content"
-                    rows="4"
-                    aria-label="Comment text area"
-                    [attr.maxlength]="2000"></textarea>
-            <mat-hint align="end">{{ remainingChars }} characters remaining</mat-hint>
-          </mat-form-field>
-          <button mat-raised-button 
-                  color="primary"
-                  (click)="addComment()"
-                  [disabled]="commentForm.invalid || isSubmitting || !user()"
-                  aria-label="Post comment">
-            <span *ngIf="!isSubmitting">Post Comment</span>
-            <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
-          </button>
-        </form>
-
-        <!-- Comments Loading -->
-        <div *ngIf="loadingStates" class="loading-comments">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
-
-        <!-- Comments List -->
-        <div class="comments-list">
-          <app-comment *ngFor="let comment of comments; trackBy: trackByCommentId"
-            [comment]="comment"
-            [threadId]="thread._id"
-            [isAuthor]="isCommentAuthor(comment)"
-            (likeComment)="toggleLikeComment($event)"
-            (commentDeleted)="onCommentDeleted($event)">
-          </app-comment>
-
-          <!-- Empty State -->
-           @if (comments.length === 0) {
-          <div class="no-comments">
-            <mat-icon>forum</mat-icon>
-            <p>No comments yet. Be the first to comment!</p>
-          </div>
-           }
-        </div>
-      </section>
-    </ng-container>
-    }
-  </div>
-  `,
+  templateUrl: './thread-detail.component.html',
   styleUrls: ['./thread-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -225,7 +78,6 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-   // this.loadCurrentUser();
     this.loadThreadData();
   }
 
@@ -249,15 +101,6 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
         return '';
     }
   }
-
-  // private loadCurrentUser(): void {
-  //   this.userService.getCurrentUser$.pipe(
-  //     takeUntil(this.destroy$)
-  //   ).subscribe(user => {
-  //     this.currentUser = user;
-  //     this.cd.markForCheck();
-  //   });
-  // }
 
   public loadThreadData(): void {
     this.route.params.pipe(
@@ -403,5 +246,9 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
 
   timeAgo(date: string | Date): string {
     return timeAgoUtil(date);
+  }
+
+  viewProfile(userId: string) {
+    this.router.navigate(['/dashboard/profile', userId]);
   }
 }

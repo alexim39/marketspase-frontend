@@ -11,8 +11,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { FooterComponent } from '../footer/footer.component';
-import { HeaderComponent } from '../header/header.component';
+import { FooterComponent } from '../core/footer/footer.component';
+import { HeaderComponent } from '../core/header/header.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ContactFormData, ContactService } from './contact.service';
 

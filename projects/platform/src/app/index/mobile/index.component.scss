@@ -1,0 +1,495 @@
+/* 
+This is the SCSS file for the index component of the platform application. 
+It styles the authentication page, including the container, header, welcome section, authentication card, social login buttons, loading overlay, divider, security features section, and footer. 
+The styles focus on a modern, clean design with responsiveness for mobile devices, as well as support for high contrast mode and reduced motion
+
+NOTE: The file now uses dynamic theming variables from the global styles.
+*/
+
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.auth-container {
+  min-height: 100vh;
+  background: $gradient-primary;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.15"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    pointer-events: none;
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+  z-index: 1;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+  margin-bottom: $spacing-6;
+}
+
+.logo-icon {
+  img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+}
+
+.brand-title {
+  color: $white;
+  font-size: 32px;
+  font-weight: $font-weight-bold;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.welcome-section {
+  color: $white;
+}
+
+.welcome-title {
+  font-size: 18px;
+  font-weight: $font-weight-semibold;
+  margin: 0 0 $spacing-2 0;
+  opacity: 0.95;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.8;
+  max-width: 400px;
+  line-height: $line-height-relaxed;
+}
+
+.auth-card {
+  background-color: color-mix(in srgb, $surface-color, white 1%);
+  backdrop-filter: blur(20px);
+  border-radius: $border-radius-xl;
+  padding: $spacing-10;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: $shadow-xl, 0 0 0 1px rgba($white, 0.2);
+  border: 1px solid rgba($white, 0.2);
+  z-index: 1;
+
+  @include mobile {
+    padding: $spacing-6;
+    border-radius: $border-radius-lg;
+  }
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: $spacing-8;
+
+  h3 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-2 0;
+    color: $text-primary;
+  }
+
+  p {
+    color: $text-secondary;
+    margin: 0;
+    font-size: $font-size-base;
+  }
+}
+
+.auth-providers {
+  position: relative;
+}
+
+.social-btn {
+  width: 100%;
+  height: 56px;
+  margin-bottom: $spacing-4;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  transition: all $transition-normal;
+  border-width: $border-width-2;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: color-mix(in srgb, $background-color, black 5%);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: $border-radius-lg;
+  z-index: 10;
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $border-color;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: $spacing-3;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: $spacing-8 0;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $gray-300, transparent);
+  }
+}
+
+.divider-text {
+  background: color-mix(in srgb, $surface-color, $white 90%);
+  padding: 0 $spacing-5;
+  font-size: $font-size-xs;
+  color: $text-tertiary;
+  font-weight: $font-weight-light;
+  z-index: 1;
+  position: relative;
+  border-radius: $border-radius-full;
+}
+
+.security-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-4;
+  margin-top: $spacing-6;
+  padding: $spacing-3;
+  background: color-mix(in srgb, $surface-color, $white 10%);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+
+  @include mobile {
+    padding: $spacing-2;
+    gap: $spacing-3;
+    grid-template-columns: 1fr;
+  }
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  background: color-mix(in srgb, $surface-color, $white 5%);
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  transition: transform $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  @include mobile {
+    padding: $spacing-2;
+  }
+}
+
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: $primary-color;
+  border-radius: 50%;
+  box-shadow: $shadow-sm;
+
+  @include mobile {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.feature-icon {
+  color: $white;
+  font-size: 25px;
+
+  @include mobile {
+    font-size: 24px;
+  }
+}
+
+.feature-text {
+  h4 {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+
+    @include mobile {
+      font-size: $font-size-sm;
+    }
+  }
+
+  p {
+    margin: $spacing-1 0 0;
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    line-height: $line-height-normal;
+
+    @include mobile {
+      font-size: $font-size-xs;
+    }
+  }
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: $spacing-8;
+  z-index: 1;
+}
+
+.footer-text {
+  color: $white;
+  margin: 0 0 $spacing-3 0;
+  font-size: $font-size-base;
+}
+
+.signup-link {
+  color: $white;
+  text-decoration: none;
+  font-weight: $font-weight-semibold;
+  border-bottom: 1px solid rgba($white, 0.5);
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-bottom-color: $white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $white;
+    outline-offset: 2px;
+  }
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+
+  @include mobile {
+    flex-direction: row;
+    gap: $spacing-1;
+  }
+
+  a {
+    color: rgba($white, 0.8);
+    text-decoration: none;
+    font-size: $font-size-xs;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $white;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $white;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.separator {
+  color: rgba($white, 0.6);
+  font-size: $font-size-xs;
+}
+
+.new-user-banner {
+  text-align: center;
+  margin-top: $spacing-6;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+}
+
+.new-user-text {
+  color: $white;
+  margin: 0;
+  font-size: $font-size-base;
+  background: color-mix(in srgb, $surface-color, transparent 90%);
+  backdrop-filter: blur(10px);
+  padding: $spacing-3 $spacing-5;
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($white, 0.2);
+
+  @include mobile {
+    font-size: $font-size-sm;
+    padding: $spacing-2 $spacing-4;
+  }
+
+  @include small-screen {
+    font-size: $font-size-sm;
+    padding: $spacing-2 $spacing-3;
+  }
+}
+
+/* Remove the old footer-text styles since we're moving it */
+.auth-footer .footer-text {
+  display: none;
+}
+
+/* Mobile Responsiveness */
+@include mobile {
+  .auth-container {
+    padding: $spacing-4;
+  }
+
+  .brand-title {
+    font-size: 28px;
+  }
+
+  .welcome-title {
+    font-size: $font-size-sm;
+  }
+
+  .welcome-subtitle {
+    font-size: $font-size-xs;
+  }
+
+  .card-header h3 {
+    font-size: $font-size-xl;
+  }
+
+  .social-btn {
+    height: 52px;
+  }
+
+  .new-user-banner {
+    margin-top: $spacing-5;
+    max-width: 100%;
+  }
+}
+
+@include small-screen {
+  .auth-card {
+    padding: $spacing-5;
+  }
+
+  .logo-section {
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  .brand-title {
+    font-size: 24px;
+  }
+
+  .welcome-title {
+    font-size: $font-size-base;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .auth-card {
+    background: $white;
+    border: $border-width-2 solid $text-primary;
+  }
+  
+  .social-btn {
+    border-width: $border-width-2;
+  }
+
+  .feature-item {
+    border: 1px solid $text-primary;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .social-btn,
+  .feature-item,
+  .signup-link,
+  .footer-links a {
+    transition: none;
+  }
+  
+  .loading-spinner {
+    animation: none;
+  }
+
+  .social-btn:hover,
+  .feature-item:hover {
+    transform: none;
+  }
+}

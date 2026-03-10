@@ -1,10 +1,10 @@
-// product-list-item.component.scss (DARK THEME ONLY)
+// product-list-item.component.scss (DYNAMIC THEMING - UPDATED)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
 .product-list-item {
-  background: $gray-800; // Dark background
-  border: 1px solid $gray-700; // Dark border
+  background: $surface-color;
+  border: 1px solid $border-color;
   transition: all $transition-normal;
   animation: slideInUp 0.3s ease-out;
   animation-fill-mode: both;
@@ -15,9 +15,9 @@
 
   &:hover {
     transform: translateX(8px);
-    border-color: $primary-light-hex; // Light primary for dark theme
+    border-color: $primary-color;
     box-shadow: $shadow-xl;
-    background: $gray-700; // Slightly lighter on hover
+    background: color-mix(in srgb, $surface-color, $black 5%);
 
     .list-image img {
       transform: scale(1.1);
@@ -49,7 +49,8 @@
       height: 200px;
       border-radius: $border-radius;
       overflow: hidden;
-      background: linear-gradient(135deg, $gray-800, $gray-700); // Dark gradient
+      background: $gradient-primary;
+      opacity: 0.9;
 
       @include mobile {
         width: 100%;
@@ -67,20 +68,20 @@
         width: 100%;
         height: 100%;
         @include flex-center;
-        background: $gray-900; // Dark background
+        background: color-mix(in srgb, $surface-color, $black 10%);
         
         mat-icon {
           font-size: 48px;
           width: 48px;
           height: 48px;
-          color: $gray-500; // Mid gray
+          color: $text-tertiary;
         }
       }
 
       .image-overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to bottom, transparent 60%, rgba($gray-900, 0.6)); // Dark overlay
+        background: linear-gradient(to bottom, transparent 60%, color-mix(in srgb, $surface-color, $black 80%));
         opacity: 0;
         transition: opacity $transition-normal;
       }
@@ -94,7 +95,7 @@
 
         .product-name {
           @include heading-medium;
-          color: $gray-100; // Light text
+          color: $text-primary;
           margin: 0 0 $spacing-2;
           line-height: $line-height-tight;
           font-size: $font-size-2xl;
@@ -109,21 +110,21 @@
 
           .meta-item {
             @include caption;
-            background: $gray-900; // Dark background
+            background: color-mix(in srgb, $surface-color, $black 10%);
             padding: $spacing-1 $spacing-2;
             border-radius: $border-radius-sm;
-            color: $gray-400; // Light gray
+            color: $text-secondary;
             display: flex;
             align-items: center;
             gap: $spacing-1;
-            border: 1px solid $gray-700;
+            border: 1px solid $border-color;
           }
         }
       }
 
       .product-description {
         @include body-medium;
-        color: $gray-300; // Light gray
+        color: $text-secondary;
         margin-bottom: $spacing-4;
         line-height: $line-height-normal;
         @include text-multiline-ellipsis(3);
@@ -139,13 +140,13 @@
           @include flex-center;
           gap: $spacing-1;
           @include caption;
-          color: $gray-400; // Light gray
+          color: $text-tertiary;
 
           mat-icon {
             font-size: 16px;
             width: 16px;
             height: 16px;
-            color: $primary-light-hex; // Light primary
+            color: $primary-color;
           }
         }
       }
@@ -166,7 +167,7 @@
 
         .current-price {
           @include heading-large;
-          color: $primary-light-hex; // Light primary
+          color: $primary-color;
           font-weight: $font-weight-bold;
           margin-bottom: $spacing-1;
           font-size: $font-size-3xl;
@@ -174,20 +175,20 @@
 
         .original-price {
           @include body-medium;
-          color: $gray-600; // Mid gray
+          color: $text-tertiary;
           text-decoration: line-through;
           margin-bottom: $spacing-1;
         }
 
         .savings {
           @include caption;
-          color: lighten($success-color-hex, 10%); // Brighter success
+          color: $success-color;
           font-weight: $font-weight-bold;
-          background: rgba($success-color-hex, 0.15);
+          background: color-mix(in srgb, $success-color, transparent 85%);
           padding: $spacing-1 $spacing-2;
           border-radius: $border-radius-sm;
           display: inline-block;
-          border: 1px solid rgba($success-color-hex, 0.3);
+          border: 1px solid color-mix(in srgb, $success-color, transparent 70%);
         }
       }
 
@@ -203,21 +204,21 @@
           font-weight: $font-weight-medium;
 
           &.in-stock {
-            background: rgba($success-color-hex, 0.15);
-            color: lighten($success-color-hex, 10%);
-            border: 1px solid rgba($success-color-hex, 0.3);
+            background: color-mix(in srgb, $success-color, transparent 85%);
+            color: $success-color;
+            border: 1px solid color-mix(in srgb, $success-color, transparent 70%);
           }
 
           &.low-stock {
-            background: rgba($warning-color-hex, 0.15);
-            color: lighten($warning-color-hex, 10%);
-            border: 1px solid rgba($warning-color-hex, 0.3);
+            background: color-mix(in srgb, $warning-color, transparent 85%);
+            color: $warning-color;
+            border: 1px solid color-mix(in srgb, $warning-color, transparent 70%);
           }
 
           &.out-of-stock {
-            background: rgba($error-color-hex, 0.15);
-            color: rgba($error-color-hex, 10%);
-            border: 1px solid rgba($error-color-hex, 0.3);
+            background: color-mix(in srgb, $error-color, transparent 85%);
+            color: $error-color;
+            border: 1px solid color-mix(in srgb, $error-color, transparent 70%);
           }
 
           mat-icon {
@@ -233,40 +234,19 @@
         gap: $spacing-2;
 
         .primary-action {
+          @include button-primary;
           width: 100%;
           height: 44px;
-          font-weight: $font-weight-semibold;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
-          color: $gray-900; // Dark text on gradient
-          border: none;
-          border-radius: $border-radius;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: $spacing-2;
-          cursor: pointer;
-          transition: all $transition-normal;
-          font-size: $font-size-sm;
-
-          &:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: $shadow-lg;
-          }
-
+          
           &:disabled {
-            background: $gray-700 !important;
-            color: $gray-500 !important;
+            @include darken-bg($surface-color, 50%);
+            color: $text-tertiary !important;
             opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
-          }
-          
-          &:focus-visible {
-            outline: 2px solid $primary-light-hex;
-            outline-offset: 2px;
+            border: 1px solid $border-color;
+            background: $gray-600;
           }
         }
 
@@ -277,22 +257,29 @@
 
           button {
             height: 40px;
-            background: $gray-900; // Dark background
-            color: $gray-400; // Light gray
+            background: color-mix(in srgb, $surface-color, $black 10%);
+            color: $text-secondary;
             border-radius: $border-radius;
-            border: 1px solid $gray-700;
+            border: 1px solid $border-color;
             transition: all $transition-fast;
+            @include flex-center;
 
             &:hover {
-              background: $gray-700;
-              color: $gray-100;
-              border-color: $gray-600;
+              background: color-mix(in srgb, $surface-color, $black 20%);
+              color: $text-primary;
+              border-color: color-mix(in srgb, $border-color, $black 10%);
             }
 
             &.active {
-              color: $primary-light-hex; // Light primary
-              background: rgba($primary-light-hex, 0.15);
-              border-color: rgba($primary-light-hex, 0.3);
+              color: $primary-color;
+              background: color-mix(in srgb, $primary-color, transparent 85%);
+              border-color: color-mix(in srgb, $primary-color, transparent 70%);
+            }
+
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 20px;
             }
           }
         }
@@ -309,5 +296,45 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// =========================================
+// ACCESSIBILITY IMPROVEMENTS
+// =========================================
+
+.product-list-item {
+  &:focus-within {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+button {
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+    z-index: 20;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .product-list-item,
+  .list-image img {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .product-list-item {
+    border-width: 2px;
+    border-color: $text-primary;
+  }
+
+  .stock-status {
+    border-width: 2px;
   }
 }

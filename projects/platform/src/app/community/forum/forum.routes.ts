@@ -51,7 +51,7 @@ export const ForumRoutes: Routes = [
 
   {
     path: ':threadId',
-    loadComponent: () => import('./thread/thread-detail.component').then(c => c.ThreadDetailComponent),
+    loadComponent: () => import('./thread/thread-detail/thread-detail.component').then(c => c.ThreadDetailComponent),
     data: {
       breadcrumb: 'Thread Details',
       animation: 'thread-detail',

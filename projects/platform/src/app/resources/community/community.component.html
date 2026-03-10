@@ -1,0 +1,500 @@
+<!-- community.component.html -->
+<app-header/>
+<div class="community-container">
+  <!-- Enhanced Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background">
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+    </div>
+    <div class="hero-content">
+      <nav class="breadcrumb-nav">
+        <a routerLink="/" class="breadcrumb-link">
+          <mat-icon>home</mat-icon>
+          Home
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Community</span>
+      </nav>
+      
+      <div class="hero-text">
+        <div class="badge">Connect, Learn, Grow Together</div>
+        <h1 class="hero-title">
+          Join the
+          <span class="gradient-text">MarketSpase Community</span>
+        </h1>
+        <p class="hero-subtitle">
+          Where marketers and promoters come together to share insights, ask questions, 
+          and learn proven strategies to grow their campaigns and earnings.
+        </p>
+      </div>
+
+      <div class="hero-stats">
+        @for (stat of heroStatistics(); track stat.label) {
+          <div class="hero-stat">
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+        }
+      </div>
+    </div>
+    
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Explore the community</span>
+    </div>
+  </section>
+
+  <!-- Community Categories -->
+  <section class="categories-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Join Your Community</h2>
+        <p class="section-subtitle">Find your tribe and connect with like-minded members</p>
+      </div>
+
+      <div class="categories-grid">
+        @for (category of categories(); track category.id) {
+          <div 
+            class="category-card" 
+            [style.background]="category.gradient"
+            (click)="activeTab.set('discussions')"
+          >
+            <div class="category-icon">
+              <mat-icon>{{ category.icon }}</mat-icon>
+            </div>
+            <h3>{{ category.name }}</h3>
+            <p>{{ category.description }}</p>
+            <div class="story-count">{{ category.count | number }} members</div>
+            <div class="category-overlay"></div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Community Content -->
+  <section class="community-content-section">
+    <div class="container">
+      <div class="content-header">
+        <div class="header-left">
+          <h2 class="section-title">Community Hub</h2>
+          <p class="section-subtitle">Active discussions, tips, and events</p>
+        </div>
+        <div class="header-actions">
+          <button mat-raised-button color="primary" class="action-btn" (click)="startDiscussion()">
+            <mat-icon>add_comment</mat-icon>
+            Start Discussion
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <mat-tab-group class="community-tabs" [(selectedIndex)]="activeTab">
+        <mat-tab label="Hot Discussions">
+          <div class="tab-content">
+            <div class="discussions-list">
+              @for (topic of hotTopics(); track topic.id) {
+                <div class="discussion-card" [class.pinned]="topic.isPinned" [class.hot]="topic.isHot">
+                  <div class="discussion-indicators">
+                    @if (topic.isPinned) {
+                      <div class="indicator pinned">
+                        <mat-icon>push_pin</mat-icon>
+                        <span>Pinned</span>
+                      </div>
+                    }
+                    @if (topic.isHot) {
+                      <div class="indicator hot">
+                        <mat-icon>whatshot</mat-icon>
+                        <span>Hot</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="discussion-main">
+                    <div class="discussion-header">
+                      <div class="author-info">
+                        <img [src]="topic.author.avatar" [alt]="topic.author.name" class="author-avatar">
+                        <div class="author-details">
+                          <strong>{{ topic.author.name }}</strong>
+                          <span class="author-role" [style.color]="getRoleBadgeColor(topic.author.role)">
+                            {{ topic.author.role | titlecase }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="discussion-category" [style.background]="getCategoryColor(topic.category)">
+                        {{ topic.category | titlecase }}
+                      </div>
+                    </div>
+
+                    <h3 class="discussion-title" (click)="startDiscussion()">
+                      {{ topic.title }}
+                    </h3>
+
+                    <div class="discussion-meta">
+                      <div class="meta-item">
+                        <mat-icon>chat_bubble_outline</mat-icon>
+                        <span>{{ topic.replies }} replies</span>
+                      </div>
+                      <div class="meta-item">
+                        <mat-icon>visibility</mat-icon>
+                        <span>{{ topic.views | number }} views</span>
+                      </div>
+                      <div class="meta-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span>Active {{ topic.lastActive }}</span>
+                      </div>
+                    </div>
+
+                    <button mat-stroked-button class="join-btn" (click)="startDiscussion()">
+                      Join Discussion
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Success Tips">
+          <div class="tab-content">
+            <div class="tips-grid">
+              @for (tip of successTips(); track tip.id) {
+                <div class="tip-card">
+                  <div class="tip-header">
+                    <div class="tip-category">{{ tip.category }}</div>
+                    <div class="tip-likes">
+                      <mat-icon>favorite_border</mat-icon>
+                      <span>{{ tip.likes }}</span>
+                    </div>
+                  </div>
+
+                  <h3 class="tip-title">{{ tip.title }}</h3>
+                  <p class="tip-excerpt">{{ tip.excerpt }}</p>
+
+                  <div class="tip-footer">
+                    <div class="tip-author">
+                      <img [src]="tip.author.avatar" [alt]="tip.author.name" class="author-avatar-small">
+                      <div class="author-info">
+                        <strong>{{ tip.author.name }}</strong>
+                        <span>{{ tip.author.role }}</span>
+                      </div>
+                    </div>
+                    <div class="tip-meta">
+                      <span class="read-time">{{ tip.readTime }} read</span>
+                      <button mat-icon-button class="save-tip-btn">
+                        <mat-icon>bookmark_border</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <button mat-stroked-button class="read-tip-btn" (click)="readTip(tip.id)">
+                    Read Full Tip
+                    <mat-icon>arrow_forward</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Upcoming Events">
+          <div class="tab-content">
+            <div class="events-grid">
+              @for (event of upcomingEvents(); track event.id) {
+                <div class="event-card">
+                  <div class="event-image">
+                    <div class="event-type-badge" [style.background]="getCategoryColor(event.type)">
+                      <mat-icon>{{ getCategoryIcon(event.type) }}</mat-icon>
+                      <span>{{ event.type | uppercase }}</span>
+                    </div>
+                  </div>
+
+                  <div class="event-content">
+                    <h3 class="event-title">{{ event.title }}</h3>
+                    <p class="event-description">{{ event.description }}</p>
+
+                    <div class="event-details">
+                      <div class="detail-item">
+                        <mat-icon>event</mat-icon>
+                        <span>{{ event.date }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ event.time }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <mat-icon>people</mat-icon>
+                        <span>{{ event.attendees }} attending</span>
+                      </div>
+                    </div>
+
+                    <div class="event-host">
+                      <mat-icon>person</mat-icon>
+                      <span>Hosted by {{ event.host }}</span>
+                    </div>
+
+                    <button mat-raised-button color="primary" class="register-btn" (click)="registerForEvent(event.id)">
+                      Register Now
+                      <mat-icon>event_available</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Find Mentors">
+          <div class="tab-content">
+            <div class="mentors-section">
+              <div class="mentors-header">
+                <h3>Learn from the Best</h3>
+                <p>Connect with experienced marketers and top promoters who can guide your journey</p>
+              </div>
+
+              <div class="mentors-grid">
+                <div class="mentor-card">
+                  <div class="mentor-avatar large">
+                    <img src="/img/avatar.png" alt="Grace Emmanuel">
+                    <div class="mentor-badge expert">Expert</div>
+                  </div>
+                  <h4>Grace Emmanuel</h4>
+                  <p class="mentor-role">Top Promoter • ₦2.5M+ Earned</p>
+                  <p class="mentor-bio">Helped 500+ promoters start their journey. Specializes in audience growth.</p>
+                  <div class="mentor-stats">
+                    <div class="stat">
+                      <div class="value">1.2K+</div>
+                      <div class="label">Mentees</div>
+                    </div>
+                    <div class="stat">
+                      <div class="value">98%</div>
+                      <div class="label">Success Rate</div>
+                    </div>
+                  </div>
+                  <button mat-stroked-button class="connect-btn">
+                    <mat-icon>chat</mat-icon>
+                    Connect
+                  </button>
+                </div>
+
+                <div class="mentor-card">
+                  <div class="mentor-avatar large">
+                    <img src="/img/avatar.png" alt="Michael Okafor">
+                    <div class="mentor-badge expert">Expert</div>
+                  </div>
+                  <h4>Michael Okafor</h4>
+                  <p class="mentor-role">Marketing Expert • 8+ Years Experience</p>
+                  <p class="mentor-bio">Digital marketing strategist. Helped 50+ brands achieve 300%+ ROI.</p>
+                  <div class="mentor-stats">
+                    <div class="stat">
+                      <div class="value">300+</div>
+                      <div class="label">Campaigns</div>
+                    </div>
+                    <div class="stat">
+                      <div class="value">4.9/5</div>
+                      <div class="label">Rating</div>
+                    </div>
+                  </div>
+                  <button mat-stroked-button class="connect-btn">
+                    <mat-icon>chat</mat-icon>
+                    Connect
+                  </button>
+                </div>
+
+                <div class="mentor-card">
+                  <div class="mentor-avatar large">
+                    <img src="/img/avatar.png" alt="Sarah Nnamdi">
+                    <div class="mentor-badge expert">Expert</div>
+                  </div>
+                  <h4>Sarah Nnamdi</h4>
+                  <p class="mentor-role">Analytics Specialist • Data-Driven Growth</p>
+                  <p class="mentor-bio">Specializes in campaign optimization and performance analytics.</p>
+                  <div class="mentor-stats">
+                    <div class="stat">
+                      <div class="value">15K+</div>
+                      <div class="label">Students</div>
+                    </div>
+                    <div class="stat">
+                      <div class="value">4.8/5</div>
+                      <div class="label">Rating</div>
+                    </div>
+                  </div>
+                  <button mat-stroked-button class="connect-btn">
+                    <mat-icon>chat</mat-icon>
+                    Connect
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </section>
+
+  <!-- Community Benefits -->
+  <section class="benefits-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Why Join Our Community?</h2>
+        <p class="section-subtitle">Connect, learn, and grow with thousands of marketers and promoters</p>
+      </div>
+
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <mat-icon>forum</mat-icon>
+          </div>
+          <h3>Active Discussions</h3>
+          <p>Join daily conversations about WhatsApp marketing strategies, campaign optimization, and earning tips.</p>
+          <div class="benefit-stats">
+            <div class="stat">10K+ daily posts</div>
+            <div class="stat">95% response rate</div>
+          </div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <mat-icon>school</mat-icon>
+          </div>
+          <h3>Expert Mentorship</h3>
+          <p>Get personalized guidance from experienced marketers and top-earning promoters.</p>
+          <div class="benefit-stats">
+            <div class="stat">500+ mentors</div>
+            <div class="stat">Free 1-on-1 sessions</div>
+          </div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <mat-icon>emoji_events</mat-icon>
+          </div>
+          <h3>Success Stories</h3>
+          <p>Learn from real success stories and replicate proven strategies that work.</p>
+          <div class="benefit-stats">
+            <div class="stat">1,000+ case studies</div>
+            <div class="stat">Weekly spotlights</div>
+          </div>
+        </div>
+
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <mat-icon>event</mat-icon>
+          </div>
+          <h3>Live Events</h3>
+          <p>Attend workshops, AMAs, and networking events with industry experts.</p>
+          <div class="benefit-stats">
+            <div class="stat">50+ events/month</div>
+            <div class="stat">Free attendance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">What Members Say</h2>
+        <p class="section-subtitle">Real stories from community members who found success</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <mat-icon class="quote-icon">format_quote</mat-icon>
+            <p>"The community completely transformed my approach to WhatsApp marketing. I learned strategies that helped me triple my earnings in just 2 months!"</p>
+          </div>
+          <div class="testimonial-author">
+            <img src="img/avatar.png" alt="Femi A." class="author-avatar">
+            <div class="author-info">
+              <strong>Femi A.</strong>
+              <span>Promoter • 2 years on MarketSpase</span>
+              <div class="author-stats">
+                <mat-icon>trending_up</mat-icon>
+                <span>+200% earnings increase</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <mat-icon class="quote-icon">format_quote</mat-icon>
+            <p>"I was struggling with campaign engagement until a mentor in the community shared their content strategy. Now my campaigns consistently get 200+ views."</p>
+          </div>
+          <div class="testimonial-author">
+            <img src="img/avatar.png" alt="Chioma E." class="author-avatar">
+            <div class="author-info">
+              <strong>Chioma E.</strong>
+              <span>Marketer • Small Business Owner</span>
+              <div class="author-stats">
+                <mat-icon>visibility</mat-icon>
+                <span>+400% view increase</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-content">
+            <mat-icon class="quote-icon">format_quote</mat-icon>
+            <p>"The weekly AMA sessions with top earners are gold. I've learned so many practical tips that I could never have found elsewhere."</p>
+          </div>
+          <div class="testimonial-author">
+            <img src="img/avatar.png" alt="Kelechi O." class="author-avatar">
+            <div class="author-info">
+              <strong>Kelechi O.</strong>
+              <span>Full-time Promoter</span>
+              <div class="author-stats">
+                <mat-icon>payments</mat-icon>
+                <span>₦450K/month earnings</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Join the Community?</h2>
+        <p>Connect with thousands of marketers and promoters who are already learning, sharing, and growing together.</p>
+        <div class="cta-buttons">
+          <button mat-raised-button color="primary" class="cta-button" (click)="joinCommunity()">
+            <mat-icon>groups</mat-icon>
+            Join Community Free
+          </button>
+          <button mat-stroked-button class="cta-button secondary" (click)="startDiscussion()">
+            <mat-icon>forum</mat-icon>
+            Browse Discussions
+          </button>
+        </div>
+        <div class="cta-stats">
+          <div class="cta-stat">
+            <div class="stat-number">50K+</div>
+            <div class="stat-desc">Active Members</div>
+          </div>
+          <div class="cta-stat">
+            <div class="stat-number">24/7</div>
+            <div class="stat-desc">Community Support</div>
+          </div>
+          <div class="cta-stat">
+            <div class="stat-number">₦0</div>
+            <div class="stat-desc">Free to Join</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<app-footer/>

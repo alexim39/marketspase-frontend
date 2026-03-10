@@ -89,7 +89,7 @@ export function getPromoterNavigation(
       label: 'Support',
       expanded: false,
       children: [
-        { icon: 'support_agent', label: 'Support', route: '/dashboard/settings/share' },
+        { icon: 'support_agent', label: 'Support', route: '/dashboard/settings/support' },
         {
           icon: 'help',
           label: 'Get Started',

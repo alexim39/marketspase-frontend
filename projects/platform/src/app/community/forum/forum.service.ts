@@ -145,5 +145,15 @@ export class ForumService {
   deleteReply(replyId: string, userId: string): Observable<{ success: boolean }> {
     return this.apiService.delete<{ success: boolean }>(`forum/reply/${replyId}/${userId}`, undefined, undefined, true);
   }
+
+  // update a comment by ID
+  updateComment(commentId: string, content: string, userId: string): Observable<Comment> {
+    return this.apiService.put<Comment>(`forum/comments/${commentId}`, { content, userId }, undefined, true);
+  }
+
+  // update a thread by ID
+  updateThread(threadId: string, data: { title?: string; content?: string; tags?: string[] }, userId: string): Observable<Thread> {
+    return this.apiService.put<Thread>(`forum/threads/${threadId}`, { ...data, userId }, undefined, true);
+  }
  
 }

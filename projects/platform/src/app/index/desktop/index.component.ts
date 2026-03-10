@@ -7,11 +7,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from './auth/auth.service';
-import { UserCredential } from '@angular/fire/auth'; // Import UserCredential for type safety
-import { AuthError } from 'firebase/auth'; // Import AuthError for better error typing
-import { UserService } from './common/services/user.service';
-import { Platform } from '@angular/cdk/platform';
+import { AuthService } from '../../auth/auth.service';
+import { UserCredential } from '@angular/fire/auth';
+import { AuthError } from 'firebase/auth';
+import { UserService } from '../../common/services/user.service';
+import { TestimonialsComponent } from '../../dashboard/testimonial/testimonial.component';
+import { FooterComponent } from '../../resources/core/footer/footer.component';
 
 export interface SocialProvider {
   name: string;
@@ -23,7 +24,7 @@ export interface SocialProvider {
 }
 
 @Component({
-  selector: 'app-index',
+  selector: 'app-desktop-index',
   providers: [],
   imports: [
     MatButtonModule,
@@ -31,25 +32,26 @@ export interface SocialProvider {
     CommonModule,
     MatIconModule,
     MatRippleModule,
-    CommonModule
+    CommonModule,
+    TestimonialsComponent,
+    FooterComponent
   ],
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss'],
 })
-export class IndexComponent implements OnDestroy, OnInit {
+export class DesktopIndexComponent implements OnDestroy, OnInit {
   isLoading: boolean = false;
   currentProvider: string = '';
   currentYear: number = new Date().getFullYear();
 
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
   private authService: AuthService = inject(AuthService);
   private userService: UserService = inject(UserService);
 
   private destroy$ = new Subject<void>();
-
   referralCode: string | null = null;
-
   userDevice: string = '';
 
   socialProviders: SocialProvider[] = [
@@ -69,14 +71,14 @@ export class IndexComponent implements OnDestroy, OnInit {
       hoverColor: '#1a91da',
       method: () => this.signInWithTwitter(),
     },
-    // {
-    //   name: 'Facebook',
-    //   icon: 'facebook',
-    //   color: '#1877f2',
-    //   backgroundColor: '#f0f2ff',
-    //   hoverColor: '#166fe5',
-    //   method: () => this.signInWithFacebook(),
-    // },
+    {
+      name: 'Facebook',
+      icon: 'facebook',
+      color: '#1877f2',
+      backgroundColor: '#f0f2ff',
+      hoverColor: '#166fe5',
+      method: () => this.signInWithFacebook(),
+    },
     // {
     //   name: 'Apple',
     //   icon: 'phone_iphone',
@@ -88,18 +90,6 @@ export class IndexComponent implements OnDestroy, OnInit {
    
   ];
 
-  constructor(
-    private router: Router,
-    private platform: Platform
-  ) {
-    if (this.platform.ANDROID || this.platform.IOS) {
-      //console.log('User is using a mobile device.');
-      this.userDevice = 'mobile'
-    } else {
-      //console.log('User is using a desktop device.');
-      this.userDevice = 'desktop'
-    }
-  }
 
   ngOnInit(): void {
     // Check for referral code from various sources
@@ -263,10 +253,13 @@ export class IndexComponent implements OnDestroy, OnInit {
     this.cdr.markForCheck(); // Mark for change detection to ensure error message is shown
   }
 
-  
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
 }

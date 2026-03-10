@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ThreadListComponent } from './thread/thread-list.component';
+import { ThreadListComponent } from './thread/thread-list/thread-list.component';
 import { CreateThreadComponent } from './create-thread/create-thread.component';
 import { MatButtonModule } from '@angular/material/button';
 import { finalize, Subject, takeUntil } from 'rxjs';

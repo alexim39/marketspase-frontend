@@ -1,14 +1,16 @@
-// loading-skeleton.component.scss
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 /* Skeleton Loading Variables */
-$base-color: #f0f0f0;
-$highlight-color: #f8f8f8;
+$base-color: $gray-200;
+$highlight-color: $gray-100;
 $gradient: linear-gradient(90deg, $base-color 25%, $highlight-color 50%, $base-color 75%);
 $animation-duration: 1s;
 
 /* Base Container */
 .skeleton-container {
   min-height: 100vh;
-  background: white;
+  background: $surface-color;
 }
 
 /* Shimmer Animation */
@@ -17,7 +19,7 @@ $animation-duration: 1s;
   background-image: $gradient;
   background-size: 200% 100%;
   animation: shimmer $animation-duration infinite;
-  border-radius: 4px;
+  border-radius: $border-radius;
   
   &::before {
     content: '';
@@ -39,8 +41,8 @@ $animation-duration: 1s;
 /* Hero Section */
 .skeleton-hero {
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px 250px;
+  background: $gradient-primary;
+  padding: $spacing-20 $spacing-16;
   min-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -49,49 +51,48 @@ $animation-duration: 1s;
   .skeleton-breadcrumb {
     height: 14px;
     width: 200px;
-    margin-bottom: 60px;
+    margin-bottom: $spacing-16;
     opacity: 0.7;
   }
   
   .hero-content {
-    
     .skeleton-badge {
       height: 32px;
       width: 180px;
-      border-radius: 20px;
-      margin-bottom: 24px;
+      border-radius: $border-radius-full;
+      margin-bottom: $spacing-6;
       opacity: 0.8;
     }
     
     .skeleton-hero-title {
       height: 60px;
       width: 80%;
-      margin-bottom: 16px;
+      margin-bottom: $spacing-4;
       opacity: 0.9;
       
       &:last-of-type {
         width: 70%;
-        margin-bottom: 24px;
+        margin-bottom: $spacing-6;
       }
     }
     
     .skeleton-hero-subtitle {
       height: 24px;
       width: 50%;
-      margin-bottom: 40px;
+      margin-bottom: $spacing-10;
       opacity: 0.8;
     }
   }
   
   .skeleton-actions {
     display: flex;
-    gap: 16px;
-    margin-bottom: 80px;
+    gap: $spacing-4;
+    margin-bottom: $spacing-20;
     
     .skeleton-btn {
       height: 56px;
       width: 200px;
-      border-radius: 12px;
+      border-radius: $border-radius-lg;
       opacity: 0.8;
     }
   }
@@ -99,7 +100,7 @@ $animation-duration: 1s;
   .skeleton-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 40px;
+    gap: $spacing-10;
     
     .skeleton-stat {
       text-align: center;
@@ -107,7 +108,7 @@ $animation-duration: 1s;
       .skeleton-stat-value {
         height: 40px;
         width: 80px;
-        margin: 0 auto 8px;
+        margin: 0 auto $spacing-2;
         opacity: 0.9;
       }
       
@@ -123,11 +124,11 @@ $animation-duration: 1s;
 
 /* Common Section Styles */
 .skeleton-section {
-  padding: 100px 20px;
-  background: white;
+  padding: $spacing-24 $spacing-5;
+  background: $surface-color;
   
   &.skeleton-section-alt {
-    background: #f8fafc;
+    background: $background-color;
   }
   
   .container {
@@ -137,13 +138,13 @@ $animation-duration: 1s;
   
   .skeleton-section-header {
     text-align: center;
-    margin-bottom: 80px;
+    margin-bottom: $spacing-20;
     
     .skeleton-title {
       height: 56px;
       width: 400px;
       max-width: 80%;
-      margin: 0 auto 16px;
+      margin: 0 auto $spacing-4;
     }
     
     .skeleton-subtitle {
@@ -159,31 +160,31 @@ $animation-duration: 1s;
 .skeleton-benefits-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  gap: $spacing-8;
   
   .skeleton-benefit-card {
-    background: white;
-    padding: 40px 32px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background: $surface-color;
+    padding: $spacing-10 $spacing-8;
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-sm;
     
     .skeleton-benefit-icon {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      margin-bottom: 24px;
+      margin-bottom: $spacing-6;
     }
     
     .skeleton-benefit-title {
       height: 24px;
       width: 70%;
-      margin-bottom: 16px;
+      margin-bottom: $spacing-4;
     }
     
     .skeleton-benefit-text {
       height: 16px;
       width: 100%;
-      margin-bottom: 8px;
+      margin-bottom: $spacing-2;
       
       &:last-child {
         margin-bottom: 0;
@@ -196,21 +197,21 @@ $animation-duration: 1s;
 .skeleton-process {
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: $spacing-16;
   max-width: 800px;
   margin: 0 auto;
   
   .skeleton-process-step {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 40px;
+    gap: $spacing-10;
     align-items: start;
     
     .skeleton-step-visual {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: $spacing-5;
       
       .skeleton-step-number {
         width: 80px;
@@ -221,7 +222,7 @@ $animation-duration: 1s;
       .skeleton-step-icon {
         width: 60px;
         height: 60px;
-        border-radius: 16px;
+        border-radius: $border-radius-lg;
       }
     }
     
@@ -231,13 +232,13 @@ $animation-duration: 1s;
       .skeleton-step-title {
         height: 24px;
         width: 60%;
-        margin-bottom: 16px;
+        margin-bottom: $spacing-4;
       }
       
       .skeleton-step-text {
         height: 18px;
         width: 90%;
-        margin-bottom: 8px;
+        margin-bottom: $spacing-2;
         
         &:last-child {
           margin-bottom: 0;
@@ -251,24 +252,24 @@ $animation-duration: 1s;
 .skeleton-earnings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  gap: $spacing-8;
   max-width: 1000px;
   margin: 0 auto;
   
   .skeleton-earning-tier {
-    background: white;
-    padding: 40px 32px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background: $surface-color;
+    padding: $spacing-10 $spacing-8;
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-sm;
     
     .skeleton-tier-header {
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: $spacing-4;
       
       .skeleton-tier-title {
         height: 20px;
         width: 40%;
-        margin: 0 auto 8px;
+        margin: 0 auto $spacing-2;
       }
       
       .skeleton-tier-amount {
@@ -281,13 +282,13 @@ $animation-duration: 1s;
     .skeleton-tier-description {
       height: 16px;
       width: 80%;
-      margin: 0 auto 24px;
+      margin: 0 auto $spacing-6;
     }
     
     .skeleton-tier-stats {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: $spacing-3;
       
       .skeleton-tier-stat {
         height: 14px;
@@ -302,54 +303,54 @@ $animation-duration: 1s;
 .skeleton-campaigns-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
+  gap: $spacing-8;
   
   .skeleton-campaign-card {
-    background: white;
-    padding: 32px;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background: $surface-color;
+    padding: $spacing-8;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-sm;
     
     .skeleton-campaign-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: $spacing-4;
       
       .skeleton-campaign-category {
         height: 24px;
         width: 100px;
-        border-radius: 20px;
+        border-radius: $border-radius-full;
       }
       
       .skeleton-campaign-urgency {
         height: 20px;
         width: 80px;
-        border-radius: 12px;
+        border-radius: $border-radius;
       }
     }
     
     .skeleton-campaign-title {
       height: 20px;
       width: 70%;
-      margin-bottom: 12px;
+      margin-bottom: $spacing-3;
     }
     
     .skeleton-campaign-description {
       height: 16px;
       width: 100%;
-      margin-bottom: 8px;
+      margin-bottom: $spacing-2;
       
       &:last-of-type {
-        margin-bottom: 20px;
+        margin-bottom: $spacing-5;
       }
     }
     
     .skeleton-campaign-meta {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: $spacing-3;
+      margin-bottom: $spacing-6;
       
       .skeleton-meta-item {
         height: 14px;
@@ -365,7 +366,7 @@ $animation-duration: 1s;
       .skeleton-marketer-info {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: $spacing-1;
         
         .skeleton-marketer-rating {
           height: 12px;
@@ -381,7 +382,7 @@ $animation-duration: 1s;
       .skeleton-accept-btn {
         height: 36px;
         width: 120px;
-        border-radius: 8px;
+        border-radius: $border-radius;
       }
     }
   }
@@ -391,37 +392,37 @@ $animation-duration: 1s;
 .skeleton-testimonials-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
+  gap: $spacing-8;
   
   .skeleton-testimonial-card {
-    background: white;
-    padding: 40px 32px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    background: $surface-color;
+    padding: $spacing-10 $spacing-8;
+    border-radius: $border-radius-xl;
+    box-shadow: $shadow-sm;
     
     .skeleton-testimonial-content {
-      margin-bottom: 32px;
+      margin-bottom: $spacing-8;
       
       .skeleton-quote-icon {
         height: 48px;
         width: 48px;
-        margin-bottom: 16px;
+        margin-bottom: $spacing-4;
       }
       
       .skeleton-testimonial-text {
         height: 18px;
         width: 100%;
-        margin-bottom: 8px;
+        margin-bottom: $spacing-2;
         
         &:last-of-type {
-          margin-bottom: 24px;
+          margin-bottom: $spacing-6;
         }
       }
       
       .skeleton-testimonial-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
+        gap: $spacing-4;
         
         .skeleton-testimonial-stat {
           text-align: center;
@@ -429,7 +430,7 @@ $animation-duration: 1s;
           .skeleton-stat-value {
             height: 24px;
             width: 40px;
-            margin: 0 auto 4px;
+            margin: 0 auto $spacing-1;
           }
           
           .skeleton-stat-metric {
@@ -444,7 +445,7 @@ $animation-duration: 1s;
     .skeleton-testimonial-author {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: $spacing-4;
       
       .skeleton-avatar {
         width: 60px;
@@ -455,7 +456,7 @@ $animation-duration: 1s;
       .skeleton-author-info {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: $spacing-1;
         
         .skeleton-author-name {
           height: 18px;
@@ -482,8 +483,8 @@ $animation-duration: 1s;
   margin: 0 auto;
   
   .skeleton-faq-item {
-    border-bottom: 1px solid #e2e8f0;
-    padding: 24px 0;
+    border-bottom: $border-width solid $border-color;
+    padding: $spacing-6 0;
     
     .skeleton-faq-question {
       display: flex;
@@ -506,8 +507,8 @@ $animation-duration: 1s;
 
 /* CTA Section */
 .skeleton-cta {
-  padding: 100px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: $spacing-24 $spacing-5;
+  background: $gradient-primary;
   
   .container {
     max-width: 1200px;
@@ -521,7 +522,7 @@ $animation-duration: 1s;
       height: 56px;
       width: 400px;
       max-width: 80%;
-      margin: 0 auto 16px;
+      margin: 0 auto $spacing-4;
       opacity: 0.9;
     }
     
@@ -529,33 +530,33 @@ $animation-duration: 1s;
       height: 24px;
       width: 500px;
       max-width: 60%;
-      margin: 0 auto 40px;
+      margin: 0 auto $spacing-10;
       opacity: 0.8;
     }
     
     .skeleton-cta-actions {
       display: flex;
-      gap: 16px;
+      gap: $spacing-4;
       justify-content: center;
-      margin-bottom: 40px;
+      margin-bottom: $spacing-10;
       
       .skeleton-cta-btn {
         height: 56px;
         width: 200px;
-        border-radius: 12px;
+        border-radius: $border-radius-lg;
         opacity: 0.8;
       }
     }
     
     .skeleton-cta-features {
       display: flex;
-      gap: 32px;
+      gap: $spacing-8;
       justify-content: center;
       
       .skeleton-cta-feature {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: $spacing-2;
         
         .skeleton-feature-icon {
           height: 16px;
@@ -573,7 +574,7 @@ $animation-duration: 1s;
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@include tablet {
   .skeleton-hero {
     padding: 120px 20px 80px;
     
@@ -599,15 +600,15 @@ $animation-duration: 1s;
     
     .skeleton-stats {
       grid-template-columns: repeat(2, 1fr);
-      gap: 30px;
+      gap: $spacing-8;
     }
   }
   
   .skeleton-section {
-    padding: 80px 20px;
+    padding: $spacing-20 $spacing-5;
     
     .skeleton-section-header {
-      margin-bottom: 60px;
+      margin-bottom: $spacing-16;
       
       .skeleton-title {
         height: 40px;
@@ -631,12 +632,12 @@ $animation-duration: 1s;
     .skeleton-process-step {
       grid-template-columns: 1fr;
       text-align: center;
-      gap: 24px;
+      gap: $spacing-6;
       
       .skeleton-step-visual {
         flex-direction: row;
         justify-content: center;
-        gap: 24px;
+        gap: $spacing-6;
       }
     }
   }
@@ -648,7 +649,7 @@ $animation-duration: 1s;
     
     .skeleton-campaign-footer {
       flex-direction: column;
-      gap: 16px;
+      gap: $spacing-4;
       align-items: stretch;
       
       .skeleton-marketer-info {
@@ -674,12 +675,12 @@ $animation-duration: 1s;
     
     .skeleton-cta-features {
       flex-direction: column;
-      gap: 16px;
+      gap: $spacing-4;
     }
   }
 }
 
-@media (max-width: 480px) {
+@include mobile {
   .skeleton-hero {
     .skeleton-stats {
       grid-template-columns: 1fr;
@@ -690,5 +691,13 @@ $animation-duration: 1s;
     .skeleton-testimonial-stats {
       grid-template-columns: 1fr;
     }
+  }
+  
+  .skeleton-campaign-card {
+    padding: $spacing-6;
+  }
+  
+  .skeleton-testimonial-card {
+    padding: $spacing-8 $spacing-6;
   }
 }

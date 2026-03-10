@@ -1,11 +1,11 @@
-// components/filter-sidebar/filter-sidebar.component.scss (DARK THEME ONLY)
+// components/filter-sidebar/filter-sidebar.component.scss (DYNAMIC THEMING)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
 .filter-overlay {
   position: fixed;
   inset: 0;
-  background: rgba($gray-900, 0.7); // Dark overlay
+  background: color-mix(in srgb, $surface-color, $black 70%);
   backdrop-filter: blur(4px);
   z-index: $z-index-modal-backdrop;
   opacity: 0;
@@ -29,14 +29,14 @@
   bottom: 0;
   width: 100%;
   max-width: 380px;
-  background-color: color-mix(in srgb, $primary-light-hex, $gray-900 15%); // Dark theme mix
+  background-color: $surface-color;
   box-shadow: $shadow-2xl;
   transform: translateX(100%);
   transition: transform $transition-normal;
   display: flex;
   flex-direction: column;
   z-index: $z-index-modal;
-  border-left: 1px solid $gray-700; // Dark border
+  border-left: 1px solid $border-color;
 
   @include mobile {
     max-width: 100%;
@@ -44,16 +44,16 @@
 
   .filter-header {
     padding: $spacing-4;
-    border-bottom: 1px solid $gray-700; // Dark border
+    border-bottom: 1px solid $border-color;
     @include flex-between;
-    background: $gray-800; // Dark background
+    background: color-mix(in srgb, $surface-color, $black 5%);
     position: sticky;
     top: 0;
     z-index: 2;
 
     h2 {
       @include heading-small;
-      color: $gray-100; // Light text
+      color: $text-primary;
       margin: 0;
     }
 
@@ -63,13 +63,18 @@
       gap: $spacing-2;
 
       button {
-        background: $gray-700;
-        color: $gray-200;
-        border: 1px solid $gray-600;
+        background: color-mix(in srgb, $surface-color, $black 10%);
+        color: $text-secondary;
+        border: 1px solid $border-color;
 
         &:hover {
-          background: $gray-600;
-          color: $gray-100;
+          background: color-mix(in srgb, $surface-color, $black 20%);
+          color: $text-primary;
+        }
+        
+        &:focus-visible {
+          outline: 2px solid $primary-color;
+          outline-offset: 2px;
         }
       }
     }
@@ -77,23 +82,31 @@
 
   .active-filters-summary {
     padding: $spacing-4;
-    border-bottom: 1px solid $gray-700; // Dark border
-    background: $gray-900; // Darker background
+    border-bottom: 1px solid $border-color;
+    background: color-mix(in srgb, $surface-color, $black 10%);
 
     .active-filters-chips {
       display: flex;
       flex-wrap: wrap;
       gap: $spacing-2;
 
-      mat-chip {
+      ::ng-deep mat-chip {
         @include body-small;
-        background: $gray-800; // Dark background
-        color: $gray-200; // Light text
-        border: 1px solid $gray-600; // Dark border
+        background: color-mix(in srgb, $surface-color, $black 15%) !important;
+        color: $text-primary !important;
+        border: 1px solid $border-color !important;
 
         &:hover {
-          background: $gray-700; // Lighter on hover
-          border-color: $gray-500;
+          background: color-mix(in srgb, $surface-color, $black 25%) !important;
+          border-color: color-mix(in srgb, $border-color, $black 10%) !important;
+        }
+
+        button {
+          color: $text-tertiary;
+          
+          &:hover {
+            color: $text-primary;
+          }
         }
       }
     }
@@ -104,29 +117,30 @@
     overflow-y: auto;
     padding: $spacing-4;
     @include scrollbar;
-    background: $gray-900; // Dark background
+    background: $surface-color;
 
-    mat-expansion-panel {
+    ::ng-deep mat-expansion-panel {
       margin-bottom: $spacing-2;
-      background: $gray-800; // Dark panel background
-      border: 1px solid $gray-700; // Dark border
+      background: color-mix(in srgb, $surface-color, $black 5%) !important;
+      border: 1px solid $border-color !important;
       box-shadow: none !important;
+      color: $text-primary !important;
 
       &::before {
         display: none;
       }
 
       &:hover {
-        background: $gray-700; // Lighter on hover
+        background: color-mix(in srgb, $surface-color, $black 10%) !important;
       }
 
       mat-expansion-panel-header {
         padding: 0 $spacing-4;
         height: 56px;
-        background: $gray-800; // Dark header
+        background: color-mix(in srgb, $surface-color, $black 5%) !important;
 
         &:hover {
-          background: $gray-700 !important; // Lighter on hover
+          background: color-mix(in srgb, $surface-color, $black 15%) !important;
         }
 
         mat-panel-title {
@@ -135,7 +149,7 @@
           gap: $spacing-2;
 
           mat-icon {
-            color: $gray-500; // Mid gray
+            color: $text-tertiary;
             font-size: 20px;
             width: 20px;
             height: 20px;
@@ -144,19 +158,19 @@
           span {
             @include body-medium;
             font-weight: $font-weight-semibold;
-            color: $gray-100; // Light text
+            color: $text-primary;
           }
         }
 
         mat-panel-description {
           @include body-small;
-          color: $gray-400; // Light gray
+          color: $text-secondary;
         }
       }
 
       .mat-expansion-panel-body {
         padding: $spacing-4;
-        background: $gray-800; // Dark body
+        background: color-mix(in srgb, $surface-color, $black 5%) !important;
 
         // Price Filter
         .price-filter {
@@ -169,7 +183,7 @@
             .price-input {
               label {
                 @include caption;
-                color: $gray-400; // Light gray
+                color: $text-secondary;
                 display: block;
                 margin-bottom: $spacing-1;
               }
@@ -177,13 +191,13 @@
               input {
                 @include form-input;
                 width: 100%;
-                background: $gray-700; // Dark input background
-                color: $gray-100; // Light text
-                border-color: $gray-600;
+                background: color-mix(in srgb, $surface-color, $black 15%) !important;
+                color: $text-primary;
+                border-color: $border-color;
 
                 &:focus {
-                  border-color: $primary-light-hex; // Light primary
-                  box-shadow: 0 0 0 3px rgba($primary-light-hex, 0.15);
+                  border-color: $primary-color;
+                  box-shadow: 0 0 0 3px color-mix(in srgb, $primary-color, transparent 85%);
                 }
               }
             }
@@ -197,12 +211,26 @@
             flex-direction: column;
             gap: $spacing-3;
 
-            mat-radio-button {
+            ::ng-deep mat-radio-button {
               @include body-medium;
-              color: $gray-200; // Light text
+              color: $text-primary !important;
 
-              ::ng-deep .mat-radio-label-content {
+              .mat-radio-label-content {
                 padding-left: $spacing-2;
+              }
+
+              .mat-radio-outer-circle {
+                border-color: $border-color !important;
+              }
+
+              .mat-radio-inner-circle {
+                background-color: $primary-color !important;
+              }
+
+              &.mat-radio-checked {
+                .mat-radio-outer-circle {
+                  border-color: $primary-color !important;
+                }
               }
             }
           }
@@ -218,19 +246,20 @@
             justify-content: flex-start;
             padding: $spacing-2 $spacing-3;
             text-align: left;
-            background: $gray-800;
-            color: $gray-200;
-            border: 1px solid $gray-700;
+            background: color-mix(in srgb, $surface-color, $black 15%);
+            color: $text-secondary;
+            border: 1px solid $border-color;
+            width: 100%;
 
             &.active {
-              background: $primary-light-hex; // Light primary
-              color: $gray-900; // Dark text on primary
-              border-color: $primary-light-hex;
+              background: $primary-color !important;
+              color: $white !important;
+              border-color: $primary-color;
             }
 
             &:hover:not(.active) {
-              background: $gray-700;
-              border-color: $gray-600;
+              background: color-mix(in srgb, $surface-color, $black 25%);
+              border-color: color-mix(in srgb, $border-color, $black 10%);
             }
 
             .rating-stars {
@@ -251,7 +280,7 @@
             }
 
             .count {
-              color: $gray-500; // Mid gray
+              color: $text-tertiary;
               font-size: $font-size-sm;
             }
           }
@@ -267,28 +296,29 @@
             justify-content: space-between;
             padding: $spacing-2 $spacing-3;
             text-transform: capitalize;
-            background: $gray-800;
-            color: $gray-200;
-            border: 1px solid $gray-700;
+            background: color-mix(in srgb, $surface-color, $black 15%);
+            color: $text-secondary;
+            border: 1px solid $border-color;
             border-radius: $border-radius;
+            width: 100%;
 
             &:hover {
-              background: $gray-700;
-              border-color: $gray-600;
+              background: color-mix(in srgb, $surface-color, $black 25%);
+              border-color: color-mix(in srgb, $border-color, $black 10%);
             }
 
             .category-name {
               @include body-medium;
-              color: $gray-100; // Light text
+              color: $text-primary;
             }
 
             .category-count {
               @include body-small;
-              color: $gray-500; // Mid gray
-              background: $gray-900; // Dark background
+              color: $text-tertiary;
+              background: color-mix(in srgb, $surface-color, $black 25%);
               padding: $spacing-1 $spacing-2;
               border-radius: $border-radius-sm;
-              border: 1px solid $gray-700;
+              border: 1px solid $border-color;
             }
           }
         }
@@ -304,37 +334,40 @@
           padding-right: $spacing-2;
           @include scrollbar;
 
-          mat-checkbox {
+          ::ng-deep mat-checkbox {
             @include body-medium;
-            color: $gray-200; // Light text
+            color: $text-secondary !important;
 
-            ::ng-deep {
+            .mat-checkbox-label {
+              display: flex;
+              justify-content: space-between;
+              width: 100%;
+              color: $text-primary;
+            }
+
+            .brand-name,
+            .tag-name {
+              flex: 1;
+              color: $text-primary;
+            }
+
+            .brand-count,
+            .tag-count {
+              color: $text-tertiary;
+              font-size: $font-size-sm;
+            }
+
+            .mat-checkbox-frame {
+              border-color: $border-color !important;
+            }
+
+            .mat-checkbox-background {
+              background-color: $primary-color !important;
+            }
+
+            &.mat-checkbox-checked {
               .mat-checkbox-label {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-              }
-
-              .brand-name,
-              .tag-name {
-                flex: 1;
-                color: $gray-100; // Light text
-              }
-
-              .brand-count,
-              .tag-count {
-                color: $gray-500; // Mid gray
-                font-size: $font-size-sm;
-              }
-
-              .mat-checkbox-frame {
-                border-color: $gray-600; // Dark border
-              }
-
-              .mat-checkbox-checked {
-                .mat-checkbox-background {
-                  background-color: $primary-light-hex; // Light primary
-                }
+                color: $primary-color;
               }
             }
           }
@@ -345,55 +378,78 @@
 
   .filter-footer {
     padding: $spacing-4;
-    border-top: 1px solid $gray-700; // Dark border
-    background: $gray-800; // Dark background
+    border-top: 1px solid $border-color;
+    background: color-mix(in srgb, $surface-color, $black 5%);
 
     .apply-button {
+      @include button-primary;
       width: 100%;
       height: 48px;
-      font-weight: $font-weight-semibold;
-      background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
-      color: $gray-900; // Dark text on gradient
-      border: none;
-
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: $shadow-lg;
-      }
-
+      
       .result-count {
         margin-left: $spacing-1;
         opacity: 0.9;
-        color: $gray-800; // Dark text
       }
     }
   }
 }
 
-// Helper function for slider label
+// Material slider theming
 ::ng-deep {
   .mat-slider-thumb-label-text {
     @include body-small;
     font-weight: $font-weight-medium;
-    color: $gray-900; // Dark text
+    color: $white;
   }
 
-  // Material slider dark theme adjustments
   .mat-slider-track-background {
-    background-color: $gray-700 !important; // Dark track
+    background-color: $border-color !important;
   }
 
   .mat-slider-track-fill {
-    background-color: $primary-light-hex !important; // Light primary
+    background-color: $primary-color !important;
   }
 
   .mat-slider-thumb {
-    background-color: $primary-light-hex !important; // Light primary
-    border-color: $primary-light-hex !important;
+    background-color: $primary-color !important;
+    border-color: $primary-color !important;
   }
 
   .mat-slider-thumb-label {
-    background-color: $gray-800 !important; // Dark background
-    border: 1px solid $gray-700 !important;
+    background-color: $primary-color !important;
+    border: none !important;
+  }
+  
+  .mat-slider-min-value:not(.mat-slider-thumb-label-showing) .mat-slider-thumb {
+    background-color: $border-color !important;
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .filter-overlay,
+  .filter-sidebar,
+  .filter-sidebar * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .filter-sidebar {
+    border-left-width: 2px;
+    border-left-color: $text-primary;
+  }
+  
+  .filter-header,
+  .active-filters-summary,
+  .filter-footer {
+    border-width: 2px;
+    border-color: $text-primary;
+  }
+  
+  button {
+    border-width: 2px;
   }
 }

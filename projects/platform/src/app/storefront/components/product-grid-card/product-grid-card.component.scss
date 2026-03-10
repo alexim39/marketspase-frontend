@@ -1,9 +1,9 @@
-// product-grid-card.component.scss (DARK THEME ONLY)
+// product-grid-card.component.scss (DYNAMIC THEMING - UPDATED)
 @import '../../../../styles/mixins';
 @import '../../../../styles/variables';
 
 // =========================================
-// PRODUCT CARD - MOBILE FIRST DESIGN
+// PRODUCT CARD - WITH DYNAMIC THEMING
 // =========================================
 
 .product-card {
@@ -12,18 +12,18 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid $gray-700; // Dark border
+  border: 1px solid $border-color;
   transition: all $transition-normal;
   cursor: pointer;
   overflow: hidden;
-  background: $gray-800; // Dark card background
+  background: $surface-color;
 
   // Hover Effects (Desktop)
   @media (hover: hover) {
     &:hover {
       transform: translateY(-4px);
       box-shadow: $shadow-xl;
-      border-color: $primary-light-hex; // Light primary for dark theme
+      border-color: $primary-color;
 
       .product-image img {
         transform: scale(1.05);
@@ -42,7 +42,7 @@
   
   .product-image-wrapper {
     position: relative;
-    background: $gray-900; // Dark background
+    background: color-mix(in srgb, $surface-color, $black 5%);
     overflow: hidden;
   }
 
@@ -62,13 +62,13 @@
       border-radius: $border-radius-sm;
       font-size: $font-size-xs;
       font-weight: $font-weight-bold;
-      color: $white-hex; // White text on badges
+      color: $white;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       box-shadow: $shadow-md;
       backdrop-filter: blur(4px);
       white-space: nowrap;
-      border: 1px solid rgba($white-hex, 0.2);
+      border: 1px solid rgba($white, 0.2);
 
       mat-icon {
         font-size: 14px;
@@ -77,15 +77,15 @@
       }
 
       &.badge-featured {
-        background: linear-gradient(135deg, $warning-color-hex 0%, darken($warning-color-hex, 15%) 100%);
+        background: linear-gradient(135deg, $warning-color 0%, darken($warning-color, 15%) 100%);
       }
 
       &.badge-discount {
-        background: linear-gradient(135deg, $error-color-hex 0%, darken($error-color-hex, 15%) 100%);
+        background: linear-gradient(135deg, $error-color 0%, darken($error-color, 15%) 100%);
       }
 
       &.badge-new {
-        background: linear-gradient(135deg, $success-color-hex 0%, darken($success-color-hex, 15%) 100%);
+        background: linear-gradient(135deg, $success-color 0%, darken($success-color, 15%) 100%);
       }
     }
   }
@@ -95,24 +95,24 @@
     top: $spacing-3;
     right: $spacing-3;
     z-index: 10;
-    background: rgba($gray-800, 0.95); // Dark semi-transparent
-    color: $gray-400; // Light gray
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    color: $text-secondary;
     backdrop-filter: blur(8px);
     box-shadow: $shadow-md;
     transition: all $transition-normal;
-    border: 1px solid $gray-700;
+    border: 1px solid $border-color;
 
     &:hover {
-      background: $gray-700;
-      color: $gray-100;
+      background: color-mix(in srgb, $surface-color, $black 15%);
+      color: $text-primary;
       transform: scale(1.1);
-      border-color: $gray-600;
+      border-color: color-mix(in srgb, $border-color, $black 10%);
     }
 
     &.active {
-      background: rgba($error-color-hex, 0.2);
-      color: lighten($error-color-hex, 10%);
-      border-color: rgba($error-color-hex, 0.3);
+      background: color-mix(in srgb, $error-color, transparent 80%);
+      color: $error-color;
+      border-color: color-mix(in srgb, $error-color, transparent 70%);
 
       mat-icon {
         animation: heartbeat 0.3s ease-in-out;
@@ -129,7 +129,8 @@
     width: 100%;
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    background: linear-gradient(135deg, $gray-800 0%, $gray-700 100%); // Dark gradient
+    background: $gradient-primary;
+    opacity: 0.9;
 
     img {
       width: 100%;
@@ -143,21 +144,21 @@
       width: 100%;
       height: 100%;
       gap: $spacing-2;
-      color: $gray-500; // Mid gray
+      color: $text-tertiary;
 
       mat-icon {
         font-size: 64px;
         width: 64px;
         height: 64px;
         opacity: 0.3;
-        color: $gray-600;
+        color: $text-tertiary;
       }
 
       span {
         @include caption;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: $gray-400;
+        color: $text-tertiary;
       }
     }
   }
@@ -168,14 +169,14 @@
     gap: $spacing-2;
     width: 100%;
     height: 100%;
-    background: rgba($gray-900, 0.95); // Dark overlay
+    background: color-mix(in srgb, $surface-color, $black 95%);
     z-index: 5;
     backdrop-filter: blur(4px);
-    color: $gray-100;
+    color: $text-primary;
 
     &.out-of-stock {
-      background: rgba($error-color-hex, 0.9);
-      color: $white-hex;
+      background: color-mix(in srgb, $error-color, transparent 10%);
+      color: $white;
 
       mat-icon {
         font-size: 48px;
@@ -200,15 +201,15 @@
     @include flex-center;
     gap: $spacing-1;
     padding: $spacing-2 $spacing-3;
-    background: linear-gradient(to top, rgba($warning-color-hex, 0.9), rgba($warning-color-hex, 0.8));
-    color: $white-hex;
+    background: linear-gradient(to top, color-mix(in srgb, $warning-color, transparent 10%), color-mix(in srgb, $warning-color, transparent 20%));
+    color: $white;
     font-size: $font-size-xs;
     font-weight: $font-weight-bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     backdrop-filter: blur(4px);
     z-index: 5;
-    border-top: 1px solid rgba($warning-color-hex, 0.3);
+    border-top: 1px solid color-mix(in srgb, $warning-color, transparent 70%);
 
     mat-icon {
       font-size: 16px;
@@ -230,17 +231,17 @@
     z-index: 8;
 
     .quick-action-btn {
-      background: rgba($gray-800, 0.95);
-      color: $gray-100;
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      color: $text-primary;
       box-shadow: $shadow-md;
       backdrop-filter: blur(8px);
-      border: 1px solid $gray-700;
+      border: 1px solid $border-color;
 
       &:hover {
-        background: $gray-700;
-        color: $white-hex;
+        background: color-mix(in srgb, $surface-color, $black 15%);
+        color: $text-primary;
         transform: scale(1.1);
-        border-color: $gray-600;
+        border-color: color-mix(in srgb, $border-color, $black 10%);
       }
 
       mat-icon {
@@ -261,7 +262,7 @@
     flex: 1;
     padding: $spacing-4;
     gap: $spacing-3;
-    background: $gray-800; // Dark background
+    background: $surface-color;
     
     @include mobile {
       padding: $spacing-3;
@@ -273,7 +274,7 @@
     .product-category {
       @include caption;
       display: block;
-      color: $gray-500; // Mid gray
+      color: $text-tertiary;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: $spacing-1;
@@ -283,7 +284,7 @@
     .product-title {
       @include body-large;
       margin: 0;
-      color: $gray-100; // Light text
+      color: $text-primary;
       font-weight: $font-weight-semibold;
       line-height: $line-height-tight;
       @include text-multiline-ellipsis(2);
@@ -291,7 +292,7 @@
       transition: color $transition-fast;
 
       &:hover {
-        color: $primary-light-hex; // Light primary on hover
+        color: $primary-color;
       }
 
       @include mobile {
@@ -311,29 +312,29 @@
       display: flex;
       align-items: center;
       gap: $spacing-1;
-      color: $warning-color-hex; // Warning color for ratings
+      color: $warning-color;
 
       strong {
-        color: $warning-color-hex;
+        color: $warning-color;
         font-weight: $font-weight-bold;
       }
 
       .rating-count {
-        color: $gray-400; // Light gray
+        color: $text-tertiary;
       }
     }
   }
 
   .product-description {
     @include body-small;
-    color: $gray-400; // Light gray
+    color: $text-secondary;
     line-height: $line-height-normal;
     @include text-multiline-ellipsis(2);
     margin: 0;
     flex-grow: 1;
 
     @include mobile {
-      display: none; // Hide on mobile to save space
+      display: none;
     }
   }
 
@@ -342,7 +343,7 @@
     flex-direction: column;
     gap: $spacing-1;
     padding: $spacing-3 0;
-    border-top: 1px solid $gray-700; // Dark border
+    border-top: 1px solid $border-color;
 
     .price-group {
       display: flex;
@@ -353,7 +354,7 @@
       .current-price {
         font-size: $font-size-2xl;
         font-weight: $font-weight-bold;
-        color: $primary-light-hex; // Light primary
+        color: $primary-color;
         line-height: 1;
 
         @include mobile {
@@ -363,7 +364,7 @@
 
       .original-price {
         @include body-medium;
-        color: $gray-600; // Mid gray
+        color: $text-tertiary;
         text-decoration: line-through;
         font-weight: $font-weight-normal;
 
@@ -375,41 +376,27 @@
 
     .savings-text {
       @include caption;
-      color: lighten($success-color-hex, 10%);
+      color: $success-color;
       font-weight: $font-weight-bold;
       padding: $spacing-1 $spacing-2;
-      background: rgba($success-color-hex, 0.15);
+      background: color-mix(in srgb, $success-color, transparent 85%);
       border-radius: $border-radius-sm;
       display: inline-block;
       width: fit-content;
-      border: 1px solid rgba($success-color-hex, 0.3);
+      border: 1px solid color-mix(in srgb, $success-color, transparent 70%);
     }
   }
 
   .product-actions {
-    margin-top: auto; // Push to bottom
+    margin-top: auto;
 
     .add-to-cart-btn {
+      @include button-primary;
       width: 100%;
       height: 48px;
-      font-size: $font-size-sm;
-      font-weight: $font-weight-semibold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      gap: $spacing-2;
-      background: linear-gradient(135deg, $primary-light-hex 0%, $secondary-light-hex 100%); // Dark theme gradient
-      color: $gray-900; // Dark text on gradient
-      border: none;
-      border-radius: $border-radius;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all $transition-normal;
-
+      
       @include mobile {
         height: 44px;
-        font-size: $font-size-xs;
       }
 
       mat-icon {
@@ -420,32 +407,19 @@
 
       .btn-text {
         @include mobile {
-          display: inline; // Show on mobile
+          display: inline;
         }
       }
 
       &:disabled {
-        background: $gray-700 !important;
-        color: $gray-500 !important;
+        @include darken-bg($surface-color, 50%);
+        color: $text-tertiary !important;
         cursor: not-allowed;
         transform: none !important;
         box-shadow: none !important;
         opacity: 0.6;
-        border: 1px solid $gray-600;
-      }
-
-      &:not(:disabled):hover {
-        transform: translateY(-2px);
-        box-shadow: $shadow-lg;
-      }
-
-      &:not(:disabled):active {
-        transform: translateY(0);
-      }
-      
-      &:focus-visible {
-        outline: 2px solid $primary-light-hex;
-        outline-offset: 2px;
+        border: 1px solid $border-color;
+        background: $gray-600;
       }
     }
   }
@@ -454,7 +428,7 @@
     @include flex-between;
     gap: $spacing-2;
     padding-top: $spacing-3;
-    border-top: 1px solid $gray-700; // Dark border
+    border-top: 1px solid $border-color;
 
     @include mobile {
       padding-top: $spacing-2;
@@ -465,7 +439,7 @@
       @include flex-center;
       gap: $spacing-1;
       @include caption;
-      color: $gray-500; // Mid gray
+      color: $text-tertiary;
       flex: 1;
       justify-content: center;
 
@@ -473,7 +447,7 @@
         font-size: 16px;
         width: 16px;
         height: 16px;
-        color: lighten($success-color-hex, 10%);
+        color: $success-color;
       }
 
       span {
@@ -507,7 +481,6 @@
 // =========================================
 // RESPONSIVE GRID CONTAINER (OPTIONAL)
 // =========================================
-// Use this if you're displaying multiple cards in a grid
 
 .products-grid {
   display: grid;
@@ -539,17 +512,16 @@
 // ACCESSIBILITY IMPROVEMENTS
 // =========================================
 
-// Focus states for keyboard navigation
 .product-card {
   &:focus-within {
-    outline: 2px solid $primary-light-hex; // Light primary
+    outline: 2px solid $primary-color;
     outline-offset: 2px;
   }
 }
 
 button {
   &:focus-visible {
-    outline: 2px solid $primary-light-hex; // Light primary
+    outline: 2px solid $primary-color;
     outline-offset: 2px;
     z-index: 20;
   }
@@ -570,10 +542,10 @@ button {
 @media (prefers-contrast: high) {
   .product-card {
     border-width: 2px;
-    border-color: $gray-100; // Light border for high contrast
+    border-color: $text-primary;
   }
 
   .badge {
-    border: 1px solid $white-hex;
+    border: 1px solid $white;
   }
 }

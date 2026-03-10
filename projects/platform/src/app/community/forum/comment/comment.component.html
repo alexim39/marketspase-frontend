@@ -1,0 +1,107 @@
+<div class="comment">
+  <div class="comment-main">
+    <img class="comment-avatar" [src]="comment.author.avatar" [alt]="comment.author.displayName || 'User Avatar'" (click)="viewProfile(comment.author._id)" style="cursor: pointer;">
+    
+    <div class="comment-content">
+      <div class="comment-header">
+        <span class="comment-author"> 
+          <span class="time">{{timeAgo(comment.createdAt)}} </span>
+        </span>
+        @if (comment.author.isVerified) {
+          <span class="verified-badge" matTooltip="Verified User">
+            <mat-icon>verified</mat-icon>
+          </span>
+        }
+        <span class="comment-time">{{comment.author.displayName | titlecase}}</span>
+
+         <!-- Delete button - only shown if user is the owner -->
+        @if (isCommentOwner()) {
+        <button mat-icon-button color="warn" (click)="onDeleteComment($event)" class="delete-button" matTooltip="Delete comment">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button color="primary" (click)="onEditComment($event)" class="edit-button" matTooltip="Edit comment">
+          <mat-icon>edit</mat-icon>
+        </button>
+        }
+      </div>
+
+
+      <!-- Edit Mode -->
+      @if (isEditing) {
+        <div class="comment-edit-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Edit your comment</mat-label>
+            <textarea matInput [formControl]="editControl" rows="3"></textarea>
+            @if (editControl.hasError('required')) {
+              <mat-error>Comment cannot be empty</mat-error>
+            }
+          </mat-form-field>
+          <div class="edit-actions">
+            <button mat-button (click)="cancelEdit()" [disabled]="isUpdating">Cancel</button>
+            <button mat-raised-button color="primary" (click)="saveEdit()" [disabled]="editControl.invalid || isUpdating">
+              @if (!isUpdating) {
+                <span>Save</span>
+              } @else {
+                <mat-spinner diameter="20"></mat-spinner>
+              }
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="comment-text">{{comment.content}}</div>
+      }
+      
+      <div class="comment-text">{{comment.content}}</div>
+      
+      <div class="comment-actions">
+        <button mat-raised-button 
+                (click)="toggleLike()" 
+                [ngClass]="comment.isLiked ? 'mat-accent' : 'mat-primary'">
+          <mat-icon>thumb_up</mat-icon>
+          {{comment.likeCount}}
+        </button>
+        <button mat-button (click)="toggleReply()">
+          <mat-icon>reply</mat-icon>
+          Reply
+        </button>
+        @if (comment.replies && comment.replies.length > 0) {
+        <button mat-button (click)="toggleReplies()">
+          <mat-icon>{{showReplies ? 'expand_less' : 'expand_more'}}</mat-icon>
+          {{comment.replies.length}} {{comment.replies.length === 1 ? 'reply' : 'replies'}}
+        </button>
+        }
+      </div>
+      
+      @if (isReplying) {
+      <div class="comment-reply-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Your reply</mat-label>
+          <textarea matInput [formControl]="replyControl" rows="2"></textarea>
+        </mat-form-field>
+        <div class="reply-buttons">
+          <button mat-button (click)="toggleReply()">Cancel</button>
+          <button mat-raised-button color="primary" 
+                  (click)="addReply()"
+                  [disabled]="replyControl.invalid || isSubmitting || !user()">
+            @if (!isSubmitting) {
+            <span>Post Reply</span>
+            } @else {
+            <mat-spinner diameter="20"/>
+            }
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  
+  <!-- In comment.component.html -->
+  @if (showReplies) {
+  <div class="comment-replies">
+    <app-reply 
+      *ngFor="let reply of replies"
+      [reply]="reply"
+      (replyDeleted)="onReplyDeleted($event)"
+    />
+  </div>
+   }

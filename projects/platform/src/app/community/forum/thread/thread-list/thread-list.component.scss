@@ -1,6 +1,6 @@
 // thread-list.component.scss
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
 
 .thread-list {
   display: flex;
@@ -45,9 +45,15 @@
     box-shadow: $shadow-md;
   }
 
+  img.profile-avatar {
+    object-fit: cover;
+    cursor: pointer !important;
+  }
+
   mat-card-header {
     align-items: center;
     padding: $spacing-4 $spacing-4 $spacing-2;
+    cursor: pointer !important;
 
     mat-card-title {
       font-size: $font-size-lg;
@@ -251,6 +257,15 @@ mat-card-subtitle {
       
       &:hover {
         background-color: rgba($error-color, 0.1) !important;
+      }
+    }
+    .edit-button {
+      margin-left: auto !important;
+      color: $info-color !important;
+      font-weight: $font-weight-bold !important;
+      
+      &:hover {
+        background-color: rgba($info-color, 0.1) !important;
       }
     }
   }
@@ -465,5 +480,20 @@ mat-card-subtitle {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: $spacing-4;
+  }
+}
+
+.thread-edit-form {
+  margin-top: $spacing-4;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-2;
+    margin-top: $spacing-3;
   }
 }

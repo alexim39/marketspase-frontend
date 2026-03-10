@@ -116,6 +116,28 @@
           height: 18px;
         }
       }
+      .edit-button {
+        margin-left: $spacing-2;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        // UPDATED: Use error-color variable for dynamic theming
+        color: $info-color;
+        font-weight: $font-weight-bold;
+        border-radius: $border-radius-full;
+        transition: background-color $transition-fast;
+        
+        &:hover {
+          // UPDATED: Use error-color with lightened background for dynamic theming
+          background-color: rgba($info-color, 0.1);
+        }
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
     }
     
     .comment-text {
@@ -427,5 +449,20 @@
         margin-left: 0;
       }
     }
+  }
+}
+
+.comment-edit-form {
+  margin-top: $spacing-3;
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-2;
+    margin-top: $spacing-2;
   }
 }
