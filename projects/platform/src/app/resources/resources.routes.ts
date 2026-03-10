@@ -46,6 +46,11 @@ export const RosourcesRoutes: Routes = [
                 title: "Help Center - Get support and find answers",
             },
             {
+                path: 'benefits',
+                loadComponent: () => import('./benefits/benefits.component').then(m => m.BenefitsComponent),
+                title: "Benefits - Why choose MarketSpase",
+            },
+            {
                 path: 'faqs',
                 loadComponent: () => import('./faq/faq.component').then(m => m.FAQComponent),
                 title: "FAQs - Frequently Asked Questions",

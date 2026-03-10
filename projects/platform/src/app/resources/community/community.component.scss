@@ -1059,15 +1059,15 @@
 .author-stats {
   display: flex;
   align-items: center;
-  gap: $spacing-1;
+  gap: $spacing-4;
   color: $success-color;
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  
+
   mat-icon {
-    font-size: $font-size-base;
-    width: $font-size-base;
-    height: $font-size-base;
+    font-size: $font-size-xs;
+    //width: $font-size-xs;
+    //height: $font-size-xs;
   }
 }
 

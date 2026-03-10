@@ -11,6 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
+import { SignInDialogComponent } from './dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 interface CommunityStat {
   value: string;
@@ -80,6 +82,7 @@ interface Event {
   styleUrls: ['./community.component.scss']
 })
 export class CommunityComponent {
+  constructor(private dialog: MatDialog) {};
   activeTab = signal<'discussions' | 'tips' | 'events' | 'mentors'>('discussions');
 
   heroStatistics = signal<CommunityStat[]>([
@@ -303,28 +306,30 @@ export class CommunityComponent {
     }
   }
 
-  joinDiscussion(topicId: string): void {
-    console.log('Joining discussion:', topicId);
-    // Navigate to discussion thread
-  }
 
   readTip(tipId: string): void {
     console.log('Reading tip:', tipId);
     // Navigate to full tip
+    this.startDiscussion();
   }
 
   registerForEvent(eventId: string): void {
     console.log('Registering for event:', eventId);
     // Open event registration modal
+    this.startDiscussion();
   }
 
   joinCommunity(): void {
     console.log('Joining community');
     // Navigate to community signup
+    this.startDiscussion();
   }
 
-  startDiscussion(): void {
-    console.log('Starting new discussion');
-    // Open new discussion form
+   startDiscussion() {
+    this.dialog.open(SignInDialogComponent, {
+      width: '350px',
+      enterAnimationDuration: '250ms',
+      exitAnimationDuration: '200ms',
+    });
   }
 }
