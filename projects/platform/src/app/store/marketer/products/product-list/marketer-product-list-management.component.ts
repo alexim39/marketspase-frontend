@@ -27,6 +27,7 @@ import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';
 import { TruncatePipe } from '../../../shared';
 import { SelectionModel } from '@angular/cdk/collections';
+import { CurrencyUtilsPipe } from '../../../../../../../shared-services/src/public-api';
 
 interface ProductColumn {
   key: keyof Product | 'actions' | 'select';
@@ -65,7 +66,8 @@ interface StockStatus {
     MatInputModule,
     TruncatePipe,
     MatDividerModule,
-    MatDialogModule
+    MatDialogModule,
+    CurrencyUtilsPipe
   ],
   templateUrl: './marketer-product-list-management.component.html',
   styleUrls: ['./marketer-product-list-management.component.scss']
@@ -73,8 +75,6 @@ interface StockStatus {
 export class MarketerProductListManagementComponent {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
-  private storeService = inject(StoreService);
   private dialogService = inject(DialogService);
 
   // Inputs
@@ -334,7 +334,10 @@ export class MarketerProductListManagementComponent {
     const action = product.isActive ? 'deactivate' : 'activate';
     const result = await this.dialogService.confirmAction(
       `${action === 'deactivate' ? 'Deactivate' : 'Activate'} Product`,
-      `Are you sure you want to ${action} "${product.name}"?`,
+      `Are you sure you want to ${action} "${product.name}"?
+
+      Note that this product will also no more be published for promotion.
+      `,
       action === 'deactivate' ? 'Deactivate' : 'Activate'
     ).pipe(take(1)).toPromise();
 

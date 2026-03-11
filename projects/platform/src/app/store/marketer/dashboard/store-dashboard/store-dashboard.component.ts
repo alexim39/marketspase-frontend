@@ -373,19 +373,21 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     this.storeService.getStores(userId).subscribe({
       next: (stores) => {
         
-        if (stores.data.length > 0) {
+        if (stores.length > 0) {
           // Find the store with isDefaultStore: true
-          const defaultStore = stores.data.find((store: Store) => store.isDefaultStore);
+          const defaultStore = stores.find((store: Store) => store.isDefaultStore);
           
           // If no current store is selected OR we found a default store, select it
           if (!this.currentStore() || defaultStore) {
-            const storeToSelect = defaultStore || stores.data[0];
+            const storeToSelect = defaultStore || (stores.length ? stores[0] : null);
             
             // Directly set the default or first store as current
             this.storeService.currentStore.set(storeToSelect);
             
             // Also load products for this store
-            this.storeService.getStoreProducts(storeToSelect._id!).subscribe();
+            if (storeToSelect && storeToSelect._id) {
+              this.storeService.getStoreProducts(storeToSelect._id).subscribe();
+            }
             
             // if (defaultStore) {
             //   console.log('Default store selected:', defaultStore.name);

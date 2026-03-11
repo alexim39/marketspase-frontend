@@ -3,7 +3,7 @@
 
 .product-management {
   min-height: 100vh;
-  background: $gray-900;
+ background-color: color-mix(in srgb, $background-color, black 5%);
   
   .management-header {
     background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
@@ -200,7 +200,7 @@
         .search-box {
           display: flex;
           align-items: center;
-          background: $gray-900;
+          background-color: color-mix(in srgb, $background-color, black 5%);
           border-radius: $border-radius-lg;
           padding: $spacing-2 $spacing-3;
           gap: $spacing-2;
@@ -296,7 +296,7 @@
         
         .view-toggle {
           display: flex;
-          background: $gray-900;
+          background-color: color-mix(in srgb, $background-color, black 5%);
           border-radius: $border-radius;
           padding: $spacing-1;
           gap: $spacing-1;
@@ -310,7 +310,7 @@
             }
             
             &:hover:not(.active) {
-              background: $gray-500;
+              background: rgba($gray-500, 0.1);
             }
           }
         }
@@ -467,7 +467,7 @@
               transition: all $transition-normal;
               
               .action-btn {
-                background: $gray-900;
+                background-color: color-mix(in srgb, $background-color, black 5%);
                 color: $text-primary;
                 
                 &:hover {
@@ -535,7 +535,7 @@
               }
               
               &.variants {
-                background: $gray-900;
+                background-color: color-mix(in srgb, $background-color, black 5%);
               }
               
               &.sale {
@@ -566,7 +566,7 @@
             .product-sku {
               @include caption;
               color: $text-tertiary;
-              background: $gray-600;
+              background-color: color-mix(in srgb, $background-color, black 5%);
               padding: $spacing-1 $spacing-2;
               border-radius: $border-radius-sm;
               margin-left: $spacing-2;
@@ -598,7 +598,7 @@
                 align-items: center;
                 gap: $spacing-1;
                 color: $text-secondary;
-                background: $gray-600;
+                background-color: color-mix(in srgb, $background-color, black 5%);
                 padding: $spacing-1 $spacing-2;
                 border-radius: $border-radius-sm;
                 
@@ -729,7 +729,7 @@
         width: 100%;
         
         .mat-header-row {
-          background: $gray-900;
+          background-color: color-mix(in srgb, $background-color, black 5%);
           border-bottom: 1px solid $border-color;
           
           .mat-header-cell {
@@ -782,7 +782,7 @@
               .image-placeholder {
                 width: 100%;
                 height: 100%;
-                background: $gray-800;
+                background-color: color-mix(in srgb, $background-color, black 5%);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -816,7 +816,7 @@
                 .product-sku {
                   @include caption;
                   color: $text-tertiary;
-                  background: $gray-800;
+                  background-color: color-mix(in srgb, $background-color, black 5%);
                   padding: 2px $spacing-2;
                   border-radius: $border-radius-sm;
                 }
@@ -837,7 +837,7 @@
                 .tag {
                   @include caption;
                   color: $text-secondary;
-                  background: $gray-800;
+                  background-color: color-mix(in srgb, $background-color, black 5%);
                   padding: 2px $spacing-2;
                   border-radius: $border-radius-sm;
                 }
@@ -849,7 +849,7 @@
         .category-chip {
           @include caption;
           color: $text-secondary;
-          background: $gray-800;
+          background-color: color-mix(in srgb, $background-color, black 5%);
           padding: $spacing-1 $spacing-2;
           border-radius: $border-radius-sm;
           white-space: nowrap;
@@ -954,7 +954,7 @@
       justify-content: center;
       min-height: 400px;
       text-align: center;
-      background: $gray-800;
+      background-color: color-mix(in srgb, $background-color, black 5%);
       border-radius: $border-radius-lg;
       border: 2px dashed $border-color;
       
@@ -966,7 +966,7 @@
           font-size: 64px;
           width: 64px;
           height: 64px;
-          color: $gray-900;
+          background-color: color-mix(in srgb, $background-color, black 5%);
           margin-bottom: $spacing-4;
         }
         

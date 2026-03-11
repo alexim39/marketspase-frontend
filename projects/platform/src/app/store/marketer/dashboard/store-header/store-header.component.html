@@ -214,13 +214,13 @@
             
             <!-- Switch Store Submenu -->
             <mat-menu #switchStoreMenu="matMenu" class="switch-store-menu">
-              @if (stores().length === 0) {
+              @if ((stores() || []).length === 0) {
                 <div class="no-stores-message">
                   <mat-icon>storefront</mat-icon>
                   <span>No other stores available</span>
                 </div>
               } @else {
-                @for (storeItem of stores(); track trackByStoreId($index, storeItem)) {
+                @for (storeItem of (stores() || []); track trackByStoreId($index, storeItem)) {
                   <button mat-menu-item 
                           (click)="onManageStore(storeItem._id!)"
                           [class.active-store]="storeItem._id === store()?._id">

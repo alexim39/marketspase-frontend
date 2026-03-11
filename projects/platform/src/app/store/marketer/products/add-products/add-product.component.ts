@@ -204,7 +204,7 @@ export class AddProductComponent implements OnInit, OnDestroy {
         tags: this.fb.array<StrCtrl>([]),
       }),
       pricing: this.fb.group({
-        price: this.fb.control<number>(0, { validators: [Validators.required, Validators.min(0)] }),
+        price: this.fb.control<number>(0, { validators: [Validators.required, Validators.min(100)] }),
         originalPrice: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
         costPrice: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
         taxClass: this.fb.control<string>('standard'),
@@ -486,10 +486,10 @@ onSubmit(): void {
   }
 
   // Debug: Log all FormData entries
-  console.log('FormData entries:');
-  for (const pair of formData.entries()) {
-    console.log(`${pair[0]}:`, pair[1]);
-  }
+  // //console.log('FormData entries:');
+  // for (const pair of formData.entries()) {
+  //   console.log(`${pair[0]}:`, pair[1]);
+  // }
 
   // Use the product service to create product
   this.productService.createProduct(this.storeId, this.user()!._id, formData).subscribe({
@@ -509,7 +509,7 @@ onSubmit(): void {
     },
     error: (error) => {
       this.loading.set(false);
-      console.error('Failed to create product:', error);
+      //console.error('Failed to create product:', error);
       
       // Handle specific errors
       let errorMessage = 'Failed to create product. Please try again.';
@@ -527,41 +527,29 @@ onSubmit(): void {
 }
 
   
-  
+  // private prepareVariants(variantData: Array<{
+  //   name: string;
+  //   price: number;
+  //   sku: string;
+  //   quantity: number;
+  //   attributes?: any;
+  // }>): ProductVariant[] {
+  //   const basePrice = this.pricing.get('price')?.value ?? 0;
+  //   return variantData.map((v, i) => ({
+  //     _id: `variant-${i + 1}`,
+  //     name: v.name,
+  //     options: this.prepareVariantOptions(v.attributes),
+  //     priceAdjustment: (v.price ?? 0) - basePrice,
+  //     price: v.price ?? basePrice,
+  //     sku: v.sku,
+  //     quantity: v.quantity ?? 0,
+  //     attributes: v.attributes,
+  //   }));
+  // }
 
-  private generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w\-]+/g, '')
-      .replace(/\-\-+/g, '-')
-      .replace(/^-+/, '')
-      .replace(/-+$/, '');
-  }
-
-  private prepareVariants(variantData: Array<{
-    name: string;
-    price: number;
-    sku: string;
-    quantity: number;
-    attributes?: any;
-  }>): ProductVariant[] {
-    const basePrice = this.pricing.get('price')?.value ?? 0;
-    return variantData.map((v, i) => ({
-      _id: `variant-${i + 1}`,
-      name: v.name,
-      options: this.prepareVariantOptions(v.attributes),
-      priceAdjustment: (v.price ?? 0) - basePrice,
-      price: v.price ?? basePrice,
-      sku: v.sku,
-      quantity: v.quantity ?? 0,
-      attributes: v.attributes,
-    }));
-  }
-
-  private prepareVariantOptions(attributes: any): any {
-    return attributes ?? {};
-  }
+  // private prepareVariantOptions(attributes: any): any {
+  //   return attributes ?? {};
+  // }
 
   onCancel(): void {
     if (this.productForm.dirty) {

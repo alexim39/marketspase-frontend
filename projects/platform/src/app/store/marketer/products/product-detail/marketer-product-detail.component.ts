@@ -19,6 +19,7 @@ import { StoreService } from '../../../services/store.service';
 import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';
 import { TruncatePipe } from '../../../shared';
+import { CurrencyUtilsPipe } from '../../../../../../../shared-services/src/public-api';
 
 interface StockStatus {
   text: string;
@@ -52,6 +53,7 @@ interface Review {
     MatDividerModule,
     MatDialogModule,
     TruncatePipe,
+    CurrencyUtilsPipe
   ],
   templateUrl: './marketer-product-detail.component.html',
   styleUrls: ['./marketer-product-detail.component.scss']

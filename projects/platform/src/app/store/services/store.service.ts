@@ -1,6 +1,6 @@
 // services/store.service.ts
 import { Injectable, inject, signal } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { Store, StoreAnalytics } from '../models/store.model';
 import { Product, StorePromotion, PerformanceMetric, CreateStoreRequest, CreateProductRequest, UpdateProductRequest } from '../models';
 import { ApiService } from '../../../../../shared-services/src/public-api';
@@ -72,18 +72,26 @@ export class StoreService {
   }
 
   // Get Stores
-  getStores(userId: string): Observable<any> {
-  // getStores(userId: string): Observable<Store[]> {
+  getStores(userId: string): Observable<Store[]> {
     this.loading.set(true);
-    return this.apiService.get<Store[]>(`${this.apiUrl}?userId=${userId}`).pipe(
+
+    return this.apiService.get<any>(`${this.apiUrl}?userId=${userId}`).pipe(
+      map((res) => {
+        //console.log('getStores response:', res);
+        // Accept common API shapes:
+        const list = Array.isArray(res) ? res
+          : Array.isArray(res?.stores) ? res.stores
+          : Array.isArray(res?.data) ? res.data
+          : [];
+
+        return list as Store[];
+      }),
       tap({
         next: (storesData) => {
           this.stores.set(storesData);
           this.loading.set(false);
         },
-        error: () => {
-          this.loading.set(false);
-        }
+        error: () => this.loading.set(false),
       })
     );
   }

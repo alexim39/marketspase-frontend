@@ -1,22 +1,25 @@
 // components/product-management/add-product/components/basic-info-form/basic-info-form.component.ts
-import { Component, input, output, OnInit, OnDestroy, ViewChild, ElementRef, InputSignal } from '@angular/core';
+import { Component, input, output, OnInit, OnDestroy, ViewChild, ElementRef, InputSignal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators, FormBuilder, ValidationErrors, ValidatorFn, AbstractControl } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { CategoryOption } from '../../../../../../common/utils/categories';
 
-type StrCtrl = FormControl<string>;
+const nonEmptyArray: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const value = control.value as any[];
+  return Array.isArray(value) && value.length > 0 ? null : { required: true };
+};
 
 @Component({
   selector: 'app-basic-info-form',
@@ -39,11 +42,12 @@ type StrCtrl = FormControl<string>;
 })
 export class BasicInfoFormComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+  private fb = inject(FormBuilder);
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('tagInput') tagInput!: ElementRef<HTMLInputElement>;
   
-  // Inputs - KEEP as input signal for parent component to pass data
+  // Inputs
   formGroup: InputSignal<FormGroup> = input.required<FormGroup>();
   categories = input<CategoryOption[]>([]);
   images = input<string[]>([]);
@@ -53,27 +57,52 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
   imagesChanged = output<{ files: File[], previews: string[] }>();
   tagsChanged = output<string[]>();
   
-  // Remove this local formGroup and use the input signal instead
-  // formGroup = new FormGroup({
-  //   tags: new FormArray([]),
-  //   // ...other form controls
-  // });
-
   // Local state
   selectedFiles: File[] = [];
   tagSuggestions = ['New', 'Popular', 'Sale', 'Limited', 'Exclusive', 'Trending'];
+
+  private addingTag = false;  // Prevents re-entry into addTagFromInput
+  private isInternalTagChange = false;  // Prevents emitting tagsChanged during internal changes
 
   get tagsArray(): FormArray {
     return this.formGroup().get('tags') as FormArray;
   }
 
+  constructor() {
+    // Keep the images control in sync with the signal
+    effect(() => {
+      const imgs = this.images();
+      const ctrl = this.formGroup().get('images');
+      if (!ctrl) return;
+
+      ctrl.setValue(imgs, { emitEvent: false });
+      ctrl.updateValueAndValidity({ emitEvent: false });
+    });
+  }
+
+
   ngOnInit(): void {
-    // Subscribe to tags changes
+    // Subscribe to tags changes with debouncing and distinct checks
     this.tagsArray.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),  // Wait 300ms after last change to reduce emissions
+        distinctUntilChanged()  // Only emit if value actually changed
+      )
       .subscribe((tags: string[]) => {
-        this.tagsChanged.emit(tags);
+        if (!this.isInternalTagChange) {  // Skip emission if change is internal
+          this.tagsChanged.emit(tags);
+        }
       });
+
+    // Ensure an "images" control exists and is required
+    const imagesControl = this.formGroup().get('images');
+    if (!imagesControl) {
+      this.formGroup().addControl('images', new FormControl(this.images() || [], Validators.required));
+    } else {
+      imagesControl.setValidators(Validators.required);
+      imagesControl.updateValueAndValidity({ emitEvent: false });
+    }
   }
 
   ngOnDestroy(): void {
@@ -81,39 +110,28 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Fix method name to match HTML template
-  addTagFromInput(event: any): void {
-    let value: string;
-    let inputElement: HTMLInputElement | null = null;
+  addTagFromInput(event: MatChipInputEvent | MatAutocompleteSelectedEvent): void {
+    if (this.addingTag) return;  // Prevent re-entry
+    this.addingTag = true;
+    this.isInternalTagChange = true;  // Flag to prevent external emission
 
-    if (event.input) {
-        // Called from matChipInputTokenEnd
-        value = (event.value ?? '').trim();
-        inputElement = event.input;
-    } else if (event.option) {
-        // Called from autocomplete optionSelected
-        value = (event.option.value ?? '').trim();
-        // Set the input field value to the selected tag
-        this.tagInput.nativeElement.value = value;
+    const value = (event instanceof MatAutocompleteSelectedEvent) 
+      ? event.option.viewValue 
+      : (event.value || '').trim();
+
+    if (value && !this.tagsArray.value.includes(value)) {
+      this.tagsArray.push(this.fb.control(value));
+    }
+
+    // Clear the input
+    if (event instanceof MatAutocompleteSelectedEvent) {
+      this.tagInput.nativeElement.value = '';
     } else {
-        // Direct call
-        value = (event ?? '').trim();
+      event.chipInput!.clear();
     }
 
-    if (value) {
-        // Check if tag already exists
-        const currentTags = this.tagsArray.value as string[];
-        if (!currentTags.includes(value)) {
-            // Push a new FormControl with the tag value
-            this.tagsArray.push(new FormControl(value));
-            this.tagsChanged.emit(this.tagsArray.value);
-        }
-
-        // Clear the input if it was from a token end
-        if (inputElement) {
-            inputElement.value = '';
-        }
-    }
+    this.isInternalTagChange = false;  // Reset flag
+    this.addingTag = false;
   }
 
   // Add this method to handle autocomplete selection
@@ -205,5 +223,51 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
       previews: previews
     });
     this.selectedFiles = files;
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();  // Allow drop
+    event.stopPropagation();
+    // Optional: Add visual feedback (e.g., CSS class for highlighting)
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    // Optional: Remove visual feedback
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processFiles(files);
+    }
+  }
+
+  private processFiles(files: FileList): void {
+    const newFiles: File[] = [];
+    const newPreviews: string[] = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      if (this.images().length + newPreviews.length >= this.maxImages()) break;
+      const file = files[i];
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        newFiles.push(file);
+        newPreviews.push(e.target.result);
+        
+        if (newPreviews.length === files.length || this.images().length + newPreviews.length >= this.maxImages()) {
+          this.imagesChanged.emit({
+            files: [...this.selectedFiles, ...newFiles],
+            previews: [...this.images(), ...newPreviews]
+          });
+          this.selectedFiles = [...this.selectedFiles, ...newFiles];
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   }
 }

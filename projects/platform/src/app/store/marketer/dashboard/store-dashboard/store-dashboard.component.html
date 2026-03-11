@@ -3,7 +3,7 @@
   <!-- Enhanced Header with Controls -->
   <app-store-header
     [store]="currentStore()"
-    [stores]="stores()"
+    [stores]="stores() || []"
     [loading]="loading()"
     (createStore)="createStore()"
     (manageStore)="manageStore($event)"
@@ -108,23 +108,21 @@
       }
 
       <!-- Enhanced Navigation Tabs -->
-      <nav mat-tab-nav-bar class="store-tabs" [mat-stretch-tabs]="false">
+      <nav mat-tab-nav-bar [tabPanel]="tabPanel" class="store-tabs" [mat-stretch-tabs]="false">
         <a mat-tab-link
-           *ngFor="let tab of tabs"
-           [active]="activeTab() === tab"
-           (click)="activeTab.set(tab)"
-           class="store-tab">
-          <mat-icon class="tab-icon">
-            {{ getTabIcon(tab) }}
-          </mat-icon>
+          *ngFor="let tab of tabs"
+          [active]="activeTab() === tab"
+          (click)="activeTab.set(tab)"
+          class="store-tab">
+          <mat-icon class="tab-icon">{{ getTabIcon(tab) }}</mat-icon>
           <span class="tab-label">{{ tab | titlecase }}</span>
-          @if (tab === 'products' && lowStockProducts().length > 0) {
-            <mat-icon class="tab-badge" color="warn">warning</mat-icon>
-          }
+          <mat-icon *ngIf="tab === 'products' && lowStockProducts().length > 0" class="tab-badge" color="warn">warning</mat-icon>
         </a>
       </nav>
 
       <!-- Enhanced Tab Content -->
+    <mat-tab-nav-panel #tabPanel="matTabNavPanel">
+
       <div class="tab-content">
         <!-- Overview Tab -->
         @if (activeTab() === 'overview') {
@@ -347,7 +345,8 @@
           </div>
         }
       </div>
-    </div>
+    </mat-tab-nav-panel>
+  </div>
   }
 
   <!-- Enhanced Quick Action Bar -->
@@ -356,6 +355,6 @@
     [isMobile]="isMobile()"
     (addProduct)="addProduct()"
     (createPromotion)="activeTab.set('promotions')"
-    (viewAnalytics)="activeTab.set('analytics')">
-  </app-quick-action-bar>
+    (viewAnalytics)="activeTab.set('analytics')"
+  />
 </div>

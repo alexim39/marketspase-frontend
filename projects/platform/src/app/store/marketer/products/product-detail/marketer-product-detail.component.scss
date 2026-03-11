@@ -4,7 +4,7 @@
 
 .product-detail {
   min-height: 100vh;
-  background: $gray-900;
+  background-color: color-mix(in srgb, $background-color, black 5%);
   
   .detail-header {
     background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
@@ -578,7 +578,7 @@
             align-items: center;
             padding: $spacing-4;
             border-bottom: 1px solid $border-color;
-            background: $gray-900;
+            background-color: color-mix(in srgb, $background-color, black 5%);
             
             .card-title {
               @include heading-small;
@@ -656,7 +656,7 @@
                   .tag {
                     @include caption;
                     color: $text-secondary;
-                    background: $gray-900;
+                    background-color: color-mix(in srgb, $background-color, black 5%);
                     padding: $spacing-1 $spacing-3;
                     border-radius: $border-radius-sm;
                     font-weight: $font-weight-medium;
@@ -728,7 +728,7 @@
                     align-items: center;
                     gap: $spacing-3;
                     padding: $spacing-3;
-                    background: $gray-900;
+                    background-color: color-mix(in srgb, $background-color, black 5%);
                     border-radius: $border-radius;
                     
                     .metric-icon {
@@ -817,7 +817,7 @@
                   .chart-placeholder {
                     @include flex-column-center;
                     height: 200px;
-                    background: $gray-900;
+                    background-color: color-mix(in srgb, $background-color, black 5%);
                     border-radius: $border-radius;
                     border: 2px dashed $border-color;
                     color: $text-tertiary;

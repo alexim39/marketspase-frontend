@@ -98,7 +98,11 @@
     <mat-card-content>
       <div class="images-upload">
         <!-- Image Upload Area -->
-        <div class="upload-area" (click)="fileInput.click()">
+        <div class="upload-area" 
+            (click)="fileInput.click()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
           <input type="file" required #fileInput accept="image/*" multiple (change)="onImageSelect($event)" hidden>
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
           <p>Drag & drop images here or click to browse</p>
