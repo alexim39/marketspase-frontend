@@ -4,6 +4,9 @@
 
 .form-step {
   animation: slideInUp 0.3s ease-out;
+   @include mobile {
+    margin: 1em 0;
+  }
 }
 
 .form-card {

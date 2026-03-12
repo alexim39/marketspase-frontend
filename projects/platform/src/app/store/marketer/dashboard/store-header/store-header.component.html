@@ -144,13 +144,11 @@
         <div class="header-actions-section">
           <div class="primary-actions">
             @if (deviceType() === 'mobile') {
-              <button mat-fab 
-                    extended 
-                    color="primary" 
-                    (click)="onAddProduct()" 
-                    class="add-product-btn">
+             <div>
+               <button matMiniFab aria-label="New Product" title="New Product" (click)="onAddProduct()">
                 <mat-icon>add</mat-icon>
               </button>
+             </div>
             } @else {
               <button mat-raised-button 
                     color="primary" 
