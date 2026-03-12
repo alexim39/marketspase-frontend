@@ -156,7 +156,7 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
       if (!productResponse?.data) {
         throw new Error('Product not found');
       }
-      console.log('Product details loaded:', productResponse.data);
+      //console.log('Product details loaded:', productResponse.data);
       this.product.set(productResponse.data);
     } catch (err) {
       console.error('Failed to load product details:', err);

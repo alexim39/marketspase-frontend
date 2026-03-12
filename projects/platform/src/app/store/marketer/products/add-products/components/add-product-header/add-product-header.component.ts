@@ -24,4 +24,5 @@ export class AddProductHeaderComponent {
   storeId = input<string>();
   cancel = output<void>();
   submit = output<void>();
+  isEdit = input<boolean>(false);
 }

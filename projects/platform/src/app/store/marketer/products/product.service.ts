@@ -1,7 +1,7 @@
 // src/app/services/product.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../../../../shared-services/src/public-api';
+import { ApiService } from '../../../../../../shared-services/src/public-api';
 
 export interface CreateProductRequest {
   storeId: string;
@@ -173,24 +173,22 @@ export class ProductService {
    * Create product with file upload support (multipart form data)
    */
   createProduct(storeId: string, userId: string, formData: FormData): Observable<ProductResponse> {
-    console.log('userid ', userId, 'storeid ', storeId)
-    console.log('store record ',formData)
     return this.apiService.post<ProductResponse>(`stores/product/${storeId}/${userId}/create`, formData, undefined, true);
   }
 
   /**
    * Get product by ID
    */
-//   getProduct(storeId: string, productId: string): Observable<ProductResponse> {
-//     return this.apiService.get<ProductResponse>(`stores/product/${storeId}/products/${productId}`, undefined, undefined, true );
-//   }
+  getProduct(storeId: string, productId: string): Observable<ProductResponse> {
+    return this.apiService.get<ProductResponse>(`stores/product/${productId}`, undefined, undefined, true );
+  }
 
   /**
    * Update product
    */
-//   updateProduct(storeId: string, productId: string, productData: Partial<CreateProductRequest>): Observable<ProductResponse> {
-//     return this.apiService.put<ProductResponse>(`stores/product/${storeId}/products/${productId}`, productData, undefined, true);
-//   }
+  updateProduct(storeId: string, userId: string, productId: string, productData: Partial<CreateProductRequest>): Observable<ProductResponse> {
+    return this.apiService.put<ProductResponse>(`stores/product/${storeId}/${userId}/${productId}`, productData, undefined, true);
+  }
 
   /**
    * Delete product (soft delete)

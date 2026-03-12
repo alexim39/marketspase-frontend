@@ -323,7 +323,7 @@ export class MarketerProductListManagementComponent {
   }
 
   editProduct(product: Product): void {
-    this.router.navigate(['/dashboard/stores', this.store()._id, 'products', product._id, 'edit']);
+    this.router.navigate(['/dashboard/stores', this.store()._id, 'products', 'edit', product._id]);
   }
 
   viewProduct(product: Product): void {

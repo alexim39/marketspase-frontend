@@ -119,9 +119,11 @@ export class MarketerProductDetailComponent implements OnInit {
   // Product actions
   editProduct(): void {
     if (this.product) {
-      this.router.navigate(['/dashboard/stores', this.storeId, 'products', this.productId, 'edit']);
+      this.router.navigate(['/dashboard/stores', this.storeId, 'products', 'edit', this.product._id]);
     }
   }
+
+
 
   async deleteProduct(): Promise<void> {
     if (!this.product) return;

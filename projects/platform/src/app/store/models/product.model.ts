@@ -1,3 +1,84 @@
+export interface ProductDimensions {
+  length?: string;
+  width?: string;
+  height?: string;
+}
+
+export interface ProductVariant {
+  name: string;
+  sku?: string;
+  price: number;
+  quantity: number;
+}
+
+export interface ProductAttribute {
+  name: string;
+  values: string[];
+  visible: boolean;
+  variation: boolean;
+}
+
+export interface ProductImage {
+  url: string;
+  altText?: string;
+  isMain?: boolean;
+  order?: number;
+}
+
+export interface ProductDigitalInfo {
+  fileName?: string;
+  downloadLimit?: number;
+  downloadExpiry?: string;
+}
+
+export interface ProductResponse {
+  _id?: string;
+  name: string;
+  description?: string;
+  category: string;
+  brand?: string;
+  tags?: string[];
+
+  price: number;
+  originalPrice?: number;
+  costPrice?: number;
+  taxClass?: string;
+  taxable?: boolean;
+
+  sku?: string;
+  quantity: number;
+  lowStockAlert?: number;
+  manageStock?: boolean;
+  backorderAllowed?: boolean;
+  soldIndividually?: boolean;
+
+  requiresShipping?: boolean;
+  weight?: string;
+  dimensions?: ProductDimensions;
+  shippingClass?: string;
+
+  hasVariants?: boolean;
+  attributes?: ProductAttribute[];
+  variants?: ProductVariant[];
+
+  isDigital?: boolean;
+  digitalProduct?: ProductDigitalInfo;
+
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string[];
+  };
+
+  isFeatured?: boolean;
+  isActive?: boolean;
+  scheduledStart?: string;
+  scheduledEnd?: string;
+
+  images?: ProductImage[];
+}
+
+
 
 export interface Product {
   _id?: string;
@@ -93,7 +174,7 @@ export interface ProductVariant {
   priceAdjustment: number;
 
   price: number;
-  sku: string;
+  sku?: string;
   quantity: number;
   attributes: {
     [key: string]: string;

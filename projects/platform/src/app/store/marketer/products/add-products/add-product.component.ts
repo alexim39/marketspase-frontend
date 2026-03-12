@@ -18,7 +18,7 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ProductVariant } from '../../../models/product.model';
+//import { ProductVariant } from '../../../models/product.model';
 
 // Child Components
 import { AddProductHeaderComponent } from './components/add-product-header/add-product-header.component';
@@ -29,7 +29,7 @@ import { ProductVariantsComponent } from './components/product-variants/product-
 import { ShippingFormComponent } from './components/shipping-form/shipping-form.component';
 import { SeoAdvancedFormComponent } from './components/seo-advanced-form/seo-advanced-form.component';
 import { ProductReviewComponent } from './components/product-review/product-review.component';
-import { ProductService } from './add-product.service';
+import { ProductService } from '../product.service';
 import { UserService } from '../../../../common/services/user.service';
 import { UserInterface } from '../../../../../../../shared-services/src/public-api';
 import { CATEGORIES, CategoryOption } from '../../../../common/utils/categories';

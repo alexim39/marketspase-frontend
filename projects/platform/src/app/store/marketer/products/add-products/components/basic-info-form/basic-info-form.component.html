@@ -109,6 +109,27 @@
           <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>
         </div>
 
+        @if (existingImages().length > 0) {
+          <div class="existing-images">
+            <h4>Existing Images</h4>
+            <div class="image-row">  <!-- Changed from image-grid to image-row -->
+              @for (image of existingImages(); track $index; let i = $index) {
+                <div class="image-preview" [class.main-image]="image.isMain">
+                  <div class="image-overlay">
+                    <button mat-icon-button class="image-remove" (click)="removeExistingImage.emit(i)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    @if (image.isMain) {
+                      <div class="main-label">Main</div>
+                    }
+                  </div>
+                  <img [src]="image.url" [alt]="image.altText">
+                </div>
+              }
+            </div>
+          </div>
+        }
+
         <!-- Image Previews -->
         @if (images().length > 0) {
           <div class="image-previews">

@@ -64,6 +64,9 @@ export class BasicInfoFormComponent implements OnInit, OnDestroy {
   private addingTag = false;  // Prevents re-entry into addTagFromInput
   private isInternalTagChange = false;  // Prevents emitting tagsChanged during internal changes
 
+  existingImages = input<Array<{ url: string; altText: string; isMain: boolean; order: number }>>([]);
+  removeExistingImage = output<number>();
+
   get tagsArray(): FormArray {
     return this.formGroup().get('tags') as FormArray;
   }

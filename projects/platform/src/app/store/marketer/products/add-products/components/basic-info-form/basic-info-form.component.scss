@@ -216,3 +216,361 @@
     transform: translateY(0);
   }
 }
+
+// Add to your existing SCSS file, after the .image-previews section
+
+.existing-images {
+  margin-bottom: $spacing-6;
+  
+  h4 {
+    @include body-medium;
+    font-weight: $font-weight-semibold;
+    margin: 0 0 $spacing-3 0;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: $primary-color;
+      border-radius: $border-radius-sm;
+    }
+  }
+
+  .image-row {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-4;
+    overflow-x: auto;
+    padding-bottom: $spacing-3;
+    scrollbar-width: thin;
+    scrollbar-color: $primary-color $gray-300;
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $gray-300;
+      border-radius: $border-radius-full;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $primary-color;
+      border-radius: $border-radius-full;
+      
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
+
+    @include mobile {
+      flex-direction: column;
+      overflow-x: visible;
+      gap: $spacing-3;
+      padding-bottom: 0;
+    }
+  }
+
+  .image-preview {
+    position: relative;
+    flex: 0 0 auto;
+    width: 150px;
+    aspect-ratio: 1;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all $transition-normal;
+    box-shadow: $shadow-sm;
+
+    @include mobile {
+      width: 100%;
+      aspect-ratio: 16/9;
+    }
+
+    &.main-image {
+      border-color: $primary-color;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border: 2px solid $primary-color;
+        border-radius: $border-radius-lg;
+        pointer-events: none;
+      }
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+
+      .image-overlay {
+        opacity: 1;
+      }
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform $transition-normal;
+    }
+
+    .image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, 
+        rgba(0, 0, 0, 0.4) 0%, 
+        rgba(0, 0, 0, 0.2) 30%,
+        rgba(0, 0, 0, 0) 60%
+      );
+      opacity: 0;
+      transition: opacity $transition-normal;
+      padding: $spacing-2;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 1;
+    }
+
+    .image-remove {
+      position: absolute;
+      top: $spacing-2;
+      right: $spacing-2;
+      background: rgba($error-color, 0.9);
+      color: $white;
+      width: 28px;
+      height: 28px;
+      box-shadow: $shadow-sm;
+      transition: all $transition-fast;
+      z-index: 2;
+
+      &:hover {
+        background: $error-color;
+        transform: scale(1.1);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+      }
+
+      @include mobile {
+        width: 32px;
+        height: 32px;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+
+    .main-label {
+      position: absolute;
+      top: $spacing-2;
+      left: $spacing-2;
+      background: $primary-color;
+      color: $white;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-sm;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-semibold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: $shadow-sm;
+      z-index: 2;
+
+      @include mobile {
+        font-size: $font-size-sm;
+        padding: $spacing-1 $spacing-3;
+      }
+    }
+
+    // Loading state for existing images (optional)
+    &.loading {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          $surface-color 25%,
+          rgba($surface-color, 0.5) 50%,
+          $surface-color 75%
+        );
+        background-size: 200% 100%;
+        animation: loadingShimmer 1.5s infinite;
+        z-index: 1;
+      }
+    }
+  }
+
+  // Empty state for existing images (if no images but section still shows)
+  &.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-8;
+    background: $surface-color;
+    border-radius: $border-radius-lg;
+    border: 1px dashed $border-color;
+    text-align: center;
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: $text-tertiary;
+      margin-bottom: $spacing-3;
+    }
+
+    p {
+      @include body-medium;
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+}
+
+// Responsive adjustments
+@include mobile {
+  .existing-images {
+    margin-bottom: $spacing-4;
+
+    h4 {
+      font-size: $font-size-sm;
+      margin-bottom: $spacing-2;
+    }
+
+    .image-preview {
+      .image-overlay {
+        opacity: 1; // Always visible on mobile for better UX
+        background: linear-gradient(to bottom, 
+          rgba(0, 0, 0, 0.5) 0%, 
+          rgba(0, 0, 0, 0.3) 40%,
+          rgba(0, 0, 0, 0) 70%
+        );
+      }
+    }
+  }
+}
+
+// Dark mode support (if you have it)
+@media (prefers-color-scheme: dark) {
+  .existing-images {
+    .image-preview {
+      &.main-image {
+        border-color: lighten($primary-color, 10%);
+      }
+
+      .main-label {
+        background: lighten($primary-color, 10%);
+      }
+    }
+
+    .image-row {
+      scrollbar-color: lighten($primary-color, 10%) $gray-600;
+      
+      &::-webkit-scrollbar-track {
+        background: $gray-600;
+      }
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .existing-images {
+    .image-preview {
+      border: 2px solid $black;
+
+      &.main-image {
+        border-color: $primary-color;
+        border-width: 3px;
+      }
+
+      .main-label {
+        background: $primary-color;
+        border: 1px solid $black;
+      }
+
+      .image-remove {
+        background: $error-color;
+        border: 1px solid $black;
+      }
+    }
+  }
+}
+
+// Animation keyframes (if not already defined)
+@keyframes loadingShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Add a subtle separator between existing and new images (optional)
+.existing-images + .image-previews {
+  margin-top: $spacing-6;
+  padding-top: $spacing-6;
+  border-top: 1px solid $divider-color;
+}
+
+// Tooltip for image actions (optional)
+.image-preview {
+  .image-remove {
+    &[mat-icon-button] {
+      &::after {
+        content: 'Remove image';
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: $gray-800;
+        color: $white;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-sm;
+        font-size: $font-size-xs;
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: all $transition-fast;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      &:hover::after {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @include mobile {
+        &::after {
+          display: none; // Hide tooltip on mobile
+        }
+      }
+    }
+  }
+}
