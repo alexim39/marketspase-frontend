@@ -516,6 +516,14 @@
       color: $error-color;
     }
   }
+
+  .delete-action {
+    color: $error-color;
+    
+    mat-icon {
+      color: $error-color;
+    }
+  }
 }
 
 .switch-store-menu {

@@ -190,12 +190,15 @@ export class ProductService {
     return this.apiService.put<ProductResponse>(`stores/product/${storeId}/${userId}/${productId}`, productData, undefined, true);
   }
 
+
   /**
-   * Delete product (soft delete)
+   * Permanently delete product (use with caution)
    */
-//   deleteProduct(storeId: string, productId: string): Observable<{ success: boolean; message: string }> {
-//     return this.apiService.delete<{ success: boolean; message: string }>(`stores/product/${storeId}/products/${productId}`, undefined, undefined, true);
-//   }
+  deleteProduct(storeId: string, userId: string, productId: string): Observable<{ success: boolean; message: string }> {
+    return this.apiService.delete<{ success: boolean; message: string }>(`stores/product/${storeId}/${userId}/${productId}/permanent`, undefined, undefined, true);
+  }
+
+
 
   /**
    * Get all products for a store with pagination

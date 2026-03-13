@@ -112,7 +112,7 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   public searchQuery = signal<string>('');
   public selectedCategory = signal<string>('all');
 
-   private dialog = inject(MatDialog);
+  private dialog = inject(MatDialog);
 
   // Performance metrics - FIXED: Added proper typing
   public performanceMetrics = computed((): PerformanceMetric[] => {
@@ -342,7 +342,9 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  openStoreManager(): void {
+  openStoreManager(store: Store): void {
+    // console.log('Opening Store Manager for store: ', store);
+    //console.log('Opening Stores: ', this.stores());
     const dialogRef = this.dialog.open(StoreManagerComponent, {
       width: '600px',
       maxHeight: '80vh',

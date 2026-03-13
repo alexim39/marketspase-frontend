@@ -3,8 +3,9 @@
   <!-- Enhanced Header with Controls -->
   <app-store-header
     [store]="currentStore()"
-    [stores]="stores() || []"
+    [user]="user()"
     [loading]="loading()"
+    [stores]="stores() || []"
     (createStore)="createStore()"
     (manageStore)="manageStore($event)"
     (verifyStore)="verifyStore()"
@@ -56,7 +57,7 @@
             Auto-refresh {{ autoRefresh() ? 'On' : 'Off' }}
           </button>
 
-          <button mat-stroked-button (click)="openStoreManager()" [color]="autoRefresh() ? 'primary' : ''">
+          <button mat-stroked-button (click)="openStoreManager(currentStore()!)" [color]="autoRefresh() ? 'primary' : ''">
             <mat-icon>store</mat-icon>
             Store Manager
           </button>
@@ -116,7 +117,10 @@
           class="store-tab">
           <mat-icon class="tab-icon">{{ getTabIcon(tab) }}</mat-icon>
           <span class="tab-label">{{ tab | titlecase }}</span>
-          <mat-icon *ngIf="tab === 'products' && lowStockProducts().length > 0" class="tab-badge" color="warn">warning</mat-icon>
+          @if (tab === 'products' && lowStockProducts().length > 0) {
+            <mat-icon class="tab-badge" color="warn">warning</mat-icon>
+          }
+          
         </a>
       </nav>
 

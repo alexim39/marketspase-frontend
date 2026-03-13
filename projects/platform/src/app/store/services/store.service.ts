@@ -40,6 +40,11 @@ export class StoreService {
     this.performanceMetrics.set([]);
   }
 
+  // Create this helper
+  setLoading(value: boolean) {
+    this.loading.set(value);
+  }
+
   // Set current store
   setCurrentStore(store: Store | null): void {
     this.currentStore.set(store);
@@ -77,7 +82,30 @@ export class StoreService {
 
     return this.apiService.get<any>(`${this.apiUrl}?userId=${userId}`).pipe(
       map((res) => {
-        //console.log('getStores response:', res);
+        // 1. Extract the data. Use optional chaining and fallbacks for safety.
+        const stores = res?.data || res?.stores || (Array.isArray(res) ? res : []);
+        return stores as Store[];
+      }),
+      tap({
+        next: (stores: Store[]) => {
+          // 2. Update the Signal with the mapped result
+          this.stores.set(stores);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('Error fetching stores:', err);
+          this.loading.set(false);
+        }
+      })
+    );
+  }
+
+  /* getStores(userId: string): Observable<Store[]> {
+    this.loading.set(true);
+
+    return this.apiService.get<any>(`${this.apiUrl}?userId=${userId}`).pipe(
+      map((res) => {
+        console.log('getStores response:', res);
         // Accept common API shapes:
         const list = Array.isArray(res) ? res
           : Array.isArray(res?.stores) ? res.stores
@@ -94,7 +122,7 @@ export class StoreService {
         error: () => this.loading.set(false),
       })
     );
-  }
+  } */
 
   // Get Store by ID
   getStoreById(storeId: string): Observable<any> {
@@ -190,6 +218,29 @@ export class StoreService {
           this.loading.set(false);
           console.error('Failed to get product:', error);
         }
+      })
+    );
+  }
+
+
+  /**
+   * Permanently delete store (use with caution)
+   */
+  permanentDeleteStore(storeId: string, userId: string): Observable<{ success: boolean; message: string }> {
+    this.loading.set(true);
+    
+    return this.apiService.delete<{ success: boolean; message: string }>(
+      `${this.apiUrl}/${storeId}/${userId}/permanent`,
+      undefined,
+      undefined,
+      true
+    ).pipe(
+      tap({
+        next: () => {
+          this.stores.update(stores => stores.filter(s => s._id !== storeId));
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
       })
     );
   }
@@ -371,24 +422,6 @@ export class StoreService {
   // }
 
 
-  // deleteProduct(storeId: string, productId: string): Observable<void> {
-  //   this.loading.set(true);
-    
-  //   return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
-  //     tap({
-  //       next: () => {
-  //         this.storeProducts.update(products =>
-  //           products.filter(p => p._id !== productId)
-  //         );
-  //         this.loading.set(false);
-  //       },
-  //       error: (error) => {
-  //         this.loading.set(false);
-  //         console.error('Failed to delete product:', error);
-  //       }
-  //     })
-  //   );
-  // }
 
  
 

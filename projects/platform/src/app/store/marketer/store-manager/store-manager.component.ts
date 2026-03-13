@@ -42,8 +42,9 @@ export class StoreManagerComponent {
   
  ngOnInit() {
     // Use the dialog data passed from parent
-    this.stores = this.dialogData?.stores.data || [];
+    this.stores = this.dialogData?.stores || [];
     this.loadStores();
+    //console.log('Dialog data stores: ', this.stores);
   }
   
   loadStores() {
@@ -55,7 +56,7 @@ export class StoreManagerComponent {
     this.loading.set(true);
     this.storeService.setDefaultStore(store!).subscribe({
         next: (updatedStore) => {
-            console.log('returned messge ', updatedStore)
+            //console.log('returned messge ', updatedStore)
             this.snackBar.open(`${updatedStore.message}`, 'OK', { duration: 3000 });
             this.dialogRef.close(true);
             this.loading.set(false);

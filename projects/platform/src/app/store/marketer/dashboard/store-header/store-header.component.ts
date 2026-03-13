@@ -1,7 +1,7 @@
 // components/store-header/store-header.component.ts
-import { Component, input, output, computed, inject } from '@angular/core';
+import { Component, input, output, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,8 +13,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '../../../models/store.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TruncatePipe } from '../../../shared';
-import { DeviceService } from '../../../../../../../shared-services/src/public-api';
+import { DialogService, TruncatePipe } from '../../../shared';
+import { DeviceService, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { take } from 'rxjs/internal/operators/take';
+import { StoreService } from '../../../services/store.service';
 
 @Component({
   selector: 'app-store-header',
@@ -33,15 +35,22 @@ import { DeviceService } from '../../../../../../../shared-services/src/public-a
     MatDividerModule,
     TruncatePipe
   ],
+  providers: [StoreService, DialogService],
   templateUrl: './store-header.component.html',
   styleUrls: ['./store-header.component.scss']
 })
 export class StoreHeaderComponent {
   // Inputs
   store = input<Store | null>(null);
+  user = input<UserInterface | null>(null);
   stores = input<Store[]>([]);
-  loading = input<boolean>(false);
+  loading = input<boolean>(false); 
   private snackBar = inject(MatSnackBar);
+  private dialogService = inject(DialogService);
+  private storeService = inject(StoreService);
+  private router = inject(Router);
+
+
   private readonly deviceService = inject(DeviceService);
   protected readonly deviceType = computed(() => this.deviceService.type());
 
@@ -53,6 +62,7 @@ export class StoreHeaderComponent {
   exportData = output<void>();
   duplicateStore = output<void>();
   archiveStore = output<void>();
+
 
   // Computed properties
   storeStatus = computed(() => {
@@ -126,6 +136,64 @@ export class StoreHeaderComponent {
 
   onArchiveStore(): void {
     this.archiveStore.emit();
+  }
+
+  async onDeleteStore(store: Store): Promise<void> {
+    if (!store || !this.user()?._id) return;
+
+    //console.log('Deleting store:', store);
+
+    this.storeService.setLoading(true);
+
+    const confirmed = await this.dialogService.confirmDelete(store.name, 'store').pipe(take(1)).toPromise();
+
+    if (confirmed) {
+      try {
+        this.storeService.setLoading(true);
+        
+        this.storeService.permanentDeleteStore(store?._id ?? '', this.user()?._id ?? '').subscribe({
+          next: (response) => {
+            this.snackBar.open(
+              `Store "${store.name}" deleted successfully.`,
+              'OK',
+              { 
+                duration: 5000,
+                panelClass: ['success-snackbar']
+              }
+            );
+            this.refresh();
+          },
+          error: (error) => {
+            console.error('Failed to delete store:', error);
+            
+            let errorMessage = 'Failed to delete store';
+            if (error.status === 400) {
+              errorMessage = error.error?.message || 'Cannot delete your only store';
+            } else if (error.status === 403) {
+              errorMessage = 'You do not have permission to delete this store';
+            } else if (error.status === 404) {
+              errorMessage = 'Store not found';
+            }
+            
+            this.snackBar.open(errorMessage, 'OK', { 
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+            this.storeService.setLoading(false);
+          }
+        });
+      } catch (error) {
+        console.error('Delete confirmation error:', error);
+        this.storeService.setLoading(false);
+      }
+    }
+  }
+
+  refresh() {
+    const currentUrl = this.router.url;
+    this.router.navigateByUrl('/dashboard/stores', { skipLocationChange: true }).then(() => {
+      this.router.navigate([currentUrl]);
+    });
   }
 
   trackByStoreId(index: number, store: Store): string {

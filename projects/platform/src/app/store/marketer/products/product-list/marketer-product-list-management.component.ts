@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, input, output, signal, computed, inject, OnInit, ViewChild, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -22,12 +22,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { take } from 'rxjs';
 
 import { Store } from '../../../models/store.model';
-import { StoreService } from '../../../services/store.service';
 import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';
 import { TruncatePipe } from '../../../shared';
 import { SelectionModel } from '@angular/cdk/collections';
-import { CurrencyUtilsPipe } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserService } from '../../../../common/services/user.service';
+import { ProductService } from '../product.service';
 
 interface ProductColumn {
   key: keyof Product | 'actions' | 'select';
@@ -69,6 +70,7 @@ interface StockStatus {
     MatDialogModule,
     CurrencyUtilsPipe
   ],
+  providers: [ProductService, DialogService],
   templateUrl: './marketer-product-list-management.component.html',
   styleUrls: ['./marketer-product-list-management.component.scss']
 })
@@ -76,6 +78,10 @@ export class MarketerProductListManagementComponent {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private dialogService = inject(DialogService);
+  private productService = inject(ProductService);
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
 
   // Inputs
   store = input.required<Store>();
@@ -386,23 +392,23 @@ export class MarketerProductListManagementComponent {
     try {
       this.loading.set(true);
       // Call your API to delete product
-      // this.storeService.deleteProduct(this.store()._id!, product._id!).subscribe({
-      //   next: () => {
-      //     this.productUpdated.emit();
-      //     this.snackBar.open('Product deleted successfully', 'OK', { 
-      //       duration: 3000,
-      //       panelClass: ['success-snackbar']
-      //     });
-      //     this.clearSelection();
-      //   },
-      //   error: (error) => {
-      //     console.error('Failed to delete product:', error);
-      //     this.snackBar.open('Failed to delete product', 'OK', { 
-      //       duration: 5000,
-      //       panelClass: ['error-snackbar']
-      //     });
-      //   }
-      // });
+      this.productService.deleteProduct(this.store()._id!, this.user()?._id ?? '', product._id!).subscribe({
+        next: () => {
+          this.productUpdated.emit();
+          this.snackBar.open('Product deleted successfully', 'OK', { 
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.clearSelection();
+        },
+        error: (error) => {
+          console.error('Failed to delete product:', error);
+          this.snackBar.open('Failed to delete product', 'OK', { 
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
     } finally {
       this.loading.set(false);
     }

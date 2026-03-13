@@ -1,5 +1,5 @@
 // product-detail.component.ts
-import { Component, signal, inject, OnInit, TemplateRef } from '@angular/core';
+import { Component, signal, inject, OnInit, TemplateRef, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +19,9 @@ import { StoreService } from '../../../services/store.service';
 import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';
 import { TruncatePipe } from '../../../shared';
-import { CurrencyUtilsPipe } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserService } from '../../../../common/services/user.service';
+import { ProductService } from '../product.service';
 
 interface StockStatus {
   text: string;
@@ -38,7 +40,7 @@ interface Review {
 @Component({
   selector: 'app-marketer-product-detail',
   standalone: true,
-  providers: [StoreService],
+  providers: [StoreService, ProductService, DialogService],
   imports: [
     CommonModule,
     RouterModule,
@@ -64,7 +66,11 @@ export class MarketerProductDetailComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private storeService = inject(StoreService);
+  private productService = inject(ProductService);
   private dialogService = inject(DialogService);
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
 
   // Product data
   product: Product | null = null;
@@ -136,23 +142,23 @@ export class MarketerProductDetailComponent implements OnInit {
       try {
         this.loading.set(true);
         // Call your API to delete product
-        // this.storeService.deleteProduct(this.storeId, this.productId).subscribe({
-        //   next: () => {
-        //     this.snackBar.open('Product deleted successfully', 'OK', { 
-        //       duration: 3000,
-        //       panelClass: ['success-snackbar']
-        //     });
-        //     this.goBack();
-        //   },
-        //   error: (error) => {
-        //     console.error('Failed to delete product:', error);
-        //     this.snackBar.open('Failed to delete product', 'OK', { 
-        //       duration: 5000,
-        //       panelClass: ['error-snackbar']
-        //     });
-        //     this.loading.set(false);
-        //   }
-        // });
+        this.productService.deleteProduct(this.storeId, this.user()?._id ?? '', this.productId).subscribe({
+          next: () => {
+            this.snackBar.open('Product deleted successfully', 'OK', { 
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+            this.goBack();
+          },
+          error: (error) => {
+            console.error('Failed to delete product:', error);
+            this.snackBar.open('Failed to delete product', 'OK', { 
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+            this.loading.set(false);
+          }
+        });
       } catch (error) {
         this.loading.set(false);
       }
@@ -204,15 +210,15 @@ export class MarketerProductDetailComponent implements OnInit {
     }
   }
 
-  duplicateProduct(): void {
-    this.snackBar.open('Duplicating product...', 'OK', { duration: 2000 });
-    // Implement duplication logic
-  }
+  // duplicateProduct(): void {
+  //   this.snackBar.open('Duplicating product...', 'OK', { duration: 2000 });
+  //   // Implement duplication logic
+  // }
 
-  exportProductData(): void {
-    this.snackBar.open('Exporting product data...', 'OK', { duration: 2000 });
-    // Implement export logic
-  }
+  // exportProductData(): void {
+  //   this.snackBar.open('Exporting product data...', 'OK', { duration: 2000 });
+  //   // Implement export logic
+  // }
 
   viewAllReviews(): void {
     this.snackBar.open('Opening all reviews...', 'OK', { duration: 2000 });

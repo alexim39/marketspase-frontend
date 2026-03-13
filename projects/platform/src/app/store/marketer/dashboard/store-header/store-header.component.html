@@ -192,7 +192,7 @@
               
               <mat-divider/>
               
-              <button mat-menu-item (click)="onExportData()">
+              <!-- <button mat-menu-item (click)="onExportData()">
                 <mat-icon>download</mat-icon>
                 <span>Export Store Data</span>
               </button>
@@ -203,11 +203,12 @@
               </button>
               
               <mat-divider/>
-              
-              <button mat-menu-item (click)="onArchiveStore()" class="archive-action">
-                <mat-icon>archive</mat-icon>
-                <span>Archive Store</span>
+               -->
+              <button mat-menu-item (click)="onDeleteStore(store()!)" class="delete-action">
+                <mat-icon style="color: red;">delete</mat-icon>
+                <span style="color: red;">Delete Store</span>
               </button>
+
             </mat-menu>
             
             <!-- Switch Store Submenu -->
