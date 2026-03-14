@@ -411,7 +411,7 @@ export class MarketerLandingComponent implements OnInit {
         next: (response) => {
           if (response.success) {
             //console.log(response)
-            this.snackBar.open(response.message, 'Close', { duration: 3000 });
+            this.snackBar.open(response.message + '. Awaiting approval', 'Close', { duration: 3000 });
             this.refreshCampaigns();
             this.isLoading.set(false);
           }
