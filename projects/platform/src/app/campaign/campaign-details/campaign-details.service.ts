@@ -22,4 +22,6 @@ export class CampaignDetailsService {
   updateCampaignStatus(id: string, status: string, performedBy: string): Observable<any> {
     return this.apiService.patch<any>(`campaign/admin/${id}/status`, { status, performedBy }, undefined, true);
   }
+
+
 }

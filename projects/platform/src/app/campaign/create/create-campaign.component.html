@@ -8,12 +8,13 @@
       <p>Launch your WhatsApp Status promotion</p>
     </div>
     <div class="header-actions">
-      <!-- <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later">
-        <mat-icon>save</mat-icon>
+      <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later">
+        <!-- <mat-icon>save</mat-icon> -->
+         Save
         @if (deviceType() === 'desktop') {
-          Save As Draft
+          As Draft
         }
-      </button> -->
+      </button>
     </div>
   </mat-toolbar>
 
@@ -48,7 +49,13 @@
       }
 
       @if (currentStep() === 2) {
-        <app-campaign-budget-form [formGroup]="budgetForm" [walletBalance]="walletBalance()" (validityChange)="onBudgetValidityChange($event)" (fundWallet)="fundWallet()" />
+        <app-campaign-budget-form 
+          [formGroup]="budgetForm" 
+          [walletBalance]="walletBalance()" 
+          (validityChange)="onBudgetValidityChange($event)" 
+          (fundWallet)="fundWallet()" 
+          (onSaveAsDraft)="onSaveAsDraft()" 
+        />
       }
 
       @if (currentStep() === 3) {

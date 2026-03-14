@@ -48,6 +48,7 @@ export class CampaignListComponent {
   @Output() viewDetails = new EventEmitter<string>();
   @Output() editCampaign = new EventEmitter<string>();
   @Output() pauseCampaign = new EventEmitter<string>();
+  @Output() activateCampaign = new EventEmitter<string>();
   @Output() resumeCampaign = new EventEmitter<string>();
   @Output() deleteCampaign = new EventEmitter<string>();
   @Output() createCampaign = new EventEmitter<void>();
@@ -77,6 +78,10 @@ export class CampaignListComponent {
 
   onPauseCampaign(campaignId: string): void {
     this.pauseCampaign.emit(campaignId);
+  }
+
+  onActivateCampaign(campaignId: string): void {
+    this.activateCampaign.emit(campaignId);
   }
 
   onResumeCampaign(campaignId: string): void {

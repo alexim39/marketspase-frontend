@@ -19,6 +19,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CampaignHeaderComponent } from './components/compaign-head/campaign-header.component';
 import { CampaignStatsMobileComponent } from './components/campaign-stats/mobile/campaign-stats-mobile.component';
 import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
+import { CampaignDetailsService } from '../../campaign/campaign-details/campaign-details.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface FilterOptions {
   status: string;
@@ -39,7 +41,7 @@ interface StatusOption {
 @Component({
   selector: 'marketer-landing',
   standalone: true,
-  providers: [MarketerService],
+  providers: [MarketerService, CampaignDetailsService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -61,6 +63,8 @@ export class MarketerLandingComponent implements OnInit {
   deviceType = computed(() => this.deviceService.type());
   private destroyRef = inject(DestroyRef);
   private marketerService = inject(MarketerService);
+  private campaignDetailsService = inject(CampaignDetailsService);
+  private snackBar = inject(MatSnackBar);
   
   public apiBaseUrl = this.marketerService.api;
 
@@ -396,6 +400,27 @@ export class MarketerLandingComponent implements OnInit {
   // Campaign actions
   pauseCampaign(campaignId: string): void {
     console.log('Pausing campaign:', campaignId);
+  }
+
+  activateCampaign(campaignId: string): void {
+    this.isLoading.set(true);
+    //console.log('activate campaign ',campaign)
+      this.campaignDetailsService.updateCampaignStatus(campaignId, 'pending', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            //console.log(response)
+            this.snackBar.open(response.message, 'Close', { duration: 3000 });
+            this.refreshCampaigns();
+            this.isLoading.set(false);
+          }
+        },
+        error: (error) => {
+          this.snackBar.open(error.error.message, 'Close', { duration: 3000 });
+          this.isLoading.set(false);
+        }
+      })
   }
 
   resumeCampaign(campaignId: string): void {

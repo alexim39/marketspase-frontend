@@ -110,6 +110,14 @@ export class CreateCampaignComponent implements OnInit {
     this.budgetForm.get('budget')?.value >= this.budgetForm.get('payoutAmount')?.value
   );
 
+  campaignIsReadyAsDraft = computed(() =>
+    this.isContentValid() &&
+    this.isBudgetValid() &&
+    this.isScheduleValid()
+    //this.walletBalance() >= this.budgetForm.get('budget')?.value &&
+    //this.budgetForm.get('budget')?.value >= this.budgetForm.get('payoutAmount')?.value
+  );
+
   ngOnInit(): void {
     this.initializeForms();
     this.setupFormListeners(); 
@@ -196,8 +204,6 @@ export class CreateCampaignComponent implements OnInit {
   submitCampaign(): void {
 
     if (!this.user()?.personalInfo?.phone || !this.user()?.personalInfo?.address) {
-    // if (this.user()?.personalInfo?.phone == null || this.user()?.personalInfo?.address == null) {
-    // if (this.user()?.personalInfo?.phone && this.user()?.personalInfo?.address) {
       this.snackBar.open(
         'Please complete your profile setup to create campaign',
         'Go to Settings',
@@ -333,10 +339,25 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   saveDraft(): void {
-    
+
+    if (!this.user()?.personalInfo?.phone || !this.user()?.personalInfo?.address) {
+      this.snackBar.open(
+        'Please complete your profile setup to create campaign',
+        'Go to Settings',
+        {
+          duration: 3000,
+          panelClass: 'snackbar-link'
+        }
+      ).onAction().subscribe(() => {
+        this.router.navigate(['/dashboard/settings/account']);
+      });
+
+      return;
+    }
+
     this.isSubmitting.set(true);
 
-    if (this.campaignIsReady()) {
+    if (this.campaignIsReadyAsDraft()) {
       const formData = new FormData();
       formData.append('title', this.contentForm.get('title')?.value);
       formData.append('caption', this.contentForm.get('caption')?.value);
@@ -349,7 +370,7 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
-      formData.append(
+     formData.append(
         'payoutTierId',
         String(this.budgetForm.get('payoutTier')?.value)
       );
@@ -396,14 +417,26 @@ export class CreateCampaignComponent implements OnInit {
           }
         });
     } else {
-      this.snackBar.open('Please complete all required fields and ensure you have sufficient funds.', 'OK', { duration: 3000 });
+      this.snackBar.open('Please complete all required fields to save campaign as draft', 'OK', { duration: 3000 });
       this.isSubmitting.set(false);
     }
-
   }
 
   fundWallet(): void {
     this.dialog.open(WalletFundingComponent, { panelClass: 'custom-dialog-container' });
+  }
+
+  onSaveAsDraft(): void {
+    // Just navigate to the next step without saving
+    if (this.currentStep() === 2) {
+      // Optionally validate that basic required fields are filled
+      if (this.budgetForm.get('payoutTier')?.valid && this.budgetForm.get('ageTarget')?.valid) {
+        this.currentStep.set(3);
+        this.snackBar.open('Proceeding to save campaign as draft', 'OK', { duration: 2000 });
+      } else {
+        this.snackBar.open('Please select a payout tier and age target first', 'OK', { duration: 3000 });
+      }
+    }
   }
 
   private setupFormListeners(): void {
