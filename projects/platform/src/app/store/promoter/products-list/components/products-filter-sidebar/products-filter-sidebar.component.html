@@ -1,0 +1,147 @@
+<!-- components/products-filter-sidebar/products-filter-sidebar.component.html -->
+<div class="filters-sidebar">
+  <div class="filters-header">
+    <h3>Filters</h3>
+    <button mat-button color="primary" (click)="clearFilters()">
+      <mat-icon>refresh</mat-icon>
+      Reset
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="filter-section">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        placeholder="Search products, stores, categories..."
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+        aria-label="Search products"
+      >
+      @if (searchQuery()) {
+        <button mat-icon-button class="clear-search" (click)="clearSearch()" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="filter-section">
+    <h4>Categories</h4>
+    <div class="categories-list">
+      @for (category of categories; track category) {
+        <mat-checkbox
+          [checked]="selectedCategories().includes(category)"
+          (change)="toggleCategorySelection($event.checked, category)"
+          class="category-checkbox"
+        >
+          {{ category }}
+        </mat-checkbox>
+      }
+    </div>
+  </div>
+
+  <!-- Price Range -->
+  <div class="filter-section">
+    <h4>Price Range</h4>
+    <div class="range-slider">
+      <mat-slider
+        [min]="priceRange[0]"
+        [max]="priceRange[1]"
+        [step]="10"
+        discrete
+      >
+        <input 
+          matSliderStartThumb 
+          [value]="selectedPriceRange()[0]" 
+          (valueChange)="onPriceRangeChange([$event, selectedPriceRange()[1]])"
+        >
+        <input 
+          matSliderEndThumb 
+          [value]="selectedPriceRange()[1]" 
+          (valueChange)="onPriceRangeChange([selectedPriceRange()[0], $event])"
+        >
+      </mat-slider>
+      <div class="range-values">
+        <span>{{ selectedPriceRange()[0] | currency }}</span>
+        <span>{{ selectedPriceRange()[1] | currency }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Commission Range -->
+  <div class="filter-section">
+    <h4>Commission Rate</h4>
+    <div class="range-slider">
+      <mat-slider
+        [min]="commissionRange[0]"
+        [max]="commissionRange[1]"
+        [step]="1"
+        discrete
+      >
+        <input 
+          matSliderStartThumb 
+          [value]="selectedCommissionRange()[0]" 
+          (valueChange)="onCommissionRangeChange([$event, selectedCommissionRange()[1]])"
+        >
+        <input 
+          matSliderEndThumb 
+          [value]="selectedCommissionRange()[1]" 
+          (valueChange)="onCommissionRangeChange([selectedCommissionRange()[0], $event])"
+        >
+      </mat-slider>
+      <div class="range-values">
+        <span>{{ selectedCommissionRange()[0] }}%</span>
+        <span>{{ selectedCommissionRange()[1] }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sorting -->
+  <div class="filter-section">
+    <h4>Sort By</h4>
+    <div class="sort-options">
+      <button
+        mat-button
+        [class.active]="sortBy() === 'commission'"
+        (click)="onSortChange('commission')"
+        class="sort-option"
+      >
+        <mat-icon>trending_up</mat-icon>
+        Commission
+        @if (sortBy() === 'commission') {
+          <mat-icon>{{ sortDirection() === 'desc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+        }
+      </button>
+      <button
+        mat-button
+        [class.active]="sortBy() === 'popularity'"
+        (click)="onSortChange('popularity')"
+        class="sort-option"
+      >
+        <mat-icon>whatshot</mat-icon>
+        Popularity
+      </button>
+      <button
+        mat-button
+        [class.active]="sortBy() === 'price'"
+        (click)="onSortChange('price')"
+        class="sort-option"
+      >
+        <mat-icon>attach_money</mat-icon>
+        Price
+      </button>
+      <button
+        mat-button
+        [class.active]="sortBy() === 'newest'"
+        (click)="onSortChange('newest')"
+        class="sort-option"
+      >
+        <mat-icon>schedule</mat-icon>
+        Newest
+      </button>
+    </div>
+  </div>
+</div>

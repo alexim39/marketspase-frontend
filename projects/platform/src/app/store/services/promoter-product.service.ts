@@ -11,7 +11,7 @@ export class PromoterProductService {
   private apiService = inject(ApiService);
   private apiUrl = 'stores/product';
 
-  getProducts(filters?: Partial<ProductFilter>): Observable<any> {
+  getPromoterStoreProducts(filters?: Partial<ProductFilter>): Observable<any> {
     let params = new HttpParams();
     
     if (filters?.categories?.length) {
@@ -40,7 +40,7 @@ export class PromoterProductService {
         .set('sortDirection', filters.sortDirection || 'desc');
     }
 
-    return this.apiService.get<any>(`${this.apiUrl}/list`, params, undefined, true).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/list/promoter`, params, undefined, true).pipe(
       catchError(error => {
         console.error('Error fetching promoter products:', error);
         return of([]);

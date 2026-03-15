@@ -1,35 +1,19 @@
 // promoter-products-list.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
 import { PromoterProduct } from '../models/promoter-product.model';
-import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSliderModule } from '@angular/material/slider';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTableModule } from '@angular/material/table';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
+
+// Child Components
+import { ProductsHeaderComponent } from './components/products-header/products-header.component';
+import { ProductsFilterSidebarComponent } from './components/products-filter-sidebar/products-filter-sidebar.component';
+import { ProductsContentViewComponent } from './components/products-content-view/products-content-view.component';
+import { FilterState, ViewMode, SortBy, SortDirection } from './models/filter-state.model';
 
 @Component({
   selector: 'app-promoter-products-list',
@@ -37,30 +21,9 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
   providers: [PromoterProductService],
   imports: [
     CommonModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatPaginatorModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSliderModule,
-    MatRadioModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatBadgeModule,
-    MatDividerModule,
-    MatTabsModule,
-    MatProgressBarModule,
-    TruncatePipe,
-    MatTableModule,
+    ProductsHeaderComponent,
+    ProductsFilterSidebarComponent,
+    ProductsContentViewComponent
   ],
   templateUrl: './promoter-products-list.component.html',
   styleUrls: ['./promoter-products-list.component.scss']
@@ -71,7 +34,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
-  @Input({ required: true }) user!: Signal<UserInterface | null>;;
+  @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   // Signals
   products = signal<PromoterProduct[]>([]);
@@ -81,31 +44,9 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   // Filter signals
   categories = signal<string[]>([]);
-  selectedCategories = signal<string[]>([]);
   priceRange = signal<[number, number]>([0, 10000]);
-  selectedPriceRange = signal<[number, number]>([0, 10000]);
   commissionRange = signal<[number, number]>([0, 50]);
-  selectedCommissionRange = signal<[number, number]>([0, 50]);
-  
-  searchQuery = signal<string>('');
-  sortBy = signal<'commission' | 'popularity' | 'price' | 'newest' | 'name'>('commission');
-  sortDirection = signal<'asc' | 'desc'>('desc');
-  
-  viewMode = signal<'grid' | 'list'>('grid');
-  pageSize = signal<number>(12);
-  currentPage = signal<number>(0);
-  
-  // Search subject for debouncing
-  private searchSubject = new Subject<string>();
 
-  // Computed properties
-  paginatedProducts = computed(() => {
-    const start = this.currentPage() * this.pageSize();
-    return this.filteredProducts().slice(start, start + this.pageSize());
-  });
-
-  totalProducts = computed(() => this.filteredProducts().length);
-  
   // Statistics
   stats = computed(() => {
     const products = this.filteredProducts();
@@ -122,16 +63,6 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProducts();
-    
-    // Setup search debouncing
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe(query => {
-      this.searchQuery.set(query);
-      this.applyFilters();
-    });
   }
 
   ngOnDestroy(): void {
@@ -139,14 +70,12 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Updated loadProducts method to handle errors and improve readability
   async loadProducts(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      const response = await this.productService.getProducts().toPromise();
-      console.log('Fetched response:', response);
+      const response = await this.productService.getPromoterStoreProducts().toPromise();
 
       if (!response || !response.data || response.data.length === 0) {
         this.error.set('No products found.');
@@ -155,16 +84,10 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Map the data array to products
       this.products.set(response.data);
-
-      // Extract filter options from the response
       this.extractFilterOptions(response.filters);
-
-      // Apply initial filters
-      this.applyFilters();
+      this.applyFilters({} as FilterState);
     } catch (err) {
-      console.error('Failed to load products:', err);
       this.error.set('Failed to load products. Please try again later.');
       this.snackBar.open('Failed to load products', 'Close', { duration: 5000 });
     } finally {
@@ -173,73 +96,72 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   private extractFilterOptions(filters: any): void {
-    // Extract categories from filters
-    if (filters.categories) {
+    if (filters?.categories) {
       const categories = filters.categories.map((cat: any) => cat.name);
       this.categories.set(categories.sort());
     }
 
-    // Extract price range from filters
-    if (filters.priceRange) {
+    if (filters?.priceRange) {
       const { minPrice, maxPrice } = filters.priceRange;
       this.priceRange.set([minPrice, maxPrice]);
-      this.selectedPriceRange.set([minPrice, maxPrice]);
     }
 
-    // Extract commission range from filters
-    if (filters.commissionRange) {
+    if (filters?.commissionRange) {
       const { minCommission, maxCommission } = filters.commissionRange;
       this.commissionRange.set([minCommission, maxCommission]);
-      this.selectedCommissionRange.set([minCommission, maxCommission]);
     }
   }
 
-  applyFilters(): void {
+  applyFilters(filterState: FilterState): void {
     let filtered = [...this.products()];
 
     // Apply search
-    const searchQuery = this.searchQuery().toLowerCase();
-    if (searchQuery) {
+    if (filterState.searchQuery) {
+      const query = filterState.searchQuery.toLowerCase();
       filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(searchQuery) ||
-        product.description?.toLowerCase().includes(searchQuery) ||
-        product.store.name.toLowerCase().includes(searchQuery) ||
-        product.tags?.some(tag => tag.toLowerCase().includes(searchQuery)) ||
-        product.category.toLowerCase().includes(searchQuery)
+        product.name.toLowerCase().includes(query) ||
+        product.description?.toLowerCase().includes(query) ||
+        product.store.name.toLowerCase().includes(query) ||
+        product.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+        product.category.toLowerCase().includes(query)
       );
     }
 
     // Apply category filter
-    const selectedCats = this.selectedCategories();
-    if (selectedCats.length > 0) {
+    if ((filterState.selectedCategories?.length ?? 0) > 0) {
       filtered = filtered.filter(product => 
-        selectedCats.includes(product.category)
+        filterState.selectedCategories!.includes(product.category)
       );
     }
 
+
     // Apply price filter
-    const [minPrice, maxPrice] = this.selectedPriceRange();
-    filtered = filtered.filter(product => 
-      product.price >= minPrice && product.price <= maxPrice
-    );
+    if (filterState.selectedPriceRange) {
+      const [minPrice, maxPrice] = filterState.selectedPriceRange;
+      filtered = filtered.filter(product => 
+        product.price >= minPrice && product.price <= maxPrice
+      );
+    }
 
     // Apply commission filter
-    const [minCommission, maxCommission] = this.selectedCommissionRange();
-    filtered = filtered.filter(product => 
-      product.promotion.commissionRate >= minCommission && 
-      product.promotion.commissionRate <= maxCommission
-    );
+    if (filterState.selectedCommissionRange) {
+      const [minCommission, maxCommission] = filterState.selectedCommissionRange;
+      filtered = filtered.filter(product => 
+        product.promotion.commissionRate >= minCommission && 
+        product.promotion.commissionRate <= maxCommission
+      );
+    }
 
     // Apply sorting
-    filtered = this.sortProducts(filtered);
+    if (filterState.sortBy) {
+      filtered = this.sortProducts(filtered, filterState.sortBy, filterState.sortDirection || 'desc');
+    }
 
     this.filteredProducts.set(filtered);
-    this.currentPage.set(0); // Reset to first page
   }
 
-  private sortProducts(products: PromoterProduct[]): PromoterProduct[] {
-    const sortBy = this.sortBy();
-    const direction = this.sortDirection() === 'asc' ? 1 : -1;
+  private sortProducts(products: PromoterProduct[], sortBy: SortBy, direction: SortDirection): PromoterProduct[] {
+    const dir = direction === 'asc' ? 1 : -1;
 
     return [...products].sort((a, b) => {
       let aValue: any, bValue: any;
@@ -270,63 +192,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
           bValue = b.promotion.commissionRate;
       }
 
-      return (aValue > bValue ? 1 : -1) * direction;
+      return (aValue > bValue ? 1 : -1) * dir;
     });
-  }
-
-  // Event handlers
-  onSearchInput(event: Event): void {
-    const query = (event.target as HTMLInputElement).value;
-    this.searchSubject.next(query);
-  }
-
-  clearSearch(): void {
-    this.searchQuery.set('');
-    this.applyFilters();
-  }
-
-  onCategoryChange(categories: string[]): void {
-    this.selectedCategories.set(categories);
-    this.applyFilters();
-  }
-
-  onPriceRangeChange(range: [number, number]): void {
-    this.selectedPriceRange.set(range);
-    this.applyFilters();
-  }
-
-  onCommissionRangeChange(range: [number, number]): void {
-    this.selectedCommissionRange.set(range);
-    this.applyFilters();
-  }
-
-  onSortChange(sortBy: 'commission' | 'popularity' | 'price' | 'newest' | 'name'): void {
-    if (this.sortBy() === sortBy) {
-      this.sortDirection.update(dir => dir === 'asc' ? 'desc' : 'asc');
-    } else {
-      this.sortBy.set(sortBy);
-      this.sortDirection.set('desc');
-    }
-    this.applyFilters();
-  }
-
-  clearFilters(): void {
-    this.selectedCategories.set([]);
-    this.selectedPriceRange.set(this.priceRange());
-    this.selectedCommissionRange.set(this.commissionRange());
-    this.searchQuery.set('');
-    this.sortBy.set('commission');
-    this.sortDirection.set('desc');
-    this.applyFilters();
-  }
-
-  // View controls
-  setGridView(): void {
-    this.viewMode.set('grid');
-  }
-
-  setListView(): void {
-    this.viewMode.set('list');
   }
 
   // Product actions
@@ -341,8 +208,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         duration: 3000,
         panelClass: ['success-snackbar']
       });
-    }).catch(err => {
-      console.error('Failed to copy:', err);
+    }).catch(() => {
       this.snackBar.open('Failed to copy link', 'Close', { duration: 3000 });
     });
   }
@@ -356,17 +222,6 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
-  }
-
-  // Pagination
-  onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
-  }
-
-  // Utility methods
-  trackByProductId(index: number, product: PromoterProduct): string {
-    return product._id;
   }
 
   getPerformanceColor(rate: number): string {
@@ -385,13 +240,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     return tier === 'premium' ? 'premium-badge' : 'basic-badge';
   }
 
-  // New method to handle category selection logic
-  toggleCategorySelection(checked: boolean, category: string): void {
-    if (checked) {
-      this.selectedCategories.update(categories => [...categories, category]);
-    } else {
-      this.selectedCategories.update(categories => categories.filter(c => c !== category));
-    }
-    this.applyFilters();
+  retryLoading(): void {
+    this.loadProducts();
   }
 }

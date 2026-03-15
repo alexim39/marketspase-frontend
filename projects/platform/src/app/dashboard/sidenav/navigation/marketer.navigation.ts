@@ -11,12 +11,14 @@ export function getMarketerNavigation(
       route: '/dashboard',
       expanded: false
     },
+
     {
       icon: 'account_box',
       label: 'Profile',
       route: '/dashboard/profile',
       expanded: false
     },
+
     {
       icon: 'campaign',
       label: 'Campaigns',
@@ -28,6 +30,7 @@ export function getMarketerNavigation(
         { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' }
       ]
     },
+
     {
       icon: 'storefront',
       label: 'Storefronts',
@@ -48,22 +51,7 @@ export function getMarketerNavigation(
         // }
       ]
     },
-    {
-      icon: 'currency_exchange',
-      label: 'Transactions',
-      expanded: false,
-      children: [
-        { icon: 'payments', label: 'Payment History', route: '/dashboard/transactions' },
-        {
-          icon: 'savings',
-          label: 'Wallet Management',
-          expanded: false,
-          children: [
-            { icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' }
-          ]
-        }
-      ]
-    },
+
     {
       icon: 'forum',
       label: 'Community',
@@ -81,6 +69,24 @@ export function getMarketerNavigation(
         }
       ]
     },
+    
+    {
+      icon: 'currency_exchange',
+      label: 'Transactions',
+      expanded: false,
+      children: [
+        { icon: 'payments', label: 'Payment History', route: '/dashboard/transactions' },
+        {
+          icon: 'savings',
+          label: 'Wallet Management',
+          expanded: false,
+          children: [
+            { icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' }
+          ]
+        }
+      ]
+    },
+
     {
       icon: 'settings',
       label: 'Settings',
@@ -98,6 +104,7 @@ export function getMarketerNavigation(
         }
       ]
     },
+
     {
       icon: 'help',
       label: 'Support',
@@ -114,5 +121,6 @@ export function getMarketerNavigation(
         }
       ]
     }
+    
   ];
 }
