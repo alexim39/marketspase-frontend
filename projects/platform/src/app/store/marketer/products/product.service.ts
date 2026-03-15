@@ -2,6 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../../../../shared-services/src/public-api';
+import { HttpParams } from '@angular/common/http';
 
 export interface CreateProductRequest {
   storeId: string;
@@ -153,21 +154,31 @@ export interface ProductResponse {
   updatedAt: Date;
 }
 
+export interface PublishProductsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    totalProcessed: number;
+    published: number;
+    skipped: number;
+    failed: Array<{
+      productId: string;
+      name: string;
+      error: string;
+    }>;
+    details: Array<{
+      productId: string;
+      name: string;
+      status: string;
+      reason?: string;
+    }>;
+  };
+}
+
 @Injectable()
 export class ProductService {
   private apiService: ApiService = inject(ApiService);
 
-  /**
-   * Create a new product
-  //  */
-  // createProduct(storeId: string, productData: CreateProductRequest): Observable<ProductResponse> {
-  //   return this.apiService.post<ProductResponse>(
-  //     `stores/product/${storeId}/products`,
-  //     productData,
-  //     undefined,
-  //     true
-  //   );
-  // }
 
   /**
    * Create product with file upload support (multipart form data)
@@ -177,10 +188,11 @@ export class ProductService {
   }
 
   /**
-   * Get product by ID
+   * Get product by ID with userId query param
    */
-  getProduct(storeId: string, productId: string): Observable<ProductResponse> {
-    return this.apiService.get<ProductResponse>(`stores/product/${productId}`, undefined, undefined, true );
+  getProduct(userId: string, productId: string): Observable<ProductResponse> {
+    const params = new HttpParams({ fromObject: { userId } });
+    return this.apiService.get<ProductResponse>(`stores/product/${productId}`, params, undefined, true );
   }
 
   /**
@@ -196,6 +208,77 @@ export class ProductService {
    */
   deleteProduct(storeId: string, userId: string, productId: string): Observable<{ success: boolean; message: string }> {
     return this.apiService.delete<{ success: boolean; message: string }>(`stores/product/${storeId}/${userId}/${productId}/permanent`, undefined, undefined, true);
+  }
+
+   /**
+   * Publish selected products for promotion
+   */
+  publishProductsForPromotion(
+    storeId: string, 
+    userId: string, 
+    productIds: string[]
+  ): Observable<PublishProductsResponse> {
+    return this.apiService.post<PublishProductsResponse>(
+      `stores/product/${storeId}/${userId}/publish`,
+      { productIds },
+      undefined,
+      true
+    );
+  }
+
+  /**
+   * Unpublish products
+   */
+  unpublishProducts(
+    storeId: string,
+    productIds: string[]
+  ): Observable<any> {
+    return this.apiService.post<any>(
+      `stores/product/${storeId}/unpublish`,
+      { productIds },
+      undefined,
+      true
+    );
+  }
+
+  /**
+ * Unpublish a single product
+ */
+  unpublishSingleProduct(
+    storeId: string,
+    productId: string
+  ): Observable<any> {
+   // console.log('Unpublishing single product:', { storeId, productId });
+    return this.apiService.post<any>(
+      `stores/product/${storeId}/${productId}/unpublish`,
+      {},
+      undefined,
+      true
+    );
+  }
+
+  /**
+   * Get published products for a store
+   */
+  getPublishedProducts(
+    storeId: string,
+    options?: {
+      page?: number;
+      limit?: number;
+      includeInactive?: boolean;
+    }
+  ): Observable<any> {
+    const params: any = {};
+    if (options?.page) params.page = options.page;
+    if (options?.limit) params.limit = options.limit;
+    if (options?.includeInactive) params.includeInactive = options.includeInactive;
+
+    return this.apiService.get<any>(
+      `stores/product/${storeId}/published`,
+      params,
+      undefined,
+      true
+    );
   }
 
 

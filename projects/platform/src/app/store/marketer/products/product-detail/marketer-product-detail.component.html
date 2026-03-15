@@ -35,14 +35,15 @@
         </div>
         
         <div class="header-actions">
-          <div class="status-chip">
+          <div class="status-chip" >
             <mat-chip-option 
               [color]="product?.isActive ? 'primary' : 'warn'" 
               [selected]="product?.isActive"
               (click)="toggleProductStatus()"
             >
-              <mat-icon>{{ product?.isActive ? 'check_circle' : 'pause_circle' }}</mat-icon>
-              {{ product?.isActive ? 'Active' : 'Inactive' }}
+              <span [ngClass]="product?.isActive ? 'product-active' : 'product-inactve'">
+                {{ product?.isActive ? 'Active' : 'Inactive' }}
+              </span>
             </mat-chip-option>
           </div>
           
@@ -140,10 +141,20 @@
         </div>
         <div class="stat-content">
           <span class="stat-value">{{ product?.price | currencyUtils:product?.currency }}</span>
-          <!-- <span class="stat-value">${{ product?.price | number:'1.2-2' }}</span> -->
           <span class="stat-label">Price</span>
         </div>
       </div>
+
+      <div class="stat-item">
+        <div class="stat-icon">
+          <mat-icon>payments</mat-icon>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{  ( product!.price - (product!.price * 0.1) ) | currencyUtils:product?.currency }}</span>
+          <span class="stat-label">Amount Receivable (10%)</span>
+        </div>
+      </div>
+
     </div>
   </div>
   
@@ -183,7 +194,7 @@
         <div class="left-column">
           <!-- Image Gallery -->
           <div class="image-gallery">
-            <div class="main-image">
+            <div class="main-image" (click)="openImageViewer(0)">
               @if (selectedImage) {
                 <img 
                   [src]="selectedImage.url" 
@@ -191,7 +202,7 @@
                   (error)="handleImageError($event)"
                   class="product-image"
                 >
-              } @else if (product.images && product.images[0].url) {
+              } @else if (product.images && product.images[0]?.url) {
                 <img 
                   [src]="product.images[0].url" 
                   [alt]="product.name"
@@ -205,23 +216,15 @@
                 </div>
               }
               
-              <!-- Image Badges -->
-              <div class="image-badges">
-                @if (!product.isActive) {
-                  <span class="badge inactive">Inactive</span>
-                }
-                @if (product.isFeatured) {
-                  <span class="badge featured">Featured</span>
-                }
-                @if (product.hasVariants) {
-                  <span class="badge variants">Has Variants</span>
-                }
-                @if (product.price < (product.originalPrice || 0)) {
-                  <span class="badge sale">On Sale</span>
-                }
-              </div>
+              <!-- Image count badge -->
+              @if (product.images && product.images.length > 1) {
+                <div class="image-count-badge" (click)="openImageViewer(0); $event.stopPropagation()">
+                  <mat-icon>photo_library</mat-icon>
+                  <span>{{ product.images.length }}</span>
+                </div>
+              }
             </div>
-            
+                        
             <!-- Thumbnail Gallery -->
             @if (product.images && product.images.length > 1) {
               <div class="thumbnail-gallery">
@@ -229,8 +232,7 @@
                   <div 
                     class="thumbnail"
                     [class.active]="selectedImage?.url === image.url || (!selectedImage && i === 0)"
-                    (click)="selectImage(image)"
-                  >
+                    (click)="selectImage(image)">
                     <img 
                       [src]="image.url" 
                       [alt]="'Thumbnail ' + (i + 1)"
@@ -308,6 +310,13 @@
                 <span class="price-label">Current Price</span>
                 <span class="current-price">{{ product.price | currencyUtils:product.currency }}</span>
                 <!-- <span class="current-price">${{ product.price | number:'1.2-2' }}</span> -->
+              </div>
+              <div class="price-row">
+                <span class="price-label recievable">Amount Receivable</span>
+                <span class="amount">
+                  {{ ( product!.price - (product!.price * 0.1) ) | currencyUtils:product.currency }}
+                  <!-- N{{ product.amountReceivable }} -->
+                </span>
               </div>
               
               @if (product.originalPrice && product.originalPrice > product.price) {
@@ -460,11 +469,11 @@
                     <div class="shipping-item">
                       <span class="shipping-label">Dimensions</span>
                       <span class="shipping-value">
-                        <!-- @if (product.dimensions) {
+                        @if (product.dimensions) {
                           {{ product.dimensions.length }}×{{ product.dimensions.width }}×{{ product.dimensions.height }} {{ product.dimensions.unit || 'cm' }}
                         } @else {
                           Not specified
-                        } -->
+                        }
                       </span>
                     </div>
                     
@@ -481,7 +490,7 @@
           </div>
           
           <!-- Analytics Card -->
-          <div class="analytics-card">
+          <!-- <div class="analytics-card">
             <div class="card-header">
               <h2 class="card-title">Product Analytics</h2>
               <span class="time-range">Last 30 days</span>
@@ -546,7 +555,6 @@
                 </div>
               </div>
               
-              <!-- Sales Chart (Placeholder) -->
               <div class="chart-container">
                 <div class="chart-placeholder">
                   <mat-icon>bar_chart</mat-icon>
@@ -555,7 +563,231 @@
                 </div>
               </div>
             </div>
+          </div> -->
+
+          <!-- Analytics Card - Updated HTML -->
+<div class="analytics-card">
+  <div class="card-header">
+    <div class="header-left">
+      <h2 class="card-title">Product Analytics</h2>
+      <div class="time-range-selector">
+        <button class="time-range-btn" [class.active]="selectedRange === '7d'" (click)="setTimeRange('7d')">
+          7D
+        </button>
+        <button class="time-range-btn" [class.active]="selectedRange === '30d'" (click)="setTimeRange('30d')">
+          30D
+        </button>
+        <button class="time-range-btn" [class.active]="selectedRange === '90d'" (click)="setTimeRange('90d')">
+          90D
+        </button>
+        <button class="time-range-btn" [class.active]="selectedRange === '12m'" (click)="setTimeRange('12m')">
+          12M
+        </button>
+      </div>
+    </div>
+    <button class="export-btn" mat-icon-button matTooltip="Export analytics data">
+      <mat-icon>download</mat-icon>
+    </button>
+  </div>
+  
+  <div class="card-content">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <!-- Views KPI -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon views">
+            <mat-icon>visibility</mat-icon>
           </div>
+          <div class="kpi-trend positive">
+            <mat-icon>trending_up</mat-icon>
+            <span>+12.3%</span>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ formatNumber(product.viewCount || 0) }}</span>
+          <span class="kpi-label">Total Views</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-comparison">vs. prev. period</span>
+          <span class="kpi-progress">
+            <span class="progress-bar" style="width: 78%"></span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Sales KPI -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon sales">
+            <mat-icon>shopping_cart</mat-icon>
+          </div>
+          <div class="kpi-trend positive">
+            <mat-icon>trending_up</mat-icon>
+            <span>+8.2%</span>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ formatNumber(product.purchaseCount || 0) }}</span>
+          <span class="kpi-label">Total Sales</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-comparison">Conversion rate: 3.2%</span>
+        </div>
+      </div>
+
+      <!-- Revenue KPI (New) -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon revenue">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <div class="kpi-trend positive">
+            <mat-icon>trending_up</mat-icon>
+            <span>+15.7%</span>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ formatRevenue(product.price * (product.purchaseCount || 0), product.currency) }}</span>
+          <span class="kpi-label">Total Revenue</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-comparison">Avg. order: {{ formatRevenue(product.price || 0, product.currency) }}</span>
+        </div>
+      </div>
+
+      <!-- Rating KPI -->
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon rating">
+            <mat-icon>star</mat-icon>
+          </div>
+          <div class="kpi-trend neutral">
+            <mat-icon>trending_flat</mat-icon>
+            <span>±0.0</span>
+          </div>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ (product.averageRating || 0) | number:'1.1-1' }}</span>
+          <span class="kpi-label">Avg. Rating</span>
+        </div>
+        <div class="kpi-footer">
+          <span class="kpi-comparison">{{ product.reviews?.length || 0 }} reviews</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <!-- Performance Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Performance Overview</h3>
+          <div class="chart-legend">
+            <span class="legend-item">
+              <span class="legend-dot views"></span>
+              Views
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot sales"></span>
+              Sales
+            </span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <canvas #performanceChart class="chart-canvas"></canvas>
+          <!-- Fallback for no chart library -->
+          <div class="chart-placeholder">
+            <svg viewBox="0 0 300 120" class="chart-svg">
+              <path d="M0,100 L40,80 L80,90 L120,50 L160,70 L200,40 L240,60 L280,20 L300,30" 
+                    stroke="#2196f3" stroke-width="2" fill="none" class="line views-line"/>
+              <path d="M0,90 L40,70 L80,60 L120,40 L160,30 L200,20 L240,25 L280,15 L300,10" 
+                    stroke="#4caf50" stroke-width="2" fill="none" class="line sales-line"/>
+              <circle cx="200" cy="40" r="4" fill="#2196f3"/>
+              <circle cx="280" cy="20" r="4" fill="#4caf50"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distribution Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Traffic Sources</h3>
+        </div>
+        <div class="chart-body">
+          <div class="distribution-list">
+            <div class="distribution-item">
+              <div class="distribution-label">
+                <span class="color-dot direct"></span>
+                <span>Direct</span>
+              </div>
+              <div class="distribution-bar">
+                <span class="bar-fill direct" style="width: 45%"></span>
+              </div>
+              <span class="distribution-value">45%</span>
+            </div>
+            <div class="distribution-item">
+              <div class="distribution-label">
+                <span class="color-dot search"></span>
+                <span>Search</span>
+              </div>
+              <div class="distribution-bar">
+                <span class="bar-fill search" style="width: 30%"></span>
+              </div>
+              <span class="distribution-value">30%</span>
+            </div>
+            <div class="distribution-item">
+              <div class="distribution-label">
+                <span class="color-dot social"></span>
+                <span>Social</span>
+              </div>
+              <div class="distribution-bar">
+                <span class="bar-fill social" style="width: 15%"></span>
+              </div>
+              <span class="distribution-value">15%</span>
+            </div>
+            <div class="distribution-item">
+              <div class="distribution-label">
+                <span class="color-dot email"></span>
+                <span>Email</span>
+              </div>
+              <div class="distribution-bar">
+                <span class="bar-fill email" style="width: 10%"></span>
+              </div>
+              <span class="distribution-value">10%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights Section -->
+    <div class="insights-section">
+      <h3 class="insights-title">Key Insights</h3>
+      <div class="insights-grid">
+        <div class="insight-card">
+          <mat-icon class="insight-icon tip">lightbulb</mat-icon>
+          <div class="insight-content">
+            <p class="insight-text">Best performing day: <strong>Wednesdays</strong> with 45% more views</p>
+          </div>
+        </div>
+        <div class="insight-card">
+          <mat-icon class="insight-icon alert">trending_up</mat-icon>
+          <div class="insight-content">
+            <p class="insight-text">Sales increased by <strong>23%</strong> after the last price update</p>
+          </div>
+        </div>
+        <div class="insight-card">
+          <mat-icon class="insight-icon warning">star</mat-icon>
+          <div class="insight-content">
+            <p class="insight-text">5-star reviews mention: <strong>quality, durable, affordable</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
           
           <!-- Reviews Card -->
           @if (product.reviews && product.reviews.length > 0) {

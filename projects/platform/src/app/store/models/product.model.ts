@@ -86,6 +86,7 @@ export interface Product {
   name: string;
   description?: string;
   price: number;
+  amountReceivable: number;
   currency: string;
   originalPrice?: number; // For discounts
   images: Array<{
@@ -93,6 +94,7 @@ export interface Product {
     altText?: string;
     isMain: boolean;
     order: number;
+    thumbnail?: string;
   }>;
   quantity: number;
   category: string;
@@ -104,6 +106,7 @@ export interface Product {
     length: number;
     width: number;
     height: number;
+    unit: number;
   };
   costPrice?: number;
   taxRate?: number;
@@ -148,6 +151,13 @@ export interface Product {
 
   manageStock?: boolean;
   ratingCount?: number;
+
+  isPublished?: boolean;
+  publishedAt?: Date;
+  publishedBy?: string;
+  promotionStartDate?: Date;
+  promotionEndDate?: Date;
+
 }
 
 export interface PromoterTracking {

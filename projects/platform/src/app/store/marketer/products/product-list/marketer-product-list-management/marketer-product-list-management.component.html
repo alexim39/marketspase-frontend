@@ -123,14 +123,32 @@
       
       <div class="controls-right">
         <!-- Bulk Actions -->
-        <div class="bulk-actions" *ngIf="selectedProducts.length > 0">
+        @if (selectedProducts.length > 0) {
+        <div class="bulk-actions">
           <span class="selected-count">{{ selectedProducts.length }} selected</span>
           <button mat-button (click)="clearSelection()">Clear</button>
-          <button mat-stroked-button (click)="exportSelected()">
+         <button 
+            mat-stroked-button 
+            color="warn" 
+            (click)="unpublishSelectedProducts()"
+            [disabled]="isUnpublishDisabled()"
+          >
+            <mat-icon>unpublished</mat-icon>
+            Unpublish
+          </button>
+
+          <button 
+            mat-stroked-button 
+            color="primary" 
+            (click)="publishedSelectedForPromotion()"
+            [disabled]="isPublishDisabled()"
+          >
             <mat-icon>publish</mat-icon>
-            Publish for promotion
+            Publish
           </button>
         </div>
+      }
+        
         
         <!-- View Toggle -->
         <div class="view-toggle">
@@ -325,6 +343,14 @@
                 @if (product.price < (product.originalPrice || 0)) {
                   <span class="badge sale" matTooltip="On sale">Sale</span>
                 }
+                @if (product.isPublished) {
+                  <span class="badge published" 
+                        matTooltip="Published for promotion 
+                                  {{ product.promotionEndDate ? 'until ' + (product.promotionEndDate | date) : '' }}">
+                    <mat-icon>publish</mat-icon>
+                    Published
+                  </span>
+                }
               </div>
             </div>
             
@@ -414,9 +440,13 @@
                       <mat-icon>edit</mat-icon>
                       <span>Edit Product</span>
                     </button>
-                    <button mat-menu-item (click)="toggleProductStatus(product)">
-                      <mat-icon>{{ product.isActive ? 'pause_circle' : 'play_circle' }}</mat-icon>
-                      <span>{{ product.isActive ? 'Deactivate' : 'Activate' }}</span>
+                    <button 
+                      mat-menu-item 
+                      (click)="unpublishProduct(product)"
+                      [disabled]="!product.isPublished"
+                    >
+                      <mat-icon [style.color]="product.isPublished ? '#f44336' : '#9e9e9e'">unpublished</mat-icon>
+                      <span [style.color]="product.isPublished ? '#f44336' : '#9e9e9e'">Unpublish</span>
                     </button>
                     <mat-divider></mat-divider>
                     <button 
@@ -538,6 +568,40 @@
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Status</th>
             <td mat-cell *matCellDef="let product">
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <mat-chip-option
+                  [color]="product.isActive ? 'primary' : 'warn'" 
+                  [selected]="product.isActive"
+                  class="status-chip"
+                >
+                <!-- <mat-chip-option
+                  [color]="product.isActive ? 'primary' : 'warn'" 
+                  [selected]="product.isActive"
+                  (click)="toggleProductStatus(product)"
+                  class="status-chip"
+                > -->
+                  <mat-icon>{{ product.isActive ? 'check_circle' : 'pause_circle' }}</mat-icon>
+                  {{ product.isActive ? 'Active' : 'Inactive' }}
+                </mat-chip-option>
+                
+                @if (product.isPublished) {
+                  <mat-chip-option
+                    color="accent"
+                    selected="true"
+                    class="published-chip"
+                    matTooltip="Published for promotion"
+                  >
+                    <mat-icon>publish</mat-icon>
+                    Published
+                  </mat-chip-option>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let product">
               <mat-chip-option
                 [color]="product.isActive ? 'primary' : 'warn'" 
                 [selected]="product.isActive"
@@ -548,7 +612,7 @@
                 {{ product.isActive ? 'Active' : 'Inactive' }}
               </mat-chip-option>
             </td>
-          </ng-container>
+          </ng-container> -->
           
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
@@ -583,14 +647,14 @@
               </button>
               
               <mat-menu #actionMenu="matMenu" xPosition="before">
-                <button mat-menu-item (click)="duplicateProduct(product)">
+                <!-- <button mat-menu-item (click)="duplicateProduct(product)">
                   <mat-icon>content_copy</mat-icon>
                   <span>Duplicate</span>
-                </button>
-                <button mat-menu-item (click)="toggleProductStatus(product)">
+                </button> -->
+                <!-- <button mat-menu-item (click)="toggleProductStatus(product)">
                   <mat-icon>{{ product.isActive ? 'pause_circle' : 'play_circle' }}</mat-icon>
                   <span>{{ product.isActive ? 'Deactivate' : 'Activate' }}</span>
-                </button>
+                </button> -->
                 <mat-divider></mat-divider>
                 <button 
                   mat-menu-item 

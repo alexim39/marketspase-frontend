@@ -1,12 +1,14 @@
-@import '../../../../../styles/mixins';
-@import '../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
 
 .product-management {
   min-height: 100vh;
  background-color: color-mix(in srgb, $background-color, black 5%);
   
   .management-header {
-    background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
+    //background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
+    background: linear-gradient(135deg, $primary-color 0%, color-mix(in srgb, $primary-color, black 10%) 100%);
+
     color: $white;
     padding: $spacing-6 $spacing-8;
     border-radius: 0 0 $border-radius-xl $border-radius-xl;
@@ -1084,3 +1086,22 @@
 .success-bg { background: $success-color; }
 .warning-bg { background: $warning-color; }
 .error-bg { background: $error-color; }
+
+  .badge.published {
+    background: #4caf50;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .badge.published mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+  
+  .published-chip {
+    background-color: rgba(76, 175, 80, 0.1) !important;
+    color: #4caf50 !important;
+  }

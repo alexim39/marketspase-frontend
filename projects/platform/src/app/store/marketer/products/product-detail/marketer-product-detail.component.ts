@@ -22,6 +22,7 @@ import { TruncatePipe } from '../../../shared';
 import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
 import { UserService } from '../../../../common/services/user.service';
 import { ProductService } from '../product.service';
+import { ProductImageViewerComponent } from './product-image-viewer/product-image-viewer.component';
 
 interface StockStatus {
   text: string;
@@ -55,7 +56,8 @@ interface Review {
     MatDividerModule,
     MatDialogModule,
     TruncatePipe,
-    CurrencyUtilsPipe
+    CurrencyUtilsPipe,
+    
   ],
   templateUrl: './marketer-product-detail.component.html',
   styleUrls: ['./marketer-product-detail.component.scss']
@@ -83,6 +85,43 @@ export class MarketerProductDetailComponent implements OnInit {
   // Signals
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
+
+  // Time range selection
+  selectedRange: string = '30d';
+
+  setTimeRange(range: string): void {
+    this.selectedRange = range;
+    // Here you would fetch new analytics data based on the selected range
+    this.loadAnalyticsData(range);
+  }
+
+  // Format numbers with K/M suffixes
+  formatNumber(value: number): string {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    }
+    if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toString();
+  }
+
+  // Format revenue with currency
+  formatRevenue(value: number, currency: string = 'NGN'): string {
+    if (value >= 1000000) {
+      return currency + ' ' + (value / 1000000).toFixed(1) + 'M';
+    }
+    if (value >= 1000) {
+      return currency + ' ' + (value / 1000).toFixed(1) + 'K';
+    }
+    return currency + ' ' + value.toLocaleString();
+  }
+
+  // Load analytics data (implement based on your API)
+  loadAnalyticsData(range: string): void {
+    // TODO: Implement API call to fetch analytics data for the selected range
+    console.log('Loading analytics for range:', range);
+  }
 
   ngOnInit(): void {
     this.loadProduct();
@@ -274,5 +313,30 @@ export class MarketerProductDetailComponent implements OnInit {
 
   trackBySpecKey(index: number, spec: any): string {
     return spec.key;
+  }
+
+  openImageViewer(initialIndex: number = 0): void {
+    if (!this.product || !this.product.images || this.product.images.length === 0) return;
+
+    const images = this.product.images.map(img => ({
+      url: img.url,
+      thumbnail: img.thumbnail || img.url,
+      alt: this.product?.name
+    }));
+
+    this.dialog.open(ProductImageViewerComponent, {
+      data: {
+        images,
+        initialIndex,
+        productName: this.product.name
+      },
+      panelClass: 'product-image-viewer-dialog',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      width: '100%',
+      height: '100%',
+      backdropClass: 'image-viewer-backdrop',
+      disableClose: true
+    });
   }
 }

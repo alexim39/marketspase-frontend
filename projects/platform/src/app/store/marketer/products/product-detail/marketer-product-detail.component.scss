@@ -136,6 +136,14 @@
               }
             }
           }
+
+          .product-active {
+            color:#2e7d32;
+          }
+
+          .product-inactve {
+            color: red;
+          }
           
           .action-btn {
             color: $white;
@@ -219,6 +227,9 @@
             font-weight: $font-weight-bold;
             color: $white;
             line-height: 1;
+             @include mobile {
+              font-size:small
+             }
           }
           
           .stat-label {
@@ -315,6 +326,8 @@
               object-fit: cover;
               transition: transform $transition-normal;
               cursor: pointer;
+              padding: 0.8em;
+              border-radius: 15px;
               
               &:hover {
                 transform: scale(1.05);
@@ -431,7 +444,35 @@
                 @include body-small;
                 color: $text-secondary;
               }
-              
+
+              .recievable {
+                font-weight: 600; // Makes it more prominent
+                color: $text-primary; // Darker, more professional contrast
+                font-size: 0.95rem;
+                text-transform: uppercase; // Adds a level of importance
+                letter-spacing: 0.5px;
+                
+                // Optional: Add a small accent indicator
+                &::before {
+                  content: '';
+                  display: inline-block;
+                  width: 3px;
+                  height: 12px;
+                  background-color: #3498db; // Blue accent
+                  margin-right: 6px;
+                  border-radius: 2px;
+                }
+              }
+
+              .amount {
+                background-color: #e8f5e9; // Soft green background
+                color: #2e7d32; // Dark green text
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-size: 0.85rem;
+                font-weight: 700;
+              }
+                          
               .current-price {
                 @include heading-small;
                 color: $primary-color;
@@ -564,7 +605,7 @@
         gap: $spacing-6;
         
         .details-card,
-        .analytics-card,
+        //.analytics-card,
         .reviews-card {
           background: $surface-color;
           border-radius: $border-radius-lg;
@@ -948,3 +989,575 @@
 .success-bg { background: rgba($success-color, 0.1); }
 .warning-bg { background: rgba($warning-color, 0.1); }
 .error-bg { background: rgba($error-color, 0.1); }
+
+
+.main-image {
+  position: relative;
+  cursor: pointer;
+  
+  .image-count-badge {
+    position: absolute;
+    bottom: $spacing-3;
+    right: $spacing-3;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-full;
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    z-index: 2;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+// Analytics Card Professional Redesign
+.analytics-card {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 1px solid $border-color;
+  overflow: hidden;
+  transition: box-shadow $transition-normal;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid $border-color;
+    background: linear-gradient(to right, rgba($background-color, 0.5), transparent);
+
+    @include mobile {
+      padding: $spacing-4;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-3;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: $spacing-6;
+
+      @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-3;
+        width: 100%;
+      }
+
+      .card-title {
+        @include heading-small;
+        margin: 0;
+        color: $text-primary;
+        font-size: $font-size-xl;
+        font-weight: $font-weight-semibold;
+        letter-spacing: -0.01em;
+      }
+
+      .time-range-selector {
+        display: flex;
+        background: $background-color;
+        border-radius: $border-radius-full;
+        padding: 2px;
+        border: 1px solid $border-color;
+
+        @include mobile {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .time-range-btn {
+          padding: $spacing-1 $spacing-3;
+          border: none;
+          background: transparent;
+          border-radius: $border-radius-full;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-medium;
+          color: $text-secondary;
+          cursor: pointer;
+          transition: all $transition-fast;
+
+          @include mobile {
+            flex: 1;
+            padding: $spacing-2 $spacing-1;
+          }
+
+          &:hover {
+            color: $text-primary;
+            background: rgba($primary-color, 0.05);
+          }
+
+          &.active {
+            background: $primary-color;
+            color: $white;
+          }
+        }
+      }
+    }
+
+    .export-btn {
+      color: $text-tertiary;
+      transition: all $transition-fast;
+
+      &:hover {
+        color: $primary-color;
+        background: rgba($primary-color, 0.1);
+      }
+    }
+  }
+
+  .card-content {
+    padding: $spacing-6;
+
+    @include mobile {
+      padding: $spacing-4;
+    }
+  }
+
+  // KPI Grid
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-4;
+    margin-bottom: $spacing-8;
+
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-3;
+      margin-bottom: $spacing-6;
+    }
+
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .kpi-card {
+      background: linear-gradient(135deg, $surface-color, color-mix(in srgb, $background-color, black 2%));
+      border-radius: $border-radius-lg;
+      padding: $spacing-4;
+      border: 1px solid $border-color;
+      transition: all $transition-normal;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, $primary-color, transparent);
+        opacity: 0;
+        transition: opacity $transition-normal;
+      }
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba($primary-color, 0.15);
+        border-color: rgba($primary-color, 0.2);
+
+        &::before {
+          opacity: 1;
+        }
+      }
+
+      .kpi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: $spacing-3;
+
+        .kpi-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: $border-radius;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba($primary-color, 0.1);
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          &.views {
+            background: rgba($primary-color, 0.1);
+            color: $primary-color;
+          }
+          &.sales {
+            background: rgba($success-color, 0.1);
+            color: $success-color;
+          }
+          &.revenue {
+            background: rgba($warning-color, 0.1);
+            color: $warning-color;
+          }
+          &.rating {
+            background: rgba($info-color, 0.1);
+            color: $info-color;
+          }
+        }
+
+        .kpi-trend {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          padding: $spacing-1 $spacing-2;
+          border-radius: $border-radius-sm;
+          font-size: $font-size-xs;
+          font-weight: $font-weight-medium;
+
+          mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+          }
+
+          &.positive {
+            background: rgba($success-color, 0.1);
+            color: $success-color;
+          }
+          &.neutral {
+            background: rgba($text-tertiary, 0.1);
+            color: $text-tertiary;
+          }
+          &.negative {
+            background: rgba($error-color, 0.1);
+            color: $error-color;
+          }
+        }
+      }
+
+      .kpi-body {
+        margin-bottom: $spacing-3;
+
+        .kpi-value {
+          display: block;
+          @include heading-medium;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+          font-size: $font-size-xl;
+          line-height: 1.2;
+          margin-bottom: $spacing-1;
+        }
+
+        .kpi-label {
+          @include caption;
+          color: $text-secondary;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      .kpi-footer {
+        .kpi-comparison {
+          @include caption;
+          color: $text-tertiary;
+          font-size: $font-size-xs;
+          display: block;
+          margin-bottom: $spacing-2;
+        }
+
+        .kpi-progress {
+          display: block;
+          height: 4px;
+          background: rgba($border-color, 0.5);
+          border-radius: $border-radius-full;
+          overflow: hidden;
+
+          .progress-bar {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, $primary-color, lighten($primary-color, 15%));
+            border-radius: $border-radius-full;
+            transition: width $transition-normal;
+          }
+        }
+      }
+    }
+  }
+
+  // Charts Grid
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $spacing-6;
+    margin-bottom: $spacing-8;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-4;
+      margin-bottom: $spacing-6;
+    }
+
+    .chart-card {
+      background: linear-gradient(135deg, $surface-color, color-mix(in srgb, $background-color, black 1%));
+      border-radius: $border-radius-lg;
+      border: 1px solid $border-color;
+      overflow: hidden;
+      transition: all $transition-normal;
+
+      &:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        border-color: rgba($primary-color, 0.2);
+      }
+
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: $spacing-4;
+        border-bottom: 1px solid $border-color;
+
+        .chart-title {
+          @include body-large;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          margin: 0;
+        }
+
+        .chart-legend {
+          display: flex;
+          gap: $spacing-4;
+
+          .legend-item {
+            display: flex;
+            align-items: center;
+            gap: $spacing-1;
+            @include caption;
+            color: $text-secondary;
+
+            .legend-dot {
+              width: 8px;
+              height: 8px;
+              border-radius: $border-radius-full;
+
+              &.views {
+                background: $primary-color;
+              }
+              &.sales {
+                background: $success-color;
+              }
+            }
+          }
+        }
+      }
+
+      .chart-body {
+        padding: $spacing-4;
+        min-height: 200px;
+
+        .chart-canvas {
+          width: 100%;
+          height: 200px;
+        }
+
+        .chart-placeholder {
+          width: 100%;
+          height: 200px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          .chart-svg {
+            width: 100%;
+            max-width: 300px;
+            height: 120px;
+
+            .line {
+              filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            }
+
+            .views-line {
+              stroke: $primary-color;
+            }
+
+            .sales-line {
+              stroke: $success-color;
+            }
+          }
+        }
+
+        // Distribution List
+        .distribution-list {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-3;
+
+          .distribution-item {
+            display: flex;
+            align-items: center;
+            gap: $spacing-3;
+
+            .distribution-label {
+              display: flex;
+              align-items: center;
+              gap: $spacing-2;
+              min-width: 80px;
+              @include caption;
+              color: $text-secondary;
+
+              .color-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: $border-radius-full;
+
+                &.direct {
+                  background: $primary-color;
+                }
+                &.search {
+                  background: $success-color;
+                }
+                &.social {
+                  background: $warning-color;
+                }
+                &.email {
+                  background: $info-color;
+                }
+              }
+            }
+
+            .distribution-bar {
+              flex: 1;
+              height: 6px;
+              background: rgba($border-color, 0.3);
+              border-radius: $border-radius-full;
+              overflow: hidden;
+
+              .bar-fill {
+                display: block;
+                height: 100%;
+                border-radius: $border-radius-full;
+                transition: width $transition-normal;
+
+                &.direct {
+                  background: linear-gradient(90deg, $primary-color, lighten($primary-color, 10%));
+                }
+                &.search {
+                  background: linear-gradient(90deg, $success-color, lighten($success-color, 10%));
+                }
+                &.social {
+                  background: linear-gradient(90deg, $warning-color, lighten($warning-color, 10%));
+                }
+                &.email {
+                  background: linear-gradient(90deg, $info-color, lighten($info-color, 10%));
+                }
+              }
+            }
+
+            .distribution-value {
+              min-width: 45px;
+              @include caption;
+              font-weight: $font-weight-medium;
+              color: $text-primary;
+              text-align: right;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Insights Section
+  .insights-section {
+    margin-top: $spacing-6;
+    padding-top: $spacing-6;
+    border-top: 1px solid $border-color;
+
+    .insights-title {
+      @include body-large;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0 0 $spacing-4 0;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-4;
+
+      @include mobile {
+        grid-template-columns: 1fr;
+        gap: $spacing-3;
+      }
+
+      .insight-card {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-3;
+        padding: $spacing-4;
+        background: linear-gradient(135deg, $background-color, $surface-color);
+        border-radius: $border-radius-lg;
+        border: 1px solid $border-color;
+        transition: all $transition-normal;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+          border-color: rgba($primary-color, 0.2);
+        }
+
+        .insight-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+
+          &.tip {
+            color: $primary-color;
+          }
+          &.alert {
+            color: $warning-color;
+          }
+          &.warning {
+            color: $success-color;
+          }
+        }
+
+        .insight-content {
+          flex: 1;
+
+          .insight-text {
+            @include body-small;
+            color: $text-secondary;
+            margin: 0;
+            line-height: $line-height-relaxed;
+
+            strong {
+              color: $text-primary;
+              font-weight: $font-weight-semibold;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Add utility classes for formatting
+.text-gradient {
+  background: linear-gradient(135deg, $text-primary, $primary-color);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

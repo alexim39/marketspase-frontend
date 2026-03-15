@@ -19,16 +19,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { take } from 'rxjs';
+import { finalize, take } from 'rxjs';
 
-import { Store } from '../../../models/store.model';
-import { Product } from '../../../models';
-import { DialogService } from '../../../shared/services/dialog.service';
-import { TruncatePipe } from '../../../shared';
+import { Store } from '../../../../models/store.model';
+import { Product } from '../../../../models';
+import { DialogService } from '../../../../shared/services/dialog.service';
+import { TruncatePipe } from '../../../../shared';
 import { SelectionModel } from '@angular/cdk/collections';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
-import { UserService } from '../../../../common/services/user.service';
-import { ProductService } from '../product.service';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { UserService } from '../../../../../common/services/user.service';
+import { ProductService } from '../../product.service';
 
 interface ProductColumn {
   key: keyof Product | 'actions' | 'select';
@@ -336,7 +336,7 @@ export class MarketerProductListManagementComponent {
     this.router.navigate(['/dashboard/stores', this.store()._id, 'products', product._id]);
   }
 
-  async toggleProductStatus(product: Product): Promise<void> {
+/*   async toggleProductStatus(product: Product): Promise<void> {
     const action = product.isActive ? 'deactivate' : 'activate';
     const result = await this.dialogService.confirmAction(
       `${action === 'deactivate' ? 'Deactivate' : 'Activate'} Product`,
@@ -376,7 +376,7 @@ export class MarketerProductListManagementComponent {
         this.loading.set(false);
       }
     }
-  }
+  } */
 
   async deleteProduct(product: Product): Promise<void> {
     const result = await this.dialogService.confirmDelete(product.name, 'product')
@@ -420,16 +420,17 @@ export class MarketerProductListManagementComponent {
     // Call your API to duplicate product
   }
 
-  // Bulk actions
-  exportSelected(): void {
+  // publish selected products for promotion actions
+ /*  publishedSelectedForPromotion(): void {
     if (this.selectedProducts.length === 0) {
-      this.snackBar.open('Please select products to export', 'OK', { duration: 3000 });
+      this.snackBar.open('Please select products to publish', 'OK', { duration: 3000 });
       return;
     }
+    console.log('selected products ',this.selectedProducts)
     
     // Implement export selected logic
     this.snackBar.open(`Exporting ${this.selectedProducts.length} products...`, 'OK', { duration: 2000 });
-  }
+  } */
 
   bulkUpdateStatus(): void {
     if (this.selectedProducts.length === 0) {
@@ -486,5 +487,238 @@ export class MarketerProductListManagementComponent {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/images/product-placeholder.jpg';
     img.onerror = null; // Prevent infinite loop
+  }
+
+  getPublicationStatus(product: Product): { text: string; color: string; icon: string } {
+    if (product.isPublished) {
+      const now = new Date();
+      const endDate = product.promotionEndDate ? new Date(product.promotionEndDate) : null;
+      
+      if (endDate && endDate < now) {
+        return { text: 'Expired', color: 'warn', icon: 'timer_off' };
+      }
+      return { text: 'Published', color: 'primary', icon: 'publish' };
+    }
+    return { text: 'Not Published', color: '', icon: 'unpublished' };
+  }
+
+  // Implement the method
+  publishedSelectedForPromotion(): void {
+    if (this.selectedProducts.length === 0) {
+      this.snackBar.open('Please select products to publish', 'OK', { duration: 3000 });
+      return;
+    }
+
+    // First, filter out already published products
+    const unpublishedProducts = this.selectedProducts.filter(p => !p.isPublished);
+    
+    if (unpublishedProducts.length === 0) {
+      this.snackBar.open('All selected products are already published', 'OK', { duration: 3000 });
+      return;
+    }
+
+    // Show confirmation dialog
+    this.dialogService.confirmAction(
+      'Publish Products for Promotion',
+      `Are you sure you want to publish ${unpublishedProducts.length} product(s) for promotion?
+      
+      Published products will be:
+      • Visible to promoters
+      • Eligible for commission tracking
+      • Included in promotion campaigns
+      
+      Products that are inactive or out of stock will be skipped.`,
+      'Publish'
+    ).pipe(take(1)).subscribe(result => {
+      if (result) {
+        this.loading.set(true);
+        
+        const productIds = unpublishedProducts.map(p => p._id!);
+        
+        this.productService.publishProductsForPromotion(
+          this.store()._id!,
+          this.user()?._id ?? '',
+          productIds
+        ).pipe(
+          finalize(() => this.loading.set(false))
+        ).subscribe({
+          next: (response) => {
+            if (response.success) {
+              console.log('response ',response)
+              const { published, skipped, failed } = response.data;
+              
+              let message = `Successfully published ${published} product(s)`;
+              if (skipped > 0) message += `, ${skipped} skipped`;
+              if (failed.length > 0) message += `, ${failed.length} failed`;
+              
+              this.snackBar.open(message, 'OK', { 
+                duration: 5000,
+                panelClass: published > 0 ? ['success-snackbar'] : ['info-snackbar']
+              });
+              
+              // Show detailed results if there were skips or failures
+              if (skipped > 0 || failed.length > 0) {
+                this.showPublicationDetails(response.data.details);
+              }
+              
+              // Refresh the product list
+              this.productUpdated.emit();
+              this.clearSelection();
+            }
+          },
+          error: (error) => {
+            console.error('Failed to publish products:', error);
+            this.snackBar.open(
+              error.error?.message || 'Failed to publish products', 
+              'OK', 
+              { duration: 5000, panelClass: ['error-snackbar'] }
+            );
+          }
+        });
+      }
+    });
+  }
+
+
+  // Add this helper method to show publication details
+  private showPublicationDetails(details: any[]): void {
+    const skipped = details.filter(d => d.status === 'skipped');
+    const failed = details.filter(d => d.status === 'failed');
+    
+    if (skipped.length === 0 && failed.length === 0) return;
+    
+    let message = '';
+    if (skipped.length > 0) {
+      message += `\nSkipped products:\n`;
+      skipped.slice(0, 5).forEach(s => {
+        message += `• ${s.name}: ${s.reason}\n`;
+      });
+    }
+    
+    if (failed.length > 0) {
+      message += `\nFailed products:\n`;
+      failed.slice(0, 5).forEach(f => {
+        message += `• ${f.name}: ${f.error}\n`;
+      });
+    }
+    
+    if (skipped.length > 5 || failed.length > 5) {
+      message += `\n... and more. Check logs for details.`;
+    }
+    
+    // You might want to show this in a dialog instead of console
+    console.warn('Publication details:', { skipped, failed });
+  }
+
+  async unpublishSelectedProducts(): Promise<void> {
+  if (this.selectedProducts.length === 0) {
+    this.snackBar.open('Please select products to unpublish', 'OK', { duration: 3000 });
+    return;
+  }
+
+  // Filter to only published products
+  const publishedProducts = this.selectedProducts.filter(p => p.isPublished);
+  
+  if (publishedProducts.length === 0) {
+    this.snackBar.open('Selected products are not published', 'OK', { duration: 3000 });
+    return;
+  }
+
+  const result = await this.dialogService.confirmAction(
+    'Unpublish Products',
+    `Are you sure you want to unpublish ${publishedProducts.length} product(s) from promotion?`,
+    'Unpublish'
+  ).pipe(take(1)).toPromise();
+
+  if (result) {
+    this.loading.set(true);
+    
+    const productIds = publishedProducts.map(p => p._id!);
+    
+    this.productService.unpublishProducts(
+      this.store()._id!,
+      productIds
+    ).pipe(
+      finalize(() => this.loading.set(false))
+    ).subscribe({
+      next: (response) => {
+        console.log('Unpublish response:', response);
+        
+        if (response.success) {
+          // Refresh the product list
+          this.productUpdated.emit();
+          
+          this.snackBar.open(
+            response.message || `Successfully unpublished products`,
+            'OK',
+            { duration: 5000, panelClass: ['success-snackbar'] }
+          );
+          
+          this.clearSelection();
+        }
+      },
+      error: (error) => {
+        console.error('Failed to unpublish products:', error);
+        this.snackBar.open(
+          error.error?.message || 'Failed to unpublish products',
+          'OK',
+          { duration: 5000, panelClass: ['error-snackbar'] }
+        );
+      }
+    });
+  }
+}
+
+  // For single product unpublish
+  async unpublishProduct(product: Product): Promise<void> {
+    if (!product.isPublished) {
+      this.snackBar.open('This product is not published', 'OK', { duration: 3000 });
+      return;
+    }
+
+    const result = await this.dialogService.confirmAction(
+      'Unpublish Product',
+      `Are you sure you want to unpublish "${product.name}" from promotion?`,
+      'Unpublish'
+    ).pipe(take(1)).toPromise();
+
+    if (result) {
+      this.loading.set(true);
+      
+      this.productService.unpublishSingleProduct(
+        this.store()._id!,
+        product._id!
+      ).pipe(
+        finalize(() => this.loading.set(false))
+      ).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.productUpdated.emit();
+            this.snackBar.open('Product unpublished successfully', 'OK', { 
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Failed to unpublish product:', error);
+          this.snackBar.open(
+            error.error?.message || 'Failed to unpublish product',
+            'OK',
+            { duration: 5000, panelClass: ['error-snackbar'] }
+          );
+        }
+      });
+    }
+  }
+
+  isUnpublishDisabled(): boolean {
+    if (this.selectedProducts.length === 0) return true;
+    return this.selectedProducts.every(p => !p.isPublished);
+  }
+
+  isPublishDisabled(): boolean {
+    if (this.selectedProducts.length === 0) return true;
+    return this.selectedProducts.every(p => p.isPublished);
   }
 }

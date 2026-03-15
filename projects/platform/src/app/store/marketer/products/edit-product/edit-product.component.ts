@@ -258,7 +258,7 @@ export class EditProductComponent implements OnInit, OnDestroy {
   private loadProduct(): void {
     this.initialLoading.set(true);
 
-    this.productService.getProduct(this.storeId, this.productId)
+    this.productService.getProduct(this.user()?._id ?? '', this.productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
