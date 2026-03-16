@@ -64,6 +64,7 @@
               <app-campaigns-summary-card
                 [user]="user"
                 (viewAllCampaigns)="viewAllCampaigns.emit()"
+                (viewWithdrawal)="viewWithdrawal.emit()"
                 (startCampaign)="closeDialog.emit()"
               />
             }

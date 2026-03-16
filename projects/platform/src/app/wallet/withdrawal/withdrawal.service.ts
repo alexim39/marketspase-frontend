@@ -62,39 +62,6 @@ export class WithdrawalService {
       `wallet/resolve-account?accountNumber=${accountNumber}&bankCode=${bankCode}`
     );
   }
-
-
-  test(): Observable<any> {
-  //   const p = {
-  //     "saveAccount": true,
-  //     "bank": "044",
-  //     "accountNumber": "0040342205",
-  //     "accountName": "IMENWO  ALEX  CHINAGO",
-  //     "amount": 1000,
-  //     "userId": "68bde6eb95bec192938fadff",
-  //     "bankName": "Access Bank",
-  //     "bankCode": "044",
-  //     "withdrawalFee": 100,
-  //     "totalDeduction": 100,
-  //     "finalAmount": 1000
-  // }
-    const p = {
-      "saveAccount": true,
-      "bank": "50211",
-      "accountNumber": "1100900300",
-      "accountName": "anunobi, nwankwo kelechi",
-      "amount": 10000,
-      "userId": "68d1ab06953ebc12c3226f1b",
-      "bankName": "Kuda Bank",
-      "bankCode": "044",
-      "withdrawalFee": 100,
-      "totalDeduction": 100,
-      "finalAmount": 1000
-  }
-
-    return this.apiService.post<any>('wallet/withdraw-request', p, undefined, true);
-  }
-
   
   /**
  * Submits the form data to the backend.

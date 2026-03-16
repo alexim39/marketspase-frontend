@@ -75,13 +75,14 @@ export function getMarketerNavigation(
       label: 'Transactions',
       expanded: false,
       children: [
-        { icon: 'payments', label: 'Payment History', route: '/dashboard/transactions' },
+        { icon: 'payments', label: 'Transactions', route: '/dashboard/transactions' },
         {
           icon: 'savings',
           label: 'Wallet Management',
           expanded: false,
           children: [
-            { icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' }
+            { icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' },
+            { icon: 'savings', label: 'Withdraw Funds', route: '/dashboard/transactions/withdrawal' }
           ]
         }
       ]

@@ -8,6 +8,7 @@ import {
   computed,
   DestroyRef,
   Signal,
+  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatInputModule } from '@angular/material/input';
@@ -23,7 +24,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { WithdrawalService, SavedAccountInterface, WithdrawalRequestData } from './withdrawal.service';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Subject, EMPTY, of } from 'rxjs';
 import {
   debounceTime,
@@ -52,17 +53,12 @@ interface BankInterface {
   name: string;
 }
 
-interface AccountResolutionResponse {
-  status: boolean;
-  data: {
-    account_name: string;
-  };
-}
-
-
 /**
  * Component for handling fund withdrawals.
  * Provides functionality to withdraw funds to bank accounts with account name resolution.
+ * Supports both promoter and marketer roles with role-specific balance display and fee structure.
+ * - Promoters: 20% service charge applies
+ * - Marketers: No service charge
  */
 @Component({
   selector: 'async-withdrawal',
@@ -109,12 +105,43 @@ export class WithdrawalComponent implements OnInit {
 
   // Signals for reactive state management
   availableBalance = signal<number>(0);
-  readonly pendingBalance = signal<number>(this.user()?.wallets?.promoter.reserved ?? 0);
+  pendingBalance = signal<number>(0);
   readonly isBalanceLoading = signal<boolean>(false);
   readonly isSubmitting = signal<boolean>(false);
   readonly isResolvingAccount = signal<boolean>(false);
   readonly banks = signal<BankInterface[]>([]);
   readonly savedAccounts = signal<SavedAccountInterface[]>([]);
+
+  // Role-specific signals
+  readonly userRole = computed(() => this.user()?.role || 'promoter');
+  readonly isPromoter = computed(() => this.userRole() === 'promoter');
+  readonly isMarketer = computed(() => this.userRole() === 'marketer');
+
+  // Fee structure based on role
+  private readonly PROMOTER_FEE_RATE = 0.20; // 20% for promoters
+  private readonly MARKETER_FEE_RATE = 0; // 0% for marketers
+  
+  readonly feeRate = computed(() => 
+    this.isPromoter() ? this.PROMOTER_FEE_RATE : this.MARKETER_FEE_RATE
+  );
+
+  // Wallet accessors based on role
+  private readonly roleWallet = computed(() => {
+    const user = this.user();
+    const role = this.userRole();
+    
+    if (!user?.wallets) return null;
+    
+    return role === 'promoter' ? user.wallets.promoter : user.wallets.marketer;
+  });
+
+  // Role-specific balance signals
+  readonly roleAvailableBalance = computed(() => this.roleWallet()?.balance || 0);
+  readonly rolePendingBalance = computed(() => this.roleWallet()?.reserved || 0);
+  readonly roleCurrency = computed(() => this.roleWallet()?.currency || 'NGN');
+
+  // Constants
+  public readonly MIN_WITHDRAWAL_AMOUNT = 100;
 
   // Search functionality
   private readonly searchControl = new Subject<string>();
@@ -124,62 +151,84 @@ export class WithdrawalComponent implements OnInit {
   withdrawForm!: FormGroup;
   selectedBankName = signal<string>('');
 
-  // Constants
-  private readonly MIN_WITHDRAWAL_AMOUNT = 100;
-  private readonly WITHDRAWAL_FEE_RATE = 0.20; // 20%
-
   readonly payableAmount = signal<number>(0);
 
-  // New private method for consistent fee calculation
+  constructor() {
+    // Effect to update balances when user role changes
+    effect(() => {
+      this.updateBalancesFromRole();
+      // Reset payable amount when role changes
+      this.updatePayableAmount();
+    }, { allowSignalWrites: true });
+  }
+
+  private updateBalancesFromRole(): void {
+    this.availableBalance.set(this.roleAvailableBalance());
+    this.pendingBalance.set(this.rolePendingBalance());
+  }
+
+  // Calculate fee based on role
   private calculateFee(amount: number): number {
-    return amount * this.WITHDRAWAL_FEE_RATE;
+    return amount * this.feeRate();
   }
 
-
-readonly totalDeduction = computed(() => {
-  const amount = this.withdrawForm?.get('amount')?.value || 0;
-  const withdrawalAmount = parseFloat(amount) || 0;
-  
-  // Total deduction = withdrawal amount + 18% fee
-  return withdrawalAmount + (withdrawalAmount * this.WITHDRAWAL_FEE_RATE);
-});
-
-
-
-  private updatePayableAmount(): void {
-  const amountValue = this.withdrawForm?.get('amount')?.value;
-  
-  if (!amountValue || isNaN(amountValue)) {
-    this.payableAmount.set(0);
-    return;
-  }
-  
-  const withdrawalAmount = parseFloat(amountValue);
-  
-  if (withdrawalAmount < this.MIN_WITHDRAWAL_AMOUNT) {
-    this.payableAmount.set(0);
-    return;
-  }
-  
-  // Calculate payable amount: withdrawal amount minus 18% fee
-  const payable = withdrawalAmount * (1 - this.WITHDRAWAL_FEE_RATE);
-  this.payableAmount.set(Math.max(0, Math.round(payable * 100) / 100));
-}
-
-  
-
-  // Keep your existing maxWithdrawableAmount if you still need it for validation
-  readonly maxWithdrawableAmount = computed(() => {
-    const availableBalance = this.availableBalance();
-    const percentageRate = this.WITHDRAWAL_FEE_RATE;
+  // Total deduction based on role (with fee for promoters, no fee for marketers)
+  readonly totalDeduction = computed(() => {
+    const amount = this.withdrawForm?.get('amount')?.value || 0;
+    const withdrawalAmount = parseFloat(amount) || 0;
     
-    // Calculate max amount with percentage fee only
-    const maxAmount = availableBalance / (1 + percentageRate);
-    
-    // Ensure the amount is at least the minimum withdrawal amount
-    return Math.max(0, Math.floor(maxAmount));
+    // For promoters: withdrawal amount + fee
+    // For marketers: just withdrawal amount (no fee)
+    return this.isPromoter() 
+      ? withdrawalAmount + (withdrawalAmount * this.PROMOTER_FEE_RATE)
+      : withdrawalAmount;
   });
 
+  // Update payable amount based on role
+  private updatePayableAmount(): void {
+    const amountValue = this.withdrawForm?.get('amount')?.value;
+    
+    if (!amountValue || isNaN(amountValue)) {
+      this.payableAmount.set(0);
+      return;
+    }
+    
+    const withdrawalAmount = parseFloat(amountValue);
+    
+    if (withdrawalAmount < this.MIN_WITHDRAWAL_AMOUNT) {
+      this.payableAmount.set(0);
+      return;
+    }
+    
+    // For promoters: payable = amount - fee
+    // For marketers: payable = amount (no fee)
+    const payable = this.isPromoter()
+      ? withdrawalAmount * (1 - this.PROMOTER_FEE_RATE)
+      : withdrawalAmount;
+    
+    this.payableAmount.set(Math.max(0, Math.round(payable * 100) / 100));
+  }
+
+  // Get fee amount for display
+  readonly feeAmount = computed(() => {
+    const amount = this.withdrawForm?.get('amount')?.value || 0;
+    const withdrawalAmount = parseFloat(amount) || 0;
+    return this.calculateFee(withdrawalAmount);
+  });
+
+  // Max withdrawable amount based on available balance and role
+  readonly maxWithdrawableAmount = computed(() => {
+    const availableBalance = this.availableBalance();
+    
+    if (this.isMarketer()) {
+      // Marketers can withdraw up to their full available balance
+      return Math.max(0, Math.floor(availableBalance));
+    } else {
+      // Promoters: account for fee
+      const maxAmount = availableBalance / (1 + this.PROMOTER_FEE_RATE);
+      return Math.max(0, Math.floor(maxAmount));
+    }
+  });
 
   // Computed values
   readonly filteredBanks = computed(() => {
@@ -195,7 +244,7 @@ readonly totalDeduction = computed(() => {
 
   ngOnInit(): void {
     this.initializeComponent();
-    this.availableBalance.set(this.user()?.wallets?.promoter.balance || 0);
+    this.updateBalancesFromRole();
   }
 
   private initializeComponent(): void {
@@ -231,34 +280,35 @@ readonly totalDeduction = computed(() => {
           Validators.min(this.MIN_WITHDRAWAL_AMOUNT),
         ]
       ],
-      userId: [this.user()?._id]
+      userId: [this.user()?._id],
+      role: [this.userRole()] // Add role to form data
     });
 
     this.setupFormSubscriptions();
   }
 
-private setupFormSubscriptions(): void {
-  const accountNumberControl = this.withdrawForm.get('accountNumber');
-  const amountControl = this.withdrawForm.get('amount');
+  private setupFormSubscriptions(): void {
+    const accountNumberControl = this.withdrawForm.get('accountNumber');
+    const amountControl = this.withdrawForm.get('amount');
 
-  if (accountNumberControl) {
-    accountNumberControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.resolveAccountName());
-  }
+    if (accountNumberControl) {
+      accountNumberControl.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.resolveAccountName());
+    }
 
-  if (amountControl) {
-    amountControl.valueChanges
-      .pipe(
-        debounceTime(100),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe(() => {
-        this.updatePayableAmount();
-        amountControl.updateValueAndValidity({ emitEvent: false });
-      });
+    if (amountControl) {
+      amountControl.valueChanges
+        .pipe(
+          debounceTime(100),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          this.updatePayableAmount();
+          amountControl.updateValueAndValidity({ emitEvent: false });
+        });
+    }
   }
-}
 
   private setupSearchFunctionality(): void {
     this.searchControl
@@ -273,17 +323,19 @@ private setupFormSubscriptions(): void {
   }
 
   private loadInitialData(): void {
-    //this.fetchBalance();
     this.loadBanks();
     this.loadSavedAccounts();
   }
 
-
   // Balance methods
   fetchBalance(): void {
     if (!this.user()?._id) return;
-
     this.isBalanceLoading.set(true);
+    // You might want to add a service call here to refresh balance from backend
+    setTimeout(() => {
+      this.updateBalancesFromRole();
+      this.isBalanceLoading.set(false);
+    }, 500);
   }
 
   refreshBalance(): void {
@@ -361,7 +413,6 @@ private setupFormSubscriptions(): void {
       });
   }
 
-
   // Saved accounts
   private loadSavedAccounts(): void {
     if (this.user()?.savedAccounts?.length === 0) {
@@ -392,6 +443,13 @@ private setupFormSubscriptions(): void {
       return;
     }
 
+    // Validate against role-specific available balance
+    const amount = this.withdrawForm.get('amount')?.value;
+    if (this.totalDeduction() > this.availableBalance()) {
+      this.showErrorMessage(`Insufficient ${this.userRole()} balance. Your balance must cover the withdrawal amount${this.isPromoter() ? ' plus service fee' : ''}.`);
+      return;
+    }
+
     this.isSubmitting.set(true);
 
     const formData: WithdrawalRequestData = {
@@ -400,7 +458,11 @@ private setupFormSubscriptions(): void {
       bankCode: this.withdrawForm.get('bank')?.value,
       payableAmount: this.payableAmount(),
       totalDeduction: this.totalDeduction(),
-      finalAmount: this.withdrawForm.get('amount')?.value
+      feeAmount: this.feeAmount(),
+      feeRate: this.feeRate(),
+      finalAmount: this.withdrawForm.get('amount')?.value,
+      role: this.userRole(), // Include role in withdrawal request
+      currency: this.roleCurrency() // Include currency
     };
 
     this.withdrawalService.withdrawRequest(formData)
@@ -422,13 +484,12 @@ private setupFormSubscriptions(): void {
 
             // reload user record
             this.userService.getUser(this.user()?.uid || '')
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-              error: (error) => {
-                console.error('Failed to refresh user:', error);
-              }
-            });
-
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                error: (error) => {
+                  console.error('Failed to refresh user:', error);
+                }
+              });
           }
         }
       });
@@ -446,7 +507,8 @@ private setupFormSubscriptions(): void {
     this.selectedBankName.set('');
     this.withdrawForm.patchValue({
       userId: this.user()?._id,
-      saveAccount: false
+      saveAccount: false,
+      role: this.userRole()
     });
   }
 
@@ -458,7 +520,11 @@ private setupFormSubscriptions(): void {
   showDescription(): void {
     this.dialog.open(HelpDialogComponent, {
       data: {
-        help: 'This dashboard shows your current account balance and allows you to request withdrawals. Available balance is the amount you can withdraw immediately. Pending balance includes funds that are being processed.'
+        help: `This dashboard shows your current ${this.userRole()} account balance and allows you to request withdrawals. ${
+          this.isPromoter() 
+            ? 'A 20% service fee applies to all promoter withdrawals.' 
+            : 'No service fee applies to marketer withdrawals.'
+        } Available balance is the amount you can withdraw immediately. Pending balance includes funds that are being processed.`
       },
     });
   }
@@ -486,25 +552,23 @@ private setupFormSubscriptions(): void {
     });
   }
 
-  test() {
-    this.withdrawalService.test()
-      .pipe(
-        catchError((error: HttpErrorResponse) => {
-          const errorMessage = error.error?.message || 'Server error occurred, please try again.';
-          this.showErrorMessage(errorMessage);
-          return EMPTY;
-        }),
-        finalize(() => this.isSubmitting.set(false)),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSuccessMessage('Withdrawal request submitted successfully!');
-            this.resetForm();
-            this.refreshBalance();
-          }
-        }
-      });
+  // Role-specific display methods
+  getRoleDisplayName(): string {
+    return this.isPromoter() ? 'Promoter' : 'Marketer';
   }
+
+  getBalanceLabel(): string {
+    return `${this.getRoleDisplayName()} Available Balance`;
+  }
+
+  getPendingLabel(): string {
+    return `${this.getRoleDisplayName()} Pending`;
+  }
+
+  getFeeDescription(): string {
+    return this.isPromoter() 
+      ? '20% service fee applies' 
+      : 'No service fee for marketers';
+  }
+
 }
