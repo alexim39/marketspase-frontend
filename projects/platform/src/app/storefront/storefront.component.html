@@ -8,8 +8,8 @@
     (toggleFavorite)="toggleFavorite()"
     (shareStore)="shareStore()"
     (contactViaWhatsApp)="contactViaWhatsApp()"
-    (headerTransform)="onHeaderTransform($event)">
-  </app-store-header>
+    (headerTransform)="onHeaderTransform($event)"
+  />
 
   <!-- Main Content -->
   <main class="store-main">
@@ -55,20 +55,20 @@
         (priceRangeReset)="priceRange.set([minPrice(), maxPrice()])"
         (ratingFilterReset)="ratingFilter.set(0)"
         (tagFilterRemove)="toggleTagFilter($event)"
-        (brandFilterRemove)="toggleBrandFilter($event)">
-      </app-store-controls>
+        (brandFilterRemove)="toggleBrandFilter($event)"
+      />
       
       <!-- Loading State -->
       @if (loading()) {
-        <app-loading-state></app-loading-state>
+        <app-loading-state/>
       }
       
       <!-- Error State -->
       @if (error() && !loading()) {
         <app-error-state 
           [errorMessage]="error()!"
-          (retry)="retryLoad()">
-        </app-error-state>
+          (retry)="retryLoad()"
+        />
       }
       
       <!-- Products Display -->
@@ -85,8 +85,8 @@
                 (toggleWishlist)="toggleWishlist($event)"
                 (quickView)="openQuickView($event)"
                 (share)="shareProduct($event)"
-                (viewDetails)="viewProductDetails($event)">
-              </app-product-grid-card>
+                (viewDetails)="viewProductDetails($event)"
+              />
             }
           </div>
         }
@@ -103,8 +103,8 @@
                 (toggleWishlist)="toggleWishlist($event)"
                 (quickView)="openQuickView($event)"
                 (share)="shareProduct($event)"
-                (viewDetails)="viewProductDetails($event)">
-              </app-product-list-item>
+                (viewDetails)="viewProductDetails($event)"
+              />
             }
           </div>
         }
@@ -117,8 +117,8 @@
             [totalPages]="totalPages()"
             [totalItems]="products().length"
             (pageChange)="goToPage($event)"
-            (pageSizeChange)="pageSize.set($event); currentPage.set(1)">
-          </app-pagination>
+            (pageSizeChange)="pageSize.set($event); currentPage.set(1)"
+          />
         }
       }
       
@@ -129,8 +129,8 @@
           title="No Products Found"
           message="This store doesn't have any products available at the moment."
           [actionLabel]="'Browse Marketplace'"
-          (action)="router.navigate(['/'])">
-        </app-empty-state>
+          (action)="router.navigate(['/'])"
+        />
       }
       
       <!-- Empty State for No Matching Products -->
@@ -142,8 +142,8 @@
           [actionLabel]="'Search Something Else'"
           [secondaryActionLabel]="'Clear Filters'"
           (action)="clearSearch()"
-          (secondaryAction)="clearFilters()">
-        </app-empty-state>
+          (secondaryAction)="clearFilters()"
+        />
       }
     </div>
   </main>
@@ -152,16 +152,16 @@
   <app-store-footer
     [store]="store()"
     [currentYear]="currentYear"
-    (contactViaWhatsApp)="contactViaWhatsApp()">
-  </app-store-footer>
+    (contactViaWhatsApp)="contactViaWhatsApp()"
+  />
   
   <!-- FAB Container Component -->
   <app-fab-container
     [isScrolled]="isScrolled()"
     [cartCount]="getCartCount()"
     (scrollToTop)="scrollToTop()"
-    (shareStore)="shareStore()">
-  </app-fab-container>
+    (shareStore)="shareStore()"
+  />
   
   <!-- Filter Sidebar (Component) -->
   <app-filter-sidebar 
@@ -182,6 +182,6 @@
     (tagToggle)="toggleTagFilter($event)"
     [selectedBrands]="brandFilter()"
     (brandToggle)="toggleBrandFilter($event)"
-    (clearAll)="clearFilters()">
-  </app-filter-sidebar>
+    (clearAll)="clearFilters()"
+  />
 </div>

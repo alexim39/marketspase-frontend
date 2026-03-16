@@ -9,6 +9,10 @@ export interface ProductVariant {
   sku?: string;
   price: number;
   quantity: number;
+  originalPrice?: number;
+  images?: {
+    url: string;
+  }[];
 }
 
 export interface ProductAttribute {
@@ -157,6 +161,11 @@ export interface Product {
   publishedBy?: string;
   promotionStartDate?: Date;
   promotionEndDate?: Date;
+
+  soldIndividually?: boolean
+  features?: string;
+  material?: string;
+  color?: string;
 
 }
 

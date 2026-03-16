@@ -140,8 +140,6 @@ getWithdrawalRequests(params?: {
     });
   }
 
-  console.log('Fetching withdrawals with params:', params); // Debug log
-
   return this.apiService
     .get<{ success: boolean; data: { requests: WithdrawalRequest[]; total: number; page: number; limit: number } }>(
       `${this.baseUrl}/withdrawals`,

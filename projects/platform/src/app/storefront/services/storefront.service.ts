@@ -15,34 +15,6 @@ export interface StoreResponse {
   popularProducts?: Product[];
 }
 
-// export interface StoreModel {
-//   _id: string;
-//   owner: string;
-//   name: string;
-//   description?: string;
-//   logo?: string;
-//   category?: string;
-//   isVerified: boolean;
-//   verificationTier: 'basic' | 'premium';
-//   storeLink: string;
-//   whatsappNumber?: string;
-//   whatsappTemplates?: string[];
-//   analytics: {
-//     totalViews: number;
-//     totalSales: number;
-//     conversionRate: number;
-//     promoterTraffic: number;
-//   };
-//   activeCampaigns?: string[];
-//   storeProducts?: string[];
-//   createdAt: string;
-//   updatedAt: string;
-//   ownerDetails?: {
-//     name: string;
-//     email: string;
-//     profilePicture?: string;
-//   };
-// }
 
 export interface StoreAnalytics {
   dailyViews: DailyView[];
@@ -81,27 +53,6 @@ export interface PromoterPerformance {
   commissionEarned: number;
 }
 
-// export interface ProductModel {
-//   _id: string;
-//   name: string;
-//   description?: string;
-//   price: number;
-//   originalPrice?: number;
-//   images?: ProductImage[];
-//   category: string;
-//   tags?: string[];
-//   quantity: number;
-//   manageStock: boolean;
-//   lowStockAlert: number;
-//   averageRating: number;
-//   ratingCount: number;
-//   viewCount: number;
-//   purchaseCount: number;
-//   isActive: boolean;
-//   isFeatured: boolean;
-//   createdAt: string;
-//   updatedAt: string;
-// }
 
 export interface ProductImage {
   url: string;
@@ -120,6 +71,18 @@ export class StorefrontService {
   // Cache for store data (simple in-memory cache)
   private storeCache = new Map<string, { data: Store; timestamp: number }>();
   private cacheDuration = 5 * 60 * 1000; // 5 minutes cache
+
+  
+  /**
+   * Clear store cache
+   */
+  clearCache(storeLink?: string): void {
+    if (storeLink) {
+      this.storeCache.delete(storeLink);
+    } else {
+      this.storeCache.clear();
+    }
+  }
 
   /**
    * Get store by store link
@@ -224,6 +187,22 @@ export class StorefrontService {
     );
   }
 
+  getProductById(productId: string): Observable<{ data: Product }> {
+    return this.apiService.get<{ data: Product }>(`${this.apiUrl}/products/${productId}`);
+  }
+
+  getProductReviews(productId: string, params: { page: number; limit: number }): Observable<{ data: any[] }> {
+    return this.apiService.get<{ data: any[] }>(`${this.apiUrl}/products/${productId}/reviews`);
+  }
+
+  getRelatedProducts(productId: string, params: { limit: number }): Observable<{ data: Product[] }> {
+    return this.apiService.get<{ data: Product[] }>(`${this.apiUrl}/products/${productId}/related`);
+  }
+
+  getStoreById(storeId: string): Observable<{ data: Store }> {
+    return this.apiService.get<{ data: Store }>(`${this.apiUrl}/stores/${storeId}`);
+  }
+
   /**
    * Get store categories
    */
@@ -312,16 +291,6 @@ export class StorefrontService {
 //     );
 //   }
 
-  /**
-   * Clear store cache
-   */
-  clearCache(storeLink?: string): void {
-    if (storeLink) {
-      this.storeCache.delete(storeLink);
-    } else {
-      this.storeCache.clear();
-    }
-  }
 
   /**
    * Check if store link is available
