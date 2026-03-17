@@ -38,10 +38,9 @@
           [src]="product.images[0].url" 
           [alt]="product.name"
           appLazyImage
-          [defaultImage]="'assets/images/product-placeholder.svg'"
+          [defaultImage]="'img/product.png'"
           (error)="onImageError($event)"
           loading="lazy"
-          (click)="onQuickView($event)"
         >
       } @else {
         <div class="image-placeholder">

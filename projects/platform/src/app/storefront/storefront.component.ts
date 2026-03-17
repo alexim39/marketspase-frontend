@@ -451,7 +451,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
 
   viewProductDetails(product: Product): void {
     console.log('view details clicked')
-    this.router.navigate(['/dashboard/stores/product', product._id], {
+    this.router.navigate(['/product', product._id], {
       state: { fromStore: this.store()?.storeLink }
     });
   }

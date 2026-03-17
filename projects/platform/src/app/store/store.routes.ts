@@ -51,12 +51,5 @@ export const StoreRoutes: Routes = [
         loadComponent: () => import('./marketer/products/product-detail/marketer-product-detail.component').then(c => c.MarketerProductDetailComponent),
         title: "Product Details - View and Manage Product Information",
     },
-
-    {
-        path: 'product/:productId',
-        loadComponent: () => import('../storefront/product-details/product-details.component').then(m => m.ProductDetailsComponent),
-        title: "Product Details - View and order products",
-    }
-
     
 ]

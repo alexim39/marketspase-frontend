@@ -43,6 +43,7 @@ import { ProductQuickViewComponent } from '../components/product-quick-view/prod
 import { Product, Store, ProductVariant } from '../../store/models';
 import { TruncatePipe } from '../../store/shared';
 import { ProductReview } from './models/product-reveiw.model';
+import { UserService } from '../../common/services/user.service';
 
 @Component({
   selector: 'app-product-details',
@@ -72,6 +73,7 @@ import { ProductReview } from './models/product-reveiw.model';
     CurrencyUtilsPipe,
     TruncatePipe
   ],
+  providers: [StorefrontService, WishlistService, CartService],
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss']
 })
@@ -86,11 +88,15 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private storeService = inject(StorefrontService);
   private cartService = inject(CartService);
   private wishlistService = inject(WishlistService);
-  private shareService = inject(ShareService);
+  //private shareService = inject(ShareService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
   private destroy$ = new Subject<void>();
+
+  private userService = inject(UserService);
+  public user = this.userService.user;
+  
 
   // =========================================
   // VIEW CHILD REFERENCES
@@ -307,6 +313,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     const productId = this.route.snapshot.paramMap.get('productId');
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { fromStore?: string };
+
+    console.log('product id ',productId)
     
     if (state?.fromStore) {
       this.fromStore.set(state.fromStore);
@@ -356,8 +364,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  private loadStoreData(storeId: string): void {
-    this.storeService.getStoreById(storeId)
+  private loadStoreData(store: any): void {
+    this.storeService.getStoreById(store._id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -670,7 +678,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
-    target.src = 'assets/images/product-placeholder.svg';
+    target.src = 'img/product.png';
   }
 
   formatDate(date: Date): string {

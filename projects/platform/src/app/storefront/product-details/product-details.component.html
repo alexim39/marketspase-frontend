@@ -73,9 +73,9 @@
                   [alt]="product()?.name"
                   class="main-image"
                   appLazyImage
-                  [defaultImage]="'assets/images/product-placeholder.svg'"
+                  [defaultImage]="'img/product.png'"
                   (error)="onImageError($event)"
-                  (click)="zoomImage($event)"
+                  (click)="zoomImage($event)" 
                 >
               } @else {
                 <div class="image-placeholder">
@@ -710,7 +710,7 @@
             @for (product of relatedProducts(); track trackByProductId($index, product)) {
               <div class="related-product-card" (click)="viewRelatedProduct(product)">
                 <div class="related-product-image">
-                  @if (product.images?.[0]?.url) {
+                  @if (product?.images?.[0]?.url) {
                     <img 
                       [src]="product.images[0].url" 
                       [alt]="product.name"

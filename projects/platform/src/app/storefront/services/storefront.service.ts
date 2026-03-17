@@ -123,23 +123,6 @@ export class StorefrontService {
   }
 
   /**
-   * Get store by ID
-   */
-//   getStoreById(storeId: string): Observable<StoreResponse> {
-//     return this.http.get<StoreResponse>(`${this.apiUrl}/stores/${storeId}`).pipe(
-//       catchError(error => {
-//         console.error('Error fetching store by ID:', error);
-//         this.snackBar.open(
-//           'Failed to load store details',
-//           'Close',
-//           { duration: 3000 }
-//         );
-//         throw error;
-//       })
-//     );
-//   }
-
-  /**
    * Get store products with pagination and filtering
    */
   getStoreProducts(
@@ -176,31 +159,26 @@ export class StorefrontService {
       params, undefined, true
     ).pipe(
       catchError(error => {
-        console.error('Error fetching store products:', error);
-        this.snackBar.open(
-          'Failed to load store products',
-          'Close',
-          { duration: 3000 }
-        );
+        this.snackBar.open('Failed to load store products', 'Close', { duration: 3000 });
         throw error;
       })
     );
   }
 
   getProductById(productId: string): Observable<{ data: Product }> {
-    return this.apiService.get<{ data: Product }>(`${this.apiUrl}/products/${productId}`);
+    return this.apiService.get<{ data: Product }>(`${this.apiUrl}/storefront/products/${productId}/detail`, undefined, undefined, true);
   }
 
   getProductReviews(productId: string, params: { page: number; limit: number }): Observable<{ data: any[] }> {
-    return this.apiService.get<{ data: any[] }>(`${this.apiUrl}/products/${productId}/reviews`);
+    return this.apiService.get<{ data: any[] }>(`${this.apiUrl}/storefront/products/${productId}/reviews`, undefined, undefined, true);
   }
 
   getRelatedProducts(productId: string, params: { limit: number }): Observable<{ data: Product[] }> {
-    return this.apiService.get<{ data: Product[] }>(`${this.apiUrl}/products/${productId}/related`);
+    return this.apiService.get<{ data: Product[] }>(`${this.apiUrl}/storefront/products/${productId}/related`, undefined, undefined, true);
   }
 
   getStoreById(storeId: string): Observable<{ data: Store }> {
-    return this.apiService.get<{ data: Store }>(`${this.apiUrl}/stores/${storeId}`);
+    return this.apiService.get<{ data: Store }>(`${this.apiUrl}/storefront/store/${storeId}`, undefined, undefined, true);
   }
 
   /**
