@@ -82,6 +82,10 @@
             background: rgba($white, 0.15);
             box-shadow: 0 0 0 3px rgba($white, 0.1);
           }
+
+          @include mobile {
+           padding: $spacing-4;
+          }
         }
 
         button {

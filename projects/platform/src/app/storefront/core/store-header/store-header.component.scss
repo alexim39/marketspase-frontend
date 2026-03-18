@@ -5,14 +5,13 @@
 .store-header {
   position: relative;
   background: $surface-color;
-  //background: $gradient-primary;
   border-bottom: 1px solid $border-color;
   transition: all 0.3s ease;
 
   // Compact mode when scrolled
   &.compact {
-    position: sticky;
-    top: 0;
+    //position: sticky;
+    //top: 0;
     z-index: $z-index-sticky;
     background: rgba($gradient-primary, 0.95);
     backdrop-filter: blur(10px);
