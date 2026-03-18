@@ -31,7 +31,7 @@
           <mat-icon>list</mat-icon>
         </button>
       </div>
-      <button mat-button [matMenuTriggerFor]="exportMenu">
+      <!-- <button mat-button [matMenuTriggerFor]="exportMenu">
         <mat-icon>download</mat-icon>
         Export
       </button>
@@ -44,7 +44,7 @@
           <mat-icon>table_chart</mat-icon>
           Excel
         </button>
-      </mat-menu>
+      </mat-menu> -->
     </div>
   </div>
 
@@ -161,9 +161,9 @@
 
             <div class="product-meta">
               <div class="price-info">
-                <span class="current-price">{{ product.price | currency }}</span>
+                <span class="current-price">{{ product.price | currencyUtils:user?.wallets?.promoter?.currency  }}</span>
                 @if (product.originalPrice && product.originalPrice > product.price) {
-                  <span class="original-price">{{ product.originalPrice | currency }}</span>
+                  <span class="original-price"> {{product.originalPrice | currencyUtils:user?.wallets?.promoter?.currency }}</span>
                 }
               </div>
 

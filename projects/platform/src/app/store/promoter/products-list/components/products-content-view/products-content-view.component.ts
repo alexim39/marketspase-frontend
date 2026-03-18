@@ -16,6 +16,7 @@ import { MatTableModule } from '@angular/material/table';
 import { PromoterProduct } from '../../../models/promoter-product.model';
 import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
 import { ViewMode } from '../../models/filter-state.model';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-products-content-view',
@@ -33,13 +34,15 @@ import { ViewMode } from '../../models/filter-state.model';
     MatPaginatorModule,
     MatProgressBarModule,
     MatTableModule,
-    TruncatePipe
+    TruncatePipe,
+    CurrencyUtilsPipe
   ],
   templateUrl: './products-content-view.component.html',
   styleUrls: ['./products-content-view.component.scss']
 })
 export class ProductsContentViewComponent {
   @Input({ required: true }) products!: PromoterProduct[];
+  @Input({ required: true }) user!: UserInterface | null;
   @Input({ required: true }) filteredProducts!: PromoterProduct[];
   @Input({ required: true }) loading!: boolean;
   @Input({ required: true }) error!: string | null;
@@ -75,8 +78,8 @@ export class ProductsContentViewComponent {
   }
 
   getPerformanceColor(rate: number): string {
-    if (rate >= 30) return 'success';
-    if (rate >= 15) return 'warning';
+    if (rate >= 20) return 'success';
+    if (rate >= 10) return 'warning';
     return 'primary';
   }
 

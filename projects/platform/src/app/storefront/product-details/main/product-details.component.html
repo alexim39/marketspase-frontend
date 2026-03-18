@@ -55,7 +55,7 @@
       </button>
       <div class="sticky-title">
         <span class="product-name">{{ product()!.name | truncate:40 }}</span>
-        <span class="product-price">{{ currentPrice() | currency }}</span>
+        <span class="product-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
       </div>
       <div class="sticky-actions">
         <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
@@ -238,9 +238,9 @@
 
             <!-- Price Section -->
             <div class="price-section">
-              <div class="current-price">{{ currentPrice() | currency }}</div>
+              <div class="current-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency  }}</div>
               @if (hasDiscount()) {
-                <div class="original-price">{{ originalPrice() | currency }}</div>
+                <div class="original-price">{{ originalPrice() | currencyUtils:user()?.wallets?.promoter?.currency  }}</div>
                 <div class="savings-badge">Save {{ discountPercentage() }}%</div>
               }
             </div>
@@ -752,9 +752,9 @@
                 <div class="related-product-info">
                   <h4 class="related-product-name">{{ product.name | truncate:30 }}</h4>
                   <div class="related-product-price">
-                    <span class="current">{{ product.price | currency }}</span>
+                    <span class="current">{{ product.price | currencyUtils:user()?.wallets?.promoter?.currency  }}</span>
                     @if (product.originalPrice && product.originalPrice > product.price) {
-                      <span class="original">{{ product.originalPrice | currency }}</span>
+                      <span class="original">{{ product.originalPrice | currencyUtils:user()?.wallets?.promoter?.currency  }}</span>
                     }
                   </div>
                   @if (product.averageRating > 0) {

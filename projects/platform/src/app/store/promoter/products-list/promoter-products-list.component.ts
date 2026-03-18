@@ -50,6 +50,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   // Statistics
   stats = computed(() => {
     const products = this.filteredProducts();
+    
     const totalCommissions = products.reduce((sum, p) => sum + p.promotion.commissionRate, 0);
     const avgCommission = products.length > 0 ? totalCommissions / products.length : 0;
     
@@ -83,6 +84,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         this.products.set([]);
         return;
       }
+
+      //console.log('products ',response.data)
 
       this.products.set(response.data);
       this.extractFilterOptions(response.filters);
