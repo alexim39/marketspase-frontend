@@ -1,0 +1,254 @@
+<!-- store-header.component.html -->
+<header class="store-header" [class.compact]="isScrolled()">
+  <!-- Cover Image -->
+  @if (store?.coverImage) {
+    <div class="store-cover">
+      <img 
+        [src]="store.coverImage ?? '/img/store-cover.png'" 
+        [alt]="store.name + ' cover'"
+        class="cover-image"
+        appLazyImage
+        (error)="onImageError($event)">
+      <div class="cover-overlay"></div>
+    </div>
+  }
+
+  <!-- Main Header -->
+  <div class="store-header-main">
+    <div class="container">
+      <div class="header-content">
+        <!-- Store Logo -->
+        <div class="store-logo-wrapper">
+          @if (store?.logo) {
+            <img 
+              [src]="store.logo ?? 'img/logo-placeholder.png'" 
+              [alt]="store.name + ' logo'"
+              class="store-logo"
+              appLazyImage
+              (error)="onImageError($event)">
+          } @else {
+            <div class="store-logo-placeholder">
+              <mat-icon>store</mat-icon>
+            </div>
+          }
+          
+          <!-- Verification Badge -->
+          @if (verificationIcon) {
+            <div class="verification-badge" 
+                 [class.verified]="store?.isVerified"
+                 [class.premium]="store?.verificationTier === 'premium'"
+                 [matTooltip]="verificationTooltip">
+              <mat-icon>{{ verificationIcon }}</mat-icon>
+            </div>
+          }
+        </div>
+
+        <!-- Store Info -->
+        <div class="store-info">
+          <div class="store-header-top">
+            <h1 class="store-name">{{ store?.name || 'Store Name' }}</h1>
+            
+            <!-- Rating -->
+            @if (store?.analytics?.rating) {
+              <div class="store-rating" matTooltip="Customer rating">
+                <div class="rating-stars">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <mat-icon>
+                      {{ star <= (store?.analytics?.rating || 0) ? 'star' : 'star_border' }}
+                    </mat-icon>
+                  }
+                </div>
+                <span class="rating-value">{{ formattedRating() }}</span>
+                @if (store?.analytics?.totalReviews) {
+                  <span class="rating-count">
+                    ({{ formatNumber(store?.analytics?.totalReviews) }})
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Description -->
+          <!-- @if (store?.description) {
+            <p class="store-description" 
+               [class.expanded]="showFullDescription()"
+               [matTooltip]="!showFullDescription() ? 'Click to read more' : ''"
+               (click)="toggleDescription()">
+              {{ store.description }}
+            </p>
+          } -->
+
+          <!-- Store Meta Info -->
+          <div class="store-meta">
+            <!-- Member Since -->
+            <div class="meta-item" matTooltip="Store member since">
+              <mat-icon>calendar_today</mat-icon>
+              <span>Member since <strong>{{ memberSinceYear() }}</strong></span>
+            </div>
+
+            <!-- Location -->
+            @if (store?.address?.city) {
+              <div class="meta-item" matTooltip="Store location">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ store.address.city }}, {{ store.address.country }}</span>
+              </div>
+            }
+
+            <!-- Response Time -->
+            @if (storeStats.responseTime) {
+              <div class="meta-item" matTooltip="Average response time">
+                <mat-icon>schedule</mat-icon>
+                <span>Response time <strong>{{ storeStats.responseTime }}</strong></span>
+              </div>
+            }
+
+            <!-- Followers -->
+            <div class="meta-item" matTooltip="Store followers">
+              <mat-icon>people</mat-icon>
+              <span><strong>{{ formatNumber(followerCount) }}</strong> followers</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Actions -->
+        <div class="store-actions">
+          <!-- Favorite Button -->
+          <button mat-icon-button
+                  class="action-btn favorite-btn"
+                  [class.active]="isFavorited"
+                  (click)="onToggleFavorite()"
+                  [matTooltip]="isFavorited ? 'Remove from favorites' : 'Add to favorites'">
+            <mat-icon>{{ isFavorited ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+
+          <!-- Share Button -->
+          <button mat-icon-button
+                  class="action-btn share-btn"
+                  (click)="onShareStore()"
+                  matTooltip="Share this store">
+            <mat-icon>share</mat-icon>
+          </button>
+
+          <!-- Contact Button -->
+          @if (hasWhatsApp() || hasEmail() || hasPhone()) {
+            <button mat-raised-button
+                    class="action-btn contact-btn"
+                    [matMenuTriggerFor]="contactMenu"
+                    matTooltip="Contact store">
+              <mat-icon>chat</mat-icon>
+              <span>Contact</span>
+            </button>
+
+            <mat-menu #contactMenu="matMenu" xPosition="before">
+              @if (hasWhatsApp()) {
+                <button mat-menu-item (click)="onContact('whatsapp')">
+                  <mat-icon class="whatsapp-icon">chat</mat-icon>
+                  <span>WhatsApp</span>
+                </button>
+              }
+              @if (hasEmail()) {
+                <button mat-menu-item (click)="onContact('email')">
+                  <mat-icon>email</mat-icon>
+                  <span>Email</span>
+                </button>
+              }
+              @if (hasPhone()) {
+                <button mat-menu-item (click)="onContact('chat')">
+                  <mat-icon>phone</mat-icon>
+                  <span>Call</span>
+                </button>
+              }
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="onReportStore()">
+                <mat-icon color="warn">flag</mat-icon>
+                <span>Report Store</span>
+              </button>
+            </mat-menu>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Store Statistics -->
+  @if (!isScrolled()) {
+    <div class="store-stats">
+      <div class="container">
+        <div class="stats-grid">
+          <!-- Products -->
+          <div class="stat-item" matTooltip="Total products in store">
+            <div class="stat-icon">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ formatNumber(storeStats.productCount) }}</div>
+              <div class="stat-label">Products</div>
+            </div>
+          </div>
+
+          <!-- Sales -->
+          <div class="stat-item" matTooltip="Total sales">
+            <div class="stat-icon">
+              <mat-icon>shopping_bag</mat-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ formatNumber(storeStats.totalSales) }}</div>
+              <div class="stat-label">Sales</div>
+            </div>
+          </div>
+
+          <!-- Views -->
+          <div class="stat-item" matTooltip="Store views">
+            <div class="stat-icon">
+              <mat-icon>visibility</mat-icon>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ formatNumber(storeStats.totalViews) }}</div>
+              <div class="stat-label">Views</div>
+            </div>
+          </div>
+
+          <!-- Response Rate -->
+          @if (storeStats.responseRate) {
+             @if (deviceType() === 'desktop') {
+              <div class="stat-item" matTooltip="Seller response rate">
+                <div class="stat-icon">
+                  <mat-icon>speed</mat-icon>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-value">{{ storeStats.responseRate }}%</div>
+                  <div class="stat-label">Response</div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Store Navigation -->
+  <div class="store-nav">
+    <div class="container">
+      <div class="nav-tabs">
+        @for (tab of navTabs; track tab.id) {
+          <button class="nav-tab"
+                  [class.active]="activeTab === tab.id"
+                  (click)="onTabChange(tab.id)">
+            <mat-icon>{{ tab.icon }}</mat-icon>
+            <span>{{ tab.label }}</span>
+          </button>
+        }
+        
+        <!-- View All Products Link (Desktop) -->
+        @if (storeStats.productCount > 0) {
+          <button class="nav-tab view-all"
+                  (click)="onViewAllProducts()"
+                  matTooltip="View all products">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</header>

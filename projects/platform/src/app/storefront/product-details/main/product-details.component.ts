@@ -25,25 +25,27 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatBadgeModule } from '@angular/material/badge';
 
 // Shared Components/Directives/Pipes
-import { RatingComponent } from '../shared/rating/rating.component';
-import { LazyImageDirective } from '../shared/directives/lazy-image.directive';
-import { CurrencyUtilsPipe } from '../../../../../shared-services/src/public-api';
+import { RatingComponent } from '../../shared/rating/rating.component';
+import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
+import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
 
 // Services
-import { CartService } from '../services/cart.service';
-import { WishlistService } from '../services/wishlist.service';
-import { StorefrontService } from '../services/storefront.service';
-import { ShareService } from '../../store/services/share.service';
+import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
+import { StorefrontService } from '../../services/storefront.service';
+import { ShareService } from '../../../store/services/share.service';
 
 // Components (for dialogs/sheets)
-import { ShareBottomSheetComponent } from '../components/share-bottom-sheet/share-bottom-sheet.component';
-import { ProductQuickViewComponent } from '../components/product-quick-view/product-quick-view.component';
+import { ShareBottomSheetComponent } from '../../components/share-bottom-sheet/share-bottom-sheet.component';
+import { ProductQuickViewComponent } from '../../components/product-quick-view/product-quick-view.component';
 
 // Models
-import { Product, Store, ProductVariant } from '../../store/models';
-import { TruncatePipe } from '../../store/shared';
-import { ProductReview } from './models/product-reveiw.model';
-import { UserService } from '../../common/services/user.service';
+import { Product, Store, ProductVariant } from '../../../store/models';
+import { TruncatePipe } from '../../../store/shared';
+import { ProductReview } from '../models/product-reveiw.model';
+import { UserService } from '../../../common/services/user.service';
+import { StoreFooterComponent } from '../../core/store-footer/store-footer.component';
+import { StoreHeaderComponent } from '../../core/store-header/store-header.component';
 
 @Component({
   selector: 'app-product-details',
@@ -71,7 +73,8 @@ import { UserService } from '../../common/services/user.service';
     LazyImageDirective,
     TruncatePipe,
     CurrencyUtilsPipe,
-    TruncatePipe
+    StoreFooterComponent,
+    StoreHeaderComponent
   ],
   providers: [StorefrontService, WishlistService, CartService],
   templateUrl: './product-details.component.html',
@@ -313,8 +316,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     const productId = this.route.snapshot.paramMap.get('productId');
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { fromStore?: string };
-
-    console.log('product id ',productId)
     
     if (state?.fromStore) {
       this.fromStore.set(state.fromStore);
@@ -712,5 +713,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
   scrollToTop( ){
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  contactViaWhatsApp(): void {
+    const store = this.store();
+    if (!store?.whatsappNumber) return;
+
+    const message = `Hello ${store.name}, I'm interested in your products.`;
+    const url = `https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
   }
 }

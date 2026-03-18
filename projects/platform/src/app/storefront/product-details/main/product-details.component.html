@@ -1,3 +1,22 @@
+<!-- Header -->
+<!-- <app-header></app-header> -->
+
+ <app-store-header
+    [store]="store()"
+    (contactViaWhatsApp)="contactViaWhatsApp()"
+  />
+<!--  <app-store-header
+    [store]="store()"
+    [isFavorited]="isFavorited()"
+    (toggleFavorite)="toggleFavorite()"
+    (shareStore)="shareStore()"
+    (contactViaWhatsApp)="contactViaWhatsApp()"
+    (headerTransform)="onHeaderTransform($event)"
+  /> -->
+
+<!-- Main Content -->
+<main>
+
 <!-- product-details.component.html -->
 <div class="product-details-page">
   <!-- Loading State -->
@@ -53,10 +72,10 @@
       <div class="container">
         <!-- Breadcrumb Navigation -->
         <nav class="breadcrumb" aria-label="Breadcrumb">
-          <a (click)="goBack()" class="breadcrumb-link">
-            <mat-icon>arrow_back</mat-icon>
-            Back to Store
-          </a>
+          <a [routerLink]="['/store', store()?.storeLink]" class="breadcrumb-link">
+              Back to Store
+              <mat-icon>arrow_back</mat-icon>
+            </a>
           <span class="separator">/</span>
           <span class="current">{{ product()!.name | truncate:30 }}</span>
         </nav>
@@ -778,3 +797,11 @@
     }
   }
 </div>
+
+</main>
+
+<!-- Footer -->
+<app-store-footer
+  [store]="store()"
+  (contactViaWhatsApp)="contactViaWhatsApp()"
+/>

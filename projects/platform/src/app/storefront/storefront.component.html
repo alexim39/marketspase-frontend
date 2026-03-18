@@ -4,7 +4,6 @@
   <app-store-header
     [store]="store()"
     [isFavorited]="isFavorited()"
-    [storeStats]="storeStats()"
     (toggleFavorite)="toggleFavorite()"
     (shareStore)="shareStore()"
     (contactViaWhatsApp)="contactViaWhatsApp()"
@@ -151,7 +150,6 @@
   <!-- Store Footer Component -->
   <app-store-footer
     [store]="store()"
-    [currentYear]="currentYear"
     (contactViaWhatsApp)="contactViaWhatsApp()"
   />
   
