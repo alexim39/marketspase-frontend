@@ -116,8 +116,8 @@
               <button
                 mat-icon-button
                 color="primary"
-                (click)="copyLink.emit(product); $event.stopPropagation()"
-                matTooltip="Copy promotion link"
+                (click)="promote.emit(product); $event.stopPropagation()"
+                matTooltip="Promote product"
               >
                 <mat-icon>link</mat-icon>
               </button>
@@ -220,7 +220,7 @@
             <button
               mat-raised-button
               color="accent"
-              (click)="copyLink.emit(product)"
+              (click)="promote.emit(product)"
               class="promote-btn"
             >
               <mat-icon>share</mat-icon>
@@ -345,8 +345,8 @@
             <button
               mat-icon-button
               color="accent"
-              (click)="copyLink.emit(product)"
-              matTooltip="Copy Link"
+              (click)="promote.emit(product)"
+              matTooltip="Promote product"
             >
               <mat-icon>link</mat-icon>
             </button>

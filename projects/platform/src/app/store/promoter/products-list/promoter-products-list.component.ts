@@ -204,16 +204,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
-  copyPromotionLink(product: PromoterProduct): void {
-    const link = `${window.location.origin}/promote/${product.promotion.trackingCode}`;
-    navigator.clipboard.writeText(link).then(() => {
-      this.snackBar.open('Promotion link copied to clipboard!', 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
-    }).catch(() => {
-      this.snackBar.open('Failed to copy link', 'Close', { duration: 3000 });
-    });
+  onPromotion(product: PromoterProduct): void {
+   console.log('selected product ', product)
   }
 
   generateWhatsAppMessage(product: PromoterProduct): void {

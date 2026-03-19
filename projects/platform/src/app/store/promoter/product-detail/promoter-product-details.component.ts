@@ -25,10 +25,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { PromoterProduct } from '../models/promoter-product.model';
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ShareService } from '../../services/share.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../../common/services/user.service';
+import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-promoter-product-details',
@@ -55,7 +55,7 @@ import { UserService } from '../../../common/services/user.service';
     MatFormFieldModule,
     MatMenuModule,
     TruncatePipe,
-    CurrencyPipe,
+    CurrencyUtilsPipe
   ],
   templateUrl: './promoter-product-details.component.html',
   styleUrls: ['./promoter-product-details.component.scss']

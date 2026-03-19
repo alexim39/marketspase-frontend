@@ -21,7 +21,7 @@
       [loading]="loading()"
       [error]="error()"
       (viewProduct)="viewProductDetails($event)"
-      (copyLink)="copyPromotionLink($event)"
+      (promote)="onPromotion($event)"
       (shareWhatsApp)="generateWhatsAppMessage($event)"
       (retry)="retryLoading()"
       (clearFilters)="applyFilters({})"

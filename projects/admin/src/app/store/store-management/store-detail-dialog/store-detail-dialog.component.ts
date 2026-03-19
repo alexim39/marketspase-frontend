@@ -114,7 +114,7 @@ interface StoreDetailDialogData {
                 <div class="info-section">
                   <h3 class="section-title">Owner Information</h3>
                   <div class="owner-info">
-                    @if (data.store.owner?.avatar) {
+                    @if (data.store.owner.avatar) {
                       <img [src]="data.store.owner.avatar" alt="Owner avatar" class="owner-avatar" onerror="this.src='/img/avatar.png'">
                     } @else {
                       <div class="owner-avatar-placeholder">
@@ -123,10 +123,10 @@ interface StoreDetailDialogData {
                     }
                     <div class="owner-details">
                       <span class="owner-name">{{ getOwnerName() }}</span>
-                      @if (data.store.owner?.email) {
+                      @if (data.store.owner.email) {
                         <span class="owner-email">{{ data.store.owner.email }}</span>
                       }
-                      <span class="owner-role">{{ data.store.owner?.role | titlecase }}</span>
+                      <span class="owner-role">{{ data.store.owner.role | titlecase }}</span>
                     </div>
                   </div>
                 </div>
@@ -142,7 +142,7 @@ interface StoreDetailDialogData {
                       <mat-icon>visibility</mat-icon>
                     </div>
                     <div class="analytics-info">
-                      <span class="analytics-value">{{ data.store.analytics?.totalViews || 0 }}</span>
+                      <span class="analytics-value">{{ data.store.analytics.totalViews || 0 }}</span>
                       <span class="analytics-label">Total Views</span>
                     </div>
                   </div>
@@ -152,7 +152,7 @@ interface StoreDetailDialogData {
                       <mat-icon>shopping_cart</mat-icon>
                     </div>
                     <div class="analytics-info">
-                      <span class="analytics-value">{{ data.store.analytics?.totalSales || 0 }}</span>
+                      <span class="analytics-value">{{ data!.store!.analytics!.totalSales || 0 }}</span>
                       <span class="analytics-label">Total Sales</span>
                     </div>
                   </div>
@@ -162,7 +162,7 @@ interface StoreDetailDialogData {
                       <mat-icon>trending_up</mat-icon>
                     </div>
                     <div class="analytics-info">
-                      <span class="analytics-value">{{ data.store.analytics?.conversionRate || 0 }}%</span>
+                      <span class="analytics-value">{{ data!.store!.analytics!.conversionRate || 0 }}%</span>
                       <span class="analytics-label">Conversion Rate</span>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ interface StoreDetailDialogData {
                       <mat-icon>group</mat-icon>
                     </div>
                     <div class="analytics-info">
-                      <span class="analytics-value">{{ data.store.analytics?.promoterTraffic || 0 }}</span>
+                      <span class="analytics-value">{{ data!.store!.analytics!.promoterTraffic || 0 }}</span>
                       <span class="analytics-label">Promoter Traffic</span>
                     </div>
                   </div>

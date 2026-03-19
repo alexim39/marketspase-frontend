@@ -1,0 +1,418 @@
+<div class="product-detail-dialog">
+    <div class="dialog-header">
+    <h2 mat-dialog-title>Product Details</h2>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+        <mat-icon>close</mat-icon>
+    </button>
+    </div>
+    
+    <mat-dialog-content>
+    <div class="product-overview">
+        <!-- Product Header -->
+        <div class="product-header">
+        <div class="product-images">
+            @if (data.product.images && data.product.images.length > 0) {
+            <div class="main-image">
+                <img [src]="data.product.mainImage || data.product.images[0].url" 
+                    alt="{{ data.product.name }}"
+                    class="product-image"
+                    onerror="this.src='/img/product-default.png'">
+            </div>
+            @if (data.product.images.length > 1) {
+                <div class="image-thumbnails">
+                @for (image of data.product.images.slice(0, 4); track $index) {
+                    <img [src]="image.url" 
+                        alt="{{ image.altText || 'Product image' }}"
+                        class="thumbnail"
+                        [class.active]="image.url === (data.product.mainImage || data.product.images[0].url)"
+                        onerror="this.src='/img/product-default.png'">
+                }
+                @if (data.product.images.length > 4) {
+                    <div class="thumbnail more-thumbnails">
+                    +{{ data.product.images.length - 4 }}
+                    </div>
+                }
+                </div>
+            }
+            } @else {
+            <div class="main-image placeholder">
+                <mat-icon>photo</mat-icon>
+                <span>No image available</span>
+            </div>
+            }
+        </div>
+        
+        <div class="product-info">
+            <div class="product-title-row">
+            <h1 class="product-name">{{ data.product.name }}</h1>
+            <div class="product-badges">
+                @if (data.product.isFeatured) {
+                <mat-icon matBadge="Featured" class="featured-badge">star</mat-icon>
+                }
+                @if (data.product.status === 'active') {
+                <mat-chip class="status-chip active">Active</mat-chip>
+                } @else if (data.product.status === 'draft') {
+                <mat-chip class="status-chip draft">Draft</mat-chip>
+                } @else {
+                <mat-chip class="status-chip archived">Archived</mat-chip>
+                }
+            </div>
+            </div>
+            
+            <div class="product-meta">
+            @if (data.product.sku) {
+                <div class="meta-item">
+                <mat-icon>tag</mat-icon>
+                <span class="meta-label">SKU:</span>
+                <span class="meta-value">{{ data.product.sku }}</span>
+                </div>
+            }
+            
+            <div class="meta-item">
+                <mat-icon>category</mat-icon>
+                <span class="meta-label">Category:</span>
+                <span class="meta-value">{{ data.product.category || 'Uncategorized' }}</span>
+            </div>
+            
+            @if (data.product.brand) {
+                <div class="meta-item">
+                <mat-icon>business</mat-icon>
+                <span class="meta-label">Brand:</span>
+                <span class="meta-value">{{ data.product.brand }}</span>
+                </div>
+            }
+            
+            <div class="meta-item">
+                <mat-icon>calendar_today</mat-icon>
+                <span class="meta-label">Created:</span>
+                <span class="meta-value">{{ data.product.createdAt | date:'mediumDate' }}</span>
+            </div>
+            </div>
+            
+            <!-- Price Information -->
+            <div class="price-section">
+            <div class="price-row">
+                <span class="current-price">{{ data.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+                @if (data.product.originalPrice && data.product.originalPrice > data.product.price) {
+                <span class="original-price">{{ data.product.originalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+                <span class="discount-badge">
+                    Save {{ ((data.product.originalPrice - data.product.price) / data.product.originalPrice * 100) | number:'1.0-0' }}%
+                </span>
+                }
+            </div>
+            
+            @if (data.product.costPrice) {
+                <div class="cost-price">
+                <span class="cost-label">Cost:</span>
+                <span class="cost-value">{{ data.product.costPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+                <span class="margin-badge">
+                    Margin: {{ ((data.product.price - data.product.costPrice) / data.product.price * 100) | number:'1.0-0' }}%
+                </span>
+                </div>
+            }
+            </div>
+            
+            <!-- Stock Information -->
+            <div class="stock-section">
+            <div class="stock-status">
+                <mat-icon class="stock-icon" [ngClass]="getStockColor()">
+                @switch (getStockColor()) {
+                    @case ('in-stock') { inventory }
+                    @case ('low-stock') { warning }
+                    @case ('out-of-stock') { error_outline }
+                    @default { remove_circle_outline }
+                }
+                </mat-icon>
+                <span class="stock-text">{{ getStockText() }}</span>
+            </div>
+            
+            @if (data.product.manageStock && data.product.quantity !== undefined) {
+                <div class="stock-details">
+                <div class="stock-quantity">
+                    <span class="quantity-label">Quantity:</span>
+                    <span class="quantity-value">{{ data.product.quantity }}</span>
+                </div>
+                
+                <div class="stock-progress">
+                    <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getStockPercentage()"
+                    [color]="getStockColor() === 'low-stock' ? 'warn' : 
+                            getStockColor() === 'out-of-stock' ? 'warn' : 'primary'">
+                    </mat-progress-bar>
+                    <div class="progress-labels">
+                    <span>0</span>
+                    <span>Low Stock: {{ data.product.lowStockAlert }}</span>
+                    <!-- <span>{{ Math.max(data.product.quantity, data.product.lowStockAlert || 10) }}</span> -->
+                    </div>
+                </div>
+                </div>
+            }
+            </div>
+            
+            <!-- Tags -->
+            @if (data.product.tags && data.product.tags.length > 0) {
+            <div class="tags-section">
+                <h4 class="section-subtitle">Tags</h4>
+                <div class="tags-container">
+                @for (tag of data.product.tags; track tag) {
+                    <mat-chip class="tag-chip">{{ tag }}</mat-chip>
+                }
+                </div>
+            </div>
+            }
+        </div>
+        </div>
+        
+        <mat-divider></mat-divider>
+        
+        <!-- Product Tabs -->
+        <mat-tab-group class="product-tabs">
+        <!-- Description Tab -->
+        <mat-tab label="Description">
+            <div class="tab-content">
+            <div class="description-content">
+                @if (data.product.description) {
+                <p class="product-description">{{ data.product.description }}</p>
+                } @else {
+                <div class="empty-description">
+                    <mat-icon>description</mat-icon>
+                    <p>No description provided</p>
+                </div>
+                }
+            </div>
+            </div>
+        </mat-tab>
+        
+        <!-- Variants Tab -->
+        @if (data.product.hasVariants && data.product.variants && data.product.variants.length > 0) {
+            <mat-tab label="Variants ({{ data.product.variants.length }})">
+            <div class="tab-content">
+                <div class="variants-table">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Variant</th>
+                        <th>SKU</th>
+                        <th>Attributes</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (variant of data.product.variants; track variant._id || $index) {
+                        <tr>
+                        <td class="variant-name">{{ variant.name }}</td>
+                        <td class="variant-sku">{{ variant.sku || '—' }}</td>
+                        <td class="variant-attributes">
+                            @for (attr of getVariantAttributes(variant); track $index) {
+                            <span class="attribute-chip">{{ attr.name }}: {{ attr.value }}</span>
+                            }
+                        </td>
+                        <td class="variant-price">{{ variant.price | currency:'USD':'symbol':'1.2-2' }}</td>
+                        <td class="variant-stock">
+                            <span [ngClass]="{
+                            'in-stock': variant.quantity > (variant.lowStockAlert || 5),
+                            'low-stock': variant.quantity > 0 && variant.quantity <= (variant.lowStockAlert || 5),
+                            'out-of-stock': variant.quantity === 0
+                            }">
+                            {{ variant.quantity }}
+                            </span>
+                        </td>
+                        <td class="variant-status">
+                            <mat-chip class="status-chip" [ngClass]="variant.isActive ? 'active' : 'inactive'">
+                            {{ variant.isActive ? 'Active' : 'Inactive' }}
+                            </mat-chip>
+                        </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            </mat-tab>
+        }
+        
+        <!-- Performance Tab -->
+        <mat-tab label="Performance">
+            <div class="tab-content">
+            <div class="performance-grid">
+                <div class="performance-card">
+                <div class="performance-icon views">
+                    <mat-icon>visibility</mat-icon>
+                </div>
+                <div class="performance-info">
+                    <span class="performance-value">{{ data.product.viewCount || 0 }}</span>
+                    <span class="performance-label">Total Views</span>
+                </div>
+                </div>
+                
+                <div class="performance-card">
+                <div class="performance-icon sales">
+                    <mat-icon>shopping_cart</mat-icon>
+                </div>
+                <div class="performance-info">
+                    <span class="performance-value">{{ data.product.purchaseCount || 0 }}</span>
+                    <span class="performance-label">Total Sales</span>
+                </div>
+                </div>
+                
+                <div class="performance-card">
+                <div class="performance-icon conversion">
+                    <mat-icon>trending_up</mat-icon>
+                </div>
+                <div class="performance-info">
+                    <span class="performance-value">{{ getConversionRate() }}%</span>
+                    <span class="performance-label">Conversion Rate</span>
+                </div>
+                </div>
+                
+                <div class="performance-card">
+                <div class="performance-icon rating">
+                    <mat-icon>star</mat-icon>
+                </div>
+                <div class="performance-info">
+                    <span class="performance-value">{{ data.product.averageRating || 0 | number:'1.1-1' }}</span>
+                    <span class="performance-label">Average Rating</span>
+                    <span class="performance-subtext">({{ data.product.ratingCount || 0 }} reviews)</span>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Performance Metrics -->
+            <div class="performance-metrics">
+                <h4 class="section-subtitle">Performance Metrics</h4>
+                <div class="metrics-grid">
+                <div class="metric-item">
+                    <span class="metric-label">Revenue Generated</span>
+                    <span class="metric-value">
+                    {{ (data.product.price || 0) * (data.product.purchaseCount || 0) | currency:'USD':'symbol':'1.0-0' }}
+                    </span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Average Order Value</span>
+                    <span class="metric-value">{{ data.product.price | currency:'USD':'symbol':'1.2-2' }}</span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Inventory Turnover</span>
+                    <span class="metric-value">
+                    {{ getInventoryTurnover() | number:'1.2-2' }}
+                    </span>
+                </div>
+                
+                <div class="metric-item">
+                    <span class="metric-label">Stock Coverage</span>
+                    <span class="metric-value">
+                    {{ getStockCoverage() }} days
+                    </span>
+                </div>
+                </div>
+            </div>
+            </div>
+        </mat-tab>
+        
+        <!-- SEO Tab -->
+        @if (data.product.seo) {
+            <mat-tab label="SEO">
+            <div class="tab-content">
+                <div class="seo-info">
+                <div class="seo-item">
+                    <h4 class="section-subtitle">SEO Title</h4>
+                    <p class="seo-content">{{ data.product.seo.title || 'Not set' }}</p>
+                    @if (data.product.seo.title) {
+                    <div class="seo-preview">
+                        <span class="preview-label">Preview:</span>
+                        <div class="title-preview">{{ data.product.seo.title }}</div>
+                    </div>
+                    }
+                </div>
+                
+                <div class="seo-item">
+                    <h4 class="section-subtitle">Meta Description</h4>
+                    <p class="seo-content">{{ data.product.seo.description || 'Not set' }}</p>
+                    @if (data.product.seo.description) {
+                    <div class="seo-preview">
+                        <span class="preview-label">Preview:</span>
+                        <div class="description-preview">{{ data.product.seo.description }}</div>
+                    </div>
+                    }
+                </div>
+                
+                @if (data.product.seo.keywords && data.product.seo.keywords.length > 0) {
+                    <div class="seo-item">
+                    <h4 class="section-subtitle">Keywords</h4>
+                    <div class="keywords-container">
+                        @for (keyword of data.product.seo.keywords; track keyword) {
+                        <mat-chip class="keyword-chip">{{ keyword }}</mat-chip>
+                        }
+                    </div>
+                    </div>
+                }
+                </div>
+            </div>
+            </mat-tab>
+        }
+        
+        <!-- Store Info Tab -->
+        @if (data.store) {
+            <mat-tab label="Store Info">
+            <div class="tab-content">
+                <div class="store-info">
+                <div class="store-header">
+                    @if (data.store.logo) {
+                    <img [src]="data.store.logo" alt="Store logo" class="store-logo" onerror="this.src='/img/store-default.png'">
+                    } @else {
+                    <div class="store-logo-placeholder">
+                        <mat-icon>store</mat-icon>
+                    </div>
+                    }
+                    <div class="store-details">
+                    <h3 class="store-name">{{ data.store.name }}</h3>
+                    <mat-chip class="store-status" [ngClass]="data.store.isVerified ? 'verified' : 'unverified'">
+                        {{ data.store.isVerified ? 'Verified Store' : 'Unverified Store' }}
+                    </mat-chip>
+                    </div>
+                </div>
+                
+                <div class="store-meta">
+                    <div class="meta-item">
+                    <mat-icon>category</mat-icon>
+                    <span>{{ data.store.category || 'Uncategorized' }}</span>
+                    </div>
+                    <div class="meta-item">
+                    <mat-icon>link</mat-icon>
+                    <a [href]="'/store/' + data.store.storeLink" target="_blank" class="store-link">
+                        /{{ data.store.storeLink }}
+                    </a>
+                    </div>
+                    <div class="meta-item">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span>Created {{ data.store.createdAt | date:'mediumDate' }}</span>
+                    </div>
+                </div>
+                
+                @if (data.store.description) {
+                    <div class="store-description">
+                    <h4 class="section-subtitle">Store Description</h4>
+                    <p>{{ data.store.description }}</p>
+                    </div>
+                }
+                </div>
+            </div>
+            </mat-tab>
+        }
+        </mat-tab-group>
+    </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+    <button mat-button (click)="onClose()">Close</button>
+    <button mat-raised-button color="primary" (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Edit Product
+    </button>
+    </mat-dialog-actions>
+</div>

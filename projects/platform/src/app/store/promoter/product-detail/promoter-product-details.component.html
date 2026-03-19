@@ -8,7 +8,7 @@
         Back to Products
       </button>
       @if (product()) {
-        <h2 class="product-title-nav">{{ product()?.name ?? '' | truncate:40 }}</h2>
+        <h2 class="product-title-nav">{{ product()?.name ?? '' | truncate:40 | titlecase }}</h2>
       }
     </div>
   </div>
@@ -142,7 +142,7 @@
               </div>
 
               <!-- Product Title -->
-              <h1 class="product-title">{{ product()?.name }}</h1>
+              <h1 class="product-title">{{ product()?.name ?? '' | truncate:40 | titlecase  }}</h1>
 
               <!-- Product Meta -->
               <div class="product-meta">
@@ -160,9 +160,9 @@
 
               <!-- Price Section -->
               <div class="price-section">
-                <h2 class="current-price">{{ product()?.price | currency }}</h2>
+                <h2 class="current-price">{{ product()?.price | currencyUtils:user()?.wallets?.promoter?.currency }}</h2>
                 @if (product()?.originalPrice && (product()?.originalPrice ?? 0) > (product()?.price ?? 0)) {
-                  <h3 class="original-price">{{ product()?.originalPrice | currency }}</h3>
+                  <h3 class="original-price">{{ product()?.originalPrice | currencyUtils:user()?.wallets?.promoter?.currency }}</h3>
                   <span class="discount-badge">
                     {{ calculateDiscount(product()?.price ?? 0, product()?.originalPrice ?? 0) }}% OFF
                   </span>
@@ -340,7 +340,7 @@
                       </span>
                     </div>
                     <h3 class="metric-value">
-                      {{ performanceStats()?.avgOrderValue | currency }}
+                      {{ performanceStats()?.avgOrderValue | currencyUtils:user()?.wallets?.promoter?.currency }}
                     </h3>
                   </div>
                   <div class="metric-card">
@@ -379,7 +379,7 @@
                     </div>
                     <div class="summary-item">
                       <div class="summary-value">
-                        {{ product()!.promotion.earnings | currency }}
+                        {{ product()!.promotion.earnings | currencyUtils:user()?.wallets?.promoter?.currency }}
                       </div>
                       <div class="summary-label">Total Earnings</div>
                     </div>
@@ -475,13 +475,13 @@
                   <div class="stat-card highlight">
                     <div class="stat-label">Potential per Sale</div>
                     <h3 class="stat-value highlight">
-                      {{ commissionDetails()?.potentialPerSale | currency }}
+                      {{ commissionDetails()?.potentialPerSale | currencyUtils:user()?.wallets?.promoter?.currency }}
                     </h3>
                   </div>
                   <div class="stat-card">
                     <div class="stat-label">Total Earned</div>
                     <h3 class="stat-value">
-                      {{ commissionDetails()?.totalEarned | currency }}
+                      {{ commissionDetails()?.totalEarned | currencyUtils:user()?.wallets?.promoter?.currency }}
                     </h3>
                   </div>
                   <div class="stat-card">
@@ -552,7 +552,7 @@
           <div class="commission-breakdown">
             <div class="breakdown-item">
               <span class="label">Product Price</span>
-              <span class="value">{{ product()!.price | currency }}</span>
+              <span class="value">{{ product()!.price | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
             </div>
             <div class="breakdown-item">
               <span class="label">Commission Rate</span>
@@ -560,7 +560,7 @@
             </div>
             <div class="breakdown-item">
               <span class="label">Your Earnings per Sale</span>
-              <span class="value">{{ commissionDetails()?.potentialPerSale | currency }}</span>
+              <span class="value">{{ commissionDetails()?.potentialPerSale | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
             </div>
           </div>
 
@@ -675,7 +675,7 @@
                   </div>
                   <div class="item-info">
                     <h4 class="item-name">{{ related.name | truncate:40 }}</h4>
-                    <p class="item-price">{{ related.price | currency }}</p>
+                    <p class="item-price">{{ related.price | currencyUtils:user()?.wallets?.promoter?.currency }}</p>
                     <div class="item-commission">
                       <span>Commission:</span>
                       <span class="commission-badge" 

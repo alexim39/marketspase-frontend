@@ -48,7 +48,7 @@ export class ProductsContentViewComponent {
   @Input({ required: true }) error!: string | null;
   
   @Output() viewProduct = new EventEmitter<PromoterProduct>();
-  @Output() copyLink = new EventEmitter<PromoterProduct>();
+  @Output() promote = new EventEmitter<PromoterProduct>();
   @Output() shareWhatsApp = new EventEmitter<PromoterProduct>();
   @Output() retry = new EventEmitter<void>();
   @Output() clearFilters = new EventEmitter<void>();

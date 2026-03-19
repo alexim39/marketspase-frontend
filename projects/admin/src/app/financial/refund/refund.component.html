@@ -191,12 +191,11 @@
                         [disabled]="isProcessing() || singleRefundForm.invalid || !validationResult()?.valid"
                         (click)="processSingleRefund()">
                   @if (isProcessing()) {
-                    <mat-spinner diameter="20"></mat-spinner>
-                    Processing...
+                    <mat-spinner diameter="20"/>
                   } @else {
                     <mat-icon>send</mat-icon>
-                    Process Refund
                   }
+                  <span>{{ isProcessing() ? 'Processing...' : 'Process Refund' }}</span>
                 </button>
                 
                 <button mat-button 
@@ -407,12 +406,11 @@
                           (click)="processBulkRefunds()"
                           [disabled]="isBulkProcessing() || bulkRefundItems().length === 0">
                     @if (isBulkProcessing()) {
-                      <mat-spinner diameter="20"></mat-spinner>
-                      Processing...
+                      <mat-spinner diameter="20"/>
                     } @else {
                       <mat-icon>play_arrow</mat-icon>
-                      Process All Refunds
                     }
+                    <span>{{ isBulkProcessing()? 'Processing...' : 'Process All Refunds' }}</span>
                   </button>
                   
                   <button mat-button 

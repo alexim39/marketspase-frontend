@@ -304,24 +304,16 @@
             height: 14px;
           }
           
-          // &.badge-discount {
-          //   background: linear-gradient(135deg, $error-color 0%, darken($error-color, 15%) 100%);
-          // }
-          
-          // &.badge-featured {
-          //   background: linear-gradient(135deg, $warning-color 0%, darken($warning-color, 15%) 100%);
-          // }
-          
-          // &.badge-low-stock {
-          //   background: linear-gradient(135deg, $warning-color 0%, darken($warning-color, 15%) 100%);
-          // }
           &.badge-discount {
-            background: linear-gradient(135deg, $error-color 0%, color.adjust($error-color, $lightness: -15%) 100%);
+            background: linear-gradient(135deg, rgba($error-color, 0.1) 0%, rgba($error-color, 0.05%) 100%);
           }
-
-          &.badge-featured,
+          
+          &.badge-featured {
+            background: linear-gradient(135deg, rgba($warning-color, 0.1) 0%, rgba($warning-color, 15%) 100%);
+          }
+          
           &.badge-low-stock {
-            background: linear-gradient(135deg, $warning-color 0%, color.adjust($warning-color, $lightness: -15%) 100%);
+            background: linear-gradient(135deg, rgba($warning-color, 0.1) 0%, rgba($warning-color, 15%) 100%);
           }
         }
       }
