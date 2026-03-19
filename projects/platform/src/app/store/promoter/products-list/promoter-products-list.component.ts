@@ -204,10 +204,6 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
-  onPromotion(product: PromoterProduct): void {
-   console.log('selected product ', product)
-  }
-
   generateWhatsAppMessage(product: PromoterProduct): void {
     const message = `Check out this amazing product: ${product.name}\n\n` +
                    `💰 Price: $${product.price}\n` +

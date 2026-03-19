@@ -1,7 +1,7 @@
 // components/products-content-view/products-content-view.component.ts
-import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,8 @@ import { PromoterProduct } from '../../../models/promoter-product.model';
 import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
 import { ViewMode } from '../../models/filter-state.model';
 import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { PromotionTrackingService } from '../../../services/promotion-tracking.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-products-content-view',
@@ -37,6 +39,7 @@ import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared
     TruncatePipe,
     CurrencyUtilsPipe
   ],
+  providers: [PromotionTrackingService],
   templateUrl: './products-content-view.component.html',
   styleUrls: ['./products-content-view.component.scss']
 })
@@ -48,15 +51,20 @@ export class ProductsContentViewComponent {
   @Input({ required: true }) error!: string | null;
   
   @Output() viewProduct = new EventEmitter<PromoterProduct>();
-  @Output() promote = new EventEmitter<PromoterProduct>();
   @Output() shareWhatsApp = new EventEmitter<PromoterProduct>();
   @Output() retry = new EventEmitter<void>();
   @Output() clearFilters = new EventEmitter<void>();
+
+  private promotionService = inject(PromotionTrackingService);
+   private snackBar = inject(MatSnackBar);
+   private router = inject(Router);
 
   // Local UI state
   viewMode = signal<ViewMode>('grid');
   pageSize = signal<number>(12);
   currentPage = signal<number>(0);
+
+  activePromotions = signal<Map<string, any>>(new Map());
 
   // Computed
   paginatedProducts = computed(() => {
@@ -96,4 +104,167 @@ export class ProductsContentViewComponent {
   trackByProductId(index: number, product: PromoterProduct): string {
     return product._id;
   }
+
+
+
+
+
+
+    /**
+   * Promote a product - creates a unique tracking link
+   */
+  async onPromote(product: PromoterProduct): Promise<void> {
+    try {
+      const promoterId = this.user?._id;
+      if (!promoterId) {
+        this.snackBar.open('You must be logged in to promote products', 'Close', { duration: 5000 });
+        return;
+      }
+
+      // Show loading state
+      const snackBarRef = this.snackBar.open('Creating promotion link...', 'Close', { duration: 3000 });
+
+      // Check if already promoting this product
+      const existingPromotion = this.activePromotions().get(product._id);
+      
+      let trackingCode: string;
+      let uniqueId: string;
+
+      if (existingPromotion) {
+        // Use existing promotion
+        trackingCode = existingPromotion.uniqueCode;
+        uniqueId = existingPromotion.uniqueId;
+        snackBarRef.dismiss();
+      } else {
+        // Create new promotion tracking
+        const response = await this.promotionService.createPromotion({
+          productId: product._id,
+          promoterId: promoterId,
+          storeId: product.store._id,
+          commissionRate: product.promotion.commissionRate,
+          commissionType: product.promotion.commissionType,
+          fixedCommission: product.promotion.fixedCommission
+        }).toPromise();
+
+        trackingCode = response.data.uniqueCode;
+        uniqueId = response.data.uniqueId;
+
+        // Store in active promotions
+        this.activePromotions.update(map => {
+          map.set(product._id, {
+            uniqueCode: trackingCode,
+            uniqueId: uniqueId,
+            ...response.data
+          });
+          return new Map(map);
+        });
+
+        snackBarRef.dismiss();
+        this.snackBar.open('Promotion link created successfully!', 'Close', { duration: 3000 });
+      }
+
+      // Generate the unique link
+      const trackingLink = this.promotionService.getTrackingLink(trackingCode);
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(trackingLink);
+      
+      // Show success with options
+      this.showPromotionOptions(product, trackingLink, trackingCode);
+      
+    } catch (error) {
+      console.error('Error creating promotion:', error);
+      this.snackBar.open('Failed to create promotion link. Please try again.', 'Close', { duration: 5000 });
+    }
+  }
+
+  /**
+   * Show promotion options dialog
+   */
+  private showPromotionOptions(product: PromoterProduct, link: string, trackingCode: string): void {
+    // You can create a modal component for this, but for now using snackbar with action
+    const snackBarRef = this.snackBar.open(
+      '✅ Link copied! Share via WhatsApp or View Stats',
+      'WhatsApp',
+      { duration: 10000 }
+    );
+
+    snackBarRef.onAction().subscribe(() => {
+      this.shareOnWhatsApp(product, trackingCode);
+    });
+  }
+
+  /**
+   * Share on WhatsApp
+   */
+  shareOnWhatsApp(product: PromoterProduct, trackingCode: string): void {
+    const message = this.promotionService.generateWhatsAppMessage(
+      product.name,
+      trackingCode,
+      product.promotion.commissionRate,
+      product.price
+    );
+    
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  }
+
+  /**
+   * View promotion statistics
+   */
+  async viewPromotionStats(product: PromoterProduct): Promise<void> {
+    try {
+      const promoterId = this.user?._id;
+      if (!promoterId) return;
+
+      const stats = await this.promotionService.getProductPromotionStats(
+        product._id,
+        promoterId
+      ).toPromise();
+
+      // Navigate to stats page or show modal
+      this.router.navigate(['dashboard/promotions/stats', product._id], {
+        state: { stats: stats.data }
+      });
+      
+    } catch (error) {
+      console.error('Error loading promotion stats:', error);
+      this.snackBar.open('Failed to load promotion statistics', 'Close', { duration: 5000 });
+    }
+  }
+
+  /**
+   * Load active promotions for the promoter
+   */
+  async loadActivePromotions(): Promise<void> {
+    try {
+      const promoterId = this.user?._id;
+      if (!promoterId) return;
+
+      const response = await this.promotionService.getPromoterPromotions(promoterId).toPromise();
+      
+      const promotionMap = new Map();
+      response.data.forEach((promo: any) => {
+        promotionMap.set(promo.product._id || promo.product, promo);
+      });
+      
+      this.activePromotions.set(promotionMap);
+      
+    } catch (error) {
+      console.error('Error loading active promotions:', error);
+    }
+  }
+
+  // Override the existing onPromotion method
+  onPromotion(product: PromoterProduct): void {
+    this.onPromote(product);
+  }
+
+  // Add this to ngOnInit
+  ngOnInit(): void {
+    //this.loadProducts();
+    this.loadActivePromotions(); // Load existing promotions
+  }
+
+
+
 }

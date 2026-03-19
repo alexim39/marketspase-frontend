@@ -46,6 +46,14 @@ export interface PromoterProduct {
   viewCount?: number;
   isActive?: boolean;
   quantity?: number;
+  tracking?: {
+    uniqueCode: string;
+    uniqueId: string;
+    viewCount: number;
+    clickCount: number;
+    conversionCount: number;
+    earnings: number;
+  };
 
 }
 
@@ -62,4 +70,29 @@ export interface ProductFilter {
   sortBy: 'commission' | 'popularity' | 'price' | 'newest' | 'name';
   sortDirection: 'asc' | 'desc';
   searchQuery: string;
+}
+
+export interface PromotionTracking {
+  commissionRate: number;
+  commissionType: 'percentage' | 'fixed';
+  fixedCommission: number;
+  isActive: boolean;
+  isApproved: boolean;
+  trackingCode: string;
+  viewCount: number;
+  clickCount: number;
+  conversionCount: number;
+  earnings: number;
+  uniqueId?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface ProductImage {
+  url: string;
+  altText: string;
+  isMain: boolean;
+  order: number;
+  _id: string;
+  id: string;
 }

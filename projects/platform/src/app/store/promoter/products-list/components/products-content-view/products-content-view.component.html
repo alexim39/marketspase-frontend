@@ -116,7 +116,7 @@
               <button
                 mat-icon-button
                 color="primary"
-                (click)="promote.emit(product); $event.stopPropagation()"
+                (click)="onPromote(product); $event.stopPropagation()"
                 matTooltip="Promote product"
               >
                 <mat-icon>link</mat-icon>
@@ -220,7 +220,7 @@
             <button
               mat-raised-button
               color="accent"
-              (click)="promote.emit(product)"
+              (click)="onPromote(product)"
               class="promote-btn"
             >
               <mat-icon>share</mat-icon>
@@ -334,7 +334,7 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
           <td mat-cell *matCellDef="let product" class="actions-cell">
-            <button
+           <!--  <button
               mat-icon-button
               color="primary"
               (click)="viewProduct.emit(product)"
@@ -345,11 +345,11 @@
             <button
               mat-icon-button
               color="accent"
-              (click)="promote.emit(product)"
+              (click)="promote(product)"
               matTooltip="Promote product"
             >
               <mat-icon>link</mat-icon>
-            </button>
+            </button> -->
             <button
               mat-icon-button
               [matMenuTriggerFor]="moreMenu"
