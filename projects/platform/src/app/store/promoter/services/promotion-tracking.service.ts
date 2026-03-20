@@ -69,13 +69,14 @@ export class PromotionTrackingService {
   /**
    * Get all promotion stats for dashboard
    */
-  getPromotionDashboard(promoterId: string): Observable<{
-    totalEarnings: number;
-    totalClicks: number;
-    totalConversions: number;
-    activePromotions: number;
-    promotions: PromotionStats[];
-  }> {
+  getPromotionDashboard(promoterId: string): Observable<any> {
+  // getPromotionDashboard(promoterId: string): Observable<{
+  //   totalEarnings: number;
+  //   totalClicks: number;
+  //   totalConversions: number;
+  //   activePromotions: number;
+  //   promotions: PromotionStats[];
+  // }> {
     const params = new HttpParams().set('promoterId', promoterId);
     return this.apiService.get<any>(`${this.apiUrl}/dashboard`, params, undefined, true);
   }
