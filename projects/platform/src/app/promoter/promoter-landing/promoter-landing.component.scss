@@ -229,7 +229,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: $gray-900;
+    background-color: color-mix(in srgb, $background-color, black 5%);
     // UPDATED: Use border-color variable for dynamic theming
     border: 1px solid $border-color;
     border-radius: 8px;
