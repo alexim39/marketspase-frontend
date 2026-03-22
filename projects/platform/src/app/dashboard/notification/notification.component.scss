@@ -4,7 +4,6 @@
 
 .notification-container {
   position: relative;
-
 }
 
 .notification-button {
@@ -15,7 +14,6 @@
   min-width: 350px;
   max-width: 400px;
   max-height: 500px;
-
 }
 
 .notification-header {
@@ -25,9 +23,7 @@
   padding: 16px;
   // UPDATED: Use border-color variable for dynamic theming
   border-bottom: 1px solid $border-color;
-  //background: $surface-color;
-  //border: 1px solid $gray-600;
-  background-color: color-mix(in srgb, $background-color, black 60%) !important;
+  background-color: color-mix(in srgb, $background-color, black 5%) !important;
 }
 
 .notification-header h3 {
@@ -79,7 +75,7 @@
 
 .notification-item:hover {
   // UPDATED: Use gray-800 variable for dynamic theming
-  background-color: $gray-800;
+  background-color: rgba($gray-800, 0.1);
 }
 
 .notification-item.unread {
