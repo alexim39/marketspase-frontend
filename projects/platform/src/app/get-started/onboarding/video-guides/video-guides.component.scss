@@ -46,19 +46,12 @@
       }
       
       .video-container {
-        position: relative;
-        padding-top: 56.25%; // 16:9 aspect ratio
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: $gray-900;
-        
-        iframe {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          border: none;
-        }
-        
+        padding: 1em 0;
+      
         .video-placeholder {
           @include absolute-center;
           @include flex-column-center;

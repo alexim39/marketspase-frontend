@@ -18,6 +18,8 @@
         <div class="video-container">
           @if (marketerVideoUrl) {
             <iframe 
+              width="380" 
+              height="800" 
               [src]="marketerVideoUrl" 
               frameborder="0" 
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
@@ -48,11 +50,22 @@
         
         <div class="video-container">
           @if (promoterVideoUrl) {
-            <iframe 
+            <!-- <iframe 
               [src]="promoterVideoUrl" 
               frameborder="0" 
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
               allowfullscreen>
+            </iframe> -->
+            <iframe 
+              src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1956269321631443%2F&show_text=false&width=211&t=0" 
+              width="380" 
+              height="800" 
+              style="border:none;overflow:hidden" 
+              scrolling="no" 
+              frameborder="0" 
+              allowfullscreen="true" 
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+              allowFullScreen="true">
             </iframe>
           } @else {
             <div class="video-placeholder">

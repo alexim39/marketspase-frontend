@@ -158,7 +158,7 @@
         
         &:hover {
           // UPDATED: Use gray-50 for hover background
-          background-color: $gray-900;
+          background-color: color-mix(in srgb, $background-color, black 5%);
         }
 
         .mat-icon {
