@@ -4,6 +4,7 @@
 
 :host {
   display: block;
+  background-color: $background-color;
 }
 
 .product-card {
@@ -14,11 +15,7 @@
 
   &.inactive {
     opacity: 0.7;
-    background: $gray-50;
-
-    [data-theme="dark"] & {
-      background: $gray-800;
-    }
+    background-color: color-mix(in srgb, $background-color, black 5%);   
   }
 
   .performance-badge {
@@ -104,7 +101,7 @@
           }
           
           &.inactive {
-            background: $gray-400;
+            background-color: color-mix(in srgb, $background-color, black 5%);
           }
         }
       }
@@ -172,13 +169,8 @@
 
         .progress-bar {
           height: 6px;
-          background: $gray-100;
           border-radius: $border-radius-full;
           overflow: hidden;
-
-          [data-theme="dark"] & {
-            background: $gray-700;
-          }
 
           .progress-fill {
             height: 100%;
@@ -201,13 +193,9 @@
       @include flex-between;
       margin-top: $spacing-4;
       padding: $spacing-3;
-      background: $gray-50;
+      background-color: color-mix(in srgb, $background-color, black 5%);
       border-radius: $border-radius;
       font-weight: $font-weight-medium;
-
-      [data-theme="dark"] & {
-        background: $gray-700;
-      }
 
       .earnings-label {
         color: $text-secondary;
@@ -241,12 +229,9 @@
       }
 
       &:hover {
-        background: $gray-50;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         color: $primary-color;
 
-        [data-theme="dark"] & {
-          background: $gray-700;
-        }
       }
 
       &.deactivate:hover {
@@ -398,13 +383,10 @@
       .chart-controls {
         display: flex;
         gap: $spacing-2;
-        background: $gray-100;
+        //background: $gray-100;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         padding: $spacing-1;
         border-radius: $border-radius-full;
-
-        [data-theme="dark"] & {
-          background: $gray-800;
-        }
 
         .chart-toggle-btn {
           @include button-ghost;
@@ -418,9 +400,6 @@
             color: $primary-color;
             box-shadow: $shadow-sm;
 
-            [data-theme="dark"] & {
-              background: $gray-700;
-            }
           }
         }
       }
@@ -433,13 +412,9 @@
       .time-range-selector {
         display: flex;
         gap: $spacing-1;
-        background: $gray-100;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         padding: $spacing-1;
         border-radius: $border-radius-full;
-
-        [data-theme="dark"] & {
-          background: $gray-800;
-        }
 
         .range-btn {
           @include button-ghost;
@@ -452,9 +427,7 @@
             color: $primary-color;
             box-shadow: $shadow-sm;
 
-            [data-theme="dark"] & {
-              background: $gray-700;
-            }
+           
           }
         }
       }
@@ -476,13 +449,10 @@
     gap: $spacing-4;
     margin-bottom: $spacing-4;
     padding: $spacing-3;
-    background: $gray-50;
+    background-color: color-mix(in srgb, $background-color, black 5%);
     border-radius: $border-radius;
 
-    [data-theme="dark"] & {
-      background: $gray-800;
-    }
-
+   
     .metric-checkbox {
       display: flex;
       align-items: center;
@@ -650,7 +620,7 @@
   .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid $gray-200;
+    background-color: color-mix(in srgb, $background-color, black 5%);
     border-top-color: $primary-color;
     border-radius: 50%;
     animation: spin 1s linear infinite;

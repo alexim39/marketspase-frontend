@@ -19,21 +19,18 @@
 
   &.inactive {
     opacity: 0.7;
-    background: $gray-50;
-
-    [data-theme="dark"] & {
-      background: $gray-800;
-    }
+    background-color: color-mix(in srgb, $background-color, black 5%);
 
     .performance-badge {
-      opacity: 0.5;
+      opacity: 0.9;
     }
   }
 
   // Performance Badge
   .performance-badge {
     position: absolute;
-    top: $spacing-3;
+    top: 4em;
+    // top: $spacing-1;
     right: $spacing-3;
     padding: $spacing-1 $spacing-2;
     border-radius: $border-radius-full;
@@ -87,13 +84,10 @@
         align-items: center;
         color: $text-secondary;
         font-family: monospace;
-        background: $gray-50;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         padding: $spacing-1 $spacing-2;
         border-radius: $border-radius-sm;
-        
-        [data-theme="dark"] & {
-          background: $gray-800;
-        }
+      
         
         .code {
           font-size: $font-size-xs;
@@ -114,11 +108,8 @@
           
           &:hover {
             color: $primary-color;
-            background: $gray-200;
+            background-color: color-mix(in srgb, $background-color, black 5%);
             
-            [data-theme="dark"] & {
-              background: $gray-700;
-            }
           }
 
           .material-icons {
@@ -132,12 +123,8 @@
         align-items: center;
         gap: $spacing-1;
         padding: $spacing-1 $spacing-2;
-        background: $gray-50;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         border-radius: $border-radius-full;
-        
-        [data-theme="dark"] & {
-          background: $gray-800;
-        }
 
         .status-indicator {
           width: 8px;
@@ -198,13 +185,9 @@
       .stat-item {
         text-align: center;
         padding: $spacing-2;
-        background: $gray-50;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         border-radius: $border-radius;
         transition: transform $transition-fast;
-
-        [data-theme="dark"] & {
-          background: $gray-800;
-        }
 
         &:hover {
           transform: translateY(-2px);
@@ -252,13 +235,10 @@
 
         .progress-bar {
           height: 6px;
-          background: $gray-100;
+          background-color: color-mix(in srgb, $background-color, black 5%);
           border-radius: $border-radius-full;
           overflow: hidden;
 
-          [data-theme="dark"] & {
-            background: $gray-700;
-          }
 
           .progress-fill {
             height: 100%;
@@ -281,14 +261,11 @@
       @include flex-between;
       margin-bottom: $spacing-3;
       padding: $spacing-3;
-      background: $gray-50;
+      background-color: color-mix(in srgb, $background-color, black 5%);
       border-radius: $border-radius;
       font-weight: $font-weight-medium;
       border-left: 3px solid $success-color;
 
-      [data-theme="dark"] & {
-        background: $gray-800;
-      }
 
       .earnings-label {
         color: $text-secondary;
@@ -309,12 +286,8 @@
       font-size: $font-size-xs;
       color: $text-tertiary;
       padding: $spacing-2;
-      background: $gray-50;
+      background-color: color-mix(in srgb, $background-color, black 5%);
       border-radius: $border-radius;
-
-      [data-theme="dark"] & {
-        background: $gray-800;
-      }
 
       .material-icons {
         font-size: 14px;
@@ -327,11 +300,7 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     border-top: 1px solid $border-color;
-    background: $gray-50;
-
-    [data-theme="dark"] & {
-      background: $gray-800;
-    }
+    background-color: color-mix(in srgb, $background-color, black 25%);
 
     .action-btn {
       @include flex-center;
@@ -420,12 +389,9 @@
       text-align: left;
 
       &:hover {
-        background: $gray-50;
+        background-color: color-mix(in srgb, $background-color, black 5%);
         color: $primary-color;
 
-        [data-theme="dark"] & {
-          background: $gray-800;
-        }
       }
 
       &.deactivate:hover {

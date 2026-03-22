@@ -8,7 +8,7 @@
   <!-- Card Header -->
   <div class="card-header">
     <h3 class="product-name" [matTooltip]="product.productName">
-      {{ product.productName }}
+      {{ product.productName | titlecase }}
     </h3>
     
     <div class="product-meta">
