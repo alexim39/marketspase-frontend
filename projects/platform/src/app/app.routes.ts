@@ -7,5 +7,6 @@ export const routes: Routes = [
     { path: 'legal', loadChildren: () => import('./legal/legal.routes').then(r => r.legalRoutes) },
     { path: 'store/:storeLink', loadComponent: () => import('./storefront/storefront.component').then(c => c.StorefrontComponent) },
     { path: 'ref/:username', loadComponent: () => import('./referral/referral-capture.component').then(c => c.ReferralCaptureComponent) },
-    { path: 'product/:productId', loadComponent: () => import('./storefront/product-details/main/product-details.component').then(m => m.ProductDetailsComponent) }
+    { path: 'promote/:productId', loadComponent: () => import('./storefront/product-details/main/product-details.component').then(m => m.ProductDetailsComponent) }
+
 ];

@@ -99,6 +99,21 @@
       <div class="images-upload">
         <!-- Image Upload Area -->
         <div class="upload-area" 
+          [class.disabled]="images().length >= maxImages()"
+          (click)="images().length < maxImages() && fileInput.click()"
+          (dragover)="images().length < maxImages() && onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="images().length < maxImages() && onDrop($event)">
+        <input type="file" #fileInput accept="image/*" multiple 
+              [disabled]="images().length >= maxImages()"
+              (change)="images().length < maxImages() && onImageSelect($event)" hidden>
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <p *ngIf="images().length < maxImages()">Drag & drop images here or click to browse</p>
+        <p *ngIf="images().length >= maxImages()">Maximum {{ maxImages() }} images reached</p>
+        <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>
+      </div>
+
+        <!-- <div class="upload-area" 
             (click)="fileInput.click()"
             (dragover)="onDragOver($event)"
             (dragleave)="onDragLeave($event)"
@@ -107,7 +122,7 @@
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
           <p>Drag & drop images here or click to browse</p>
           <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>
-        </div>
+        </div> -->
 
         @if (existingImages().length > 0) {
           <div class="existing-images">

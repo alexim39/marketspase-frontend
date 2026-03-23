@@ -167,6 +167,8 @@ export interface Product {
   material?: string;
   color?: string;
 
+  promotion: any;
+
 }
 
 export interface PromoterTracking {

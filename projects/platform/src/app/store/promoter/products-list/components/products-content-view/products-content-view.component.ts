@@ -164,7 +164,7 @@ export class ProductsContentViewComponent {
       }
 
       // Generate the unique link
-      const trackingLink = this.promotionService.getTrackingLink(trackingCode);
+      const trackingLink = this.promotionService.getTrackingLink(trackingCode, product._id,);
       
       // Copy to clipboard
       await navigator.clipboard.writeText(trackingLink);
@@ -199,7 +199,7 @@ export class ProductsContentViewComponent {
    */
   shareOnWhatsApp(product: PromoterProduct, trackingCode: string): void {
     const message = this.promotionService.generateWhatsAppMessage(
-      product.name,
+      product,
       trackingCode,
       product.promotion.commissionRate,
       product.price

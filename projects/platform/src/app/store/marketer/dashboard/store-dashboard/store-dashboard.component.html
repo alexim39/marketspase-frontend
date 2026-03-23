@@ -59,7 +59,7 @@
 
           <button mat-stroked-button (click)="openStoreManager(currentStore()!)" [color]="autoRefresh() ? 'primary' : ''">
             <mat-icon>store</mat-icon>
-            Store Manager
+            Store Manager ({{stores().length}})
           </button>
 
           <button mat-stroked-button (click)="viewStoreProducts(currentStore()?._id || '')" [color]="autoRefresh() ? 'primary' : ''">

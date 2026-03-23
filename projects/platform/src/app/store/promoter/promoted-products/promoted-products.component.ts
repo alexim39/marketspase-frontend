@@ -1,7 +1,7 @@
 // promoted-products/promoted-products.component.ts
 import { Component, OnInit, OnDestroy, inject, signal, computed, effect, Input, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject, takeUntil, interval, switchMap } from 'rxjs';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -47,7 +47,7 @@ export type DateRange = 'today' | 'week' | 'month' | 'all';
     PromotionStatsChartComponent,
     //SharePromotionDialogComponent,
     PromoterEarningsSummaryComponent,
-
+    RouterModule,
   ],
   providers: [PromotionTrackingService],
   templateUrl: './promoted-products.component.html',
@@ -296,76 +296,165 @@ private exportAsImage(format: 'png' | 'svg'): void {
     this.destroy$.complete();
   }
 
-  async loadPromotedProducts(): Promise<void> {
-    this.loading.set(true);
-    this.error.set(null);
+async loadPromotedProducts(): Promise<void> {
+  this.loading.set(true);
+  this.error.set(null);
 
-    try {
-      const response = await this.promotionService
-        .getPromotionDashboard(this.user()!._id)
-        .toPromise();
+  try {
+    const response = await this.promotionService
+      .getPromotionDashboard(this.user()!._id)
+      .toPromise();
 
-        console.log('response ',response)
+    console.log('Load promoted products response:', response);
 
-      const products = this.transformPromotionData(response!.data!.promotions);
-      this.promotedProducts.set(products);
-      this.applyFilters();
+    // Handle different response structures
+    let promotionsData: any[] = [];
+    
+    if (response?.data?.promotions) {
+      promotionsData = response.data.promotions;
+    } else if (response?.promotions) {
+      promotionsData = response.promotions;
+    } else if (Array.isArray(response?.data)) {
+      promotionsData = response.data;
+    } else if (Array.isArray(response)) {
+      promotionsData = response;
+    }
 
-    } catch (error) {
-      console.error('Error loading promoted products:', error);
-      this.error.set('Failed to load promoted products. Please try again.');
-      this.snackBar.open('Error loading products', 'Close', { duration: 5000 });
-    } finally {
+    if (!promotionsData || promotionsData.length === 0) {
+      this.promotedProducts.set([]);
+      this.filteredProducts.set([]);
       this.loading.set(false);
+      return;
     }
+
+    // Fetch performance data for each product
+    const productsWithPerformance = await Promise.all(
+      promotionsData.map(async (promo) => {
+        try {
+          const performance = await this.promotionService
+            .getPromotionPerformance(promo.productId, this.user()!._id)
+            .toPromise();
+          
+          return {
+            ...promo,
+            ...performance.data,
+            shareLink: this.promotionService.getTrackingLink(promo.uniqueCode, promo.productId),
+            performance: this.calculatePerformance(performance.data)
+          };
+        } catch (err) {
+          console.error(`Error fetching performance for ${promo.productId}:`, err);
+          return promo;
+        }
+      })
+    );
+
+    const products = this.transformPromotionData(productsWithPerformance);
+    this.promotedProducts.set(products);
+    this.applyFilters();
+
+  } catch (error) {
+    console.error('Error loading promoted products:', error);
+    this.error.set('Failed to load promoted products. Please try again.');
+    this.snackBar.open('Error loading products', 'Close', { duration: 5000 });
+  } finally {
+    this.loading.set(false);
+  }
+}
+
+private calculatePerformance(stats: any): 'high' | 'medium' | 'low' {
+  const conversionRate = stats.conversionRate || 0;
+  const earnings = stats.earnings || 0;
+  const clicks = stats.clicks || 0;
+  
+  if (conversionRate >= 5 || earnings > 100) {
+    return 'high';
+  } else if (conversionRate < 1 && earnings < 10 && clicks < 10) {
+    return 'low';
+  }
+  return 'medium';
+}
+
+private transformPromotionData(promotions: any[]): PromotedProduct[] {
+  if (!promotions || !Array.isArray(promotions)) {
+    console.warn('transformPromotionData received invalid data:', promotions);
+    return [];
   }
 
-  async refreshStats(): Promise<void> {
-    if (this.refreshing()) return;
+  return promotions.map(promo => ({
+    trackingId: promo.trackingId || promo._id,
+    productId: promo.productId,
+    productName: promo.productName || 'Unknown Product',
+    productPrice: promo.productPrice,
+    productImage: promo.productImage,
+    uniqueCode: promo.uniqueCode,
+    uniqueId: promo.uniqueId,
+    shareLink: promo.shareLink || this.promotionService.getTrackingLink(promo.uniqueCode, promo.productId),
+    views: promo.views || 0,
+    clicks: promo.clicks || 0,
+    conversions: promo.conversions || 0,
+    earnings: promo.earnings || 0,
+    clickThroughRate: promo.clickThroughRate || 0,
+    conversionRate: promo.conversionRate || 0,
+    commissionRate: promo.commissionRate || 10,
+    isActive: promo.isActive === true,
+    performance: promo.performance || this.calculatePerformance(promo),
+    deviceTypes: promo.deviceTypes || { mobile: 0, desktop: 0, tablet: 0 },
+    referralSources: promo.referralSources || [],
+    createdAt: promo.createdAt,
+    lastActivityAt: promo.lastActivityAt || promo.createdAt
+  }));
+}
 
-    this.refreshing.set(true);
-    try {
-      const response = await this.promotionService
-        .getPromotionDashboard(this.user()!._id)
-        .toPromise();
+async refreshStats(): Promise<void> {
+  if (this.refreshing()) return;
 
-      const updatedProducts = this.transformPromotionData(response!.promotions);
-      
-      // Update existing products with new stats while preserving UI state
-      this.promotedProducts.update(current => {
-        const productMap = new Map(updatedProducts.map(p => [p.trackingId, p]));
-        return current.map(product => {
-          const updated = productMap.get(product.trackingId);
-          return updated ? { ...product, ...updated } : product;
-        });
-      });
+  this.refreshing.set(true);
+  try {
+    const response = await this.promotionService
+      .getPromotionDashboard(this.user()!._id)
+      .toPromise();
 
-    } catch (error) {
-      console.error('Error refreshing stats:', error);
-    } finally {
+    // Get promotions data from correct path
+    const promotionsData = response?.data?.promotions;
+    
+    if (!promotionsData || !Array.isArray(promotionsData)) {
+      console.log('No promotions data found');
       this.refreshing.set(false);
+      return;
     }
-  }
 
-  private transformPromotionData(promotions: any[]): any[] {
-//   private transformPromotionData(promotions: any[]): PromotedProduct[] {
-    return promotions.map(promo => {
-      // Calculate performance based on conversion rate and earnings
-      let performance: 'high' | 'medium' | 'low' = 'medium';
-      
-      if (promo.conversionRate >= 5 || promo.earnings > 100) {
-        performance = 'high';
-      } else if (promo.conversionRate < 1 && promo.earnings < 10) {
-        performance = 'low';
-      }
-
-      return {
-        ...promo,
-        shareLink: this.promotionService.getTrackingLink(promo.uniqueCode),
-        performance
-      };
+    const updatedProducts = this.transformPromotionData(promotionsData);
+    
+    // Update existing products with new stats
+    this.promotedProducts.update(current => {
+      const productMap = new Map(updatedProducts.map(p => [p.trackingId, p]));
+      return current.map(product => {
+        const updated = productMap.get(product.trackingId);
+        if (updated) {
+          // Merge the updated stats while preserving the product object
+          return {
+            ...product,
+            views: updated.views,
+            clicks: updated.clicks,
+            conversions: updated.conversions,
+            earnings: updated.earnings,
+            clickThroughRate: updated.clickThroughRate,
+            conversionRate: updated.conversionRate,
+            lastActivityAt: updated.lastActivityAt,
+            isActive: updated.isActive
+          };
+        }
+        return product;
+      });
     });
+
+  } catch (error) {
+    console.error('Error refreshing stats:', error);
+  } finally {
+    this.refreshing.set(false);
   }
+}
+
 
   applyFilters(): void {
     let filtered = this.promotedProducts();

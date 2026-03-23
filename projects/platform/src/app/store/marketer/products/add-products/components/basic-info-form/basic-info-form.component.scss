@@ -574,3 +574,15 @@
     }
   }
 }
+
+.upload-area {
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: #c84242;
+    
+    &:hover {
+      background-color: #9e8787;
+    }
+  }
+}
