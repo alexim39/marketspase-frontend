@@ -14,3 +14,16 @@ export interface FilterState {
   pageSize?: number;
   currentPage?: number;
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  count: number;
+  total: number;
+  totalPages: number;
+  currentPage: number;
+  filters: {
+    categories: Array<{ name: string; count: number }>;
+    priceRange: { minPrice: number; maxPrice: number; avgPrice: number };
+    commissionRange: { minCommission: number; maxCommission: number; avgCommission: number };
+  };
+}

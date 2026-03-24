@@ -1,5 +1,5 @@
 // stores/promoted-products.store.ts
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, } from '@angular/core';
 import { PromotedProduct, ViewMode, DateRange, ChartType, ChartTimeRange, TotalStats, PerformanceBreakdown } from '../promoted-products.component';
 
 export interface PromotedProductsState {

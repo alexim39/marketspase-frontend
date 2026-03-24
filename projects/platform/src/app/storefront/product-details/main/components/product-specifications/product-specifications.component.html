@@ -1,0 +1,79 @@
+<div class="specifications-grid">
+  <!-- Basic Specs -->
+  <div class="spec-group">
+    <h3 class="spec-group-title">Product Details</h3>
+    <div class="spec-items">
+      @if (product?.sku) {
+        <div class="spec-item">
+          <span class="spec-label">SKU</span>
+          <span class="spec-value">{{ product?.sku }}</span>
+        </div>
+      }
+      @if (product?.category) {
+        <div class="spec-item">
+          <span class="spec-label">Category</span>
+          <span class="spec-value">{{ product?.category }}</span>
+        </div>
+      }
+      @if (product?.brand) {
+        <div class="spec-item">
+          <span class="spec-label">Brand</span>
+          <span class="spec-value">{{ product?.brand }}</span>
+        </div>
+      }
+      @if (product?.weight) {
+        <div class="spec-item">
+          <span class="spec-label">Weight</span>
+          <span class="spec-value">{{ product?.weight }} {{ product?.weightUnit }}</span>
+        </div>
+      }
+      @if (product?.dimensions) {
+        <div class="spec-item">
+          <span class="spec-label">Dimensions</span>
+          <span class="spec-value">
+            {{ product?.dimensions?.length }} x {{ product?.dimensions?.width }} x {{ product?.dimensions?.height }} {{ product?.dimensions?.unit }}
+          </span>
+        </div>
+      }
+      @if (product?.material) {
+        <div class="spec-item">
+          <span class="spec-label">Material</span>
+          <span class="spec-value">{{ product?.material }}</span>
+        </div>
+      }
+      @if (product?.color) {
+        <div class="spec-item">
+          <span class="spec-label">Color</span>
+          <span class="spec-value">{{ product?.color }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Additional Attributes -->
+  @if (product?.attributes?.length) {
+    <div class="spec-group">
+      <h3 class="spec-group-title">Additional Specifications</h3>
+      <div class="spec-items">
+        @for (attr of product?.attributes; track attr.name) {
+          <div class="spec-item">
+            <span class="spec-label">{{ attr.name }}</span>
+            <span class="spec-value">{{ attr.values }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Tags -->
+  @if (product?.tags?.length) {
+    <div class="spec-group">
+      <h3 class="spec-group-title">Tags</h3>
+      <div class="tags-container">
+        @for (tag of product?.tags; track tag) {
+          <span class="tag-chip">{{ tag }}</span>
+        }
+      </div>
+    </div>
+  }
+</div>

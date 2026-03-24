@@ -1,5 +1,5 @@
 // components/products-content-view/products-content-view.component.ts
-import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -43,38 +43,48 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './products-content-view.component.html',
   styleUrls: ['./products-content-view.component.scss']
 })
-export class ProductsContentViewComponent {
+export class ProductsContentViewComponent implements OnInit, OnChanges {
   @Input({ required: true }) products!: PromoterProduct[];
   @Input({ required: true }) user!: UserInterface | null;
-  @Input({ required: true }) filteredProducts!: PromoterProduct[];
   @Input({ required: true }) loading!: boolean;
   @Input({ required: true }) error!: string | null;
+  @Input() totalProducts: number = 0;
+  @Input() totalPages: number = 0;
+  @Input() currentPage: number = 1;
+  @Input() pageSize: number = 12;
   
   @Output() viewProduct = new EventEmitter<PromoterProduct>();
   @Output() shareWhatsApp = new EventEmitter<PromoterProduct>();
   @Output() retry = new EventEmitter<void>();
   @Output() clearFilters = new EventEmitter<void>();
+  @Output() pageChange = new EventEmitter<number>();
+  @Output() pageSizeChange = new EventEmitter<number>();
 
   private promotionService = inject(PromotionTrackingService);
-   private snackBar = inject(MatSnackBar);
-   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   // Local UI state
   viewMode = signal<ViewMode>('grid');
-  pageSize = signal<number>(12);
-  currentPage = signal<number>(0);
-
   activePromotions = signal<Map<string, any>>(new Map());
 
-  // Computed
-  paginatedProducts = computed(() => {
-    const start = this.currentPage() * this.pageSize();
-    return this.filteredProducts.slice(start, start + this.pageSize());
-  });
+  // Remove pagination computed since server handles it
+  // The products are already paginated from server
+
+  ngOnInit(): void {
+    this.loadActivePromotions();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Reset to first page when products change
+    if (changes['products'] && !changes['products'].firstChange) {
+      // Any additional logic when products change
+    }
+  }
 
   onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+    this.pageSizeChange.emit(event.pageSize);
+    this.pageChange.emit(event.pageIndex + 1); // Convert to 1-based index
   }
 
   setGridView(): void {
@@ -105,14 +115,6 @@ export class ProductsContentViewComponent {
     return product._id;
   }
 
-
-
-
-
-
-    /**
-   * Promote a product - creates a unique tracking link
-   */
   async onPromote(product: PromoterProduct): Promise<void> {
     try {
       const promoterId = this.user?._id;
@@ -121,22 +123,18 @@ export class ProductsContentViewComponent {
         return;
       }
 
-      // Show loading state
       const snackBarRef = this.snackBar.open('Creating promotion link...', 'Close', { duration: 3000 });
 
-      // Check if already promoting this product
       const existingPromotion = this.activePromotions().get(product._id);
       
       let trackingCode: string;
       let uniqueId: string;
 
       if (existingPromotion) {
-        // Use existing promotion
         trackingCode = existingPromotion.uniqueCode;
         uniqueId = existingPromotion.uniqueId;
         snackBarRef.dismiss();
       } else {
-        // Create new promotion tracking
         const response = await this.promotionService.createPromotion({
           productId: product._id,
           promoterId: promoterId,
@@ -149,7 +147,6 @@ export class ProductsContentViewComponent {
         trackingCode = response.data.uniqueCode;
         uniqueId = response.data.uniqueId;
 
-        // Store in active promotions
         this.activePromotions.update(map => {
           map.set(product._id, {
             uniqueCode: trackingCode,
@@ -163,13 +160,10 @@ export class ProductsContentViewComponent {
         this.snackBar.open('Promotion link created successfully!', 'Close', { duration: 3000 });
       }
 
-      // Generate the unique link
-      const trackingLink = this.promotionService.getTrackingLink(trackingCode, product._id,);
+      const trackingLink = this.promotionService.getTrackingLink(trackingCode, product._id);
       
-      // Copy to clipboard
       await navigator.clipboard.writeText(trackingLink);
       
-      // Show success with options
       this.showPromotionOptions(product, trackingLink, trackingCode);
       
     } catch (error) {
@@ -178,11 +172,7 @@ export class ProductsContentViewComponent {
     }
   }
 
-  /**
-   * Show promotion options dialog
-   */
   private showPromotionOptions(product: PromoterProduct, link: string, trackingCode: string): void {
-    // You can create a modal component for this, but for now using snackbar with action
     const snackBarRef = this.snackBar.open(
       '✅ Link copied! Share via WhatsApp or View Stats',
       'WhatsApp',
@@ -194,9 +184,6 @@ export class ProductsContentViewComponent {
     });
   }
 
-  /**
-   * Share on WhatsApp
-   */
   shareOnWhatsApp(product: PromoterProduct, trackingCode: string): void {
     const message = this.promotionService.generateWhatsAppMessage(
       product,
@@ -208,9 +195,6 @@ export class ProductsContentViewComponent {
     window.open(`https://wa.me/?text=${message}`, '_blank');
   }
 
-  /**
-   * View promotion statistics
-   */
   async viewPromotionStats(product: PromoterProduct): Promise<void> {
     try {
       const promoterId = this.user?._id;
@@ -221,7 +205,6 @@ export class ProductsContentViewComponent {
         promoterId
       ).toPromise();
 
-      // Navigate to stats page or show modal
       this.router.navigate(['dashboard/promotions/stats', product._id], {
         state: { stats: stats.data }
       });
@@ -232,9 +215,6 @@ export class ProductsContentViewComponent {
     }
   }
 
-  /**
-   * Load active promotions for the promoter
-   */
   async loadActivePromotions(): Promise<void> {
     try {
       const promoterId = this.user?._id;
@@ -254,17 +234,7 @@ export class ProductsContentViewComponent {
     }
   }
 
-  // Override the existing onPromotion method
   onPromotion(product: PromoterProduct): void {
     this.onPromote(product);
   }
-
-  // Add this to ngOnInit
-  ngOnInit(): void {
-    //this.loadProducts();
-    this.loadActivePromotions(); // Load existing promotions
-  }
-
-
-
 }

@@ -9,6 +9,7 @@
     <app-products-filter-sidebar
       [categories]="categories()"
       [priceRange]="priceRange()"
+      [user]="user()"
       [commissionRange]="commissionRange()"
       (filterChange)="applyFilters($event)"
     />
@@ -17,13 +18,18 @@
     <app-products-content-view
       [products]="products()"
       [user]="user()"
-      [filteredProducts]="filteredProducts()"
       [loading]="loading()"
       [error]="error()"
+      [totalProducts]="totalProducts()"
+      [totalPages]="totalPages()"
+      [currentPage]="currentPage()"
+      [pageSize]="pageSize()"
       (viewProduct)="viewProductDetails($event)"
       (shareWhatsApp)="generateWhatsAppMessage($event)"
       (retry)="retryLoading()"
       (clearFilters)="applyFilters({})"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
     />
   </main>
 </div>

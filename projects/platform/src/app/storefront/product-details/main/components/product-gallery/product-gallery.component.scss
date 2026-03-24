@@ -1,0 +1,191 @@
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+.product-gallery {
+  position: relative;
+
+  .main-image-container {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: $surface-color;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    cursor: zoom-in;
+    margin-bottom: $spacing-4;
+    
+    @include mobile {
+      border-radius: $border-radius;
+    }
+    
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: transform $transition-normal;
+      background: color-mix(in srgb, $surface-color, $white 5%);
+      padding: $spacing-4;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+    
+    .image-placeholder {
+      @include flex-column-center;
+      width: 100%;
+      height: 100%;
+      gap: $spacing-3;
+      color: $text-tertiary;
+      
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        opacity: 0.5;
+        color: $text-tertiary;
+      }
+      
+      span {
+        @include body-small;
+        color: $text-secondary;
+      }
+    }
+    
+    .image-badges {
+      position: absolute;
+      top: $spacing-3;
+      left: $spacing-3;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+      z-index: 5;
+      
+      .badge {
+        @include flex-center;
+        gap: $spacing-1;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-sm;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+        color: $white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: $shadow-md;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba($white, 0.2);
+        
+        mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+        
+        &.badge-discount {
+          background: linear-gradient(135deg, rgba($error-color, 0.9) 0%, rgba($error-color, 0.8) 100%);
+        }
+        
+        &.badge-featured {
+          background: linear-gradient(135deg, rgba($warning-color, 0.9) 0%, rgba($warning-color, 0.8) 100%);
+        }
+        
+        &.badge-low-stock {
+          background: linear-gradient(135deg, rgba($warning-color, 0.9) 0%, rgba($warning-color, 0.8) 100%);
+        }
+      }
+    }
+    
+    .image-nav {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      padding: 0 $spacing-2;
+      pointer-events: none;
+      z-index: 5;
+      
+      .nav-btn {
+        pointer-events: auto;
+        background: color-mix(in srgb, $surface-color, $black 5%);
+        color: $text-primary;
+        border: 1px solid $border-color;
+        box-shadow: $shadow-md;
+        transition: all $transition-fast;
+        
+        &:hover:not(:disabled) {
+          background: color-mix(in srgb, $surface-color, $black 15%);
+          transform: scale(1.1);
+        }
+        
+        &:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+  
+  .thumbnail-gallery {
+    display: flex;
+    gap: $spacing-2;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: $spacing-1;
+    @include scrollbar;
+    scroll-behavior: smooth;
+    
+    @include mobile {
+      justify-content: flex-start;
+      padding-bottom: $spacing-2;
+    }
+    
+    .thumbnail-btn {
+      flex: 0 0 auto;
+      width: 70px;
+      height: 70px;
+      border-radius: $border-radius;
+      overflow: hidden;
+      border: 2px solid $border-color;
+      cursor: pointer;
+      transition: all $transition-fast;
+      padding: 0;
+      background: $surface-color;
+      
+      @include desktop {
+        width: 80px;
+        height: 80px;
+      }
+      
+      &:hover {
+        border-color: color-mix(in srgb, $border-color, $black 10%);
+        transform: translateY(-2px);
+      }
+      
+      &.active {
+        border-color: $primary-color;
+        box-shadow: 0 0 0 1px $primary-color;
+      }
+      
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+  
+  .image-counter {
+    display: none;
+    text-align: center;
+    margin-top: $spacing-2;
+    @include caption;
+    color: $text-secondary;
+    
+    @include mobile {
+      display: block;
+    }
+  }
+}

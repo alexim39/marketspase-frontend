@@ -1,0 +1,64 @@
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+.specifications-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-6;
+  
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .spec-group {
+    .spec-group-title {
+      @include body-large;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin-bottom: $spacing-4;
+      padding-bottom: $spacing-2;
+      border-bottom: 1px solid $border-color;
+    }
+    
+    .spec-items {
+      .spec-item {
+        display: flex;
+        justify-content: space-between;
+        padding: $spacing-2 0;
+        border-bottom: 1px dashed $border-color;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        .spec-label {
+          @include body-small;
+          color: $text-secondary;
+          flex: 0 0 120px;
+        }
+        
+        .spec-value {
+          @include body-small;
+          color: $text-primary;
+          font-weight: $font-weight-medium;
+          text-align: right;
+        }
+      }
+    }
+    
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      
+      .tag-chip {
+        @include caption;
+        background: color-mix(in srgb, $surface-color, $black 5%);
+        color: $text-secondary;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-sm;
+        border: 1px solid $border-color;
+      }
+    }
+  }
+}

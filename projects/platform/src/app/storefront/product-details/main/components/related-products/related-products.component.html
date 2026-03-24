@@ -1,0 +1,138 @@
+<div class="related-products-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">You May Also Like</h2>
+      <a [routerLink]="['/store', storeLink]" mat-button class="view-all-link">
+        <span>View All Products</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </a>
+    </div>
+
+    @if (products.length > 0) {
+      <div class="related-products-grid">
+        @for (product of products; track trackByProductId($index, product)) {
+          <div class="related-product-card" (click)="productClick.emit(product)">
+            <div class="related-product-image">
+              @if (product?.images?.[0]?.url) {
+                <img 
+                  [src]="product?.images?.[0]?.url ?? 'img/product.png'" 
+                  [alt]="product.name"
+                  appLazyImage
+                  loading="lazy"
+                  (error)="onImageError($event)"
+                >
+              } @else {
+                <div class="image-placeholder-small">
+                  <mat-icon>image</mat-icon>
+                </div>
+              }
+              
+              <!-- Badges -->
+              <div class="product-badges">
+                @if (product.isFeatured) {
+                  <span class="badge featured">
+                    <mat-icon>star</mat-icon>
+                    <span>Featured</span>
+                  </span>
+                }
+                @if (product.originalPrice && product.originalPrice > product.price) {
+                  @let discount = ((product.originalPrice - product.price) / product.originalPrice * 100) | number:'1.0-0';
+                  <span class="badge discount">
+                    <mat-icon>local_offer</mat-icon>
+                    <span>-{{ discount }}%</span>
+                  </span>
+                }
+              </div>
+              
+              <!-- Add to Cart Overlay (Optional) -->
+              <div class="add-to-cart-overlay">
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="$event.stopPropagation(); onAddToCart(product)">
+                  <mat-icon>shopping_cart</mat-icon>
+                  Quick Add
+                </button>
+              </div>
+            </div>
+            
+            <div class="related-product-info">
+              @if (product.category) {
+                <div class="product-category">
+                  {{ product.category }}
+                </div>
+              }
+              
+              <h4 class="related-product-name">
+                {{ product.name | truncate:40 }}
+              </h4>
+              
+              <div class="related-product-price">
+                <span class="current">{{ product.price | currencyUtils:userCurrency }}</span>
+                @if (product.originalPrice && product.originalPrice > product.price) {
+                  <span class="original">{{ product.originalPrice | currencyUtils:userCurrency }}</span>
+                  @let savings = product.originalPrice - product.price;
+                  <span class="savings">Save {{ savings | currencyUtils:userCurrency }}</span>
+                }
+              </div>
+              
+              @if (product.averageRating && product.averageRating > 0) {
+                <div class="related-product-rating">
+                  <app-rating [rating]="product.averageRating" [size]="'small'"></app-rating>
+                  <span class="rating-count">({{ product.ratingCount }})</span>
+                </div>
+              }
+              
+              <!-- Stock Status (Optional) -->
+              @if (product.stockStatus) {
+                <div class="product-stock" [class]="product.stockStatus">
+                  <mat-icon>
+                    @switch (product.stockStatus) {
+                      @case ('in-stock') { check_circle }
+                      @case ('low-stock') { warning }
+                      @default { block }
+                    }
+                  </mat-icon>
+                  <span>
+                    @switch (product.stockStatus) {
+                      @case ('in-stock') { In Stock }
+                      @case ('low-stock') { Low Stock }
+                      @default { Out of Stock }
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Empty State -->
+      <div class="no-products">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>No Related Products</h3>
+        <p>Check back later for more recommendations</p>
+        <button mat-raised-button color="primary" [routerLink]="['/store', storeLink]">
+          Browse Store
+          <mat-icon>store</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Optional: Skeleton Loader Template -->
+@if (false) {
+  <div class="skeleton-grid">
+    @for (item of [1,2,3,4]; track item) {
+      <div class="skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-line line-1"></div>
+          <div class="skeleton-line line-2"></div>
+          <div class="skeleton-line line-3"></div>
+        </div>
+      </div>
+    }
+  </div>
+}

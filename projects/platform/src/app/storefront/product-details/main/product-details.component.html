@@ -1,724 +1,140 @@
 <!-- Header -->
-<!-- <app-header></app-header> -->
+<app-store-header
+  [store]="store()"
+  (contactViaWhatsApp)="contactViaWhatsApp()"
+/>
 
- <app-store-header
-    [store]="store()"
-    (contactViaWhatsApp)="contactViaWhatsApp()"
-  />
-
-<!-- Main Content -->
 <main>
+  <div class="product-details-page">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading product details...</p>
+      </div>
+    }
 
-<!-- product-details.component.html -->
-<div class="product-details-page">
-  <!-- Loading State -->
-  @if (loading()) {
-    <div class="loading-container">
-      <mat-spinner diameter="48"></mat-spinner>
-      <p>Loading product details...</p>
-    </div>
-  }
+    <!-- Error State -->
+    @if (error() && !loading()) {
+      <div class="error-container">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2>Oops! Something went wrong</h2>
+        <p>{{ error() }}</p>
+        <div class="error-actions">
+          <button mat-raised-button color="primary" (click)="loadProductData()">
+            <mat-icon>refresh</mat-icon>
+            Try Again
+          </button>
+          <button mat-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+            Go Back
+          </button>
+        </div>
+      </div>
+    }
 
-  <!-- Error State -->
-  @if (error() && !loading()) {
-    <div class="error-container">
-      <mat-icon class="error-icon">error_outline</mat-icon>
-      <h2>Oops! Something went wrong</h2>
-      <p>{{ error() }}</p>
-      <div class="error-actions">
-        <button mat-raised-button color="primary" (click)="loadProductData()">
-          <mat-icon>refresh</mat-icon>
-          Try Again
-        </button>
-        <button mat-button (click)="goBack()">
+    <!-- Product Content -->
+    @if (!loading() && !error() && product()) {
+      <!-- Sticky Header (Mobile) -->
+      <div class="sticky-header" [class.show]="isScrolled()">
+        <button mat-icon-button class="back-btn" (click)="goBack()">
           <mat-icon>arrow_back</mat-icon>
-          Go Back
         </button>
+        <div class="sticky-title">
+          <span class="product-name">{{ product()!.name | truncate:40 }}</span>
+          <span class="product-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
+        </div>
+        <div class="sticky-actions">
+          <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
+            <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+          <button mat-icon-button (click)="shareProduct()">
+            <mat-icon>share</mat-icon>
+          </button>
+        </div>
       </div>
-    </div>
-  }
 
-  <!-- Product Content -->
-  @if (!loading() && !error() && product()) {
-    <!-- Sticky Header (Mobile) -->
-    <div class="sticky-header" [class.show]="isScrolled()">
-      <button mat-icon-button class="back-btn" (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="sticky-title">
-        <span class="product-name">{{ product()!.name | truncate:40 }}</span>
-        <span class="product-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
-      </div>
-      <div class="sticky-actions">
-        <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
-          <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
-        </button>
-        <button mat-icon-button (click)="shareProduct()">
-          <mat-icon>share</mat-icon>
-        </button>
-      </div>
-    </div>
-
-    <!-- Main Product Section -->
-    <div class="product-main">
-      <div class="container">
-        <!-- Breadcrumb Navigation -->
-        <nav class="breadcrumb" aria-label="Breadcrumb">
-          <a [routerLink]="['/store', store()?.storeLink]" class="breadcrumb-link">
+      <!-- Main Product Section -->
+      <div class="product-main">
+        <div class="container">
+          <!-- Breadcrumb Navigation -->
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a [routerLink]="['/store', store()?.storeLink]" class="breadcrumb-link">
               Back to Store
               <mat-icon>arrow_back</mat-icon>
             </a>
-          <span class="separator">/</span>
-          <span class="current">{{ product()!.name | truncate:30 }}</span>
-        </nav>
+            <span class="separator">/</span>
+            <span class="current">{{ product()!.name | truncate:30 }}</span>
+          </nav>
 
-        <!-- Product Grid Layout -->
-        <div class="product-grid">
-          <!-- LEFT COLUMN: Image Gallery -->
-          <div class="gallery-column">
-            <!-- Main Image -->
-            <div class="main-image-container" #mainImageContainer>
-              @if (selectedImage()) {
-                <img 
-                  [src]="selectedImage().url" 
-                  [alt]="product()?.name"
-                  class="main-image"
-                  appLazyImage
-                  [defaultImage]="'img/product.png'"
-                  (error)="onImageError($event)"
-                  (click)="zoomImage($event)" 
-                >
-              } @else {
-                <div class="image-placeholder">
-                  <mat-icon>image_not_supported</mat-icon>
-                  <span>No image available</span>
-                </div>
-              }
+          <!-- Product Grid Layout -->
+          <div class="product-grid">
+            <!-- LEFT COLUMN: Image Gallery -->
+            <app-product-gallery
+              [images]="images()"
+              [productName]="product()?.name || ''"
+              [hasDiscount]="hasDiscount()"
+              [discountPercentage]="discountPercentage()"
+              [isFeatured]="product()?.isFeatured || false"
+              [stockStatus]="stockStatus()"
+            />
 
-              <!-- Badges -->
-              <div class="image-badges">
-                @if (hasDiscount()) {
-                  <span class="badge badge-discount">-{{ discountPercentage() }}%</span>
-                }
-                @if (product()?.isFeatured) {
-                  <span class="badge badge-featured">
-                    <mat-icon>star</mat-icon>
-                    Featured
-                  </span>
-                }
-                @if (stockStatus() === 'low-stock') {
-                  <span class="badge badge-low-stock">
-                    <mat-icon>warning</mat-icon>
-                    Low Stock
-                  </span>
-                }
-              </div>
-
-              <!-- Navigation Arrows -->
-              @if (images().length > 1) {
-                <div class="image-nav">
-                  <button 
-                    mat-icon-button 
-                    class="nav-btn nav-prev" 
-                    (click)="prevImage()"
-                    [disabled]="images().length <= 1"
-                    aria-label="Previous image">
-                    <mat-icon>chevron_left</mat-icon>
-                  </button>
-                  <button 
-                    mat-icon-button 
-                    class="nav-btn nav-next" 
-                    (click)="nextImage()"
-                    [disabled]="images().length <= 1"
-                    aria-label="Next image">
-                    <mat-icon>chevron_right</mat-icon>
-                  </button>
-                </div>
-              }
-            </div>
-
-            <!-- Thumbnail Gallery -->
-            @if (images().length > 1) {
-              <div class="thumbnail-gallery">
-                @for (image of images(); track image.url; let i = $index) {
-                  <button 
-                    class="thumbnail-btn"
-                    [class.active]="selectedImageIndex() === i"
-                    (click)="selectImage(i)"
-                    [attr.aria-label]="'View image ' + (i + 1)">
-                    <img 
-                      [src]="image.url" 
-                      [alt]="image.altText || 'Product thumbnail ' + (i + 1)"
-                      appLazyImage
-                      (error)="onImageError($event)"
-                    >
-                  </button>
-                }
-              </div>
-            }
-
-            <!-- Mobile: Image Counter -->
-            @if (images().length > 1) {
-              <div class="image-counter">
-                {{ selectedImageIndex() + 1 }} / {{ images().length }}
-              </div>
-            }
-          </div>
-
-          <!-- RIGHT COLUMN: Product Info -->
-          <div class="info-column">
-            <!-- Store Info -->
-            @if (store()) {
-              <div class="store-info-card" (click)="viewStore()">
-                <div class="store-logo-wrapper">
-                  @if (store()?.logo) {
-                    <img 
-                      [src]="store()!.logo" 
-                      [alt]="store()?.name"
-                      class="store-logo"
-                      appLazyImage
-                      (error)="onImageError($event)"
-                    >
-                  } @else {
-                    <div class="store-logo-placeholder">
-                      <mat-icon>store</mat-icon>
-                    </div>
-                  }
-                </div>
-                <div class="store-details">
-                  <span class="store-name">{{ store()?.name }}</span>
-                  @if (store()?.isVerified) {
-                    <span class="verified-badge" matTooltip="Verified Store">
-                      <mat-icon>verified</mat-icon>
-                    </span>
-                  }
-                </div>
-                <mat-icon class="chevron-icon">chevron_right</mat-icon>
-              </div>
-            }
-
-            <!-- Product Title & Category -->
-            <div class="product-header">
-              <div class="product-category">
-                <span class="category-tag">{{ product()?.category }}</span>
-                @if (product()?.brand) {
-                  <span class="brand-tag">{{ product()?.brand }}</span>
-                }
-              </div>
-              <h1 class="product-title">{{ product()?.name }}</h1>
-              
-              <!-- SKU (Desktop) -->
-              @if (product()?.sku) {
-                <div class="product-sku">SKU: {{ product()?.sku }}</div>
-              }
-            </div>
-
-            <!-- Rating & Reviews Summary -->
-            @if (averageRating() > 0) {
-              <div class="rating-summary" (click)="scrollToReviews()">
-                <app-rating [rating]="averageRating()" [size]="'medium'"></app-rating>
-                <span class="rating-value">{{ averageRating() | number:'1.1-1' }}</span>
-                <span class="rating-count">({{ ratingCount() }} reviews)</span>
-                <span class="write-review-link">Write a review</span>
-              </div>
-            } @else {
-              <div class="rating-summary no-reviews">
-                <span class="no-reviews-text">No reviews yet</span>
-                <span class="write-review-link">Be the first to review</span>
-              </div>
-            }
-
-            <!-- Price Section -->
-            <div class="price-section">
-              <div class="current-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency  }}</div>
-              @if (hasDiscount()) {
-                <div class="original-price">{{ originalPrice() | currencyUtils:user()?.wallets?.promoter?.currency  }}</div>
-                <div class="savings-badge">Save {{ discountPercentage() }}%</div>
-              }
-            </div>
-
-            <!-- Stock Status -->
-            <div class="stock-status" [class]="stockStatus()">
-              <mat-icon class="stock-icon">
-                @switch (stockStatus()) {
-                  @case ('out-of-stock') { block }
-                  @case ('low-stock') { warning }
-                  @default { check_circle }
-                }
-              </mat-icon>
-              <span class="stock-text">{{ stockText() }}</span>
-              @if (stockStatus() === 'in-stock' && product()?.manageStock) {
-                <span class="stock-quantity">{{ currentStock() }} available</span>
-              }
-            </div>
-
-            <!-- Variants Selection -->
-            @if (hasVariants() && attributes().length > 0) {
-              <div class="variants-section">
-                @for (attribute of attributes(); track attribute.name) {
-                  <div class="variant-group">
-                    <label class="variant-label">{{ attribute.name }}:</label>
-                    <span class="selected-value">{{ getAttributeValue(attribute.name) }}</span>
-                    <div class="variant-options">
-                      @for (value of attribute.values; track value) {
-                        <button 
-                          class="variant-option"
-                          [class.selected]="getAttributeValue(attribute.name) === value"
-                          (click)="selectVariantByAttribute(attribute.name, value)"
-                          [attr.aria-label]="'Select ' + attribute.name + ': ' + value">
-                          {{ value }}
-                        </button>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-
-            <!-- Quantity Selector -->
-            <div class="quantity-section">
-              <label class="quantity-label">Quantity</label>
-              <div class="quantity-selector">
-                <button 
-                  mat-icon-button 
-                  class="qty-btn"
-                  (click)="decrementQuantity()"
-                  [disabled]="quantity() <= 1 || !canAddToCart()"
-                  aria-label="Decrease quantity">
-                  <mat-icon>remove</mat-icon>
-                </button>
-                <input 
-                  type="number"
-                  class="qty-input"
-                  [value]="quantity()"
-                  (change)="setQuantity($event)"
-                  [min]="1"
-                  [max]="maxQuantity()"
-                  [disabled]="!canAddToCart()"
-                  readonly
-                >
-                <button 
-                  mat-icon-button 
-                  class="qty-btn"
-                  (click)="incrementQuantity()"
-                  [disabled]="quantity() >= maxQuantity() || !canAddToCart()"
-                  aria-label="Increase quantity">
-                  <mat-icon>add</mat-icon>
-                </button>
-              </div>
-              @if (product()?.soldIndividually) {
-                <span class="qty-note">Limited to 1 per customer</span>
-              }
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-              <button 
-                mat-raised-button 
-                color="primary" 
-                class="btn-add-to-cart"
-                (click)="addToCart()"
-                [disabled]="!canAddToCart()">
-                <mat-icon>shopping_cart</mat-icon>
-                <span>Add to Cart</span>
-              </button>
-              
-              <button 
-                mat-stroked-button 
-                class="btn-buy-now"
-                (click)="buyNow()"
-                [disabled]="!canAddToCart()">
-                <mat-icon>flash_on</mat-icon>
-                <span>Buy Now</span>
-              </button>
-            </div>
-
-
-
-
-
-
-
-
-<!-- Promoter Actions (if user is promoter) -->
-@if (user()?.role === 'promoter') {
-  <div class="promoter-actions">
-    <button 
-      mat-raised-button 
-      color="accent" 
-      class="promote-btn"
-      (click)="shareProductWithTracking()"
-      [disabled]="loading()">
-      <mat-icon>campaign</mat-icon>
-      Promote & Earn {{ product()?.promotion?.commissionRate || 10 }}% Commission
-    </button>
-    
-    @if (activePromotion()) {
-      <button 
-        mat-stroked-button 
-        class="stats-btn"
-        (click)="viewPromotionStats(product()!, activePromotion())">
-        <mat-icon>analytics</mat-icon>
-        View Stats
-      </button>
-    }
-  </div>
-  
-  <!-- Promotion Stats Preview (if exists) -->
-  @if (activePromotion()) {
-    <div class="promotion-stats-preview">
-      <h4>Your Promotion Stats</h4>
-      <div class="stats-grid">
-        <div class="stat-item">
-          <mat-icon>visibility</mat-icon>
-          <span class="stat-value">{{ activePromotion().viewCount || 0 }}</span>
-          <span class="stat-label">Views</span>
-        </div>
-        <div class="stat-item">
-          <mat-icon>touch_app</mat-icon>
-          <span class="stat-value">{{ activePromotion().clickCount || 0 }}</span>
-          <span class="stat-label">Clicks</span>
-        </div>
-        <div class="stat-item">
-          <mat-icon>shopping_cart</mat-icon>
-          <span class="stat-value">{{ activePromotion().conversionCount || 0 }}</span>
-          <span class="stat-label">Sales</span>
-        </div>
-        <div class="stat-item">
-          <mat-icon>attach_money</mat-icon>
-          <span class="stat-value">{{ activePromotion().earnings || 0 | currency }}</span>
-          <span class="stat-label">Earned</span>
-        </div>
-      </div>
-      <div class="performance-metrics">
-        <div class="metric">
-          <span class="metric-label">CTR:</span>
-          <span class="metric-value">{{ (activePromotion().clickThroughRate || 0) | number:'1.1-1' }}%</span>
-        </div>
-        <div class="metric">
-          <span class="metric-label">Conversion:</span>
-          <span class="metric-value">{{ (activePromotion().conversionRate || 0) | number:'1.1-1' }}%</span>
-        </div>
-      </div>
-    </div>
-  }
-}
-
-
-
-
-            <!-- Trust Badges -->
-            <div class="trust-badges">
-              <div class="trust-item">
-                <mat-icon>lock</mat-icon>
-                <span>Secure Payment</span>
-              </div>
-              <div class="trust-item">
-                <mat-icon>assignment_return</mat-icon>
-                <span>30-Day Returns</span>
-              </div>
-              <div class="trust-item">
-                <mat-icon>verified</mat-icon>
-                <span>Authentic Products</span>
-              </div>
-            </div>
-
-            <!-- Mobile: Additional Actions -->
-            <div class="mobile-actions">
-              <button 
-                mat-button 
-                class="mobile-action-btn"
-                [class.active]="isInWishlist()"
-                (click)="toggleWishlist()">
-                <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
-                <span>{{ isInWishlist() ? 'Saved' : 'Save' }}</span>
-              </button>
-              <button 
-                mat-button 
-                class="mobile-action-btn"
-                (click)="shareProduct()">
-                <mat-icon>share</mat-icon>
-                <span>Share</span>
-              </button>
-              @if (store()?.whatsappNumber) {
-                <button 
-                  mat-button 
-                  class="mobile-action-btn"
-                  (click)="contactStore()">
-                  <mat-icon>chat</mat-icon>
-                  <span>Contact</span>
-                </button>
-              }
-            </div>
+            <!-- RIGHT COLUMN: Product Info -->
+           <app-product-info
+              [product]="product()"
+              [store]="store()"
+              [variants]="variants()"
+              [attributes]="attributes()"
+              [selectedVariant]="selectedVariant()"
+              [quantity]="quantity()"
+              [maxQuantity]="maxQuantity()"
+              [canAddToCart]="canAddToCart()"
+              [isInWishlist]="isInWishlist()"
+              [userCurrency]="user()?.wallets?.promoter?.currency || 'USD'"
+              [userRole]="user()?.role || ''"
+              [activePromotion]="activePromotion()"
+              (storeClick)="viewStore()"
+              (reviewsClick)="scrollToReviews()"
+              (variantSelect)="selectVariant($event)"
+              (variantByAttribute)="selectVariantByAttribute($event)"
+              (quantityChange)="onQuantityChange($event)"
+              (addToCart)="addToCart()"
+              (buyNow)="buyNow()"
+              (toggleWishlist)="toggleWishlist()"
+              (shareProduct)="shareProduct()"
+              (contactStore)="contactStore()"
+              (promoteProduct)="shareProductWithTracking()"
+              (viewPromotionStats)="viewPromotionStats($event)"
+            />
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Product Details Tabs Section -->
-    <div class="product-tabs-section">
-      <div class="container">
-        <!-- Tab Headers -->
-        <div class="tab-headers" role="tablist">
-          @for (tab of tabs; track tab.id) {
-            <button 
-              class="tab-header"
-              [class.active]="selectedTab() === tab.id"
-              (click)="selectedTab.set(tab.id)"
-              [attr.aria-selected]="selectedTab() === tab.id"
-              [attr.aria-controls]="'tab-panel-' + tab.id"
-              role="tab">
-              <mat-icon>{{ tab.icon }}</mat-icon>
-              <span>{{ tab.label }}</span>
-            </button>
-          }
-        </div>
-
-        <!-- Tab Panels -->
-        <div class="tab-panels">
-          <!-- Description Panel -->
-          @if (selectedTab() === 0) {
-            <div class="tab-panel" id="tab-panel-0" role="tabpanel">
-              <div class="description-content" [class.expanded]="isDescriptionExpanded()">
-                @if (product()?.description) {
-                  <p class="description-text">{{ product()?.description }}</p>
-                } @else {
-                  <p class="no-description">No description available for this product.</p>
-                }
-                
-                <!-- Key Features -->
-                @if (product()?.features?.length) {
-                  <div class="key-features">
-                    <h3 class="section-subtitle">Key Features</h3>
-                    <ul class="features-list">
-                      @for (feature of product()?.features; track feature) {
-                        <li>
-                          <mat-icon class="feature-icon">check_circle</mat-icon>
-                          <span>{{ feature }}</span>
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                }
-              </div>
-              
-              @if ((product()?.description?.length || 0) > 500) {
-                <button 
-                  class="read-more-btn"
-                  (click)="isDescriptionExpanded.set(!isDescriptionExpanded())">
-                  <span>{{ isDescriptionExpanded() ? 'Read Less' : 'Read More' }}</span>
-                  <mat-icon>{{ isDescriptionExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
-              }
+      <!-- Product Details Tabs Section -->
+      <div class="product-tabs-section">
+        <div class="container">
+          <app-product-tabs
+            [product]="product()"
+            [selectedTab]="selectedTab()"
+            (selectedTabChange)="selectedTab.set($event)"
+          >
+            <div specifications>
+              <app-product-specifications [product]="product()" />
             </div>
-          }
-
-          <!-- Specifications Panel -->
-          @if (selectedTab() === 1) {
-            <div class="tab-panel" id="tab-panel-1" role="tabpanel" #specsSection>
-              <div class="specifications-grid">
-                <!-- Basic Specs -->
-                <div class="spec-group">
-                  <h3 class="spec-group-title">Product Details</h3>
-                  <div class="spec-items">
-                    @if (product()?.sku) {
-                      <div class="spec-item">
-                        <span class="spec-label">SKU</span>
-                        <span class="spec-value">{{ product()?.sku }}</span>
-                      </div>
-                    }
-                    @if (product()?.category) {
-                      <div class="spec-item">
-                        <span class="spec-label">Category</span>
-                        <span class="spec-value">{{ product()?.category }}</span>
-                      </div>
-                    }
-                    @if (product()?.brand) {
-                      <div class="spec-item">
-                        <span class="spec-label">Brand</span>
-                        <span class="spec-value">{{ product()?.brand }}</span>
-                      </div>
-                    }
-                    @if (product()?.weight) {
-                      <div class="spec-item">
-                        <span class="spec-label">Weight</span>
-                        <span class="spec-value">{{ product()?.weight }} {{ product()?.weightUnit }}</span>
-                      </div>
-                    }
-                    @if (product()?.dimensions) {
-                      <div class="spec-item">
-                        <span class="spec-label">Dimensions</span>
-                        <span class="spec-value">
-                          {{ product()?.dimensions?.length }} x {{ product()?.dimensions?.width }} x {{ product()?.dimensions?.height }} {{ product()?.dimensions?.unit }}
-                        </span>
-                      </div>
-                    }
-                    @if (product()?.material) {
-                      <div class="spec-item">
-                        <span class="spec-label">Material</span>
-                        <span class="spec-value">{{ product()?.material }}</span>
-                      </div>
-                    }
-                    @if (product()?.color) {
-                      <div class="spec-item">
-                        <span class="spec-label">Color</span>
-                        <span class="spec-value">{{ product()?.color }}</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                <!-- Additional Attributes -->
-                @if (product()?.attributes?.length) {
-                  <div class="spec-group">
-                    <h3 class="spec-group-title">Additional Specifications</h3>
-                    <div class="spec-items">
-                      @for (attr of product()?.attributes; track attr.name) {
-                        <div class="spec-item">
-                          <span class="spec-label">{{ attr.name }}</span>
-                          <span class="spec-value">{{ attr.values }}</span>
-                          <!-- <span class="spec-value">{{ attr.values || attr.values?.join(', ') }}</span> -->
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-
-                <!-- Tags -->
-                @if (product()?.tags?.length) {
-                  <div class="spec-group">
-                    <h3 class="spec-group-title">Tags</h3>
-                    <div class="tags-container">
-                      @for (tag of product()?.tags; track tag) {
-                        <span class="tag-chip">{{ tag }}</span>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
+            
+            <div reviews>
+              <app-product-reviews
+                [reviews]="reviews()"
+                [averageRating]="averageRating()"
+                [ratingCount]="ratingCount()"
+                [loadingReviews]="loadingReviews()"
+                [hasMoreReviews]="hasMoreReviews()"
+                (loadMore)="loadMoreReviews()"
+                (writeReview)="writeReview()"
+              />
             </div>
-          }
-
-          <!-- Reviews Panel -->
-          @if (selectedTab() === 2) {
-            <div class="tab-panel" id="tab-panel-2" role="tabpanel" #reviewsSection>
-              <div class="reviews-container">
-                <!-- Reviews Header -->
-                <div class="reviews-header">
-                  <div class="reviews-summary">
-                    <h3 class="reviews-title">Customer Reviews</h3>
-                    @if (ratingCount() > 0) {
-                      <div class="rating-overview">
-                        <app-rating [rating]="averageRating()" [size]="'large'"></app-rating>
-                        <span class="average-rating">{{ averageRating() | number:'1.1-1' }} out of 5</span>
-                        <span class="total-reviews">{{ ratingCount() }} reviews</span>
-                      </div>
-                    }
-                  </div>
-                  
-                  <button mat-raised-button color="primary" class="write-review-btn">
-                    <mat-icon>rate_review</mat-icon>
-                    Write a Review
-                  </button>
-                </div>
-
-                <!-- Rating Breakdown -->
-                @if (ratingCount() > 0) {
-                  <div class="rating-breakdown">
-                    @for (stars of [5,4,3,2,1]; track stars; let i = $index) {
-                      <div class="breakdown-row">
-                        <span class="stars-label">{{ stars }} stars</span>
-                        <div class="progress-bar-container">
-                          <div 
-                            class="progress-bar-fill"
-                            [style.width.%]="(ratingBreakdown()[i] / ratingCount() * 100)">
-                          </div>
-                        </div>
-                        <span class="stars-count">{{ ratingBreakdown()[i] }}</span>
-                      </div>
-                    }
-                  </div>
-                }
-
-                <!-- Reviews List -->
-                @if (reviews().length > 0) {
-                  <div class="reviews-list">
-                    @for (review of reviews(); track trackByReviewId($index, review)) {
-                      <div class="review-card">
-                        <div class="review-header">
-                          <div class="reviewer-info">
-                            @if (review.user?.avatar) {
-                              <img 
-                                [src]="review?.user?.avatar ?? 'img/avatar.png'" 
-                                [alt]="review?.user?.name || 'User'"
-                                class="reviewer-avatar"
-                                appLazyImage
-                                (error)="onImageError($event)"
-                              >
-                            } @else {
-                              <div class="reviewer-avatar-placeholder">
-                                {{ getInitials(review.user?.name || 'Anonymous') }}
-                              </div>
-                            }
-                            <div class="reviewer-details">
-                              <span class="reviewer-name">{{ review.user?.name || 'Anonymous' }}</span>
-                              <span class="review-date">{{ getReviewDate(review) }}</span>
-                            </div>
-                          </div>
-                          <app-rating [rating]="review.rating" [size]="'small'"></app-rating>
-                        </div>
-                        
-                        @if (review.title) {
-                          <h4 class="review-title">{{ review.title }}</h4>
-                        }
-                        
-                        <p class="review-content">{{ review.comment }}</p>
-                        
-                        @if (review.images?.length) {
-                          <div class="review-images">
-                            @for (img of review.images; track img) {
-                              <img [src]="img" alt="Review image" class="review-image">
-                            }
-                          </div>
-                        }
-                        
-                        @if (review.verifiedPurchase) {
-                          <div class="verified-purchase">
-                            <mat-icon>verified</mat-icon>
-                            <span>Verified Purchase</span>
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-
-                  @if (reviews().length < ratingCount()) {
-                    <div class="load-more-reviews">
-                      <button mat-stroked-button (click)="loadMoreReviews()" [disabled]="loadingReviews()">
-                        @if (loadingReviews()) {
-                          <mat-spinner diameter="20"></mat-spinner>
-                          <span>Loading...</span>
-                        } @else {
-                          <span>Load More Reviews</span>
-                        }
-                      </button>
-                    </div>
-                  }
-                } @else {
-                  <div class="no-reviews-state">
-                    <mat-icon class="no-reviews-icon">rate_review</mat-icon>
-                    <h4>No reviews yet</h4>
-                    <p>Be the first to share your experience with this product.</p>
-                    <button mat-raised-button color="primary">Write a Review</button>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Shipping & Returns Panel -->
-          @if (selectedTab() === 3) {
-            <div class="tab-panel" id="tab-panel-3" role="tabpanel">
+            
+            <div shipping>
               <div class="shipping-content">
                 <div class="info-card">
                   <div class="info-card-header">
@@ -774,96 +190,35 @@
                 </div>
               </div>
             </div>
-          }
+          </app-product-tabs>
         </div>
       </div>
-    </div>
 
-    <!-- Related Products Section -->
-    @if (relatedProducts().length > 0) {
-      <div class="related-products-section">
-        <div class="container">
-          <div class="section-header">
-            <h2 class="section-title">You May Also Like</h2>
-            <a [routerLink]="['/store', store()?.storeLink]" mat-button class="view-all-link">
-              View All Products
-              <mat-icon>arrow_forward</mat-icon>
-            </a>
-          </div>
+      <!-- Related Products Section -->
+      @if (relatedProducts().length > 0) {
+        <app-related-products
+          [products]="relatedProducts()"
+          [storeLink]="store()?.storeLink || ''"
+          [userCurrency]="user()?.wallets?.promoter?.currency || 'USD'"
+          (productClick)="viewRelatedProduct(product())"
+        />
+      }
 
-          <div class="related-products-carousel">
-            @for (product of relatedProducts(); track trackByProductId($index, product)) {
-              <div class="related-product-card" (click)="viewRelatedProduct(product)">
-                <div class="related-product-image">
-                  @if (product?.images?.[0]?.url) {
-                    <img 
-                      [src]="product.images[0].url" 
-                      [alt]="product.name"
-                      appLazyImage
-                      (error)="onImageError($event)"
-                    >
-                  } @else {
-                    <div class="image-placeholder-small">
-                      <mat-icon>image</mat-icon>
-                    </div>
-                  }
-                  
-                  @if (product.isFeatured) {
-                    <span class="related-badge featured">
-                      <mat-icon>star</mat-icon>
-                    </span>
-                  }
-                </div>
-                
-                <div class="related-product-info">
-                  <h4 class="related-product-name">{{ product.name | truncate:30 }}</h4>
-                  <div class="related-product-price">
-                    <span class="current">{{ product.price | currencyUtils:user()?.wallets?.promoter?.currency  }}</span>
-                    @if (product.originalPrice && product.originalPrice > product.price) {
-                      <span class="original">{{ product.originalPrice | currencyUtils:user()?.wallets?.promoter?.currency  }}</span>
-                    }
-                  </div>
-                  @if (product.averageRating > 0) {
-                    <div class="related-product-rating">
-                      <app-rating [rating]="product.averageRating" [size]="'small'"></app-rating>
-                      <span>({{ product.ratingCount }})</span>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
+      <!-- Floating Action Buttons (Mobile) -->
+      <div class="mobile-fab" [class.hide]="isScrolled()">
+        <button mat-fab color="primary" class="fab-cart" (click)="addToCart()" [disabled]="!canAddToCart()">
+          <mat-icon>shopping_cart</mat-icon>
+        </button>
       </div>
+
+      <!-- Back to Top Button -->
+      @if (isScrolled()) {
+        <button mat-fab class="back-to-top" (click)="scrollToTop()">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </button>
+      }
     }
-
-    <!-- Recently Viewed (Optional) -->
-    @if (false) {
-      <div class="recently-viewed-section">
-        <!-- Implement if needed -->
-      </div>
-    }
-
-    <!-- Floating Action Buttons (Mobile) -->
-    <div class="mobile-fab" [class.hide]="isScrolled()">
-      <button mat-fab color="primary" class="fab-cart" (click)="addToCart()" [disabled]="!canAddToCart()">
-        <mat-icon>shopping_cart</mat-icon>
-      </button>
-    </div>
-
-    <!-- Back to Top Button -->
-    @if (isScrolled()) {
-      <button 
-        mat-fab 
-        class="back-to-top"
-        (click)="scrollToTop()"
-        >
-        <mat-icon>keyboard_arrow_up</mat-icon>
-      </button>
-    }
-  }
-</div>
-
+  </div>
 </main>
 
 <!-- Footer -->

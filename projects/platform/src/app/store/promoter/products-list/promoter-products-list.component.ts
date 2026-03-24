@@ -1,8 +1,8 @@
 // promoter-products-list.component.ts
-import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 import { PromoterProduct } from '../models/promoter-product.model';
 import { PromoterProductService } from '../../services/promoter-product.service';
@@ -13,7 +13,7 @@ import { UserInterface } from '../../../../../../shared-services/src/public-api'
 import { ProductsHeaderComponent } from './components/products-header/products-header.component';
 import { ProductsFilterSidebarComponent } from './components/products-filter-sidebar/products-filter-sidebar.component';
 import { ProductsContentViewComponent } from './components/products-content-view/products-content-view.component';
-import { FilterState, ViewMode, SortBy, SortDirection } from './models/filter-state.model';
+import { FilterState, ViewMode, SortBy, SortDirection, PaginatedResponse } from './models/filter-state.model';
 
 @Component({
   selector: 'app-promoter-products-list',
@@ -38,24 +38,32 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   // Signals
   products = signal<PromoterProduct[]>([]);
-  filteredProducts = signal<PromoterProduct[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  
+  // Pagination signals
+  totalProducts = signal<number>(0);
+  totalPages = signal<number>(0);
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(12);
 
   // Filter signals
-  categories = signal<string[]>([]);
+  categories = signal<Array<{ name: string; count: number }>>([]);
   priceRange = signal<[number, number]>([0, 10000]);
   commissionRange = signal<[number, number]>([0, 50]);
 
+  // Current filter state
+  private currentFilters = signal<Partial<FilterState>>({});
+
   // Statistics
   stats = computed(() => {
-    const products = this.filteredProducts();
+    const products = this.products();
     
     const totalCommissions = products.reduce((sum, p) => sum + p.promotion.commissionRate, 0);
     const avgCommission = products.length > 0 ? totalCommissions / products.length : 0;
     
     return {
-      total: products.length,
+      total: this.totalProducts(),
       avgCommission,
       stores: new Set(products.map(p => p.store._id)).size,
       highCommission: products.filter(p => p.promotion.commissionRate >= 20).length
@@ -76,23 +84,31 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     try {
-      const response = await this.productService.getPromoterStoreProducts().toPromise();
+      const filters = this.currentFilters();
+      const response = await this.productService.getPromoterStoreProducts({
+        ...filters,
+        page: this.currentPage(),
+        limit: this.pageSize()
+      }).toPromise();
 
-      if (!response || !response.data || response.data.length === 0) {
+      if (!response || !response.data) {
         this.error.set('No products found.');
         this.snackBar.open('No products available', 'Close', { duration: 5000 });
         this.products.set([]);
+        this.totalProducts.set(0);
+        this.totalPages.set(0);
         return;
       }
 
-      //console.log('products ',response.data)
-
       this.products.set(response.data);
+      this.totalProducts.set(response.total);
+      this.totalPages.set(response.totalPages);
+      
       this.extractFilterOptions(response.filters);
-      this.applyFilters({} as FilterState);
     } catch (err) {
       this.error.set('Failed to load products. Please try again later.');
       this.snackBar.open('Failed to load products', 'Close', { duration: 5000 });
+      console.error('Error loading products:', err);
     } finally {
       this.loading.set(false);
     }
@@ -100,8 +116,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   private extractFilterOptions(filters: any): void {
     if (filters?.categories) {
-      const categories = filters.categories.map((cat: any) => cat.name);
-      this.categories.set(categories.sort());
+      this.categories.set(filters.categories);
     }
 
     if (filters?.priceRange) {
@@ -116,87 +131,32 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(filterState: FilterState): void {
-    let filtered = [...this.products()];
-
-    // Apply search
-    if (filterState.searchQuery) {
-      const query = filterState.searchQuery.toLowerCase();
-      filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(query) ||
-        product.description?.toLowerCase().includes(query) ||
-        product.store.name.toLowerCase().includes(query) ||
-        product.tags?.some(tag => tag.toLowerCase().includes(query)) ||
-        product.category.toLowerCase().includes(query)
-      );
-    }
-
-    // Apply category filter
-    if ((filterState.selectedCategories?.length ?? 0) > 0) {
-      filtered = filtered.filter(product => 
-        filterState.selectedCategories!.includes(product.category)
-      );
-    }
-
-
-    // Apply price filter
-    if (filterState.selectedPriceRange) {
-      const [minPrice, maxPrice] = filterState.selectedPriceRange;
-      filtered = filtered.filter(product => 
-        product.price >= minPrice && product.price <= maxPrice
-      );
-    }
-
-    // Apply commission filter
-    if (filterState.selectedCommissionRange) {
-      const [minCommission, maxCommission] = filterState.selectedCommissionRange;
-      filtered = filtered.filter(product => 
-        product.promotion.commissionRate >= minCommission && 
-        product.promotion.commissionRate <= maxCommission
-      );
-    }
-
-    // Apply sorting
-    if (filterState.sortBy) {
-      filtered = this.sortProducts(filtered, filterState.sortBy, filterState.sortDirection || 'desc');
-    }
-
-    this.filteredProducts.set(filtered);
+    // Reset to first page when filters change
+    this.currentPage.set(1);
+    
+    // Store the filters
+    this.currentFilters.set({
+      searchQuery: filterState.searchQuery,
+      selectedCategories: filterState.selectedCategories,
+      selectedPriceRange: filterState.selectedPriceRange,
+      selectedCommissionRange: filterState.selectedCommissionRange,
+      sortBy: filterState.sortBy,
+      sortDirection: filterState.sortDirection
+    });
+    
+    // Reload products with new filters
+    this.loadProducts();
   }
 
-  private sortProducts(products: PromoterProduct[], sortBy: SortBy, direction: SortDirection): PromoterProduct[] {
-    const dir = direction === 'asc' ? 1 : -1;
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    this.loadProducts();
+  }
 
-    return [...products].sort((a, b) => {
-      let aValue: any, bValue: any;
-
-      switch (sortBy) {
-        case 'commission':
-          aValue = a.promotion.commissionRate;
-          bValue = b.promotion.commissionRate;
-          break;
-        case 'popularity':
-          aValue = (a.purchaseCount || 0) * (a.averageRating || 0);
-          bValue = (b.purchaseCount || 0) * (b.averageRating || 0);
-          break;
-        case 'price':
-          aValue = a.price;
-          bValue = b.price;
-          break;
-        case 'newest':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
-        case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        default:
-          aValue = a.promotion.commissionRate;
-          bValue = b.promotion.commissionRate;
-      }
-
-      return (aValue > bValue ? 1 : -1) * dir;
-    });
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(1); // Reset to first page when changing page size
+    this.loadProducts();
   }
 
   // Product actions

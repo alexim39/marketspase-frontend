@@ -1,0 +1,111 @@
+<div class="product-reviews">
+  <!-- Reviews Header -->
+  <div class="reviews-header">
+    <div class="reviews-summary">
+      <h3 class="reviews-title">Customer Reviews</h3>
+      @if (ratingCount > 0) {
+        <div class="rating-overview">
+          <app-rating [rating]="averageRating" [size]="'large'"></app-rating>
+          <span class="average-rating">{{ averageRating | number:'1.1-1' }} out of 5</span>
+          <span class="total-reviews">{{ ratingCount }} reviews</span>
+        </div>
+      }
+    </div>
+    
+    <button mat-raised-button color="primary" class="write-review-btn" (click)="writeReview.emit()">
+      <mat-icon>rate_review</mat-icon>
+      Write a Review
+    </button>
+  </div>
+
+  <!-- Rating Breakdown -->
+  @if (ratingCount > 0) {
+    <div class="rating-breakdown">
+      @for (stars of [5,4,3,2,1]; track stars; let i = $index) {
+        <div class="breakdown-row">
+          <span class="stars-label">{{ stars }} stars</span>
+          <div class="progress-bar-container">
+            <div 
+              class="progress-bar-fill"
+              [style.width.%]="(ratingBreakdown()[i] / ratingCount * 100)">
+            </div>
+          </div>
+          <span class="stars-count">{{ ratingBreakdown()[i] }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Reviews List -->
+  @if (reviews.length > 0) {
+    <div class="reviews-list">
+      @for (review of reviews; track trackByReviewId($index, review)) {
+        <div class="review-card">
+          <div class="review-header">
+            <div class="reviewer-info">
+              @if (review.user?.avatar) {
+                <img 
+                  [src]="review.user?.avatar ?? ''" 
+                  [alt]="review.user?.displayName || 'User'"
+                  class="reviewer-avatar"
+                  appLazyImage
+                  (error)="onImageError($event)"
+                >
+              } @else {
+                <div class="reviewer-avatar-placeholder">
+                  {{ getInitials(review.user?.displayName || 'Anonymous') }}
+                </div>
+              }
+              <div class="reviewer-details">
+                <span class="reviewer-name">{{ review.user?.displayName || 'Anonymous' }}</span>
+                <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+              </div>
+            </div>
+            <app-rating [rating]="review.rating" [size]="'small'"></app-rating>
+          </div>
+          
+          @if (review.title) {
+            <h4 class="review-title">{{ review.title }}</h4>
+          }
+          
+          <p class="review-content">{{ review.comment }}</p>
+          
+          @if (review.images?.length) {
+            <div class="review-images">
+              @for (img of review.images; track img) {
+                <img [src]="img" alt="Review image" class="review-image">
+              }
+            </div>
+          }
+          
+          @if (review.verifiedPurchase) {
+            <div class="verified-purchase">
+              <mat-icon>verified</mat-icon>
+              <span>Verified Purchase</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (hasMoreReviews) {
+      <div class="load-more-reviews">
+        <button mat-stroked-button (click)="loadMore.emit()" [disabled]="loadingReviews">
+          @if (loadingReviews) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Loading...</span>
+          } @else {
+            <span>Load More Reviews</span>
+          }
+        </button>
+      </div>
+    }
+  } @else {
+    <div class="no-reviews-state">
+      <mat-icon class="no-reviews-icon">rate_review</mat-icon>
+      <h4>No reviews yet</h4>
+      <p>Be the first to share your experience with this product.</p>
+      <button mat-raised-button color="primary" (click)="writeReview.emit()">Write a Review</button>
+    </div>
+  }
+</div>

@@ -8,6 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSliderModule } from '@angular/material/slider';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { FilterState, SortBy } from '../../models/filter-state.model';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
 
 @Component({
   selector: 'app-products-filter-sidebar',
@@ -18,15 +19,17 @@ import { FilterState, SortBy } from '../../models/filter-state.model';
     MatButtonModule,
     MatIconModule,
     MatCheckboxModule,
-    MatSliderModule
+    MatSliderModule,
+    CurrencyUtilsPipe
   ],
   templateUrl: './products-filter-sidebar.component.html',
   styleUrls: ['./products-filter-sidebar.component.scss']
 })
 export class ProductsFilterSidebarComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) categories!: string[];
+  @Input({ required: true }) categories!: { name: string; count: number }[];
   @Input({ required: true }) priceRange!: [number, number];
   @Input({ required: true }) commissionRange!: [number, number];
+  @Input({ required: true }) user!: UserInterface | null;
   
   @Output() filterChange = new EventEmitter<FilterState>();
 

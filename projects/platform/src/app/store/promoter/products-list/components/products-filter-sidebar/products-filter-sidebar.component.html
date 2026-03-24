@@ -33,11 +33,11 @@
     <div class="categories-list">
       @for (category of categories; track category) {
         <mat-checkbox
-          [checked]="selectedCategories().includes(category)"
-          (change)="toggleCategorySelection($event.checked, category)"
+          [checked]="selectedCategories().includes(category.name)"
+          (change)="toggleCategorySelection($event.checked, category.name)"
           class="category-checkbox"
         >
-          {{ category }}
+          {{ category.name | titlecase }}
         </mat-checkbox>
       }
     </div>
@@ -65,8 +65,8 @@
         >
       </mat-slider>
       <div class="range-values">
-        <span>{{ selectedPriceRange()[0] | currency }}</span>
-        <span>{{ selectedPriceRange()[1] | currency }}</span>
+        <span>{{ selectedPriceRange()[0] | currencyUtils:user?.wallets?.promoter?.currency}}</span>
+        <span>{{ selectedPriceRange()[1] | currencyUtils:user?.wallets?.promoter?.currency}}</span>
       </div>
     </div>
   </div>

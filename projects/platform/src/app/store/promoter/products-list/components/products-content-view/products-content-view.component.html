@@ -3,11 +3,13 @@
   <!-- Content Header -->
   <div class="content-header">
     <div class="results-info">
-      <h3>Products ({{ filteredProducts.length }})</h3>
+      <h3>Products ({{ totalProducts }})</h3>
       <p class="filter-info">
-        @if (filteredProducts.length > 0) {
+        @if (products.length > 0) {
           <mat-chip>
-            Showing {{ paginatedProducts().length }} products
+            Showing {{ ((currentPage - 1) * pageSize) + 1 }} - 
+            {{ currentPage * pageSize > totalProducts ? totalProducts : currentPage * pageSize }} 
+            of {{ totalProducts }} products
           </mat-chip>
         }
       </p>
@@ -31,20 +33,6 @@
           <mat-icon>list</mat-icon>
         </button>
       </div>
-      <!-- <button mat-button [matMenuTriggerFor]="exportMenu">
-        <mat-icon>download</mat-icon>
-        Export
-      </button>
-      <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item>
-          <mat-icon>description</mat-icon>
-          CSV
-        </button>
-        <button mat-menu-item>
-          <mat-icon>table_chart</mat-icon>
-          Excel
-        </button>
-      </mat-menu> -->
     </div>
   </div>
 
@@ -70,7 +58,7 @@
   }
 
   <!-- Empty State -->
-  @if (!loading && !error && filteredProducts.length === 0) {
+  @if (!loading && !error && products.length === 0) {
     <div class="empty-state">
       <div class="empty-state-content">
         <mat-icon class="empty-icon">search_off</mat-icon>
@@ -85,9 +73,9 @@
   }
 
   <!-- Grid View -->
-  @if (viewMode() === 'grid' && filteredProducts.length > 0 && !loading && !error) {
+  @if (viewMode() === 'grid' && products.length > 0 && !loading && !error) {
     <div class="products-grid">
-      @for (product of paginatedProducts(); track trackByProductId($index, product)) {
+      @for (product of products; track trackByProductId($index, product)) {
         <mat-card class="product-card" appearance="outlined">
           <!-- Commission Badge -->
           <div class="commission-badge" [class]="getPerformanceColor(product.promotion.commissionRate)">
@@ -142,7 +130,7 @@
               </div>
             }
             <div class="store-details">
-              <span class="store-name">{{ product.store.name | truncate:20 }}</span>
+              <span class="store-name">{{ product.store.name | truncate:20 | titlecase }}</span>
               <span class="store-tier" [class]="getStoreBadgeClass(product.store.verificationTier || 'basic')">
                 {{ product.store.verificationTier === 'premium' ? 'Premium' : 'Basic' }}
               </span>
@@ -193,14 +181,14 @@
                 [value]="getConversionRate(product)"
                 mode="determinate"
                 [color]="getPerformanceColor(product.promotion.commissionRate)"
-              ></mat-progress-bar>
+              />
             </div>
 
             <!-- Tags -->
             @if (product.tags && product.tags.length > 0) {
               <div class="product-tags">
                 @for (tag of product.tags.slice(0, 3); track tag) {
-                  <mat-chip>{{ tag }}</mat-chip>
+                  <mat-chip>{{ tag | titlecase }}</mat-chip>
                 }
               </div>
             }
@@ -233,9 +221,9 @@
   }
 
   <!-- List View -->
-  @if (viewMode() === 'list' && filteredProducts.length > 0 && !loading && !error) {
+  @if (viewMode() === 'list' && products.length > 0 && !loading && !error) {
     <div class="products-list">
-      <table mat-table [dataSource]="paginatedProducts()" class="products-table">
+      <table mat-table [dataSource]="products" class="products-table">
         <!-- Product Column -->
         <ng-container matColumnDef="product">
           <th mat-header-cell *matHeaderCellDef>Product</th>
@@ -261,7 +249,9 @@
                   <span class="product-description">{{ product.description | truncate:60 }}</span>
                 }
                 <div class="store-info-row">
-                  <img [src]="product.store.logo" [alt]="product.store.name" class="store-logo-small">
+                  @if (product.store.logo) {
+                    <img [src]="product.store.logo" [alt]="product.store.name" class="store-logo-small">
+                  }
                   <span class="store-name">{{ product.store.name }}</span>
                 </div>
               </div>
@@ -282,9 +272,9 @@
           <th mat-header-cell *matHeaderCellDef>Price</th>
           <td mat-cell *matCellDef="let product">
             <div class="price-cell">
-              <span class="current-price">{{ product.price | currency }}</span>
+              <span class="current-price">{{ product.price | currencyUtils:user?.wallets?.promoter?.currency }}</span>
               @if (product.originalPrice && product.originalPrice > product.price) {
-                <span class="original-price">{{ product.originalPrice | currency }}</span>
+                <span class="original-price">{{ product.originalPrice | currencyUtils:user?.wallets?.promoter?.currency }}</span>
               }
             </div>
           </td>
@@ -309,15 +299,15 @@
               <div class="performance-stats">
                 <div class="stat">
                   <mat-icon>visibility</mat-icon>
-                  <span>{{ product.promotion.views }}</span>
+                  <span>{{ product.promotion.views | number }}</span>
                 </div>
                 <div class="stat">
                   <mat-icon>touch_app</mat-icon>
-                  <span>{{ product.promotion.clicks }}</span>
+                  <span>{{ product.promotion.clicks | number }}</span>
                 </div>
                 <div class="stat">
                   <mat-icon>shopping_cart</mat-icon>
-                  <span>{{ product.promotion.conversions }}</span>
+                  <span>{{ product.promotion.conversions | number }}</span>
                 </div>
               </div>
               <mat-progress-bar
@@ -334,22 +324,6 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
           <td mat-cell *matCellDef="let product" class="actions-cell">
-           <!--  <button
-              mat-icon-button
-              color="primary"
-              (click)="viewProduct.emit(product)"
-              matTooltip="View Details"
-            >
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="accent"
-              (click)="promote(product)"
-              matTooltip="Promote product"
-            >
-              <mat-icon>link</mat-icon>
-            </button> -->
             <button
               mat-icon-button
               [matMenuTriggerFor]="moreMenu"
@@ -381,18 +355,18 @@
   }
 
   <!-- Pagination -->
-  @if (filteredProducts.length > 0 && !loading && !error) {
+  @if (totalProducts > 0 && !loading && !error) {
     <div class="pagination-container">
       <div class="pagination-info">
-        Showing {{ (currentPage() * pageSize()) + 1 }} - 
-       <!--  {{ Math.min((currentPage() + 1) * pageSize(), filteredProducts.length) }} -->
-        of {{ filteredProducts.length }} products
+        Showing {{ ((currentPage - 1) * pageSize) + 1 }} - 
+        {{ currentPage * pageSize > totalProducts ? totalProducts : currentPage * pageSize }}
+        of {{ totalProducts }} products
       </div>
       <mat-paginator
-        [length]="filteredProducts.length"
-        [pageSize]="pageSize()"
+        [length]="totalProducts"
+        [pageSize]="pageSize"
         [pageSizeOptions]="[12, 24, 48, 96]"
-        [pageIndex]="currentPage()"
+        [pageIndex]="currentPage - 1"
         (page)="onPageChange($event)"
         showFirstLastButtons
       >
