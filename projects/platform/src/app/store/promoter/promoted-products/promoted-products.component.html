@@ -15,7 +15,10 @@
 
   <!-- Loading State -->
   @if (loading()) {
-    <app-loading-state/>
+    <app-loading-state 
+      [variant]="viewMode()"
+      [itemCount]="6"
+    />
   }
   <!-- Error State -->
   @else if (error()) {
@@ -97,12 +100,12 @@
               [product]="product"
               [formatCurrency]="formatCurrency"
               [formatNumber]="formatNumber"
-              (viewDetails)="viewProductDetails($event)"
+              (viewDetails)="viewProductDetails(product)"
               (viewStats)="viewProductStats($event)"
               (share)="sharePromotion($event)"
               (edit)="editPromotion($event)"
               (deactivate)="deactivatePromotion($event)"
-              (copyLink)="copyShareLink($event)"
+              (copyLink)="copyShareLink(product)"
             />
           }
         </div>

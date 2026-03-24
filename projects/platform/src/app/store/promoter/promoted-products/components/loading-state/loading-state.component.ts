@@ -1,5 +1,5 @@
 // components/loading-state/loading-state.component.ts
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,4 +9,8 @@ import { CommonModule } from '@angular/common';
   templateUrl: './loading-state.component.html',
   styleUrls: ['./loading-state.component.scss']
 })
-export class LoadingStateComponent {}
+export class LoadingStateComponent {
+  // Optional: Different loading variants for different contexts
+  variant = input<'grid' | 'table' | 'summary'>('grid');
+  itemCount = input<number>(6);
+}
