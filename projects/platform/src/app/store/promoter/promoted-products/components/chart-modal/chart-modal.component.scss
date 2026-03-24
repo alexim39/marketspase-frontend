@@ -1,0 +1,62 @@
+// components/chart-modal/chart-modal.component.scss
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
+.chart-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+  animation: fadeIn 0.3s ease;
+}
+
+.chart-modal-content {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-2xl;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  animation: slideInUp 0.3s ease;
+
+  .chart-modal-header {
+    @include flex-between;
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid $border-color;
+
+    h2 {
+      @include heading-small;
+      margin: 0;
+    }
+
+    .close-btn {
+      @include button-ghost;
+      padding: $spacing-1;
+      
+      .material-icons {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .chart-modal-body {
+    padding: $spacing-6;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

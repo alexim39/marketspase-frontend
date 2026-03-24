@@ -1,0 +1,44 @@
+// components/promoted-products-header/promoted-products-header.component.scss
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
+.header-section {
+  @include flex-between;
+  margin-bottom: $spacing-6;
+
+  .title-area {
+    .page-title {
+      @include heading-large;
+      margin-bottom: $spacing-1;
+    }
+
+    .page-subtitle {
+      color: $text-secondary;
+      font-size: $font-size-base;
+    }
+  }
+
+  .header-actions {
+    .refresh-btn {
+      @include button-secondary;
+      
+      &.refreshing {
+        opacity: 0.7;
+        cursor: wait;
+      }
+
+      .material-icons {
+        font-size: 18px;
+        
+        &.spin {
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

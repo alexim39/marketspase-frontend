@@ -1,0 +1,14 @@
+<!-- components/promoted-products-header/promoted-products-header.component.html -->
+<div class="header-section">
+  <div class="title-area">
+    <h1 class="page-title">Promoted Products</h1>
+    <p class="page-subtitle">Track and manage all your active promotions</p>
+  </div>
+
+  <div class="header-actions">
+    <button class="refresh-btn" (click)="refresh.emit()" [class.refreshing]="refreshing()">
+      <span class="material-icons" [class.spin]="refreshing()">refresh</span>
+      Refresh
+    </button>
+  </div>
+</div>

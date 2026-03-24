@@ -2,6 +2,7 @@
 import { Component, Input, OnInit, OnDestroy, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 
 interface ChartDataPoint {
   date: Date;
@@ -16,7 +17,7 @@ interface ChartDataPoint {
 @Component({
   selector: 'promotion-stats-chart',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatButtonModule],
   templateUrl: './promotion-stats-chart.component.html',
   styleUrls: ['./promotion-stats-chart.component.scss']
 })
@@ -27,7 +28,7 @@ export class PromotionStatsChartComponent implements OnInit, OnDestroy {
   @Input() width: number = 600;
 
   // Chart data
-  chartData = signal<ChartDataPoint[]>([]);
+  @Input()chartData = signal<ChartDataPoint[]>([]);
   timeRange = signal<'day' | 'week' | 'month'>('week');
   chartType = signal<'line' | 'bar'>('line');
   selectedMetrics = signal<Set<string>>(new Set(['views', 'clicks', 'conversions']));

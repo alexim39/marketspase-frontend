@@ -1,63 +1,29 @@
 <!-- promoted-products.component.html -->
 <div class="promoted-products-container">
   <!-- Header Section -->
-  <div class="header-section">
-    <div class="title-area">
-      <h1 class="page-title">Promoted Products</h1>
-      <p class="page-subtitle">Track and manage all your active promotions</p>
-    </div>
+  <app-promoted-products-header
+    [refreshing]="refreshing()"
+    (refresh)="refreshStats()"
+  />
 
-    <div class="header-actions">
-      <button class="refresh-btn" (click)="refreshStats()" [class.refreshing]="refreshing()">
-        <span class="material-icons" [class.spin]="refreshing()">refresh</span>
-        Refresh
-      </button>
-    </div>
-  </div>
-
-    <!-- Chart Modal/Overlay -->
-  @if (showChart() && selectedProductForChart()) {
-    <div class="chart-modal-overlay" (click)="closeChart()">
-      <div class="chart-modal-content" (click)="$event.stopPropagation()">
-        <div class="chart-modal-header">
-          <h2>Performance Analytics: {{ selectedProductForChart()?.productName }}</h2>
-          <button class="close-btn" (click)="closeChart()">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        <div class="chart-modal-body">
-          <promotion-stats-chart
-            [productId]="selectedProductForChart()?.productId"
-            [productName]="selectedProductForChart()?.productName"
-            [height]="400"
-            [width]="800"
-          ></promotion-stats-chart>
-        </div>
-      </div>
-    </div>
-  }
+  <!-- Chart Modal -->
+  <app-chart-modal
+    [showChart]="showChart()"
+    [selectedProduct]="selectedProductForChart()"
+    (close)="closeChart()"
+  />
 
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Loading your promoted products...</p>
-    </div>
+    <app-loading-state/>
   }
-
   <!-- Error State -->
   @else if (error()) {
-    <div class="error-container">
-      <span class="material-icons error-icon">error_outline</span>
-      <h3>Oops! Something went wrong</h3>
-      <p>{{ error() }}</p>
-      <button class="retry-btn" (click)="retryLoading()">
-        <span class="material-icons">refresh</span>
-        Try Again
-      </button>
-    </div>
+    <app-error-state
+      [errorMessage]="error()"
+      (retry)="retryLoading()"
+    />
   }
-
   <!-- Main Content -->
   @else {
     <!-- Earnings Summary Cards -->
@@ -65,305 +31,63 @@
       [totalStats]="totalStats()"
       [performanceBreakdown]="performanceBreakdown()"
       [formatCurrency]="formatCurrency"
-    ></promoter-earnings-summary>
+    />
 
-        <!-- Quick Stats Chart (Overview) -->
-  <!--   <div class="overview-chart-section">
-      <div class="section-header">
-        <h3>📊 Performance Overview</h3>
-        <div class="chart-controls">
-          <button 
-            class="chart-toggle-btn" 
-            [class.active]="selectedChartType() === 'overview'"
-            (click)="selectedChartType.set('overview')"
-          >
-            Overview
-          </button>
-          <button 
-            class="chart-toggle-btn" 
-            [class.active]="selectedChartType() === 'trends'"
-            (click)="selectedChartType.set('trends')"
-          >
-            Trends
-          </button>
-        </div>
-      </div>
-      <promotion-stats-chart
-        [height]="300"
-        [width]="1200"
-      ></promotion-stats-chart>
-    </div> -->
+    <!-- Performance Chart -->
+    <app-performance-chart
+      [selectedChartType]="selectedChartType()"
+      [chartTimeRange]="chartTimeRange()"
+      [chartMetrics]="chartMetrics()"
+      [chartData]="chartData()"
+      [totalStats]="totalStats()"
+      [formatNumber]="formatNumber"
+      [formatCurrency]="formatCurrency"
+      (chartTypeChange)="setChartType($event)"
+      (timeRangeChange)="setChartTimeRange($event)"
+      (metricToggle)="toggleChartMetric($event)"
+      (exportChart)="exportChartData($event)"
+    />
 
-
-
-    <!-- Update the overview-chart-section in your template -->
-<div class="overview-chart-section">
-  <div class="section-header">
-    <div class="title-group">
-      <h3>📊 Performance Overview</h3>
-      <div class="chart-controls">
-        <button 
-          class="chart-toggle-btn" 
-          [class.active]="selectedChartType() === 'overview'"
-          (click)="selectedChartType.set('overview')"
-        >
-          Overview
-        </button>
-        <button 
-          class="chart-toggle-btn" 
-          [class.active]="selectedChartType() === 'trends'"
-          (click)="selectedChartType.set('trends')"
-        >
-          Product Trends
-        </button>
-      </div>
-    </div>
-    
-    <div class="chart-actions">
-      <!-- Time range selector -->
-      <div class="time-range-selector">
-        <button 
-          class="range-btn" 
-          [class.active]="chartTimeRange() === 'day'"
-          (click)="setChartTimeRange('day')"
-        >
-          Day
-        </button>
-        <button 
-          class="range-btn" 
-          [class.active]="chartTimeRange() === 'week'"
-          (click)="setChartTimeRange('week')"
-        >
-          Week
-        </button>
-        <button 
-          class="range-btn" 
-          [class.active]="chartTimeRange() === 'month'"
-          (click)="setChartTimeRange('month')"
-        >
-          Month
-        </button>
-      </div>
-      
-      <!-- Export options -->
-      <div class="export-dropdown" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="exportMenu">
-        <button class="export-btn" matTooltip="Export chart">
-            <span class="material-icons">download</span>
-        </button>
-        </div>
-
-        <!-- 2. Keep this as #exportMenu -->
-        <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item (click)="exportChartData('png')">
-            <span>Export as PNG</span>
-        </button>
-        <button mat-menu-item (click)="exportChartData('svg')">
-            <span>Export as SVG</span>
-        </button>
-        <button mat-menu-item (click)="exportChartData('csv')">
-            <span>Export as CSV</span>
-        </button>
-        </mat-menu>
-    </div>
-  </div>
-
-  <!-- Metrics selector -->
-  <div class="metrics-selector">
-    <label class="metric-checkbox">
-      <input 
-        type="checkbox" 
-        [checked]="chartMetrics().has('views')"
-        (change)="toggleChartMetric('views')"
+     <promotion-stats-chart
+        [height]="400"
+        [width]="800"
       />
-      <span class="color-dot" style="background: var(--info-color)"></span>
-      Views
-    </label>
-    <label class="metric-checkbox">
-      <input 
-        type="checkbox" 
-        [checked]="chartMetrics().has('clicks')"
-        (change)="toggleChartMetric('clicks')"
-      />
-      <span class="color-dot" style="background: var(--warning-color)"></span>
-      Clicks
-    </label>
-    <label class="metric-checkbox">
-      <input 
-        type="checkbox" 
-        [checked]="chartMetrics().has('conversions')"
-        (change)="toggleChartMetric('conversions')"
-      />
-      <span class="color-dot" style="background: var(--success-color)"></span>
-      Conversions
-    </label>
-    <label class="metric-checkbox">
-      <input 
-        type="checkbox" 
-        [checked]="chartMetrics().has('earnings')"
-        (change)="toggleChartMetric('earnings')"
-      />
-      <span class="color-dot" style="background: var(--secondary-color)"></span>
-      Earnings
-    </label>
-    <label class="metric-checkbox">
-      <input 
-        type="checkbox" 
-        [checked]="chartMetrics().has('ctr')"
-        (change)="toggleChartMetric('ctr')"
-      />
-      <span class="color-dot" style="background: var(--primary-color)"></span>
-      CTR %
-    </label>
-  </div>
+     <!-- <promotion-stats-chart
+        [productId]="selectedProduct()?.productId"
+        [productName]="selectedProduct()?.productName"
+        [height]="400"
+        [width]="800"
+      /> -->
 
-  <!-- Chart component -->
-  <!-- <promotion-stats-chart
-    [chartData]="chartData()"
-    [chartType]="selectedChartType() === 'overview' ? 'line' : 'bar'"
-    [metrics]="Array.from(chartMetrics())"
-    [height]="400"
-    [width]="1200"
-    [timeRange]="chartTimeRange()"
-  ></promotion-stats-chart> -->
-
-  <!-- Chart summary stats -->
-  <div class="chart-summary">
-    <div class="summary-item">
-      <span class="summary-label">Total Views</span>
-      <span class="summary-value">{{ formatNumber(totalStats().totalViews) }}</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Total Clicks</span>
-      <span class="summary-value">{{ formatNumber(totalStats().totalClicks) }}</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Total Conversions</span>
-      <span class="summary-value">{{ formatNumber(totalStats().totalConversions) }}</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Avg CTR</span>
-      <span class="summary-value">{{ totalStats().avgClickThroughRate.toFixed(1) }}%</span>
-    </div>
-    <div class="summary-item">
-      <span class="summary-label">Avg CR</span>
-      <span class="summary-value">{{ totalStats().avgConversionRate.toFixed(1) }}%</span>
-    </div>
-    <div class="summary-item highlight">
-      <span class="summary-label">Total Earnings</span>
-      <span class="summary-value">{{ formatCurrency(totalStats().totalEarnings) }}</span>
-    </div>
-  </div>
-</div>
-
+      <br />
 
     <!-- Filters & Controls -->
-    <div class="controls-section">
-      <div class="search-bar">
-        <span class="material-icons search-icon">search</span>
-        <input
-          type="text"
-          placeholder="Search by product name or tracking code..."
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="applyFilters()"
-        />
-        @if (searchQuery()) {
-          <button class="clear-search" (click)="searchQuery.set('')">
-            <span class="material-icons">close</span>
-          </button>
-        }
-      </div>
+    <app-products-filters
+      [searchQuery]="searchQuery()"
+      [selectedPerformanceFilter]="selectedPerformanceFilter()"
+      [selectedDateRange]="selectedDateRange()"
+      [viewMode]="viewMode()"
+      [hasActiveFilters]="selectedPerformanceFilter() !== 'all' || selectedDateRange() !== 'week'"
+      (searchChange)="setSearchQuery($event)"
+      (performanceFilterChange)="setPerformanceFilter($event)"
+      (dateRangeChange)="setDateRange($event)"
+      (viewModeChange)="setViewMode($event)"
+      (clearFilters)="clearFilters()"
+    />
 
-      <div class="filter-controls">
-        <div class="filter-group">
-          <label>Performance:</label>
-          <select [(ngModel)]="selectedPerformanceFilter" (ngModelChange)="applyFilters()">
-            <option value="all">All Performance</option>
-            <option value="high">High Performing</option>
-            <option value="medium">Medium Performing</option>
-            <option value="low">Low Performing</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Date Range:</label>
-          <select [(ngModel)]="selectedDateRange" (ngModelChange)="applyFilters()">
-            <option value="today">Today</option>
-            <option value="week">Last 7 Days</option>
-            <option value="month">Last 30 Days</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
-
-        @if (searchQuery() || selectedPerformanceFilter() !== 'all' || selectedDateRange() !== 'week') {
-          <button class="clear-filters-btn" (click)="clearFilters()">
-            <span class="material-icons">clear</span>
-            Clear Filters
-          </button>
-        }
-      </div>
-
-      <div class="view-toggle">
-        <button
-          class="view-btn"
-          [class.active]="viewMode() === 'grid'"
-          (click)="setViewMode('grid')"
-          matTooltip="Grid view"
-        >
-          <span class="material-icons">grid_view</span>
-        </button>
-        <button
-          class="view-btn"
-          [class.active]="viewMode() === 'table'"
-          (click)="setViewMode('table')"
-          matTooltip="Table view"
-        >
-          <span class="material-icons">table_rows</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Stats Overview -->
+    <!-- Top Performers -->
     @if (topPerformers().length > 0) {
-      <div class="top-performers">
-        <h3>🏆 Top Performers</h3>
-        <div class="performers-grid">
-          @for (product of topPerformers(); track product.trackingId) {
-            <div class="performer-card" (click)="viewProductDetails(product)">
-              <div class="performer-info">
-                <span class="product-name">{{ product.productName }}</span>
-                <span class="product-earnings">{{ formatCurrency(product.earnings) }}</span>
-              </div>
-              <div class="performer-stats">
-                <span class="stat">
-                  <span class="stat-label">Clicks:</span>
-                  {{ product.clicks }}
-                </span>
-                <span class="stat">
-                  <span class="stat-label">Conv.:</span>
-                  {{ product.conversions }}
-                </span>
-                <span class="stat">
-                  <span class="stat-label">CR:</span>
-                  {{ product.conversionRate.toFixed(1) }}%
-                </span>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
+      <app-top-performers
+        [topPerformers]="topPerformers()"
+        [formatCurrency]="formatCurrency"
+        (viewDetails)="viewProductDetails($event)"
+        (viewStats)="viewProductStats($event)"
+      />
     }
 
     <!-- Products Display -->
     @if (filteredProducts().length === 0) {
-      <div class="no-results">
-        <span class="material-icons no-results-icon">inbox</span>
-        <h3>No products found</h3>
-        <p>Try adjusting your filters or start promoting new products</p>
-        <button class="browse-btn" routerLink="/dashboard/stores">
-          <span class="material-icons">add</span>
-          Browse Products
-        </button>
-      </div>
+      <app-no-results-state></app-no-results-state>
     } @else {
       <!-- Grid View -->
       @if (viewMode() === 'grid') {
@@ -378,8 +102,8 @@
               (share)="sharePromotion($event)"
               (edit)="editPromotion($event)"
               (deactivate)="deactivatePromotion($event)"
-              (copyLink)="copyShareLink($event.shareLink)"
-            ></promoted-product-card>
+              (copyLink)="copyShareLink($event)"
+            />
           }
         </div>
       }
@@ -391,12 +115,12 @@
           [formatCurrency]="formatCurrency"
           [formatNumber]="formatNumber"
           (viewDetails)="viewProductDetails($event)"
-          (viewStats)="viewProductStats($event)" 
+          (viewStats)="viewProductStats($event)"
           (share)="sharePromotion($event)"
           (edit)="editPromotion($event)"
           (deactivate)="deactivatePromotion($event)"
-          (copyLink)="copyShareLink($event.shareLink)"
-        ></promoted-product-table>
+          (copyLink)="copyShareLink($event)"
+        />
       }
     }
   }

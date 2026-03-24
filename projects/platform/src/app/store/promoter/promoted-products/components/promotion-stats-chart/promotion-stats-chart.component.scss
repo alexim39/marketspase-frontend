@@ -31,27 +31,25 @@
       display: flex;
       gap: $spacing-1;
       padding: $spacing-1;
-      background: $gray-100;
+      background-color: color-mix(in srgb, $background-color, black 5%);
       border-radius: $border-radius;
-
-      [data-theme="dark"] & {
-        background: $gray-800;
-      }
+      
 
       .range-btn {
         @include button-ghost;
         padding: $spacing-1 $spacing-2;
         font-size: $font-size-xs;
         border-radius: $border-radius-sm;
+        //color: $secondary-color;
 
         &.active {
           background: $surface-color;
           color: $primary-color;
           box-shadow: $shadow-sm;
+        }
 
-          [data-theme="dark"] & {
-            background: $gray-700;
-          }
+         &:hover {
+          color: rgba($gray-800, 0.8);
         }
       }
     }
@@ -60,12 +58,8 @@
       display: flex;
       gap: $spacing-1;
       padding: $spacing-1;
-      background: $gray-100;
+      background-color: color-mix(in srgb, $background-color, black 5%);
       border-radius: $border-radius;
-
-      [data-theme="dark"] & {
-        background: $gray-800;
-      }
 
       .type-btn {
         @include button-ghost;
@@ -75,10 +69,10 @@
           background: $surface-color;
           color: $primary-color;
           box-shadow: $shadow-sm;
+        }
 
-          [data-theme="dark"] & {
-            background: $gray-700;
-          }
+        &:hover {
+          color: rgba($gray-800, 0.8);
         }
 
         .material-icons {
@@ -182,12 +176,9 @@
   .stat-card {
     padding: $spacing-2 $spacing-3;
     border-left: 3px solid;
-    background: $gray-50;
+    background-color: color-mix(in srgb, $background-color, black 5%);
     border-radius: $border-radius;
 
-    [data-theme="dark"] & {
-      background: $gray-800;
-    }
 
     .stat-label {
       display: block;

@@ -137,11 +137,11 @@
       }
 
       <!-- Data Points (for line chart) -->
-      <!-- @if (chartType() === 'line') {
+      @if (chartType() === 'line') {
         @for (metric of metrics; track metric.id) {
           @if (selectedMetrics().has(metric.id)) {
             @for (point of chartData(); track point.date; let i = $index) {
-              <circle 
+              <!-- <circle 
                 [attr.cx]="getXScale()(i) + padding.left"
                 [attr.cy]="getYScale()(point[metric.id as keyof ChartDataPoint] as number) + padding.top"
                 r="4"
@@ -149,11 +149,11 @@
                 class="data-point"
               >
                 <title>{{ metric.label }}: {{ formatTooltip(point[metric.id as keyof ChartDataPoint] as number, metric.id) }}</title>
-              </circle>
+              </circle> -->
             }
           }
         }
-      } -->
+      }
     </svg>
   </div>
 

@@ -1,0 +1,34 @@
+<!-- components/top-performers/top-performers.component.html -->
+<div class="top-performers">
+  <h3>🏆 Top Performers</h3>
+  <div class="performers-grid">
+    @for (product of topPerformers(); track product.trackingId) {
+      <div class="performer-card" (click)="viewDetails.emit(product)">
+        <div class="performer-info">
+          <span class="product-name">{{ product.productName }}</span>
+          <span class="product-earnings">{{ formatCurrency()?.(product.earnings) }}</span>
+        </div>
+        <div class="performer-stats">
+          <span class="stat">
+            <span class="stat-label">Clicks:</span>
+            {{ product.clicks }}
+          </span>
+          <span class="stat">
+            <span class="stat-label">Conv.:</span>
+            {{ product.conversions }}
+          </span>
+          <span class="stat">
+            <span class="stat-label">CR:</span>
+            {{ product.conversionRate.toFixed(1) }}%
+          </span>
+        </div>
+        <div class="performer-actions">
+          <button class="stats-btn" (click)="$event.stopPropagation(); viewStats.emit(product)">
+            <span class="material-icons">analytics</span>
+            View Analytics
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

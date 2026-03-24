@@ -53,17 +53,12 @@
   }
 
   th {
-    background: $gray-50;
+    background-color: color-mix(in srgb, $background-color, black 25%);
     font-weight: $font-weight-medium;
     color: $text-secondary;
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
-
-    [data-theme="dark"] & {
-      background: $gray-800;
-    }
-
     &.sortable {
       &:hover {
         color: $primary-color;
@@ -94,19 +89,11 @@
 
   tbody tr {
     &:hover {
-      background: $gray-50;
-
-      [data-theme="dark"] & {
-        background: $gray-800;
-      }
+      background-color: color-mix(in srgb, $background-color, black 5%);
     }
 
     &.selected {
       background: rgba($primary-color, 0.05);
-      
-      [data-theme="dark"] & {
-        background: rgba($primary-color, 0.1);
-      }
     }
 
     &.inactive {
