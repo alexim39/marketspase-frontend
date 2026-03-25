@@ -1,0 +1,71 @@
+@import '../../../../../../styles/variables';
+@import '../../../../../../styles/mixins';
+
+.loading-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.campaign-card-skeleton {
+  // UPDATED: Use surface-color variable for dynamic theming
+  background: $surface-color;
+  border-radius: 16px;
+  // UPDATED: Use border-color variable for dynamic theming
+  border: 1px solid $border-color;
+  overflow: hidden;
+}
+
+.skeleton-header {
+  height: 60px;
+  background: color-mix(in srgb, $background-color, black 5%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.skeleton-media {
+  height: 200px;
+  margin: 16px 20px 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, $background-color, black 5%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.skeleton-content {
+  padding: 20px;
+}
+
+.skeleton-line {
+  height: 12px;
+  background: color-mix(in srgb, $background-color, black 5%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-metrics {
+  height: 40px;
+  background: color-mix(in srgb, $background-color, black 5%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 6px;
+  margin-top: 16px;
+}
+
+@keyframes shimmer {
+  // 0% {
+  //   background-position: -200% 0;
+  // }
+  // 100% {
+  //   background-position: 200% 0;
+  // }
+   0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}

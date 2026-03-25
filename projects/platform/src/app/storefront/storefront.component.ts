@@ -462,7 +462,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       price: product.price,
       name: product.name,
       image: product.images?.[0]?.url,
-      storeId: product.store ?? ''
+      storeId: product.store._id ?? ''
     });
 
     this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
@@ -485,7 +485,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
         name: product.name,
         price: product.price,
         image: product.images?.[0]?.url,
-        storeId: product.store ?? '',
+        storeId: product.store._id ?? '',
         category: product.category
       });
       this.showNotification('Added to wishlist', 'success');

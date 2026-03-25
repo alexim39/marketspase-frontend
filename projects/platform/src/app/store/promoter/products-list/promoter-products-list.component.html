@@ -6,13 +6,15 @@
   <!-- Main Content -->
   <main class="main-content">
     <!-- Filters Sidebar -->
-    <app-products-filter-sidebar
-      [categories]="categories()"
-      [priceRange]="priceRange()"
-      [user]="user()"
-      [commissionRange]="commissionRange()"
-      (filterChange)="applyFilters($event)"
-    />
+     @if (deviceType() === 'desktop') {
+      <app-products-filter-sidebar
+        [categories]="categories()"
+        [priceRange]="priceRange()"
+        [user]="user()"
+        [commissionRange]="commissionRange()"
+        (filterChange)="applyFilters($event)"
+      />
+     }
 
     <!-- Products Content -->
     <app-products-content-view

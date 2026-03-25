@@ -3,16 +3,17 @@ import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { PromoterProduct, ProductFilter } from '../promoter/models/promoter-product.model';
+import { ProductFilter } from '../promoter/models/promoter-product.model';
 import { ApiService } from '../../../../../shared-services/src/public-api';
 import { PaginatedResponse } from '../promoter/products-list/models/filter-state.model';
+import { Product } from '../models';
 
 @Injectable()
 export class PromoterProductService {
   private apiService = inject(ApiService);
   private apiUrl = 'stores/product';
 
-  getPromoterStoreProducts(filters?: Partial<ProductFilter> & { page?: number; limit?: number }): Observable<PaginatedResponse<PromoterProduct>> {
+  getPromoterStoreProducts(filters?: Partial<ProductFilter> & { page?: number; limit?: number }): Observable<PaginatedResponse<Product>> {
     let params = new HttpParams();
     
     // Pagination params
@@ -50,7 +51,7 @@ export class PromoterProductService {
         .set('sortDirection', filters.sortDirection || 'desc');
     }
 
-    return this.apiService.get<PaginatedResponse<PromoterProduct>>(`${this.apiUrl}/list/promoter`, params, undefined, true).pipe(
+    return this.apiService.get<PaginatedResponse<Product>>(`${this.apiUrl}/list/promoter`, params, undefined, true).pipe(
       map(response => {
         if (!response || !response.data) {
           return {
@@ -79,9 +80,9 @@ export class PromoterProductService {
     return this.apiService.get<any>(`${this.apiUrl}/${productId}`, new HttpParams().set('promoterId', promoterId), undefined, true);
   }
 
-  getRelatedProducts(productId: string, category: string): Observable<PromoterProduct> {
-    return this.apiService.get<PromoterProduct>(`${this.apiUrl}/${productId}`, undefined, undefined, true);
-  }
+  // getRelatedProducts(productId: string, category: string): Observable<PromoterProduct> {
+  //   return this.apiService.get<PromoterProduct>(`${this.apiUrl}/${productId}`, undefined, undefined, true);
+  // }
 
   trackView(productId: string, promoterId?: string): Observable<void> {
     return this.apiService.post<void>(`${this.apiUrl}/${productId}/view`, { promoterId }, undefined, true);

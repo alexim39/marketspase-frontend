@@ -1,0 +1,466 @@
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+.skeleton-container {
+  min-height: 100vh;
+  background: $background-color;
+}
+
+// Back Navigation Skeleton
+.skeleton-back-nav {
+  background: $surface-color;
+  border-bottom: 1px solid $border-color;
+  padding: $spacing-4 $spacing-4;
+  
+  @include desktop {
+    padding: $spacing-4 $spacing-8;
+  }
+  
+  .skeleton-back-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    
+    .skeleton-button {
+      width: 120px;
+      height: 36px;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius;
+      animation: pulse 1.5s ease-in-out infinite;
+      
+      @include darken-bg($surface-color, 5%);
+      
+      @include desktop {
+        width: 140px;
+      }
+    }
+    
+    .skeleton-title {
+      width: 250px;
+      height: 28px;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius-sm;
+      animation: pulse 1.5s ease-in-out infinite;
+      
+      @include desktop {
+        width: 350px;
+      }
+      
+      @include mobile {
+        width: 150px;
+      }
+    }
+  }
+}
+
+// Main Content Layout
+.skeleton-main-content {
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-4;
+  
+  @include desktop {
+    padding: $spacing-8;
+    display: grid;
+    //grid-template-columns: 2fr 1fr;
+    gap: $spacing-8;
+  }
+  
+  @include tablet {
+    padding: $spacing-6;
+  }
+}
+
+// Product Details Column
+.skeleton-product-details {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+// Main Card Skeleton
+.skeleton-card {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  border: 1px solid $border-color;
+  overflow: hidden;
+  margin-bottom: $spacing-6;
+}
+
+// Gallery Skeleton
+.skeleton-gallery {
+  padding: $spacing-4;
+  
+  .skeleton-main-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    background-size: 200% 100%;
+    border-radius: $border-radius;
+    animation: shimmer 1.5s ease-in-out infinite;
+    
+    @include darken-bg($surface-color, 5%);
+  }
+  
+  .skeleton-thumbnails {
+    display: flex;
+    gap: $spacing-2;
+    margin-top: $spacing-4;
+    
+    .skeleton-thumbnail {
+      width: 60px;
+      height: 60px;
+     background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius-sm;
+      animation: pulse 1.5s ease-in-out infinite;
+      
+      @include mobile {
+        width: 45px;
+        height: 45px;
+      }
+      
+      @include darken-bg($surface-color, 5%);
+    }
+  }
+}
+
+// Product Info Skeleton
+.skeleton-product-info {
+  padding: $spacing-6;
+  
+  @include mobile {
+    padding: $spacing-4;
+  }
+}
+
+// Header Skeleton
+.skeleton-header {
+  margin-bottom: $spacing-6;
+  
+  .skeleton-title-lg {
+    width: 80%;
+    height: 32px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius-sm;
+    margin-bottom: $spacing-3;
+    animation: pulse 1.5s ease-in-out infinite;
+    
+    @include desktop {
+      width: 70%;
+      height: 36px;
+    }
+  }
+  
+  .skeleton-price {
+    width: 120px;
+    height: 28px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius-sm;
+    margin-bottom: $spacing-2;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  .skeleton-rating {
+    width: 150px;
+    height: 20px;
+   background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius-sm;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// Description Skeleton
+.skeleton-description {
+  margin-bottom: $spacing-6;
+  
+  .skeleton-line {
+    height: 16px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius-sm;
+    margin-bottom: $spacing-2;
+    animation: pulse 1.5s ease-in-out infinite;
+    
+    &.w-75 {
+      width: 75%;
+    }
+    
+    &.w-50 {
+      width: 50%;
+    }
+  }
+}
+
+// Tags Skeleton
+.skeleton-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+  
+  .skeleton-tag {
+    width: 70px;
+    height: 32px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius-full;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// Stats Skeleton
+.skeleton-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-4;
+  margin-bottom: $spacing-6;
+  
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+  
+  .skeleton-stat-card {
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius;
+    padding: $spacing-4;
+    border: 1px solid $border-color;
+    height: 80px;
+    animation: pulse 1.5s ease-in-out infinite;
+    
+    @include darken-bg($surface-color, 3%);
+  }
+}
+
+// Actions Skeleton
+.skeleton-actions {
+  display: flex;
+  gap: $spacing-3;
+  
+  .skeleton-action-btn {
+    flex: 1;
+    height: 44px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius;
+    animation: pulse 1.5s ease-in-out infinite;
+    
+    @include desktop {
+      height: 48px;
+    }
+  }
+}
+
+// Tabs Container Skeleton
+.skeleton-tabs-container {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  border: 1px solid $border-color;
+  overflow: hidden;
+  padding: $spacing-6;
+  
+  .skeleton-tab-header {
+    display: flex;
+    gap: $spacing-4;
+    border-bottom: 1px solid $border-color;
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-2;
+    
+    .skeleton-tab {
+      width: 100px;
+      height: 40px;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius-sm;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+  
+  .skeleton-tab-content {
+    .skeleton-line {
+      height: 16px;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius-sm;
+      margin-bottom: $spacing-2;
+      animation: pulse 1.5s ease-in-out infinite;
+      
+      &.w-75 {
+        width: 75%;
+      }
+    }
+  }
+}
+
+// Sidebar Skeleton
+.skeleton-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.skeleton-sidebar-card {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  border: 1px solid $border-color;
+  overflow: hidden;
+  
+  .skeleton-sidebar-header {
+    height: 56px;
+   background-color: color-mix(in srgb, $background-color, black 5%);
+    border-bottom: 1px solid $border-color;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  .skeleton-sidebar-body {
+    padding: $spacing-4;
+    
+    .skeleton-sidebar-item {
+      height: 48px;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius;
+      margin-bottom: $spacing-3;
+      animation: pulse 1.5s ease-in-out infinite;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .skeleton-sidebar-footer {
+    height: 60px;
+   background-color: color-mix(in srgb, $background-color, black 5%);
+    border-top: 1px solid $border-color;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// Store Info Specific Skeleton
+.skeleton-store-info {
+  display: flex;
+  gap: $spacing-3;
+  
+  .skeleton-store-logo {
+    width: 48px;
+    height: 48px;
+   background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  .skeleton-store-details {
+    flex: 1;
+    
+    .skeleton-line {
+      height: 16px;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius-sm;
+      margin-bottom: $spacing-2;
+      animation: pulse 1.5s ease-in-out infinite;
+      
+      &.w-75 {
+        width: 75%;
+      }
+    }
+  }
+}
+
+// Related Products Skeleton
+.skeleton-related-products {
+  padding: $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  
+  .skeleton-related-item {
+    height: 80px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
+    border-radius: $border-radius;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Responsive Adjustments
+@include mobile {
+  .skeleton-main-content {
+    padding: $spacing-3;
+  }
+  
+  .skeleton-gallery {
+    padding: $spacing-3;
+  }
+  
+  .skeleton-product-info {
+    padding: $spacing-3;
+  }
+  
+  .skeleton-stats {
+    gap: $spacing-2;
+  }
+  
+  .skeleton-sidebar-card {
+    .skeleton-sidebar-header {
+      height: 48px;
+    }
+  }
+}
+
+// Tablet Adjustments
+@include tablet {
+  .skeleton-stats {
+    .skeleton-stat-card {
+      height: 70px;
+    }
+  }
+  
+  .skeleton-related-item {
+    height: 70px;
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .skeleton-back-nav,
+  .skeleton-card,
+  .skeleton-tabs-container,
+  .skeleton-sidebar-card {
+    background-color: color-mix(in srgb, $background-color, black 5%);
+  }
+  
+  .skeleton-button,
+  .skeleton-title,
+  .skeleton-title-lg,
+  .skeleton-price,
+  .skeleton-rating,
+  .skeleton-line,
+  .skeleton-tag,
+  .skeleton-stat-card,
+  .skeleton-action-btn,
+  .skeleton-tab,
+  .skeleton-sidebar-header,
+  .skeleton-sidebar-item,
+  .skeleton-sidebar-footer,
+  .skeleton-store-logo,
+  .skeleton-related-item {
+   background-color: color-mix(in srgb, $background-color, black 5%);
+  }
+  
+  .skeleton-main-image {
+   background-color: color-mix(in srgb, $background-color, black 5%);
+  }
+}

@@ -4,11 +4,11 @@
 
 .promoter-product-details {
   min-height: 100vh;
-  background: var(--background-color);
+  background: $background-color;
   
   .back-nav {
-    background: var(--surface-color);
-    border-bottom: 1px solid var(--border-color);
+    background: $surface-color;
+    border-bottom: 1px solid $border-color;
     padding: $spacing-4 $spacing-4;
     
     @include desktop {
@@ -23,16 +23,16 @@
       gap: $spacing-4;
       
       button {
-        color: var(--text-secondary);
+        color: $text-secondary;
         
         &:hover {
-          color: var(--text-primary);
+          color: $text-primary;
         }
       }
       
       .product-title-nav {
         @include heading-small;
-        color: var(--text-primary);
+        color: $text-primary;
         margin: 0;
         @include text-ellipsis;
         
@@ -78,23 +78,23 @@
       
       p {
         margin-top: $spacing-4;
-        color: var(--text-secondary);
+        color: $text-secondary;
         @include body-medium;
         max-width: 400px;
       }
       
       h3 {
         @include heading-medium;
-        color: var(--text-primary);
+        color: $text-primary;
         margin: 0 0 $spacing-2 0;
       }
     }
     
     .product-details-container {
       .product-card {
-        background: var(--surface-color);
+        background: $surface-color;
         border-radius: $border-radius-lg;
-        border: 1px solid var(--border-color);
+        border: 1px solid $border-color;
         overflow: hidden;
         margin-bottom: $spacing-6;
         
@@ -107,7 +107,7 @@
           
           .product-description {
             @include body-medium;
-            color: var(--text-secondary);
+            color: $text-secondary;
             line-height: $line-height-relaxed;
             margin-bottom: $spacing-6;
             white-space: pre-line;
@@ -135,20 +135,20 @@
             }
             
             .stat-card {
-              background: var(--gray-50);
+              background-color: color-mix(in srgb, $background-color, black 5%);
               border-radius: $border-radius;
               padding: $spacing-4;
-              border: 1px solid var(--border-color);
+              border: 1px solid $border-color;
               
               .stat-label {
                 @include caption;
-                color: var(--text-secondary);
+                color: $text-secondary;
                 margin-bottom: $spacing-1;
               }
               
               .stat-value {
                 @include heading-small;
-                color: var(--text-primary);
+                color: $text-primary;
                 margin: 0;
               }
               

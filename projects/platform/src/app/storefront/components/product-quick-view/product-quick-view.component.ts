@@ -214,7 +214,7 @@ export class ProductQuickViewComponent implements OnInit {
       name: product.name,
       variantName: variant?.name,
       image: this.selectedImage()?.url || product.images?.[0]?.url,
-      storeId: product.store ?? ''
+      storeId: product.store._id ?? ''
     };
     
     this.cartService.addToCart(cartItem);

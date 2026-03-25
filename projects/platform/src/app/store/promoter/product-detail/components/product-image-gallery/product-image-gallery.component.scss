@@ -3,8 +3,8 @@
 
     .image-gallery {
       position: relative;
-      background: var(--gray-50);
-      border-bottom: 1px solid var(--border-color);
+      background: $black;
+      border-bottom: 1px solid $border-color;
       
       @include desktop {
         display: grid;
@@ -43,7 +43,7 @@
             }
             
             &:hover:not(.active) {
-              border-color: var(--border-color);
+              border-color: $border-color;
             }
             
             img {
@@ -55,9 +55,9 @@
             .placeholder {
               width: 100%;
               height: 100%;
-              background: var(--gray-200);
+              background-color: color-mix(in srgb, $background-color, black 5%);
               @include flex-center;
-              color: var(--text-tertiary);
+              color: $text-tertiary;
               
               mat-icon {
                 font-size: 24px;
@@ -86,9 +86,9 @@
           &-placeholder {
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, var(--gray-100), var(--gray-200));
+            background: linear-gradient(45deg, $gray-100, $gray-200);
             @include flex-column-center;
-            color: var(--text-tertiary);
+            color: $text-tertiary;
             
             mat-icon {
               font-size: 64px;
@@ -126,16 +126,17 @@
             width: 36px;
             height: 36px;
             line-height: 36px;
-            border: 1px solid rgba($gray-800, 0.2);
+            border: 1px solid color-mix(in srgb, $background-color, black 5%);
             
             mat-icon {
               font-size: 20px;
               width: 20px;
-              height: 20px;
+              height: 23px;
+              color: color-mix(in srgb, $background-color, black 5%);
             }
 
             &:hover {
-                background-color: color-mix(in srgb, $background-color, black 5%);
+                border: 1px solid $secondary-color
             }
           }
         }

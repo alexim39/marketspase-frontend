@@ -1,5 +1,12 @@
-// product-details.component.ts
-import { Component, OnInit, inject, signal, OnDestroy, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  OnDestroy,
+  computed,
+  DestroyRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -8,16 +15,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
-import { PromoterProduct } from '../models/promoter-product.model';
+// Services
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { ShareService } from '../../services/share.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../../common/services/user.service';
-import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
+import { StorefrontService } from '../../../storefront/services/storefront.service';
 
-// Import child components
+// Models & Pipes
+import { Product } from '../../models';
+import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
+import { TruncatePipe } from '../../shared';
+
+// Components
 import { ProductImageGalleryComponent } from './components/product-image-gallery/product-image-gallery.component';
 import { ProductHeaderComponent } from './components/product-header/product-header.component';
 import { ProductActionsComponent } from './components/product-actions/product-actions.component';
@@ -25,13 +37,20 @@ import { ProductTabsComponent } from './components/product-tabs/product-tabs.com
 import { CommissionCardComponent } from './components/commission-card/commission-card.component';
 import { StoreInfoCardComponent } from './components/store-info-card/store-info-card.component';
 import { RelatedProductsComponent } from './components/related-products/related-products.component';
-import { TruncatePipe } from '../../shared';
+
 import { MatChipsModule } from '@angular/material/chips';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ProductLoaderComponent } from './components/product-loader/product-loader.component';
 
 @Component({
   selector: 'app-promoter-product-details',
   standalone: true,
-  providers: [PromoterProductService, ShareService, AnalyticsService],
+  providers: [
+    PromoterProductService,
+    ShareService,
+    AnalyticsService,
+    StorefrontService
+  ],
   imports: [
     CommonModule,
     RouterModule,
@@ -41,7 +60,6 @@ import { MatChipsModule } from '@angular/material/chips';
     MatProgressSpinnerModule,
     MatDialogModule,
     CurrencyUtilsPipe,
-    // Child components
     ProductImageGalleryComponent,
     ProductHeaderComponent,
     ProductActionsComponent,
@@ -50,46 +68,53 @@ import { MatChipsModule } from '@angular/material/chips';
     StoreInfoCardComponent,
     RelatedProductsComponent,
     TruncatePipe,
-    MatChipsModule
+    MatChipsModule,
+    ProductLoaderComponent,
+    
   ],
   templateUrl: './promoter-product-details.component.html',
   styleUrls: ['./promoter-product-details.component.scss']
 })
-export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
+export class PromoterProductDetailsComponent implements OnInit {
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private productService = inject(PromoterProductService);
+  private storeService = inject(StorefrontService);
   private snackBar = inject(MatSnackBar);
   private shareService = inject(ShareService);
   private analyticsService = inject(AnalyticsService);
   private userService = inject(UserService);
-  private destroy$ = new Subject<void>();
+
+  private destroyRef = inject(DestroyRef);
 
   // Signals
-  product = signal<PromoterProduct | null>(null);
-  loading = signal<boolean>(true);
+  product = signal<Product | null>(null);
+  loading = signal(true);
   error = signal<string | null>(null);
-  selectedImageIndex = signal<number>(0);
-  relatedProducts = signal<PromoterProduct[]>([]);
-  loadingRelated = signal<boolean>(false);
+  selectedImageIndex = signal(0);
+  relatedProducts = signal<Product[]>([]);
+  loadingRelated = signal(false);
 
-  public user = this.userService.user;
+  user = this.userService.user;
 
-  // Computed values for child components
+  // ------------------ COMPUTED ------------------
+
   performanceStats = computed(() => {
     const product = this.product();
     if (!product) return null;
 
-    const promotion = product.promotion;
-    const ctr = promotion.views > 0 ? (promotion.clicks / promotion.views) * 100 : 0;
-    const cvr = promotion.clicks > 0 ? (promotion.conversions / promotion.clicks) * 100 : 0;
-    const avgOrderValue = promotion.conversions > 0 ? (promotion.earnings / promotion.conversions) : 0;
+    const p = product.promotion;
+
+    const ctr = p.views ? (p.clicks / p.views) * 100 : 0;
+    const cvr = p.clicks ? (p.conversions / p.clicks) * 100 : 0;
+    const avgOrderValue = p.conversions ? (p.earnings / p.conversions) : 0;
 
     return {
       ctr,
       cvr,
       avgOrderValue,
-      performanceScore: ((ctr + cvr + (product.promotion.commissionRate / 2)) / 3).toFixed(1)
+      performanceScore: ((ctr + cvr + (p.commissionRate / 2)) / 3).toFixed(1)
     };
   });
 
@@ -97,61 +122,74 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     const product = this.product();
     if (!product) return null;
 
-    const promotion = product.promotion;
-    const commissionType = promotion.commissionType || 'percentage';
-    const commissionValue = commissionType === 'percentage' 
-      ? `${promotion.commissionRate}%` 
-      : `$${promotion.fixedCommission?.toFixed(2)} per sale`;
+    const p = product.promotion;
 
-    const potentialEarnings = promotion.commissionType === 'percentage'
-      ? ((product.price * promotion.commissionRate) / 100).toFixed(2)
-      : (promotion.fixedCommission || 0).toFixed(2);
+    const type = p.commissionType ?? 'percentage';
+
+    const value =
+      type === 'percentage'
+        ? `${p.commissionRate}%`
+        : `$${p.fixedCommission?.toFixed(2)} per sale`;
+
+    const potential =
+      type === 'percentage'
+        ? ((product.price * p.commissionRate) / 100).toFixed(2)
+        : (p.fixedCommission ?? 0).toFixed(2);
 
     return {
-      type: commissionType,
-      value: commissionValue,
-      potentialPerSale: potentialEarnings,
-      totalEarned: promotion.earnings.toFixed(2),
-      isHighCommission: promotion.commissionRate >= 20
+      type,
+      value,
+      potentialPerSale: potential,
+      totalEarned: p.earnings.toFixed(2),
+      isHighCommission: p.commissionRate >= 20
     };
   });
 
-  async ngOnInit(): Promise<void> {
-    const productId = this.route.snapshot.paramMap.get('productId');
-    console.log('Loading product details for ID:', productId);
-    if (!productId) {
-      this.error.set('Product ID is required');
-      this.router.navigate(['/dashboard/stores']);
-      return;
-    }
+  // ------------------ LIFECYCLE ------------------
 
-    await this.loadProductDetails(productId);
-    this.loadRelatedProducts();
-    
-    if (this.product()) {
+ngOnInit(): void {
+  this.route.paramMap
+    .pipe(takeUntilDestroyed(this.destroyRef)) // ✅ FIXED
+    .subscribe(async (params) => {
+      const productId = params.get('productId');
+
+      if (!productId) {
+        this.error.set('Product ID is required');
+        this.router.navigate(['/dashboard/stores']);
+        return;
+      }
+
+      await this.loadProductDetails(productId);
+      await this.loadRelatedProducts();
+
       this.analyticsService.trackProductView(productId, 'promoter');
-    }
-  }
+    });
+}
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  // ------------------ DATA LOADERS ------------------
 
   private async loadProductDetails(productId: string): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      const productResponse = await this.productService.getProductById(productId, this.user()?._id ?? '').toPromise();
-      if (!productResponse?.data) {
-        throw new Error('Product not found');
-      }
-      this.product.set(productResponse.data);
+      const response = await firstValueFrom(
+        this.productService.getProductById(
+          productId,
+          this.user()?._id ?? ''
+        )
+      );
+
+      if (!response?.data) throw new Error('Product not found');
+
+      this.product.set(response.data);
+
     } catch (err) {
-      console.error('Failed to load product details:', err);
-      this.error.set('Failed to load product details. Please try again.');
-      this.snackBar.open('Failed to load product details', 'Close', { duration: 5000 });
+      console.error(err);
+      this.error.set('Failed to load product details.');
+      this.snackBar.open('Failed to load product details', 'Close', {
+        duration: 5000
+      });
     } finally {
       this.loading.set(false);
     }
@@ -162,12 +200,14 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     if (!product) return;
 
     this.loadingRelated.set(true);
+
     try {
-      const related = await this.productService.getRelatedProducts(
-        product._id, 
-        product.category
-      ).toPromise();
-      this.relatedProducts.set(Array.isArray(related) ? related : []);
+      const related = await firstValueFrom(
+        this.storeService.getRelatedProducts(product._id ?? '', { limit: 8 })
+      );
+
+      this.relatedProducts.set(Array.isArray(related.data) ? related.data : []);
+
     } catch (err) {
       console.error('Failed to load related products:', err);
     } finally {
@@ -175,14 +215,16 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Public methods for child components
+  // ------------------ ACTIONS ------------------
+
   copyPromotionLink(): void {
     const product = this.product();
     if (!product) return;
 
     const link = `${window.location.origin}/promote/${product.promotion.trackingCode}`;
+
     navigator.clipboard.writeText(link).then(() => {
-      this.snackBar.open('Promotion link copied to clipboard!', 'Close', {
+      this.snackBar.open('Promotion link copied!', 'Close', {
         duration: 3000,
         panelClass: ['success-snackbar']
       });
@@ -200,9 +242,9 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     };
 
     this.shareService.share(shareData, platform);
-    
+
     if (platform === 'copy') {
-      this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 3000 });
+      this.snackBar.open('Link copied!', 'Close', { duration: 3000 });
     }
   }
 
@@ -211,24 +253,24 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     if (!product) return;
 
     const message = `🎯 *${product.name}*\n\n` +
-                   `💰 Price: $${product.price}\n` +
-                   `🎁 Commission: ${product.promotion.commissionRate}%\n\n` +
-                   `📦 Category: ${product.category}\n` +
-                   `🏪 Store: ${product.store.name}\n\n` +
-                   `👉 Promo Link: ${window.location.origin}/promote/${product.promotion.trackingCode}\n\n` +
-                   `#${product.category.replace(/\s+/g, '')} #Promotion`;
-    
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+      `💰 Price: $${product.price}\n` +
+      `🎁 Commission: ${product.promotion.commissionRate}%\n\n` +
+      `📦 Category: ${product.category}\n` +
+      `🏪 Store: ${product.store.name}\n\n` +
+      `👉 Promo Link: ${window.location.origin}/promote/${product.promotion.trackingCode}`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   }
 
   selectImage(index: number): void {
     this.selectedImageIndex.set(index);
   }
 
-  navigateToProduct(productId: string): void {
-    this.router.navigate(['/promoter/products', productId]);
+  navigateToProduct(product: Product): void {
+    this.router.navigate(['/dashboard/stores/product', product._id]);
   }
+
+  // ------------------ HELPERS ------------------
 
   getPerformanceColor(rate: number): string {
     if (rate >= 30) return 'success';
@@ -255,13 +297,15 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-/*   calculateDiscount(price: number, originalPrice: number): number {
-    if (!originalPrice || originalPrice <= price) return 0;
-    return Math.round(((originalPrice - price) / originalPrice) * 100);
-  } */
+  setActiveTab(_: number): void {}
 
-  // For product tabs
-  setActiveTab(index: number): void {
-    // Method exists for tab change handling
+  async retryLoadProduct(): Promise<void> {
+    const params = this.route.snapshot.paramMap;
+    const productId = params.get('productId');
+    
+    if (productId) {
+      await this.loadProductDetails(productId);
+      await this.loadRelatedProducts();
+    }
   }
 }

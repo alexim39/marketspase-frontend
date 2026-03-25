@@ -38,10 +38,15 @@
 
   <!-- Loading State -->
   @if (loading) {
-    <div class="loading-state">
+    <!-- <div class="loading-state">
       <mat-spinner diameter="48"/>
       <p>Loading products...</p>
-    </div>
+    </div> -->
+    @if (deviceType() === 'mobile') {
+      <loading-state-mobile/>
+    } @else {
+      <loading-state/>
+    }
   }
 
   <!-- Error State -->

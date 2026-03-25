@@ -83,10 +83,82 @@ export interface ProductResponse {
 }
 
 
+// models/promoter-product.model.ts
+/* export interface PromoterProduct {
+  _id: string;
+  name: string;
+  description?: string;
+  price: number;
+  originalPrice?: number;
+  images?: Array<{
+    url: string;
+    altText?: string;
+    isMain?: boolean;
+  }>;
+  category: string;
+  store: {
+    _id: string;
+    name: string;
+    logo?: string;
+    description?: string;
+    verificationTier?: 'basic' | 'premium';
+    storeLink?: string;
+    isVerified?: boolean;
+    rating?: number;
+    reviewCount?: number;
+    productCount?: number;
+    createdAt: Date;
+  };
+  promotion: {
+    commissionRate: number;
+    commissionType: 'percentage' | 'fixed';
+    fixedCommission?: number;
+    isActive: boolean;
+    trackingCode: string;
+    views: number;
+    clicks: number;
+    conversions: number;
+    earnings: number;
+  };
+  averageRating?: number;
+  ratingCount?: number;
+  purchaseCount?: number;
+  createdAt: Date;
+  tags?: string[];
+  sku?: string;
+  brand?: string;
+  specifications?: { name: string; value: string }[];
+  viewCount?: number;
+  isActive?: boolean;
+  quantity?: number;
+  tracking?: {
+    uniqueCode: string;
+    uniqueId: string;
+    viewCount: number;
+    clickCount: number;
+    conversionCount: number;
+    earnings: number;
+  };
+
+} */
+
 
 export interface Product {
   _id?: string;
-  store: string; // Store ID
+  //store: string; // Store ID
+   store: {
+    _id: string;
+    name: string;
+    logo?: string;
+    description?: string;
+    verificationTier?: 'basic' | 'premium';
+    storeLink?: string;
+    isVerified?: boolean;
+    rating?: number;
+    reviewCount?: number;
+    productCount?: number;
+    createdAt: Date;
+  };
   name: string;
   description?: string;
   price: number;
@@ -167,7 +239,18 @@ export interface Product {
   material?: string;
   color?: string;
 
-  promotion: any;
+  promotion: {
+    commissionRate: number;
+    averageRating: number;
+    commissionType: 'percentage' | 'fixed';
+    fixedCommission?: number;
+    isActive: boolean;
+    trackingCode: string;
+    views: number;
+    clicks: number;
+    conversions: number;
+    earnings: number;
+  };
   activePromotions: any;
 
 }

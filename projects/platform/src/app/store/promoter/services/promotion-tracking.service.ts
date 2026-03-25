@@ -4,7 +4,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../../../../shared-services/src/public-api';
 import { Router } from '@angular/router';
-import { PromoterProduct } from '../models/promoter-product.model';
+import { Product } from '../../models';
 
 export interface CreatePromotionDto {
   productId: string;
@@ -109,8 +109,8 @@ export class PromotionTrackingService {
   /**
    * Generate WhatsApp message with tracking link
    */
-  generateWhatsAppMessage(product: PromoterProduct, uniqueCode: string, commissionRate: number, price: number): string {
-    const link = this.getTrackingLink(uniqueCode, product._id);
+  generateWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number): string {
+    const link = this.getTrackingLink(uniqueCode, product._id ?? '');
     const message = `🚀 *Check out this amazing product!*\n\n` +
       `📦 *${product.name}*\n` +
       `💰 Price: ₦${price.toLocaleString()}\n` +

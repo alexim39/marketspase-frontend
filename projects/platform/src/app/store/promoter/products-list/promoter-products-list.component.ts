@@ -4,16 +4,16 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
-import { PromoterProduct } from '../models/promoter-product.model';
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
 
 // Child Components
 import { ProductsHeaderComponent } from './components/products-header/products-header.component';
 import { ProductsFilterSidebarComponent } from './components/products-filter-sidebar/products-filter-sidebar.component';
 import { ProductsContentViewComponent } from './components/products-content-view/products-content-view.component';
 import { FilterState, ViewMode, SortBy, SortDirection, PaginatedResponse } from './models/filter-state.model';
+import { Product } from '../../models';
 
 @Component({
   selector: 'app-promoter-products-list',
@@ -36,8 +36,11 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
 
+  private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type())
+
   // Signals
-  products = signal<PromoterProduct[]>([]);
+  products = signal<Product[]>([]);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   
@@ -160,11 +163,11 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   // Product actions
-  viewProductDetails(product: PromoterProduct): void {
+  viewProductDetails(product: Product): void {
     this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
-  generateWhatsAppMessage(product: PromoterProduct): void {
+  generateWhatsAppMessage(product: Product): void {
     const message = `Check out this amazing product: ${product.name}\n\n` +
                    `💰 Price: $${product.price}\n` +
                    `🎯 Commission: ${product.promotion.commissionRate}%\n\n` +
@@ -181,7 +184,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     return 'primary';
   }
 
-  getConversionRate(product: PromoterProduct): number {
+  getConversionRate(product: Product): number {
     const { views, clicks, conversions } = product.promotion;
     if (clicks === 0) return 0;
     return (conversions / clicks) * 100;

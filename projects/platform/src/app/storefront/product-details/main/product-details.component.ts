@@ -402,7 +402,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       name: product.name,
       variantName: variant?.name,
       image: product.images?.[0]?.url,
-      storeId: product.store ?? '',
+      storeId: product.store._id ?? '',
       trackingCode: this.trackingCode(),
       promoterId: this.promoterId()
     };
@@ -448,7 +448,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
         name: product.name,
         price: product.price,
         image: product.images?.[0]?.url,
-        storeId: product.store ?? '',
+        storeId: product.store._id ?? '',
         category: product.category
       });
       this.showNotification('Added to wishlist', 'success');
@@ -491,7 +491,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       });
       
       const promotionOptions = {
-        storeId: product.store,
+        storeId: product.store._id,
         commissionRate: product.promotion?.commissionRate || 10,
         commissionType: product.promotion?.commissionType || 'percentage',
         fixedCommission: product.promotion?.fixedCommission || 0

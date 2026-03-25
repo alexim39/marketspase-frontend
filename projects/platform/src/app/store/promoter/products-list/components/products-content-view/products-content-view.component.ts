@@ -13,12 +13,15 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 
-import { PromoterProduct } from '../../../models/promoter-product.model';
+//import { PromoterProduct } from '../../../models/promoter-product.model';
 import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
 import { ViewMode } from '../../models/filter-state.model';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../../../../../shared-services/src/public-api';
 import { PromotionTrackingService } from '../../../services/promotion-tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Product } from '../../../../models';
+import { LoadingStateComponent } from '../loading-state/loading-state.component';
+import { LoadingStateMobileComponent } from '../loading-state/mobile/loading-state-mobile.component';
 
 @Component({
   selector: 'app-products-content-view',
@@ -37,14 +40,16 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatProgressBarModule,
     MatTableModule,
     TruncatePipe,
-    CurrencyUtilsPipe
+    CurrencyUtilsPipe,
+    LoadingStateComponent,
+    LoadingStateMobileComponent
   ],
   providers: [PromotionTrackingService],
   templateUrl: './products-content-view.component.html',
   styleUrls: ['./products-content-view.component.scss']
 })
 export class ProductsContentViewComponent implements OnInit, OnChanges {
-  @Input({ required: true }) products!: PromoterProduct[];
+  @Input({ required: true }) products!: Product[];
   @Input({ required: true }) user!: UserInterface | null;
   @Input({ required: true }) loading!: boolean;
   @Input({ required: true }) error!: string | null;
@@ -53,8 +58,8 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
   @Input() currentPage: number = 1;
   @Input() pageSize: number = 12;
   
-  @Output() viewProduct = new EventEmitter<PromoterProduct>();
-  @Output() shareWhatsApp = new EventEmitter<PromoterProduct>();
+  @Output() viewProduct = new EventEmitter<Product>();
+  @Output() shareWhatsApp = new EventEmitter<Product>();
   @Output() retry = new EventEmitter<void>();
   @Output() clearFilters = new EventEmitter<void>();
   @Output() pageChange = new EventEmitter<number>();
@@ -63,6 +68,9 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
   private promotionService = inject(PromotionTrackingService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+
+  private deviceService = inject(DeviceService);
+  deviceType = computed(() => this.deviceService.type())
 
   // Local UI state
   viewMode = signal<ViewMode>('grid');
@@ -97,7 +105,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     return 'primary';
   }
 
-  getConversionRate(product: PromoterProduct): number {
+  getConversionRate(product: Product): number {
     const { clicks, conversions } = product.promotion;
     if (clicks === 0) return 0;
     return (conversions / clicks) * 100;
@@ -107,11 +115,11 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     return tier === 'premium' ? 'premium-badge' : 'basic-badge';
   }
 
-  trackByProductId(index: number, product: PromoterProduct): string {
-    return product._id;
+  trackByProductId(index: number, product: Product): string {
+    return product._id || '';
   }
 
-  async onPromote(product: PromoterProduct): Promise<void> {
+  async onPromote(product: Product): Promise<void> {
     try {
       const promoterId = this.user?._id;
       if (!promoterId) {
@@ -121,7 +129,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
 
       const snackBarRef = this.snackBar.open('Creating promotion link...', 'Close', { duration: 3000 });
 
-      const existingPromotion = this.activePromotions().get(product._id);
+      const existingPromotion = this.activePromotions().get(product._id ?? '');
       
       let trackingCode: string;
       let uniqueId: string;
@@ -132,7 +140,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
         snackBarRef.dismiss();
       } else {
         const response = await this.promotionService.createPromotion({
-          productId: product._id,
+          productId: product._id ?? '',
           promoterId: promoterId,
           storeId: product.store._id,
           commissionRate: product.promotion.commissionRate,
@@ -144,7 +152,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
         uniqueId = response.data.uniqueId;
 
         this.activePromotions.update(map => {
-          map.set(product._id, {
+          map.set(product._id ?? '', {
             uniqueCode: trackingCode,
             uniqueId: uniqueId,
             ...response.data
@@ -156,7 +164,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
         this.snackBar.open('Promotion link created successfully!', 'Close', { duration: 3000 });
       }
 
-      const trackingLink = this.promotionService.getTrackingLink(trackingCode, product._id);
+      const trackingLink = this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
       
       await navigator.clipboard.writeText(trackingLink);
       
@@ -168,10 +176,10 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     }
   }
 
-  copyUrl(product: PromoterProduct) {
+  copyUrl(product: Product) {
     try {
       // 1. Get the existing promotion data from your signal/state
-      const existingPromotion = this.activePromotions().get(product._id);
+      const existingPromotion = this.activePromotions().get(product._id ?? '');
 
       if (!existingPromotion) {
         this.snackBar.open('Please click "Promote" first to generate your link.', 'Close', { duration: 3000 });
@@ -181,7 +189,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
       // 2. Generate the tracking link using the existing uniqueCode
       const trackingLink = this.promotionService.getTrackingLink(
         existingPromotion.uniqueCode, 
-        product._id
+        product._id ?? ''
       );
 
       // 3. Copy to clipboard
@@ -194,7 +202,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     }
   }
 
-  private showPromotionOptions(product: PromoterProduct, link: string, trackingCode: string): void {
+  private showPromotionOptions(product: Product, link: string, trackingCode: string): void {
     // const snackBarRef = this.snackBar.open(
     //   '✅ Link copied! Share via WhatsApp or View Stats',
     //   'WhatsApp',
@@ -207,7 +215,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     this.shareOnWhatsApp(product, trackingCode);
   }
 
-  shareOnWhatsApp(product: PromoterProduct, trackingCode: string): void {
+  shareOnWhatsApp(product: Product, trackingCode: string): void {
     const message = this.promotionService.generateWhatsAppMessage(
       product,
       trackingCode,
@@ -218,13 +226,13 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     window.open(`https://wa.me/?text=${message}`, '_blank');
   }
 
-  async viewPromotionStats(product: PromoterProduct): Promise<void> {
+  async viewPromotionStats(product: Product): Promise<void> {
     try {
       const promoterId = this.user?._id;
       if (!promoterId) return;
 
       const stats = await this.promotionService.getProductPromotionStats(
-        product._id,
+        product._id ?? '',
         promoterId
       ).toPromise();
 
@@ -257,7 +265,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     }
   }
 
-  onPromotion(product: PromoterProduct): void {
+  onPromotion(product: Product): void {
     this.onPromote(product);
   }
 }
