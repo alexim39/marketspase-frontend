@@ -6,56 +6,51 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatListModule } from '@angular/material/list';
-import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
 import { Subject, takeUntil } from 'rxjs';
 
 import { PromoterProduct } from '../models/promoter-product.model';
 import { PromoterProductService } from '../../services/promoter-product.service';
-import { TruncatePipe } from '../../shared/pipes/truncate.pipe';
 import { ShareService } from '../../services/share.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { UserService } from '../../../common/services/user.service';
 import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
 
+// Import child components
+import { ProductImageGalleryComponent } from './components/product-image-gallery/product-image-gallery.component';
+import { ProductHeaderComponent } from './components/product-header/product-header.component';
+import { ProductActionsComponent } from './components/product-actions/product-actions.component';
+import { ProductTabsComponent } from './components/product-tabs/product-tabs.component';
+import { CommissionCardComponent } from './components/commission-card/commission-card.component';
+import { StoreInfoCardComponent } from './components/store-info-card/store-info-card.component';
+import { RelatedProductsComponent } from './components/related-products/related-products.component';
+import { TruncatePipe } from '../../shared';
+import { MatChipsModule } from '@angular/material/chips';
+
 @Component({
   selector: 'app-promoter-product-details',
   standalone: true,
-  providers: [PromoterProductService,ShareService,AnalyticsService],
+  providers: [PromoterProductService, ShareService, AnalyticsService],
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    MatDividerModule,
-    MatTabsModule,
-    MatChipsModule,
-    MatTooltipModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    MatBadgeModule,
-    MatProgressBarModule,
-    MatExpansionModule,
-    MatListModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatMenuModule,
+    CurrencyUtilsPipe,
+    // Child components
+    ProductImageGalleryComponent,
+    ProductHeaderComponent,
+    ProductActionsComponent,
+    ProductTabsComponent,
+    CommissionCardComponent,
+    StoreInfoCardComponent,
+    RelatedProductsComponent,
     TruncatePipe,
-    CurrencyUtilsPipe
+    MatChipsModule
   ],
   templateUrl: './promoter-product-details.component.html',
   styleUrls: ['./promoter-product-details.component.scss']
@@ -67,21 +62,20 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private shareService = inject(ShareService);
   private analyticsService = inject(AnalyticsService);
+  private userService = inject(UserService);
   private destroy$ = new Subject<void>();
 
   // Signals
   product = signal<PromoterProduct | null>(null);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
-  activeTab = signal<'overview' | 'performance' | 'store' | 'promotion'>('overview');
   selectedImageIndex = signal<number>(0);
   relatedProducts = signal<PromoterProduct[]>([]);
   loadingRelated = signal<boolean>(false);
 
-  private userService = inject(UserService);
   public user = this.userService.user;
 
-  // Computed values
+  // Computed values for child components
   performanceStats = computed(() => {
     const product = this.product();
     if (!product) return null;
@@ -122,7 +116,6 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     };
   });
 
-  // Methods
   async ngOnInit(): Promise<void> {
     const productId = this.route.snapshot.paramMap.get('productId');
     console.log('Loading product details for ID:', productId);
@@ -135,10 +128,8 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     await this.loadProductDetails(productId);
     this.loadRelatedProducts();
     
-    // Track view
     if (this.product()) {
       this.analyticsService.trackProductView(productId, 'promoter');
-    //   this.analyticsService.trackProductView(productId, 'promoter_details');
     }
   }
 
@@ -156,7 +147,6 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
       if (!productResponse?.data) {
         throw new Error('Product not found');
       }
-      //console.log('Product details loaded:', productResponse.data);
       this.product.set(productResponse.data);
     } catch (err) {
       console.error('Failed to load product details:', err);
@@ -185,7 +175,7 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Actions
+  // Public methods for child components
   copyPromotionLink(): void {
     const product = this.product();
     if (!product) return;
@@ -199,7 +189,7 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  shareProduct(platform: 'whatsapp' | 'facebook' | 'twitter' | 'copy'): void {
+  shareProduct(platform: 'whatsapp' | 'facebook' | 'twitter' | 'copy' | any): void {
     const product = this.product();
     if (!product) return;
 
@@ -232,18 +222,10 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     window.open(whatsappUrl, '_blank');
   }
 
-  setActiveTab(tab: string): void {
-    const validTabs: ('overview' | 'performance' | 'store' | 'promotion')[] = ['overview', 'performance', 'store', 'promotion'];
-    if (validTabs.includes(tab as any)) {
-        this.activeTab.set(tab as 'overview' | 'performance' | 'store' | 'promotion');
-    } else {
-        console.error(`Invalid tab: ${tab}`);
-    }
-  }
-
   selectImage(index: number): void {
     this.selectedImageIndex.set(index);
   }
+
   navigateToProduct(productId: string): void {
     this.router.navigate(['/promoter/products', productId]);
   }
@@ -273,8 +255,13 @@ export class PromoterProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  calculateDiscount(price: number, originalPrice: number): number {
+/*   calculateDiscount(price: number, originalPrice: number): number {
     if (!originalPrice || originalPrice <= price) return 0;
     return Math.round(((originalPrice - price) / originalPrice) * 100);
+  } */
+
+  // For product tabs
+  setActiveTab(index: number): void {
+    // Method exists for tab change handling
   }
 }

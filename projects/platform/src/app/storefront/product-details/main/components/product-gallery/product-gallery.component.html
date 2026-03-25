@@ -1,13 +1,21 @@
 <div class="product-gallery">
   <!-- Main Image -->
   <div class="main-image-container">
-    @if (selectedImage()) {
+    @if (currentImageUrl()) {
       <img 
-        [src]="selectedImage()!.url" 
+        #mainImage
+        [src]="currentImageUrl()" 
         [alt]="productName"
         class="main-image"
-        appLazyImage
-        [defaultImage]="'img/product.png'"
+        (error)="onImageError($event)"
+        (click)="onImageClick($event)"
+      >
+    } @else if (images.length > 0) {
+      <img 
+        #mainImage
+        [src]="images[0].url" 
+        [alt]="productName"
+        class="main-image"
         (error)="onImageError($event)"
         (click)="onImageClick($event)"
       >
@@ -63,16 +71,15 @@
   <!-- Thumbnail Gallery -->
   @if (images.length > 1) {
     <div class="thumbnail-gallery">
-      @for (image of images; track image.url; let i = $index) {
+      @for (image of images; track $index) {
         <button 
           class="thumbnail-btn"
-          [class.active]="selectedImageIndex() === i"
-          (click)="selectImage(i)"
-          [attr.aria-label]="'View image ' + (i + 1)">
+          [class.active]="selectedImageIndex() === $index"
+          (click)="selectImage($index)"
+          [attr.aria-label]="'View image ' + ($index + 1)">
           <img 
             [src]="image.url" 
-            [alt]="image.altText || 'Product thumbnail ' + (i + 1)"
-            appLazyImage
+            [alt]="image.altText || 'Product thumbnail ' + ($index + 1)"
             (error)="onImageError($event)"
           >
         </button>

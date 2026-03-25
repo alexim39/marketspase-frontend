@@ -68,13 +68,9 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
   viewMode = signal<ViewMode>('grid');
   activePromotions = signal<Map<string, any>>(new Map());
 
-  // Remove pagination computed since server handles it
-  // The products are already paginated from server
-
   ngOnInit(): void {
     this.loadActivePromotions();
   }
-
   ngOnChanges(changes: SimpleChanges): void {
     // Reset to first page when products change
     if (changes['products'] && !changes['products'].firstChange) {
@@ -172,16 +168,43 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     }
   }
 
-  private showPromotionOptions(product: PromoterProduct, link: string, trackingCode: string): void {
-    const snackBarRef = this.snackBar.open(
-      '✅ Link copied! Share via WhatsApp or View Stats',
-      'WhatsApp',
-      { duration: 10000 }
-    );
+  copyUrl(product: PromoterProduct) {
+    try {
+      // 1. Get the existing promotion data from your signal/state
+      const existingPromotion = this.activePromotions().get(product._id);
 
-    snackBarRef.onAction().subscribe(() => {
-      this.shareOnWhatsApp(product, trackingCode);
-    });
+      if (!existingPromotion) {
+        this.snackBar.open('Please click "Promote" first to generate your link.', 'Close', { duration: 3000 });
+        return;
+      }
+
+      // 2. Generate the tracking link using the existing uniqueCode
+      const trackingLink = this.promotionService.getTrackingLink(
+        existingPromotion.uniqueCode, 
+        product._id
+      );
+
+      // 3. Copy to clipboard
+      navigator.clipboard.writeText(trackingLink);
+      
+      this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+    } catch (error) {
+      console.error('Copy failed', error);
+      this.snackBar.open('Failed to copy link.', 'Close', { duration: 3000 });
+    }
+  }
+
+  private showPromotionOptions(product: PromoterProduct, link: string, trackingCode: string): void {
+    // const snackBarRef = this.snackBar.open(
+    //   '✅ Link copied! Share via WhatsApp or View Stats',
+    //   'WhatsApp',
+    //   { duration: 10000 }
+    // );
+
+    // snackBarRef.onAction().subscribe(() => {
+    //   this.shareOnWhatsApp(product, trackingCode);
+    // });
+    this.shareOnWhatsApp(product, trackingCode);
   }
 
   shareOnWhatsApp(product: PromoterProduct, trackingCode: string): void {

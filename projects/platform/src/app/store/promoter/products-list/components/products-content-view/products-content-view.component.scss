@@ -438,6 +438,40 @@
             margin-right: $spacing-1;
           }
         }
+
+        .share-btn {
+          // WhatsApp Signature Colors
+          $whatsapp-dark-green: #128c7e;
+
+          border-color: $whatsapp-dark-green !important;
+          color: $whatsapp-dark-green !important;
+          border-radius: 25px; // Rounded "pill" shape
+          padding: 0 20px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+
+          mat-icon {
+            margin-right: 8px;
+            color: $whatsapp-dark-green;
+          }
+
+          &:hover {
+            background-color: rgba($whatsapp-dark-green, 0.05) !important;
+            border-color: $whatsapp-dark-green !important;
+            color: $whatsapp-dark-green !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+            mat-icon {
+              color: $whatsapp-dark-green;
+            }
+          }
+
+          &:active {
+            transform: translateY(0);
+            background-color: rgba($whatsapp-dark-green, 0.1) !important;
+          }
+        }
       }
     }
   }

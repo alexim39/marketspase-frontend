@@ -196,24 +196,26 @@
 
           <!-- Actions -->
           <mat-card-actions>
-            <button
-              mat-button
-              color="primary"
-              (click)="viewProduct.emit(product)"
-              class="details-btn"
-            >
+            <button mat-button color="primary" (click)="viewProduct.emit(product)" class="details-btn">
               <mat-icon>visibility</mat-icon>
               Details
             </button>
+
             <button
               mat-raised-button
               color="accent"
-              (click)="onPromote(product)"
+              (click)="copyUrl(product)"
               class="promote-btn"
             >
-              <mat-icon>share</mat-icon>
-              Promote
+              <mat-icon>content_copy</mat-icon>
+              Copy
             </button>
+
+            <button mat-stroked-button color="accent" (click)="onPromote(product)" class="share-btn">
+              <mat-icon>share</mat-icon>
+              Share
+            </button>
+
           </mat-card-actions>
         </mat-card>
       }

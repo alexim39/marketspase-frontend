@@ -1,0 +1,120 @@
+    <div class="image-gallery">
+      <!-- Desktop Thumbnails -->
+      <div class="thumbnails">
+        @for (image of images; track image.url; let i = $index) {
+          <div 
+            class="thumbnail" 
+            [class.active]="selectedIndex === i"
+            (click)="selectImage(i)"
+          >
+            @if (image.url) {
+              <img [src]="image.url" [alt]="image.altText || 'Product image ' + (i + 1)">
+            } @else {
+              <div class="placeholder">
+                <mat-icon>image</mat-icon>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Main Image -->
+      <div class="main-image-container">
+        <!-- Action Buttons Overlay -->
+        <div class="image-actions-overlay">
+          <!-- Download Button with Menu for Multiple Images -->
+          @if (images.length > 0) {
+            <button 
+              mat-icon-button 
+              class="download-btn"
+              [matMenuTriggerFor]="downloadMenu"
+              matTooltip="Download image"
+            >
+              <mat-icon>download</mat-icon>
+            </button>
+            <mat-menu #downloadMenu="matMenu">
+              <button mat-menu-item (click)="downloadCurrentImage()">
+                <mat-icon>image</mat-icon>
+                Download Current Image
+              </button>
+              @if (images.length > 1) {
+                <button mat-menu-item (click)="downloadAllImages()">
+                  <mat-icon>folder_zip</mat-icon>
+                  Download All Images ({{ images.length }})
+                </button>
+              }
+            </mat-menu>
+          }
+
+          <!-- Zoom Button (Optional) -->
+          <!-- <button 
+            mat-icon-button 
+            class="zoom-btn"
+            (click)="openZoomModal()"
+            matTooltip="Zoom image"
+          >
+            <mat-icon>zoom_in</mat-icon>
+          </button> -->
+        </div>
+
+        <!-- Commission Badge -->
+        <div class="commission-badge" 
+             [class.high]="commissionRate >= 20"
+             [class.medium]="commissionRate >= 10 && commissionRate < 20">
+          <mat-icon>trending_up</mat-icon>
+          <span>{{ commissionRate }}%</span>
+        </div>
+
+        <!-- Main Image -->
+        @if (images[selectedIndex]?.url) {
+          <img 
+            [src]="images[selectedIndex]?.url" 
+            [alt]="images[selectedIndex]?.altText || 'Product image'"
+            class="main-image"
+            (click)="openZoomModal()"
+          >
+        } @else {
+          <div class="main-image-placeholder">
+            <mat-icon>image_not_supported</mat-icon>
+            <span>No Image Available</span>
+          </div>
+        }
+
+        <!-- Navigation Arrows -->
+        @if (images.length > 1) {
+          <div class="image-nav prev">
+            <button 
+              mat-icon-button 
+              (click)="selectImage(selectedIndex - 1 < 0 ? images.length - 1 : selectedIndex - 1)"
+            >
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+          </div>
+          <div class="image-nav next">
+            <button 
+              mat-icon-button 
+              (click)="selectImage((selectedIndex + 1) % images.length)"
+            >
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Mobile Thumbnails -->
+      @if (images.length) {
+        <div class="mobile-thumbnails">
+          @for (image of images; track image.url; let i = $index) {
+            <div 
+              class="thumbnail" 
+              [class.active]="selectedIndex === i"
+              (click)="selectImage(i)"
+            >
+              @if (image.url) {
+                <img [src]="image.url" [alt]="image.altText || 'Product thumbnail ' + (i + 1)">
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>

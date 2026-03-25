@@ -288,6 +288,31 @@
       }
     }
   }
+
+
+  .load-more-container {
+    text-align: center;
+    margin-top: $spacing-8;
+    padding-top: $spacing-4;
+    
+    .load-more-btn {
+      @include button-secondary;
+      min-width: 200px;
+      padding: $spacing-3 $spacing-6;
+      
+      mat-icon {
+        margin-left: $spacing-2;
+        transition: transform $transition-fast;
+      }
+      
+      &:hover {
+        mat-icon {
+          transform: translateY(4px);
+        }
+      }
+    }
+  }
+
   
   // Empty state
   .no-products {

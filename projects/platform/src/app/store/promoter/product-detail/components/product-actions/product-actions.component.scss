@@ -1,0 +1,29 @@
+    @import '../../../../../../styles/mixins';
+    @import '../../../../../../styles/variables';
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing-3;
+      
+      @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      button {
+        height: 48px;
+        
+        mat-icon {
+          margin-right: $spacing-2;
+        }
+        
+        &.promote-btn {
+          background: $gradient-primary;
+          color: $white;
+          
+          &:hover {
+            box-shadow: $shadow-md;
+          }
+        }
+      }
+    }

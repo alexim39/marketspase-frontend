@@ -297,6 +297,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
+          //console.log('related products ',result)
           const productData = result.product.data;
           this.product.set(productData);
           
@@ -687,12 +688,13 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  viewRelatedProduct(product: Product | null): void {
-    this.router.navigate(['/dashboard/store/product', product?._id], {
-      state: { fromStore: this.store()?.storeLink }
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  // viewRelatedProduct(product: Product | null): void {
+  //   console.log('product ',product)
+  //  /*  this.router.navigate(['/promote/', this.user()?._id], {
+  //     state: { fromStore: this.store()?.storeLink }
+  //   }); */
+  //   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // }
 
   // =========================================
   // UTILITY METHODS
@@ -717,19 +719,29 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   // =========================================
 
   private extractTrackingParams(): void {
+    // 1. THIS FIXES THE IMAGE/DATA REFRESH
+    // Listen for the ID in the URL (e.g., /promote/:id)
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const productId = params.get('productId');
+      if (productId) {
+        this.loadProductData(); // Pass the ID to your loader
+      }
+    });
+
+    // 2. THIS HANDLES THE TRACKING LOGIC
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params: Params) => {
-      const trackingCode = params['track'];
+      const trackingCode = params['track'] || params['ref']; // Support both keys
       const promoterId = params['promoter'];
       
       if (trackingCode) {
         this.trackingCode.set(trackingCode);
-        console.log('Tracking code detected:', trackingCode);
       }
       
       if (promoterId) {
         this.promoterId.set(promoterId);
       }
       
+      // Check if we can track the view now
       if (trackingCode && this.product() && !this.viewTracked()) {
         this.trackPromotionView(trackingCode);
         this.viewRecordingAttempted = true;

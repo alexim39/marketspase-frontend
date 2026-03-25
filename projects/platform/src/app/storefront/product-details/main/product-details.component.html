@@ -90,7 +90,7 @@
               [maxQuantity]="maxQuantity()"
               [canAddToCart]="canAddToCart()"
               [isInWishlist]="isInWishlist()"
-              [userCurrency]="user()?.wallets?.promoter?.currency || 'USD'"
+              [userCurrency]="user()?.wallets?.promoter?.currency || 'NGN'"
               [userRole]="user()?.role || ''"
               [activePromotion]="activePromotion()"
               (storeClick)="viewStore()"
@@ -199,8 +199,8 @@
         <app-related-products
           [products]="relatedProducts()"
           [storeLink]="store()?.storeLink || ''"
-          [userCurrency]="user()?.wallets?.promoter?.currency || 'USD'"
-          (productClick)="viewRelatedProduct(product())"
+          [userCurrency]="user()?.wallets?.promoter?.currency || 'NGN'"
+          [user]="user()"
         />
       }
 

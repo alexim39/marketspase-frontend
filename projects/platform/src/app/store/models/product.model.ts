@@ -168,6 +168,7 @@ export interface Product {
   color?: string;
 
   promotion: any;
+  activePromotions: any;
 
 }
 

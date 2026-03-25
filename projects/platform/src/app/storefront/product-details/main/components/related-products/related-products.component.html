@@ -2,16 +2,29 @@
   <div class="container">
     <div class="section-header">
       <h2 class="section-title">You May Also Like</h2>
-      <a [routerLink]="['/store', storeLink]" mat-button class="view-all-link">
-        <span>View All Products</span>
-        <mat-icon>arrow_forward</mat-icon>
-      </a>
+      <div class="header-actions">
+        @if (hasMoreProducts()) {
+          <a 
+            [routerLink]="['/store', storeLink]" 
+            mat-button 
+            class="view-all-link"
+            (click)="onViewAll()">
+            <span>View All ({{ products.length }})</span>
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        } @else {
+          <a [routerLink]="['/store', storeLink]" mat-button class="view-all-link">
+            <span>View All Products</span>
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        }
+      </div>
     </div>
 
-    @if (products.length > 0) {
+    @if (displayedProducts().length > 0) {
       <div class="related-products-grid">
-        @for (product of products; track trackByProductId($index, product)) {
-          <div class="related-product-card" (click)="productClick.emit(product)">
+        @for (product of displayedProducts(); track trackByProductId($index, product)) {
+          <div class="related-product-card" (click)="productClick(product)">
             <div class="related-product-image">
               @if (product?.images?.[0]?.url) {
                 <img 
@@ -45,15 +58,17 @@
               </div>
               
               <!-- Add to Cart Overlay (Optional) -->
-              <div class="add-to-cart-overlay">
-                <button 
-                  mat-raised-button 
-                  color="primary"
-                  (click)="$event.stopPropagation(); onAddToCart(product)">
-                  <mat-icon>shopping_cart</mat-icon>
-                  Quick Add
-                </button>
-              </div>
+              @if (showAddToCart) {
+                <div class="add-to-cart-overlay">
+                  <button 
+                    mat-raised-button 
+                    color="primary"
+                    (click)="onAddToCart(product)">
+                    <mat-icon>shopping_cart</mat-icon>
+                    Quick Add
+                  </button>
+                </div>
+              }
             </div>
             
             <div class="related-product-info">
@@ -106,6 +121,20 @@
           </div>
         }
       </div>
+      
+      <!-- Show "Load More" button if there are more products -->
+      @if (hasMoreProducts()) {
+        <div class="load-more-container">
+          <button 
+            mat-stroked-button 
+            class="load-more-btn"
+            (click)="onViewAll()"
+            [routerLink]="['/store', storeLink]">
+            <span>View All {{ products.length }} Products</span>
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </div>
+      }
     } @else {
       <!-- Empty State -->
       <div class="no-products">

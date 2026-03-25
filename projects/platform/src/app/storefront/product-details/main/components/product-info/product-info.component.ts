@@ -55,7 +55,7 @@ export class ProductInfoComponent {
   @Input() maxQuantity: number = 10;
   @Input() canAddToCart: boolean = true;
   @Input() isInWishlist: boolean = false;
-  @Input() userCurrency: string = 'USD';
+  @Input() userCurrency: string = 'NGN';
   @Input() userRole: string = '';
   @Input() activePromotion: any = null;
   

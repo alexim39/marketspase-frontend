@@ -18,7 +18,7 @@
         }
       </div>
       <div class="store-details">
-        <span class="store-name">{{ store.name }}</span>
+        <span class="store-name">{{ store.name | titlecase}}</span>
         @if (store.isVerified) {
           <span class="verified-badge" matTooltip="Verified Store">
             <mat-icon>verified</mat-icon>
@@ -32,12 +32,12 @@
   <!-- Product Title & Category -->
   <div class="product-header">
     <div class="product-category">
-      <span class="category-tag">{{ product?.category }}</span>
+      <span class="category-tag">{{ product?.category | titlecase }}</span>
       @if (product?.brand) {
-        <span class="brand-tag">{{ product?.brand }}</span>
+        <span class="brand-tag">{{ product?.brand | titlecase }}</span>
       }
     </div>
-    <h1 class="product-title">{{ product?.name }}</h1>
+    <h1 class="product-title">{{ product?.name | titlecase }}</h1>
     
     @if (product?.sku) {
       <div class="product-sku">SKU: {{ product?.sku }}</div>
