@@ -1,0 +1,300 @@
+<div class="tutorials-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <mat-icon>school</mat-icon>
+        <span>Learning Center</span>
+      </div>
+      <h1 class="hero-title">
+        Learn {{ isMarketer() ? 'Marketing' : 'Promotion' }} 
+        <span class="gradient-text">Like a Pro</span>
+      </h1>
+      <p class="hero-description">{{ getWelcomeMessage() }}</p>
+      
+      <div class="hero-stats">
+        <div class="stat-item">
+          <mat-icon>play_circle</mat-icon>
+          <div>
+            <span class="stat-value">{{ allVideos().length }}+</span>
+            <span class="stat-label">Video Tutorials</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <mat-icon>people</mat-icon>
+          <div>
+            <span class="stat-value">{{ formatViews(10478) }}</span>
+            <span class="stat-label">Watched by</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <mat-icon>stars</mat-icon>
+          <div>
+            <span class="stat-value">4.9</span>
+            <span class="stat-label">Rating</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="hero-decoration">
+      <div class="decoration-circle"></div>
+      <div class="decoration-circle-2"></div>
+    </div>
+  </section>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <mat-icon>search</mat-icon>
+      <input 
+        type="text" 
+        placeholder="Search tutorials, topics, or keywords..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        class="search-input"
+      >
+      @if (searchQuery()) {
+        <button class="clear-search" (click)="searchQuery.set('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="filter-tools">
+      <div class="category-filters">
+        @for (category of categories; track category.id) {
+          <button 
+            class="filter-chip" 
+            [class.active]="selectedCategory() === category.id"
+            [class]="category.color"
+            (click)="selectedCategory.set(category.id)">
+            <mat-icon>{{ category.icon }}</mat-icon>
+            <span>{{ category.label }}</span>
+          </button>
+        }
+      </div>
+      
+      <div class="view-controls">
+        <button 
+            class="view-btn" 
+            (click)="toggleView()"
+            [attr.aria-label]="isGridView() ? 'Switch to list view' : 'Switch to grid view'">
+            <mat-icon>{{ isGridView() ? 'view_list' : 'grid_view' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="difficulty-filters">
+      @for (level of difficultyLevels; track level.id) {
+        <button 
+          class="difficulty-chip" 
+          [class.active]="selectedDifficulty() === level.id"
+          (click)="selectedDifficulty.set(level.id)">
+          <mat-icon>{{ level.icon }}</mat-icon>
+          <span>{{ level.label }}</span>
+        </button>
+      }
+      @if (searchQuery() || selectedCategory() !== 'all' || selectedDifficulty() !== 'all') {
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          <mat-icon>clear_all</mat-icon>
+          Clear All
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Featured Videos Section -->
+  @if (featuredVideos().length > 0 && !searchQuery() && selectedCategory() === 'all') {
+    <section class="featured-section">
+      <div class="section-header">
+        <div class="header-left">
+          <mat-icon>whatshot</mat-icon>
+          <h2>Featured Tutorials</h2>
+        </div>
+        <span class="section-badge">Most Popular</span>
+      </div>
+      
+      <div class="featured-grid">
+        @for (video of featuredVideos(); track video.id) {
+          <div class="featured-card" (click)="playVideo(video)">
+            <div class="featured-thumbnail">
+              <div class="thumbnail-placeholder">
+                <mat-icon>play_circle_filled</mat-icon>
+              </div>
+              <div class="duration-badge">{{ video.duration }}</div>
+              @if (video.isNew) {
+                <div class="new-badge">NEW</div>
+              }
+              @if (video.isPopular) {
+                <div class="popular-badge">🔥 POPULAR</div>
+              }
+            </div>
+            <div class="featured-info">
+              <h3>{{ video.title }}</h3>
+              <p>{{ video.description }}</p>
+              <div class="video-meta">
+                <span class="difficulty" [class]="getDifficultyColor(video.difficulty)">
+                  <mat-icon>school</mat-icon>
+                  {{ video.difficulty }}
+                </span>
+                <span class="views">
+                  <mat-icon>visibility</mat-icon>
+                  {{ formatViews(video.views) }} views
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Recently Watched Section -->
+  @if (recentlyWatched().length > 0 && !searchQuery()) {
+    <section class="recent-section">
+      <div class="section-header">
+        <div class="header-left">
+          <mat-icon>history</mat-icon>
+          <h2>Recently Watched</h2>
+        </div>
+        <button class="clear-recent" (click)="recentlyWatched.set([])">
+          Clear History
+        </button>
+      </div>
+      
+      <div class="recent-list">
+        @for (video of recentlyWatched(); track video.id) {
+          <div class="recent-item" (click)="playVideo(video)">
+            <div class="recent-thumbnail">
+              <div class="thumbnail-placeholder small">
+                <mat-icon>play_arrow</mat-icon>
+              </div>
+              <span class="duration">{{ video.duration }}</span>
+            </div>
+            <div class="recent-info">
+              <h4>{{ video.title }}</h4>
+              <p>{{ video.description | slice:0:80 }}...</p>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Tutorial Sections -->
+  <div class="sections-container">
+    @for (section of filteredSections(); track section.title) {
+      <section class="tutorial-section">
+        <div class="section-header">
+          <div class="header-left">
+            <mat-icon>{{ section.icon }}</mat-icon>
+            <div class="header-text">
+              <h2>{{ section.title }}</h2>
+              <p>{{ section.description }}</p>
+            </div>
+          </div>
+          <div class="section-stats">
+            <span>{{ section.videos.length }} tutorials</span>
+          </div>
+        </div>
+
+        <div class="video-grid" [class.list-view]="!isGridView()">
+          @for (video of section.videos; track video.id) {
+            <div class="video-card" [class.list-item]="!isGridView()" (click)="playVideo(video)">
+              <div class="video-thumbnail">
+                <div class="thumbnail-placeholder">
+                  <mat-icon>play_circle_filled</mat-icon>
+                </div>
+                <div class="duration-badge">{{ video.duration }}</div>
+                @if (video.isNew) {
+                  <div class="new-badge-sm">NEW</div>
+                }
+              </div>
+              
+              <div class="video-content">
+                <div class="video-header">
+                  <h3>{{ video.title }}</h3>
+                  <button class="share-btn" (click)="shareVideo(video, $event)">
+                    <mat-icon>share</mat-icon>
+                  </button>
+                </div>
+                
+                <p>{{ video.description }}</p>
+                
+                <div class="video-footer">
+                  <div class="video-tags">
+                    @for (tag of video.tags.slice(0, 2); track tag) {
+                      <span class="tag">{{ tag }}</span>
+                    }
+                  </div>
+                  
+                  <div class="video-stats">
+                    <span class="difficulty" [class]="getDifficultyColor(video.difficulty)">
+                      <mat-icon>school</mat-icon>
+                      {{ video.difficulty }}
+                    </span>
+                    <span class="views">
+                      <mat-icon>visibility</mat-icon>
+                      {{ formatViews(video.views) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Empty State -->
+    @if (filteredSections().length === 0) {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <h3>No tutorials found</h3>
+        <p>Try adjusting your search or filters to find what you're looking for.</p>
+        <button mat-raised-button color="primary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Call to Action for Role Switching -->
+  @if (isMarketer() || isPromoter()) {
+    <section class="cta-section">
+      <div class="cta-content">
+        <div class="cta-icon">
+          <mat-icon>swap_horiz</mat-icon>
+        </div>
+        <div class="cta-text">
+          <h3>Want to learn from the other perspective?</h3>
+          <p>Switch to {{ userRole() ? 'Promoter' : 'Marketer' }} mode to discover tutorials tailored to your other role.</p>
+        </div>
+        <button mat-raised-button color="accent" (click)="switchUserRole()">
+          Switch to {{userRole() | titlecase}}
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- Help Section -->
+  <section class="help-section">
+    <div class="help-content">
+      <mat-icon>support_agent</mat-icon>
+      <h3>Need additional help?</h3>
+      <p>Our support team is available 24/7 to assist you with any questions.</p>
+      <div class="help-buttons">
+        <button mat-stroked-button color="primary" routerLink="/dashboard/settings/support">
+          <mat-icon>chat</mat-icon>
+          Live Chat
+        </button>
+        <!-- <button mat-stroked-button>
+          <mat-icon>email</mat-icon>
+          Email Support
+        </button> -->
+      </div>
+    </div>
+  </section>
+</div>

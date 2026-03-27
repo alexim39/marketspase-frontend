@@ -38,7 +38,9 @@ import {
 } from './navigation';
 import { interval } from 'rxjs/internal/observable/interval';
 import { take } from 'rxjs/internal/operators/take';
-import { CountdownOverlayComponent } from '../../get-started/onboarding/countdown-overlay/countdown-overlay.component';
+import { CountdownOverlayComponent } from '../../common/components/countdown-overlay/countdown-overlay.component';
+import { SwitchUserRoleService } from '../../common/services/switch-user-role.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -77,6 +79,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private authService = inject(AuthService);
   private dashboardService = inject(DashboardService);
+  private switchUserRoleService = inject(SwitchUserRoleService); // Event used to trigger user role switcher method
   private readonly deviceService = inject(DeviceService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -91,6 +94,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   activeCampaignsCount: number | undefined = 0;
   pendingCampaignsCount: number | undefined = 0;
   pendingPromotionsCount: number | undefined = 0;
+
+  private subscription: Subscription = new Subscription();
 
   isMobile = computed(() => {
     return this.deviceService.deviceState().isMobile;
@@ -125,9 +130,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.calculateActiveCampaigns();
     this.calculatePendingCampaigns();
     this.calculatePendingPromotions();
+
+    this.switchUserRoleService.getSwitchRequest$.subscribe((role) => {
+      this.switchUser(role);
+    });
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+     // Always unsubscribe to prevent memory leaks
+    this.subscription.unsubscribe();
+  }
 
   public toggleSidenav(): void {
     this.sidenav?.toggle();
@@ -241,30 +253,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       autoFocus: false
     });
   }
-
- /*  public switchUser(role: string): void {
-    //console.log('the role ',role)
-    const roleObject = {
-      role,
-      userId: this.user()?._id
-    };
-    this.dashboardService.switchUser(roleObject)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            window.location.reload();
-          }
-        },
-        error: (error: HttpErrorResponse) => {
-          let errorMessage = 'Server error occurred, please try again.';
-          if (error.error && error.error.message) {
-            errorMessage = error.error.message;
-          }
-          this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
-        }
-      });
-  } */
 
   public switchUser(role: string): void {
     // Prevent multiple simultaneous switches

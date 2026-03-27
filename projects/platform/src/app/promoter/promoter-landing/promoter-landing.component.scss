@@ -237,8 +237,7 @@
     transition: all $transition-normal;
     
     &:hover {
-      // UPDATED: Use gray-100 variable for hover background
-      background: $gray-100;
+      color: $primary-color;
     }
   }
 }

@@ -221,7 +221,8 @@ ngOnInit(): void {
     const product = this.product();
     if (!product) return;
 
-    const link = `${window.location.origin}/promote/${product.promotion.trackingCode}`;
+    const link = `${window.location.origin}/promote/${product._id}?ref=${product.promotion.trackingCode}`;
+    // `https://marketspase.com/promote/${productId}?ref=${uniqueCode}`; 
 
     navigator.clipboard.writeText(link).then(() => {
       this.snackBar.open('Promotion link copied!', 'Close', {
@@ -238,7 +239,7 @@ ngOnInit(): void {
     const shareData = {
       title: `Check out ${product.name}`,
       text: `${product.name} - $${product.price} | ${product.promotion.commissionRate}% commission`,
-      url: `${window.location.origin}/promote/${product.promotion.trackingCode}`
+      url: `${window.location.origin}/promote/${product._id}?ref=${product.promotion.trackingCode}`
     };
 
     this.shareService.share(shareData, platform);
@@ -257,7 +258,7 @@ ngOnInit(): void {
       `🎁 Commission: ${product.promotion.commissionRate}%\n\n` +
       `📦 Category: ${product.category}\n` +
       `🏪 Store: ${product.store.name}\n\n` +
-      `👉 Promo Link: ${window.location.origin}/promote/${product.promotion.trackingCode}`;
+      `👉 Promo Link: ${window.location.origin}/promote/${product._id}?ref=${product.promotion.trackingCode}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   }

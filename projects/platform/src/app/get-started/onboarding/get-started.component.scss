@@ -4,7 +4,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background-color: var(--background-color);
+  background-color: $background-color;
 }
 
 .get-started-container {
@@ -23,7 +23,7 @@
   
   .tab-header {
     @include sticky-top;
-    background: var(--surface-color);
+    background: $surface-color;
     padding: $spacing-2 $spacing-4;
     margin-bottom: $spacing-6;
     border-bottom: $border-width solid $border-color;
@@ -73,7 +73,7 @@
           @include flex-center;
           width: 36px;
           height: 36px;
-          background: var(--surface-color);
+          background: $surface-color;
           border: 2px solid $border-color;
           border-radius: $border-radius-full;
           font-weight: $font-weight-bold;

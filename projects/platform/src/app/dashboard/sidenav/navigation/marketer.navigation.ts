@@ -106,18 +106,19 @@ export function getMarketerNavigation(
       ]
     },
 
-    {
+     {
       icon: 'help',
       label: 'Support',
       expanded: false,
       children: [
         { icon: 'support_agent', label: 'Support', route: '/dashboard/settings/support' },
         {
-          icon: 'help',
-          label: 'Get Started',
+          icon: 'help_center',
+          label: 'Learn',
           expanded: false,
           children: [
-            { icon: 'directions_bus', label: 'Onboarding', route: '/dashboard/get-started/onboarding' }
+            { icon: 'help', label: 'Get Started', route: '/dashboard/get-started/onboarding' },
+            { icon: 'video_call', label: 'Tutorials', route: '/dashboard/tutorials' }
           ]
         }
       ]

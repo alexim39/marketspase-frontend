@@ -15,8 +15,8 @@ import { ProofGuideService } from './proof-model/proof-guide.service';
 // Import child components
 import { HeroComponent } from './hero/hero.component';
 import { QuickStatsComponent } from './quick-stats/quick-stats.component';
-import { RoleSwitcherComponent } from './role-switcher/role-switcher.component';
-import { CountdownOverlayComponent } from './countdown-overlay/countdown-overlay.component';
+import { RoleSwitcherComponent } from '../../common/components/role-switcher/role-switcher.component';
+import { CountdownOverlayComponent } from '../../common/components/countdown-overlay/countdown-overlay.component';
 import { OnboardingStepsComponent } from './onboarding-steps/onboarding-steps.component';
 import { ProofGuideComponent } from './proof-guide/proof-guide.component';
 import { VideoGuidesComponent } from './video-guides/video-guides.component';
@@ -95,9 +95,9 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
   // Quick stats data
   quickStats = signal([
     { label: 'Active Marketers', value: '1,250+', icon: 'storefront', color: 'primary' },
-    { label: 'Active Promoters', value: '15,000+', icon: 'groups', color: 'accent' },
-    { label: 'Total Earnings', value: '₦25M+', icon: 'currency_exchange', color: 'warn' },
-    { label: 'Campaigns Shared', value: '500K+', icon: 'trending_up', color: 'success' }
+    { label: 'Active Promoters', value: '10,000+', icon: 'groups', color: 'accent' },
+    { label: 'Total Payouts', value: '₦10M+', icon: 'currency_exchange', color: 'warn' },
+    { label: 'Campaigns Shared', value: '200K+', icon: 'trending_up', color: 'success' }
   ]);
 
   // FAQ items with role targeting
