@@ -1,11 +1,19 @@
+// campaign.service.ts
 import { inject, Injectable } from '@angular/core';
-import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
+import { Observable } from 'rxjs';
 import { ApiService } from '../../../../shared-services/src/public-api';
 
 interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+    hasMore: boolean;
+  };
 }
 
 @Injectable()
@@ -15,23 +23,30 @@ export class CampaignService {
   private readonly apiBase = 'campaign/admin'
   private readonly apiBase2 = 'campaign'
   
-
   /**
-   * Submits the user data to the backend API.
-   * @post campaignObject The user data to be submitted.
-   * @returns An Observable that emits the API response or an error.
+   * Get campaigns with pagination and filters
    */
-//   create(campaignData: FormData): Observable<any> {
-//     return this.apiService.post<any>(`campaign/create`, campaignData, undefined, true);
-//   }
-
-
-  /**
-   * Get the form data to the backend.
-   * @returns An observable of the submitted form data.
-  */
-  getAppCampaigns(): Observable<any> {
-    return this.apiService.get<any>(`${this.apiBase}/campaigns`, undefined, undefined, true);
+  getAppCampaigns(page: number = 1, limit: number = 50, filters?: any): Observable<any> {
+    let url = `${this.apiBase}/campaigns?page=${page}&limit=${limit}`;
+    
+    // Add filters to URL if they exist
+    if (filters) {
+      if (filters.status && filters.status.length) {
+        filters.status.forEach((status: string) => {
+          url += `&status=${status}`;
+        });
+      }
+      if (filters.category && filters.category.length) {
+        filters.category.forEach((category: string) => {
+          url += `&category=${category}`;
+        });
+      }
+      if (filters.search) {
+        url += `&search=${filters.search}`;
+      }
+    }
+    
+    return this.apiService.get<any>(url, undefined, undefined, true);
   }
 
   getCampaignById(id: string): Observable<ApiResponse<any>> {
@@ -45,5 +60,4 @@ export class CampaignService {
   updatePromotionStatus(id: string, status: string, performedBy: string, rejectionReason: string = ''): Observable<ApiResponse<any>> {
     return this.apiService.patch<ApiResponse<any>>(`${this.apiBase}/promotion/${id}/status/${performedBy}`, { status, rejectionReason });
   }
-
 }
