@@ -50,8 +50,7 @@
         align-items: center;
         justify-content: center;
         background: $gray-900;
-        padding: 1em 0;
-      
+        padding: 1em 0;      
         .video-placeholder {
           @include absolute-center;
           @include flex-column-center;
