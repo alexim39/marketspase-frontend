@@ -13,6 +13,10 @@
           <p class="video-description">
             Learn how to create effective campaigns, set budgets, and track performance in few minutes.
           </p>
+          <button mat-raised-button class="promo-button" color="primary" (click)="switchUserRole('promoter')">
+            <mat-icon>swap_horiz</mat-icon>
+            I want to promote other people's business
+          </button>
         </div>
         
         <div class="video-container">
@@ -56,6 +60,10 @@
           <p class="video-description">
             Learn how to share campaigns, maximize earnings, and get paid in few minutes.
           </p>
+           <button mat-raised-button class="promo-button" color="primary"  (click)="switchUserRole('marketer')">
+            <mat-icon>swap_horiz</mat-icon>
+            I want to promote my business
+          </button>
         </div>
         
         <div class="video-container">

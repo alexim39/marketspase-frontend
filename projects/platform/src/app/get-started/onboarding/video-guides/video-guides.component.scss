@@ -26,6 +26,10 @@
       .video-header {
         padding: $spacing-4;
         border-bottom: $border-width solid $border-color;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         
         .video-title {
           @include heading-small;
@@ -43,6 +47,19 @@
           @include body-small;
           color: $text-secondary;
         }
+
+        .promo-button {
+          margin: 1em 0;
+          @include button-primary;
+          mat-icon {
+            color: $white;
+            border: 1px solid $white;
+            padding: 0 1px 0 0;
+            border-radius: 20%;
+            width: 25px;
+          }
+        }
+
       }
       
       .video-container {
