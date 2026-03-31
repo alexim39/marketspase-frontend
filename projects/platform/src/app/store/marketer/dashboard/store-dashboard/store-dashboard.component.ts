@@ -86,8 +86,6 @@ interface PerformanceMetric {
 export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected storeService = inject(StoreService);
-  //private userService = inject(UserService);
-  //public user = this.userService.user;
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private deviceService = inject(DeviceService);
@@ -400,8 +398,8 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Failed to load stores:', error);
-        this.showError('Failed to load stores. Please try again.');
+        //console.error('Failed to load stores:', error);
+        //this.showError('Failed to load stores. Please try again.');
       }
     });
   }

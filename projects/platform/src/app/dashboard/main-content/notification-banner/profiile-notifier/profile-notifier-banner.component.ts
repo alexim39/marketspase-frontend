@@ -124,9 +124,9 @@ export class ProfileNotifierBannerComponent implements OnInit {
   navigateToVideoGuides(): void {
     this.router.navigate(['/dashboard/get-started/onboarding'], { 
       fragment: 'video-guides',
-      queryParams: { 
-        source: 'profile_banner_video'
-      },
+      // queryParams: { 
+      //   source: 'profile_banner_video'
+      // },
       state: { fromProfileBanner: true }
     }).then(() => {
       // Small delay to ensure the DOM is ready
