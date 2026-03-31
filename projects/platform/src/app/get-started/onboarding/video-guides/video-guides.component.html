@@ -11,17 +11,33 @@
             Marketer's Complete Guide
           </h3>
           <p class="video-description">
-            Learn how to create effective campaigns, set budgets, and track performance in 5 minutes.
+            Learn how to create effective campaigns, set budgets, and track performance in few minutes.
           </p>
+          <button mat-raised-button class="promo-button" color="primary" (click)="switchUserRole('promoter')">
+            <mat-icon>swap_horiz</mat-icon>
+            I want to promote other people's business
+          </button>
         </div>
         
         <div class="video-container">
           @if (marketerVideoUrl) {
-            <iframe 
+            <!-- <iframe 
+              width="380" 
+              height="800" 
               [src]="marketerVideoUrl" 
               frameborder="0" 
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
               allowfullscreen>
+            </iframe> -->
+            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F984032487617745%2F&show_text=false&width=209&t=0" 
+            width="260" 
+            height="616" 
+            style="border:none;overflow:hidden" 
+            scrolling="no" 
+            frameborder="0" 
+            allowfullscreen="true" 
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+            allowFullScreen="true">
             </iframe>
           } @else {
             <div class="video-placeholder">
@@ -42,17 +58,31 @@
             Promoter's Complete Guide
           </h3>
           <p class="video-description">
-            Learn how to share campaigns, maximize earnings, and get paid in 5 minutes.
+            Learn how to share campaigns, maximize earnings, and get paid in few minutes.
           </p>
+           <button mat-raised-button class="promo-button" color="primary"  (click)="switchUserRole('marketer')">
+            <mat-icon>swap_horiz</mat-icon>
+            I want to promote my business
+          </button>
         </div>
         
         <div class="video-container">
           @if (promoterVideoUrl) {
-            <iframe 
+            <!-- <iframe 
               [src]="promoterVideoUrl" 
               frameborder="0" 
               allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
               allowfullscreen>
+            </iframe> -->
+            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F2196458907781480%2F&show_text=false&width=210&t=0" 
+            width="260" 
+            height="616" 
+            style="border:none;overflow:hidden" 
+            scrolling="no" 
+            frameborder="0" 
+            allowfullscreen="true" 
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+            allowFullScreen="true">
             </iframe>
           } @else {
             <div class="video-placeholder">

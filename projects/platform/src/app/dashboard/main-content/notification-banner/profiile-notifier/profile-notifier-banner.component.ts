@@ -12,31 +12,6 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
     @if(this.showBanner()) {
       <div class="profile-completion-banner" [class.hidden]="!showBanner()">
         <div class="banner-content">
-          <!-- <div class="banner-left">
-            <mat-icon class="banner-icon">rocket_launch</mat-icon>
-            <div class="banner-text">
-              <h3 class="banner-title">Complete Your Profile</h3>
-              <p class="banner-description">
-                To enjoy a better experience on the platform, please complete your profile setup.
-                <span class="missing-info">
-                  @if(!hasPhone()) {
-                    <span class="missing-item">Phone number</span>
-                  }
-                  @if(!hasPhone() && !hasAddress()) {
-                    <span> and </span>
-                  }
-                  @if(!hasAddress()) {
-                    <span class="missing-item">Address</span>
-                  }
-                  <span> required.</span>
-                </span>
-              </p>
-            </div>
-          </div> -->
-          
-
-
-
           <div class="banner-left">
             <mat-icon class="banner-icon">rocket_launch</mat-icon>
             <div class="banner-text">
@@ -61,21 +36,16 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
               </p>
             </div>
           </div>
-
-          <!-- <div class="banner-actions">
+          
+          <div class="banner-actions">
             <button 
               mat-flat-button 
-              color="primary" 
-              class="get-started-button"
-              routerLink="/dashboard/get-started">
+              class="get-started-button video"
+              (click)="navigateToVideoGuides()">
               <mat-icon>play_circle</mat-icon>
-              Start Onboarding Guide
+              Watch Video Guide
             </button>
-            
-          </div> -->
 
-          
-           <div class="banner-actions">
             <button 
               mat-stroked-button 
               class="get-started-button"
@@ -84,7 +54,7 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
               <mat-icon>arrow_forward</mat-icon>
               Start Onboarding
             </button>
-           <!-- <button 
+             <!-- <button 
               mat-icon-button 
               class="close-button" 
               (click)="dismiss()"
@@ -95,14 +65,14 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
         </div>
         
         <!-- Progress Bar -->
-         @if (completionPercentage() > 0 && completionPercentage() < 100) {
+        @if (completionPercentage() > 0 && completionPercentage() < 100) {
           <div class="progress-container">
             <div class="progress-bar">
               <div class="progress-fill" [style.width.%]="completionPercentage()"></div>
             </div>
             <div class="progress-text">{{completionPercentage()}}% complete</div>
           </div>
-         }
+        }
       </div>
     }
   `,
@@ -151,6 +121,22 @@ export class ProfileNotifierBannerComponent implements OnInit {
     this.showBanner.set(percentage < 100 && (percentage > 0 || !this.isDismissed));
   }
 
+  navigateToVideoGuides(): void {
+    this.router.navigate(['/dashboard/get-started/onboarding'], { 
+      fragment: 'video-guides',
+      // queryParams: { 
+      //   source: 'profile_banner_video'
+      // },
+      state: { fromProfileBanner: true }
+    }).then(() => {
+      // Small delay to ensure the DOM is ready
+      setTimeout(() => {
+        this.scrollToFragment('video-guides');
+      }, 100);
+    });
+    this.scrollToTop();
+  }
+
   navigateToGetStarted(): void {
     this.router.navigate(['/dashboard/get-started/onboarding'], { 
       queryParams: { 
@@ -160,6 +146,19 @@ export class ProfileNotifierBannerComponent implements OnInit {
       state: { fromProfileBanner: true }
     });
     this.scrollToTop();
+  }
+
+  private scrollToFragment(fragment: string): void {
+    const element = document.getElementById(fragment);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      // If element not found, try to find by name or class
+      const elementByQuery = document.querySelector(`#${fragment}, [name="${fragment}"], .${fragment}`);
+      if (elementByQuery) {
+        elementByQuery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   }
 
   private getNextStep(): string {

@@ -4,6 +4,9 @@
 
 .form-step {
   animation: slideInUp 0.3s ease-out;
+   @include mobile {
+      margin: 1em 0;
+    }
 }
 
 .form-card {
@@ -78,5 +81,54 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.fee-highlight {
+  text-decoration: underline dashed #007bff; // Blue dashed line
+  cursor: help; // Changes cursor to a question mark/help icon
+  font-weight: 500;
+  color: #007bff;
+  
+  &:hover {
+    color: color-mix(in srgb, #007bff, white 20%);
+  }
+}
+
+.payout-notice {
+  grid-column: 1 / -1; // Spans full width
+  background-color: color-mix(in srgb, $background-color, black 7%);
+  border-left: 4px solid #007bff;
+  padding: 16px;
+  margin: 12px 0;
+  border-radius: 8px;
+  
+  display: flex;
+  align-items: center; // Vertical center for single/double lines
+  gap: 10px;
+  
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  mat-icon {
+    color: #007bff;
+    font-size: 24px; // Standard icon size
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0; // Prevents icon from squishing on small screens
+  }
+
+  span {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: $white;
+    flex: 1; // Allows text to take remaining space
+  }
+
+  strong {
+    color: #4caf50; // Brighter green for dark backgrounds
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
   }
 }

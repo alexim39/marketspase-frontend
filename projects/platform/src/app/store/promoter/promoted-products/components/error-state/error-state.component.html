@@ -1,0 +1,10 @@
+<!-- components/error-state/error-state.component.html -->
+<div class="error-container">
+  <span class="material-icons error-icon">error_outline</span>
+  <h3>Oops! Something went wrong</h3>
+  <p>{{ errorMessage() }}</p>
+  <button class="retry-btn" (click)="retry.emit()">
+    <span class="material-icons">refresh</span>
+    Try Again
+  </button>
+</div>

@@ -100,52 +100,103 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+   // Add pagination properties
+  currentPage = signal(1);
+  pageSize = signal(50);
+  totalItems = signal(0);
+  totalPages = signal(0);
+
   constructor() {
     // Initialize the data source with the correct filter predicate
     this.dataSource.filterPredicate = this.createFilter();
   }
 
-  ngOnInit(): void {
+   ngOnInit(): void {
     this.adminService.fetchAdmin();
     this.loadCampaigns();
 
-    // Subscribe to filter changes
-      this.filtersForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    // Subscribe to filter changes with debounce
+    this.filtersForm.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        // Optional: Add debounce to avoid too many API calls
+        // debounceTime(300)
+      )
       .subscribe(() => {
-        this.applyFormFilters();
-      })
+        // Reset to first page when filters change
+        this.currentPage.set(1);
+        this.loadCampaigns();
+      });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    ngAfterViewInit() {
+    // Connect paginator to the component
+    if (this.paginator) {
+      this.paginator.page.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+        this.currentPage.set(this.paginator.pageIndex + 1);
+        this.pageSize.set(this.paginator.pageSize);
+        this.loadCampaigns();
+      });
+    }
+    
+    // Connect sort if needed
+    if (this.sort) {
+      this.sort.sortChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+        this.currentPage.set(1);
+        this.loadCampaigns();
+      });
+    }
   }
+
 
   loadCampaigns(): void {
     this.isLoading.set(true);
     
-      this.campaignService.getAppCampaigns()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
+    const filters = this.filtersForm.value;
+    const page = this.currentPage();
+    const limit = this.pageSize();
+    
+    this.campaignService.getAppCampaigns(page, limit, filters)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Check if response has pagination data structure
+          if (response.pagination) {
+            // New structure with pagination
             this.dataSource.data = response.data;
-            this.calculateStats(response.data);
-            this.extractCategories(response.data);
-            this.isLoading.set(false);
+            this.totalItems.set(response.pagination.total);
+            this.totalPages.set(response.pagination.pages);
+            
+            // Update paginator if needed
+            if (this.paginator) {
+              this.paginator.length = response.pagination.total;
+              this.paginator.pageIndex = response.pagination.page - 1;
+              this.paginator.pageSize = response.pagination.limit;
+            }
           } else {
-            //console.error('Failed to fetch campaigns:', response.message);
-            this.snackBar.open('Failed to load campaigns', 'Close', { duration: 3000 });
-            this.isLoading.set(false);
+            // Fallback to old structure (no pagination)
+            this.dataSource.data = response.data;
+            this.totalItems.set(response.data.length);
+            if (this.paginator) {
+              this.paginator.length = response.data.length;
+            }
           }
-        },
-        error: (error) => {
-          //console.error('Error fetching campaigns:', error);
-          this.snackBar.open('Error loading campaigns', 'Close', { duration: 3000 });
+          
+          this.calculateStats(response.data);
+          this.extractCategories(response.data);
+          this.isLoading.set(false);
+        } else {
+          this.snackBar.open('Failed to load campaigns', 'Close', { duration: 3000 });
           this.isLoading.set(false);
         }
-      })
+      },
+      error: (error) => {
+        console.error('Error fetching campaigns:', error);
+        this.snackBar.open('Error loading campaigns', 'Close', { duration: 3000 });
+        this.isLoading.set(false);
+      }
+    });
   }
 
   calculateStats(campaigns: CampaignInterface[]): void {
@@ -169,12 +220,8 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   applyFormFilters() {
-    const filters = this.filtersForm.value;
-    this.dataSource.filter = JSON.stringify(filters);
-    
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    this.currentPage.set(1);
+    this.loadCampaigns();
   }
 
   createFilter(): (data: CampaignInterface, filter: string) => boolean {
@@ -204,11 +251,11 @@ export class CampaignMgtComponent implements OnInit, OnDestroy {
   }
 
   clearFilters(): void {
-    this.filtersForm.reset({
-      status: null,
-      category: null,
-      search: ''
-    });
+    this.filtersForm.get('status')?.reset([]);
+    this.filtersForm.get('category')?.reset([]);
+    this.filtersForm.get('search')?.reset('');
+    this.currentPage.set(1);
+    this.loadCampaigns();
   }
 
   viewCampaignDetails(campaign: CampaignInterface): void {

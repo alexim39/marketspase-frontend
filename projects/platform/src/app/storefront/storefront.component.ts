@@ -14,8 +14,8 @@ import {
 } from 'rxjs';
 
 // Child Components
-import { StoreHeaderComponent } from './components/store-header/store-header.component';
-import { StoreFooterComponent } from './components/store-footer/store-footer.component';
+import { StoreHeaderComponent } from './core/store-header/store-header.component';
+import { StoreFooterComponent } from './core/store-footer/store-footer.component';
 import { StoreControlsComponent } from './components/store-controls/store-controls.component';
 import { ProductGridCardComponent } from './components/product-grid-card/product-grid-card.component';
 import { ProductListItemComponent } from './components/product-list-item/product-list-item.component';
@@ -246,14 +246,14 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.filteredProducts().length;
   });
 
-  currentYear = new Date().getFullYear();
+  //currentYear = new Date().getFullYear();
 
   // Wishlist state
   wishlist = signal<Set<string>>(new Set());
   isFavorited = signal<boolean>(false);
 
   // Store analytics computed
-  storeStats = computed(() => {
+ /*  storeStats = computed(() => {
     const store = this.store();
     return {
       productCount: this.products().length,
@@ -261,7 +261,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       totalSales: store?.analytics?.totalSales || 0,
       conversionRate: store?.analytics?.conversionRate || 0
     };
-  });
+  }); */
 
   // Featured products
   featuredProducts = computed(() => {
@@ -462,7 +462,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       price: product.price,
       name: product.name,
       image: product.images?.[0]?.url,
-      storeId: product.store ?? ''
+      storeId: product.store._id ?? ''
     });
 
     this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
@@ -485,7 +485,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
         name: product.name,
         price: product.price,
         image: product.images?.[0]?.url,
-        storeId: product.store ?? '',
+        storeId: product.store._id ?? '',
         category: product.category
       });
       this.showNotification('Added to wishlist', 'success');

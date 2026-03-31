@@ -13,12 +13,12 @@
       <div class="header-main">
         <h1>
           <mat-icon class="withdrawal-icon">payments</mat-icon>
-          Payment Dashboard
+          {{ getRoleDisplayName() }} Transaction Dashboard
           <button mat-icon-button class="help" (click)="showDescription()" matTooltip="Help">
             <mat-icon>help_outline</mat-icon>
           </button>
         </h1>
-        <p>Manage your accounts and withdrawal requests</p>
+        <p>Manage your account's withdrawal requests</p>
       </div>
     </div>
 
@@ -27,7 +27,7 @@
         <div class="card-header">
           <h2>
             <mat-icon class="balance-icon">account_balance_wallet</mat-icon>
-            Account Balance
+            {{ getBalanceLabel() }}
           </h2>
           <button
             mat-icon-button
@@ -42,27 +42,18 @@
         <div class="balance-content">
           @if (!isBalanceLoading()) {
             <div class="balance-amount">
-            <!-- <span class="currency">₦</span> -->
-            <span class="amount">{{ availableBalance() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
-          </div>
-          }@else {
+              <span class="amount">{{ availableBalance() | currencyUtils:roleCurrency() }}</span>
+            </div>
+          } @else {
             <mat-spinner diameter="20"/>
           }
 
           <div class="balance-details">
-            <!-- <div class="detail-item">
-              <mat-icon class="detail-icon">arrow_upward</mat-icon>
-              <div class="detail-text">
-                <div class="detail-label">Available</div>
-                <div class="detail-value">{{ availableBalance() | currencyUtils:user()?.wallets?.promoter?.currency }}</div>
-              </div>
-            </div> -->
-
             <div class="detail-item">
               <mat-icon class="detail-icon">pending</mat-icon>
               <div class="detail-text">
-                <div class="detail-label">Pending</div>
-                <div class="detail-value">{{ pendingBalance() | currencyUtils:user()?.wallets?.promoter?.currency }}</div>
+                <div class="detail-label">{{ getPendingLabel() }}</div>
+                <div class="detail-value">{{ pendingBalance() | currencyUtils:roleCurrency() }}</div>
               </div>
             </div>
           </div>
@@ -72,6 +63,9 @@
       <mat-card class="withdrawal-card">
         <div class="card-header">
           <h2>Fund Withdrawal Request</h2>
+          <div class="fee-badge" [class.promoter-fee]="isPromoter()" [class.marketer-fee]="isMarketer()">
+            {{ getFeeDescription() }}
+          </div>
           <button mat-raised-button title="Manage Accounts" [matMenuTriggerFor]="accountMenu" aria-label="Manage Accounts">
             <mat-icon>manage_accounts</mat-icon> Manage Accounts
           </button>
@@ -101,7 +95,7 @@
                     </mat-select>
                   </mat-form-field>
                 </div>
-                }
+              }
 
               <form [formGroup]="withdrawForm" (ngSubmit)="onSubmit()">
                 <mat-form-field appearance="outline">
@@ -112,15 +106,15 @@
                         #searchInput
                         matInput
                         type="search"
-                        value="Search Banks"
+                        placeholder="Search Banks"
                         (input)="onSearchChange($event)"
                         class="search-banks"
                         (focus)="true" />
                     </div>
                     @for (bank of filteredBanks(); track bank) {
                       <mat-option [value]="bank.code">
-                      {{ bank.name }}
-                    </mat-option>
+                        {{ bank.name }}
+                      </mat-option>
                     }
                   </mat-select>
                   @if (withdrawForm.get('bank')?.hasError('required')) {
@@ -150,7 +144,7 @@
                     </mat-error>
                   }
                   @if (withdrawForm.get('accountNumber')?.hasError('pattern')) {
-                      <mat-error>
+                    <mat-error>
                       Account number must contain only numbers
                     </mat-error>
                   }
@@ -164,12 +158,12 @@
                     formControlName="accountName"
                     readonly
                     placeholder="Will be auto-filled when you enter account number" />
-                    @if (isResolvingAccount()) {
-                      <mat-progress-bar
-                        mode="indeterminate"
-                        style="height: 2px;"
-                      />
-                    }
+                  @if (isResolvingAccount()) {
+                    <mat-progress-bar
+                      mode="indeterminate"
+                      style="height: 2px;"
+                    />
+                  }
 
                   @if (withdrawForm.get('accountName')?.hasError('required')) {
                     <mat-error>
@@ -185,13 +179,18 @@
                     type="number"
                     formControlName="amount"
                     placeholder="Minimum NGN100"
-                    min="100" />
+                    min="100"
+                    [max]="maxWithdrawableAmount()" />
 
                   <!-- Hint only shows if there is a value and it's not empty -->
                   @if (withdrawForm.get('amount')?.value) {
                     <mat-hint class="hint">
-                      After a 20% service fee, 
-                      <strong>you'll take home: {{ payableAmount() | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
+                      @if (isPromoter()) {
+                        After 20% service fee, 
+                        <strong>you'll take home: {{ payableAmount() | currencyUtils:roleCurrency() }}</strong>
+                      } @else {
+                        <strong>No service fee applies. You'll receive the full amount: {{ payableAmount() | currencyUtils:roleCurrency() }}</strong>
+                      }
                     </mat-hint>
                   }
 
@@ -201,13 +200,13 @@
 
                   @if (withdrawForm.get('amount')?.hasError('min')) {
                     <mat-error>
-                      Minimum withdrawal amount is {{ 100 | currencyUtils:user()?.wallets?.promoter?.currency }}
+                      Minimum withdrawal amount is {{ MIN_WITHDRAWAL_AMOUNT | currencyUtils:roleCurrency() }}
                     </mat-error>
                   }
 
-                  @if (withdrawForm.get('amount')?.hasError('maxWithdrawal')) {
+                  @if (withdrawForm.get('amount')?.value && totalDeduction() > availableBalance()) {
                     <mat-error>
-                      Amount exceeds available balance. Your balance must cover the withdrawal amount plus service fee.
+                      Amount exceeds available {{ userRole() }} balance. Your balance must cover the withdrawal amount{{ isPromoter() ? ' plus service fee' : '' }}.
                     </mat-error>
                   }
                 </mat-form-field>
@@ -220,7 +219,7 @@
                     mat-flat-button
                     color="primary"
                     type="submit"
-                    [disabled]="withdrawForm.invalid || isSubmitting()">
+                    [disabled]="withdrawForm.invalid || isSubmitting() || totalDeduction() > availableBalance()">
                     <mat-icon>send</mat-icon>
                     {{ isSubmitting() ? 'Processing...' : 'Submit Request' }}
                   </button>
@@ -228,20 +227,10 @@
               </form>
             </div>
           </mat-expansion-panel>
-
-          </mat-accordion>
+        </mat-accordion>
       </mat-card>
     </div>
   </div>
-
-  <!-- <button
-    mat-flat-button
-    color="primary"
-    type="submit"
-    (click)="test()"
-  >
-    test
-  </button> -->
 
   <mat-menu #accountMenu="matMenu">
     <button mat-menu-item (click)="openSavedAccount()">

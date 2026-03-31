@@ -1,19 +1,30 @@
 // services/promoter-product.service.ts
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import { PromoterProduct, ProductFilter } from '../promoter/models/promoter-product.model';
+import { HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { ProductFilter } from '../promoter/models/promoter-product.model';
 import { ApiService } from '../../../../../shared-services/src/public-api';
+import { PaginatedResponse } from '../promoter/products-list/models/filter-state.model';
+import { Product } from '../models';
 
 @Injectable()
 export class PromoterProductService {
   private apiService = inject(ApiService);
   private apiUrl = 'stores/product';
 
-  getProducts(filters?: Partial<ProductFilter>): Observable<any> {
+  getPromoterStoreProducts(filters?: Partial<ProductFilter> & { page?: number; limit?: number }): Observable<PaginatedResponse<Product>> {
     let params = new HttpParams();
     
+    // Pagination params
+    if (filters?.page) {
+      params = params.set('page', filters.page.toString());
+    }
+    if (filters?.limit) {
+      params = params.set('limit', filters.limit.toString());
+    }
+    
+    // Filter params
     if (filters?.categories?.length) {
       params = params.set('categories', filters.categories.join(','));
     }
@@ -40,10 +51,27 @@ export class PromoterProductService {
         .set('sortDirection', filters.sortDirection || 'desc');
     }
 
-    return this.apiService.get<any>(`${this.apiUrl}/list`, params, undefined, true).pipe(
+    return this.apiService.get<PaginatedResponse<Product>>(`${this.apiUrl}/list/promoter`, params, undefined, true).pipe(
+      map(response => {
+        if (!response || !response.data) {
+          return {
+            data: [],
+            count: 0,
+            total: 0,
+            totalPages: 0,
+            currentPage: 1,
+            filters: {
+              categories: [],
+              priceRange: { minPrice: 0, maxPrice: 0, avgPrice: 0 },
+              commissionRange: { minCommission: 0, maxCommission: 0, avgCommission: 0 }
+            }
+          };
+        }
+        return response;
+      }),
       catchError(error => {
         console.error('Error fetching promoter products:', error);
-        return of([]);
+        throw error;
       })
     );
   }
@@ -52,9 +80,9 @@ export class PromoterProductService {
     return this.apiService.get<any>(`${this.apiUrl}/${productId}`, new HttpParams().set('promoterId', promoterId), undefined, true);
   }
 
-  getRelatedProducts(productId: string, category: string): Observable<PromoterProduct> {
-    return this.apiService.get<PromoterProduct>(`${this.apiUrl}/${productId}`, undefined, undefined, true);
-  }
+  // getRelatedProducts(productId: string, category: string): Observable<PromoterProduct> {
+  //   return this.apiService.get<PromoterProduct>(`${this.apiUrl}/${productId}`, undefined, undefined, true);
+  // }
 
   trackView(productId: string, promoterId?: string): Observable<void> {
     return this.apiService.post<void>(`${this.apiUrl}/${productId}/view`, { promoterId }, undefined, true);

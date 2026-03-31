@@ -49,32 +49,26 @@
   text-transform: uppercase;
 
   &.status-active {
-    // UPDATED: Use success-color with lightened background
     background: rgba($success-color, 0.1);
     color: $success-color;
   }
   &.status-paused {
-    // UPDATED: Use warning-color with lightened background
     background: rgba($warning-color, 0.1);
     color: $warning-color;
   }
   &.status-draft {
-    // UPDATED: Use secondary-color with lightened background
     background: rgba($secondary-color, 0.1);
     color: $secondary-color;
   }
   &.status-completed {
-    // UPDATED: Use success-color with lightened background
     background: rgba($success-color, 0.1);
     color: $success-color;
   }
   &.status-expired {
-    // UPDATED: Use error-color with lightened background
     background: rgba($error-color, 0.1);
     color: $error-color;
   }
   &.status-pending {
-    // UPDATED: Use info-color with lightened background
     background: rgba($info-color, 0.1);
     color: $info-color;
   }

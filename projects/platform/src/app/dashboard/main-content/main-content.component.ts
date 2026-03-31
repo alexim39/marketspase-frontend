@@ -647,7 +647,8 @@ export class DashboardMainContainer {
 
   // Handle view post navigation
   onViewPost(postId: string): void {
-    this.router.navigate(['/dashboard/community/post', postId]);
+    this.router.navigate(['/dashboard/community/feeds']);
+    // this.router.navigate(['/dashboard/community/feeds', postId]);
   }
 
   // Handle hashtag click navigation

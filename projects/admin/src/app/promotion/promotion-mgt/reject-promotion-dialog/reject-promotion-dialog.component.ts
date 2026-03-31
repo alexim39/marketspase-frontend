@@ -34,13 +34,27 @@ import { Promotion } from '../submitted-promotion-list/submitted-promotion-list.
           <mat-label>Select Rejection Reason</mat-label>
           <mat-select [(ngModel)]="selectedReason" (selectionChange)="onReasonSelected()">
             <mat-option [value]="''">-- Select a reason --</mat-option>
-            <mat-option value="incomplete proof submission">Incomplete proof submission</mat-option>
-            <mat-option value="inconsistent timeline">Inconsistent timeline</mat-option>
-            <mat-option value="inconsistent view counts">Inconsistent view counts</mat-option>
-            <mat-option value="inconsistent promotion ID">Inconsistent promotion ID</mat-option>
-            <mat-option value="unrecognized image submitted as proof">Unrecognized image submitted as proof</mat-option>
-            <mat-option value="suspicious image submitted as proof">Suspicious image submitted as proof</mat-option>
-            <mat-option value="policy violation">Policy violation</mat-option>
+            <mat-option value="Incomplete proof submission. Ensure you provide all three required types of screenshots.">
+              Incomplete proof submission. Ensure you provide all three required types of screenshots.
+            </mat-option>
+            <mat-option value="Inconsistent timeline detected. Ensure you post the campaign no more than 15 minutes after accepting it.">
+              Inconsistent timeline detected. Ensure you post the campaign no more than 15 minutes after accepting it.
+            </mat-option>
+            <mat-option value="Inconsistent view counts. Your screenshot view count does not match the reported data.">
+              Inconsistent view counts. Your screenshot view count does not match the reported data.
+            </mat-option>
+            <mat-option value="Inconsistent promotion ID. Your screenshot promotion ID does not match the submitted details.">
+              Inconsistent promotion ID. Your screenshot promotion ID does not match the submitted details.
+            </mat-option>
+            <mat-option value="Unrecognized image submitted as proof. Please provide only valid screenshot evidence. Submitting incorrect or manipulated proof may result in account suspension.">
+              Unrecognized image submitted as proof. Please provide only valid screenshot evidence. Submitting incorrect or manipulated proof may result in account suspension.
+            </mat-option>
+            <mat-option value="Suspicious or manipulated image submitted as proof. Continued violations may result in permanent account suspension.">
+              Suspicious or manipulated image submitted as proof. Continued violations may result in permanent account suspension.
+            </mat-option>
+            <mat-option value="Policy violation detected. Your submitted proof appears to breach our promotion guidelines and may result in permanent account suspension.">
+              Policy violation detected. Your submitted proof appears to breach our promotion guidelines and may result in permanent account suspension.
+            </mat-option>
             <mat-option value="other">Other (specify below)</mat-option>
           </mat-select>
         </mat-form-field>
@@ -70,15 +84,15 @@ import { Promotion } from '../submitted-promotion-list/submitted-promotion-list.
 export class RejectPromotionDialogComponent {
   rejectionReason = '';
   selectedReason = '';
-  readonly predefinedReasons = [
-    'incomplete proof submission',
-    'inconsistent timeline',
-    'inconsistent view counts',
-    'inconsistent promotion ID',
-    'unrecognized image submitted as proof',
-    'suspicious image submitted as proof',
-    'policy violation'
-  ];
+  // readonly predefinedReasons = [
+  //   'incomplete proof submission',
+  //   'inconsistent timeline',
+  //   'inconsistent view counts',
+  //   'inconsistent promotion ID',
+  //   'unrecognized image submitted as proof',
+  //   'suspicious image submitted as proof',
+  //   'policy violation'
+  // ];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: {

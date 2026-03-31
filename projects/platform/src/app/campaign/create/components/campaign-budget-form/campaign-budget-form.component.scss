@@ -227,3 +227,58 @@
     font-size: 0.85rem;
   }
 }
+
+
+.insufficient-funds-alert {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin: 16px;
+  //background-color: #fff5f5; // Light red warning background
+  background-color: color-mix(in srgb, $background-color, red 5%);
+  border: 1px solid #feb2b2;
+  border-radius: 12px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: #e53e3e; // Warning red
+    margin-bottom: 12px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: $text-primary;
+    margin-bottom: 20px;
+  }
+
+  // Mobile-first button styling
+  button {
+    width: 100%;       // Full width for easy mobile tapping
+    margin-bottom: 12px;
+    padding: 12px;   // Larger touch target
+    border-radius: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Optional: Ensure it only applies on smaller screens
+@media (min-width: 768px) {
+  .insufficient-funds-alert {
+    flex-direction: row; // Switch to row for tablets/desktop
+    flex-wrap: wrap;
+    
+    button {
+      width: auto;
+      margin: 8px;
+    }
+  }
+}

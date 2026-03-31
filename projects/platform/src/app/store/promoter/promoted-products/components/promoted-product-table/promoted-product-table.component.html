@@ -1,0 +1,160 @@
+<!-- promoted-products/components/promoted-product-table/promoted-product-table.component.html -->
+<div class="table-container">
+  <!-- Bulk Actions -->
+  @if (selectedRows().size > 0) {
+    <div class="bulk-actions">
+      <span class="selected-count">{{ selectedRows().size }} selected</span>
+      <div class="bulk-buttons">
+        <button class="bulk-btn" (click)="share.emit()" matTooltip="Share selected">
+          <span class="material-icons">share</span>
+        </button>
+        <button class="bulk-btn" (click)="deactivate.emit()" matTooltip="Deactivate selected">
+          <span class="material-icons">pause</span>
+        </button>
+        <!-- <button class="bulk-btn" (click)="selectedRows.set(new Set())" matTooltip="Clear selection">
+          <span class="material-icons">clear</span>
+        </button> -->
+      </div>
+    </div>
+  }
+
+  <table class="products-table">
+    <thead>
+      <tr>
+        <th class="checkbox-col">
+          <input 
+            type="checkbox" 
+            [checked]="allSelected"
+            [indeterminate]="someSelected"
+            (click)="toggleAll($event)"
+          />
+        </th>
+        <th (click)="sort('productName')" class="sortable">
+          Product
+          <span class="material-icons sort-icon">{{ getSortIcon('productName') }}</span>
+        </th>
+        <th (click)="sort('trackingCode')" class="sortable">
+          Tracking Code
+          <span class="material-icons sort-icon">{{ getSortIcon('trackingCode') }}</span>
+        </th>
+        <th (click)="sort('views')" class="sortable numeric">
+          Views
+          <span class="material-icons sort-icon">{{ getSortIcon('views') }}</span>
+        </th>
+        <th (click)="sort('clicks')" class="sortable numeric">
+          Clicks
+          <span class="material-icons sort-icon">{{ getSortIcon('clicks') }}</span>
+        </th>
+        <th (click)="sort('conversions')" class="sortable numeric">
+          Sales
+          <span class="material-icons sort-icon">{{ getSortIcon('conversions') }}</span>
+        </th>
+        <th (click)="sort('clickThroughRate')" class="sortable numeric">
+          CTR
+          <span class="material-icons sort-icon">{{ getSortIcon('clickThroughRate') }}</span>
+        </th>
+        <th (click)="sort('conversionRate')" class="sortable numeric">
+          CR
+          <span class="material-icons sort-icon">{{ getSortIcon('conversionRate') }}</span>
+        </th>
+        <th (click)="sort('earnings')" class="sortable numeric">
+          Earnings
+          <span class="material-icons sort-icon">{{ getSortIcon('earnings') }}</span>
+        </th>
+        <th (click)="sort('performance')" class="sortable">
+          Performance
+          <span class="material-icons sort-icon">{{ getSortIcon('performance') }}</span>
+        </th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of sortedProducts; track product.trackingId) {
+        <tr 
+          (click)="onRowClick(product)"
+          [class.selected]="selectedRows().has(product.trackingId)"
+          [class.inactive]="!product.isActive"
+        >
+          <td class="checkbox-col" (click)="$event.stopPropagation()">
+            <input 
+              type="checkbox" 
+              [checked]="selectedRows().has(product.trackingId)"
+              (change)="toggleRow(product.trackingId, $event)"
+            />
+          </td>
+          
+          <td class="product-cell">
+            <span class="product-name">{{ product.productName }}</span>
+          </td>
+          
+          <td class="code-cell">
+            <span class="tracking-code">{{ product.uniqueCode }}</span>
+            <button class="copy-btn" (click)="copyLink.emit(product); $event.stopPropagation()" matTooltip="Copy link">
+              <span class="material-icons">content_copy</span>
+            </button>
+          </td>
+          
+          <td class="numeric">{{ formatNumber(product.views) }}</td>
+          <td class="numeric">{{ formatNumber(product.clicks) }}</td>
+          <td class="numeric">{{ formatNumber(product.conversions) }}</td>
+          
+          <td class="numeric">
+            <span class="rate" [class.good]="product.clickThroughRate > 5">
+              {{ product.clickThroughRate.toFixed(1) }}%
+            </span>
+          </td>
+          
+          <td class="numeric">
+            <span class="rate" [class.good]="product.conversionRate > 2">
+              {{ product.conversionRate.toFixed(1) }}%
+            </span>
+          </td>
+          
+          <td class="numeric earnings">{{ formatCurrency(product.earnings) }}</td>
+          
+          <td>
+            <span class="performance-badge" [class]="product.performance">
+              {{ product.performance | titlecase }}
+            </span>
+          </td>
+          
+          <td>
+            <span class="status-indicator" [class.active]="product.isActive"></span>
+          </td>
+          
+          <td class="actions-cell" (click)="$event.stopPropagation()">
+            <button class="action-btn" (click)="viewDetails.emit(product)" matTooltip="View Details">
+              <span class="material-icons">visibility</span>
+            </button>
+            <button class="action-btn" (click)="viewStats.emit(product)" matTooltip="View Statistics">
+                <span class="material-icons">analytics</span>  <!-- New stats button -->
+            </button>
+            <button class="action-btn" (click)="share.emit(product)" matTooltip="Share">
+              <span class="material-icons">share</span>
+            </button>
+            <button class="action-btn" (click)="edit.emit(product)" matTooltip="Edit">
+              <span class="material-icons">edit</span>
+            </button>
+            <button 
+              class="action-btn" 
+              (click)="deactivate.emit(product)" 
+              [matTooltip]="product.isActive ? 'Deactivate' : 'Activate'"
+            >
+              <span class="material-icons">{{ product.isActive ? 'pause' : 'play_arrow' }}</span>
+            </button>
+          </td>
+        </tr>
+      }
+
+      @if (products.length === 0) {
+        <tr class="empty-row">
+          <td colspan="12" class="empty-state">
+            <span class="material-icons">inbox</span>
+            <p>No products to display</p>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

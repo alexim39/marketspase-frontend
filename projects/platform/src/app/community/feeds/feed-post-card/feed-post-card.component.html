@@ -149,6 +149,45 @@
       @if (media.length > 0) {
         <div class="media-preview">
           @if (media[0].type === 'image') {
+            <img [src]="media[0].url" 
+                alt="Post media" 
+                class="media-image" 
+                loading="lazy"
+                (click)="openImageViewer(media[0])">
+          }
+          @if (media[0].type === 'video') {
+            <video 
+              [src]="media[0].url" 
+              [poster]="media[0].thumbnail || ''"
+              controls
+              preload="metadata"
+              class="media-video"
+              (click)="$event.stopPropagation()">
+              Your browser does not support the video tag.
+            </video>
+          }
+          @if (media[0].type === 'link') {
+            <div class="link-preview" (click)="openLink(media[0].url)">
+              <mat-icon>link</mat-icon>
+              <span class="link-url">{{ media[0].url }}</span>
+              <mat-icon class="open-link">open_in_new</mat-icon>
+            </div>
+          }
+          
+          <!-- Show more images indicator -->
+          @if (media.length > 1) {
+            <div class="more-images" (click)="openImageViewer(media[0])">
+              <span>+{{ media.length - 1 }} more</span>
+            </div>
+          }
+        </div>
+      }
+    }
+
+   <!--  @if (post().media; as media) {
+      @if (media.length > 0) {
+        <div class="media-preview">
+          @if (media[0].type === 'image') {
             <img [src]="media[0].url" alt="Post media" class="media-image" loading="lazy">
           }
           @if (media[0].type === 'video') {
@@ -171,7 +210,7 @@
           }
         </div>
       }
-    }
+    } -->
 
   </mat-card-content>
   

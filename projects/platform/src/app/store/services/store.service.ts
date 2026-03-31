@@ -1,6 +1,6 @@
 // services/store.service.ts
 import { Injectable, inject, signal } from '@angular/core';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { Store, StoreAnalytics } from '../models/store.model';
 import { Product, StorePromotion, PerformanceMetric, CreateStoreRequest, CreateProductRequest, UpdateProductRequest } from '../models';
 import { ApiService } from '../../../../../shared-services/src/public-api';
@@ -40,6 +40,11 @@ export class StoreService {
     this.performanceMetrics.set([]);
   }
 
+  // Create this helper
+  setLoading(value: boolean) {
+    this.loading.set(value);
+  }
+
   // Set current store
   setCurrentStore(store: Store | null): void {
     this.currentStore.set(store);
@@ -58,7 +63,7 @@ export class StoreService {
       }
     });
 
-    return this.apiService.post<Store>(this.apiUrl, formData).pipe(
+    return this.apiService.post<Store>(`${this.apiUrl}/store`, formData).pipe(
       tap({
         next: (store) => {
           this.stores.update(stores => [...stores, store]);
@@ -72,26 +77,57 @@ export class StoreService {
   }
 
   // Get Stores
-  getStores(userId: string): Observable<any> {
-  // getStores(userId: string): Observable<Store[]> {
+  getStores(userId: string): Observable<Store[]> {
     this.loading.set(true);
-    return this.apiService.get<Store[]>(`${this.apiUrl}?userId=${userId}`).pipe(
+
+    return this.apiService.get<any>(`${this.apiUrl}/store?userId=${userId}`).pipe(
+      map((res) => {
+        // 1. Extract the data. Use optional chaining and fallbacks for safety.
+        const stores = res?.data || res?.stores || (Array.isArray(res) ? res : []);
+        return stores as Store[];
+      }),
       tap({
-        next: (storesData) => {
-          this.stores.set(storesData);
+        next: (stores: Store[]) => {
+          // 2. Update the Signal with the mapped result
+          this.stores.set(stores);
           this.loading.set(false);
         },
-        error: () => {
+        error: (err) => {
+          console.error('Error fetching stores:', err);
           this.loading.set(false);
         }
       })
     );
   }
 
+  /* getStores(userId: string): Observable<Store[]> {
+    this.loading.set(true);
+
+    return this.apiService.get<any>(`${this.apiUrl}?userId=${userId}`).pipe(
+      map((res) => {
+        console.log('getStores response:', res);
+        // Accept common API shapes:
+        const list = Array.isArray(res) ? res
+          : Array.isArray(res?.stores) ? res.stores
+          : Array.isArray(res?.data) ? res.data
+          : [];
+
+        return list as Store[];
+      }),
+      tap({
+        next: (storesData) => {
+          this.stores.set(storesData);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false),
+      })
+    );
+  } */
+
   // Get Store by ID
   getStoreById(storeId: string): Observable<any> {
     this.loading.set(true);
-    return this.apiService.get<any>(`${this.apiUrl}/${storeId}`).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/store/${storeId}`).pipe(
       tap({
         next: (store) => {
           this.currentStore.set(store.data);
@@ -106,7 +142,7 @@ export class StoreService {
 
   // Update Store
   updateStore(storeId: string, formData: FormData): Observable<any> {
-    return this.apiService.patch<any>(`${this.apiUrl}/${storeId}`, formData).pipe(
+    return this.apiService.patch<any>(`${this.apiUrl}/store/${storeId}`, formData).pipe(
       tap({
         next: (response) => {
           const updatedStore = response.data; // Assuming response has { success: true, data: store }
@@ -139,7 +175,7 @@ export class StoreService {
   // Set Default Store
   setDefaultStore(store: Store): Observable<any> {
     return this.apiService.patch<Store>(
-      `${this.apiUrl}/${store._id}/set-default`, 
+      `${this.apiUrl}/store/${store._id}/set-default`, 
       {userId: store.owner} 
     ).pipe(
       tap({
@@ -156,7 +192,7 @@ export class StoreService {
   // Store Products (delegates to ProductService via component, but maintains local state)
   getStoreProducts(storeId: string, page: number = 1, limit: number = 20): Observable<any> {
     this.loading.set(true);
-    return this.apiService.get<any>(`${this.apiUrl}/${storeId}/products`).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/store/${storeId}/products`).pipe(
       tap({
         next: (respsonse) => {
           this.storeProducts.set(respsonse.products);
@@ -173,7 +209,7 @@ export class StoreService {
   getProduct(storeId: string, productId: string): Observable<any> {
     this.loading.set(true);
     
-    return this.apiService.get<any>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/store/${storeId}/products/${productId}`).pipe(
       tap({
         next: () => {
           this.loading.set(false);
@@ -182,6 +218,29 @@ export class StoreService {
           this.loading.set(false);
           console.error('Failed to get product:', error);
         }
+      })
+    );
+  }
+
+
+  /**
+   * Permanently delete store (use with caution)
+   */
+  permanentDeleteStore(storeId: string, userId: string): Observable<{ success: boolean; message: string }> {
+    this.loading.set(true);
+    
+    return this.apiService.delete<{ success: boolean; message: string }>(
+      `${this.apiUrl}/store/${storeId}/${userId}/permanent`,
+      undefined,
+      undefined,
+      true
+    ).pipe(
+      tap({
+        next: () => {
+          this.stores.update(stores => stores.filter(s => s._id !== storeId));
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
       })
     );
   }
@@ -363,24 +422,6 @@ export class StoreService {
   // }
 
 
-  // deleteProduct(storeId: string, productId: string): Observable<void> {
-  //   this.loading.set(true);
-    
-  //   return this.apiService.delete<void>(`${this.apiUrl}/${storeId}/products/${productId}`).pipe(
-  //     tap({
-  //       next: () => {
-  //         this.storeProducts.update(products =>
-  //           products.filter(p => p._id !== productId)
-  //         );
-  //         this.loading.set(false);
-  //       },
-  //       error: (error) => {
-  //         this.loading.set(false);
-  //         console.error('Failed to delete product:', error);
-  //       }
-  //     })
-  //   );
-  // }
 
  
 

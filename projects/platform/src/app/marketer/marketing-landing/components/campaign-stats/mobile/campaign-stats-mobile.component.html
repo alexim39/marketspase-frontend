@@ -45,12 +45,13 @@
     </div>
     <div class="summary-divider"></div>
     <div class="summary-item">
-      <span class="summary-value">{{stats.totalViews || 0}}</span>
+      <span class="summary-value">{{formatNumber(stats.totalViews || 0)}}</span>
       <span class="summary-label">Views</span>
     </div>
     <div class="summary-divider"></div>
     <div class="summary-item">
-      <span class="summary-value">{{formatCurrency(stats.totalSpent || 0)}}</span>
+      <span class="summary-value">{{stats.totalSpent || 0 | currencyUtils:user?.wallets?.marketer?.currency}}</span>
+      <!-- <span class="summary-value">{{formatCurrency(stats.totalSpent || 0)}}</span> -->
       <span class="summary-label">Spent</span>
     </div>
   </div>

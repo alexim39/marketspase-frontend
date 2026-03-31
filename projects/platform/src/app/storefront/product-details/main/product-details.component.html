@@ -1,0 +1,228 @@
+<!-- Header -->
+<app-store-header
+  [store]="store()"
+  (contactViaWhatsApp)="contactViaWhatsApp()"
+/>
+
+<main>
+  <div class="product-details-page">
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading product details...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error() && !loading()) {
+      <div class="error-container">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2>Oops! Something went wrong</h2>
+        <p>{{ error() }}</p>
+        <div class="error-actions">
+          <button mat-raised-button color="primary" (click)="loadProductData()">
+            <mat-icon>refresh</mat-icon>
+            Try Again
+          </button>
+          <button mat-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+            Go Back
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Product Content -->
+    @if (!loading() && !error() && product()) {
+      <!-- Sticky Header (Mobile) -->
+      <div class="sticky-header" [class.show]="isScrolled()">
+        <button mat-icon-button class="back-btn" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="sticky-title">
+          <span class="product-name">{{ product()!.name | truncate:40 }}</span>
+          <span class="product-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
+        </div>
+        <div class="sticky-actions">
+          <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
+            <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+          </button>
+          <button mat-icon-button (click)="shareProduct()">
+            <mat-icon>share</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Product Section -->
+      <div class="product-main">
+        <div class="container">
+          <!-- Breadcrumb Navigation -->
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a [routerLink]="['/store', store()?.storeLink]" class="breadcrumb-link">
+              Back to Store
+              <mat-icon>arrow_back</mat-icon>
+            </a>
+            <span class="separator">/</span>
+            <span class="current">{{ product()!.name | truncate:30 }}</span>
+          </nav>
+
+          <!-- Product Grid Layout -->
+          <div class="product-grid">
+            <!-- LEFT COLUMN: Image Gallery -->
+            <app-product-gallery
+              [images]="images()"
+              [productName]="product()?.name || ''"
+              [hasDiscount]="hasDiscount()"
+              [discountPercentage]="discountPercentage()"
+              [isFeatured]="product()?.isFeatured || false"
+              [stockStatus]="stockStatus()"
+            />
+
+            <!-- RIGHT COLUMN: Product Info -->
+           <app-product-info
+              [product]="product()"
+              [store]="store()"
+              [variants]="variants()"
+              [attributes]="attributes()"
+              [selectedVariant]="selectedVariant()"
+              [quantity]="quantity()"
+              [maxQuantity]="maxQuantity()"
+              [canAddToCart]="canAddToCart()"
+              [isInWishlist]="isInWishlist()"
+              [userCurrency]="user()?.wallets?.promoter?.currency || 'NGN'"
+              [userRole]="user()?.role || ''"
+              [activePromotion]="activePromotion()"
+              (storeClick)="viewStore()"
+              (reviewsClick)="scrollToReviews()"
+              (variantSelect)="selectVariant($event)"
+              (variantByAttribute)="selectVariantByAttribute($event)"
+              (quantityChange)="onQuantityChange($event)"
+              (addToCart)="addToCart()"
+              (buyNow)="buyNow()"
+              (toggleWishlist)="toggleWishlist()"
+              (shareProduct)="shareProduct()"
+              (contactStore)="contactStore()"
+              (promoteProduct)="shareProductWithTracking()"
+              (viewPromotionStats)="viewPromotionStats($event)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Details Tabs Section -->
+      <div class="product-tabs-section">
+        <div class="container">
+          <app-product-tabs
+            [product]="product()"
+            [selectedTab]="selectedTab()"
+            (selectedTabChange)="selectedTab.set($event)"
+          >
+            <div specifications>
+              <app-product-specifications [product]="product()" />
+            </div>
+            
+            <div reviews>
+              <app-product-reviews
+                [reviews]="reviews()"
+                [averageRating]="averageRating()"
+                [ratingCount]="ratingCount()"
+                [loadingReviews]="loadingReviews()"
+                [hasMoreReviews]="hasMoreReviews()"
+                (loadMore)="loadMoreReviews()"
+                (writeReview)="writeReview()"
+              />
+            </div>
+            
+            <div shipping>
+              <div class="shipping-content">
+                <div class="info-card">
+                  <div class="info-card-header">
+                    <mat-icon class="info-icon">local_shipping</mat-icon>
+                    <h3>Shipping Information</h3>
+                  </div>
+                  <div class="info-card-content">
+                    <p><strong>Processing Time:</strong> 1-2 business days</p>
+                    <p><strong>Shipping Methods:</strong></p>
+                    <ul>
+                      <li>Standard Shipping (3-5 business days) - Free on orders over $50</li>
+                      <li>Express Shipping (1-2 business days) - $9.99</li>
+                      <li>International Shipping (7-14 business days) - Calculated at checkout</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="info-card">
+                  <div class="info-card-header">
+                    <mat-icon class="info-icon">assignment_return</mat-icon>
+                    <h3>Returns & Refunds</h3>
+                  </div>
+                  <div class="info-card-content">
+                    <p><strong>Return Policy:</strong> 30-day return window</p>
+                    <p><strong>Conditions:</strong></p>
+                    <ul>
+                      <li>Items must be unused and in original packaging</li>
+                      <li>Customer responsible for return shipping costs</li>
+                      <li>Refunds processed within 5-7 business days</li>
+                    </ul>
+                    <a href="#" class="policy-link">View Full Return Policy</a>
+                  </div>
+                </div>
+
+                <div class="info-card">
+                  <div class="info-card-header">
+                    <mat-icon class="info-icon">support_agent</mat-icon>
+                    <h3>Customer Support</h3>
+                  </div>
+                  <div class="info-card-content">
+                    <p>Have questions about this product? Contact our support team:</p>
+                    <div class="support-options">
+                      <button mat-stroked-button (click)="contactStore()">
+                        <mat-icon>chat</mat-icon>
+                        Chat with Store
+                      </button>
+                      <button mat-stroked-button>
+                        <mat-icon>email</mat-icon>
+                        Email Support
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </app-product-tabs>
+        </div>
+      </div>
+
+      <!-- Related Products Section -->
+      @if (relatedProducts().length > 0) {
+        <app-related-products
+          [products]="relatedProducts()"
+          [storeLink]="store()?.storeLink || ''"
+          [userCurrency]="user()?.wallets?.promoter?.currency || 'NGN'"
+          [user]="user()"
+        />
+      }
+
+      <!-- Floating Action Buttons (Mobile) -->
+      <div class="mobile-fab" [class.hide]="isScrolled()">
+        <button mat-fab color="primary" class="fab-cart" (click)="addToCart()" [disabled]="!canAddToCart()">
+          <mat-icon>shopping_cart</mat-icon>
+        </button>
+      </div>
+
+      <!-- Back to Top Button -->
+      @if (isScrolled()) {
+        <button mat-fab class="back-to-top" (click)="scrollToTop()">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </button>
+      }
+    }
+  </div>
+</main>
+
+<!-- Footer -->
+<app-store-footer
+  [store]="store()"
+  (contactViaWhatsApp)="contactViaWhatsApp()"
+/>

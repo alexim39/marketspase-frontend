@@ -8,7 +8,7 @@ import { Store } from '../../../models/store.model';
 import { Product } from '../../../models';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { MarketerProductListManagementComponent } from './marketer-product-list-management.component';
+import { MarketerProductListManagementComponent } from './marketer-product-list-management/marketer-product-list-management.component';
 import { MatIconModule } from '@angular/material/icon';
 import { StoreService } from '../../../services/store.service';
 

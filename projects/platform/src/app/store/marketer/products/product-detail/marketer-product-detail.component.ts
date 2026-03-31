@@ -1,5 +1,5 @@
 // product-detail.component.ts
-import { Component, signal, inject, OnInit, TemplateRef } from '@angular/core';
+import { Component, signal, inject, OnInit, TemplateRef, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -19,6 +19,10 @@ import { StoreService } from '../../../services/store.service';
 import { Product } from '../../../models';
 import { DialogService } from '../../../shared/services/dialog.service';
 import { TruncatePipe } from '../../../shared';
+import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserService } from '../../../../common/services/user.service';
+import { ProductService } from '../product.service';
+import { ProductImageViewerComponent } from './product-image-viewer/product-image-viewer.component';
 
 interface StockStatus {
   text: string;
@@ -37,7 +41,7 @@ interface Review {
 @Component({
   selector: 'app-marketer-product-detail',
   standalone: true,
-  providers: [StoreService],
+  providers: [StoreService, ProductService, DialogService],
   imports: [
     CommonModule,
     RouterModule,
@@ -52,6 +56,8 @@ interface Review {
     MatDividerModule,
     MatDialogModule,
     TruncatePipe,
+    CurrencyUtilsPipe,
+    
   ],
   templateUrl: './marketer-product-detail.component.html',
   styleUrls: ['./marketer-product-detail.component.scss']
@@ -62,7 +68,11 @@ export class MarketerProductDetailComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private storeService = inject(StoreService);
+  private productService = inject(ProductService);
   private dialogService = inject(DialogService);
+
+  private userService: UserService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
 
   // Product data
   product: Product | null = null;
@@ -75,6 +85,43 @@ export class MarketerProductDetailComponent implements OnInit {
   // Signals
   loading = signal<boolean>(true);
   error = signal<boolean>(false);
+
+  // Time range selection
+  selectedRange: string = '30d';
+
+  setTimeRange(range: string): void {
+    this.selectedRange = range;
+    // Here you would fetch new analytics data based on the selected range
+    this.loadAnalyticsData(range);
+  }
+
+  // Format numbers with K/M suffixes
+  formatNumber(value: number): string {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    }
+    if (value >= 1000) {
+      return (value / 1000).toFixed(1) + 'K';
+    }
+    return value.toString();
+  }
+
+  // Format revenue with currency
+  formatRevenue(value: number, currency: string = 'NGN'): string {
+    if (value >= 1000000) {
+      return currency + ' ' + (value / 1000000).toFixed(1) + 'M';
+    }
+    if (value >= 1000) {
+      return currency + ' ' + (value / 1000).toFixed(1) + 'K';
+    }
+    return currency + ' ' + value.toLocaleString();
+  }
+
+  // Load analytics data (implement based on your API)
+  loadAnalyticsData(range: string): void {
+    // TODO: Implement API call to fetch analytics data for the selected range
+    console.log('Loading analytics for range:', range);
+  }
 
   ngOnInit(): void {
     this.loadProduct();
@@ -117,9 +164,11 @@ export class MarketerProductDetailComponent implements OnInit {
   // Product actions
   editProduct(): void {
     if (this.product) {
-      this.router.navigate(['/dashboard/stores', this.storeId, 'products', this.productId, 'edit']);
+      this.router.navigate(['/dashboard/stores', this.storeId, 'products', 'edit', this.product._id]);
     }
   }
+
+
 
   async deleteProduct(): Promise<void> {
     if (!this.product) return;
@@ -132,23 +181,23 @@ export class MarketerProductDetailComponent implements OnInit {
       try {
         this.loading.set(true);
         // Call your API to delete product
-        // this.storeService.deleteProduct(this.storeId, this.productId).subscribe({
-        //   next: () => {
-        //     this.snackBar.open('Product deleted successfully', 'OK', { 
-        //       duration: 3000,
-        //       panelClass: ['success-snackbar']
-        //     });
-        //     this.goBack();
-        //   },
-        //   error: (error) => {
-        //     console.error('Failed to delete product:', error);
-        //     this.snackBar.open('Failed to delete product', 'OK', { 
-        //       duration: 5000,
-        //       panelClass: ['error-snackbar']
-        //     });
-        //     this.loading.set(false);
-        //   }
-        // });
+        this.productService.deleteProduct(this.storeId, this.user()?._id ?? '', this.productId).subscribe({
+          next: () => {
+            this.snackBar.open('Product deleted successfully', 'OK', { 
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
+            this.goBack();
+          },
+          error: (error) => {
+            console.error('Failed to delete product:', error);
+            this.snackBar.open('Failed to delete product', 'OK', { 
+              duration: 5000,
+              panelClass: ['error-snackbar']
+            });
+            this.loading.set(false);
+          }
+        });
       } catch (error) {
         this.loading.set(false);
       }
@@ -200,15 +249,15 @@ export class MarketerProductDetailComponent implements OnInit {
     }
   }
 
-  duplicateProduct(): void {
-    this.snackBar.open('Duplicating product...', 'OK', { duration: 2000 });
-    // Implement duplication logic
-  }
+  // duplicateProduct(): void {
+  //   this.snackBar.open('Duplicating product...', 'OK', { duration: 2000 });
+  //   // Implement duplication logic
+  // }
 
-  exportProductData(): void {
-    this.snackBar.open('Exporting product data...', 'OK', { duration: 2000 });
-    // Implement export logic
-  }
+  // exportProductData(): void {
+  //   this.snackBar.open('Exporting product data...', 'OK', { duration: 2000 });
+  //   // Implement export logic
+  // }
 
   viewAllReviews(): void {
     this.snackBar.open('Opening all reviews...', 'OK', { duration: 2000 });
@@ -264,5 +313,30 @@ export class MarketerProductDetailComponent implements OnInit {
 
   trackBySpecKey(index: number, spec: any): string {
     return spec.key;
+  }
+
+  openImageViewer(initialIndex: number = 0): void {
+    if (!this.product || !this.product.images || this.product.images.length === 0) return;
+
+    const images = this.product.images.map(img => ({
+      url: img.url,
+      thumbnail: img.thumbnail || img.url,
+      alt: this.product?.name
+    }));
+
+    this.dialog.open(ProductImageViewerComponent, {
+      data: {
+        images,
+        initialIndex,
+        productName: this.product.name
+      },
+      panelClass: 'product-image-viewer-dialog',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      width: '100%',
+      height: '100%',
+      backdropClass: 'image-viewer-backdrop',
+      disableClose: true
+    });
   }
 }

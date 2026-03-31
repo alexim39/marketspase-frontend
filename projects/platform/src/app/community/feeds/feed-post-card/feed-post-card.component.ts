@@ -9,6 +9,8 @@ import { FeedPost, FeedService } from '../feed.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 
 type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
 
@@ -35,6 +37,7 @@ export class FeedPostCardComponent {
   private snackBar = inject(MatSnackBar);
   private feedService = inject(FeedService);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   postDeleted = output<string>();        // emits post ID after successful delete
   postUpdated = output<FeedPost>();
@@ -144,6 +147,7 @@ export class FeedPostCardComponent {
   openWhatsApp(post: FeedPost): void {
     // Assuming the post has a contact number or WhatsApp link
     // e.g., post.campaign?.contactWhatsapp or post.author?.phone
+    //console.log('FeedPost ',post)
     const phone = post.phone;
     if (phone) {
       const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
@@ -187,5 +191,37 @@ export class FeedPostCardComponent {
   
   viewProfile(post: FeedPost) {
      this.router.navigate(['/dashboard/profile', post.author?._id]); 
+  }
+
+
+  openImageViewer(media: any) {
+    // Get all images from the post
+    const images = this.post().media?.filter(m => m.type === 'image') || [];
+    
+    if (images.length === 0) return;
+    
+    // Find the index of the clicked image
+    const initialIndex = images.findIndex(img => img.url === media.url);
+    
+    this.dialog.open(ImageViewerComponent, {
+      data: {
+        images: images.map(img => ({
+          url: img.url,
+          thumbnail: img.thumbnail,
+          alt: `Image from ${this.post().author?.displayName || 'post'}`
+        })),
+        initialIndex: initialIndex >= 0 ? initialIndex : 0,
+        postId: this.post()._id
+      },
+      panelClass: 'image-viewer-dialog',
+      backdropClass: 'image-viewer-backdrop',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      height: '100%',
+      width: '100%',
+      hasBackdrop: true,
+      disableClose: true, // This prevents closing on backdrop click
+      autoFocus: false // Prevent auto-focus on dialog open
+    });
   }
 }

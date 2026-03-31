@@ -1,7 +1,7 @@
 import { Component, computed, inject, Input, OnChanges, signal, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { DeviceService } from '../../../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '../../../../../../../shared-services/src/public-api';
 
 interface CampaignStats {
   // Campaign counts
@@ -55,6 +55,7 @@ interface StatItem {
 })
 export class CampaignStatsComponent implements OnChanges {
   @Input() stats!: CampaignStats;
+   @Input() user!: UserInterface | null;
   private deviceService = inject(DeviceService);
 
   isCollapsed = signal(true);

@@ -1,0 +1,292 @@
+<!-- store-footer.component.html -->
+<footer class="store-footer">
+  <!-- Newsletter Section -->
+  @if (showNewsletter) {
+    <div class="newsletter-section">
+      <div class="container">
+        <div class="newsletter-content">
+          <h3>Stay in the Loop</h3>
+          <p>Subscribe to get updates on new products, exclusive sales, and special offers</p>
+          
+          <div class="newsletter-form">
+            <input 
+              type="email" 
+              placeholder="Enter your email address"
+              [(ngModel)]="newsletterEmail"
+              [disabled]="isSubscribing()"
+              (keyup.enter)="onSubscribe()">
+            <button 
+              (click)="onSubscribe()" 
+              [disabled]="isSubscribing()">
+              @if (isSubscribing()) {
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>Subscribing...</span>
+              } @else {
+                <span>Subscribe</span>
+                <mat-icon>arrow_forward</mat-icon>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Main Footer -->
+  <div class="footer-main">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Store Info Column -->
+        <div class="store-info">
+          <div class="store-brand">
+            @if (store?.logo) {
+              <img [src]="store?.logo" 
+                   [alt]="store?.name" 
+                   class="store-logo"
+                   (error)="onImageError($event)">
+            } @else {
+              <div class="store-logo-placeholder">
+                <mat-icon>store</mat-icon>
+              </div>
+            }
+            <h3 class="store-name">{{ store?.name || 'Store Name' }}</h3>
+          </div>
+
+          @if (store?.description) {
+            <p class="store-description">{{ store?.description | truncate:80 }}</p>
+          }
+
+          <!-- Contact Info -->
+          <div class="store-contact">
+            @if (store?.email) {
+              <div class="contact-item">
+                <mat-icon>email</mat-icon>
+                <a [href]="'mailto:' + store?.email">{{ store?.email }}</a>
+              </div>
+            }
+            
+            @if (store?.phoneNumber) {
+              <div class="contact-item">
+                <mat-icon>phone</mat-icon>
+                <a [href]="'tel:' + store?.phoneNumber">{{ store?.phoneNumber }}</a>
+              </div>
+            }
+            
+            @if (store?.address?.city) {
+              <div class="contact-item">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ store?.address?.city }}, {{ store?.address?.country }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Store Badges -->
+          <div class="store-badges">
+            @if (store?.isVerified) {
+              <span class="badge verified" matTooltip="Verified Store">
+                <mat-icon>verified</mat-icon>
+                Verified
+              </span>
+            }
+            
+            @if (store?.verificationTier === 'premium') {
+              <span class="badge verified" matTooltip="Premium Store">
+                <mat-icon>star</mat-icon>
+                Premium
+              </span>
+            }
+            
+            @if (store?.totalSales > 1000) {
+              <span class="badge" matTooltip="Top Seller">
+                <mat-icon>trending_up</mat-icon>
+                Top Seller
+              </span>
+            }
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="payment-methods">
+            <h4>We Accept</h4>
+            <div class="payment-icons">
+              @for (payment of paymentMethods; track payment.name) {
+                <div class="payment-icon" [matTooltip]="payment.name">
+                  <span [innerHTML]="payment.icon"></span>
+                  <!-- <img [src]="payment.icon" [alt]="payment.name" (error)="onImageError($event)"> -->
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- App Download -->
+          <div class="app-download">
+            <h5 class="app-title">Download Our App</h5>
+            <div class="app-buttons">
+              <a href="#" class="app-btn">
+                <mat-icon>apple</mat-icon>
+                <div class="btn-text">
+                  <small>Download on the</small>
+                  <span>App Store</span>
+                </div>
+              </a>
+              <a href="#" class="app-btn">
+                <mat-icon>android</mat-icon>
+                <div class="btn-text">
+                  <small>Get it on</small>
+                  <span>Google Play</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Links Grid -->
+        <div class="links-grid">
+          <!-- Shop Links -->
+          <!-- <div class="link-column">
+            <h4 class="column-title">Shop</h4>
+            <ul class="link-list">
+              @for (link of shopLinks; track link.label) {
+                <li>
+                  <a [routerLink]="['/store', store?.storeLink, link.route]"
+                     [matTooltip]="link.label">
+                    @if (link.icon) {
+                      <mat-icon>{{ link.icon }}</mat-icon>
+                    }
+                    {{ link.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div> -->
+
+          <!-- Support Links -->
+          <div class="link-column">
+            <h4 class="column-title">Support</h4>
+            <ul class="link-list">
+              @for (link of supportLinks; track link.label) {
+                <li>
+                  <a [routerLink]="['/store', store?.storeLink, link.route]"
+                     [matTooltip]="link.label">
+                    @if (link.icon) {
+                      <mat-icon>{{ link.icon }}</mat-icon>
+                    }
+                    {{ link.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Company Links -->
+          <div class="link-column">
+            <h4 class="column-title">Company</h4>
+            <ul class="link-list">
+              @for (link of companyLinks; track link.label) {
+                <li>
+                  <a [routerLink]="['/store', store?.storeLink, link.route]"
+                     [matTooltip]="link.label">
+                    @if (link.icon) {
+                      <mat-icon>{{ link.icon }}</mat-icon>
+                    }
+                    {{ link.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Connect Column -->
+          <div class="link-column">
+            <h4 class="column-title">Connect</h4>
+            
+            <!-- Social Links -->
+            @if (hasSocialMedia()) {
+              <div class="social-links">
+                @for (social of socialLinks; track social.name) {
+                  @if (social.name === 'WhatsApp' ? store?.whatsappNumber : true) {
+                    @if (social.action === 'whatsapp') {
+                      <a class="social-link"
+                         (click)="onContactWhatsApp()"
+                         [matTooltip]="social.name">
+                        <img [src]="social.image" 
+                             [alt]="social.name"
+                             (error)="onImageError($event)">
+                      </a>
+                    } @else {
+                      <a class="social-link"
+                         [href]="social.url"
+                         target="_blank"
+                         rel="noopener"
+                         [matTooltip]="social.name">
+                        <img [src]="social.image" 
+                             [alt]="social.name"
+                             (error)="onImageError($event)">
+                      </a>
+                    }
+                  }
+                }
+              </div>
+            }
+
+            <!-- Store Hours (if available) -->
+            @if (store?.businessHours) {
+              <div class="store-hours" style="margin-top: 1rem;">
+                <h5 style="font-size: 0.875rem; margin-bottom: 0.5rem;">Store Hours</h5>
+                <p style="font-size: 0.75rem; color: #666;">Mon-Fri: 9AM - 6PM<br>Sat-Sun: 10AM - 4PM</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Bottom -->
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="bottom-content">
+        <div class="copyright">
+          <div>© {{ currentYear }} {{ store?.name || 'MarketSpase' }}. All rights reserved.</div>
+          <div class="powered-by">
+            Powered by <a href="/">Async - MarketSpase<!-- : Africa's Social Affiliate Commerce Platform. --></a>
+          </div>
+        </div>
+
+        <div class="legal-links">
+          @for (link of legalLinks; track link.label) {
+            <a [routerLink]="link.route" target="_blank">{{ link.label }}</a>
+          }
+        </div>
+
+        <!-- Language Selector -->
+        <div class="language-selector" 
+             [matTooltip]="'Select language'"
+             [matMenuTriggerFor]="languageMenu">
+          <mat-icon>language</mat-icon>
+          <span>{{ getLanguageLabel(selectedLanguage) }}</span>
+          <mat-icon>arrow_drop_down</mat-icon>
+        </div>
+
+        <mat-menu #languageMenu="matMenu">
+          @for (lang of languages; track lang.code) {
+            <button mat-menu-item (click)="onLanguageChange(lang.code)">
+              <span>{{ lang.label }}</span>
+              @if (selectedLanguage === lang.code) {
+                <mat-icon>check</mat-icon>
+              }
+            </button>
+          }
+        </mat-menu>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Top Button -->
+  <button class="back-to-top" 
+          [class.visible]="showBackToTop()"
+          (click)="scrollToTop()"
+          matTooltip="Back to top"
+          aria-label="Back to top">
+    <mat-icon>keyboard_arrow_up</mat-icon>
+  </button>
+</footer>

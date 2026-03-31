@@ -1,0 +1,236 @@
+ @import '../../../../../../styles/mixins';
+    @import '../../../../../../styles/variables';
+
+    .image-gallery {
+      position: relative;
+      background: $black;
+      border-bottom: 1px solid $border-color;
+      
+      @include desktop {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: $spacing-4;
+        padding: $spacing-4;
+      }
+      
+      @include tablet {
+        display: block;
+      }
+      
+      .thumbnails {
+        display: none;
+        
+        @include desktop {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-2;
+          max-height: 400px;
+          overflow-y: auto;
+          @include scrollbar;
+          
+          .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: $border-radius;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all $transition-fast;
+            
+            &.active {
+              border-color: $primary-color;
+              box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+            }
+            
+            &:hover:not(.active) {
+              border-color: $border-color;
+            }
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            
+            .placeholder {
+              width: 100%;
+              height: 100%;
+              background-color: color-mix(in srgb, $background-color, black 5%);
+              @include flex-center;
+              color: $text-tertiary;
+              
+              mat-icon {
+                font-size: 24px;
+              }
+            }
+          }
+        }
+      }
+      
+      .main-image-container {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        
+        @include desktop {
+          border-radius: $border-radius;
+          overflow: hidden;
+        }
+        
+        .main-image {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          background: $white;
+          cursor: pointer;
+          
+          &-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, $gray-100, $gray-200);
+            @include flex-column-center;
+            color: $text-tertiary;
+            
+            mat-icon {
+              font-size: 64px;
+              margin-bottom: $spacing-4;
+            }
+            
+            span {
+              @include body-medium;
+            }
+          }
+        }
+        
+        // Image Actions Overlay
+        .image-actions-overlay {
+          position: absolute;
+          top: $spacing-4;
+          left: $spacing-4;
+          display: flex;
+          gap: $spacing-2;
+          z-index: 2;
+          
+          button {
+            background: rgba($white, 0.9);
+            backdrop-filter: blur(4px);
+            box-shadow: $shadow-sm;
+            
+            &:hover {
+              background: $white;
+              transform: scale(1.05);
+            }
+          }
+          
+          .download-btn,
+          .zoom-btn {
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            border: 1px solid color-mix(in srgb, $background-color, black 5%);
+            
+            mat-icon {
+              font-size: 20px;
+              width: 20px;
+              height: 23px;
+              color: color-mix(in srgb, $background-color, black 5%);
+            }
+
+            &:hover {
+                border: 1px solid $secondary-color
+            }
+          }
+        }
+        
+        .commission-badge {
+          position: absolute;
+          top: $spacing-4;
+          right: $spacing-4;
+          display: flex;
+          align-items: center;
+          gap: $spacing-1;
+          padding: $spacing-2 $spacing-3;
+          border-radius: $border-radius-full;
+          font-weight: $font-weight-semibold;
+          font-size: $font-size-sm;
+          color: $white;
+          background: $primary-color;
+          box-shadow: $shadow-md;
+          z-index: 2;
+          
+          &.high {
+            background: $success-color;
+          }
+          
+          &.medium {
+            background: $warning-color;
+          }
+          
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+        
+        .image-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          display: none;
+          z-index: 2;
+          
+          @include desktop {
+            display: block;
+          }
+          
+          &.prev {
+            left: $spacing-2;
+          }
+          
+          &.next {
+            right: $spacing-2;
+          }
+          
+          button {
+            background: rgba($white, 0.9);
+            backdrop-filter: blur(4px);
+            
+            &:hover {
+              background: $white;
+            }
+          }
+        }
+      }
+      
+      .mobile-thumbnails {
+        display: flex;
+        gap: $spacing-2;
+        padding: $spacing-4;
+        overflow-x: auto;
+        @include scrollbar;
+        
+        @include desktop {
+          display: none;
+        }
+        
+        .thumbnail {
+          flex-shrink: 0;
+          width: 60px;
+          height: 60px;
+          border-radius: $border-radius-sm;
+          overflow: hidden;
+          cursor: pointer;
+          border: 2px solid transparent;
+          
+          &.active {
+            border-color: $primary-color;
+          }
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+      }
+    }

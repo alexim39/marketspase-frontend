@@ -1,0 +1,90 @@
+    @import '../../../../../../styles/mixins';
+    @import '../../../../../../styles/variables';
+
+    .commission-card {
+      background: var(--surface-color);
+      border-radius: $border-radius-lg;
+      border: 1px solid var(--border-color);
+      padding: $spacing-6;
+      
+      @include mobile {
+        padding: $spacing-4;
+      }
+      
+      .commission-header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        margin-bottom: $spacing-4;
+        
+        mat-icon {
+          color: $warning-color;
+        }
+        
+        h3 {
+          @include heading-small;
+          color: var(--text-primary);
+          margin: 0;
+        }
+      }
+      
+      .commission-rate {
+        @include heading-large;
+        color: $primary-color;
+        margin: 0 0 $spacing-2 0;
+      }
+      
+      .commission-details {
+        @include body-medium;
+        color: var(--text-secondary);
+        margin-bottom: $spacing-4;
+      }
+      
+      .commission-breakdown {
+        background: var(--gray-50);
+        border-radius: $border-radius;
+        padding: $spacing-4;
+        margin-bottom: $spacing-4;
+        border: 1px solid var(--border-color);
+        
+        .breakdown-item {
+          display: flex;
+          justify-content: space-between;
+          padding: $spacing-2 0;
+          border-bottom: 1px solid var(--border-color);
+          
+          &:last-child {
+            border-bottom: none;
+          }
+          
+          .label {
+            @include body-small;
+            color: var(--text-secondary);
+          }
+          
+          .value {
+            @include body-small;
+            color: var(--text-primary);
+            font-weight: $font-weight-medium;
+          }
+        }
+      }
+      
+      .commission-cta {
+        display: grid;
+        gap: $spacing-3;
+        
+        button {
+          height: 48px;
+          
+          &.primary {
+            background: $gradient-primary;
+            color: $white;
+            
+            &:hover {
+              box-shadow: $shadow-md;
+            }
+          }
+        }
+      }
+    }

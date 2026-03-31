@@ -10,12 +10,14 @@ export function getPromoterNavigation(
       route: '/dashboard',
       expanded: false
     },
+
     {
       icon: 'account_box',
       label: 'Profile',
       route: '/dashboard/profile',
       expanded: false
     },
+
     {
       icon: 'work',
       label: 'Promotions',
@@ -27,29 +29,21 @@ export function getPromoterNavigation(
         { icon: 'list_alt', label: 'My Promotions', route: '/dashboard/campaigns/promotions' }
       ]
     },
-    // {
-    //   icon: 'storefront',
-    //   label: 'Storefronts',
-    //   expanded: false,
-    //   children: [
-    //     { icon: 'search', label: 'Browse Products', route: '/dashboard/stores' },
-    //     // { icon: 'search', label: 'Browse Products', route: '/dashboard/storefronts/products' },
-    //     { icon: 'inventory', label: 'My Promoted Products', route: '/dashboard/storefronts/my-products' },
-    //     { icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
-    //     { icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
-    //     { icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },
-    //     { icon: 'rate_review', label: 'Store Reviews', route: '/dashboard/storefronts/reviews' }
-    //   ]
-    // },
+
     {
-      icon: 'currency_exchange',
-      label: 'Earnings',
+      icon: 'storefront',
+      label: 'Storefronts',
       expanded: false,
       children: [
-        { icon: 'payments', label: 'Transactions', route: '/dashboard/transactions' },
-        { icon: 'savings', label: 'Withdraw Funds', route: '/dashboard/transactions/withdrawal' }
+        { icon: 'search', label: 'Browse Products', route: '/dashboard/stores' },
+        { icon: 'inventory', label: 'Promoted Products', route: '/dashboard/stores/promotions' },
+        //{ icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
+        //{ icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
+        //{ icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },
+        //{ icon: 'rate_review', label: 'Store Reviews', route: '/dashboard/storefronts/reviews' }
       ]
     },
+    
     {
       icon: 'forum',
       label: 'Community',
@@ -67,6 +61,17 @@ export function getPromoterNavigation(
         }
       ]
     },
+
+    {
+      icon: 'currency_exchange',
+      label: 'Earnings',
+      expanded: false,
+      children: [
+        { icon: 'payments', label: 'Transactions', route: '/dashboard/transactions' },
+        { icon: 'savings', label: 'Withdraw Funds', route: '/dashboard/transactions/withdrawal' }
+      ]
+    },
+
     {
       icon: 'settings',
       label: 'Settings',
@@ -84,6 +89,7 @@ export function getPromoterNavigation(
         }
       ]
     },
+
     {
       icon: 'help',
       label: 'Support',
@@ -91,14 +97,16 @@ export function getPromoterNavigation(
       children: [
         { icon: 'support_agent', label: 'Support', route: '/dashboard/settings/support' },
         {
-          icon: 'help',
-          label: 'Get Started',
+          icon: 'help_center',
+          label: 'Learn',
           expanded: false,
           children: [
-            { icon: 'directions_bus', label: 'Onboarding', route: '/dashboard/get-started/onboarding' }
+            { icon: 'help', label: 'Get Started', route: '/dashboard/get-started/onboarding' },
+            { icon: 'video_call', label: 'Tutorials', route: '/dashboard/tutorials' }
           ]
         }
       ]
     }
+
   ];
 }

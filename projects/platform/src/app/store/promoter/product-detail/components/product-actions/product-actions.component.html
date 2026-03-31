@@ -1,0 +1,18 @@
+    <div class="action-buttons">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        class="promote-btn"
+        (click)="copyLink.emit()"
+      >
+        <mat-icon>share</mat-icon>
+        Copy Promotion Link
+      </button>
+      <button 
+        mat-button 
+        (click)="shareWhatsApp.emit()"
+      >
+        <mat-icon>whatsapp</mat-icon>
+        Share on WhatsApp
+      </button>
+    </div>

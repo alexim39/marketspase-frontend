@@ -44,6 +44,7 @@
 .store-selection {
   @include flex-center;
   padding: $spacing-12 0;
+  
 
   @include tablet {
     padding: $spacing-16 0;
@@ -59,7 +60,8 @@
     width: 100%;
     text-align: center;
     border: 2px dashed rgba($primary-color, 0.3);
-    background: transparent;
+    //background: transparent;
+    background-color: color-mix(in srgb, $background-color, black 5%);
     margin: 0 $spacing-4;
 
     @include tablet {

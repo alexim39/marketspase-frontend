@@ -361,5 +361,23 @@ export class CampaignDetailsComponent implements OnInit {
         }
       })
   }
+
+  activateCampaign(campaign: CampaignInterface): void {
+    //console.log('activate campaign ',campaign)
+      this.campaignDetailsService.updateCampaignStatus(campaign._id, 'pending', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            //console.log(response)
+            this.snackBar.open(response.message, 'Close', { duration: 3000 });
+            this.loadCampaign();
+          }
+        },
+        error: (error) => {
+          this.snackBar.open(error.error.message, 'Close', { duration: 3000 });
+        }
+      })
+  }
   
 }

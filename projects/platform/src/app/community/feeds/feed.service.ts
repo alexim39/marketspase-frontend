@@ -374,6 +374,7 @@ export class FeedService {
 
   // ============ POST PROCESSING ============
   private processPost(post: any): FeedPost {
+    //console.log('post ',post)
     return {
       _id: post._id,
       author: this.processAuthor(post.author),

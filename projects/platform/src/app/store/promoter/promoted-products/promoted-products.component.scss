@@ -1,0 +1,25 @@
+// promoted-products.component.scss
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.promoted-products-container {
+  padding: $spacing-6;
+  max-width: 1600px;
+  margin: 0 auto;
+  background: $background-color;
+
+  @include mobile {
+    padding: $spacing-4;
+  }
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: $spacing-4;
+  margin-top: $spacing-4;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}

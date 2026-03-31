@@ -1,0 +1,42 @@
+    <div class="product-header">
+      <!-- Store Badge -->
+      <div class="store-badge" [class.premium]="product?.store?.verificationTier === 'premium'">
+        @if (product?.store?.logo) {
+          <img [src]="product?.store?.logo" [alt]="product?.store?.name">
+        }
+        <span>{{ product?.store?.name }}</span>
+        @if (product?.store?.verificationTier === 'premium') {
+          <mat-icon>verified</mat-icon>
+        }
+      </div>
+
+      <!-- Product Title -->
+      <h1 class="product-title">{{ product!.name | truncate:40 | titlecase }}</h1>
+
+      <!-- Product Meta -->
+      <div class="product-meta">
+        @if (product?.sku) {
+          <span class="sku">SKU: {{ product?.sku }}</span>
+        }
+       @if ((product?.averageRating ?? 0) > 0) {
+        <div class="rating">
+            <mat-icon>star</mat-icon>
+            <span>{{ product?.averageRating | number:'1.1-1' }} ({{ product?.ratingCount }})</span>
+        </div>
+        }
+        <span class="category">Category: {{ product?.category | titlecase }}</span>
+      </div>
+
+      <!-- Price Section -->
+      <div class="price-section">
+        <h2 class="current-price">{{ product?.price | currencyUtils:user?.wallets?.promoter?.currency }}</h2>
+        @if ((product?.originalPrice ?? 0) > (product?.price ?? 0)) {
+        <h3 class="original-price">
+            {{ product?.originalPrice | currencyUtils:user?.wallets?.promoter?.currency }}
+        </h3>
+        <span class="discount-badge">
+            {{ calculateDiscount(product?.price ?? 0, product?.originalPrice ?? 0) }}% OFF
+        </span>
+        }
+      </div>
+    </div>

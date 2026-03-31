@@ -1,0 +1,121 @@
+// components/products-header/products-header.component.scss
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+:host {
+  display: block;
+}
+
+.page-header {
+  .header-background {
+    background: $gradient-primary;
+    color: $white;
+    padding: $spacing-8 $spacing-8;
+    border-radius: 0 0 $border-radius-xl $border-radius-xl;
+    
+    @include mobile {
+      padding: $spacing-4;
+      border-radius: 0 0 $border-radius-lg $border-radius-lg;
+    }
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-8;
+      
+      @include desktop {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      
+      .header-text {
+        .page-title {
+          @include heading-large;
+          font-weight: $font-weight-bold;
+          color: $white;
+          margin: 0 0 $spacing-2 0;
+          
+          @include mobile {
+            font-size: $font-size-3xl;
+          }
+        }
+        
+        .page-subtitle {
+          @include body-large;
+          color: rgba($white, 0.9);
+          max-width: 600px;
+          margin: 0;
+        }
+      }
+      
+      .header-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $spacing-4;
+        
+        @include mobile {
+          grid-template-columns: 1fr;
+          width: 100%;
+        }
+        
+        .stat-card {
+          background: rgba($white, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: $border-radius-lg;
+          padding: $spacing-4;
+          display: flex;
+          align-items: center;
+          gap: $spacing-3;
+          border: 1px solid rgba($white, 0.2);
+          transition: transform $transition-normal;
+          
+          &:hover {
+            transform: translateY(-2px);
+            background: rgba($white, 0.15);
+          }
+          
+          &.highlight {
+            background: rgba($white, 0.2);
+            border-color: rgba($white, 0.3);
+          }
+          
+          .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba($white, 0.2);
+            border-radius: $border-radius;
+            
+            mat-icon {
+              font-size: 24px;
+              color: $white;
+            }
+          }
+          
+          .stat-content {
+            display: flex;
+            flex-direction: column;
+            
+            .stat-value {
+              @include heading-medium;
+              font-weight: $font-weight-bold;
+              color: $white;
+              line-height: 1;
+            }
+            
+            .stat-label {
+              @include caption;
+              color: rgba($white, 0.8);
+              font-size: $font-size-sm;
+            }
+          }
+        }
+      }
+    }
+  }
+}

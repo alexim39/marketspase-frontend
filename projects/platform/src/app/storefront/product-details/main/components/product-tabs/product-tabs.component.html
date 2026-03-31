@@ -1,0 +1,78 @@
+<div class="product-tabs">
+  <!-- Tab Headers -->
+  <div class="tab-headers" role="tablist">
+    @for (tab of tabs; track tab.id) {
+      <button 
+        class="tab-header"
+        [class.active]="selectedTab === tab.id"
+        (click)="selectTab(tab.id)"
+        [attr.aria-selected]="selectedTab === tab.id"
+        [attr.aria-controls]="'tab-panel-' + tab.id"
+        role="tab">
+        <mat-icon>{{ tab.icon }}</mat-icon>
+        <span>{{ tab.label }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Tab Panels -->
+  <div class="tab-panels">
+    <!-- Description Panel -->
+    @if (selectedTab === 0) {
+      <div class="tab-panel" id="tab-panel-0" role="tabpanel">
+        <div class="description-content" [class.expanded]="isDescriptionExpanded()">
+          @if (product?.description) {
+            <p class="description-text">{{ product?.description }}</p>
+          } @else {
+            <p class="no-description">No description available for this product.</p>
+          }
+          
+          <!-- Key Features -->
+          @if (product?.features?.length) {
+            <div class="key-features">
+              <h3 class="section-subtitle">Key Features</h3>
+              <ul class="features-list">
+                @for (feature of product?.features; track feature) {
+                  <li>
+                    <mat-icon class="feature-icon">check_circle</mat-icon>
+                    <span>{{ feature }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+        
+        @if ((product?.description?.length || 0) > 500) {
+          <button 
+            class="read-more-btn"
+            (click)="toggleDescription()">
+            <span>{{ isDescriptionExpanded() ? 'Read Less' : 'Read More' }}</span>
+            <mat-icon>{{ isDescriptionExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+        }
+      </div>
+    }
+    
+    <!-- Specifications Panel (slot for child component) -->
+    @if (selectedTab === 1) {
+      <div class="tab-panel" id="tab-panel-1" role="tabpanel">
+        <ng-content select="[specifications]"></ng-content>
+      </div>
+    }
+    
+    <!-- Reviews Panel (slot for child component) -->
+    @if (selectedTab === 2) {
+      <div class="tab-panel" id="tab-panel-2" role="tabpanel">
+        <ng-content select="[reviews]"></ng-content>
+      </div>
+    }
+    
+    <!-- Shipping & Returns Panel -->
+    @if (selectedTab === 3) {
+      <div class="tab-panel" id="tab-panel-3" role="tabpanel">
+        <ng-content select="[shipping]"></ng-content>
+      </div>
+    }
+  </div>
+</div>

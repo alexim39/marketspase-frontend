@@ -60,7 +60,7 @@ export class ProductGridCardComponent {
   @Output() toggleWishlist = new EventEmitter<Product>();
   @Output() quickView = new EventEmitter<Product>();
   @Output() share = new EventEmitter<Product>();
-  @Output() viewDetails = new EventEmitter<Product>();
+   @Output() viewDetails = new EventEmitter<Product>();
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
@@ -68,11 +68,6 @@ export class ProductGridCardComponent {
   // =========================================
   // PRODUCT STATUS METHODS
   // =========================================
-
-  ngOnInit(): void {
-    // Initialization logic if needed
-    console.log('Product Grid Card initialized for product:', this.product);
-  }
 
   /**
    * Determines the current stock status of the product
@@ -267,7 +262,7 @@ export class ProductGridCardComponent {
    * @param event Click event
    */
   onViewDetails(event: Event): void {
-    // Don't stop propagation - this is the default card click action
+    event.stopPropagation();
     this.viewDetails.emit(this.product);
   }
 

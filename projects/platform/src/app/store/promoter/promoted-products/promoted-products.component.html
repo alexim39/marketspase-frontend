@@ -1,0 +1,130 @@
+<!-- promoted-products.component.html -->
+<div class="promoted-products-container">
+  <!-- Header Section -->
+  <app-promoted-products-header
+    [refreshing]="refreshing()"
+    (refresh)="refreshStats()"
+  />
+
+  <!-- Chart Modal -->
+  <app-chart-modal
+    [showChart]="showChart()"
+    [selectedProduct]="selectedProductForChart()"
+    (close)="closeChart()"
+  />
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <app-loading-state 
+      [variant]="viewMode()"
+      [itemCount]="6"
+    />
+  }
+  <!-- Error State -->
+  @else if (error()) {
+    <app-error-state
+      [errorMessage]="error()"
+      (retry)="retryLoading()"
+    />
+  }
+  <!-- Main Content -->
+  @else {
+    <!-- Earnings Summary Cards -->
+    <promoter-earnings-summary
+      [totalStats]="totalStats()"
+      [performanceBreakdown]="performanceBreakdown()"
+      [formatCurrency]="formatCurrency"
+    />
+
+    <!-- Performance Chart -->
+    <app-performance-chart
+      [selectedChartType]="selectedChartType()"
+      [chartTimeRange]="chartTimeRange()"
+      [chartMetrics]="chartMetrics()"
+      [chartData]="chartData()"
+      [totalStats]="totalStats()"
+      [formatNumber]="formatNumber"
+      [formatCurrency]="formatCurrency"
+      (chartTypeChange)="setChartType($event)"
+      (timeRangeChange)="setChartTimeRange($event)"
+      (metricToggle)="toggleChartMetric($event)"
+      (exportChart)="exportChartData($event)"
+    />
+
+     <promotion-stats-chart
+        [height]="400"
+        [width]="800"
+      />
+     <!-- <promotion-stats-chart
+        [productId]="selectedProduct()?.productId"
+        [productName]="selectedProduct()?.productName"
+        [height]="400"
+        [width]="800"
+      /> -->
+
+      <br />
+
+    <!-- Filters & Controls -->
+    <app-products-filters
+      [searchQuery]="searchQuery()"
+      [selectedPerformanceFilter]="selectedPerformanceFilter()"
+      [selectedDateRange]="selectedDateRange()"
+      [viewMode]="viewMode()"
+      [hasActiveFilters]="selectedPerformanceFilter() !== 'all' || selectedDateRange() !== 'week'"
+      (searchChange)="setSearchQuery($event)"
+      (performanceFilterChange)="setPerformanceFilter($event)"
+      (dateRangeChange)="setDateRange($event)"
+      (viewModeChange)="setViewMode($event)"
+      (clearFilters)="clearFilters()"
+    />
+
+    <!-- Top Performers -->
+    @if (topPerformers().length > 0) {
+      <app-top-performers
+        [topPerformers]="topPerformers()"
+        [formatCurrency]="formatCurrency"
+        (viewDetails)="viewProductDetails($event)"
+        (viewStats)="viewProductStats($event)"
+      />
+    }
+
+    <!-- Products Display -->
+    @if (filteredProducts().length === 0) {
+      <app-no-results-state></app-no-results-state>
+    } @else {
+      <!-- Grid View -->
+      @if (viewMode() === 'grid') {
+        <div class="products-grid">
+          @for (product of filteredProducts(); track product.trackingId) {
+            <promoted-product-card
+              [product]="product"
+              [formatCurrency]="formatCurrency"
+              [formatNumber]="formatNumber"
+              (viewDetails)="viewProductDetails(product)"
+              (viewStats)="viewProductStats($event)"
+              (share)="sharePromotion($event)"
+              (edit)="editPromotion($event)"
+              (deactivate)="deactivatePromotion($event)"
+              (copyLink)="copyShareLink(product)"
+            />
+          }
+        </div>
+      }
+
+      <!-- Table View -->
+      @if (viewMode() === 'table') {
+        <promoted-product-table
+          [products]="filteredProducts()"
+          [formatCurrency]="formatCurrency"
+          [formatNumber]="formatNumber"
+          (viewDetails)="viewProductDetails($event)"
+          (viewStats)="viewProductStats($event)"
+          (share)="sharePromotion($event)"
+          (edit)="editPromotion($event)"
+          (deactivate)="deactivatePromotion($event)"
+          (copyLink)="copyShareLink($event)"
+        />
+      }
+    }
+  }
+</div>

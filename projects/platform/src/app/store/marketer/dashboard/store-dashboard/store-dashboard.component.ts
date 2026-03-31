@@ -86,8 +86,6 @@ interface PerformanceMetric {
 export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected storeService = inject(StoreService);
-  //private userService = inject(UserService);
-  //public user = this.userService.user;
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private deviceService = inject(DeviceService);
@@ -112,7 +110,7 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   public searchQuery = signal<string>('');
   public selectedCategory = signal<string>('all');
 
-   private dialog = inject(MatDialog);
+  private dialog = inject(MatDialog);
 
   // Performance metrics - FIXED: Added proper typing
   public performanceMetrics = computed((): PerformanceMetric[] => {
@@ -342,7 +340,9 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  openStoreManager(): void {
+  openStoreManager(store: Store): void {
+    // console.log('Opening Store Manager for store: ', store);
+    //console.log('Opening Stores: ', this.stores());
     const dialogRef = this.dialog.open(StoreManagerComponent, {
       width: '600px',
       maxHeight: '80vh',
@@ -373,19 +373,21 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     this.storeService.getStores(userId).subscribe({
       next: (stores) => {
         
-        if (stores.data.length > 0) {
+        if (stores.length > 0) {
           // Find the store with isDefaultStore: true
-          const defaultStore = stores.data.find((store: Store) => store.isDefaultStore);
+          const defaultStore = stores.find((store: Store) => store.isDefaultStore);
           
           // If no current store is selected OR we found a default store, select it
           if (!this.currentStore() || defaultStore) {
-            const storeToSelect = defaultStore || stores.data[0];
+            const storeToSelect = defaultStore || (stores.length ? stores[0] : null);
             
             // Directly set the default or first store as current
             this.storeService.currentStore.set(storeToSelect);
             
             // Also load products for this store
-            this.storeService.getStoreProducts(storeToSelect._id!).subscribe();
+            if (storeToSelect && storeToSelect._id) {
+              this.storeService.getStoreProducts(storeToSelect._id).subscribe();
+            }
             
             // if (defaultStore) {
             //   console.log('Default store selected:', defaultStore.name);
@@ -396,8 +398,8 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Failed to load stores:', error);
-        this.showError('Failed to load stores. Please try again.');
+        //console.error('Failed to load stores:', error);
+        //this.showError('Failed to load stores. Please try again.');
       }
     });
   }

@@ -1,0 +1,56 @@
+<div class="store-info-card">
+    <div class="store-header">
+    <div class="store-avatar">
+        @if (store.logo) {
+        <img [src]="store.logo" [alt]="store.name">
+        } @else {
+        <div class="avatar-placeholder">
+            <mat-icon>store</mat-icon>
+        </div>
+        }
+    </div>
+    <div class="store-info">
+        <h4 class="store-name">{{ store.name }}</h4>
+        <span class="store-tier" [class.premium]="store.verificationTier === 'premium'">
+        {{ store.verificationTier === 'premium' ? 'Premium Store' : 'Verified Store' }}
+        </span>
+    </div>
+    </div>
+
+    <div class="store-stats">
+    <div class="stat">
+        <h4 class="stat-value">{{ store.productCount || 0 }}</h4>
+        <div class="stat-label">Products</div>
+    </div>
+    <div class="stat">
+        <h4 class="stat-value">{{ store.rating || 'N/A' }}</h4>
+        <div class="stat-label">Rating</div>
+    </div>
+    <div class="stat">
+        <h4 class="stat-value">
+        {{ store.isVerified ? 'Yes' : 'No' }}
+        </h4>
+        <div class="stat-label">Verified</div>
+    </div>
+    </div>
+
+    <div class="store-actions">
+    @if (store.storeLink) {
+        <a 
+        mat-button 
+        [href]="store.storeLink" 
+        target="_blank"
+        >
+        <mat-icon>storefront</mat-icon>
+        Visit Store
+        </a>
+    }
+    <a 
+        mat-button 
+        [routerLink]="['/dashboard/stores', store._id]"
+    >
+        <mat-icon>info</mat-icon>
+        View Store Details
+    </a>
+    </div>
+</div>

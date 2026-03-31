@@ -1,0 +1,88 @@
+<!-- components/product-management/edit-product/edit-product.component.html -->
+<div class="edit-product-container">
+  @if (initialLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"/>
+      <p>Loading product data...</p>
+    </div>
+  } @else {
+    <!-- Header -->
+    <app-add-product-header
+      [loading]="loading()"
+      [storeId]="storeId"
+      [isEdit]="true"
+      (cancel)="onCancel()"
+      (submit)="onSubmit()"
+    />
+
+    <!-- Stepper -->
+    <app-product-stepper
+      [currentStep]="currentStep()"
+      [stepLabels]="stepLabels"
+      [isStepValid]="isStepValid(currentStep())"
+      [loading]="loading()"
+      (previous)="previousStep()"
+      (next)="nextStep()"
+      (submit)="onSubmit()"
+    />
+
+    <!-- Step Content -->
+    <div class="product-form-wrapper">
+      @if (currentStep() === 0) {
+        <app-basic-info-form
+          [formGroup]="basicInfo"
+          [categories]="productCategories()"
+          [images]="imagePreviews()"
+          [maxImages]="maxImages"
+          [existingImages]="existingImages()"
+          (imagesChanged)="onImagesChanged($event)"
+          (tagsChanged)="onTagsChanged($event)"
+          (removeExistingImage)="removeExistingImage($event)"
+        />
+      }
+
+      @if (currentStep() === 1) {
+        <app-pricing-inventory-form
+          [pricingForm]="pricing"
+          [inventoryForm]="inventory"
+          [productName]="basicInfo.get('name')?.value ?? ''"
+        />
+      }
+
+      @if (currentStep() === 2) {
+        <app-product-variants
+          [formGroup]="variants"
+          (attributeAdded)="onAttributeAdded($event)"
+          (attributeRemoved)="onAttributeRemoved($event)"
+          (attributeValueAdded)="onAttributeValueAdded($event)"
+          (attributeValueRemoved)="onAttributeValueRemoved($event)"
+          (variantsGenerated)="onVariantsGenerated($event)"
+          (variantChanged)="onVariantChanged($event)"
+        />
+      }
+
+      @if (currentStep() === 3) {
+        <app-shipping-form
+          [formGroup]="shipping"
+        />
+      }
+
+      @if (currentStep() === 4) {
+        <app-seo-advanced-form
+          [seoForm]="seo"
+          [advancedForm]="advanced"
+          [digitalForm]="digital"
+          (keywordsChanged)="onKeywordsChanged($event)"
+        />
+      }
+
+      @if (currentStep() === 5) {
+        <app-product-review
+          [productForm]="productForm"
+          [imagesCount]="imagePreviews().length"
+          (editStep)="goToStep($event)"
+        />
+      }
+    </div>
+  }
+</div>

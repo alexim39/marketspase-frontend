@@ -1,0 +1,133 @@
+<div class="image-viewer-container"
+        [class.controls-hidden]="uiHidden()"
+        (click)="onContainerClick($event)"
+        (touchstart)="onTouchStart($event)"
+        (touchmove)="onTouchMove($event)"
+        (touchend)="onTouchEnd($event)">
+    
+    <!-- Loading State -->
+    @if (loading()) {
+    <div class="loading-overlay">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    }
+    
+    <!-- Main Image -->
+    <div class="image-wrapper" 
+        [style.transform]="zoomTransform()"
+        [style.transition]="isDragging() ? 'none' : 'transform 0.3s ease'">
+    <img [src]="currentImage().url"
+            [alt]="currentImage().alt || 'Image'"
+            class="main-image"
+            [class.loading]="loading()"
+            (load)="onImageLoad()"
+            (error)="onImageError()"
+            (mousedown)="onMouseDown($event)"
+            (mousemove)="onMouseMove($event)"
+            (mouseup)="onMouseUp($event)"
+            (mouseleave)="onMouseLeave()"
+            draggable="false">
+    </div>
+    
+    <!-- Error State -->
+    @if (error()) {
+    <div class="error-overlay">
+        <mat-icon>error_outline</mat-icon>
+        <p>Failed to load image</p>
+        <button mat-button (click)="retryLoad()">Retry</button>
+    </div>
+    }
+    
+    <!-- Top Bar -->
+    <div class="top-bar" [class.hidden]="uiHidden()">
+    <div class="top-bar-left">
+        <button class="nav-btn close-btn" (click)="close()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+        </button>
+        <span class="counter">{{ currentIndex + 1 }} / {{ images.length }}</span>
+    </div>
+    
+    <div class="top-bar-right">
+        <button class="nav-btn" 
+                (click)="downloadImage()"
+                matTooltip="Download"
+                matTooltipPosition="below">
+        <mat-icon>download</mat-icon>
+        </button>
+        <button class="nav-btn" 
+                (click)="toggleInfo()"
+                matTooltip="Info"
+                matTooltipPosition="below">
+        <mat-icon>info_outline</mat-icon>
+        </button>
+    </div>
+    </div>
+    
+    <!-- Bottom Bar -->
+    <div class="bottom-bar" [class.hidden]="uiHidden()">
+    <div class="zoom-controls">
+        <button class="zoom-btn" (click)="zoomOut()" [disabled]="zoomScale() <= 0.5">
+        <mat-icon>remove</mat-icon>
+        </button>
+        <span class="zoom-level">{{ zoomScale() * 100 }}%</span>
+        <button class="zoom-btn" (click)="zoomIn()" [disabled]="zoomScale() >= 3">
+        <mat-icon>add</mat-icon>
+        </button>
+        <button class="zoom-btn reset-zoom" (click)="resetZoom()" matTooltip="Reset zoom">
+        <mat-icon>aspect_ratio</mat-icon>
+        </button>
+    </div>
+    </div>
+    
+    <!-- Navigation Buttons -->
+    @if (images.length > 1) {
+    <button class="nav-arrow prev" 
+            (click)="previousImage()"
+            [class.hidden]="uiHidden()"
+            [disabled]="currentIndex === 0">
+        <mat-icon>chevron_left</mat-icon>
+    </button>
+    
+    <button class="nav-arrow next" 
+            (click)="nextImage()"
+            [class.hidden]="uiHidden()"
+            [disabled]="currentIndex === images.length - 1">
+        <mat-icon>chevron_right</mat-icon>
+    </button>
+    }
+    
+    <!-- Thumbnail Strip -->
+    @if (images.length > 1 && showThumbnails()) {
+    <div class="thumbnail-strip" [class.hidden]="uiHidden()">
+        @for (image of images; track image.url; let i = $index) {
+        <div class="thumbnail-wrapper" 
+                [class.active]="i === currentIndex"
+                (click)="goToIndex(i)">
+            <img [src]="image.thumbnail || image.url"
+                [alt]="image.alt || 'Thumbnail'"
+                class="thumbnail-image"
+                loading="lazy">
+        </div>
+        }
+    </div>
+    }
+    
+    <!-- Info Panel -->
+    @if (showInfo()) {
+    <div class="info-panel" (click)="$event.stopPropagation()">
+        <div class="info-header">
+        <h3>Image Information</h3>
+        <button class="close-info" (click)="toggleInfo()">
+            <mat-icon>close</mat-icon>
+        </button>
+        </div>
+        <div class="info-content">
+        <p><strong>Filename:</strong> {{ getFilename(currentImage().url) }}</p>
+        <p><strong>Dimensions:</strong> {{ imageDimensions().width }} x {{ imageDimensions().height }} px</p>
+        <p><strong>File size:</strong> {{ imageSize() || 'Unknown' }}</p>
+        <!-- <p><strong>Uploaded:</strong> {{ currentImage().uploadedAt || 'N/A' }}</p> -->
+        </div>
+    </div>
+    }
+    
+</div>

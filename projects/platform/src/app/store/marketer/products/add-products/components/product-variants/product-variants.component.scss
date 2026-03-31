@@ -4,6 +4,9 @@
 
 .form-step {
   animation: slideInUp 0.3s ease-out;
+   @include mobile {
+      margin: 1em 0;
+    }
 }
 
 .form-card {
@@ -44,7 +47,7 @@
     @include card-base;
     padding: $spacing-4;
     margin-bottom: $spacing-4;
-    background: $gray-900;
+    background-color: color-mix(in srgb, $background-color, black 5%);
 
     .attribute-header {
       @include flex-between;

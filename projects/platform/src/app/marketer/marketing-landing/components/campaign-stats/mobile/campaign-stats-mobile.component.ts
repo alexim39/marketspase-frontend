@@ -2,7 +2,7 @@ import { Component, computed, inject, Input, OnChanges, SimpleChanges } from '@a
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { DeviceService } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../../../../../shared-services/src/public-api';
 
 interface CampaignStats {
   // Campaign counts
@@ -47,12 +47,13 @@ interface StatItem {
 @Component({
   selector: 'app-campaign-stats-mobile',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatTabsModule],
+  imports: [CommonModule, MatIconModule, MatTabsModule, CurrencyUtilsPipe],
   templateUrl: './campaign-stats-mobile.component.html',
   styleUrls: ['./campaign-stats-mobile.component.scss']
 })
 export class CampaignStatsMobileComponent implements OnChanges {
   @Input() stats!: CampaignStats;
+  @Input() user!: UserInterface | null;
   private deviceService = inject(DeviceService);
 
   statsArray: StatItem[] = [];
@@ -189,7 +190,7 @@ export class CampaignStatsMobileComponent implements OnChanges {
     return `₦${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
   }
 
-  private formatNumber(num: number): string {
+  formatNumber(num: number): string {
     if (!num || isNaN(num)) return '0';
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';

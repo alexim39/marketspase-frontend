@@ -1,0 +1,128 @@
+@if (loading()) {
+  <div class="skeleton-container">
+    <!-- Back Navigation Skeleton -->
+    <div class="skeleton-back-nav">
+      <div class="skeleton-back-container">
+        <div class="skeleton-button"></div>
+        <div class="skeleton-title"></div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="skeleton-main-content">
+      <!-- Left Column - Product Details -->
+      <div class="skeleton-product-details">
+        <!-- Product Card -->
+        <div class="skeleton-card">
+          <!-- Image Gallery Skeleton -->
+          <div class="skeleton-gallery">
+            <div class="skeleton-main-image"></div>
+            <div class="skeleton-thumbnails">
+              <div class="skeleton-thumbnail"></div>
+              <div class="skeleton-thumbnail"></div>
+              <div class="skeleton-thumbnail"></div>
+              <div class="skeleton-thumbnail"></div>
+            </div>
+          </div>
+
+          <!-- Product Info Skeleton -->
+          <div class="skeleton-product-info">
+            <!-- Product Header -->
+            <div class="skeleton-header">
+              <div class="skeleton-title-lg"></div>
+              <div class="skeleton-price"></div>
+              <div class="skeleton-rating"></div>
+            </div>
+
+            <!-- Description Skeleton -->
+            <div class="skeleton-description">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line w-75"></div>
+              <div class="skeleton-line w-50"></div>
+            </div>
+
+            <!-- Tags Skeleton -->
+            <div class="skeleton-tags">
+              <div class="skeleton-tag"></div>
+              <div class="skeleton-tag"></div>
+              <div class="skeleton-tag"></div>
+              <div class="skeleton-tag"></div>
+            </div>
+
+            <!-- Quick Stats Skeleton -->
+            <div class="skeleton-stats">
+              <div class="skeleton-stat-card"></div>
+              <div class="skeleton-stat-card"></div>
+              <div class="skeleton-stat-card"></div>
+              <div class="skeleton-stat-card"></div>
+            </div>
+
+            <!-- Action Buttons Skeleton -->
+            <div class="skeleton-actions">
+              <div class="skeleton-action-btn"></div>
+              <div class="skeleton-action-btn"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs Skeleton (Optional) -->
+        @if (showTabs()) {
+          <div class="skeleton-tabs-container">
+            <div class="skeleton-tab-header">
+              <div class="skeleton-tab"></div>
+              <div class="skeleton-tab"></div>
+              <div class="skeleton-tab"></div>
+            </div>
+            <div class="skeleton-tab-content">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line w-75"></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Right Column - Sidebar Skeleton -->
+      @if (showSidebar()) {
+        <div class="skeleton-sidebar">
+          <!-- Commission Card Skeleton -->
+          <div class="skeleton-sidebar-card">
+            <div class="skeleton-sidebar-header"></div>
+            <div class="skeleton-sidebar-body">
+              <div class="skeleton-sidebar-item"></div>
+              <div class="skeleton-sidebar-item"></div>
+              <div class="skeleton-sidebar-item"></div>
+            </div>
+            <div class="skeleton-sidebar-footer"></div>
+          </div>
+
+          <!-- Store Info Card Skeleton -->
+          <div class="skeleton-sidebar-card">
+            <div class="skeleton-sidebar-header"></div>
+            <div class="skeleton-sidebar-body">
+              <div class="skeleton-store-info">
+                <div class="skeleton-store-logo"></div>
+                <div class="skeleton-store-details">
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line w-75"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Related Products Skeleton -->
+          <div class="skeleton-sidebar-card">
+            <div class="skeleton-sidebar-header"></div>
+            <div class="skeleton-related-products">
+              <div class="skeleton-related-item"></div>
+              <div class="skeleton-related-item"></div>
+              <div class="skeleton-related-item"></div>
+              <div class="skeleton-related-item"></div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

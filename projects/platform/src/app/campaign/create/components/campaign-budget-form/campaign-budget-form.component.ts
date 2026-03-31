@@ -39,6 +39,7 @@ export class CampaignBudgetFormComponent implements OnInit {
   @Input({ required: true }) walletBalance!: number;
   @Output() validityChange = new EventEmitter<boolean>();
   @Output() fundWallet = new EventEmitter<void>();
+  @Output() onSaveAsDraft = new EventEmitter<void>();
 
   private destroyRef = inject(DestroyRef);
   

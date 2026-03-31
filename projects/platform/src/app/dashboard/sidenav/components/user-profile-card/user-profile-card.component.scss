@@ -68,10 +68,8 @@
   }
 
   .switch-user-btn {
-    // UPDATED: Use gray-100 for button background
     background-color: $gray-100;
     mat-icon {
-      // UPDATED: Use primary-color for switch icon
       color: $primary-color;
     }
   }

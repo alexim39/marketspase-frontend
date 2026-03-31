@@ -1,0 +1,96 @@
+<div class="product-gallery">
+  <!-- Main Image -->
+  <div class="main-image-container">
+    @if (currentImageUrl()) {
+      <img 
+        #mainImage
+        [src]="currentImageUrl()" 
+        [alt]="productName"
+        class="main-image"
+        (error)="onImageError($event)"
+        (click)="onImageClick($event)"
+      >
+    } @else if (images.length > 0) {
+      <img 
+        #mainImage
+        [src]="images[0].url" 
+        [alt]="productName"
+        class="main-image"
+        (error)="onImageError($event)"
+        (click)="onImageClick($event)"
+      >
+    } @else {
+      <div class="image-placeholder">
+        <mat-icon>image_not_supported</mat-icon>
+        <span>No image available</span>
+      </div>
+    }
+
+    <!-- Badges -->
+    <div class="image-badges">
+      @if (hasDiscount && discountPercentage > 0) {
+        <span class="badge badge-discount">-{{ discountPercentage }}%</span>
+      }
+      @if (isFeatured) {
+        <span class="badge badge-featured">
+          <mat-icon>star</mat-icon>
+          Featured
+        </span>
+      }
+      @if (stockStatus === 'low-stock') {
+        <span class="badge badge-low-stock">
+          <mat-icon>warning</mat-icon>
+          Low Stock
+        </span>
+      }
+    </div>
+
+    <!-- Navigation Arrows -->
+    @if (images.length > 1) {
+      <div class="image-nav">
+        <button 
+          mat-icon-button 
+          class="nav-btn nav-prev" 
+          (click)="prevImage()"
+          [disabled]="images.length <= 1"
+          aria-label="Previous image">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button 
+          mat-icon-button 
+          class="nav-btn nav-next" 
+          (click)="nextImage()"
+          [disabled]="images.length <= 1"
+          aria-label="Next image">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Thumbnail Gallery -->
+  @if (images.length > 1) {
+    <div class="thumbnail-gallery">
+      @for (image of images; track $index) {
+        <button 
+          class="thumbnail-btn"
+          [class.active]="selectedImageIndex() === $index"
+          (click)="selectImage($index)"
+          [attr.aria-label]="'View image ' + ($index + 1)">
+          <img 
+            [src]="image.url" 
+            [alt]="image.altText || 'Product thumbnail ' + ($index + 1)"
+            (error)="onImageError($event)"
+          >
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Mobile: Image Counter -->
+  @if (images.length > 1) {
+    <div class="image-counter">
+      {{ selectedImageIndex() + 1 }} / {{ images.length }}
+    </div>
+  }
+</div>

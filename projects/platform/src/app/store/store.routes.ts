@@ -35,6 +35,12 @@ export const StoreRoutes: Routes = [
     },
 
     {
+        path: ':storeId/products/edit/:productId',
+        loadComponent: () => import('./marketer/products/edit-product/edit-product.component').then(m => m.EditProductComponent),
+        title: "Update Store Product - Edit Product Information",
+    },
+
+    {
         path: ':storeId/products',
         loadComponent: () => import('./marketer/products/product-list/marketer-product-list-index.component').then(c => c.MarketerProductListComponent),
         title: "Product List - View and Manage Store Products",
@@ -45,6 +51,11 @@ export const StoreRoutes: Routes = [
         loadComponent: () => import('./marketer/products/product-detail/marketer-product-detail.component').then(c => c.MarketerProductDetailComponent),
         title: "Product Details - View and Manage Product Information",
     },
-
+    
+    {
+        path: 'promotions',
+        loadComponent: () => import('./promoter/promoted-products/promoted-products.component').then(c => c.PromotedProductsComponent),
+        title: "Promoted products - View and Manage Product you are promoting",
+    },
     
 ]

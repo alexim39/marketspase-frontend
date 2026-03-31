@@ -1,0 +1,157 @@
+// components/products-filter-sidebar/products-filter-sidebar.component.scss
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+:host {
+  display: block;
+}
+
+.filters-sidebar {
+  background: $surface-color;
+  border-radius: $border-radius-lg;
+  padding: $spacing-4;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  height: fit-content;
+  position: sticky;
+  top: $spacing-8;
+  
+  @include mobile {
+    position: static;
+    margin-bottom: $spacing-4;
+  }
+  
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-6;
+    
+    h3 {
+      @include heading-small;
+      margin: 0;
+      color: $text-primary;
+    }
+    
+    button {
+      font-size: $font-size-sm;
+    }
+  }
+  
+  .filter-section {
+    margin-bottom: $spacing-6;
+    border-bottom: 1px solid $border-color;
+    padding-bottom: $spacing-6;
+    
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    h4 {
+      @include body-medium;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0 0 $spacing-3 0;
+    }
+    
+    .search-box {
+      display: flex;
+      align-items: center;
+      background-color: color-mix(in srgb, $background-color, black 5%);
+      border-radius: $border-radius;
+      padding: $spacing-2 $spacing-3;
+      gap: $spacing-2;
+      transition: all $transition-normal;
+      border: 1px solid transparent;
+      
+      &:focus-within {
+        border-color: $primary-color;
+        background: $surface-color;
+        box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+      }
+      
+      .search-icon {
+        color: $text-tertiary;
+      }
+      
+      input {
+        border: none;
+        background: transparent;
+        outline: none;
+        flex: 1;
+        font-size: $font-size-sm;
+        color: $text-primary;
+        
+        &::placeholder {
+          color: $text-tertiary;
+        }
+      }
+      
+      .clear-search {
+        color: $text-tertiary;
+        
+        &:hover {
+          color: $text-secondary;
+        }
+      }
+    }
+    
+    .categories-list {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+      max-height: 200px;
+      overflow-y: auto;
+      @include scrollbar;
+      
+      .category-checkbox {
+        font-size: $font-size-sm;
+        
+        ::ng-deep .mat-checkbox-label {
+          @include text-ellipsis;
+        }
+      }
+    }
+    
+    .range-slider {
+      .range-values {
+        display: flex;
+        justify-content: space-between;
+        margin-top: $spacing-2;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+      }
+      
+      ::ng-deep .mat-slider {
+        width: 100%;
+      }
+    }
+    
+    .sort-options {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+      
+      .sort-option {
+        justify-content: flex-start;
+        text-align: left;
+        padding: $spacing-2 $spacing-3;
+        border-radius: $border-radius;
+        font-size: $font-size-sm;
+        
+        &.active {
+          background: rgba($primary-color, 0.1);
+          color: $primary-color;
+          border: 1px solid rgba($primary-color, 0.2);
+        }
+        
+        mat-icon {
+          font-size: 18px;
+          margin-right: $spacing-2;
+        }
+      }
+    }
+  }
+}

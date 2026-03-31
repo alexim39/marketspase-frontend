@@ -11,12 +11,14 @@ export function getMarketerNavigation(
       route: '/dashboard',
       expanded: false
     },
+
     {
       icon: 'account_box',
       label: 'Profile',
       route: '/dashboard/profile',
       expanded: false
     },
+
     {
       icon: 'campaign',
       label: 'Campaigns',
@@ -28,6 +30,7 @@ export function getMarketerNavigation(
         { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' }
       ]
     },
+
     {
       icon: 'storefront',
       label: 'Storefronts',
@@ -48,22 +51,7 @@ export function getMarketerNavigation(
         // }
       ]
     },
-    {
-      icon: 'currency_exchange',
-      label: 'Transactions',
-      expanded: false,
-      children: [
-        { icon: 'payments', label: 'Payment History', route: '/dashboard/transactions' },
-        {
-          icon: 'savings',
-          label: 'Wallet Management',
-          expanded: false,
-          children: [
-            { icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' }
-          ]
-        }
-      ]
-    },
+
     {
       icon: 'forum',
       label: 'Community',
@@ -81,6 +69,25 @@ export function getMarketerNavigation(
         }
       ]
     },
+    
+    {
+      icon: 'currency_exchange',
+      label: 'Transactions',
+      expanded: false,
+      children: [
+        { icon: 'payments', label: 'Transactions', route: '/dashboard/transactions' },
+        {
+          icon: 'savings',
+          label: 'Wallet Management',
+          expanded: false,
+          children: [
+            { icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' },
+            { icon: 'savings', label: 'Withdraw Funds', route: '/dashboard/transactions/withdrawal' }
+          ]
+        }
+      ]
+    },
+
     {
       icon: 'settings',
       label: 'Settings',
@@ -98,21 +105,24 @@ export function getMarketerNavigation(
         }
       ]
     },
-    {
+
+     {
       icon: 'help',
       label: 'Support',
       expanded: false,
       children: [
         { icon: 'support_agent', label: 'Support', route: '/dashboard/settings/support' },
         {
-          icon: 'help',
-          label: 'Get Started',
+          icon: 'help_center',
+          label: 'Learn',
           expanded: false,
           children: [
-            { icon: 'directions_bus', label: 'Onboarding', route: '/dashboard/get-started/onboarding' }
+            { icon: 'help', label: 'Get Started', route: '/dashboard/get-started/onboarding' },
+            { icon: 'video_call', label: 'Tutorials', route: '/dashboard/tutorials' }
           ]
         }
       ]
     }
+    
   ];
 }

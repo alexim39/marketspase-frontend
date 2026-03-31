@@ -1,0 +1,600 @@
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+
+.product-info {
+  .store-info-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3;
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    margin-bottom: $spacing-4;
+    cursor: pointer;
+    transition: all $transition-fast;
+    
+    &:hover {
+      background: color-mix(in srgb, $surface-color, $black 10%);
+      border-color: color-mix(in srgb, $border-color, $black 10%);
+      transform: translateY(-2px);
+    }
+    
+    .store-logo-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: $border-radius;
+      overflow: hidden;
+      background: $surface-color;
+      border: 1px solid $border-color;
+      flex-shrink: 0;
+      
+      .store-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      .store-logo-placeholder {
+        @include flex-center;
+        width: 100%;
+        height: 100%;
+        background: color-mix(in srgb, $surface-color, $black 15%);
+        
+        mat-icon {
+          color: $text-tertiary;
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
+    
+    .store-details {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      
+      .store-name {
+        @include body-medium;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+      }
+      
+      .verified-badge {
+        display: inline-flex;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          color: $success-color;
+        }
+      }
+    }
+    
+    .chevron-icon {
+      color: $text-tertiary;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  .product-header {
+    margin-bottom: $spacing-4;
+    
+    .product-category {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+      margin-bottom: $spacing-2;
+      
+      .category-tag {
+        @include caption;
+        background: color-mix(in srgb, $primary-color, transparent 85%);
+        color: $primary-color;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-sm;
+        font-weight: $font-weight-medium;
+      }
+      
+      .brand-tag {
+        @include caption;
+        background: color-mix(in srgb, $surface-color, $black 10%);
+        color: $text-secondary;
+        padding: $spacing-1 $spacing-2;
+        border-radius: $border-radius-sm;
+        font-weight: $font-weight-medium;
+      }
+    }
+    
+    .product-title {
+      @include heading-medium;
+      color: $text-primary;
+      margin: 0 0 $spacing-2 0;
+      line-height: $line-height-tight;
+      
+      @include mobile {
+        font-size: $font-size-xl;
+      }
+    }
+    
+    .product-sku {
+      @include caption;
+      color: $text-tertiary;
+    }
+  }
+  
+  .rating-summary {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+    margin-bottom: $spacing-4;
+    cursor: pointer;
+    padding: $spacing-2 0;
+    
+    &.no-reviews {
+      cursor: default;
+    }
+    
+    .rating-value {
+      @include body-medium;
+      font-weight: $font-weight-bold;
+      color: $warning-color;
+    }
+    
+    .rating-count {
+      @include body-small;
+      color: $text-secondary;
+    }
+    
+    .write-review-link {
+      @include caption;
+      color: $primary-color;
+      text-decoration: underline;
+      margin-left: auto;
+      
+      &:hover {
+        color: color-mix(in srgb, $primary-color, $white 20%);
+      }
+    }
+    
+    .no-reviews-text {
+      @include body-medium;
+      color: $text-secondary;
+    }
+  }
+  
+  .price-section {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    flex-wrap: wrap;
+    margin-bottom: $spacing-4;
+    padding: $spacing-3 0;
+    border-top: 1px solid $border-color;
+    border-bottom: 1px solid $border-color;
+    
+    .current-price {
+      font-size: $font-size-3xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      line-height: 1;
+      
+      @include mobile {
+        font-size: $font-size-2xl;
+      }
+    }
+    
+    .original-price {
+      @include body-large;
+      color: $text-tertiary;
+      text-decoration: line-through;
+    }
+    
+    .savings-badge {
+      @include body-small;
+      font-weight: $font-weight-bold;
+      color: $error-color;
+      background: color-mix(in srgb, $error-color, transparent 85%);
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-sm;
+      border: 1px solid color-mix(in srgb, $error-color, transparent 70%);
+      margin-left: auto;
+    }
+  }
+  
+  .stock-status {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    margin-bottom: $spacing-5;
+    
+    &.in-stock {
+      background: color-mix(in srgb, $success-color, transparent 85%);
+      color: $success-color;
+      border: 1px solid color-mix(in srgb, $success-color, transparent 70%);
+    }
+    
+    &.low-stock {
+      background: color-mix(in srgb, $warning-color, transparent 85%);
+      color: $warning-color;
+      border: 1px solid color-mix(in srgb, $warning-color, transparent 70%);
+    }
+    
+    &.out-of-stock {
+      background: color-mix(in srgb, $error-color, transparent 85%);
+      color: $error-color;
+      border: 1px solid color-mix(in srgb, $error-color, transparent 70%);
+    }
+    
+    .stock-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .stock-quantity {
+      @include caption;
+      color: inherit;
+      opacity: 0.8;
+      margin-left: $spacing-2;
+    }
+  }
+  
+  .variants-section {
+    margin-bottom: $spacing-5;
+    
+    .variant-group {
+      margin-bottom: $spacing-4;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .variant-label {
+        display: block;
+        @include body-small;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        margin-bottom: $spacing-2;
+      }
+      
+      .selected-value {
+        @include caption;
+        color: $text-secondary;
+        margin-left: $spacing-2;
+      }
+      
+      .variant-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-2;
+        margin-top: $spacing-2;
+        
+        .variant-option {
+          min-width: 60px;
+          padding: $spacing-2 $spacing-3;
+          border-radius: $border-radius;
+          font-size: $font-size-sm;
+          background: color-mix(in srgb, $surface-color, $black 5%);
+          color: $text-secondary;
+          border: 1px solid $border-color;
+          transition: all $transition-fast;
+          cursor: pointer;
+          
+          &.selected {
+            background: $primary-color;
+            color: $white;
+            border-color: $primary-color;
+          }
+          
+          &:hover:not(.selected) {
+            background: color-mix(in srgb, $surface-color, $black 10%);
+            border-color: color-mix(in srgb, $border-color, $black 10%);
+          }
+        }
+      }
+    }
+  }
+  
+  .quantity-section {
+    margin-bottom: $spacing-5;
+    
+    .quantity-label {
+      display: block;
+      @include body-small;
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+      margin-bottom: $spacing-2;
+    }
+    
+    .quantity-selector {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      overflow: hidden;
+      
+      .qty-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 0;
+        color: $text-primary;
+        background: color-mix(in srgb, $surface-color, $black 5%);
+        border: none;
+        transition: background-color $transition-fast;
+        
+        &:hover:not(:disabled) {
+          background: color-mix(in srgb, $surface-color, $black 15%);
+        }
+        
+        &:disabled {
+          opacity: 0.4;
+          color: $text-tertiary;
+          cursor: not-allowed;
+        }
+        
+        mat-icon {
+          font-size: 20px;
+        }
+      }
+      
+      .qty-input {
+        width: 60px;
+        height: 44px;
+        border: none;
+        background: color-mix(in srgb, $surface-color, $black 5%);
+        text-align: center;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        border-left: 1px solid $border-color;
+        border-right: 1px solid $border-color;
+        
+        &:focus {
+          outline: none;
+          background: color-mix(in srgb, $surface-color, $black 10%);
+        }
+        
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        
+        &[type=number] {
+          -moz-appearance: textfield;
+        }
+      }
+    }
+    
+    .qty-note {
+      @include caption;
+      color: $text-tertiary;
+      margin-left: $spacing-2;
+    }
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: $spacing-3;
+    margin-bottom: $spacing-5;
+    
+    @include mobile {
+      flex-direction: column;
+    }
+    
+    .btn-add-to-cart {
+      @include button-primary;
+      flex: 2;
+      height: 52px;
+      font-size: $font-size-base;
+      
+      mat-icon {
+        margin-right: $spacing-2;
+      }
+      
+      &:disabled {
+        @include darken-bg($surface-color, 50%);
+        color: $text-tertiary !important;
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+    }
+    
+    .btn-buy-now {
+      @include button-secondary;
+      flex: 1;
+      height: 52px;
+      font-size: $font-size-base;
+      background: $primary-color;
+      color: $white;
+      border-color: $primary-color;
+      
+      &:hover:not(:disabled) {
+        background: color-mix(in srgb, $primary-color, $white 20%);
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      
+      mat-icon {
+        margin-right: $spacing-1;
+      }
+    }
+  }
+  
+  .promoter-actions {
+    display: flex;
+    gap: $spacing-2;
+    margin-top: $spacing-4;
+    padding-top: $spacing-4;
+    border-top: 1px solid $border-color;
+    
+    .promote-btn {
+      flex: 2;
+      background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+      color: $white;
+      
+      mat-icon {
+        margin-right: $spacing-1;
+      }
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-lg;
+      }
+    }
+    
+    .stats-btn {
+      flex: 1;
+    }
+  }
+  
+  .promotion-stats-preview {
+    margin-top: $spacing-4;
+    padding: $spacing-4;
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    
+    h4 {
+      @include body-small;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0 0 $spacing-3 0;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: $spacing-3;
+      margin-bottom: $spacing-3;
+      
+      .stat-item {
+        text-align: center;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: $primary-color;
+          margin-bottom: $spacing-1;
+        }
+        
+        .stat-value {
+          display: block;
+          @include heading-small;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+          line-height: 1;
+        }
+        
+        .stat-label {
+          @include caption;
+          color: $text-secondary;
+        }
+      }
+    }
+    
+    .performance-metrics {
+      display: flex;
+      justify-content: space-between;
+      padding-top: $spacing-3;
+      border-top: 1px solid $border-color;
+      
+      .metric {
+        .metric-label {
+          @include caption;
+          color: $text-secondary;
+          margin-right: $spacing-1;
+        }
+        
+        .metric-value {
+          @include caption;
+          font-weight: $font-weight-semibold;
+          color: $success-color;
+        }
+      }
+    }
+  }
+  
+  .trust-badges {
+    display: flex;
+    justify-content: space-between;
+    gap: $spacing-3;
+    margin-bottom: $spacing-5;
+    padding: $spacing-3;
+    background: color-mix(in srgb, $surface-color, $black 5%);
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    
+    @include mobile {
+      display: none;
+    }
+    
+    .trust-item {
+      @include flex-center;
+      gap: $spacing-1;
+      @include caption;
+      color: $text-secondary;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: $success-color;
+      }
+    }
+  }
+  
+  .mobile-actions {
+    display: none;
+    gap: $spacing-2;
+    
+    @include mobile {
+      display: flex;
+    }
+    
+    .mobile-action-btn {
+      flex: 1;
+      @include flex-center;
+      gap: $spacing-1;
+      background: color-mix(in srgb, $surface-color, $black 5%);
+      color: $text-secondary;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      height: 44px;
+      
+      &.active {
+        color: $error-color;
+        background: color-mix(in srgb, $error-color, transparent 85%);
+        border-color: color-mix(in srgb, $error-color, transparent 70%);
+      }
+      
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      
+      span {
+        @include body-small;
+      }
+    }
+  }
+}

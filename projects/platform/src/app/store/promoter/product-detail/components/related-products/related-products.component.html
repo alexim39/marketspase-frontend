@@ -1,0 +1,74 @@
+<div class="related-products">
+  <div class="section-header">
+    <h3>Related Products</h3>
+
+    <a
+      mat-button
+      routerLink="/dashboard/stores"
+      [queryParams]="{ category: category }"
+    >
+      View All
+    </a>
+  </div>
+
+  @if (loading) {
+    <div class="loading-related">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+
+  } @else if (products.length > 0) {
+
+    <div class="related-list">
+      @for (product of products; track product._id) {
+
+        <div
+          class="related-item"
+          (click)="onProductClick(product)"
+        >
+          <div class="item-image">
+            @if (product.images && product.images[0]?.url) {
+              <img
+                [src]="product.images[0].url"
+                [alt]="product.name"
+              />
+            } @else {
+              <div class="placeholder">
+                <mat-icon>image</mat-icon>
+              </div>
+            }
+          </div>
+
+          <div class="item-info">
+            <h4 class="item-name">
+              {{ product.name | truncate:40 }}
+            </h4>
+
+            <p class="item-price">
+              {{ product.price | currencyUtils:user.wallets?.promoter?.currency }}
+            </p>
+
+            <!-- <div class="item-commission">
+              <span>Rating:</span>
+
+              <span
+                class="commission-badge"
+                [class]="getCommissionColor(product.promotion.averageRating || 0)"
+              >
+                {{ product.promotion.averageRating || 0 }}%
+              </span>
+            </div> -->
+          </div>
+        </div>
+
+      }
+    </div>
+
+  } @else {
+
+    <div class="empty-related">
+      <mat-icon>search_off</mat-icon>
+      <p>No related products found</p>
+    </div>
+
+  }
+</div>

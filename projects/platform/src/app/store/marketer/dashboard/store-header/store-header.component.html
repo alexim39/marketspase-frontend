@@ -144,13 +144,11 @@
         <div class="header-actions-section">
           <div class="primary-actions">
             @if (deviceType() === 'mobile') {
-              <button mat-fab 
-                    extended 
-                    color="primary" 
-                    (click)="onAddProduct()" 
-                    class="add-product-btn">
+             <div>
+               <button matMiniFab aria-label="New Product" title="New Product" (click)="onAddProduct()">
                 <mat-icon>add</mat-icon>
               </button>
+             </div>
             } @else {
               <button mat-raised-button 
                     color="primary" 
@@ -194,7 +192,7 @@
               
               <mat-divider/>
               
-              <button mat-menu-item (click)="onExportData()">
+              <!-- <button mat-menu-item (click)="onExportData()">
                 <mat-icon>download</mat-icon>
                 <span>Export Store Data</span>
               </button>
@@ -205,22 +203,23 @@
               </button>
               
               <mat-divider/>
-              
-              <button mat-menu-item (click)="onArchiveStore()" class="archive-action">
-                <mat-icon>archive</mat-icon>
-                <span>Archive Store</span>
+               -->
+              <button mat-menu-item (click)="onDeleteStore(store()!)" class="delete-action">
+                <mat-icon style="color: red;">delete</mat-icon>
+                <span style="color: red;">Delete Store</span>
               </button>
+
             </mat-menu>
             
             <!-- Switch Store Submenu -->
             <mat-menu #switchStoreMenu="matMenu" class="switch-store-menu">
-              @if (stores().length === 0) {
+              @if ((stores() || []).length === 0) {
                 <div class="no-stores-message">
                   <mat-icon>storefront</mat-icon>
                   <span>No other stores available</span>
                 </div>
               } @else {
-                @for (storeItem of stores(); track trackByStoreId($index, storeItem)) {
+                @for (storeItem of (stores() || []); track trackByStoreId($index, storeItem)) {
                   <button mat-menu-item 
                           (click)="onManageStore(storeItem._id!)"
                           [class.active-store]="storeItem._id === store()?._id">

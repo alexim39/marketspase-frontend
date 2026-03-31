@@ -96,16 +96,18 @@
                     class="connect-btn"
                     [matTooltip]="isPending(connection.id) ? 'Request sent' : 'Connect'"
                   >
-                    @if (isPending(connection.id)) {
-                      <mat-icon>pending</mat-icon>
-                      Pending
-                    } @else if (isConnected(connection.id)) {
-                      <mat-icon>check</mat-icon>
-                      Connected
-                    } @else {
-                      <mat-icon>person_add</mat-icon>
-                      Connect
-                    }
+                    <span>
+                      @if (isPending(connection.id)) {
+                        <mat-icon>pending</mat-icon>
+                        Pending
+                      } @else if (isConnected(connection.id)) {
+                        <mat-icon>check</mat-icon>
+                        Connected
+                      } @else {
+                        <mat-icon>person_add</mat-icon>
+                        Connect
+                      }
+                    </span>
                   </button>
                   <button 
                     mat-icon-button 

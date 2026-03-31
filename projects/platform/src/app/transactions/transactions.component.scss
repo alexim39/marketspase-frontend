@@ -451,20 +451,18 @@
     }
 
     &.processing {
-      background-color: rgba($warning-color, 0.5);
+      background-color: rgba($warning-color, 0.1);
       color: $warning-color;
     }
 
     &.reserved {
       background-color: rgba($warning-color, 0.1);
-      color: rgba($warning-color, 10%);
-      // color: darken($warning-color, 30%);
+      color: $warning-color;
     }
 
     &.reversed {
       background-color: rgba($warning-color, 0.1);
-      color: rgba($warning-color, 10%);
-      // color: darken($warning-color, 30%);
+      color: $warning-color;
     }
     
     &.failed {
@@ -473,7 +471,7 @@
     }
 
     &.rejected {
-      background-color: rgba($error-color, 0.5);
+      background-color: rgba($error-color, 0.1);
       color: $error-color;
     }
     

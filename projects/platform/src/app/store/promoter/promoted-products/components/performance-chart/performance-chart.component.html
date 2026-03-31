@@ -1,0 +1,151 @@
+<!-- components/performance-chart/performance-chart.component.html -->
+<div class="overview-chart-section">
+  <div class="section-header">
+    <div class="title-group">
+      <h3>📊 Performance Overview</h3>
+      <div class="chart-controls">
+        <button 
+          class="chart-toggle-btn" 
+          [class.active]="selectedChartType() === 'overview'"
+          (click)="setChartType('overview')"
+        >
+          Overview
+        </button>
+        <button 
+          class="chart-toggle-btn" 
+          [class.active]="selectedChartType() === 'trends'"
+          (click)="setChartType('trends')"
+        >
+          Product Trends
+        </button>
+      </div>
+    </div>
+    
+    <div class="chart-actions">
+      <div class="time-range-selector">
+        <button 
+          class="range-btn" 
+          [class.active]="chartTimeRange() === 'day'"
+          (click)="setTimeRange('day')"
+        >
+          Day
+        </button>
+        <button 
+          class="range-btn" 
+          [class.active]="chartTimeRange() === 'week'"
+          (click)="setTimeRange('week')"
+        >
+          Week
+        </button>
+        <button 
+          class="range-btn" 
+          [class.active]="chartTimeRange() === 'month'"
+          (click)="setTimeRange('month')"
+        >
+          Month
+        </button>
+      </div>
+      
+      <div class="export-dropdown" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="exportMenu">
+        <button class="export-btn" matTooltip="Export chart">
+          <span class="material-icons">download</span>
+        </button>
+      </div>
+
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportData('png')">
+          <span>Export as PNG</span>
+        </button>
+        <button mat-menu-item (click)="exportData('svg')">
+          <span>Export as SVG</span>
+        </button>
+        <button mat-menu-item (click)="exportData('csv')">
+          <span>Export as CSV</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <div class="metrics-selector">
+    <label class="metric-checkbox">
+      <input 
+        type="checkbox" 
+        [checked]="chartMetrics().has('views')"
+        (change)="toggleMetric('views')"
+      />
+      <span class="color-dot" style="background: var(--info-color)"></span>
+      Views
+    </label>
+    <label class="metric-checkbox">
+      <input 
+        type="checkbox" 
+        [checked]="chartMetrics().has('clicks')"
+        (change)="toggleMetric('clicks')"
+      />
+      <span class="color-dot" style="background: var(--warning-color)"></span>
+      Clicks
+    </label>
+    <label class="metric-checkbox">
+      <input 
+        type="checkbox" 
+        [checked]="chartMetrics().has('conversions')"
+        (change)="toggleMetric('conversions')"
+      />
+      <span class="color-dot" style="background: var(--success-color)"></span>
+      Conversions
+    </label>
+    <label class="metric-checkbox">
+      <input 
+        type="checkbox" 
+        [checked]="chartMetrics().has('earnings')"
+        (change)="toggleMetric('earnings')"
+      />
+      <span class="color-dot" style="background: var(--secondary-color)"></span>
+      Earnings
+    </label>
+    <label class="metric-checkbox">
+      <input 
+        type="checkbox" 
+        [checked]="chartMetrics().has('ctr')"
+        (change)="toggleMetric('ctr')"
+      />
+      <span class="color-dot" style="background: var(--primary-color)"></span>
+      CTR %
+    </label>
+  </div>
+
+  <promotion-stats-chart
+    [chartData]="chartData()"
+    [height]="400"
+    [width]="1200"
+  />
+
+  <div class="chart-summary">
+    <div class="summary-item">
+      <span class="summary-label">Total Views</span>
+      <span class="summary-value">
+         {{ formatNumber()?.(metrics().totalViews) }}
+      </span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Total Clicks</span>
+      <span class="summary-value">{{ formatNumber()?.(metrics().totalClicks) }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Total Conversions</span>
+      <span class="summary-value">{{ formatNumber()?.(metrics().totalConversions) }}</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Avg CTR</span>
+      <span class="summary-value">{{ metrics().avgClickThroughRate?.toFixed(1) || 0 }}%</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Avg CR</span>
+      <span class="summary-value">{{ metrics().avgConversionRate?.toFixed(1) || 0 }}%</span>
+    </div>
+    <div class="summary-item highlight">
+      <span class="summary-label">Total Earnings</span>
+      <span class="summary-value">{{ formatCurrency()?.(metrics().totalEarnings) }}</span>
+    </div>
+  </div>
+</div>

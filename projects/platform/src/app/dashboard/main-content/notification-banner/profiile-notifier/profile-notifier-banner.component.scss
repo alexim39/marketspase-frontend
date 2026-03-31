@@ -142,7 +142,7 @@
     border-color: $info-color;
     font-weight: 600;
     text-transform: none;
-    padding: 8px 20px;
+    padding: 12px;
     border-radius: 6px;
     transition: all 0.3s ease;
     display: flex;
@@ -166,6 +166,34 @@
       justify-content: center;
     }
   }
+
+  .video {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #c10202; // Red background for a "video" look
+    color: #fff;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+
+    /* &::before {
+      content: '';
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 10px solid white; // Play icon triangle
+    } */
+
+    &:hover {
+      transform: scale(1.05);
+      background: #cc0000;
+    }
+  }
+
 
   .close-button {
     // UPDATED: Use info-color variable for dynamic theming

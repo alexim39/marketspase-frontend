@@ -98,12 +98,52 @@
     <mat-card-content>
       <div class="images-upload">
         <!-- Image Upload Area -->
-        <div class="upload-area" (click)="fileInput.click()">
+        <div class="upload-area" 
+          [class.disabled]="images().length >= maxImages()"
+          (click)="images().length < maxImages() && fileInput.click()"
+          (dragover)="images().length < maxImages() && onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="images().length < maxImages() && onDrop($event)">
+        <input type="file" #fileInput accept="image/*" multiple 
+              [disabled]="images().length >= maxImages()"
+              (change)="images().length < maxImages() && onImageSelect($event)" hidden>
+        <mat-icon class="upload-icon">cloud_upload</mat-icon>
+        <p *ngIf="images().length < maxImages()">Drag & drop images here or click to browse</p>
+        <p *ngIf="images().length >= maxImages()">Maximum {{ maxImages() }} images reached</p>
+        <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>
+      </div>
+
+        <!-- <div class="upload-area" 
+            (click)="fileInput.click()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
           <input type="file" required #fileInput accept="image/*" multiple (change)="onImageSelect($event)" hidden>
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
           <p>Drag & drop images here or click to browse</p>
           <span class="upload-hint">Supports JPG, PNG, WebP up to 5MB each</span>
-        </div>
+        </div> -->
+
+        @if (existingImages().length > 0) {
+          <div class="existing-images">
+            <h4>Existing Images</h4>
+            <div class="image-row">  <!-- Changed from image-grid to image-row -->
+              @for (image of existingImages(); track $index; let i = $index) {
+                <div class="image-preview" [class.main-image]="image.isMain">
+                  <div class="image-overlay">
+                    <button mat-icon-button class="image-remove" (click)="removeExistingImage.emit(i)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                    @if (image.isMain) {
+                      <div class="main-label">Main</div>
+                    }
+                  </div>
+                  <img [src]="image.url" [alt]="image.altText">
+                </div>
+              }
+            </div>
+          </div>
+        }
 
         <!-- Image Previews -->
         @if (images().length > 0) {

@@ -36,6 +36,7 @@ export class CampaignCardComponent {
   @Output() viewDetails = new EventEmitter<string>();
   @Output() editCampaign = new EventEmitter<string>();
   @Output() pauseCampaign = new EventEmitter<string>();
+  @Output() activateCampaign = new EventEmitter<string>();
   @Output() resumeCampaign = new EventEmitter<string>();
   @Output() deleteCampaign = new EventEmitter<string>();
 
@@ -68,6 +69,10 @@ export class CampaignCardComponent {
 
   onPauseCampaign(): void {
     this.pauseCampaign.emit(this.campaign._id);
+  }
+
+  onActivateCampaign(): void {
+    this.activateCampaign.emit(this.campaign._id);
   }
 
   onResumeCampaign(): void {

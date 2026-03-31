@@ -1,0 +1,44 @@
+    <div class="commission-card">
+      <div class="commission-header">
+        <mat-icon>trending_up</mat-icon>
+        <h3>Commission Details</h3>
+      </div>
+      <h2 class="commission-rate">{{ product.promotion.commissionRate }}%</h2>
+      <p class="commission-details">
+        Earn {{ commissionDetails?.value }} commission on every sale through your promotion link.
+      </p>
+      
+      <div class="commission-breakdown">
+        <div class="breakdown-item">
+          <span class="label">Product Price</span>
+          <span class="value">{{ product.price | currencyUtils:user?.wallets?.promoter?.currency }}</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Commission Rate</span>
+          <span class="value">{{ product.promotion.commissionRate }}%</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Your Earnings per Sale</span>
+          <span class="value">{{ commissionDetails?.potentialPerSale | currencyUtils:user?.wallets?.promoter?.currency }}</span>
+        </div>
+      </div>
+
+      <div class="commission-cta">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          class="primary"
+          (click)="copyLink.emit()"
+        >
+          <mat-icon>share</mat-icon>
+          Get Promotion Link
+        </button>
+        <button 
+          mat-button 
+          (click)="shareWhatsApp.emit()"
+        >
+          <mat-icon>whatsapp</mat-icon>
+          Share on WhatsApp
+        </button>
+      </div>
+    </div>

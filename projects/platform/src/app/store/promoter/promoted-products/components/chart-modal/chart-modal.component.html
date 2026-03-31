@@ -1,0 +1,21 @@
+<!-- components/chart-modal/chart-modal.component.html -->
+@if (showChart() && selectedProduct()) {
+  <div class="chart-modal-overlay" (click)="close.emit()">
+    <div class="chart-modal-content" (click)="$event.stopPropagation()">
+      <div class="chart-modal-header">
+        <h2>Performance Analytics: {{ selectedProduct()?.productName }}</h2>
+        <button class="close-btn" (click)="close.emit()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="chart-modal-body">
+        <promotion-stats-chart
+          [productId]="selectedProduct()?.productId"
+          [productName]="selectedProduct()?.productName"
+          [height]="400"
+          [width]="800"
+        />
+      </div>
+    </div>
+  </div>
+}

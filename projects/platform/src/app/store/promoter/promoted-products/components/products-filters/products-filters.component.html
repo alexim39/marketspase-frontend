@@ -1,0 +1,65 @@
+<!-- components/products-filters/products-filters.component.html -->
+<div class="controls-section">
+  <div class="search-bar">
+    <span class="material-icons search-icon">search</span>
+    <input
+      type="text"
+      placeholder="Search by product name or tracking code..."
+      [ngModel]="searchQuery()"
+      (ngModelChange)="onSearchChange($event)"
+    />
+    @if (searchQuery()) {
+      <button class="clear-search" (click)="onSearchChange('')">
+        <span class="material-icons">close</span>
+      </button>
+    }
+  </div>
+
+  <div class="filter-controls">
+    <div class="filter-group">
+      <label>Performance:</label>
+      <select [ngModel]="selectedPerformanceFilter()" (ngModelChange)="onPerformanceFilterChange($event)">
+        <option value="all">All Performance</option>
+        <option value="high">High Performing</option>
+        <option value="medium">Medium Performing</option>
+        <option value="low">Low Performing</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Date Range:</label>
+      <select [ngModel]="selectedDateRange()" (ngModelChange)="onDateRangeChange($event)">
+        <option value="today">Today</option>
+        <option value="week">Last 7 Days</option>
+        <option value="month">Last 30 Days</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+
+    @if (hasActiveFilters()) {
+      <button class="clear-filters-btn" (click)="onClearFilters()">
+        <span class="material-icons">clear</span>
+        Clear Filters
+      </button>
+    }
+  </div>
+
+  <div class="view-toggle">
+    <button
+      class="view-btn"
+      [class.active]="viewMode() === 'grid'"
+      (click)="setViewMode('grid')"
+      matTooltip="Grid view"
+    >
+      <span class="material-icons">grid_view</span>
+    </button>
+    <button
+      class="view-btn"
+      [class.active]="viewMode() === 'table'"
+      (click)="setViewMode('table')"
+      matTooltip="Table view"
+    >
+      <span class="material-icons">table_rows</span>
+    </button>
+  </div>
+</div>

@@ -7,6 +7,7 @@
  <!-- Desktop Stats -->
   @if (deviceType() === 'desktop') {
     <app-campaign-stats 
+      [user]="user()"
       [stats]="campaignStats()"
     />
   }
@@ -15,6 +16,7 @@
   @if (deviceType() === 'mobile') {
     <app-campaign-stats-mobile
       [stats]="campaignStats()"
+      [user]="user()"
     />
   }
 
@@ -70,6 +72,7 @@
     (viewDetails)="viewCampaignDetails($event)"
     (editCampaign)="editCampaign($event)"
     (pauseCampaign)="pauseCampaign($event)"
+    (activateCampaign)="activateCampaign($event)"
     (resumeCampaign)="resumeCampaign($event)"
     (deleteCampaign)="deleteCampaign($event)"
     (createCampaign)="createCampaign()"

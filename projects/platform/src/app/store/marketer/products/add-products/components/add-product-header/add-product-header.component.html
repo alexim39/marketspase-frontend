@@ -7,9 +7,10 @@
             <mat-icon>arrow_back</mat-icon>
             Back to Products
           </button>
-          
+        
+
           <div class="header-title">
-            <h1>Add New Product</h1>
+            <h1>{{ isEdit() ? 'Edit Product' : 'Add New Product' }}</h1>
             <p class="subtitle">Fill in the product details below. All fields marked with * are required.</p>
           </div>
         </div>
@@ -31,10 +32,10 @@
               </button>
             } -->
 
-            @if (loading()) {
+          @if (loading()) {
             <button mat-raised-button color="primary" (click)="submit.emit()" [disabled]="loading()">
               <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
-              <span>Saving...</span>
+              <span>{{ isEdit() ? 'Updating...' : 'Saving...' }}</span>
             </button>
           }
           
