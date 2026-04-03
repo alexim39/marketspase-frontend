@@ -487,6 +487,7 @@
     
     .products-table {
       width: 100%;
+      background-color: $background-color;
       
       .mat-header-row {
         background: rgba($gray-900, 0.5);
@@ -705,6 +706,7 @@
     padding: $spacing-4 0;
     border-top: 1px solid $border-color;
     
+    
     .pagination-info {
       @include body-medium;
       color: $text-secondary;
@@ -717,6 +719,7 @@
       
       mat-paginator {
         width: 100%;
+        //background-color: $background-color;
       }
       
       .pagination-info {

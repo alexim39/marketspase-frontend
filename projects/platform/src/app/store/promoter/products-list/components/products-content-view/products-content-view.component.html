@@ -117,7 +117,7 @@
               <button
                 mat-icon-button
                 color="accent"
-                (click)="shareWhatsApp.emit(product); $event.stopPropagation()"
+                (click)="onShareWhatsApp(product); $event.stopPropagation()"
                 matTooltip="Share via WhatsApp"
               >
                 <mat-icon>whatsapp</mat-icon>
@@ -209,7 +209,7 @@
             <button
               mat-raised-button
               color="accent"
-              (click)="copyUrl(product)"
+              (click)="onCopyUrl(product)"
               class="promote-btn"
             >
               <mat-icon>content_copy</mat-icon>
@@ -220,7 +220,6 @@
               <mat-icon>share</mat-icon>
               Share
             </button>
-
           </mat-card-actions>
         </mat-card>
       }
@@ -306,11 +305,11 @@
               <div class="performance-stats">
                 <div class="stat">
                   <mat-icon>visibility</mat-icon>
-                  <span>{{ product.promotion.views | number }}</span>
+                  <span>{{ product.viewCount| number }}</span>
                 </div>
                 <div class="stat">
                   <mat-icon>touch_app</mat-icon>
-                  <span>{{ product.promotion.clicks | number }}</span>
+                  <span>{{ product.promotion.clickCount | number }}</span>
                 </div>
                 <div class="stat">
                   <mat-icon>shopping_cart</mat-icon>
@@ -340,9 +339,13 @@
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #moreMenu="matMenu">
-              <button mat-menu-item (click)="shareWhatsApp.emit(product)">
+              <button mat-menu-item (click)="onShareWhatsApp(product)">
                 <mat-icon>whatsapp</mat-icon>
                 Share via WhatsApp
+              </button>
+              <button mat-menu-item (click)="onCopyUrl(product)">
+                <mat-icon>content_copy</mat-icon>
+                Copy Link
               </button>
               <button mat-menu-item (click)="viewProduct.emit(product)">
                 <mat-icon>info</mat-icon>
@@ -353,10 +356,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="['product', 'category', 'price', 'commission', 'performance', 'actions']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['product', 'category', 'price', 'commission', 'performance', 'actions'];"
-            class="product-row"
-            (click)="viewProduct.emit(row)">
-        </tr>
+        <tr mat-row *matRowDef="let row; columns: ['product', 'category', 'price', 'commission', 'performance', 'actions'];" class="product-row"></tr>
       </table>
     </div>
   }
