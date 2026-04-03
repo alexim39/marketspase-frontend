@@ -20,12 +20,7 @@ import { RatingComponent } from '../../shared/rating/rating.component';
 import { CurrencyUtilsPipe, DeviceService } from '../../../../../../shared-services/src/public-api';
 
 // Services
-import { CartService } from '../../services/cart.service';
-import { WishlistService } from '../../services/wishlist.service';
 import { StorefrontService } from '../../services/storefront.service';
-
-// Components (for dialogs/sheets)
-import { ShareBottomSheetComponent } from '../../components/share-bottom-sheet/share-bottom-sheet.component';
 
 // Models
 import { Product, Store, ProductVariant } from '../../../store/models';
@@ -33,7 +28,7 @@ import { TruncatePipe } from '../../../store/shared';
 import { UserService } from '../../../common/services/user.service';
 import { StoreFooterComponent } from '../../core/store-footer/store-footer.component';
 import { StoreHeaderComponent } from '../../core/store-header/store-header.component';
-import { PromotionTrackingService } from '../../../store/promoter/services/promotion-tracking.service';
+import { PromotionService } from '../../../store/promoter/services/promotion.service';
 
 // Child Components
 import { ProductGalleryComponent } from './components/product-gallery/product-gallery.component';
@@ -70,9 +65,7 @@ import { RelatedProductsComponent } from './components/related-products/related-
   ],
   providers: [
     StorefrontService, 
-    WishlistService, 
-    CartService,
-    PromotionTrackingService
+    PromotionService
   ],
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss']
@@ -86,8 +79,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private router = inject(Router);
   private location = inject(Location);
   private storeService = inject(StorefrontService);
-  private cartService = inject(CartService);
-  private wishlistService = inject(WishlistService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
@@ -99,7 +90,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type());
 
-  private promotionService = inject(PromotionTrackingService);
+  private promotionService = inject(PromotionService);
 
   // =========================================
   // VIEW CHILD REFERENCES
@@ -256,7 +247,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   ngOnInit(): void {
     this.extractTrackingParams();
     this.loadProductData();
-    this.checkWishlistStatus();
     this.setupScrollListener();
   }
 
@@ -338,12 +328,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  private checkWishlistStatus(): void {
-    const productId = this.route.snapshot.paramMap.get('productId');
-    if (productId) {
-      this.isInWishlist.set(this.wishlistService.isInWishlist(productId));
-    }
-  }
+ 
 
   private setupScrollListener(): void {
     this.handleScroll = this.handleScroll.bind(this);
@@ -407,7 +392,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       promoterId: this.promoterId()
     };
     
-    this.cartService.addToCart(cartItem);
+    //this.cartService.addToCart(cartItem);
     
     this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
       duration: 5000,
@@ -440,114 +425,21 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     if (!product?._id) return;
     
     if (this.isInWishlist()) {
-      this.wishlistService.removeFromWishlist(product._id);
+      //this.wishlistService.removeFromWishlist(product._id);
       this.showNotification('Removed from wishlist', 'info');
     } else {
-      this.wishlistService.addToWishlist({
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.images?.[0]?.url,
-        storeId: product.store._id ?? '',
-        category: product.category
-      });
+      // this.wishlistService.addToWishlist({
+      //   productId: product._id,
+      //   name: product.name,
+      //   price: product.price,
+      //   image: product.images?.[0]?.url,
+      //   storeId: product.store._id ?? '',
+      //   category: product.category
+      // });
       this.showNotification('Added to wishlist', 'success');
     }
     
     this.isInWishlist.set(!this.isInWishlist());
-  }
-
-  // =========================================
-  // SHARE & SOCIAL ACTIONS
-  // =========================================
-
-  shareProduct(): void {
-    const product = this.product();
-    if (!product) return;
-
-    const shareData = {
-      title: product.name,
-      text: `${product.name} - $${this.currentPrice().toFixed(2)}`, 
-      url: `${window.location.origin}/product/${product._id}`,
-      image: product.images?.[0]?.url
-    };
-
-    this.bottomSheet.open(ShareBottomSheetComponent, {
-      data: shareData,
-      panelClass: ['share-bottom-sheet']
-    });
-  }
-
-  shareProductWithTracking(): void {
-    const product = this.product();
-    if (!product) return;
-
-    const userRole = this.user()?.role;
-    const promoterId = this.user()?._id;
-    
-    if (userRole === 'promoter' && promoterId) {
-      const loadingSnackbar = this.snackBar.open('Generating promotion link...', 'Close', {
-        duration: 3000
-      });
-      
-      const promotionOptions = {
-        storeId: product.store._id,
-        commissionRate: product.promotion?.commissionRate || 10,
-        commissionType: product.promotion?.commissionType || 'percentage',
-        fixedCommission: product.promotion?.fixedCommission || 0
-      };
-      
-      this.promotionService.generatePromotionLink(
-        product._id ?? '', 
-        promoterId, 
-        promotionOptions
-      ).pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            loadingSnackbar.dismiss();
-            const trackingUrl = `${window.location.origin}/api/stores/product/promotions/track/${response.data.uniqueCode}?productId=${product._id}`;
-            const message = this.buildPromotionMessage(product, trackingUrl);
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-            this.activePromotion.set(response.data);
-            this.showPromotionSuccess(product, response.data);
-          },
-          error: (error) => {
-            loadingSnackbar.dismiss();
-            console.error('Failed to generate promotion link:', error);
-            this.snackBar.open('Failed to generate promotion link. Please try again.', 'Close', {
-              duration: 5000,
-              panelClass: ['error-snackbar']
-            });
-          }
-        });
-    } else {
-      this.shareProduct();
-    }
-  }
-
-  private buildPromotionMessage(product: Product, trackingLink: string): string {
-    const price = this.currentPrice();
-    const commission = product.promotion?.commissionRate || 10;
-    
-    return `🚀 Check out this amazing product!\n\n` +
-           `📦 *${product.name}*\n` +
-           `💰 Price: $${price.toFixed(2)}\n` +
-           `🎯 Commission: ${commission}%\n\n` +
-           `✨ Shop now: ${trackingLink}\n\n` +
-           `👉 Limited time offer!`;
-  }
-
-  private showPromotionSuccess(product: Product, promotionData: any): void {
-    const snackBarRef = this.snackBar.open(
-      '✅ Promotion link generated! Track your performance.',
-      'View Stats',
-      { duration: 8000, horizontalPosition: 'right', verticalPosition: 'bottom' }
-    );
-    
-    snackBarRef.onAction().subscribe(() => {
-      this.viewPromotionStats(promotionData);
-    });
   }
 
   viewPromotionStats(promotionData?: any): void {
@@ -718,7 +610,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   // TRACKING METHODS
   // =========================================
 
-  private extractTrackingParams(): void {
+  /* private extractTrackingParams(): void {
     // 1. THIS FIXES THE IMAGE/DATA REFRESH
     // Listen for the ID in the URL (e.g., /promote/:id)
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
@@ -747,6 +639,61 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
         this.viewRecordingAttempted = true;
       }
     });
+  } */
+
+    private extractTrackingParams(): void {
+      // Store tracking params immediately
+      let pendingTrackingCode: string | null = null;
+      let pendingPromoterId: string | null = null;
+      
+      // Handle query params first (they come immediately)
+      this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params: Params) => {
+        const trackingCode = params['track'] || params['ref'];
+        const promoterId = params['promoter'];
+        
+        if (trackingCode) {
+          pendingTrackingCode = trackingCode;
+          this.trackingCode.set(trackingCode);
+          
+          // Track the click immediately when landing
+          this.trackPromotionClick(trackingCode);
+        }
+        
+        if (promoterId) {
+          pendingPromoterId = promoterId;
+          this.promoterId.set(promoterId);
+        }
+      });
+      
+      // Handle product loading separately
+      this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+        const productId = params.get('productId');
+        if (productId) {
+          this.loadProductData()
+        }
+      });
+    }
+
+    private trackPromotionClick(uniqueCode: string): void {
+    // Prevent duplicate click tracking in same session
+    const clickTracked = sessionStorage.getItem(`click_tracked_${uniqueCode}`);
+    if (clickTracked) return;
+    
+    const deviceType = this.deviceService.type();
+    const source = document.referrer || 'direct';
+    
+    this.promotionService.trackPromotionClick(uniqueCode, deviceType, source)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('Promotion click tracked successfully:', response);
+          sessionStorage.setItem(`click_tracked_${uniqueCode}`, 'true');
+        },
+        error: (error) => {
+          console.error('Failed to track promotion click:', error);
+          // Don't prevent future attempts on error
+        }
+      });
   }
 
   private checkAndTrackViewAfterProductLoad(): void {

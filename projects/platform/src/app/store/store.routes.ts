@@ -52,10 +52,10 @@ export const StoreRoutes: Routes = [
         title: "Product Details - View and Manage Product Information",
     },
     
-    {
+   /*  {
         path: 'promotions',
         loadComponent: () => import('./promoter/promoted-products/promoted-products.component').then(c => c.PromotedProductsComponent),
         title: "Promoted products - View and Manage Product you are promoting",
-    },
+    }, */
     
 ]

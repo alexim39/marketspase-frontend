@@ -26,8 +26,6 @@ import { ErrorStateComponent } from './components/error-state/error-state.compon
 import { FabContainerComponent } from './components/fab-container/fab-container.component';
 
 // Services
-import { CartService } from './services/cart.service';
-import { WishlistService } from './services/wishlist.service';
 import { StorefrontService } from './services/storefront.service';
 
 // Components
@@ -60,7 +58,7 @@ import { MatIconModule } from '@angular/material/icon';
     FilterSidebarComponent,
     MatIconModule
   ],
-  providers: [StorefrontService, CartService, WishlistService],
+  providers: [StorefrontService],
   templateUrl: './storefront.component.html',
   styleUrls: ['./storefront.component.scss']
 })
@@ -68,8 +66,6 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   public router = inject(Router);
   private storeService = inject(StorefrontService);
-  private cartService = inject(CartService);
-  private wishlistService = inject(WishlistService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
@@ -351,7 +347,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       this.products.set(productsResponse?.data || []);
 
       // Check if store is favorited
-      this.isFavorited.set(this.wishlistService.isStoreFavorited(storeResponse.data._id ?? ''));
+      //this.isFavorited.set(this.wishlistService.isStoreFavorited(storeResponse.data._id ?? ''));
 
       // Animation trigger
       setTimeout(() => {
@@ -366,7 +362,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadWishlist(): void {
-    this.wishlist.set(new Set(this.wishlistService.getWishlistProductIds()));
+    //this.wishlist.set(new Set(this.wishlistService.getWishlistProductIds()));
   }
 
   private calculatePriceRange(): void {
@@ -456,14 +452,14 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   addToCart(product: Product): void {
-    this.cartService.addToCart({
+   /*  this.cartService.addToCart({
       productId: product._id ?? '',
       quantity: 1,
       price: product.price,
       name: product.name,
       image: product.images?.[0]?.url,
       storeId: product.store._id ?? ''
-    });
+    }); */
 
     this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
       duration: 3000,
@@ -477,17 +473,17 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleWishlist(product: Product): void {
     if (this.isInWishlist(product?._id ?? '')) {
-      this.wishlistService.removeFromWishlist(product._id ?? '');
+      //this.wishlistService.removeFromWishlist(product._id ?? '');
       this.showNotification('Removed from wishlist', 'info');
     } else {
-      this.wishlistService.addToWishlist({
+     /*  this.wishlistService.addToWishlist({
         productId: product._id ?? '',
         name: product.name,
         price: product.price,
         image: product.images?.[0]?.url,
         storeId: product.store._id ?? '',
         category: product.category
-      });
+      }); */
       this.showNotification('Added to wishlist', 'success');
     }
     this.loadWishlist();
@@ -498,16 +494,16 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!store) return;
 
     if (this.isFavorited()) {
-      this.wishlistService.removeFavoriteStore(store._id ?? '');
+      //this.wishlistService.removeFavoriteStore(store._id ?? '');
       this.showNotification('Store removed from favorites', 'info');
     } else {
       if (store._id) {
-        this.wishlistService.addFavoriteStore({
+        /* this.wishlistService.addFavoriteStore({
           storeId: store._id,
           storeName: store.name,
           storeLogo: store.logo,
           storeLink: store.storeLink
-        });
+        }); */
       }
       this.showNotification('Store added to favorites', 'success');
     }
@@ -629,7 +625,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getCartCount(): number {
-    return this.cartService.cartItemCount();
+    return 0 //this.cartService.cartItemCount();
   }
 
   isNewProduct(date: Date): boolean {

@@ -164,68 +164,6 @@
     </button>
   </div>
 
-  <!-- Promoter Actions -->
-  @if (userRole === 'promoter') {
-    <div class="promoter-actions">
-      <button 
-        mat-raised-button 
-        color="accent" 
-        class="promote-btn"
-        (click)="promoteProduct.emit()">
-        <mat-icon>campaign</mat-icon>
-        Promote & Earn {{ product?.promotion?.commissionRate || 10 }}% Commission
-      </button>
-      
-      @if (activePromotion) {
-        <button 
-          mat-stroked-button 
-          class="stats-btn"
-          (click)="viewPromotionStats.emit(activePromotion)">
-          <mat-icon>analytics</mat-icon>
-          View Stats
-        </button>
-      }
-    </div>
-    
-    <!-- Promotion Stats Preview -->
-    @if (activePromotion) {
-      <div class="promotion-stats-preview">
-        <h4>Your Promotion Stats</h4>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <mat-icon>visibility</mat-icon>
-            <span class="stat-value">{{ activePromotion.viewCount || 0 }}</span>
-            <span class="stat-label">Views</span>
-          </div>
-          <div class="stat-item">
-            <mat-icon>touch_app</mat-icon>
-            <span class="stat-value">{{ activePromotion.clickCount || 0 }}</span>
-            <span class="stat-label">Clicks</span>
-          </div>
-          <div class="stat-item">
-            <mat-icon>shopping_cart</mat-icon>
-            <span class="stat-value">{{ activePromotion.conversionCount || 0 }}</span>
-            <span class="stat-label">Sales</span>
-          </div>
-          <div class="stat-item">
-            <mat-icon>attach_money</mat-icon>
-            <span class="stat-value">{{ activePromotion.earnings || 0 | currency }}</span>
-            <span class="stat-label">Earned</span>
-          </div>
-        </div>
-        <div class="performance-metrics">
-          <div class="metric">
-            <span class="metric-label">CTR:</span>
-            <span class="metric-value">{{ (activePromotion.clickThroughRate || 0) | number:'1.1-1' }}%</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Conversion:</span>
-            <span class="metric-value">{{ (activePromotion.conversionRate || 0) | number:'1.1-1' }}%</span>
-          </div>
-        </div>
-      </div>
-    }
-  }
 
   <!-- Trust Badges -->
   <div class="trust-badges">
@@ -252,13 +190,6 @@
       (click)="toggleWishlist.emit()">
       <mat-icon>{{ isInWishlist ? 'favorite' : 'favorite_border' }}</mat-icon>
       <span>{{ isInWishlist ? 'Saved' : 'Save' }}</span>
-    </button>
-    <button 
-      mat-button 
-      class="mobile-action-btn"
-      (click)="shareProduct.emit()">
-      <mat-icon>share</mat-icon>
-      <span>Share</span>
     </button>
     @if (store?.whatsappNumber) {
       <button 

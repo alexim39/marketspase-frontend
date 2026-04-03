@@ -48,9 +48,6 @@
           <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
             <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
           </button>
-          <button mat-icon-button (click)="shareProduct()">
-            <mat-icon>share</mat-icon>
-          </button>
         </div>
       </div>
 
@@ -101,9 +98,7 @@
               (addToCart)="addToCart()"
               (buyNow)="buyNow()"
               (toggleWishlist)="toggleWishlist()"
-              (shareProduct)="shareProduct()"
               (contactStore)="contactStore()"
-              (promoteProduct)="shareProductWithTracking()"
               (viewPromotionStats)="viewPromotionStats($event)"
             />
           </div>

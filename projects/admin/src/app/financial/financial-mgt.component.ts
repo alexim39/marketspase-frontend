@@ -81,12 +81,30 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
 
   // Status badge mapping
   readonly statusConfig: Record<string, { class: string; icon: string; label: string }> = {
-    'pending_approval': { class: 'status-warning', icon: 'hourglass_empty', label: 'Pending Approval' },
-    'processing': { class: 'status-info', icon: 'pending', label: 'Processing' },
-    'successful': { class: 'status-success', icon: 'check_circle', label: 'Completed' },
-    'failed': { class: 'status-danger', icon: 'error', label: 'Failed' },
-    'reversed': { class: 'status-default', icon: 'swap_horiz', label: 'Reversed' }
+    // Success States
+    'success': { class: 'status-success', icon: 'check_circle', label: 'Success' },
+    'successful': { class: 'status-success', icon: 'check_circle', label: 'Successful' },
+    'processed': { class: 'status-success', icon: 'verified', label: 'Processed' },
+
+    // Pending States
+    'pending': { class: 'status-pending', icon: 'hourglass_empty', label: 'Pending' },
+    'processing': { class: 'status-processing', icon: 'sync', label: 'Processing' },
+    'queued': { class: 'status-queued', icon: 'low_priority', label: 'Queued' },
+    'ongoing': { class: 'status-ongoing', icon: 'pending', label: 'Ongoing' },
+
+    // Action Required
+    'pending_approval': { class: 'status-pending_approval', icon: 'rule', label: 'Pending Approval' },
+    'otp': { class: 'status-otp', icon: 'vibration', label: 'Wait for OTP' },
+
+    // Error / Final States
+    'failed': { class: 'status-failed', icon: 'error', label: 'Failed' },
+    'rejected': { class: 'status-failed', icon: 'cancel', label: 'Rejected' },
+    'abandoned': { class: 'status-abandoned', icon: 'person_off', label: 'Abandoned' },
+    'reversed': { class: 'status-reversed', icon: 'settings_backup_restore', label: 'Reversed' },
+    'reversal_pending': { class: 'status-pending', icon: 'history', label: 'Reversal Pending' }
   };
+
+
 
   // SIMPLIFIED: Just return the current page data (already paginated from server)
   readonly paginatedWithdrawals = computed(() => {
@@ -357,6 +375,7 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   }
 
   getStatusClass(status: string): string {
+    console.log('statuses ',status)
     return this.statusConfig[status]?.class || 'status-default';
   }
 

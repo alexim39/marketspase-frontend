@@ -98,6 +98,7 @@
 .payout-notice {
   grid-column: 1 / -1; // Spans full width
   background-color: color-mix(in srgb, $background-color, black 7%);
+  color: $text-secondary;
   border-left: 4px solid #007bff;
   padding: 16px;
   margin: 12px 0;
@@ -121,7 +122,6 @@
   span {
     font-size: 0.95rem;
     line-height: 1.5;
-    color: $white;
     flex: 1; // Allows text to take remaining space
   }
 

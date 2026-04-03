@@ -148,7 +148,7 @@ export class MarketerProductDetailComponent implements OnInit {
             this.loading.set(false);
           },
           error: (error) => {
-            console.error('Failed to load product:', error);
+            //console.error('Failed to load product:', error);
             this.error.set(true);
             this.loading.set(false);
           }
@@ -204,7 +204,7 @@ export class MarketerProductDetailComponent implements OnInit {
     }
   }
 
-  async toggleProductStatus(): Promise<void> {
+  /* async toggleProductStatus(): Promise<void> {
     if (!this.product) return;
     
     const action = this.product.isActive ? 'deactivate' : 'activate';
@@ -247,7 +247,7 @@ export class MarketerProductDetailComponent implements OnInit {
         this.loading.set(false);
       }
     }
-  }
+  } */
 
   // duplicateProduct(): void {
   //   this.snackBar.open('Duplicating product...', 'OK', { duration: 2000 });

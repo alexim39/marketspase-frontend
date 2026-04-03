@@ -1,6 +1,6 @@
 // promoter-products-list.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
@@ -103,6 +103,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         return;
       }
 
+      console.log('produt lists response ',response)
+
       this.products.set(response.data);
       this.totalProducts.set(response.total);
       this.totalPages.set(response.totalPages);
@@ -168,12 +170,20 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   generateWhatsAppMessage(product: Product): void {
-    const message = `Check out this amazing product: ${product.name}\n\n` +
-                   `💰 Price: $${product.price}\n` +
-                   `🎯 Commission: ${product.promotion.commissionRate}%\n\n` +
-                   `Shop now: ${window.location.origin}/promote/${product.promotion.trackingCode}\n\n` +
-                   `From: ${product.store.name}`;
-    
+    const message = `*${product.name}*
+
+    Looking for something worth your money? Check this out
+
+     *Price:* $${product.price}
+     *Earn:* ${product.promotion.commissionRate}% commission
+
+    🛒 *Order now:*
+    ${window.location.origin}/promote/${product.promotion.trackingCode}
+
+     *Store:* ${product.store.name}
+
+    Don’t miss out — grab yours now or share with someone who needs this!`;
+
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   }
@@ -185,9 +195,9 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   getConversionRate(product: Product): number {
-    const { views, clicks, conversions } = product.promotion;
-    if (clicks === 0) return 0;
-    return (conversions / clicks) * 100;
+    const { viewCount, clickCount, conversions } = product.promotion;
+    if (clickCount === 0) return 0;
+    return (conversions / clickCount) * 100;
   }
 
   getStoreBadgeClass(tier: string): string {

@@ -17,7 +17,7 @@ import { MatTableModule } from '@angular/material/table';
 import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
 import { ViewMode } from '../../models/filter-state.model';
 import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../../../../../shared-services/src/public-api';
-import { PromotionTrackingService } from '../../../services/promotion-tracking.service';
+import { PromotionService } from '../../../services/promotion.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Product } from '../../../../models';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
@@ -44,7 +44,7 @@ import { LoadingStateMobileComponent } from '../loading-state/mobile/loading-sta
     LoadingStateComponent,
     LoadingStateMobileComponent
   ],
-  providers: [PromotionTrackingService],
+  providers: [PromotionService],
   templateUrl: './products-content-view.component.html',
   styleUrls: ['./products-content-view.component.scss']
 })
@@ -65,7 +65,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
-  private promotionService = inject(PromotionTrackingService);
+  private promotionService = inject(PromotionService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
 
@@ -106,9 +106,9 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
   }
 
   getConversionRate(product: Product): number {
-    const { clicks, conversions } = product.promotion;
-    if (clicks === 0) return 0;
-    return (conversions / clicks) * 100;
+    const { clickCount, conversions } = product.promotion;
+    if (clickCount === 0) return 0;
+    return (conversions / clickCount) * 100;
   }
 
   getStoreBadgeClass(tier: string): string {
@@ -182,7 +182,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
       const existingPromotion = this.activePromotions().get(product._id ?? '');
 
       if (!existingPromotion) {
-        this.snackBar.open('Please click "Promote" first to generate your link.', 'Close', { duration: 3000 });
+        this.snackBar.open('Please click "Share Button" first to generate your link.', 'Close', { duration: 3000 });
         return;
       }
 

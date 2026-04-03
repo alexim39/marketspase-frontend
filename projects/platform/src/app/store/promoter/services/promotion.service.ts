@@ -39,7 +39,7 @@ export interface PromotionStats {
 }
 
 @Injectable()
-export class PromotionTrackingService {
+export class PromotionService {
   private apiService = inject(ApiService);
   private apiUrl = 'stores/product/promotions';
   private router = inject(Router);
@@ -109,16 +109,27 @@ export class PromotionTrackingService {
   /**
    * Generate WhatsApp message with tracking link
    */
-  generateWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number): string {
+  generateWhatsAppMessage(
+    product: Product,
+    uniqueCode: string,
+    commissionRate: number,
+    price: number
+  ): string {
     const link = this.getTrackingLink(uniqueCode, product._id ?? '');
-    const message = `🚀 *Check out this amazing product!*\n\n` +
-      `📦 *${product.name}*\n` +
-      `💰 Price: ₦${price.toLocaleString()}\n` +
-      `🎯 Your Commission: ${commissionRate}%\n\n` +
-      `👇 Click to view and earn:\n` +
-      `${link}\n\n` +
-      `Start promoting now and earn commissions on every sale! 💵`;
-    
+
+    const message = ` *${product.name}* 
+
+    I just found this and thought you might like it 
+
+     *Price:* ₦${price.toLocaleString()}
+
+    *View / Order here:*
+    ${link}
+
+     It’s definitely worth checking out!
+
+    (You can also earn ${commissionRate}% commission by sharing this)`;
+
     return encodeURIComponent(message);
   }
 
@@ -215,35 +226,39 @@ export class PromotionTrackingService {
   /**
    * Track a product view from a promotion link
    */
-  trackProductView(productId: string, trackingCode?: string, uniqueId?: string, deviceType?: string): Observable<any> {
-    console.log('tracking product details')
-    let params = new HttpParams();
-    
-    if (trackingCode) {
-      params = params.set('trackingCode', trackingCode);
-    }
-    if (uniqueId) {
-      params = params.set('uniqueId', uniqueId);
-    }
-    if (deviceType) {
-      params = params.set('deviceType', deviceType);
-    }
-    
-    return this.apiService.post(`${this.apiUrl}/${productId}/track-view`, params, undefined, true);
+trackProductView(productId: string, trackingCode?: string, uniqueId?: string, deviceType?: string): Observable<any> {
+  console.log('Tracking product view:', { productId, trackingCode, uniqueId, deviceType });
+  
+  let params = new HttpParams();
+  
+  if (trackingCode) {
+    params = params.set('trackingCode', trackingCode);
   }
+  if (uniqueId) {
+    params = params.set('uniqueId', uniqueId);
+  }
+  if (deviceType) {
+    params = params.set('deviceType', deviceType);
+  }
+  
+  // Use the correct endpoint
+  return this.apiService.post(`${this.apiUrl}/track-view`, params, undefined, true);
+}
 
 
   /**
    * Track a click on promotion link
    */
-  trackPromotionClick(uniqueCode: string, deviceType?: string, source?: string): Observable<any> {
-    let params = new HttpParams();
-    if (deviceType) params = params.set('deviceType', deviceType);
-    if (source) params = params.set('source', source);
-    params = params.set('redirect', 'false');
-    
-    return this.apiService.get(`${this.apiUrl}/track/${uniqueCode}`, params, undefined, true);
-  }
+trackPromotionClick(uniqueCode: string, deviceType?: string, source?: string): Observable<any> {
+  console.log('Tracking promotion click:', { uniqueCode, deviceType, source });
+  
+  let params = new HttpParams();
+  if (deviceType) params = params.set('deviceType', deviceType);
+  if (source) params = params.set('source', source);
+  
+  // Use the correct endpoint for click tracking
+  return this.apiService.post(`${this.apiUrl}/track-click/${uniqueCode}`, params, undefined, true);
+}
 
 
   /**

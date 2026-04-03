@@ -369,10 +369,85 @@
   }
 }
 
-// Add to financial-mgt.component.scss
-
 // Status variations
-.status-pending_approval {
+
+// 1. Status Color Map
+$status-map: (
+  "success":          #10b981,
+  "successful":       #10b981,
+  "processed":        #10b981,
+  "pending":          #f59e0b,
+  "pending_approval": #3b82f6,
+  "processing":       #3b82f6,
+  "ongoing":          #3b82f6,
+  "queued":           #6b7280,
+  "otp":              #8b5cf6,
+  "received":         #0ea5e9,
+  "failed":           #ef4444,
+  "rejected":         #ef4444,
+  "blocked":          #1a1a1a,
+  "abandoned":        #94a3b8,
+  "reversed":         #6b7280,
+  "reversal_pending": #f59e0b,
+  "default":          #6b7280
+);
+
+// 2. Container and Layout
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.status-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  // Colors will be applied via the loop below
+}
+
+.status-badge {
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  // Colors and background will be applied via the loop below
+}
+
+.failure-reason {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  color: #ef4444;
+  cursor: help;
+
+  .error-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// 3. Status Class Generator
+@each $name, $color in $status-map {
+  .status-#{$name} {
+    // If it's the span (badge)
+    &.status-badge {
+      background-color: rgba($color, 0.1);
+      color: $color;
+      border: 1px solid rgba($color, 0.1);
+    }
+    
+    // If it's the mat-icon
+    &.status-icon {
+      color: $color;
+    }
+  }
+}
+
+/* .status-pending_approval {
   background: rgba(245, 158, 11, 0.1);
   color: #f59e0b;
 }
@@ -395,7 +470,7 @@
 .status-reversed {
   background: rgba(107, 114, 128, 0.1);
   color: #6b7280;
-}
+} */
 
 // Status container with icon
 .status-container {
