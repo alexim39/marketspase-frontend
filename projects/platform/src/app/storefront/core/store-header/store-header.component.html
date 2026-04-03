@@ -112,8 +112,7 @@
 
         <!-- Store Actions -->
         <div class="store-actions">
-          <!-- Favorite Button -->
-          <button mat-icon-button
+         <!--  <button mat-icon-button
                   class="action-btn favorite-btn"
                   [class.active]="isFavorited"
                   (click)="onToggleFavorite()"
@@ -121,13 +120,12 @@
             <mat-icon>{{ isFavorited ? 'favorite' : 'favorite_border' }}</mat-icon>
           </button>
 
-          <!-- Share Button -->
           <button mat-icon-button
                   class="action-btn share-btn"
                   (click)="onShareStore()"
                   matTooltip="Share this store">
             <mat-icon>share</mat-icon>
-          </button>
+          </button> -->
 
           <!-- Contact Button -->
           @if (hasWhatsApp() || hasEmail() || hasPhone()) {

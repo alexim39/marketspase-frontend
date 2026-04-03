@@ -11,8 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Shared Components/Directives/Pipes
@@ -80,8 +78,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private location = inject(Location);
   private storeService = inject(StorefrontService);
   private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
-  private bottomSheet = inject(MatBottomSheet);
   private destroy$ = new Subject<void>();
 
   private userService = inject(UserService);
@@ -420,85 +416,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  toggleWishlist(): void {
-    const product = this.product();
-    if (!product?._id) return;
-    
-    if (this.isInWishlist()) {
-      //this.wishlistService.removeFromWishlist(product._id);
-      this.showNotification('Removed from wishlist', 'info');
-    } else {
-      // this.wishlistService.addToWishlist({
-      //   productId: product._id,
-      //   name: product.name,
-      //   price: product.price,
-      //   image: product.images?.[0]?.url,
-      //   storeId: product.store._id ?? '',
-      //   category: product.category
-      // });
-      this.showNotification('Added to wishlist', 'success');
-    }
-    
-    this.isInWishlist.set(!this.isInWishlist());
-  }
-
-  viewPromotionStats(promotionData?: any): void {
-    const product = this.product();
-    if (!product) return;
-    
-    const promoterId = this.user()?._id;
-    if (!promoterId) return;
-    
-    if (promotionData) {
-      this.navigateToStatsPage(product, promotionData);
-      return;
-    }
-    
-    this.promotionService.getPromotionStats(product._id ?? '', promoterId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.navigateToStatsPage(product, response.data);
-        },
-        error: (error) => {
-          console.error('Failed to load promotion stats:', error);
-          this.snackBar.open('Failed to load promotion statistics', 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-  }
-
-  private navigateToStatsPage(product: Product, promotionData: any): void {
-    this.router.navigate(['/dashboard/promotions/stats', product._id], {
-      state: {
-        product: {
-          id: product._id,
-          name: product.name,
-          price: product.price,
-          image: product.images?.[0]?.url,
-          category: product.category
-        },
-        promotion: {
-          id: promotionData.promotionId,
-          uniqueCode: promotionData.uniqueCode,
-          uniqueId: promotionData.uniqueId,
-          trackingLink: promotionData.trackingLink,
-          commissionRate: promotionData.commissionRate
-        },
-        stats: {
-          views: promotionData.stats?.views || promotionData.viewCount || 0,
-          clicks: promotionData.stats?.clicks || promotionData.clickCount || 0,
-          conversions: promotionData.stats?.conversions || promotionData.conversionCount || 0,
-          earnings: promotionData.stats?.earnings || promotionData.earnings || 0,
-          ctr: promotionData.stats?.clickThroughRate || promotionData.clickThroughRate || 0,
-          conversionRate: promotionData.stats?.conversionRate || promotionData.conversionRate || 0,
-          lastActivity: promotionData.lastActivityAt
-        }
-      }
-    });
-  }
 
   contactStore(): void {
     const store = this.store();
@@ -580,14 +497,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  // viewRelatedProduct(product: Product | null): void {
-  //   console.log('product ',product)
-  //  /*  this.router.navigate(['/promote/', this.user()?._id], {
-  //     state: { fromStore: this.store()?.storeLink }
-  //   }); */
-  //   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // }
-
   // =========================================
   // UTILITY METHODS
   // =========================================
@@ -597,7 +506,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     this.snackBar.open(message, 'Close', {
       duration: 3000,
       panelClass: [panelClass],
-      horizontalPosition: 'right',
+      horizontalPosition: 'center',
       verticalPosition: 'bottom'
     });
   }
@@ -609,72 +518,40 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   // =========================================
   // TRACKING METHODS
   // =========================================
-
-  /* private extractTrackingParams(): void {
-    // 1. THIS FIXES THE IMAGE/DATA REFRESH
-    // Listen for the ID in the URL (e.g., /promote/:id)
-    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const productId = params.get('productId');
-      if (productId) {
-        this.loadProductData(); // Pass the ID to your loader
-      }
-    });
-
-    // 2. THIS HANDLES THE TRACKING LOGIC
+  private extractTrackingParams(): void {
+    // Store tracking params immediately
+    let pendingTrackingCode: string | null = null;
+    let pendingPromoterId: string | null = null;
+    
+    // Handle query params first (they come immediately)
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params: Params) => {
-      const trackingCode = params['track'] || params['ref']; // Support both keys
+      const trackingCode = params['track'] || params['ref'];
       const promoterId = params['promoter'];
       
       if (trackingCode) {
+        pendingTrackingCode = trackingCode;
         this.trackingCode.set(trackingCode);
+        
+        // Track the click immediately when landing
+        this.trackPromotionClick(trackingCode);
       }
       
       if (promoterId) {
+        pendingPromoterId = promoterId;
         this.promoterId.set(promoterId);
       }
-      
-      // Check if we can track the view now
-      if (trackingCode && this.product() && !this.viewTracked()) {
-        this.trackPromotionView(trackingCode);
-        this.viewRecordingAttempted = true;
+    });
+    
+    // Handle product loading separately
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const productId = params.get('productId');
+      if (productId) {
+        this.loadProductData()
       }
     });
-  } */
+  }
 
-    private extractTrackingParams(): void {
-      // Store tracking params immediately
-      let pendingTrackingCode: string | null = null;
-      let pendingPromoterId: string | null = null;
-      
-      // Handle query params first (they come immediately)
-      this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params: Params) => {
-        const trackingCode = params['track'] || params['ref'];
-        const promoterId = params['promoter'];
-        
-        if (trackingCode) {
-          pendingTrackingCode = trackingCode;
-          this.trackingCode.set(trackingCode);
-          
-          // Track the click immediately when landing
-          this.trackPromotionClick(trackingCode);
-        }
-        
-        if (promoterId) {
-          pendingPromoterId = promoterId;
-          this.promoterId.set(promoterId);
-        }
-      });
-      
-      // Handle product loading separately
-      this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-        const productId = params.get('productId');
-        if (productId) {
-          this.loadProductData()
-        }
-      });
-    }
-
-    private trackPromotionClick(uniqueCode: string): void {
+  private trackPromotionClick(uniqueCode: string): void {
     // Prevent duplicate click tracking in same session
     const clickTracked = sessionStorage.getItem(`click_tracked_${uniqueCode}`);
     if (clickTracked) return;
@@ -742,7 +619,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  loadCurrentPromotionStats(): void {
+  /* loadCurrentPromotionStats(): void {
     const product = this.product();
     const promoterId = this.user()?._id;
     
@@ -752,6 +629,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
+          console.log('current stat ', response)
           if (response.data) {
             this.activePromotion.set(response.data);
           }
@@ -760,5 +638,5 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
           this.activePromotion.set(null);
         }
       });
-  }
+  } */
 }

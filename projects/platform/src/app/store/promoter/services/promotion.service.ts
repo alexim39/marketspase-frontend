@@ -54,25 +54,25 @@ export class PromotionService {
   /**
    * Get all promotions for a promoter
    */
-  getPromoterPromotions(promoterId: string): Observable<any> {
+/*   getPromoterPromotions(promoterId: string): Observable<any> {
     const params = new HttpParams().set('promoterId', promoterId);
     return this.apiService.get<any>(`${this.apiUrl}/promoter`, params, undefined, true);
-  }
+  } */
 
   /**
    * Get promotion stats for a specific product
    */
-  getProductPromotionStats(productId: string, promoterId: string): Observable<any> {
+ /*  getProductPromotionStats(productId: string, promoterId: string): Observable<any> {
     const params = new HttpParams()
       .set('productId', productId)
       .set('promoterId', promoterId);
     return this.apiService.get<any>(`${this.apiUrl}/stats`, params, undefined, true);
-  }
+  } */
 
   /**
    * Get all promotion stats for dashboard
    */
-  getPromotionDashboard(promoterId: string): Observable<any> {
+/*   getPromotionDashboard(promoterId: string): Observable<any> {
   // getPromotionDashboard(promoterId: string): Observable<{
   //   totalEarnings: number;
   //   totalClicks: number;
@@ -82,21 +82,21 @@ export class PromotionService {
   // }> {
     const params = new HttpParams().set('promoterId', promoterId);
     return this.apiService.get<any>(`${this.apiUrl}/dashboard`, params, undefined, true);
-  }
+  } */
 
   /**
    * Update promotion settings
    */
-  updatePromotion(trackingId: string, data: Partial<CreatePromotionDto>): Observable<any> {
-    return this.apiService.put<any>(`${this.apiUrl}/${trackingId}`, data, undefined, true);
-  }
+  // updatePromotion(trackingId: string, data: Partial<CreatePromotionDto>): Observable<any> {
+  //   return this.apiService.put<any>(`${this.apiUrl}/${trackingId}`, data, undefined, true);
+  // }
 
   /**
    * Deactivate promotion
    */
-  deactivatePromotion(trackingId: string): Observable<any> {
-    return this.apiService.patch<any>(`${this.apiUrl}/${trackingId}/deactivate`, {}, undefined, true);
-  }
+  // deactivatePromotion(trackingId: string): Observable<any> {
+  //   return this.apiService.patch<any>(`${this.apiUrl}/${trackingId}/deactivate`, {}, undefined, true);
+  // }
 
   /**
    * Get tracking link
@@ -109,12 +109,7 @@ export class PromotionService {
   /**
    * Generate WhatsApp message with tracking link
    */
-  generateWhatsAppMessage(
-    product: Product,
-    uniqueCode: string,
-    commissionRate: number,
-    price: number
-  ): string {
+  generateWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number): string {
     const link = this.getTrackingLink(uniqueCode, product._id ?? '');
 
     const message = ` *${product.name}* 
@@ -137,16 +132,16 @@ export class PromotionService {
    * Track a click on promotion link (already handled by redirect)
    * This is separate - called when user lands on product page
    */
-  recordPromotionView(uniqueCode: string): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${uniqueCode}/view`, {});
-  }
+  // recordPromotionView(uniqueCode: string): Observable<any> {
+  //   return this.apiService.post(`${this.apiUrl}/${uniqueCode}/view`, {});
+  // }
 
   /**
    * Generate promotion link for sharing
    */
-  getPromotionLink(trackingCode: string): string {
-    return `${window.location.origin}/product/${trackingCode}`;
-  }
+  // getPromotionLink(trackingCode: string): string {
+  //   return `${window.location.origin}/product/${trackingCode}`;
+  // }
 
 
   /**
@@ -155,33 +150,33 @@ export class PromotionService {
    * @param promoterId - ID of the promoter
    * @param options - Optional configuration (storeId, commissionRate, etc.)
    */
-  generatePromotionLink(
-    productId: string, 
-    promoterId: string, 
-    options?: {
-      storeId?: string;
-      commissionRate?: number;
-      commissionType?: string;
-      fixedCommission?: number;
-    }
-  ): Observable<any> {
-    const body = {
-      promoterId,
-      storeId: options?.storeId,
-      commissionRate: options?.commissionRate,
-      commissionType: options?.commissionType,
-      fixedCommission: options?.fixedCommission
-    };
+  // generatePromotionLink(
+  //   productId: string, 
+  //   promoterId: string, 
+  //   options?: {
+  //     storeId?: string;
+  //     commissionRate?: number;
+  //     commissionType?: string;
+  //     fixedCommission?: number;
+  //   }
+  // ): Observable<any> {
+  //   const body = {
+  //     promoterId,
+  //     storeId: options?.storeId,
+  //     commissionRate: options?.commissionRate,
+  //     commissionType: options?.commissionType,
+  //     fixedCommission: options?.fixedCommission
+  //   };
     
-    return this.apiService.post(`stores/product/${productId}/generate-link`, body);
-  }
+  //   return this.apiService.post(`stores/product/${productId}/generate-link`, body);
+  // }
 
   /**
    * Get promotion statistics for a specific product and promoter
    * @param productId - ID of the product
    * @param promoterId - ID of the promoter (optional, defaults to current user)
    */
-  getPromotionStats(productId: string, promoterId?: string): Observable<any> {
+/*   getPromotionStats(productId: string, promoterId?: string): Observable<any> {
     let params = new HttpParams();
     
     if (promoterId) {
@@ -190,21 +185,21 @@ export class PromotionService {
     
     return this.apiService.get(`stores/product/${productId}/promotion-stats`, params);
   }
-
+ */
   /**
    * Get all promotions for a promoter (dashboard view)
    * @param promoterId - ID of the promoter
    */
-  getPromoterDashboard(promoterId: string): Observable<any> {
+ /*  getPromoterDashboard(promoterId: string): Observable<any> {
     return this.apiService.get(`${this.apiUrl}/dashboard`, new HttpParams().set('promoterId', promoterId) );
-  }
+  } */
 
 
   /**
    * View promotion stats (opens modal or navigates to stats page)
    * This is a UI helper method, not an API call
    */
-  viewPromotionStats(product: any, promotionData: any): void {
+ /*  viewPromotionStats(product: any, promotionData: any): void {
     // Navigate to stats page with state
     // This would be implemented in the component
     this.router.navigate(['/dashboard/promotions/stats', product._id], {
@@ -221,56 +216,56 @@ export class PromotionService {
         }
       }
     });
-  }
+  } */
 
   /**
    * Track a product view from a promotion link
    */
-trackProductView(productId: string, trackingCode?: string, uniqueId?: string, deviceType?: string): Observable<any> {
-  console.log('Tracking product view:', { productId, trackingCode, uniqueId, deviceType });
-  
-  let params = new HttpParams();
-  
-  if (trackingCode) {
-    params = params.set('trackingCode', trackingCode);
+  trackProductView(productId: string, trackingCode?: string, uniqueId?: string, deviceType?: string): Observable<any> {
+    //console.log('Tracking product view:', { productId, trackingCode, uniqueId, deviceType });
+    
+    let params = new HttpParams();
+    
+    if (trackingCode) {
+      params = params.set('trackingCode', trackingCode);
+    }
+    if (uniqueId) {
+      params = params.set('uniqueId', uniqueId);
+    }
+    if (deviceType) {
+      params = params.set('deviceType', deviceType);
+    }
+    
+    // Use the correct endpoint
+    return this.apiService.post(`${this.apiUrl}/track-view`, params, undefined, true);
   }
-  if (uniqueId) {
-    params = params.set('uniqueId', uniqueId);
-  }
-  if (deviceType) {
-    params = params.set('deviceType', deviceType);
-  }
-  
-  // Use the correct endpoint
-  return this.apiService.post(`${this.apiUrl}/track-view`, params, undefined, true);
-}
 
 
   /**
    * Track a click on promotion link
    */
-trackPromotionClick(uniqueCode: string, deviceType?: string, source?: string): Observable<any> {
-  console.log('Tracking promotion click:', { uniqueCode, deviceType, source });
-  
-  let params = new HttpParams();
-  if (deviceType) params = params.set('deviceType', deviceType);
-  if (source) params = params.set('source', source);
-  
-  // Use the correct endpoint for click tracking
-  return this.apiService.post(`${this.apiUrl}/track-click/${uniqueCode}`, params, undefined, true);
-}
+  trackPromotionClick(uniqueCode: string, deviceType?: string, source?: string): Observable<any> {
+    //console.log('Tracking promotion click:', { uniqueCode, deviceType, source });
+    
+    let params = new HttpParams();
+    if (deviceType) params = params.set('deviceType', deviceType);
+    if (source) params = params.set('source', source);
+    
+    // Use the correct endpoint for click tracking
+    return this.apiService.post(`${this.apiUrl}/track-click/${uniqueCode}`, params, undefined, true);
+  }
 
 
   /**
    * Get promotion performance for a specific product
    */
-  getPromotionPerformance(productId: string, promoterId?: string): Observable<any> {
+ /*  getPromotionPerformance(productId: string, promoterId?: string): Observable<any> {
     let params = new HttpParams();
     if (promoterId) {
       params = params.set('promoterId', promoterId);
     }
     
     return this.apiService.get(`${this.apiUrl}/${productId}/promotion-performance`, params, undefined, true);
-  }
+  } */
 
 }

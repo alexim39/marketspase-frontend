@@ -77,7 +77,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
   activePromotions = signal<Map<string, any>>(new Map());
 
   ngOnInit(): void {
-    this.loadActivePromotions();
+   // this.loadActivePromotions();
   }
   ngOnChanges(changes: SimpleChanges): void {
     // Reset to first page when products change
@@ -226,7 +226,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     window.open(`https://wa.me/?text=${message}`, '_blank');
   }
 
-  async viewPromotionStats(product: Product): Promise<void> {
+  /* async viewPromotionStats(product: Product): Promise<void> {
     try {
       const promoterId = this.user?._id;
       if (!promoterId) return;
@@ -244,9 +244,9 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
       console.error('Error loading promotion stats:', error);
       this.snackBar.open('Failed to load promotion statistics', 'Close', { duration: 5000 });
     }
-  }
+  } */
 
-  async loadActivePromotions(): Promise<void> {
+  /* async loadActivePromotions(): Promise<void> {
     try {
       const promoterId = this.user?._id;
       if (!promoterId) return;
@@ -263,7 +263,7 @@ export class ProductsContentViewComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error('Error loading active promotions:', error);
     }
-  }
+  } */
 
   onPromotion(product: Product): void {
     this.onPromote(product);

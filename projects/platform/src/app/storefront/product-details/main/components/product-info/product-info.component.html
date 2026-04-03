@@ -183,14 +183,14 @@
 
   <!-- Mobile: Additional Actions -->
   <div class="mobile-actions">
-    <button 
+    <!-- <button 
       mat-button 
       class="mobile-action-btn"
       [class.active]="isInWishlist"
       (click)="toggleWishlist.emit()">
       <mat-icon>{{ isInWishlist ? 'favorite' : 'favorite_border' }}</mat-icon>
       <span>{{ isInWishlist ? 'Saved' : 'Save' }}</span>
-    </button>
+    </button> -->
     @if (store?.whatsappNumber) {
       <button 
         mat-button 
