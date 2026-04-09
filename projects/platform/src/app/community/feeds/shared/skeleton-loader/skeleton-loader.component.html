@@ -1,0 +1,116 @@
+ <div class="skeleton-container" [class.mobile]="isMobile" [class.desktop]="!isMobile">
+      @if (!isMobile) {
+        <!-- Desktop Layout Skeleton -->
+        <div class="desktop-skeleton">
+          <!-- Main Feed Skeleton -->
+          <div class="main-feed-skeleton">
+            <!-- Feed Header Skeleton -->
+            <div class="feed-header-skeleton">
+              <div class="tabs-skeleton">
+                <div class="skeleton-tab"></div>
+                <div class="skeleton-tab"></div>
+                <div class="skeleton-tab"></div>
+              </div>
+              <div class="filter-skeleton"></div>
+            </div>
+
+            <!-- Create Post Box Skeleton -->
+            @if (showCreatePost) {
+              <div class="create-post-skeleton">
+                <div class="skeleton-avatar"></div>
+                <div class="skeleton-input"></div>
+                <div class="skeleton-media-btn"></div>
+              </div>
+            }
+
+            <!-- Posts Skeletons -->
+            @for (item of [].constructor(count); track $index) {
+              <div class="post-skeleton" [class.featured]="$index === 0 && showFeatured">
+                @if ($index === 0 && showFeatured) {
+                  <div class="featured-badge-skeleton"></div>
+                }
+                <div class="post-header-skeleton">
+                  <div class="skeleton-avatar"></div>
+                  <div class="post-author-skeleton">
+                    <div class="skeleton-name"></div>
+                    <div class="skeleton-handle"></div>
+                  </div>
+                </div>
+                <div class="post-content-skeleton">
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line short"></div>
+                  <div class="skeleton-line medium"></div>
+                </div>
+                <div class="post-media-skeleton"></div>
+                <div class="post-actions-skeleton">
+                  <div class="skeleton-action"></div>
+                  <div class="skeleton-action"></div>
+                  <div class="skeleton-action"></div>
+                  <div class="skeleton-action"></div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Right Sidebar Skeleton -->
+          <div class="sidebar-skeleton">
+            <div class="search-skeleton"></div>
+            <div class="trending-skeleton">
+              <div class="skeleton-title"></div>
+              @for (item of [].constructor(5); track $index) {
+                <div class="skeleton-trending-item"></div>
+              }
+            </div>
+            <div class="follow-skeleton">
+              <div class="skeleton-title"></div>
+              @for (item of [].constructor(3); track $index) {
+                <div class="skeleton-follow-item">
+                  <div class="skeleton-avatar-small"></div>
+                  <div class="skeleton-follow-info"></div>
+                  <div class="skeleton-follow-btn"></div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      } @else {
+        <!-- Mobile Layout Skeleton -->
+        <div class="mobile-skeleton">
+          <!-- Full-screen Post Skeletons -->
+          @for (item of [].constructor(mobileCount); track $index) {
+            <div class="mobile-post-skeleton">
+              <!-- Media Skeleton -->
+              <div class="mobile-media-skeleton"></div>
+              
+              <!-- Overlay Skeleton -->
+              <div class="mobile-overlay-skeleton">
+                <!-- Sound control skeleton -->
+                <div class="sound-control-skeleton"></div>
+                
+                <!-- User info skeleton -->
+                <div class="user-info-skeleton">
+                  <div class="skeleton-avatar-mobile"></div>
+                  <div class="skeleton-username"></div>
+                  <div class="skeleton-follow-btn-mobile"></div>
+                </div>
+                
+                <!-- Caption skeleton (initially hidden, but placeholder) -->
+                <div class="caption-skeleton" [class.visible]="showCaptions">
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line short"></div>
+                </div>
+                
+                <!-- Action buttons skeleton -->
+                <div class="action-buttons-skeleton">
+                  <div class="skeleton-action-mobile"></div>
+                  <div class="skeleton-action-mobile"></div>
+                  <div class="skeleton-action-mobile"></div>
+                  <div class="skeleton-action-mobile"></div>
+                  <div class="skeleton-action-mobile"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>

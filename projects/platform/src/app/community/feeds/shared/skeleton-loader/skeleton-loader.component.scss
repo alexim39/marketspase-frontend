@@ -1,0 +1,575 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.skeleton-container {
+  width: 100%;
+  
+  &.desktop {
+    padding: $spacing-4;
+  }
+  
+  &.mobile {
+    height: 100vh;
+  }
+}
+
+// ============ DESKTOP SKELETON ============
+.desktop-skeleton {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: $spacing-6;
+  
+  .main-feed-skeleton {
+    flex: 1;
+    max-width: 680px;
+    
+    .feed-header-skeleton {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-4;
+      padding-bottom: $spacing-4;
+      border-bottom: $border-width solid rgba($border-color, 0.3);
+      
+      .tabs-skeleton {
+        display: flex;
+        gap: $spacing-4;
+        
+        .skeleton-tab {
+          width: 80px;
+          height: 40px;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.3) 25%,
+            rgba($border-color, 0.5) 50%,
+            rgba($border-color, 0.3) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-lg;
+        }
+      }
+      
+      .filter-skeleton {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.3) 25%,
+          rgba($border-color, 0.5) 50%,
+          rgba($border-color, 0.3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-lg;
+      }
+    }
+    
+    .create-post-skeleton {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      padding: $spacing-4;
+      background: $surface-color;
+      border: $border-width solid rgba($border-color, 0.3);
+      border-radius: $border-radius-xl;
+      margin-bottom: $spacing-6;
+      
+      .skeleton-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.3) 25%,
+          rgba($border-color, 0.5) 50%,
+          rgba($border-color, 0.3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+      
+      .skeleton-input {
+        flex: 1;
+        height: 48px;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.2) 25%,
+          rgba($border-color, 0.4) 50%,
+          rgba($border-color, 0.2) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-xl;
+      }
+      
+      .skeleton-media-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.3) 25%,
+          rgba($border-color, 0.5) 50%,
+          rgba($border-color, 0.3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+    }
+    
+    .post-skeleton {
+      background: $surface-color;
+      border: $border-width solid rgba($border-color, 0.3);
+      border-radius: $border-radius-lg;
+      padding: $spacing-4;
+      margin-bottom: $spacing-4;
+      position: relative;
+      
+      &.featured {
+        border: 2px solid rgba($primary-color, 0.3);
+      }
+      
+      .featured-badge-skeleton {
+        position: absolute;
+        top: $spacing-2;
+        left: $spacing-2;
+        width: 80px;
+        height: 24px;
+        background: linear-gradient(
+          90deg,
+          rgba($primary-color, 0.3) 25%,
+          rgba($primary-color, 0.5) 50%,
+          rgba($primary-color, 0.3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-xl;
+        z-index: 1;
+      }
+      
+      .post-header-skeleton {
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        margin-bottom: $spacing-3;
+        
+        .skeleton-avatar {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.3) 25%,
+            rgba($border-color, 0.5) 50%,
+            rgba($border-color, 0.3) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        
+        .post-author-skeleton {
+          flex: 1;
+          
+          .skeleton-name {
+            width: 120px;
+            height: 16px;
+            background: linear-gradient(
+              90deg,
+              rgba($border-color, 0.3) 25%,
+              rgba($border-color, 0.5) 50%,
+              rgba($border-color, 0.3) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: $border-radius-sm;
+            margin-bottom: $spacing-1;
+          }
+          
+          .skeleton-handle {
+            width: 80px;
+            height: 12px;
+            background: linear-gradient(
+              90deg,
+              rgba($border-color, 0.2) 25%,
+              rgba($border-color, 0.4) 50%,
+              rgba($border-color, 0.2) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: $border-radius-sm;
+          }
+        }
+      }
+      
+      .post-content-skeleton {
+        margin-bottom: $spacing-3;
+        
+        .skeleton-line {
+          height: 14px;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.2) 25%,
+            rgba($border-color, 0.4) 50%,
+            rgba($border-color, 0.2) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-sm;
+          margin-bottom: $spacing-2;
+          
+          &.short {
+            width: 60%;
+          }
+          
+          &.medium {
+            width: 80%;
+          }
+        }
+      }
+      
+      .post-media-skeleton {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.15) 25%,
+          rgba($border-color, 0.3) 50%,
+          rgba($border-color, 0.15) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-md;
+        margin-bottom: $spacing-3;
+      }
+      
+      .post-actions-skeleton {
+        display: flex;
+        gap: $spacing-4;
+        padding-top: $spacing-3;
+        border-top: $border-width solid rgba($border-color, 0.3);
+        
+        .skeleton-action {
+          width: 60px;
+          height: 24px;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.2) 25%,
+            rgba($border-color, 0.4) 50%,
+            rgba($border-color, 0.2) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-lg;
+        }
+      }
+    }
+  }
+  
+  .sidebar-skeleton {
+    width: 280px;
+    
+    .search-skeleton {
+      height: 48px;
+      background: linear-gradient(
+        90deg,
+        rgba($border-color, 0.2) 25%,
+        rgba($border-color, 0.4) 50%,
+        rgba($border-color, 0.2) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: $border-radius-lg;
+      margin-bottom: $spacing-4;
+    }
+    
+    .trending-skeleton {
+      background: $surface-color;
+      border: $border-width solid rgba($border-color, 0.3);
+      border-radius: $border-radius-lg;
+      padding: $spacing-4;
+      margin-bottom: $spacing-4;
+      
+      .skeleton-title {
+        width: 150px;
+        height: 20px;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.3) 25%,
+          rgba($border-color, 0.5) 50%,
+          rgba($border-color, 0.3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-sm;
+        margin-bottom: $spacing-3;
+      }
+      
+      .skeleton-trending-item {
+        height: 50px;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.15) 25%,
+          rgba($border-color, 0.3) 50%,
+          rgba($border-color, 0.15) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-md;
+        margin-bottom: $spacing-2;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+    
+    .follow-skeleton {
+      background: $surface-color;
+      border: $border-width solid rgba($border-color, 0.3);
+      border-radius: $border-radius-lg;
+      padding: $spacing-4;
+      
+      .skeleton-title {
+        width: 120px;
+        height: 20px;
+        background: linear-gradient(
+          90deg,
+          rgba($border-color, 0.3) 25%,
+          rgba($border-color, 0.5) 50%,
+          rgba($border-color, 0.3) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: $border-radius-sm;
+        margin-bottom: $spacing-3;
+      }
+      
+      .skeleton-follow-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        margin-bottom: $spacing-3;
+        
+        .skeleton-avatar-small {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.3) 25%,
+            rgba($border-color, 0.5) 50%,
+            rgba($border-color, 0.3) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        
+        .skeleton-follow-info {
+          flex: 1;
+          height: 40px;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.15) 25%,
+            rgba($border-color, 0.3) 50%,
+            rgba($border-color, 0.15) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-md;
+        }
+        
+        .skeleton-follow-btn {
+          width: 80px;
+          height: 32px;
+          background: linear-gradient(
+            90deg,
+            rgba($border-color, 0.2) 25%,
+            rgba($border-color, 0.4) 50%,
+            rgba($border-color, 0.2) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-xl;
+        }
+      }
+    }
+  }
+}
+
+// ============ MOBILE SKELETON ============
+.mobile-skeleton {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  
+  .mobile-post-skeleton {
+    scroll-snap-align: start;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #000;
+    
+    .mobile-media-skeleton {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg,
+        #1a1a1a 25%,
+        #2a2a2a 50%,
+        #1a1a1a 75%
+      );
+      background-size: 200% 200%;
+      animation: shimmer 1.5s infinite;
+    }
+    
+    .mobile-overlay-skeleton {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      
+      .sound-control-skeleton {
+        position: absolute;
+        top: $spacing-4;
+        right: $spacing-4;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+      }
+      
+      .user-info-skeleton {
+        position: absolute;
+        bottom: 100px;
+        left: $spacing-4;
+        right: 80px;
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        
+        .skeleton-avatar-mobile {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.2) 25%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0.2) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        
+        .skeleton-username {
+          width: 100px;
+          height: 16px;
+          background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.2) 25%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0.2) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-sm;
+        }
+        
+        .skeleton-follow-btn-mobile {
+          width: 70px;
+          height: 28px;
+          background: linear-gradient(
+            90deg,
+            rgba($primary-color, 0.3) 25%,
+            rgba($primary-color, 0.6) 50%,
+            rgba($primary-color, 0.3) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-xl;
+        }
+      }
+      
+      .caption-skeleton {
+        position: absolute;
+        bottom: 80px;
+        left: $spacing-4;
+        right: 80px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        
+        &.visible {
+          opacity: 1;
+        }
+        
+        .skeleton-line {
+          height: 12px;
+          background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.15) 25%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0.15) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: $border-radius-sm;
+          margin-bottom: $spacing-2;
+          
+          &.short {
+            width: 60%;
+          }
+        }
+      }
+      
+      .action-buttons-skeleton {
+        position: absolute;
+        bottom: 100px;
+        right: $spacing-4;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-4;
+        
+        .skeleton-action-mobile {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.15) 25%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0.15) 75%
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+      }
+    }
+  }
+}
+
+// Shimmer Animation
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .desktop-skeleton {
+    .main-feed-skeleton {
+      .post-skeleton {
+        .post-media-skeleton {
+          height: 200px;
+        }
+      }
+    }
+  }
+}

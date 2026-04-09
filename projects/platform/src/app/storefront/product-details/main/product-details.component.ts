@@ -77,6 +77,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private router = inject(Router);
   private location = inject(Location);
   private storeService = inject(StorefrontService);
+  private promotionService = inject(PromotionService);
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
@@ -86,7 +87,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type());
 
-  private promotionService = inject(PromotionService);
 
   // =========================================
   // VIEW CHILD REFERENCES

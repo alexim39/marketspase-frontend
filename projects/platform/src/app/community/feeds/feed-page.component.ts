@@ -11,7 +11,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Input,
-  Signal
+  Signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -40,6 +40,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
+import { SkeletonLoaderComponent } from './shared/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-feed-page-desktop',
@@ -62,7 +63,7 @@ import { ProfileService, SuggestedUser } from '../../profile/services/profile.se
     MatDividerModule,
     MatInputModule,
     MatSelectModule,
-    //InfiniteScrollModule,
+    SkeletonLoaderComponent,
     FeedPostCardComponent
   ],
   templateUrl: './feed-page.component.html',
@@ -70,7 +71,7 @@ import { ProfileService, SuggestedUser } from '../../profile/services/profile.se
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedPageComponent {
-  currentYear: number = new Date().getFullYear();
+ currentYear: number = new Date().getFullYear();
   
   private feedService = inject(FeedService);
   private profileService = inject(ProfileService);
@@ -81,6 +82,9 @@ export class FeedPageComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
   
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
+  
+  private intersectionObserver: IntersectionObserver | null = null;
+  private isLoadingMore = signal<boolean>(false);
 
   // Feed service signals
   posts = this.feedService.posts;
@@ -108,22 +112,84 @@ export class FeedPageComponent {
 
 filteredPosts = computed(() => this.posts() ?? []);
 
-regularPosts = computed(() => {
-  // Return all posts without featured filtering
-  return this.filteredPosts();
-});
+  ngAfterViewInit() {
+    this.setupIntersectionObserver();
+  }
+
+
+    private setupIntersectionObserver(): void {
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !this.loading() && this.hasMore() && !this.isLoadingMore()) {
+          this.loadMore();
+        }
+      },
+      { threshold: 0.5, rootMargin: '100px' }
+    );
+
+    if (this.scrollAnchor?.nativeElement) {
+      this.intersectionObserver.observe(this.scrollAnchor.nativeElement);
+    }
+  }
+
+  loadMore(): void {
+    if (this.loading() || !this.hasMore() || this.isLoadingMore()) {
+      return;
+    }
+
+    this.isLoadingMore.set(true);
+    
+    const currentTab = this.selectedTab();
+    const currentUserId = this.user()?._id;
+    
+    if (!currentUserId) return;
+
+    // Load next page based on current tab
+    if (currentTab === 'following') {
+      this.feedService.loadMoreFeedPosts(
+        currentUserId,
+        this.selectedType() !== 'all' ? this.selectedType() : undefined,
+        undefined,
+        this.searchQuery() || undefined,
+        'following'
+      );
+    } else {
+      this.feedService.loadMoreFeedPosts(
+        currentUserId,
+        this.selectedType() !== 'all' ? this.selectedType() : undefined,
+        undefined,
+        this.searchQuery() || undefined
+      );
+    }
+
+    // Reset loading flag after a short delay
+    setTimeout(() => {
+      this.isLoadingMore.set(false);
+    }, 500);
+  }
+
+  regularPosts = computed(() => {
+    // Return all posts without featured filtering
+    return this.filteredPosts();
+  });
 
 private searchSubscription: any;
 
 
   private readonly _ = effect(() => {
-    const user = this.user();
-    if (!user?._id) return;
+    const currentUser = this.user();
+    const tab = this.selectedTab();
+
+    if (!currentUser?._id) return;
+
+    console.log('[Feed Effect] Loading feed for tab:', tab);
 
     queueMicrotask(() => {
-      this.loadFeed();
-      this.loadFollowingList();
-      this.profileService.fetchSuggestedUsers(user._id).subscribe();
+      if (tab === 'following') {
+        this.loadFollowingFeed(true);  // Reset on tab change
+      } else {
+        this.loadFeed(true);  // Reset on tab change
+      }
     });
   });
 
@@ -199,9 +265,12 @@ constructor() {
     });
   }
 
-ngOnDestroy() {
-  this.searchSubscription?.unsubscribe();
-}
+  ngOnDestroy() {
+    this.searchSubscription?.unsubscribe();
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+  }
 
 private loadFeedWithSearch(searchTerm: string): void {
   // Reset feed and load with search term
@@ -248,34 +317,44 @@ private loadFeedWithSearch(searchTerm: string): void {
   }
 
   // Feed methods
-  loadFeed(): void {
-    this.feedService.loadFeedPosts(this.user()?._id ?? '',  this.selectedType() !== 'all' ? this.selectedType() : undefined, 
+  loadFeed(reset: boolean = true): void {
+    if (reset) {
+      this.feedService.resetFeed();
+    }
+    this.feedService.loadFeedPosts(
+      this.user()?._id ?? '',  
+      this.selectedType() !== 'all' ? this.selectedType() : undefined,
+      undefined,
+      this.searchQuery() || undefined,
+      reset
     );
   }
 
-  loadFollowingFeed(): void {
-    // Load feed from followed users
+  loadFollowingFeed(reset: boolean = true): void {
+    if (reset) {
+      this.feedService.resetFeed();
+    }
     this.feedService.loadFeedPosts(
       this.user()?._id ?? '',
       this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      
-      //'following'
+      undefined,
+      this.searchQuery() || undefined,
+      reset,
+      'following'
     );
   }
 
-  loadMore(): void {
-    if (!this.loading() && this.hasMore()) {
-      this.feedService.loadFeedPosts(
-        this.user()?._id ?? '',
-        this.selectedType() !== 'all' ? this.selectedType() : undefined,
-       
-      );
-    }
+  onFilterChange(type: string): void {
+    this.selectedType.set(type);
+    this.loadFeed(true);  // Reset on filter change
   }
 
   onSearch(query: string = ''): void {
-  // onSearch(query: string): void {
     this.searchQuery.set(query);
+    // Reset and reload feed with search term
+    if (this.user()?._id) {
+      this.loadFeed(true);
+    }
   }
 
   onLike(post: FeedPost): void {
