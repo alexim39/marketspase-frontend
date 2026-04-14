@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, AfterViewInit, ViewChild, signal, DestroyRef, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // Angular Material imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -142,6 +143,7 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
   private readonly dialog = inject(MatDialog);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   // State
   readonly isLoading = signal(true);
@@ -675,5 +677,10 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
   private handleError(error: any, message: string): void {
     console.error(`${message}:`, error);
     this.showError(message);
+  }
+
+  viewPromoterDetails(promotion: Promotion): void {
+    const promoter = this.getPromoter(promotion.promoter);  
+    this.router.navigate(['/dashboard/users', promoter._id]);
   }
 }

@@ -125,29 +125,29 @@
         <!-- Bulk Actions -->
         @if (selectedProducts.length > 0) {
         <div class="bulk-actions">
-          <span class="selected-count">{{ selectedProducts.length }} selected</span>
-          <button mat-button (click)="clearSelection()">Clear</button>
-         <button 
-            mat-stroked-button 
-            color="warn" 
-            (click)="unpublishSelectedProducts()"
-            [disabled]="isUnpublishDisabled()"
-          >
-            <mat-icon>unpublished</mat-icon>
-            Unpublish
-          </button>
-
+            <span class="selected-count">{{ selectedProducts.length }} selected</span>
+            <button mat-button (click)="clearSelection()">Clear</button>
           <button 
-            mat-stroked-button 
-            color="primary" 
-            (click)="publishedSelectedForPromotion()"
-            [disabled]="isPublishDisabled()"
-          >
-            <mat-icon>publish</mat-icon>
-            Publish
-          </button>
-        </div>
-      }
+              mat-stroked-button 
+              color="warn" 
+              (click)="unpublishSelectedProducts()"
+              [disabled]="isUnpublishDisabled()"
+            >
+              <mat-icon>unpublished</mat-icon>
+              Unpublish
+            </button>
+
+            <button 
+              mat-stroked-button 
+              color="primary" 
+              (click)="publishedSelectedForPromotion()"
+              [disabled]="isPublishDisabled()"
+            >
+              <mat-icon>publish</mat-icon>
+              Publish
+            </button>
+          </div>
+        }
         
         
         <!-- View Toggle -->
