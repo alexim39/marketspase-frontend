@@ -1,0 +1,287 @@
+<div class="transfer-container">
+  <div class="transfer-header">
+    <div class="breadcrumb">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="routerLinkActiveOptions" (click)="scrollToTop()">
+        <mat-icon>home</mat-icon> Dashboard
+      </a>
+      <mat-icon>chevron_right</mat-icon>
+      <a>Transactions</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="current">Transfer Funds</span>
+    </div>
+
+    <div class="header-main">
+      <h1>
+        <mat-icon class="transfer-icon">sync_alt</mat-icon>
+        Transfer Funds
+        <button mat-icon-button class="help" (click)="showDescription()" matTooltip="Help">
+          <mat-icon>help_outline</mat-icon>
+        </button>
+      </h1>
+      <p>Move funds between wallets or send to other promoters</p>
+    </div>
+  </div>
+
+  <div class="transfer-content">
+    <!-- Balance Summary Cards -->
+    <div class="balance-summary">
+      <mat-card class="balance-card promoter-card">
+        <div class="card-header">
+          <h2>
+            <mat-icon class="balance-icon">account_balance_wallet</mat-icon>
+            Promoter Wallet
+          </h2>
+          <button
+            mat-icon-button
+            matTooltip="Refresh balance"
+            (click)="refreshBalance()"
+            [disabled]="isBalanceLoading()">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+        <div class="balance-content">
+          @if (!isBalanceLoading()) {
+            <div class="balance-amount">
+              <span class="amount">{{ promoterAvailableBalance() | currencyUtils:promoterCurrency() }}</span>
+              <span class="label">Available Balance</span>
+            </div>
+            <div class="pending-amount">
+              <mat-icon>pending</mat-icon>
+              <span>{{ promoterPendingBalance() | currencyUtils:promoterCurrency() }}</span>
+              <span class="label">Pending</span>
+            </div>
+          } @else {
+            <mat-spinner diameter="30" />
+          }
+        </div>
+      </mat-card>
+
+      <mat-card class="balance-card marketer-card">
+        <div class="card-header">
+          <h2>
+            <mat-icon class="balance-icon">campaign</mat-icon>
+            Marketer Wallet
+          </h2>
+        </div>
+        <div class="balance-content">
+          @if (!isBalanceLoading()) {
+            <div class="balance-amount">
+              <span class="amount">{{ marketerBalance() | currencyUtils:marketerCurrency() }}</span>
+              <span class="label">Available for Campaigns</span>
+            </div>
+          } @else {
+            <mat-spinner diameter="30" />
+          }
+        </div>
+        <div class="wallet-note">
+          <mat-icon>info</mat-icon>
+          <span>Fund transfered to Marketer wallet cannot be withdrawn - in-app use only</span>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Transfer Form Card -->
+    <mat-card class="transfer-card">
+      <div class="card-header">
+        <h2>New Transfer</h2>
+      </div>
+
+      <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+        <!-- Transfer Type Selection -->
+        <div class="transfer-type-section">
+          <label class="section-label">Transfer Type</label>
+          <mat-radio-group formControlName="transferType" class="transfer-type-group">
+            @for (type of TRANSFER_TYPES; track type.value) {
+              <mat-radio-button [value]="type.value" class="transfer-type-option">
+                <div class="option-content">
+                  <span class="option-title">{{ type.label }}</span>
+                  <span class="option-description">{{ type.description }}</span>
+                </div>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+
+        <!-- Destination Type (for other transfer) -->
+        @if (isOtherTransfer()) {
+          <div class="destination-section">
+            <label class="section-label">Destination Wallet Type</label>
+            <mat-radio-group formControlName="destinationType" class="destination-group">
+              @for (dest of DESTINATIONS; track dest.type) {
+                <mat-radio-button [value]="dest.type" class="destination-option">
+                  <div class="option-content">
+                    <mat-icon>{{ dest.icon }}</mat-icon>
+                    <div class="option-text">
+                      <span class="option-title">{{ dest.label }}</span>
+                      <span class="option-description">{{ dest.description }}</span>
+                    </div>
+                  </div>
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          </div>
+        }
+
+        <!-- Self Transfer Notice -->
+        @if (isSelfTransfer()) {
+          <div class="self-transfer-notice">
+            <mat-icon>info</mat-icon>
+            <div class="notice-content">
+              <strong>Self Transfer Notice</strong>
+              <p>Funds transferred to your marketer wallet:</p>
+              <ul>
+                <li>Cannot be withdrawn to a bank account</li>
+                <li>Can only be used for campaigns and in-app purchases</li>
+                <li>This policy prevents circumvention of withdrawal fees</li>
+              </ul>
+            </div>
+          </div>
+        }
+
+        <!-- Recipient Search (for other transfer) -->
+        @if (isOtherTransfer()) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Recipient Username</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="recipientUsername"
+              placeholder="Type at least 3 characters to search"
+              autocomplete="off" />
+            @if (selectedDestinationUser()) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                (click)="clearSelectedRecipient()"
+                matTooltip="Clear selection">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            @if (isSearchingUser()) {
+              <mat-progress-bar mode="indeterminate" style="height: 2px;" />
+            }
+          </mat-form-field>
+
+          <!-- Search Results Dropdown -->
+          @if (searchResults().length > 0 && !selectedDestinationUser()) {
+            <div class="search-results">
+              @for (user of searchResults(); track user._id) {
+                <div class="search-result-item" (click)="selectRecipient(user)">
+                  <div class="user-avatar">
+                    <img [src]="user.avatar || '/img/avatar.png'" [alt]="user.displayName">
+                  </div>
+                  <div class="user-info">
+                    <span class="display-name">{{ user.displayName }}</span>
+                    <span class="username">&#64;{{ user.username }}</span>
+                  </div>
+                  <mat-icon>arrow_forward</mat-icon>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Selected Recipient Display -->
+          @if (selectedDestinationUser()) {
+            <div class="selected-recipient">
+              <div class="recipient-header">
+                <mat-icon>check_circle</mat-icon>
+                <span>Selected Recipient</span>
+              </div>
+              <div class="recipient-details">
+                <img [src]="selectedDestinationUser()?.avatar || '/img/avatar.png'" [alt]="selectedDestinationUser()?.displayName">
+                <div class="recipient-info">
+                  <span class="name">{{ selectedDestinationUser()?.displayName }}</span>
+                  <span class="username">&#64;{{ selectedDestinationUser()?.username }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- Amount Input -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Amount to Transfer</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="amount"
+            [placeholder]="'Minimum ' + MIN_TRANSFER_AMOUNT + ' ' + promoterCurrency()"
+            [min]="MIN_TRANSFER_AMOUNT"
+            [max]="maxTransferAmount()" />
+          <span matTextPrefix>{{ promoterCurrency() }} &nbsp;</span>
+          
+          @if (transferForm.get('amount')?.value) {
+            <mat-hint>
+              Available to transfer: {{ maxTransferAmount() | currencyUtils:promoterCurrency() }}
+            </mat-hint>
+          }
+
+          @if (transferForm.get('amount')?.hasError('required') && transferForm.get('amount')?.touched) {
+            <mat-error>Amount is required</mat-error>
+          }
+          @if (transferForm.get('amount')?.hasError('min') && transferForm.get('amount')?.touched) {
+            <mat-error>Minimum transfer amount is {{ MIN_TRANSFER_AMOUNT | currencyUtils:promoterCurrency() }}</mat-error>
+          }
+          @if (transferForm.get('amount')?.hasError('max') && transferForm.get('amount')?.touched) {
+            <mat-error>Amount exceeds available balance</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Optional Note -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Note (Optional)</mat-label>
+          <textarea
+            matInput
+            formControlName="note"
+            placeholder="Add a note for this transfer"
+            rows="2"
+            maxlength="200"></textarea>
+          <mat-hint align="end">{{ transferForm.get('note')?.value?.length || 0 }}/200</mat-hint>
+        </mat-form-field>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="transferForm.invalid || isSubmitting()">
+            <mat-icon>sync_alt</mat-icon>
+            {{ isSubmitting() ? 'Processing...' : 'Transfer Funds' }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+
+    <!-- Important Notes -->
+    <mat-card class="info-card">
+      <div class="info-header">
+        <mat-icon>info</mat-icon>
+        <h3>Important Information</h3>
+      </div>
+      <div class="info-content">
+        <ul>
+          <li>
+            <strong>Self Transfer to Marketer Wallet:</strong>
+            Funds moved to your marketer wallet are locked for in-app use only and 
+            <strong>cannot be withdrawn</strong>. <!-- This prevents circumvention of the 20% promoter withdrawal fee. -->
+          </li>
+          <li>
+            <strong>Transfer to Other Promoter:</strong>
+            Funds sent to another promoter go to their available balance and are subject to 
+            standard withdrawal rules (service fee applies on withdrawal).
+          </li>
+          <li>
+            <strong>Instant and Irreversible:</strong>
+            All in-app transfers are immediately processed without service fee and cannot be reversed once completed.
+          </li>
+          <li>
+            <strong>Available Balance Only:</strong>
+            Only your available (non-reserved) promoter balance can be transferred.
+          </li>
+        </ul>
+      </div>
+    </mat-card>
+  </div>
+</div>

@@ -64,11 +64,20 @@ export function getPromoterNavigation(
 
     {
       icon: 'currency_exchange',
-      label: 'Earnings',
+      label: 'Transactions',
       expanded: false,
       children: [
         { icon: 'payments', label: 'Transactions', route: '/dashboard/transactions' },
-        { icon: 'savings', label: 'Withdraw Funds', route: '/dashboard/transactions/withdrawal' }
+        {
+          icon: 'account_balance_wallet',
+          label: 'Wallet Management',
+          expanded: false,
+          children: [
+            //{ icon: 'add', label: 'Fund Wallet', modalAction: 'fundWallet' },
+            { icon: 'savings', label: 'Withdraw Funds', route: '/dashboard/transactions/withdrawal' },
+            { icon: 'transform', label: 'Transfer Funds', route: '/dashboard/transactions/transfer' }
+          ]
+        }
       ]
     },
 

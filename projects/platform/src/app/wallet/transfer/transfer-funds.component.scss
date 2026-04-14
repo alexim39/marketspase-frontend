@@ -1,0 +1,581 @@
+@import './../../../styles/variables';
+@import './../../../styles/mixins';
+
+:host {
+  background: $background-color;
+  display: block;
+}
+
+.transfer-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: color-mix(in srgb, $background-color, black 5%);
+}
+
+.transfer-header {
+  margin-bottom: 24px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: $text-secondary;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    color: $primary-color;
+    transition: color 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+
+  .current {
+    color: $text-primary;
+    font-weight: 500;
+  }
+}
+
+.header-main {
+  h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: $text-primary;
+
+    .transfer-icon {
+      color: $primary-color;
+      font-size: 32px;
+    }
+
+    .help {
+      margin-left: auto;
+    }
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 16px;
+  }
+}
+
+.transfer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Balance Summary
+.balance-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.balance-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  background: $surface-color;
+
+  &.promoter-card {
+    border-left: 4px solid $primary-color;
+  }
+
+  &.marketer-card {
+    border-left: 4px solid $success-color;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .balance-icon {
+        color: $primary-color;
+        font-size: 20px;
+      }
+    }
+
+    button {
+      color: $primary-color;
+    }
+  }
+
+  .balance-content {
+    .balance-amount {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 12px;
+
+      .amount {
+        font-size: 28px;
+        font-weight: 600;
+        color: $text-primary;
+        letter-spacing: -0.5px;
+      }
+
+      .label {
+        font-size: 12px;
+        color: $text-secondary;
+        margin-top: 4px;
+      }
+    }
+
+    .pending-amount {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: color-mix(in srgb, $warning-color 10%, $surface-color);
+      border-radius: 8px;
+
+      mat-icon {
+        color: $warning-color;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      span {
+        font-size: 16px;
+        font-weight: 500;
+        color: $text-primary;
+      }
+
+      .label {
+        font-size: 12px;
+        color: $text-secondary;
+        margin-left: auto;
+      }
+    }
+  }
+
+  .wallet-note {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 8px 12px;
+    background: color-mix(in srgb, $info-color 10%, $surface-color);
+    border-radius: 8px;
+    font-size: 12px;
+
+    span {
+      color: $text-secondary;
+      //margin-left: 1em;
+     
+    }
+
+    mat-icon {
+      color: $info-color;
+      font-size: 16px;
+      width: 24px;
+      height: 24px;
+     /*  @include tablet {
+        display: none;
+      } */
+    }
+  }
+}
+
+// Transfer Card
+.transfer-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 24px;
+  background: $surface-color;
+
+  .card-header {
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.section-label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+// Transfer Type Selection
+.transfer-type-section {
+  margin-bottom: 24px;
+}
+
+.transfer-type-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transfer-type-option {
+  display: block;
+  padding: 16px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $primary-color;
+    background: color-mix(in srgb, $primary-color 5%, $surface-color);
+  }
+
+  .option-content {
+    margin-left: 8px;
+
+    .option-title {
+      display: block;
+      font-weight: 500;
+      color: $text-primary;
+      margin-bottom: 4px;
+    }
+
+    .option-description {
+      display: block;
+      font-size: 12px;
+      color: $text-secondary;
+    }
+  }
+}
+
+// Destination Section
+.destination-section {
+  margin-bottom: 24px;
+}
+
+.destination-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.destination-option {
+  display: block;
+  padding: 12px 16px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $primary-color;
+    background: color-mix(in srgb, $primary-color 5%, $surface-color);
+  }
+
+  .option-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 8px;
+
+    mat-icon {
+      color: $primary-color;
+    }
+
+    .option-text {
+      .option-title {
+        display: block;
+        font-weight: 500;
+        color: $text-primary;
+      }
+
+      .option-description {
+        display: block;
+        font-size: 12px;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// Self Transfer Notice
+.self-transfer-notice {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background: color-mix(in srgb, $warning-color 10%, $surface-color);
+  border-radius: 8px;
+  border-left: 4px solid $warning-color;
+
+  mat-icon {
+    color: $warning-color;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    @include mobile {
+      width: 35px;
+      height: 35px
+    }
+  }
+
+  .notice-content {
+    strong {
+      display: block;
+      margin-bottom: 8px;
+      color: $text-primary;
+    }
+
+    p {
+      margin: 0 0 8px 0;
+      color: $text-secondary;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: $text-secondary;
+
+      li {
+        margin-bottom: 4px;
+      }
+    }
+  }
+}
+
+// Search Results
+.search-results {
+  margin-top: -16px;
+  margin-bottom: 16px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  background: $surface-color;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: $shadow-md;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: color-mix(in srgb, $primary-color 10%, $surface-color);
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $border-color;
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .user-info {
+    flex: 1;
+
+    .display-name {
+      display: block;
+      font-weight: 500;
+      color: $text-primary;
+    }
+
+    .username {
+      font-size: 12px;
+      color: $text-secondary;
+    }
+  }
+
+  mat-icon {
+    color: $text-tertiary;
+  }
+}
+
+// Selected Recipient
+.selected-recipient {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: color-mix(in srgb, $success-color 10%, $surface-color);
+  border-radius: 8px;
+  border: 1px solid $success-color;
+
+  .recipient-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    mat-icon {
+      color: $success-color;
+    }
+
+    span {
+      font-weight: 500;
+      color: $success-color;
+    }
+  }
+
+  .recipient-details {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
+    .recipient-info {
+      .name {
+        display: block;
+        font-weight: 500;
+        color: $text-primary;
+      }
+
+      .username {
+        font-size: 12px;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// Form Actions
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+
+  button {
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Info Card
+.info-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  background: $surface-color;
+
+  .info-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    mat-icon {
+      color: $info-color;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+  }
+
+  .info-content {
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: $text-secondary;
+
+      li {
+        margin-bottom: 12px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        strong {
+          color: $text-primary;
+        }
+      }
+    }
+  }
+}
+
+mat-spinner {
+  margin: 0 auto;
+  --mdc-circular-progress-active-indicator-color: #{$primary-color};
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .transfer-container {
+    padding: 16px;
+  }
+
+  .balance-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .header-main h1 {
+    font-size: 24px;
+  }
+
+  .transfer-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-main h1 {
+    font-size: 20px;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}

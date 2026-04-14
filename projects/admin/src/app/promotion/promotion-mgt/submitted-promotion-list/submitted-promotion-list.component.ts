@@ -72,6 +72,14 @@ export interface Promoter {
   _id: string;
   displayName: string;
   email: string;
+  personalInfo?: {
+    phoneDetails: {
+      iso2: string;
+      countryCode: string;
+      fullNumber: string;
+      nationalNumber: string;
+    }
+  }
 }
 
 export interface Filters {
@@ -368,7 +376,7 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
         maxWidth: '100vw',
         height: '90vh',
         data: {
-          promotion: promotion,
+          promotion,
           campaigns: this.campaigns(),
           onValidate: (promo: Promotion) => this.validatePromotion(promo),
           onReject: (promo: Promotion) => this.openRejectDialog(promo)
