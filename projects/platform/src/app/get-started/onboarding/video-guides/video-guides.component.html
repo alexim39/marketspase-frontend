@@ -18,34 +18,68 @@
             I want to promote other people's business
           </button>
         </div>
-        
-        <div class="video-container">
-          @if (marketerVideoUrl) {
-            <!-- <iframe 
-              width="380" 
-              height="800" 
-              [src]="marketerVideoUrl" 
-              frameborder="0" 
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-              allowfullscreen>
-            </iframe> -->
-            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F984032487617745%2F&show_text=false&width=209&t=0" 
-            width="260" 
-            height="616" 
-            style="border:none;overflow:hidden" 
-            scrolling="no" 
-            frameborder="0" 
-            allowfullscreen="true" 
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-            allowFullScreen="true">
-            </iframe>
-          } @else {
-            <div class="video-placeholder">
-              <mat-icon>ondemand_video</mat-icon>
-              <span>Marketer video guide loading...</span>
+
+        <mat-tab-group>
+          <mat-tab label="How to Create Ads on Marketspase">
+            <div class="video-container">
+              @if (marketerVideoUrl) {
+                <!-- <iframe 
+                  width="380" 
+                  height="800" 
+                  [src]="marketerVideoUrl" 
+                  frameborder="0" 
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                  allowfullscreen>
+                </iframe> -->
+                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F984032487617745%2F&show_text=false&width=209&t=0" 
+                width="260" 
+                height="616" 
+                style="border:none;overflow:hidden" 
+                scrolling="no" 
+                frameborder="0" 
+                allowfullscreen="true" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                allowFullScreen="true">
+                </iframe>
+              } @else {
+                <div class="video-placeholder">
+                  <mat-icon>ondemand_video</mat-icon>
+                  <span>Marketer video guide loading...</span>
+                </div>
+              }
             </div>
-          }
-        </div>
+          </mat-tab>
+          <mat-tab label="How to Create Storefront on Marketspase">
+            <div class="video-container">
+              @if (marketerVideoUrl) {
+                <!-- <iframe 
+                  width="380" 
+                  height="800" 
+                  [src]="marketerVideoUrl" 
+                  frameborder="0" 
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                  allowfullscreen>
+                </iframe> -->
+                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F909621642073357%2F&show_text=false&width=217&t=0" 
+                width="260" 
+                height="616" 
+                style="border:none;overflow:hidden" 
+                scrolling="no" 
+                frameborder="0" 
+                allowfullscreen="true" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                allowFullScreen="true">
+                </iframe>
+              } @else {
+                <div class="video-placeholder">
+                  <mat-icon>ondemand_video</mat-icon>
+                  <span>Marketer video guide loading...</span>
+                </div>
+              }
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+
       </div>
     }
     
@@ -65,32 +99,59 @@
             I want to promote my business
           </button>
         </div>
-        
-        <div class="video-container">
-          @if (promoterVideoUrl) {
-            <!-- <iframe 
-              [src]="promoterVideoUrl" 
-              frameborder="0" 
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-              allowfullscreen>
-            </iframe> -->
-            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F2196458907781480%2F&show_text=false&width=210&t=0" 
-            width="260" 
-            height="616" 
-            style="border:none;overflow:hidden" 
-            scrolling="no" 
-            frameborder="0" 
-            allowfullscreen="true" 
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-            allowFullScreen="true">
-            </iframe>
-          } @else {
-            <div class="video-placeholder">
-              <mat-icon>ondemand_video</mat-icon>
-              <span>Promoter video guide loading...</span>
+
+        <mat-tab-group>
+          <mat-tab label="How to Promote Ads on Marketspase"> 
+            <div class="video-container">
+              @if (promoterVideoUrl) {
+                <!-- <iframe 
+                  [src]="promoterVideoUrl" 
+                  frameborder="0" 
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                  allowfullscreen>
+                </iframe> -->
+                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F2196458907781480%2F&show_text=false&width=210&t=0" 
+                width="260" 
+                height="616" 
+                style="border:none;overflow:hidden" 
+                scrolling="no" 
+                frameborder="0" 
+                allowfullscreen="true" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                allowFullScreen="true">
+                </iframe>
+              } @else {
+                <div class="video-placeholder">
+                  <mat-icon>ondemand_video</mat-icon>
+                  <span>Promoter video guide loading...</span>
+                </div>
+              }
             </div>
-          }
-        </div>
+          </mat-tab>
+
+          <!-- <mat-tab label="How to Promote Products on Marketspase">
+            <div class="video-container">
+              @if (promoterVideoUrl) {
+                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F2196458907781480%2F&show_text=false&width=210&t=0" 
+                width="260" 
+                height="616" 
+                style="border:none;overflow:hidden" 
+                scrolling="no" 
+                frameborder="0" 
+                allowfullscreen="true" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+                allowFullScreen="true">
+                </iframe>
+              } @else {
+                <div class="video-placeholder">
+                  <mat-icon>ondemand_video</mat-icon>
+                  <span>Promoter video guide loading...</span>
+                </div>
+              }
+            </div>
+          </mat-tab> -->
+        </mat-tab-group>
+
       </div>
     }
   </div>

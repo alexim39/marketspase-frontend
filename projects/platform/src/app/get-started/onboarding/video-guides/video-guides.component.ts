@@ -4,11 +4,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { SwitchUserRoleService } from '../../../common/services/switch-user-role.service';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @Component({
   selector: 'marketspase-video-guides',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatTabsModule],
   templateUrl: './video-guides.component.html',
   styleUrls: ['./video-guides.component.scss']
 })
