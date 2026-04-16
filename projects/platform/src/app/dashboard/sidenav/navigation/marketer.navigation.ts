@@ -119,7 +119,7 @@ export function getMarketerNavigation(
           expanded: false,
           children: [
             { icon: 'help', label: 'Get Started', route: '/dashboard/get-started/onboarding' },
-            { icon: 'video_call', label: 'Tutorials', route: '/dashboard/tutorials' }
+            //{ icon: 'video_call', label: 'Tutorials', route: '/dashboard/tutorials' }
           ]
         }
       ]
