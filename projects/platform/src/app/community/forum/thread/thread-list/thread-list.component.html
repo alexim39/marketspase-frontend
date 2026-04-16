@@ -1,4 +1,3 @@
-              
 <!-- Edit Mode -->
 @if (isEditing) {
   <div class="thread-edit-form" id="edit">
@@ -27,7 +26,7 @@
       <button mat-button (click)="cancelEdit()" [disabled]="isUpdating">Cancel</button>
       <button mat-raised-button color="primary" (click)="saveEdit()" [disabled]="editTitleControl.invalid || editContentControl.invalid || isUpdating">
         @if (!isUpdating) {
-          <span>Save</span>
+          <span>Save Changes</span>
         } @else {
           <mat-spinner diameter="20"></mat-spinner>
         }
@@ -37,92 +36,121 @@
 }
 
 <div class="thread-list">
-  <div *ngFor="let thread of threads" class="thread-item">
-    <mat-card (click)="openThread(thread._id)" class="thread-card">
-      <mat-card-header>
-        <img mat-card-avatar [src]="thread.author.avatar || 'img/avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
-        <mat-card-title>{{thread.title}}</mat-card-title>
-        <mat-card-subtitle>
-          <span class="author-info">{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
-          <span class="spacer"></span>
-          <span class="time">{{timeAgo(thread.createdAt) }}</span>
-        </mat-card-subtitle>
-      </mat-card-header>        
-      
-      <mat-card-content>
-        <!-- Media Preview -->
-        @if (thread.media) {
-          <div class="media-preview">
-            <img *ngIf="thread.media.type === 'image'" 
-                [src]="thread.media.url" 
-                [alt]="thread.media.originalName"
-                class="preview-image">
-            @if (thread.media.type === 'video') {
-              <video controls class="preview-video">
-                <source [src]="thread.media.url">
-                <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
-              </video>
-            }
-            @if (thread.media.type === 'audio') {
-              <audio controls class="preview-audio">
-                <source [src]=" thread.media.url">
-                <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
-              </audio>
+  @for (thread of threads; track thread._id) {
+    <div class="thread-item" [class.pinned]="thread.isPinned">
+      <mat-card (click)="openThread(thread._id)" class="thread-card">
+        <mat-card-header>
+          <div class="header-top">
+            <img mat-card-avatar [src]="thread.author.avatar || 'img/avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
+            <mat-card-title>{{thread.title}}</mat-card-title>
+            @if (thread.isPinned) {
+              <div class="pin-indicator" matTooltip="Pinned discussion">
+                <mat-icon>push_pin</mat-icon>
+                <span>Pinned</span>
+              </div>
             }
           </div>
-        }
-
-        <p class="thread-content">{{thread.content | truncate:150}}</p>
-        
-        <div class="thread-tags">
-          <mat-chip-listbox>
-            <mat-chip *ngFor="let tag of thread.tags" color="primary" selected>
-              {{tag}}
-            </mat-chip>
-          </mat-chip-listbox>
-        </div>
-      </mat-card-content>
+          <mat-card-subtitle>
+            <span class="author-info">{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
+            <span class="spacer"></span>
+            <span class="time">{{timeAgo(thread.createdAt)}}</span>
+          </mat-card-subtitle>
+        </mat-card-header>        
       
-      <mat-card-actions>
-        <button mat-button class="like-btn">
-          <mat-icon>thumb_up</mat-icon>
-          {{thread.likeCount}}
-        </button>
-        <button mat-button class="comment-btn">
-          <mat-icon>comment</mat-icon>
-          {{thread.commentCount}}
-        </button>
-        <button mat-button class="view-btn">
-          <mat-icon>visibility</mat-icon>
-          {{thread.viewCount}}
-        </button>
-        @if (isThreadOwner(thread)) {
-          <button 
-            mat-button 
-            color="warn" 
-            (click)="onDeleteThread(thread._id, $event)"
-            class="delete-button">
-            <mat-icon>delete</mat-icon>
-            Delete
+        <mat-card-content>
+          <!-- Media Preview -->
+          @if (thread.media) {
+            <div class="media-preview">
+              @if (thread.media.type === 'image') {
+                <img [src]="thread.media.url" 
+                     [alt]="thread.media.originalName"
+                     class="preview-image"
+                     loading="lazy">
+              }
+              @if (thread.media.type === 'video') {
+                <video controls class="preview-video" preload="metadata">
+                  <source [src]="thread.media.url">
+                </video>
+              }
+              @if (thread.media.type === 'audio') {
+                <audio controls class="preview-audio" preload="metadata">
+                  <source [src]="thread.media.url">
+                </audio>
+              }
+            </div>
+          }
+
+          <p class="thread-content">{{thread.content | truncate:150}}</p>
+          
+          @if (thread.tags && thread.tags.length > 0) {
+            <div class="thread-tags">
+              <mat-chip-listbox>
+                @for (tag of thread.tags; track tag) {
+                  <mat-chip color="primary" selected>
+                    {{tag}}
+                  </mat-chip>
+                }
+              </mat-chip-listbox>
+            </div>
+          }
+        </mat-card-content>
+      
+        <mat-card-actions>
+          <button mat-button class="like-btn" (click)="$event.stopPropagation()">
+            <mat-icon>thumb_up</mat-icon>
+            {{thread.likeCount || 0}}
           </button>
-          <button 
-            mat-button 
-            color="primary" 
-            (click)="onEditThread(thread, $event)"
-            class="edit-button">
-            <mat-icon>edit</mat-icon>
-            Edit
+          <button mat-button class="comment-btn" (click)="$event.stopPropagation()">
+            <mat-icon>comment</mat-icon>
+            {{thread.commentCount || 0}}
           </button>
-        }
-      </mat-card-actions>
-    </mat-card>
-  </div>
+          <button mat-button class="view-btn" (click)="$event.stopPropagation()">
+            <mat-icon>visibility</mat-icon>
+            {{thread.viewCount || 0}}
+          </button>
+
+          <!-- Pin Button (Admin/Moderator only) -->
+          @if (canPinThreads) {
+            <button mat-button 
+                    class="pin-button" 
+                    [class.pinned]="thread.isPinned"
+                    [matTooltip]="thread.isPinned ? 'Unpin this discussion' : 'Pin this discussion'"
+                    (click)="onTogglePin(thread, $event)"
+                    [disabled]="isPinning">
+              <mat-icon>{{thread.isPinned ? 'push_pin' : 'push_pin_outline'}}</mat-icon>
+              {{thread.isPinned ? 'Unpin' : 'Pin'}}
+            </button>
+          }
+
+          <!-- Owner Actions -->
+          @if (isThreadOwner(thread)) {
+            <button mat-button 
+                    color="primary" 
+                    class="edit-button"
+                    matTooltip="Edit this discussion"
+                    (click)="onEditThread(thread, $event)">
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+            <button mat-button 
+                    color="warn" 
+                    class="delete-button"
+                    matTooltip="Delete this discussion"
+                    (click)="onDeleteThread(thread._id, $event)">
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          }
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  }
   
   @if (threads.length === 0) {
     <div class="no-threads">
       <mat-icon>forum</mat-icon>
-      <h3>No threads yet</h3>
-      <p>Be the first to start a discussion!</p>
+      <h3>No discussions yet</h3>
+      <p>Be the first to start a conversation!</p>
     </div>
   }
 </div>

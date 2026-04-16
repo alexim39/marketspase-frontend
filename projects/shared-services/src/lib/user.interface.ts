@@ -10,6 +10,7 @@ export interface UserInterface {
   username: string;
   biography?: string;
   role: 'marketer' | 'promoter' | 'marketing_rep' | 'admin' | undefined;
+  type: 'user' | 'admin' |  'moderator' | undefined;
   avatar?: string;
   createdAt?: Date;
   preferences?: {

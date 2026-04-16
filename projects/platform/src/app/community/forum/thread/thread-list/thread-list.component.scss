@@ -25,14 +25,47 @@
   }
   
   &:focus-within {
-    // UPDATED: Use primary-color variable for dynamic theming
     outline: 2px solid $primary-color;
     outline-offset: 2px;
+  }
+
+  // Pinned thread styling
+  &.pinned {
+    .thread-card {
+      background: linear-gradient(
+        135deg,
+        rgba($primary-color, 0.08) 0%,
+        $surface-color 100%
+      );
+      border-left: 4px solid $primary-color;
+      
+      &:hover {
+        border-left-color: $primary-dark;
+      }
+    }
+
+    .pin-indicator {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      background-color: rgba($primary-color, 0.12);
+      color: $primary-color;
+      padding: $spacing-1 $spacing-3;
+      border-radius: $border-radius-full;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        transform: rotate(45deg);
+      }
+    }
   }
 }
 
 .thread-card {
-  // UPDATED: Use surface-color variable for dynamic theming
   background-color: $surface-color;
   border: 1px solid $border-color;
   border-radius: $border-radius-md;
@@ -51,82 +84,99 @@
   }
 
   mat-card-header {
-    align-items: center;
+    align-items: flex-start;
     padding: $spacing-4 $spacing-4 $spacing-2;
     cursor: pointer !important;
+
+    .header-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      width: 100%;
+    }
 
     mat-card-title {
       font-size: $font-size-lg;
       font-weight: $font-weight-semibold;
-      // UPDATED: Use text-primary variable for dynamic theming
       color: $text-primary;
       margin-bottom: $spacing-1;
       line-height: $line-height-tight;
+      padding-right: $spacing-2;
       
       &:hover {
-        // UPDATED: Use primary-color variable for dynamic theming
         color: $primary-color;
       }
     }
 
-mat-card-subtitle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $spacing-2;
-
-  width: 100%;
-  font-size: $font-size-sm;
-  color: $text-secondary;
-  margin-top: $spacing-1;
-  padding-right: $spacing-2;
-
-  // Allow wrapping on small screens
-  flex-wrap: wrap;
-
-  .author-info {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-1;
-    font-weight: $font-weight-medium;
-    min-width: 0; // prevents overflow issues
-
-    span {
+    .pin-indicator {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      background-color: rgba($primary-color, 0.12);
+      color: $primary-color;
+      padding: $spacing-1 $spacing-3;
+      border-radius: $border-radius-full;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      flex-shrink: 0;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        transform: rotate(45deg);
+      }
     }
 
-    small {
-      color: $text-tertiary;
-      font-weight: $font-weight-normal;
-    }
-  }
-
-  .time {
-    color: $text-tertiary;
-    font-size: $font-size-xs;
-    white-space: nowrap;
-    font-weight: $font-weight-normal;
-  }
-
-  // Mobile optimization
-  @include mobile {
-    align-items: flex-start;
-
-    .time {
+    mat-card-subtitle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: $spacing-2;
       width: 100%;
-      text-align: left;
+      font-size: $font-size-sm;
+      color: $text-secondary;
       margin-top: $spacing-1;
+      padding-right: $spacing-2;
+      flex-wrap: wrap;
+
+      .author-info {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-1;
+        font-weight: $font-weight-medium;
+        min-width: 0;
+
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        small {
+          color: $text-tertiary;
+          font-weight: $font-weight-normal;
+        }
+      }
+
+      .time {
+        color: $text-tertiary;
+        font-size: $font-size-xs;
+        white-space: nowrap;
+        font-weight: $font-weight-normal;
+      }
+
+      @include mobile {
+        align-items: flex-start;
+
+        .time {
+          width: 100%;
+          text-align: left;
+          margin-top: $spacing-1;
+        }
+      }
     }
-  }
-
-  .spacer {
-    display: none;
-  }
-}
-
-
   }
   
   mat-card-content {
@@ -145,7 +195,6 @@ mat-card-subtitle {
         object-fit: contain;
         display: block;
         margin: 0 auto;
-        // UPDATED: Use surface-color with darkened background for dynamic theming
         background-color: color-mix(in srgb, var(--surface-color), black 3%);
       }
       
@@ -153,7 +202,7 @@ mat-card-subtitle {
         width: 100%;
         max-height: 200px;
         border-radius: $border-radius;
-        background-color: $gray-900; // Dark background for video
+        background-color: $gray-900;
       }
       
       .preview-audio {
@@ -164,7 +213,6 @@ mat-card-subtitle {
     .thread-content {
       margin-bottom: $spacing-4;
       line-height: $line-height-normal;
-      // UPDATED: Use text-primary variable for dynamic theming
       color: $text-primary;
       font-size: $font-size-base;
       display: -webkit-box;
@@ -174,7 +222,6 @@ mat-card-subtitle {
       text-overflow: ellipsis;
       
       a {
-        // UPDATED: Use primary-color variable for dynamic theming
         color: $primary-color;
         text-decoration: none;
         
@@ -184,13 +231,11 @@ mat-card-subtitle {
       }
       
       code {
-        // UPDATED: Use surface-color with darkened background for dynamic theming
         background-color: color-mix(in srgb, var(--surface-color), black 5%);
         padding: $spacing-5 $spacing-1;
         border-radius: $border-radius-sm;
         font-family: monospace;
         font-size: $font-size-sm;
-        // UPDATED: Use text-primary variable for dynamic theming
         color: $text-primary;
       }
     }
@@ -202,9 +247,7 @@ mat-card-subtitle {
       gap: $spacing-2;
       
       mat-chip {
-        // UPDATED: Use primary-color with lightened background for dynamic theming
         background-color: rgba($primary-color, 0.1);
-        // UPDATED: Use primary-color variable for dynamic theming
         color: $primary-color;
         font-weight: $font-weight-medium;
         font-size: $font-size-xs;
@@ -212,7 +255,6 @@ mat-card-subtitle {
         border-radius: $border-radius-full;
         
         &:hover {
-          // UPDATED: Use primary-color with darker background for dynamic theming
           background-color: rgba($primary-color, 0.2);
         }
       }
@@ -236,6 +278,7 @@ mat-card-subtitle {
       background: transparent !important;
       border: none !important;
       color: $text-secondary !important;
+      transition: all $transition-fast !important;
       
       mat-icon {
         margin-right: $spacing-1 !important;
@@ -248,6 +291,28 @@ mat-card-subtitle {
         background: rgba($primary-color, 0.1) !important;
         color: $primary-color !important;
       }
+
+      &.pin-button {
+        color: $primary-color !important;
+        
+        &:hover {
+          background: rgba($primary-color, 0.15) !important;
+        }
+
+        &.pinned {
+          color: $primary-dark !important;
+          
+          mat-icon {
+            transform: rotate(45deg);
+          }
+        }
+      }
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
     }
     
     .delete-button {
@@ -259,8 +324,8 @@ mat-card-subtitle {
         background-color: rgba($error-color, 0.1) !important;
       }
     }
+    
     .edit-button {
-      margin-left: auto !important;
       color: $info-color !important;
       font-weight: $font-weight-bold !important;
       
@@ -274,7 +339,6 @@ mat-card-subtitle {
 .no-threads {
   text-align: center;
   padding: $spacing-10 $spacing-5;
-  // UPDATED: Use surface-color variable for dynamic theming
   background-color: $surface-color;
   border-radius: $border-radius-lg;
   border: 1px solid $border-color;
@@ -285,7 +349,6 @@ mat-card-subtitle {
     width: 60px;
     height: 60px;
     margin-bottom: $spacing-5;
-    // UPDATED: Use text-tertiary variable for dynamic theming
     color: $text-tertiary;
   }
   
@@ -293,12 +356,10 @@ mat-card-subtitle {
     margin-bottom: $spacing-2;
     font-weight: $font-weight-medium;
     font-size: $font-size-xl;
-    // UPDATED: Use text-primary variable for dynamic theming
     color: $text-primary;
   }
   
   p {
-    // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
     font-size: $font-size-base;
     margin-bottom: $spacing-4;
@@ -310,9 +371,27 @@ mat-card-subtitle {
   }
 }
 
+.thread-edit-form {
+  margin-top: $spacing-4;
+  padding: $spacing-4;
+  background-color: $surface-color;
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-2;
+    margin-top: $spacing-3;
+  }
+}
+
 /* Accessibility improvements */
 .thread-item:focus-within .thread-card {
-  // UPDATED: Use primary-color variable for dynamic theming
   outline: 2px solid $primary-color;
   outline-offset: 2px;
 }
@@ -347,6 +426,10 @@ mat-card-subtitle {
   .thread-card mat-card-actions button {
     border: 1px solid $text-primary;
   }
+
+  .thread-item.pinned .thread-card {
+    border-left: 6px solid $text-primary;
+  }
 }
 
 /* Dark mode specific adjustments */
@@ -373,6 +456,14 @@ mat-card-subtitle {
         background-color: rgba($primary-color, 0.25);
       }
     }
+  }
+
+  .thread-item.pinned .thread-card {
+    background: linear-gradient(
+      135deg,
+      rgba($primary-color, 0.12) 0%,
+      color-mix(in srgb, var(--surface-color), white 2%) 100%
+    );
   }
   
   .thread-card mat-card-actions button {
@@ -407,6 +498,19 @@ mat-card-subtitle {
   .thread-card {
     mat-card-header {
       padding: $spacing-3 $spacing-3 $spacing-1;
+      
+      .pin-indicator {
+        font-size: $font-size-xs;
+        padding: 2px $spacing-2;
+        
+        span {
+          display: none;
+        }
+        
+        mat-icon {
+          margin: 0;
+        }
+      }
       
       mat-card-title {
         font-size: $font-size-base !important;
@@ -451,9 +555,9 @@ mat-card-subtitle {
         }
       }
       
-      .delete-button {
-        margin-left: auto;
-        order: 1;
+      .delete-button,
+      .edit-button {
+        margin-left: 0;
       }
     }
   }
@@ -480,20 +584,5 @@ mat-card-subtitle {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: $spacing-4;
-  }
-}
-
-.thread-edit-form {
-  margin-top: $spacing-4;
-
-  .full-width {
-    width: 100%;
-  }
-
-  .edit-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: $spacing-2;
-    margin-top: $spacing-3;
   }
 }

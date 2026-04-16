@@ -1,59 +1,302 @@
+<div class="forum-container">
+  <mat-toolbar color="primary" class="forum-header">
+    @if (currentView === 'detail') {
+      <button mat-icon-button (click)="backToList()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+    }
+    <span class="title">Community Discussion Forum</span>
+    <span class="spacer"></span>
+    @if (isMobile()) {
+      <button matMiniFab aria-label="New Discussion Thread" title="New Discussion Thread" (click)="openCreateThreadDialog()">
+        <mat-icon>add</mat-icon>
+      </button>
+    } @else {
+      <button mat-raised-button color="accent" (click)="openCreateThreadDialog()">
+        <mat-icon>add</mat-icon>
+        New Discussion Thread
+      </button>
+    }
+  </mat-toolbar>
 
-    <div class="forum-container">
-      <mat-toolbar color="primary" class="forum-header">
-        @if (currentView === 'detail') {
-          <button mat-icon-button (click)="backToList()">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-        }
-        <span class="title">Community Discussion Forum</span>
-        <span class="spacer"></span>
-        @if (isMobile()) {
-            <button matMiniFab aria-label="New Discussion Thread" title="New Discussion Thread" (click)="openCreateThreadDialog()">
-                <mat-icon>add</mat-icon>
-            </button>
-        } @else {
-            <button mat-raised-button color="accent" (click)="openCreateThreadDialog()">
-                <mat-icon>add</mat-icon>
-                New Discussion Thread
-            </button>
-        }
-       
-      </mat-toolbar>
+  <div class="forum-content">
+    @if (currentView === 'list') {
+      <div class="forum-layout">
+        <!-- Main Content Area -->
+        <div class="main-content">
+          <!-- Search and Filter Bar -->
+          <div class="search-filter-bar">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput 
+                     placeholder="Search discussions..." 
+                     (input)="onSearchInput($event)"
+                     [value]="searchQuery" />
+            </mat-form-field>
+            
+            <div class="filter-actions">
+              <button mat-stroked-button class="filter-btn" [matMenuTriggerFor]="filterMenu">
+                <mat-icon>filter_list</mat-icon>
+                Filter
+                <mat-icon>arrow_drop_down</mat-icon>
+              </button>
+              <mat-menu #filterMenu="matMenu">
+                <button mat-menu-item (click)="applyFilter('newest')">Latest</button>
+                <button mat-menu-item (click)="applyFilter('most_liked')">Most Popular</button>
+                <button mat-menu-item (click)="applyFilter('most_commented')">Most Commented</button>
+                <button mat-menu-item (click)="applyFilter('trending')">Trending</button>
+              </mat-menu>
+              
+              <button mat-stroked-button class="sort-btn" [matMenuTriggerFor]="sortMenu">
+                <mat-icon>sort</mat-icon>
+                Sort
+              </button>
+              <mat-menu #sortMenu="matMenu">
+                <button mat-menu-item (click)="applySort('newest')">Newest First</button>
+                <button mat-menu-item (click)="applySort('oldest')">Oldest First</button>
+                <button mat-menu-item (click)="applySort('most_liked')">Most Liked</button>
+                <button mat-menu-item (click)="applySort('most_commented')">Most Active</button>
+              </mat-menu>
+            </div>
+          </div>
 
-      <div class="forum-content">
-        @if (currentView === 'list') {
-          <div>
-            <div class="popular-tags">
+          <!-- Popular Tags Section -->
+          <div class="popular-tags">
+            <div class="section-header">
               <h3>Popular Tags</h3>
-              <div class="tags-container">
-                <mat-chip *ngFor="let tag of popularTags" (click)="filterByTag(tag)">
+              <button mat-button class="view-all-link" (click)="filterByTag(null)">View All</button>
+            </div>
+            <div class="tags-container">
+              @for (tag of popularTags; track tag) {
+                <button class="tag-btn" [class.active]="selectedTag === tag" (click)="filterByTag(tag)">
                   {{tag}}
-                </mat-chip>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          @if (isLoading) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="40"/>
+              <span>Loading discussions...</span>
+            </div>
+          }
+
+          <!-- Thread List -->
+          @if (!isLoading && threads.length > 0) {
+            <div class="threads-section">
+              <div class="section-header">
+                <h3>
+                  @if (selectedTag) {
+                    Discussions tagged with "{{selectedTag}}"
+                  } @else if (searchQuery) {
+                    Search results for "{{searchQuery}}"
+                  } @else {
+                    Recent Discussions
+                  }
+                </h3>
+                <span class="thread-count">{{threads.length}} discussions</span>
+              </div>
+              <app-thread-list 
+                [threads]="threads"
+                (threadClicked)="navigateToThread($event)"
+              />
+            </div>
+          }
+
+          <!-- Empty State -->
+          @if (!isLoading && threads.length === 0) {
+            <div class="no-threads">
+              <mat-icon>forum</mat-icon>
+              <h3>No discussions yet</h3>
+              <p>Be the first to start a conversation in our community!</p>
+              <button mat-raised-button color="primary" (click)="openCreateThreadDialog()">
+                <mat-icon>add</mat-icon>
+                Start a discussion
+              </button>
+            </div>
+          }
+
+          <!-- Pagination -->
+          @if (!isLoading && threads.length > 0) {
+            <div class="pagination">
+              <button mat-icon-button disabled>
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button class="active">1</button>
+              <button>2</button>
+              <button>3</button>
+              <span>...</span>
+              <button>8</button>
+              <button mat-icon-button>
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar">
+          <!-- Community Stats Card -->
+          <div class="sidebar-card stats-card">
+            <h4>Community Stats</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <mat-icon>people</mat-icon>
+                <div class="stat-info">
+                  <span class="stat-value">{{formatNumber(communityStats.totalMembers)}}</span>
+                  <span class="stat-label">Members</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <mat-icon>chat_bubble</mat-icon>
+                <div class="stat-info">
+                  <span class="stat-value">{{formatNumber(communityStats.totalDiscussions)}}</span>
+                  <span class="stat-label">Discussions</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <mat-icon>comment</mat-icon>
+                <div class="stat-info">
+                  <span class="stat-value">{{formatNumber(communityStats.totalComments)}}</span>
+                  <span class="stat-label">Comments</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <mat-icon>today</mat-icon>
+                <div class="stat-info">
+                  <span class="stat-value">{{communityStats.todayActivity}}</span>
+                  <span class="stat-label">Today</span>
+                </div>
               </div>
             </div>
-
-            @if (isLoading) {
-              <div class="loading-spinner">
-                <mat-spinner diameter="40"/>
-                <span>Loading threads...</span>
-              </div>
-            } @else {
-              <app-thread-list 
-              [threads]="threads"
-              (threadClicked)="navigateToThread($event)"
-              />
-            }
-            @if (!isLoading && threads.length === 0) {
-              <div class="no-threads">
-                <mat-icon>forum</mat-icon>
-                <p>No discussions found</p>
-                <button mat-raised-button color="primary" (click)="openCreateThreadDialog()">
-                  Start a discussion
-                </button>
-              </div>
-            }
           </div>
-        }
+
+          <!-- Pinned Discussions -->
+          <div class="sidebar-card">
+            <div class="card-header">
+              <h4>
+                <mat-icon class="header-icon">push_pin</mat-icon>
+                Pinned Discussions
+              </h4>
+            </div>
+            <div class="pinned-list">
+              @for (thread of pinnedThreads; track thread._id) {
+                <div class="pinned-item" (click)="navigateToThread(thread._id)">
+                  <mat-icon class="pin-icon">push_pin</mat-icon>
+                  <div class="item-content">
+                    <h5>{{thread.title}}</h5>
+                    <span class="item-meta">
+                      <mat-icon>comment</mat-icon>
+                      {{thread.replyCount || 0}} {{thread.replyCount === 1 ? 'reply' : 'replies'}}
+                    </span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <mat-icon>push_pin</mat-icon>
+                  <p>No pinned discussions</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Trending Discussions -->
+          <div class="sidebar-card">
+            <div class="card-header">
+              <h4>
+                <mat-icon class="header-icon">trending_up</mat-icon>
+                Trending Now
+              </h4>
+            </div>
+            <div class="trending-list">
+              @for (thread of trendingThreads; track thread._id; let i = $index) {
+                <div class="trending-item" (click)="navigateToThread(thread._id)">
+                  <div class="trending-rank" [class.top-three]="i < 3">{{i + 1}}</div>
+                  <div class="item-content">
+                    <h5>{{thread.title}}</h5>
+                    <div class="item-meta">
+                      <span class="tag">{{thread.tags[0] || 'discussion'}}</span>
+                      <span class="activity">
+                        <mat-icon>trending_up</mat-icon>
+                        {{formatNumber(thread.activityCount || 0)}}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <mat-icon>whatshot</mat-icon>
+                  <p>No trending discussions</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Active Users -->
+          <div class="sidebar-card">
+            <div class="card-header">
+              <h4>
+                <mat-icon class="header-icon">groups</mat-icon>
+                Active Contributors
+              </h4>
+            </div>
+            <div class="active-users-list">
+              @for (user of activeUsers; track user.id) {
+                <div class="user-item">
+                  @if (user.avatar) {
+                    <img [src]="user.avatar" [alt]="user.name" class="user-avatar" />
+                  } @else {
+                    <div class="user-avatar" [style.background-color]="user.avatarColor">
+                      {{user.initials}}
+                    </div>
+                  }
+                  <div class="user-info">
+                    <span class="user-name">{{user.name}}</span>
+                    <span class="user-stats">{{user.postCount}} {{user.postCount === 1 ? 'post' : 'posts'}}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <mat-icon>person</mat-icon>
+                  <p>No active users</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="sidebar-card quick-links">
+            <h4>Quick Links</h4>
+            <div class="links-list">
+              <a mat-button class="quick-link" routerLink="/community/guidelines">
+                <mat-icon>help</mat-icon>
+                Community Guidelines
+              </a>
+              <a mat-button class="quick-link" routerLink="/community/saved">
+                <mat-icon>bookmark</mat-icon>
+                Saved Discussions
+              </a>
+              <a mat-button class="quick-link" routerLink="/settings/notifications">
+                <mat-icon>notifications</mat-icon>
+                Notification Settings
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    }
+
+    <!-- Detail View -->
+    @if (currentView === 'detail' && selectedThread) {
+      <div class="detail-view">
+        <!-- Thread detail component here -->
+        <!-- <app-thread-detail 
+          [thread]="selectedThread"
+          (back)="backToList()">
+        </app-thread-detail> -->
+      </div>
+    }
+  </div>
+</div>

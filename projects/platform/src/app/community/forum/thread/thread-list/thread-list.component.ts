@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-thread-list',
@@ -33,12 +34,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './thread-list.component.html',
   styleUrls: ['./thread-list.component.scss']
 })
-export class ThreadListComponent {
+export class ThreadListComponent implements OnInit {
   @Input() threads: Thread[] = [];
   @Output() threadClicked = new EventEmitter<string>();
 
@@ -49,39 +51,26 @@ export class ThreadListComponent {
   private cd = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   
-  //currentUser: UserInterface | null = null;
   subscriptions: Subscription[] = [];
   private destroy$ = new Subject<void>();
 
   private userService = inject(UserService);
   public user = this.userService.user;
 
-  // Add inside the class
+  // Edit state
   isEditing = false;
   editTitleControl = new FormControl('', Validators.required);
   editContentControl = new FormControl('', Validators.required);
-  editTagsControl = new FormControl(''); // comma‑separated string
+  editTagsControl = new FormControl('');
   isUpdating = false;
   threadInEdit: Thread | null = null;
 
-  // Enable edit mode
-  onEditThread(thread: Thread, event: Event) {
-    event.stopPropagation();
-    this.threadInEdit = thread; // store the thread being edited (if needed elsewhere)
-    this.isEditing = true;
-    
-    // Populate form controls
-    this.editTitleControl.setValue(thread.title);
-    this.editContentControl.setValue(thread.content);
-    this.editTagsControl.setValue(thread.tags.join(', '));
+  // Pin permission state
+  canPinThreads = false;
+  isPinning = false;
 
-    // Wait for the DOM to update with the edit form, then scroll to it
-    setTimeout(() => {
-      const editElement = document.getElementById('edit');
-      if (editElement) {
-        editElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100); // small delay to ensure rendering
+  ngOnInit(): void {
+    this.checkPinPermissions();
   }
 
   ngOnDestroy(): void {
@@ -90,34 +79,159 @@ export class ThreadListComponent {
     this.destroy$.complete();
   }
 
+  /**
+   * Check if current user has permission to pin threads
+   */
+  private checkPinPermissions(): void {
+    const currentUser = this.user();
+    if (currentUser) {
+      this.canPinThreads = currentUser.type === 'admin' || currentUser.type === 'moderator';
+    }
+  }
+
+  /**
+   * Check if current user is the thread owner
+   */
   isThreadOwner(thread: Thread): boolean {
     if (!this.user()?._id) return false;
     return thread.author._id === this.user()?._id;
   }
 
-  /* getMediaType(media: Thread['media']): string {
-    if (!media) return '';
-    const extension = media.filename.split('.').pop()?.toLowerCase();
+  /**
+   * Pin a thread (Admin/Moderator only)
+   */
+  onPinThread(thread: Thread, event: Event): void {
+    event.stopPropagation();
     
-    switch (media.type) {
-      case 'image':
-        return `image/${extension}`;
-      case 'video':
-        return `video/${extension}`;
-      case 'audio':
-        return `audio/${extension}`;
-      default:
-        return '';
-    }
-  } */
+    if (!this.canPinThreads || this.isPinning) return;
 
-  onDeleteThread(threadId: string, event: Event) {
+    const userId = this.user()?._id;
+    if (!userId) {
+      this.snackBar.open('You must be logged in to pin threads', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.isPinning = true;
+
+    this.forumService.pinThread(thread._id, userId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        // Update the thread in the local array
+        const threadIndex = this.threads.findIndex(t => t._id === thread._id);
+        if (threadIndex !== -1) {
+          this.threads[threadIndex] = {
+            ...this.threads[threadIndex],
+            isPinned: true,
+            pinnedAt: response.data?.pinnedAt || new Date().toISOString()
+          };
+        }
+        
+        this.isPinning = false;
+        this.cd.detectChanges();
+        this.snackBar.open(response.message || 'Thread pinned successfully', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        this.isPinning = false;
+        this.cd.detectChanges();
+        this.snackBar.open(
+          error.error?.message || 'Failed to pin thread. Please try again.', 
+          'Close', 
+          { duration: 3000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * Unpin a thread (Admin/Moderator only)
+   */
+  onUnpinThread(thread: Thread, event: Event): void {
+    event.stopPropagation();
+    
+    if (!this.canPinThreads || this.isPinning) return;
+
+    const userId = this.user()?._id;
+    if (!userId) {
+      this.snackBar.open('You must be logged in to unpin threads', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.isPinning = true;
+
+    this.forumService.unpinThread(thread._id, userId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        // Update the thread in the local array
+        const threadIndex = this.threads.findIndex(t => t._id === thread._id);
+        if (threadIndex !== -1) {
+          this.threads[threadIndex] = {
+            ...this.threads[threadIndex],
+            isPinned: false,
+            pinnedAt: undefined
+          };
+        }
+        
+        this.isPinning = false;
+        this.cd.detectChanges();
+        this.snackBar.open(response.message || 'Thread unpinned successfully', 'Close', { duration: 3000 });
+      },
+      error: (error) => {
+        this.isPinning = false;
+        this.cd.detectChanges();
+        this.snackBar.open(
+          error.error?.message || 'Failed to unpin thread. Please try again.', 
+          'Close', 
+          { duration: 3000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * Toggle pin status (Admin/Moderator only)
+   */
+  onTogglePin(thread: Thread, event: Event): void {
+    if (thread.isPinned) {
+      this.onUnpinThread(thread, event);
+    } else {
+      this.onPinThread(thread, event);
+    }
+  }
+
+  /**
+   * Enable edit mode for a thread
+   */
+  onEditThread(thread: Thread, event: Event): void {
+    event.stopPropagation();
+    this.threadInEdit = thread;
+    this.isEditing = true;
+    
+    // Populate form controls
+    this.editTitleControl.setValue(thread.title);
+    this.editContentControl.setValue(thread.content);
+    this.editTagsControl.setValue(thread.tags?.join(', ') || '');
+
+    // Scroll to edit form
+    setTimeout(() => {
+      const editElement = document.getElementById('edit');
+      if (editElement) {
+        editElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
+  /**
+   * Delete a thread
+   */
+  onDeleteThread(threadId: string, event: Event): void {
     event.stopPropagation();
     
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Delete Thread',
-        message: 'Are you sure you want to delete this thread?',
+        message: 'Are you sure you want to delete this thread? This action cannot be undone.',
         confirmText: 'Delete',
         cancelText: 'Cancel'
       }
@@ -130,7 +244,7 @@ export class ThreadListComponent {
     });
   }
 
-  private deleteThread(threadId: string) {
+  private deleteThread(threadId: string): void {
     if (!this.user()) return;
     
     this.forumService.deleteThread(threadId, this.user()?._id ?? '').pipe(
@@ -139,29 +253,33 @@ export class ThreadListComponent {
       next: (response) => {
         this.threads = this.threads.filter(t => t._id !== threadId);
         this.cd.detectChanges();
-        this.snackBar.open(response.message, 'Close', { duration: 3000 });
+        this.snackBar.open(response.message || 'Thread deleted successfully', 'Close', { duration: 3000 });
       },
       error: (error) => {
-        this.snackBar.open('Failed to delete thread. Please try again.', 'Close', { duration: 3000 });
+        this.snackBar.open(
+          error.error?.message || 'Failed to delete thread. Please try again.', 
+          'Close', 
+          { duration: 3000 }
+        );
       }
     });
   }
 
-  openThread(threadId: string) {
+  /**
+   * Navigate to thread detail
+   */
+  openThread(threadId: string): void {
     if (!threadId) return;
-    this.threadClicked.emit(threadId); 
-
-    // Keep navigation as backup if parent doesn't handle it
-    //this.router.navigate(['/dashboard/forum/thread', threadId]);
+    this.threadClicked.emit(threadId);
   }
 
-  timeAgo(date: string | Date): string {
-    return timeAgoUtil(date);
-  }
-
-  // Save changes
-  saveEdit() {
-    if (this.editTitleControl.invalid || this.editContentControl.invalid || this.isUpdating || !this.user()) return;
+  /**
+   * Save edited thread
+   */
+  saveEdit(): void {
+    if (this.editTitleControl.invalid || this.editContentControl.invalid || this.isUpdating || !this.user()) {
+      return;
+    }
 
     this.isUpdating = true;
     const userId = this.user()!._id;
@@ -177,10 +295,18 @@ export class ThreadListComponent {
         tags: tags
       },
       userId
-    ).subscribe({
+    ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (updatedThread) => {
-        // Update the local thread object
-        this.threadInEdit = updatedThread;
+        // Update the thread in the local array
+        const threadIndex = this.threads.findIndex(t => t._id === this.threadInEdit!._id);
+        if (threadIndex !== -1) {
+          this.threads[threadIndex] = {
+            ...this.threads[threadIndex],
+            ...updatedThread
+          };
+        }
+        
+        this.threadInEdit = null;
         this.isEditing = false;
         this.isUpdating = false;
         this.cd.detectChanges();
@@ -190,17 +316,30 @@ export class ThreadListComponent {
         console.error('Error updating thread:', error);
         this.isUpdating = false;
         this.cd.detectChanges();
-        this.snackBar.open('Failed to update thread. Please try again.', 'Close', { duration: 3000 });
+        this.snackBar.open(
+          error.error?.message || 'Failed to update thread. Please try again.', 
+          'Close', 
+          { duration: 3000 }
+        );
       }
     });
   }
 
-  // Cancel editing
-  cancelEdit() {
+  /**
+   * Cancel editing
+   */
+  cancelEdit(): void {
     this.isEditing = false;
+    this.threadInEdit = null;
     this.editTitleControl.reset();
     this.editContentControl.reset();
     this.editTagsControl.reset();
   }
 
+  /**
+   * Format time ago
+   */
+  timeAgo(date: string | Date): string {
+    return timeAgoUtil(date);
+  }
 }

@@ -7,7 +7,6 @@
   flex-direction: column;
   min-height: 100vh;
   padding: $spacing-4;
-  // UPDATED: Use background-color variable for dynamic theming
   background-color: $background-color;
 
   @include mobile {
@@ -19,11 +18,9 @@
   position: sticky;
   top: 0;
   z-index: $z-index-sticky;
-  // UPDATED: Use surface-color variable for dynamic theming
   background-color: $surface-color;
   padding: $spacing-3 $spacing-4;
   border-radius: $border-radius-md;
-  // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
   margin-bottom: $spacing-6;
   box-shadow: $shadow-sm;
@@ -43,7 +40,6 @@
     font-size: $font-size-2xl;
     font-weight: $font-weight-semibold;
     margin-left: 15%;
-    // UPDATED: Use text-primary variable for dynamic theming
     color: $text-primary;
     
     @include medium-screen {
@@ -85,188 +81,516 @@
         margin-right: $spacing-1;
       }
     }
-    
-    .filter-toggle {
-      @include button-secondary;
-      
-      @include mobile {
-        padding: $spacing-1 $spacing-2;
-        font-size: $font-size-sm;
-      }
-    }
   }
 }
 
 .forum-content {
   flex: 1;
-  padding: $spacing-5;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
   
   @include mobile {
-    padding: $spacing-3;
+    padding: $spacing-2;
   }
+}
+
+.forum-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: $spacing-6;
   
   @include tablet {
-    padding: $spacing-4;
-  }
-}
-
-.filter-section {
-  // UPDATED: Use surface-color variable for dynamic theming
-  background-color: $surface-color;
-  padding: $spacing-4;
-  border-radius: $border-radius-md;
-  // UPDATED: Use border-color variable for dynamic theming
-  border: 1px solid $border-color;
-  margin-bottom: $spacing-6;
-  box-shadow: $shadow-sm;
-  
-  @include mobile {
-    padding: $spacing-3;
-    margin-bottom: $spacing-4;
-  }
-  
-  h3 {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    // UPDATED: Use text-primary variable for dynamic theming
-    color: $text-primary;
-    margin-bottom: $spacing-4;
-    
-    @include mobile {
-      font-size: $font-size-base;
-      margin-bottom: $spacing-3;
-    }
-  }
-  
-  .filter-controls {
-    display: flex;
-    flex-wrap: wrap;
+    grid-template-columns: 1fr 300px;
     gap: $spacing-4;
-    align-items: flex-end;
-    
-    @include mobile {
-      flex-direction: column;
-      gap: $spacing-3;
-      align-items: stretch;
-    }
-    
-    mat-form-field {
-      flex: 1;
-      min-width: 200px;
-      
-      @include mobile {
-        min-width: 100%;
-      }
-      
-      .mat-mdc-form-field {
-        .mdc-text-field {
-          background-color: $surface-color;
-          
-          &:focus-within {
-            // UPDATED: Use primary-color with lightened border for dynamic theming
-            border-color: rgba($primary-color, 0.5);
-          }
-        }
-        
-        .mat-mdc-select-value {
-          // UPDATED: Use text-primary variable for dynamic theming
-          color: $text-primary;
-        }
-      }
-    }
-    
-    .filter-buttons {
-      display: flex;
-      gap: $spacing-2;
-      
-      button {
-        &:first-child {
-          @include button-ghost;
-        }
-        
-        &:last-child {
-          @include button-primary;
-        }
-        
-        @include mobile {
-          flex: 1;
-          justify-content: center;
-        }
-      }
-    }
   }
-}
-
-.popular-tags {
-  margin-bottom: $spacing-6;
-  // UPDATED: Use surface-color variable for dynamic theming
-  background-color: $surface-color;
-  padding: $spacing-4;
-  border-radius: $border-radius-md;
-  // UPDATED: Use border-color variable for dynamic theming
-  border: 1px solid $border-color;
-  box-shadow: $shadow-sm;
   
   @include mobile {
-    padding: $spacing-3;
-    margin-bottom: $spacing-4;
-  }
-  
-  h3 {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    // UPDATED: Use text-primary variable for dynamic theming
-    color: $text-primary;
-    margin-bottom: $spacing-3;
-    
-    @include mobile {
-      font-size: $font-size-base;
-    }
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
   }
 }
 
-.tags-container {
+// Main Content Styles
+.main-content {
+  min-width: 0; // Prevents overflow issues
+}
+
+// Search and Filter Bar
+.search-filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-2;
+  gap: $spacing-3;
+  margin-bottom: $spacing-5;
   
-  button {
-    @include button-ghost;
-    padding: $spacing-1 $spacing-3;
-    font-size: $font-size-sm;
-    border-radius: $border-radius-full;
-    // UPDATED: Use text-secondary variable for dynamic theming
-    color: $text-secondary;
-    // UPDATED: Use border-color variable for dynamic theming
-    border: 1px solid $border-color;
+  @include mobile {
+    flex-direction: column;
+  }
+  
+  .search-field {
+    flex: 1;
     
-    &:hover {
-      // UPDATED: Use primary-color with lightened background for dynamic theming
-      background-color: rgba($primary-color, 0.1);
-      // UPDATED: Use primary-color variable for dynamic theming
-      color: $primary-color;
-      border-color: rgba($primary-color, 0.3);
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none;
     }
     
-    &.active {
-      // UPDATED: Use primary-color variable for dynamic theming
-      background-color: $primary-color;
-      color: $white;
-      border-color: $primary-color;
+    ::ng-deep .mdc-text-field {
+      background-color: $surface-color;
+      border-radius: $border-radius-full;
+      
+      .mat-mdc-form-field-icon-prefix {
+        padding-left: $spacing-3;
+      }
+    }
+  }
+  
+  .filter-actions {
+    display: flex;
+    gap: $spacing-2;
+    
+    @include mobile {
+      justify-content: space-between;
+    }
+    
+    .filter-btn, .sort-btn {
+      background-color: $surface-color;
+      border: 1px solid $border-color;
+      border-radius: $border-radius-full;
+      padding: 0 $spacing-4;
+      height: 48px;
+      
+      mat-icon {
+        margin-right: $spacing-1;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
       
       &:hover {
-        // UPDATED: Use primary-dark variable for dynamic theming
-        background-color: $primary-dark;
-        border-color: $primary-dark;
+        background-color: rgba($primary-color, 0.05);
+        border-color: rgba($primary-color, 0.3);
       }
     }
   }
 }
 
+// Popular Tags Section
+.popular-tags {
+  background-color: $surface-color;
+  padding: $spacing-4;
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+  margin-bottom: $spacing-5;
+  box-shadow: $shadow-sm;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-3;
+    
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0;
+    }
+    
+    .view-all-link {
+      color: $primary-color;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      text-transform: none;
+      
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+  
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    
+    .tag-btn {
+      @include button-ghost;
+      padding: $spacing-1 $spacing-4;
+      font-size: $font-size-sm;
+      border-radius: $border-radius-full;
+      color: $text-secondary;
+      border: 1px solid $border-color;
+      background-color: transparent;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-color;
+        border-color: rgba($primary-color, 0.3);
+        transform: translateY(-1px);
+      }
+      
+      &.active {
+        background-color: $primary-color;
+        color: $white;
+        border-color: $primary-color;
+        
+        &:hover {
+          background-color: $primary-dark;
+          border-color: $primary-dark;
+        }
+      }
+    }
+  }
+}
+
+// Threads Section
+.threads-section {
+  background-color: $surface-color;
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+  overflow: hidden;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-4;
+    border-bottom: 1px solid $border-color;
+    
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+      margin: 0;
+    }
+    
+    .thread-count {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      background-color: rgba($primary-color, 0.1);
+      padding: $spacing-1 $spacing-3;
+      border-radius: $border-radius-full;
+    }
+  }
+}
+
+// Sidebar Styles
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.sidebar-card {
+  background-color: $surface-color;
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+  padding: $spacing-4;
+  box-shadow: $shadow-sm;
+  
+  h4 {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin: 0 0 $spacing-3 0;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    
+    .header-icon {
+      color: $primary-color;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-3;
+  }
+}
+
+// Stats Card
+.stats-card {
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-3;
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      padding: $spacing-2;
+      background-color: rgba($primary-color, 0.05);
+      border-radius: $border-radius-sm;
+      
+      mat-icon {
+        color: $primary-color;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+      
+      .stat-info {
+        display: flex;
+        flex-direction: column;
+        
+        .stat-value {
+          font-size: $font-size-lg;
+          font-weight: $font-weight-bold;
+          color: $text-primary;
+          line-height: 1.2;
+        }
+        
+        .stat-label {
+          font-size: $font-size-xs;
+          color: $text-secondary;
+        }
+      }
+    }
+  }
+}
+
+// Pinned Discussions
+.pinned-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  
+  .pinned-item {
+    display: flex;
+    gap: $spacing-3;
+    padding: $spacing-2;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.05);
+    }
+    
+    .pin-icon {
+      color: $primary-color;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      transform: rotate(45deg);
+    }
+    
+    .item-content {
+      flex: 1;
+      
+      h5 {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        margin: 0 0 $spacing-1 0;
+        line-height: 1.4;
+      }
+      
+      .item-meta {
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        
+        mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+  }
+}
+
+// Trending Discussions
+.trending-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  
+  .trending-item {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-3;
+    padding: $spacing-2;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.05);
+    }
+    
+    .trending-rank {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-bold;
+      color: $text-secondary;
+      background-color: rgba($text-secondary, 0.1);
+      border-radius: $border-radius-sm;
+      
+      &.top-three {
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-color;
+      }
+    }
+    
+    .item-content {
+      flex: 1;
+      
+      h5 {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        margin: 0 0 $spacing-1 0;
+        line-height: 1.4;
+      }
+      
+      .item-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        .tag {
+          font-size: $font-size-xs;
+          color: $primary-color;
+          background-color: rgba($primary-color, 0.1);
+          padding: 2px $spacing-2;
+          border-radius: $border-radius-full;
+        }
+        
+        .activity {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          font-size: $font-size-xs;
+          color: $text-secondary;
+          
+          mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Active Users
+.active-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  
+  .user-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-2;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba($primary-color, 0.05);
+    }
+    
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $white;
+      flex-shrink: 0;
+    }
+    
+    .user-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      .user-name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+      }
+      
+      .user-stats {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// Quick Links
+.quick-links {
+  .links-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+    
+    .quick-link {
+      justify-content: flex-start;
+      padding: $spacing-2;
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-normal;
+      text-transform: none;
+      
+      mat-icon {
+        margin-right: $spacing-2;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.05);
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+// Empty States
+.empty-state {
+  text-align: center;
+  padding: $spacing-4;
+  color: $text-secondary;
+  
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    margin-bottom: $spacing-2;
+    opacity: 0.5;
+  }
+  
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+  }
+}
+
+// Loading Spinner
 .loading-spinner {
   display: flex;
   flex-direction: column;
@@ -274,39 +598,34 @@
   justify-content: center;
   padding: $spacing-8;
   gap: $spacing-4;
-  // UPDATED: Use surface-color variable for dynamic theming
   background-color: $surface-color;
   border-radius: $border-radius-lg;
-  // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
   margin: $spacing-4 0;
 
   mat-spinner {
     margin-bottom: $spacing-2;
-    // UPDATED: Use primary-color variable for dynamic theming
     color: $primary-color;
   }
 
   span {
     font-size: $font-size-base;
-    // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
     letter-spacing: 0.02em;
     font-weight: $font-weight-medium;
   }
 }
 
-.no-threads, .thread-not-found {
+// No Threads State
+.no-threads {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: $spacing-8;
   text-align: center;
-  // UPDATED: Use surface-color variable for dynamic theming
   background-color: $surface-color;
   border-radius: $border-radius-lg;
-  // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
   margin: $spacing-4 0;
   
@@ -319,14 +638,12 @@
     width: 3rem;
     height: 3rem;
     margin-bottom: $spacing-4;
-    // UPDATED: Use text-tertiary variable for dynamic theming
     color: $text-tertiary;
   }
   
   h3 {
     font-size: $font-size-xl;
     font-weight: $font-weight-semibold;
-    // UPDATED: Use text-primary variable for dynamic theming
     color: $text-primary;
     margin-bottom: $spacing-2;
     
@@ -337,7 +654,6 @@
   
   p {
     font-size: $font-size-base;
-    // UPDATED: Use text-secondary variable for dynamic theming
     color: $text-secondary;
     margin-bottom: $spacing-4;
     max-width: 400px;
@@ -348,6 +664,15 @@
     @include button-primary;
     padding: $spacing-2 $spacing-6;
     
+    mat-icon {
+      margin-right: $spacing-1;
+      margin-bottom: 0;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: inherit;
+    }
+    
     @include mobile {
       width: 100%;
       justify-content: center;
@@ -355,50 +680,100 @@
   }
 }
 
-/* Accessibility improvements */
+// Pagination
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-2;
+  margin-top: $spacing-6;
+  padding: $spacing-4;
+  background-color: $surface-color;
+  border-radius: $border-radius-md;
+  border: 1px solid $border-color;
+  
+  @include mobile {
+    margin-top: $spacing-4;
+    padding: $spacing-3;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    @include button-ghost;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    
+    &.active {
+      background-color: $primary-color;
+      color: $white;
+      
+      &:hover {
+        background-color: $primary-dark;
+      }
+    }
+  }
+  
+  span {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+}
+
+// Accessibility Improvements
 :focus-visible {
-  // UPDATED: Use primary-color variable for dynamic theming
   outline: 2px solid $primary-color;
   outline-offset: 2px;
 }
 
-/* Reduced motion support */
+// Reduced Motion Support
 @media (prefers-reduced-motion: reduce) {
   .forum-header,
   button,
-  .tags-container button {
+  .tag-btn,
+  .pinned-item,
+  .trending-item,
+  .user-item {
     transition: none;
   }
 }
 
-/* High contrast mode */
+// High Contrast Mode
 @media (prefers-contrast: high) {
   .forum-header,
-  .filter-section,
   .popular-tags,
+  .threads-section,
+  .sidebar-card,
   .loading-spinner,
-  .no-threads,
-  .thread-not-found {
+  .no-threads {
     border: 2px solid $text-primary;
   }
   
-  .tags-container button {
+  .tag-btn {
     border: 1px solid $text-primary;
   }
 }
 
-/* Dark mode specific adjustments */
+// Dark Mode Specific Adjustments
 [data-theme="dark"] {
   .forum-header,
-  .filter-section,
   .popular-tags,
+  .threads-section,
+  .sidebar-card,
   .loading-spinner,
-  .no-threads,
-  .thread-not-found {
+  .no-threads {
     background-color: color-mix(in srgb, var(--surface-color), white 2%);
   }
   
-  .tags-container button {
+  .search-field ::ng-deep .mdc-text-field {
+    background-color: color-mix(in srgb, var(--surface-color), white 2%);
+  }
+  
+  .filter-btn, .sort-btn {
+    background-color: color-mix(in srgb, var(--surface-color), white 2%);
+  }
+  
+  .tag-btn {
     background-color: transparent;
     
     &:hover {
@@ -414,52 +789,24 @@
     }
   }
   
-  .filter-controls mat-form-field .mat-mdc-form-field .mdc-text-field {
-    background-color: color-mix(in srgb, var(--surface-color), white 2%);
+  .pinned-item:hover,
+  .trending-item:hover,
+  .user-item:hover {
+    background-color: rgba($primary-color, 0.1);
+  }
+  
+  .quick-link:hover {
+    background-color: rgba($primary-color, 0.1);
+  }
+  
+  .stat-item {
+    background-color: rgba($primary-color, 0.08);
   }
 }
 
-/* Pagination styling */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: $spacing-2;
-  margin-top: $spacing-8;
-  padding: $spacing-4;
-  // UPDATED: Use surface-color variable for dynamic theming
-  background-color: $surface-color;
-  border-radius: $border-radius-md;
-  // UPDATED: Use border-color variable for dynamic theming
-  border: 1px solid $border-color;
-  
-  @include mobile {
-    margin-top: $spacing-6;
-    padding: $spacing-3;
-    flex-wrap: wrap;
-  }
-  
-  button {
-    @include button-ghost;
-    min-width: 40px;
-    height: 40px;
-    padding: 0;
-    
-    &.active {
-      // UPDATED: Use primary-color variable for dynamic theming
-      background-color: $primary-color;
-      color: $white;
-      
-      &:hover {
-        // UPDATED: Use primary-dark variable for dynamic theming
-        background-color: $primary-dark;
-      }
-    }
-  }
-  
-  span {
-    // UPDATED: Use text-secondary variable for dynamic theming
-    color: $text-secondary;
-    font-size: $font-size-sm;
-  }
+// Detail View
+.detail-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
