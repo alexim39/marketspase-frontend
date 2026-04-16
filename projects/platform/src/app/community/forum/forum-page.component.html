@@ -119,21 +119,53 @@
           }
 
           <!-- Pagination -->
-          @if (!isLoading && threads.length > 0) {
-            <div class="pagination">
-              <button mat-icon-button disabled>
-                <mat-icon>chevron_left</mat-icon>
-              </button>
-              <button class="active">1</button>
-              <button>2</button>
-              <button>3</button>
-              <span>...</span>
-              <button>8</button>
-              <button mat-icon-button>
-                <mat-icon>chevron_right</mat-icon>
-              </button>
-            </div>
-          }
+
+          <!-- Pagination - DYNAMIC -->
+@if (!isLoading && threads.length > 0 && pagination.totalPages > 1) {
+  <div class="pagination">
+    <!-- Previous Page Button -->
+    <button mat-icon-button 
+            [disabled]="pagination.page <= 1"
+            (click)="previousPage()"
+            aria-label="Previous page">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    
+    <!-- Page Numbers -->
+    @for (pageNum of getPageNumbers(); track pageNum) {
+      @if (pageNum === '...') {
+        <span class="pagination-ellipsis">...</span>
+      } @else {
+        <button class="page-btn" 
+                [class.active]="pagination.page === pageNum"
+                (click)="goToPage(pageNum)"
+                [attr.aria-label]="'Page ' + pageNum"
+                [attr.aria-current]="pagination.page === pageNum ? 'page' : null">
+          {{pageNum}}
+        </button>
+      }
+    }
+    
+    <!-- Next Page Button -->
+    <button mat-icon-button 
+            [disabled]="pagination.page >= pagination.totalPages"
+            (click)="nextPage()"
+            aria-label="Next page">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+}
+
+<!-- Pagination Info -->
+@if (!isLoading && threads.length > 0) {
+  <div class="pagination-info">
+    <span>Showing {{((pagination.page - 1) * pagination.limit) + 1}} - {{getMaxDisplayItems()}} of {{pagination.total}} discussions
+    </span>
+  </div>
+}
+
+
+
         </div>
 
         <!-- Right Sidebar -->
@@ -270,18 +302,19 @@
           <div class="sidebar-card quick-links">
             <h4>Quick Links</h4>
             <div class="links-list">
-              <a mat-button class="quick-link" routerLink="/community/guidelines">
+              <a mat-button class="quick-link" routerLink="../discussion/69e0e9ea4d01f2602ec92fd9">
+              <!-- <a mat-button class="quick-link" routerLink="/community/guidelines"> -->
                 <mat-icon>help</mat-icon>
                 Community Guidelines
               </a>
-              <a mat-button class="quick-link" routerLink="/community/saved">
+              <a mat-button class="quick-link" routerLink="../discussion/69e106587e9749f687205992">
                 <mat-icon>bookmark</mat-icon>
-                Saved Discussions
+                Get Started Guide
               </a>
-              <a mat-button class="quick-link" routerLink="/settings/notifications">
+              <!-- <a mat-button class="quick-link" routerLink="/settings/notifications">
                 <mat-icon>notifications</mat-icon>
                 Notification Settings
-              </a>
+              </a> -->
             </div>
           </div>
         </div>

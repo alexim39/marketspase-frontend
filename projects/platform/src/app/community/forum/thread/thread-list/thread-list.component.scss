@@ -7,6 +7,10 @@
   flex-direction: column;
   gap: $spacing-5;
   padding: $spacing-4 0;
+
+   .thread-item.pinned {
+    order: -1;
+  }
 }
 
 .thread-item {
@@ -29,8 +33,10 @@
     outline-offset: 2px;
   }
 
-  // Pinned thread styling
+  // Pinned thread styling - ENHANCED
   &.pinned {
+    order: -1; // Ensure pinned threads appear first in flex/grid layout
+    
     .thread-card {
       background: linear-gradient(
         135deg,
@@ -38,9 +44,29 @@
         $surface-color 100%
       );
       border-left: 4px solid $primary-color;
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 30px 30px 0;
+        border-color: transparent $primary-color transparent transparent;
+        opacity: 0.15;
+        pointer-events: none;
+      }
       
       &:hover {
         border-left-color: $primary-dark;
+        background: linear-gradient(
+          135deg,
+          rgba($primary-color, 0.12) 0%,
+          $surface-color 100%
+        );
       }
     }
 
@@ -48,12 +74,12 @@
       display: flex;
       align-items: center;
       gap: $spacing-1;
-      background-color: rgba($primary-color, 0.12);
+      background-color: rgba($primary-color, 0.15);
       color: $primary-color;
       padding: $spacing-1 $spacing-3;
       border-radius: $border-radius-full;
       font-size: $font-size-xs;
-      font-weight: $font-weight-medium;
+      font-weight: $font-weight-semibold;
       
       mat-icon {
         font-size: 16px;
@@ -584,5 +610,11 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: $spacing-4;
+    
+    // Pinned threads take full width and appear at top
+    .thread-item.pinned {
+      grid-column: 1 / -1;
+      order: -1;
+    }
   }
 }

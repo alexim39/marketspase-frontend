@@ -150,15 +150,22 @@ export class ForumService {
     return this.apiService.get<any>(`forum/thread/${id}`, undefined, undefined, true);
   }
 
-  searchThreads(query: string, sortBy?: string, category?: string): Observable<any> {
-    const params: any = { q: query };
-    if (sortBy) params.sortBy = sortBy;
-    if (category) params.category = category;
-    return this.apiService.get<any>('forum/threads/search', params, undefined, true);
-  }
+ searchThreads(query: string, sortBy?: string, category?: string, pagination?: { page?: number; limit?: number }): Observable<any> {
+  let params = new HttpParams().set('q', query);
+  if (sortBy) params = params.set('sortBy', sortBy);
+  if (category) params = params.set('category', category);
+  if (pagination?.page !== undefined) params = params.set('page', pagination.page.toString());
+  if (pagination?.limit !== undefined) params = params.set('limit', pagination.limit.toString());
+  return this.apiService.get<any>('forum/threads/search', params, undefined, true);
+}
 
-  getThreadsByTag(tag: string): Observable<any> {
-    return this.apiService.get<any>(`forum/threads/tags/${tag}`, undefined, undefined, true);
+  getThreadsByTag(tag: string, params?: { page?: number; limit?: number }): Observable<any> {
+    let httpParams = new HttpParams();
+    if (params) {
+      if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
+      if (params.limit !== undefined) httpParams = httpParams.set('limit', params.limit.toString());
+    }
+    return this.apiService.get<any>(`forum/threads/tags/${tag}`, httpParams, undefined, true);
   }
 
   updateThread(threadId: string, data: { title?: string; content?: string; tags?: string[] }, userId: string): Observable<Thread> {
