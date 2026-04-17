@@ -109,101 +109,317 @@
     cursor: pointer !important;
   }
 
-  mat-card-header {
-    align-items: flex-start;
-    padding: $spacing-4 $spacing-4 $spacing-2;
-    cursor: pointer !important;
+.professional-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4 $spacing-2;
+  flex-wrap: wrap;
 
-    .header-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      width: 100%;
-    }
+  // Left section with avatar and author info
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    flex: 1;
+    min-width: 0; // Prevents overflow
 
-    mat-card-title {
-      font-size: $font-size-lg;
-      font-weight: $font-weight-semibold;
-      color: $text-primary;
-      margin-bottom: $spacing-1;
-      line-height: $line-height-tight;
-      padding-right: $spacing-2;
-      
+    // Author avatar with subtle hover effect
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      transition: transform $transition-fast, box-shadow $transition-fast;
+      cursor: pointer;
+
       &:hover {
-        color: $primary-color;
+        transform: scale(1.02);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      }
+
+      &:active {
+        transform: scale(0.98);
       }
     }
 
-    .pin-indicator {
+    // Author metadata container
+    .author-meta {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: $spacing-1;
-      background-color: rgba($primary-color, 0.12);
-      color: $primary-color;
-      padding: $spacing-1 $spacing-3;
-      border-radius: $border-radius-full;
-      font-size: $font-size-xs;
-      font-weight: $font-weight-medium;
-      white-space: nowrap;
-      flex-shrink: 0;
-      
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-        transform: rotate(45deg);
-      }
-    }
+      min-width: 0;
 
-    mat-card-subtitle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: $spacing-2;
-      width: 100%;
-      font-size: $font-size-sm;
-      color: $text-secondary;
-      margin-top: $spacing-1;
-      padding-right: $spacing-2;
-      flex-wrap: wrap;
+      .author-name-line {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: $spacing-2;
 
-      .author-info {
-        display: inline-flex;
-        align-items: center;
-        gap: $spacing-1;
-        font-weight: $font-weight-medium;
-        min-width: 0;
+        .author-display-name {
+          font-weight: $font-weight-semibold;
+          font-size: $font-size-sm;
+          color: $text-primary;
+          line-height: $line-height-tight;
+          transition: color $transition-fast;
 
-        span {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          &:hover {
+            color: $primary-color;
+          }
         }
 
-        small {
+        .author-username {
+          font-size: $font-size-xs;
           color: $text-tertiary;
           font-weight: $font-weight-normal;
         }
       }
 
-      .time {
-        color: $text-tertiary;
-        font-size: $font-size-xs;
-        white-space: nowrap;
-        font-weight: $font-weight-normal;
-      }
+      .post-time {
+        display: flex;
+        align-items: center;
+        gap: $spacing-1;
 
-      @include mobile {
-        align-items: flex-start;
+        .time-icon {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+          color: $text-tertiary;
+        }
 
-        .time {
-          width: 100%;
-          text-align: left;
-          margin-top: $spacing-1;
+        span {
+          font-size: $font-size-xs;
+          color: $text-tertiary;
+          line-height: $line-height-tight;
         }
       }
     }
   }
+
+  // Pin badge - modern, subtle, professional
+  .pin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    background: rgba($primary-color, 0.1);
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-full;
+    flex-shrink: 0;
+    transition: all $transition-fast;
+
+    .pin-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: $primary-color;
+      transform: rotate(45deg);
+    }
+
+    .pin-text {
+      font-size: $font-size-xs;
+      font-weight: $font-weight-semibold;
+      color: $primary-color;
+      letter-spacing: 0.3px;
+    }
+
+    &:hover {
+      background: rgba($primary-color, 0.18);
+    }
+  }
+}
+
+// Card title - separate from header for cleaner hierarchy
+.professional-card-title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  line-height: $line-height-tight;
+  padding: 0 $spacing-4 $spacing-2;
+  margin: 0;
+  transition: color $transition-fast;
+  word-break: break-word;
+
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+// ============================================
+// RESPONSIVE BREAKPOINTS
+// ============================================
+
+// Mobile devices (up to 600px)
+@media (max-width: 600px) {
+  .professional-card-header {
+    padding: $spacing-2 $spacing-3 $spacing-1;
+    gap: $spacing-2;
+
+    .header-left {
+      gap: $spacing-2;
+
+      .author-avatar {
+        width: 32px;
+        height: 32px;
+      }
+
+      .author-meta {
+        .author-name-line {
+          .author-display-name {
+            font-size: $font-size-xs;
+          }
+
+          .author-username {
+            font-size: 10px;
+          }
+        }
+
+        .post-time {
+          span {
+            font-size: 10px;
+          }
+        }
+      }
+    }
+
+    .pin-badge {
+      padding: 2px $spacing-2;
+
+      .pin-text {
+        display: none; // Hide text on mobile, show only icon
+      }
+
+      .pin-icon {
+        margin: 0;
+      }
+    }
+  }
+
+  .professional-card-title {
+    font-size: $font-size-base;
+    padding: 0 $spacing-3 $spacing-2;
+    line-height: 1.35;
+  }
+}
+
+// Tablet devices (601px to 1024px)
+@media (min-width: 601px) and (max-width: 1024px) {
+  .professional-card-header {
+    padding: $spacing-3 $spacing-4 $spacing-2;
+
+    .header-left {
+      .author-avatar {
+        width: 36px;
+        height: 36px;
+      }
+
+      .author-meta {
+        .author-name-line {
+          .author-display-name {
+            font-size: $font-size-sm;
+          }
+        }
+      }
+    }
+  }
+
+  .professional-card-title {
+    font-size: $font-size-lg;
+  }
+}
+
+// Desktop devices (1025px and above)
+@media (min-width: 1025px) {
+  .professional-card-header {
+    .header-left {
+      .author-meta {
+        .author-name-line {
+          .author-display-name {
+            font-size: $font-size-base;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// DARK MODE ADAPTATIONS
+// ============================================
+[data-theme="dark"] {
+  .professional-card-header {
+    .header-left {
+      .author-avatar {
+        filter: brightness(0.95);
+      }
+
+      .author-meta {
+        .author-name-line {
+          .author-display-name {
+            color: $gray-100;
+          }
+        }
+      }
+    }
+
+    .pin-badge {
+      background: rgba($primary-color, 0.15);
+
+      .pin-icon,
+      .pin-text {
+        color: lighten($primary-color, 10%);
+      }
+    }
+  }
+
+  .professional-card-title {
+    color: $gray-100;
+  }
+}
+
+// ============================================
+// HIGH CONTRAST MODE
+// ============================================
+@media (prefers-contrast: high) {
+  .professional-card-header {
+    .header-left {
+      .author-avatar {
+        border: 1px solid currentColor;
+      }
+    }
+
+    .pin-badge {
+      border: 1px solid currentColor;
+      background: transparent;
+    }
+  }
+}
+
+// ============================================
+// REDUCED MOTION PREFERENCE
+// ============================================
+@media (prefers-reduced-motion: reduce) {
+  .professional-card-header {
+    .header-left {
+      .author-avatar {
+        transition: none;
+
+        &:hover {
+          transform: none;
+        }
+      }
+    }
+
+    .pin-badge {
+      transition: none;
+    }
+  }
+
+  .professional-card-title {
+    transition: none;
+  }
+}
+
   
   mat-card-content {
     padding: 0 $spacing-4;

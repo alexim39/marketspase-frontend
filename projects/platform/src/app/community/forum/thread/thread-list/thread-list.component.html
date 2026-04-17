@@ -39,25 +39,38 @@
   @for (thread of threads; track thread._id) {
     <div class="thread-item" [class.pinned]="thread.isPinned">
       <mat-card (click)="openThread(thread._id)" class="thread-card">
-        <mat-card-header>
-          <div class="header-top">
-            <img mat-card-avatar [src]="thread.author.avatar || 'img/avatar.png'" [alt]="thread.author.displayName || 'User Avatar'">
-            <mat-card-title>
-              {{thread.title}}
-            </mat-card-title>
-            @if (thread.isPinned) {
-              <div class="pin-indicator" matTooltip="Pinned discussion - appears at the top">
-                <mat-icon>push_pin</mat-icon>
-                <span>PINNED</span>
+        <mat-card-header class="professional-card-header">
+          <!-- Left column: Avatar + Author metadata -->
+          <div class="header-left">
+            <img mat-card-avatar 
+                [src]="thread.author.avatar || 'img/avatar.png'" 
+                [alt]="thread.author.displayName || 'User Avatar'"
+                class="author-avatar">
+            <div class="author-meta">
+              <div class="author-name-line">
+                <span class="author-display-name">{{thread.author.displayName | titlecase}}</span>
+                <span class="author-username">@{{thread.author.username}}</span>
               </div>
-            }
+              <div class="post-time">
+                <mat-icon class="time-icon">schedule</mat-icon>
+                <span>{{timeAgo(thread.createdAt)}}</span>
+              </div>
+            </div>
           </div>
-          <mat-card-subtitle>
-            <span class="author-info">{{thread.author.displayName | titlecase}} - <small>@{{thread.author.username}}</small></span>
-            <span class="spacer"></span>
-            <span class="time">{{timeAgo(thread.createdAt)}}</span>
-          </mat-card-subtitle>
-        </mat-card-header>             
+
+          <!-- Right column: Pin indicator (if pinned) -->
+          @if (thread.isPinned) {
+            <div class="pin-badge" matTooltip="Pinned discussion - appears at the top">
+              <mat-icon class="pin-icon">push_pin</mat-icon>
+              <span class="pin-text">PINNED</span>
+            </div>
+          }
+        </mat-card-header>
+
+        <!-- Title placed below header for better readability -->
+        <mat-card-title class="professional-card-title">
+          {{thread.title}}
+        </mat-card-title>
       
         <mat-card-content>
           <!-- Media Preview -->
