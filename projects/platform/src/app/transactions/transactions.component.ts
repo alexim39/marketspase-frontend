@@ -19,6 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 import { Transaction } from './transactions.model';
 import { ShortenIdPipe } from './shorten-id.pipe';
+import { MatDialog } from '@angular/material/dialog';
+import { TransactionSummaryComponent } from './summary/transaction-summary.component';
 
 @Component({
   selector: 'app-transactions',
@@ -49,6 +51,7 @@ import { ShortenIdPipe } from './shorten-id.pipe';
 })
 export class TransactionComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
+  readonly dialog = inject(MatDialog);
 
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type());
@@ -232,5 +235,25 @@ export class TransactionComponent {
       case 'failed': return 'error';
       default: return 'help_outline';
     }
+  }
+
+  viewTransactionSummary(): void {
+    const dialogRef = this.dialog.open(TransactionSummaryComponent, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      maxHeight: '900px',
+      panelClass: 'transaction-summary-dialog',
+      data: {
+        user: this.user(),      // Pass the current user value (not Signal)
+        role: this.user()?.role || 'promoter'  // Pass the role as string
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.refresh) {
+        this.refreshTransactions();
+      }
+    });
   }
 }

@@ -1,0 +1,312 @@
+<div class="transaction-summary-container">
+    <!-- Dialog Header (only shown when in dialog) -->
+  @if (isInDialog()) {
+    <div class="dialog-header">
+      <h2>
+        <mat-icon>analytics</mat-icon>
+        Transaction Summary
+      </h2>
+      <button mat-icon-button (click)="closeDialog()" matTooltip="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+  
+  <!-- Period Selector -->
+  <div class="period-selector-section">
+    <mat-button-toggle-group
+      [value]="selectedPeriod()"
+      (change)="onPeriodChange($event.value)"
+      aria-label="Select period"
+      class="period-toggle-group">
+      @for (option of periodOptions; track option.value) {
+        <mat-button-toggle [value]="option.value" class="period-toggle">
+          <mat-icon class="toggle-icon">{{ option.icon }}</mat-icon>
+          <span class="toggle-label">{{ option.label }}</span>
+        </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+
+    <button
+      mat-icon-button
+      matTooltip="Refresh summary"
+      (click)="refreshData()"
+      [disabled]="isLoading()"
+      class="refresh-btn">
+      <mat-icon [class.spinning]="isLoading()">refresh</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading transaction summary...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="error-container">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button color="primary" (click)="refreshData()">
+        <mat-icon>refresh</mat-icon>
+        Try Again
+      </button>
+    </div>
+  }
+
+  <!-- Summary Content -->
+  @else if (hasData()) {
+    <div class="summary-content">
+      <!-- Overview Cards Grid -->
+      <div class="overview-grid">
+        @if (isPromoter()) {
+          <!-- Promoter Overview Cards -->
+          <mat-card class="overview-card earnings-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">trending_up</mat-icon>
+                <span class="card-label">Total Earnings</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.totalEarnings || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">arrow_upward</mat-icon>
+                <span>All-time campaign earnings</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="overview-card withdrawn-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">payments</mat-icon>
+                <span class="card-label">Total Withdrawn</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.totalWithdrawn || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">account_balance</mat-icon>
+                <span>Successfully transferred to bank</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="overview-card pending-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">pending_actions</mat-icon>
+                <span class="card-label">Pending Withdrawals</span>
+              </div>
+              <div class="card-value pending">
+                {{ overview()?.pendingWithdrawals || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">schedule</mat-icon>
+                <span>Processing transactions</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="overview-card fees-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">receipt</mat-icon>
+                <span class="card-label">Service Fees Paid</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.serviceFeesPaid || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">percent</mat-icon>
+                <span>20% platform fee</span>
+              </div>
+            </div>
+          </mat-card>
+        }
+
+        @if (isMarketer()) {
+          <!-- Marketer Overview Cards -->
+          <mat-card class="overview-card spent-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">shopping_cart</mat-icon>
+                <span class="card-label">Total Spent</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.totalSpent || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">campaign</mat-icon>
+                <span>All-time campaign spending</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="overview-card deposits-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">arrow_downward</mat-icon>
+                <span class="card-label">Total Deposits</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.totalDeposits || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">account_balance_wallet</mat-icon>
+                <span>Funds added to wallet</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="overview-card active-budget-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">lock</mat-icon>
+                <span class="card-label">Active Campaign Budget</span>
+              </div>
+              <div class="card-value reserved">
+                {{ overview()?.activeCampaignBudget || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">hourglass_top</mat-icon>
+                <span>Reserved for active campaigns</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="overview-card available-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">wallet</mat-icon>
+                <span class="card-label">Available Balance</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.availableBalance || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">check_circle</mat-icon>
+                <span>Ready to use for campaigns</span>
+              </div>
+            </div>
+          </mat-card>
+        }
+
+        <!-- Common Card: Available Balance -->
+        @if (isPromoter()) {
+          <mat-card class="overview-card available-card">
+            <div class="card-content">
+              <div class="card-header">
+                <mat-icon class="card-icon">wallet</mat-icon>
+                <span class="card-label">Available Balance</span>
+              </div>
+              <div class="card-value">
+                {{ overview()?.availableBalance || 0 | currencyUtils:currency() }}
+              </div>
+              <div class="card-footer">
+                <mat-icon class="trend-icon">check_circle</mat-icon>
+                <span>Ready to withdraw</span>
+              </div>
+            </div>
+          </mat-card>
+        }
+      </div>
+
+      <!-- Metrics Section -->
+      <div class="metrics-section">
+        <h3 class="section-title">
+          <mat-icon>analytics</mat-icon>
+          Transaction Insights
+        </h3>
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-label">Total Transactions</div>
+            <div class="metric-value">{{ metrics()?.transactionCount || 0 | number }}</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">Average Transaction</div>
+            <div class="metric-value">{{ metrics()?.averageTransactionValue || 0 | currencyUtils:currency() }}</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">Largest Transaction</div>
+            <div class="metric-value">{{ metrics()?.largestTransaction || 0 | currencyUtils:currency() }}</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-label">Success Rate</div>
+            <div class="metric-value">{{ metrics()?.successRate || 0 }}%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions Section -->
+      <div class="recent-transactions-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <mat-icon>history</mat-icon>
+            Recent Transactions
+          </h3>
+          <a
+            mat-button
+            color="primary"
+            routerLink="/dashboard/transactions"
+            class="view-all-link">
+            View All
+            <mat-icon>arrow_forward</mat-icon>
+          </a>
+        </div>
+
+        @if (recentTransactions().length > 0) {
+          <mat-card class="transactions-card">
+            <mat-list class="transaction-list">
+              @for (tx of recentTransactions(); track tx._id; let last = $last) {
+                <mat-list-item class="transaction-item">
+                  <div class="transaction-content">
+                    <div class="transaction-icon" [class]="tx.type">
+                      <mat-icon>{{ getCategoryIcon(tx.category) }}</mat-icon>
+                    </div>
+                    <div class="transaction-details">
+                      <div class="transaction-description">{{ tx.description }}</div>
+                      <div class="transaction-meta">
+                        <span class="transaction-category">{{ tx.category | titlecase }}</span>
+                        <span class="transaction-dot">•</span>
+                        <span class="transaction-time">{{ formatRelativeTime(tx.createdAt) }}</span>
+                      </div>
+                    </div>
+                    <div class="transaction-amount-status">
+                      <div class="transaction-amount" [class]="tx.type">
+                        {{ tx.type === 'credit' ? '+' : '-' }}{{ tx.amount | currencyUtils:currency() }}
+                      </div>
+                      @if (tx.amountPayable && isPromoter()) {
+                        <div class="amount-payable">
+                          Received: {{ tx.amountPayable | currencyUtils:currency() }}
+                        </div>
+                      }
+                      <div class="transaction-status" [class]="getStatusClass(tx.status)">
+                        <span class="status-dot"></span>
+                        {{ tx.status | titlecase }}
+                      </div>
+                    </div>
+                  </div>
+                </mat-list-item>
+                @if (!last) {
+                  <mat-divider></mat-divider>
+                }
+              }
+            </mat-list>
+          </mat-card>
+        } @else {
+          <mat-card class="empty-transactions-card">
+            <div class="empty-state">
+              <mat-icon>receipt_long</mat-icon>
+              <p>No recent transactions</p>
+            </div>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+</div>

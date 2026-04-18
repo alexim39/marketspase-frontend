@@ -47,6 +47,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CurrencyUtilsPipe, HelpDialogComponent, UserInterface } from '../../../../../shared-services/src/public-api';
 import { UserService } from '../../common/services/user.service';
+import { TransactionSummaryComponent } from '../../transactions/summary/transaction-summary.component';
 
 interface BankInterface {
   code: string;
@@ -80,7 +81,8 @@ interface BankInterface {
     MatExpansionModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    CurrencyUtilsPipe
+    CurrencyUtilsPipe,
+    TransactionSummaryComponent
   ],
   providers: [WithdrawalService],
   templateUrl: './withdrawal.component.html',
