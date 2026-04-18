@@ -15,6 +15,7 @@ import { ProductsFilterSidebarComponent } from './components/products-filter-sid
 import { ProductsContentViewComponent } from './components/products-content-view/products-content-view.component';
 import { FilterState, ViewMode, SortBy, SortDirection, PaginatedResponse } from './models/filter-state.model';
 import { Product } from '../../models';
+import { UserService } from '../../../common/services/user.service';
 
 @Component({
   selector: 'app-promoter-products-list',
@@ -36,7 +37,10 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
+  private userService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
+
+ // @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type())

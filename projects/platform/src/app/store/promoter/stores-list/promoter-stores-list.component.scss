@@ -1,0 +1,51 @@
+// promoter-stores-list.component.scss
+@import '../../../../styles/mixins';
+@import '../../../../styles/variables';
+
+.promoter-stores-container {
+  min-height: 100vh;
+  background: $background-color;
+  
+  .main-content {
+    max-width: 1400px;
+    margin: $spacing-8 auto;
+    padding: 0 $spacing-4;
+    display: grid;
+    gap: $spacing-8;
+    
+    @include desktop {
+      grid-template-columns: 280px 1fr;
+      padding: 0 $spacing-8;
+    }
+    
+    @include mobile {
+      display: block;
+      margin: $spacing-4 auto;
+    }
+  }
+}
+
+// Ensure child components don't have unwanted margins/paddings
+:host ::ng-deep {
+  app-stores-header {
+    display: block;
+    margin-bottom: 0;
+  }
+  
+  app-stores-filter-sidebar {
+    display: block;
+    height: fit-content;
+    position: sticky;
+    top: $spacing-8;
+    
+    @include mobile {
+      position: static;
+      margin-bottom: $spacing-4;
+    }
+  }
+  
+  app-stores-content-view {
+    display: block;
+    width: 100%;
+  }
+}

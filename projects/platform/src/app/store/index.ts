@@ -4,12 +4,12 @@ import { Router } from '@angular/router';
 import { UserService } from '../common/services/user.service';
 import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
 import { MarketerStoreDashboardComponent } from './marketer/dashboard/store-dashboard/store-dashboard.component';
-import { PromoterProductsListComponent } from './promoter/products-list/promoter-products-list.component';
+import { PromoterStoresListComponent } from './promoter/stores-list/promoter-stores-list.component';
 
 @Component({
   selector: 'campaign-index',
   standalone: true,
-  imports: [CommonModule, MarketerStoreDashboardComponent, PromoterProductsListComponent],
+  imports: [CommonModule, PromoterStoresListComponent, MarketerStoreDashboardComponent],
   template: `
     <!-- Main Content -->
     @if (user()?.role === 'marketer') {
@@ -17,7 +17,7 @@ import { PromoterProductsListComponent } from './promoter/products-list/promoter
     }
 
     @if (user()?.role === 'promoter') {
-      <app-promoter-products-list [user]="user"/>
+      <app-promoter-stores-list/>
     }
 
     @if (!user()) {

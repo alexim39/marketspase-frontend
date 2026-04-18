@@ -11,6 +11,12 @@ export const StoreRoutes: Routes = [
     },
 
     {
+        path: 'products',
+        loadComponent: () => import('./promoter/products-list/promoter-products-list.component').then(c => c.PromoterProductsListComponent),
+        title: "Promoted products - View and Manage Product you are promoting",
+    },
+
+    {
         path: 'create',
         loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
         title: "Create New Store - Setup your Marketer Store",

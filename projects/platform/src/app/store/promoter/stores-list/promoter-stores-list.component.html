@@ -1,0 +1,39 @@
+<!-- promoter-stores-list.component.html -->
+<div class="promoter-stores-container">
+  <!-- Header Section -->
+  <app-promoter-stores-header
+    [stats]="stats()" 
+    [searchControl]="searchControl"
+  />
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Filters Sidebar (Desktop only) -->
+    @if (deviceType() === 'desktop') {
+      <app-stores-filter-sidebar
+        [categories]="categories()"
+        [verificationTiers]="verificationTiers()"
+        [currentFilters]="currentFilters()"
+        (filterChange)="applyFilters($event)"
+        (clearFilters)="clearFilters()"
+      />
+    }
+
+    <!-- Stores Content -->
+    <app-stores-content-view
+      [stores]="stores()"
+      [loading]="loading()"
+      [error]="error()"
+      [totalStores]="totalStores()"
+      [totalPages]="totalPages()"
+      [currentPage]="currentPage()"
+      [pageSize]="pageSize()"
+      [deviceType]="deviceType()"
+      (viewStore)="viewStoreDetails($event)"
+      (followStore)="followStore($event)"
+      (retry)="retryLoading()"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    />
+  </main>
+</div>
