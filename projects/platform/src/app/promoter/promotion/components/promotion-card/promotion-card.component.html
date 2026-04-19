@@ -160,21 +160,24 @@
       @if (promotion.status === 'submitted' || promotion.status === 'validated') {
         @if (!isNearingExpiration()) {
           <button class="action-btn secondary" (click)="viewDetails()">
-            <i class="material-icons">visibility</i>
             View Status
+            <i class="material-icons">visibility</i>
           </button>
         }
       }
       @if (promotion.status === 'paid') {
         <button class="action-btn success" (click)="viewDetails()">
-          <i class="material-icons">paid</i>
-          Paid
+          <!-- <i class="material-icons">paid</i> -->
+          <span>View Details</span>
+          <i class="material-icons info-sub">info_outline</i>
         </button>
+
       }
       @if (promotion.status === 'rejected') {
         <button class="action-btn danger" (click)="viewDetails()">
-          <i class="material-icons">cancel</i>
-          Rejected
+          <!-- <i class="material-icons">cancel</i> -->
+          <span>View Reason</span>
+          <i class="material-icons info-sub">info_outline</i>
         </button>
       }
     </div>
