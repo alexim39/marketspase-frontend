@@ -20,7 +20,7 @@
             <video 
               #videoPlayer
               class="media-element"
-              [poster]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)"
+              [poster]="campaign.thumbnailUrl"
               controls
               (click)="$event.preventDefault()">
               <source [src]="campaign.mediaUrl" type="video/mp4">

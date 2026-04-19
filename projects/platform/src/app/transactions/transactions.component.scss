@@ -267,13 +267,13 @@
   overflow-y: auto;
   border-radius: $border-radius-md;
   border: $border-width solid $border-color;
-  background: $background-color !important;
 }
 
 .transaction-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  background: $surface-color !important;
   
   th.mat-header-cell {
     background-color: $gray-50;

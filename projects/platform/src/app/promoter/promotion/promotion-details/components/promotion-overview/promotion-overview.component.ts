@@ -47,9 +47,7 @@ import { PromotionInfoComponent } from '../promotion-info/promotion-info.compone
       <div class="overview-content">
         <app-promotion-media 
           [promotion]="promotion" 
-          [apiUrl]="apiUrl"
           (share)="share.emit()"
-          (download)="download.emit()"
         />
         
         <app-promotion-info 
@@ -66,9 +64,7 @@ export class PromotionOverviewComponent {
   @Input() promotion!: PromotionInterface;
   @Input() countdown!: string;
   @Input() isNearingExpiration!: boolean;
-  @Input() apiUrl!: string;
   @Output() share = new EventEmitter<void>();
-  @Output() download = new EventEmitter<void>();
 
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {

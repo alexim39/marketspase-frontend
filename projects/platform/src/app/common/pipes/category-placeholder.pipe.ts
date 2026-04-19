@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+/* import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'categoryPlaceholder',
@@ -28,4 +28,4 @@ export class CategoryPlaceholderPipe implements PipeTransform {
         return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80';
     }
   }
-}
+} */

@@ -7,7 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { PromotionInterface } from '../../../../../../../shared-services/src/public-api';
-import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
+//import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
 import { PromoterService } from '../../../promoter.service';
 import { interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
@@ -30,7 +30,7 @@ import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instru
     MatChipsModule,
     MatTooltipModule,
     MatMenuModule,
-    CategoryPlaceholderPipe,
+    //CategoryPlaceholderPipe,
     MatProgressSpinnerModule,
     MatTooltipModule
   ],

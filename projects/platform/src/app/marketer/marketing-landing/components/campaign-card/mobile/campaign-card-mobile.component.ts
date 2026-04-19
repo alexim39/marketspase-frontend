@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { TitleCasePipe } from '@angular/common';
 import { ShortNumberPipe } from '../../../../../common/pipes/short-number.pipe';
-import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
+//import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
 import { CampaignInterface, CurrencyUtilsPipe, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
 import { TruncatePipe } from '../../../../../store/shared';
 import { Router } from '@angular/router';
@@ -20,7 +20,7 @@ import { Router } from '@angular/router';
     MatButtonModule,
     MatMenuModule,
     ShortNumberPipe,
-    CategoryPlaceholderPipe,
+    //CategoryPlaceholderPipe,
     TitleCasePipe,
     TruncatePipe,
     CurrencyUtilsPipe

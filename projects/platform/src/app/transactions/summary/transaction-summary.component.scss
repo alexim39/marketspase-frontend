@@ -3,6 +3,7 @@
 
 .transaction-summary-container {
   padding: 0;
+  background: $background-color;
 }
 
 // Period Selector
@@ -102,7 +103,7 @@
 }
 
 .overview-card {
-  border-radius: 16px;
+  border-radius: 5px;
   border: 1px solid $border-color;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -114,6 +115,7 @@
   
   .card-content {
     padding: 20px;
+    background-color: color-mix(in srgb, $background-color, black 5%);
   }
   
   .card-header {
@@ -244,6 +246,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
+    background: $background-color;
     
     .section-title {
       display: flex;
@@ -270,6 +273,7 @@
   border: 1px solid $border-color;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: $surface-color;
 }
 
 .transaction-list {

@@ -41,7 +41,7 @@
         <div class="mobile-video-placeholder">
            <!-- Use thumbnail if available, fallback to category placeholder -->
           <img 
-            [src]="campaign.thumbnailUrl || (campaign.category | categoryPlaceholder)" 
+            [src]="campaign.thumbnailUrl" 
             class="media-preview placeholder-img" 
             [alt]="campaign.title"
           />

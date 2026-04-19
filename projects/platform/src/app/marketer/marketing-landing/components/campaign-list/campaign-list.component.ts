@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 // Components
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
-import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
+//import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
 import { CampaignInterface, DeviceService, PromotionInterface } from '../../../../../../../shared-services/src/public-api';
 import { CampaignCardComponent } from '../campaign-card/campaign-card.component';
 import { CampaignSkeletonComponent } from '../campaign-skeleton/campaign-skeleton.component';
@@ -22,7 +22,7 @@ import { TruncatePipe } from '../../../../store/shared';
     CampaignCardComponent,
     CampaignSkeletonComponent,
     ShortNumberPipe,
-    CategoryPlaceholderPipe,
+    //CategoryPlaceholderPipe,
     TruncatePipe,
     CampaignCardMobileComponent
   ],

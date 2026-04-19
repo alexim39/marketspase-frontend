@@ -2,7 +2,7 @@
 import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
 import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
-import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
+//import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
 import { MatIconModule } from '@angular/material/icon';
 import { PromotionDetailModalComponent } from '../promotion-detail-modal/promotion-detail-modal.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +18,7 @@ export type ViewMode = 'grid' | 'list';
   imports: [
     CommonModule,
     TitleCasePipe,
-    CategoryPlaceholderPipe,
+    //CategoryPlaceholderPipe,
     MatIconModule,
     TruncatePipe,
     MatTooltipModule,
