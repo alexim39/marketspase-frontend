@@ -1,0 +1,105 @@
+    <div class="stores-content">
+      <!-- Loading State -->
+      @if (loading) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading stores...</p>
+        </div>
+      }
+      
+      <!-- Error State -->
+      @else if (error) {
+        <div class="error-state">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ error }}</p>
+          <button class="retry-btn" (click)="retry.emit()">Try Again</button>
+        </div>
+      }
+      
+      <!-- Empty State -->
+      @else if (stores.length === 0) {
+        <div class="empty-state">
+          <mat-icon>store_off</mat-icon>
+          <p>No stores found</p>
+          <p class="subtext">Try adjusting your filters or search criteria</p>
+        </div>
+      }
+      
+      <!-- Stores Grid -->
+      @else {
+        <div class="stores-grid" [class.list-view]="deviceType === 'mobile'">
+          @for (store of stores; track store._id) {
+            <div class="store-card" (click)="viewStore.emit(store)">
+              <div class="card-badge" *ngIf="store.isVerified">
+                <mat-icon>verified</mat-icon>
+                <span>{{ store.verificationTier | titlecase }}</span>
+              </div>
+              
+              <div class="store-logo">
+                <img [src]="store.logo || '/assets/default-store.png'" [alt]="store.name">
+              </div>
+              
+              <div class="store-info">
+                <h3>{{ store.name }}</h3>
+                <p class="description">{{ store.description | slice:0:100 }}{{ store!.description!.length > 100 ? '...' : '' }}</p>
+                
+                <div class="store-stats">
+                  <div class="stat">
+                    <mat-icon>shopping_bag</mat-icon>
+                    <span>{{ store.productCount }} products</span>
+                  </div>
+                  <div class="stat">
+                    <mat-icon>visibility</mat-icon>
+                    <span>{{ store.analytics.totalViews | number }} views</span>
+                  </div>
+                  <div class="stat">
+                    <mat-icon>trending_up</mat-icon>
+                    <span>{{ store.analytics.conversionRate || 0 }}% conv.</span>
+                  </div>
+                </div>
+                
+                <div class="product-preview" *ngIf="store.productPreview.length">
+                  <div class="preview-images">
+                    @for (product of store.productPreview.slice(0, 4); track product._id) {
+                      <div class="preview-img">
+                        <img [src]="product?.images?.[0] || '/img/product.png'" [alt]="product.name">
+                        <span class="commission">{{ product.promotion.commissionRate }}%</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-actions">
+                <button 
+                  class="follow-btn"
+                  [class.following]="store.isFollowing"
+                  (click)="$event.stopPropagation(); followStore.emit(store)">
+                  <mat-icon>{{ store.isFollowing ? 'favorite' : 'favorite_border' }}</mat-icon>
+                  <span>{{ store.isFollowing ? 'Following' : 'Follow' }}</span>
+                </button>
+                <button 
+                  mat-flat-button
+                  class="visit-btn"
+                  (click)="visitStore(store)">
+                  <mat-icon>link</mat-icon>
+                  Visit store
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <!-- Pagination -->
+        @if (totalPages > 1) {
+          <mat-paginator
+            [length]="totalStores"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[12, 24, 48]"
+            [pageIndex]="currentPage - 1"
+            (page)="onPageChange($event)"
+            aria-label="Select page">
+          </mat-paginator>
+        }
+      }
+    </div>

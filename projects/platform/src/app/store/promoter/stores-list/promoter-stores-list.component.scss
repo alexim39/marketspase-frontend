@@ -27,7 +27,7 @@
 
 // Ensure child components don't have unwanted margins/paddings
 :host ::ng-deep {
-  app-stores-header {
+  app-promoter-stores-header {
     display: block;
     margin-bottom: 0;
   }

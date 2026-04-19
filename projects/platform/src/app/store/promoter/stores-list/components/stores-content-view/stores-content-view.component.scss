@@ -1,0 +1,286 @@
+// stores-content-view.component.scss
+@import '../../../../../../styles/mixins';
+@import '../../../../../../styles/variables';
+.stores-content {
+  min-height: 500px;
+  
+  // Loading, Error, Empty States
+  .loading-state,
+  .error-state,
+  .empty-state {
+    @include flex-column-center;
+    padding: $spacing-16 $spacing-8;
+    text-align: center;
+    background: $surface-color;
+    border-radius: $border-radius-md;
+    
+    mat-icon {
+      font-size: 4rem;
+      width: 4rem;
+      height: 4rem;
+      margin-bottom: $spacing-4;
+      color: $text-tertiary;
+    }
+    
+    p {
+      margin: 0 0 $spacing-4;
+      color: $text-secondary;
+      font-size: $font-size-base;
+    }
+    
+    .subtext {
+      font-size: $font-size-sm;
+      color: $text-tertiary;
+    }
+    
+    .retry-btn {
+      @include button-primary;
+      margin-top: $spacing-4;
+    }
+  }
+  
+  .loading-state .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $border-color;
+    border-top-color: $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: $spacing-4;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  // Stores Grid
+  .stores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: $spacing-6;
+    margin-bottom: $spacing-8;
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-4;
+    }
+    
+    &.list-view {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  // Store Card
+  .store-card {
+    @include card-base;
+    @include card-hover;
+    cursor: pointer;
+    position: relative;
+    transition: all $transition-normal;
+    
+    &:hover {
+      .store-logo img {
+        transform: scale(1.05);
+      }
+    }
+    
+    .card-badge {
+      position: absolute;
+      top: $spacing-4;
+      right: $spacing-4;
+      background: $success-color;
+      color: $white;
+      padding: $spacing-1 $spacing-2;
+      border-radius: $border-radius-full;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      z-index: 1;
+      box-shadow: $shadow-sm;
+      
+      mat-icon {
+        font-size: $font-size-sm;
+        width: $font-size-sm;
+        height: $font-size-sm;
+      }
+    }
+    
+    .store-logo {
+      height: 140px;
+      background: linear-gradient(135deg, $gray-50, $gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: $spacing-4;
+      
+      :host-context([data-theme="dark"]) & {
+        background: linear-gradient(135deg, $gray-800, $gray-700);
+      }
+      
+      img {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: contain;
+        transition: transform $transition-normal;
+      }
+    }
+    
+    .store-info {
+      padding: $spacing-4;
+      
+      h3 {
+        margin: 0 0 $spacing-2;
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        @include text-ellipsis;
+      }
+      
+      .description {
+        margin: 0 0 $spacing-4;
+        font-size: $font-size-sm;
+        color: $text-secondary;
+        line-height: $line-height-normal;
+        @include text-multiline-ellipsis(2);
+      }
+      
+      .store-stats {
+        display: flex;
+        gap: $spacing-4;
+        margin-bottom: $spacing-4;
+        padding-bottom: $spacing-4;
+        border-bottom: $border-width solid $border-color;
+        
+        .stat {
+          display: flex;
+          align-items: center;
+          gap: $spacing-1;
+          font-size: $font-size-xs;
+          color: $text-tertiary;
+          
+          mat-icon {
+            font-size: $font-size-sm;
+            width: $font-size-sm;
+            height: $font-size-sm;
+          }
+        }
+      }
+      
+      .product-preview {
+        .preview-images {
+          display: flex;
+          gap: $spacing-2;
+          
+          .preview-img {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: $border-radius-sm;
+            overflow: hidden;
+            background: $gray-100;
+            
+            :host-context([data-theme="dark"]) & {
+              background: $gray-700;
+            }
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            
+            .commission {
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              background: rgba(0, 0, 0, 0.75);
+              color: $white;
+              font-size: $font-size-xs;
+              text-align: center;
+              padding: 2px;
+              font-weight: $font-weight-medium;
+            }
+          }
+        }
+      }
+    }
+    
+    .card-actions {
+      padding: $spacing-4;
+      border-top: $border-width solid $border-color;
+      
+      .follow-btn {
+        width: 100%;
+        padding: $spacing-2;
+        border: $border-width solid $border-color;
+        border-radius: $border-radius;
+        background: $surface-color;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2;
+        transition: all $transition-fast;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $text-primary;
+        
+        &:hover {
+          background: rgba($primary-color-hex, 0.05);
+          border-color: $primary-color;
+        }
+        
+        &.following {
+          background: rgba($error-color-hex, 0.1);
+          border-color: rgba($error-color-hex, 0.3);
+          color: $error-color;
+          
+          &:hover {
+            background: rgba($error-color-hex, 0.15);
+          }
+        }
+        
+        mat-icon {
+          font-size: $font-size-lg;
+          width: $font-size-lg;
+          height: $font-size-lg;
+        }
+      }
+    }
+  }
+}
+
+// Paginator Styling
+::ng-deep .mat-mdc-paginator {
+  background: transparent !important;
+  
+  .mat-mdc-paginator-container {
+    justify-content: center;
+    padding: $spacing-4 0;
+  }
+  
+  .mat-mdc-paginator-range-label,
+  .mat-mdc-paginator-page-size-label {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+  
+  .mat-mdc-icon-button {
+    color: $text-secondary;
+    
+    &:hover {
+      background: rgba($primary-color-hex, 0.1);
+    }
+    
+    &.mat-mdc-button-disabled {
+      opacity: 0.5;
+    }
+  }
+  
+  .mat-mdc-select-value-text {
+    color: $text-primary;
+  }
+}

@@ -10,10 +10,10 @@ import { DeviceService } from '../../../../../../shared-services/src/public-api'
 import { UserService } from '../../../common/services/user.service';
 
 // Child Components
-import { PromoterStoresHeaderComponent } from './components/stores-header/stores-header.component';
 import { StoresFilterSidebarComponent } from './components/stores-filter-sidebar/stores-filter-sidebar.component';
 import { StoresContentViewComponent } from './components/stores-content-view/stores-content-view.component';
 import { Store, StoreFilterOptions, StoreListService } from './stores-list.service';
+import { StoresHeaderComponent } from './components/stores-header/stores-header.component';
 
 
 interface StoreFilterState {
@@ -32,7 +32,7 @@ interface StoreFilterState {
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    PromoterStoresHeaderComponent,
+    StoresHeaderComponent,
     StoresFilterSidebarComponent,
     StoresContentViewComponent
   ],

@@ -112,8 +112,6 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         return;
       }
 
-      console.log('product lists response ',response)
-
       this.products.set(response.data);
       this.totalProducts.set(response.total);
       this.totalPages.set(response.totalPages);

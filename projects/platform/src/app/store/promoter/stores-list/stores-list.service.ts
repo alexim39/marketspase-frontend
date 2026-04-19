@@ -72,7 +72,7 @@ export interface StoreListResponse {
 @Injectable()
 export class StoreListService {
   private apiService = inject(ApiService);
-  private apiUrl = 'stores/promoter-store-list';
+  private apiUrl = 'stores/store/promoter-store-list';
 
   getStoresForPromoter(params: {
     page?: number;
