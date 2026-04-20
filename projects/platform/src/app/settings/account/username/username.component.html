@@ -1,0 +1,172 @@
+<mat-card class="username-card">
+    <mat-card-header>
+    <mat-card-title class="username-title">
+        <mat-icon class="username-icon">alternate_email</mat-icon>
+        Customize Your Profile URL
+    </mat-card-title>
+    <mat-card-subtitle class="username-subtitle">
+        Choose a unique username that will be part of your profile, store and referral link
+    </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-content>
+    <form [formGroup]="usernameForm" class="username-form">
+        <div class="form-section">
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Username</mat-label>
+            <input
+            matInput
+            formControlName="username"
+            required
+            placeholder="Enter your unique username"
+            />
+            <button
+            mat-icon-button
+            matSuffix
+            (click)="showHelp()"
+            matTooltip="Username guidelines"
+            type="button"
+            >
+            <mat-icon>help_outline</mat-icon>
+            </button>
+            <mat-hint>3-30 characters, letters, numbers and underscores only</mat-hint>
+            @if (usernameForm.get('username')?.hasError('required')) {
+            <mat-error>Username is required</mat-error>
+            }
+            @if (usernameForm.get('username')?.hasError('pattern')) {
+            <mat-error>Only letters, numbers and underscores allowed</mat-error>
+            }
+            @if (usernameForm.get('username')?.hasError('minlength')) {
+            <mat-error>Minimum 3 characters required</mat-error>
+            }
+            @if (usernameForm.get('username')?.hasError('maxlength')) {
+            <mat-error>Maximum 30 characters allowed</mat-error>
+            }
+            @if (usernameForm.get('username')?.hasError('restrictedWord')) {
+            <mat-error>This username contains a restricted word.</mat-error>
+            }
+        </mat-form-field>
+
+        <div class="url-preview">
+            <div class="preview-label">
+            <mat-icon>link</mat-icon>
+            <span>Your personal URL will be:</span>
+            </div>
+            <div class="preview-value">
+            marketspase.com/{{ username() | lowercase }}
+            </div>
+        </div>
+        </div>
+    </form>
+
+    <!-- Referral Section -->
+    @if (referralStats() && usernameForm.get('username')?.valid) {
+        <div class="referral-section">
+        <div class="referral-info">
+            <h4 class="referral-title">
+            <mat-icon class="referral-icon">card_giftcard</mat-icon>
+            Your Referral Program
+            </h4>
+            
+            <div class="referral-stats">
+            <div class="stat-item">
+                <span class="stat-label">Total Referrals:</span>
+                <span class="stat-value">{{ referralStats().totalReferrals }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Pending Referrals:</span>
+                <span class="stat-value">{{ referralStats().pendingReferrals }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Completed Referrals:</span>
+                <span class="stat-value">{{ referralStats().paidReferrals }}</span>
+            </div>
+            <div class="stat-item earnings">
+                <span class="stat-label">Total Earned:</span>
+                <span class="stat-value">₦{{ referralStats().totalEarned }}</span>
+            </div>
+            @if (referralStats().estimatedEarnings > 0) {
+                <div class="stat-item potential">
+                <span class="stat-label">Potential Earnings:</span>
+                <span class="stat-value">₦{{ referralStats().estimatedEarnings }}</span>
+                </div>
+            }
+            </div>
+
+            <div class="referral-link-container">
+            <label class="link-label">Your Referral Link:</label>
+            <div class="referral-link">
+                <code class="link-code">{{ referralStats().referralLink }}</code>
+                <button 
+                mat-icon-button 
+                (click)="copyReferralLink()" 
+                matTooltip="Copy referral link"
+                class="copy-button"
+                >
+                <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+            </div>
+
+            @if (referralStats()) {
+            <div class="sharing-options">
+                <h5>Share Your Referral Link:</h5>
+                <div class="share-buttons">
+                <button mat-button (click)="shareOnWhatsApp()">
+                    <mat-icon>chat</mat-icon>
+                    WhatsApp
+                </button>
+                <button mat-button (click)="shareOnFacebook()">
+                    <mat-icon>facebook</mat-icon>
+                    Facebook
+                </button>
+                <button mat-button (click)="copyReferralLink()">
+                    <mat-icon>link</mat-icon>
+                    Copy Link
+                </button>
+                </div>
+            </div>
+            }
+
+            <div class="referral-rules">
+            <h5 class="rules-title">How it works:</h5>
+            <ul class="rules-list">
+                <li>
+                <strong>Earn ₦1,250</strong> when a <strong>marketer</strong> you refer makes their first payment (minimum ₦2,000)
+                </li>
+                <!-- <li>
+                <strong>Earn ₦250</strong> when a <strong>promoter</strong> you refer completes their first paid promotion
+                </li> -->
+                <li>
+                <strong>One-time bonus:</strong> Each person can only generate one bonus for you, regardless of role changes
+                </li>
+                <li>
+                <strong>Instant payment:</strong> Bonuses are paid automatically to your wallet
+                </li>
+            </ul>
+            </div>
+        </div>
+        </div>
+    }
+    </mat-card-content>
+
+    <mat-divider/>
+
+    <mat-card-actions class="form-actions">
+    <button
+        mat-flat-button
+        color="primary"
+        class="save-button"
+        [disabled]="usernameForm.invalid || isLoading()"
+        (click)="onSubmit()"
+    >
+        @if (!isLoading()) {
+        <span>Save Changes</span>
+        } @else {
+        <mat-spinner diameter="20"></mat-spinner>
+        }
+    </button>
+    </mat-card-actions>
+</mat-card>
