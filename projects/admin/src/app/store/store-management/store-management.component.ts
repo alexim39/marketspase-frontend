@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -20,6 +20,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
+import { debounceTime, Subject } from 'rxjs';
 
 import { StoreService } from '../store.service';
 import { Store } from '../shared/store.model';
@@ -29,6 +30,7 @@ import { StoreEditDialogComponent } from './store-edit-dialog/store-edit-dialog.
 import { StoreAnalyticsDialogComponent } from './store-analytics-dialog/store-analytics-dialog.component';
 import { User } from '../shared/user.model';
 import { TruncatePipe } from '../shared/truncate.pipe';
+
 @Component({
   selector: 'admin-store-mgt',
   imports: [
@@ -63,6 +65,7 @@ export class StoreManagementComponent implements OnInit {
   private storeService = inject(StoreService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
   readonly router = inject(Router);
 
   // State with signals
@@ -70,8 +73,9 @@ export class StoreManagementComponent implements OnInit {
   users = signal<User[]>([]);
   isLoading = signal(true);
   isLoadingUsers = signal(false);
+  
+  // Filter signals
   searchQuery = signal('');
-  statusFilter = signal('all');
   verificationFilter = signal('all');
   categoryFilter = signal('all');
   dateRangeFilter = signal<{start: Date | null, end: Date | null}>({ start: null, end: null });
@@ -80,10 +84,13 @@ export class StoreManagementComponent implements OnInit {
   dataSource = new MatTableDataSource<Store>([]);
   displayedColumns: string[] = ['store', 'owner', 'category', 'verification', 'analytics', 'products', 'date', 'actions'];
   
-  // Pagination
+  // Pagination - these are bound to the mat-paginator
   pageSize = signal(10);
   pageIndex = signal(0);
   totalStores = signal(0);
+  
+  // For debounced search
+  private searchSubject = new Subject<string>();
   
   // Statistics
   stats = signal({
@@ -93,93 +100,97 @@ export class StoreManagementComponent implements OnInit {
     totalProducts: 0,
     totalRevenue: 0
   });
-  
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // Computed values
-  filteredStores = computed(() => {
-    let filtered = this.stores();
-    
-    // Apply search filter
-    if (this.searchQuery()) {
-      const query = this.searchQuery().toLowerCase();
-      filtered = filtered.filter(store => 
-        store.name.toLowerCase().includes(query) ||
-        store.description?.toLowerCase().includes(query) ||
-        store.storeLink.toLowerCase().includes(query) ||
-        store.owner?.name?.toLowerCase().includes(query) ||
-        store.owner?.email?.toLowerCase().includes(query)
-      );
-    }
-    
-    // Apply verification filter
-    if (this.verificationFilter() !== 'all') {
-      filtered = filtered.filter(store => {
-        if (this.verificationFilter() === 'verified') return store.isVerified;
-        if (this.verificationFilter() === 'unverified') return !store.isVerified;
-        if (this.verificationFilter() === 'premium') return store.verificationTier === 'premium';
-        return true;
-      });
-    }
-    
-    // Apply category filter
-    if (this.categoryFilter() !== 'all') {
-      filtered = filtered.filter(store => store.category === this.categoryFilter());
-    }
-    
-    // Apply date range filter
-    const { start, end } = this.dateRangeFilter();
-    if (start && end) {
-      filtered = filtered.filter(store => {
-        const storeDate = new Date(store.createdAt);
-        return storeDate >= start && storeDate <= end;
-      });
-    }
-    
-    return filtered;
-  });
-
-  // Available categories (extracted from stores)
-  categories = computed(() => {
-    const categories = new Set<string>();
-    this.stores().forEach(store => {
-      if (store.category) categories.add(store.category);
-    });
-    return Array.from(categories);
-  });
+  // Available categories
+  categories = signal<string[]>([]);
 
   ngOnInit(): void {
-    this.loadStores();
+    this.loadCategories();
     this.loadStatistics();
     this.loadUsers();
-  }
-
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
+    this.loadStores();
+    
+    // Set up debounced search
+    this.searchSubject.pipe(debounceTime(500)).subscribe(() => {
+      this.pageIndex.set(0); // Reset to first page on search
+      this.loadStores();
+    });
   }
 
   async loadStores(): Promise<void> {
     try {
       this.isLoading.set(true);
-      this.storeService.getStores().subscribe({
+      
+      // Build query parameters
+      const params: any = {
+        page: this.pageIndex() + 1, // Backend uses 1-based page
+        limit: this.pageSize(),
+        sortBy: 'createdAt',
+        sortOrder: 'desc'
+      };
+      
+      // Add filters if they have values
+      if (this.searchQuery()) {
+        params.search = this.searchQuery();
+      }
+      
+      if (this.verificationFilter() !== 'all') {
+        params.verification = this.verificationFilter();
+      }
+      
+      if (this.categoryFilter() !== 'all') {
+        params.category = this.categoryFilter();
+      }
+      
+      if (this.dateRangeFilter().start) {
+        params.startDate = this.dateRangeFilter().start?.toISOString();
+      }
+      
+      if (this.dateRangeFilter().end) {
+        params.endDate = this.dateRangeFilter().end?.toISOString();
+      }
+      
+      console.log('Loading stores with params:', params);
+      
+      this.storeService.getStores(params).subscribe({
         next: (response) => {
-          console.log('Stores loaded:', response.data);
+          console.log('Stores loaded:', response);
           this.stores.set(response.data || []);
-          this.applyFilters();
+          this.dataSource.data = response.data || [];
+          this.totalStores.set(response.pagination?.total || 0);
           this.isLoading.set(false);
-          this.updateStats();
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error loading stores:', error);
           this.isLoading.set(false);
           this.showSnackbar('Failed to load stores', 'error');
+          this.cdr.detectChanges();
         }
       });
     } catch (error) {
       console.error('Error loading stores:', error);
       this.isLoading.set(false);
       this.showSnackbar('Failed to load stores', 'error');
+      this.cdr.detectChanges();
     }
+  }
+
+  async loadCategories(): Promise<void> {
+    // Extract categories from stores when they load
+    // For now, we'll just use an empty array and populate when stores load
+    this.storeService.getStores({ limit: 100 }).subscribe({
+      next: (response) => {
+        const categoriesSet = new Set<string>();
+        response.data.forEach(store => {
+          if (store.category) categoriesSet.add(store.category);
+        });
+        this.categories.set(Array.from(categoriesSet));
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+      }
+    });
   }
 
   async loadUsers(): Promise<void> {
@@ -189,15 +200,18 @@ export class StoreManagementComponent implements OnInit {
         next: (response) => {
           this.users.set(response.data || []);
           this.isLoadingUsers.set(false);
+          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error loading users:', error);
           this.isLoadingUsers.set(false);
+          this.cdr.detectChanges();
         }
       });
     } catch (error) {
       console.error('Error loading users:', error);
       this.isLoadingUsers.set(false);
+      this.cdr.detectChanges();
     }
   }
 
@@ -205,6 +219,7 @@ export class StoreManagementComponent implements OnInit {
     this.storeService.getStoreStatistics().subscribe({
       next: (stats) => {
         this.stats.set(stats);
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error loading statistics:', error);
@@ -212,54 +227,39 @@ export class StoreManagementComponent implements OnInit {
     });
   }
 
-  updateStats(): void {
-    const stores = this.stores();
-    const stats = {
-      totalStores: stores.length,
-      activeStores: stores.filter(s => s.isActive).length,
-      verifiedStores: stores.filter(s => s.isVerified).length,
-      totalProducts: stores.reduce((sum, store) => sum + (store.storeProducts?.length || 0), 0),
-      totalRevenue: stores.reduce((sum, store) => sum + (store.analytics?.totalSales || 0), 0)
-    };
-    this.stats.set(stats);
-  }
-
-  applyFilters(): void {
-    const filtered = this.filteredStores();
-    this.dataSource.data = filtered;
-    this.totalStores.set(filtered.length);
-    
-    // Reset paginator to first page
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
-    this.pageIndex.set(0);
+  // This method is called when the user interacts with the paginator
+  onPageChange(event: PageEvent): void {
+    console.log('Page changed:', event);
+    this.pageSize.set(event.pageSize);
+    this.pageIndex.set(event.pageIndex);
+    this.loadStores(); // Reload data for the new page
   }
 
   onSearchChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.searchQuery.set(input.value);
-    this.applyFilters();
+    this.searchSubject.next(input.value); // Debounced search
   }
 
   onVerificationFilterChange(event: any): void {
+    console.log('Verification filter changed:', event.value);
     this.verificationFilter.set(event.value);
-    this.applyFilters();
+    this.pageIndex.set(0); // Reset to first page
+    this.loadStores();
   }
 
   onCategoryFilterChange(event: any): void {
+    console.log('Category filter changed:', event.value);
     this.categoryFilter.set(event.value);
-    this.applyFilters();
+    this.pageIndex.set(0); // Reset to first page
+    this.loadStores();
   }
 
   onDateRangeChange(start: Date | null, end: Date | null): void {
+    console.log('Date range changed:', start, end);
     this.dateRangeFilter.set({ start, end });
-    this.applyFilters();
-  }
-
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.pageIndex.set(event.pageIndex);
+    this.pageIndex.set(0); // Reset to first page
+    this.loadStores();
   }
 
   getOwnerName(store: Store): string {
@@ -308,19 +308,13 @@ export class StoreManagementComponent implements OnInit {
       if (result) {
         this.storeService.toggleStoreVerification(store._id, !store.isVerified)
           .subscribe({
-            next: (updatedStore) => {
-              const index = this.stores().findIndex(s => s._id === store._id);
-              if (index !== -1) {
-                const updatedStores = [...this.stores()];
-                updatedStores[index] = updatedStore;
-                this.stores.set(updatedStores);
-                this.applyFilters();
-                this.updateStats();
-                this.showSnackbar(
-                  store.isVerified ? 'Store unverified successfully' : 'Store verified successfully',
-                  'success'
-                );
-              }
+            next: () => {
+              this.loadStores(); // Reload to get updated data
+              this.loadStatistics(); // Update stats
+              this.showSnackbar(
+                store.isVerified ? 'Store unverified successfully' : 'Store verified successfully',
+                'success'
+              );
             },
             error: (error) => {
               console.error('Error toggling store verification:', error);
@@ -345,19 +339,13 @@ export class StoreManagementComponent implements OnInit {
       if (result) {
         this.storeService.toggleStoreActive(store._id, !store.isActive)
           .subscribe({
-            next: (updatedStore) => {
-              const index = this.stores().findIndex(s => s._id === store._id);
-              if (index !== -1) {
-                const updatedStores = [...this.stores()];
-                updatedStores[index] = updatedStore;
-                this.stores.set(updatedStores);
-                this.applyFilters();
-                this.updateStats();
-                this.showSnackbar(
-                  store.isActive ? 'Store deactivated successfully' : 'Store activated successfully',
-                  'success'
-                );
-              }
+            next: () => {
+              this.loadStores(); // Reload to get updated data
+              this.loadStatistics(); // Update stats
+              this.showSnackbar(
+                store.isActive ? 'Store deactivated successfully' : 'Store activated successfully',
+                'success'
+              );
             },
             error: (error) => {
               console.error('Error toggling store active status:', error);
@@ -380,15 +368,9 @@ export class StoreManagementComponent implements OnInit {
       if (result) {
         this.storeService.upgradeStoreTier(store._id, 'premium')
           .subscribe({
-            next: (updatedStore) => {
-              const index = this.stores().findIndex(s => s._id === store._id);
-              if (index !== -1) {
-                const updatedStores = [...this.stores()];
-                updatedStores[index] = updatedStore;
-                this.stores.set(updatedStores);
-                this.applyFilters();
-                this.showSnackbar('Store upgraded to premium successfully', 'success');
-              }
+            next: () => {
+              this.loadStores(); // Reload to get updated data
+              this.showSnackbar('Store upgraded to premium successfully', 'success');
             },
             error: (error) => {
               console.error('Error upgrading store tier:', error);
@@ -421,10 +403,8 @@ export class StoreManagementComponent implements OnInit {
         this.storeService.deleteStore(store._id)
           .subscribe({
             next: () => {
-              const updatedStores = this.stores().filter(s => s._id !== store._id);
-              this.stores.set(updatedStores);
-              this.applyFilters();
-              this.updateStats();
+              this.loadStores(); // Reload to get updated data
+              this.loadStatistics(); // Update stats
               this.showSnackbar('Store deleted successfully', 'success');
             },
             error: (error) => {
@@ -437,7 +417,9 @@ export class StoreManagementComponent implements OnInit {
   }
 
   exportStores(format: 'csv' | 'excel' = 'csv'): void {
-    this.storeService.exportStores(format, this.filteredStores())
+    // Export all stores (you might want to add a separate API for exporting all)
+    const storesToExport = this.stores();
+    this.storeService.exportStores(format, storesToExport)
       .subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
@@ -458,6 +440,7 @@ export class StoreManagementComponent implements OnInit {
   }
 
   refreshData(): void {
+    this.pageIndex.set(0);
     this.loadStores();
     this.loadStatistics();
     this.showSnackbar('Data refreshed successfully', 'success');
@@ -468,7 +451,8 @@ export class StoreManagementComponent implements OnInit {
     this.verificationFilter.set('all');
     this.categoryFilter.set('all');
     this.dateRangeFilter.set({ start: null, end: null });
-    this.applyFilters();
+    this.pageIndex.set(0);
+    this.loadStores();
   }
 
   private showSnackbar(message: string, type: 'success' | 'error' | 'info' | 'warning'): void {

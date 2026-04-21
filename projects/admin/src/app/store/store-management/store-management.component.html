@@ -139,9 +139,9 @@
         <div class="card-content">
             <div class="table-header">
                 <h3 class="card-title">All Stores ({{ totalStores() }})</h3>
-                @if (!isLoading()) {
+               <!--  @if (!isLoading()) {
                     <span class="filtered-count">{{ filteredStores().length }} of {{ stores().length }} stores</span>
-                }
+                } -->
             </div>
             
             <div class="table-container">
@@ -355,11 +355,13 @@
 
             <!-- Pagination -->
             @if (!isLoading() && totalStores() > 0) {
-                <mat-paginator [length]="totalStores()"
+                <mat-paginator 
+                    [length]="totalStores()"
                     [pageSize]="pageSize()"
                     [pageIndex]="pageIndex()"
                     [pageSizeOptions]="[10, 25, 50, 100]"
                     (page)="onPageChange($event)"
+                    showFirstLastButtons
                     aria-label="Select page"
                 >
                 </mat-paginator>

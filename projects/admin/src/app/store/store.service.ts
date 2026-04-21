@@ -13,13 +13,55 @@ export interface StoreStatistics {
   totalRevenue: number;
 }
 
+export interface StoreFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  verification?: string;
+  category?: string;
+  startDate?: Date;
+  endDate?: Date;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  success: boolean;
+  message: string;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 @Injectable()
 export class StoreService {
   private readonly apiService: ApiService = inject(ApiService);
   private readonly apiUrl = 'stores/admin';
 
-  getStores(): Observable<{ data: Store[], success: boolean, message: string }> {
-    return this.apiService.get<{ data: Store[], success: boolean, message: string }>(`${this.apiUrl}/stores`);
+  getStores(filters?: StoreFilters): Observable<PaginatedResponse<Store>> {
+    // Build query params
+    let queryParams = '';
+    if (filters) {
+      const params = new URLSearchParams();
+      if (filters.page) params.set('page', filters.page.toString());
+      if (filters.limit) params.set('limit', filters.limit.toString());
+      if (filters.search) params.set('search', filters.search);
+      if (filters.verification && filters.verification !== 'all') params.set('verification', filters.verification);
+      if (filters.category && filters.category !== 'all') params.set('category', filters.category);
+      if (filters.startDate) params.set('startDate', filters.startDate.toISOString());
+      if (filters.endDate) params.set('endDate', filters.endDate.toISOString());
+      if (filters.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.set('sortOrder', filters.sortOrder);
+      
+      const paramString = params.toString();
+      if (paramString) queryParams = `?${paramString}`;
+    }
+    
+    return this.apiService.get<PaginatedResponse<Store>>(`${this.apiUrl}/stores${queryParams}`);
   }
 
   getStoreById(id: string): Observable<Store> {
@@ -71,8 +113,7 @@ export class StoreService {
   }
 
   exportStores(format: 'csv' | 'excel', data: Store[]): Observable<Blob> {
-    return this.apiService.post(`${this.apiUrl}/export/${format}`,  { data , responseType: 'blob' }
-    );
+    return this.apiService.post(`${this.apiUrl}/export/${format}`, { data, responseType: 'blob' });
   }
 
   getStoreAnalytics(storeId: string, period: 'week' | 'month' | 'year' = 'month'): Observable<any> {
