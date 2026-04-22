@@ -375,7 +375,7 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   }
 
   getStatusClass(status: string): string {
-    console.log('statuses ',status)
+    //console.log('statuses ',status)
     return this.statusConfig[status]?.class || 'status-default';
   }
 

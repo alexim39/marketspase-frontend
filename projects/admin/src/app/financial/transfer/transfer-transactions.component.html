@@ -1,0 +1,334 @@
+<!-- transfer-transactions.component.html -->
+<main class="transfer-content">
+  <!-- Stats Overview -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <mat-icon>swap_horiz</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Total Transfers</div>
+          <div class="stat-value">{{ transferStats().totalTransfers.toLocaleString() }}</div>
+          <div class="stat-change">
+            <mat-icon>payments</mat-icon>
+            ₦{{ transferStats().totalAmount.toLocaleString() }} total
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Self Transfers</div>
+          <div class="stat-value">{{ transferStats().selfTransfers.toLocaleString() }}</div>
+          <div class="stat-change">
+            <mat-icon>lock</mat-icon>
+            ₦{{ totalLockedAmount().toLocaleString() }} locked
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <mat-icon>send</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Transfers to Others</div>
+          <div class="stat-value">{{ transferStats().otherTransfers.toLocaleString() }}</div>
+          <div class="stat-change">
+            <mat-icon>trending_up</mat-icon>
+            ₦{{ totalOtherTransferAmount().toLocaleString() }} sent
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <mat-icon>shopping_cart</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">To Marketer Wallet</div>
+          <div class="stat-value">{{ transferStats().toMarketerWallet.toLocaleString() }}</div>
+          <div class="stat-change">
+            <mat-icon>info</mat-icon>
+            Funds locked for in-app use
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Transfer Transactions Section -->
+  <section class="management-section">
+    <div class="section-header-wrapper">
+      <h2>Transfer Transactions</h2>
+    </div>
+
+    <mat-tab-group>
+      <!-- All Transfers Tab -->
+      <mat-tab label="All Transfers">
+        <div class="tab-content">
+          <!-- Filters and Actions -->
+          <div class="section-header">
+            <div class="filters-container">
+              <div class="search-box">
+                <mat-icon>search</mat-icon>
+                <input 
+                  type="text" 
+                  placeholder="Search by name, email, or reference..." 
+                  (input)="onSearchChange($event)"
+                  [value]="searchTerm()"
+                  class="search-input">
+              </div>
+              
+              <div class="filter-buttons">
+                <button 
+                  class="filter-btn" 
+                  [class.active]="transferTypeFilter() === 'all'"
+                  (click)="onTransferTypeFilterChange('all')">
+                  All Types
+                </button>
+                <button 
+                  class="filter-btn info" 
+                  [class.active]="transferTypeFilter() === 'self'"
+                  (click)="onTransferTypeFilterChange('self')">
+                  <mat-icon class="small-icon">account_balance_wallet</mat-icon>
+                  Self Transfer
+                </button>
+                <button 
+                  class="filter-btn success" 
+                  [class.active]="transferTypeFilter() === 'other'"
+                  (click)="onTransferTypeFilterChange('other')">
+                  <mat-icon class="small-icon">send</mat-icon>
+                  To Others
+                </button>
+              </div>
+
+              <div class="filter-buttons">
+                <button 
+                  class="filter-btn" 
+                  [class.active]="destinationFilter() === 'all'"
+                  (click)="onDestinationFilterChange('all')">
+                  All Destinations
+                </button>
+                <button 
+                  class="filter-btn warning" 
+                  [class.active]="destinationFilter() === 'marketer'"
+                  (click)="onDestinationFilterChange('marketer')">
+                  To Marketer
+                </button>
+                <button 
+                  class="filter-btn primary" 
+                  [class.active]="destinationFilter() === 'promoter'"
+                  (click)="onDestinationFilterChange('promoter')">
+                  To Promoter
+                </button>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button class="btn btn-secondary" (click)="clearFilters()" matTooltip="Clear all filters">
+                <mat-icon>clear</mat-icon>
+              </button>
+              <button class="btn btn-primary" (click)="exportTransfers()" matTooltip="Export to CSV">
+                <mat-icon>download</mat-icon>
+                Export
+              </button>
+            </div>
+          </div>
+
+          <!-- Transfers Table -->
+          <div class="table-container">
+            @if (isTransfersLoading()) {
+              <div class="loading-state">
+                <mat-spinner diameter="40"/>
+                <p>Loading transfer transactions...</p>
+              </div>
+            } @else {
+              <table mat-table [dataSource]="paginatedTransfers()" class="financial-table">
+                <!-- Transfer Type Column -->
+                <ng-container matColumnDef="transferType">
+                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="transfer-type-cell" [class.self-transfer]="transfer.transferType === 'self'">
+                      <mat-icon>{{ getTransferTypeIcon(transfer.transferType) }}</mat-icon>
+                      <span>{{ getTransferTypeLabel(transfer.transferType) }}</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- From User Column -->
+                <ng-container matColumnDef="fromUser">
+                  <th mat-header-cell *matHeaderCellDef>From</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="user-info">
+                      <div class="user-name">{{ transfer.sourceUserName }}</div>
+                      <div class="user-email">{{ transfer.sourceUserEmail }}</div>
+                      <div class="user-role">
+                        <span class="role-badge" [class.promoter]="transfer.sourceUserRole === 'promoter'">
+                          {{ transfer.sourceUserRole }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- To User Column -->
+                <ng-container matColumnDef="toUser">
+                  <th mat-header-cell *matHeaderCellDef>To</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="user-info">
+                      <div class="user-name">{{ transfer.destinationUserName }}</div>
+                      <div class="user-email">{{ transfer.destinationUserEmail }}</div>
+                      <div class="user-role">
+                        <span class="role-badge" [class.promoter]="transfer.destinationUserRole === 'promoter'">
+                          {{ transfer.destinationUserRole }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Amount Column -->
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="amount-cell">
+                      <div class="amount">₦{{ transfer.amount.toLocaleString() }}</div>
+                      @if (transfer.note) {
+                        <div class="note" [matTooltip]="transfer.note">
+                          <mat-icon class="small-icon">note</mat-icon>
+                        </div>
+                      }
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Destination Wallet Column -->
+                <ng-container matColumnDef="destinationWallet">
+                  <th mat-header-cell *matHeaderCellDef>Wallet</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="wallet-cell">
+                      <span class="wallet-badge" [class.marketer]="transfer.destinationWalletType === 'marketer'">
+                        <mat-icon class="small-icon">
+                          {{ transfer.destinationWalletType === 'marketer' ? 'shopping_cart' : 'account_balance' }}
+                        </mat-icon>
+                        {{ transfer.destinationWalletType }}
+                      </span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Locked Status Column -->
+                <ng-container matColumnDef="lockedStatus">
+                  <th mat-header-cell *matHeaderCellDef>Lock Status</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="locked-status-cell">
+                      @if (transfer.marketerLocked) {
+                        <span class="locked-badge" matTooltip="Funds locked for in-app use only">
+                          <mat-icon>lock</mat-icon>
+                          Locked
+                        </span>
+                      } @else {
+                        <span class="unlocked-badge" matTooltip="Funds can be withdrawn">
+                          <mat-icon>lock_open</mat-icon>
+                          Available
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Reference Column -->
+                <ng-container matColumnDef="reference">
+                  <th mat-header-cell *matHeaderCellDef>Reference</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="reference-info">
+                      <div class="ref" [matTooltip]="transfer.reference">
+                        {{ transfer.reference | slice:0:12 }}...
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="status-container">
+                      <mat-icon class="status-icon" [class]="getStatusClass(transfer.status)">
+                        {{ getStatusIcon(transfer.status) }}
+                      </mat-icon>
+                      <span class="status-badge" [class]="getStatusClass(transfer.status)">
+                        {{ getStatusLabel(transfer.status) }}
+                      </span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Date Column -->
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Date</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="date-cell">
+                      <div class="created-date">{{ transfer.createdAt | date:'MMM d, y' }}</div>
+                      <div class="time">{{ transfer.createdAt | date:'shortTime' }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Actions</th>
+                  <td mat-cell *matCellDef="let transfer">
+                    <div class="action-buttons">
+                      <button 
+                        class="btn-icon" 
+                        (click)="viewTransferDetails(transfer)"
+                        matTooltip="View Details">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="transferColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: transferColumns;"></tr>
+              </table>
+
+              <!-- Empty State -->
+              @if (paginatedTransfers().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>swap_horiz</mat-icon>
+                  <h3>No transfer transactions found</h3>
+                  <p>There are no transfer transactions matching your current filters.</p>
+                  @if (transferTypeFilter() !== 'all' || destinationFilter() !== 'all' || searchTerm()) {
+                    <button class="btn btn-secondary" (click)="clearFilters()">
+                      Clear Filters
+                    </button>
+                  }
+                </div>
+              }
+
+              <!-- Pagination -->
+              @if (totalItems() > pageSize()) {
+                <mat-paginator
+                  [length]="totalItems()"
+                  [pageSize]="pageSize()"
+                  [pageIndex]="currentPage()"
+                  [pageSizeOptions]="[50, 100, 200, 500]"
+                  (page)="onPageChange($event)"
+                  aria-label="Select page"
+                  showFirstLastButtons>
+                </mat-paginator>
+              }
+            }
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </section>
+</main>

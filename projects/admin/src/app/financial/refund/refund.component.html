@@ -2,8 +2,8 @@
 <div class="admin-refund-container">
   <!-- Header Section -->
   <div class="header-section">
-    <h1 class="page-title">Promoter Refund Management</h1>
-    <p class="page-subtitle">Manage and process refunds to promoter wallets</p>
+    <h1 class="page-title">Wallet Refund Management</h1>
+    <p class="page-subtitle">Manage and process refunds to user wallets</p>
     
     <!-- Stats Overview -->
     <div class="stats-overview">
@@ -13,7 +13,7 @@
             <mat-icon class="stat-icon total">account_balance_wallet</mat-icon>
             <div class="stat-details">
               <span class="stat-value">{{ refundHistory().length }}</span>
-              <span class="stat-label">Total Refunds Processed</span>
+              <span class="stat-label">Total Refunds</span>
             </div>
           </div>
         </mat-card-content>
@@ -25,7 +25,7 @@
             <mat-icon class="stat-icon amount">payments</mat-icon>
             <div class="stat-details">
               <span class="stat-value">{{ totalRefundAmount() | currency:'NGN':'₦' }}</span>
-              <span class="stat-label">Total Amount Refunded</span>
+              <span class="stat-label">Total Amount</span>
             </div>
           </div>
         </mat-card-content>
@@ -34,10 +34,22 @@
       <mat-card class="stat-card">
         <mat-card-content>
           <div class="stat-content">
-            <mat-icon class="stat-icon success">check_circle</mat-icon>
+            <mat-icon class="stat-icon promoter">person</mat-icon>
             <div class="stat-details">
-              <!-- <span class="stat-value">{{ refundHistory().filter(r => r.status === 'completed').length }}</span> -->
-              <span class="stat-label">Successful Refunds</span>
+              <span class="stat-value">{{ promoterRefundCount() }}</span>
+              <span class="stat-label">Promoter Refunds</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <mat-icon class="stat-icon marketer">shopping_cart</mat-icon>
+            <div class="stat-details">
+              <span class="stat-value">{{ marketerRefundCount() }}</span>
+              <span class="stat-label">Marketer Refunds</span>
             </div>
           </div>
         </mat-card-content>
@@ -48,177 +60,310 @@
   <!-- Tabs Navigation -->
   <div class="tabs-section">
     <mat-tab-group 
-    [selectedIndex]="activeTab() === 'single' ? 0 : activeTab() === 'bulk' ? 1 : 2"
-    (selectedIndexChange)="onTabChange($event)"
-    animationDuration="200ms">
-    <!-- <mat-tab-group [(selectedIndex)]="activeTab()" animationDuration="200ms"> -->
-      <!-- Single Refund Tab -->
-      <mat-tab label="Single Refund">
-        <div class="tab-content">
-          <!-- Single Refund Card -->
-          <mat-card class="refund-card fade-in">
-            <mat-card-header class="card-header">
-              <mat-card-title class="card-title">Process Single Refund</mat-card-title>
-              <mat-card-subtitle>Refund balance to a single promoter</mat-card-subtitle>
-            </mat-card-header>
-            
-            <mat-card-content>
-              <!-- Promoter Search & Selection -->
-              <div class="form-grid">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Search Promoter</mat-label>
-                  <input matInput 
-                         [formControl]="singleRefundForm.controls.promoterIdentifier"
-                         placeholder="Enter username, email, or user ID"
-                         [matAutocomplete]="auto">
-                  <mat-icon matSuffix>search</mat-icon>
-                  <mat-hint>Start typing to search for promoters</mat-hint>
-                </mat-form-field>
-                
-                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectPromoter($event.option.value)">
-                  @for (promoter of filteredPromoters(); track promoter._id) {
-                    <mat-option [value]="promoter">
-                      <div class="promoter-result-item">
-                        <div class="promoter-info">
-                          <span class="promoter-name">
-                            {{ promoter.displayName || promoter.username }}
-                          </span>
-                          <span class="promoter-email">{{ promoter.email }}</span>
-                        </div>
-                        @if (promoter.wallets?.promoter?.balance) {
-                          <span class="promoter-wallet">
-                            {{ promoter.wallets.promoter.balance | currency:'NGN':'₦' }}
-                          </span>
-                        }
-                      </div>
-                    </mat-option>
-                  }
-                  @if (filteredPromoters().length === 0 && searchQuery().length >= 2) {
-                    <mat-option disabled>
-                      No promoters found for "{{ searchQuery() }}"
-                    </mat-option>
-                  }
-                </mat-autocomplete>
-                
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Refund Amount</mat-label>
-                  <input matInput 
-                         type="number" 
-                         [formControl]="singleRefundForm.controls.amount"
-                         placeholder="Enter amount"
-                         min="1" 
-                         max="1000000">
-                  <span matTextPrefix>₦&nbsp;</span>
-                  <mat-hint>Maximum: ₦1,000,000</mat-hint>
-                  @if (singleRefundForm.controls.amount.hasError('required')) {
-                    <mat-error>Amount is required</mat-error>
-                  }
-                  @if (singleRefundForm.controls.amount.hasError('min')) {
-                    <mat-error>Amount must be at least ₦1</mat-error>
-                  }
-                  @if (singleRefundForm.controls.amount.hasError('max')) {
-                    <mat-error>Amount cannot exceed ₦1,000,000</mat-error>
-                  }
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="form-field full-width">
-                  <mat-label>Refund Reason</mat-label>
-                  <textarea matInput 
-                            [formControl]="singleRefundForm.controls.reason"
-                            placeholder="Provide a detailed reason for this refund"
-                            rows="3">
-                  </textarea>
-                  <mat-hint>Minimum 10 characters required</mat-hint>
-                  @if (singleRefundForm.controls.reason.hasError('required')) {
-                    <mat-error>Reason is required</mat-error>
-                  }
-                  @if (singleRefundForm.controls.reason.hasError('minlength')) {
-                    <mat-error>Reason must be at least 10 characters</mat-error>
-                  }
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="form-field full-width">
-                  <mat-label>Additional Notes (Optional)</mat-label>
-                  <textarea matInput 
-                            [formControl]="singleRefundForm.controls.notes"
-                            placeholder="Any additional information or context..."
-                            rows="2">
-                  </textarea>
-                </mat-form-field>
-              </div>
-              
-              <!-- Selected Promoter Info -->
-              @if (selectedPromoter()) {
-                <div class="selected-promoter-info fade-in">
-                  <div class="promoter-details">
-                    <div class="promoter-avatar">
-                      {{ selectedPromoter().displayName?.charAt(0) || selectedPromoter().username?.charAt(0) || 'P' }}
-                    </div>
-                    <div>
-                      <h4>{{ promoterDisplayName }}</h4>
-                      <p>{{ selectedPromoter().email }}</p>
-                      <small>User ID: {{ selectedPromoter()._id }}</small>
-                    </div>
+      [selectedIndex]="activeTab() === 'single' ? 0 : activeTab() === 'bulk' ? 1 : 2"
+      (selectedIndexChange)="onTabChange($event)"
+      animationDuration="200ms">
+      
+<!-- file: refund.component.html - Single Refund Tab (Corrected) -->
+
+<!-- Single Refund Tab -->
+<mat-tab label="Single Refund">
+  <div class="tab-content">
+    <mat-card class="refund-card fade-in">
+      <mat-card-header class="card-header">
+        <mat-card-title class="card-title">Process Single Refund</mat-card-title>
+        <mat-card-subtitle>Refund balance to a user's wallet</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Search Section - ALWAYS VISIBLE -->
+        <div class="search-section">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Search User</mat-label>
+            <input matInput 
+                   [formControl]="singleRefundForm.controls.promoterIdentifier"
+                   placeholder="Enter username, email, or user ID"
+                   [matAutocomplete]="auto">
+            <mat-icon matSuffix>search</mat-icon>
+            <mat-hint>Start typing to search for users</mat-hint>
+          </mat-form-field>
+          
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectPromoter($event.option.value)">
+            @for (promoter of filteredPromoters(); track promoter._id) {
+              <mat-option [value]="promoter">
+                <div class="promoter-result-item">
+                  <div class="promoter-info">
+                    <span class="promoter-name">
+                      {{ promoter.displayName || promoter.username }}
+                    </span>
+                    <span class="promoter-email">{{ promoter.email }}</span>
+                    <span class="promoter-role">{{ promoter.role }}</span>
                   </div>
-                  <div class="wallet-balance">
-                    <div class="balance-label">Current Balance</div>
-                    <div class="balance-amount">
-                      {{ selectedPromoter().wallets?.promoter?.balance | currency:'NGN':'₦' }}
-                    </div>
+                  <div class="promoter-wallets-preview">
+                    @if (promoter.wallets?.promoter?.balance !== undefined) {
+                      <span class="wallet-badge promoter">
+                        P: {{ promoter.wallets.promoter.balance | currency:'NGN':'₦' }}
+                      </span>
+                    }
+                    @if (promoter.wallets?.marketer?.balance !== undefined) {
+                      <span class="wallet-badge marketer">
+                        M: {{ promoter.wallets.marketer.balance | currency:'NGN':'₦' }}
+                      </span>
+                    }
                   </div>
                 </div>
-              }
-              
-              <!-- Validation Status -->
-@if (validationResult() || singleRefundForm.controls.promoterIdentifier.value) {
-  <div class="validation-status {{ validationStatus }} fade-in">
-    <mat-icon class="validation-icon">
-      @if (validationStatus === 'valid') { check_circle }
-      @else if (validationStatus === 'invalid') { error }
-      @else { hourglass_empty }
-    </mat-icon>
-    <div class="validation-details">
-      <div class="validation-title">Validation Status</div>
-      <div class="validation-message">{{ validationMessage }}</div>
-    </div>
-  </div>
-}
-              
-              <!-- Form Actions -->
-              <div class="form-actions">
-               <button mat-flat-button 
-                        color="primary" 
-                        [disabled]="isProcessing() || singleRefundForm.invalid || !validationResult()?.valid"
-                        (click)="processSingleRefund()">
-                  @if (isProcessing()) {
-                    <mat-spinner diameter="20"/>
-                  } @else {
-                    <mat-icon>send</mat-icon>
-                  }
-                  <span>{{ isProcessing() ? 'Processing...' : 'Process Refund' }}</span>
-                </button>
-                
-                <button mat-button 
-                        color="warn" 
-                        (click)="resetSingleRefundForm()"
-                        [disabled]="isProcessing()">
-                  <mat-icon>clear</mat-icon>
-                  Clear Form
-                </button>
-                
-                <mat-checkbox [formControl]="singleRefundForm.controls.sendNotification">
-                  Send notification to user
-                </mat-checkbox>
-              </div>
-            </mat-card-content>
-          </mat-card>
+              </mat-option>
+            }
+            @if (filteredPromoters().length === 0 && searchQuery().length >= 2) {
+              <mat-option disabled>
+                No users found for "{{ searchQuery() }}"
+              </mat-option>
+            }
+          </mat-autocomplete>
         </div>
-      </mat-tab>
+
+        <!-- Selected User & Wallet Selection - ONLY SHOWN AFTER USER SELECTION -->
+        @if (selectedPromoter()) {
+          <div class="selected-promoter-section fade-in">
+            <!-- User Info -->
+            <div class="selected-promoter-info">
+              <div class="promoter-details">
+                <div class="promoter-avatar">
+                  {{ selectedPromoter().displayName?.charAt(0) || selectedPromoter().username?.charAt(0) || 'U' }}
+                </div>
+                <div class="promoter-text">
+                  <h4>{{ promoterDisplayName }}</h4>
+                  <p>{{ selectedPromoter().email }}</p>
+                  <small>User ID: {{ selectedPromoter()._id }} • Role: {{ selectedPromoter().role }}</small>
+                </div>
+              </div>
+              <button mat-icon-button 
+                      color="warn" 
+                      (click)="resetSingleRefundForm()"
+                      matTooltip="Clear selection">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            
+            <!-- Wallet Selection - ONLY SHOWN AFTER USER SELECTION -->
+            <div class="wallet-selection-section">
+              <div class="section-label">
+                <mat-icon>account_balance_wallet</mat-icon>
+                <span>Select Wallet to Refund</span>
+                <span class="required-badge">Required</span>
+              </div>
+              
+              <mat-radio-group 
+                [formControl]="singleRefundForm.controls.selectedWalletType"
+                class="wallet-radio-group">
+                
+                <!-- Promoter Wallet Option -->
+                @if (selectedPromoter().wallets?.promoter) {
+                  <mat-card class="wallet-card" 
+                           [class.selected]="singleRefundForm.controls.selectedWalletType.value === 'promoter'"
+                           (click)="singleRefundForm.controls.selectedWalletType.setValue('promoter')">
+                    <div class="wallet-option-wrapper">
+                      <mat-radio-button value="promoter" class="wallet-radio"></mat-radio-button>
+                      <div class="wallet-option-content" (click)="singleRefundForm.controls.selectedWalletType.setValue('promoter')">
+                        <div class="wallet-header">
+                          <div class="wallet-icon promoter">
+                            <mat-icon>account_balance</mat-icon>
+                          </div>
+                          <div class="wallet-info">
+                            <span class="wallet-name">Promoter Wallet</span>
+                            <span class="wallet-balance">
+                              Balance: {{ selectedPromoter().wallets.promoter.balance | currency:'NGN':'₦' }}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="wallet-description">
+                          <mat-icon class="info-icon">check_circle</mat-icon>
+                          <span>Funds can be withdrawn to bank account</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card>
+                } @else {
+                  <mat-card class="wallet-card disabled">
+                    <div class="wallet-option-content">
+                      <div class="wallet-header">
+                        <div class="wallet-icon disabled">
+                          <mat-icon>account_balance</mat-icon>
+                        </div>
+                        <div class="wallet-info">
+                          <span class="wallet-name">Promoter Wallet</span>
+                          <span class="wallet-balance">Not available</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card>
+                }
+                
+                <!-- Marketer Wallet Option -->
+                @if (selectedPromoter().wallets?.marketer) {
+                  <mat-card class="wallet-card" 
+                           [class.selected]="singleRefundForm.controls.selectedWalletType.value === 'marketer'"
+                           (click)="singleRefundForm.controls.selectedWalletType.setValue('marketer')">
+                    <div class="wallet-option-wrapper">
+                      <mat-radio-button value="marketer" class="wallet-radio"></mat-radio-button>
+                      <div class="wallet-option-content" (click)="singleRefundForm.controls.selectedWalletType.setValue('marketer')">
+                        <div class="wallet-header">
+                          <div class="wallet-icon marketer">
+                            <mat-icon>shopping_cart</mat-icon>
+                          </div>
+                          <div class="wallet-info">
+                            <span class="wallet-name">Marketer Wallet</span>
+                            <span class="wallet-balance">
+                              Balance: {{ selectedPromoter().wallets.marketer.balance | currency:'NGN':'₦' }}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="wallet-description warning">
+                          <mat-icon class="warning-icon">info</mat-icon>
+                          <span>Funds are locked for in-app use only (cannot be withdrawn)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card>
+                } @else {
+                  <mat-card class="wallet-card disabled">
+                    <div class="wallet-option-content">
+                      <div class="wallet-header">
+                        <div class="wallet-icon disabled">
+                          <mat-icon>shopping_cart</mat-icon>
+                        </div>
+                        <div class="wallet-info">
+                          <span class="wallet-name">Marketer Wallet</span>
+                          <span class="wallet-balance">Not available</span>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-card>
+                }
+              </mat-radio-group>
+              
+              @if (singleRefundForm.controls.selectedWalletType.touched && singleRefundForm.controls.selectedWalletType.invalid) {
+                <mat-error class="wallet-error">
+                  Please select a wallet to refund
+                </mat-error>
+              }
+            </div>
+
+            <!-- Refund Form Fields - ONLY SHOWN AFTER WALLET SELECTION -->
+            @if (hasSelectedWallet()) {
+              <div class="refund-form-section fade-in">
+                <div class="section-label">
+                  <mat-icon>edit</mat-icon>
+                  <span>Enter Refund Details</span>
+                </div>
+                
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Refund Amount</mat-label>
+                    <input matInput 
+                           type="number" 
+                           [formControl]="singleRefundForm.controls.amount"
+                           placeholder="Enter amount"
+                           min="1" 
+                           max="1000000">
+                    <span matTextPrefix>₦&nbsp;</span>
+                    <mat-hint>Maximum: ₦1,000,000</mat-hint>
+                    @if (singleRefundForm.controls.amount.hasError('required')) {
+                      <mat-error>Amount is required</mat-error>
+                    }
+                    @if (singleRefundForm.controls.amount.hasError('min')) {
+                      <mat-error>Amount must be at least ₦1</mat-error>
+                    }
+                    @if (singleRefundForm.controls.amount.hasError('max')) {
+                      <mat-error>Amount cannot exceed ₦1,000,000</mat-error>
+                    }
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label>Refund Reason</mat-label>
+                    <textarea matInput 
+                              [formControl]="singleRefundForm.controls.reason"
+                              placeholder="Provide a detailed reason for this refund"
+                              rows="3">
+                    </textarea>
+                    <mat-hint>Minimum 10 characters required</mat-hint>
+                    @if (singleRefundForm.controls.reason.hasError('required')) {
+                      <mat-error>Reason is required</mat-error>
+                    }
+                    @if (singleRefundForm.controls.reason.hasError('minlength')) {
+                      <mat-error>Reason must be at least 10 characters</mat-error>
+                    }
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label>Additional Notes (Optional)</mat-label>
+                    <textarea matInput 
+                              [formControl]="singleRefundForm.controls.notes"
+                              placeholder="Any additional information or context..."
+                              rows="2">
+                    </textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            }
+
+            <!-- Validation Status -->
+            @if (validationResult() || (hasSelectedWallet() && singleRefundForm.controls.amount.value)) {
+              <div class="validation-status {{ validationStatus }} fade-in">
+                <mat-icon class="validation-icon">
+                  @if (validationStatus === 'valid') { check_circle }
+                  @else if (validationStatus === 'invalid') { error }
+                  @else { hourglass_empty }
+                </mat-icon>
+                <div class="validation-details">
+                  <div class="validation-title">
+                    @if (validationStatus === 'valid') {
+                      Valid Refund
+                    } @else if (validationStatus === 'invalid') {
+                      Validation Failed
+                    } @else {
+                      Pending Validation
+                    }
+                  </div>
+                  <div class="validation-message">{{ validationMessage }}</div>
+                  @if (validationStatus === 'pending' && hasSelectedWallet() && singleRefundForm.controls.amount.value) {
+                    <button mat-button color="primary" (click)="validateSingleRefund()" style="margin-top: 8px;">
+                      <mat-icon>refresh</mat-icon>
+                      Validate Now
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button mat-flat-button 
+                      color="primary" 
+                      [disabled]="isProcessing() || singleRefundForm.invalid || !validationResult()?.valid"
+                      (click)="processSingleRefund()">
+                @if (isProcessing()) {
+                  <mat-spinner diameter="20"/>
+                } @else {
+                  <mat-icon>send</mat-icon>
+                }
+                <span>{{ isProcessing() ? 'Processing...' : 'Process Refund' }}</span>
+              </button>
+              
+              <mat-checkbox [formControl]="singleRefundForm.controls.sendNotification">
+                Send notification to user
+              </mat-checkbox>
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</mat-tab>
       
       <!-- Bulk Refund Tab -->
       <mat-tab label="Bulk Refund">
         <div class="tab-content">
-          <!-- Bulk Refund Card -->
           <mat-card class="bulk-refund-card fade-in">
             <mat-card-header class="card-header">
               <mat-card-title class="card-title">Bulk Refund Processing</mat-card-title>
@@ -272,13 +417,31 @@
               </div>
               
               <!-- Bulk Form -->
-              <div class="form-grid">
+             <div class="form-grid">
                 <mat-form-field appearance="outline" class="form-field full-width">
                   <mat-label>Default Refund Reason</mat-label>
                   <input matInput 
-                         [formControl]="bulkRefundForm.controls.defaultReason"
-                         placeholder="Default reason for all refunds">
+                        [formControl]="bulkRefundForm.controls.defaultReason"
+                        placeholder="Default reason for all refunds">
                 </mat-form-field>
+              </div>
+
+              <div class="wallet-type-selector">
+                <span class="selector-label">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  Default Wallet Type:
+                </span>
+                <mat-radio-group [formControl]="bulkRefundForm.controls.defaultWalletType">
+                  <mat-radio-button value="promoter">
+                    <mat-icon class="wallet-icon-small">account_balance</mat-icon>
+                    Promoter
+                  </mat-radio-button>
+                  <mat-radio-button value="marketer">
+                    <mat-icon class="wallet-icon-small">shopping_cart</mat-icon>
+                    Marketer
+                  </mat-radio-button>
+                </mat-radio-group>
+                <span class="hint-text">(Can be overridden per item in CSV/JSON)</span>
               </div>
               
               <!-- Bulk Items Table -->
@@ -293,18 +456,12 @@
                       <div class="summary-value">{{ formattedTotalBulkAmount }}</div>
                       <div class="summary-label">Total Amount</div>
                     </div>
-                    <div class="summary-item">
-                      <!-- <div class="summary-value">
-                        {{ bulkRefundItems().filter(i => i.status === 'validated').length }}
-                      </div> -->
-                      <div class="summary-label">Valid Items</div>
-                    </div>
                   </div>
                   
                   <table mat-table [dataSource]="bulkRefundDataSource" class="bulk-table">
                     <!-- Promoter Column -->
                     <ng-container matColumnDef="promoter">
-                      <th mat-header-cell *matHeaderCellDef> Promoter </th>
+                      <th mat-header-cell *matHeaderCellDef> User </th>
                       <td mat-cell *matCellDef="let item">
                         <div class="promoter-info">
                           <span class="promoter-name">
@@ -314,6 +471,17 @@
                             <span class="promoter-email">{{ item.promoterEmail }}</span>
                           }
                         </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Wallet Type Column -->
+                    <ng-container matColumnDef="walletType">
+                      <th mat-header-cell *matHeaderCellDef> Wallet </th>
+                      <td mat-cell *matCellDef="let item">
+                        <span class="wallet-badge" [class.marketer]="item.walletType === 'marketer'">
+                          <mat-icon>{{ item.walletType === 'marketer' ? 'shopping_cart' : 'account_balance' }}</mat-icon>
+                          {{ item.walletType || 'promoter' }}
+                        </span>
                       </td>
                     </ng-container>
 
@@ -410,7 +578,7 @@
                     } @else {
                       <mat-icon>play_arrow</mat-icon>
                     }
-                    <span>{{ isBulkProcessing()? 'Processing...' : 'Process All Refunds' }}</span>
+                    <span>{{ isBulkProcessing() ? 'Processing...' : 'Process All Refunds' }}</span>
                   </button>
                   
                   <button mat-button 
@@ -449,11 +617,20 @@
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="filter-field">
-                  <mat-label>Search Promoter</mat-label>
+                  <mat-label>Search User</mat-label>
                   <input matInput 
                          [formControl]="filtersForm.controls.promoter"
                          placeholder="Username or email">
                   <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-label>Wallet Type</mat-label>
+                  <mat-select [formControl]="filtersForm.controls.walletType">
+                    <mat-option value="">All Wallets</mat-option>
+                    <mat-option value="promoter">Promoter</mat-option>
+                    <mat-option value="marketer">Marketer</mat-option>
+                  </mat-select>
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="filter-field">
@@ -510,14 +687,25 @@
                          matSort 
                          class="history-table">
                     
-                    <!-- Promoter Column -->
-                    <ng-container matColumnDef="promoter">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header> Promoter </th>
+                    <!-- User Column -->
+                    <ng-container matColumnDef="user">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header> User </th>
                       <td mat-cell *matCellDef="let refund">
-                        <div class="promoter-info">
-                          <span class="promoter-name">{{ refund.promoterUsername }}</span>
-                          <span class="promoter-email">{{ refund.promoterEmail }}</span>
+                        <div class="user-info">
+                          <span class="user-name">{{ refund.promoterUsername }}</span>
+                          <span class="user-email">{{ refund.promoterEmail }}</span>
                         </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Wallet Column -->
+                    <ng-container matColumnDef="wallet">
+                      <th mat-header-cell *matHeaderCellDef> Wallet </th>
+                      <td mat-cell *matCellDef="let refund">
+                        <span class="wallet-badge" [class.marketer]="refund.walletType === 'marketer'">
+                          <mat-icon>{{ refund.walletType === 'marketer' ? 'shopping_cart' : 'account_balance' }}</mat-icon>
+                          {{ refund.walletType || 'promoter' }}
+                        </span>
                       </td>
                     </ng-container>
 
@@ -531,7 +719,7 @@
 
                     <!-- Reason Column -->
                     <ng-container matColumnDef="reason">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header> Reason </th>
+                      <th mat-header-cell *matHeaderCellDef> Reason </th>
                       <td mat-cell *matCellDef="let refund">
                         <span class="reason-text">{{ refund.reason }}</span>
                       </td>
