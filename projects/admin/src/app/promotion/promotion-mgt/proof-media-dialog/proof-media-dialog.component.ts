@@ -411,29 +411,29 @@ export class ProofMediaDialogComponent implements OnInit, AfterViewInit {
 
   getPromoterName(): string {
     if (typeof this.promotion.promoter !== 'string') {
-      return this.promotion.promoter.displayName;
+      return this.promotion.promoter?.displayName;
     }
     return 'Loading...';
   }
 
   getPromoterCountry(): string {
-    if (typeof this.promotion.promoter !== 'string') {
+    if (typeof this.promotion?.promoter !== 'string') {
       //console.log('promoter ', this.promotion.promoter)
-      return this.promotion.promoter.personalInfo?.phoneDetails.iso2 ?? '';
+      return this.promotion?.promoter?.personalInfo?.phoneDetails?.iso2 ?? '';
     }
     return 'Loading...';
   }
 
   getPromoterEmail(): string {
-    if (typeof this.promotion.promoter !== 'string') {
-      return this.promotion.promoter.email;
+    if (typeof this.promotion?.promoter !== 'string') {
+      return this.promotion?.promoter?.email;
     }
     return 'Loading...';
   }
 
   getPromoterPhone(): string {
-    if (typeof this.promotion.promoter !== 'string') {
-       return this.promotion.promoter.personalInfo?.phoneDetails.fullNumber ?? '';
+    if (typeof this.promotion?.promoter !== 'string') {
+       return this.promotion?.promoter?.personalInfo?.phoneDetails?.fullNumber ?? '';
     }
     return 'Loading...';
   }

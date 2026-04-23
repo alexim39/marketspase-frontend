@@ -1,4 +1,4 @@
-    <div class="stores-content">
+<div class="stores-content">
       <!-- Loading State -->
       @if (loading) {
         <div class="loading-state">
@@ -50,20 +50,22 @@
                   </div>
                   <div class="stat">
                     <mat-icon>visibility</mat-icon>
-                    <span>{{ store.analytics.totalViews | number }} views</span>
+                    <span>{{ store.analytics?.totalViews | number }} views</span>
                   </div>
                   <div class="stat">
                     <mat-icon>trending_up</mat-icon>
-                    <span>{{ store.analytics.conversionRate || 0 }}% conv.</span>
+                    <span>{{ store.analytics?.conversionRate || 0 }}% conv.</span>
                   </div>
                 </div>
                 
-                <div class="product-preview" *ngIf="store.productPreview.length">
+                <div class="product-preview" *ngIf="store.productPreview?.length">
                   <div class="preview-images">
                     @for (product of store.productPreview.slice(0, 4); track product._id) {
                       <div class="preview-img">
                         <img [src]="product?.images?.[0] || '/img/product.png'" [alt]="product.name">
-                        <span class="commission">{{ product.promotion.commissionRate }}%</span>
+                        <span class="commission">
+                          {{ product?.promotion?.commissionRate || 0 }}%
+                        </span>
                       </div>
                     }
                   </div>
@@ -81,7 +83,7 @@
                 <button 
                   mat-flat-button
                   class="visit-btn"
-                  (click)="visitStore(store)">
+                  (click)="$event.stopPropagation(); visitStore(store)">
                   <mat-icon>link</mat-icon>
                   Visit store
                 </button>
