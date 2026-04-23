@@ -211,10 +211,13 @@
     .card-actions {
       padding: $spacing-4;
       border-top: $border-width solid $border-color;
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
       
       .follow-btn {
-        width: 100%;
-        padding: $spacing-2;
+        flex: 1;
+        padding: $spacing-2 $spacing-3;
         border: $border-width solid $border-color;
         border-radius: $border-radius;
         background: $surface-color;
@@ -247,6 +250,40 @@
           font-size: $font-size-lg;
           width: $font-size-lg;
           height: $font-size-lg;
+        }
+      }
+      
+      .visit-btn {
+        flex: 1;
+        padding: $spacing-2 $spacing-3;
+        border: none;
+        border-radius: $border-radius;
+        background: $primary-color;
+        color: $white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2;
+        transition: all $transition-fast;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        
+        mat-icon {
+          font-size: $font-size-base;
+          width: $font-size-base;
+          height: $font-size-base;
+        }
+        
+        &:hover {
+          background: darken($primary-color, 8%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba($primary-color-hex, 0.3);
+        }
+        
+        &:active {
+          transform: translateY(0);
+          box-shadow: none;
         }
       }
     }

@@ -30,13 +30,15 @@
         <div class="stores-grid" [class.list-view]="deviceType === 'mobile'">
           @for (store of stores; track store._id) {
             <div class="store-card" (click)="viewStore.emit(store)">
-              <div class="card-badge" *ngIf="store.isVerified">
-                <mat-icon>verified</mat-icon>
-                <span>{{ store.verificationTier | titlecase }}</span>
-              </div>
-              
+              @if (store.isVerified) {
+                <div class="card-badge">
+                  <mat-icon>verified</mat-icon>
+                  <span>{{ store.verificationTier | titlecase }}</span>
+                </div>
+              }
+
               <div class="store-logo">
-                <img [src]="store.logo || '/assets/default-store.png'" [alt]="store.name">
+                <img [src]="store.logo || '/img/logo-placeholder.png'" [alt]="store.name">
               </div>
               
               <div class="store-info">
@@ -50,26 +52,32 @@
                   </div>
                   <div class="stat">
                     <mat-icon>visibility</mat-icon>
-                    <span>{{ store.analytics?.totalViews | number }} views</span>
+                    <span>{{ store.analytics.totalViews | number }} views</span>
                   </div>
                   <div class="stat">
                     <mat-icon>trending_up</mat-icon>
-                    <span>{{ store.analytics?.conversionRate || 0 }}% conv.</span>
+                    <span>{{ store.analytics.conversionRate || 0 }}% conv.</span>
                   </div>
                 </div>
                 
-                <div class="product-preview" *ngIf="store.productPreview?.length">
-                  <div class="preview-images">
-                    @for (product of store.productPreview.slice(0, 4); track product._id) {
-                      <div class="preview-img">
-                        <img [src]="product?.images?.[0] || '/img/product.png'" [alt]="product.name">
-                        <span class="commission">
-                          {{ product?.promotion?.commissionRate || 0 }}%
-                        </span>
-                      </div>
-                    }
+                @if (store.productPreview.length) {
+                  <div class="product-preview">
+                    <div class="preview-images">
+                      @for (product of store.productPreview.slice(0, 4); track product._id) {
+                        <div class="preview-img">
+                          <!-- Access the .url property of the first image object -->
+                          <img [src]="product?.images?.[0]?.url || '/img/product.png'" 
+                              [alt]="product.name">
+                          
+                          <span class="commission">
+                            <!-- Ensure this matches your data (promotion is missing in your sample) -->
+                            {{ product?.promotion?.commissionRate || 0 }}%
+                          </span>
+                        </div>
+                      }
+                    </div>
                   </div>
-                </div>
+                }
               </div>
               
               <div class="card-actions">

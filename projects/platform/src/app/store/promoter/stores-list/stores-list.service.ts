@@ -41,7 +41,7 @@ export interface ProductPreview {
   _id: string;
   name: string;
   price: number;
-  images: string[];
+  images: { url: string }[];
   promotion: {
     commissionRate: number;
     commissionType: string;
