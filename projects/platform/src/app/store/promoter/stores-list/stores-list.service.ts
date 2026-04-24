@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../../../../shared-services/src/public-api';
 
 // store.model.ts
+// stores-list.service.ts
 export interface Store {
   _id: string;
   name: string;
@@ -34,7 +35,7 @@ export interface Store {
     state: string;
     country: string;
   };
-  isFollowing?: boolean;
+  isFollowing: boolean; // Make sure this is required, not optional
 }
 
 export interface ProductPreview {
@@ -83,33 +84,34 @@ export class StoreListService {
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     minProducts?: number;
-  }): Observable<StoreListResponse> {
+  }, authParams: { userId: string }): Observable<StoreListResponse> {
     let httpParams = new HttpParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         httpParams = httpParams.set(key, value.toString());
       }
     });
-    return this.apiService.get<StoreListResponse>(`${this.apiUrl}/stores`, httpParams);
+    httpParams = httpParams.set('userId', authParams.userId);
+    return this.apiService.get<StoreListResponse>(`${this.apiUrl}/stores`, httpParams, undefined, true);
   }
 
-  getStoreDetails(storeId: string, page: number = 1, limit: number = 12): Observable<any> {
+  /* getStoreDetails(storeId: string, page: number = 1, limit: number = 12): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
     return this.apiService.get(`${this.apiUrl}/${storeId}`, params);
-  }
+  } */
 
-  getStoreProducts(storeId: string, page: number = 1, limit: number = 20, search: string = ''): Observable<any> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString());
-    if (search) params = params.set('search', search);
-    return this.apiService.get(`${this.apiUrl}/${storeId}/products`, params);
-  }
+  // getStoreProducts(storeId: string, page: number = 1, limit: number = 20, search: string = ''): Observable<any> {
+  //   let params = new HttpParams()
+  //     .set('page', page.toString())
+  //     .set('limit', limit.toString());
+  //   if (search) params = params.set('search', search);
+  //   return this.apiService.get(`${this.apiUrl}/${storeId}/products`, params);
+  // }
 
-  toggleFollowStore(storeId: string): Observable<{ success: boolean; message: string; isFollowing: boolean }> {
-    return this.apiService.post<any>(`${this.apiUrl}/${storeId}/follow`, {});
+  toggleFollowStore(storeId: string, authParams: { userId: string }): Observable<{ success: boolean; message: string; isFollowing: boolean }> {
+    return this.apiService.post<any>(`${this.apiUrl}/${storeId}/follow`, { userId: authParams.userId });
   }
 
   getFollowedStores(page: number = 1, limit: number = 20): Observable<any> {

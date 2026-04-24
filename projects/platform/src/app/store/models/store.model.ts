@@ -29,7 +29,7 @@ export interface Store {
   isActive: boolean;
   isDefaultStore: boolean;
   storeLink: string;
-
+  followers: number;
 }
 
 export interface StoreAnalytics {

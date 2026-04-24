@@ -46,6 +46,7 @@ export class PromoterStoresListComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private deviceService = inject(DeviceService);
   private userService = inject(UserService);
+  user = this.userService.user;
   private destroy$ = new Subject<void>();
 
   // Search control
@@ -69,6 +70,8 @@ export class PromoterStoresListComponent implements OnInit, OnDestroy {
 
   // Device detection
   deviceType = computed(() => this.deviceService.type());
+
+   private followingCache = new Map<string, boolean>();
 
   // Current filter state
   currentFilters = signal<StoreFilterState>({
@@ -125,7 +128,7 @@ export class PromoterStoresListComponent implements OnInit, OnDestroy {
         sortBy: filters.sortBy,
         sortOrder: filters.sortOrder,
         minProducts: filters.minProducts
-      }).toPromise();
+      }, this.user() ? { userId: this.user()!._id } : { userId: '' }).toPromise();
 
       if (!response || !response.data) {
         this.error.set('No stores found.');
@@ -134,6 +137,13 @@ export class PromoterStoresListComponent implements OnInit, OnDestroy {
         this.totalPages.set(0);
         return;
       }
+
+      // Update cache with following status
+      response.data.forEach((store: Store) => {
+        if (store.isFollowing !== undefined) {
+          this.followingCache.set(store._id, store.isFollowing);
+        }
+      });
 
       this.stores.set(response.data);
       this.totalStores.set(response.pagination.total);
@@ -184,18 +194,23 @@ export class PromoterStoresListComponent implements OnInit, OnDestroy {
     this.router.navigate(['dashboard/stores/view', store._id]);
   }
 
+
   async followStore(store: Store): Promise<void> {
     try {
-      const response = await this.storeService.toggleFollowStore(store._id).toPromise();
+      const response = await this.storeService.toggleFollowStore(store._id, this.user() ? { userId: this.user()!._id } : { userId: '' }).toPromise();
       if (response?.success) {
+        // Update cache
+        this.followingCache.set(store._id, response.isFollowing);
+        
         // Update local state
         this.stores.update(stores => 
           stores.map(s => 
             s._id === store._id 
               ? { ...s, isFollowing: response.isFollowing }
-              : s
+              : { ...s, isFollowing: this.followingCache.get(s._id) || false }
           )
         );
+        
         this.snackBar.open(response.message, 'Close', { duration: 3000 });
       }
     } catch (error) {
@@ -203,6 +218,24 @@ export class PromoterStoresListComponent implements OnInit, OnDestroy {
       console.error('Error following store:', error);
     }
   }
+
+// Helper method to revert follow action
+private async revertFollowAction(store: Store, shouldFollow: boolean): Promise<void> {
+  try {
+    const response = await this.storeService.toggleFollowStore(store._id, this.user() ? { userId: this.user()!._id } : { userId: '' }).toPromise();
+    if (response?.success) {
+      this.stores.update(stores => 
+        stores.map(s => 
+          s._id === store._id 
+            ? { ...s, isFollowing: response.isFollowing }
+            : s
+        )
+      );
+    }
+  } catch (error) {
+    console.error('Error reverting follow action:', error);
+  }
+}
 
   retryLoading(): void {
     this.loadStores();

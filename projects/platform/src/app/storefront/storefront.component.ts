@@ -249,15 +249,16 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   isFavorited = signal<boolean>(false);
 
   // Store analytics computed
- /*  storeStats = computed(() => {
+  storeStats = computed(() => {
     const store = this.store();
     return {
       productCount: this.products().length,
       totalViews: store?.analytics?.totalViews || 0,
       totalSales: store?.analytics?.totalSales || 0,
-      conversionRate: store?.analytics?.conversionRate || 0
+      conversionRate: store?.analytics?.conversionRate || 0,
+      followerCount: store?.followers || 0
     };
-  }); */
+  });
 
   // Featured products
   featuredProducts = computed(() => {

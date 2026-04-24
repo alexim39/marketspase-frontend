@@ -85,7 +85,7 @@ export class PromoterProductDetailsComponent implements OnInit {
   private shareService = inject(ShareService);
   private analyticsService = inject(AnalyticsService);
   private userService = inject(UserService);
-
+  user = this.userService.user;
   private destroyRef = inject(DestroyRef);
 
   // Signals
@@ -96,7 +96,7 @@ export class PromoterProductDetailsComponent implements OnInit {
   relatedProducts = signal<Product[]>([]);
   loadingRelated = signal(false);
 
-  user = this.userService.user;
+  
 
   // ------------------ COMPUTED ------------------
 

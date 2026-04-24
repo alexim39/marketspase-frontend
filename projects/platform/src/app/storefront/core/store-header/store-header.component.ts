@@ -62,6 +62,11 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
   };
   @Input() activeTab = 'products';
 
+  //  productCount: this.products().length,
+  // totalViews: store?.analytics?.totalViews || 0,
+  // totalSales: store?.analytics?.totalSales || 0,
+  // conversionRate: store?.analytics?.conversionRate || 0
+
   @Output() toggleFavorite = new EventEmitter<void>();
   @Output() shareStore = new EventEmitter<void>();
   @Output() contactStore = new EventEmitter<'whatsapp' | 'email' | 'chat'>();

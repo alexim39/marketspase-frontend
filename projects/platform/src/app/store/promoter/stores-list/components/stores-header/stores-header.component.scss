@@ -112,13 +112,13 @@
   
   .search-section {
     position: relative;
-    
+   
     .search-icon {
       position: absolute;
       left: $spacing-4;
       top: 50%;
       transform: translateY(-50%);
-      color: $gray-400;
+      
       pointer-events: none;
     }
     
@@ -128,8 +128,8 @@
       border: none;
       border-radius: $border-radius-md;
       font-size: $font-size-base;
-      background: $white;
-      color: $gray-900;
+      background-color: $surface-color !important;
+      color: $gray-300;
       transition: all $transition-fast;
       
       &:focus {
