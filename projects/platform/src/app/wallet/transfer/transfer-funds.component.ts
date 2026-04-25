@@ -129,12 +129,12 @@ export class TransferFundsComponent implements OnInit {
   ];
 
   readonly DESTINATIONS: TransferDestination[] = [
-    {
+   /*  {
       type: 'marketer',
       label: 'Marketer Wallet',
       icon: 'campaign',
       description: 'Funds can only be used for in-app transactions (campaigns, etc.)'
-    },
+    }, */
     {
       type: 'promoter',
       label: 'Promoter Wallet',

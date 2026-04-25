@@ -80,6 +80,26 @@
       </mat-card>
     </div>
 
+    <!-- include message -->
+    @if (!isPromoter()) {
+      <mat-card class="warning-card">
+        <div class="warning-content">
+          <mat-icon>warning</mat-icon>
+          <div class="warning-text">
+            <h3>Switch to Promoter Role Required</h3>
+            <p>
+              To transfer or receive funds, you need to switch to <strong>Promoter</strong>. 
+              Currently, you're in <strong>Marketer</strong> mode.
+            </p>
+            <p class="hint">
+              <mat-icon>lightbulb</mat-icon>
+              Use the role switcher in the navigation to switch to Promoter role.
+            </p>
+          </div>
+        </div>
+      </mat-card>
+    }
+
     <!-- Transfer Form Card -->
     <mat-card class="transfer-card">
       <div class="card-header">

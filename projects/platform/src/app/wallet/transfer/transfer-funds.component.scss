@@ -228,6 +228,100 @@
   }
 }
 
+// Warning Card - Role Switch Required
+.warning-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: $surface-color;
+  border-left: 4px solid $warning-color;
+
+  .warning-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+    }
+
+    > mat-icon {
+      color: $warning-color;
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    .warning-text {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-primary;
+
+        @media (max-width: 768px) {
+          font-size: 16px;
+          margin-bottom: 6px;
+        }
+      }
+
+      p {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: $text-secondary;
+
+        strong {
+          color: $primary-color;
+          font-weight: 600;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      .hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: color-mix(in srgb, $info-color 10%, $surface-color);
+        border-radius: 8px;
+        font-size: 13px;
+        color: $text-secondary;
+
+        @media (max-width: 768px) {
+          flex-direction: row;
+          justify-content: center;
+          text-align: left;
+        }
+
+        mat-icon {
+          color: $info-color;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+}
+
 .full-width {
   width: 100%;
 }

@@ -132,7 +132,8 @@
     
     @media (max-width: 768px) {
       width: 100%;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 10px;
     }
   }
 
@@ -162,17 +163,24 @@
     }
     
     @media (max-width: 768px) {
-      flex: 1;
+      width: 100%;
       justify-content: center;
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 12px;
+      padding: 8px 10px;
     }
   }
 
   .video {
     display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    //align-items: center;
+    gap: 4px;
     padding: 12px;
-    background: #c10202; // Red background for a "video" look
+    background: #c10202;
     color: #fff;
     border-radius: 50px;
     text-decoration: none;
@@ -191,6 +199,15 @@
     &:hover {
       transform: scale(1.05);
       background: #cc0000;
+    }
+    
+    @media (max-width: 768px) {
+      padding: 10px 12px;
+    }
+    
+    @media (max-width: 480px) {
+      padding: 8px 10px;
+      font-size: 12px;
     }
   }
 
