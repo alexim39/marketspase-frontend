@@ -162,10 +162,10 @@ export class TransferFundsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!this.isPromoter()) {
-      this.showErrorMessage('Only promoters can transfer funds from their promoter wallet.');
-      return;
-    }
+    // if (!this.isPromoter()) {
+    //   this.showErrorMessage('Only promoters can transfer funds from their promoter wallet.');
+    //   return;
+    // }
     
     // Set initial form state
     this.updateFormStateForTransferType('self');

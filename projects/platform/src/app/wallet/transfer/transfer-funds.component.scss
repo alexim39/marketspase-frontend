@@ -234,7 +234,7 @@
   border-radius: 12px;
   overflow: hidden;
   background: $surface-color;
-  border-left: 4px solid $warning-color;
+  border-left: 4px solid $error-color;
 
   .warning-content {
     display: flex;
@@ -250,7 +250,7 @@
     }
 
     > mat-icon {
-      color: $warning-color;
+      color: $error-color;
       font-size: 32px;
       width: 32px;
       height: 32px;

@@ -1,3 +1,4 @@
+// tutorials.component.ts
 import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -6,38 +7,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DomSanitizer } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms'; // 1. Import this
-
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // Video Dialog Component
 import { VideoPlayerDialogComponent } from './video-player-dialog/video-player-dialog.component';
 import { UserService } from '../common/services/user.service';
-import { RouterModule } from '@angular/router';
 import { SwitchUserRoleService } from '../common/services/switch-user-role.service';
-
-interface VideoItem {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  duration: string;
-  videoUrl: string;
-  videoType: 'youtube' | 'vimeo' | 'local';
-  tags: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  views: number;
-  isNew?: boolean;
-  isPopular?: boolean;
-}
-
-interface Section {
-  title: string;
-  description: string;
-  icon: string;
-  videos: VideoItem[];
-}
+import { TutorialService, VideoItem, Section } from './services/tutorial.service';
 
 interface Category {
   id: string;
@@ -57,12 +37,13 @@ interface Category {
     MatIconModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     FormsModule,
     RouterModule
   ],
-  providers: [],
+  providers: [TutorialService],
   templateUrl: './tutorials.component.html',
-  styleUrls: ['./tutorials.component.scss']
+  styleUrls: ['./tutorials.component.scss'],
 })
 export class TutorialsComponent implements OnInit {
   private userService = inject(UserService);
@@ -70,7 +51,8 @@ export class TutorialsComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private sanitizer = inject(DomSanitizer);
   private destroyRef = inject(DestroyRef);
-  private switchUserRoleService = inject(SwitchUserRoleService); // Event used to trigger user role switcher method
+  private switchUserRoleService = inject(SwitchUserRoleService);
+  private tutorialService = inject(TutorialService);
 
   // User signals
   user = this.userService.user;
@@ -85,6 +67,11 @@ export class TutorialsComponent implements OnInit {
   selectedDifficulty = signal<string>('all');
   isGridView = signal(true);
   recentlyWatched = signal<VideoItem[]>([]);
+  
+  // Data state
+  tutorialSections = signal<Section[]>([]);
+  isLoading = signal(false);
+  loadError = signal<string | null>(null);
 
   // Video categories
   categories: Category[] = [
@@ -103,269 +90,10 @@ export class TutorialsComponent implements OnInit {
     { id: 'advanced', label: 'Advanced', icon: 'auto_awesome', color: 'error' }
   ];
 
-  // Promoter tutorials
-  promoterSections: Section[] = [
-    {
-      title: 'Getting Started as a Promoter',
-      description: 'Learn the basics of earning money by promoting businesses on WhatsApp',
-      icon: 'rocket_launch',
-      videos: [
-        {
-          id: 'promoter-1',
-          title: 'How to Start Making Money',
-          description: 'Complete beginner\'s guide to becoming a successful promoter on MarketSpase',
-          thumbnail: '',
-          duration: '8:24',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['beginner', 'basics', 'earnings'],
-          difficulty: 'beginner',
-          views: 15234,
-          isNew: true
-        },
-        {
-          id: 'promoter-2',
-          title: 'How to Pick the Right Product',
-          description: 'Learn to choose profitable products that resonate with your audience',
-          thumbnail: '',
-          duration: '12:15',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['strategy', 'profit'],
-          difficulty: 'intermediate',
-          views: 8923
-        },
-        {
-          id: 'promoter-3',
-          title: 'Setting Up Your Profile for Success',
-          description: 'Optimize your profile to attract more campaigns and increase earnings',
-          thumbnail: '',
-          duration: '6:42',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['profile', 'optimization'],
-          difficulty: 'beginner',
-          views: 12456,
-          isPopular: true
-        }
-      ]
-    },
-    {
-      title: 'Grow Your Earnings',
-      description: 'Advanced strategies to maximize your income as a promoter',
-      icon: 'trending_up',
-      videos: [
-        {
-          id: 'promoter-4',
-          title: 'Why You Get Views But No Sales',
-          description: 'Fix conversion issues and turn viewers into buyers',
-          thumbnail: '',
-          duration: '15:30',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['conversion', 'sales'],
-          difficulty: 'intermediate',
-          views: 6734
-        },
-        {
-          id: 'promoter-5',
-          title: 'How to Write WhatsApp Status That Sells',
-          description: 'Improve your posts to drive more engagement and sales',
-          thumbnail: '',
-          duration: '10:18',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['copywriting', 'engagement'],
-          difficulty: 'intermediate',
-          views: 10452
-        },
-        {
-          id: 'promoter-6',
-          title: 'Building Trust with Your Audience',
-          description: 'Establish credibility and build a loyal following',
-          thumbnail: '',
-          duration: '11:45',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['trust', 'audience'],
-          difficulty: 'intermediate',
-          views: 5678
-        }
-      ]
-    },
-    {
-      title: 'Become a Top Promoter',
-      description: 'Master the skills to become one of the highest earners on MarketSpase',
-      icon: 'stars',
-      videos: [
-        {
-          id: 'promoter-7',
-          title: 'Build an Audience That Buys',
-          description: 'Grow loyal buyers who trust your recommendations',
-          thumbnail: '',
-          duration: '14:20',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['audience', 'growth'],
-          difficulty: 'advanced',
-          views: 4456
-        },
-        {
-          id: 'promoter-8',
-          title: 'Leveraging Multiple Social Platforms',
-          description: 'Expand your reach beyond WhatsApp for maximum earnings',
-          thumbnail: '',
-          duration: '18:30',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['multi-platform', 'growth'],
-          difficulty: 'advanced',
-          views: 3890
-        }
-      ]
-    }
-  ];
-
-  // Marketer tutorials
-  marketerSections: Section[] = [
-    {
-      title: 'Getting Started',
-      description: 'Learn the fundamentals of running successful marketing campaigns',
-      icon: 'rocket_launch',
-      videos: [
-        {
-          id: 'marketer-1',
-          title: 'How MarketSpase Works',
-          description: 'Complete platform overview for new marketers',
-          thumbnail: '',
-          duration: '7:15',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['basics', 'overview'],
-          difficulty: 'beginner',
-          views: 18456,
-          isNew: true
-        },
-        {
-          id: 'marketer-2',
-          title: 'Create Your First Store',
-          description: 'Step-by-step guide to setting up your business store',
-          thumbnail: '',
-          duration: '9:30',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['store', 'setup'],
-          difficulty: 'beginner',
-          views: 12453,
-          isPopular: true
-        },
-        {
-          id: 'marketer-3',
-          title: 'Understanding the Dashboard',
-          description: 'Navigate and utilize all dashboard features effectively',
-          thumbnail: '',
-          duration: '11:20',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['dashboard', 'analytics'],
-          difficulty: 'beginner',
-          views: 9678
-        }
-      ]
-    },
-    {
-      title: 'Increase Sales',
-      description: 'Proven strategies to boost your campaign performance',
-      icon: 'trending_up',
-      videos: [
-        {
-          id: 'marketer-4',
-          title: 'Why Your Product Is Not Selling',
-          description: 'Identify and fix common product issues',
-          thumbnail: '',
-          duration: '13:45',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['conversion', 'troubleshooting'],
-          difficulty: 'intermediate',
-          views: 7823
-        },
-        {
-          id: 'marketer-5',
-          title: 'Write Product Descriptions That Sell',
-          description: 'Master the art of persuasive copywriting',
-          thumbnail: '',
-          duration: '12:30',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['copywriting', 'conversion'],
-          difficulty: 'intermediate',
-          views: 8945
-        },
-        {
-          id: 'marketer-6',
-          title: 'Creating High-Converting Visuals',
-          description: 'Design eye-catching ads that drive engagement',
-          thumbnail: '',
-          duration: '16:15',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['design', 'visuals'],
-          difficulty: 'intermediate',
-          views: 6543
-        }
-      ]
-    },
-    {
-      title: 'Scale Your Business',
-      description: 'Advanced strategies to grow your business exponentially',
-      icon: 'stars',
-      videos: [
-        {
-          id: 'marketer-7',
-          title: 'Turn Promoters Into Sales Force',
-          description: 'Build and manage an effective promoter network',
-          thumbnail: '',
-          duration: '14:50',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['management', 'scaling'],
-          difficulty: 'advanced',
-          views: 5123
-        },
-        {
-          id: 'marketer-8',
-          title: 'Advanced Campaign Analytics',
-          description: 'Deep dive into metrics that matter for growth',
-          thumbnail: '',
-          duration: '19:30',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['analytics', 'data'],
-          difficulty: 'advanced',
-          views: 4321
-        },
-        {
-          id: 'marketer-9',
-          title: 'Retargeting Strategies That Work',
-          description: 'Re-engage interested prospects and boost conversions',
-          thumbnail: '',
-          duration: '15:40',
-          videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-          videoType: 'youtube',
-          tags: ['retargeting', 'strategy'],
-          difficulty: 'advanced',
-          views: 3890
-        }
-      ]
-    }
-  ];
-
   // Combined videos for search and filtering
   allVideos = computed(() => {
     const videos: VideoItem[] = [];
-    const sections = this.isMarketer() ? this.marketerSections : this.promoterSections;
-    sections.forEach(section => {
+    this.tutorialSections().forEach(section => {
       videos.push(...section.videos);
     });
     return videos;
@@ -387,7 +115,9 @@ export class TutorialsComponent implements OnInit {
     }
 
     if (category !== 'all') {
-      videos = videos.filter(v => v.tags.includes(category));
+      videos = videos.filter(v => v.tags.some(tag => 
+        tag.toLowerCase().includes(category)
+      ));
     }
 
     if (difficulty !== 'all') {
@@ -399,12 +129,14 @@ export class TutorialsComponent implements OnInit {
 
   // Featured videos (new and popular)
   featuredVideos = computed(() => {
-    return this.allVideos().filter(v => v.isNew || v.isPopular).slice(0, 4);
+    return this.allVideos()
+      .filter(v => v.isNew || v.isPopular)
+      .slice(0, 4);
   });
 
   // Group videos by sections for the main view
   filteredSections = computed(() => {
-    const sections = this.isMarketer() ? this.marketerSections : this.promoterSections;
+    const sections = this.tutorialSections();
     const search = this.searchQuery().toLowerCase();
     const category = this.selectedCategory();
     const difficulty = this.selectedDifficulty();
@@ -420,7 +152,8 @@ export class TutorialsComponent implements OnInit {
           video.title.toLowerCase().includes(search) || 
           video.description.toLowerCase().includes(search) ||
           video.tags.some(tag => tag.toLowerCase().includes(search));
-        const matchesCategory = category === 'all' || video.tags.includes(category);
+        const matchesCategory = category === 'all' || 
+          video.tags.some(tag => tag.toLowerCase().includes(category));
         const matchesDifficulty = difficulty === 'all' || video.difficulty === difficulty;
         return matchesSearch && matchesCategory && matchesDifficulty;
       })
@@ -429,10 +162,33 @@ export class TutorialsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecentlyWatched();
+    this.loadTutorials();
+  }
+
+  loadTutorials(): void {
+    this.isLoading.set(true);
+    this.loadError.set(null);
+    
+    this.tutorialService.getTutorials(this.userRole())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (sections) => {
+          this.tutorialSections.set(sections);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Failed to load tutorials:', error);
+          this.loadError.set('Failed to load tutorials. Please try again.');
+          this.isLoading.set(false);
+          this.snackBar.open('Failed to load tutorials', 'Retry', { duration: 5000 })
+            .onAction()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.loadTutorials());
+        }
+      });
   }
 
   loadRecentlyWatched(): void {
-    // Load from localStorage or service
     const saved = localStorage.getItem('recentlyWatched');
     if (saved) {
       try {
@@ -452,14 +208,13 @@ export class TutorialsComponent implements OnInit {
   }
 
   playVideo(video: VideoItem): void {
-    // Save to recently watched
     this.saveRecentlyWatched(video);
     
-    // Open video dialog
     const dialogRef = this.dialog.open(VideoPlayerDialogComponent, {
       width: '90vw',
       maxWidth: '1200px',
       height: 'auto',
+      disableClose: true,
       data: {
         video: video,
         userRole: this.userRole()
@@ -470,30 +225,28 @@ export class TutorialsComponent implements OnInit {
     dialogRef.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        // Track view count or other analytics
         this.trackVideoView(video);
       });
   }
 
   trackVideoView(video: VideoItem): void {
-    // Implement analytics tracking
     console.log('Video viewed:', video.title);
-    // You can call an API endpoint to track views
+    // TODO: Implement analytics tracking API call
   }
 
   shareVideo(video: VideoItem, event: Event): void {
     event.stopPropagation();
-    // Implement sharing functionality
+    
     if (navigator.share) {
       navigator.share({
         title: video.title,
         text: video.description,
         url: video.videoUrl
       }).catch(() => {
-        this.copyToClipboard(video.videoUrl);
+        this.copyToClipboard(`https://youtu.be/${video.id}`);
       });
     } else {
-      this.copyToClipboard(video.videoUrl);
+      this.copyToClipboard(`https://youtu.be/${video.id}`);
     }
   }
 
@@ -535,7 +288,6 @@ export class TutorialsComponent implements OnInit {
     this.isGridView.update(value => !value);
   }
 
-  // Get role-specific welcome message
   getWelcomeMessage(): string {
     if (this.isMarketer()) {
       return 'Learn how to create successful campaigns and grow your business';
@@ -546,12 +298,11 @@ export class TutorialsComponent implements OnInit {
     return 'Discover everything you need to succeed on MarketSpase';
   }
 
-   setIsGridView(isGrid: boolean): void {
+  setIsGridView(isGrid: boolean): void {
     this.isGridView.set(isGrid);
   }
 
   switchUserRole() {
-    // 6. Broadcast the signal to switch user role on sidenav.component
     this.switchUserRoleService.sendSwitchRequest(this.userRole());
   }
 }
