@@ -96,6 +96,7 @@ export class TutorialsComponent implements OnInit {
     this.tutorialSections().forEach(section => {
       videos.push(...section.videos);
     });
+    console.log('All videos loaded:', videos);
     return videos;
   });
 
