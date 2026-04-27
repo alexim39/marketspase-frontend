@@ -1,0 +1,66 @@
+    @if(this.showBanner()) {
+      <div class="profile-completion-banner" [class.hidden]="!showBanner()">
+        <div class="banner-content">
+          <div class="banner-left">
+            <mat-icon class="banner-icon">rocket_launch</mat-icon>
+            <div class="banner-text">
+              <h3 class="banner-title">Start Your Journey! 🚀</h3>
+              <p class="banner-description">
+                Complete your onboarding to unlock all MarketSpase features. Our step-by-step guide will help you get started quickly.
+                <span class="missing-info">
+                  @if(!hasPhone() || !hasAddress()) {
+                    <span class="highlight">Missing info:</span>
+                    @if(!hasPhone()) {
+                      <span class="missing-item">Phone number</span>
+                    }
+                    @if(!hasPhone() && !hasAddress()) {
+                      <span> and </span>
+                    }
+                    @if(!hasAddress()) {
+                      <span class="missing-item">Address</span>
+                    }
+                    <span> needed.</span>
+                  }
+                </span>
+              </p>
+            </div>
+          </div>
+          
+          <div class="banner-actions">
+            <button 
+              mat-flat-button 
+              class="get-started-button video"
+              (click)="navigateToVideoGuides()">
+              <mat-icon>play_circle</mat-icon>
+              Watch Video Guide
+            </button>
+
+            <button 
+              mat-stroked-button 
+              class="get-started-button"
+              (click)="navigateToGetStarted()"
+              aria-label="Complete profile setup">
+              <mat-icon>arrow_forward</mat-icon>
+              Start Onboarding
+            </button>
+             <!-- <button 
+              mat-icon-button 
+              class="close-button" 
+              (click)="dismiss()"
+              aria-label="Dismiss notification">
+              <mat-icon>close</mat-icon>
+            </button>-->
+          </div> 
+        </div>
+        
+        <!-- Progress Bar -->
+        @if (completionPercentage() > 0 && completionPercentage() < 100) {
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="completionPercentage()"></div>
+            </div>
+            <div class="progress-text">{{completionPercentage()}}% complete</div>
+          </div>
+        }
+      </div>
+    }

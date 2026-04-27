@@ -232,34 +232,6 @@ export class FeedService {
       });
   }
 
-  // ============ POST LOADING ============
-  loadFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, reset: boolean = false): void {
-    if (!userId) return;
-
-    if (reset) this.resetFeedState();
-    if (!this.shouldLoadMore()) return;
-
-    this.setLoadingState(true);
-
-    const params: any = {
-      page: this.currentPageSignal(),
-      limit: FEED_CONFIG.POSTS_PER_PAGE,
-      userId
-    };
-    if (type && type !== 'all') params.type = type;
-    if (hashtag) params.hashtag = hashtag;
-    if (search) params.search = search;   // new
-
-    this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
-      .pipe(
-        map(response => this.extractPostsFromResponse(response)),
-        tap(result => this.handleFeedResponse(result, reset)),
-        catchError(error => this.handleFeedError(error)),
-        finalize(() => this.setLoadingState(false))
-      )
-      .subscribe();
-  }
-
   private shouldLoadMore(): boolean {
     return this.hasMoreSignal() && !this.loadingSignal();
   }
@@ -317,7 +289,7 @@ export class FeedService {
   }
 
 
-  private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
+/*   private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
     //console.log('[FeedService] handleFeedResponse called with posts length:', result.posts.length);
     if (!result.posts.length) {
       if (reset) this.postsSignal.set([]);
@@ -338,6 +310,39 @@ export class FeedService {
     this.updatePagination(result.pagination);
     this.updateLikedSavedSets(newPosts);
     this.updateActivityStats();
+  } */
+
+  private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
+    if (!result.posts.length) {
+      if (reset) this.postsSignal.set([]);
+      this.hasMoreSignal.set(false);
+      return;
+    }
+
+    const newPosts = result.posts.map(post => {
+      try {
+        return this.processPost(post);
+      } catch (err) {
+        console.error('[FeedService] Error processing post:', post._id, err);
+        return null;
+      }
+    }).filter(p => p !== null) as FeedPost[];
+    
+    // Update posts
+    if (reset) {
+      this.postsSignal.set(newPosts);
+    } else {
+      this.postsSignal.update(current => [...current, ...newPosts]);
+    }
+    
+    // Update pagination state
+    const { page, pages } = result.pagination;
+    this.hasMoreSignal.set(page < pages);
+    
+    // Only increment page if we have more to load
+    if (page < pages) {
+      this.currentPageSignal.set(page + 1);
+    }
   }
 
   private updatePostsSignal(newPosts: FeedPost[], reset: boolean): void {
@@ -862,5 +867,150 @@ export class FeedService {
   }
 
 
+ // Add these methods to the FeedService class
+
+// Reset feed state
+resetFeed(): void {
+  this.currentPageSignal.set(1);
+  this.hasMoreSignal.set(true);
+  this.postsSignal.set([]);
+  this.loadingSignal.set(false);
+  this.errorSignal.set(null);
+}
+
+// Load more posts (increment page)
+loadMoreFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, feedType?: string): void {
+  if (!userId) return;
+  if (!this.hasMoreSignal() || this.loadingSignal()) return;
+
+  this.loadingSignal.set(true);
+  this.errorSignal.set(null);
+
+  const params: any = {
+    page: this.currentPageSignal(),
+    limit: FEED_CONFIG.POSTS_PER_PAGE,
+    userId
+  };
+  
+  if (type && type !== 'all') params.type = type;
+  if (hashtag) params.hashtag = hashtag;
+  if (search) params.search = search;
+  if (feedType === 'following') params.feedType = 'following';
+
+  this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
+    .pipe(
+      map(response => this.extractPostsFromResponse(response)),
+      tap(result => this.handleMoreFeedResponse(result)),
+      catchError(error => this.handleFeedError(error)),
+      finalize(() => this.loadingSignal.set(false))
+    )
+    .subscribe();
+}
+
+private handleMoreFeedResponse(result: { posts: any[], pagination: any }): void {
+  if (!result.posts.length) {
+    this.hasMoreSignal.set(false);
+    return;
+  }
+
+  const newPosts = result.posts.map(post => {
+    try {
+      return this.processPost(post);
+    } catch (err) {
+      console.error('[FeedService] Error processing post:', post._id, err);
+      return null;
+    }
+  }).filter(p => p !== null) as FeedPost[];
+  
+  // Append new posts
+  this.postsSignal.update(current => [...current, ...newPosts]);
+  
+  // Update pagination
+  this.updatePaginationForMore(result.pagination);
+  
+  // Update liked/saved sets
+  this.updateLikedSavedSets(newPosts);
+}
+
+private updatePaginationForMore(pagination: any): void {
+  const hasMore = pagination.page < pagination.pages;
+  this.hasMoreSignal.set(hasMore);
+  
+  if (hasMore) {
+    this.currentPageSignal.update(page => page + 1);
+  }
+}
+
+/* loadFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, reset: boolean = false, feedType?: string): void {
+  if (!userId) return;
+
+  if (reset) {
+    this.resetFeed();
+  }
+  
+  if (!this.shouldLoadMore()) return;
+
+  this.setLoadingState(true);
+
+  const params: any = {
+    page: this.currentPageSignal(),
+    limit: FEED_CONFIG.POSTS_PER_PAGE,
+    userId
+  };
+  
+  if (type && type !== 'all') params.type = type;
+  if (hashtag) params.hashtag = hashtag;
+  if (search) params.search = search;
+  if (feedType === 'following') params.feedType = 'following';
+
+  this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
+    .pipe(
+      map(response => this.extractPostsFromResponse(response)),
+      tap(result => this.handleFeedResponse(result, reset)),
+      catchError(error => this.handleFeedError(error)),
+      finalize(() => this.setLoadingState(false))
+    )
+    .subscribe();
+} */
+
+  loadFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, reset: boolean = false, feedType?: string): void {
+    if (!userId) return;
+
+    if (reset) {
+      this.resetPagination();
+      this.postsSignal.set([]);
+    }
+    
+    if (!this.hasMoreSignal() || this.loadingSignal()) {
+      return;
+    }
+
+    this.setLoadingState(true);
+
+    const params: any = {
+      page: this.currentPageSignal(),
+      limit: FEED_CONFIG.POSTS_PER_PAGE,
+      userId
+    };
+    
+    if (type && type !== 'all') params.type = type;
+    if (hashtag) params.hashtag = hashtag;
+    if (search) params.search = search;
+    if (feedType === 'following') params.feedType = 'following';
+
+    this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
+      .pipe(
+        map(response => this.extractPostsFromResponse(response)),
+        tap(result => this.handleFeedResponse(result, reset)),
+        catchError(error => this.handleFeedError(error)),
+        finalize(() => this.setLoadingState(false))
+      )
+      .subscribe();
+  }
+
+resetPagination(): void {
+  this.currentPageSignal.set(1);
+  this.hasMoreSignal.set(true);
+}
 
 }

@@ -29,12 +29,7 @@ export class WalletService {
    * Includes retry logic and timeout.
    */
   recordPayment(payload: RecordPaymentPayload): Observable<RecordPaymentResponse> {
-    return this.apiService.post<RecordPaymentResponse>(
-      `wallet/verify-and-record`, 
-      payload, 
-      undefined, 
-      true
-    ).pipe(
+    return this.apiService.post<RecordPaymentResponse>(`wallet/verify-and-record`, payload, undefined, true).pipe(
       timeout(this.timeoutMs),
       retry({
         count: this.maxRetries,

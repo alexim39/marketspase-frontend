@@ -25,9 +25,9 @@
           <h1 class="product-name">{{ product?.name }}</h1>
           <div class="product-subtitle">
             @if (product?.sku) {
-              <span class="sku">SKU: {{ product?.sku }}</span>
+              <span class="sku" title="{{product?.sku }}">SKU: {{ product?.sku ?? '' | truncate:8 }}</span>
             }
-            <span class="product-id">ID: {{ product?._id ?? '' | truncate:8 }}</span>
+            <span class="product-id" title="Product ID">ID: {{ product?._id ?? '' | truncate:8 }}</span>
             <span class="last-updated">
               Last updated: {{ product?.updatedAt | date:'medium' }}
             </span>
@@ -39,8 +39,12 @@
             <mat-chip-option 
               [color]="product?.isActive ? 'primary' : 'warn'" 
               [selected]="product?.isActive"
-              (click)="toggleProductStatus()"
             >
+            <!-- <mat-chip-option 
+              [color]="product?.isActive ? 'primary' : 'warn'" 
+              [selected]="product?.isActive"
+              (click)="toggleProductStatus()"
+            > -->
               <span [ngClass]="product?.isActive ? 'product-active' : 'product-inactve'">
                 {{ product?.isActive ? 'Active' : 'Inactive' }}
               </span>
@@ -150,7 +154,9 @@
           <mat-icon>payments</mat-icon>
         </div>
         <div class="stat-content">
-          <span class="stat-value">{{  ( product!.price - (product!.price * 0.1) ) | currencyUtils:product?.currency }}</span>
+          @if (product?.price) {
+            <span class="stat-value">{{ ( product!.price - (product!.price * 0.1) ) | currencyUtils:product?.currency }}</span>
+          }
           <span class="stat-label">Amount Receivable (10%)</span>
         </div>
       </div>
@@ -394,7 +400,7 @@
                   <div class="section-content">
                     <div class="tags-container">
                       @for (tag of product.tags; track tag) {
-                        <span class="tag">{{ tag }}</span>
+                        <span class="tag">{{ tag | titlecase}}</span>
                       }
                     </div>
                   </div>

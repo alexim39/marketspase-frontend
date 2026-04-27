@@ -43,7 +43,7 @@
                   <img [src]="campaign.mediaUrl" [alt]="campaign.title" class="media-preview">
                   <!-- <img [src]="apiBaseUrl + campaign.mediaUrl" [alt]="campaign.title" class="media-preview"> -->
                 } @else {
-                  <img [src]="campaign.category | categoryPlaceholder" class="media-preview placeholder-img">
+                  <img [src]="campaign.category" class="media-preview placeholder-img">
                 }
                 <div class="media-type-overlay" [ngClass]="campaign.mediaType">
                   <mat-icon>{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>

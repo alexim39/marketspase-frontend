@@ -123,6 +123,7 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: false,
       children: [
         { id: 'all-withdrawals', title: 'All Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
+        { id: 'all-transfers', title: 'All Transfers', icon: 'payment_arrow_down', route: '/dashboard/financial/transfers' },
         { id: 'marketer-payments', title: 'Marketer Deposits', icon: 'upload', route: '/dashboard/financial/deposits' },
         { id: 'promoter-payouts', title: 'Promoter Payouts', icon: 'download', route: '/dashboard/financial/payouts' },
         { id: 'transactions', title: 'Transaction History', icon: 'history', route: '/dashboard/financial/transactions' },

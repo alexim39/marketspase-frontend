@@ -5,7 +5,7 @@
           <mat-icon>home</mat-icon> Dashboard
         </a>
         <mat-icon>chevron_right</mat-icon>
-        <a>Earnings</a>
+        <a>Transactions</a>
         <mat-icon>chevron_right</mat-icon>
         <span class="current">Withdraw Funds</span>
       </div>
@@ -227,6 +227,21 @@
               </form>
             </div>
           </mat-expansion-panel>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title> 
+                <mat-icon>receipt</mat-icon> Transaction Summary
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <app-transaction-summary 
+              [user]="user" 
+              [role]="userRole">
+            </app-transaction-summary>
+
+          </mat-expansion-panel>
+
         </mat-accordion>
       </mat-card>
     </div>

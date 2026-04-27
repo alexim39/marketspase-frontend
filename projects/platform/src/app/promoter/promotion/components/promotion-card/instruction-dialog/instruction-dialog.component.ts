@@ -14,56 +14,7 @@ export interface WhatsAppInstructionsData {
   selector: 'app-whatsapp-instructions-dialog',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
-  template: `
-    <div class="whatsapp-dialog">
-      <div class="wa-header">
-        <mat-icon class="wa-icon">whatsapp</mat-icon>
-        <h2>How to Share to WhatsApp Status</h2>
-        <button mat-icon-button (click)="close()" class="wa-close">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <div class="wa-content">
-        <div class="wa-caption-section">
-          <p class="wa-label">Copy this caption:</p>
-          <div class="wa-caption-box">
-            <p class="wa-caption-text">{{ data.captionText }}</p>
-          </div>
-          <button mat-raised-button class="wa-copy-btn" (click)="copyCaption()">
-            <mat-icon>content_copy</mat-icon>
-            Copy Caption
-          </button>
-        </div>
-
-        <div class="wa-steps">
-          <p class="wa-steps-title">Steps:</p>
-          <ol class="wa-steps-list">
-            <li>The media has been saved to your device</li>
-            <li><strong>Copy the caption above</strong></li>
-            <li>Open WhatsApp</li>
-            <li>Go to the <strong>Status</strong> tab</li>
-            <li>Tap the camera icon or "+" button</li>
-            <li>Select <strong>Gallery/Photos</strong></li>
-            <li>Choose the downloaded file</li>
-            <li>Paste the caption (tap on text area)</li>
-            <li>Tap the send button</li>
-          </ol>
-        </div>
-
-        <div class="wa-actions">
-          <button mat-raised-button class="wa-action-primary" (click)="openWhatsApp()">
-            <mat-icon>open_in_new</mat-icon>
-            Open WhatsApp
-          </button>
-          <button mat-stroked-button class="wa-action-secondary" (click)="openGallery()">
-            <mat-icon>folder_open</mat-icon>
-            Open Gallery
-          </button>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './instruction-dialog.component.html',
   styleUrls: ['./instruction-dialog.component.scss']
 })
 export class WhatsAppInstructionsDialogComponent {

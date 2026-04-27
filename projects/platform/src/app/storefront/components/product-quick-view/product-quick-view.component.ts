@@ -10,8 +10,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RatingComponent } from '../../shared/rating/rating.component';
-import { CartService } from '../../services/cart.service';
-import { WishlistService } from '../../services/wishlist.service';
 import { Product, Store } from '../../../store/models';
 import { ShareService } from '../../../store/services/share.service';
 
@@ -26,7 +24,7 @@ export interface QuickViewData {
 @Component({
   selector: 'app-product-quick-view',
   standalone: true,
-  providers: [CartService,WishlistService,ShareService],
+  providers: [ShareService],
   imports: [
     CommonModule,
     MatIconModule,
@@ -116,8 +114,6 @@ export class ProductQuickViewComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<ProductQuickViewComponent>,
     @Inject(MAT_DIALOG_DATA) public data: QuickViewData,
-    private cartService: CartService,
-    private wishlistService: WishlistService,
     private shareService: ShareService,
     private snackBar: MatSnackBar,
     private router: Router
@@ -217,7 +213,7 @@ export class ProductQuickViewComponent implements OnInit {
       storeId: product.store._id ?? ''
     };
     
-    this.cartService.addToCart(cartItem);
+    //this.cartService.addToCart(cartItem);
     this.data.onAddToCart();
     this.showNotification('Added to cart');
     

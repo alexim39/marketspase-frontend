@@ -1,0 +1,49 @@
+    <div class="stores-header">
+      <div class="header-content">
+        <div class="title-section">
+          <h1>Discover Stores</h1>
+          <p class="subtitle">Find the best stores to partner with and start earning commissions</p>
+        </div>
+        
+        <div class="stats-section">
+          <div class="stat-card">
+            <mat-icon>store</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ stats.total | number }}</span>
+              <span class="stat-label">Total Stores</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon>verified</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ stats.verified | number }}</span>
+              <span class="stat-label">Verified</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon>category</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ stats.categories }}</span>
+              <span class="stat-label">Categories</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <mat-icon>star</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{ stats.premiumStores }}</span>
+              <span class="stat-label">Premium</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="search-section">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            [formControl]="searchControl"
+            type="text"
+            placeholder="Search stores by name, description, or store link..."
+            class="search-input"
+          />
+        </div>
+      </div>
+    </div>

@@ -66,11 +66,8 @@ export class ProductInfoComponent {
   @Output() quantityChange = new EventEmitter<number>();
   @Output() addToCart = new EventEmitter<void>();
   @Output() buyNow = new EventEmitter<void>();
-  @Output() toggleWishlist = new EventEmitter<void>();
-  @Output() shareProduct = new EventEmitter<void>();
+  //@Output() toggleWishlist = new EventEmitter<void>();
   @Output() contactStore = new EventEmitter<void>();
-  @Output() promoteProduct = new EventEmitter<void>();
-  @Output() viewPromotionStats = new EventEmitter<any>();
   
   currentPrice = computed(() => {
     if (this.selectedVariant?.price) return this.selectedVariant.price;

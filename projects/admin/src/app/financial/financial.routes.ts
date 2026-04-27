@@ -11,6 +11,11 @@ export const FinancialRoutes: Routes = [
         loadComponent: () => import('./refund/refund.component').then(c => c.RefundComponent),
         title: "Refund Management - Financial Dashboard",
     }, 
+    {
+        path: 'transfers',
+        loadComponent: () => import('./transfer/transfer-transactions.component').then(c => c.TransferTransactionsComponent),
+        title: "Transfer Management - Financial Dashboard",
+    }, 
    
     
 ]

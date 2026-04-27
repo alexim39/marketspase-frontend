@@ -43,6 +43,24 @@
     </div>
   </section>
 
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading tutorials...</p>
+    </div>
+  }
+
+  @if (loadError() && !isLoading()) {
+    <div class="error-container">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ loadError() }}</p>
+      <button mat-raised-button color="primary" (click)="loadTutorials()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+  }
+
   <!-- Search and Filters -->
   <div class="filters-section">
     <div class="search-bar">
@@ -119,9 +137,13 @@
         @for (video of featuredVideos(); track video.id) {
           <div class="featured-card" (click)="playVideo(video)">
             <div class="featured-thumbnail">
-              <div class="thumbnail-placeholder">
-                <mat-icon>play_circle_filled</mat-icon>
-              </div>
+              @if (video.thumbnail) {
+                  <img [src]="video.thumbnail" [alt]="video.title" class="thumbnail-placeholder">
+                } @else {
+                <div class="thumbnail-placeholder">
+                  <mat-icon>play_circle_filled</mat-icon>
+                </div>
+              }
               <div class="duration-badge">{{ video.duration }}</div>
               @if (video.isNew) {
                 <div class="new-badge">NEW</div>
@@ -167,9 +189,13 @@
         @for (video of recentlyWatched(); track video.id) {
           <div class="recent-item" (click)="playVideo(video)">
             <div class="recent-thumbnail">
-              <div class="thumbnail-placeholder small">
-                <mat-icon>play_arrow</mat-icon>
-              </div>
+              @if (video.thumbnail) {
+                  <img [src]="video.thumbnail" [alt]="video.title" class="thumbnail-placeholder small">
+                } @else {
+                <div class="thumbnail-placeholder small">
+                  <mat-icon>play_arrow</mat-icon>
+                </div>
+              }
               <span class="duration">{{ video.duration }}</span>
             </div>
             <div class="recent-info">
@@ -203,9 +229,13 @@
           @for (video of section.videos; track video.id) {
             <div class="video-card" [class.list-item]="!isGridView()" (click)="playVideo(video)">
               <div class="video-thumbnail">
-                <div class="thumbnail-placeholder">
-                  <mat-icon>play_circle_filled</mat-icon>
-                </div>
+                @if (video.thumbnail) {
+                  <img [src]="video.thumbnail" [alt]="video.title" class="thumbnail-image">
+                } @else {
+                  <div class="thumbnail-placeholder">
+                    <mat-icon>play_circle_filled</mat-icon>
+                  </div>
+                }
                 <div class="duration-badge">{{ video.duration }}</div>
                 @if (video.isNew) {
                   <div class="new-badge-sm">NEW</div>

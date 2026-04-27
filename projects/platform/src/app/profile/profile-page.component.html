@@ -1,10 +1,11 @@
 <div class="profile-container">
   <!-- Loading / Error states -->
   @if (loading()) {
-    <div class="loading-state">
+    <!-- <div class="loading-state">
       <mat-spinner diameter="40"></mat-spinner>
       <p>Loading profile...</p>
-    </div>
+    </div> -->
+    <app-profile-skeleton/>
   } 
   @if (error()) {
     <div class="error-state">

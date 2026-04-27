@@ -122,6 +122,7 @@ export interface RefundHistoryData {
       previousBalance: number;
       newBalance: number;
       metadata?: any;
+      walletType?: string;
     }>;
   };
 }
@@ -183,33 +184,42 @@ export class RefundService {
  * @returns An Observable that emits the validation result
  */
 validateRefund(promoterUserId: string, amount: number): Observable<ApiResponse<ValidationResponseData>> {
+  console.log('Service validating refund:', { promoterUserId, amount });
+  
   return this.apiService.post<ApiResponse<ValidationResponseData>>(
     `${this.apiBase}/validate`,
     { promoterUserId, amount },
     undefined,
     true
   ).pipe(
-    // Ensure consistent response format
     map(response => {
-      // If response.data is already a ValidationResponseData object
-      if (response.data && typeof response.data === 'object') {
-        // Check if it has the 'valid' property
-        if ('valid' in response.data) {
-          return response;
-        }
-        // If it's the old format with data.valid
-        if (response.data && (response.data as any).data && typeof (response.data as any).data === 'object' && 'valid' in (response.data as any).data) {
-          return {
-            ...response,
-            data: response.data
-          };
-        }
+      console.log('Raw validation response:', response);
+      
+      // Ensure the response has the expected structure
+      if (!response.data) {
+        return {
+          success: false,
+          data: { valid: false, error: 'Invalid response from server' }
+        };
       }
+      
+      // If response.data is already the validation result
+      if (typeof response.data === 'object' && 'valid' in response.data) {
+        return response;
+      }
+      
+      // If the validation result is nested
       return response;
     }),
     catchError(error => {
       console.error('Validation service error:', error);
-      return throwError(() => error);
+      
+      // Return a structured error response
+      return throwError(() => ({
+        error: {
+          error: error.error?.error || error.error?.message || error.message || 'Validation failed'
+        }
+      }));
     })
   );
 }
@@ -518,4 +528,84 @@ getRefundStatistics(timeframe: 'day' | 'week' | 'month' | 'year' = 'month'): Obs
       validatedItems
     };
   }
+
+  /**
+   * Validate refund with wallet type
+   */
+  validateRefundWithWallet(
+    promoterUserId: string, 
+    amount: number, 
+    walletType: 'promoter' | 'marketer'
+  ): Observable<ApiResponse<ValidationResponseData>> {
+    console.log('Service validating refund with wallet:', { promoterUserId, amount, walletType });
+    
+    return this.apiService.post<ApiResponse<ValidationResponseData>>(
+      `${this.apiBase}/validate`,
+      { promoterUserId, amount, walletType },
+      undefined,
+      true
+    ).pipe(
+      map(response => {
+        console.log('Raw validation response:', response);
+        
+        if (!response.data) {
+          return {
+            success: false,
+            data: { valid: false, error: 'Invalid response from server' }
+          };
+        }
+        
+        return response;
+      }),
+      catchError(error => {
+        console.error('Validation service error:', error);
+        
+        return throwError(() => ({
+          error: {
+            error: error.error?.error || error.error?.message || error.message || 'Validation failed'
+          }
+        }));
+      })
+    );
+  }
+
+  /**
+   * Refund to specific wallet
+   */
+// In refund.service.ts - Ensure walletType is passed correctly
+
+refundToWallet(refundRequest: {
+  promoterUserId: string;
+  amount: number;
+  reason: string;
+  walletType: 'promoter' | 'marketer';
+  adminId: string;
+  metadata?: any;
+}): Observable<ApiResponse<RefundResponseData>> {
+  console.log('Sending refund request:', refundRequest);
+  
+  // Ensure walletType is included in the request
+  return this.apiService.post<ApiResponse<RefundResponseData>>(
+    `${this.apiBase}/`,
+    {
+      promoterUserId: refundRequest.promoterUserId,
+      amount: refundRequest.amount,
+      reason: refundRequest.reason,
+      walletType: refundRequest.walletType,  // Make sure this is sent
+      adminId: refundRequest.adminId,
+      metadata: refundRequest.metadata
+    },
+    undefined,
+    true
+  ).pipe(
+    map(response => {
+      console.log('Refund response:', response);
+      return response;
+    }),
+    catchError(error => {
+      console.error('Refund API error:', error);
+      return throwError(() => error);
+    })
+  );
+}
 }

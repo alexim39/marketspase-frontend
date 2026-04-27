@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, AfterViewInit, ViewChild, signal, DestroyRef, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // Angular Material imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -72,6 +73,14 @@ export interface Promoter {
   _id: string;
   displayName: string;
   email: string;
+  personalInfo?: {
+    phoneDetails: {
+      iso2: string;
+      countryCode: string;
+      fullNumber: string;
+      nationalNumber: string;
+    }
+  }
 }
 
 export interface Filters {
@@ -134,6 +143,7 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
   private readonly dialog = inject(MatDialog);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   // State
   readonly isLoading = signal(true);
@@ -368,7 +378,7 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
         maxWidth: '100vw',
         height: '90vh',
         data: {
-          promotion: promotion,
+          promotion,
           campaigns: this.campaigns(),
           onValidate: (promo: Promotion) => this.validatePromotion(promo),
           onReject: (promo: Promotion) => this.openRejectDialog(promo)
@@ -667,5 +677,10 @@ export class SubmittedPromotionListComponent implements OnInit, AfterViewInit {
   private handleError(error: any, message: string): void {
     console.error(`${message}:`, error);
     this.showError(message);
+  }
+
+  viewPromoterDetails(promotion: Promotion): void {
+    const promoter = this.getPromoter(promotion.promoter);  
+    this.router.navigate(['/dashboard/users', promoter._id]);
   }
 }

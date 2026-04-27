@@ -1,12 +1,13 @@
 // promoter-products-list.component.ts
 import { Component, OnInit, inject, signal, computed, OnDestroy, Signal, Input, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { PromotionService } from '../services/promotion.service';
 
 // Child Components
 import { ProductsHeaderComponent } from './components/products-header/products-header.component';
@@ -14,11 +15,12 @@ import { ProductsFilterSidebarComponent } from './components/products-filter-sid
 import { ProductsContentViewComponent } from './components/products-content-view/products-content-view.component';
 import { FilterState, ViewMode, SortBy, SortDirection, PaginatedResponse } from './models/filter-state.model';
 import { Product } from '../../models';
+import { UserService } from '../../../common/services/user.service';
 
 @Component({
   selector: 'app-promoter-products-list',
   standalone: true,
-  providers: [PromoterProductService],
+  providers: [PromoterProductService, PromotionService],
   imports: [
     CommonModule,
     ProductsHeaderComponent,
@@ -30,11 +32,15 @@ import { Product } from '../../models';
 })
 export class PromoterProductsListComponent implements OnInit, OnDestroy {
   private productService = inject(PromoterProductService);
+  private promotionService = inject(PromotionService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
+  private userService = inject(UserService);
+  public user: Signal<UserInterface | null> = this.userService.user;
+
+ // @Input({ required: true }) user!: Signal<UserInterface | null>;
 
   private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type())
@@ -57,6 +63,9 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   // Current filter state
   private currentFilters = signal<Partial<FilterState>>({});
+
+  // Track active promotions per product
+  activePromotions = signal<Map<string, any>>(new Map());
 
   // Statistics
   stats = computed(() => {
@@ -168,14 +177,122 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   generateWhatsAppMessage(product: Product): void {
-    const message = `Check out this amazing product: ${product.name}\n\n` +
-                   `💰 Price: $${product.price}\n` +
-                   `🎯 Commission: ${product.promotion.commissionRate}%\n\n` +
-                   `Shop now: ${window.location.origin}/promote/${product.promotion.trackingCode}\n\n` +
-                   `From: ${product.store.name}`;
-    
+    const message = `*${product.name}*
+
+    Looking for something worth your money? Check this out
+
+     *Price:* $${product.price}
+     *Earn:* ${product.promotion.commissionRate}% commission
+
+    🛒 *Order now:*
+    ${window.location.origin}/promote/${product.promotion.trackingCode}
+
+     *Store:* ${product.store.name}
+
+    Don’t miss out — grab yours now or share with someone who needs this!`;
+
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  }
+
+  // Promotion methods moved from child component
+  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string } | null> {
+    try {
+      const promoterId = this.user()?._id;
+      if (!promoterId) {
+        this.snackBar.open('You must be logged in to promote products', 'Close', { duration: 5000 });
+        return null;
+      }
+
+      const snackBarRef = this.snackBar.open('Creating promotion link...', 'Close', { duration: 3000 });
+
+      const existingPromotion = this.activePromotions().get(product._id ?? '');
+      
+      let trackingCode: string;
+      let uniqueId: string;
+
+      if (existingPromotion) {
+        trackingCode = existingPromotion.uniqueCode;
+        uniqueId = existingPromotion.uniqueId;
+        snackBarRef.dismiss();
+      } else {
+        const response = await this.promotionService.createPromotion({
+          productId: product._id ?? '',
+          promoterId: promoterId,
+          storeId: product.store._id,
+          commissionRate: product.promotion.commissionRate,
+          commissionType: product.promotion.commissionType,
+          fixedCommission: product.promotion.fixedCommission
+        }).toPromise();
+
+        trackingCode = response.data.uniqueCode;
+        uniqueId = response.data.uniqueId;
+
+        this.activePromotions.update(map => {
+          map.set(product._id ?? '', {
+            uniqueCode: trackingCode,
+            uniqueId: uniqueId,
+            ...response.data
+          });
+          return new Map(map);
+        });
+
+        snackBarRef.dismiss();
+        this.snackBar.open('Promotion link created successfully!', 'Close', { duration: 3000 });
+      }
+
+      return { trackingCode, uniqueId };
+    } catch (error) {
+      console.error('Error creating promotion:', error);
+      this.snackBar.open('Failed to create promotion link. Please try again.', 'Close', { duration: 5000 });
+      return null;
+    }
+  }
+
+  async onPromote(product: Product): Promise<void> {
+    const promotion = await this.createPromotion(product);
+    if (promotion) {
+      const trackingLink = this.promotionService.getTrackingLink(promotion.trackingCode, product._id ?? '');
+      await navigator.clipboard.writeText(trackingLink);
+      this.shareOnWhatsApp(product, promotion.trackingCode);
+    }
+  }
+
+  async copyProductUrl(product: Product): Promise<void> {
+    try {
+      const existingPromotion = this.activePromotions().get(product._id ?? '');
+
+      if (!existingPromotion) {
+        // Create promotion first if it doesn't exist
+        const promotion = await this.createPromotion(product);
+        if (!promotion) return;
+        
+        const trackingLink = this.promotionService.getTrackingLink(promotion.trackingCode, product._id ?? '');
+        await navigator.clipboard.writeText(trackingLink);
+        this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+      } else {
+        const trackingLink = this.promotionService.getTrackingLink(
+          existingPromotion.uniqueCode, 
+          product._id ?? ''
+        );
+        await navigator.clipboard.writeText(trackingLink);
+        this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+      }
+    } catch (error) {
+      console.error('Copy failed', error);
+      this.snackBar.open('Failed to copy link.', 'Close', { duration: 3000 });
+    }
+  }
+
+  shareOnWhatsApp(product: Product, trackingCode: string): void {
+    const message = this.promotionService.generateWhatsAppMessage(
+      product,
+      trackingCode,
+      product.promotion.commissionRate,
+      product.price
+    );
+    
+    window.open(`https://wa.me/?text=${message}`, '_blank');
   }
 
   getPerformanceColor(rate: number): string {
@@ -185,9 +302,9 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   }
 
   getConversionRate(product: Product): number {
-    const { views, clicks, conversions } = product.promotion;
-    if (clicks === 0) return 0;
-    return (conversions / clicks) * 100;
+    const { viewCount, clickCount, conversions } = product.promotion;
+    if (clickCount === 0) return 0;
+    return (conversions / clickCount) * 100;
   }
 
   getStoreBadgeClass(tier: string): string {

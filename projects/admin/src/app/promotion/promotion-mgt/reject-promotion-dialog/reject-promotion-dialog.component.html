@@ -1,0 +1,53 @@
+    <div class="reject-dialog">
+      <h2 mat-dialog-title>Reject Promotion</h2>
+      <mat-dialog-content>
+        <p>Please provide a reason for rejecting this promotion:</p>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Select Rejection Reason</mat-label>
+          <mat-select [(ngModel)]="selectedReason" (selectionChange)="onReasonSelected()">
+            <mat-option [value]="''">-- Select a reason --</mat-option>
+            <mat-option value="Incomplete proof submission. Ensure you provide all three required types of screenshots as shown on the get started page in the support section.">
+              Incomplete proof submission. Ensure you provide all three required types of screenshots as shown on the get started page in the support section.
+            </mat-option>
+            <mat-option value="Inconsistent timeline detected. Ensure you post the campaign no more than 15 minutes after accepting it.">
+              Inconsistent timeline detected. Ensure you post the campaign no more than 15 minutes after accepting it.
+            </mat-option>
+            <mat-option value="Inconsistent view counts. Your screenshot view count does not match the reported data.">
+              Inconsistent view counts. Your screenshot view count does not match the reported data.
+            </mat-option>
+            <mat-option value="Inconsistent promotion ID. Your screenshot promotion ID does not match the submitted details.">
+              Inconsistent promotion ID. Your screenshot promotion ID does not match the submitted details.
+            </mat-option>
+            <mat-option value="Unrecognized image submitted as proof. Please provide only valid screenshot evidence. Submitting incorrect or manipulated proof may result in account suspension.">
+              Unrecognized image submitted as proof. Please provide only valid screenshot evidence. Submitting incorrect or manipulated proof may result in account suspension.
+            </mat-option>
+            <mat-option value="Suspicious or manipulated image submitted as proof. Continued violations may result in permanent account suspension.">
+              Suspicious or manipulated image submitted as proof. Continued violations may result in permanent account suspension.
+            </mat-option>
+            <mat-option value="Policy violation detected. Your submitted proof appears to breach our promotion guidelines and may result in permanent account suspension.">
+              Policy violation detected. Your submitted proof appears to breach our promotion guidelines and may result in permanent account suspension.
+            </mat-option>
+            <mat-option value="other">Other (specify below)</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Rejection Reason</mat-label>
+          <textarea matInput 
+                    [(ngModel)]="rejectionReason"
+                    placeholder="Enter the reason for rejection..."
+                    rows="4"
+                    required></textarea>
+        </mat-form-field>
+      </mat-dialog-content>
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-raised-button 
+                color="warn" 
+                (click)="onReject()"
+                [disabled]="!rejectionReason.trim()">
+          Reject Promotion
+        </button>
+      </mat-dialog-actions>
+    </div>

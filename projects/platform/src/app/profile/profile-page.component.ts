@@ -15,6 +15,7 @@ import { FeedPostCardComponent } from '../community/feeds/feed-post-card/feed-po
 import { FeedPost, FeedService } from '../community/feeds/feed.service';
 import { UserService } from '../common/services/user.service';
 import { CommentDialogComponent } from '../community/feeds/comment-dialog/comment-dialog.component';
+import { ProfileSkeletonComponent } from './components/profile-skeleton.component';
 
 // Extend FeedPost to include interaction flags (returned by backend)
 interface FeedPostWithFlags extends FeedPost {
@@ -33,6 +34,7 @@ interface FeedPostWithFlags extends FeedPost {
     MatTabsModule,
     MatProgressSpinnerModule,
     FeedPostCardComponent,
+    ProfileSkeletonComponent
   ],
   providers: [ProfileService, FeedService],
   templateUrl: './profile-page.component.html',

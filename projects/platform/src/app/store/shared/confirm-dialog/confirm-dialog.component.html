@@ -3,31 +3,34 @@
   <!-- Header -->
   <div class="dialog-header" *ngIf="data.title || data.icon">
     <div class="header-content">
-      <mat-icon 
-        *ngIf="data.icon" 
-        class="dialog-icon" 
-        [color]="getIconColor()">
-        {{ data.icon }}
-      </mat-icon>
-      <h2 class="dialog-title" *ngIf="data.title">{{ data.title }}</h2>
+      @if(data.icon) {
+        <mat-icon 
+          class="dialog-icon" 
+          [color]="getIconColor()">
+          {{ data.icon }}
+        </mat-icon>
+      }
+      @if(data.title) {
+        <h2 class="dialog-title">{{ data.title }}</h2>
+      }
     </div>
   </div>
 
   <!-- Content -->
   <div class="dialog-content">
-    <p class="dialog-message">{{ data.message }}</p>
+    <p class="dialog-message" [innerHTML]="data.message"></p>
   </div>
 
   <!-- Actions -->
   <div class="dialog-actions">
-    <button 
-      mat-button 
-      *ngIf="data.showCancel"
-      (click)="onCancel()"
-      class="cancel-button">
-      {{ data.cancelText }}
-    </button>
-    
+    @if(data.showCancel) {
+      <button 
+        mat-button 
+        (click)="onCancel()"
+        class="cancel-button">
+        {{ data.cancelText }}
+      </button>
+    }
     <button 
       mat-raised-button 
       [color]="getConfirmColor()"

@@ -85,7 +85,7 @@ export class PromoterProductDetailsComponent implements OnInit {
   private shareService = inject(ShareService);
   private analyticsService = inject(AnalyticsService);
   private userService = inject(UserService);
-
+  user = this.userService.user;
   private destroyRef = inject(DestroyRef);
 
   // Signals
@@ -96,7 +96,7 @@ export class PromoterProductDetailsComponent implements OnInit {
   relatedProducts = signal<Product[]>([]);
   loadingRelated = signal(false);
 
-  user = this.userService.user;
+  
 
   // ------------------ COMPUTED ------------------
 
@@ -106,8 +106,8 @@ export class PromoterProductDetailsComponent implements OnInit {
 
     const p = product.promotion;
 
-    const ctr = p.views ? (p.clicks / p.views) * 100 : 0;
-    const cvr = p.clicks ? (p.conversions / p.clicks) * 100 : 0;
+    const ctr = p.views ? (p.clickCount / p.views) * 100 : 0;
+    const cvr = p.clickCount ? (p.conversions / p.clickCount) * 100 : 0;
     const avgOrderValue = p.conversions ? (p.earnings / p.conversions) : 0;
 
     return {
@@ -127,9 +127,7 @@ export class PromoterProductDetailsComponent implements OnInit {
     const type = p.commissionType ?? 'percentage';
 
     const value =
-      type === 'percentage'
-        ? `${p.commissionRate}%`
-        : `$${p.fixedCommission?.toFixed(2)} per sale`;
+      type === 'percentage' ? `${p.commissionRate}%` : `$${p.fixedCommission?.toFixed(2)} per sale`;
 
     const potential =
       type === 'percentage'

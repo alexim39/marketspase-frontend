@@ -9,7 +9,12 @@ export const TransactionsRoutes: Routes = [
     {
         path: 'withdrawal',
         loadComponent: () => import('../wallet/withdrawal/withdrawal.component').then(c => c.WithdrawalComponent),
-        title: "Withfrawl Transanction - Request fund withdrawal",
+        title: "Withdrawal Transanction - Request fund withdrawal",
+    }, 
+    {
+        path: 'transfer',
+        loadComponent: () => import('../wallet/transfer/transfer-funds.component').then(c => c.TransferFundsComponent),
+        title: "Transfer Transanction - Request fund transfer",
     }, 
     // {
     //     path: 'promotions',

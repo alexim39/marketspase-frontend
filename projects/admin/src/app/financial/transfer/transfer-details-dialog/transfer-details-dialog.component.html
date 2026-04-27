@@ -1,0 +1,249 @@
+<!-- transfer-details-dialog.component.html -->
+<div class="transfer-details-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="header-left">
+      <mat-icon class="header-icon">swap_horiz</mat-icon>
+      <h2>Transfer Details</h2>
+    </div>
+    <button class="close-btn" (click)="close()" matTooltip="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="dialog-content">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"/>
+        <p>Loading transfer details...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+        <button class="btn btn-primary" (click)="loadTransferDetails()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+    } @else if (transfer()) {
+      <div class="transfer-info">
+        @let t = transfer()!;
+        
+        <!-- Status Banner -->
+        <div class="status-banner" [class]="getStatusClass(t.status)">
+          <mat-icon>{{ getStatusIcon(t.status) }}</mat-icon>
+          <span>{{ getStatusLabel(t.status) }}</span>
+          @if (t.marketerLocked) {
+            <span class="lock-indicator">
+              <mat-icon>lock</mat-icon>
+              Funds Locked
+            </span>
+          }
+        </div>
+
+        <!-- Transfer Type -->
+        <div class="info-section">
+          <div class="section-title">
+            <mat-icon>{{ getTransferTypeIcon(t.transferType) }}</mat-icon>
+            <span>{{ getTransferTypeLabel(t.transferType) }}</span>
+          </div>
+          <p class="transfer-description">{{ getTransferTypeDescription(t) }}</p>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Amount Section -->
+        <div class="info-section amount-section">
+          <div class="amount-display">
+            <span class="amount-label">Transfer Amount</span>
+            <span class="amount-value">₦{{ t.amount.toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Source User -->
+        <div class="info-section">
+          <h3>From</h3>
+          <div class="user-details">
+            <div class="detail-row">
+              <span class="label">Name</span>
+              <span class="value">{{ t.sourceUserName }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email</span>
+              <span class="value">{{ t.sourceUserEmail }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Role</span>
+              <span class="value">
+                <span class="role-badge" [class.promoter]="t.sourceUserRole === 'promoter'">
+                  {{ t.sourceUserRole }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">User ID</span>
+              <span class="value">
+                <code>{{ t.sourceUserId | slice:0:8 }}...</code>
+                <button class="copy-btn" (click)="copyToClipboard(t.sourceUserId, 'User ID')" matTooltip="Copy User ID">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Destination User -->
+        <div class="info-section">
+          <h3>To</h3>
+          <div class="user-details">
+            <div class="detail-row">
+              <span class="label">Name</span>
+              <span class="value">{{ t.destinationUserName }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email</span>
+              <span class="value">{{ t.destinationUserEmail }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Role</span>
+              <span class="value">
+                <span class="role-badge" [class.promoter]="t.destinationUserRole === 'promoter'">
+                  {{ t.destinationUserRole }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Wallet Type</span>
+              <span class="value">
+                <span class="wallet-badge" [class.marketer]="t.destinationWalletType === 'marketer'">
+                  <mat-icon>{{ t.destinationWalletType === 'marketer' ? 'shopping_cart' : 'account_balance' }}</mat-icon>
+                  {{ t.destinationWalletType }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">User ID</span>
+              <span class="value">
+                <code>{{ t.destinationUserId | slice:0:8 }}...</code>
+                <button class="copy-btn" (click)="copyToClipboard(t.destinationUserId, 'User ID')" matTooltip="Copy User ID">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Lock Status -->
+        <div class="info-section lock-section">
+          <h3>Fund Lock Status</h3>
+          <div class="lock-info" [class.locked]="t.marketerLocked">
+            @if (t.marketerLocked) {
+              <mat-icon class="lock-icon">lock</mat-icon>
+              <div class="lock-details">
+                <strong>Funds are locked</strong>
+                <p>{{ t.lockedReason || 'Funds transferred to marketer wallet - in-app use only' }}</p>
+              </div>
+            } @else {
+              <mat-icon class="unlock-icon">lock_open</mat-icon>
+              <div class="lock-details">
+                <strong>Funds are available</strong>
+                <p>These funds can be withdrawn to a bank account</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Reference & Metadata -->
+        <div class="info-section">
+          <h3>Transaction Details</h3>
+          <div class="user-details">
+            <div class="detail-row">
+              <span class="label">Reference</span>
+              <span class="value">
+                <code>{{ t.reference }}</code>
+                <button class="copy-btn" (click)="copyToClipboard(t.reference, 'Reference')" matTooltip="Copy Reference">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Transfer ID</span>
+              <span class="value">
+                <code>{{ t.transferId | slice:0:12 }}...</code>
+                <button class="copy-btn" (click)="copyToClipboard(t.transferId, 'Transfer ID')" matTooltip="Copy Transfer ID">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Created</span>
+              <span class="value">{{ t.createdAt | date:'medium' }}</span>
+            </div>
+            @if (t.processedAt) {
+              <div class="detail-row">
+                <span class="label">Processed</span>
+                <span class="value">{{ t.processedAt | date:'medium' }}</span>
+              </div>
+            }
+            @if (t.note) {
+              <div class="detail-row full-width">
+                <span class="label">Note</span>
+                <span class="value note-value">{{ t.note }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Balance Changes (if available) -->
+        @if (t.sourceBalanceBefore !== undefined || t.destinationBalanceBefore !== undefined) {
+          <mat-divider></mat-divider>
+          <div class="info-section">
+            <h3>Balance Changes</h3>
+            <div class="balance-changes">
+              @if (t.sourceBalanceBefore !== undefined && t.sourceBalanceAfter !== undefined) {
+                <div class="balance-row">
+                  <span class="wallet-label">Source (Promoter)</span>
+                  <div class="balance-values">
+                    <span class="before">₦{{ t.sourceBalanceBefore.toLocaleString() }}</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span class="after">₦{{ t.sourceBalanceAfter.toLocaleString() }}</span>
+                    <span class="change negative">-₦{{ t.amount.toLocaleString() }}</span>
+                  </div>
+                </div>
+              }
+              @if (t.destinationBalanceBefore !== undefined && t.destinationBalanceAfter !== undefined) {
+                <div class="balance-row">
+                  <span class="wallet-label">Destination ({{ t.destinationWalletType }})</span>
+                  <div class="balance-values">
+                    <span class="before">₦{{ t.destinationBalanceBefore.toLocaleString() }}</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                    <span class="after">₦{{ t.destinationBalanceAfter.toLocaleString() }}</span>
+                    <span class="change positive">+₦{{ t.amount.toLocaleString() }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="dialog-footer">
+    <button class="btn btn-secondary" (click)="close()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+  </div>
+</div>

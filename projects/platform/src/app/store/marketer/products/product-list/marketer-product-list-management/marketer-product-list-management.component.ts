@@ -520,14 +520,22 @@ export class MarketerProductListManagementComponent {
     // Show confirmation dialog
     this.dialogService.confirmAction(
       'Publish Products for Promotion',
-      `Are you sure you want to publish ${unpublishedProducts.length} product(s) for promotion?
       
-      Published products will be:
-      • Visible to promoters
-      • Eligible for commission tracking
-      • Included in promotion campaigns
+      `<p>
+      Are you sure you want to publish ${unpublishedProducts.length} product(s) for promotion?
+      </p>
       
-      Products that are inactive or out of stock will be skipped.`,
+      <p>
+        Published products will be:
+          Visible to promoters, 
+          Eligible for commission tracking,
+          Included in product promotion list
+      </p>
+
+      <p>
+      Products that are inactive or out of stock will be skipped.
+      </p>
+      `,
       'Publish'
     ).pipe(take(1)).subscribe(result => {
       if (result) {

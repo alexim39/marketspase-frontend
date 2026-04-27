@@ -176,8 +176,18 @@
       }
     }
 
-    <!-- Loading Spinner -->
-    @if (loading()) {
+   <!-- Initial Loading - Skeleton Loader -->
+    @if (loading() && regularPosts().length === 0) {
+      <app-skeleton-loader 
+        [mobileCount]="2"
+        [isMobile]="true"
+        [showCreatePost]="false"
+        [showFeatured]="false">
+      </app-skeleton-loader>
+    }
+
+    <!-- Loading more indicator (keep this) -->
+    @if (loading() && regularPosts().length > 0) {
       <div class="loading-spinner">
         <mat-spinner diameter="36"></mat-spinner>
       </div>

@@ -1,9 +1,10 @@
 // file: refund.component.ts
-import { Component, inject, OnInit, ViewChild, signal, DestroyRef, computed, Inject } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { lastValueFrom } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 // Angular Material imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -23,16 +24,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatOptionModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';  // For mat-autocomplete
-import { MatOptionModule } from '@angular/material/core';
-import { debounceTime } from 'rxjs/operators';
 
 // Services
 import { AdminService } from '../../common/services/user.service';
@@ -52,27 +49,8 @@ export interface PromoterRefund {
   processedAt: Date;
   previousBalance: number;
   newBalance: number;
+  walletType: 'promoter' | 'marketer';
   metadata?: any;
-}
-
-export interface PromoterWallet {
-  promoter: {
-    id: string;
-    username: string;
-    email: string;
-    role: string;
-    accountAge: number;
-    isActive: boolean;
-    isVerified: boolean;
-  };
-  wallet: {
-    balance: number;
-    reserved: number;
-    currency: string;
-    totalTransactions: number;
-    availableBalance: number;
-  };
-  recentTransactions: any[];
 }
 
 export interface BulkRefundItem {
@@ -81,101 +59,12 @@ export interface BulkRefundItem {
   promoterEmail?: string;
   amount: number;
   reason: string;
+  walletType?: 'promoter' | 'marketer';
   status?: 'pending' | 'validating' | 'validated' | 'failed' | string;
   error?: string;
   transactionId?: string;
   data?: any;
 }
-
-// Dialog Components (simplified inline versions)
-@Component({
-  selector: 'app-refund-details-dialog',
-  template: `
-    <h2 mat-dialog-title>Refund Details</h2>
-    <mat-dialog-content>
-      <div *ngIf="data.refund">
-        <div class="detail-row">
-          <strong>Promoter:</strong> {{data.refund.promoterUsername}} ({{data.refund.promoterEmail}})
-        </div>
-        <div class="detail-row">
-          <strong>Amount:</strong> {{data.refund.amount | currency:'NGN':'₦'}}
-        </div>
-        <div class="detail-row">
-          <strong>Status:</strong> {{data.refund.status}}
-        </div>
-        <div class="detail-row">
-          <strong>Processed At:</strong> {{data.refund.processedAt | date:'medium'}}
-        </div>
-      </div>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Close</button>
-    </mat-dialog-actions>
-  `,
-  standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, CurrencyPipe, DatePipe]
-})
-export class RefundDetailsDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { refund: any }) {}
-}
-
-@Component({
-  selector: 'app-edit-bulk-item-dialog',
-  template: `
-    <h2 mat-dialog-title>Edit Refund Item</h2>
-    <mat-dialog-content>
-      <form [formGroup]="editForm">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Promoter ID</mat-label>
-          <input matInput formControlName="promoterUserId" readonly>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Amount</mat-label>
-          <input matInput type="number" formControlName="amount" min="1" max="1000000">
-          <span matTextPrefix>₦&nbsp;</span>
-        </mat-form-field>
-        
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Reason</mat-label>
-          <textarea matInput formControlName="reason" rows="3"></textarea>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-button color="primary" [mat-dialog-close]="editForm.value" [disabled]="editForm.invalid">Save</button>
-    </mat-dialog-actions>
-  `,
-  standalone: true,
-  imports: [
-    CommonModule, 
-    MatDialogModule, 
-    ReactiveFormsModule, 
-    MatFormFieldModule, 
-    MatInputModule,
-    MatButtonModule
-  ]
-})
-export class EditBulkItemDialogComponent implements OnInit {
-  editForm: FormGroup;
-
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { item: any },
-    private fb: FormBuilder
-  ) {
-    this.editForm = this.fb.group({
-      promoterUserId: [data.item.promoterUserId, Validators.required],
-      amount: [data.item.amount, [Validators.required, Validators.min(1), Validators.max(1000000)]],
-      reason: [data.item.reason, [Validators.required, Validators.minLength(10)]]
-    });
-  }
-
-  ngOnInit() {}
-}
-
-// Import for MAT_DIALOG_DATA
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-admin-promoter-refund',
@@ -184,7 +73,6 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    // Material Modules
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -202,17 +90,12 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
     MatDatepickerModule,
     MatNativeDateModule,
     MatMenuModule,
-    MatExpansionModule,
-    MatStepperModule,
-    MatRadioModule,
-    MatCheckboxModule,
     MatTabsModule,
-    MatBadgeModule,
     MatProgressBarModule,
     MatAutocompleteModule,
     MatOptionModule,
-    // Dialog components
-    //EditBulkItemDialogComponent
+    MatRadioModule,
+    MatCheckboxModule,
   ],
   templateUrl: './refund.component.html',
   styleUrls: ['./refund.component.scss'],
@@ -226,7 +109,6 @@ export class RefundComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly currencyPipe = inject(CurrencyPipe);
-  private readonly datePipe = inject(DatePipe);
 
   // State
   readonly isLoading = signal(false);
@@ -238,8 +120,17 @@ export class RefundComponent implements OnInit {
   readonly selectedPromoter = signal<any>(null);
   readonly validationResult = signal<any>(null);
   readonly refundHistory = signal<PromoterRefund[]>([]);
+  
   readonly totalRefundAmount = computed(() => 
     this.refundHistory().reduce((sum, refund) => sum + refund.amount, 0)
+  );
+  
+  readonly promoterRefundCount = computed(() => 
+    this.refundHistory().filter(r => r.walletType === 'promoter').length
+  );
+  
+  readonly marketerRefundCount = computed(() => 
+    this.refundHistory().filter(r => r.walletType === 'marketer').length
   );
 
   // Bulk refund state
@@ -266,7 +157,8 @@ export class RefundComponent implements OnInit {
   readonly bulkRefundDataSource = new MatTableDataSource<BulkRefundItem>([]);
   
   readonly displayedColumns = [
-    'promoter', 
+    'user', 
+    'wallet',
     'amount', 
     'reason', 
     'status', 
@@ -277,6 +169,7 @@ export class RefundComponent implements OnInit {
   
   readonly bulkDisplayedColumns = [
     'promoter', 
+    'walletType',
     'amount', 
     'reason', 
     'status', 
@@ -286,6 +179,7 @@ export class RefundComponent implements OnInit {
   // Forms
   readonly singleRefundForm = this.fb.group({
     promoterIdentifier: ['', [Validators.required]],
+    selectedWalletType: ['promoter', [Validators.required]],
     amount: [0, [Validators.required, Validators.min(1), Validators.max(1000000)]],
     reason: ['', [Validators.required, Validators.minLength(10)]],
     notes: [''],
@@ -296,12 +190,14 @@ export class RefundComponent implements OnInit {
     refundsFile: [null],
     refundsText: [''],
     defaultReason: ['Bulk refund adjustment'],
+    defaultWalletType: ['promoter'],
     sendNotifications: [true]
   });
 
   readonly filtersForm = this.fb.group({
     dateRange: [null],
     promoter: [''],
+    walletType: [''],
     minAmount: [null],
     maxAmount: [null],
     status: ['']
@@ -323,55 +219,48 @@ export class RefundComponent implements OnInit {
   }
 
   // Form setup
-private setupFormSubscriptions(): void {
-  // Single refund form - promoter identifier search
-  this.singleRefundForm.get('promoterIdentifier')?.valueChanges
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(value => {
-      if (value && value.length >= 2) {
-        this.searchPromoters(value);
-      } else {
-        this.promoters.set([]);
-      }
-      
-      // Auto-validate when promoter identifier changes
-      if (value && this.singleRefundForm.get('amount')?.value) {
-        setTimeout(() => this.validateSingleRefund(), 300);
-      }
-    });
+  private setupFormSubscriptions(): void {
+    // Single refund form - promoter identifier search
+    this.singleRefundForm.get('promoterIdentifier')?.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(value => {
+        if (value && value.length >= 2) {
+          this.searchPromoters(value);
+        } else {
+          this.promoters.set([]);
+        }
+      });
 
-  // Single refund form - amount validation
-  this.singleRefundForm.get('amount')?.valueChanges
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(amount => {
-      if (amount && amount > 1000000) {
-        this.singleRefundForm.get('amount')?.setErrors({ max: true });
-      }
-      
-      // Auto-validate when amount changes and we have a promoter
-      if (amount && amount > 0 && this.singleRefundForm.get('promoterIdentifier')?.value) {
-        setTimeout(() => this.validateSingleRefund(), 300);
-      }
-    });
+    // Watch for wallet type changes to re-validate
+    this.singleRefundForm.get('selectedWalletType')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.selectedPromoter() && this.singleRefundForm.get('amount')?.value) {
+          setTimeout(() => this.validateSingleRefund(), 100);
+        }
+      });
 
-  // Validate when any form value changes
-  this.singleRefundForm.valueChanges
-    .pipe(
-      takeUntilDestroyed(this.destroyRef),
-      debounceTime(500) // Add debounce to prevent excessive API calls
-    )
-    .subscribe(() => {
-      const formValue = this.singleRefundForm.value;
-      if (formValue.promoterIdentifier && formValue.amount && formValue.amount > 0) {
-        this.validateSingleRefund();
-      }
-    });
+    // Watch amount changes for auto-validation
+    this.singleRefundForm.get('amount')?.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(500)
+      )
+      .subscribe(amount => {
+        if (amount && amount > 0 && this.selectedPromoter() && this.hasSelectedWallet()) {
+          this.validateSingleRefund();
+        }
+      });
 
-  // Filters form
-  this.filtersForm.valueChanges
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(() => this.applyFilters());
-}
+    // Filters form
+    this.filtersForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.applyFilters());
+  }
 
   // Search methods
   searchPromoters(query: string): void {
@@ -396,8 +285,7 @@ private setupFormSubscriptions(): void {
           this.isLoading.set(false);
         },
         error: (error) => {
-          console.error('Error searching promoters:', error);
-          // Don't show error for 404 - just clear results
+          console.error('Error searching users:', error);
           if (error.status !== 404) {
             this.showError('Search failed. Please try again.');
           }
@@ -407,190 +295,229 @@ private setupFormSubscriptions(): void {
       });
   }
 
-
-  // In the selectPromoter method:
 selectPromoter(promoter: any): void {
+  console.log('Selected user with wallets:', promoter);
+  
+  // Store the full user object (now includes both wallets)
   this.selectedPromoter.set(promoter);
   
-  // Store the promoter data for reference
-  const promoterIdentifier = promoter.username || promoter.email || promoter._id;
+  const userId = promoter._id || promoter.id;
   
   this.singleRefundForm.patchValue({
-    promoterIdentifier: promoterIdentifier
-  }, { emitEvent: true });
+    promoterIdentifier: userId
+  }, { emitEvent: false });
   
-  this.promoters.set([]); // Clear search results
+  // Determine which wallet to pre-select
+  const hasPromoterWallet = !!promoter.wallets?.promoter;
+  const hasMarketerWallet = !!promoter.wallets?.marketer;
   
-  // Force validation
-  setTimeout(() => {
-    this.validateSingleRefund();
-  }, 100);
+  // Pre-select based on available wallets
+  if (hasPromoterWallet) {
+    this.singleRefundForm.patchValue({
+      selectedWalletType: 'promoter'
+    });
+  } else if (hasMarketerWallet) {
+    this.singleRefundForm.patchValue({
+      selectedWalletType: 'marketer'
+    });
+  }
+  
+  this.promoters.set([]);
+  this.searchQuery.set('');
+  this.validationResult.set(null);
+  
+  this.singleRefundForm.patchValue({
+    amount: 0,
+    reason: ''
+  }, { emitEvent: false });
 }
 
-
-// Validation methods
-validateSingleRefund(): void {
-  const formValue = this.singleRefundForm.value;
-  
-  // Debug logging
-  console.log('Validating refund with:', {
-    promoterIdentifier: formValue.promoterIdentifier,
-    amount: formValue.amount,
-    selectedPromoter: this.selectedPromoter()
-  });
-  
-  // Check if we have a selected promoter
-  const promoter = this.selectedPromoter();
-  const promoterIdentifier = formValue.promoterIdentifier || (promoter?.username || promoter?.email || promoter?._id);
-  
-  if (!promoterIdentifier || !formValue.amount || formValue.amount <= 0) {
-    //console.log('Validation failed: Missing promoter or amount');
-    this.validationResult.set({ 
-      valid: false, 
-      error: 'Please select a promoter and enter a valid amount' 
-    });
-    return;
+  hasSelectedWallet(): boolean {
+    const walletType = this.singleRefundForm.get('selectedWalletType')?.value;
+    const user = this.selectedPromoter();
+    
+    if (!walletType || !user) return false;
+    
+    // Check if the selected wallet exists in the user's wallets
+    return !!user.wallets?.[walletType];
   }
 
-  this.isLoading.set(true);
-  
-  // Use the promoter identifier from the form OR from the selected promoter
-  this.adminRefundService.validateRefund(
-    promoterIdentifier,
-    formValue.amount
-  )
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.validationResult.set(response.data);
-          if (!response.data?.valid) {
-            this.singleRefundForm.setErrors({ validation: response.data?.error });
-          } else {
-            // Clear any existing validation errors if valid
-            this.singleRefundForm.setErrors(null);
-          }
-        } else {
-          //console.log('Validation failed with message:', response.message);
-          this.validationResult.set({ 
-            valid: false, 
-            error: response.message || 'Validation failed' 
-          });
-          this.singleRefundForm.setErrors({ validation: response.message });
-        }
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Validation API error:', error);
-        this.validationResult.set({ 
-          valid: false, 
-          error: error.error?.message || error.message || 'Validation API error' 
-        });
-        this.singleRefundForm.setErrors({ validation: error.message });
-        this.isLoading.set(false);
-      }
-    });
-}
+  getSelectedWalletBalance(): number {
+    const walletType = this.singleRefundForm.get('selectedWalletType')?.value;
+    const promoter = this.selectedPromoter();
+    
+    if (!walletType || !promoter) return 0;
+    
+    return promoter.wallets?.[walletType]?.balance || 0;
+  }
 
-  validateBulkRefunds(): void {
-    const items = this.bulkRefundItems();
-    if (items.length === 0) return;
+  // Validation methods
+  validateSingleRefund(): void {
+    const formValue = this.singleRefundForm.value;
+    const selectedPromoterData = this.selectedPromoter();
+    const selectedWalletType = formValue.selectedWalletType as 'promoter' | 'marketer';
+    
+    console.log('Validating refund with:', {
+      userId: selectedPromoterData?._id || formValue.promoterIdentifier,
+      walletType: selectedWalletType,
+      amount: formValue.amount
+    });
+    
+    // Check if we have a selected user
+    const userId = selectedPromoterData?._id || selectedPromoterData?.id || formValue.promoterIdentifier;
+    
+    if (!userId) {
+      this.validationResult.set({ 
+        valid: false, 
+        error: 'Please select a user' 
+      });
+      return;
+    }
+    
+    if (!selectedWalletType) {
+      this.validationResult.set({ 
+        valid: false, 
+        error: 'Please select a wallet to refund' 
+      });
+      return;
+    }
+    
+    if (!formValue.amount || formValue.amount <= 0) {
+      this.validationResult.set({ 
+        valid: false, 
+        error: 'Please enter a valid amount greater than 0' 
+      });
+      return;
+    }
+
+    // Check if selected wallet exists
+    if (!selectedPromoterData?.wallets?.[selectedWalletType]) {
+      this.validationResult.set({ 
+        valid: false, 
+        error: `${selectedWalletType} wallet not found for this user` 
+      });
+      return;
+    }
 
     this.isLoading.set(true);
-    this.bulkProcessingProgress.set(0);
-
-    const validationPromises = items.map((item, index) => 
-      lastValueFrom(this.adminRefundService.validateRefund(item.promoterUserId, item.amount))
-        .then(response => {
-          this.bulkProcessingProgress.set(((index + 1) / items.length) * 100);
-          return { 
-            ...item, 
-            validation: response.data,
-            status: response.data.valid ? 'validated' : 'failed',
-            error: response.data.error 
-          };
-        })
-        .catch(error => ({ 
-          ...item, 
-          validation: { valid: false, error: error.message },
-          status: 'failed',
-          error: error.message 
-        }))
-    );
-
-    Promise.all(validationPromises)
-      .then(results => {
-        this.bulkValidationResults.set(results);
-        
-        const invalidItems = results.filter(r => !r.validation.valid);
-        if (invalidItems.length > 0) {
-          this.showError(`${invalidItems.length} items failed validation`);
+    
+    // Use the user ID and wallet type for validation
+    this.adminRefundService.validateRefundWithWallet(userId, formValue.amount, selectedWalletType)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          console.log('Validation response:', response);
+          
+          if (response.success) {
+            const validationData = response.data;
+            
+            if (validationData && validationData.valid) {
+              this.validationResult.set(validationData);
+              this.singleRefundForm.setErrors(null);
+            } else {
+              const errorMsg = validationData?.error || 'Validation failed';
+              this.validationResult.set({ 
+                valid: false, 
+                error: errorMsg 
+              });
+              this.singleRefundForm.setErrors({ validation: errorMsg });
+            }
+          } else {
+            this.validationResult.set({ 
+              valid: false, 
+              error: response.message || 'Validation failed' 
+            });
+            this.singleRefundForm.setErrors({ validation: response.message });
+          }
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Validation API error:', error);
+          
+          let errorMessage = 'Validation failed';
+          if (error.error?.error) {
+            errorMessage = error.error.error;
+          } else if (error.error?.message) {
+            errorMessage = error.error.message;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          
+          this.validationResult.set({ 
+            valid: false, 
+            error: errorMessage 
+          });
+          this.singleRefundForm.setErrors({ validation: errorMessage });
+          this.isLoading.set(false);
         }
-        
-        this.bulkRefundItems.set(results);
-        this.bulkRefundDataSource.data = results;
-        
-        this.isLoading.set(false);
-        this.bulkProcessingProgress.set(0);
-      })
-      .catch(error => {
-        console.error('Bulk validation error:', error);
-        this.isLoading.set(false);
-        this.bulkProcessingProgress.set(0);
       });
   }
 
   // Refund processing methods
-  processSingleRefund(): void {
-    if (this.singleRefundForm.invalid) {
-      this.markFormGroupTouched(this.singleRefundForm);
-      return;
-    }
+// In refund.component.ts - Fix processSingleRefund method
 
-    const formValue = this.singleRefundForm.value;
-    const adminId = this.adminService.adminData()?._id;
-
-    if (!adminId) {
-      this.showError('Admin not authenticated');
-      return;
-    }
-
-    this.isProcessing.set(true);
-
-    this.adminRefundService.refundPromoterBalance({
-      promoterUserId: formValue.promoterIdentifier!,
-      amount: formValue.amount!,
-      reason: formValue.reason!,
-      adminId: adminId,
-      metadata: {
-        notes: formValue.notes,
-        sendNotification: formValue.sendNotification,
-        processedFrom: 'admin-dashboard'
-      }
-    })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSuccess(response.message || `Successfully refunded ${formValue.amount} to promoter`);
-            this.resetSingleRefundForm();
-            this.loadRefundHistory();
-            
-            if (this.selectedPromoter()) {
-              this.loadPromoterWalletDetails(this.selectedPromoter()._id);
-            }
-          } else {
-            this.showError(response.message || 'Refund failed');
-          }
-          this.isProcessing.set(false);
-        },
-        error: (error) => {
-          console.error('Refund error:', error);
-          this.showError(error.message || 'Refund failed');
-          this.isProcessing.set(false);
-        }
-      });
+processSingleRefund(): void {
+  if (this.singleRefundForm.invalid) {
+    this.markFormGroupTouched(this.singleRefundForm);
+    return;
   }
+
+  const formValue = this.singleRefundForm.value;
+  const selectedUserData = this.selectedPromoter();
+  const adminId = this.adminService.adminData()?._id;
+
+  if (!adminId) {
+    this.showError('Admin not authenticated');
+    return;
+  }
+
+  const userId = selectedUserData?._id || formValue.promoterIdentifier;
+  const selectedWalletType = formValue.selectedWalletType;
+  
+  // Debug log to verify wallet selection
+  console.log('Processing refund with:', {
+    userId,
+    amount: formValue.amount,
+    walletType: selectedWalletType,
+    reason: formValue.reason
+  });
+
+  this.isProcessing.set(true);
+
+  // Use the correct service method with wallet type
+  this.adminRefundService.refundToWallet({
+    promoterUserId: userId!,
+    amount: formValue.amount!,
+    reason: formValue.reason!,
+    walletType: selectedWalletType as 'promoter' | 'marketer',
+    adminId: adminId,
+    metadata: {
+      notes: formValue.notes,
+      sendNotification: formValue.sendNotification,
+      processedFrom: 'admin-dashboard'
+    }
+  })
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({
+      next: (response) => {
+        console.log('Refund response:', response);
+        if (response.success) {
+          this.showSuccess(response.message || `Successfully refunded ${formValue.amount} to ${selectedWalletType} wallet`);
+          this.resetSingleRefundForm();
+          this.loadRefundHistory();
+        } else {
+          this.showError(response.message || 'Refund failed');
+        }
+        this.isProcessing.set(false);
+      },
+      error: (error) => {
+        console.error('Refund error:', error);
+        const errorMsg = error.error?.error || error.error?.message || error.message || 'Refund failed';
+        this.showError(errorMsg);
+        this.isProcessing.set(false);
+      }
+    });
+}
 
   processBulkRefunds(): void {
     const items = this.bulkRefundItems();
@@ -605,6 +532,9 @@ validateSingleRefund(): void {
       return;
     }
 
+    const defaultWalletType = this.bulkRefundForm.get('defaultWalletType')?.value || 'promoter';
+    const defaultReason = this.bulkRefundForm.get('defaultReason')?.value || 'Bulk refund';
+
     const validItems = items.filter(item => 
       item.status !== 'failed' && item.status !== 'validating'
     );
@@ -618,10 +548,11 @@ validateSingleRefund(): void {
     this.bulkProcessingProgress.set(0);
 
     const processPromises = validItems.map((item, index) => 
-      lastValueFrom(this.adminRefundService.refundPromoterBalance({
+      lastValueFrom(this.adminRefundService.refundToWallet({
         promoterUserId: item.promoterUserId,
         amount: item.amount,
-        reason: item.reason || 'Bulk refund',
+        reason: item.reason || defaultReason,
+        walletType: item.walletType || defaultWalletType as 'promoter' | 'marketer',
         adminId: adminId,
         metadata: {
           bulkRefund: true,
@@ -673,6 +604,60 @@ validateSingleRefund(): void {
       });
   }
 
+  validateBulkRefunds(): void {
+    const items = this.bulkRefundItems();
+    if (items.length === 0) return;
+
+    this.isLoading.set(true);
+    this.bulkProcessingProgress.set(0);
+
+    const defaultWalletType = this.bulkRefundForm.get('defaultWalletType')?.value || 'promoter';
+
+    const validationPromises = items.map((item, index) => 
+      lastValueFrom(this.adminRefundService.validateRefundWithWallet(
+        item.promoterUserId, 
+        item.amount,
+        item.walletType || defaultWalletType as 'promoter' | 'marketer'
+      ))
+        .then(response => {
+          this.bulkProcessingProgress.set(((index + 1) / items.length) * 100);
+          return { 
+            ...item, 
+            validation: response.data,
+            status: response.data?.valid ? 'validated' : 'failed',
+            error: response.data?.error 
+          };
+        })
+        .catch(error => ({ 
+          ...item, 
+          validation: { valid: false, error: error.message },
+          status: 'failed',
+          error: error.message 
+        }))
+    );
+
+    Promise.all(validationPromises)
+      .then(results => {
+        this.bulkValidationResults.set(results);
+        
+        const invalidItems = results.filter(r => !r.validation?.valid);
+        if (invalidItems.length > 0) {
+          this.showError(`${invalidItems.length} items failed validation`);
+        }
+        
+        this.bulkRefundItems.set(results);
+        this.bulkRefundDataSource.data = results;
+        
+        this.isLoading.set(false);
+        this.bulkProcessingProgress.set(0);
+      })
+      .catch(error => {
+        console.error('Bulk validation error:', error);
+        this.isLoading.set(false);
+        this.bulkProcessingProgress.set(0);
+      });
+  }
+
   // Bulk import methods
   handleFileUpload(event: any): void {
     const file = event.target.files[0];
@@ -720,13 +705,15 @@ validateSingleRefund(): void {
 
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
     const items: BulkRefundItem[] = [];
+    const defaultWalletType = this.bulkRefundForm.get('defaultWalletType')?.value as 'promoter' | 'marketer' || 'promoter';
 
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
       const item: BulkRefundItem = {
         promoterUserId: '',
         amount: 0,
-        reason: this.bulkRefundForm.get('defaultReason')?.value || 'Bulk refund'
+        reason: this.bulkRefundForm.get('defaultReason')?.value || 'Bulk refund',
+        walletType: defaultWalletType
       };
 
       headers.forEach((header, index) => {
@@ -749,6 +736,12 @@ validateSingleRefund(): void {
           case 'reason':
             if (value) item.reason = value;
             break;
+          case 'wallettype':
+          case 'wallet':
+            if (value && ['promoter', 'marketer'].includes(value.toLowerCase())) {
+              item.walletType = value.toLowerCase() as 'promoter' | 'marketer';
+            }
+            break;
         }
       });
 
@@ -768,12 +761,15 @@ validateSingleRefund(): void {
       return;
     }
 
+    const defaultWalletType = this.bulkRefundForm.get('defaultWalletType')?.value as 'promoter' | 'marketer' || 'promoter';
+
     const items: BulkRefundItem[] = jsonData.map((item: any) => ({
       promoterUserId: item.promoterUserId || item.userId || item.id || '',
       promoterUsername: item.promoterUsername || item.username,
       promoterEmail: item.promoterEmail || item.email,
       amount: item.amount || 0,
       reason: item.reason || this.bulkRefundForm.get('defaultReason')?.value || 'Bulk refund',
+      walletType: item.walletType || defaultWalletType,
       status: 'pending' as 'pending'
     })).filter((item: BulkRefundItem) => item.promoterUserId && item.amount > 0);
 
@@ -794,16 +790,18 @@ validateSingleRefund(): void {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            // Fix: Check if response.data exists before accessing
             const transactions = response.data?.refunds?.transactions || [];
             const mappedTransactions = transactions.map(transaction => ({
               ...transaction,
               _id: transaction._id || transaction.transactionId,
-              status: (transaction.status || 'completed') as 'completed' | 'pending' | 'failed' | 'cancelled'
+              status: (transaction.status || 'completed') as 'completed' | 'pending' | 'failed' | 'cancelled',
+              // Cast the walletType to the specific union type expected by PromoterRefund
+              walletType: (transaction.walletType || 'promoter') as 'promoter' | 'marketer'
             }));
-            
+
             this.refundHistory.set(mappedTransactions);
             this.refundHistoryDataSource.data = mappedTransactions;
+
           } else {
             this.showError(response.message || 'Failed to load refund history');
           }
@@ -812,25 +810,6 @@ validateSingleRefund(): void {
         error: (error) => {
           console.error('Error loading refund history:', error);
           this.showError('Failed to load refund history');
-          this.isLoading.set(false);
-        }
-      });
-  }
-
-  loadPromoterWalletDetails(promoterId: string): void {
-    this.isLoading.set(true);
-    
-    this.adminRefundService.getPromoterWalletDetails(promoterId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.selectedPromoter.set(response.data.promoter);
-          }
-          this.isLoading.set(false);
-        },
-        error: (error) => {
-          console.error('Error loading wallet details:', error);
           this.isLoading.set(false);
         }
       });
@@ -859,6 +838,12 @@ validateSingleRefund(): void {
       );
     }
 
+    if (filters.walletType) {
+      filteredData = filteredData.filter(refund => 
+        refund.walletType === filters.walletType
+      );
+    }
+
     if (filters.minAmount) {
       filteredData = filteredData.filter(refund => refund.amount >= filters.minAmount!);
     }
@@ -879,7 +864,7 @@ validateSingleRefund(): void {
     this.refundHistoryDataSource.data = this.refundHistory();
   }
 
-  // Utility methods - REMOVE 'private' keyword since they're called from template
+  // Utility methods
   markFormGroupTouched(formGroup: FormGroup): void {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
@@ -889,19 +874,20 @@ validateSingleRefund(): void {
     });
   }
 
-resetSingleRefundForm(): void {
-  this.singleRefundForm.reset({
-    promoterIdentifier: '',
-    amount: 0,
-    reason: '',
-    notes: '',
-    sendNotification: true
-  });
-  this.selectedPromoter.set(null);
-  this.validationResult.set(null);
-  this.promoters.set([]); // Clear search results
-  this.searchQuery.set(''); // Clear search query
-}
+  resetSingleRefundForm(): void {
+    this.singleRefundForm.reset({
+      promoterIdentifier: '',
+      selectedWalletType: 'promoter',
+      amount: 0,
+      reason: '',
+      notes: '',
+      sendNotification: true
+    });
+    this.selectedPromoter.set(null);
+    this.validationResult.set(null);
+    this.promoters.set([]);
+    this.searchQuery.set('');
+  }
 
   showSuccess(message: string): void {
     this.snackBar.open(message, 'Close', { 
@@ -920,7 +906,7 @@ resetSingleRefundForm(): void {
   // Helper getters for templates
   get promoterDisplayName(): string {
     const promoter = this.selectedPromoter();
-    if (!promoter) return 'Select a promoter';
+    if (!promoter) return 'Select a user';
     return promoter.displayName || promoter.username || promoter.email || 'Unknown';
   }
 
@@ -932,28 +918,28 @@ resetSingleRefundForm(): void {
 
   get validationMessage(): string {
     const result = this.validationResult();
-    if (!result) return 'Enter promoter and amount to validate';
+    if (!result) {
+      const hasUser = !!this.selectedPromoter();
+      const hasWallet = this.hasSelectedWallet();
+      const hasAmount = !!(this.singleRefundForm.get('amount')?.value);
+      
+      if (!hasUser) {
+        return 'Please select a user';
+      } else if (!hasWallet) {
+        return 'Please select a wallet to refund';
+      } else if (!hasAmount) {
+        return 'Please enter a valid amount';
+      }
+      return 'Click validate to check refund eligibility';
+    }
     
     if (result.valid) {
       return '✓ Refund is valid';
     } else {
-      // Handle undefined error message
       const errorMsg = result.error || 'Unknown validation error';
       return `✗ ${errorMsg}`;
     }
   }
-
-// Add this method
-triggerFormValidation(): void {
-  // Mark all fields as touched to show validation errors
-  this.markFormGroupTouched(this.singleRefundForm);
-  
-  // Validate if we have the required fields
-  const formValue = this.singleRefundForm.value;
-  if (formValue.promoterIdentifier && formValue.amount && formValue.amount > 0) {
-    this.validateSingleRefund();
-  }
-}
 
   get totalBulkAmount(): number {
     return this.bulkRefundItems().reduce((sum, item) => sum + item.amount, 0);
@@ -965,10 +951,8 @@ triggerFormValidation(): void {
 
   // Table actions
   viewRefundDetails(refund: PromoterRefund): void {
-    this.dialog.open(RefundDetailsDialogComponent, {
-      width: '600px',
-      data: { refund },
-    });
+    // Implementation for viewing refund details
+    console.log('View refund details:', refund);
   }
 
   cancelBulkItem(item: BulkRefundItem): void {
@@ -980,25 +964,13 @@ triggerFormValidation(): void {
   }
 
   editBulkItem(item: BulkRefundItem): void {
-    const dialogRef = this.dialog.open(EditBulkItemDialogComponent, {
-      width: '500px',
-      data: { item }
-    });
-
-    dialogRef.afterClosed().subscribe(updatedItem => {
-      if (updatedItem) {
-        const updatedItems = this.bulkRefundItems().map(i =>
-          i.promoterUserId === updatedItem.promoterUserId ? updatedItem : i
-        );
-        this.bulkRefundItems.set(updatedItems);
-        this.bulkRefundDataSource.data = updatedItems;
-      }
-    });
+    // Implementation for editing bulk item
+    console.log('Edit bulk item:', item);
   }
 
   // Download templates
   downloadCSVTemplate(): void {
-    const template = `promoterUserId,username,email,amount,reason\nPROMOTER_ID_1,username1,email1@example.com,5000,Bulk refund\nPROMOTER_ID_2,username2,email2@example.com,3000,Bulk refund`;
+    const template = `promoterUserId,username,email,amount,reason,walletType\nPROMOTER_ID_1,username1,email1@example.com,5000,Bulk refund,promoter\nPROMOTER_ID_2,username2,email2@example.com,3000,Bulk refund,marketer`;
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -1016,14 +988,16 @@ triggerFormValidation(): void {
         username: "username1",
         email: "email1@example.com",
         amount: 5000,
-        reason: "Bulk refund"
+        reason: "Bulk refund",
+        walletType: "promoter"
       },
       {
         promoterUserId: "PROMOTER_ID_2",
         username: "username2",
         email: "email2@example.com",
         amount: 3000,
-        reason: "Bulk refund"
+        reason: "Bulk refund",
+        walletType: "marketer"
       }
     ];
     
@@ -1040,22 +1014,22 @@ triggerFormValidation(): void {
     this.isLoading.set(true);
     
     this.adminRefundService.downloadRefundReceipt(refund.transactionId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
         next: (response) => {
-            if (response.success && response.data.receiptUrl) {
+          if (response.success && response.data.receiptUrl) {
             window.open(response.data.receiptUrl, '_blank');
-            } else {
+          } else {
             this.showError('Receipt not available');
-            }
-            this.isLoading.set(false);
+          }
+          this.isLoading.set(false);
         },
         error: (error) => {
-            console.error('Error downloading receipt:', error);
-            this.showError('Failed to download receipt');
-            this.isLoading.set(false);
+          console.error('Error downloading receipt:', error);
+          this.showError('Failed to download receipt');
+          this.isLoading.set(false);
         }
-        });
+      });
   }
 
   onTabChange(index: number): void {

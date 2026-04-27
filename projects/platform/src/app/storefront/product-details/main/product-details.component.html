@@ -44,14 +44,11 @@
           <span class="product-name">{{ product()!.name | truncate:40 }}</span>
           <span class="product-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
         </div>
-        <div class="sticky-actions">
+       <!--  <div class="sticky-actions">
           <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
             <mat-icon>{{ isInWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
           </button>
-          <button mat-icon-button (click)="shareProduct()">
-            <mat-icon>share</mat-icon>
-          </button>
-        </div>
+        </div> -->
       </div>
 
       <!-- Main Product Section -->
@@ -100,11 +97,7 @@
               (quantityChange)="onQuantityChange($event)"
               (addToCart)="addToCart()"
               (buyNow)="buyNow()"
-              (toggleWishlist)="toggleWishlist()"
-              (shareProduct)="shareProduct()"
               (contactStore)="contactStore()"
-              (promoteProduct)="shareProductWithTracking()"
-              (viewPromotionStats)="viewPromotionStats($event)"
             />
           </div>
         </div>

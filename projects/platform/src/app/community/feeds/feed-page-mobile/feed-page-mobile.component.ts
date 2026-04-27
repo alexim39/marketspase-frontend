@@ -30,6 +30,7 @@ import { FeedService, FeedPost } from './../feed.service';
 import { CommentDialogComponent } from './../comment-dialog/comment-dialog.component';
 import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { ProfileService, SuggestedUser } from '../../../profile/services/profile.service';
+import { SkeletonLoaderComponent } from '../shared/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-feed-page-mobile',
@@ -41,6 +42,7 @@ import { ProfileService, SuggestedUser } from '../../../profile/services/profile
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    SkeletonLoaderComponent
   ],
   templateUrl: './feed-page-mobile.component.html',
   styleUrls: ['./feed-page-mobile.component.scss'],
@@ -108,18 +110,6 @@ isCaptionVisible(postId: string): boolean {
       });
     });
 
-
-    // Load feed when user or tab changes
-    effect(() => {
-      const currentUser = this.user();
-      const tab = this.selectedTab();
-      if (!currentUser?._id) return;
-
-      queueMicrotask(() => {
-        this.loadFeed();
-      });
-    });
-
     // Show errors
     effect(() => {
       const error = this.feedService.error();
@@ -139,6 +129,17 @@ isCaptionVisible(postId: string): boolean {
       const currentUser = this.user();
       if (!currentUser?._id) return;
       this.loadFeedWithSearch(query);
+    });
+
+
+    effect(() => {
+      const currentUser = this.user();
+      const tab = this.selectedTab();
+      if (!currentUser?._id) return;
+
+      queueMicrotask(() => {
+        this.loadFeed(true);  // Reset when tab changes
+      });
     });
   }
 
@@ -218,37 +219,46 @@ isCaptionVisible(postId: string): boolean {
     });
   }
 
-  private loadFeedWithSearch(searchTerm: string): void {
-    this.feedService.loadFeedPosts(
-      this.user()?._id ?? '',
-      this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      undefined,
-      searchTerm || undefined,
-      true
-    );
-  }
+private loadFeedWithSearch(searchTerm: string): void {
+  this.feedService.loadFeedPosts(
+    this.user()?._id ?? '',
+    this.selectedType() !== 'all' ? this.selectedType() : undefined,
+    undefined,
+    searchTerm || undefined,
+    true  // Reset when searching
+  );
+}
 
-  loadFeed(): void {
-    this.feedService.loadFeedPosts(
-      this.user()?._id ?? '',
-      this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      undefined,
-      undefined,
-      true
-    );
-  }
+loadFeed(reset: boolean = true): void {
+  const currentUserId = this.user()?._id;
+  if (!currentUserId) return;
+  
+  this.feedService.loadFeedPosts(
+    currentUserId,
+    this.selectedType() !== 'all' ? this.selectedType() : undefined,
+    undefined,
+    this.searchQuery() || undefined,
+    reset
+  );
+}
 
-  loadMore(): void {
-    if (!this.loading() && this.hasMore()) {
-      this.feedService.loadFeedPosts(
-        this.user()?._id ?? '',
-        this.selectedType() !== 'all' ? this.selectedType() : undefined,
-        undefined,
-        undefined,
-        false
-      );
-    }
+loadMore(): void {
+  if (this.loading() || !this.hasMore()) {
+    return;
   }
+  
+  const currentUserId = this.user()?._id;
+  if (!currentUserId) return;
+  
+  // Load more WITHOUT reset (append to existing posts)
+  this.feedService.loadFeedPosts(
+    currentUserId,
+    this.selectedType() !== 'all' ? this.selectedType() : undefined,
+    undefined,
+    this.searchQuery() || undefined,
+    false  // IMPORTANT: false means don't reset, just load next page
+  );
+}
 
   onSearch(): void {
     this.router.navigate(['/dashboard/search']);

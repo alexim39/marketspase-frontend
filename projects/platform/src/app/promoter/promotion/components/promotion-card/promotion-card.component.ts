@@ -7,7 +7,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { PromotionInterface } from '../../../../../../../shared-services/src/public-api';
-import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
+//import { CategoryPlaceholderPipe } from '../../../../common/pipes/category-placeholder.pipe';
 import { PromoterService } from '../../../promoter.service';
 import { interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
@@ -30,7 +30,7 @@ import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instru
     MatChipsModule,
     MatTooltipModule,
     MatMenuModule,
-    CategoryPlaceholderPipe,
+    //CategoryPlaceholderPipe,
     MatProgressSpinnerModule,
     MatTooltipModule
   ],
@@ -287,7 +287,7 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
       //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
       urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`; 
     }
-    const textToCopy = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
+    const textToCopy = `ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(textToCopy).then(
         () => {
