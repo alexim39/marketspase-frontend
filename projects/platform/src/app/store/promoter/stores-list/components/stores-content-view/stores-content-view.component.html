@@ -90,10 +90,17 @@
                 </button>
                 <button 
                   mat-flat-button
-                  class="visit-btn"
-                  (click)="$event.stopPropagation(); visitStore(store)">
-                  <mat-icon>link</mat-icon>
-                  Visit store
+                  class="visit-btn browse-btn"
+                  (click)="$event.stopPropagation(); browseProducts(store)">
+                  <mat-icon>shopping_bag</mat-icon>
+                  <span>Products</span>
+                </button>
+                <button 
+                  mat-flat-button
+                  class="visit-btn store-btn"
+                  (click)="$event.stopPropagation(); visitStore(store, 'store')">
+                  <mat-icon>storefront</mat-icon>
+                  <span>Visit store</span>
                 </button>
               </div>
             </div>

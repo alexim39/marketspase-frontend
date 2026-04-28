@@ -57,6 +57,12 @@ export const StoreRoutes: Routes = [
         loadComponent: () => import('./marketer/products/product-detail/marketer-product-detail.component').then(c => c.MarketerProductDetailComponent),
         title: "Product Details - View and Manage Product Information",
     },
+
+     {
+        path: 'store/:storeId/products',
+        loadComponent: () => import('./promoter/store-products-list/store-products-list.component').then(c => c.StoreProductsListComponent),
+        title: "Store Products - Browse Published Products",
+    },
     
    /*  {
         path: 'promotions',
