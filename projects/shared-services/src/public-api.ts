@@ -10,4 +10,5 @@ export * from './lib/device.service';
 export * from './lib/help-dialog.component';
 export * from './lib/format-currency.pipe';
 export * from './lib/loading.service';
-export * from './lib/currency.utils';
+export { CurrencyUtilsPipe } from './lib/currency.utils';
+export { TruncatePipe } from './lib/truncater.pipe';

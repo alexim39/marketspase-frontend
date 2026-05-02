@@ -27,7 +27,7 @@ import { StorefrontService } from '../../../storefront/services/storefront.servi
 // Models & Pipes
 import { Product } from '../../models';
 import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
-import { TruncatePipe } from '../../shared';
+import { TruncatePipe } from '@shared/services';
 
 // Components
 import { ProductImageGalleryComponent } from './components/product-image-gallery/product-image-gallery.component';

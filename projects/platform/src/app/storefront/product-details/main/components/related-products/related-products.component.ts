@@ -6,8 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RatingComponent } from '../../../../shared/rating/rating.component';
 import { LazyImageDirective } from '../../../../shared/directives/lazy-image.directive';
-import { TruncatePipe } from '../../../../../store/shared';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface, TruncatePipe } from '@shared/services';
 import { Product } from '../../../../../store/models';
 
 export interface RelatedProduct {

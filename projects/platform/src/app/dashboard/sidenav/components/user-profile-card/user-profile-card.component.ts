@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 
 @Component({
   selector: 'app-user-profile-card',

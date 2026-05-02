@@ -31,7 +31,7 @@ import { SeoAdvancedFormComponent } from './components/seo-advanced-form/seo-adv
 import { ProductReviewComponent } from './components/product-review/product-review.component';
 import { ProductService } from '../product.service';
 import { UserService } from '../../../../common/services/user.service';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { CATEGORIES, CategoryOption } from '../../../../common/utils/categories';
 
 type StrCtrl = FormControl<string>;

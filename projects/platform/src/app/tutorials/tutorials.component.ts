@@ -9,15 +9,18 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DomSanitizer } from '@angular/platform-browser';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { catchError, of } from 'rxjs';
 
 // Video Dialog Component
 import { VideoPlayerDialogComponent } from './video-player-dialog/video-player-dialog.component';
 import { UserService } from '../common/services/user.service';
 import { SwitchUserRoleService } from '../common/services/switch-user-role.service';
 import { TutorialService, VideoItem, Section } from './services/tutorial.service';
+import { TruncatePipe } from '../../../../shared-services/src/public-api';
+import { AppMetricsService } from '../common/services/metrics.service';
 
 interface Category {
   id: string;
@@ -39,9 +42,10 @@ interface Category {
     MatSnackBarModule,
     MatProgressSpinnerModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    TruncatePipe 
   ],
-  providers: [TutorialService],
+  providers: [TutorialService, AppMetricsService],
   templateUrl: './tutorials.component.html',
   styleUrls: ['./tutorials.component.scss'],
 })
@@ -53,6 +57,18 @@ export class TutorialsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private switchUserRoleService = inject(SwitchUserRoleService);
   private tutorialService = inject(TutorialService);
+  private metricsService = inject(AppMetricsService);
+
+  metrics = toSignal(
+    this.metricsService.getMetrics().pipe(
+      catchError(err => {
+        console.error(err);
+        return of(null);
+      })
+    ),
+    { initialValue: null }
+  );
+
 
   // User signals
   user = this.userService.user;
@@ -304,6 +320,10 @@ export class TutorialsComponent implements OnInit {
   }
 
   switchUserRole() {
-    this.switchUserRoleService.sendSwitchRequest(this.userRole());
+    if (this.userRole() === 'promoter') {
+      this.switchUserRoleService.sendSwitchRequest('marketer');
+    } else {
+      this.switchUserRoleService.sendSwitchRequest('promoter');
+    }
   }
 }

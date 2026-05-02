@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { NotificationBannerService } from '../notfication-banner.service';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { NotificationMessage, NotificationResponse, DismissalResponse } from './notification-message.model';
 import { Subscription, take } from 'rxjs';
 

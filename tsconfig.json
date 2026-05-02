@@ -12,6 +12,10 @@
     "isolatedModules": true,
     "experimentalDecorators": true,
     "paths": {
+      "@shared/services": [
+        "./projects/shared-services/src/public-api.ts"
+      ],
+      // Keep the dist one for build if needed (optional)
       "shared-services": [
         "./dist/shared-services"
       ]

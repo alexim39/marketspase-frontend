@@ -118,54 +118,50 @@
             </div>
           }
 
-          <!-- Pagination -->
 
           <!-- Pagination - DYNAMIC -->
-@if (!isLoading && threads.length > 0 && pagination.totalPages > 1) {
-  <div class="pagination">
-    <!-- Previous Page Button -->
-    <button mat-icon-button 
-            [disabled]="pagination.page <= 1"
-            (click)="previousPage()"
-            aria-label="Previous page">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-    
-    <!-- Page Numbers -->
-    @for (pageNum of getPageNumbers(); track pageNum) {
-      @if (pageNum === '...') {
-        <span class="pagination-ellipsis">...</span>
-      } @else {
-        <button class="page-btn" 
-                [class.active]="pagination.page === pageNum"
-                (click)="goToPage(pageNum)"
-                [attr.aria-label]="'Page ' + pageNum"
-                [attr.aria-current]="pagination.page === pageNum ? 'page' : null">
-          {{pageNum}}
-        </button>
-      }
-    }
-    
-    <!-- Next Page Button -->
-    <button mat-icon-button 
-            [disabled]="pagination.page >= pagination.totalPages"
-            (click)="nextPage()"
-            aria-label="Next page">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
-  </div>
-}
+          @if (!isLoading && threads.length > 0 && pagination.totalPages > 1) {
+            <div class="pagination">
+              <!-- Previous Page Button -->
+              <button mat-icon-button 
+                      [disabled]="pagination.page <= 1"
+                      (click)="previousPage()"
+                      aria-label="Previous page">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              
+              <!-- Page Numbers -->
+              @for (pageNum of getPageNumbers(); track pageNum) {
+                @if (pageNum === '...') {
+                  <span class="pagination-ellipsis">...</span>
+                } @else {
+                  <button class="page-btn" 
+                          [class.active]="pagination.page === pageNum"
+                          (click)="goToPage(pageNum)"
+                          [attr.aria-label]="'Page ' + pageNum"
+                          [attr.aria-current]="pagination.page === pageNum ? 'page' : null">
+                    {{pageNum}}
+                  </button>
+                }
+              }
+              
+              <!-- Next Page Button -->
+              <button mat-icon-button 
+                      [disabled]="pagination.page >= pagination.totalPages"
+                      (click)="nextPage()"
+                      aria-label="Next page">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+          }
 
-<!-- Pagination Info -->
-@if (!isLoading && threads.length > 0) {
-  <div class="pagination-info">
-    <span>Showing {{((pagination.page - 1) * pagination.limit) + 1}} - {{getMaxDisplayItems()}} of {{pagination.total}} discussions
-    </span>
-  </div>
-}
-
-
-
+          <!-- Pagination Info -->
+          @if (!isLoading && threads.length > 0) {
+            <div class="pagination-info">
+              <span>Showing {{((pagination.page - 1) * pagination.limit) + 1}} - {{getMaxDisplayItems()}} of {{pagination.total}} discussions
+              </span>
+            </div>
+          }
         </div>
 
         <!-- Right Sidebar -->

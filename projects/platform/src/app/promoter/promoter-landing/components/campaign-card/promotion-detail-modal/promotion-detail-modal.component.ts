@@ -5,8 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
-//import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
+import { CampaignInterface, PromotionInterface } from '@shared/services';
 
 export interface PromotionDetailModalData {
   campaign: CampaignInterface;

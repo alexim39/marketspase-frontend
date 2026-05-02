@@ -2,7 +2,7 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { Observable, catchError, map, of, switchMap, interval, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ApiService } from '../../../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 export interface CommunityAuthor {
   _id: string;

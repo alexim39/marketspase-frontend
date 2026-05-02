@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CurrencyUtilsPipe } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe } from '@shared/services';
 
 @Component({
   selector: 'app-product-tabs',

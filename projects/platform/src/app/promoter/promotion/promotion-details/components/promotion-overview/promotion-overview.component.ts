@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { PromotionInterface } from '@shared/services';
 import { PromotionMediaComponent } from '../promotion-media/promotion-media.component';
 import { PromotionInfoComponent } from '../promotion-info/promotion-info.component';
 

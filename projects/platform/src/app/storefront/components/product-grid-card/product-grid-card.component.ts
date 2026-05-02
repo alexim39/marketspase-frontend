@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { RatingComponent } from '../../shared/rating/rating.component';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
-import { TruncatePipe } from '../../../store/shared';
+import { TruncatePipe } from '@shared/services';
 import { Product, Store } from '../../../store/models';
 import { CurrencyUtilsPipe, UserInterface } from '../../../../../../shared-services/src/public-api';
 import { UserService } from '../../../common/services/user.service';

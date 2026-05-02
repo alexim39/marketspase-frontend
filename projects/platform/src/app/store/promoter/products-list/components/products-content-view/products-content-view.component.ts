@@ -13,9 +13,8 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 
-import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
 import { ViewMode } from '../../models/filter-state.model';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, UserInterface, TruncatePipe } from '@shared/services';
 import { Product } from '../../../../models';
 import { LoadingStateComponent } from '../loading-state/loading-state.component';
 import { LoadingStateMobileComponent } from '../loading-state/mobile/loading-state-mobile.component';

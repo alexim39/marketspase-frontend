@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatRippleModule } from '@angular/material/core';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { CampaignsSummaryCardComponent } from '../campaigns-summary-card/campaigns-summary-card.component';
 import { PromotionsSummaryCardComponent } from '../promotions-summary-card/promotions-summary-card.component';
 

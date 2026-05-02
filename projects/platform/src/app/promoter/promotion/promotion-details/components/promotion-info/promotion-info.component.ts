@@ -1,7 +1,7 @@
 import { Component, computed, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { DeviceService, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { DeviceService, PromotionInterface } from '@shared/services';
 
 @Component({
   selector: 'app-promotion-info',

@@ -2,7 +2,7 @@ import { Component, computed, inject, Input, OnChanges, SimpleChanges } from '@a
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
 
 interface CampaignStats {
   // Campaign counts

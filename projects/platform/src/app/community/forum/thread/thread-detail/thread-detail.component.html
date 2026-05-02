@@ -56,13 +56,11 @@
               @if (thread.media.type === 'video') {
               <video controls class="media-content">
                 <source [src]="thread.media.url">
-                <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
               </video>
               }
               @if (thread.media.type === 'audio') {
               <audio controls class="media-content">
                 <source [src]=" thread.media.url">
-                <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
               </audio>
               }
             </div>
@@ -136,13 +134,16 @@
 
         <!-- Comments List -->
         <div class="comments-list">
-          <app-comment *ngFor="let comment of comments; trackBy: trackByCommentId"
-            [comment]="comment"
-            [threadId]="thread._id"
-            [isAuthor]="isCommentAuthor(comment)"
-            (likeComment)="toggleLikeComment($event)"
-            (commentDeleted)="onCommentDeleted($event)">
-          </app-comment>
+          @for (comment of comments; track comment._id) {
+            <app-comment 
+              [comment]="comment"
+              [threadId]="thread._id"
+              [isAuthor]="isCommentAuthor(comment)"
+              (likeComment)="toggleLikeComment($event)"
+              (commentDeleted)="onCommentDeleted($event)" />
+          } @empty {
+            <p>No comments yet.</p>
+          }
 
           <!-- Empty State -->
            @if (comments.length === 0) {

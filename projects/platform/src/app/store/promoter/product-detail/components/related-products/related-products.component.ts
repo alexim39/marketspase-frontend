@@ -11,9 +11,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   CurrencyUtilsPipe,
-  UserInterface
-} from '../../../../../../../../shared-services/src/public-api';
-import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
+  UserInterface,
+  TruncatePipe
+} from '@shared/services';
 import { Product } from '../../../../models';
 
 @Component({

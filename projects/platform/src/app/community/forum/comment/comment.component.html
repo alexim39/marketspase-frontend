@@ -25,7 +25,6 @@
         }
       </div>
 
-
       <!-- Edit Mode -->
       @if (isEditing) {
         <div class="comment-edit-form">
@@ -50,9 +49,7 @@
       } @else {
         <div class="comment-text">{{comment.content}}</div>
       }
-      
-      <div class="comment-text">{{comment.content}}</div>
-      
+            
       <div class="comment-actions">
         <button mat-raised-button 
                 (click)="toggleLike()" 

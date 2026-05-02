@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { DeviceService } from '../../../../../../../../shared-services/src/public-api';
+import { DeviceService } from '@shared/services';
 
 interface CampaignMetrics {
   pendingEarnings: number;

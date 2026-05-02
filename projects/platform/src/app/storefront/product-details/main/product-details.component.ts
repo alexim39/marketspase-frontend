@@ -15,14 +15,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Shared Components/Directives/Pipes
 import { RatingComponent } from '../../shared/rating/rating.component';
-import { CurrencyUtilsPipe, DeviceService } from '../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, TruncatePipe } from '@shared/services';
 
 // Services
 import { StorefrontService } from '../../services/storefront.service';
 
 // Models
 import { Product, Store, ProductVariant } from '../../../store/models';
-import { TruncatePipe } from '../../../store/shared';
 import { UserService } from '../../../common/services/user.service';
 import { StoreFooterComponent } from '../../core/store-footer/store-footer.component';
 import { StoreHeaderComponent } from '../../core/store-header/store-header.component';

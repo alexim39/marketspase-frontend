@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RatingComponent } from '../../../../shared/rating/rating.component';
-import { CurrencyUtilsPipe } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe } from '@shared/services';
 import { LazyImageDirective } from '../../../../shared/directives/lazy-image.directive';
 
 export interface StoreInfo {

@@ -11,7 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TargetingArea, TargetingSettings } from '../../../../../../../shared-services/src/public-api';
+import { TargetingArea, TargetingSettings } from '@shared/services';
 
 // Declare google namespace
 declare const google: any;

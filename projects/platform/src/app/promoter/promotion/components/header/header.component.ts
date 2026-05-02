@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { HelpDialogComponent } from '../../../../../../../shared-services/src/public-api';
+import { HelpDialogComponent } from '@shared/services';
 
 @Component({
   selector: 'app-header',
