@@ -26,7 +26,7 @@ import { StorefrontService } from '../../../storefront/services/storefront.servi
 
 // Models & Pipes
 import { Product } from '../../models';
-import { CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe } from '@shared/services';
 import { TruncatePipe } from '@shared/services';
 
 // Components

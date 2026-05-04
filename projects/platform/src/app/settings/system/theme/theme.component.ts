@@ -1,4 +1,16 @@
-import { Component, DestroyRef, effect, inject, Input, Signal, signal, WritableSignal } from '@angular/core';
+import { 
+  Component, 
+  DestroyRef, 
+  effect, 
+  EnvironmentInjector, 
+  inject, 
+  Input, 
+  Signal, 
+  signal, 
+  WritableSignal, 
+  runInInjectionContext, 
+  untracked 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,7 +18,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { SettingsService, ThemeInterface } from '../system.service';
 import { AppThemeService } from '../../../app-theme.service';
 
@@ -16,7 +28,6 @@ import { AppThemeService } from '../../../app-theme.service';
   styleUrls: ['./theme.component.scss'],
   standalone: true,
   imports: [CommonModule, MatSlideToggleModule, MatIconModule, MatCardModule],
-  providers: [SettingsService],
 })
 export class ThemeSettingsComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;
@@ -24,13 +35,14 @@ export class ThemeSettingsComponent {
   // UI state signals
   isDarkMode: WritableSignal<boolean> = signal(false);
   highContrastMode: WritableSignal<boolean> = signal(false);
-  systemDefault: WritableSignal<boolean> = signal(false); // initially assume not following system until we load user prefs
+  systemDefault: WritableSignal<boolean> = signal(false);
   systemTheme: WritableSignal<'light' | 'dark'> = signal('light');
 
   private readonly snackBar = inject(MatSnackBar);
   private readonly settingsService = inject(SettingsService);
   private readonly theme = inject(AppThemeService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(EnvironmentInjector); 
 
   constructor() {
     // For display only (what the OS is set to)
@@ -42,36 +54,37 @@ export class ThemeSettingsComponent {
       else (mq as any).addListener?.(onChange);
     }
 
-    // React when user object (with preferences) arrives/changes
+    // React when user object arrives
     effect(() => {
       const userPrefs = this.user()?.preferences;
       if (!userPrefs?.theme) return;
 
-      // Load UI state from backend model
       const system = userPrefs.theme.systemDefault ?? true;
       const dark = !!userPrefs.theme.darkMode;
       const highContrast = !!userPrefs.theme.highContrast;
 
-      this.systemDefault.set(system);
-      this.isDarkMode.set(dark);
-      this.highContrastMode.set(highContrast);
+      // Wrap in injection context to prevent NG0203
+      runInInjectionContext(this.injector, () => {
+        untracked(() => {
+          this.systemDefault.set(system);
+          this.isDarkMode.set(dark);
+          this.highContrastMode.set(highContrast);
 
-      // Apply globally via service
-      if (system) {
-        this.theme.followSystemTheme();
-      } else {
-        this.theme.set(dark ? 'dark' : 'light');
-      }
+          if (system) {
+            this.theme.followSystemTheme();
+          } else {
+            this.theme.set(dark ? 'dark' : 'light');
+          }
 
-      // Apply high-contrast + meta color
-      this.applyHighContrastAndMeta();
+          this.applyHighContrastAndMeta();
+        });
+      });
     });
   }
 
   // ------- User interactions -------
 
   toggleTheme(event: any): void {
-    // User is making an explicit choice → stop following system
     const isDark = !!event.checked;
     this.applyAndPersist({ systemDefault: false, darkMode: isDark, highContrast: this.highContrastMode() });
   }
@@ -91,19 +104,13 @@ export class ThemeSettingsComponent {
 
   toggleSystemDefault(event: any): void {
     const useSystem = !!event.checked;
-    // When switching to system, the effective theme should match the OS right away
     const darkFromOS = this.systemTheme() === 'dark';
-    const nextDark = useSystem ? darkFromOS : this.isDarkMode(); // keep prior choice when leaving system
-
+    const nextDark = useSystem ? darkFromOS : this.isDarkMode();
     this.applyAndPersist({ systemDefault: useSystem, darkMode: nextDark, highContrast: this.highContrastMode() });
   }
 
   // ------- Internals -------
 
-  /**
-   * Apply locally (service + DOM) first for instant UX,
-   * then persist to backend; on error, revert everything.
-   */
   private applyAndPersist(next: { systemDefault: boolean; darkMode: boolean; highContrast: boolean }) {
     const userId = this.user()?._id;
     if (!userId) {
@@ -111,7 +118,6 @@ export class ThemeSettingsComponent {
       return;
     }
 
-    // Capture previous state for safe rollback on error
     const prev = {
       systemDefault: this.systemDefault(),
       darkMode: this.isDarkMode(),
@@ -120,7 +126,6 @@ export class ThemeSettingsComponent {
       serviceCurrent: this.theme.current,
     };
 
-    // 1) Apply immediately (service + UI signals)
     this.systemDefault.set(next.systemDefault);
     this.isDarkMode.set(next.darkMode);
     this.highContrastMode.set(next.highContrast);
@@ -132,7 +137,6 @@ export class ThemeSettingsComponent {
     }
     this.applyHighContrastAndMeta();
 
-    // 2) Persist to backend
     const payload: ThemeInterface = {
       userId,
       systemDefault: next.systemDefault,
@@ -144,28 +148,24 @@ export class ThemeSettingsComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          //console.log('Theme updated successfully', res);
           this.snackBar.open(res?.message || 'Theme preferences updated successfully', 'Ok', { duration: 2500 });
         },
         error: (err: any) => {
-          // Rollback signals
           this.systemDefault.set(prev.systemDefault);
           this.isDarkMode.set(prev.darkMode);
           this.highContrastMode.set(prev.highContrast);
 
-          // Rollback service
           if (prev.serviceFollowing) this.theme.followSystemTheme();
           else this.theme.set(prev.serviceCurrent);
 
           this.applyHighContrastAndMeta();
 
-          const msg = err?.error?.message || 'Failed to update theme preferences. Please try again.';
+          const msg = err?.error?.message || 'Failed to update theme preferences.';
           this.snackBar.open(msg, 'Ok', { duration: 5000 });
         }
       });
   }
 
-  /** High-contrast class + <meta name="theme-color"> update */
   private applyHighContrastAndMeta(): void {
     if (typeof document === 'undefined') return;
     const body = document.body;

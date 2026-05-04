@@ -4,7 +4,7 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angu
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DatePipe } from '@angular/common';
-import { PromotionInterface } from '../../../../../../shared-services/src/public-api';
+import { PromotionInterface } from '@shared/services';
 import { MarketerService } from '../../../marketer/marketer.service';
 import { MaskEmailPipe } from './mask-email.pipe';
 import { MediaViewerDialogComponent } from './media-viewer-dialog.component'; 

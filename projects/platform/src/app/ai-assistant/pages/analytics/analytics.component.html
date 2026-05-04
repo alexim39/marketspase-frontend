@@ -1,0 +1,54 @@
+<div class="analytics-page">
+  <header class="page-header">
+    <h2>Performance Analytics</h2>
+    <p class="subtitle">Track AI effectiveness and conversions</p>
+  </header>
+
+  <!-- Loading state -->
+  <div *ngIf="!(analytics$ | async)" class="loading-state">
+    <p>Loading analytics data…</p>
+  </div>
+
+  <!-- Data view -->
+  <ng-container *ngIf="analytics$ | async as data">
+    <div class="metrics">
+      <mat-card class="metric-card">
+        <h3>{{ data.totalMessages }}</h3>
+        <p>Total Messages</p>
+      </mat-card>
+      <mat-card class="metric-card">
+        <h3>{{ data.aiHandled }}</h3>
+        <p>AI Handled</p>
+      </mat-card>
+      <mat-card class="metric-card">
+        <h3>{{ data.humanHandled }}</h3>
+        <p>Human Handled</p>
+      </mat-card>
+      <mat-card class="metric-card">
+        <h3>{{ data.avgResponseTime }}s</h3>
+        <p>Avg Response</p>
+      </mat-card>
+      <mat-card class="metric-card">
+        <h3>{{ data.conversionRate }}%</h3>
+        <p>Conversion Rate</p>
+      </mat-card>
+    </div>
+
+    <section class="chart-card">
+      <h3>Messages Last 7 Days</h3>
+      <div class="bar-chart">
+        <div class="bar-group" *ngFor="let day of data.messagesByDay">
+          <div class="bars">
+            <div class="bar ai" [style.height]="(day.ai / 250) * 100 + '%'"></div>
+            <div class="bar human" [style.height]="(day.human / 250) * 100 + '%'"></div>
+          </div>
+          <span class="day-label">{{ day.date }}</span>
+        </div>
+      </div>
+      <div class="legend">
+        <span><span class="color-box ai"></span> AI</span>
+        <span><span class="color-box human"></span> Human</span>
+      </div>
+    </section>
+  </ng-container>
+</div>

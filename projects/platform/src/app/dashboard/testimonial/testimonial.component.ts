@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService, TestimonialInterface } from '../dashboard.service';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
 import { MatIconModule } from '@angular/material/icon';
 
 interface TestimonialState {

@@ -13,7 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { Subject } from 'rxjs';
 import { MatDividerModule } from '@angular/material/divider';
-import { DeviceService } from '../../../../../../shared-services/src/public-api';
+import { DeviceService } from '@shared/services';
 
 export interface StoreStats {
   productCount: number;

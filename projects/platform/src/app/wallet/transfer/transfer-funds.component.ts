@@ -26,7 +26,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { EMPTY, Subject, debounceTime, distinctUntilChanged, catchError, finalize } from 'rxjs';
 import { UserService } from '../../common/services/user.service';
-import { CurrencyUtilsPipe, HelpDialogComponent } from '../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, HelpDialogComponent } from '@shared/services';
 import { TransferRequestData, TransferService, UserSearchResult } from './transfert.service';
 
 interface TransferType {

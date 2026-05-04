@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService, CampaignInterface } from '../../../../../shared-services/src/public-api';
+import { ApiService, CampaignInterface } from '@shared/services';
 
 @Injectable()
 export class CampaignEditService {

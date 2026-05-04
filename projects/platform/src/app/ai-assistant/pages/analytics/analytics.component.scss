@@ -1,0 +1,185 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.analytics-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// Page header
+.page-header {
+  h2 {
+    margin: 0;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+  .subtitle {
+    margin: $spacing-2 0 0;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+// Loading state
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-12;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
+
+// Metric cards grid
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: $spacing-4;
+
+  .metric-card {
+    background: $surface-color;
+    border-radius: $border-radius-md;
+    box-shadow: $shadow-sm;
+    text-align: center;
+    padding: $spacing-6;
+    transition: transform $transition-fast;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+
+    h3 {
+      font-size: $font-size-3xl;
+      font-weight: $font-weight-bold;
+      margin: 0;
+      color: $text-primary;
+    }
+
+    p {
+      margin: $spacing-2 0 0;
+      color: $text-secondary;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+// Chart card
+.chart-card {
+  background: $surface-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  padding: $spacing-6;
+
+  h3 {
+    margin: 0 0 $spacing-6;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+
+  .bar-chart {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 220px;
+    padding: 0 $spacing-2;
+    margin-bottom: $spacing-4;
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+
+      .bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 180px;
+      }
+
+      .bar {
+        width: 18px;
+        border-radius: $border-radius-sm $border-radius-sm 0 0;
+        transition: height 0.3s ease;
+
+        &.ai {
+          background: $primary-color;
+        }
+        &.human {
+          background: $secondary-color;
+        }
+      }
+
+      .day-label {
+        margin-top: $spacing-3;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        color: $text-secondary;
+      }
+    }
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-6;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+
+    .color-box {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      margin-right: $spacing-2;
+      vertical-align: middle;
+
+      &.ai {
+        background: $primary-color;
+      }
+      &.human {
+        background: $secondary-color;
+      }
+    }
+  }
+}
+
+// ==========================================
+// MOBILE RESPONSIVENESS
+// ==========================================
+@include mobile {
+  .analytics-page {
+    gap: $spacing-4;
+  }
+
+  .page-header h2 {
+    font-size: $font-size-xl;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: $spacing-3;
+
+    .metric-card {
+      padding: $spacing-4;
+      h3 {
+        font-size: $font-size-2xl;
+      }
+    }
+  }
+
+  .chart-card {
+    padding: $spacing-4;
+
+    .bar-chart .bar {
+      width: 14px;
+    }
+  }
+}

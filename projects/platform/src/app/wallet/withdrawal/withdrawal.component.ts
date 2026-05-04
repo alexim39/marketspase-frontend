@@ -45,7 +45,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CurrencyUtilsPipe, HelpDialogComponent, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, HelpDialogComponent, UserInterface } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 import { TransactionSummaryComponent } from '../../transactions/summary/transaction-summary.component';
 

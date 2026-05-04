@@ -13,7 +13,7 @@ import { AuthService } from '../auth/auth.service';
 import { UserService } from '../common/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService, LoadingService, UserInterface } from '../../../../shared-services/src/public-api';
+import { DeviceService, LoadingService, UserInterface } from '@shared/services';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { MatProgressBarModule } from '@angular/material/progress-bar';

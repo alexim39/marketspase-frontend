@@ -1,0 +1,231 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.settings-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: $spacing-6 $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  background: $background-color;
+}
+
+.page-header {
+  h2 {
+    margin: 0;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+  .subtitle {
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+}
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+// ---------- WhatsApp Connection List ----------
+.mat-mdc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  padding-bottom: $spacing-2;
+}
+
+.connection-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.connection-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+  padding: $spacing-3 0;
+  border-bottom: 1px solid $divider-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.connection-details {
+  flex: 1;
+  min-width: 200px;
+
+  .phone-number {
+    font-weight: $font-weight-medium;
+    font-size: $font-size-base;
+  }
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  margin-top: $spacing-1;
+}
+
+.status-badge {
+  padding: 2px $spacing-2;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+
+  &.connected {
+    background: rgba($success-color, 0.1);
+    color: $success-color;
+  }
+  &.disconnected {
+    background: rgba($error-color, 0.1);
+    color: $error-color;
+  }
+}
+
+.ai-status {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.connection-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.empty-state {
+  text-align: center;
+  padding: $spacing-6 0;
+  color: $text-tertiary;
+
+  mat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    display: block;
+    margin: 0 auto $spacing-2;
+  }
+}
+
+// ---------- Forms ----------
+.compact-form,
+.notification-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+.notification-form .toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-1 0;
+}
+
+// ---------- Plans ----------
+.plans-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: $spacing-5;
+  margin-top: $spacing-2;
+}
+
+.plan-card {
+  background: $surface-color;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  padding: $spacing-5;
+  text-align: center;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &.popular {
+    border-color: $primary-color;
+    box-shadow: 0 4px 12px rgba($primary-rgb, 0.2);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  h3 {
+    margin: 0 0 $spacing-1;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+  }
+
+  .price {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $primary-color;
+    margin-bottom: $spacing-4;
+  }
+
+  .features {
+    text-align: left;
+    list-style: none;
+    padding: 0;
+    margin-bottom: $spacing-4;
+
+    li {
+      font-size: $font-size-sm;
+      padding: $spacing-1 0;
+      &::before {
+        content: '✓';
+        color: $success-color;
+        margin-right: $spacing-2;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: $primary-color;
+    color: $white;
+    padding: 2px $spacing-3;
+    border-radius: $border-radius-full;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
+// ---------- Responsive ----------
+@include mobile {
+  .connection-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .connection-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .plans-container {
+    grid-template-columns: 1fr;
+  }
+}

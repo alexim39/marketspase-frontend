@@ -19,7 +19,7 @@ import { VideoPlayerDialogComponent } from './video-player-dialog/video-player-d
 import { UserService } from '../common/services/user.service';
 import { SwitchUserRoleService } from '../common/services/switch-user-role.service';
 import { TutorialService, VideoItem, Section } from './services/tutorial.service';
-import { TruncatePipe } from '../../../../shared-services/src/public-api';
+import { TruncatePipe } from '@shared/services';
 import { AppMetricsService } from '../common/services/metrics.service';
 
 interface Category {

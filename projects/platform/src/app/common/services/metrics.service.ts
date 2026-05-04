@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiService } from '../../../../../shared-services/src/lib/api-service';
+import { ApiService } from '@shared/services';
 import { inject } from '@angular/core'; 
 
 export interface AppMetrics {

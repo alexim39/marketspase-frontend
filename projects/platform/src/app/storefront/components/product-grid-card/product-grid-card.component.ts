@@ -10,7 +10,7 @@ import { RatingComponent } from '../../shared/rating/rating.component';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { TruncatePipe } from '@shared/services';
 import { Product, Store } from '../../../store/models';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { UserService } from '../../../common/services/user.service';
 
 /**

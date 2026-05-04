@@ -28,7 +28,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 
 import { FeedService, FeedPost } from './../feed.service';
 import { CommentDialogComponent } from './../comment-dialog/comment-dialog.component';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { ProfileService, SuggestedUser } from '../../../profile/services/profile.service';
 import { SkeletonLoaderComponent } from '../shared/skeleton-loader/skeleton-loader.component';
 

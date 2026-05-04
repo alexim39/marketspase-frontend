@@ -24,7 +24,7 @@ import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/materia
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, of } from 'rxjs';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { RouterModule } from '@angular/router';
 import { TransactionSummaryData, WithdrawalService } from '../../wallet/withdrawal/withdrawal.service';
 

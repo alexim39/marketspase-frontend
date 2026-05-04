@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { Observable, } from 'rxjs'; 
+import { ApiService } from '@shared/services';
 
 
 @Injectable()

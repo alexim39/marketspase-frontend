@@ -7,7 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FeedPost, FeedService } from '../feed.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';

@@ -8,7 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../common/services/user.service';
 import { DashboardService } from './../dashboard.service';
-import { DeviceService } from '../../../../../shared-services/src/public-api';
+import { DeviceService } from '@shared/services';
 
 // Import child components
 import { DashboardHeaderComponent } from './components/dashboard-header/dashboard-header.component';

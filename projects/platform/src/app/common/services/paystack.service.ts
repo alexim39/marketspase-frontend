@@ -1,6 +1,6 @@
 import { Injectable, Inject, Optional, DestroyRef, inject } from '@angular/core';
 import { Observable, Subject, throwError } from 'rxjs';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Configuration interface for better type safety

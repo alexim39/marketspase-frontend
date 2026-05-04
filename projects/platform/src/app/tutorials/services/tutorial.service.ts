@@ -1,7 +1,7 @@
 // services/tutorial.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 export interface VideoItem {
   id: string;

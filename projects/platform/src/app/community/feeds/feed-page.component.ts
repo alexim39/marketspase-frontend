@@ -38,7 +38,7 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
 import { UserService } from '../../common/services/user.service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
 import { SkeletonLoaderComponent } from './shared/skeleton-loader/skeleton-loader.component';
 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from '../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
   
 export interface ProfessionalInfoInterface {

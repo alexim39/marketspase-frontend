@@ -21,7 +21,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 
-import { ApiService, DeviceService, UserInterface, CurrencyUtilsPipe } from '../../../../../../shared-services/src/public-api';
+import { ApiService, DeviceService, UserInterface, CurrencyUtilsPipe } from '@shared/services';
 import { Product } from '../../models';
 import { HttpParams } from '@angular/common/http';
 import { PromotionService } from '../services/promotion.service';

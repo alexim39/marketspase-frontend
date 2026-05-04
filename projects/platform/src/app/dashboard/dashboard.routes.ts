@@ -23,7 +23,8 @@ export const dashboardRoutes: Routes = [
             { path: 'community', loadChildren: () => import('../community/community.routes').then(r => r.CommunityRoutes) },           
             { path: 'get-started', loadChildren: () => import('../get-started/get-started.routes').then(r => r.GetStartedRoutes) },    
             { path: 'profile', loadChildren: () => import('../profile/profile-routes').then(r => r.ProfileRoutes) },    
-            { path: 'tutorials', loadChildren: () => import('../tutorials/tutorials.routes').then(r => r.TutorialRoutes) }       
+            { path: 'tutorials', loadChildren: () => import('../tutorials/tutorials.routes').then(r => r.TutorialRoutes) },       
+            { path: 'assistant', loadChildren: () => import('../ai-assistant/ai-assistant.routes').then(r => r.AssistantRoutes) },      
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

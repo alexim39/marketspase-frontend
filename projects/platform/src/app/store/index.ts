@@ -2,7 +2,7 @@ import { Component, inject, computed, Signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService } from '../common/services/user.service';
-import { DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '@shared/services';
 import { MarketerStoreDashboardComponent } from './marketer/dashboard/store-dashboard/store-dashboard.component';
 import { PromoterStoresListComponent } from './promoter/stores-list/promoter-stores-list.component';
 

@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { finalize, Subject, takeUntil, forkJoin, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
-import { DeviceService } from '../../../../../shared-services/src/public-api';
+import { DeviceService } from '@shared/services';
 import { FormControl } from '@angular/forms';
 
 interface ActiveUser {

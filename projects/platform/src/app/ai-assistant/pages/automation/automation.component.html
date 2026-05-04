@@ -1,0 +1,49 @@
+<div class="automation-page">
+  <header class="page-header">
+    <h2>AI Automation Rules</h2>
+    <p class="subtitle">Control how the AI behaves and when to escalate</p>
+  </header>
+
+  <section class="automation-card">
+    <form [formGroup]="form">
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Tone</mat-label>
+          <mat-select formControlName="tone">
+            <mat-option value="friendly">Friendly</mat-option>
+            <mat-option value="professional">Professional</mat-option>
+            <mat-option value="sales">Sales</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Language</mat-label>
+          <mat-select formControlName="language">
+            <mat-option value="english">English</mat-option>
+            <mat-option value="pidgin">Pidgin</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="toggles">
+        <div class="toggle-item">
+          <mat-slide-toggle formControlName="autoReplyEnabled">Auto Reply</mat-slide-toggle>
+          <p>Let AI reply automatically to messages.</p>
+        </div>
+
+        <div class="toggle-item">
+          <mat-slide-toggle formControlName="escalateOnKeywords">Escalate on Keywords</mat-slide-toggle>
+          <mat-form-field *ngIf="form.value.escalateOnKeywords" appearance="outline" class="full-width">
+            <mat-label>Escalation Keywords (comma separated)</mat-label>
+            <input matInput formControlName="escalateKeywords" placeholder="refund, complaint">
+          </mat-form-field>
+        </div>
+
+        <div class="toggle-item">
+          <mat-slide-toggle formControlName="lowConfidenceFallback">Low-Confidence Fallback</mat-slide-toggle>
+          <p>If AI is unsure, escalate to human</p>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>

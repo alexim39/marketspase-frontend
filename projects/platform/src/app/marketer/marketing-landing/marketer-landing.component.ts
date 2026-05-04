@@ -13,7 +13,7 @@ import { CampaignFiltersComponent } from './components/campaign-filters/campaign
 import { CampaignListComponent } from './components/campaign-list/campaign-list.component';
 
 // Services & Types
-import { CampaignInterface, DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, UserInterface } from '@shared/services';
 import { MarketerService, PaginatedResponse, PaginationParams, FilterParams } from '../marketer.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CampaignHeaderComponent } from './components/compaign-head/campaign-header.component';

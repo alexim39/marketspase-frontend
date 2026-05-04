@@ -6,7 +6,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } fro
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService } from '../../../../../../shared-services/src/public-api';
+import { DeviceService } from '@shared/services';
 import { UserService } from '../../../common/services/user.service';
 
 // Child Components

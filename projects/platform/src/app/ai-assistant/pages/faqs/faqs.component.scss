@@ -1,0 +1,59 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.faqs-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  max-width: 900px; // keeps the form readable on large screens
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  h2 {
+    margin: 0;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    line-height: $line-height-tight;
+  }
+
+  .subtitle {
+    margin: $spacing-2 0 0;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+.faqs-container {
+  background: $surface-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  padding: $spacing-6;
+
+  // Ensure the child component fills the card nicely
+  ::ng-deep app-faq-manager {
+    display: block;
+  }
+}
+
+// ==========================================
+// MOBILE RESPONSIVENESS
+// ==========================================
+@include mobile {
+  .faqs-page {
+    gap: $spacing-4;
+  }
+
+  .page-header {
+    h2 {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .faqs-container {
+    padding: $spacing-4;
+    border-radius: $border-radius-sm;
+  }
+}

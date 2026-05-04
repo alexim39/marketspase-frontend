@@ -8,7 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { DeviceService, PromotionInterface, UserInterface } from '@shared/services';
 import { PromoterService } from '../../promoter/promoter.service';
 import { UserService } from '../../common/services/user.service';
 

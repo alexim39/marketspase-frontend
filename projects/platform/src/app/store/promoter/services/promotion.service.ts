@@ -2,7 +2,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 import { Router } from '@angular/router';
 import { Product } from '../../models';
 

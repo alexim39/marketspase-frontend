@@ -6,7 +6,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } fro
 
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '@shared/services';
 import { PromotionService } from '../services/promotion.service';
 
 // Child Components

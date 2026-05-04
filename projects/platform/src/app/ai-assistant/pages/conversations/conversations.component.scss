@@ -1,0 +1,85 @@
+// conversations.component.scss
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.conversations-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: $spacing-6;
+  height: 100%; // fill parent content area automatically
+  padding: $spacing-4;
+  background: $background-color;
+}
+
+// Conversation list panel
+.conv-list {
+  background: $surface-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  overflow-y: auto;
+  // inner padding handled by the component itself
+}
+
+// Chat window panel
+.chat {
+  background: $surface-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden; // keeps the chat's internal scroll contained
+  display: flex;
+  flex-direction: column;
+}
+
+// Empty state when no conversation is selected
+.no-chat {
+  @include flex-center;
+  height: 100%;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  background: $surface-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  text-align: center;
+  padding: $spacing-6;
+
+  p {
+    max-width: 280px;
+    line-height: $line-height-relaxed;
+  }
+}
+
+// ==========================================
+// MOBILE RESPONSIVENESS
+// ==========================================
+@include mobile {
+  .conversations-layout {
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
+    padding: $spacing-2;
+    height: auto;
+    // Ensure each panel has a minimum height
+    grid-template-rows: auto 1fr;
+    min-height: calc(100vh - #{$header-height} - #{$spacing-4});
+  }
+
+  .conv-list {
+    // On mobile, list stays above chat by default (order 1)
+    order: 1;
+    max-height: 40vh; // limit list height so chat is reachable
+    border-radius: $border-radius-sm;
+  }
+
+  .chat {
+    order: 2;
+    min-height: 50vh; // ensure chat occupies enough space
+    border-radius: $border-radius-sm;
+  }
+
+  .no-chat {
+    order: 2;
+    min-height: 50vh;
+  }
+
+  // Optional: A toggle button (you can add one in the HTML if desired)
+  // For now, both sections are visible sequentially
+}

@@ -52,6 +52,27 @@ export function getMarketerNavigation(
       ]
     },
 
+    // {
+    //   icon: 'android',
+    //   label: 'Assistant',
+    //   route: '/dashboard/assistant',
+    //   expanded: false
+    // },
+
+    {
+      icon: 'android',
+      label: 'AI Assistant',
+      expanded: false,
+      children: [
+        { icon: 'pie_chart', label: 'Overview', route: '/dashboard/assistant/overview' },
+        { icon: 'mark_chat_read', label: 'Conversations', route: '/dashboard/assistant/conversations' },
+        { icon: 'live_help', label: 'FAQs', route: '/dashboard/assistant/faqs' },
+        { icon: 'build', label: 'Automation', route: '/dashboard/assistant/automation' },
+        { icon: 'add_chart', label: 'Analytics', route: '/dashboard/assistant/analytics' },
+        { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
+      ]
+    },
+
     {
       icon: 'forum',
       label: 'Community',

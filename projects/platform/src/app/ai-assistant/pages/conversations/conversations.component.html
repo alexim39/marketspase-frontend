@@ -1,0 +1,18 @@
+<!-- conversations.component.html -->
+<div class="conversations-layout">
+  <app-conversation-list
+    [conversations]="conversations$ | async"
+    [selectedId]="selectedId$ | async"
+    class="conv-list">
+  </app-conversation-list>
+
+  <app-chat-window
+    *ngIf="selectedConversation$ | async as selected"
+    [conversation]="selected"
+    class="chat">
+  </app-chat-window>
+
+  <div *ngIf="!(selectedConversation$ | async)" class="no-chat">
+    <p>Select a conversation to view messages</p>
+  </div>
+</div>

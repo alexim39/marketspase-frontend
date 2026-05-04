@@ -16,7 +16,7 @@ import { EmptyStateComponent } from './components/empty-state/empty-state.compon
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 
 // Imported types and services
-import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '@shared/services';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { PromoterLandingService } from './promoter-landing.service';
 import { CampaignCardMobileComponent } from './components/campaign-card/mobile/campaign-card-mobile.component';

@@ -1,0 +1,43 @@
+<div class="overview-page">
+  <header class="page-header">
+    <h2>AI Assistant Overview</h2>
+    <p class="subtitle">Quick status and recent activity</p>
+  </header>
+
+  <!-- Top row: Stats + AI Toggle -->
+  <section class="top-row">
+    <app-dashboard-cards [stats]="stats$ | async"></app-dashboard-cards>
+    <app-ai-toggle-panel [aiEnabled]="(aiEnabled$ | async) ?? false"></app-ai-toggle-panel>
+  </section>
+
+  <!-- Recent Conversations -->
+  <section class="recent-conversations">
+    <mat-card class="section-card">
+      <div class="card-header">
+        <h3>Recent Conversations</h3>
+        <a mat-button color="primary" [routerLink]="['/dashboard/assistant/conversations']">
+          View All
+        </a>
+      </div>
+      <mat-list *ngIf="conversations$ | async as conversations; else loading">
+        <mat-list-item *ngFor="let conv of conversations.slice(0, 5)" (click)="openConversation(conv.id)">
+          <span matListItemTitle>{{ conv.customerName }}</span>
+          <span matListItemLine>{{ conv.lastMessage }}</span>
+          <mat-icon *ngIf="conv.status === 'escalated'" color="warn" matListItemIcon>warning</mat-icon>
+        </mat-list-item>
+      </mat-list>
+      <ng-template #loading>
+        <p class="loading-text">Loading conversations…</p>
+      </ng-template>
+    </mat-card>
+  </section>
+
+  <!-- Escalation Alert -->
+  <section class="escalation-alert" *ngIf="(conversations$ | async) as conversations">
+    <mat-card class="alert-card">
+      <mat-icon color="warn">warning</mat-icon>
+      <span>You have {{ conversations.length }} active conversations.</span>
+      <a mat-button color="primary" [routerLink]="['/dashboard/assistant/conversations']">Manage now</a>
+    </mat-card>
+  </section>
+</div>

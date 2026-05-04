@@ -17,7 +17,7 @@ import { RequirementsFormComponent } from './components/requirements-form/requir
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { ErrorStateComponent } from './components/error-state/error-state.component';
 
-import { CampaignInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface } from '@shared/services';
 import { CampaignEditService } from './campaign-edit.service';
 import { CATEGORIES } from '../../common/utils/categories';
 import { MatIconModule } from '@angular/material/icon';

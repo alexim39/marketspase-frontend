@@ -22,7 +22,7 @@ import { DialogActionsComponent } from './components/dialog-actions/dialog-actio
 import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
-import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '@shared/services';
 
 export interface WalletDialogData {
   currentBalance: number;

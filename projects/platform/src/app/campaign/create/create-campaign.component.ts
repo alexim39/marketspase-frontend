@@ -25,7 +25,7 @@ import { UserService } from '../../common/services/user.service';
 import { CampaignService } from './create.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { DeviceService, UserInterface } from '../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CampaignContentFormComponent } from './components/campaign-content-form/campaign-content-form.component';

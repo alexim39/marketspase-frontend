@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '@shared/services';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { CATEGORIES } from '../../../common/utils/categories';

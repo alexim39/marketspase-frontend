@@ -1,0 +1,137 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.overview-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// Page header
+.page-header {
+  h2 {
+    margin: 0;
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+  .subtitle {
+    margin: $spacing-2 0 0;
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}
+
+// Top row: stats (2/3) + toggle (1/3)
+.top-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $spacing-6;
+  align-items: start;
+}
+
+// Card styling for conversational sections
+.section-card {
+  background: $surface-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  padding: $spacing-6;
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-4;
+
+    h3 {
+      margin: 0;
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+    }
+  }
+
+  mat-list-item {
+    cursor: pointer;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+      background: $gray-50;
+    }
+  }
+
+  .loading-text {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    padding: $spacing-4 0;
+    text-align: center;
+  }
+}
+
+// Escalation alert
+.escalation-alert {
+  .alert-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    background: #fff3cd; // static warning color (looks fine in both modes)
+    color: #856404;
+    border-radius: $border-radius-md;
+    padding: $spacing-4 $spacing-6;
+    box-shadow: $shadow-sm;
+
+    mat-icon {
+      flex-shrink: 0;
+    }
+
+    span {
+      flex: 1 1 auto;
+      font-size: $font-size-sm;
+    }
+
+    a {
+      font-weight: $font-weight-medium;
+      text-decoration: none;
+    }
+  }
+}
+
+// ==========================================
+// MOBILE RESPONSIVENESS
+// ==========================================
+@include mobile {
+  .overview-page {
+    gap: $spacing-4;
+  }
+
+  .page-header h2 {
+    font-size: $font-size-xl;
+  }
+
+  .top-row {
+    grid-template-columns: 1fr;
+    gap: $spacing-4;
+  }
+
+  .section-card {
+    padding: $spacing-4;
+
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-2;
+    }
+  }
+
+  .escalation-alert .alert-card {
+    flex-wrap: wrap;
+    padding: $spacing-4;
+    gap: $spacing-2;
+    a {
+      margin-left: auto;
+    }
+  }
+}

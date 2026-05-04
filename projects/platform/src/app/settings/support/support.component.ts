@@ -7,7 +7,7 @@ import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { SupportService } from './support.service';
 import { ContactComponent } from './contact/contact.component';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { Subject, takeUntil } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
