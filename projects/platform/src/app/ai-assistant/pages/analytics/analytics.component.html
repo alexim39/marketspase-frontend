@@ -1,54 +1,38 @@
 <div class="analytics-page">
   <header class="page-header">
-    <h2>Performance Analytics</h2>
-    <p class="subtitle">Track AI effectiveness and conversions</p>
+    <h2>Analytics</h2>
+    <p class="subtitle">Measure your AI assistant performance</p>
   </header>
 
-  <!-- Loading state -->
-  <div *ngIf="!(analytics$ | async)" class="loading-state">
-    <p>Loading analytics data…</p>
+  <div class="metrics-grid">
+    <mat-card class="metric-card">
+      <h3>Messages Handled</h3>
+      <div class="metric-value">{{ stats.totalMessages || 0 }}</div>
+      <div class="metric-breakdown">
+        <span class="ai">{{ stats.aiHandled || 0 }} AI</span>
+        <span class="human">{{ stats.humanHandled || 0 }} Human</span>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <h3>AI Efficiency</h3>
+      <div class="metric-value">{{ stats.conversionRate || 0 }}%</div>
+      <p>of messages handled by AI</p>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <h3>Response Time</h3>
+      <div class="metric-value">{{ stats.responseTime || 0 }}s</div>
+      <p>Average response time</p>
+    </mat-card>
+
+    <mat-card class="metric-card">
+      <h3>Conversations</h3>
+      <div class="metric-value">{{ (stats.activeCount || 0) + (stats.escalatedCount || 0) }}</div>
+      <div class="metric-breakdown">
+        <span class="active">{{ stats.activeCount || 0 }} Active</span>
+        <span class="escalated">{{ stats.escalatedCount || 0 }} Escalated</span>
+      </div>
+    </mat-card>
   </div>
-
-  <!-- Data view -->
-  <ng-container *ngIf="analytics$ | async as data">
-    <div class="metrics">
-      <mat-card class="metric-card">
-        <h3>{{ data.totalMessages }}</h3>
-        <p>Total Messages</p>
-      </mat-card>
-      <mat-card class="metric-card">
-        <h3>{{ data.aiHandled }}</h3>
-        <p>AI Handled</p>
-      </mat-card>
-      <mat-card class="metric-card">
-        <h3>{{ data.humanHandled }}</h3>
-        <p>Human Handled</p>
-      </mat-card>
-      <mat-card class="metric-card">
-        <h3>{{ data.avgResponseTime }}s</h3>
-        <p>Avg Response</p>
-      </mat-card>
-      <mat-card class="metric-card">
-        <h3>{{ data.conversionRate }}%</h3>
-        <p>Conversion Rate</p>
-      </mat-card>
-    </div>
-
-    <section class="chart-card">
-      <h3>Messages Last 7 Days</h3>
-      <div class="bar-chart">
-        <div class="bar-group" *ngFor="let day of data.messagesByDay">
-          <div class="bars">
-            <div class="bar ai" [style.height]="(day.ai / 250) * 100 + '%'"></div>
-            <div class="bar human" [style.height]="(day.human / 250) * 100 + '%'"></div>
-          </div>
-          <span class="day-label">{{ day.date }}</span>
-        </div>
-      </div>
-      <div class="legend">
-        <span><span class="color-box ai"></span> AI</span>
-        <span><span class="color-box human"></span> Human</span>
-      </div>
-    </section>
-  </ng-container>
 </div>

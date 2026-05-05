@@ -56,10 +56,10 @@ export class FaqManagerComponent {
   constructor(private service: AiAssistantService) {}
 
   addFAQ(event: { question: string; answer: string }): void {
-    this.service.addFAQ(event.question, event.answer);
+    this.service.addFaq({ question: event.question, answer: event.answer });
   }
 
   delete(id: string): void {
-    this.service.deleteFAQ(id);
+    this.service.deleteFaq(id);
   }
 }

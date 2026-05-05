@@ -1,18 +1,114 @@
-<!-- conversations.component.html -->
-<div class="conversations-layout">
-  <app-conversation-list
-    [conversations]="conversations$ | async"
-    [selectedId]="selectedId$ | async"
-    class="conv-list">
-  </app-conversation-list>
+<div class="conversations-page">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>Conversations</h3>
+      <div class="filter-chips">
+        <mat-chip-listbox>
+          <mat-chip-option [selected]="!filterStatus" (selectionChange)="filterStatus = ''; loadConversations()">
+            All
+          </mat-chip-option>
+          <mat-chip-option [selected]="filterStatus === 'active'" (selectionChange)="filterStatus = 'active'; loadConversations()">
+            Active
+          </mat-chip-option>
+          <mat-chip-option [selected]="filterStatus === 'escalated'" (selectionChange)="filterStatus = 'escalated'; loadConversations()">
+            Escalated
+          </mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+    </div>
 
-  <app-chat-window
-    *ngIf="selectedConversation$ | async as selected"
-    [conversation]="selected"
-    class="chat">
-  </app-chat-window>
+    <div class="conversation-list" *ngIf="!loading; else loadingConversations">
+      <div *ngFor="let conv of conversations" 
+           class="conversation-item" 
+           [class.selected]="selectedConversation?._id === conv._id"
+           [class.escalated]="conv.status === 'escalated'"
+           (click)="selectConversation(conv)">
+        <div class="conv-avatar">
+          <mat-icon [color]="getStatusColor(conv.status)">{{ getStatusIcon(conv.status) }}</mat-icon>
+        </div>
+        <div class="conv-details">
+          <div class="conv-header">
+            <span class="customer-name">{{ conv.customerName || conv.customerWaId }}</span>
+            <span class="time">{{ formatTime(conv.lastMessageAt) }}</span>
+          </div>
+          <p class="last-message">{{ conv.lastMessageText }}</p>
+        </div>
+        <div class="conv-meta">
+          <span class="unread-dot" *ngIf="conv.status === 'escalated'"></span>
+        </div>
+      </div>
+      <div *ngIf="conversations.length === 0" class="empty-sidebar">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>No conversations yet</p>
+      </div>
+    </div>
 
-  <div *ngIf="!(selectedConversation$ | async)" class="no-chat">
-    <p>Select a conversation to view messages</p>
+    <ng-template #loadingConversations>
+      <div class="loading-list">
+        <mat-spinner diameter="30"></mat-spinner>
+        <p>Loading conversations...</p>
+      </div>
+    </ng-template>
   </div>
+
+  <!-- Chat Area -->
+  <div class="chat-area" *ngIf="selectedConversation; else noSelection">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="customer-avatar">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div>
+          <h4>{{ selectedConversation.customerName || selectedConversation.customerWaId }}</h4>
+          <div class="status-row">
+            <span class="status-badge" [class]="selectedConversation.status">
+              <mat-icon>{{ getStatusIcon(selectedConversation.status) }}</mat-icon>
+              {{ selectedConversation.status | titlecase }}
+            </span>
+            <span class="last-seen">Active now</span>
+          </div>
+        </div>
+      </div>
+      <div class="chat-actions">
+        <button mat-stroked-button 
+                color="primary" 
+                *ngIf="selectedConversation.status !== 'escalated'"
+                (click)="escalate()">
+          <mat-icon>support_agent</mat-icon>
+          Escalate
+        </button>
+        <button mat-stroked-button 
+                color="success" 
+                *ngIf="selectedConversation.status === 'escalated'"
+                (click)="resolve()">
+          <mat-icon>check_circle</mat-icon>
+          Resolve
+        </button>
+      </div>
+    </div>
+    <div class="chat-messages">
+      <div *ngFor="let msg of messages" 
+           class="chat-message" 
+           [class.from-customer]="msg.direction === 'inbound'"
+           [class.from-ai]="msg.direction === 'outbound'">
+        <p>{{ msg.content }}</p>
+        <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+      </div>
+    </div>
+    <div class="chat-input">
+      <mat-form-field appearance="outline" class="full-width">
+        <input matInput placeholder="Type a message..." [(ngModel)]="newMessage" (keydown.enter)="sendMessage()">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <mat-icon>send</mat-icon>
+      </button>
+    </div>
+  </div>
+  <ng-template #noSelection>
+    <div class="no-selection">
+      <mat-icon>chat</mat-icon>
+      <p>Select a conversation to view messages</p>
+    </div>
+  </ng-template>
 </div>

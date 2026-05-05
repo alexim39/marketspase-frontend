@@ -28,6 +28,7 @@ import { AppThemeService } from '../../../app-theme.service';
   styleUrls: ['./theme.component.scss'],
   standalone: true,
   imports: [CommonModule, MatSlideToggleModule, MatIconModule, MatCardModule],
+  providers: [SettingsService]
 })
 export class ThemeSettingsComponent {
   @Input({ required: true }) user!: Signal<UserInterface | null>;

@@ -15,7 +15,7 @@ export interface ThemeInterface {
   userId: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class SettingsService {
   apiUrl = 'settings';
   

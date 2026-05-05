@@ -1,49 +1,87 @@
 <div class="automation-page">
   <header class="page-header">
-    <h2>AI Automation Rules</h2>
-    <p class="subtitle">Control how the AI behaves and when to escalate</p>
+    <div>
+      <h1>Automation</h1>
+      <p class="subtitle">Configure how your AI assistant behaves</p>
+    </div>
+    <div class="header-actions" *ngIf="hasChanges">
+      <button mat-button (click)="resetSettings()">Reset</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="saveSettings()" 
+        [disabled]="saving"
+      >
+        <mat-spinner *ngIf="saving" diameter="16"></mat-spinner>
+        {{ saving ? 'Saving...' : 'Save Changes' }}
+      </button>
+    </div>
   </header>
 
-  <section class="automation-card">
-    <form [formGroup]="form">
-      <div class="form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Tone</mat-label>
-          <mat-select formControlName="tone">
-            <mat-option value="friendly">Friendly</mat-option>
-            <mat-option value="professional">Professional</mat-option>
-            <mat-option value="sales">Sales</mat-option>
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading settings...</p>
+  </div>
+
+  <div class="automation-grid" *ngIf="!loading">
+    <!-- AI Personality -->
+    <mat-card class="settings-card">
+      <div class="card-icon primary">
+        <mat-icon>psychology</mat-icon>
+      </div>
+      <mat-card-header>
+        <mat-card-title>AI Personality</mat-card-title>
+        <mat-card-subtitle>How your AI communicates with customers</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tone of Voice</mat-label>
+          <mat-select [(ngModel)]="settings.tone" (selectionChange)="onChange()">
+            <mat-option value="friendly">
+              <mat-icon>sentiment_satisfied</mat-icon>
+              Friendly — Warm and approachable
+            </mat-option>
+            <mat-option value="professional">
+              <mat-icon>business</mat-icon>
+              Professional — Polite and formal
+            </mat-option>
+            <mat-option value="sales">
+              <mat-icon>trending_up</mat-icon>
+              Sales — Persuasive and conversion-focused
+            </mat-option>
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Language</mat-label>
-          <mat-select formControlName="language">
+          <mat-select [(ngModel)]="settings.language" (selectionChange)="onChange()">
             <mat-option value="english">English</mat-option>
-            <mat-option value="pidgin">Pidgin</mat-option>
+            <mat-option value="pidgin">Nigerian Pidgin</mat-option>
           </mat-select>
         </mat-form-field>
+
+        <div class="toggle-setting">
+          <div class="toggle-info">
+            <strong>Enable AI Assistant</strong>
+            <p>Turn AI on to automatically respond to customer messages</p>
+          </div>
+          <mat-slide-toggle 
+            [(ngModel)]="settings.aiEnabled" 
+            (change)="onChange()"
+            color="primary"
+          >
+            {{ settings.aiEnabled ? 'ON' : 'OFF' }}
+          </mat-slide-toggle>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Escalation Rules -->
+    <mat-card class="settings-card">
+      <div class="card-icon warning">
+        <mat-icon>support_agent</mat-icon>
       </div>
-
-      <div class="toggles">
-        <div class="toggle-item">
-          <mat-slide-toggle formControlName="autoReplyEnabled">Auto Reply</mat-slide-toggle>
-          <p>Let AI reply automatically to messages.</p>
-        </div>
-
-        <div class="toggle-item">
-          <mat-slide-toggle formControlName="escalateOnKeywords">Escalate on Keywords</mat-slide-toggle>
-          <mat-form-field *ngIf="form.value.escalateOnKeywords" appearance="outline" class="full-width">
-            <mat-label>Escalation Keywords (comma separated)</mat-label>
-            <input matInput formControlName="escalateKeywords" placeholder="refund, complaint">
-          </mat-form-field>
-        </div>
-
-        <div class="toggle-item">
-          <mat-slide-toggle formControlName="lowConfidenceFallback">Low-Confidence Fallback</mat-slide-toggle>
-          <p>If AI is unsure, escalate to human</p>
-        </div>
-      </div>
-    </form>
-  </section>
-</div>
+      <mat-card-header>
+        <mat-card-title>Escalation Rules</mat-card-title>
+        <mat-card-subtitle>When to hand off conversations to human agents</mat-card-subtitle>
+      </mat-card-header>

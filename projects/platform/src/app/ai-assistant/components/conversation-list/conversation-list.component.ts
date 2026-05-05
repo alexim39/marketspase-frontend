@@ -73,6 +73,6 @@ export class ConversationListComponent {
   constructor(private service: AiAssistantService) {}
 
   select(id: string): void {
-    this.service.selectConversation(id);
+    this.service.getConversations(id);
   }
 }

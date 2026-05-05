@@ -2,10 +2,10 @@ import { Routes } from "@angular/router";
 
 export const AssistantRoutes: Routes = [
     {
-        path: '',
+        path: 'customer',
         //component: AiAssistantShellComponent,
-        loadComponent: () => import('./ai-assistant-shell.component').then(c => c.AiAssistantShellComponent),
-        title: 'AI Assistant',
+        loadComponent: () => import('./ai-assistant.component').then(c => c.AiAssistantComponent),
+        title: 'AI WhatsApp Customer Assistant',
         /*  */
         children: [
             {
@@ -16,32 +16,32 @@ export const AssistantRoutes: Routes = [
             {
                 path: 'overview',
                 loadComponent: () => import('./pages/overview/overview.component').then(c => c.OverviewComponent),
-                title: 'AI Assistant - Overview'
+                title: 'AI WhatsApp Customer Assistant - Overview'
             },
             {
                 path: 'conversations',
                 loadComponent: () => import('./pages/conversations/conversations.component').then(c => c.ConversationsComponent),
-                title: 'AI Assistant - Conversations'
+                title: 'AI WhatsApp Customer Assistant - Conversations'
             },
             {
                 path: 'faqs',
                 loadComponent: () => import('./pages/faqs/faqs.component').then(c => c.FaqsComponent),
-                title: 'AI Assistant - FAQs'
+                title: 'AI WhatsApp Customer Assistant - FAQs'
             },
             {
                 path: 'automation',
                 loadComponent: () => import('./pages/automation/automation.component').then(c => c.AutomationComponent),
-                title: 'AI Assistant - Automation'
+                title: 'AI WhatsApp Customer Assistant - Automation'
             },
             {
                 path: 'analytics',
                 loadComponent: () => import('./pages/analytics/analytics.component').then(c => c.AnalyticsComponent),
-                title: 'AI Assistant - Analytics' 
+                title: 'AI WhatsApp Customer Assistant - Analytics' 
             },
             {
                 path: 'settings',
                 loadComponent: () => import('./pages/settings/settings.component').then(c => c.SettingsComponent),
-                title: 'AI Assistant - Settings'
+                title: 'AI WhatsApp Customer Assistant - Settings'
             }, 
         ]
     },

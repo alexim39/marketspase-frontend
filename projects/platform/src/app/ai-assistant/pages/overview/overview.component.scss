@@ -1,137 +1,390 @@
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mix;
 
 .overview-page {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-6;
   max-width: 1200px;
   margin: 0 auto;
-  width: 100%;
 }
 
-// Page header
+// Subscription Gate
+.subscription-gate {
+  @include mix.flex-column-center;
+  text-align: center;
+  padding: vars.$spacing-20 vars.$spacing-6;
+  min-height: 60vh;
+  background: vars.$surface-color;
+  border-radius: vars.$border-radius-lg;
+  border: 2px dashed vars.$border-color;
+
+  .gate-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    color: vars.$primary-color;
+    margin-bottom: vars.$spacing-6;
+  }
+
+  h2 {
+    font-size: vars.$font-size-3xl;
+    font-weight: vars.$font-weight-bold;
+    color: vars.$text-primary;
+    margin-bottom: vars.$spacing-2;
+  }
+
+  p {
+    font-size: vars.$font-size-lg;
+    color: vars.$text-secondary;
+    max-width: 500px;
+    margin-bottom: vars.$spacing-8;
+    line-height: vars.$line-height-relaxed;
+  }
+
+  button {
+    padding: vars.$spacing-3 vars.$spacing-8;
+    font-size: vars.$font-size-lg;
+    
+    mat-icon {
+      margin-right: vars.$spacing-2;
+    }
+  }
+}
+
+// Loading State
+.loading-state {
+  @include mix.flex-column-center;
+  padding: vars.$spacing-20;
+  gap: vars.$spacing-4;
+
+  p {
+    color: vars.$text-secondary;
+  }
+}
+
+// Page Header
 .page-header {
+  @include mix.flex-between;
+  margin-bottom: vars.$spacing-6;
+  flex-wrap: wrap;
+  gap: vars.$spacing-4;
+
   h2 {
     margin: 0;
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-semibold;
-    color: $text-primary;
+    font-size: vars.$font-size-2xl;
+    font-weight: vars.$font-weight-semibold;
+    color: vars.$text-primary;
   }
+
   .subtitle {
-    margin: $spacing-2 0 0;
-    font-size: $font-size-sm;
-    color: $text-secondary;
+    color: vars.$text-secondary;
+    margin: vars.$spacing-1 0 0;
+    font-size: vars.$font-size-sm;
+  }
+
+  .plan-badge {
+    display: flex;
+    align-items: center;
+    gap: vars.$spacing-2;
+    padding: vars.$spacing-2 vars.$spacing-4;
+    background: rgba(vars.$success-color, 0.1);
+    color: vars.$success-color;
+    border-radius: vars.$border-radius-full;
+    font-size: vars.$font-size-sm;
+    font-weight: vars.$font-weight-medium;
+
+    mat-icon {
+      font-size: vars.$font-size-lg;
+      width: vars.$font-size-lg;
+      height: vars.$font-size-lg;
+    }
   }
 }
 
-// Top row: stats (2/3) + toggle (1/3)
-.top-row {
+// Stats Grid
+.stats-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: $spacing-6;
-  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: vars.$spacing-4;
+  margin-bottom: vars.$spacing-6;
 }
 
-// Card styling for conversational sections
-.section-card {
-  background: $surface-color;
-  border-radius: $border-radius-md;
-  box-shadow: $shadow-sm;
-  padding: $spacing-6;
+.stat-card {
+  padding: vars.$spacing-5;
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-4;
+  cursor: default;
+  transition: transform vars.$transition-normal, box-shadow vars.$transition-normal;
 
-  .card-header {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: vars.$shadow-lg;
+  }
+
+  &.alert {
+    background: linear-gradient(135deg, rgba(vars.$warning-color, 0.1) 0%, rgba(vars.$error-color, 0.05) 100%);
+    border: 1px solid rgba(vars.$warning-color, 0.3);
+    cursor: pointer;
+
+    .stat-icon.warning {
+      background: vars.$warning-color;
+      color: vars.$white;
+    }
+
+    .alert-arrow {
+      margin-left: auto;
+      color: vars.$warning-color;
+    }
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: vars.$border-radius-md;
+    @include mix.flex-center;
+
+    &.primary { background: rgba(vars.$primary-color, 0.1); color: vars.$primary-color; }
+    &.success { background: rgba(vars.$success-color, 0.1); color: vars.$success-color; }
+    &.info { background: rgba(vars.$info-color, 0.1); color: vars.$info-color; }
+    &.accent { background: rgba(vars.$secondary-color, 0.1); color: vars.$secondary-color; }
+
+    mat-icon {
+      font-size: vars.$font-size-2xl;
+      width: vars.$font-size-2xl;
+      height: vars.$font-size-2xl;
+    }
+  }
+
+  .stat-content {
+    .stat-value {
+      font-size: vars.$font-size-2xl;
+      font-weight: vars.$font-weight-bold;
+      color: vars.$text-primary;
+      line-height: vars.$line-height-tight;
+    }
+
+    .stat-label {
+      font-size: vars.$font-size-sm;
+      color: vars.$text-secondary;
+      margin-top: vars.$spacing-1;
+    }
+  }
+}
+
+// AI Control Card
+.ai-control-card {
+  margin-bottom: vars.$spacing-6;
+
+  .ai-control-content {
+    @include mix.flex-between;
+    padding: vars.$spacing-4;
+    flex-wrap: wrap;
+    gap: vars.$spacing-4;
+  }
+
+  .ai-status-info {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: $spacing-4;
+    gap: vars.$spacing-4;
+
+    .ai-status-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: vars.$border-radius-full;
+      @include mix.flex-center;
+      background: vars.$gray-100;
+      color: vars.$text-tertiary;
+      transition: all vars.$transition-normal;
+
+      &.active {
+        background: rgba(vars.$success-color, 0.15);
+        color: vars.$success-color;
+      }
+
+      mat-icon {
+        font-size: vars.$font-size-2xl;
+        width: vars.$font-size-2xl;
+        height: vars.$font-size-2xl;
+      }
+    }
 
     h3 {
       margin: 0;
-      font-size: $font-size-lg;
-      font-weight: $font-weight-semibold;
-      color: $text-primary;
+      font-size: vars.$font-size-lg;
+      font-weight: vars.$font-weight-semibold;
+      color: vars.$text-primary;
+    }
+
+    p {
+      margin: vars.$spacing-1 0 0;
+      color: vars.$text-secondary;
+      font-size: vars.$font-size-sm;
     }
   }
 
-  mat-list-item {
-    cursor: pointer;
-    border-radius: $border-radius-sm;
-
-    &:hover {
-      background: $gray-50;
+  .ai-toggle {
+    ::ng-deep .mdc-switch__track {
+      height: 32px;
+      border-radius: 16px;
     }
-  }
-
-  .loading-text {
-    color: $text-secondary;
-    font-size: $font-size-sm;
-    padding: $spacing-4 0;
-    text-align: center;
   }
 }
 
-// Escalation alert
-.escalation-alert {
-  .alert-card {
+// Quick Actions
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: vars.$spacing-4;
+  margin-bottom: vars.$spacing-6;
+}
+
+.action-card {
+  padding: vars.$spacing-5;
+  text-align: center;
+  cursor: pointer;
+  transition: all vars.$transition-normal;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: vars.$shadow-lg;
+    border-color: vars.$primary-color;
+  }
+
+  mat-icon {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: vars.$primary-color;
+    margin-bottom: vars.$spacing-3;
+  }
+
+  h4 {
+    margin: 0 0 vars.$spacing-1;
+    font-size: vars.$font-size-base;
+    font-weight: vars.$font-weight-semibold;
+    color: vars.$text-primary;
+  }
+
+  p {
+    margin: 0;
+    font-size: vars.$font-size-sm;
+    color: vars.$text-secondary;
+  }
+}
+
+// Recent Conversations
+.recent-card {
+  .conversation-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .conv-item {
     display: flex;
     align-items: center;
-    gap: $spacing-4;
-    background: #fff3cd; // static warning color (looks fine in both modes)
-    color: #856404;
-    border-radius: $border-radius-md;
-    padding: $spacing-4 $spacing-6;
-    box-shadow: $shadow-sm;
+    gap: vars.$spacing-3;
+    padding: vars.$spacing-3 vars.$spacing-4;
+    border-radius: vars.$border-radius;
+    cursor: pointer;
+    transition: background vars.$transition-fast;
 
-    mat-icon {
-      flex-shrink: 0;
+    &:hover {
+      background: vars.$gray-50;
     }
 
-    span {
-      flex: 1 1 auto;
-      font-size: $font-size-sm;
+    &.escalated {
+      border-left: 3px solid vars.$error-color;
     }
 
-    a {
-      font-weight: $font-weight-medium;
-      text-decoration: none;
+    .conv-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: vars.$border-radius-full;
+      background: vars.$gray-100;
+      @include mix.flex-center;
+
+      mat-icon {
+        color: vars.$text-tertiary;
+        font-size: vars.$font-size-xl;
+      }
+    }
+
+    .conv-info {
+      flex: 1;
+      min-width: 0;
+
+      .conv-header {
+        @include mix.flex-between;
+        margin-bottom: vars.$spacing-1;
+
+        strong {
+          font-weight: vars.$font-weight-medium;
+          color: vars.$text-primary;
+          font-size: vars.$font-size-sm;
+        }
+
+        .conv-time {
+          font-size: vars.$font-size-xs;
+          color: vars.$text-tertiary;
+        }
+      }
+
+      .conv-preview {
+        margin: 0;
+        font-size: vars.$font-size-sm;
+        color: vars.$text-secondary;
+        @include mix.text-ellipsis;
+      }
+    }
+
+    .conv-status-badge {
+      font-size: vars.$font-size-xs;
+      padding: 2px 8px;
+      border-radius: vars.$border-radius-full;
+      text-transform: capitalize;
+      font-weight: vars.$font-weight-medium;
+
+      &.active {
+        background: rgba(vars.$success-color, 0.1);
+        color: vars.$success-color;
+      }
+
+      &.escalated {
+        background: rgba(vars.$error-color, 0.1);
+        color: vars.$error-color;
+      }
     }
   }
 }
 
-// ==========================================
-// MOBILE RESPONSIVENESS
-// ==========================================
-@include mobile {
-  .overview-page {
-    gap: $spacing-4;
+.empty-state {
+  @include mix.flex-column-center;
+  padding: vars.$spacing-12;
+  color: vars.$text-tertiary;
+
+  mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: vars.$spacing-3;
   }
 
-  .page-header h2 {
-    font-size: $font-size-xl;
+  p {
+    font-size: vars.$font-size-sm;
+  }
+}
+
+// Responsive
+@include mix.mobile {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .top-row {
+  .quick-actions {
     grid-template-columns: 1fr;
-    gap: $spacing-4;
   }
 
-  .section-card {
-    padding: $spacing-4;
-
-    .card-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: $spacing-2;
-    }
-  }
-
-  .escalation-alert .alert-card {
-    flex-wrap: wrap;
-    padding: $spacing-4;
-    gap: $spacing-2;
-    a {
-      margin-left: auto;
-    }
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

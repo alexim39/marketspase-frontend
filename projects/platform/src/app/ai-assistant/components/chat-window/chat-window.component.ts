@@ -1,4 +1,4 @@
-// chat-window.component.ts
+/* // chat-window.component.ts
 import { Component, Input, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // for the input binding (not a reactive form here, simple enough)
@@ -162,4 +162,4 @@ export class ChatWindowComponent implements AfterViewChecked {
       el.scrollTop = el.scrollHeight;
     }
   }
-}
+} */

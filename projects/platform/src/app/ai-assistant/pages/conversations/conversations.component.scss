@@ -1,85 +1,327 @@
-// conversations.component.scss
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mix;
 
-.conversations-layout {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: $spacing-6;
-  height: 100%; // fill parent content area automatically
-  padding: $spacing-4;
-  background: $background-color;
+.conversations-page {
+  display: flex;
+  height: calc(100vh - 64px);
+  background: vars.$background-color;
+
+  @include mix.mobile {
+    height: calc(100vh - 56px);
+  }
 }
 
-// Conversation list panel
-.conv-list {
-  background: $surface-color;
-  border-radius: $border-radius-md;
-  box-shadow: $shadow-sm;
-  overflow-y: auto;
-  // inner padding handled by the component itself
-}
-
-// Chat window panel
-.chat {
-  background: $surface-color;
-  border-radius: $border-radius-md;
-  box-shadow: $shadow-sm;
-  overflow: hidden; // keeps the chat's internal scroll contained
+// Sidebar
+.sidebar {
+  width: 340px;
+  border-right: 1px solid vars.$border-color;
+  background: vars.$surface-color;
   display: flex;
   flex-direction: column;
+
+  @include mix.mobile {
+    width: 100%;
+    
+    &.mobile-hidden {
+      display: none;
+    }
+  }
 }
 
-// Empty state when no conversation is selected
-.no-chat {
-  @include flex-center;
-  height: 100%;
-  color: $text-secondary;
-  font-size: $font-size-sm;
-  background: $surface-color;
-  border-radius: $border-radius-md;
-  box-shadow: $shadow-sm;
-  text-align: center;
-  padding: $spacing-6;
+.sidebar-header {
+  padding: vars.$spacing-4;
+  border-bottom: 1px solid vars.$border-color;
+
+  h2 {
+    margin: 0 0 vars.$spacing-3;
+    font-size: vars.$font-size-xl;
+    font-weight: vars.$font-weight-bold;
+    color: vars.$text-primary;
+  }
+}
+
+.filter-chips {
+  display: flex;
+  gap: vars.$spacing-2;
+
+  button {
+    font-size: vars.$font-size-xs;
+    padding: vars.$spacing-1 vars.$spacing-3;
+    border-radius: vars.$border-radius-full;
+    
+    &.active {
+      background: color-mix(in srgb, vars.$primary-color, transparent 90%);
+      color: vars.$primary-color;
+    }
+  }
+}
+
+.conversation-list {
+  flex: 1;
+  overflow-y: auto;
+  @include mix.scrollbar;
+}
+
+.conversation-item {
+  @include mix.flex-center;
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-3 vars.$spacing-4;
+  cursor: pointer;
+  border-bottom: 1px solid vars.$divider-color;
+  transition: all vars.$transition-fast;
+
+  &:hover {
+    background: color-mix(in srgb, vars.$primary-color, transparent 96%);
+  }
+
+  &.selected {
+    background: color-mix(in srgb, vars.$primary-color, transparent 92%);
+    border-left: 3px solid vars.$primary-color;
+  }
+
+  &.escalated {
+    .conv-avatar {
+      background: color-mix(in srgb, vars.$error-color, transparent 90%);
+      color: vars.$error-color;
+    }
+  }
+
+  .conv-avatar {
+    @include mix.flex-center;
+    width: 44px;
+    height: 44px;
+    border-radius: vars.$border-radius-full;
+    background: vars.$gradient-primary;
+    color: vars.$white;
+    font-weight: vars.$font-weight-bold;
+    font-size: vars.$font-size-sm;
+    flex-shrink: 0;
+  }
+
+  .conv-details {
+    flex: 1;
+    min-width: 0;
+
+    .conv-header {
+      @include mix.flex-between;
+      margin-bottom: vars.$spacing-1;
+
+      .customer-name {
+        font-weight: vars.$font-weight-medium;
+        color: vars.$text-primary;
+        @include mix.text-ellipsis;
+      }
+
+      .time {
+        font-size: vars.$font-size-xs;
+        color: vars.$text-tertiary;
+        flex-shrink: 0;
+      }
+    }
+
+    .last-message {
+      margin: 0;
+      font-size: vars.$font-size-sm;
+      color: vars.$text-secondary;
+      @include mix.text-ellipsis;
+    }
+  }
+
+  .conv-indicator {
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+.loading-list {
+  @include mix.flex-center;
+  padding: vars.$spacing-10;
+}
+
+.empty-state {
+  @include mix.flex-column-center;
+  padding: vars.$spacing-10;
+  color: vars.$text-tertiary;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    margin-bottom: vars.$spacing-3;
+  }
+}
+
+// Chat Area
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: vars.$background-color;
+  position: relative;
+
+  @include mix.mobile {
+    position: fixed;
+    inset: 56px 0 0 0;
+    z-index: vars.$z-index-modal;
+  }
+}
+
+.mobile-back {
+  position: absolute;
+  top: vars.$spacing-2;
+  left: vars.$spacing-2;
+  z-index: 1;
+}
+
+.chat-header {
+  @include mix.flex-between;
+  padding: vars.$spacing-4;
+  background: vars.$surface-color;
+  border-bottom: 1px solid vars.$border-color;
+
+  .chat-header-info {
+    @include mix.flex-center;
+    gap: vars.$spacing-3;
+
+    .customer-avatar {
+      @include mix.flex-center;
+      width: 40px;
+      height: 40px;
+      border-radius: vars.$border-radius-full;
+      background: vars.$gradient-primary;
+      color: vars.$white;
+      font-weight: vars.$font-weight-bold;
+      font-size: vars.$font-size-sm;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: vars.$font-size-base;
+      font-weight: vars.$font-weight-semibold;
+    }
+
+    .status-badge {
+      font-size: vars.$font-size-xs;
+      padding: vars.$spacing-1 vars.$spacing-2;
+      border-radius: vars.$border-radius-full;
+
+      &.active {
+        background: color-mix(in srgb, vars.$success-color, transparent 90%);
+        color: vars.$success-color;
+      }
+
+      &.escalated {
+        background: color-mix(in srgb, vars.$error-color, transparent 90%);
+        color: vars.$error-color;
+      }
+    }
+  }
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: vars.$spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: vars.$spacing-3;
+  @include mix.scrollbar;
+}
+
+.message-wrapper {
+  display: flex;
+
+  &.inbound {
+    justify-content: flex-start;
+
+    .message-bubble {
+      background: vars.$surface-color;
+      border: 1px solid vars.$border-color;
+      color: vars.$text-primary;
+      border-bottom-left-radius: vars.$spacing-1;
+    }
+  }
+
+  &.outbound {
+    justify-content: flex-end;
+
+    .message-bubble {
+      background: vars.$gradient-primary;
+      color: vars.$white;
+      border-bottom-right-radius: vars.$spacing-1;
+    }
+  }
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: vars.$spacing-3 vars.$spacing-4;
+  border-radius: vars.$border-radius-lg;
+  box-shadow: vars.$shadow-sm;
 
   p {
-    max-width: 280px;
-    line-height: $line-height-relaxed;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .message-meta {
+    @include mix.flex-center;
+    justify-content: flex-end;
+    gap: vars.$spacing-2;
+    margin-top: vars.$spacing-1;
+    font-size: vars.$font-size-xs;
+    opacity: 0.7;
+
+    .source {
+      text-transform: uppercase;
+      font-weight: vars.$font-weight-medium;
+    }
   }
 }
 
-// ==========================================
-// MOBILE RESPONSIVENESS
-// ==========================================
-@include mobile {
-  .conversations-layout {
-    grid-template-columns: 1fr;
-    gap: $spacing-4;
-    padding: $spacing-2;
-    height: auto;
-    // Ensure each panel has a minimum height
-    grid-template-rows: auto 1fr;
-    min-height: calc(100vh - #{$header-height} - #{$spacing-4});
+.input-area {
+  @include mix.flex-center;
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-4;
+  background: vars.$surface-color;
+  border-top: 1px solid vars.$border-color;
+
+  .message-input {
+    flex: 1;
+    margin-bottom: -1.25em;
   }
 
-  .conv-list {
-    // On mobile, list stays above chat by default (order 1)
-    order: 1;
-    max-height: 40vh; // limit list height so chat is reachable
-    border-radius: $border-radius-sm;
+  button[mat-fab] {
+    width: 48px;
+    height: 48px;
+
+    mat-spinner {
+      ::ng-deep circle {
+        stroke: vars.$white;
+      }
+    }
+  }
+}
+
+.no-selection {
+  @include mix.flex-column-center;
+  flex: 1;
+  color: vars.$text-tertiary;
+  gap: vars.$spacing-4;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
   }
 
-  .chat {
-    order: 2;
-    min-height: 50vh; // ensure chat occupies enough space
-    border-radius: $border-radius-sm;
+  h3 {
+    margin: 0;
+    color: vars.$text-secondary;
   }
 
-  .no-chat {
-    order: 2;
-    min-height: 50vh;
+  p {
+    margin: 0;
   }
-
-  // Optional: A toggle button (you can add one in the HTML if desired)
-  // For now, both sections are visible sequentially
 }

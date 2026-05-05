@@ -1,4 +1,3 @@
-// src/app/features/ai-assistant/services/settings.service.ts
 import { inject, Injectable, Signal } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
@@ -10,8 +9,8 @@ import {
 } from '../models/settings.model';
 import { UserInterface } from '@shared/services';
 import { UserService } from '../../../../common/services/user.service';
-import { AiAssistantSettingsAPiService } from './settings.service-api';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AiAssistantSettingsAPiService } from '../../../services/ai-assistant-api.service';
 
 @Injectable()
 export class AiAssistantSettingsService {
@@ -23,18 +22,15 @@ export class AiAssistantSettingsService {
   private loading = new BehaviorSubject<boolean>(false);
   loading$ = this.loading.asObservable();
 
-  // WhatsApp connections
   private whatsappConnections = new BehaviorSubject<WhatsAppConnection[]>([]);
   whatsappConnections$ = this.whatsappConnections.asObservable();
 
-  // Subscription
   private subscriptionPlans = new BehaviorSubject<SubscriptionPlan[]>([]);
   subscriptionPlans$ = this.subscriptionPlans.asObservable();
 
   private currentPlanId = new BehaviorSubject<string>('');
   currentPlanId$ = this.currentPlanId.asObservable();
 
-  // Business info
   private businessInfo = new BehaviorSubject<BusinessInfo>({
     businessId: '',
     businessName: '',
@@ -42,7 +38,6 @@ export class AiAssistantSettingsService {
   });
   businessInfo$ = this.businessInfo.asObservable();
 
-  // Notification preferences
   private notificationPrefs = new BehaviorSubject<NotificationPreferences>({
     newMessage: false,
     escalation: false,
@@ -50,35 +45,37 @@ export class AiAssistantSettingsService {
   });
   notificationPrefs$ = this.notificationPrefs.asObservable();
 
+  private aiSettings = new BehaviorSubject<any>({});
+  aiSettings$ = this.aiSettings.asObservable();
+
   constructor(private api: AiAssistantSettingsAPiService) {}
 
-  // ── WhatsApp Connections ──
   loadWhatsAppConnections(): void {
     this.setLoading(true);
-    this.api.getWhatsAppConnections(this.user()?._id ?? '').pipe(
+    this.api.getWhatsAppConnections().pipe(
       tap(connections => this.whatsappConnections.next(connections)),
       finalize(() => this.setLoading(false))
     ).subscribe();
   }
 
   addWhatsAppConnection(phoneNumber: string): void {
-    this.api.addWhatsAppConnection(this.user()?._id ?? '', phoneNumber).pipe(
+    this.api.addWhatsAppConnection(phoneNumber).pipe(
       tap(newConn => {
         const current = this.whatsappConnections.value;
         this.whatsappConnections.next([...current, newConn]);
         this.showSuccess('WhatsApp number added');
       }),
       catchError(err => {
-        this.showError('Failed to add number');
+        this.showError(err.error?.message || 'Failed to add number');
         return of(null);
       })
     ).subscribe();
   }
 
   removeWhatsAppConnection(phoneNumber: string): void {
-    this.api.removeWhatsAppConnection(this.user()?._id ?? '', phoneNumber).pipe(
+    this.api.removeWhatsAppConnection(phoneNumber).pipe(
       tap(() => {
-        const connections = this.whatsappConnections.value.filter(c => c.id !== phoneNumber);
+        const connections = this.whatsappConnections.value.filter(c => c.phoneNumber !== phoneNumber);
         this.whatsappConnections.next(connections);
         this.showSuccess('Number removed');
       }),
@@ -90,10 +87,10 @@ export class AiAssistantSettingsService {
   }
 
   toggleAIForConnection(phoneNumber: string, enable: boolean): void {
-    this.api.toggleAIForConnection(this.user()?._id ?? '', phoneNumber, enable).pipe(
+    this.api.toggleAIForConnection(phoneNumber, enable).pipe(
       tap(updated => {
         const connections = this.whatsappConnections.value.map(c =>
-          c.id === phoneNumber ? updated : c
+          c.phoneNumber === phoneNumber ? updated : c
         );
         this.whatsappConnections.next(connections);
       }),
@@ -105,10 +102,10 @@ export class AiAssistantSettingsService {
   }
 
   reconnectConnection(phoneNumber: string): void {
-    this.api.reconnectConnection(this.user()?._id ?? '', phoneNumber).pipe(
+    this.api.reconnectConnection(phoneNumber).pipe(
       tap(updated => {
         const connections = this.whatsappConnections.value.map(c =>
-          c.id === phoneNumber ? updated : c
+          c.phoneNumber === phoneNumber ? updated : c
         );
         this.whatsappConnections.next(connections);
         this.showSuccess('Reconnected');
@@ -120,41 +117,41 @@ export class AiAssistantSettingsService {
     ).subscribe();
   }
 
-  // ── Subscription Plans ──
   loadSubscriptionPlans(): void {
     this.setLoading(true);
-    this.api.getSubscriptionPlans(this.user()?._id ?? '').pipe(
+    this.api.getSubscriptionPlans().pipe(
       tap(plans => this.subscriptionPlans.next(plans)),
       finalize(() => this.setLoading(false))
     ).subscribe();
   }
 
   loadCurrentPlan(): void {
-    this.api.getCurrentPlan(this.user()?._id ?? '').pipe(
-      tap(response => this.currentPlanId.next(response.planId))
+    this.api.getCurrentPlan().pipe(
+      tap(response => {
+        this.currentPlanId.next(response.planId);
+        this.subscriptionPlans.next(response.plans);
+      })
     ).subscribe();
   }
 
   updateSubscriptionPlan(planId: string): void {
     this.setLoading(true);
-    this.api.updateSubscriptionPlan(this.user()?._id ?? '', planId).pipe(
+    this.api.updateSubscriptionPlan(planId).pipe(
       tap(() => {
         this.currentPlanId.next(planId);
         this.showSuccess('Subscription updated');
       }),
       catchError(err => {
-        this.showError('Upgrade failed. Check your balance.');
+        this.showError(err.error?.message || 'Upgrade failed. Check your balance.');
         return of(null);
       }),
       finalize(() => this.setLoading(false))
     ).subscribe();
   }
 
-  // ── Business Info ──
   loadBusinessInfo(): void {
-    this.api.getBusinessInfo(this.user()?._id ?? '').pipe(
+    this.api.getBusinessInfo().pipe(
       tap(info => {
-        //console.log('Loaded business info:', info);
         this.businessInfo.next({
           businessId: info.businessId,
           businessName: info.businessName,
@@ -165,7 +162,7 @@ export class AiAssistantSettingsService {
   }
 
   updateBusinessInfo(businessId: string): void {
-    this.api.updateBusinessInfo(this.user()?._id ?? '', businessId).pipe(
+    this.api.updateBusinessInfo(businessId).pipe(
       tap(updated => {
         const current = this.businessInfo.value;
         this.businessInfo.next({
@@ -182,15 +179,14 @@ export class AiAssistantSettingsService {
     ).subscribe();
   }
 
-  // ── Notification Preferences ──
   loadNotificationPreferences(): void {
-    this.api.getNotificationPreferences(this.user()?._id ?? '').pipe(
+    this.api.getNotificationPreferences().pipe(
       tap(prefs => this.notificationPrefs.next(prefs))
     ).subscribe();
   }
 
   updateNotificationPreferences(prefs: NotificationPreferences): void {
-    this.api.updateNotificationPreferences(this.user()?._id ?? '', prefs).pipe(
+    this.api.updateNotificationPreferences(prefs).pipe(
       tap(() => {
         this.notificationPrefs.next(prefs);
         this.showSuccess('Preferences saved');
@@ -202,7 +198,6 @@ export class AiAssistantSettingsService {
     ).subscribe();
   }
 
-  // ── Helpers ──
   private setLoading(value: boolean): void {
     this.loading.next(value);
   }
