@@ -133,7 +133,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     if (!this.hasSubscription) {
       return;
     }
-    this.aiService.toggleAI(!this.aiEnabled).subscribe({
+    this.aiService.toggleAI(!this.aiEnabled, this.userService.user()?._id ?? '').subscribe({
       next: () => { this.aiEnabled = !this.aiEnabled; }
     });
   }

@@ -14,8 +14,8 @@ export class AiAssistantSettingsAPiService {
       .pipe(map(res => res.data));
   }
 
-  addWhatsAppConnection(phoneNumber: string): Observable<WhatsAppConnection> {
-    return this.apiService.post<ApiResponse<WhatsAppConnection>>(`${this.baseUrl}/whatsapp`, { phoneNumber })
+  addWhatsAppConnection(phoneNumber: string, userId: string): Observable<WhatsAppConnection> {
+    return this.apiService.post<ApiResponse<WhatsAppConnection>>(`${this.baseUrl}/whatsapp`, { phoneNumber, userId })
       .pipe(map(res => res.data));
   }
 

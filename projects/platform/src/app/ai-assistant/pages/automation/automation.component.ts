@@ -31,7 +31,8 @@ import { AiAssistantService } from '../../services/ai-assistant.service';
     FormsModule
   ],
   templateUrl: './automation.component.html',
-  styleUrls: ['./automation.component.scss']
+  styleUrls: ['./automation.component.scss'],
+  providers: [AiAssistantService]
 })
 export class AutomationComponent implements OnInit, OnDestroy {
   private aiService = inject(AiAssistantService);

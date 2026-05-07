@@ -35,279 +35,298 @@
 
   <div class="settings-content">
     <!-- WhatsApp Numbers Section -->
-    <section class="settings-section" *ngIf="activeSection === 'whatsapp'">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>chat</mat-icon>
-            WhatsApp Numbers
-          </mat-card-title>
-          <button mat-stroked-button color="primary" (click)="openAddNumberDialog()">
-            <mat-icon>add</mat-icon> Add Number
-          </button>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="connection-list">
-            <div *ngFor="let conn of whatsappConnections$ | async" class="connection-item">
-              <div class="connection-info">
-                <div class="phone-number">
-                  <mat-icon>phone</mat-icon>
-                  {{ conn.phoneNumber }}
+     @if (activeSection === 'whatsapp') {
+      <section class="settings-section">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>chat</mat-icon>
+              WhatsApp Numbers
+            </mat-card-title>
+            <button mat-stroked-button color="primary" (click)="openAddNumberDialog()">
+              <mat-icon>add</mat-icon> Add Number
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="connection-list">
+              <div *ngFor="let conn of whatsappConnections$ | async" class="connection-item">
+                <div class="connection-info">
+                  <div class="phone-number">
+                    <mat-icon>phone</mat-icon>
+                    {{ conn.phoneNumber }}
+                  </div>
+                  <div class="status-row">
+                    <span class="status-badge" [class.connected]="conn.aiEnabled" [class.disconnected]="!conn.aiEnabled">
+                      <mat-icon>{{ conn.aiEnabled ? 'check_circle' : 'error' }}</mat-icon>
+                      {{ conn.aiEnabled ? 'Connected' : 'Disconnected' }}
+                    </span>
+                    <span class="ai-status" [class.on]="conn.aiEnabled">
+                      <mat-icon>{{ conn.aiEnabled ? 'smart_toy' : 'person' }}</mat-icon>
+                      AI {{ conn.aiEnabled ? 'ON' : 'OFF' }}
+                    </span>
+                  </div>
                 </div>
-                <div class="status-row">
-                  <span class="status-badge" [class.connected]="conn.isConnected" [class.disconnected]="!conn.isConnected">
-                    <mat-icon>{{ conn.isConnected ? 'check_circle' : 'error' }}</mat-icon>
-                    {{ conn.isConnected ? 'Connected' : 'Disconnected' }}
-                  </span>
-                  <span class="ai-status" [class.on]="conn.aiEnabled">
-                    <mat-icon>{{ conn.aiEnabled ? 'smart_toy' : 'person' }}</mat-icon>
-                    AI {{ conn.aiEnabled ? 'ON' : 'OFF' }}
-                  </span>
+                <div class="connection-actions">
+                  <button mat-icon-button 
+                          *ngIf="!conn.aiEnabled" 
+                          (click)="reconnectConnection(conn.phoneNumber)" 
+                          matTooltip="Reconnect"
+                          color="primary">
+                    <mat-icon>refresh</mat-icon>
+                  </button>
+                  <mat-slide-toggle
+                    [checked]="conn.aiEnabled"
+                    [disabled]="!conn.aiEnabled"
+                    (change)="toggleAIForConnection(conn.phoneNumber, $event)"
+                    matTooltip="Toggle AI for this number">
+                  </mat-slide-toggle>
+                  <button mat-icon-button 
+                          color="warn" 
+                          (click)="removeConnection(conn.phoneNumber)" 
+                          matTooltip="Remove number">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
               </div>
-              <div class="connection-actions">
-                <button mat-icon-button 
-                        *ngIf="!conn.isConnected" 
-                        (click)="reconnectConnection(conn.phoneNumber)" 
-                        matTooltip="Reconnect"
-                        color="primary">
-                  <mat-icon>refresh</mat-icon>
-                </button>
-                <mat-slide-toggle
-                  [checked]="conn.aiEnabled"
-                  [disabled]="!conn.isConnected"
-                  (change)="toggleAIForConnection(conn.phoneNumber, $event)"
-                  matTooltip="Toggle AI for this number">
-                </mat-slide-toggle>
-                <button mat-icon-button 
-                        color="warn" 
-                        (click)="removeConnection(conn.phoneNumber)" 
-                        matTooltip="Remove number">
-                  <mat-icon>delete</mat-icon>
+              <div *ngIf="(whatsappConnections$ | async)?.length === 0" class="empty-state">
+                <mat-icon>chat_bubble_outline</mat-icon>
+                <h4>No WhatsApp numbers connected</h4>
+                <p>Add your first number to start receiving messages</p>
+                <button mat-raised-button color="primary" (click)="openAddNumberDialog()">
+                  <mat-icon>add</mat-icon> Add Number
                 </button>
               </div>
             </div>
-            <div *ngIf="(whatsappConnections$ | async)?.length === 0" class="empty-state">
-              <mat-icon>chat_bubble_outline</mat-icon>
-              <h4>No WhatsApp numbers connected</h4>
-              <p>Add your first number to start receiving messages</p>
-              <button mat-raised-button color="primary" (click)="openAddNumberDialog()">
-                <mat-icon>add</mat-icon> Add Number
-              </button>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </section>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    }
 
     <!-- Business Information Section -->
-    <section class="settings-section" *ngIf="activeSection === 'business'">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>store</mat-icon>
-            Business Information
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="businessForm" (ngSubmit)="saveBusinessName()" class="compact-form">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Select Your Business</mat-label>
-              <mat-select formControlName="businessId">
-                <mat-option *ngFor="let store of availableStores$ | async" [value]="store.id">
-                  {{ store.name }}
-                </mat-option>
-              </mat-select>
-              <mat-hint>This links your AI assistant to your storefront</mat-hint>
-            </mat-form-field>
-            <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="!businessForm.valid">
-                <mat-icon>save</mat-icon> Save Business
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </section>
+    @if (activeSection === 'business') {
+      <section class="settings-section">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>store</mat-icon>
+              Business Information
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="businessForm" (ngSubmit)="saveBusinessName()" class="compact-form">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Your Business</mat-label>
+                <mat-select formControlName="businessId">
+                  <mat-option *ngFor="let store of availableStores$ | async" [value]="store.id">
+                    {{ store.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-hint>This links your AI assistant to your storefront</mat-hint>
+              </mat-form-field>
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!businessForm.valid">
+                  <mat-icon>save</mat-icon> Save Business
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    }
 
     <!-- Notification Preferences Section -->
-    <section class="settings-section" *ngIf="activeSection === 'notifications'">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>notifications</mat-icon>
-            Notification Preferences
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="notificationForm" (ngSubmit)="saveNotificationPreferences()" class="notification-form">
-            <div class="toggle-row">
-              <div class="toggle-info">
-                <mat-icon>mark_email_unread</mat-icon>
-                <div>
-                  <span class="toggle-label">New Message Alerts</span>
-                  <p class="toggle-desc">Get notified when a customer sends a new message</p>
+    @if (activeSection === 'notifications') {
+      <section class="settings-section">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>notifications</mat-icon>
+              Notification Preferences
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="notificationForm" (ngSubmit)="saveNotificationPreferences()" class="notification-form">
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <mat-icon>mark_email_unread</mat-icon>
+                  <div>
+                    <span class="toggle-label">New Message Alerts</span>
+                    <p class="toggle-desc">Get notified when a customer sends a new message</p>
+                  </div>
                 </div>
+                <mat-slide-toggle formControlName="newMessage" color="primary"></mat-slide-toggle>
               </div>
-              <mat-slide-toggle formControlName="newMessage" color="primary"></mat-slide-toggle>
-            </div>
-            <mat-divider></mat-divider>
-            <div class="toggle-row">
-              <div class="toggle-info">
-                <mat-icon>report_problem</mat-icon>
-                <div>
-                  <span class="toggle-label">Escalation Alerts</span>
-                  <p class="toggle-desc">Get notified when a conversation needs human attention</p>
+              <mat-divider></mat-divider>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <mat-icon>report_problem</mat-icon>
+                  <div>
+                    <span class="toggle-label">Escalation Alerts</span>
+                    <p class="toggle-desc">Get notified when a conversation needs human attention</p>
+                  </div>
                 </div>
+                <mat-slide-toggle formControlName="escalation" color="primary"></mat-slide-toggle>
               </div>
-              <mat-slide-toggle formControlName="escalation" color="primary"></mat-slide-toggle>
-            </div>
-            <mat-divider></mat-divider>
-            <div class="toggle-row">
-              <div class="toggle-info">
-                <mat-icon>payments</mat-icon>
-                <div>
-                  <span class="toggle-label">Payment Confirmations</span>
-                  <p class="toggle-desc">Get notified when a customer completes payment</p>
+              <mat-divider></mat-divider>
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <mat-icon>payments</mat-icon>
+                  <div>
+                    <span class="toggle-label">Payment Confirmations</span>
+                    <p class="toggle-desc">Get notified when a customer completes payment</p>
+                  </div>
                 </div>
+                <mat-slide-toggle formControlName="paymentConfirmation" color="primary"></mat-slide-toggle>
               </div>
-              <mat-slide-toggle formControlName="paymentConfirmation" color="primary"></mat-slide-toggle>
-            </div>
-            <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit">
-                <mat-icon>save</mat-icon> Save Preferences
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </section>
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit">
+                  <mat-icon>save</mat-icon> Save Preferences
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    }
 
     <!-- Subscription Plans Section -->
-    <section class="settings-section" *ngIf="activeSection === 'subscription'">
-      <div class="plans-header">
-        <h3>Choose Your Plan</h3>
-        <p>Upgrade to unlock more AI power and convert more customers</p>
-      </div>
-      
-      <div class="plans-container">
-        <mat-card *ngFor="let plan of subscriptionPlans$ | async" 
-                  class="plan-card"
-                  [class.popular]="plan.isPopular"
-                  [class.current]="(currentPlanId$ | async) === plan.id">
-          
-          <div *ngIf="plan.isPopular" class="popular-badge">
-            <mat-icon>star</mat-icon> Most Popular
-          </div>
-          
-          <div class="plan-header">
-            <mat-icon class="plan-icon">{{ getPlanIcon(plan.id) }}</mat-icon>
-            <h3>{{ plan.name }}</h3>
-            <div class="price">{{ plan.priceDisplay }}</div>
-          </div>
+    @if (activeSection === 'subscription') {
+      <section class="settings-section">
+        <div class="plans-header">
+          <h3>Choose Your Plan</h3>
+          <p>Upgrade to unlock more AI power and convert more customers</p>
+        </div>
+        
+        <div class="plans-container">
+          <mat-card *ngFor="let plan of subscriptionPlans$ | async" 
+                    class="plan-card"
+                    [class.popular]="plan.isPopular"
+                    [class.current]="(currentPlanId$ | async) === plan.id">
+            
+            <div *ngIf="plan.isPopular" class="popular-badge">
+              <mat-icon>star</mat-icon> Most Popular
+            </div>
+            
+            <div class="plan-header">
+              <mat-icon class="plan-icon">{{ getPlanIcon(plan.id) }}</mat-icon>
+              <h3>{{ plan.name }}</h3>
+              <div class="price">{{ plan.priceDisplay }}</div>
+            </div>
 
-          <mat-divider></mat-divider>
+            <mat-divider></mat-divider>
 
-          <ul class="features">
-            <li *ngFor="let feat of plan.features">
-              <mat-icon>check_circle</mat-icon>
-              {{ feat }}
-            </li>
-          </ul>
+            <ul class="features">
+              <li *ngFor="let feat of plan.features">
+                <mat-icon>check_circle</mat-icon>
+                {{ feat }}
+              </li>
+            </ul>
 
-          <div class="plan-actions">
-            <ng-container *ngIf="(currentPlanId$ | async) === plan.id; else notCurrent">
-              <div class="current-plan-badge">
-                <mat-icon>verified</mat-icon>
+            <div class="plan-actions">
+              <ng-container *ngIf="(currentPlanId$ | async) === plan.id; else notCurrent">
+                <div class="current-plan-badge">
+                  <mat-icon>verified</mat-icon>
+                  <span>Current Plan</span>
+                </div>
+                <p class="renewal-text">Renews automatically every 30 days</p>
+              </ng-container>
+              <ng-template #notCurrent>
+                <button mat-raised-button 
+                        [color]="plan.isPopular ? 'accent' : 'primary'" 
+                        (click)="upgradeTo(plan.id)"
+                        [disabled]="upgradingPlan">
+                  @if (upgradingPlan) {
+                    <mat-spinner diameter="20"/>
+                  } @else {
+                    <span>
+                    {{ plan.priceNaira > 3000 ? 'Upgrade to ' + plan.name : 'Downgrade to Basic' }}
+                  </span>
+                  }
+                </button>
+                <p class="plan-note" *ngIf="plan.priceNaira > 3000">
+                  Deducted from your wallet balance
+                </p>
+              </ng-template>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- Current Plan Info -->
+         @if (currentPlanId$ | async) {
+          <mat-card class="current-plan-info">
+            <mat-card-header>
+              <mat-card-title>Subscription Details</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="info-row">
                 <span>Current Plan</span>
+                <strong>{{ (currentPlanId$ | async) | titlecase }}</strong>
               </div>
-              <p class="renewal-text">Renews automatically every 30 days</p>
-            </ng-container>
-            <ng-template #notCurrent>
-              <button mat-raised-button 
-                      [color]="plan.isPopular ? 'accent' : 'primary'" 
-                      (click)="upgradeTo(plan.id)"
-                      [disabled]="upgradingPlan">
-                <mat-spinner diameter="20" *ngIf="upgradingPlan"></mat-spinner>
-                <span *ngIf="!upgradingPlan">
-                  {{ plan.priceNaira > 3000 ? 'Upgrade to ' + plan.name : 'Downgrade to Basic' }}
-                </span>
-              </button>
-              <p class="plan-note" *ngIf="plan.priceNaira > 3000">
-                Deducted from your wallet balance
-              </p>
-            </ng-template>
-          </div>
-        </mat-card>
-      </div>
-
-      <!-- Current Plan Info -->
-      <mat-card class="current-plan-info" *ngIf="(currentPlanId$ | async)">
-        <mat-card-header>
-          <mat-card-title>Subscription Details</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="info-row">
-            <span>Current Plan</span>
-            <strong>{{ (currentPlanId$ | async) | titlecase }}</strong>
-          </div>
-          <div class="info-row">
-            <span>Status</span>
-            <span class="status-badge active">Active</span>
-          </div>
-          <div class="info-row">
-            <span>Billing Cycle</span>
-            <strong>30 Days</strong>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </section>
+              <div class="info-row">
+                <span>Status</span>
+                <span class="status-badge active">Active</span>
+              </div>
+              <div class="info-row">
+                <span>Billing Cycle</span>
+                <strong>30 Days</strong>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </section>
+    }
 
     <!-- Twilio Configuration Section -->
-    <section class="settings-section" *ngIf="activeSection === 'twilio'">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>settings_applications</mat-icon>
-            Twilio Configuration
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="twilio-info">
-            <mat-icon>info</mat-icon>
-            <p>Enter your Twilio credentials to connect WhatsApp Business API. 
-               <a href="https://www.twilio.com/whatsapp" target="_blank">Get Twilio credentials</a></p>
-          </div>
-          
-          <form [formGroup]="twilioForm" (ngSubmit)="saveTwilioConfig()" class="compact-form">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>WhatsApp Phone Number</mat-label>
-              <input matInput formControlName="phoneNumber" placeholder="+14155238886">
-              <mat-hint>Your Twilio WhatsApp number in E.164 format</mat-hint>
-              <mat-error *ngIf="twilioForm.get('phoneNumber')?.hasError('required')">Required</mat-error>
-              <mat-error *ngIf="twilioForm.get('phoneNumber')?.hasError('pattern')">Invalid format</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Account SID</mat-label>
-              <input matInput formControlName="accountSid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-              <mat-error>Account SID is required</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Auth Token</mat-label>
-              <input matInput type="password" formControlName="authToken" placeholder="Your Twilio Auth Token">
-              <mat-error>Auth Token is required</mat-error>
-            </mat-form-field>
-
-            <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="!twilioForm.valid">
-                <mat-icon>save</mat-icon> Save Configuration
-              </button>
+    @if (activeSection === 'twilio') {
+      <section class="settings-section">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>settings_applications</mat-icon>
+              Twilio Configuration
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="twilio-info">
+              <mat-icon>info</mat-icon>
+              <p>Enter your Twilio credentials to connect WhatsApp Business API. 
+                <a href="https://www.twilio.com/whatsapp" target="_blank">Get Twilio credentials</a></p>
             </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </section>
+            
+            <form [formGroup]="twilioForm" (ngSubmit)="saveTwilioConfig()" class="compact-form">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>WhatsApp Phone Number</mat-label>
+                <input matInput formControlName="phoneNumber" placeholder="+14155238886">
+                <mat-hint>Your Twilio WhatsApp number in E.164 format</mat-hint>
+                @if (twilioForm.get('phoneNumber')?.hasError('required')) {
+                  <mat-error>Required</mat-error>
+                }
+                @if (twilioForm.get('phoneNumber')?.hasError('pattern')) {
+                  <mat-error>Invalid format</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Account SID</mat-label>
+                <input matInput formControlName="accountSid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                <mat-error>Account SID is required</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Auth Token</mat-label>
+                <input matInput type="password" formControlName="authToken" placeholder="Your Twilio Auth Token">
+                <mat-error>Auth Token is required</mat-error>
+              </mat-form-field>
+
+              <div class="form-actions">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!twilioForm.valid">
+                  <mat-icon>save</mat-icon> Save Configuration
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    }
   </div>
 </div>

@@ -53,7 +53,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   activeSection: 'whatsapp' | 'business' | 'notifications' | 'subscription' | 'twilio' = 'whatsapp';
   
   private sub = new Subscription();
-
   ngOnInit(): void {
     this.service.loadWhatsAppConnections();
     this.service.loadCurrentPlan();

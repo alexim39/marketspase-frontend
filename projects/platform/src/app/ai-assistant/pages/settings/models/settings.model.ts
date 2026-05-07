@@ -2,7 +2,7 @@
 export interface WhatsAppConnection {
   id: string;
   phoneNumber: string;
-  isConnected: boolean;
+  //isConnected: boolean;
   aiEnabled: boolean;
 }
 

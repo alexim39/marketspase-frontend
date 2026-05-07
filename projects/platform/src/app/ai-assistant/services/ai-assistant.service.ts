@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApiService } from '@shared/services';
 
 export interface Conversation {
   _id: string;
@@ -30,78 +31,78 @@ export interface Template {
   variables: string[];
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class AiAssistantService {
-  private http = inject(HttpClient);
+  private apiService: ApiService = inject(ApiService);
   private baseUrl = 'api/v1/ai-assistant';
 
   getStats(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/stats`);
+    return this.apiService.get(`${this.baseUrl}/stats`);
   }
 
   getConversations(status?: string, page = 1, limit = 20): Observable<Conversation[]> {
     let url = `${this.baseUrl}/conversations?page=${page}&limit=${limit}`;
     if (status) url += `&status=${status}`;
-    return this.http.get<any>(url).pipe(map(res => res.data));
+    return this.apiService.get<any>(url).pipe(map(res => res.data));
   }
 
   getMessages(conversationId: string, page = 1, limit = 50): Observable<Message[]> {
-    return this.http.get<any>(`${this.baseUrl}/conversations/${conversationId}/messages?page=${page}&limit=${limit}`).pipe(map(res => res.data));
+    return this.apiService.get<any>(`${this.baseUrl}/conversations/${conversationId}/messages?page=${page}&limit=${limit}`).pipe(map(res => res.data));
   }
 
   sendMessage(conversationId: string, text: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/conversations/${conversationId}/messages`, { text });
+    return this.apiService.post(`${this.baseUrl}/conversations/${conversationId}/messages`, { text });
   }
 
   escalateConversation(conversationId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/conversations/${conversationId}/escalate`, {});
+    return this.apiService.post(`${this.baseUrl}/conversations/${conversationId}/escalate`, {});
   }
 
   assignConversation(conversationId: string, assigneeId: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/conversations/${conversationId}/assign`, { assigneeId });
+    return this.apiService.post(`${this.baseUrl}/conversations/${conversationId}/assign`, { assigneeId });
   }
 
   getFaqs(): Observable<any[]> {
-    return this.http.get<any>(`${this.baseUrl}/faqs`).pipe(map(res => res.data));
+    return this.apiService.get<any>(`${this.baseUrl}/faqs`).pipe(map(res => res.data));
   }
 
   addFaq(data: { question: string; answer: string; category?: string; tags?: string[] }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/faqs`, data);
+    return this.apiService.post(`${this.baseUrl}/faqs`, data);
   }
 
   updateFaq(id: string, data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/faqs/${id}`, data);
+    return this.apiService.put(`${this.baseUrl}/faqs/${id}`, data);
   }
 
   deleteFaq(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/faqs/${id}`);
+    return this.apiService.delete(`${this.baseUrl}/faqs/${id}`);
   }
 
   getTemplates(): Observable<Template[]> {
-    return this.http.get<any>(`${this.baseUrl}/templates`).pipe(map(res => res.data));
+    return this.apiService.get<any>(`${this.baseUrl}/templates`).pipe(map(res => res.data));
   }
 
   addTemplate(data: Partial<Template>): Observable<any> {
-    return this.http.post(`${this.baseUrl}/templates`, data);
+    return this.apiService.post(`${this.baseUrl}/templates`, data);
   }
 
   updateTemplate(id: string, data: Partial<Template>): Observable<any> {
-    return this.http.put(`${this.baseUrl}/templates/${id}`, data);
+    return this.apiService.put(`${this.baseUrl}/templates/${id}`, data);
   }
 
   deleteTemplate(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/templates/${id}`);
+    return this.apiService.delete(`${this.baseUrl}/templates/${id}`);
   }
 
   getSettings(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/settings`);
+    return this.apiService.get(`${this.baseUrl}/settings`);
   }
 
   updateSettings(data: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/settings`, data);
+    return this.apiService.put(`${this.baseUrl}/settings`, data);
   }
 
-  toggleAI(enabled: boolean): Observable<any> {
-    return this.http.post(`${this.baseUrl}/toggle`, { aiEnabled: enabled });
+  toggleAI(enabled: boolean, userId: string): Observable<any> {
+    return this.apiService.post(`${this.baseUrl}/toggle`, { aiEnabled: enabled, userId });
   }
 }

@@ -59,13 +59,14 @@ export class AiAssistantSettingsService {
   }
 
   addWhatsAppConnection(phoneNumber: string): void {
-    this.api.addWhatsAppConnection(phoneNumber).pipe(
+    this.api.addWhatsAppConnection(phoneNumber, this.user()?._id ?? '').pipe(
       tap(newConn => {
         const current = this.whatsappConnections.value;
         this.whatsappConnections.next([...current, newConn]);
         this.showSuccess('WhatsApp number added');
       }),
       catchError(err => {
+        console.error('Error adding WhatsApp connection:', err);
         this.showError(err.error?.message || 'Failed to add number');
         return of(null);
       })

@@ -37,7 +37,8 @@ interface FAQ {
     FormsModule
   ],
   templateUrl: './faqs.component.html',
-  styleUrls: ['./faqs.component.scss']
+  styleUrls: ['./faqs.component.scss'],
+  providers: [AiAssistantService]
 })
 export class FaqsComponent implements OnInit, OnDestroy {
   private aiService = inject(AiAssistantService);

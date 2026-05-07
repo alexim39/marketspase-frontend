@@ -23,9 +23,9 @@ import { SocketService } from '../../services/socket.service';
     MatFormFieldModule, MatBadgeModule, MatProgressSpinnerModule, MatChipsModule,
     MatTooltipModule, FormsModule
   ],
-  providers: [DatePipe],
   templateUrl: './conversations.component.html',
-  styleUrls: ['./conversations.component.scss']
+  styleUrls: ['./conversations.component.scss'],
+  providers: [AiAssistantService, SocketService]
 })
 export class ConversationsComponent implements OnInit, OnDestroy, AfterViewChecked {
   private aiService = inject(AiAssistantService);

@@ -8,7 +8,8 @@ import { AiAssistantService } from '../../services/ai-assistant.service';
   standalone: true,
   imports: [CommonModule, MatCardModule],
   templateUrl: './analytics.component.html',
-  styleUrls: ['./analytics.component.scss']
+  styleUrls: ['./analytics.component.scss'],
+  providers: [AiAssistantService]
 })
 export class AnalyticsComponent implements OnInit {
   private aiService = inject(AiAssistantService);

@@ -1,140 +1,148 @@
 <div class="overview-page">
   <!-- No Subscription Gate -->
-  <div class="subscription-gate" *ngIf="!hasSubscription && !loading">
-    <mat-icon class="gate-icon">lock</mat-icon>
-    <h2>Activate Your AI Assistant</h2>
-    <p>Choose a plan to start automating your WhatsApp conversations and converting more leads.</p>
-    <button mat-raised-button color="primary" routerLink="../settings">
-      <mat-icon>rocket_launch</mat-icon>
-      Select a Plan
-    </button>
-  </div>
+   @if (!hasSubscription && !loading) {
+    <div class="subscription-gate">
+      <mat-icon class="gate-icon">lock</mat-icon>
+      <h2>Activate Your AI Assistant</h2>
+      <p>Choose a plan to start automating your WhatsApp conversations and converting more leads.</p>
+      <button mat-raised-button color="primary" routerLink="../settings">
+        <mat-icon>rocket_launch</mat-icon>
+        Select a Plan
+      </button>
+    </div>
+  }
 
   <!-- Loading State -->
-  <div class="loading-state" *ngIf="loading">
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    <p>Loading your dashboard...</p>
-  </div>
+   @if (loading) {
+    <div class="loading-state">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>Loading your dashboard...</p>
+    </div>
+  }
 
   <!-- Main Content -->
-  <ng-container *ngIf="hasSubscription && !loading">
-    <header class="page-header">
-      <div>
-        <h2>AI Assistant Overview</h2>
-        <p class="subtitle">Your WhatsApp sales command center</p>
-      </div>
-      <div class="plan-badge" *ngIf="currentPlanId">
-        <mat-icon>verified</mat-icon>
-        <span>{{ currentPlanId | titlecase }} Plan</span>
-      </div>
-    </header>
-
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <mat-card class="stat-card" *ngFor="let stat of [
-        { icon: 'chat', value: stats.totalMessages || 0, label: 'Total Messages', color: 'primary' },
-        { icon: 'smart_toy', value: stats.aiHandled || 0, label: 'AI Handled', color: 'success' },
-        { icon: 'schedule', value: (stats.responseTime || 0) + 's', label: 'Avg Response', color: 'info' },
-        { icon: 'trending_up', value: (stats.conversionRate || 0) + '%', label: 'AI Efficiency', color: 'accent' }
-      ]">
-        <div class="stat-icon" [class]="stat.color">
-          <mat-icon>{{ stat.icon }}</mat-icon>
+   @if (hasSubscription && !loading) {
+      <header class="page-header">
+        <div>
+          <h2>AI Assistant Overview</h2>
+          <p class="subtitle">Your WhatsApp sales command center</p>
         </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stat.value }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
-        </div>
-      </mat-card>
-
-      <!-- Escalation Alert Card -->
-      <mat-card class="stat-card alert" *ngIf="stats.escalatedCount > 0" routerLink="../conversations" [queryParams]="{status: 'escalated'}">
-        <div class="stat-icon warning">
-          <mat-icon>notification_important</mat-icon>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats.escalatedCount }}</div>
-          <div class="stat-label">Need Attention</div>
-        </div>
-        <mat-icon class="alert-arrow">arrow_forward</mat-icon>
-      </mat-card>
-    </div>
-
-    <!-- AI Control -->
-    <mat-card class="ai-control-card">
-      <div class="ai-control-content">
-        <div class="ai-status-info">
-          <div class="ai-status-icon" [class.active]="aiEnabled">
-            <mat-icon>{{ aiEnabled ? 'check_circle' : 'pause_circle' }}</mat-icon>
+        @if (currentPlanId) {
+          <div class="plan-badge">
+            <mat-icon>verified</mat-icon>
+            <span>{{ currentPlanId | titlecase }} Plan</span>
           </div>
-          <div>
-            <h3>AI Assistant Status</h3>
-            <p>{{ aiEnabled ? 'AI is actively responding to customers' : 'AI is paused. Manual replies required.' }}</p>
+        }
+      </header>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <mat-card class="stat-card" *ngFor="let stat of [
+          { icon: 'chat', value: stats.totalMessages || 0, label: 'Total Messages', color: 'primary' },
+          { icon: 'smart_toy', value: stats.aiHandled || 0, label: 'AI Handled', color: 'success' },
+          { icon: 'schedule', value: (stats.responseTime || 0) + 's', label: 'Avg Response', color: 'info' },
+          { icon: 'trending_up', value: (stats.conversionRate || 0) + '%', label: 'AI Efficiency', color: 'accent' }
+        ]">
+          <div class="stat-icon" [class]="stat.color">
+            <mat-icon>{{ stat.icon }}</mat-icon>
           </div>
-        </div>
-        <mat-slide-toggle 
-          [checked]="aiEnabled" 
-          (change)="toggleAI()"
-          color="primary"
-          class="ai-toggle">
-          {{ aiEnabled ? 'ON' : 'OFF' }}
-        </mat-slide-toggle>
-      </div>
-    </mat-card>
+          <div class="stat-content">
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-label">{{ stat.label }}</div>
+          </div>
+        </mat-card>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <mat-card class="action-card" routerLink="../faqs">
-        <mat-icon>help_outline</mat-icon>
-        <h4>Manage FAQs</h4>
-        <p>{{ stats.totalFaqs || 0 }} questions trained</p>
-      </mat-card>
-      <mat-card class="action-card" routerLink="../conversations">
-        <mat-icon>chat</mat-icon>
-        <h4>Conversations</h4>
-        <p>{{ stats.activeCount || 0 }} active chats</p>
-      </mat-card>
-      <mat-card class="action-card" routerLink="../automation">
-        <mat-icon>tune</mat-icon>
-        <h4>Automation</h4>
-        <p>Configure AI behavior</p>
-      </mat-card>
-    </div>
-
-    <!-- Recent Conversations -->
-    <mat-card class="recent-card">
-      <mat-card-header>
-        <mat-card-title>Recent Conversations</mat-card-title>
-        <button mat-button color="primary" routerLink="../conversations">View All</button>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="conversation-list" *ngIf="recentConversations.length > 0; else noConversations">
-          <div *ngFor="let conv of recentConversations" 
-               class="conv-item" 
-               [routerLink]="['../conversations']" 
-               [queryParams]="{id: conv._id}"
-               [class.escalated]="conv.status === 'escalated'">
-            <div class="conv-avatar">
-              <mat-icon>person</mat-icon>
+        <!-- Escalation Alert Card -->
+        @if (stats.escalatedCount > 0) {
+          <mat-card class="stat-card alert" routerLink="../conversations" [queryParams]="{status: 'escalated'}">
+            <div class="stat-icon warning">
+              <mat-icon>notification_important</mat-icon>
             </div>
-            <div class="conv-info">
-              <div class="conv-header">
-                <strong>{{ conv.customerName || conv.customerWaId }}</strong>
-                <span class="conv-time">{{ conv.lastMessageAt | date:'shortTime' }}</span>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats.escalatedCount }}</div>
+              <div class="stat-label">Need Attention</div>
+            </div>
+            <mat-icon class="alert-arrow">arrow_forward</mat-icon>
+          </mat-card>
+        }
+      </div>
+
+      <!-- AI Control -->
+      <mat-card class="ai-control-card">
+        <div class="ai-control-content">
+          <div class="ai-status-info">
+            <div class="ai-status-icon" [class.active]="aiEnabled">
+              <mat-icon>{{ aiEnabled ? 'check_circle' : 'pause_circle' }}</mat-icon>
+            </div>
+            <div>
+              <h3>AI Assistant Status</h3>
+              <p>{{ aiEnabled ? 'AI is actively responding to customers' : 'AI is paused. Manual replies required.' }}</p>
+            </div>
+          </div>
+          <mat-slide-toggle 
+            [checked]="aiEnabled" 
+            (change)="toggleAI()"
+            color="primary"
+            class="ai-toggle">
+            {{ aiEnabled ? 'ON' : 'OFF' }}
+          </mat-slide-toggle>
+        </div>
+      </mat-card>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <mat-card class="action-card" routerLink="../faqs">
+          <mat-icon>help_outline</mat-icon>
+          <h4>Manage FAQs</h4>
+          <p>{{ stats.totalFaqs || 0 }} questions trained</p>
+        </mat-card>
+        <mat-card class="action-card" routerLink="../conversations">
+          <mat-icon>chat</mat-icon>
+          <h4>Conversations</h4>
+          <p>{{ stats.activeCount || 0 }} active chats</p>
+        </mat-card>
+        <mat-card class="action-card" routerLink="../automation">
+          <mat-icon>tune</mat-icon>
+          <h4>Automation</h4>
+          <p>Configure AI behavior</p>
+        </mat-card>
+      </div>
+
+      <!-- Recent Conversations -->
+      <mat-card class="recent-card">
+        <mat-card-header>
+          <mat-card-title>Recent Conversations</mat-card-title>
+          <button mat-button color="primary" routerLink="../conversations">View All</button>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="conversation-list" *ngIf="recentConversations.length > 0; else noConversations">
+            <div *ngFor="let conv of recentConversations" 
+                class="conv-item" 
+                [routerLink]="['../conversations']" 
+                [queryParams]="{id: conv._id}"
+                [class.escalated]="conv.status === 'escalated'">
+              <div class="conv-avatar">
+                <mat-icon>person</mat-icon>
               </div>
-              <p class="conv-preview">{{ conv.lastMessageText }}</p>
+              <div class="conv-info">
+                <div class="conv-header">
+                  <strong>{{ conv.customerName || conv.customerWaId }}</strong>
+                  <span class="conv-time">{{ conv.lastMessageAt | date:'shortTime' }}</span>
+                </div>
+                <p class="conv-preview">{{ conv.lastMessageText }}</p>
+              </div>
+              <span class="conv-status-badge" [class]="conv.status">
+                {{ conv.status }}
+              </span>
             </div>
-            <span class="conv-status-badge" [class]="conv.status">
-              {{ conv.status }}
-            </span>
           </div>
-        </div>
-        <ng-template #noConversations>
-          <div class="empty-state">
-            <mat-icon>chat_bubble_outline</mat-icon>
-            <p>No conversations yet. Your AI is ready!</p>
-          </div>
-        </ng-template>
-      </mat-card-content>
-    </mat-card>
-  </ng-container>
+          <ng-template #noConversations>
+            <div class="empty-state">
+              <mat-icon>chat_bubble_outline</mat-icon>
+              <p>No conversations yet. Your AI is ready!</p>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+  }
 </div>

@@ -1,4 +1,4 @@
-// ai-toggle-panel.component.ts
+/* // ai-toggle-panel.component.ts
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -21,4 +21,4 @@ export class AiTogglePanelComponent {
   toggleAI(enable: boolean): void {
     this.service.toggleAI(enable);
   }
-}
+} */
