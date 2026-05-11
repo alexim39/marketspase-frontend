@@ -165,8 +165,36 @@ export class StorefrontService {
     );
   }
 
-  getProductById(productId: string): Observable<{ data: Product }> {
-    return this.apiService.get<{ data: Product }>(`${this.apiUrl}/storefront/products/${productId}/detail`, undefined, undefined, true);
+  getProductById(
+    productId: string,
+    trackingContext: {
+      ref?: string | null;
+      promoter?: string | null;
+      clicked?: boolean;
+      trackingCode?: string | null;
+    } = {}
+  ): Observable<{ data: Product }> {
+    let params = new HttpParams();
+
+    if (trackingContext.ref) {
+      params = params.set('ref', trackingContext.ref);
+    }
+    if (trackingContext.promoter) {
+      params = params.set('promoter', trackingContext.promoter);
+    }
+    if (trackingContext.clicked) {
+      params = params.set('clicked', '1');
+    }
+    if (trackingContext.trackingCode) {
+      params = params.set('trackingCode', trackingContext.trackingCode);
+    }
+
+    return this.apiService.get<{ data: Product }>(
+      `${this.apiUrl}/storefront/products/${productId}/detail`,
+      params,
+      undefined,
+      true
+    );
   }
 
   getProductReviews(productId: string, params: { page: number; limit: number }): Observable<{ data: any[] }> {
@@ -179,6 +207,18 @@ export class StorefrontService {
 
   getStoreById(storeId: string): Observable<{ data: Store }> {
     return this.apiService.get<{ data: Store }>(`${this.apiUrl}/storefront/store/${storeId}`, undefined, undefined, true);
+  }
+
+  createStorefrontOrder(payload: any): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/storefront/orders`, payload, undefined, true);
+  }
+
+  confirmStorefrontPayment(orderId: string, payload: any): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/storefront/orders/${orderId}/confirm-payment`, payload, undefined, true);
+  }
+
+  confirmStorefrontDelivery(orderId: string, payload: any): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/storefront/orders/${orderId}/confirm-delivery`, payload, undefined, true);
   }
 
 }

@@ -55,6 +55,7 @@ export class ProductsContentViewComponent implements OnChanges {
   @Input() activePromotions: Map<string, any> = new Map();
   
   @Output() viewProduct = new EventEmitter<Product>();
+  @Output() buyProduct = new EventEmitter<Product>();
   @Output() shareWhatsApp = new EventEmitter<Product>();
   @Output() promoteProduct = new EventEmitter<Product>();
   @Output() copyProductUrl = new EventEmitter<Product>();
@@ -116,6 +117,10 @@ export class ProductsContentViewComponent implements OnChanges {
 
   onCopyUrl(product: Product): void {
     this.copyProductUrl.emit(product);
+  }
+
+  onBuyProduct(product: Product): void {
+    this.buyProduct.emit(product);
   }
 
   onShareWhatsApp(product: Product): void {

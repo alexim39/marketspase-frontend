@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -69,40 +69,42 @@ export class ProductInfoComponent {
   //@Output() toggleWishlist = new EventEmitter<void>();
   @Output() contactStore = new EventEmitter<void>();
   
-  currentPrice = computed(() => {
+  currentPrice(): number {
     if (this.selectedVariant?.price) return this.selectedVariant.price;
     return this.product?.price || 0;
-  });
+  }
   
-  originalPrice = computed(() => {
+  originalPrice(): number | null {
     if (this.selectedVariant?.originalPrice) return this.selectedVariant.originalPrice;
     return this.product?.originalPrice || null;
-  });
+  }
   
-  discountPercentage = computed(() => {
+  discountPercentage(): number {
     const current = this.currentPrice();
     const original = this.originalPrice();
     if (!original || original <= current) return 0;
     return Math.round(((original - current) / original) * 100);
-  });
+  }
   
-  hasDiscount = computed(() => this.discountPercentage() > 0);
+  hasDiscount(): boolean {
+    return this.discountPercentage() > 0;
+  }
   
-  currentStock = computed(() => {
+  currentStock(): number {
     if (this.selectedVariant?.quantity !== undefined) return this.selectedVariant.quantity;
     if (this.product?.manageStock) return this.product.quantity;
     return 999;
-  });
+  }
   
-  stockStatus = computed(() => {
+  stockStatus(): 'in-stock' | 'low-stock' | 'out-of-stock' {
     const stock = this.currentStock();
     if (!this.product?.manageStock) return 'in-stock';
     if (stock === 0) return 'out-of-stock';
     if (stock <= (this.product?.lowStockAlert || 5)) return 'low-stock';
     return 'in-stock';
-  });
+  }
   
-  stockText = computed(() => {
+  stockText(): string {
     const status = this.stockStatus();
     const stock = this.currentStock();
     switch (status) {
@@ -110,10 +112,15 @@ export class ProductInfoComponent {
       case 'low-stock': return `Only ${stock} left in stock`;
       default: return 'In Stock';
     }
-  });
+  }
   
-  averageRating = computed(() => this.product?.averageRating || 0);
-  ratingCount = computed(() => this.product?.ratingCount || 0);
+  averageRating(): number {
+    return this.product?.averageRating || 0;
+  }
+
+  ratingCount(): number {
+    return this.product?.ratingCount || 0;
+  }
   
   incrementQuantity(): void {
     if (this.quantity < this.maxQuantity) {

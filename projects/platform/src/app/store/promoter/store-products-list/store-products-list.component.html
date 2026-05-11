@@ -273,7 +273,15 @@
                   Details
                 </button>
                 <button 
-                  mat-button 
+                  mat-raised-button 
+                  color="primary" 
+                  class="buy-btn"
+                  (click)="buyProduct(product)">
+                  <mat-icon>shopping_bag</mat-icon>
+                  Buy
+                </button>
+                <button 
+                  mat-stroked-button 
                   color="accent" 
                   class="copy-btn"
                   (click)="copyProductUrl(product)">
@@ -281,12 +289,11 @@
                   Copy
                 </button>
                 <button 
-                  mat-stroked-button 
+                  mat-icon-button 
                   class="share-btn whatsapp-btn"
                   (click)="generateWhatsAppMessage(product)"
                   matTooltip="Share on WhatsApp">
                   <mat-icon>whatsapp</mat-icon>
-                  Share
                 </button>
               </mat-card-actions>
             </mat-card>

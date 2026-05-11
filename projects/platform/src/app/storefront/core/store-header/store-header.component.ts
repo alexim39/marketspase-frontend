@@ -79,22 +79,29 @@ export class StoreHeaderComponent implements OnInit, OnDestroy {
   showFullDescription = signal<boolean>(false);
   currentYear = new Date().getFullYear();
 
-  // Computed values
-  memberSinceYear = computed(() => {
+  memberSinceYear(): number {
     if (this.store?.createdAt) {
       return new Date(this.store.createdAt).getFullYear();
     }
     return this.currentYear;
-  });
+  }
 
-  formattedRating = computed(() => {
+  formattedRating(): string {
     const rating = this.store?.analytics?.rating;
     return rating ? rating.toFixed(1) : '0.0';
-  });
+  }
 
-  hasWhatsApp = computed(() => !!(this.store?.whatsappNumber));
-  hasEmail = computed(() => !!(this.store?.email));
-  hasPhone = computed(() => !!(this.store?.phoneNumber));
+  hasWhatsApp(): boolean {
+    return !!this.store?.whatsappNumber;
+  }
+
+  hasEmail(): boolean {
+    return !!(this.store?.email || this.store?.owner?.email);
+  }
+
+  hasPhone(): boolean {
+    return !!(this.store?.phoneNumber || this.store?.owner?.personalInfo?.phone);
+  }
 
   // Navigation tabs
   navTabs = [

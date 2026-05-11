@@ -11,6 +11,12 @@ export interface CreateProductRequest {
   price: number;
   originalPrice?: number;
   costPrice?: number;
+  affiliate?: {
+    enabled: boolean;
+    commissionType: 'percentage' | 'fixed';
+    commissionRate: number;
+    fixedCommission?: number;
+  };
   images: File[];
   quantity: number;
   category: string;
@@ -75,6 +81,15 @@ export interface ProductResponse {
   price: number;
   originalPrice: number;
   costPrice: number;
+  affiliate?: {
+    enabled: boolean;
+    commissionType: 'percentage' | 'fixed';
+    commissionRate: number;
+    fixedCommission?: number;
+    cookieWindowDays?: number;
+  };
+  amountReceivable?: number;
+  commissionPerSale?: number;
   images: Array<{
     url: string;
     altText: string;

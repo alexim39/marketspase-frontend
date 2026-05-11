@@ -1,9 +1,8 @@
-import { Component, Input, Output, EventEmitter, inject, computed, Signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { RatingComponent } from '../../../../shared/rating/rating.component';
 import { LazyImageDirective } from '../../../../shared/directives/lazy-image.directive';
 import { CurrencyUtilsPipe, UserInterface, TruncatePipe } from '@shared/services';
@@ -42,8 +41,6 @@ export interface RelatedProduct {
   styleUrls: ['./related-products.component.scss']
 })
 export class RelatedProductsComponent {
-  private snackBar = inject(MatSnackBar);
-  
   @Input() products: RelatedProduct[] = [];
   @Input() storeLink: string = '';
   @Input() userCurrency: string = 'USD';
@@ -58,15 +55,13 @@ export class RelatedProductsComponent {
 
   private router = inject(Router);
   
-  // Computed property to limit displayed products
-  displayedProducts = computed(() => {
+  displayedProducts(): RelatedProduct[] {
     return this.products.slice(0, this.maxProducts);
-  });
+  }
   
-  // Check if there are more products than displayed
-  hasMoreProducts = computed(() => {
+  hasMoreProducts(): boolean {
     return this.products.length > this.maxProducts;
-  });
+  }
   
   trackByProductId(index: number, product: RelatedProduct): string {
     return product._id || index.toString();
@@ -77,14 +72,9 @@ export class RelatedProductsComponent {
     target.src = 'img/product.png';
   }
   
-  onAddToCart(product: RelatedProduct): void {
+  onAddToCart(product: RelatedProduct, event?: Event): void {
+    event?.stopPropagation();
     this.addToCart.emit(product);
-    this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom',
-      panelClass: ['success-snackbar']
-    });
   }
   
   getDiscountPercentage(product: RelatedProduct): number {
@@ -99,12 +89,7 @@ export class RelatedProductsComponent {
   }
 
   productClick(product: RelatedProduct) {
-    console.log('product ',product)
-    this.router.navigate(['/promote', product._id], {
-      // 3. Add the query parameters here
-     queryParams: { ref: product._id },
-      //state: { fromStore: this.store()?.storeLink }
-    });
+    this.router.navigate(['/product', product._id]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

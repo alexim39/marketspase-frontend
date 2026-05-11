@@ -100,7 +100,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       const response = await this.productService.getPromoterStoreProducts({
         ...filters,
         page: this.currentPage(),
-        limit: this.pageSize()
+        limit: this.pageSize(),
+        promoterId: this.user()?._id
       }).toPromise();
 
       if (!response || !response.data) {
@@ -176,7 +177,19 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
+  buyProduct(product: Product): void {
+    if (!product?._id) return;
+    this.router.navigate(['/product', product._id], {
+      queryParams: {
+        source: 'promoter-products'
+      }
+    });
+  }
+
   generateWhatsAppMessage(product: Product): void {
+    void this.shareGeneratedWhatsAppMessage(product);
+    return;
+
     const message = `*${product.name}*
 
     Looking for something worth your money? Check this out
@@ -195,8 +208,23 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     window.open(whatsappUrl, '_blank');
   }
 
+  private async shareGeneratedWhatsAppMessage(product: Product): Promise<void> {
+    const promotion = await this.createPromotion(product);
+    if (!promotion) return;
+
+    const message = this.promotionService.generateWhatsAppMessage(
+      product,
+      promotion.trackingCode,
+      product.promotion.commissionRate,
+      product.price,
+      promotion.affiliateUrl
+    );
+
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  }
+
   // Promotion methods moved from child component
-  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string } | null> {
+  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string } | null> {
     try {
       const promoterId = this.user()?._id;
       if (!promoterId) {
@@ -210,10 +238,12 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       
       let trackingCode: string;
       let uniqueId: string;
+      let affiliateUrl: string;
 
       if (existingPromotion) {
         trackingCode = existingPromotion.uniqueCode;
         uniqueId = existingPromotion.uniqueId;
+        affiliateUrl = existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
         snackBarRef.dismiss();
       } else {
         const response = await this.promotionService.createPromotion({
@@ -227,11 +257,13 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
         trackingCode = response.data.uniqueCode;
         uniqueId = response.data.uniqueId;
+        affiliateUrl = response.data.affiliateUrl || response.data.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
 
         this.activePromotions.update(map => {
           map.set(product._id ?? '', {
             uniqueCode: trackingCode,
             uniqueId: uniqueId,
+            affiliateUrl,
             ...response.data
           });
           return new Map(map);
@@ -241,7 +273,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         this.snackBar.open('Promotion link created successfully!', 'Close', { duration: 3000 });
       }
 
-      return { trackingCode, uniqueId };
+      return { trackingCode, uniqueId, affiliateUrl };
     } catch (error) {
       console.error('Error creating promotion:', error);
       this.snackBar.open('Failed to create promotion link. Please try again.', 'Close', { duration: 5000 });
@@ -252,9 +284,8 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
   async onPromote(product: Product): Promise<void> {
     const promotion = await this.createPromotion(product);
     if (promotion) {
-      const trackingLink = this.promotionService.getTrackingLink(promotion.trackingCode, product._id ?? '');
-      await navigator.clipboard.writeText(trackingLink);
-      this.shareOnWhatsApp(product, promotion.trackingCode);
+      await navigator.clipboard.writeText(promotion.affiliateUrl);
+      this.shareOnWhatsApp(product, promotion.trackingCode, promotion.affiliateUrl);
     }
   }
 
@@ -267,14 +298,10 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
         const promotion = await this.createPromotion(product);
         if (!promotion) return;
         
-        const trackingLink = this.promotionService.getTrackingLink(promotion.trackingCode, product._id ?? '');
-        await navigator.clipboard.writeText(trackingLink);
+        await navigator.clipboard.writeText(promotion.affiliateUrl);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
       } else {
-        const trackingLink = this.promotionService.getTrackingLink(
-          existingPromotion.uniqueCode, 
-          product._id ?? ''
-        );
+        const trackingLink = existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(existingPromotion.uniqueCode, product._id ?? '');
         await navigator.clipboard.writeText(trackingLink);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
       }
@@ -284,12 +311,14 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     }
   }
 
-  shareOnWhatsApp(product: Product, trackingCode: string): void {
+  shareOnWhatsApp(product: Product, trackingCode: string, affiliateUrl?: string): void {
+    const existingPromotion = this.activePromotions().get(product._id ?? '');
     const message = this.promotionService.generateWhatsAppMessage(
       product,
       trackingCode,
       product.promotion.commissionRate,
-      product.price
+      product.price,
+      affiliateUrl || existingPromotion?.affiliateUrl
     );
     
     window.open(`https://wa.me/?text=${message}`, '_blank');

@@ -3,8 +3,9 @@ import {
   Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, AfterViewInit 
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { Subject, takeUntil, forkJoin, firstValueFrom } from 'rxjs';
 
 // Angular Material Imports
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +13,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 // Shared Components/Directives/Pipes
 import { RatingComponent } from '../../shared/rating/rating.component';
@@ -19,13 +24,16 @@ import { CurrencyUtilsPipe, DeviceService, TruncatePipe } from '@shared/services
 
 // Services
 import { StorefrontService } from '../../services/storefront.service';
+import { StorefrontCartService } from '../../services/storefront-cart.service';
 
 // Models
 import { Product, Store, ProductVariant } from '../../../store/models';
 import { UserService } from '../../../common/services/user.service';
 import { StoreFooterComponent } from '../../core/store-footer/store-footer.component';
-import { StoreHeaderComponent } from '../../core/store-header/store-header.component';
+import { StoreHeaderComponent, StoreStats } from '../../core/store-header/store-header.component';
 import { PromotionService } from '../../../store/promoter/services/promotion.service';
+import { PaystackService } from '../../../common/services/paystack.service';
+import { ShareService } from '../../../store/services/share.service';
 
 // Child Components
 import { ProductGalleryComponent } from './components/product-gallery/product-gallery.component';
@@ -46,6 +54,11 @@ import { RelatedProductsComponent } from './components/related-products/related-
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatCardModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
     // Shared
     RatingComponent,
     TruncatePipe,
@@ -62,7 +75,9 @@ import { RelatedProductsComponent } from './components/related-products/related-
   ],
   providers: [
     StorefrontService, 
-    PromotionService
+    PromotionService,
+    PaystackService,
+    ShareService
   ],
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss']
@@ -76,7 +91,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private router = inject(Router);
   private location = inject(Location);
   private storeService = inject(StorefrontService);
+  private cartService = inject(StorefrontCartService);
   private promotionService = inject(PromotionService);
+  private paystackService = inject(PaystackService);
+  private shareService = inject(ShareService);
+  private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
 
@@ -103,6 +122,35 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   fromStore = signal<string | null>(null);
+
+  storeStats = computed<StoreStats>(() => {
+    const store: any = this.store();
+    const product = this.product();
+    const statistics = store?.statistics || {};
+    const analytics = store?.analytics || {};
+    const followers = Array.isArray(store?.followers)
+      ? store.followers.length
+      : this.toSafeNumber(store?.followerCount ?? statistics.followerCount ?? store?.followers);
+    const productCount = this.toSafeNumber(
+      statistics.productCount ?? store?.productCount ?? product?.store?.productCount ?? (product ? 1 : 0)
+    );
+    const totalViews = this.toSafeNumber(statistics.totalViews ?? analytics.totalViews ?? product?.viewCount);
+    const totalSales = this.toSafeNumber(statistics.totalSales ?? analytics.totalSales ?? product?.purchaseCount);
+    const conversionRate = this.toSafeNumber(
+      statistics.conversionRate ?? analytics.conversionRate ?? (totalViews > 0 ? (totalSales / totalViews) * 100 : 0)
+    );
+
+    return {
+      productCount,
+      followerCount: followers,
+      totalViews,
+      totalSales,
+      conversionRate,
+      responseRate: this.toSafeNumber(statistics.responseRate ?? 100, 100),
+      responseTime: statistics.responseTime || '< 1 hour',
+      memberSince: store?.createdAt ? new Date(store.createdAt) : undefined
+    };
+  });
 
   // =========================================
   // SIGNALS - Image Gallery
@@ -230,10 +278,31 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   // =========================================
   
   trackingCode = signal<string | null>(null);
+  uniqueId = signal<string | null>(null);
   promoterId = signal<string | null>(null);
   viewTracked = signal<boolean>(false);
   activePromotion = signal<any>(null);
   private viewRecordingAttempted = false;
+
+  checkoutOpen = signal<boolean>(false);
+  checkoutLoading = signal<boolean>(false);
+  checkoutError = signal<string | null>(null);
+  checkoutOrder = signal<any | null>(null);
+  checkoutSuccess = signal<any | null>(null);
+  cartFeedback = signal<{ name: string; quantity: number; totalItems: number } | null>(null);
+
+  checkoutTotal = computed(() => this.currentPrice() * this.quantity());
+
+  checkoutForm = this.fb.group({
+    fullName: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    phone: ['', [Validators.required]],
+    street: ['', [Validators.required]],
+    city: ['', [Validators.required]],
+    state: ['', [Validators.required]],
+    country: ['Nigeria', [Validators.required]],
+    postalCode: ['']
+  });
 
   // =========================================
   // LIFECYCLE HOOKS
@@ -241,7 +310,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit(): void {
     this.extractTrackingParams();
-    this.loadProductData();
+    this.prefillCheckoutForm();
     this.setupScrollListener();
   }
 
@@ -276,7 +345,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     this.error.set(null);
 
     forkJoin({
-      product: this.storeService.getProductById(productId),
+      product: this.storeService.getProductById(productId, this.getTrackingContextForProductRequest()),
       reviews: this.storeService.getProductReviews(productId, { page: 1, limit: 10 }),
       related: this.storeService.getRelatedProducts(productId, { limit: 8 })
     }).pipe(takeUntil(this.destroy$))
@@ -285,6 +354,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
           //console.log('related products ',result)
           const productData = result.product.data;
           this.product.set(productData);
+          this.activePromotion.set(productData?.activePromotion || null);
           
           if (productData?.variants) {
             this.variants.set(productData.variants);
@@ -328,6 +398,36 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private setupScrollListener(): void {
     this.handleScroll = this.handleScroll.bind(this);
     window.addEventListener('scroll', this.handleScroll, { passive: true });
+  }
+
+  private getTrackingContextForProductRequest(): {
+    ref?: string | null;
+    promoter?: string | null;
+    clicked?: boolean;
+    trackingCode?: string | null;
+  } {
+    const query = this.route.snapshot.queryParamMap;
+    return {
+      ref: this.uniqueId() || query.get('ref'),
+      promoter: this.promoterId() || query.get('promoter'),
+      clicked: query.get('clicked') === '1',
+      trackingCode: this.trackingCode() || query.get('track')
+    };
+  }
+
+  private prefillCheckoutForm(): void {
+    const currentUser = this.user();
+    const address = currentUser?.personalInfo?.address;
+
+    this.checkoutForm.patchValue({
+      fullName: currentUser?.displayName || '',
+      email: currentUser?.email || '',
+      phone: currentUser?.personalInfo?.phone || currentUser?.personalInfo?.phoneDetails?.fullNumber || '',
+      street: address?.street || '',
+      city: address?.city || '',
+      state: address?.state || '',
+      country: address?.country || 'Nigeria'
+    });
   }
 
   private handleScroll(): void {
@@ -374,7 +474,13 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     
     if (!product) return;
     
-    const cartItem = {
+    const storeId = product.store?._id || this.store()?._id;
+    if (!storeId) {
+      this.showNotification('This product cannot be added to cart right now', 'error');
+      return;
+    }
+
+    const addedItem = this.cartService.addItem({
       productId: product._id ?? '',
       variantId: variant?._id,
       quantity: this.quantity(),
@@ -382,32 +488,160 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       name: product.name,
       variantName: variant?.name,
       image: product.images?.[0]?.url,
-      storeId: product.store._id ?? '',
+      storeId,
+      storeName: this.store()?.name || product.store?.name,
+      storeLink: this.store()?.storeLink || product.store?.storeLink,
+      currency: product.currency || 'NGN',
+      maxQuantity: this.maxQuantity(),
+      manageStock: product.manageStock,
+      soldIndividually: product.soldIndividually,
       trackingCode: this.trackingCode(),
+      uniqueId: this.uniqueId(),
       promoterId: this.promoterId()
-    };
+    });
+
+    this.cartFeedback.set({
+      name: product.name,
+      quantity: addedItem.quantity,
+      totalItems: this.cartService.itemCount()
+    });
     
-    //this.cartService.addToCart(cartItem);
-    
-    this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
-      duration: 5000,
+    this.snackBar.open(`${product.name} is in your cart`, 'View Cart', {
       panelClass: ['success-snackbar'],
       horizontalPosition: 'right',
       verticalPosition: 'bottom'
     }).onAction().subscribe(() => {
-      this.router.navigate(['/cart'], {
-        queryParams: {
-          track: this.trackingCode(),
-          promoter: this.promoterId()
-        }
-      });
+      this.goToCart();
     });
   }
 
   buyNow(): void {
     if (!this.canAddToCart()) return;
-    this.addToCart();
-    this.router.navigate(['/checkout'], {
+
+    this.cartFeedback.set(null);
+    this.checkoutOpen.set(true);
+    this.checkoutError.set(null);
+    this.checkoutSuccess.set(null);
+
+    setTimeout(() => {
+      document.querySelector('.checkout-section')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 50);
+  }
+
+  async submitCheckout(): Promise<void> {
+    if (this.checkoutForm.invalid) {
+      this.checkoutForm.markAllAsTouched();
+      this.checkoutError.set('Please complete the delivery details.');
+      return;
+    }
+
+    const product = this.product();
+    const currentUser = this.user();
+    if (!product?._id) {
+      this.checkoutError.set('Reload the product before checkout.');
+      return;
+    }
+
+    this.checkoutLoading.set(true);
+    this.checkoutError.set(null);
+
+    try {
+      const formValue = this.checkoutForm.getRawValue();
+      const customerEmail = formValue.email || currentUser?.email || '';
+      const customerName = formValue.fullName || currentUser?.displayName || currentUser?.username || '';
+      const customerPhone = formValue.phone || currentUser?.personalInfo?.phone || currentUser?.personalInfo?.phoneDetails?.fullNumber || '';
+      const orderPayload: any = {
+        productId: product._id,
+        variantId: this.selectedVariant()?._id,
+        quantity: this.quantity(),
+        trackingCode: this.trackingCode(),
+        ref: this.uniqueId(),
+        shippingAddress: {
+          fullName: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+          street: formValue.street,
+          city: formValue.city,
+          state: formValue.state,
+          country: formValue.country || 'Nigeria',
+          postalCode: formValue.postalCode || ''
+        },
+        paymentMethod: 'paystack'
+      };
+
+      if (currentUser?._id) {
+        orderPayload.customerId = currentUser._id;
+      }
+
+      const createResponse = await firstValueFrom(this.storeService.createStorefrontOrder(orderPayload));
+
+      const order = createResponse?.data?.order;
+      const checkout = createResponse?.data?.checkout;
+      if (!order?._id || !checkout?.reference) {
+        throw new Error('Checkout could not be initialized.');
+      }
+
+      this.checkoutOrder.set(order);
+      const paymentResult = await firstValueFrom(this.paystackService.initiatePayment({
+        amount: checkout.amount,
+        currency: checkout.currency || 'NGN',
+        reference: checkout.reference,
+        user: currentUser || undefined,
+        customer: {
+          email: customerEmail,
+          fullName: customerName,
+          phone: customerPhone
+        },
+        metadata: {
+          orderId: order._id,
+          productId: product._id,
+          trackingCode: this.trackingCode(),
+          uniqueId: this.uniqueId()
+        }
+      }));
+
+      if (!paymentResult.success || !paymentResult.response) {
+        throw new Error(paymentResult.error || 'Payment was not completed.');
+      }
+
+      const confirmPayload: any = {
+        paymentReference: checkout.reference,
+        paystackResult: paymentResult.response
+      };
+
+      if (currentUser?._id) {
+        confirmPayload.customerId = currentUser._id;
+      }
+
+      const confirmResponse = await firstValueFrom(this.storeService.confirmStorefrontPayment(order._id, confirmPayload));
+
+      this.checkoutSuccess.set(confirmResponse?.data?.order || order);
+      this.checkoutOpen.set(false);
+      this.showNotification('Payment successful. Order details have been sent to your email.', 'success');
+      this.loadProductData();
+    } catch (error: any) {
+      console.error('Checkout failed:', error);
+      this.checkoutError.set(error?.error?.message || error?.message || 'Checkout failed. Please try again.');
+    } finally {
+      this.checkoutLoading.set(false);
+    }
+  }
+
+  cancelCheckout(): void {
+    if (this.checkoutLoading()) return;
+    this.checkoutOpen.set(false);
+    this.checkoutError.set(null);
+  }
+
+  dismissCartFeedback(): void {
+    this.cartFeedback.set(null);
+  }
+
+  goToCart(): void {
+    this.router.navigate(['/cart'], {
       queryParams: {
         track: this.trackingCode(),
         promoter: this.promoterId()
@@ -433,6 +667,61 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     const message = `Hello ${store.name}, I'm interested in your products.`;
     const url = `https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+  }
+
+  handleStoreContact(method: 'whatsapp' | 'email' | 'chat'): void {
+    if (method === 'whatsapp') {
+      this.contactViaWhatsApp();
+      return;
+    }
+    if (method === 'email') {
+      this.emailStore();
+      return;
+    }
+    const store = this.store();
+    const phone = (store as any)?.phoneNumber || store?.owner?.personalInfo?.phone || store?.whatsappNumber;
+    if (phone) {
+      window.location.href = `tel:${phone}`;
+    }
+  }
+
+  emailStore(): void {
+    const store = this.store();
+    const email = (store as any)?.email || store?.owner?.email;
+    if (!email) {
+      this.showNotification('This store has no email contact yet', 'info');
+      return;
+    }
+    const subject = `Product inquiry: ${this.product()?.name || store?.name || 'MarketSpase product'}`;
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+  }
+
+  openReturnPolicy(event?: Event): void {
+    event?.preventDefault();
+    this.selectedTab.set(3);
+    this.showNotification('Payments stay in escrow until delivery is confirmed. Contact the store for product-specific return terms.', 'info');
+  }
+
+  addRelatedProductToCart(product: any): void {
+    if (!product?._id) return;
+    const currentStore = this.store();
+    this.cartService.addItem({
+      productId: product._id,
+      quantity: 1,
+      price: product.price,
+      name: product.name,
+      image: product.images?.[0]?.url,
+      storeId: currentStore?._id || this.product()?.store?._id || '',
+      storeName: currentStore?.name || this.product()?.store?.name,
+      storeLink: currentStore?.storeLink || this.product()?.store?.storeLink,
+      currency: this.product()?.currency || 'NGN',
+      maxQuantity: 999
+    });
+
+    this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
+      duration: 4000,
+      panelClass: ['success-snackbar']
+    }).onAction().subscribe(() => this.router.navigate(['/cart']));
   }
 
   // =========================================
@@ -500,6 +789,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   // UTILITY METHODS
   // =========================================
 
+  private toSafeNumber(value: unknown, fallback = 0): number {
+    const next = Number(value);
+    return Number.isFinite(next) ? next : fallback;
+  }
+
   showNotification(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
     const panelClass = `${type}-snackbar`;
     this.snackBar.open(message, 'Close', {
@@ -518,36 +812,73 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   // TRACKING METHODS
   // =========================================
   private extractTrackingParams(): void {
-    // Store tracking params immediately
-    let pendingTrackingCode: string | null = null;
-    let pendingPromoterId: string | null = null;
-    
     // Handle query params first (they come immediately)
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params: Params) => {
-      const trackingCode = params['track'] || params['ref'];
+      const trackingCode = params['track'] || null;
+      const uniqueId = params['ref'] || null;
       const promoterId = params['promoter'];
+      const clickedAlreadyRecorded = params['clicked'] === '1';
       
       if (trackingCode) {
-        pendingTrackingCode = trackingCode;
         this.trackingCode.set(trackingCode);
-        
-        // Track the click immediately when landing
-        this.trackPromotionClick(trackingCode);
+        if (!clickedAlreadyRecorded) {
+          this.trackPromotionClick(trackingCode);
+        }
+      } else if (uniqueId) {
+        this.trackingCode.set(uniqueId);
+        if (!clickedAlreadyRecorded) {
+          this.trackPromotionClick(uniqueId);
+        }
+      }
+
+      if (uniqueId) {
+        this.uniqueId.set(uniqueId);
       }
       
       if (promoterId) {
-        pendingPromoterId = promoterId;
         this.promoterId.set(promoterId);
       }
     });
     
-    // Handle product loading separately
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const productId = params.get('productId');
       if (productId) {
-        this.loadProductData()
+        this.viewRecordingAttempted = false;
+        this.loadProductData();
       }
     });
+  }
+
+  shareStore(): void {
+    const store = this.store();
+    if (!store?.storeLink) return;
+    void this.shareService.share({
+      title: store.name,
+      text: `${store.name} on MarketSpase`,
+      url: `${window.location.origin}/store/${store.storeLink}`
+    });
+  }
+
+  reportStore(): void {
+    this.showNotification('Thanks. Store reporting will be reviewed by MarketSpase support.', 'success');
+  }
+
+  handleStoreTab(tabId: string): void {
+    if (tabId === 'products') {
+      this.viewStore();
+      return;
+    }
+    if (tabId === 'about') {
+      this.showNotification(this.store()?.description || 'Store description is not available yet.', 'info');
+      return;
+    }
+    if (tabId === 'reviews') {
+      this.scrollToReviews();
+      return;
+    }
+    if (tabId === 'policies') {
+      this.openReturnPolicy();
+    }
   }
 
   private trackPromotionClick(uniqueCode: string): void {
@@ -596,7 +927,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     
     const deviceType = this.deviceService.type();
     
-    this.promotionService.trackProductView(productId, trackingCode, undefined, deviceType).pipe(
+    this.promotionService.trackProductView(productId, trackingCode, this.uniqueId() || undefined, deviceType).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (response) => {

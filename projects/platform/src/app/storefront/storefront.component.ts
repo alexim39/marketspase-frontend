@@ -33,8 +33,10 @@ import { FilterSidebarComponent } from './components/filter-sidebar/filter-sideb
 import { ProductQuickViewComponent } from './components/product-quick-view/product-quick-view.component';
 
 // Models
-import { Product, Store } from '../store/models';
+import { Product, ProductVariant, Store } from '../store/models';
 import { MatIconModule } from '@angular/material/icon';
+import { StorefrontCartService } from './services/storefront-cart.service';
+import { ShareService } from '../store/services/share.service';
 
 @Component({
   selector: 'app-storefront',
@@ -58,7 +60,7 @@ import { MatIconModule } from '@angular/material/icon';
     FilterSidebarComponent,
     MatIconModule
   ],
-  providers: [StorefrontService],
+  providers: [StorefrontService, ShareService],
   templateUrl: './storefront.component.html',
   styleUrls: ['./storefront.component.scss']
 })
@@ -66,6 +68,8 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   public router = inject(Router);
   private storeService = inject(StorefrontService);
+  private cartService = inject(StorefrontCartService);
+  private shareService = inject(ShareService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private bottomSheet = inject(MatBottomSheet);
@@ -85,6 +89,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   showFilters = signal<boolean>(false);
   isScrolled = signal<boolean>(false);
   lastScrollTop = signal<number>(0);
+  featuredOnly = signal<boolean>(false);
 
   // Price Range Filter
   minPrice = signal<number>(0);
@@ -151,7 +156,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       .map(([tag, count]) => ({ tag, count }));
   });
 
-  filteredProducts = computed(() => {
+  matchingProducts = computed(() => {
     let filtered = [...this.products()];
     const searchTerm = this.searchControl.value?.toLowerCase();
     const category = this.selectedCategory();
@@ -161,6 +166,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     const ratingFilterVal = this.ratingFilter();
     const tagsFilterVal = this.tagsFilter();
     const brandFilterVal = this.brandFilter();
+    const featuredOnly = this.featuredOnly();
 
     // Filter by search term
     if (searchTerm) {
@@ -175,6 +181,10 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     // Filter by category
     if (category) {
       filtered = filtered.filter(product => product.category === category);
+    }
+
+    if (featuredOnly) {
+      filtered = filtered.filter(product => product.isFeatured);
     }
 
     // Filter by price range
@@ -228,18 +238,21 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // Apply pagination
+    return filtered;
+  });
+
+  filteredProducts = computed(() => {
     const startIndex = (this.currentPage() - 1) * this.pageSize();
-    return filtered.slice(startIndex, startIndex + this.pageSize());
+    return this.matchingProducts().slice(startIndex, startIndex + this.pageSize());
   });
 
   totalPages = computed(() => {
-    const totalProducts = this.products().length;
+    const totalProducts = this.matchingProducts().length;
     return Math.ceil(totalProducts / this.pageSize());
   });
 
   totalFilteredProducts = computed(() => {
-    return this.filteredProducts().length;
+    return this.matchingProducts().length;
   });
 
   //currentYear = new Date().getFullYear();
@@ -251,12 +264,15 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   // Store analytics computed
   storeStats = computed(() => {
     const store = this.store();
+    const followers = Array.isArray((store as any)?.followers)
+      ? (store as any).followers.length
+      : Number((store as any)?.followerCount || 0);
     return {
       productCount: this.products().length,
       totalViews: store?.analytics?.totalViews || 0,
       totalSales: store?.analytics?.totalSales || 0,
       conversionRate: store?.analytics?.conversionRate || 0,
-      followerCount: store?.followers || 0
+      followerCount: Number.isFinite(followers) ? followers : 0
     };
   });
 
@@ -347,8 +363,8 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       const productsResponse = await this.storeService.getStoreProducts(storeResponse.data._id ?? '').toPromise();
       this.products.set(productsResponse?.data || []);
 
-      // Check if store is favorited
-      //this.isFavorited.set(this.wishlistService.isStoreFavorited(storeResponse.data._id ?? ''));
+      const favoriteStores = this.readSet('marketspase_favorite_stores_v1');
+      this.isFavorited.set(favoriteStores.has(storeResponse.data._id ?? storeResponse.data.storeLink));
 
       // Animation trigger
       setTimeout(() => {
@@ -363,7 +379,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadWishlist(): void {
-    //this.wishlist.set(new Set(this.wishlistService.getWishlistProductIds()));
+    this.wishlist.set(this.readSet('marketspase_storefront_wishlist_v1'));
   }
 
   private calculatePriceRange(): void {
@@ -413,6 +429,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
 
   clearFilters(): void {
     this.selectedCategory.set(null);
+    this.featuredOnly.set(false);
     this.searchControl.setValue('');
     this.sortControl.setValue('newest');
     this.priceRange.set([this.minPrice(), this.maxPrice()]);
@@ -452,15 +469,40 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  addToCart(product: Product): void {
-   /*  this.cartService.addToCart({
-      productId: product._id ?? '',
-      quantity: 1,
-      price: product.price,
+  addToCart(product: Product, quantity = 1, variant?: ProductVariant | null): void {
+    if (!product?._id) return;
+
+    const store = this.store();
+    const storeId = product.store?._id || store?._id;
+    if (!storeId) {
+      this.showNotification('This product cannot be added to cart right now', 'error');
+      return;
+    }
+
+    if (product.manageStock && product.quantity <= 0) {
+      this.showNotification('This product is out of stock', 'info');
+      return;
+    }
+
+    this.cartService.addItem({
+      productId: product._id,
+      variantId: variant?._id,
+      variantName: variant?.name,
+      quantity,
+      price: variant?.price || product.price,
       name: product.name,
-      image: product.images?.[0]?.url,
-      storeId: product.store._id ?? ''
-    }); */
+      image: variant?.images?.[0]?.url || product.images?.[0]?.url,
+      storeId,
+      storeName: store?.name || product.store?.name,
+      storeLink: store?.storeLink || product.store?.storeLink,
+      currency: product.currency || 'NGN',
+      maxQuantity: product.manageStock ? product.quantity : 999,
+      manageStock: product.manageStock,
+      soldIndividually: product.soldIndividually,
+      trackingCode: product.activePromotion?.trackingCode || product.promotion?.trackingCode || null,
+      uniqueId: product.activePromotion?.uniqueId || product.promotion?.uniqueId || null,
+      promoterId: product.activePromotion?.promoter || null
+    });
 
     this.snackBar.open(`${product.name} added to cart`, 'View Cart', {
       duration: 3000,
@@ -473,41 +515,34 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   toggleWishlist(product: Product): void {
-    if (this.isInWishlist(product?._id ?? '')) {
-      //this.wishlistService.removeFromWishlist(product._id ?? '');
+    const productId = product?._id ?? '';
+    if (!productId) return;
+
+    const current = new Set(this.wishlist());
+    if (current.has(productId)) {
+      current.delete(productId);
       this.showNotification('Removed from wishlist', 'info');
     } else {
-     /*  this.wishlistService.addToWishlist({
-        productId: product._id ?? '',
-        name: product.name,
-        price: product.price,
-        image: product.images?.[0]?.url,
-        storeId: product.store._id ?? '',
-        category: product.category
-      }); */
+      current.add(productId);
       this.showNotification('Added to wishlist', 'success');
     }
-    this.loadWishlist();
+    this.wishlist.set(current);
+    this.persistSet('marketspase_storefront_wishlist_v1', current);
   }
 
   toggleFavorite(): void {
     const store = this.store();
     if (!store) return;
 
+    const current = this.readSet('marketspase_favorite_stores_v1');
     if (this.isFavorited()) {
-      //this.wishlistService.removeFavoriteStore(store._id ?? '');
+      current.delete(store._id ?? store.storeLink);
       this.showNotification('Store removed from favorites', 'info');
     } else {
-      if (store._id) {
-        /* this.wishlistService.addFavoriteStore({
-          storeId: store._id,
-          storeName: store.name,
-          storeLogo: store.logo,
-          storeLink: store.storeLink
-        }); */
-      }
+      current.add(store._id ?? store.storeLink);
       this.showNotification('Store added to favorites', 'success');
     }
+    this.persistSet('marketspase_favorite_stores_v1', current);
     this.isFavorited.set(!this.isFavorited());
   }
 
@@ -524,8 +559,48 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     window.open(url, '_blank');
   }
 
+  handleStoreContact(method: 'whatsapp' | 'email' | 'chat'): void {
+    const store = this.store();
+    if (!store) return;
+
+    if (method === 'whatsapp') {
+      this.contactViaWhatsApp();
+      return;
+    }
+
+    if (method === 'email') {
+      const email = (store as any).email || store.owner?.email;
+      if (!email) {
+        this.showNotification('This store has no email contact yet', 'info');
+        return;
+      }
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(`Product inquiry for ${store.name}`)}`;
+      return;
+    }
+
+    const phone = (store as any).phoneNumber || store.owner?.personalInfo?.phone || store.whatsappNumber;
+    if (phone) {
+      window.location.href = `tel:${phone}`;
+    }
+  }
+
   openShareBottomSheet(type: 'store' | 'product', product?: Product): void {
-    // Implementation unchanged
+    if (type === 'product' && product?._id) {
+      void this.shareService.share({
+        title: product.name,
+        text: `${product.name} on MarketSpase`,
+        url: `${window.location.origin}/product/${product._id}`
+      });
+      return;
+    }
+
+    const store = this.store();
+    if (!store?.storeLink) return;
+    void this.shareService.share({
+      title: store.name,
+      text: `${store.name} on MarketSpase`,
+      url: `${window.location.origin}/store/${store.storeLink}`
+    });
   }
 
   quickView(product: Product): void {
@@ -626,7 +701,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getCartCount(): number {
-    return 0 //this.cartService.cartItemCount();
+    return this.cartService.itemCount();
   }
 
   isNewProduct(date: Date): boolean {
@@ -650,7 +725,7 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
       data: {
         product: product,
         store: this.store(),
-        onAddToCart: () => this.addToCart(product),
+        onAddToCart: (quantity?: number, variant?: ProductVariant | null) => this.addToCart(product, quantity || 1, variant),
         onToggleWishlist: () => this.toggleWishlist(product),
         isInWishlist: this.isInWishlist(product._id ?? '')
       },
@@ -664,6 +739,48 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onHeaderTransform(event: any) {
 
+  }
+
+  showFeaturedOnly(): void {
+    this.featuredOnly.set(true);
+    this.currentPage.set(1);
+  }
+
+  onStoreTabChange(tabId: string): void {
+    if (tabId === 'products') {
+      this.clearFilters();
+      return;
+    }
+    if (tabId === 'about') {
+      this.showNotification(this.store()?.description || 'Store description is not available yet.', 'info');
+      return;
+    }
+    if (tabId === 'reviews') {
+      this.sortControl.setValue('rating');
+      this.showNotification('Showing the highest rated products first.', 'info');
+      return;
+    }
+    if (tabId === 'policies') {
+      this.showNotification('MarketSpase checkout protects payments in escrow until delivery is confirmed.', 'info');
+    }
+  }
+
+  reportStore(): void {
+    this.showNotification('Thanks. Store reporting will be reviewed by MarketSpase support.', 'success');
+  }
+
+  private persistSet(key: string, values: Set<string>): void {
+    localStorage.setItem(key, JSON.stringify(Array.from(values)));
+  }
+
+  private readSet(key: string): Set<string> {
+    try {
+      const raw = localStorage.getItem(key);
+      const values = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(values) ? values : []);
+    } catch {
+      return new Set();
+    }
   }
 
 }

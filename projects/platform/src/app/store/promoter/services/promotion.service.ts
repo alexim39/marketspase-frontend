@@ -10,8 +10,8 @@ export interface CreatePromotionDto {
   productId: string;
   promoterId: string;
   storeId: string;
-  commissionRate: number;
-  commissionType: 'percentage' | 'fixed';
+  commissionRate?: number;
+  commissionType?: 'percentage' | 'fixed';
   fixedCommission?: number;
   startDate?: Date;
   endDate?: Date;
@@ -102,28 +102,26 @@ export class PromotionService {
    * Get tracking link
    */
   getTrackingLink(uniqueCode: string, productId: string): string {
-    // Format: /promote/PRODUCT_ID?ref=prom_ABC123&track=PROD-XYZ
-    return `https://marketspase.com/promote/${productId}?ref=${uniqueCode}`; 
+    return `${this.apiService.getBaseUrl()}/${this.apiUrl}/track-click/${encodeURIComponent(uniqueCode)}`;
   }
 
   /**
    * Generate WhatsApp message with tracking link
    */
-  generateWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number): string {
-    const link = this.getTrackingLink(uniqueCode, product._id ?? '');
+  generateWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number, affiliateUrl?: string): string {
+    const link = affiliateUrl || this.getTrackingLink(uniqueCode, product._id ?? '');
+    const storeName = product.store?.name ? ` from ${product.store.name}` : '';
 
-    const message = ` *${product.name}* 
+    const message = `*${product.name}*
 
-    I just found this and thought you might like it 
+I found this${storeName} on MarketSpase and thought you might like it.
 
-     *Price:* ₦${price.toLocaleString()}
+Price: NGN ${Number(price || 0).toLocaleString('en-NG')}
 
-    *View / Order here:*
-    ${link}
+View or order here:
+${link}
 
-     It’s definitely worth checking out!
-
-    (You can also earn ${commissionRate}% commission by sharing this)`;
+Secure checkout is available on MarketSpase, with payment held until delivery is confirmed.`;
 
     return encodeURIComponent(message);
   }
@@ -224,20 +222,11 @@ export class PromotionService {
   trackProductView(productId: string, trackingCode?: string, uniqueId?: string, deviceType?: string): Observable<any> {
     //console.log('Tracking product view:', { productId, trackingCode, uniqueId, deviceType });
     
-    let params = new HttpParams();
-    
-    if (trackingCode) {
-      params = params.set('trackingCode', trackingCode);
-    }
-    if (uniqueId) {
-      params = params.set('uniqueId', uniqueId);
-    }
-    if (deviceType) {
-      params = params.set('deviceType', deviceType);
-    }
-    
-    // Use the correct endpoint
-    return this.apiService.post(`${this.apiUrl}/track-view`, params, undefined, true);
+    return this.apiService.post(`${this.apiUrl}/${productId}/track-view`, {
+      trackingCode,
+      uniqueId,
+      deviceType
+    }, undefined, true);
   }
 
 
@@ -250,9 +239,10 @@ export class PromotionService {
     let params = new HttpParams();
     if (deviceType) params = params.set('deviceType', deviceType);
     if (source) params = params.set('source', source);
+    params = params.set('redirect', 'false');
     
     // Use the correct endpoint for click tracking
-    return this.apiService.post(`${this.apiUrl}/track-click/${uniqueCode}`, params, undefined, true);
+    return this.apiService.get(`${this.apiUrl}/track-click/${uniqueCode}`, params, undefined, true);
   }
 
 

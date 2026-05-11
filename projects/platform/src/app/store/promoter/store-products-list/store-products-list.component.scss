@@ -639,7 +639,9 @@
         display: flex;
         gap: $spacing-2;
         
-        .view-btn, .copy-btn {
+        .view-btn,
+        .buy-btn,
+        .copy-btn {
           flex: 1;
           
           mat-icon {
@@ -650,23 +652,22 @@
         }
         
         .whatsapp-btn {
-          $whatsapp-green: #128c7e;
-          border-color: $whatsapp-green;
-          color: $whatsapp-green;
+          flex: 0 0 40px;
+          width: 40px;
+          height: 40px;
+          color: $text-secondary;
+          background: transparent;
           border-radius: $border-radius-full;
-          padding: 0 $spacing-3;
-          font-weight: $font-weight-medium;
-          font-size: $font-size-sm;
           
           mat-icon {
-            margin-right: $spacing-1;
             font-size: 18px;
             width: 18px;
             height: 18px;
           }
           
           &:hover {
-            background: rgba($whatsapp-green, 0.05);
+            color: #128c7e;
+            background: rgba(18, 140, 126, 0.08);
           }
         }
       }

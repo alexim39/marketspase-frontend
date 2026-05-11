@@ -41,6 +41,7 @@ import { RelatedProductsComponent } from './components/related-products/related-
 import { MatChipsModule } from '@angular/material/chips';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductLoaderComponent } from './components/product-loader/product-loader.component';
+import { PromotionService } from '../services/promotion.service';
 
 @Component({
   selector: 'app-promoter-product-details',
@@ -49,7 +50,8 @@ import { ProductLoaderComponent } from './components/product-loader/product-load
     PromoterProductService,
     ShareService,
     AnalyticsService,
-    StorefrontService
+    StorefrontService,
+    PromotionService
   ],
   imports: [
     CommonModule,
@@ -84,6 +86,7 @@ export class PromoterProductDetailsComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private shareService = inject(ShareService);
   private analyticsService = inject(AnalyticsService);
+  private promotionService = inject(PromotionService);
   private userService = inject(UserService);
   user = this.userService.user;
   private destroyRef = inject(DestroyRef);
@@ -215,14 +218,14 @@ ngOnInit(): void {
 
   // ------------------ ACTIONS ------------------
 
-  copyPromotionLink(): void {
+  async copyPromotionLink(): Promise<void> {
     const product = this.product();
     if (!product) return;
 
-    const link = `${window.location.origin}/promote/${product._id}?ref=${product.promotion.trackingCode}`;
-    // `https://marketspase.com/promote/${productId}?ref=${uniqueCode}`; 
+    const promotion = await this.ensurePromotion(product);
+    if (!promotion) return;
 
-    navigator.clipboard.writeText(link).then(() => {
+    navigator.clipboard.writeText(promotion.affiliateUrl).then(() => {
       this.snackBar.open('Promotion link copied!', 'Close', {
         duration: 3000,
         panelClass: ['success-snackbar']
@@ -230,14 +233,16 @@ ngOnInit(): void {
     });
   }
 
-  shareProduct(platform: 'whatsapp' | 'facebook' | 'twitter' | 'copy' | any): void {
+  async shareProduct(platform: 'whatsapp' | 'facebook' | 'twitter' | 'copy' | any): Promise<void> {
     const product = this.product();
     if (!product) return;
+    const promotion = await this.ensurePromotion(product);
+    if (!promotion) return;
 
     const shareData = {
       title: `Check out ${product.name}`,
       text: `${product.name} - $${product.price} | ${product.promotion.commissionRate}% commission`,
-      url: `${window.location.origin}/promote/${product._id}?ref=${product.promotion.trackingCode}`
+      url: promotion.affiliateUrl
     };
 
     this.shareService.share(shareData, platform);
@@ -248,15 +253,22 @@ ngOnInit(): void {
   }
 
   generateWhatsAppMessage(): void {
+    void this.shareGeneratedWhatsAppMessage();
+  }
+
+  private async shareGeneratedWhatsAppMessage(): Promise<void> {
     const product = this.product();
     if (!product) return;
 
-    const message = `🎯 *${product.name}*\n\n` +
-      `💰 Price: $${product.price}\n` +
-      `🎁 Commission: ${product.promotion.commissionRate}%\n\n` +
-      `📦 Category: ${product.category}\n` +
-      `🏪 Store: ${product.store.name}\n\n` +
-      `👉 Promo Link: ${window.location.origin}/promote/${product._id}?ref=${product.promotion.trackingCode}`;
+    const promotion = await this.ensurePromotion(product);
+    if (!promotion) return;
+
+    const message = `*${product.name}*\n\n` +
+      `Price: NGN ${product.price.toLocaleString()}\n` +
+      `Commission: ${product.promotion.commissionRate}%\n\n` +
+      `Category: ${product.category}\n` +
+      `Store: ${product.store.name}\n\n` +
+      `Order here: ${promotion.affiliateUrl}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   }
@@ -270,6 +282,61 @@ ngOnInit(): void {
   }
 
   // ------------------ HELPERS ------------------
+
+  private async ensurePromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string } | null> {
+    const existingUrl = product.promotion?.affiliateUrl || product.promotion?.promotionUrl;
+    const existingCode = product.promotion?.trackingCode;
+
+    if (existingUrl && existingCode) {
+      return {
+        trackingCode: existingCode,
+        uniqueId: product.promotion?.uniqueId || '',
+        affiliateUrl: existingUrl
+      };
+    }
+
+    const promoterId = this.user()?._id;
+    if (!promoterId) {
+      this.snackBar.open('You must be logged in to promote products', 'Close', { duration: 5000 });
+      return null;
+    }
+
+    try {
+      const response = await firstValueFrom(this.promotionService.createPromotion({
+        productId: product._id ?? '',
+        promoterId,
+        storeId: product.store._id,
+        commissionRate: product.promotion?.commissionRate,
+        commissionType: product.promotion?.commissionType,
+        fixedCommission: product.promotion?.fixedCommission
+      }));
+
+      const data = response?.data;
+      const trackingCode = data?.uniqueCode || data?.trackingCode;
+      const affiliateUrl = data?.affiliateUrl || data?.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
+
+      this.product.update(current => current ? {
+        ...current,
+        promotion: {
+          ...current.promotion,
+          trackingCode,
+          uniqueId: data?.uniqueId,
+          affiliateUrl,
+          promotionUrl: affiliateUrl
+        }
+      } : current);
+
+      return {
+        trackingCode,
+        uniqueId: data?.uniqueId || '',
+        affiliateUrl
+      };
+    } catch (error) {
+      console.error('Failed to create promotion link:', error);
+      this.snackBar.open('Failed to create promotion link. Please try again.', 'Close', { duration: 5000 });
+      return null;
+    }
+  }
 
   getPerformanceColor(rate: number): string {
     if (rate >= 30) return 'success';

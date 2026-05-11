@@ -1,7 +1,12 @@
 <!-- Header -->
 <app-store-header
   [store]="store()"
-  (contactViaWhatsApp)="contactViaWhatsApp()"
+  [storeStats]="storeStats()"
+  (contactStore)="handleStoreContact($event)"
+  (shareStore)="shareStore()"
+  (reportStore)="reportStore()"
+  (tabChange)="handleStoreTab($event)"
+  (viewAllProducts)="viewStore()"
 />
 
 <main>
@@ -42,7 +47,7 @@
         </button>
         <div class="sticky-title">
           <span class="product-name">{{ product()!.name | truncate:40 }}</span>
-          <span class="product-price">{{ currentPrice() | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
+          <span class="product-price">{{ currentPrice() | currencyUtils:(product()?.currency || 'NGN') }}</span>
         </div>
        <!--  <div class="sticky-actions">
           <button mat-icon-button (click)="toggleWishlist()" [class.active]="isInWishlist()">
@@ -77,29 +82,169 @@
             />
 
             <!-- RIGHT COLUMN: Product Info -->
-           <app-product-info
-              [product]="product()"
-              [store]="store()"
-              [variants]="variants()"
-              [attributes]="attributes()"
-              [selectedVariant]="selectedVariant()"
-              [quantity]="quantity()"
-              [maxQuantity]="maxQuantity()"
-              [canAddToCart]="canAddToCart()"
-              [isInWishlist]="isInWishlist()"
-              [userCurrency]="user()?.wallets?.promoter?.currency || 'NGN'"
-              [userRole]="user()?.role || ''"
-              [activePromotion]="activePromotion()"
-              (storeClick)="viewStore()"
-              (reviewsClick)="scrollToReviews()"
-              (variantSelect)="selectVariant($event)"
-              (variantByAttribute)="selectVariantByAttribute($event)"
-              (quantityChange)="onQuantityChange($event)"
-              (addToCart)="addToCart()"
-              (buyNow)="buyNow()"
-              (contactStore)="contactStore()"
-            />
+            <div class="product-purchase-panel">
+              <app-product-info
+                [product]="product()"
+                [store]="store()"
+                [variants]="variants()"
+                [attributes]="attributes()"
+                [selectedVariant]="selectedVariant()"
+                [quantity]="quantity()"
+                [maxQuantity]="maxQuantity()"
+                [canAddToCart]="canAddToCart()"
+                [isInWishlist]="isInWishlist()"
+                [userCurrency]="product()?.currency || 'NGN'"
+                [userRole]="user()?.role || ''"
+                [activePromotion]="activePromotion()"
+                (storeClick)="viewStore()"
+                (reviewsClick)="scrollToReviews()"
+                (variantSelect)="selectVariant($event)"
+                (variantByAttribute)="selectVariantByAttribute($event)"
+                (quantityChange)="onQuantityChange($event)"
+                (addToCart)="addToCart()"
+                (buyNow)="buyNow()"
+                (contactStore)="contactStore()"
+              />
+
+              @if (cartFeedback(); as feedback) {
+                <div class="cart-feedback-panel">
+                  <div class="feedback-icon">
+                    <mat-icon>check_circle</mat-icon>
+                  </div>
+                  <div class="feedback-copy">
+                    <strong>Added to cart</strong>
+                    <span>{{ feedback.quantity }} x {{ feedback.name }}. Your cart has {{ feedback.totalItems }} item{{ feedback.totalItems === 1 ? '' : 's' }}.</span>
+                  </div>
+                  <div class="feedback-actions">
+                    <button mat-raised-button color="primary" type="button" (click)="goToCart()">
+                      <mat-icon>shopping_cart_checkout</mat-icon>
+                      View Cart
+                    </button>
+                    <button mat-icon-button type="button" aria-label="Dismiss cart message" (click)="dismissCartFeedback()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
+
+          @if (checkoutOpen()) {
+            <mat-card class="checkout-section" appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>payments</mat-icon>
+                  Secure Checkout
+                </mat-card-title>
+                <mat-card-subtitle>
+                  Pay on MarketSpase. Funds stay reserved until delivery is confirmed.
+                </mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <div class="checkout-summary">
+                  <div>
+                    <span class="summary-label">Item</span>
+                    <strong>{{ product()!.name | titlecase }}</strong>
+                  </div>
+                  <div>
+                    <span class="summary-label">Quantity</span>
+                    <strong>{{ quantity() }}</strong>
+                  </div>
+                  <div>
+                    <span class="summary-label">Total</span>
+                    <strong>{{ checkoutTotal() | currencyUtils:(product()?.currency || 'NGN') }}</strong>
+                  </div>
+                </div>
+
+                <mat-divider />
+
+                <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="submitCheckout()">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Full name</mat-label>
+                    <input matInput formControlName="fullName">
+                    @if (checkoutForm.get('fullName')?.hasError('required')) {
+                      <mat-error>Full name is required</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" formControlName="email">
+                    @if (checkoutForm.get('email')?.hasError('required')) {
+                      <mat-error>Email is required</mat-error>
+                    } @else if (checkoutForm.get('email')?.hasError('email')) {
+                      <mat-error>Enter a valid email</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Phone number</mat-label>
+                    <input matInput formControlName="phone">
+                    @if (checkoutForm.get('phone')?.hasError('required')) {
+                      <mat-error>Phone number is required</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Street address</mat-label>
+                    <input matInput formControlName="street">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>State</mat-label>
+                    <input matInput formControlName="state">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Country</mat-label>
+                    <input matInput formControlName="country">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Postal code</mat-label>
+                    <input matInput formControlName="postalCode">
+                  </mat-form-field>
+
+                  @if (checkoutError()) {
+                    <div class="checkout-error">
+                      <mat-icon>error_outline</mat-icon>
+                      <span>{{ checkoutError() }}</span>
+                    </div>
+                  }
+
+                  <div class="checkout-actions">
+                    <button mat-button type="button" (click)="cancelCheckout()" [disabled]="checkoutLoading()">
+                      Cancel
+                    </button>
+                    <button mat-raised-button color="primary" type="submit" [disabled]="checkoutLoading()">
+                      @if (checkoutLoading()) {
+                        <mat-spinner diameter="18"></mat-spinner>
+                      } @else {
+                        <mat-icon>lock</mat-icon>
+                      }
+                      Pay Securely
+                    </button>
+                  </div>
+                </form>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          @if (checkoutSuccess()) {
+            <div class="checkout-success">
+              <mat-icon>check_circle</mat-icon>
+              <div>
+                <strong>Order placed successfully</strong>
+                <span>Order {{ checkoutSuccess()?.orderNumber }} is paid and held in escrow.</span>
+              </div>
+            </div>
+          }
         </div>
       </div>
 
@@ -158,7 +303,7 @@
                       <li>Customer responsible for return shipping costs</li>
                       <li>Refunds processed within 5-7 business days</li>
                     </ul>
-                    <a href="#" class="policy-link">View Full Return Policy</a>
+                    <button mat-button type="button" class="policy-link" (click)="openReturnPolicy($event)">View Full Return Policy</button>
                   </div>
                 </div>
 
@@ -174,7 +319,7 @@
                         <mat-icon>chat</mat-icon>
                         Chat with Store
                       </button>
-                      <button mat-stroked-button>
+                      <button mat-stroked-button type="button" (click)="emailStore()">
                         <mat-icon>email</mat-icon>
                         Email Support
                       </button>
@@ -192,8 +337,10 @@
         <app-related-products
           [products]="relatedProducts()"
           [storeLink]="store()?.storeLink || ''"
-          [userCurrency]="user()?.wallets?.promoter?.currency || 'NGN'"
+          [userCurrency]="product()?.currency || 'NGN'"
           [user]="user()"
+          [showAddToCart]="true"
+          (addToCart)="addRelatedProductToCart($event)"
         />
       }
 

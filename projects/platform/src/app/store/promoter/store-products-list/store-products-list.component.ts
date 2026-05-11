@@ -304,6 +304,15 @@ export class StoreProductsListComponent implements OnInit, OnDestroy, OnChanges 
     this.router.navigate(['dashboard/stores/product', product._id]);
   }
 
+  buyProduct(product: Product): void {
+    if (!product?._id) return;
+    this.router.navigate(['/product', product._id], {
+      queryParams: {
+        source: 'promoter-store-products'
+      }
+    });
+  }
+
   visitStore(): void {
     if (this.store()?.storeLink) {
       this.router.navigate(['/store', this.store()?.storeLink]);
@@ -311,6 +320,10 @@ export class StoreProductsListComponent implements OnInit, OnDestroy, OnChanges 
   }
 
   generateWhatsAppMessage(product: Product): void {
+    void this.shareGeneratedWhatsAppMessage(product);
+    /*
+    return;
+
     const storeName = this.store()?.name || 'this store';
     const discountPercent = this.getDiscountPercentage(product);
     
@@ -329,14 +342,21 @@ Don't miss out! 🎯`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+    */
+  }
+
+  private async shareGeneratedWhatsAppMessage(product: Product): Promise<void> {
+    const promotion = await this.createPromotion(product);
+    if (!promotion) return;
+
+    this.shareOnWhatsApp(product, promotion.trackingCode, promotion.affiliateUrl);
   }
 
   async onPromote(product: Product): Promise<void> {
     const promotion = await this.createPromotion(product);
     if (promotion) {
-      const trackingLink = this.promotionService.getTrackingLink(promotion.trackingCode, product._id ?? '');
-      await navigator.clipboard.writeText(trackingLink);
-      this.shareOnWhatsApp(product, promotion.trackingCode);
+      await navigator.clipboard.writeText(promotion.affiliateUrl);
+      this.shareOnWhatsApp(product, promotion.trackingCode, promotion.affiliateUrl);
     }
   }
 
@@ -348,8 +368,7 @@ Don't miss out! 🎯`;
         const promotion = await this.createPromotion(product);
         if (!promotion) return;
         
-        const trackingLink = this.promotionService.getTrackingLink(promotion.trackingCode, product._id ?? '');
-        await navigator.clipboard.writeText(trackingLink);
+        await navigator.clipboard.writeText(promotion.affiliateUrl);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
       } else {
         const trackingLink = this.promotionService.getTrackingLink(
@@ -365,7 +384,7 @@ Don't miss out! 🎯`;
     }
   }
 
-  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string } | null> {
+  async createPromotion(product: Product): Promise<{ trackingCode: string; uniqueId: string; affiliateUrl: string } | null> {
     try {
       const promoterId = this.user?._id;
       if (!promoterId) {
@@ -378,7 +397,8 @@ Don't miss out! 🎯`;
       if (existingPromotion) {
         return {
           trackingCode: existingPromotion.uniqueCode,
-          uniqueId: existingPromotion.uniqueId
+          uniqueId: existingPromotion.uniqueId,
+          affiliateUrl: existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(existingPromotion.uniqueCode, product._id ?? '')
         };
       }
 
@@ -395,11 +415,13 @@ Don't miss out! 🎯`;
 
       const trackingCode = response.data.uniqueCode;
       const uniqueId = response.data.uniqueId;
+      const affiliateUrl = response.data.affiliateUrl || response.data.promotionUrl || this.promotionService.getTrackingLink(trackingCode, product._id ?? '');
 
       this.activePromotions.update(map => {
         map.set(product._id ?? '', {
           uniqueCode: trackingCode,
           uniqueId: uniqueId,
+          affiliateUrl,
           ...response.data
         });
         return new Map(map);
@@ -408,7 +430,7 @@ Don't miss out! 🎯`;
       snackBarRef.dismiss();
       this.snackBar.open('Promotion link created!', 'Close', { duration: 3000 });
 
-      return { trackingCode, uniqueId };
+      return { trackingCode, uniqueId, affiliateUrl };
     } catch (error) {
       console.error('Error creating promotion:', error);
       this.snackBar.open('Failed to create promotion link.', 'Close', { duration: 5000 });
@@ -416,12 +438,13 @@ Don't miss out! 🎯`;
     }
   }
 
-  shareOnWhatsApp(product: Product, trackingCode: string): void {
+  shareOnWhatsApp(product: Product, trackingCode: string, affiliateUrl?: string): void {
     const message = this.promotionService.generateWhatsAppMessage(
       product,
       trackingCode,
       product.promotion?.commissionRate || 0,
-      product.price
+      product.price,
+      affiliateUrl
     );
     window.open(`https://wa.me/?text=${message}`, '_blank');
   }

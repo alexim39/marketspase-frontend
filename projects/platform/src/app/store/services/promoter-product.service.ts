@@ -13,7 +13,7 @@ export class PromoterProductService {
   private apiService = inject(ApiService);
   private apiUrl = 'stores/product';
 
-  getPromoterStoreProducts(filters?: Partial<ProductFilter> & { page?: number; limit?: number }): Observable<PaginatedResponse<Product>> {
+  getPromoterStoreProducts(filters?: Partial<ProductFilter> & { page?: number; limit?: number; promoterId?: string }): Observable<PaginatedResponse<Product>> {
     let params = new HttpParams();
     
     // Pagination params
@@ -49,6 +49,10 @@ export class PromoterProductService {
       params = params
         .set('sortBy', filters.sortBy)
         .set('sortDirection', filters.sortDirection || 'desc');
+    }
+
+    if (filters?.promoterId) {
+      params = params.set('promoterId', filters.promoterId);
     }
 
     return this.apiService.get<PaginatedResponse<Product>>(`${this.apiUrl}/list/promoter`, params, undefined, true).pipe(

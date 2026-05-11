@@ -69,6 +69,10 @@ type ProductForm = FormGroup<{
     costPrice: NumCtrl;
     taxClass: StrCtrl;
     taxable: BoolCtrl;
+    affiliateEnabled: BoolCtrl;
+    commissionType: StrCtrl;
+    commissionRate: NumCtrl;
+    fixedCommission: NumCtrl;
   }>;
   inventory: FormGroup<{
     sku: StrCtrl;
@@ -209,6 +213,10 @@ export class AddProductComponent implements OnInit, OnDestroy {
         costPrice: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
         taxClass: this.fb.control<string>('standard'),
         taxable: this.fb.control<boolean>(true),
+        affiliateEnabled: this.fb.control<boolean>(true),
+        commissionType: this.fb.control<string>('percentage'),
+        commissionRate: this.fb.control<number>(10, { validators: [Validators.min(0), Validators.max(100)] }),
+        fixedCommission: this.fb.control<number>(0, { validators: [Validators.min(0)] }),
       }),
       inventory: this.fb.group({
         sku: this.fb.control<string>(''),
@@ -392,6 +400,10 @@ onSubmit(): void {
   if (fv.pricing.costPrice) formData.append('costPrice', fv.pricing.costPrice.toString());
   formData.append('taxable', fv.pricing.taxable.toString());
   formData.append('taxClass', fv.pricing.taxClass);
+  formData.append('affiliate[enabled]', fv.pricing.affiliateEnabled.toString());
+  formData.append('affiliate[commissionType]', fv.pricing.commissionType);
+  formData.append('affiliate[commissionRate]', fv.pricing.commissionRate.toString());
+  formData.append('affiliate[fixedCommission]', fv.pricing.fixedCommission.toString());
 
   // Add inventory
   formData.append('quantity', fv.inventory.quantity.toString());
