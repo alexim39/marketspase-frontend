@@ -46,7 +46,7 @@ export class CampaignCardComponent {
       this.promotions.some( // Added () assuming promotions is a Signal
         (promotion: PromotionInterface) =>
           promotion.campaign._id === campaign._id && 
-          ['accepted', 'downloaded'].includes(promotion.status)
+          ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status)
       );
   });
 
@@ -91,19 +91,28 @@ export class CampaignCardComponent {
   }
 
   getDifficultyLevel(campaign: CampaignInterface): string {
-    const minViews = campaign.minViewsPerPromotion || 0;
+    const costPerClick = this.getCostPerClick(campaign);
     
-    if (minViews <= 35) return 'Easy';
-    if (minViews <= 66) return 'Medium';
-    return 'Hard';
+    if (costPerClick <= 80) return 'Low CPC';
+    if (costPerClick <= 150) return 'Standard';
+    return 'Premium';
   }
 
   getDifficultyDots(campaign: CampaignInterface): number {
-    const minViews = campaign.minViewsPerPromotion || 0;
+    const costPerClick = this.getCostPerClick(campaign);
     
-    if (minViews <= 35) return 1;
-    if (minViews <= 66) return 2;
+    if (costPerClick <= 80) return 1;
+    if (costPerClick <= 150) return 2;
     return 3;
+  }
+
+  getCostPerClick(campaign: CampaignInterface): number {
+    return campaign.costPerClick || campaign.payoutPerPromotion || 80;
+  }
+
+  getEstimatedClicks(campaign: CampaignInterface): number {
+    const remainingBudget = campaign.remainingBudget ?? campaign.budget ?? 0;
+    return Math.floor(remainingBudget / this.getCostPerClick(campaign));
   }
 
   getCategoryIcon(category: string): string {
@@ -127,7 +136,8 @@ export class CampaignCardComponent {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
     if (campaign.currentPromoters >= campaign.maxPromoters) return false;
     // if (campaign.totalPromotions >= campaign.maxPromoters) return false;
-    if (campaign.remainingBudget < campaign.payoutPerPromotion) return false;
+    const remainingBudget = campaign.remainingBudget ?? ((campaign.budget || 0) - (campaign.spentBudget || 0));
+    if (remainingBudget < this.getCostPerClick(campaign)) return false;
     return true;
   }
   

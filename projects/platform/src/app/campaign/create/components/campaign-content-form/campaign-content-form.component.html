@@ -58,11 +58,11 @@
       </div>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>WhatsApp Caption</mat-label>
+        <mat-label>Description Caption</mat-label>
         <textarea 
         matInput 
         formControlName="caption" 
-        placeholder="This is the text that will accompany your ad on WhatsApp" 
+        placeholder="This is the text that you want to appear with your ad. It can be a catchy description or a call to action." 
         rows="3">
       </textarea>
       <mat-hint align="end">{{formGroup.get('caption')?.value?.length || 0}} / 300</mat-hint>

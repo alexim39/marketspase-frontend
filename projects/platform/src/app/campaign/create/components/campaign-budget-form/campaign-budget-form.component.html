@@ -51,23 +51,11 @@
       <div class="performance-info">
         <mat-icon>info</mat-icon>
         <p>
-          Promoters are paid based on impressions and leads they generate.
+          The promoter gets paid every time you have a lead (Pay-Per-Click).
         </p>
       </div>
 
-      <!-- PAYOUT TIERS (READ ONLY) -->
-      <!-- <div class="payout-tiers">
-        <h4>Payout Structure</h4>
-        <div class="tier" *ngFor="let tier of payoutTiers">
-          <span>{{ tier.views }} views</span>
-          <strong>{{ tier.payout }}</strong>
-        </div>
-        <p class="tier-note">
-          Final payouts are calculated automatically after validation.
-        </p>
-      </div> -->
-
-      <div class="payout-tiers selectable">
+   <!--    <div class="payout-tiers selectable">
         <h4>Select Payment Per Promoter</h4>
 
         <mat-radio-group
@@ -93,17 +81,17 @@
         <p class="tier-note">
           Each promoter will be paid this fixed amount after successful validation.
         </p>
-      </div>
+      </div> -->
 
 
       <!-- Estimated Reach -->
-      <div class="estimated-reach">
+      <!-- <div class="estimated-reach">
         Estimated potential reach:
         <strong>~{{ estimatedReach | shortNumber }} views</strong>
         <span class="reach-note">(approximate)</span>
-      </div>
+      </div> -->
 
-      <mat-divider class="form-divider"></mat-divider>
+      <mat-divider class="form-divider"/>
 
       <!-- Age Targeting -->
       <div class="age-targeting-section">
@@ -129,7 +117,7 @@
         </div>
       </div>
 
-      <mat-divider class="form-divider"></mat-divider>
+      <mat-divider class="form-divider"/>
 
       <!-- Location -->
       <mat-slide-toggle formControlName="enableTarget">

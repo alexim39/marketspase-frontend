@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject, OnChanges, SimpleChanges, OnDestroy, signal, OnInit, DestroyRef } from '@angular/core';
+import { Component, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,13 +8,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { PromotionInterface } from '@shared/services';
 import { PromoterService } from '../../../promoter.service';
-import { interval, Subscription } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instruction-dialog.component';
 
@@ -28,133 +23,69 @@ import { WhatsAppInstructionsDialogComponent } from './instruction-dialog/instru
     MatIconModule,
     MatChipsModule,
     MatTooltipModule,
-    MatMenuModule,
-    //CategoryPlaceholderPipe,
-    MatProgressSpinnerModule,
-    MatTooltipModule
+    MatMenuModule
   ],
   templateUrl: './promotion-card.component.html',
   styleUrls: ['./promotion-card.component.scss']
 })
-export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
+export class PromotionCardComponent {
   @Input({ required: true }) promotion!: PromotionInterface;
-  @Output() openSubmitDialog = new EventEmitter<PromotionInterface>();
 
-  public isLoading = signal<boolean>(false);
+  public isSharing = signal<boolean>(false);
+  public isDownloading = signal<boolean>(false);
 
   private promoterService = inject(PromoterService);
   private dialog = inject(MatDialog);
-  public readonly api = this.promoterService.api;
-
-  public countdownSignal = signal<string>('');
-  private countdownSubscription: Subscription | null = null;
-  private readonly destroyRef = inject(DestroyRef);
-  private timeDifferenceInMilliseconds = 0; // New property to store the time difference
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  public readonly api = this.promoterService.api;
 
-  // Inject HttpClient
-  private http = inject(HttpClient);
-
-  ngOnInit(): void {
-    // Initial call on component creation
-    this.startCountdownTimer();
-    //console.log('promotion ',this.promotion)
+  getPromotionUrl(): string {
+    if (this.promotion.promotionUrl) return this.promotion.promotionUrl;
+    return `${this.api.replace(/\/$/, '')}/campaign/track/${this.promotion.upi}`;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // Re-initialize timer if the promotion data changes
-    if (changes['promotion'] && changes['promotion'].currentValue) {
-      this.startCountdownTimer();
-    }
+  getAssetUrl(): string {
+    return this.normalizeAssetUrl(this.promotion.campaign?.mediaUrl);
   }
 
-  ngOnDestroy(): void {
-    if (this.countdownSubscription) {
-      this.countdownSubscription.unsubscribe();
-    }
+  getThumbnailUrl(): string {
+    return this.normalizeAssetUrl(this.promotion.campaign?.thumbnailUrl || this.promotion.campaign?.mediaUrl);
   }
 
-  private startCountdownTimer(): void {
-      if (this.countdownSubscription) {
-        this.countdownSubscription.unsubscribe();
-      }
-
-      // Validate createdAt and calculate expiration time
-      const creationTime = new Date(this.promotion.createdAt).getTime();
-      if (isNaN(creationTime)) {
-        console.error('Invalid createdAt value:', this.promotion.createdAt);
-        this.countdownSignal.set('Invalid Date');
-        return;
-      }
-
-      const expirationTime = creationTime + 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      const currentTime = new Date().getTime();
-      this.timeDifferenceInMilliseconds = expirationTime - currentTime;
-
-      // Check if already expired
-      if (this.timeDifferenceInMilliseconds <= 0) {
-        this.countdownSignal.set('Expired');
-        return;
-      }
-
-      // Start the countdown timer
-      this.countdownSubscription = interval(1000)
-        .pipe(
-          takeWhile(() => {
-            const currentTime = new Date().getTime();
-            return expirationTime > currentTime;
-          }, true),
-          takeUntilDestroyed(this.destroyRef)
-        )
-        .subscribe(() => {
-          this.updateCountdown();
-        });
-
-      this.updateCountdown();
-    }
-
-  private updateCountdown(): void {
-    const creationTime = new Date(this.promotion.createdAt).getTime();
-    if (isNaN(creationTime)) {
-      console.error('Invalid createdAt value:', this.promotion.createdAt);
-      this.countdownSignal.set('Invalid Date');
-      return;
-    }
-
-    const expirationTime = creationTime + 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    const currentTime = new Date().getTime();
-    this.timeDifferenceInMilliseconds = expirationTime - currentTime;
-
-    // Check if already expired
-    if (this.timeDifferenceInMilliseconds <= 0) {
-      this.countdownSignal.set('Expired');
-      return;
-    }
-
-    // Calculate hours, minutes, and seconds
-    const totalSeconds = Math.floor(this.timeDifferenceInMilliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    // Format the countdown string
-    const formattedHours = String(hours).padStart(2, '0');
-    const formattedMinutes = String(minutes).padStart(2, '0');
-    const formattedSeconds = String(seconds).padStart(2, '0');
-
-    this.countdownSignal.set(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+  getTotalClicks(): number {
+    return this.promotion.clickStats?.totalClicks || 0;
   }
 
-  onOpenSubmitProofDialog(): void {
-    this.openSubmitDialog.emit(this.promotion);
+  getBillableClicks(): number {
+    return this.promotion.clickStats?.billableClicks || 0;
+  }
+
+  getEarnedAmount(): number {
+    return this.promotion.clickStats?.earnedAmount ?? this.promotion.payoutAmount ?? 0;
+  }
+
+  getCostPerClick(): number {
+    return this.promotion.costPerClick || this.promotion.campaign.costPerClick || 80;
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: { [key: string]: string } = {
+      accepted: 'Active Link',
+      downloaded: 'Active Link',
+      submitted: 'Tracking',
+      validated: 'Approved',
+      paid: 'Paid',
+      rejected: 'Rejected'
+    };
+    return labels[status] || 'Promotion';
   }
 
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      accepted: 'warning',
+      accepted: 'success',
+      downloaded: 'success',
       submitted: 'info',
-      downloaded: 'info',
       validated: 'success',
       paid: 'primary',
       rejected: 'error'
@@ -164,159 +95,137 @@ export class PromotionCardComponent implements OnInit, OnChanges, OnDestroy {
 
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
-      accepted: 'schedule',
-      submitted: 'pending_actions',
-      downloaded: 'download',
+      accepted: 'link',
+      downloaded: 'link',
+      submitted: 'touch_app',
       validated: 'check_circle',
       paid: 'paid',
       rejected: 'cancel'
     };
     return icons[status] || 'help';
   }
-  
-  isSubmissionExpired(promotion: PromotionInterface): boolean {
-    // Always use a universal time for calculations.
-    // promotion.createdAt is already in ISO 8601 format with a UTC offset, so `new Date()` will correctly parse it as a UTC date.
-    const createdAtUtc = new Date(promotion.createdAt);
-
-    // The expiration time is exactly 24 hours after the createdAt date, in UTC.
-    const expiryTimeUtc = createdAtUtc.getTime() + (24 * 60 * 60 * 1000);
-
-    // Compare the expiration time to the current time, also in UTC.
-    const nowUtc = new Date().getTime();
-
-    return nowUtc > expiryTimeUtc;
-  }
-  
-  // Updated method to check if the countdown is nearing expiration (4 hour)
-   isNearingExpiration(): boolean {
-    const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-    return this.timeDifferenceInMilliseconds > 0 && this.timeDifferenceInMilliseconds <= fourHoursInMs;
-  }
-
-  downloadPromotion(promotionId: string): void {
-    this.isLoading.set(true); // Set loading state to true
-
-    const campaignId = this.promotion.campaign._id;
-    const promoterId = this.promotion.promoter._id;
-
-    this.promoterService.downloadPromotion(campaignId, promoterId, promotionId)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe({
-    next: (response) => {
-      if (response.success) {
-        const mediaUrl = response.campaign.mediaUrl;
-        const mediaType = response.campaign.mediaType;
-        const fileExtension = mediaType === 'image' ? 'jpg' : 'mp4';
-        const fileName = `campaign_post_${campaignId}.${fileExtension}`;
-
-        // Fetch the media file as a Blob
-        this.http.get(mediaUrl, { responseType: 'blob' }).subscribe({
-          next: (blob) => {
-            // Create a temporary URL for the Blob
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-
-            // Set the href to the Blob URL and the download attribute
-            link.href = url;
-            link.download = fileName;
-            link.style.display = 'none';
-
-            document.body.appendChild(link);
-            link.click();
-
-            // Clean up the temporary link and Blob URL
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-
-            // set promotion.isDownloaded to true
-            this.promotion.isDownloaded = true;
-            this.isLoading.set(false); 
-          }, 
-          error: (error) => {
-            console.error('Error fetching media file for download:', error);
-            this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
-            this.isLoading.set(false); 
-          }
-        });
-      } else {
-        console.error('Failed to download promotion:', response.message);
-        this.snackBar.open(response.message, 'OK', { duration: 3000 });
-      }
-    },
-      error: (error) => {
-      console.error('Error calling downloadPromotion API:', error);
-      this.snackBar.open(error.error.message, 'OK', { duration: 3000 });
-      this.isLoading.set(false); 
-    }
-    });
-  }
 
   getCategoryIcon(category: string): string {
     const categoryIcons: {[key: string]: string} = {
-      'fashion': 'category',
-      'food': 'restaurant',
-      'tech': 'smartphone',
-      'entertainment': 'music_note',
-      'health': 'fitness_center',
-      'beauty': 'face',
-      'travel': 'flight',
-      'business': 'business',
-      'other': 'category'
+      fashion: 'category',
+      food: 'restaurant',
+      tech: 'smartphone',
+      entertainment: 'music_note',
+      health: 'fitness_center',
+      beauty: 'face',
+      travel: 'flight',
+      business: 'business',
+      other: 'category'
     };
     
     return categoryIcons[category] || 'category';
   }
 
-
-  viewDetails() {
-    //console.log('clicked')
-    const promotion = this.promotion;
-    if (promotion) {
-      this.router.navigate(['/dashboard/campaigns/promotions', promotion._id]);
+  viewDetails(): void {
+    if (this.promotion) {
+      this.router.navigate(['/dashboard/campaigns/promotions', this.promotion._id]);
     }
   }
 
-  copyCaption(caption: string): void {
-    //console.log('promotion to copy ', this.promotion);
-    let urlLink = '';
-    if (this.promotion.campaign.link) {
-      urlLink = this.promotion.campaign.link;
-    } else {
-      //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
-      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`; 
+  openPromotionLink(): void {
+    window.open(this.getPromotionUrl(), '_blank', 'noopener');
+  }
+
+  async downloadAdAsset(): Promise<void> {
+    const assetUrl = this.getAssetUrl();
+    if (!assetUrl) {
+      this.snackBar.open('Campaign media is not available for download.', 'OK', { duration: 3000 });
+      return;
     }
-    const textToCopy = `ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${caption}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(textToCopy).then(
-        () => {
-          this.snackBar.open('Caption copied to clipboard', 'OK', { duration: 3000 });
-        },
-        (err) => {
-          console.error('Failed to copy caption: ', err);
-        }
-      );
-    } else {
-      // Fallback for older browsers – you can implement a fallback method here
-      console.warn('Clipboard API not supported');
+
+    try {
+      this.isDownloading.set(true);
+      const response = await fetch(assetUrl);
+      if (!response.ok) throw new Error(`Failed to download asset: ${response.status}`);
+
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = this.getAssetFileName(assetUrl);
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(objectUrl);
+
+      this.snackBar.open('Ad asset download started', 'OK', { duration: 3000 });
+    } catch (err) {
+      console.error('Failed to download campaign media:', err);
+      window.open(assetUrl, '_blank', 'noopener');
+      this.snackBar.open('Unable to download directly. Asset opened in a new tab.', 'OK', { duration: 4000 });
+    } finally {
+      this.isDownloading.set(false);
     }
+  }
+
+  copyPromotionLink(): void {
+    this.copyText(this.getPromotionUrl(), 'Promotion link copied');
+  }
+
+  copyCaption(caption?: string): void {
+    this.copyText(this.buildShareText(caption), 'Caption and tracked link copied');
   }
 
   showWhatsAppSharingInstructions(promotion: PromotionInterface): void {
-     let urlLink = '';
-    if (this.promotion.campaign.link) {
-      urlLink = this.promotion.campaign.link;
-    } else {
-      //console.log('no link found in campaign', this.promotion.campaign.owner.personalInfo.phone);
-      urlLink = `https://wa.me/${this.promotion.campaign.owner.personalInfo.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`; 
-    }
-    const captionText = `Ad - ${this.promotion.upi}\nVisit ${urlLink} for more.\n${promotion.campaign?.caption || 'Visit the link for more details.'}`;
+    const captionText = this.buildShareText(promotion.campaign?.caption);
 
     this.dialog.open(WhatsAppInstructionsDialogComponent, {
-      data: { captionText, promotionTitle: promotion.campaign?.title },
-      //width: '90vw',
+      data: {
+        captionText,
+        promotionTitle: promotion.campaign?.title,
+        promotionUrl: this.getPromotionUrl()
+      },
       maxWidth: '550px',
       panelClass: 'whatsapp-dialog-panel'
     });
+  }
+
+  private buildShareText(caption?: string): string {
+    const body = caption || this.promotion.campaign?.caption || 'Visit the link for more details.';
+    return `Ad - ${this.promotion.upi}\nVisit ${this.getPromotionUrl()} for more.\n${body}`;
+  }
+
+  private normalizeAssetUrl(url?: string): string {
+    if (!url) return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    if (url.startsWith('/')) return `${this.api.replace(/\/$/, '')}${url}`;
+    return url;
+  }
+
+  private getAssetFileName(assetUrl: string): string {
+    const title = this.promotion.campaign?.title || `marketspase-ad-${this.promotion.upi}`;
+    const safeTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'marketspase-ad';
+    const extension = this.getAssetExtension(assetUrl);
+    return `${safeTitle}-${this.promotion.upi}.${extension}`;
+  }
+
+  private getAssetExtension(assetUrl: string): string {
+    try {
+      const path = new URL(assetUrl, window.location.origin).pathname;
+      const match = path.match(/\.([a-z0-9]+)$/i);
+      if (match?.[1]) return match[1].toLowerCase();
+    } catch {}
+
+    return this.promotion.campaign?.mediaType === 'video' ? 'mp4' : 'jpg';
+  }
+
+  private async copyText(text: string, successMessage: string): Promise<void> {
+    try {
+      this.isSharing.set(true);
+      await navigator.clipboard.writeText(text);
+      this.snackBar.open(successMessage, 'OK', { duration: 3000 });
+    } catch (err) {
+      console.error('Failed to copy promotion text:', err);
+      this.snackBar.open('Unable to copy. Please try again.', 'OK', { duration: 3000 });
+    } finally {
+      this.isSharing.set(false);
+    }
   }
 }

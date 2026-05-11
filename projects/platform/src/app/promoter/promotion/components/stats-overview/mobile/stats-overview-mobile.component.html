@@ -5,7 +5,7 @@
     <div class="header-content">
       <div class="header-text">
         <h1 class="stats-title">Promotions</h1>
-        <p class="stats-subtitle">Overview of your campaign status</p>
+        <p class="stats-subtitle">Overview of your tracked links</p>
       </div>
       <button class="toggle-view" (click)="toggleCompactView()" [class.compact]="isCompactView">
         <div class="toggle-handle"></div>
@@ -29,89 +29,89 @@
   <!-- Main Stats Grid -->
     <div class="stats-container" [class.hidden]="isCompactView">
     <div class="stats-grid">
-      <!-- Pending Card -->
+      <!-- Active Links Card -->
       <div class="stat-card pending" 
-           (click)="onStatClick('accepted')" 
-           [class.active]="activeStat === 'accepted'">
+           (click)="onStatClick('active')" 
+           [class.active]="activeStat === 'active'">
         <div class="card-background"></div>
         <div class="card-content">
           <div class="status-header">
             <div class="status-indicator"></div>
-            <span class="status-badge">Action Required</span>
+            <span class="status-badge">Live</span>
           </div>
           <div class="stat-main">
             <div class="icon-container">
-              <mat-icon>pending_actions</mat-icon>
+              <mat-icon>link</mat-icon>
             </div>
             <div class="stat-numbers">
-              <h3 class="stat-value">{{ stats.accepted }}</h3>
-              <p class="stat-label">Pending Submission</p>
+              <h3 class="stat-value">{{ stats.active }}</h3>
+              <p class="stat-label">Active Links</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Submitted Card -->
+      <!-- Clicks Card -->
       <div class="stat-card submitted" 
-           (click)="onStatClick('submitted')" 
-           [class.active]="activeStat === 'submitted'">
+           (click)="onStatClick('totalClicks')" 
+           [class.active]="activeStat === 'totalClicks'">
         <div class="card-background"></div>
         <div class="card-content">
           <div class="status-header">
             <div class="status-indicator"></div>
-            <span class="status-badge">In Review</span>
+            <span class="status-badge">Tracked</span>
           </div>
           <div class="stat-main">
             <div class="icon-container">
-              <mat-icon>hourglass_empty</mat-icon>
+              <mat-icon>touch_app</mat-icon>
             </div>
             <div class="stat-numbers">
-              <h3 class="stat-value">{{ stats.submitted }}</h3>
-              <p class="stat-label">Pending Validation</p>
+              <h3 class="stat-value">{{ stats.totalClicks }}</h3>
+              <p class="stat-label">Total Clicks</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Validated Card -->
+      <!-- Billable Card -->
       <div class="stat-card validated" 
-           (click)="onStatClick('validated')" 
-           [class.active]="activeStat === 'validated'">
+           (click)="onStatClick('billableClicks')" 
+           [class.active]="activeStat === 'billableClicks'">
         <div class="card-background"></div>
         <div class="card-content">
           <div class="status-header">
             <div class="status-indicator success"></div>
-            <span class="status-badge success">Approved</span>
+            <span class="status-badge success">Charged</span>
           </div>
           <div class="stat-main">
             <div class="icon-container">
               <mat-icon>check_circle</mat-icon>
             </div>
             <div class="stat-numbers">
-              <h3 class="stat-value">{{ stats.validated }}</h3>
-              <p class="stat-label">Validated</p>
+              <h3 class="stat-value">{{ stats.billableClicks }}</h3>
+              <p class="stat-label">Billable Clicks</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Paid Card -->
+      <!-- Earned Card -->
       <div class="stat-card paid" 
-           (click)="onStatClick('paid')" 
-           [class.active]="activeStat === 'paid'">
+           (click)="onStatClick('earnings')" 
+           [class.active]="activeStat === 'earnings'">
         <div class="card-background"></div>
         <div class="card-content">
           <div class="status-header">
             <div class="status-indicator success"></div>
-            <span class="status-badge success">Completed</span>
+            <span class="status-badge success">Earned</span>
           </div>
           <div class="stat-main">
             <div class="icon-container">
               <mat-icon>paid</mat-icon>
             </div>
             <div class="stat-numbers">
-              <h3 class="stat-value">{{ stats.paid }}</h3>
-              <p class="stat-label">Paid</p>
+              <h3 class="stat-value">{{ stats.earnings | currency:'NGN':'symbol-narrow':'1.0-0' }}</h3>
+              <p class="stat-label">Earned</p>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@
           </div>
           <div class="header-text">
             <h3>{{ getStatLabel(activeStat) }}</h3>
-            <p>{{ getActiveStatValue() }} promotions</p>
+            <p>{{ getActiveStatValue() | number:'1.0-0' }}</p>
           </div>
         </div>
         <button class="close-sheet" (click)="closeSheet()">

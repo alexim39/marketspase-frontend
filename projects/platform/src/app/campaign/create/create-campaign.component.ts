@@ -102,26 +102,34 @@ export class CreateCampaignComponent implements OnInit {
   walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
   //campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
 
+  budgetValue = signal<number>(0);
+
   campaignIsReady = computed(() =>
     this.isContentValid() &&
     this.isBudgetValid() &&
     this.isScheduleValid() &&
-    this.walletBalance() >= this.budgetForm.get('budget')?.value &&
-    this.budgetForm.get('budget')?.value >= this.budgetForm.get('payoutAmount')?.value
+    this.walletBalance() >= this.budgetValue()
   );
+
 
   campaignIsReadyAsDraft = computed(() =>
     this.isContentValid() &&
     this.isBudgetValid() &&
     this.isScheduleValid()
-    //this.walletBalance() >= this.budgetForm.get('budget')?.value &&
-    //this.budgetForm.get('budget')?.value >= this.budgetForm.get('payoutAmount')?.value
   );
 
   ngOnInit(): void {
     this.initializeForms();
-    this.setupFormListeners(); 
+    this.setupFormListeners();
+    
+    // Update the signal whenever budget changes
+    this.budgetForm.get('budget')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        this.budgetValue.set(value || 0);
+      });
   }
+
 
   private initializeForms(): void {
     this.contentForm = this.fb.group({
@@ -134,10 +142,6 @@ export class CreateCampaignComponent implements OnInit {
 
     this.budgetForm = this.fb.group({
       budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
-      payoutTier: ['TIER_100', Validators.required],
-      payoutAmount: [100, Validators.required],
-      minViews: [35, Validators.required],
-      maxViews: [65, Validators.required],
       //enableTarget: [true],
       enableTarget: [{ value: true, disabled: true }],
       ageTarget: ['all', Validators.required]
@@ -233,17 +237,11 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
-     formData.append(
-        'payoutTierId',
-        String(this.budgetForm.get('payoutTier')?.value)
-      );
+    
 
-      formData.append(
-        'payoutPerPromotion',
-        String(this.budgetForm.get('payoutAmount')?.value)
-      );
 
-      formData.append(
+
+     /*  formData.append(
         'minViewsPerPromotion',
         String(this.budgetForm.get('minViews')?.value)
       );
@@ -251,7 +249,7 @@ export class CreateCampaignComponent implements OnInit {
       formData.append(
         'maxViewsPerPromotion',
         String(this.budgetForm.get('maxViews')?.value)
-      );
+      ); */
 
 
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
@@ -370,17 +368,9 @@ export class CreateCampaignComponent implements OnInit {
       formData.append('owner', this.user()?._id ?? '');
       formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
 
-     formData.append(
-        'payoutTierId',
-        String(this.budgetForm.get('payoutTier')?.value)
-      );
 
-      formData.append(
-        'payoutPerPromotion',
-        String(this.budgetForm.get('payoutAmount')?.value)
-      );
 
-      formData.append(
+     /*  formData.append(
         'minViewsPerPromotion',
         String(this.budgetForm.get('minViews')?.value)
       );
@@ -388,7 +378,7 @@ export class CreateCampaignComponent implements OnInit {
       formData.append(
         'maxViewsPerPromotion',
         String(this.budgetForm.get('maxViews')?.value)
-      );
+      ); */
 
 
       if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
@@ -430,11 +420,11 @@ export class CreateCampaignComponent implements OnInit {
     // Just navigate to the next step without saving
     if (this.currentStep() === 2) {
       // Optionally validate that basic required fields are filled
-      if (this.budgetForm.get('payoutTier')?.valid && this.budgetForm.get('ageTarget')?.valid) {
+      if ( this.budgetForm.get('ageTarget')?.valid) {
         this.currentStep.set(3);
         this.snackBar.open('Proceeding to save campaign as draft', 'OK', { duration: 2000 });
       } else {
-        this.snackBar.open('Please select a payout tier and age target first', 'OK', { duration: 3000 });
+        this.snackBar.open('Please select age target first', 'OK', { duration: 3000 });
       }
     }
   }

@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export interface WhatsAppInstructionsData {
   captionText: string;
   promotionTitle?: string;
+  promotionUrl?: string;
 }
 
 @Component({

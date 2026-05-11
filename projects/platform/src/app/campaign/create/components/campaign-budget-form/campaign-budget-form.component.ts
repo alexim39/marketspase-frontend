@@ -26,7 +26,6 @@ export type AgeGroup = 'all' | 'young' | 'middle' | 'advanced';
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
-    ShortNumberPipe,
     MatSlideToggleModule,
     MatRadioModule,
     FormsModule
@@ -43,10 +42,10 @@ export class CampaignBudgetFormComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   
-  public estimatedReach = 0;
+ // public estimatedReach = 0;
 
   /** READ-ONLY payout tiers */
-  public payoutTiers = [
+/*   public payoutTiers = [
     {
       id: 'TIER_100',
       label: '₦100',
@@ -82,7 +81,7 @@ export class CampaignBudgetFormComponent implements OnInit {
       maxViews: 450,
       payout: 500
     }
-  ];
+  ]; */
 
   // Age targeting options with descriptions
   public ageGroups = [
@@ -118,12 +117,12 @@ export class CampaignBudgetFormComponent implements OnInit {
 
   ngOnInit(): void {
 
-    if (!this.formGroup.get('payoutTier')) {
+   /*  if (!this.formGroup.get('payoutTier')) {
       this.formGroup.addControl('payoutTier', new FormControl('TIER_100', Validators.required));
       this.formGroup.addControl('payoutAmount', new FormControl(100, Validators.required));
       this.formGroup.addControl('minViews', new FormControl(35, Validators.required));
       this.formGroup.addControl('maxViews', new FormControl(65));
-    }
+    } */
 
     // Ensure ageTarget control exists
     if (!this.formGroup.get('ageTarget')) {
@@ -137,9 +136,7 @@ export class CampaignBudgetFormComponent implements OnInit {
         this.validityChange.emit(this.formGroup.valid);
       });
 
-      this.formGroup.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.recalculateEstimate());
+      //this.formGroup.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.recalculateEstimate());
       
     // Subscribe to the 'budget' control's value changes
     this.formGroup.get('budget')?.valueChanges
@@ -147,10 +144,10 @@ export class CampaignBudgetFormComponent implements OnInit {
       .subscribe(budget => {
         if (budget) {
           // Adjust estimated reach based on age targeting
-          const ageMultiplier = this.getAgeMultiplier();
-          this.estimatedReach = Math.floor((budget / 200) * 45 * ageMultiplier);
+          //const ageMultiplier = this.getAgeMultiplier();
+          //this.estimatedReach = Math.floor((budget / 200) * 45 * ageMultiplier);
         } else {
-          this.estimatedReach = 0;
+          //this.estimatedReach = 0;
         }
       });
 
@@ -160,13 +157,13 @@ export class CampaignBudgetFormComponent implements OnInit {
       .subscribe(() => {
         const budget = this.formGroup.get('budget')?.value;
         if (budget) {
-          const ageMultiplier = this.getAgeMultiplier();
-          this.estimatedReach = Math.floor((budget / 200) * 45 * ageMultiplier);
+          //const ageMultiplier = this.getAgeMultiplier();
+          //this.estimatedReach = Math.floor((budget / 200) * 45 * ageMultiplier);
         }
       });
   }
 
-  selectTier(tier: any): void {
+ /*  selectTier(tier: any): void {
     this.formGroup.patchValue({
       payoutTier: tier.id,
       payoutAmount: tier.payout,
@@ -174,10 +171,10 @@ export class CampaignBudgetFormComponent implements OnInit {
       maxViews: tier.maxViews
     });
 
-    this.recalculateEstimate();
-  }
+    //this.recalculateEstimate();
+  } */
 
-  onTierChange(tierId: string): void {
+/*   onTierChange(tierId: string): void {
     const tier = this.payoutTiers.find(t => t.id === tierId);
 
     if (!tier) {
@@ -185,29 +182,28 @@ export class CampaignBudgetFormComponent implements OnInit {
     }
 
     this.selectTier(tier);
-  }
+  } */
 
 
 
-  private recalculateEstimate(): void {
+ /*  private recalculateEstimate(): void {
     const budget = this.formGroup.get('budget')?.value || 0;
     const payout = this.formGroup.get('payoutAmount')?.value || 100;
 
-    this.estimatedReach = Math.floor(budget / payout) *
-      (this.formGroup.get('maxViews')?.value || 350);
-  }
+    //this.estimatedReach = Math.floor(budget / payout) * (this.formGroup.get('maxViews')?.value || 350);
+  } */
 
 
-  private getAgeMultiplier(): number {
-    const ageTarget = this.formGroup.get('ageTarget')?.value;
-    switch(ageTarget) {
-      case 'all': return 1.0;
-      case 'young': return 0.8;  // Smaller audience
-      case 'middle': return 0.9; // Medium audience
-      case 'advanced': return 0.7; // Smaller audience
-      default: return 1.0;
-    }
-  }
+  // private getAgeMultiplier(): number {
+  //   const ageTarget = this.formGroup.get('ageTarget')?.value;
+  //   switch(ageTarget) {
+  //     case 'all': return 1.0;
+  //     case 'young': return 0.8;  // Smaller audience
+  //     case 'middle': return 0.9; // Medium audience
+  //     case 'advanced': return 0.7; // Smaller audience
+  //     default: return 1.0;
+  //   }
+  // }
 
   getSelectedAgeGroupDescription(): string {
     const selected = this.ageGroups.find(group => group.value === this.formGroup.get('ageTarget')?.value);

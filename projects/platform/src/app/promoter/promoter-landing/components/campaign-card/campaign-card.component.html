@@ -73,15 +73,16 @@
         <div class="metric-label">Slots Filled</div>
       </div>
       <div class="metric">
-        <div class="metric-value">{{campaign.minViewsPerPromotion}}+</div>
-        <div class="metric-label">Min Views</div>
+        <div class="metric-value">{{getEstimatedClicks(campaign) | number}}</div>
+        <div class="metric-label">Est. Clicks</div>
       </div>
     </div>
 
     <div class="payout-section">
       <div class="payout-amount">
         <span class="currency">{{campaign.currency}}</span>
-        <span class="amount">{{campaign.payoutPerPromotion}}</span>
+        <span class="amount">{{getCostPerClick(campaign)}}</span>
+        <span class="payout-label">/ click</span>
       </div>
 
       

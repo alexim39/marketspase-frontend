@@ -7,27 +7,27 @@
         </div>
         <div class="stat-content">
           <h3>{{ stats.total }}</h3>
-          <p>Total Promotions</p>
+          <p>Total Links</p>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon pending">
-          <mat-icon>pending_actions</mat-icon>
+          <mat-icon>link</mat-icon>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.accepted }}</h3>
-          <p>Pending Submission</p>
+          <h3>{{ stats.active }}</h3>
+          <p>Active Links</p>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon submitted">
-          <mat-icon>pending_actions</mat-icon>
+          <mat-icon>touch_app</mat-icon>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.submitted }}</h3>
-          <p>Pending Validation</p>
+          <h3>{{ stats.totalClicks }}</h3>
+          <p>Total Clicks</p>
         </div>
       </div>
 
@@ -36,8 +36,8 @@
           <mat-icon>check_circle</mat-icon>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.validated }}</h3>
-          <p>Validated</p>
+          <h3>{{ stats.billableClicks }}</h3>
+          <p>Billable Clicks</p>
         </div>
       </div>
 
@@ -46,8 +46,8 @@
           <mat-icon>paid</mat-icon>
         </div>
         <div class="stat-content">
-          <h3>{{ stats.paid }}</h3>
-          <p>Paid</p>
+          <h3>{{ stats.earnings | currency:'NGN':'symbol-narrow':'1.0-0' }}</h3>
+          <p>Earned</p>
         </div>
       </div>
     </div>

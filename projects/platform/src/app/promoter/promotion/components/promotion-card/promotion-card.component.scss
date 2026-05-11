@@ -5,7 +5,7 @@
 .promotion-card {
   // UPDATED: Use surface-color variable for dynamic theming
   background: $surface-color;
-  border-radius: 16px;
+  border-radius: 8px;
   // UPDATED: Use border-color variable for dynamic theming
   border: 1px solid $border-color;
   overflow: hidden;
@@ -100,7 +100,7 @@
 
 .card-media {
   margin: 16px 20px 0;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   aspect-ratio: 16/9;
   // UPDATED: Use gray-100 for background
@@ -309,8 +309,8 @@
 
 .metrics {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   margin-bottom: 20px;
 }
 
@@ -328,6 +328,9 @@
   font-weight: 700;
   // UPDATED: Use text-primary for metric value
   color: $text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .metric-label {
@@ -437,7 +440,7 @@
   &.primary {
     // UPDATED: Use primary-color for primary button
     background: $primary-color;
-    //color: #ffffff;
+    color: #ffffff;
     
     &:hover:not(:disabled) {
       // UPDATED: Use primary-dark for hover
@@ -501,15 +504,52 @@
   gap: 8px;
 }
 
+.tracking-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  background: color-mix(in srgb, $background-color, $text-primary 5%);
+  color: $text-secondary;
+  font-size: 12px;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  mat-icon {
+    color: $primary-color;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+}
+
 .copy-btn {
   //background: transparent;
   //background: rgba(0, 0, 0, 0.9);
   background: color-mix(in srgb, $background-color, $text-primary 15%);
   cursor: pointer;
+  border: 0;
   padding: 10px 8px 3px 8px;
   border-radius: 50%;
   transition: background 0.2s ease;
   float: right;
+
+  &.compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+  }
 }
 
 .copy-btn:hover {
@@ -621,5 +661,11 @@
     &:active {
       transform: translateY(0);
     }
+  }
+}
+
+@media (max-width: 420px) {
+  .metrics {
+    grid-template-columns: 1fr;
   }
 }

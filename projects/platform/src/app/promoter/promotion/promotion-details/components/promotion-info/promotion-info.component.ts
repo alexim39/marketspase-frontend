@@ -30,35 +30,35 @@ import { DeviceService, PromotionInterface } from '@shared/services';
         </div>
         
         <div class="info-item">
-          <mat-icon>trending_up</mat-icon>
+          <mat-icon>link</mat-icon>
           <div class="info-content">
-            <span class="info-label">Difficulty</span>
-            <span class="info-value">{{promotion.campaign.difficulty | titlecase}}</span>
+            <span class="info-label">UPI</span>
+            <span class="info-value">{{promotion.upi || 'N/A'}}</span>
           </div>
         </div>
         
         <div class="info-item">
-          <mat-icon>schedule</mat-icon>
+          <mat-icon>payments</mat-icon>
           <div class="info-content">
-            <span class="info-label">Duration</span>
-            <span class="info-value">24 hours</span>
+            <span class="info-label">Cost Per Click</span>
+            <span class="info-value">NGN {{getCostPerClick() | number}}</span>
           </div>
         </div>
         
         <div class="info-item">
-          <mat-icon>visibility</mat-icon>
+          <mat-icon>touch_app</mat-icon>
           <div class="info-content">
-            <span class="info-label">Minimum Views</span>
-            <span class="info-value">{{promotion.campaign.minViewsPerPromotion}}</span>
+            <span class="info-label">Billable Clicks</span>
+            <span class="info-value">{{promotion.clickStats?.billableClicks || 0}}</span>
           </div>
         </div>
 
         <div class="info-item">
-          <mat-icon>timer</mat-icon>
+          <mat-icon>schedule</mat-icon>
           <div class="info-content">
-            <span class="info-label">Expires In</span>
-            <span class="info-value" [class.nearing-expiration]="isNearingExpiration">
-              {{countdown}}
+            <span class="info-label">Last Click</span>
+            <span class="info-value">
+              {{promotion.clickStats?.lastClickAt ? (promotion.clickStats?.lastClickAt | date:'medium') : 'No clicks yet'}}
             </span>
           </div>
         </div>
@@ -80,20 +80,24 @@ export class PromotionInfoComponent {
   @Input() countdown!: string;
   @Input() isNearingExpiration!: boolean;
 
-    private deviceService = inject(DeviceService);
+  private deviceService = inject(DeviceService);
   deviceType = computed(() => this.deviceService.type());
+
+  getCostPerClick(): number {
+    return this.promotion.costPerClick || this.promotion.campaign.costPerClick || 80;
+  }
 
   getCategoryIcon(category: string): string {
     const categoryIcons: {[key: string]: string} = {
-      'fashion': 'checkroom',
-      'food': 'restaurant',
-      'tech': 'smartphone',
-      'entertainment': 'music_note',
-      'health': 'fitness_center',
-      'beauty': 'spa',
-      'travel': 'flight',
-      'business': 'business_center',
-      'other': 'category'
+      fashion: 'checkroom',
+      food: 'restaurant',
+      tech: 'smartphone',
+      entertainment: 'music_note',
+      health: 'fitness_center',
+      beauty: 'spa',
+      travel: 'flight',
+      business: 'business_center',
+      other: 'category'
     };
     
     return categoryIcons[category] || 'category';

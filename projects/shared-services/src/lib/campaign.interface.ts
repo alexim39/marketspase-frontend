@@ -57,6 +57,7 @@ export interface CampaignInterface {
   status: CampaignStatus;
   budget: number;
   payoutPerPromotion: number;
+  costPerClick?: number;
   maxPromoters: number;
   currentPromoters: number;
   startDate: Date;
@@ -72,6 +73,12 @@ export interface CampaignInterface {
   priority: 'low' | 'medium' | 'high';
   updatedAt: string;
   spentBudget: number; 
+  totalClicks?: number;
+  billableClicks?: number;
+  invalidClicks?: number;
+  duplicateClicks?: number;
+  exhaustedAt?: Date | string;
+  lastClickAt?: Date | string;
   paidPromotions: number;
   minViewsPerPromotion: number;
   validatedPromotions: number;

@@ -4,9 +4,10 @@ import { MatIconModule } from '@angular/material/icon';
 
 interface PromotionStats {
   total: number;
-  accepted: number;
-  submitted: number;
-  validated: number;
+  active: number;
+  totalClicks: number;
+  billableClicks: number;
+  earnings: number;
   paid: number;
   rejected: number;
 }

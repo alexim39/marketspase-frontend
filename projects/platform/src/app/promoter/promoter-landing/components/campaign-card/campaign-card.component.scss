@@ -348,6 +348,12 @@
   color: $text-secondary;
 }
 
+.payout-label {
+  color: $text-tertiary;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .difficulty-indicator {
   display: flex;
   align-items: center;

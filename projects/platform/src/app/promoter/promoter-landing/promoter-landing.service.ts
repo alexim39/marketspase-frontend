@@ -126,7 +126,8 @@ export class PromoterLandingService {
       }),
       catchError(error => {
         //console.error(`Error accepting campaign ${campaignId}:`, error.error);
-        return throwError(() => new Error(`You can't accept this promotion now: ${error.error.message}`));
+        const message = error?.error?.message || error?.message || 'Failed to accept campaign';
+        return throwError(() => new Error(`You can't accept this promotion now: ${message}`));
       })
     );
   }

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,17 +17,16 @@ import { StatsOverviewComponent } from './components/stats-overview/stats-overvi
 import { PromotionCardComponent } from './components/promotion-card/promotion-card.component';
 import { EmptyStateComponent } from './components/empty-state/empty-state.component';
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
-import { SubmitProofDialogComponent } from './submit-proof/submit-proof-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
 import { StatsOverviewMobileComponent } from './components/stats-overview/mobile/stats-overview-mobile.component';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 interface PromotionStats {
   total: number;
-  accepted: number;
-  submitted: number;
-  validated: number;
+  active: number;
+  totalClicks: number;
+  billableClicks: number;
+  earnings: number;
   paid: number;
   rejected: number;
 }
@@ -66,8 +65,6 @@ export class PromotionComponent implements OnInit {
   private promoterService = inject(PromoterService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
-  private router = inject(Router);
-  readonly dialog = inject(MatDialog);
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
@@ -82,9 +79,10 @@ export class PromotionComponent implements OnInit {
   
   stats = signal<PromotionStats>({
     total: 0,
-    accepted: 0,
-    submitted: 0,
-    validated: 0,
+    active: 0,
+    totalClicks: 0,
+    billableClicks: 0,
+    earnings: 0,
     paid: 0,
     rejected: 0,
   });
@@ -219,30 +217,19 @@ export class PromotionComponent implements OnInit {
     const promos = promotions || [];
     return promos.reduce((acc, promo) => {
       acc.total++;
-      if (promo.status) {
-        acc[promo.status as keyof PromotionStats] = (acc[promo.status as keyof PromotionStats] as number) + 1;
-      }
+      const totalClicks = promo.clickStats?.totalClicks || 0;
+      const billableClicks = promo.clickStats?.billableClicks || 0;
+      const earnedAmount = promo.clickStats?.earnedAmount ?? promo.payoutAmount ?? 0;
+
+      acc.totalClicks += totalClicks;
+      acc.billableClicks += billableClicks;
+      acc.earnings += earnedAmount;
+
+      if ((promo.status === 'accepted' || promo.status === 'downloaded') && promo.isActive !== false) acc.active++;
+      if (promo.status === 'paid') acc.paid++;
+      if (promo.status === 'rejected') acc.rejected++;
+
       return acc;
-    }, { total: 0, accepted: 0, submitted: 0, validated: 0, paid: 0, rejected: 0 });
-  }
-
-  openSubmitProofDialog(promotion: PromotionInterface): void {
-    const dialogRef = this.dialog.open(SubmitProofDialogComponent, {
-      data: { promotion: promotion }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'submitted') {
-        this.currentPagePromotions.update(promotions => 
-          promotions.map(p => 
-            p._id === promotion._id 
-              ? { ...p, status: 'submitted' as any } 
-              : p
-          )
-        );
-        
-        this.stats.set(this.calculateStats(this.currentPagePromotions()));
-      }
-    });
+    }, { total: 0, active: 0, totalClicks: 0, billableClicks: 0, earnings: 0, paid: 0, rejected: 0 });
   }
 }

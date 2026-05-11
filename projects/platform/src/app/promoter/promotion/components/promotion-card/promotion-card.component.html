@@ -2,26 +2,29 @@
   <div class="card-header">
     <div class="status-badge" [ngClass]="getStatusColor(promotion.status)">
       <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
-      <span class="status-text">{{ promotion.status | titlecase }}</span>
+      <span class="status-text">{{ getStatusLabel(promotion.status) }}</span>
     </div>
     <div class="card-actions">
       <button class="icon-btn" [matMenuTriggerFor]="cardMenu" aria-label="Promotion actions">
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #cardMenu="matMenu">
-        @if (promotion.isDownloaded) {
-          <!-- <button mat-menu-item (click)="onOpenSubmitProofDialog()"> -->
-          <button mat-menu-item (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()"> 
-            <mat-icon>cloud_upload</mat-icon>
-            <span>Submit Proof</span>
-          </button>
-        }
-        @if (!promotion.isDownloaded && promotion.status === 'accepted') {
-          <button mat-menu-item (click)="downloadPromotion(promotion._id)" [disabled]="isSubmissionExpired(promotion)">
-            <mat-icon>download_for_offline</mat-icon>
-            <span>Download Promotion</span>
-          </button>
-        }
+        <button mat-menu-item (click)="copyPromotionLink()">
+          <mat-icon>link</mat-icon>
+          <span>Copy Link</span>
+        </button>
+        <button mat-menu-item (click)="copyCaption(promotion.campaign.caption)">
+          <mat-icon>content_copy</mat-icon>
+          <span>Copy Caption</span>
+        </button>
+        <button mat-menu-item (click)="downloadAdAsset()" [disabled]="isDownloading()">
+          <mat-icon>download</mat-icon>
+          <span>Download Ad Asset</span>
+        </button>
+        <button mat-menu-item (click)="openPromotionLink()">
+          <mat-icon>open_in_new</mat-icon>
+          <span>Open Link</span>
+        </button>
         <button mat-menu-item (click)="viewDetails()">
           <mat-icon>info</mat-icon>
           <span>View Details</span>
@@ -37,12 +40,12 @@
     </div>
     
     @if (promotion.campaign.mediaType === "image") {
-      <img [src]="promotion.campaign.mediaUrl" [alt]="promotion.campaign.title" class="media-preview">
+      <img [src]="getAssetUrl()" [alt]="promotion.campaign.title" class="media-preview">
     }
     @if (promotion.campaign.mediaType === "video") {
       <div class="video-placeholder">
          <img
-            [src]="promotion.campaign.thumbnailUrl" 
+            [src]="getThumbnailUrl()" 
             class="media-preview placeholder-img" 
             [alt]="promotion.campaign.title"
           />
@@ -53,131 +56,83 @@
     }
   </div>
 
-<div class="card-content">
-  <div class="title-section">
-    <mat-icon matTooltip="See instructions" (click)="showWhatsAppSharingInstructions(promotion)">help</mat-icon>
-    <h3 class="card-title">{{ promotion.campaign.title }}</h3>
-  </div>
-  <div class="caption-container">
-    <p class="card-description">{{ promotion.campaign.caption }}</p>
-    <button class="copy-btn" (click)="copyCaption(promotion.campaign.caption)" matTooltip="Copy ID and caption" aria-label="Copy caption">
-      <mat-icon>content_copy</mat-icon>
-    </button>
-  </div>
-  <div class="card-meta">
-    <span>
-      <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
-      {{ promotion.campaign.category | titlecase }}
-    </span>
-    <span>
-      <i class="material-icons">schedule</i> 
-      <span [ngClass]="{'nearing-expiration': isNearingExpiration()}">{{ countdownSignal() }}</span>
-    </span>
-  </div>
+  <div class="card-content">
+    <div class="title-section">
+      <mat-icon matTooltip="Sharing instructions" (click)="showWhatsAppSharingInstructions(promotion)">help</mat-icon>
+      <h3 class="card-title">{{ promotion.campaign.title }}</h3>
+    </div>
 
-  <div class="metrics">
-    <div class="metric">
-      <div class="metric-value">{{ promotion.proofViews || 0 }}</div>
-      <div class="metric-label">Views</div>
+    <div class="caption-container">
+      <p class="card-description">{{ promotion.campaign.caption }}</p>
+      <button class="copy-btn" (click)="copyCaption(promotion.campaign.caption)" matTooltip="Copy caption with tracked link" aria-label="Copy caption with tracked link">
+        <mat-icon>content_copy</mat-icon>
+      </button>
     </div>
-    <div class="metric">
-      <div class="metric-value">{{ promotion.upi || 0 }}</div>
-      <div class="metric-label">Promo ID</div>
-    </div>
-  </div>
 
-  <div class="payout-section">
-    <div class="payout-amount">
-      <span class="currency">{{ promotion.campaign.currency }}</span>
-      <span class="amount">{{ promotion.payoutAmount }}</span>
+    <div class="tracking-link">
+      <mat-icon>link</mat-icon>
+      <span>{{ getPromotionUrl() }}</span>
+      <button class="copy-btn compact" (click)="copyPromotionLink()" matTooltip="Copy promotion link" aria-label="Copy promotion link">
+        <mat-icon>content_copy</mat-icon>
+      </button>
     </div>
-    <div class="status-indicator">
-      @if (promotion.status === 'submitted' && promotion.isDownloaded) {
-         <span class="status-label">
-          Pending Validation
-        </span>
-      }
-      @if (promotion.status === 'accepted' && promotion.isDownloaded) {
-        <span class="status-label">
-          Pending Download
-        </span>
-      } 
-      @if (promotion.status === 'downloaded' && promotion.isDownloaded) {
-        <span class="status-label">
-          Pending Submission
-        </span>
-      } 
-      <!-- @if (!promotion.isDownloaded && promotion.status !== 'rejected') {
-        <span class="status-label">
-          Pending Download
-        </span>
-      } -->
-      
+
+    <div class="card-meta">
+      <span>
+        <i class="material-icons">{{ getCategoryIcon(promotion.campaign.category) }}</i> 
+        {{ promotion.campaign.category | titlecase }}
+      </span>
+      <span>
+        <i class="material-icons">payments</i> 
+        {{ promotion.campaign.currency || 'NGN' }} {{ getCostPerClick() | number }} / click
+      </span>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value">{{ getTotalClicks() }}</div>
+        <div class="metric-label">Total Clicks</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{ getBillableClicks() }}</div>
+        <div class="metric-label">Billable</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{ promotion.upi || 'N/A' }}</div>
+        <div class="metric-label">UPI</div>
+      </div>
+    </div>
+
+    <div class="payout-section">
+      <div class="payout-amount">
+        <span class="currency">{{ promotion.campaign.currency || 'NGN' }}</span>
+        <span class="amount">{{ getEarnedAmount() | number }}</span>
+      </div>
+      <div class="status-indicator">
+        <span class="status-label">Earned from valid clicks</span>
+      </div>
     </div>
   </div>
-</div>
 
   <div class="card-footer">
-    @if (isSubmissionExpired(promotion)) {
-      <div class="expired-alert">
-        <i class="material-icons">warning</i>
-        <span>Promotion timeline complete</span>
-      </div>
-    }
-    
     <div class="action-buttons">
-      @if (promotion.status === 'downloaded' && !isSubmissionExpired(promotion)) {
-        @if (promotion.isDownloaded) {
-          @if (isNearingExpiration()) {
-            <!-- <button class="action-btn primary" (click)="onOpenSubmitProofDialog()"> -->
-            <button class="action-btn primary" (click)="onOpenSubmitProofDialog()" [disabled]="!isNearingExpiration()">
-            <i class="material-icons">cloud_upload</i>
-            Submit Proof
-          </button>
-          } @else {
-            <small>Submission will be enabled 4 hours before expiration.</small>
-          }
-          
-        }
-                
-      }
-      @if (!promotion.isDownloaded && promotion.status === 'accepted') {         
-        <button class="action-btn primary" (click)="downloadPromotion(promotion._id)" [disabled]="isLoading()">
-          @if (isLoading()) {
-            <mat-progress-spinner
-              diameter="20"
-              mode="indeterminate"
-              color="primary"
-              class="spinner"
-            />
-            <span>Downloading...</span>
-          } @else {
-            <i class="material-icons">download_for_offline</i>
-            <span>Download</span>
-          }
-        </button>
-      }   
-      @if (promotion.status === 'submitted' || promotion.status === 'validated') {
-        @if (!isNearingExpiration()) {
-          <button class="action-btn secondary" (click)="viewDetails()">
-            View Status
-            <i class="material-icons">visibility</i>
-          </button>
-        }
-      }
-      @if (promotion.status === 'paid') {
-        <button class="action-btn success" (click)="viewDetails()">
-          <!-- <i class="material-icons">paid</i> -->
-          <span>View Details</span>
-          <i class="material-icons info-sub">info_outline</i>
-        </button>
-
-      }
       @if (promotion.status === 'rejected') {
         <button class="action-btn danger" (click)="viewDetails()">
-          <!-- <i class="material-icons">cancel</i> -->
           <span>View Reason</span>
           <i class="material-icons info-sub">info_outline</i>
+        </button>
+      } @else {
+        <button class="action-btn primary" (click)="downloadAdAsset()" [disabled]="isDownloading()">
+          <i class="material-icons">download</i>
+          <span>{{ isDownloading() ? 'Downloading...' : 'Download Ad' }}</span>
+        </button>
+        <button class="action-btn secondary" (click)="copyPromotionLink()" [disabled]="isSharing()">
+          <i class="material-icons">link</i>
+          <span>Copy Link</span>
+        </button>
+        <button class="action-btn secondary" (click)="showWhatsAppSharingInstructions(promotion)" [disabled]="isSharing()">
+          <i class="material-icons">ios_share</i>
+          <span>Share Caption</span>
         </button>
       }
     </div>
