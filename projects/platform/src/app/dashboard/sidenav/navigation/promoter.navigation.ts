@@ -38,6 +38,7 @@ export function getPromoterNavigation(
         { icon: 'store', label: 'Explore Stores', route: '/dashboard/stores' },
         { icon: 'search', label: 'Browse Products', route: '/dashboard/stores/products' },
         { icon: 'inventory', label: 'Promoted Products', route: '/dashboard/stores/promotions' },
+        { icon: 'receipt_long', label: 'Affiliate Sales', route: '/dashboard/stores/orders' },
         //{ icon: 'link', label: 'My Storefront Links', route: '/dashboard/storefronts/links' },
         //{ icon: 'analytics', label: 'Product Performance', route: '/dashboard/storefronts/performance' },
         //{ icon: 'star', label: 'Favorites', route: '/dashboard/storefronts/favorites' },

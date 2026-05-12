@@ -118,6 +118,27 @@ export class AiAssistantSettingsService {
     ).subscribe();
   }
 
+  saveWhatsAppConfig(data: { phoneNumber: string; accountSid: string; authToken: string; phoneNumberSid?: string }): Observable<WhatsAppConnection | null> {
+    this.setLoading(true);
+    return this.api.saveWhatsAppConfig(data).pipe(
+      tap(connection => {
+        const current = this.whatsappConnections.value;
+        const exists = current.some(c => c.phoneNumber === connection.phoneNumber);
+        this.whatsappConnections.next(
+          exists
+            ? current.map(c => c.phoneNumber === connection.phoneNumber ? connection : c)
+            : [...current, connection]
+        );
+        this.showSuccess('WhatsApp connection saved');
+      }),
+      catchError(err => {
+        this.showError(err.error?.message || 'Could not save WhatsApp connection');
+        return of(null);
+      }),
+      finalize(() => this.setLoading(false))
+    );
+  }
+
   loadSubscriptionPlans(): void {
     this.setLoading(true);
     this.api.getSubscriptionPlans().pipe(

@@ -56,9 +56,9 @@
                     {{ conn.phoneNumber }}
                   </div>
                   <div class="status-row">
-                    <span class="status-badge" [class.connected]="conn.aiEnabled" [class.disconnected]="!conn.aiEnabled">
-                      <mat-icon>{{ conn.aiEnabled ? 'check_circle' : 'error' }}</mat-icon>
-                      {{ conn.aiEnabled ? 'Connected' : 'Disconnected' }}
+                    <span class="status-badge" [class.connected]="conn.isConnected" [class.disconnected]="!conn.isConnected">
+                      <mat-icon>{{ conn.isConnected ? 'check_circle' : 'error' }}</mat-icon>
+                      {{ conn.isConnected ? 'Connected' : 'Disconnected' }}
                     </span>
                     <span class="ai-status" [class.on]="conn.aiEnabled">
                       <mat-icon>{{ conn.aiEnabled ? 'smart_toy' : 'person' }}</mat-icon>
@@ -68,7 +68,7 @@
                 </div>
                 <div class="connection-actions">
                   <button mat-icon-button 
-                          *ngIf="!conn.aiEnabled" 
+                          *ngIf="!conn.isConnected" 
                           (click)="reconnectConnection(conn.phoneNumber)" 
                           matTooltip="Reconnect"
                           color="primary">
@@ -76,7 +76,7 @@
                   </button>
                   <mat-slide-toggle
                     [checked]="conn.aiEnabled"
-                    [disabled]="!conn.aiEnabled"
+                    [disabled]="!conn.isConnected"
                     (change)="toggleAIForConnection(conn.phoneNumber, $event)"
                     matTooltip="Toggle AI for this number">
                   </mat-slide-toggle>
@@ -313,14 +313,25 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Phone Number SID</mat-label>
+                <input matInput formControlName="phoneNumberSid" placeholder="PNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                <mat-hint>Optional, but useful for matching your WhatsApp sender in Twilio.</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Auth Token</mat-label>
                 <input matInput type="password" formControlName="authToken" placeholder="Your Twilio Auth Token">
                 <mat-error>Auth Token is required</mat-error>
               </mat-form-field>
 
               <div class="form-actions">
-                <button mat-raised-button color="primary" type="submit" [disabled]="!twilioForm.valid">
-                  <mat-icon>save</mat-icon> Save Configuration
+                <button mat-raised-button color="primary" type="submit" [disabled]="!twilioForm.valid || loading">
+                  @if (loading) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                  }
+                  Save Configuration
                 </button>
               </div>
             </form>

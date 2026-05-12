@@ -2,16 +2,11 @@
   <header class="page-header">
     <div>
       <h1>Automation</h1>
-      <p class="subtitle">Configure how your AI assistant behaves</p>
+      <p class="subtitle">Control how your AI replies, when it escalates, and which sales links it can send.</p>
     </div>
     <div class="header-actions" *ngIf="hasChanges">
-      <button mat-button (click)="resetSettings()">Reset</button>
-      <button 
-        mat-raised-button 
-        color="primary" 
-        (click)="saveSettings()" 
-        [disabled]="saving"
-      >
+      <button mat-button type="button" (click)="resetSettings()" [disabled]="saving">Reset</button>
+      <button mat-raised-button color="primary" type="button" (click)="saveSettings()" [disabled]="saving">
         <mat-spinner *ngIf="saving" diameter="16"></mat-spinner>
         {{ saving ? 'Saving...' : 'Save Changes' }}
       </button>
@@ -20,39 +15,43 @@
 
   <div class="loading-container" *ngIf="loading">
     <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading settings...</p>
+    <p>Loading automation settings...</p>
   </div>
 
-  <div class="automation-grid" *ngIf="!loading">
-    <!-- AI Personality -->
-    <mat-card class="settings-card">
-      <div class="card-icon primary">
-        <mat-icon>psychology</mat-icon>
+  <ng-container *ngIf="!loading">
+    <section class="status-strip">
+      <div class="status-copy">
+        <span class="status-dot" [class.active]="settings.aiEnabled"></span>
+        <div>
+          <strong>{{ settings.aiEnabled ? 'AI is active' : 'AI is paused' }}</strong>
+          <p>{{ settings.aiEnabled ? 'Customers can receive instant WhatsApp replies.' : 'Turn it on when your FAQs and links are ready.' }}</p>
+        </div>
       </div>
-      <mat-card-header>
-        <mat-card-title>AI Personality</mat-card-title>
-        <mat-card-subtitle>How your AI communicates with customers</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Tone of Voice</mat-label>
+      <mat-slide-toggle color="primary" [(ngModel)]="settings.aiEnabled" (change)="onChange()">
+        {{ settings.aiEnabled ? 'On' : 'Off' }}
+      </mat-slide-toggle>
+    </section>
+
+    <div class="automation-grid">
+      <mat-card class="settings-card">
+        <div class="card-heading">
+          <span class="card-icon primary"><mat-icon>psychology</mat-icon></span>
+          <div>
+            <h2>Reply Style</h2>
+            <p>Keep the assistant simple and familiar for WhatsApp buyers.</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tone</mat-label>
           <mat-select [(ngModel)]="settings.tone" (selectionChange)="onChange()">
-            <mat-option value="friendly">
-              <mat-icon>sentiment_satisfied</mat-icon>
-              Friendly — Warm and approachable
-            </mat-option>
-            <mat-option value="professional">
-              <mat-icon>business</mat-icon>
-              Professional — Polite and formal
-            </mat-option>
-            <mat-option value="sales">
-              <mat-icon>trending_up</mat-icon>
-              Sales — Persuasive and conversion-focused
-            </mat-option>
+            <mat-option value="friendly">Friendly</mat-option>
+            <mat-option value="professional">Professional</mat-option>
+            <mat-option value="sales">Sales-focused</mat-option>
           </mat-select>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline">
           <mat-label>Language</mat-label>
           <mat-select [(ngModel)]="settings.language" (selectionChange)="onChange()">
             <mat-option value="english">English</mat-option>
@@ -60,28 +59,159 @@
           </mat-select>
         </mat-form-field>
 
-        <div class="toggle-setting">
-          <div class="toggle-info">
-            <strong>Enable AI Assistant</strong>
-            <p>Turn AI on to automatically respond to customer messages</p>
-          </div>
-          <mat-slide-toggle 
-            [(ngModel)]="settings.aiEnabled" 
-            (change)="onChange()"
-            color="primary"
-          >
-            {{ settings.aiEnabled ? 'ON' : 'OFF' }}
-          </mat-slide-toggle>
+        <div class="preview-bubble">
+          <span>Sample reply</span>
+          <p>{{ sampleReply }}</p>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </mat-card>
 
-    <!-- Escalation Rules -->
-    <mat-card class="settings-card">
-      <div class="card-icon warning">
-        <mat-icon>support_agent</mat-icon>
-      </div>
-      <mat-card-header>
-        <mat-card-title>Escalation Rules</mat-card-title>
-        <mat-card-subtitle>When to hand off conversations to human agents</mat-card-subtitle>
-      </mat-card-header>
+      <mat-card class="settings-card">
+        <div class="card-heading">
+          <span class="card-icon warning"><mat-icon>support_agent</mat-icon></span>
+          <div>
+            <h2>Escalation Rules</h2>
+            <p>Hand chats to a person when the AI should not continue alone.</p>
+          </div>
+        </div>
+
+        <div class="toggle-list">
+          <label class="toggle-row">
+            <span>
+              <strong>Escalate on keywords</strong>
+              <small>Pause AI when customers ask for a person.</small>
+            </span>
+            <mat-slide-toggle color="primary" [(ngModel)]="settings.escalationRules.escalateOnKeywords" (change)="onChange()"></mat-slide-toggle>
+          </label>
+
+          <label class="toggle-row">
+            <span>
+              <strong>Escalate complaints</strong>
+              <small>Detect refund, delay, dispute, and angry messages.</small>
+            </span>
+            <mat-slide-toggle color="primary" [(ngModel)]="settings.escalationRules.complaints" (change)="onChange()"></mat-slide-toggle>
+          </label>
+
+          <label class="toggle-row">
+            <span>
+              <strong>Escalate high-value leads</strong>
+              <small>Flag bulk orders, urgent requests, and serious buyers.</small>
+            </span>
+            <mat-slide-toggle color="primary" [(ngModel)]="settings.escalationRules.highValue" (change)="onChange()"></mat-slide-toggle>
+          </label>
+
+          <label class="toggle-row">
+            <span>
+              <strong>Escalate low confidence</strong>
+              <small>Let humans handle uncertain answers.</small>
+            </span>
+            <mat-slide-toggle color="primary" [(ngModel)]="settings.escalationRules.lowConfidence" (change)="onChange()"></mat-slide-toggle>
+          </label>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Escalation keywords</mat-label>
+          <textarea matInput rows="3" [(ngModel)]="keywordText" (ngModelChange)="onChange()" placeholder="human, manager, refund"></textarea>
+          <mat-hint>Separate keywords with commas.</mat-hint>
+        </mat-form-field>
+      </mat-card>
+
+      <mat-card class="settings-card links-card">
+        <div class="card-heading">
+          <span class="card-icon success"><mat-icon>link</mat-icon></span>
+          <div>
+            <h2>Sales Links</h2>
+            <p>Give AI the links it can send when customers are ready to buy.</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Storefront URL</mat-label>
+          <input matInput [(ngModel)]="settings.autoLinks.storefrontUrl" (ngModelChange)="onChange()" placeholder="https://marketspase.com/store/your-store">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Payment link</mat-label>
+          <input matInput [(ngModel)]="settings.autoLinks.paymentLink" (ngModelChange)="onChange()" placeholder="Paste your checkout or payment link">
+        </mat-form-field>
+
+        <div class="product-links">
+          <div class="product-link-row" *ngFor="let link of settings.autoLinks.productLinks; let i = index">
+            <mat-form-field appearance="outline">
+              <mat-label>Product name</mat-label>
+              <input matInput [(ngModel)]="link.label" (ngModelChange)="onChange()" placeholder="Blue sneakers">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Product link</mat-label>
+              <input matInput [(ngModel)]="link.url" (ngModelChange)="onChange()" placeholder="https://...">
+            </mat-form-field>
+            <button mat-icon-button color="warn" type="button" (click)="removeProductLink(i)" aria-label="Remove product link">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <button mat-stroked-button color="primary" type="button" (click)="addProductLink()">
+          <mat-icon>add</mat-icon>
+          Add product link
+        </button>
+      </mat-card>
+
+      <mat-card class="settings-card">
+        <div class="card-heading">
+          <span class="card-icon info"><mat-icon>speed</mat-icon></span>
+          <div>
+            <h2>Response Control</h2>
+            <p>Keep replies fast, but avoid letting AI run forever.</p>
+          </div>
+        </div>
+
+        <div class="two-fields">
+          <mat-form-field appearance="outline">
+            <mat-label>Response delay</mat-label>
+            <input matInput type="number" min="0" max="30" [(ngModel)]="settings.responseSettings.responseDelaySeconds" (ngModelChange)="onChange()">
+            <mat-hint>Seconds</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Max AI replies</mat-label>
+            <input matInput type="number" min="1" max="30" [(ngModel)]="settings.responseSettings.maxAiRepliesBeforeEscalation" (ngModelChange)="onChange()">
+            <mat-hint>Then escalate</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <label class="toggle-row business-hours">
+          <span>
+            <strong>Use business hours</strong>
+            <small>Escalate messages that arrive outside your selling hours.</small>
+          </span>
+          <mat-slide-toggle color="primary" [(ngModel)]="settings.responseSettings.businessHours.enabled" (change)="onChange()"></mat-slide-toggle>
+        </label>
+
+        <div class="two-fields" [class.disabled]="!settings.responseSettings.businessHours.enabled">
+          <mat-form-field appearance="outline">
+            <mat-label>Start</mat-label>
+            <input matInput type="time" [(ngModel)]="settings.responseSettings.businessHours.start" (ngModelChange)="onChange()">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End</mat-label>
+            <input matInput type="time" [(ngModel)]="settings.responseSettings.businessHours.end" (ngModelChange)="onChange()">
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Timezone</mat-label>
+          <input matInput [(ngModel)]="settings.responseSettings.businessHours.timezone" (ngModelChange)="onChange()" placeholder="Africa/Lagos">
+        </mat-form-field>
+      </mat-card>
+    </div>
+
+    <div class="bottom-actions" *ngIf="hasChanges">
+      <button mat-button type="button" (click)="resetSettings()" [disabled]="saving">Reset</button>
+      <button mat-raised-button color="primary" type="button" (click)="saveSettings()" [disabled]="saving">
+        <mat-spinner *ngIf="saving" diameter="16"></mat-spinner>
+        {{ saving ? 'Saving...' : 'Save Automation' }}
+      </button>
+    </div>
+  </ng-container>
+</div>

@@ -38,6 +38,7 @@ export function getMarketerNavigation(
       children: [
         { icon: 'store', label: 'My Stores', route: '/dashboard/stores' },
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
+        { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
         // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
         // {
         //   icon: 'inventory',
@@ -64,13 +65,12 @@ export function getMarketerNavigation(
       label: 'AI Assistant',
       expanded: false,
       children: [
-        { icon: 'robot', label: 'Customer Assistant', route: '/dashboard/assistant/customer' },
-        //{ icon: 'pie_chart', label: 'Overview', route: '/dashboard/assistant/overview' },
-        // { icon: 'mark_chat_read', label: 'Conversations', route: '/dashboard/assistant/conversations' },
-        // { icon: 'live_help', label: 'FAQs', route: '/dashboard/assistant/faqs' },
-        // { icon: 'build', label: 'Automation', route: '/dashboard/assistant/automation' },
-        // { icon: 'add_chart', label: 'Analytics', route: '/dashboard/assistant/analytics' },
-        // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
+        { icon: 'pie_chart', label: 'Overview', route: '/dashboard/assistant/customer/overview' },
+        { icon: 'mark_chat_read', label: 'Conversations', route: '/dashboard/assistant/customer/conversations' },
+        { icon: 'live_help', label: 'FAQs', route: '/dashboard/assistant/customer/faqs' },
+        { icon: 'build', label: 'Automation', route: '/dashboard/assistant/customer/automation' },
+        { icon: 'add_chart', label: 'Analytics', route: '/dashboard/assistant/customer/analytics' },
+        { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/customer/settings' }
       ]
     },
 

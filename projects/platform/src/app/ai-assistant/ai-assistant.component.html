@@ -4,7 +4,7 @@
     <button mat-icon-button (click)="toggleSidenav()">
       <mat-icon>menu</mat-icon>
     </button>
-    <span class="brand">WhatsApp Customer Assistant</span>
+    <span class="brand">AI Sales Assistant</span>
     <span class="spacer"></span>
     <button mat-icon-button [matBadge]="unreadCount" [matBadgeHidden]="unreadCount === 0">
       <mat-icon>notifications</mat-icon>
@@ -13,7 +13,7 @@
 
   <!-- Desktop Header -->
   <mat-toolbar color="primary" class="desktop-header" *ngIf="!isMobile">
-    <span class="brand">WhatsApp Customer Assistant</span>
+    <span class="brand">AI Sales Assistant</span>
     <span class="spacer"></span>
     <nav class="top-nav">
       <a *ngFor="let item of navItems" 

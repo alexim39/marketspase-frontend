@@ -83,6 +83,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Twilio config form for WhatsApp setup
     this.twilioForm = this.fb.group({
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]],
+      phoneNumberSid: [''],
       accountSid: ['', Validators.required],
       authToken: ['', Validators.required]
     });
@@ -130,9 +131,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   saveTwilioConfig(): void {
     if (this.twilioForm.valid) {
-      // This would call an API endpoint to save Twilio credentials
-      this.snackBar.open('Twilio configuration saved', 'Close', { duration: 3000 });
-      this.twilioForm.reset();
+      this.loading = true;
+      this.service.saveWhatsAppConfig(this.twilioForm.value).subscribe({
+        next: (connection) => {
+          this.loading = false;
+          if (connection) this.twilioForm.reset();
+        },
+        error: () => {
+          this.loading = false;
+          this.snackBar.open('Twilio configuration failed', 'Close', { duration: 5000 });
+        }
+      });
     }
   }
 

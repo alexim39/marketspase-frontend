@@ -50,6 +50,14 @@
     </mat-card-header>
     <mat-card-content>
       <div class="form-grid">
+        <div class="suggestion-note">
+          <mat-icon>tips_and_updates</mat-icon>
+          <div>
+            <strong>Start with questions customers ask before paying.</strong>
+            <p>Price, delivery, availability, payment, returns, sizes, and pickup details are good first FAQs.</p>
+          </div>
+        </div>
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Question</mat-label>
           <input matInput [(ngModel)]="newFaq.question" placeholder="How much is delivery?">

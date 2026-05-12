@@ -54,10 +54,10 @@ export class PromotionService {
   /**
    * Get all promotions for a promoter
    */
-/*   getPromoterPromotions(promoterId: string): Observable<any> {
+  getPromoterPromotions(promoterId: string): Observable<any> {
     const params = new HttpParams().set('promoterId', promoterId);
     return this.apiService.get<any>(`${this.apiUrl}/promoter`, params, undefined, true);
-  } */
+  }
 
   /**
    * Get promotion stats for a specific product
@@ -72,17 +72,10 @@ export class PromotionService {
   /**
    * Get all promotion stats for dashboard
    */
-/*   getPromotionDashboard(promoterId: string): Observable<any> {
-  // getPromotionDashboard(promoterId: string): Observable<{
-  //   totalEarnings: number;
-  //   totalClicks: number;
-  //   totalConversions: number;
-  //   activePromotions: number;
-  //   promotions: PromotionStats[];
-  // }> {
+  getPromotionDashboard(promoterId: string): Observable<any> {
     const params = new HttpParams().set('promoterId', promoterId);
     return this.apiService.get<any>(`${this.apiUrl}/dashboard`, params, undefined, true);
-  } */
+  }
 
   /**
    * Update promotion settings
