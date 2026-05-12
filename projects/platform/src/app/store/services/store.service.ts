@@ -80,7 +80,7 @@ export class StoreService {
   getStores(userId: string): Observable<Store[]> {
     this.loading.set(true);
 
-    return this.apiService.get<any>(`${this.apiUrl}/store?userId=${userId}`).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/store`).pipe(
       map((res) => {
         // 1. Extract the data. Use optional chaining and fallbacks for safety.
         const stores = res?.data || res?.stores || (Array.isArray(res) ? res : []);
@@ -176,7 +176,7 @@ export class StoreService {
   setDefaultStore(store: Store): Observable<any> {
     return this.apiService.patch<Store>(
       `${this.apiUrl}/store/${store._id}/set-default`, 
-      {userId: store.owner} 
+      {} 
     ).pipe(
       tap({
         next: (updatedStore) => {

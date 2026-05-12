@@ -22,7 +22,7 @@ export class DashboardService {
    * @returns An Observable that emits the API response or an error.
    */
   switchUser(roleObject: {role: string, userId: string | undefined}): Observable<any> {
-    return this.apiService.post<any>(`user/switch-user`, roleObject, undefined, true);
+    return this.apiService.post<any>(`user/switch-user`, { role: roleObject.role }, undefined, true);
   }
 
   /**

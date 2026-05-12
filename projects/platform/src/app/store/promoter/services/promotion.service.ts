@@ -48,15 +48,23 @@ export class PromotionService {
    * Create a new promotion tracking link
    */
   createPromotion(data: CreatePromotionDto): Observable<any> {
-    return this.apiService.post<any>(`${this.apiUrl}/create`, data, undefined, true);
+    const { productId, storeId, commissionRate, commissionType, fixedCommission, startDate, endDate } = data;
+    return this.apiService.post<any>(`${this.apiUrl}/create`, {
+      productId,
+      storeId,
+      commissionRate,
+      commissionType,
+      fixedCommission,
+      startDate,
+      endDate
+    }, undefined, true);
   }
 
   /**
    * Get all promotions for a promoter
    */
   getPromoterPromotions(promoterId: string): Observable<any> {
-    const params = new HttpParams().set('promoterId', promoterId);
-    return this.apiService.get<any>(`${this.apiUrl}/promoter`, params, undefined, true);
+    return this.apiService.get<any>(`${this.apiUrl}/promoter`, undefined, undefined, true);
   }
 
   /**
@@ -73,8 +81,7 @@ export class PromotionService {
    * Get all promotion stats for dashboard
    */
   getPromotionDashboard(promoterId: string): Observable<any> {
-    const params = new HttpParams().set('promoterId', promoterId);
-    return this.apiService.get<any>(`${this.apiUrl}/dashboard`, params, undefined, true);
+    return this.apiService.get<any>(`${this.apiUrl}/dashboard`, undefined, undefined, true);
   }
 
   /**

@@ -18,9 +18,9 @@ export class UserService {
    * @param firebaseUser The signin data to be submitted.
    * @returns An Observable that emits the API response or an error.
    */
-  auth(firebaseUser: UserInterface): Observable<any> {
+  auth(firebaseUser: Partial<UserInterface> & Record<string, unknown>, idToken: string): Observable<any> {
     //console.log('check for referral record ',firebaseUser)
-    return this.apiService.post<any>(`auth`, {firebaseUser}, undefined, true);
+    return this.apiService.post<any>(`auth`, { firebaseUser, idToken }, undefined, true);
   }
 
   /**

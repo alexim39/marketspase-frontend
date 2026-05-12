@@ -29,9 +29,7 @@ export class StorefrontOrderService {
   }
 
   getReleaseRequests(adminId: string, status = 'requested'): Observable<any> {
-    const params = new HttpParams()
-      .set('adminId', adminId)
-      .set('status', status);
+    const params = new HttpParams().set('status', status);
 
     return this.apiService.get<any>(`${this.apiUrl}/release-requests`, params, undefined, true);
   }
@@ -43,7 +41,13 @@ export class StorefrontOrderService {
     deliveryStatus?: 'processing' | 'shipped' | 'delivered' | 'received';
     buyerReceived?: boolean;
   }): Observable<any> {
-    return this.apiService.post<any>(`${this.apiUrl}/${orderId}/confirm-delivery`, payload, undefined, true);
+    const { role, note, deliveryStatus, buyerReceived } = payload;
+    return this.apiService.post<any>(`${this.apiUrl}/${orderId}/confirm-delivery`, {
+      role,
+      note,
+      deliveryStatus,
+      buyerReceived
+    }, undefined, true);
   }
 
   reviewRelease(orderId: string, payload: {
@@ -51,6 +55,9 @@ export class StorefrontOrderService {
     decision: 'approved' | 'rejected';
     note?: string;
   }): Observable<any> {
-    return this.apiService.post<any>(`${this.apiUrl}/${orderId}/release-review`, payload, undefined, true);
+    return this.apiService.post<any>(`${this.apiUrl}/${orderId}/release-review`, {
+      decision: payload.decision,
+      note: payload.note
+    }, undefined, true);
   }
 }
