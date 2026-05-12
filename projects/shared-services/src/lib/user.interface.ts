@@ -149,4 +149,30 @@ export interface UserInterface {
   }[];
 
   isMarketingRep: boolean;
+
+  loginStreak?: {
+    currentStreak: number;
+    longestStreak: number;
+    lastQualifiedDateKey?: string | null;
+    lastQualifiedAt?: Date | null;
+    rewardCycleDayCount: number;
+    pendingCyclePoints: number;
+    withdrawablePoints: number;
+    totalPointsEarned: number;
+    totalPointsWithdrawn: number;
+    totalNairaWithdrawn: number;
+    lastRewardPoints: number;
+    lastRewardDateKey?: string | null;
+    lastWithdrawalAt?: Date | null;
+  };
+
+  badgeProfile?: {
+    level: number;
+    levelTitle: string;
+    experiencePoints: number;
+    badgesEarned: number;
+    lastBadgeUnlockedAt?: Date | null;
+    lastBadgeKey?: string | null;
+    lastEvaluatedAt?: Date | null;
+  };
 }

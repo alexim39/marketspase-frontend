@@ -28,6 +28,13 @@ export interface ProfileUser {
   totalLikes: number;
   isFollowing: boolean;
   isOwnProfile: boolean;
+  badgeProfile?: {
+    level: number;
+    levelTitle: string;
+    experiencePoints: number;
+    badgesEarned: number;
+    lastBadgeUnlockedAt?: string | null;
+  };
 }
 
 export interface FollowUser {

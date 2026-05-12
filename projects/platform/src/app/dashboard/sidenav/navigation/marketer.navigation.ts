@@ -89,6 +89,13 @@ export function getMarketerNavigation(
         }
       ]
     },
+
+    {
+      icon: 'leaderboard',
+      label: 'Leaderboard',
+      route: '/dashboard/leaderboard',
+      expanded: false
+    },
     
     {
       icon: 'currency_exchange',

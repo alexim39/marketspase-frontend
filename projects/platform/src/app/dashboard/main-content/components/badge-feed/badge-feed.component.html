@@ -1,0 +1,123 @@
+<section class="badge-panel">
+  <header class="panel-header">
+    <div>
+      <p class="eyebrow">Recognition</p>
+      <h2>Badges & Level</h2>
+      <p class="subcopy">See what you just unlocked and what is closest next.</p>
+    </div>
+
+    <a mat-stroked-button routerLink="/profile">
+      View badges
+    </a>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="loading-card large"></div>
+      <div class="loading-card"></div>
+      <div class="loading-card"></div>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button type="button" (click)="retry()">Retry</button>
+    </div>
+  } @else {
+    @if (levelSummary(); as summary) {
+      <div class="summary-card">
+        <div class="summary-top">
+          <div>
+            <span class="summary-label">Current level</span>
+            <strong>Level {{ summary.level }}</strong>
+            <small>{{ summary.levelTitle }}</small>
+          </div>
+
+          <div class="summary-pill">
+            <mat-icon>workspace_premium</mat-icon>
+            <span>{{ summary.badgesEarned }} badge{{ summary.badgesEarned === 1 ? '' : 's' }}</span>
+          </div>
+        </div>
+
+        <div class="xp-row">
+          <span>{{ summary.experiencePoints }} XP</span>
+          @if (summary.nextLevel) {
+            <span>{{ summary.experiencePointsToNextLevel }} XP to level {{ summary.nextLevel }}</span>
+          } @else {
+            <span>Top level reached</span>
+          }
+        </div>
+        <mat-progress-bar mode="determinate" [value]="summary.progressPercent"></mat-progress-bar>
+      </div>
+
+      <div class="content-grid">
+        <section class="section-block">
+          <div class="section-title-row">
+            <h3>Recent unlocks</h3>
+            @if (recentlyUnlocked().length > 0) {
+              <span class="live-pill">New</span>
+            }
+          </div>
+
+          @if (recentUnlocks().length === 0) {
+            <div class="empty-state">
+              <mat-icon>military_tech</mat-icon>
+              <p>Your first badge will appear here as soon as you hit a milestone.</p>
+            </div>
+          } @else {
+            <div class="badge-list">
+              @for (badge of recentUnlocks(); track trackBadge($index, badge)) {
+                <article class="badge-item" [class.is-new]="highlightKeys().includes(badge.key)">
+                  <div class="badge-icon" [style.background]="badge.accentColor">
+                    <mat-icon>{{ badge.icon }}</mat-icon>
+                  </div>
+                  <div class="badge-copy">
+                    <div class="badge-heading">
+                      <strong>{{ badge.title }}</strong>
+                      <span class="badge-reward">{{ badge.reward.experiencePoints }} XP</span>
+                    </div>
+                    <p>{{ badge.shortDescription || badge.description }}</p>
+                    <small>Unlocked {{ badge.unlockedAt | date:'mediumDate' }}</small>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="section-block">
+          <div class="section-title-row">
+            <h3>Up next</h3>
+          </div>
+
+          @if (nextBadges().length === 0) {
+            <div class="empty-state compact">
+              <mat-icon>emoji_events</mat-icon>
+              <p>You have completed the current badge ladder for your role.</p>
+            </div>
+          } @else {
+            <div class="goal-list">
+              @for (badge of nextBadges(); track trackBadge($index, badge)) {
+                <article class="goal-item">
+                  <div class="goal-head">
+                    <div class="goal-title">
+                      <mat-icon [style.color]="badge.accentColor">{{ badge.icon }}</mat-icon>
+                      <div>
+                        <strong>{{ badge.title }}</strong>
+                        <small>{{ badge.criteria.metricLabel }}</small>
+                      </div>
+                    </div>
+                    <span>{{ badge.progress?.currentValue }} / {{ badge.progress?.targetValue }}</span>
+                  </div>
+
+                  <mat-progress-bar mode="determinate" [value]="badge.progress?.progressPercent || 0"></mat-progress-bar>
+                  <p>{{ badge.shortDescription || badge.description }}</p>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    }
+  }
+</section>

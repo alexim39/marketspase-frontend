@@ -19,6 +19,7 @@ import { Activity, RecentActivityComponent } from './components/recent-activity/
 import { TrendingSectionComponent } from './components/trending-section/trending-section.component';
 import { ConnectionsSectionComponent } from './components/connections-section/connections-section.component';
 import { LearningSectionComponent } from './components/learning-section/learning-section.component';
+import { BadgeFeedComponent } from './components/badge-feed/badge-feed.component';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
 
 // Import banner components
@@ -134,6 +135,7 @@ interface CommunityStats {
     PerformanceMetricsComponent,
     QuickStatsComponent,
     RecentActivityComponent,
+    BadgeFeedComponent,
     TrendingSectionComponent,
     ConnectionsSectionComponent,
     LearningSectionComponent,

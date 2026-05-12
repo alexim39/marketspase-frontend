@@ -1,0 +1,93 @@
+@if (status(); as streakStatus) {
+  <button class="streak-chip" type="button" (click)="reopenPrompt()">
+    <span class="chip-label">Daily Check-in</span>
+    <span class="chip-value">{{ streakStatus.currentStreak }} day streak</span>
+    <span class="chip-meta">
+      @if (streakStatus.qualifiedToday) {
+        Reward secured
+      } @else {
+        {{ remainingMinutes }} min left today
+      }
+    </span>
+  </button>
+
+  @if (promptOpen()) {
+    <div class="streak-overlay" (click)="closePrompt()">
+      <section class="streak-modal" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div>
+            <p class="eyebrow">Daily Check-in</p>
+            <h2>{{ streakStatus.currentStreak }} day streak</h2>
+            <p class="subcopy">{{ streakStatus.streakMessage }}</p>
+          </div>
+          <button type="button" class="close-btn" (click)="closePrompt()">Close</button>
+        </header>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">Today's reward</span>
+            <strong>{{ streakStatus.todayRewardPoints }} point{{ streakStatus.todayRewardPoints === 1 ? '' : 's' }}</strong>
+            <small>Worth NGN {{ streakStatus.todayRewardNaira | number:'1.0-0' }}</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Available now</span>
+            <strong>{{ streakStatus.withdrawablePoints }} point{{ streakStatus.withdrawablePoints === 1 ? '' : 's' }}</strong>
+            <small>NGN {{ streakStatus.withdrawableNaira | number:'1.0-0' }}</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Pending cycle</span>
+            <strong>{{ streakStatus.pendingCyclePoints }} point{{ streakStatus.pendingCyclePoints === 1 ? '' : 's' }}</strong>
+            <small>{{ streakStatus.rewardCycleDayCount }}/{{ streakStatus.cycleLengthDays }} payout days</small>
+          </article>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-copy">
+            <span>Today's active session</span>
+            <strong>{{ sessionProgressPercent() }}%</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill session" [style.width.%]="sessionProgressPercent()"></div>
+          </div>
+          <small>
+            @if (streakStatus.qualifiedToday) {
+              You have completed today's {{ streakStatus.minimumSessionMinutes }}-minute session.
+            } @else {
+              Stay {{ remainingMinutes }} more minute{{ remainingMinutes === 1 ? '' : 's' }} to lock in today's reward.
+            }
+          </small>
+        </div>
+
+        <div class="progress-section payout">
+          <div class="progress-copy">
+            <span>Payout maturity</span>
+            <strong>{{ payoutProgressPercent() }}%</strong>
+          </div>
+          <div class="progress-track muted">
+            <div class="progress-fill payout" [style.width.%]="payoutProgressPercent()"></div>
+          </div>
+          <small>Every {{ streakStatus.cycleLengthDays }} completed check-ins unlocks a wallet withdrawal.</small>
+        </div>
+
+        <footer class="modal-footer">
+          <div class="footnote">
+            <span>1 point = NGN {{ streakStatus.pointValueNaira | number:'1.0-0' }}</span>
+            <span>Total earned: {{ streakStatus.totalPointsEarned }} point{{ streakStatus.totalPointsEarned === 1 ? '' : 's' }}</span>
+          </div>
+
+          <button
+            type="button"
+            class="withdraw-btn"
+            [disabled]="!streakStatus.canWithdraw || withdrawInFlight()"
+            (click)="withdraw()">
+            @if (withdrawInFlight()) {
+              Moving reward...
+            } @else {
+              Withdraw to {{ currentWalletType() }} wallet
+            }
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+}

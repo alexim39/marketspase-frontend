@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,6 +17,7 @@ import { FeedPost, FeedService } from '../community/feeds/feed.service';
 import { UserService } from '../common/services/user.service';
 import { CommentDialogComponent } from '../community/feeds/comment-dialog/comment-dialog.component';
 import { ProfileSkeletonComponent } from './components/profile-skeleton.component';
+import { BadgeOverviewPayload, BadgeService, UserBadge } from '../common/services/badge.service';
 
 // Extend FeedPost to include interaction flags (returned by backend)
 interface FeedPostWithFlags extends FeedPost {
@@ -32,6 +34,7 @@ interface FeedPostWithFlags extends FeedPost {
     MatIconModule,
     MatButtonModule,
     MatTabsModule,
+    MatProgressBarModule,
     MatProgressSpinnerModule,
     FeedPostCardComponent,
     ProfileSkeletonComponent
@@ -49,6 +52,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private badgeService = inject(BadgeService);
 
   // Current logged-in user
   currentUser = this.userService.user; // signal
@@ -57,6 +61,9 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   profile = signal<ProfileUser | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  badgeOverview = signal<BadgeOverviewPayload | null>(null);
+  badgeLoading = signal(false);
+  badgeError = signal<string | null>(null);
 
   // Posts
   posts = signal<FeedPostWithFlags[]>([]);
@@ -85,8 +92,12 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
 
   activeTab = computed(() => {
     const index = this.activeTabIndex();
-    return index === 0 ? 'posts' : index === 1 ? 'followers' : 'following';
+    return index === 0 ? 'posts' : index === 1 ? 'followers' : index === 2 ? 'following' : 'badges';
   });
+
+  badgeLevelSummary = computed(() => this.badgeOverview()?.badgeProfile || null);
+  featuredBadges = computed(() => this.badgeOverview()?.featuredBadges || []);
+  nextBadges = computed(() => this.badgeOverview()?.nextBadges || []);
 
   followersFetched = signal(false);
   followingFetched = signal(false);
@@ -154,6 +165,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
             this.profile.set(profile);
             this.loading.set(false);
             this.loadPosts(true); // load first page of posts
+            this.loadBadgeOverview(profile._id);
           }
         },
         error: (err) => {
@@ -355,6 +367,10 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   }
 
   // ---------- Actions ----------
+  trackBadge(_: number, badge: UserBadge): string {
+    return badge.id;
+  }
+
   toggleFollow(): void {
     const profile = this.profile();
     if (!profile || profile.isOwnProfile) return;
@@ -376,6 +392,40 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
         this.snackBar.open('Action failed', 'Dismiss', { duration: 3000 });
       }
     });
+  }
+
+  reloadBadges(): void {
+    const userId = this.profile()?._id;
+    if (userId) {
+      this.loadBadgeOverview(userId);
+    }
+  }
+
+  private loadBadgeOverview(userId: string): void {
+    if (!userId) {
+      return;
+    }
+
+    this.badgeLoading.set(true);
+    this.badgeService.loadOverview(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (!response?.success) {
+            this.badgeError.set('We could not load badges right now.');
+            this.badgeLoading.set(false);
+            return;
+          }
+
+          this.badgeOverview.set(response.data);
+          this.badgeError.set(null);
+          this.badgeLoading.set(false);
+        },
+        error: () => {
+          this.badgeError.set('We could not load badges right now.');
+          this.badgeLoading.set(false);
+        }
+      });
   }
 
   // Edit profile (navigate to settings)

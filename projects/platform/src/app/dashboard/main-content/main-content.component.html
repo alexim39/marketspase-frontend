@@ -50,15 +50,19 @@
         (viewWallet)="viewWallet()"
       />
 
-      <!-- Recent Activity -->
-      <recent-activity
-        [activities]="recentActivity()"
-        [userRole]="user()?.role"
-        (viewAll)="viewWallet()"
-        (activityClick)="onActivityClick($event)"
-        (browseCampaigns)="browseCampaign()"
-        (createCampaign)="createCampaign()"
-      />
+      <div class="activity-side-panel">
+        <app-badge-feed />
+
+        <!-- Recent Activity -->
+        <recent-activity
+          [activities]="recentActivity()"
+          [userRole]="user()?.role"
+          (viewAll)="viewWallet()"
+          (activityClick)="onActivityClick($event)"
+          (browseCampaigns)="browseCampaign()"
+          (createCampaign)="createCampaign()"
+        />
+      </div>
     </div>
 
     <!-- Trending & Connections Grid -->

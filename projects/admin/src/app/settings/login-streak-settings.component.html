@@ -1,0 +1,206 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Rewards Configuration</p>
+      <h1>Daily Login Streak & Leaderboard</h1>
+      <p class="subcopy">
+        Configure how long users stay active before a check-in qualifies, how points mature,
+        how much each point converts to in NGN, and how leaderboard rankings refresh.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="save-btn"
+      [disabled]="loading() || saving()"
+      (click)="save()">
+      @if (saving()) {
+        Saving...
+      } @else {
+        Save changes
+      }
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state">
+      <div class="loading-card"></div>
+      <div class="loading-card"></div>
+      <div class="loading-card wide"></div>
+    </section>
+  } @else {
+    <div class="summary-grid">
+      <article class="summary-card">
+        <span class="summary-label">Feature state</span>
+        <strong>{{ formValue().enabled ? 'Enabled' : 'Paused' }}</strong>
+        <small>Users will only earn streak rewards while this is active.</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Cycle payout value</span>
+        <strong>NGN {{ totalCycleNaira() | number:'1.0-0' }}</strong>
+        <small>{{ totalCyclePoints() }} point{{ totalCyclePoints() === 1 ? '' : 's' }} every {{ currentCycleLength() }} completed day{{ currentCycleLength() === 1 ? '' : 's' }}</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Point conversion</span>
+        <strong>NGN {{ currentPointValue() | number:'1.0-0' }}</strong>
+        <small>Each point converts directly to wallet value at withdrawal.</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Leaderboard refresh</span>
+        <strong>{{ formValue().leaderboard.refreshIntervalMinutes }} min</strong>
+        <small>{{ leaderboardMetricsLabel() }} across {{ formValue().leaderboard.defaultTimeframe }}</small>
+      </article>
+    </div>
+
+    <form class="settings-grid" [formGroup]="form" (ngSubmit)="save()">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Core rules</h2>
+            <p>Keep the experience simple for users while retaining room to tune incentives.</p>
+          </div>
+        </div>
+
+        <label class="toggle-row">
+          <div>
+            <span>Enable login streak rewards</span>
+            <small>Turn the entire streak system on or off without touching code.</small>
+          </div>
+          <input type="checkbox" formControlName="enabled">
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Timezone</span>
+            <input type="text" formControlName="timezone" placeholder="Africa/Lagos">
+            <small>Used to decide when a new streak day starts.</small>
+          </label>
+
+          <label class="field">
+            <span>Minimum active session (minutes)</span>
+            <input type="number" formControlName="minimumSessionMinutes" min="1">
+            <small>Users must remain active this long before the day qualifies.</small>
+          </label>
+
+          <label class="field">
+            <span>Withdrawal maturity cycle (days)</span>
+            <input type="number" formControlName="cycleLengthDays" min="1" max="30">
+            <small>Seven days matches the current business rule, but this stays configurable.</small>
+          </label>
+
+          <label class="field">
+            <span>Point value (NGN)</span>
+            <input type="number" formControlName="pointValueNaira" min="1">
+            <small>1 point currently equals NGN 150.</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Daily reward table</h2>
+            <p>Set the exact number of points earned on each completed day of the payout cycle.</p>
+          </div>
+        </div>
+
+        <div class="reward-list" formArrayName="dailyRewards">
+          @for (rewardGroup of dailyRewards.controls; track trackRewardRow($index)) {
+            <div class="reward-row" [formGroupName]="$index">
+              <div class="reward-day">
+                <span>Day</span>
+                <strong>{{ rewardGroup.get('day')?.value }}</strong>
+              </div>
+
+              <label class="field compact">
+                <span>Points</span>
+                <input type="number" formControlName="points" min="0">
+              </label>
+
+              <div class="reward-worth">
+                <span>Worth</span>
+                <strong>NGN {{ ((rewardGroup.get('points')?.value || 0) * currentPointValue()) | number:'1.0-0' }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel" formGroupName="leaderboard">
+        <div class="panel-header">
+          <div>
+            <h2>Leaderboard rules</h2>
+            <p>Choose how rankings are calculated, how often snapshots refresh, and what users can switch between.</p>
+          </div>
+        </div>
+
+        <label class="toggle-row">
+          <div>
+            <span>Enable leaderboard</span>
+            <small>Users can still earn streak rewards even if the public ranking view is paused.</small>
+          </div>
+          <input type="checkbox" formControlName="enabled">
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Default ranking metric</span>
+            <select formControlName="defaultMetric">
+              <option value="blended">Combined</option>
+              <option value="streak">Streak</option>
+              <option value="points">Points</option>
+            </select>
+            <small>Used when the leaderboard opens for the first time.</small>
+          </label>
+
+          <label class="field">
+            <span>Default timeframe</span>
+            <select formControlName="defaultTimeframe">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+            <small>Controls the default board window users see.</small>
+          </label>
+
+          <label class="field">
+            <span>Refresh interval (minutes)</span>
+            <input type="number" formControlName="refreshIntervalMinutes" min="5" max="1440">
+            <small>Cached snapshots are recomputed after this interval.</small>
+          </label>
+
+          <label class="field">
+            <span>Visible leaderboard size</span>
+            <input type="number" formControlName="topSize" min="3" max="50">
+            <small>How many top performers the board keeps ready for the frontend.</small>
+          </label>
+        </div>
+
+        <div class="checkbox-grid" formGroupName="enabledMetrics">
+          <label class="checkbox-pill">
+            <input type="checkbox" formControlName="streak">
+            <span>Streak</span>
+          </label>
+
+          <label class="checkbox-pill">
+            <input type="checkbox" formControlName="points">
+            <span>Points</span>
+          </label>
+
+          <label class="checkbox-pill">
+            <input type="checkbox" formControlName="blended">
+            <span>Combined</span>
+          </label>
+        </div>
+      </section>
+    </form>
+
+    <footer class="page-footer">
+      <span>Last updated: {{ updatedAt() ? (updatedAt() | date:'medium') : 'Not available yet' }}</span>
+      <span>Users can keep points maturing across cycles and withdraw whenever points are available.</span>
+    </footer>
+  }
+</section>

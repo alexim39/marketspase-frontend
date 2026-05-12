@@ -1,0 +1,563 @@
+// daily-check-in.component.scss
+@import  '../../../styles/variables';
+@import '../../../styles/mixins';
+
+/* ============================================
+   FLOATING STREAK CHIP
+   ============================================ */
+.streak-chip {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: $z-index-sticky;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 220px;
+  padding: 0.85rem 1rem;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+  background: rgba($white-hex, 0.96);
+  box-shadow: $shadow-xl;
+  text-align: left;
+  cursor: pointer;
+  transition: transform $transition-fast,
+              box-shadow $transition-fast,
+              background-color $transition-normal,
+              border-color $transition-normal;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: $background-color;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-2xl;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.chip-label {
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $text-secondary;
+  font-weight: $font-weight-bold;
+}
+
+.chip-value {
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.chip-meta {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+/* ============================================
+   MODAL OVERLAY
+   ============================================ */
+.streak-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba($gray-900-hex, 0.46);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: overlayFadeIn $transition-normal ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   MODAL CONTAINER
+   ============================================ */
+.streak-modal {
+  width: min(680px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  display: grid;
+  gap: 1.2rem;
+  padding: 1.5rem;
+  border-radius: $border-radius-xl;
+  background: $surface-color;
+  box-shadow: $shadow-2xl;
+  animation: modalSlideIn $transition-slow ease;
+  transition: background-color $transition-normal;
+
+  @include scrollbar;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================
+   MODAL HEADER
+   ============================================ */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-3;
+
+  .eyebrow {
+    margin: 0 0 0.3rem;
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $success-color;
+    font-weight: $font-weight-bold;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    line-height: $line-height-tight;
+  }
+}
+
+.subcopy {
+  margin: 0.35rem 0 0;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+}
+
+/* Close Button */
+.close-btn {
+  padding: 0.65rem 0.9rem;
+  border: none;
+  border-radius: $border-radius;
+  background: $divider-color;
+  color: $text-primary;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: background-color $transition-fast,
+              color $transition-fast;
+
+  &:hover {
+    background: $border-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+/* ============================================
+   STATS GRID
+   ============================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.stat-card {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-lg;
+  background: $background-color;
+  transition: background-color $transition-normal,
+              border-color $transition-normal,
+              transform $transition-fast;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
+
+  strong {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+.stat-label {
+  color: $text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.stat-card small {
+  color: $text-tertiary;
+  font-size: $font-size-xs;
+}
+
+/* ============================================
+   PROGRESS SECTIONS
+   ============================================ */
+.progress-section {
+  display: grid;
+  gap: 0.55rem;
+
+  small {
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    line-height: $line-height-normal;
+  }
+}
+
+.progress-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-2;
+
+  span {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+
+  strong {
+    color: $text-primary;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+  }
+}
+
+/* Progress Bars */
+.progress-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: $border-radius-full;
+  background: $divider-color;
+  transition: background-color $transition-normal;
+
+  &.muted {
+    background: $divider-color;
+    opacity: 0.7;
+  }
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width $transition-slow ease-out;
+  position: relative;
+  overflow: hidden;
+
+  /* Shimmer effect */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-fill.session {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  box-shadow: 0 0 12px rgba($success-color-hex, 0.3);
+}
+
+.progress-fill.payout {
+  background: linear-gradient(90deg, $primary-color-hex, #0ea5e9);
+  box-shadow: 0 0 12px rgba($primary-color-hex, 0.3);
+}
+
+/* ============================================
+   MODAL FOOTER
+   ============================================ */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  flex-wrap: wrap;
+}
+
+.footnote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2 $spacing-4;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+
+  span {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+  }
+}
+
+/* Withdraw Button */
+.withdraw-btn {
+  padding: 0.9rem 1.5rem;
+  border: none;
+  border-radius: $border-radius;
+  background: $gradient-primary;
+  color: $white;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $transition-normal;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: $shadow-lg;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+[data-theme="dark"] {
+  .streak-chip {
+    background: rgba($gray-800-hex, 0.96);
+    border-color: $border-color;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+  }
+
+  .streak-overlay {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .stat-card {
+    background: rgba($gray-700-hex, 0.5);
+    border-color: $border-color;
+
+    &:hover {
+      background: rgba($gray-700-hex, 0.7);
+    }
+  }
+
+  .progress-fill {
+    &::after {
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        transparent 100%
+      );
+    }
+  }
+
+  .progress-fill.session {
+    box-shadow: 0 0 12px rgba($success-color-hex, 0.5);
+  }
+
+  .progress-fill.payout {
+    box-shadow: 0 0 12px rgba($primary-light-hex, 0.5);
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@include tablet {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .stat-card {
+    padding: 0.85rem;
+  }
+}
+
+@include mobile {
+  .streak-chip {
+    right: 0.85rem;
+    left: 0.85rem;
+    bottom: 0.85rem;
+    min-width: 0;
+    border-radius: $border-radius-lg;
+  }
+
+  .streak-overlay {
+    padding: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .streak-modal {
+    padding: 1.2rem;
+    border-radius: $border-radius-lg $border-radius-lg 0 0;
+    max-height: 85vh;
+    animation: modalSlideUp $transition-slow ease;
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .modal-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .withdraw-btn,
+  .close-btn {
+    width: 100%;
+  }
+
+  .footnote {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@include small-screen {
+  .streak-chip {
+    right: 0.5rem;
+    left: 0.5rem;
+    bottom: 0.5rem;
+  }
+
+  .streak-modal {
+    padding: 1rem;
+  }
+
+  .stat-card strong {
+    font-size: $font-size-lg;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* High Contrast Mode */
+@media (forced-colors: active) {
+  .streak-chip {
+    border: 2px solid ButtonText;
+  }
+
+  .streak-modal {
+    border: 2px solid ButtonText;
+  }
+
+  .progress-fill {
+    background: ButtonText !important;
+    box-shadow: none !important;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  .withdraw-btn {
+    border: 2px solid ButtonText;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .streak-chip,
+  .stat-card,
+  .withdraw-btn {
+    transition: none;
+  }
+
+  .streak-modal {
+    animation: none;
+  }
+
+  .progress-fill {
+    transition: none;
+
+    &::after {
+      animation: none;
+    }
+  }
+}
+
+/* Print Styles */
+@media print {
+  .streak-chip {
+    position: static;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+
+  .streak-overlay {
+    position: static;
+    background: none;
+    backdrop-filter: none;
+  }
+
+  .streak-modal {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    max-height: none;
+    overflow: visible;
+  }
+}

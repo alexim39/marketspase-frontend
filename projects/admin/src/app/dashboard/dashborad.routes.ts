@@ -44,6 +44,16 @@ export const dashboardRoutes: Routes = [
                 title: 'Newletters Management - Admin Dashboard'
             }, 
             { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },
+            {
+                path: 'settings/login-streaks',
+                loadComponent: () => import('../settings/login-streak-settings.component').then(c => c.LoginStreakSettingsComponent),
+                title: 'Daily Login Streak Settings - Admin Dashboard'
+            },
+            {
+                path: 'settings/badges',
+                loadComponent: () => import('../settings/badge-settings.component').then(c => c.BadgeSettingsComponent),
+                title: 'Badge & Level Settings - Admin Dashboard'
+            },
             
                               
             // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  

@@ -1,0 +1,248 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+:host {
+  display: block;
+}
+
+.badge-panel {
+  background: $surface-color;
+  border: 1px solid rgba($border-color, 0.7);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: $shadow-sm;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 4px 0 6px;
+    font-size: 1.15rem;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $primary-color;
+}
+
+.subcopy {
+  margin: 0;
+  color: $text-secondary;
+  font-size: 0.92rem;
+}
+
+.summary-card {
+  border: 1px solid rgba($primary-color, 0.12);
+  border-radius: 16px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba($primary-color, 0.08), rgba(#8b5cf6, 0.06));
+  margin-bottom: 20px;
+}
+
+.summary-top,
+.xp-row,
+.section-title-row,
+.goal-head,
+.badge-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary-label {
+  display: block;
+  color: $text-secondary;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+
+.summary-pill,
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.summary-pill {
+  background: rgba($surface-color, 0.8);
+  color: $text-primary;
+}
+
+.live-pill {
+  background: rgba(#16a34a, 0.12);
+  color: #15803d;
+}
+
+.xp-row {
+  margin: 14px 0 10px;
+  color: $text-secondary;
+  font-size: 0.82rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+
+  @include desktop {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.section-block {
+  border: 1px solid rgba($border-color, 0.7);
+  border-radius: 16px;
+  padding: 16px;
+  background: rgba($background-color, 0.55);
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.badge-list,
+.goal-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.badge-item,
+.goal-item {
+  border-radius: 14px;
+  padding: 14px;
+  background: $surface-color;
+  border: 1px solid rgba($border-color, 0.65);
+}
+
+.badge-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 12px;
+  align-items: flex-start;
+
+  &.is-new {
+    border-color: rgba(#16a34a, 0.35);
+    box-shadow: 0 0 0 1px rgba(#16a34a, 0.12);
+  }
+}
+
+.badge-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.badge-copy p,
+.goal-item p {
+  margin: 6px 0;
+  color: $text-secondary;
+  font-size: 0.88rem;
+}
+
+.badge-copy small,
+.goal-item small {
+  color: $text-secondary;
+  font-size: 0.78rem;
+}
+
+.badge-reward {
+  color: $primary-color;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.goal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goal-item mat-progress-bar {
+  margin: 10px 0 8px;
+}
+
+.loading-state {
+  display: grid;
+  gap: 12px;
+}
+
+.loading-card {
+  height: 84px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba($border-color, 0.25), rgba($border-color, 0.45), rgba($border-color, 0.25));
+  background-size: 240px 100%;
+  animation: shimmer 1.5s infinite linear;
+
+  &.large {
+    height: 120px;
+  }
+}
+
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px 16px;
+  color: $text-secondary;
+}
+
+.empty-state.compact {
+  padding: 18px 12px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -240px 0; }
+  100% { background-position: 240px 0; }
+}
+
+@include mobile {
+  .badge-panel {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .panel-header,
+  .summary-top,
+  .xp-row,
+  .section-title-row,
+  .goal-head,
+  .badge-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge-item {
+    grid-template-columns: 42px 1fr;
+  }
+
+  .badge-icon {
+    width: 42px;
+    height: 42px;
+  }
+}

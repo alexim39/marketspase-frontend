@@ -1,154 +1,154 @@
-import {
-  Component, 
-  inject, 
-  OnInit, 
-  signal,
-  computed,
-  DestroyRef
-} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DashboardComponent } from './sidenav/sidenav.component';
-import { AuthService } from '../auth/auth.service';
-import { UserService } from '../common/services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+} from '@angular/router';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DeviceService, LoadingService, UserInterface } from '@shared/services';
-import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { AuthService } from '../auth/auth.service';
+import { UserService } from '../common/services/user.service';
+import { DailyCheckInComponent } from './daily-check-in/daily-check-in.component';
+import { DailyCheckInService } from './daily-check-in/daily-check-in.service';
+import { DashboardComponent } from './sidenav/sidenav.component';
 
 interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user?: any;
+  user?: unknown;
 }
 
 @Component({
   selector: 'dashboard-index',
   standalone: true,
   providers: [LoadingService],
-  imports: [CommonModule, DashboardComponent, MatProgressBarModule],
+  imports: [
+    CommonModule,
+    DashboardComponent,
+    DailyCheckInComponent,
+    MatProgressBarModule,
+  ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],
 })
-export class DashboardIndexComponent implements OnInit {
-
+export class DashboardIndexComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly deviceService = inject(DeviceService);
-  private snackBar = inject(MatSnackBar);
-  public loadingService = inject(LoadingService);
-
+  private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
-  private userService: UserService = inject(UserService);
+  private readonly userService = inject(UserService);
+  private readonly dailyCheckInService = inject(DailyCheckInService);
 
-  // SIGNALS
+  readonly loadingService = inject(LoadingService);
+
   protected readonly authState = signal<AuthState>({
     isAuthenticated: false,
     isLoading: true,
-    user: null
+    user: null,
   });
 
-  public user = signal<UserInterface | null>(null);
-
+  readonly user = signal<UserInterface | null>(null);
   protected readonly deviceType = computed(() => this.deviceService.type());
   protected readonly isLoading = computed(() => this.authState().isLoading);
   protected readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
 
   constructor() {
+    this.destroyRef.onDestroy(() => this.dailyCheckInService.deactivate());
 
     this.authService.getAuthState()
-      .pipe(takeUntilDestroyed())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (user) => {
-          if (user) {
-            // User is authenticated
+        next: (authUser) => {
+          if (authUser) {
             this.authState.set({
               isAuthenticated: true,
               isLoading: false,
-              user: user
+              user: authUser,
             });
 
-            this.userService.getUser(user.uid)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe({
-                next: (response) => {
-                  if (response.success) {
-                    this.user.set(response.data as UserInterface);
-
-                    //  🚫 THEME REMOVED – AppThemeService applies theme globally.
-                    //     DO NOT apply theme here.
-                  }
-                },
-                error: (error: HttpErrorResponse) => {
-                  this.snackBar.open(error.error.message, 'Close', { duration: 8000 });
-                  this.authState.set({
-                    isAuthenticated: false,
-                    isLoading: false,
-                    user: null
-                  });
-                  this.user.set(null);
-                  this.router.navigate(['/'], { 
-                    replaceUrl: true,
-                    state: { message: 'Please log in to access the dashboard' }
-                  });
-                }
-              });
-
-          } else {
-            // User is not authenticated
-            this.authState.set({
-              isAuthenticated: false,
-              isLoading: false,
-              user: null
-            });
-            this.user.set(null);
-
-            this.router.navigate(['/'], { 
-              replaceUrl: true,
-              state: { message: 'Please log in to access the dashboard' }
-            });
+            this.loadDashboardUser(authUser.uid);
+            return;
           }
+
+          this.handleUnauthorizedState('Please log in to access the dashboard');
         },
         error: (error) => {
           console.error('Authentication error:', error);
-          this.authState.set({
-            isAuthenticated: false,
-            isLoading: false,
-            user: null
-          });
-          this.user.set(null);
-
-          this.router.navigate(['/'], { 
-            replaceUrl: true,
-            state: { error: 'Authentication failed. Please try again.' }
-          });
-        }
+          this.handleUnauthorizedState('Authentication failed. Please try again.');
+        },
       });
-  }
 
-  ngOnInit(): void {
     this.router.events
       .pipe(
-        filter(event =>
+        filter((event) =>
           event instanceof NavigationStart ||
           event instanceof NavigationEnd ||
           event instanceof NavigationCancel ||
           event instanceof NavigationError
-        )
+        ),
+        takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(event => {
+      .subscribe((event) => {
         if (event instanceof NavigationStart) {
           this.loadingService.show();
-        } else if (event instanceof NavigationEnd) {
-          this.loadingService.hide();
+          return;
+        }
+
+        this.loadingService.hide();
+        if (event instanceof NavigationEnd) {
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (event instanceof NavigationCancel || event instanceof NavigationError) {
-          this.loadingService.hide();
         }
       });
   }
+
+  private loadDashboardUser(uid: string): void {
+    this.userService.getUser(uid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (!response?.success) {
+            this.handleUnauthorizedState('We could not load your dashboard right now.');
+            return;
+          }
+
+          const resolvedUser = response.data as UserInterface;
+          this.user.set(resolvedUser);
+          this.dailyCheckInService.activate(resolvedUser);
+        },
+        error: (error: HttpErrorResponse) => {
+          const message = error.error?.message || 'We could not load your dashboard.';
+          this.snackBar.open(message, 'Close', { duration: 8000 });
+          this.handleUnauthorizedState('Please log in to access the dashboard');
+        },
+      });
+  }
+
+  private handleUnauthorizedState(message: string): void {
+    this.authState.set({
+      isAuthenticated: false,
+      isLoading: false,
+      user: null,
+    });
+    this.user.set(null);
+    this.dailyCheckInService.deactivate();
+
+    this.router.navigate(['/'], {
+      replaceUrl: true,
+      state: { message },
+    });
+  }
 }
-``

@@ -11,6 +11,7 @@ export function getPromoterNavigation(
       expanded: false
     },
 
+   
     {
       icon: 'account_box',
       label: 'Profile',
@@ -63,6 +64,14 @@ export function getPromoterNavigation(
         }
       ]
     },
+
+    {
+      icon: 'leaderboard',
+      label: 'Leaderboard',
+      route: '/dashboard/leaderboard',
+      expanded: false
+    },
+
 
     {
       icon: 'currency_exchange',
