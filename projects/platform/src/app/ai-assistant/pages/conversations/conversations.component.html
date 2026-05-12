@@ -12,19 +12,24 @@
 
     <mat-form-field appearance="outline" class="search-field">
       <mat-icon matPrefix>search</mat-icon>
-      <input matInput placeholder="Search name, number, message" [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()">
+      <input
+        matInput
+        placeholder="Search name, number, message"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      >
     </mat-form-field>
 
     <div class="filters">
-      <button type="button" [class.active]="!filterStatus" (click)="filterStatus = ''; loadConversations()">All</button>
-      <button type="button" [class.active]="filterStatus === 'active'" (click)="filterStatus = 'active'; loadConversations()">Active</button>
-      <button type="button" [class.active]="filterStatus === 'escalated'" (click)="filterStatus = 'escalated'; loadConversations()">Escalated</button>
-      <button type="button" [class.active]="filterStatus === 'resolved'" (click)="filterStatus = 'resolved'; loadConversations()">Resolved</button>
+      <button type="button" [class.active]="!filterStatus()" (click)="setFilterStatus('')">All</button>
+      <button type="button" [class.active]="filterStatus() === 'active'" (click)="setFilterStatus('active')">Active</button>
+      <button type="button" [class.active]="filterStatus() === 'escalated'" (click)="setFilterStatus('escalated')">Escalated</button>
+      <button type="button" [class.active]="filterStatus() === 'resolved'" (click)="setFilterStatus('resolved')">Resolved</button>
     </div>
 
     <mat-form-field appearance="outline" class="lead-filter">
       <mat-label>Lead tag</mat-label>
-      <mat-select [(ngModel)]="filterLeadTag" (selectionChange)="loadConversations()">
+      <mat-select [ngModel]="filterLeadTag()" (ngModelChange)="setFilterLeadTag($event)">
         <mat-option value="">All tags</mat-option>
         @for (tag of leadTags; track tag.value) {
           <mat-option [value]="tag.value">{{ tag.label }}</mat-option>
@@ -32,15 +37,15 @@
       </mat-select>
     </mat-form-field>
 
-    @if (loading) {
+    @if (loading()) {
       <div class="list-loading">
         <mat-spinner diameter="28"></mat-spinner>
         <span>Loading chats...</span>
       </div>
-    } @else if (conversations.length) {
+    } @else if (conversations().length) {
       <div class="conversation-list">
-        @for (conversation of conversations; track conversation._id) {
-          <button type="button" class="conversation-item" [class.selected]="selectedConversation?._id === conversation._id" [class.escalated]="conversation.status === 'escalated'" [class.hot]="conversation.leadTag === 'hot'" (click)="selectConversation(conversation)">
+        @for (conversation of conversations(); track conversation._id) {
+          <button type="button" class="conversation-item" [class.selected]="selectedConversation()?._id === conversation._id" [class.escalated]="conversation.status === 'escalated'" [class.hot]="conversation.leadTag === 'hot'" (click)="selectConversation(conversation)">
             <div class="avatar">{{ getName(conversation).slice(0, 1) }}</div>
             <div class="conversation-copy">
               <div class="conversation-topline">
@@ -69,30 +74,30 @@
   </aside>
 
   <main class="chat-panel">
-    @if (selectedConversation) {
+    @if (selectedConversation(); as activeConversation) {
       <header class="chat-header">
         <div class="chat-identity">
-          <div class="avatar large">{{ getName(selectedConversation).slice(0, 1) }}</div>
+          <div class="avatar large">{{ getName(activeConversation).slice(0, 1) }}</div>
           <div>
-            <h2>{{ getName(selectedConversation) }}</h2>
+            <h2>{{ getName(activeConversation) }}</h2>
             <p>
-              <span [class.ai]="selectedConversation.handledBy === 'ai'" [class.human]="selectedConversation.handledBy === 'human'">
-                {{ selectedConversation.handledBy === 'ai' ? 'Handled by AI' : 'Taken over by human' }}
+              <span [class.ai]="activeConversation.handledBy === 'ai'" [class.human]="activeConversation.handledBy === 'human'">
+                {{ activeConversation.handledBy === 'ai' ? 'Handled by AI' : 'Taken over by human' }}
               </span>
-              @if (selectedConversation.status === 'escalated') {
+              @if (activeConversation.status === 'escalated') {
                 <span class="escalated-label">Needs attention</span>
               }
             </p>
           </div>
         </div>
         <div class="chat-header-actions">
-          @if (selectedConversation.handledBy !== 'human') {
+          @if (activeConversation.handledBy !== 'human') {
             <button mat-raised-button color="primary" (click)="takeover()">
               <mat-icon>support_agent</mat-icon>
               Take Over Chat
             </button>
           }
-          @if (selectedConversation.status !== 'resolved') {
+          @if (activeConversation.status !== 'resolved') {
             <button mat-stroked-button (click)="resolve()">
               <mat-icon>check_circle</mat-icon>
               Mark resolved
@@ -101,10 +106,10 @@
         </div>
       </header>
 
-      @if (selectedConversation.escalationReason) {
+      @if (activeConversation.escalationReason) {
         <div class="escalation-note">
           <mat-icon>priority_high</mat-icon>
-          {{ selectedConversation.escalationReason }}
+          {{ activeConversation.escalationReason }}
         </div>
       }
 
@@ -114,7 +119,7 @@
         <button type="button" (click)="escalate()"><mat-icon>notification_important</mat-icon>Escalate</button>
         <mat-form-field appearance="outline">
           <mat-label>Lead tag</mat-label>
-          <mat-select [ngModel]="selectedConversation.leadTag" (ngModelChange)="tagLead($event)">
+          <mat-select [ngModel]="activeConversation.leadTag" (ngModelChange)="tagLead($event)">
             @for (tag of leadTags; track tag.value) {
               <mat-option [value]="tag.value">{{ tag.label }}</mat-option>
             }
@@ -123,20 +128,20 @@
       </section>
 
       <section class="messages" #scrollContainer>
-        @if (messagesLoading) {
+        @if (messagesLoading()) {
           <div class="messages-loading">
             <mat-spinner diameter="30"></mat-spinner>
           </div>
         } @else {
-          @for (message of messages; track message._id) {
+          @for (message of messages(); track message._id) {
             <div class="message-row" [class.inbound]="message.direction === 'inbound'" [class.outbound]="message.direction === 'outbound'">
               <div class="bubble" [class.ai]="message.source === 'ai' || message.source === 'faq'" [class.agent]="message.source === 'agent'">
                 <p>{{ message.content }}</p>
                 <span>
                   {{ message.timestamp | date:'shortTime' }}
-                  @if (message.source === 'ai') { · AI }
-                  @if (message.source === 'faq') { · FAQ }
-                  @if (message.source === 'agent') { · You }
+                  @if (message.source === 'ai') { - AI }
+                  @if (message.source === 'faq') { - FAQ }
+                  @if (message.source === 'agent') { - You }
                 </span>
               </div>
             </div>
@@ -145,8 +150,8 @@
       </section>
 
       <footer class="composer">
-        <input #messageInput type="text" placeholder="Type a reply..." [(ngModel)]="newMessage" (keydown.enter)="sendMessage()">
-        <button mat-raised-button color="primary" [disabled]="!newMessage.trim() || sending" (click)="sendMessage()">
+        <input #messageInput type="text" placeholder="Type a reply..." [ngModel]="newMessage()" (ngModelChange)="newMessage.set($event)" (keydown.enter)="sendMessage()">
+        <button mat-raised-button color="primary" [disabled]="!newMessage().trim() || sending()" (click)="sendMessage()">
           <mat-icon>send</mat-icon>
           Send
         </button>

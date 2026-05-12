@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
 import { AiAssistantService } from '../../services/ai-assistant.service';
 
 interface ProductLink {
@@ -79,6 +79,7 @@ const DEFAULT_SETTINGS: AutomationSettings = {
 @Component({
   selector: 'app-automation',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -96,112 +97,257 @@ const DEFAULT_SETTINGS: AutomationSettings = {
   styleUrls: ['./automation.component.scss'],
   providers: [AiAssistantService],
 })
-export class AutomationComponent implements OnInit, OnDestroy {
+export class AutomationComponent {
   private aiService = inject(AiAssistantService);
   private snackBar = inject(MatSnackBar);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
-  settings: AutomationSettings = this.cloneDefaults();
-  originalSettings: AutomationSettings = this.cloneDefaults();
-  keywordText = DEFAULT_KEYWORDS.join(', ');
-  loading = false;
-  saving = false;
-  hasChanges = false;
+  readonly settings = signal<AutomationSettings>(this.cloneDefaults());
+  readonly originalSettings = signal<AutomationSettings>(this.cloneDefaults());
+  readonly keywordText = signal(DEFAULT_KEYWORDS.join(', '));
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly hasChanges = computed(() =>
+    JSON.stringify(this.settings()) !== JSON.stringify(this.originalSettings())
+  );
+  readonly sampleReply = computed(() => {
+    const settings = this.settings();
 
-  ngOnInit(): void {
+    if (settings.language === 'pidgin') {
+      return settings.tone === 'sales'
+        ? 'Available o. Delivery dey too. You wan order now?'
+        : 'Yes, e dey available. I fit help you order am.';
+    }
+
+    if (settings.tone === 'professional') {
+      return 'Yes, it is available. Would you like me to help you place an order?';
+    }
+
+    if (settings.tone === 'sales') {
+      return 'Yes, it is available. I can send the order link now so you can pay quickly.';
+    }
+
+    return 'Yes, it is available. Would you like to place an order?';
+  });
+
+  constructor() {
     this.loadSettings();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   loadSettings(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.aiService.getSettings()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.settings = this.mergeSettings(res.data || {});
-          this.keywordText = this.settings.escalationRules.keywords.join(', ');
-          this.originalSettings = this.cloneSettings(this.settings);
-          this.hasChanges = false;
-          this.loading = false;
+          const mergedSettings = this.mergeSettings(res.data || {});
+          this.settings.set(mergedSettings);
+          this.originalSettings.set(this.cloneSettings(mergedSettings));
+          this.keywordText.set(mergedSettings.escalationRules.keywords.join(', '));
+          this.loading.set(false);
         },
         error: () => {
-          this.loading = false;
+          this.loading.set(false);
           this.snackBar.open('Failed to load automation settings', 'Close', { duration: 5000 });
         },
       });
   }
 
-  onChange(): void {
-    this.syncKeywordsFromText();
-    this.hasChanges = JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
+  updateAiEnabled(aiEnabled: boolean): void {
+    this.patchSettings(settings => ({ ...settings, aiEnabled }));
   }
 
   saveSettings(): void {
-    this.syncKeywordsFromText();
-    this.saving = true;
+    const payload = this.cloneSettings(this.settings());
+    this.saving.set(true);
 
-    this.aiService.updateSettings(this.settings)
-      .pipe(takeUntil(this.destroy$))
+    this.aiService.updateSettings(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.settings = this.mergeSettings(res.data || this.settings);
-          this.keywordText = this.settings.escalationRules.keywords.join(', ');
-          this.originalSettings = this.cloneSettings(this.settings);
-          this.hasChanges = false;
-          this.saving = false;
+          const savedSettings = this.mergeSettings(res.data || payload);
+          this.settings.set(savedSettings);
+          this.originalSettings.set(this.cloneSettings(savedSettings));
+          this.keywordText.set(savedSettings.escalationRules.keywords.join(', '));
+          this.saving.set(false);
           this.snackBar.open('Automation settings saved', 'Close', { duration: 3000 });
         },
         error: () => {
-          this.saving = false;
+          this.saving.set(false);
           this.snackBar.open('Failed to save automation settings', 'Close', { duration: 5000 });
         },
       });
   }
 
   resetSettings(): void {
-    this.settings = this.cloneSettings(this.originalSettings);
-    this.keywordText = this.settings.escalationRules.keywords.join(', ');
-    this.hasChanges = false;
+    const resetSettings = this.cloneSettings(this.originalSettings());
+    this.settings.set(resetSettings);
+    this.keywordText.set(resetSettings.escalationRules.keywords.join(', '));
   }
 
   addProductLink(): void {
-    this.settings.autoLinks.productLinks.push({ label: '', url: '' });
-    this.onChange();
+    this.patchSettings(settings => ({
+      ...settings,
+      autoLinks: {
+        ...settings.autoLinks,
+        productLinks: [...settings.autoLinks.productLinks, { label: '', url: '' }],
+      },
+    }));
   }
 
   removeProductLink(index: number): void {
-    this.settings.autoLinks.productLinks.splice(index, 1);
-    this.onChange();
+    this.patchSettings(settings => ({
+      ...settings,
+      autoLinks: {
+        ...settings.autoLinks,
+        productLinks: settings.autoLinks.productLinks.filter((_, itemIndex) => itemIndex !== index),
+      },
+    }));
   }
 
-  get sampleReply(): string {
-    if (this.settings.language === 'pidgin') {
-      return this.settings.tone === 'sales'
-        ? 'Available o. Delivery dey too. You wan order now?'
-        : 'Yes, e dey available. I fit help you order am.';
-    }
-
-    if (this.settings.tone === 'professional') {
-      return 'Yes, it is available. Would you like me to help you place an order?';
-    }
-
-    if (this.settings.tone === 'sales') {
-      return 'Yes, it is available. I can send the order link now so you can pay quickly.';
-    }
-
-    return 'Yes, it is available. Would you like to place an order?';
+  updateTone(tone: AutomationSettings['tone']): void {
+    this.patchSettings(settings => ({ ...settings, tone }));
   }
 
-  private syncKeywordsFromText(): void {
-    this.settings.escalationRules.keywords = this.keywordText
+  updateLanguage(language: AutomationSettings['language']): void {
+    this.patchSettings(settings => ({ ...settings, language }));
+  }
+
+  updateEscalationRule(
+    key: keyof AutomationSettings['escalationRules'],
+    value: boolean
+  ): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      escalationRules: {
+        ...settings.escalationRules,
+        [key]: value,
+      },
+    }));
+  }
+
+  updateKeywordText(value: string): void {
+    this.keywordText.set(value);
+    this.patchSettings(settings => ({
+      ...settings,
+      escalationRules: {
+        ...settings.escalationRules,
+        keywords: this.parseKeywords(value),
+      },
+    }));
+  }
+
+  updateStorefrontUrl(value: string): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      autoLinks: {
+        ...settings.autoLinks,
+        storefrontUrl: value,
+      },
+    }));
+  }
+
+  updatePaymentLink(value: string): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      autoLinks: {
+        ...settings.autoLinks,
+        paymentLink: value,
+      },
+    }));
+  }
+
+  updateProductLink(index: number, field: keyof ProductLink, value: string): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      autoLinks: {
+        ...settings.autoLinks,
+        productLinks: settings.autoLinks.productLinks.map((link, itemIndex) =>
+          itemIndex === index ? { ...link, [field]: value } : link
+        ),
+      },
+    }));
+  }
+
+  updateResponseDelaySeconds(value: number | string): void {
+    const responseDelaySeconds = this.toNumber(value, 0);
+    this.patchSettings(settings => ({
+      ...settings,
+      responseSettings: {
+        ...settings.responseSettings,
+        responseDelaySeconds,
+      },
+    }));
+  }
+
+  updateMaxAiRepliesBeforeEscalation(value: number | string): void {
+    const maxAiRepliesBeforeEscalation = this.toNumber(value, 1);
+    this.patchSettings(settings => ({
+      ...settings,
+      responseSettings: {
+        ...settings.responseSettings,
+        maxAiRepliesBeforeEscalation,
+      },
+    }));
+  }
+
+  updateBusinessHoursEnabled(enabled: boolean): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      responseSettings: {
+        ...settings.responseSettings,
+        businessHours: {
+          ...settings.responseSettings.businessHours,
+          enabled,
+        },
+      },
+    }));
+  }
+
+  updateBusinessHoursTime(field: 'start' | 'end', value: string): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      responseSettings: {
+        ...settings.responseSettings,
+        businessHours: {
+          ...settings.responseSettings.businessHours,
+          [field]: value,
+        },
+      },
+    }));
+  }
+
+  updateBusinessHoursTimezone(value: string): void {
+    this.patchSettings(settings => ({
+      ...settings,
+      responseSettings: {
+        ...settings.responseSettings,
+        businessHours: {
+          ...settings.responseSettings.businessHours,
+          timezone: value,
+        },
+      },
+    }));
+  }
+
+  trackProductLink(index: number): number {
+    return index;
+  }
+
+  private patchSettings(updater: (settings: AutomationSettings) => AutomationSettings): void {
+    this.settings.update(settings => updater(this.cloneSettings(settings)));
+  }
+
+  private parseKeywords(value: string): string[] {
+    return value
       .split(',')
       .map(keyword => keyword.trim())
       .filter(Boolean);
+  }
+
+  private toNumber(value: number | string, fallback: number): number {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : fallback;
   }
 
   private mergeSettings(data: any): AutomationSettings {

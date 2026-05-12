@@ -6,6 +6,7 @@ import { ApiService } from '@shared/services';
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   private socket: Socket | null = null;
+  private connectedUserId: string | null = null;
   private messageSubject = new Subject<any>();
   private conversationUpdateSubject = new Subject<any>();
 
@@ -15,9 +16,23 @@ export class SocketService {
   constructor(private apiService: ApiService) {}
 
   connect(userId: string): void {
+    if (!userId) {
+      return;
+    }
+
+    if (this.socket?.connected && this.connectedUserId === userId) {
+      return;
+    }
+
+    this.disconnect();
+    this.connectedUserId = userId;
     this.socket = io(this.apiService.getBaseUrl(), {
       query: { userId },
-      transports: ['websocket'],
+      transports: ['polling'],
+      upgrade: false,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      timeout: 10000,
     });
 
     this.socket.on('new_message', (data) => this.messageSubject.next(data));
@@ -27,6 +42,7 @@ export class SocketService {
   disconnect(): void {
     this.socket?.disconnect();
     this.socket = null;
+    this.connectedUserId = null;
   }
 
   joinConversation(conversationId: string): void {

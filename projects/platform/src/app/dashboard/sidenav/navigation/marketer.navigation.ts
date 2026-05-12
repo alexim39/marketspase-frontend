@@ -65,12 +65,10 @@ export function getMarketerNavigation(
       label: 'AI Assistant',
       expanded: false,
       children: [
-        { icon: 'pie_chart', label: 'Overview', route: '/dashboard/assistant/customer/overview' },
-        { icon: 'mark_chat_read', label: 'Conversations', route: '/dashboard/assistant/customer/conversations' },
-        { icon: 'live_help', label: 'FAQs', route: '/dashboard/assistant/customer/faqs' },
-        { icon: 'build', label: 'Automation', route: '/dashboard/assistant/customer/automation' },
-        { icon: 'add_chart', label: 'Analytics', route: '/dashboard/assistant/customer/analytics' },
-        { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/customer/settings' }
+        { icon: 'support_agent', label: 'Customer Support', route: '/dashboard/assistant/customer/overview' },
+        // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
+        // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
+        // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
       ]
     },
 

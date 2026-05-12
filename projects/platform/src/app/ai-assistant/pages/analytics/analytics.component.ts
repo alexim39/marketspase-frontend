@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
 import { AiAssistantService } from '../../services/ai-assistant.service';
 
 interface DailyPoint {
@@ -21,6 +21,7 @@ interface ActivityPoint {
 @Component({
   selector: 'app-analytics',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     MatButtonModule,
@@ -33,64 +34,49 @@ interface ActivityPoint {
   styleUrls: ['./analytics.component.scss'],
   providers: [AiAssistantService],
 })
-export class AnalyticsComponent implements OnInit, OnDestroy {
+export class AnalyticsComponent implements OnInit {
   private aiService = inject(AiAssistantService);
   private snackBar = inject(MatSnackBar);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
-  stats: any = {};
-  loading = true;
+  readonly stats = signal<any>({});
+  readonly loading = signal(true);
+  readonly dailyConversations = computed<DailyPoint[]>(() => this.stats().dailyConversations || []);
+  readonly aiVsHumanActivity = computed<ActivityPoint[]>(() => (
+    this.stats().aiVsHumanActivity || [
+      { label: 'AI', value: this.stats().aiHandled || 0 },
+      { label: 'Human', value: this.stats().humanHandled || 0 },
+    ]
+  ));
+  readonly maxDailyCount = computed(() =>
+    Math.max(1, ...this.dailyConversations().map(point => point.count || 0))
+  );
+  readonly maxActivityValue = computed(() =>
+    Math.max(1, ...this.aiVsHumanActivity().map(point => point.value || 0))
+  );
+  readonly conversionTrend = computed<DailyPoint[]>(() => this.stats().conversionTrends || []);
+  readonly hasConversationData = computed(() =>
+    this.dailyConversations().some(point => point.count > 0)
+  );
 
   ngOnInit(): void {
     this.loadAnalytics();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   loadAnalytics(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.aiService.getAnalytics()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.stats = res.data || {};
-          this.loading = false;
+          this.stats.set(res.data || {});
+          this.loading.set(false);
         },
         error: () => {
-          this.loading = false;
+          this.loading.set(false);
           this.snackBar.open('Could not load AI analytics', 'Close', { duration: 5000 });
         },
       });
-  }
-
-  get dailyConversations(): DailyPoint[] {
-    return this.stats.dailyConversations || [];
-  }
-
-  get aiVsHumanActivity(): ActivityPoint[] {
-    return this.stats.aiVsHumanActivity || [
-      { label: 'AI', value: this.stats.aiHandled || 0 },
-      { label: 'Human', value: this.stats.humanHandled || 0 },
-    ];
-  }
-
-  get maxDailyCount(): number {
-    return Math.max(1, ...this.dailyConversations.map(point => point.count || 0));
-  }
-
-  get maxActivityValue(): number {
-    return Math.max(1, ...this.aiVsHumanActivity.map(point => point.value || 0));
-  }
-
-  get conversionTrend(): DailyPoint[] {
-    return this.stats.conversionTrends || [];
-  }
-
-  get hasConversationData(): boolean {
-    return this.dailyConversations.some(point => point.count > 0);
   }
 
   barHeight(value: number, max: number): string {

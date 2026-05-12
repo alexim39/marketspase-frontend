@@ -1,5 +1,5 @@
 <div class="assistant-page">
-  @if (loading) {
+  @if (loading()) {
     <section class="loading-shell">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       <p>Loading your assistant...</p>
@@ -17,7 +17,7 @@
       </button>
     </header>
 
-    @if (!hasSetup) {
+    @if (!hasSetup()) {
       <section class="onboarding-panel">
         <div>
           <mat-icon>rocket_launch</mat-icon>
@@ -35,18 +35,18 @@
     <section class="overview-grid">
       <mat-card class="status-card">
         <div class="status-head">
-          <div class="status-light" [class.active]="settings.aiEnabled"></div>
+          <div class="status-light" [class.active]="settings().aiEnabled"></div>
           <div>
-            <h2>{{ settings.aiEnabled ? 'AI is active' : 'AI is paused' }}</h2>
-            <p>{{ settings.aiEnabled ? 'Customers can get instant replies.' : 'New chats will need human attention.' }}</p>
+            <h2>{{ settings().aiEnabled ? 'AI is active' : 'AI is paused' }}</h2>
+            <p>{{ settings().aiEnabled ? 'Customers can get instant replies.' : 'New chats will need human attention.' }}</p>
           </div>
-          <mat-slide-toggle [checked]="settings.aiEnabled" [disabled]="savingToggle" (change)="toggleAI()"></mat-slide-toggle>
+          <mat-slide-toggle [checked]="settings().aiEnabled" [disabled]="savingToggle()" (change)="toggleAI()"></mat-slide-toggle>
         </div>
 
         <div class="status-details">
-          <span><mat-icon>call</mat-icon>{{ connectedText }}</span>
-          <span><mat-icon>record_voice_over</mat-icon>{{ (settings.tone || 'friendly') | titlecase }}</span>
-          <span><mat-icon>translate</mat-icon>{{ settings.language === 'pidgin' ? 'Nigerian Pidgin' : 'English' }}</span>
+          <span><mat-icon>call</mat-icon>{{ connectedText() }}</span>
+          <span><mat-icon>record_voice_over</mat-icon>{{ (settings().tone || 'friendly') | titlecase }}</span>
+          <span><mat-icon>translate</mat-icon>{{ settings().language === 'pidgin' ? 'Nigerian Pidgin' : 'English' }}</span>
         </div>
 
         <button mat-button color="primary" routerLink="../automation">
@@ -58,26 +58,19 @@
       <mat-card class="test-card">
         <h2>Test AI</h2>
         <p>Try a customer question before you turn it loose.</p>
-        <textarea [(ngModel)]="testMessage" rows="3"></textarea>
+        <textarea [ngModel]="testMessage()" (ngModelChange)="testMessage.set($event)" rows="3"></textarea>
         <button mat-stroked-button color="primary" (click)="testAI()">
           <mat-icon>smart_toy</mat-icon>
           Test reply
         </button>
-        @if (testReply) {
-          <div class="test-reply">{{ testReply }}</div>
+        @if (testReply()) {
+          <div class="test-reply">{{ testReply() }}</div>
         }
       </mat-card>
     </section>
 
     <section class="stats-grid">
-      @for (stat of [
-        { label: 'Messages today', value: stats.messagesToday || 0, icon: 'today' },
-        { label: 'AI handled', value: (stats.aiHandledPercent || 0) + '%', icon: 'smart_toy' },
-        { label: 'Human handled', value: (stats.humanHandledPercent || 0) + '%', icon: 'support_agent' },
-        { label: 'Avg response', value: (stats.responseTime || 0) + 's', icon: 'speed' },
-        { label: 'Escalated chats', value: stats.escalatedCount || 0, icon: 'priority_high' },
-        { label: 'Est. conversions', value: stats.estimatedConversions || 0, icon: 'shopping_bag' }
-      ]; track stat.label) {
+      @for (stat of quickStats(); track stat.label) {
         <mat-card class="stat-card">
           <mat-icon>{{ stat.icon }}</mat-icon>
           <strong>{{ stat.value }}</strong>
@@ -96,9 +89,9 @@
           <button mat-button routerLink="../conversations">View all</button>
         </div>
 
-        @if (recentConversations.length) {
+        @if (recentConversations().length) {
           <div class="conversation-list">
-            @for (conversation of recentConversations; track conversation._id) {
+            @for (conversation of recentConversations(); track conversation._id) {
               <a class="conversation-row" routerLink="../conversations" [queryParams]="{ id: conversation._id }" [class.hot]="conversation.leadTag === 'hot'" [class.escalated]="conversation.status === 'escalated'">
                 <div class="avatar">{{ getConversationName(conversation).slice(0, 1) }}</div>
                 <div class="conversation-copy">

@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +10,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatBadgeModule } from '@angular/material/badge';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, map, take, takeUntil } from 'rxjs/operators';
 import { UserService } from '../common/services/user.service';
 import { SocketService } from './services/socket.service';
 
@@ -36,6 +37,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private socketService = inject(SocketService);
   private destroy$ = new Subject<void>();
+  private user$ = toObservable(this.userService.user);
 
   isMobile = false;
   sidenavOpened = true;
@@ -61,6 +63,15 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     const userId = this.userService.user()?._id;
     if (userId) {
       this.socketService.connect(userId);
+    } else {
+      this.user$
+        .pipe(
+          map(user => user?._id || ''),
+          filter((resolvedUserId): resolvedUserId is string => !!resolvedUserId),
+          take(1),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(resolvedUserId => this.socketService.connect(resolvedUserId));
     }
   }
 

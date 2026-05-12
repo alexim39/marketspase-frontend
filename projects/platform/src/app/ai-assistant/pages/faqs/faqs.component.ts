@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,8 +10,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { AiAssistantService } from '../../services/ai-assistant.service';
 
 interface FAQ {
@@ -21,9 +20,21 @@ interface FAQ {
   tags?: string[];
 }
 
+interface FaqDraft {
+  question: string;
+  answer: string;
+  category: string;
+  tagsText: string;
+}
+
+interface EditingFaqDraft extends FaqDraft {
+  _id: string;
+}
+
 @Component({
   selector: 'app-faqs',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     MatCardModule,
@@ -40,132 +51,134 @@ interface FAQ {
   styleUrls: ['./faqs.component.scss'],
   providers: [AiAssistantService]
 })
-export class FaqsComponent implements OnInit, OnDestroy {
+export class FaqsComponent implements OnInit {
   private aiService = inject(AiAssistantService);
   private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
-  private destroy$ = new Subject<void>();
+  readonly faqs = signal<FAQ[]>([]);
+  readonly editingFaq = signal<EditingFaqDraft | null>(null);
+  readonly searchQuery = signal('');
+  readonly selectedCategory = signal('');
+  readonly newFaq = signal<FaqDraft>(this.createEmptyDraft());
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly categories = computed(() => {
+    const categorySet = new Set(
+      this.faqs()
+        .map(faq => faq.category?.trim())
+        .filter((category): category is string => !!category)
+    );
 
-  faqs: FAQ[] = [];
-  filteredFaqs: FAQ[] = [];
-  editingFaq: FAQ | null = null;
-  searchQuery = '';
-  selectedCategory = '';
-  
-  newFaq = { question: '', answer: '', category: '', tags: '' };
-  loading = false;
-  saving = false;
+    return Array.from(categorySet).sort((left, right) => left.localeCompare(right));
+  });
+  readonly filteredFaqs = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    const selectedCategory = this.selectedCategory();
 
-  categories: string[] = [];
+    return this.faqs().filter(faq => {
+      const matchesQuery = !query
+        || faq.question.toLowerCase().includes(query)
+        || faq.answer.toLowerCase().includes(query)
+        || faq.tags?.some(tag => tag.toLowerCase().includes(query));
+      const matchesCategory = !selectedCategory || faq.category === selectedCategory;
+      return matchesQuery && matchesCategory;
+    });
+  });
 
   ngOnInit(): void {
     this.loadFaqs();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   loadFaqs(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.aiService.getFaqs()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (faqs) => {
-          this.faqs = faqs;
-          this.filteredFaqs = faqs;
-          this.extractCategories();
-          this.loading = false;
+          this.faqs.set(faqs as FAQ[]);
+          this.loading.set(false);
         },
         error: () => {
-          this.loading = false;
+          this.loading.set(false);
           this.snackBar.open('Failed to load FAQs', 'Close', { duration: 5000 });
         }
       });
   }
 
-  extractCategories(): void {
-    const cats = new Set<string>();
-    this.faqs.forEach(f => {
-      if (f.category) cats.add(f.category);
-    });
-    this.categories = Array.from(cats).sort();
+  selectCategory(category = ''): void {
+    this.selectedCategory.set(category);
   }
 
-  filterFaqs(): void {
-    let result = this.faqs;
-    
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase();
-      result = result.filter(f => 
-        f.question.toLowerCase().includes(query) ||
-        f.answer.toLowerCase().includes(query) ||
-        f.tags?.some(t => t.toLowerCase().includes(query))
-      );
-    }
-    
-    if (this.selectedCategory) {
-      result = result.filter(f => f.category === this.selectedCategory);
-    }
-    
-    this.filteredFaqs = result;
+  updateNewFaq(field: keyof FaqDraft, value: string): void {
+    this.newFaq.update(draft => ({ ...draft, [field]: value }));
   }
 
   addFaq(): void {
-    if (!this.newFaq.question.trim() || !this.newFaq.answer.trim()) return;
-    
-    this.saving = true;
+    const draft = this.newFaq();
+    if (!draft.question.trim() || !draft.answer.trim()) return;
+
+    this.saving.set(true);
     const data = {
-      ...this.newFaq,
-      tags: this.newFaq.tags.split(',').map(t => t.trim()).filter(Boolean)
+      question: draft.question.trim(),
+      answer: draft.answer.trim(),
+      category: draft.category.trim(),
+      tags: this.parseTags(draft.tagsText),
     };
-    
+
     this.aiService.addFaq(data)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.newFaq = { question: '', answer: '', category: '', tags: '' };
+          this.newFaq.set(this.createEmptyDraft());
           this.loadFaqs();
-          this.saving = false;
+          this.saving.set(false);
           this.snackBar.open('FAQ added successfully', 'Close', { duration: 3000 });
         },
         error: () => {
-          this.saving = false;
+          this.saving.set(false);
           this.snackBar.open('Failed to add FAQ', 'Close', { duration: 5000 });
         }
       });
   }
 
   startEdit(faq: FAQ): void {
-    this.editingFaq = { 
-      ...faq, 
-      tags: faq.tags?.join(', ') || '' 
-    } as any;
+    this.editingFaq.set({
+      _id: faq._id,
+      question: faq.question,
+      answer: faq.answer,
+      category: faq.category || '',
+      tagsText: faq.tags?.join(', ') || '',
+    });
+  }
+
+  updateEditingFaq(field: keyof FaqDraft, value: string): void {
+    this.editingFaq.update(faq => faq ? { ...faq, [field]: value } : faq);
   }
   
   saveEdit(): void {
-    if (!this.editingFaq) return;
-    
-    this.saving = true;
+    const editingFaq = this.editingFaq();
+    if (!editingFaq) return;
+
+    this.saving.set(true);
     const data = {
-      question: this.editingFaq.question,
-      answer: this.editingFaq.answer,
-      category: this.editingFaq.category,
-      tags: (this.editingFaq as any).tags.split(',').map((t: string) => t.trim()).filter(Boolean)
+      question: editingFaq.question.trim(),
+      answer: editingFaq.answer.trim(),
+      category: editingFaq.category.trim(),
+      tags: this.parseTags(editingFaq.tagsText),
     };
-    
-    this.aiService.updateFaq(this.editingFaq._id, data)
-      .pipe(takeUntil(this.destroy$))
+
+    this.aiService.updateFaq(editingFaq._id, data)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.editingFaq = null;
+          this.editingFaq.set(null);
           this.loadFaqs();
-          this.saving = false;
+          this.saving.set(false);
           this.snackBar.open('FAQ updated', 'Close', { duration: 3000 });
         },
         error: () => {
-          this.saving = false;
+          this.saving.set(false);
           this.snackBar.open('Failed to update FAQ', 'Close', { duration: 5000 });
         }
       });
@@ -175,7 +188,7 @@ export class FaqsComponent implements OnInit, OnDestroy {
     if (!confirm('Are you sure you want to delete this FAQ?')) return;
     
     this.aiService.deleteFaq(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.loadFaqs();
@@ -188,12 +201,14 @@ export class FaqsComponent implements OnInit, OnDestroy {
   }
 
   cancelEdit(): void {
-    this.editingFaq = null;
+    this.editingFaq.set(null);
   }
 
-  // Create a helper to return the object as any
-  get editingFaqAsAny(): any {
-    return this.editingFaq;
+  private createEmptyDraft(): FaqDraft {
+    return { question: '', answer: '', category: '', tagsText: '' };
   }
 
+  private parseTags(value: string): string[] {
+    return value.split(',').map(tag => tag.trim()).filter(Boolean);
+  }
 }
