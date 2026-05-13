@@ -17,9 +17,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSelectModule } from '@angular/material/select';
 
 // Shared Components/Directives/Pipes
-import { RatingComponent } from '../../shared/rating/rating.component';
 import { CurrencyUtilsPipe, DeviceService, TruncatePipe } from '@shared/services';
 
 // Services
@@ -29,6 +30,7 @@ import { StorefrontCartService } from '../../services/storefront-cart.service';
 // Models
 import { Product, Store, ProductVariant } from '../../../store/models';
 import { UserService } from '../../../common/services/user.service';
+import { CurrencyQuote, PaymentCurrencyService } from '../../../common/services/payment-currency.service';
 import { StoreFooterComponent } from '../../core/store-footer/store-footer.component';
 import { StoreHeaderComponent, StoreStats } from '../../core/store-header/store-header.component';
 import { PromotionService } from '../../../store/promoter/services/promotion.service';
@@ -42,6 +44,7 @@ import { ProductTabsComponent } from './components/product-tabs/product-tabs.com
 import { ProductSpecificationsComponent } from './components/product-specifications/product-specifications.component';
 import { ProductReviewsComponent } from './components/product-reviews/product-reviews.component';
 import { RelatedProductsComponent } from './components/related-products/related-products.component';
+import { WriteReviewDialogComponent } from './components/write-review-dialog.component';
 
 @Component({
   selector: 'app-product-details',
@@ -58,9 +61,9 @@ import { RelatedProductsComponent } from './components/related-products/related-
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     ReactiveFormsModule,
     // Shared
-    RatingComponent,
     TruncatePipe,
     CurrencyUtilsPipe,
     StoreFooterComponent,
@@ -95,8 +98,10 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   private promotionService = inject(PromotionService);
   private paystackService = inject(PaystackService);
   private shareService = inject(ShareService);
+  private paymentCurrencyService = inject(PaymentCurrencyService);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
 
   private userService = inject(UserService);
@@ -247,15 +252,20 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   reviews = signal<any[]>([]);
   loadingReviews = signal<boolean>(false);
   hasMoreReviews = signal<boolean>(true);
+  reviewsPage = signal<number>(1);
+  reviewSummary = signal<{ averageRating: number; totalReviews: number; ratingBreakdown: Record<number, number> }>({
+    averageRating: 0,
+    totalReviews: 0,
+    ratingBreakdown: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  });
+  currentUserReview = signal<any | null>(null);
   
   averageRating = computed(() => {
-    const product = this.product();
-    return product?.averageRating || 0;
+    return this.reviewSummary().averageRating || this.product()?.averageRating || 0;
   });
   
   ratingCount = computed(() => {
-    const product = this.product();
-    return product?.ratingCount || 0;
+    return this.reviewSummary().totalReviews || this.product()?.ratingCount || 0;
   });
 
   // =========================================
@@ -290,6 +300,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   checkoutOrder = signal<any | null>(null);
   checkoutSuccess = signal<any | null>(null);
   cartFeedback = signal<{ name: string; quantity: number; totalItems: number } | null>(null);
+  selectedCheckoutCurrency = signal<string>('NGN');
+  checkoutQuote = signal<CurrencyQuote | null>(null);
+  supportedCheckoutCurrencies = signal<Array<{ code: string; name: string; symbol: string }>>([]);
 
   checkoutTotal = computed(() => this.currentPrice() * this.quantity());
 
@@ -312,6 +325,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     this.extractTrackingParams();
     this.prefillCheckoutForm();
     this.setupScrollListener();
+    this.loadCheckoutCurrencyConfig();
   }
 
   ngAfterViewInit(): void {}
@@ -360,14 +374,16 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
             this.variants.set(productData.variants);
             this.selectedVariant.set(productData.variants[0]);
           }
-          
-          this.reviews.set(result.reviews.data || []);
-          this.hasMoreReviews.set(result.reviews.data?.length === 10);
+
+          this.applyReviewResponse(result.reviews, true);
           this.relatedProducts.set(result.related.data || []);
           
           if (productData.store) {
             this.loadStoreData(productData.store);
           }
+
+          this.loadCurrentUserReview(productId);
+          this.refreshCheckoutQuote();
           
           this.loading.set(false);
           this.checkAndTrackViewAfterProductLoad();
@@ -442,6 +458,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   selectVariant(variant: any): void {
     this.selectedVariant.set(variant);
     this.quantity.set(1);
+    this.refreshCheckoutQuote();
   }
 
   selectVariantByAttribute(event: { attributeName: string; value: string }): void {
@@ -460,6 +477,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
   onQuantityChange(quantity: number): void {
     this.quantity.set(quantity);
+    this.refreshCheckoutQuote();
   }
 
   // =========================================
@@ -559,6 +577,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
         quantity: this.quantity(),
         trackingCode: this.trackingCode(),
         ref: this.uniqueId(),
+        checkoutCurrency: this.selectedCheckoutCurrency(),
+        checkoutQuote: this.checkoutQuote(),
         shippingAddress: {
           fullName: customerName,
           email: customerEmail,
@@ -734,15 +754,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     
     this.loadingReviews.set(true);
     
-    this.storeService.getProductReviews(productId, { 
-      page: Math.floor(this.reviews().length / 10) + 1, 
+    this.storeService.getProductReviews(productId, {
+      page: this.reviewsPage() + 1,
       limit: 10 
     })
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response) => {
-        this.reviews.set([...this.reviews(), ...(response.data || [])]);
-        this.hasMoreReviews.set(response.data?.length === 10);
+        this.applyReviewResponse(response, false);
         this.loadingReviews.set(false);
       },
       error: () => {
@@ -752,8 +771,95 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   writeReview(): void {
-    // Implement review dialog
-    this.showNotification('Review feature coming soon', 'info');
+    const currentUser = this.user();
+    const product = this.product();
+    if (!product?._id) {
+      return;
+    }
+
+    if (!currentUser?._id) {
+      this.showNotification('Sign in from your dashboard to rate this product.', 'info');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(WriteReviewDialogComponent, {
+      width: 'min(560px, 95vw)',
+      maxWidth: '95vw',
+      data: {
+        productName: product.name,
+        existingReview: this.currentUserReview(),
+      }
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (!result?.action) {
+          return;
+        }
+
+        if (result.action === 'delete' && this.currentUserReview()?._id) {
+          this.deleteReview(this.currentUserReview()._id);
+          return;
+        }
+
+        if (result.action === 'submit') {
+          this.saveReview(result.payload);
+        }
+      });
+  }
+
+  private loadCheckoutCurrencyConfig(): void {
+    this.paymentCurrencyService.getConfig()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const supported = (response?.data?.supportedCurrencies || [])
+            .filter((currency) => currency?.capabilities?.checkout)
+            .map((currency) => ({
+              code: currency.code,
+              name: currency.name,
+              symbol: currency.symbol,
+            }));
+          this.supportedCheckoutCurrencies.set(supported);
+          const initial = supported.find((currency) => currency.code === (this.product()?.currency || 'NGN'))?.code
+            || supported[0]?.code
+            || this.product()?.currency
+            || 'NGN';
+          this.selectedCheckoutCurrency.set(initial);
+          this.refreshCheckoutQuote();
+        },
+        error: () => {
+          this.supportedCheckoutCurrencies.set([{ code: 'NGN', name: 'Nigerian Naira', symbol: '₦' }]);
+          this.selectedCheckoutCurrency.set(this.product()?.currency || 'NGN');
+        }
+      });
+  }
+
+  private refreshCheckoutQuote(): void {
+    const productCurrency = this.product()?.currency || 'NGN';
+    const amount = this.checkoutTotal();
+    if (!amount || amount <= 0) {
+      this.checkoutQuote.set(null);
+      return;
+    }
+
+    this.paymentCurrencyService.getQuote({
+      amount,
+      fromCurrency: productCurrency,
+      toCurrency: this.selectedCheckoutCurrency() || productCurrency,
+      purpose: 'storefront_checkout',
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => this.checkoutQuote.set(response?.data || null),
+        error: () => this.checkoutQuote.set(null),
+      });
+  }
+
+  onCheckoutCurrencyChange(currencyCode: string): void {
+    this.selectedCheckoutCurrency.set(currencyCode || this.product()?.currency || 'NGN');
+    this.refreshCheckoutQuote();
   }
 
   scrollToReviews(): void {
@@ -947,6 +1053,141 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
         this.viewTracked.set(true);
       }
     });
+  }
+
+  private applyReviewResponse(response: any, reset: boolean): void {
+    const items = Array.isArray(response?.data) ? response.data : [];
+    const pagination = response?.pagination;
+    const summary = response?.summary;
+
+    if (reset) {
+      this.reviews.set(items);
+      this.reviewsPage.set(Number(pagination?.page || 1));
+    } else {
+      this.reviews.update((existing) => [...existing, ...items]);
+      this.reviewsPage.set(Number(pagination?.page || this.reviewsPage() + 1));
+    }
+
+    this.hasMoreReviews.set(Number(pagination?.page || 1) < Number(pagination?.pages || 1));
+    this.reviewSummary.set({
+      averageRating: Number(summary?.averageRating || this.product()?.averageRating || 0),
+      totalReviews: Number(summary?.totalReviews || this.product()?.ratingCount || 0),
+      ratingBreakdown: summary?.ratingBreakdown || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    });
+
+    this.product.update((product) => product ? ({
+      ...product,
+      averageRating: Number(summary?.averageRating || product.averageRating || 0),
+      ratingCount: Number(summary?.totalReviews || product.ratingCount || 0)
+    }) : product);
+  }
+
+  private loadCurrentUserReview(productId: string): void {
+    if (!this.user()?._id) {
+      this.currentUserReview.set(null);
+      return;
+    }
+
+    this.storeService.getCurrentUserProductReview(productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.currentUserReview.set(response?.data || null);
+        },
+        error: () => {
+          this.currentUserReview.set(null);
+        }
+      });
+  }
+
+  private saveReview(payload: { rating: number; title?: string; comment: string }): void {
+    const productId = this.product()?._id;
+    if (!productId) {
+      return;
+    }
+
+    const request$ = this.currentUserReview()?._id
+      ? this.storeService.updateProductReview(this.currentUserReview()._id, payload)
+      : this.storeService.createProductReview(productId, payload);
+
+    request$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.currentUserReview.set(response?.data || null);
+          this.showNotification(
+            response?.message || 'Review saved successfully',
+            response?.data?.status === 'approved' ? 'success' : 'info'
+          );
+          this.refreshReviewsAndStore();
+        },
+        error: (error) => {
+          this.showNotification(error?.error?.message || 'We could not save your review.', 'error');
+        }
+      });
+  }
+
+  private deleteReview(reviewId: string): void {
+    this.storeService.deleteProductReview(reviewId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.currentUserReview.set(null);
+          this.showNotification(response?.message || 'Review deleted successfully', 'success');
+          this.refreshReviewsAndStore();
+        },
+        error: (error) => {
+          this.showNotification(error?.error?.message || 'We could not delete your review.', 'error');
+        }
+      });
+  }
+
+  onReviewHelpful(review: any): void {
+    if (!this.user()?._id) {
+      this.showNotification('Sign in from your dashboard to react to reviews.', 'info');
+      return;
+    }
+
+    if (review?.isOwnReview || !review?._id) {
+      return;
+    }
+
+    this.storeService.toggleReviewHelpful(review._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const helpfulCount = Number(response?.data?.helpfulCount || 0);
+          const isHelpfulByCurrentUser = Boolean(response?.data?.isHelpfulByCurrentUser);
+          this.reviews.update((items) => items.map((item) => item._id === review._id
+            ? { ...item, helpfulCount, isHelpfulByCurrentUser }
+            : item));
+        },
+        error: (error) => {
+          this.showNotification(error?.error?.message || 'We could not update that feedback right now.', 'error');
+        }
+      });
+  }
+
+  private refreshReviewsAndStore(): void {
+    const productId = this.product()?._id;
+    const storeId = this.store()?._id || this.product()?.store?._id;
+    if (!productId) {
+      return;
+    }
+
+    this.storeService.getProductReviews(productId, { page: 1, limit: 10 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.applyReviewResponse(response, true);
+        }
+      });
+
+    this.loadCurrentUserReview(productId);
+
+    if (storeId) {
+      this.loadStoreData({ _id: storeId });
+    }
   }
 
   /* loadCurrentPromotionStats(): void {

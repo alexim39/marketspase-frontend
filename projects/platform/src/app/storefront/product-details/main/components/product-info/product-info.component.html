@@ -53,7 +53,7 @@
       <span class="write-review-link">Write a review</span>
     </div>
   } @else {
-    <div class="rating-summary no-reviews">
+    <div class="rating-summary no-reviews" (click)="reviewsClick.emit()">
       <span class="no-reviews-text">No reviews yet</span>
       <span class="write-review-link">Be the first to review</span>
     </div>

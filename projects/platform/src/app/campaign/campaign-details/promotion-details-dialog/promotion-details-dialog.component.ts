@@ -32,7 +32,7 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
             @if (data.promotion.promoter.rating) { 
               <span class="promoter-rating">
                 <mat-icon>star</mat-icon>
-                Rating: {{data.promotion.promoter.rating | number:'1.1-1'}}
+                Reputation: {{data.promotion.promoter.rating | number:'1.1-1'}}
               </span>
             }
             

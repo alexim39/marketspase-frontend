@@ -157,6 +157,36 @@
                   </div>
                 </div>
 
+                @if (supportedCheckoutCurrencies().length > 1 || supportedCheckoutCurrencies().length === 1) {
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Pay in</mat-label>
+                    <mat-select [value]="selectedCheckoutCurrency()" (valueChange)="onCheckoutCurrencyChange($event)">
+                      @for (currency of supportedCheckoutCurrencies(); track currency.code) {
+                        <mat-option [value]="currency.code">
+                          {{ currency.code }} - {{ currency.name }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+
+                @if (checkoutQuote() && checkoutQuote()!.targetCurrency !== checkoutQuote()!.sourceCurrency) {
+                  <div class="checkout-summary conversion-summary">
+                    <div>
+                      <span class="summary-label">Charge total</span>
+                      <strong>{{ checkoutQuote()!.targetAmount | currencyUtils:checkoutQuote()!.targetCurrency }}</strong>
+                    </div>
+                    <div>
+                      <span class="summary-label">Store currency</span>
+                      <strong>{{ checkoutQuote()!.sourceAmount | currencyUtils:checkoutQuote()!.sourceCurrency }}</strong>
+                    </div>
+                    <div>
+                      <span class="summary-label">Locked rate</span>
+                      <strong>1 {{ checkoutQuote()!.sourceCurrency }} = {{ checkoutQuote()!.exchangeRate | number:'1.2-4' }} {{ checkoutQuote()!.targetCurrency }}</strong>
+                    </div>
+                  </div>
+                }
+
                 <mat-divider />
 
                 <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="submitCheckout()">
@@ -267,8 +297,11 @@
                 [ratingCount]="ratingCount()"
                 [loadingReviews]="loadingReviews()"
                 [hasMoreReviews]="hasMoreReviews()"
+                [currentUserReview]="currentUserReview()"
+                [ratingBreakdown]="reviewSummary().ratingBreakdown"
                 (loadMore)="loadMoreReviews()"
                 (writeReview)="writeReview()"
+                (helpful)="onReviewHelpful($event)"
               />
             </div>
             

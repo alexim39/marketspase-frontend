@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,15 @@ export interface ProductReview {
   images?: string[];
   verifiedPurchase?: boolean;
   createdAt?: Date;
+  helpfulCount?: number;
+  isOwnReview?: boolean;
+  isHelpfulByCurrentUser?: boolean;
+  status?: string;
+  response?: {
+    content: string;
+    createdAt?: string | Date;
+    responderName?: string;
+  } | null;
 }
 
 @Component({
@@ -40,19 +49,12 @@ export class ProductReviewsComponent {
   @Input() ratingCount: number = 0;
   @Input() loadingReviews: boolean = false;
   @Input() hasMoreReviews: boolean = false;
+  @Input() currentUserReview: ProductReview | null = null;
+  @Input() ratingBreakdown: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
   
   @Output() loadMore = new EventEmitter<void>();
   @Output() writeReview = new EventEmitter<void>();
-  
-  ratingBreakdown = computed(() => {
-    const breakdown = [0, 0, 0, 0, 0];
-    this.reviews.forEach(review => {
-      if (review.rating >= 1 && review.rating <= 5) {
-        breakdown[5 - review.rating]++;
-      }
-    });
-    return breakdown;
-  });
+  @Output() helpful = new EventEmitter<ProductReview>();
   
   formatDate(date?: string | Date): string {
     const dateToFormat = date || new Date();
@@ -74,6 +76,22 @@ export class ProductReviewsComponent {
   
   trackByReviewId(index: number, review: ProductReview): string {
     return review._id || index.toString();
+  }
+
+  getBreakdownCount(stars: number): number {
+    if (this.ratingBreakdown && Number.isFinite(this.ratingBreakdown[stars])) {
+      return Number(this.ratingBreakdown[stars] || 0);
+    }
+
+    return this.reviews.filter(review => review.rating === stars).length;
+  }
+
+  getActionLabel(review: ProductReview): string {
+    if (review.isOwnReview) {
+      return 'Your review';
+    }
+
+    return review.isHelpfulByCurrentUser ? 'Helpful' : 'Was this helpful?';
   }
   
   onImageError(event: Event): void {

@@ -23,6 +23,7 @@ export class QuickAmountSelectorComponent {
   @Input() amounts: QuickAmount[] = [];
   @Input() selectedAmount: number = 0;
   @Input() disabled: boolean = false;
+  @Input() currencyCode: string | null = null;
   @Output() amountSelected = new EventEmitter<number>();
   @Input({ required: true }) user: UserInterface | null = null;
 

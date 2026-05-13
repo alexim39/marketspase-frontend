@@ -18,6 +18,7 @@ export class CustomAmountFormComponent {
   @Input() minAmount: number = 0;
   @Input() maxAmount: number = 0;
   @Input() disabled: boolean = false;
+  @Input() currencyCode: string | null = null;
   @Output() amountChange = new EventEmitter<Event>();
   @Output() clearSelection = new EventEmitter<void>();
   @Input({ required: true }) user: UserInterface | null = null;

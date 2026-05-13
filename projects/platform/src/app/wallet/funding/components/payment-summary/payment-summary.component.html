@@ -3,19 +3,25 @@
   <div class="summary-card">
     <div class="summary-row">
       <span>Amount to Fund</span>
-      <span class="amount">{{ amount | currencyUtils:user?.wallets?.marketer?.currency }}</span>
+      <span class="amount">{{ amount | currencyUtils:(chargeCurrency || user?.wallets?.marketer?.currency) }}</span>
     </div>
     <div class="summary-row">
       <span>Processing Fee ({{ (feeRate * 100) | number:'1.1-1' }}%)</span>
-      <span class="fee">{{ processingFee | currencyUtils:user?.wallets?.marketer?.currency }}</span>
+      <span class="fee">{{ processingFee | currencyUtils:(chargeCurrency || user?.wallets?.marketer?.currency) }}</span>
     </div>
     <div class="summary-row total">
       <span>Total to Pay</span>
-      <span class="amount">{{ totalAmount | currencyUtils:user?.wallets?.marketer?.currency }}</span>
+      <span class="amount">{{ totalAmount | currencyUtils:(chargeCurrency || user?.wallets?.marketer?.currency) }}</span>
     </div>
+    @if (convertedBaseAmount !== null && convertedBaseAmount !== undefined && walletCurrency && walletCurrency !== chargeCurrency) {
+      <div class="summary-row">
+        <span>Wallet Credit Value</span>
+        <span class="amount">{{ convertedBaseAmount | currencyUtils:walletCurrency }}</span>
+      </div>
+    }
     <div class="summary-row">
       <span>New Wallet Balance</span>
-      <span class="new-balance">{{ newBalance | currencyUtils:user?.wallets?.marketer?.currency }}</span>
+      <span class="new-balance">{{ newBalance | currencyUtils:(walletCurrency || user?.wallets?.marketer?.currency) }}</span>
     </div>
   </div>
 </div>

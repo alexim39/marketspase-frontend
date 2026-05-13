@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { timer } from 'rxjs';
@@ -22,7 +24,12 @@ import { DialogActionsComponent } from './components/dialog-actions/dialog-actio
 import { UserService } from '../../common/services/user.service';
 import { PaymentResult, PaymentRequest, PaystackService } from '../../common/services/paystack.service';
 import { RecordPaymentPayload, WalletService } from '../wallet.service';
-import { DeviceService, UserInterface } from '@shared/services';
+import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
+import {
+  CurrencyQuote,
+  PaymentCurrencyConfig,
+  PaymentCurrencyService,
+} from '../../common/services/payment-currency.service';
 
 export interface WalletDialogData {
   currentBalance: number;
@@ -41,6 +48,9 @@ export interface WalletDialogData {
     CommonModule,
     ReactiveFormsModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    CurrencyUtilsPipe,
     // Child components
     WalletBalanceCardComponent,
     QuickAmountSelectorComponent,
@@ -62,6 +72,7 @@ export class WalletFundingComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private userService = inject(UserService);
   private walletService = inject(WalletService);
+  private paymentCurrencyService = inject(PaymentCurrencyService);
   private router = inject(Router);
 
   private deviceService = inject(DeviceService);
@@ -81,6 +92,10 @@ export class WalletFundingComponent implements OnInit {
   paymentStatus = signal<PaymentStatusData | null>(null);
   processingTime = signal<number>(0);
   retryCount = signal<number>(0);
+  currencyConfig = signal<PaymentCurrencyConfig | null>(null);
+  selectedCurrency = signal<string>('NGN');
+  currencyQuote = signal<CurrencyQuote | null>(null);
+  isQuoteLoading = signal<boolean>(false);
 
   // Quick amounts configuration
   quickAmounts: QuickAmount[] = [
@@ -103,15 +118,25 @@ export class WalletFundingComponent implements OnInit {
     return Math.round(fee * 100) / 100;
   });
 
+  walletBaseCurrency = computed(() => this.user()?.wallets?.marketer?.baseCurrency || this.user()?.wallets?.marketer?.currency || 'NGN');
+  supportedFundingCurrencies = computed(() => (
+    this.currencyConfig()?.supportedCurrencies?.filter((currency) => currency?.capabilities?.deposit) || []
+  ));
+
+  minimumAmountForSelectedCurrency = computed(() => (
+    this.selectedCurrency() === 'USD' ? 2 : this.minFundingAmount
+  ));
+
   totalAmount = computed(() => this.selectedAmount() + this.processingFee());
-  newBalance = computed(() => this.data.currentBalance + this.selectedAmount());
+  newBalance = computed(() => this.data.currentBalance + (this.currencyQuote()?.baseAmount ?? this.selectedAmount()));
   
   canProceedWithPayment = computed(() => 
-    this.selectedAmount() >= this.minFundingAmount && 
+    this.selectedAmount() >= this.minimumAmountForSelectedCurrency() && 
     this.selectedAmount() <= this.maxFundingAmount &&
     this.fundingForm.valid && 
     !this.isProcessingPayment() &&
-    this.paymentStatus() === null
+    this.paymentStatus() === null &&
+    !this.isQuoteLoading()
   );
 
   showFundingRequirement = computed(() => 
@@ -134,14 +159,14 @@ export class WalletFundingComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
-    this.setSuggestedAmount();
+    this.loadCurrencyConfig();
   }
 
   private initializeForm(): void {
     this.fundingForm = this.fb.group({
       amount: [0, [
         Validators.required,
-        Validators.min(this.minFundingAmount),
+        Validators.min(1),
         Validators.max(this.maxFundingAmount),
         Validators.pattern(/^\d+(\.\d{1,2})?$/)
       ]]
@@ -151,10 +176,35 @@ export class WalletFundingComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         const numValue = parseFloat(value) || 0;
-        if (numValue >= this.minFundingAmount && numValue <= this.maxFundingAmount) {
+        if (numValue > 0 && numValue <= this.maxFundingAmount) {
           this.selectedAmount.set(numValue);
+          this.refreshFundingQuote();
         } else if (numValue === 0) {
           this.selectedAmount.set(0);
+          this.currencyQuote.set(null);
+        }
+      });
+  }
+
+  private loadCurrencyConfig(): void {
+    this.paymentCurrencyService.getConfig()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.currencyConfig.set(response?.data || null);
+          const supportedCurrencies = (response?.data?.supportedCurrencies || [])
+            .filter((currency) => currency?.capabilities?.deposit);
+          const preferredCurrency = this.user()?.preferences?.financial?.displayCurrency || 'NGN';
+          const initialCurrency = supportedCurrencies.find((currency) => currency.code === preferredCurrency)?.code
+            || supportedCurrencies[0]?.code
+            || 'NGN';
+          this.selectedCurrency.set(initialCurrency);
+          this.setSuggestedAmount();
+          this.refreshFundingQuote();
+        },
+        error: () => {
+          this.selectedCurrency.set('NGN');
+          this.setSuggestedAmount();
         }
       });
   }
@@ -171,6 +221,32 @@ export class WalletFundingComponent implements OnInit {
     this.selectQuickAmount(suggestedAmount);
   }
 
+  private refreshFundingQuote(): void {
+    if (!this.selectedAmount() || this.selectedAmount() <= 0 || !this.selectedCurrency()) {
+      this.currencyQuote.set(null);
+      return;
+    }
+
+    this.isQuoteLoading.set(true);
+    this.paymentCurrencyService.getQuote({
+      amount: this.selectedAmount(),
+      fromCurrency: this.selectedCurrency(),
+      toCurrency: this.selectedCurrency(),
+      purpose: 'wallet_funding',
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.currencyQuote.set(response?.data || null);
+          this.isQuoteLoading.set(false);
+        },
+        error: () => {
+          this.currencyQuote.set(null);
+          this.isQuoteLoading.set(false);
+        }
+      });
+  }
+
   getFundingShortfall(): number {
     if (!this.data.campaignBudget) return 0;
     return Math.max(0, this.data.campaignBudget - this.data.currentBalance);
@@ -181,6 +257,7 @@ export class WalletFundingComponent implements OnInit {
     this.selectedAmount.set(amount);
     this.fundingForm.patchValue({ amount }, { emitEvent: false });
     this.fundingForm.get('amount')?.markAsTouched();
+    this.refreshFundingQuote();
   }
 
   clearQuickSelection(): void {
@@ -192,6 +269,7 @@ export class WalletFundingComponent implements OnInit {
     let value = parseFloat(input.value) || 0;
     value = Math.min(Math.max(value, 0), this.maxFundingAmount);
     this.selectedAmount.set(value);
+    this.refreshFundingQuote();
   }
 
   async initiatePayment(): Promise<void> {
@@ -215,11 +293,14 @@ export class WalletFundingComponent implements OnInit {
       
       const paymentRequest: PaymentRequest = {
         amount: this.totalAmount(),
+        currency: this.selectedCurrency(),
         user: this.user()!,
         metadata: {
           purpose: 'wallet_funding',
           fundingAmount: this.selectedAmount(),
           processingFee: this.processingFee(),
+          currency: this.selectedCurrency(),
+          quote: this.currencyQuote(),
           userId: this.data.userId || this.user()?._id,
           userEmail: this.user()?.email,
           username: this.user()?.username,
@@ -385,6 +466,8 @@ export class WalletFundingComponent implements OnInit {
     const payload: RecordPaymentPayload = {
       userId: this.data.userId || this.user()?._id || 'unknown',
       amount: this.selectedAmount(),
+      currency: this.selectedCurrency(),
+      quote: this.currencyQuote(),
       paystackResult: paystackResult
     };
 
@@ -504,7 +587,7 @@ export class WalletFundingComponent implements OnInit {
   }
 
   private updateLocalWalletBalance(): void {
-    this.data.currentBalance += this.selectedAmount();
+    this.data.currentBalance += this.currencyQuote()?.baseAmount || this.selectedAmount();
   }
 
   private generatePaymentReference(): string {
@@ -512,6 +595,14 @@ export class WalletFundingComponent implements OnInit {
     const random = Math.floor(Math.random() * 10000);
     const userId = this.data.userId || this.user()?._id || 'unknown';
     return `WALLET-${userId}-${timestamp}-${random}`;
+  }
+
+  onCurrencyChange(currencyCode: string): void {
+    this.selectedCurrency.set(currencyCode || 'NGN');
+    this.paymentCurrencyService.updateDisplayCurrency(this.selectedCurrency())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({ error: () => undefined });
+    this.refreshFundingQuote();
   }
 
   // Action handlers

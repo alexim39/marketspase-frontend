@@ -162,6 +162,7 @@ export class PromoterLandingComponent implements OnInit {
 
   metrics = computed<CampaignMetrics>(() => {
     const promotions = this.promotions();
+    const userRating = Number(this.user()?.rating || 0);
 
     // Calculate earnings based on actual promotion status
     const totalEarnings = promotions
@@ -193,9 +194,6 @@ export class PromoterLandingComponent implements OnInit {
     const successRate = totalAcceptedPromotions > 0 ? 
       (successfulPromotions / totalAcceptedPromotions) * 100 : 0;
 
-    // Calculate rating based on completed promotions (you might want to get this from user data)
-    const rating = this.calculateUserRating(promotions);
-
     // Expiring soon - promotions where campaign is ending in 3 days
     const expiringSoon = promotions.filter(promotion => {
       if (!promotion.campaign?.endDate) return false;
@@ -209,7 +207,7 @@ export class PromoterLandingComponent implements OnInit {
 
     return {
       totalEarnings,
-      rating,
+      rating: userRating,
       completedPromotions,
       pendingEarnings,
       activePromotions,
@@ -218,19 +216,6 @@ export class PromoterLandingComponent implements OnInit {
       expiringSoon
     };
   });
-
-  // Helper method to calculate user rating
-  private calculateUserRating(promotions: PromotionInterface[]): number {
-    // If you have a user rating system, use that instead
-    const paidPromotions = promotions.filter(p => p.status === 'paid').length;
-    
-    // Simple rating calculation based on completed promotions
-    // You might want to replace this with actual user rating data
-    if (paidPromotions >= 10) return 4.8;
-    if (paidPromotions >= 5) return 4.5;
-    if (paidPromotions >= 1) return 4.0;
-    return 0; // No rating for new users
-  }
 
   ngOnInit(): void {
     this.loadCampaigns(false); // Initial load

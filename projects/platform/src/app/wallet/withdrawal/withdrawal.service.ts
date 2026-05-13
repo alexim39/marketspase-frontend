@@ -31,6 +31,14 @@ export interface WithdrawalRequestData {
   amount: number;
   userId: string;
   saveAccount: boolean;
+  role?: string;
+  payableAmount?: number;
+  totalDeduction?: number;
+  feeAmount?: number;
+  feeRate?: number;
+  finalAmount?: number;
+  currency?: string;
+  quote?: any;
 }
 
 // Transaction Summary Interfaces

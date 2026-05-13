@@ -13,7 +13,7 @@ export class SupportService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-  updateTestimonial(formObject: {message: string; userId: string | undefined}): Observable<any> {
+  updateTestimonial(formObject: {message: string; rating: number; userId: string | undefined}): Observable<any> {
     return this.apiService.put<any>(`settings/testimonial`, formObject, undefined, true);
   }
 

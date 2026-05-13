@@ -15,5 +15,8 @@ export class PaymentSummaryComponent {
   @Input() processingFee: number = 0;
   @Input() totalAmount: number = 0;
   @Input() newBalance: number = 0;
+  @Input() chargeCurrency: string | null = null;
+  @Input() walletCurrency: string | null = null;
+  @Input() convertedBaseAmount: number | null = null;
   @Input({ required: true }) user: UserInterface | null = null;
 }

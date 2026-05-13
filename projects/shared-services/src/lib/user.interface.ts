@@ -18,6 +18,9 @@ export interface UserInterface {
     locationBasedAds?: boolean;
     categoryBasedAds?: boolean;
     adCategories?: string[];
+    financial?: {
+      displayCurrency?: string;
+    };
     theme?: {
       darkMode?: boolean;
       systemDefault?: boolean;
@@ -106,11 +109,20 @@ export interface UserInterface {
       balance: number;
       reserved: number;
       currency: string;
+      baseCurrency?: string;
+      balancesByCurrency?: Record<string, number>;
+      reservedByCurrency?: Record<string, number>;
      transactions: {
         _id: string;
         amount?: number;
+        baseAmount?: number;
+        settlementAmount?: number;
         category?: string;
         createdAt: Date;
+        currency?: string;
+        baseCurrency?: string;
+        settlementCurrency?: string;
+        exchangeRate?: number;
         description?: string;
         status?: string;
         type?: string;
@@ -128,11 +140,20 @@ export interface UserInterface {
       balance: number;
       reserved: number;
       currency: string;
+      baseCurrency?: string;
+      balancesByCurrency?: Record<string, number>;
+      reservedByCurrency?: Record<string, number>;
       transactions: {
         _id: string;
         amount?: number;
+        baseAmount?: number;
+        settlementAmount?: number;
         category?: string;
         createdAt: Date;
+        currency?: string;
+        baseCurrency?: string;
+        settlementCurrency?: string;
+        exchangeRate?: number;
         description?: string;
         status?: string;
         type?: string;

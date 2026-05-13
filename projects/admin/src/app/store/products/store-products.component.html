@@ -489,11 +489,11 @@
                                         <div class="metric">
                                             <mat-icon>trending_up</mat-icon>
                                             <span class="metric-value">{{ product.averageRating || 0 | number:'1.1-1' }}</span>
-                                            <span class="metric-label">Rating</span>
+                                            <span class="metric-label">Customer Rating</span>
                                         </div>
                                     </div>
                                     
-                                    <div class="performance-rating">
+                                    <div class="performance-rating" matTooltip="Conversion score based on tracked views and sales">
                                         @for (star of [1,2,3,4,5]; track star) {
                                             <mat-icon class="star-icon" 
                                                       [class.filled]="star <= getPerformanceRating(product)">

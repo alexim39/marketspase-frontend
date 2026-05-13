@@ -702,7 +702,7 @@ export class StoreProductsComponent implements OnInit, AfterViewInit {
   }
 
   getPerformanceRating(product: Product): number {
-    // Simplified performance rating based on views and purchases
+    // Internal conversion score based on views and purchases.
     const views = product.viewCount || 0;
     const purchases = product.purchaseCount || 0;
     

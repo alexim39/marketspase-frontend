@@ -37,18 +37,38 @@
       [selectedAmount]="selectedAmount()"
       [disabled]="isProcessingPayment() || paymentStatus() !== null"
       (amountSelected)="selectQuickAmount($event)"
+      [currencyCode]="selectedCurrency()"
       [user]="user()"
     />
   }
 
   <!-- Custom Amount Form -->
+  <div class="currency-selection-section">
+    <mat-form-field appearance="outline" class="currency-select-field">
+      <mat-label>Charge Currency</mat-label>
+      <mat-select [value]="selectedCurrency()" (selectionChange)="onCurrencyChange($event.value)">
+        @for (currency of supportedFundingCurrencies(); track currency.code) {
+          <mat-option [value]="currency.code">
+            {{ currency.code }} - {{ currency.name }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    @if (currencyQuote() && walletBaseCurrency() !== selectedCurrency()) {
+      <div class="currency-conversion-note">
+        Wallet credit value: <strong>{{ currencyQuote()?.baseAmount | currencyUtils:walletBaseCurrency() }}</strong>
+      </div>
+    }
+  </div>
+
   <custom-amount-form
     [form]="fundingForm"
-    [minAmount]="minFundingAmount"
+    [minAmount]="minimumAmountForSelectedCurrency()"
     [maxAmount]="maxFundingAmount"
     [disabled]="isProcessingPayment() || paymentStatus() !== null"
     (amountChange)="onCustomAmountChange($event)"
     (clearSelection)="clearQuickSelection()"
+    [currencyCode]="selectedCurrency()"
     [user]="user()"
   />
 
@@ -60,6 +80,9 @@
         [processingFee]="processingFee()"
         [totalAmount]="totalAmount()"
         [newBalance]="newBalance()"
+        [chargeCurrency]="selectedCurrency()"
+        [walletCurrency]="walletBaseCurrency()"
+        [convertedBaseAmount]="currencyQuote()?.baseAmount || null"
         [user]="user()"
       />
     }
