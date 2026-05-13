@@ -44,6 +44,11 @@
             <div class="balance-amount">
               <span class="amount">{{ availableBalance() | currencyUtils:roleCurrency() }}</span>
             </div>
+            @if (walletBaseCurrency() !== roleCurrency()) {
+              <div class="balance-subtext">
+                Base wallet value: {{ walletOverview()?.available?.baseAmount || 0 | currencyUtils:walletBaseCurrency() }}
+              </div>
+            }
           } @else {
             <mat-spinner diameter="20"/>
           }
@@ -98,6 +103,19 @@
               }
 
               <form [formGroup]="withdrawForm" (ngSubmit)="onSubmit()">
+                @if (walletOverview()?.supportedDisplayCurrencies?.length) {
+                  <mat-form-field appearance="outline">
+                    <mat-label>Source Currency</mat-label>
+                    <mat-select [value]="selectedCurrency()" (selectionChange)="onCurrencySelectionChange($event.value)">
+                      @for (currency of walletOverview()?.supportedDisplayCurrencies || []; track currency.code) {
+                        <mat-option [value]="currency.code">
+                          {{ currency.code }} - {{ currency.name }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+
                 <mat-form-field appearance="outline">
                   <mat-label>Select Bank</mat-label>
                   <mat-select #bankSelect formControlName="bank" (selectionChange)="onBankChange($event)">
@@ -191,6 +209,11 @@
                       } @else {
                         <strong>No service fee applies. You'll receive the full amount: {{ payableAmount() | currencyUtils:roleCurrency() }}</strong>
                       }
+                    </mat-hint>
+                  }
+                  @if (withdrawalQuote()) {
+                    <mat-hint class="hint">
+                      Estimated bank payout: <strong>{{ withdrawalQuote()?.targetAmount | currencyUtils:'NGN' }}</strong>
                     </mat-hint>
                   }
 

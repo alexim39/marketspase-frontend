@@ -45,6 +45,11 @@ export const dashboardRoutes: Routes = [
             }, 
             { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },
             {
+                path: 'settings/payments',
+                loadComponent: () => import('../settings/payment-settings.component').then(c => c.PaymentSettingsComponent),
+                title: 'Payment Settings - Admin Dashboard'
+            },
+            {
                 path: 'settings/login-streaks',
                 loadComponent: () => import('../settings/login-streak-settings.component').then(c => c.LoginStreakSettingsComponent),
                 title: 'Daily Login Streak Settings - Admin Dashboard'

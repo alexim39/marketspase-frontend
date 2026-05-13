@@ -136,6 +136,32 @@
                 <strong>{{ group.subtotal | currencyUtils:group.currency }}</strong>
               </div>
 
+              <mat-form-field appearance="outline">
+                <mat-label>Pay in</mat-label>
+                <mat-select [value]="selectedCheckoutCurrency()" (valueChange)="onCheckoutCurrencyChange($event)">
+                  @for (currency of supportedCheckoutCurrencies(); track currency.code) {
+                    <mat-option [value]="currency.code">
+                      {{ currency.code }} - {{ currency.name }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              @if (checkoutQuote() && checkoutQuote()!.targetCurrency !== checkoutQuote()!.sourceCurrency) {
+                <div class="summary-row">
+                  <span>Charge total</span>
+                  <strong>{{ checkoutQuote()!.targetAmount | currencyUtils:checkoutQuote()!.targetCurrency }}</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Store currency total</span>
+                  <strong>{{ checkoutQuote()!.sourceAmount | currencyUtils:checkoutQuote()!.sourceCurrency }}</strong>
+                </div>
+                <div class="summary-row">
+                  <span>Locked rate</span>
+                  <strong>1 {{ checkoutQuote()!.sourceCurrency }} = {{ checkoutQuote()!.exchangeRate | number:'1.2-4' }} {{ checkoutQuote()!.targetCurrency }}</strong>
+                </div>
+              }
+
               <mat-divider></mat-divider>
 
               <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="checkoutSelectedStore()">

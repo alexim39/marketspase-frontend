@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { CurrencyUtilsPipe } from '@shared/services';
@@ -16,6 +17,7 @@ import { UserService } from '../../common/services/user.service';
 import { PaystackService } from '../../common/services/paystack.service';
 import { StorefrontCartGroup, StorefrontCartItem, StorefrontCartService } from '../services/storefront-cart.service';
 import { StorefrontService } from '../services/storefront.service';
+import { CurrencyQuote, PaymentCurrencyService } from '../../common/services/payment-currency.service';
 
 @Component({
   selector: 'app-storefront-cart',
@@ -30,6 +32,7 @@ import { StorefrontService } from '../services/storefront.service';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatSelectModule,
     MatProgressSpinnerModule,
     CurrencyUtilsPipe
   ],
@@ -42,6 +45,7 @@ export class StorefrontCartComponent implements OnInit {
   private readonly storeService = inject(StorefrontService);
   private readonly userService = inject(UserService);
   private readonly paystackService = inject(PaystackService);
+  private readonly paymentCurrencyService = inject(PaymentCurrencyService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
@@ -55,6 +59,9 @@ export class StorefrontCartComponent implements OnInit {
   readonly checkoutLoading = signal(false);
   readonly checkoutError = signal<string | null>(null);
   readonly checkoutSuccess = signal<any | null>(null);
+  readonly selectedCheckoutCurrency = signal<string>('NGN');
+  readonly supportedCheckoutCurrencies = signal<Array<{ code: string; name: string; symbol: string }>>([]);
+  readonly checkoutQuote = signal<CurrencyQuote | null>(null);
 
   readonly selectedGroup = computed(() => {
     const groups = this.groups();
@@ -72,9 +79,24 @@ export class StorefrontCartComponent implements OnInit {
     postalCode: ['']
   });
 
+  constructor() {
+    effect(() => {
+      const group = this.selectedGroup();
+      const currency = this.selectedCheckoutCurrency();
+
+      if (!group || !currency) {
+        this.checkoutQuote.set(null);
+        return;
+      }
+
+      this.refreshCheckoutQuote();
+    }, { allowSignalWrites: true });
+  }
+
   ngOnInit(): void {
     this.selectedStoreId.set(this.groups()[0]?.storeId || null);
     this.prefillCheckoutForm();
+    this.loadCheckoutCurrencyConfig();
   }
 
   selectGroup(group: StorefrontCartGroup): void {
@@ -134,6 +156,8 @@ export class StorefrontCartComponent implements OnInit {
           trackingCode: item.trackingCode,
           ref: item.uniqueId
         })),
+        checkoutCurrency: this.selectedCheckoutCurrency(),
+        checkoutQuote: this.checkoutQuote(),
         shippingAddress: {
           fullName: customerName,
           email: customerEmail,
@@ -218,6 +242,10 @@ export class StorefrontCartComponent implements OnInit {
     return item.price * item.quantity;
   }
 
+  onCheckoutCurrencyChange(currencyCode: string): void {
+    this.selectedCheckoutCurrency.set(currencyCode || this.selectedGroup()?.currency || 'NGN');
+  }
+
   private prefillCheckoutForm(): void {
     const currentUser = this.user();
     const address = currentUser?.personalInfo?.address as any;
@@ -240,5 +268,53 @@ export class StorefrontCartComponent implements OnInit {
     if (!current || !groups.some(group => group.storeId === current)) {
       this.selectedStoreId.set(groups[0]?.storeId || null);
     }
+  }
+
+  private loadCheckoutCurrencyConfig(): void {
+    this.paymentCurrencyService.getConfig().subscribe({
+      next: (response) => {
+        const supported = (response?.data?.supportedCurrencies || [])
+          .filter((currency) => currency?.capabilities?.checkout)
+          .map((currency) => ({
+            code: currency.code,
+            name: currency.name,
+            symbol: currency.symbol,
+          }));
+        this.supportedCheckoutCurrencies.set(supported);
+        const currentGroupCurrency = this.selectedGroup()?.currency || 'NGN';
+        const preferredCurrency = this.user()?.preferences?.financial?.displayCurrency || currentGroupCurrency;
+        const initialCurrency = supported.find((currency) => currency.code === preferredCurrency)?.code
+          || supported.find((currency) => currency.code === currentGroupCurrency)?.code
+          || supported[0]?.code
+          || currentGroupCurrency;
+        this.selectedCheckoutCurrency.set(initialCurrency);
+      },
+      error: () => {
+        this.supportedCheckoutCurrencies.set([{ code: 'NGN', name: 'Nigerian Naira', symbol: 'NGN' }]);
+        this.selectedCheckoutCurrency.set(this.selectedGroup()?.currency || 'NGN');
+      }
+    });
+  }
+
+  private refreshCheckoutQuote(): void {
+    const group = this.selectedGroup();
+    if (!group?.subtotal || group.subtotal <= 0) {
+      this.checkoutQuote.set(null);
+      return;
+    }
+
+    this.paymentCurrencyService.getQuote({
+      amount: group.subtotal,
+      fromCurrency: group.currency || 'NGN',
+      toCurrency: this.selectedCheckoutCurrency() || group.currency || 'NGN',
+      purpose: 'storefront_checkout',
+    }).subscribe({
+      next: (response) => {
+        this.checkoutQuote.set(response?.data || null);
+      },
+      error: () => {
+        this.checkoutQuote.set(null);
+      }
+    });
   }
 }

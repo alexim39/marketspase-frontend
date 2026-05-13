@@ -1,0 +1,182 @@
+.page-shell {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.hero,
+.panel,
+.state-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero h1,
+.panel h2 {
+  margin: 0 0 0.35rem;
+  color: #111827;
+}
+
+.hero p,
+.panel p,
+.field small,
+.updated-pill,
+.summary-grid span,
+.state-card span {
+  color: #6b7280;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ec4899;
+}
+
+.updated-pill {
+  white-space: nowrap;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.settings-layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.panel-header,
+.card-top,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.field-grid.compact {
+  flex: 1;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+  color: #111827;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+  color: #111827;
+  background: #fff;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.summary-grid div {
+  border: 1px solid #f1f5f9;
+  border-radius: 6px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.summary-grid strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 1.35rem;
+  color: #111827;
+}
+
+.currency-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.currency-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  font-size: 0.92rem;
+  color: #374151;
+}
+
+.toggle-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn {
+  border: 0;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: #111827;
+  color: #fff;
+}
+
+.secondary-btn {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.ghost-btn {
+  background: transparent;
+  color: #dc2626;
+  padding: 0.5rem 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 1rem;
+  }
+
+  .hero,
+  .panel-header,
+  .card-top,
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

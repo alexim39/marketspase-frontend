@@ -1,0 +1,132 @@
+<section class="page-shell">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Payments</p>
+      <h1>Multi-currency settings</h1>
+      <p>Control checkout currencies, wallet display support, quote timing, and the Paystack capability flags your live flows should expose.</p>
+    </div>
+    @if (updatedAt()) {
+      <span class="updated-pill">Updated {{ updatedAt() | date:'medium' }}</span>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="state-card">
+      <strong>Loading payment configuration...</strong>
+      <span>We’re pulling the current live currency rules and quote settings.</span>
+    </div>
+  } @else {
+    <form class="settings-layout" [formGroup]="form" (ngSubmit)="save()">
+      <section class="panel">
+        <h2>Core settings</h2>
+        <div class="field-grid">
+          <label class="field">
+            <span>Base currency</span>
+            <input type="text" formControlName="baseCurrency" maxlength="3" />
+            <small>Reporting and wallet ledger base currency.</small>
+          </label>
+
+          <label class="field">
+            <span>Rates source</span>
+            <select formControlName="ratesSource">
+              <option value="exchangerate_host">Automatic refresh</option>
+              <option value="manual">Manual rates only</option>
+            </select>
+            <small>Automatic rates come from the configured exchange-rate service, not Paystack.</small>
+          </label>
+
+          <label class="field">
+            <span>Refresh interval (minutes)</span>
+            <input type="number" formControlName="refreshIntervalMinutes" min="5" max="1440" />
+            <small>How often MarketSpase refreshes rates when automatic mode is on.</small>
+          </label>
+
+          <label class="field">
+            <span>Quote lock (minutes)</span>
+            <input type="number" formControlName="quoteLockMinutes" min="5" max="720" />
+            <small>How long a locked checkout or withdrawal quote remains valid.</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel summary-panel">
+        <h2>Live exposure summary</h2>
+        <div class="summary-grid">
+          <div>
+            <strong>{{ configSummary().enabledForDisplay }}</strong>
+            <span>Display currencies</span>
+          </div>
+          <div>
+            <strong>{{ configSummary().enabledForDeposit }}</strong>
+            <span>Deposit currencies</span>
+          </div>
+          <div>
+            <strong>{{ configSummary().enabledForCheckout }}</strong>
+            <span>Checkout currencies</span>
+          </div>
+          <div>
+            <strong>{{ configSummary().enabledForWithdrawal }}</strong>
+            <span>Withdrawal currencies</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Supported currencies</h2>
+            <p>Rates are stored as “units of this currency per 1 base currency”.</p>
+          </div>
+          <button type="button" class="secondary-btn" (click)="addCurrencyRow()">Add currency</button>
+        </div>
+
+        <div class="currency-list" formArrayName="supportedCurrencies">
+          @for (currency of currencyRows.controls; track trackCurrencyRow($index)) {
+            <div class="currency-card" [formGroupName]="$index">
+              <div class="card-top">
+                <div class="field-grid compact">
+                  <label class="field">
+                    <span>Code</span>
+                    <input type="text" formControlName="code" maxlength="3" />
+                  </label>
+
+                  <label class="field">
+                    <span>Name</span>
+                    <input type="text" formControlName="name" />
+                  </label>
+
+                  <label class="field">
+                    <span>Symbol</span>
+                    <input type="text" formControlName="symbol" />
+                  </label>
+
+                  <label class="field">
+                    <span>Rate</span>
+                    <input type="number" formControlName="rate" min="0.000001" step="0.000001" />
+                  </label>
+                </div>
+
+                <button type="button" class="ghost-btn" (click)="removeCurrencyRow($index)">Remove</button>
+              </div>
+
+              <div class="toggle-grid">
+                <label><input type="checkbox" formControlName="display" /> Display</label>
+                <label><input type="checkbox" formControlName="deposit" /> Deposit</label>
+                <label><input type="checkbox" formControlName="checkout" /> Checkout</label>
+                <label><input type="checkbox" formControlName="withdrawal" /> Withdrawal</label>
+                <label><input type="checkbox" formControlName="paystackChargeSupported" /> Paystack charge</label>
+                <label><input type="checkbox" formControlName="paystackTransferSupported" /> Paystack transfer</label>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <div class="actions">
+        <button type="submit" class="primary-btn" [disabled]="saving()">
+          {{ saving() ? 'Saving...' : 'Save payment settings' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
