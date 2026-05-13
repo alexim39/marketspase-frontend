@@ -237,24 +237,24 @@
                 <div class="summary-top">
                   <div>
                     <span class="summary-label">Current level</span>
-                    <strong>Level {{ badgeData.badgeProfile.level }}</strong>
-                    <small>{{ badgeData.badgeProfile.levelTitle }}</small>
+                    <strong>Level {{ badgeData.gamificationProfile?.currentLevel ?? badgeData.badgeProfile.level }}</strong>
+                    <small>{{ badgeData.gamificationProfile?.currentLevelTitle ?? badgeData.badgeProfile.levelTitle }}</small>
                   </div>
                   <div class="summary-pill">
                     <mat-icon>military_tech</mat-icon>
-                    <span>{{ badgeData.badgeProfile.badgesEarned }} badges earned</span>
+                    <span>{{ badgeData.gamificationProfile?.badgesUnlocked ?? badgeData.badgeProfile.badgesEarned }} badges earned</span>
                   </div>
                 </div>
 
                 <div class="summary-meta">
-                  <span>{{ badgeData.badgeProfile.experiencePoints }} XP</span>
-                  @if (badgeData.badgeProfile.nextLevel) {
-                    <span>{{ badgeData.badgeProfile.experiencePointsToNextLevel }} XP to level {{ badgeData.badgeProfile.nextLevel }}</span>
+                  <span>{{ badgeData.gamificationProfile?.totalExperiencePoints ?? badgeData.badgeProfile.experiencePoints }} XP</span>
+                  @if (badgeData.gamificationProfile?.nextLevel ?? badgeData.badgeProfile.nextLevel) {
+                    <span>{{ badgeData.gamificationProfile?.experiencePointsToNextLevel ?? badgeData.badgeProfile.experiencePointsToNextLevel }} XP to level {{ badgeData.gamificationProfile?.nextLevel ?? badgeData.badgeProfile.nextLevel }}</span>
                   } @else {
                     <span>Top level reached</span>
                   }
                 </div>
-                <mat-progress-bar mode="determinate" [value]="badgeData.badgeProfile.progressPercent"></mat-progress-bar>
+                <mat-progress-bar mode="determinate" [value]="badgeData.gamificationProfile?.progressPercent ?? badgeData.badgeProfile.progressPercent"></mat-progress-bar>
               </div>
 
               @if (badgeData.isOwner && badgeData.nextBadges.length > 0) {

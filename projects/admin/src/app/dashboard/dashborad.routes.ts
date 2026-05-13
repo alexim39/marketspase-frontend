@@ -54,6 +54,11 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../settings/badge-settings.component').then(c => c.BadgeSettingsComponent),
                 title: 'Badge & Level Settings - Admin Dashboard'
             },
+            {
+                path: 'settings/gamification',
+                loadComponent: () => import('../settings/gamification-settings.component').then(c => c.GamificationSettingsComponent),
+                title: 'Gamification Settings - Admin Dashboard'
+            },
             
                               
             // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  

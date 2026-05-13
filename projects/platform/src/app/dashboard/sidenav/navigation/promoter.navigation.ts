@@ -72,6 +72,13 @@ export function getPromoterNavigation(
       expanded: false
     },
 
+    {
+      icon: 'military_tech',
+      label: 'Gamification',
+      route: '/dashboard/gamification',
+      expanded: false
+    },
+
 
     {
       icon: 'currency_exchange',

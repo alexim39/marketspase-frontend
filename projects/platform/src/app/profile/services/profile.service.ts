@@ -35,6 +35,27 @@ export interface ProfileUser {
     badgesEarned: number;
     lastBadgeUnlockedAt?: string | null;
   };
+  gamificationProfile?: {
+    totalExperiencePoints: number;
+    currentLevel: number;
+    currentLevelTitle: string;
+    currentLevelMinExperiencePoints: number;
+    nextLevel?: number | null;
+    nextLevelTitle?: string | null;
+    nextLevelMinExperiencePoints?: number | null;
+    experiencePointsToNextLevel: number;
+    progressPercent: number;
+    totalEvents: number;
+    milestonesUnlocked: number;
+    badgesUnlocked: number;
+    lastActionKey?: string | null;
+    lastExperiencePointsAwarded: number;
+    lastEventAt?: string | null;
+    recentLevelUpAt?: string | null;
+    highestLevelReachedAt?: string | null;
+    lastMilestoneKey?: string | null;
+    lastMilestoneUnlockedAt?: string | null;
+  };
 }
 
 export interface FollowUser {

@@ -1,0 +1,125 @@
+<section class="gamification-panel">
+  @if (activeCelebration(); as celebration) {
+    <div class="celebration-overlay" role="status" aria-live="polite">
+      <div class="confetti-layer" aria-hidden="true">
+        @for (piece of confettiPieces; track piece) {
+          <span class="confetti-piece"></span>
+        }
+      </div>
+
+      <div class="celebration-card">
+        <button type="button" class="dismiss-btn" (click)="dismissCelebration()">
+          <mat-icon>close</mat-icon>
+        </button>
+
+        <div class="celebration-icon" [style.background]="celebration.accentColor">
+          <mat-icon>{{ celebration.icon }}</mat-icon>
+        </div>
+
+        <div class="celebration-copy">
+          <span class="eyebrow">Nice work</span>
+          <strong>{{ celebration.title }}</strong>
+          <p>{{ celebration.description }}</p>
+          @if (celebration.rewardLabel) {
+            <small>{{ celebration.rewardLabel }}</small>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <header class="panel-header">
+    <div>
+      <p class="eyebrow">Gamification</p>
+      <h2>Progress Journey</h2>
+      <p class="subcopy">Watch your XP grow across streaks, promotions, badges, and sales.</p>
+    </div>
+
+    <a mat-stroked-button routerLink="/dashboard/gamification">
+      Open journey
+    </a>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="loading-card large"></div>
+      <div class="loading-card"></div>
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button type="button" (click)="retry()">Retry</button>
+    </div>
+  } @else {
+    @if (summary(); as progress) {
+      <div class="hero-card">
+        <div class="hero-copy">
+          <span class="summary-label">Current level</span>
+          <strong>Level {{ progress.level }}</strong>
+          <small>{{ progress.levelTitle }}</small>
+        </div>
+
+        <div class="hero-score">
+          <span class="score-value">{{ progress.totalExperiencePoints }} XP</span>
+          <span class="score-subcopy">
+            @if (progress.nextLevel) {
+              {{ progress.experiencePointsToNextLevel }} XP to level {{ progress.nextLevel }}
+            } @else {
+              Top configured level reached
+            }
+          </span>
+        </div>
+
+        <mat-progress-bar mode="determinate" [value]="progress.progressPercent"></mat-progress-bar>
+      </div>
+
+      <div class="stat-grid">
+        <article class="stat-card">
+          <span>Streak</span>
+          <strong>{{ streakSummary()?.currentStreak || 0 }} days</strong>
+          <small>{{ streakSummary()?.totalPointsEarned || 0 }} streak points earned</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Badges</span>
+          <strong>{{ badgeSummary()?.badgesEarned || progress.badgesUnlocked }}</strong>
+          <small>{{ progress.badgesUnlocked }} badge milestone{{ progress.badgesUnlocked === 1 ? '' : 's' }}</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Milestones</span>
+          <strong>{{ progress.milestonesUnlocked }}</strong>
+          <small>Level milestones unlocked so far</small>
+        </article>
+      </div>
+
+      <div class="milestone-card">
+        <div class="section-title-row">
+          <h3>Up next</h3>
+          <a routerLink="/dashboard/leaderboard">Leaderboard</a>
+        </div>
+
+        @if (upcomingMilestones().length === 0) {
+          <div class="empty-state compact">
+            <mat-icon>auto_awesome</mat-icon>
+            <p>You have completed the current milestone ladder.</p>
+          </div>
+        } @else {
+          @if (upcomingMilestones()[0]; as nextMilestone) {
+            <article class="milestone-highlight">
+              <div class="milestone-icon" [style.background]="nextMilestone.accentColor">
+                <mat-icon>{{ nextMilestone.icon }}</mat-icon>
+              </div>
+              <div class="milestone-copy">
+                <strong>Level {{ nextMilestone.level }} · {{ nextMilestone.title }}</strong>
+                <p>{{ nextMilestone.description }}</p>
+                <small>{{ nextMilestone.experiencePointsRemaining }} XP remaining</small>
+              </div>
+            </article>
+          }
+        }
+      </div>
+    }
+  }
+</section>

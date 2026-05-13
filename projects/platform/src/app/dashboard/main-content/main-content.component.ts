@@ -20,6 +20,7 @@ import { TrendingSectionComponent } from './components/trending-section/trending
 import { ConnectionsSectionComponent } from './components/connections-section/connections-section.component';
 import { LearningSectionComponent } from './components/learning-section/learning-section.component';
 import { BadgeFeedComponent } from './components/badge-feed/badge-feed.component';
+import { GamificationSpotlightComponent } from './components/gamification-spotlight/gamification-spotlight.component';
 import { TestimonialsComponent } from '../testimonial/testimonial.component';
 
 // Import banner components
@@ -135,6 +136,7 @@ interface CommunityStats {
     PerformanceMetricsComponent,
     QuickStatsComponent,
     RecentActivityComponent,
+    GamificationSpotlightComponent,
     BadgeFeedComponent,
     TrendingSectionComponent,
     ConnectionsSectionComponent,

@@ -197,7 +197,8 @@ export class AdminDashboardComponent implements OnInit {
         { id: 'view-threshold', title: 'View Threshold (40 views)', icon: 'visibility', route: '/dashboard/settings/threshold' },
         { id: 'min-payout', title: 'Min Payout (N200)', icon: 'attach_money', route: '/dashboard/settings/payout' },
         { id: 'login-streak-settings', title: 'Daily Login Streak', icon: 'emoji_events', route: '/dashboard/settings/login-streaks' },
-        { id: 'badge-settings', title: 'Badges & Levels', icon: 'workspace_premium', route: '/dashboard/settings/badges' }
+        { id: 'badge-settings', title: 'Badges & Levels', icon: 'workspace_premium', route: '/dashboard/settings/badges' },
+        { id: 'gamification-settings', title: 'Gamification', icon: 'military_tech', route: '/dashboard/settings/gamification' }
       ]
     },
     {

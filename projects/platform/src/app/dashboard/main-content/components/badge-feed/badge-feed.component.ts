@@ -24,7 +24,22 @@ export class BadgeFeedComponent implements OnInit, OnDestroy {
   readonly state = signal<BadgeFeedPayload | null>(null);
   readonly highlightKeys = signal<string[]>([]);
 
-  readonly levelSummary = computed(() => this.state()?.badgeProfile ?? null);
+  readonly levelSummary = computed(() => {
+    const gamificationProfile = this.state()?.gamificationProfile;
+    if (gamificationProfile) {
+      return {
+        level: gamificationProfile.currentLevel,
+        levelTitle: gamificationProfile.currentLevelTitle,
+        experiencePoints: gamificationProfile.totalExperiencePoints,
+        badgesEarned: gamificationProfile.badgesUnlocked,
+        nextLevel: gamificationProfile.nextLevel,
+        experiencePointsToNextLevel: gamificationProfile.experiencePointsToNextLevel,
+        progressPercent: gamificationProfile.progressPercent,
+      };
+    }
+
+    return this.state()?.badgeProfile ?? null;
+  });
   readonly recentUnlocks = computed(() => this.state()?.recentUnlocks ?? []);
   readonly nextBadges = computed(() => this.state()?.nextBadges ?? []);
   readonly recentlyUnlocked = computed(() => this.state()?.recentlyUnlocked ?? []);

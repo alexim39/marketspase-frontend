@@ -1,0 +1,279 @@
+.page-shell {
+  display: grid;
+  gap: 20px;
+}
+
+.page-header,
+.panel-header,
+.level-card-head,
+.rule-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.page-header {
+  align-items: flex-start;
+
+  h1 {
+    margin: 4px 0 8px;
+    font-size: 2rem;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7c3aed;
+}
+
+.subcopy {
+  margin: 0;
+  max-width: 760px;
+  color: #64748b;
+}
+
+.summary-grid,
+.field-grid,
+.settings-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.summary-card,
+.panel,
+.level-card,
+.rule-card,
+.loading-card {
+  border-radius: 18px;
+}
+
+.summary-card,
+.panel {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.summary-card {
+  padding: 18px;
+
+  strong,
+  span,
+  small {
+    display: block;
+  }
+
+  strong {
+    margin: 6px 0 4px;
+    font-size: 1.15rem;
+  }
+
+  small,
+  .summary-label {
+    color: #64748b;
+  }
+}
+
+.settings-layout {
+  grid-template-columns: 1fr;
+}
+
+.panel {
+  padding: 20px;
+}
+
+.panel-header {
+  align-items: flex-start;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+  }
+}
+
+.field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-grid.compact-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.field,
+.toggle-row,
+.checkbox-pill,
+.inline-toggle {
+  display: grid;
+  gap: 8px;
+}
+
+.field span,
+.toggle-row span {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.field small,
+.toggle-row small {
+  color: #64748b;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  background: #fff;
+}
+
+.toggle-row {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.inline-toggle {
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 10px;
+  color: #0f172a;
+}
+
+.span-all {
+  grid-column: 1 / -1;
+}
+
+.level-list,
+.rule-list {
+  display: grid;
+  gap: 16px;
+}
+
+.level-card,
+.rule-card {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(248, 250, 252, 0.8);
+  padding: 16px;
+}
+
+.level-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(124, 58, 237, 0.1);
+  color: #6d28d9;
+  font-weight: 700;
+}
+
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkbox-pill {
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #fff;
+}
+
+.secondary-btn,
+.save-btn,
+.danger-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-btn {
+  background: #7c3aed;
+  color: white;
+}
+
+.secondary-btn {
+  background: rgba(124, 58, 237, 0.1);
+  color: #6d28d9;
+}
+
+.danger-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
+}
+
+.danger-btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.18);
+}
+
+.secondary-btn.small {
+  padding: 9px 13px;
+}
+
+.loading-state {
+  display: grid;
+  gap: 12px;
+}
+
+.loading-card {
+  height: 120px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.12), rgba(148, 163, 184, 0.28), rgba(148, 163, 184, 0.12));
+  background-size: 240px 100%;
+  animation: shimmer 1.5s infinite linear;
+
+  &.wide {
+    height: 220px;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -240px 0; }
+  100% { background-position: 240px 0; }
+}
+
+@media (max-width: 1100px) {
+  .summary-grid,
+  .field-grid,
+  .field-grid.compact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header,
+  .panel-header,
+  .level-card-head,
+  .rule-card-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

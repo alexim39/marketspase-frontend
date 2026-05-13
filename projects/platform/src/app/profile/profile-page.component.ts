@@ -95,7 +95,22 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     return index === 0 ? 'posts' : index === 1 ? 'followers' : index === 2 ? 'following' : 'badges';
   });
 
-  badgeLevelSummary = computed(() => this.badgeOverview()?.badgeProfile || null);
+  badgeLevelSummary = computed(() => {
+    const gamificationProfile = this.badgeOverview()?.gamificationProfile || this.profile()?.gamificationProfile;
+    if (gamificationProfile) {
+      return {
+        level: gamificationProfile.currentLevel,
+        levelTitle: gamificationProfile.currentLevelTitle,
+        experiencePoints: gamificationProfile.totalExperiencePoints,
+        badgesEarned: gamificationProfile.badgesUnlocked,
+        nextLevel: gamificationProfile.nextLevel,
+        experiencePointsToNextLevel: gamificationProfile.experiencePointsToNextLevel,
+        progressPercent: gamificationProfile.progressPercent,
+      };
+    }
+
+    return this.badgeOverview()?.badgeProfile || this.profile()?.badgeProfile || null;
+  });
   featuredBadges = computed(() => this.badgeOverview()?.featuredBadges || []);
   nextBadges = computed(() => this.badgeOverview()?.nextBadges || []);
 

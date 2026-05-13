@@ -4,6 +4,7 @@ import { Observable, Subscription, catchError, finalize, of, tap } from 'rxjs';
 import { ApiService, UserInterface } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 import { BadgeService } from '../../common/services/badge.service';
+import { GamificationService } from '../../common/services/gamification.service';
 
 export interface DailyCheckInStatus {
   sessionId: string | null;
@@ -50,6 +51,7 @@ export class DailyCheckInService {
   private readonly apiService = inject(ApiService);
   private readonly userService = inject(UserService);
   private readonly badgeService = inject(BadgeService);
+  private readonly gamificationService = inject(GamificationService);
   private readonly document = inject(DOCUMENT);
 
   readonly status = signal<DailyCheckInStatus | null>(null);
@@ -177,6 +179,7 @@ export class DailyCheckInService {
     this.status.set(status);
     if (status.recentlyQualified) {
       this.badgeService.requestFeedRefresh();
+      this.gamificationService.requestFeedRefresh();
     }
     this.ensurePromptShown(status);
     this.setupHeartbeat(status);

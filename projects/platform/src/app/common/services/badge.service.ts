@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { ApiService } from '@shared/services';
+import type { GamificationProfileSummary } from './gamification.service';
 
 export interface BadgeReward {
   experiencePoints: number;
@@ -71,6 +72,7 @@ export interface BadgeOverviewPayload {
   };
   isOwner: boolean;
   badgeProfile: BadgeProfileSummary;
+  gamificationProfile?: GamificationProfileSummary | null;
   earnedBadges: UserBadge[];
   featuredBadges: UserBadge[];
   nextBadges: UserBadge[];
@@ -84,6 +86,7 @@ export interface BadgeFeedPayload {
   feedRefreshMinutes: number;
   celebrationWindowHours: number;
   badgeProfile: BadgeProfileSummary;
+  gamificationProfile?: GamificationProfileSummary | null;
   recentUnlocks: UserBadge[];
   nextBadges: UserBadge[];
   recentlyUnlocked: UserBadge[];

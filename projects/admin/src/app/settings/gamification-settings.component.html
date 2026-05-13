@@ -1,0 +1,235 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Engagement Engine</p>
+      <h1>Gamification</h1>
+      <p class="subcopy">
+        Control the XP economy behind streaks, badges, campaigns, promotions, and sales while keeping the user journey transparent.
+      </p>
+    </div>
+
+    <button type="button" class="save-btn" [disabled]="loading() || saving()" (click)="saveConfig()">
+      @if (saving()) {
+        Saving...
+      } @else {
+        Save changes
+      }
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state">
+      <div class="loading-card"></div>
+      <div class="loading-card"></div>
+      <div class="loading-card wide"></div>
+    </section>
+  } @else {
+    <div class="summary-grid">
+      <article class="summary-card">
+        <span class="summary-label">Engine</span>
+        <strong>{{ configForm.get('enabled')?.value ? 'Enabled' : 'Paused' }}</strong>
+        <small>Gamification will {{ configForm.get('enabled')?.value ? 'award' : 'not award' }} live XP.</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Action rules</span>
+        <strong>{{ activeRuleCount() }} active</strong>
+        <small>{{ actionRules.length }} total rules currently configured.</small>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">Level ladder</span>
+        <strong>{{ levelCount() }} levels</strong>
+        <small>Each level can carry milestone copy, feature tags, and reward labels.</small>
+      </article>
+    </div>
+
+    <form class="settings-layout" [formGroup]="configForm">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Core settings</h2>
+            <p>These controls shape how often the dashboard refreshes and how long fresh celebrations stay visible.</p>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <label class="toggle-row span-all">
+            <div>
+              <span>Enable gamification</span>
+              <small>Turn awards and celebration feedback on or off without deleting user history.</small>
+            </div>
+            <input type="checkbox" formControlName="enabled">
+          </label>
+
+          <label class="field">
+            <span>Refresh interval (minutes)</span>
+            <input type="number" formControlName="refreshIntervalMinutes" min="1" max="1440">
+          </label>
+
+          <label class="field">
+            <span>Celebration window (hours)</span>
+            <input type="number" formControlName="celebrationWindowHours" min="1" max="720">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Level milestones</h2>
+            <p>Define the experience thresholds users move through and what each level promises.</p>
+          </div>
+          <button type="button" class="secondary-btn small" (click)="addLevelThreshold()">Add level</button>
+        </div>
+
+        <div class="level-list" formArrayName="levelThresholds">
+          @for (group of levelThresholds.controls; track trackLevelRow($index)) {
+            <div class="level-card" [formGroupName]="$index">
+              <div class="level-card-head">
+                <div class="level-pill">L{{ group.get('level')?.value }}</div>
+                <button type="button" class="danger-btn ghost" [disabled]="levelThresholds.length <= 1" (click)="removeLevelThreshold($index)">
+                  Remove
+                </button>
+              </div>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>Title</span>
+                  <input type="text" formControlName="title">
+                </label>
+
+                <label class="field">
+                  <span>Min XP</span>
+                  <input type="number" formControlName="minExperiencePoints" min="0">
+                </label>
+
+                <label class="field span-all">
+                  <span>Description</span>
+                  <textarea rows="2" formControlName="description"></textarea>
+                </label>
+
+                <label class="field span-all">
+                  <span>Reward label</span>
+                  <input type="text" formControlName="rewardLabel" placeholder="Leaderboard highlight or bonus recognition">
+                </label>
+
+                <label class="field">
+                  <span>Linked badge key</span>
+                  <input type="text" formControlName="linkedBadgeKey" placeholder="optional">
+                </label>
+
+                <label class="field">
+                  <span>Feature key</span>
+                  <input type="text" formControlName="featureKey" placeholder="optional">
+                </label>
+
+                <label class="field">
+                  <span>Icon</span>
+                  <input type="text" formControlName="icon">
+                </label>
+
+                <label class="field">
+                  <span>Accent color</span>
+                  <input type="text" formControlName="accentColor" placeholder="#7c3aed">
+                </label>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Action rules</h2>
+            <p>These are the live hooks currently feeding the XP engine. Adjust their values without touching app code.</p>
+          </div>
+        </div>
+
+        <div class="rule-list" formArrayName="actionRules">
+          @for (group of actionRules.controls; track trackRuleRow($index)) {
+            <div class="rule-card" [formGroupName]="$index">
+              <div class="rule-card-head">
+                <div>
+                  <strong>{{ group.get('label')?.value }}</strong>
+                  <small>{{ group.get('actionKey')?.value }}</small>
+                </div>
+
+                <label class="inline-toggle">
+                  <span>Active</span>
+                  <input type="checkbox" formControlName="isActive">
+                </label>
+              </div>
+
+              <div class="field-grid compact-grid">
+                <label class="field span-all">
+                  <span>Description</span>
+                  <input type="text" formControlName="description">
+                </label>
+
+                <label class="field">
+                  <span>XP</span>
+                  <input type="number" formControlName="experiencePoints" min="0">
+                </label>
+
+                <label class="field">
+                  <span>Multiplier</span>
+                  <input type="number" formControlName="multiplier" min="0" step="0.1">
+                </label>
+
+                <label class="field">
+                  <span>Max XP per event</span>
+                  <input type="number" formControlName="maxExperiencePointsPerEvent" min="0">
+                </label>
+
+                <label class="field">
+                  <span>Sort order</span>
+                  <input type="number" formControlName="sortOrder" min="0">
+                </label>
+
+                <label class="field">
+                  <span>Icon</span>
+                  <input type="text" formControlName="icon">
+                </label>
+
+                <label class="field">
+                  <span>Accent color</span>
+                  <input type="text" formControlName="accentColor">
+                </label>
+
+                <label class="field span-all">
+                  <span>Metadata XP field</span>
+                  <input type="text" formControlName="metadataExperiencePointsField" placeholder="badgeExperiencePoints">
+                </label>
+
+                <label class="toggle-row span-all">
+                  <div>
+                    <span>Use metadata XP</span>
+                    <small>Useful when the event should inherit XP from dynamic payloads like badge rewards.</small>
+                  </div>
+                  <input type="checkbox" formControlName="useMetadataExperiencePoints">
+                </label>
+
+                <div class="checkbox-grid span-all" formGroupName="roles">
+                  <label class="checkbox-pill">
+                    <input type="checkbox" formControlName="all">
+                    <span>All users</span>
+                  </label>
+                  <label class="checkbox-pill">
+                    <input type="checkbox" formControlName="marketer">
+                    <span>Marketers</span>
+                  </label>
+                  <label class="checkbox-pill">
+                    <input type="checkbox" formControlName="promoter">
+                    <span>Promoters</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    </form>
+  }
+</section>
