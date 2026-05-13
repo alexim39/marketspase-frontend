@@ -1,15 +1,20 @@
+@use 'admin-theme' as admin;
+
 .page-shell {
-  display: grid;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  @include admin.page-shell(1.5rem);
+}
+
+.hero,
+.panel,
+.state-card,
+.summary-grid div,
+.currency-card {
+  @include admin.surface-frame();
 }
 
 .hero,
 .panel,
 .state-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
   padding: 1.5rem;
 }
 
@@ -23,7 +28,7 @@
 .hero h1,
 .panel h2 {
   margin: 0 0 0.35rem;
-  color: #111827;
+  color: var(--admin-text);
 }
 
 .hero p,
@@ -32,24 +37,12 @@
 .updated-pill,
 .summary-grid span,
 .state-card span {
-  color: #6b7280;
-}
-
-.eyebrow {
-  margin: 0 0 0.4rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #ec4899;
+  color: var(--admin-text-muted);
 }
 
 .updated-pill {
   white-space: nowrap;
-  border: 1px solid #e5e7eb;
-  border-radius: 999px;
   padding: 0.45rem 0.8rem;
-  font-size: 0.85rem;
 }
 
 .settings-layout {
@@ -60,10 +53,8 @@
 .panel-header,
 .card-top,
 .actions {
-  display: flex;
+  @include admin.panel-header();
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
 }
 
 .field-grid {
@@ -80,18 +71,12 @@
   display: grid;
   gap: 0.4rem;
   font-size: 0.92rem;
-  color: #111827;
+  color: var(--admin-text-soft);
 }
 
 .field input,
 .field select {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 0.8rem 0.9rem;
-  font: inherit;
-  color: #111827;
-  background: #fff;
+  @include admin.input-control();
 }
 
 .summary-grid {
@@ -101,17 +86,14 @@
 }
 
 .summary-grid div {
-  border: 1px solid #f1f5f9;
-  border-radius: 6px;
   padding: 1rem;
-  background: #f8fafc;
 }
 
 .summary-grid strong {
   display: block;
   margin-bottom: 0.3rem;
   font-size: 1.35rem;
-  color: #111827;
+  color: var(--admin-text);
 }
 
 .currency-list {
@@ -120,8 +102,6 @@
 }
 
 .currency-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
   padding: 1rem;
   display: grid;
   gap: 1rem;
@@ -132,7 +112,7 @@
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
   font-size: 0.92rem;
-  color: #374151;
+  color: var(--admin-text-soft);
 }
 
 .toggle-grid label {
@@ -141,30 +121,8 @@
   gap: 0.5rem;
 }
 
-.primary-btn,
-.secondary-btn,
 .ghost-btn {
-  border: 0;
-  border-radius: 6px;
-  padding: 0.8rem 1rem;
-  font: inherit;
-  cursor: pointer;
-}
-
-.primary-btn {
-  background: #111827;
-  color: #fff;
-}
-
-.secondary-btn {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.ghost-btn {
-  background: transparent;
-  color: #dc2626;
-  padding: 0.5rem 0.75rem;
+  color: #fca5a5;
 }
 
 @media (max-width: 768px) {

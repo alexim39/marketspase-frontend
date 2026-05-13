@@ -1,3 +1,5 @@
+@use 'admin-theme' as admin;
+
 .page-shell {
   display: grid;
   gap: 24px;
@@ -28,19 +30,11 @@
   flex-wrap: wrap;
 }
 
-.eyebrow {
-  margin: 0;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 700;
-  color: #6d28d9;
-}
-
 .page-header h1,
 .panel-header h2,
 .levels-head h3 {
   margin: 4px 0;
+  color: var(--admin-text);
 }
 
 .subcopy,
@@ -48,13 +42,10 @@
 .levels-head p,
 .summary-card small {
   margin: 0;
-  color: #64748b;
+  color: var(--admin-text-muted);
 }
 
-.header-actions {
-  flex-wrap: wrap;
-}
-
+.header-actions,
 .summary-grid {
   flex-wrap: wrap;
 }
@@ -64,15 +55,14 @@
   flex-direction: column;
   padding: 18px;
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: white;
+  @include admin.surface-frame();
 }
 
 .summary-label {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #64748b;
+  color: var(--admin-text-muted);
 }
 
 .settings-layout {
@@ -83,10 +73,7 @@
 }
 
 .panel {
-  background: white;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-radius: 20px;
-  padding: 20px;
+  @include admin.surface-card(20px, 20px);
 }
 
 .field-grid,
@@ -109,23 +96,18 @@
 .field span,
 .toggle-row span {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--admin-text-soft);
 }
 
 .field small,
 .toggle-row small {
-  color: #64748b;
+  color: var(--admin-text-muted);
 }
 
 .field input,
 .field select,
 .field textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  background: #fff;
-  font: inherit;
+  @include admin.input-control();
 }
 
 .toggle-row {
@@ -133,8 +115,8 @@
   align-items: center;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(12, 18, 34, 0.78);
 }
 
 .levels-head {
@@ -151,8 +133,8 @@
   align-items: end;
   padding: 14px;
   border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  background: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(12, 18, 34, 0.78);
 }
 
 .level-pill {
@@ -162,8 +144,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: rgba(109, 40, 217, 0.08);
-  color: #6d28d9;
+  background: rgba(139, 92, 246, 0.14);
+  color: #d8b4fe;
   font-weight: 700;
 }
 
@@ -176,16 +158,16 @@
   align-items: center;
   width: 100%;
   padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 14px;
-  background: #fff;
+  background: rgba(12, 18, 34, 0.76);
   text-align: left;
   cursor: pointer;
 
   &.active {
-    border-color: rgba(109, 40, 217, 0.36);
-    box-shadow: 0 0 0 1px rgba(109, 40, 217, 0.12);
-    background: rgba(109, 40, 217, 0.03);
+    border-color: rgba(139, 92, 246, 0.42);
+    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.16);
+    background: rgba(139, 92, 246, 0.08);
   }
 }
 
@@ -212,21 +194,17 @@
   }
 
   small {
-    color: #64748b;
+    color: var(--admin-text-muted);
   }
 }
 
 .status-pill {
   padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(22, 163, 74, 0.12);
-  color: #15803d;
   font-size: 0.78rem;
   font-weight: 600;
 
   &.inactive {
-    background: rgba(148, 163, 184, 0.14);
-    color: #475569;
+    color: var(--admin-text-muted);
   }
 }
 
@@ -242,34 +220,8 @@
   gap: 8px;
   padding: 10px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.32);
-  background: #f8fafc;
-}
-
-.save-btn,
-.secondary-btn,
-.danger-btn {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 16px;
-  font: inherit;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.save-btn {
-  background: #6d28d9;
-  color: white;
-}
-
-.secondary-btn {
-  background: #eef2ff;
-  color: #4338ca;
-}
-
-.danger-btn {
-  background: #fee2e2;
-  color: #b91c1c;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(12, 18, 34, 0.76);
 }
 
 .secondary-btn.small,
@@ -290,7 +242,7 @@
 .loading-card {
   height: 120px;
   border-radius: 16px;
-  background: linear-gradient(90deg, rgba(226, 232, 240, 0.4), rgba(226, 232, 240, 0.75), rgba(226, 232, 240, 0.4));
+  background: linear-gradient(90deg, rgba(22, 34, 53, 0.55), rgba(45, 65, 97, 0.72), rgba(22, 34, 53, 0.55));
   background-size: 260px 100%;
   animation: shimmer 1.4s infinite linear;
 
@@ -302,7 +254,7 @@
 .empty-state {
   padding: 20px;
   text-align: center;
-  color: #64748b;
+  color: var(--admin-text-muted);
 }
 
 @keyframes shimmer {

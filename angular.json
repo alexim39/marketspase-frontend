@@ -118,7 +118,10 @@
             ],
             "styles": [
               "projects/admin/src/styles.scss"
-            ]
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/admin/src/styles"]
+            }
           },
           "configurations": {
             "production": {
@@ -175,7 +178,10 @@
             ],
             "styles": [
               "projects/admin/src/styles.scss"
-            ]
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["projects/admin/src/styles"]
+            }
           }
         }
       }

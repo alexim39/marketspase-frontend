@@ -1,7 +1,7 @@
+@use 'admin-theme' as admin;
+
 .page-shell {
-  display: grid;
-  gap: 1.25rem;
-  padding: 1.5rem;
+  @include admin.page-shell(1.5rem);
 }
 
 .page-header,
@@ -9,24 +9,14 @@
 .toggle-row,
 .reward-row,
 .page-footer {
-  display: flex;
+  @include admin.panel-header();
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.eyebrow {
-  margin: 0 0 0.35rem;
-  color: #64748b;
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .page-header h1,
 .panel-header h2 {
   margin: 0;
-  color: #0f172a;
+  color: var(--admin-text);
 }
 
 .subcopy,
@@ -35,21 +25,11 @@
 .toggle-row small,
 .page-footer,
 .summary-card small {
-  color: #64748b;
+  color: var(--admin-text-muted);
 }
 
 .page-header {
   align-items: flex-start;
-}
-
-.save-btn {
-  border: none;
-  border-radius: 10px;
-  padding: 0.9rem 1.15rem;
-  background: #0f766e;
-  color: #ffffff;
-  cursor: pointer;
-  font-weight: 600;
 }
 
 .save-btn:disabled {
@@ -72,15 +52,12 @@
 .loading-card,
 .summary-card,
 .panel {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+  @include admin.surface-frame(16px);
 }
 
 .loading-card {
   min-height: 120px;
-  background: linear-gradient(90deg, #f8fafc, #eef2ff, #f8fafc);
+  background: linear-gradient(90deg, rgba(22, 34, 53, 0.55), rgba(45, 65, 97, 0.72), rgba(22, 34, 53, 0.55));
   background-size: 200% 100%;
   animation: shimmer 1.5s linear infinite;
 }
@@ -101,12 +78,12 @@
 }
 
 .summary-label {
-  color: #64748b;
+  color: var(--admin-text-muted);
   font-size: 0.82rem;
 }
 
 .summary-card strong {
-  color: #0f172a;
+  color: var(--admin-text);
   font-size: 1.2rem;
 }
 
@@ -120,10 +97,16 @@
   gap: 1rem;
 }
 
+.toggle-row,
+.checkbox-pill,
+.reward-row {
+  background: rgba(12, 18, 34, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+}
+
 .toggle-row {
   padding: 1rem;
-  border-radius: 12px;
-  background: #f8fafc;
 }
 
 .toggle-row input[type='checkbox'] {
@@ -144,19 +127,14 @@
 .checkbox-pill span,
 .reward-day span,
 .reward-worth span {
-  color: #334155;
+  color: var(--admin-text-soft);
   font-size: 0.9rem;
   font-weight: 600;
 }
 
 .field input,
 .field select {
-  width: 100%;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: 10px;
-  padding: 0.8rem 0.9rem;
-  background: #ffffff;
-  color: #0f172a;
+  @include admin.input-control();
 }
 
 .field.compact {
@@ -174,9 +152,7 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.8rem 0.95rem;
-  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 999px;
-  background: #f8fafc;
 }
 
 .checkbox-pill input[type='checkbox'] {
@@ -191,8 +167,6 @@
 
 .reward-row {
   padding: 0.95rem 1rem;
-  border-radius: 12px;
-  background: #f8fafc;
 }
 
 .reward-day,
@@ -203,7 +177,7 @@
 
 .reward-day strong,
 .reward-worth strong {
-  color: #0f172a;
+  color: var(--admin-text);
   font-size: 1.05rem;
 }
 
