@@ -1,32 +1,33 @@
+    @if (user(); as currentUser) {
     <mat-card class="cart-dialog-card">
       <div class="cart-header">
         <div class="cart-title">
           <mat-icon class="cart-icon">shopping_bag</mat-icon>
-          @if(user()!.role === 'marketer') {
+          @if(currentUser.role === 'marketer') {
             <h3>Your Campaigns</h3>
           }
-          @if(user()!.role === 'promoter') {
+          @if(currentUser.role === 'promoter') {
             <h3>Your Promotions</h3>
           }
-          @if(user()!.role === 'marketing_rep') {
+          @if(currentUser.role === 'marketing_rep') {
             <h3>Your Activities</h3>
           }
           <button mat-icon-button class="close-btn" (click)="closeDialog.emit()">
             <mat-icon>close</mat-icon>
           </button>
-        </div>
-        <div class="cart-summary">
-          @if(user()!.role === 'marketer') {
+      </div>
+      <div class="cart-summary">
+          @if(currentUser.role === 'marketer') {
             <span class="items-count">You have {{ pendingCampaignsCount }} pending campaign(s)</span>
-            <span class="total-price">{{user()?.wallets?.marketer?.balance || 0 | currencyUtils:user()?.wallets?.marketer?.currency}}</span>
+            <span class="total-price">{{currentUser.wallets?.marketer?.balance || 0 | currencyUtils:currentUser.wallets?.marketer?.currency}}</span>
           }
-          @if(user()!.role === 'promoter') {
+          @if(currentUser.role === 'promoter') {
             <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
-            <span class="total-price">{{user()?.wallets?.promoter?.balance || 0 | currencyUtils:user()?.wallets?.promoter?.currency}}</span>
+            <span class="total-price">{{currentUser.wallets?.promoter?.balance || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}}</span>
           }
-          @if(user()!.role === 'marketing_rep') {
+          @if(currentUser.role === 'marketing_rep') {
             <span class="items-count">You have {{ pendingPromotionsCount }} pending promotion</span>
-            <span class="total-price">{{user()?.wallets?.promoter?.balance || 0 | currencyUtils:user()?.wallets?.promoter?.currency}}</span>
+            <span class="total-price">{{currentUser.wallets?.promoter?.balance || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}}</span>
           }
         </div>
       </div>
@@ -37,13 +38,13 @@
           [class.active]="activeTab === 'cart'"
           (click)="setActiveTab.emit('cart')">
           <mat-icon>campaign</mat-icon>
-          @if(user()!.role === 'marketer') { Campaigns }
-          @if(user()!.role === 'promoter') { Promotions }
-          @if(user()!.role === 'marketing_rep') { Promotions }
+          @if(currentUser.role === 'marketer') { Campaigns }
+          @if(currentUser.role === 'promoter') { Promotions }
+          @if(currentUser.role === 'marketing_rep') { Promotions }
           <span class="badge">
-            @if(user()!.role === 'marketer') { {{activeCampaignsCount}} }
-            @if(user()!.role === 'promoter') { {{pendingPromotionsCount}}  }
-            @if(user()!.role === 'marketing_rep') { {{pendingPromotionsCount}}  }
+            @if(currentUser.role === 'marketer') { {{activeCampaignsCount}} }
+            @if(currentUser.role === 'promoter') { {{pendingPromotionsCount}}  }
+            @if(currentUser.role === 'marketing_rep') { {{pendingPromotionsCount}}  }
           </span>
         </button>
         <button
@@ -60,7 +61,7 @@
       @if (activeTab === 'cart') {
         <div class="cart-content">
           <div class="cart-items-section">
-            @if(user()!.role === 'marketer') {
+            @if(currentUser.role === 'marketer') {
               <app-campaigns-summary-card
                 [user]="user"
                 (viewAllCampaigns)="viewAllCampaigns.emit()"
@@ -68,7 +69,7 @@
                 (startCampaign)="closeDialog.emit()"
               />
             }
-            @if(user()!.role === 'promoter') {
+            @if(currentUser.role === 'promoter') {
               <app-promotions-summary-card
                 [user]="user"
                 (viewAllPromotions)="viewAllPromotions.emit()"
@@ -76,7 +77,7 @@
                 (startPromotion)="closeDialog.emit()"
               />
             }
-            @if(user()!.role === 'marketing_rep') {
+            @if(currentUser.role === 'marketing_rep') {
               <app-promotions-summary-card
                 [user]="user"
                 (viewAllPromotions)="viewAllPromotions.emit()"
@@ -90,11 +91,11 @@
             <div class="checkout-total">
               <span>Reserved Balance</span>
               <span class="amount">
-                @if (user()?.role === 'promoter') {
-                  {{user()?.wallets?.promoter?.reserved || 0 | currencyUtils:user()?.wallets?.promoter?.currency}} 
+                @if (currentUser.role === 'promoter') {
+                  {{currentUser.wallets?.promoter?.reserved || 0 | currencyUtils:currentUser.wallets?.promoter?.currency}} 
                 }
-                @if (user()?.role === 'marketer') {
-                  {{user()?.wallets?.marketer?.reserved || 0 | currencyUtils:user()?.wallets?.marketer?.currency}} 
+                @if (currentUser.role === 'marketer') {
+                  {{currentUser.wallets?.marketer?.reserved || 0 | currencyUtils:currentUser.wallets?.marketer?.currency}} 
                 }
               </span>
             </div>
@@ -109,8 +110,8 @@
       @if (activeTab === 'quick-actions') {
         <div class="quick-actions-content">
           <div class="quick-actions-grid">
-            @if (user()?.role === 'promoter') {
-            <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('marketer')" [disabled]="user()!.role === 'marketer'">
+            @if (currentUser.role === 'promoter') {
+            <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('marketer')">
               <mat-icon>campaign</mat-icon>
               <span>
                 Switch to Marketer
@@ -118,8 +119,8 @@
               </span>
             </button>
             }
-            @if (user()?.role === 'marketer') {
-              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')" [disabled]="user()!.role === 'promoter'">
+            @if (currentUser.role === 'marketer') {
+              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')">
                 <mat-icon>attach_money</mat-icon>
                 <span>
                   Switch to Promoter
@@ -127,7 +128,7 @@
                 </span>
               </button>
             }
-            @if (user()?.role === 'marketing_rep' && user()!.isMarketingRep) {
+            @if (currentUser.role === 'marketing_rep' && currentUser.isMarketingRep) {
               <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('promoter')">
                 <mat-icon>attach_money</mat-icon>
                 <span>
@@ -136,7 +137,7 @@
                 </span>
               </button>
 
-              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('marketer')" [disabled]="user()!.role === 'marketer'">
+              <button matRipple class="quick-action" (click)="closeDialog.emit(); switchUser.emit('marketer')">
                 <mat-icon>campaign</mat-icon>
                 <span>
                   Switch to Marketer
@@ -148,8 +149,8 @@
 
           <div class="account-section">
             <mat-divider/>
-             @if (user()!.isMarketingRep) {
-               <button matRipple class="account-action" (click)="closeDialog.emit(); switchUser.emit('marketing_rep')" [disabled]="user()!.role === 'marketing_rep'">
+             @if (currentUser.isMarketingRep) {
+               <button matRipple class="account-action" (click)="closeDialog.emit(); switchUser.emit('marketing_rep')" [disabled]="currentUser.role === 'marketing_rep'">
                 <mat-icon>ads_click</mat-icon>
                   Switch to Marketing Rep
               </button>
@@ -169,3 +170,4 @@
         </div>
       }
     </mat-card>
+    }

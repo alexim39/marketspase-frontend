@@ -1,6 +1,6 @@
 @if (status(); as streakStatus) {
   <button class="streak-chip" type="button" (click)="reopenPrompt()">
-    <span class="chip-label">Daily Check-in</span>
+    <span class="chip-label">Daily Check-in Streak</span>
     <span class="chip-value">{{ streakStatus.currentStreak }} day streak</span>
     <span class="chip-meta">
       @if (streakStatus.qualifiedToday) {
@@ -16,7 +16,7 @@
       <section class="streak-modal" (click)="$event.stopPropagation()">
         <header class="modal-header">
           <div>
-            <p class="eyebrow">Daily Check-in</p>
+            <p class="eyebrow">Daily Check-in Streak</p>
             <h2>{{ streakStatus.currentStreak }} day streak</h2>
             <p class="subcopy">{{ streakStatus.streakMessage }}</p>
           </div>

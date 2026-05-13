@@ -1,4 +1,3 @@
-// connections-section.component.ts
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,9 +10,11 @@ export interface SuggestedConnection {
   name: string;
   role: string;
   avatar: string;
-  rating: number;
-  completed: number;
-  mutualConnections?: number;
+  badge?: string;
+  headlineMetric: string;
+  headlineLabel: string;
+  secondaryMetric?: string;
+  secondaryLabel?: string;
   skills?: string[];
   location?: string;
   status?: 'online' | 'offline' | 'away';
@@ -40,7 +41,7 @@ export class ConnectionsSectionComponent {
 
   viewAll = output<void>();
   connect = output<string>();
-  message = output<string>();
+  view = output<string>();
   profileClick = output<SuggestedConnection>();
   filterChange = output<string>();
   refresh = output<void>();
@@ -48,27 +49,21 @@ export class ConnectionsSectionComponent {
   filteredConnections = () => {
     const items = this.connections();
     const filter = this.activeFilter();
-    
+
     if (filter === 'All') return items;
-    if (filter === 'Marketers') return items.filter(c => c.role.toLowerCase().includes('marketer'));
-    if (filter === 'Promoters') return items.filter(c => c.role.toLowerCase().includes('promoter'));
-    if (filter === 'Top Rated') return items.filter(c => c.rating >= 4.5);
+    if (filter === 'Marketers') return items.filter((connection) => connection.role.toLowerCase().includes('marketer'));
+    if (filter === 'Promoters') return items.filter((connection) => connection.role.toLowerCase().includes('promoter'));
+    if (filter === 'Top Rated') {
+      return items.filter((connection) => Boolean(connection.badge) || connection.headlineLabel.toLowerCase().includes('engagement'));
+    }
     return items;
-  }
+  };
 
-  totalConnections = () => {
-    return this.filteredConnections().length;
-  }
+  totalConnections = () => this.filteredConnections().length;
 
-  mutualConnections = () => {
-    return this.filteredConnections()
-      .reduce((sum, c) => sum + (c.mutualConnections || 0), 0);
-  }
+  marketerCount = () => this.filteredConnections().filter((connection) => connection.role.toLowerCase().includes('marketer')).length;
 
-  onlineCount = () => {
-    return this.filteredConnections()
-      .filter(c => c.status === 'online').length;
-  }
+  promoterCount = () => this.filteredConnections().filter((connection) => connection.role.toLowerCase().includes('promoter')).length;
 
   isPending(connectionId: string): boolean {
     return this.pendingConnections().has(connectionId);
@@ -82,8 +77,8 @@ export class ConnectionsSectionComponent {
     this.connect.emit(connectionId);
   }
 
-  onMessage(connectionId: string): void {
-    this.message.emit(connectionId);
+  onView(connectionId: string): void {
+    this.view.emit(connectionId);
   }
 
   onProfileClick(connection: SuggestedConnection): void {

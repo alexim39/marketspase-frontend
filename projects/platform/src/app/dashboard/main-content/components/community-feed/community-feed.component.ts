@@ -1,6 +1,6 @@
 // community-feed.component.ts - Add media state and methods
 
-import { Component, input, output, inject, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,8 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { CommunityFeedService } from './community-feed.service';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { FeedPost, FeedService, LiveActivity } from '../../../../community/feeds/feed.service';
 @Component({
   selector: 'community-feed',
   standalone: true,
@@ -22,12 +22,11 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     MatTooltipModule,
     MatProgressBarModule
   ],
-  providers: [CommunityFeedService],
   templateUrl: './community-feed.component.html',
   styleUrls: ['./community-feed.component.scss']
 })
-export class CommunityFeedComponent implements OnInit {
-  protected feedService = inject(CommunityFeedService);
+export class CommunityFeedComponent {
+  protected feedService = inject(FeedService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
@@ -65,21 +64,9 @@ export class CommunityFeedComponent implements OnInit {
       .slice(0, this.limit());
   });
 
-  ngOnInit() {
-    if (this.userId()) {
-      this.loadFeed();
-    }
-  }
-
-  loadFeed(): void {
-    if (this.userId()) {
-      this.feedService.loadFeedPosts(this.userId()!);
-    }
-  }
-
-  onLike(event: Event, post: any): void {
+  onLike(event: Event, post: FeedPost): void {
     event.stopPropagation();
-    this.feedService.toggleLike(post._id, this.userId() ?? '').subscribe();
+    this.feedService.toggleLike(post, this.userId() ?? '').subscribe();
   }
 
   onSave(event: Event, postId: string): void {
@@ -87,14 +74,14 @@ export class CommunityFeedComponent implements OnInit {
     this.feedService.toggleSave(postId, this.userId() ?? '').subscribe();
   }
 
-  onShare(event: Event, post: any): void {
+  onShare(event: Event, post: FeedPost): void {
     event.stopPropagation();
     
     if (navigator.share) {
       navigator.share({
         title: `${post.author?.displayName || 'Community'} on MarketSpase`,
         text: post.content,
-        url: `${window.location.origin}/dashboard/community/post/${post._id}`
+        url: `${window.location.origin}/feed/${post._id}`
       }).catch(() => {
         this.copyToClipboard(post._id);
       });
@@ -109,13 +96,29 @@ export class CommunityFeedComponent implements OnInit {
     this.viewPost.emit(postId);
   }
 
+  onLiveActivityClick(activity: LiveActivity): void {
+    if (activity.postId) {
+      this.onPostClick(activity.postId);
+      return;
+    }
+
+    if (activity.actionUrl) {
+      this.router.navigateByUrl(activity.actionUrl);
+      return;
+    }
+
+    if (activity.authorId) {
+      this.router.navigate(['/dashboard/profile', activity.authorId]);
+    }
+  }
+
   onHashtagClick(event: Event, tag: string): void {
     event.stopPropagation();
     this.hashtagClick.emit(tag);
   }
 
   private copyToClipboard(postId: string): void {
-    const url = `${window.location.origin}/dashboard/community/post/${postId}`;
+    const url = `${window.location.origin}/feed/${postId}`;
     navigator.clipboard.writeText(url).then(() => {
       this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
     });
@@ -126,7 +129,10 @@ export class CommunityFeedComponent implements OnInit {
       like: 'favorite',
       comment: 'chat',
       post: 'post_add',
-      earnings: 'emoji_events'
+      earnings: 'emoji_events',
+      forum: 'forum',
+      campaign: 'campaign',
+      product: 'inventory_2'
     };
     return icons[type] || 'notifications';
   }
@@ -248,9 +254,13 @@ export class CommunityFeedComponent implements OnInit {
     this.expandedMedia.set(null);
   }
 
-  isNewPost(post: any): boolean {
+  isNewPost(post: FeedPost): boolean {
     const postTime = new Date(post.createdAt).getTime();
     const now = Date.now();
     return now - postTime < 5 * 60 * 1000; // 5 minutes
+  }
+
+  getHashtagValue(tag: string | { tag: string }): string {
+    return typeof tag === 'string' ? tag : tag?.tag || '';
   }
 }

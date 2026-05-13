@@ -11,7 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { switchMap, filter, tap } from 'rxjs';
 
-import { ProfileService, ProfileUser, FollowUser } from './services/profile.service';
+import { ProfileService, ProfileUser, FollowUser, ProfileSocialProfiles } from './services/profile.service';
 import { FeedPostCardComponent } from '../community/feeds/feed-post-card/feed-post-card.component';
 import { FeedPost, FeedService } from '../community/feeds/feed.service';
 import { UserService } from '../common/services/user.service';
@@ -23,6 +23,22 @@ import { BadgeOverviewPayload, BadgeService, UserBadge } from '../common/service
 interface FeedPostWithFlags extends FeedPost {
   isLikedByMe?: boolean;
   isSavedByMe?: boolean;
+}
+
+interface ProfileMetricCard {
+  label: string;
+  value: number;
+  icon: string;
+  caption: string;
+  kind?: 'number' | 'currency' | 'percent';
+}
+
+interface SocialLinkItem {
+  key: string;
+  label: string;
+  value: string;
+  url: string;
+  icon: string;
 }
 
 @Component({
@@ -95,6 +111,135 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     return index === 0 ? 'posts' : index === 1 ? 'followers' : index === 2 ? 'following' : 'badges';
   });
 
+  isMarketerProfile = computed(() => this.profile()?.role === 'marketer');
+  isPromoterProfile = computed(() => this.profile()?.role === 'promoter');
+  profileHeadline = computed(() => this.profile()?.professionalInfo?.profileHeadline?.trim() || '');
+  profileSummary = computed(() => {
+    const profile = this.profile();
+    if (!profile) {
+      return '';
+    }
+
+    return profile.marketerProfile?.businessOverview?.brandSummary?.trim()
+      || profile.personalInfo?.biography?.trim()
+      || 'No bio yet';
+  });
+  activeSocialLinks = computed(() => {
+    const marketerLinks = this.profile()?.marketerProfile?.businessOverview?.socialProfiles;
+    const profileLinks = this.profile()?.professionalInfo?.socialProfiles;
+    return this.buildSocialLinks(marketerLinks || profileLinks || {});
+  });
+  overviewMetrics = computed<ProfileMetricCard[]>(() => {
+    const profile = this.profile();
+    const social = profile?.socialMetrics;
+    if (!profile || !social) {
+      return [];
+    }
+
+    return [
+      {
+        label: 'Total Engagements',
+        value: social.totalEngagements || 0,
+        icon: 'bolt',
+        caption: 'Feed and forum interactions earned so far',
+      },
+      {
+        label: 'Followers',
+        value: profile.followersCount || 0,
+        icon: 'groups',
+        caption: `${social.newFollowers30Days || 0} new in the last 30 days`,
+      },
+      {
+        label: 'Feed Presence',
+        value: social.feedPosts || 0,
+        icon: 'dynamic_feed',
+        caption: `${social.feedComments || 0} comments and ${social.feedShares || 0} shares`,
+      },
+      {
+        label: 'Forum Activity',
+        value: social.forumThreads || 0,
+        icon: 'forum',
+        caption: `${social.forumReplies || 0} replies contributed`,
+      },
+    ];
+  });
+  roleMetrics = computed<ProfileMetricCard[]>(() => {
+    const profile = this.profile();
+    if (!profile) {
+      return [];
+    }
+
+    if (profile.role === 'marketer' && profile.marketerProfile) {
+      const analytics = profile.marketerProfile.analytics;
+      const performance = profile.marketerProfile.performance;
+      const storeSummary = profile.marketerProfile.storeSummary;
+
+      return [
+        {
+          label: 'Campaign Clicks',
+          value: analytics?.totalCampaignClicks || 0,
+          icon: 'ads_click',
+          caption: `${analytics?.totalBillableClicks || 0} billable clicks across campaigns`,
+        },
+        {
+          label: 'Sales Volume',
+          value: analytics?.totalSalesAmount || 0,
+          icon: 'payments',
+          caption: `${analytics?.totalOrders || 0} paid storefront orders`,
+          kind: 'currency',
+        },
+        {
+          label: 'Store Reach',
+          value: storeSummary?.totalViews || 0,
+          icon: 'storefront',
+          caption: `${storeSummary?.totalStoreFollowers || 0} store followers`,
+        },
+        {
+          label: '30-Day Output',
+          value: performance?.recentCampaignsCreated || 0,
+          icon: 'trending_up',
+          caption: `${performance?.recentProductsUploaded || 0} products uploaded recently`,
+        },
+      ];
+    }
+
+    if (profile.role === 'promoter' && profile.promoterProfile) {
+      const analytics = profile.promoterProfile.analytics;
+      const performance = profile.promoterProfile.performance;
+      const commission = profile.promoterProfile.commissionSummary;
+
+      return [
+        {
+          label: 'Campaign Clicks',
+          value: analytics?.totalCampaignClicks || 0,
+          icon: 'ads_click',
+          caption: `${analytics?.totalAcceptedCampaigns || 0} accepted ad campaigns`,
+        },
+        {
+          label: 'Affiliate Clicks',
+          value: analytics?.totalAffiliateClicks || 0,
+          icon: 'touch_app',
+          caption: `${analytics?.totalAffiliateSales || 0} attributed sales so far`,
+        },
+        {
+          label: 'Earned Commissions',
+          value: commission?.totalCommissionEarned || 0,
+          icon: 'savings',
+          caption: `${commission?.pendingCommission || 0} still pending release`,
+          kind: 'currency',
+        },
+        {
+          label: '30-Day Momentum',
+          value: performance?.recentAffiliateClicks || 0,
+          icon: 'insights',
+          caption: `${performance?.recentCommissionEarned || 0} commission earned this period`,
+        },
+      ];
+    }
+
+    return [];
+  });
+
   badgeLevelSummary = computed(() => {
     const gamificationProfile = this.badgeOverview()?.gamificationProfile || this.profile()?.gamificationProfile;
     if (gamificationProfile) {
@@ -125,6 +270,15 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   private postsObserver: IntersectionObserver | null = null;
   private followersObserver: IntersectionObserver | null = null;
   private followingObserver: IntersectionObserver | null = null;
+  private readonly compactNumberFormatter = new Intl.NumberFormat('en-NG', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  });
+  private readonly currencyFormatter = new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    maximumFractionDigits: 0,
+  });
 
   constructor() {
     // Effect to load followers/following when tab changes
@@ -386,6 +540,26 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     return badge.id;
   }
 
+  trackMetric(_: number, metric: ProfileMetricCard): string {
+    return metric.label;
+  }
+
+  trackSocialLink(_: number, link: SocialLinkItem): string {
+    return link.key;
+  }
+
+  formatMetricValue(metric: ProfileMetricCard): string {
+    if (metric.kind === 'currency') {
+      return this.currencyFormatter.format(metric.value || 0);
+    }
+
+    if (metric.kind === 'percent') {
+      return `${metric.value || 0}%`;
+    }
+
+    return this.compactNumberFormatter.format(metric.value || 0);
+  }
+
   toggleFollow(): void {
     const profile = this.profile();
     if (!profile || profile.isOwnProfile) return;
@@ -597,5 +771,48 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
 
   onHashtagClick(hashtag: string): void {
     this.router.navigate(['/dashboard/community/feeds'], { queryParams: { tag: hashtag } });
+  }
+
+  private buildSocialLinks(profiles: ProfileSocialProfiles | Record<string, string | undefined>): SocialLinkItem[] {
+    const platformMeta: Record<string, { label: string; icon: string; baseUrl?: string }> = {
+      website: { label: 'Website', icon: 'language' },
+      instagram: { label: 'Instagram', icon: 'photo_camera', baseUrl: 'https://instagram.com/' },
+      tiktok: { label: 'TikTok', icon: 'smart_display', baseUrl: 'https://www.tiktok.com/@' },
+      facebook: { label: 'Facebook', icon: 'thumb_up', baseUrl: 'https://facebook.com/' },
+      x: { label: 'X', icon: 'alternate_email', baseUrl: 'https://x.com/' },
+      youtube: { label: 'YouTube', icon: 'play_circle', baseUrl: 'https://youtube.com/' },
+      linkedin: { label: 'LinkedIn', icon: 'badge', baseUrl: 'https://linkedin.com/in/' },
+    };
+
+    return Object.entries(profiles)
+      .map(([key, rawValue]) => {
+        const value = String(rawValue || '').trim();
+        const meta = platformMeta[key];
+        if (!value || !meta) {
+          return null;
+        }
+
+        return {
+          key,
+          label: meta.label,
+          value,
+          url: this.normalizeSocialUrl(value, meta.baseUrl),
+          icon: meta.icon,
+        } satisfies SocialLinkItem;
+      })
+      .filter((item): item is SocialLinkItem => Boolean(item));
+  }
+
+  private normalizeSocialUrl(value: string, baseUrl?: string): string {
+    if (/^https?:\/\//i.test(value)) {
+      return value;
+    }
+
+    if (!baseUrl) {
+      return `https://${value.replace(/^\/+/, '')}`;
+    }
+
+    const cleanValue = value.replace(/^@/, '').replace(/^\/+/, '');
+    return `${baseUrl}${cleanValue}`;
   }
 }

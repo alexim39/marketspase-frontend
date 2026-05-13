@@ -1,6 +1,6 @@
-<promo-banner [user]="user" />
-<profile-notifier-banner [user]="user" />
-<general-msg-notifier-banner [user]="user" />
+<promo-banner [user]="user()" />
+<profile-notifier-banner [user]="user()" />
+<general-msg-notifier-banner [user]="user()" />
 
 <!-- Dashboard Content -->
 <div class="dashboard-content">
@@ -74,6 +74,8 @@
         [following]="followingTrends()"
         [categories]="trendingCategories()"
         [activeCategory]="activeTrendingCategory()"
+        [activeUsers]="trendingActiveUsers()"
+        [updatedLabel]="liveActivityUpdatedLabel()"
         (viewAll)="viewTrending()"
         (trendClick)="onTrendClick($event)"
         (follow)="followTrend($event)"
@@ -89,7 +91,7 @@
         [activeFilter]="activeConnectionFilter()"
         (viewAll)="viewAllConnections()"
         (connect)="connectUser($event)"
-        (message)="onMessageConnection($event)"
+        (view)="onViewConnection($event)"
         (profileClick)="onProfileClick($event)"
         (filterChange)="onConnectionFilterChange($event)"
         (refresh)="refreshConnections()"

@@ -1,5 +1,5 @@
 // dashboard-header.component.ts
-import { Component, input, output, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { UserInterface } from '@shared/services';
-import { DashboardService } from '../../../dashboard.service';
 
 
 @Component({
@@ -19,16 +18,15 @@ import { DashboardService } from '../../../dashboard.service';
     MatButtonModule,
     MatMenuModule,
     MatTooltipModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './dashboard-header.component.html',
   styleUrls: ['./dashboard-header.component.scss']
 })
 export class DashboardHeaderComponent {
   private router = inject(Router);
-  private dashboardService = inject(DashboardService);
 
-  user = input<UserInterface | null>();
+  user = input<UserInterface | null>(null);
   communityNotifications = input(0);
   unreadMessages = input(0);
   unreadNotifications = input(0);
@@ -102,7 +100,11 @@ export class DashboardHeaderComponent {
 
 
   openCommunityFeed(): void {
-    this.router.navigate(['dashboard/community']);
+    this.router.navigate(['dashboard/community/feeds']);
+  }
+
+  openCommunityForum(): void {
+    this.router.navigate(['dashboard/community/discussion']);
   }
 
   openMessages(): void {
@@ -114,7 +116,12 @@ export class DashboardHeaderComponent {
   }
 
   openStorefront(): void {
-    this.router.navigate(['dashboard/storefront']);
+    if (this.user()?.role === 'promoter') {
+      this.router.navigate(['dashboard/stores/products']);
+      return;
+    }
+
+    this.router.navigate(['dashboard/stores']);
   }
 
   openPromoterProfile(): void {
@@ -122,11 +129,15 @@ export class DashboardHeaderComponent {
   }
 
   openAdSchool(): void {
-    this.router.navigate(['dashboard/learning']);
+    this.router.navigate(['dashboard/tutorials']);
   }
 
   openLeaderboard(): void {
     this.router.navigate(['dashboard/leaderboard']);
+  }
+
+  openGamification(): void {
+    this.router.navigate(['dashboard/gamification']);
   }
 
   openSettings(): void {

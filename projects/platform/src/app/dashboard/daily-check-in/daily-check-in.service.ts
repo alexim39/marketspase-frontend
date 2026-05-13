@@ -195,9 +195,17 @@ export class DailyCheckInService {
     const sessionKey = `marketspase-streak-prompt:${userId}:${status.todayDateKey}`;
     const sessionStorageRef = globalThis.sessionStorage;
     if (!sessionStorageRef?.getItem(sessionKey) || status.recentlyQualified) {
-      this.promptOpen.set(true);
+      this.promptOpen.set(this.shouldAutoOpenPrompt());
       sessionStorageRef?.setItem(sessionKey, 'shown');
     }
+  }
+
+  private shouldAutoOpenPrompt(): boolean {
+    if (typeof window === 'undefined') {
+      return true;
+    }
+
+    return !window.matchMedia('(max-width: 768px)').matches;
   }
 
   private setupHeartbeat(status: DailyCheckInStatus): void {

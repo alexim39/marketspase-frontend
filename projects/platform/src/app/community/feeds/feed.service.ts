@@ -235,7 +235,7 @@ interface CommunityFeedPayload {
 
 export interface LiveActivity {
   id: string;
-  type: 'like' | 'comment' | 'post' | 'earnings';
+  type: 'like' | 'comment' | 'post' | 'earnings' | 'forum' | 'campaign' | 'product';
   author: string;
   authorId: string;
   avatar?: string;
@@ -243,6 +243,7 @@ export interface LiveActivity {
   time: string;
   postId?: string;
   postContent?: string;
+  actionUrl?: string;
 }
 
 const FEED_CONFIG = {
@@ -305,6 +306,14 @@ export class FeedService {
   });
 
   public regularPosts = computed(() => this.postsSignal().filter((post) => !post.isFeatured));
+
+  setLiveActivities(activities: LiveActivity[]): void {
+    this.liveActivitiesSignal.set(activities.slice(0, 6));
+  }
+
+  prependLiveActivity(activity: LiveActivity): void {
+    this.liveActivitiesSignal.update((activities) => [activity, ...activities.filter((entry) => entry.id !== activity.id)].slice(0, 6));
+  }
 
   resetFeed(): void {
     this.currentPageSignal.set(1);

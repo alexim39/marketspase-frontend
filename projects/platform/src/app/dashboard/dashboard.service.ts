@@ -11,6 +11,31 @@ export interface TestimonialInterface {
   rating: number;
 }
 
+export interface DashboardLiveActivity {
+  id: string;
+  type: 'post' | 'forum' | 'campaign' | 'product' | string;
+  author: string;
+  authorId: string;
+  avatar?: string;
+  role?: string;
+  title?: string;
+  message: string;
+  createdAt: string;
+  actionUrl?: string;
+}
+
+export interface DashboardLiveActivityPayload {
+  activities: DashboardLiveActivity[];
+  summary: {
+    feedPosts24h: number;
+    forumThreads24h: number;
+    campaigns24h: number;
+    products24h: number;
+    total24h: number;
+  };
+  refreshedAt: string;
+}
+
 @Injectable()
 export class DashboardService {
   private apiService: ApiService = inject(ApiService);
@@ -37,6 +62,16 @@ export class DashboardService {
   getUsersOnlineCount(userId: string): Observable<{count: number, success: string}> {
     const params = new HttpParams().set('userId', userId);
     return this.apiService.get(`dashboard/stats/online-count`, params, undefined, true);
+  }
+
+  getLiveActivityFeed(limit: number = 12): Observable<{ success: boolean; data: DashboardLiveActivityPayload }> {
+    const params = new HttpParams().set('limit', String(limit));
+    return this.apiService.get<{ success: boolean; data: DashboardLiveActivityPayload }>(
+      'dashboard/stats/live-activity',
+      params,
+      undefined,
+      true
+    );
   }
 
 }

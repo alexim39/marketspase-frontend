@@ -19,16 +19,17 @@ import { UserInterface } from '@shared/services';
     MatTooltipModule
   ],
   template: `
+    @if (user(); as currentUser) {
     <div class="profile-card">
       <div class="profile-info">
-        <img [src]="user()!.avatar" class="profile-avatar" [alt]="user()!.displayName">
+        <img [src]="currentUser.avatar" class="profile-avatar" [alt]="currentUser.displayName">
         <div class="profile-details">
-          <h3 class="profile-name">{{user()!.displayName}}</h3>
+          <h3 class="profile-name">{{currentUser.displayName}}</h3>
           <div class="profile-meta">
-            <div class="role-chip" [class]="user()!.role">
-              {{user()?.role | titlecase}}
+            <div class="role-chip" [class]="currentUser.role">
+              {{currentUser.role | titlecase}}
             </div>
-            @if (user()?.verified) {
+            @if (currentUser.verified) {
               <mat-icon class="verified-badge" matTooltip="Verified Account">verified</mat-icon>
             }
           </div>
@@ -38,6 +39,7 @@ import { UserInterface } from '@shared/services';
         <mat-icon>swap_horiz</mat-icon>
       </button> -->
     </div>
+    }
   `,
   styleUrls: ['./user-profile-card.component.scss'] // Using the same styles to keep it simple
 })

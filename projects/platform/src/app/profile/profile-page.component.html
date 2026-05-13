@@ -30,7 +30,16 @@
             }
           </div>
           <div class="username">@{{ profile.username }}</div>
-          <div class="bio">{{ profile.personalInfo?.biography || 'No bio yet' }}</div>
+          <div class="role-chip-row">
+            <span class="role-pill">{{ profile.role | titlecase }}</span>
+            @if (profile.marketerProfile?.businessOverview?.brandName) {
+              <span class="role-pill subtle">{{ profile.marketerProfile?.businessOverview?.brandName }}</span>
+            }
+          </div>
+          @if (profileHeadline()) {
+            <div class="headline">{{ profileHeadline() }}</div>
+          }
+          <div class="bio">{{ profileSummary() }}</div>
           <div class="meta-row">
             @if (profile.personalInfo?.address?.city || profile.personalInfo?.address?.country) {
               <span class="meta-item">
@@ -113,6 +122,307 @@
         </div>
       </div>
     </div>
+
+    <div class="profile-overview-grid">
+      <section class="profile-card">
+        <div class="section-head">
+          <div>
+            <h3>Profile Overview</h3>
+            <p>Social proof and public identity for this account.</p>
+          </div>
+        </div>
+
+        <div class="overview-copy">
+          <p>{{ profileSummary() }}</p>
+
+          @if (profile.marketerProfile?.businessOverview?.uniqueSellingPoints?.length) {
+            <div class="pill-list">
+              @for (point of profile.marketerProfile?.businessOverview?.uniqueSellingPoints; track point) {
+                <span class="info-pill">{{ point }}</span>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="profile-card">
+        <div class="section-head">
+          <div>
+            <h3>Connected Profiles</h3>
+            <p>Where people can keep up with the brand or creator.</p>
+          </div>
+        </div>
+
+        @if (activeSocialLinks().length > 0) {
+          <div class="social-link-list">
+            @for (link of activeSocialLinks(); track trackSocialLink($index, link)) {
+              <a class="social-link" [href]="link.url" target="_blank" rel="noopener noreferrer">
+                <div class="social-link-copy">
+                  <mat-icon>{{ link.icon }}</mat-icon>
+                  <div>
+                    <strong>{{ link.label }}</strong>
+                    <span>{{ link.value }}</span>
+                  </div>
+                </div>
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-inline-state">
+            <mat-icon>link_off</mat-icon>
+            <p>No social profiles linked yet.</p>
+          </div>
+        }
+      </section>
+    </div>
+
+    @if (overviewMetrics().length > 0 || roleMetrics().length > 0) {
+      <section class="analytics-section">
+        <div class="section-head">
+          <div>
+            <h3>Performance Snapshot</h3>
+            <p>Live records from campaigns, products, feed, forum, and gamification.</p>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          @for (metric of overviewMetrics(); track trackMetric($index, metric)) {
+            <article class="metric-card">
+              <div class="metric-icon">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+              </div>
+              <div class="metric-copy">
+                <span class="metric-label">{{ metric.label }}</span>
+                <strong>{{ formatMetricValue(metric) }}</strong>
+                <small>{{ metric.caption }}</small>
+              </div>
+            </article>
+          }
+
+          @for (metric of roleMetrics(); track trackMetric($index, metric)) {
+            <article class="metric-card accent">
+              <div class="metric-icon">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+              </div>
+              <div class="metric-copy">
+                <span class="metric-label">{{ metric.label }}</span>
+                <strong>{{ formatMetricValue(metric) }}</strong>
+                <small>{{ metric.caption }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    @if (profile.marketerProfile; as marketerProfile) {
+      <section class="portfolio-section">
+        <div class="section-head">
+          <div>
+            <h3>Business Portfolio</h3>
+            <p>Top campaigns and products pulled from this marketer's live records.</p>
+          </div>
+        </div>
+
+        <div class="portfolio-summary-grid">
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Store footprint</span>
+            <strong>{{ marketerProfile.storeSummary?.storeCount || 0 }} storefront{{ (marketerProfile.storeSummary?.storeCount || 0) === 1 ? '' : 's' }}</strong>
+            <p>{{ marketerProfile.storeSummary?.totalProducts || 0 }} products listed and {{ marketerProfile.storeSummary?.activeCampaigns || 0 }} active campaigns.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Campaign spend</span>
+            <strong>{{ (marketerProfile.analytics?.totalCampaignSpend || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+            <p>{{ marketerProfile.analytics?.totalCampaignClicks || 0 }} clicks recorded across campaigns.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Store revenue</span>
+            <strong>{{ (marketerProfile.analytics?.totalSalesAmount || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+            <p>{{ marketerProfile.performance?.recentOrders || 0 }} paid orders in the last {{ marketerProfile.performance?.periodDays || 30 }} days.</p>
+          </article>
+        </div>
+
+        <div class="portfolio-grid">
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Campaigns</h4>
+            </div>
+
+            @if (marketerProfile.topCampaigns?.length) {
+              <div class="portfolio-list">
+                @for (campaign of marketerProfile.topCampaigns; track campaign._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (campaign.thumbnailUrl || campaign.mediaUrl) {
+                        <img [src]="campaign.thumbnailUrl || campaign.mediaUrl || ''" [alt]="campaign.title">
+                      } @else {
+                        <mat-icon>campaign</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ campaign.title }}</strong>
+                        <span class="status-pill">{{ campaign.status }}</span>
+                      </div>
+                      <span class="portfolio-meta">{{ campaign.category }} · {{ campaign.billableClicks }} billable clicks</span>
+                      <small>{{ campaign.spentBudget | currency:'NGN':'symbol':'1.0-0' }} spent from {{ campaign.budget | currency:'NGN':'symbol':'1.0-0' }}</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>campaign</mat-icon>
+                <p>No campaigns to showcase yet.</p>
+              </div>
+            }
+          </section>
+
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Products</h4>
+            </div>
+
+            @if (marketerProfile.topProducts?.length) {
+              <div class="portfolio-list">
+                @for (product of marketerProfile.topProducts; track product._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (product.image) {
+                        <img [src]="product.image" [alt]="product.name">
+                      } @else {
+                        <mat-icon>inventory_2</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ product.name }}</strong>
+                        @if (product.isPublished) {
+                          <span class="status-pill success">Published</span>
+                        }
+                      </div>
+                      <span class="portfolio-meta">{{ product.category }} · {{ product.price | currency:'NGN':'symbol':'1.0-0' }}</span>
+                      <small>{{ product.purchaseCount }} sales · {{ product.viewCount }} views · {{ product.averageRating | number:'1.1-1' }} rating</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>inventory_2</mat-icon>
+                <p>No products to showcase yet.</p>
+              </div>
+            }
+          </section>
+        </div>
+      </section>
+    }
+
+    @if (profile.promoterProfile; as promoterProfile) {
+      <section class="portfolio-section">
+        <div class="section-head">
+          <div>
+            <h3>Promoter Performance</h3>
+            <p>Campaign traction, affiliate momentum, and commission visibility.</p>
+          </div>
+        </div>
+
+        <div class="portfolio-summary-grid">
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Earned commissions</span>
+            <strong>{{ (promoterProfile.commissionSummary?.totalCommissionEarned || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+            <p>{{ (promoterProfile.commissionSummary?.pendingCommission || 0) | currency:'NGN':'symbol':'1.0-0' }} pending release.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Attributed sales</span>
+            <strong>{{ promoterProfile.commissionSummary?.totalAttributedSales || 0 }}</strong>
+            <p>{{ promoterProfile.analytics?.totalAffiliateSales || 0 }} storefront sales came from shared links.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Recent activity</span>
+            <strong>{{ promoterProfile.performance?.recentAffiliateClicks || 0 }}</strong>
+            <p>{{ promoterProfile.performance?.recentAcceptedCampaigns || 0 }} campaigns accepted in the last {{ promoterProfile.performance?.periodDays || 30 }} days.</p>
+          </article>
+        </div>
+
+        <div class="portfolio-grid">
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Campaigns</h4>
+            </div>
+
+            @if (promoterProfile.topCampaigns?.length) {
+              <div class="portfolio-list">
+                @for (campaign of promoterProfile.topCampaigns; track campaign._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (campaign.thumbnailUrl || campaign.mediaUrl) {
+                        <img [src]="campaign.thumbnailUrl || campaign.mediaUrl || ''" [alt]="campaign.title">
+                      } @else {
+                        <mat-icon>campaign</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ campaign.title }}</strong>
+                        <span class="status-pill">{{ campaign.status }}</span>
+                      </div>
+                      <span class="portfolio-meta">{{ campaign.category }} · {{ campaign.billableClicks }} billable clicks</span>
+                      <small>{{ campaign.earnedAmount | currency:'NGN':'symbol':'1.0-0' }} earned from this campaign</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>campaign</mat-icon>
+                <p>No campaign performance to show yet.</p>
+              </div>
+            }
+          </section>
+
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Product Promotions</h4>
+            </div>
+
+            @if (promoterProfile.topProductPromotions?.length) {
+              <div class="portfolio-list">
+                @for (promotion of promoterProfile.topProductPromotions; track promotion._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (promotion.image) {
+                        <img [src]="promotion.image" [alt]="promotion.productName">
+                      } @else {
+                        <mat-icon>sell</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ promotion.productName }}</strong>
+                        <span class="status-pill success">{{ promotion.storeName }}</span>
+                      </div>
+                      <span class="portfolio-meta">{{ promotion.clickCount }} clicks · {{ promotion.conversionCount }} sales</span>
+                      <small>{{ promotion.earnings | currency:'NGN':'symbol':'1.0-0' }} earned · {{ promotion.averageOrderValue | currency:'NGN':'symbol':'1.0-0' }} avg order value</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>sell</mat-icon>
+                <p>No storefront promotions to show yet.</p>
+              </div>
+            }
+          </section>
+        </div>
+      </section>
+    }
 
     <!-- Tabs -->
     <mat-tab-group [(selectedIndex)]="activeTabIndex" animationDuration="0ms">

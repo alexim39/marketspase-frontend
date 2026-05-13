@@ -3,33 +3,7 @@
       <div class="section-header">
         <div class="section-title-wrapper">
           <h2 class="section-title">Performance Overview</h2>
-          <span class="section-subtitle">Last 7 days</span>
-        </div>
-        <div class="period-selector">
-          <button 
-            mat-button 
-            [class.active]="period() === 'weekly'" 
-            (click)="periodChange.emit('weekly')"
-            class="period-btn"
-          >
-            Week
-          </button>
-          <button 
-            mat-button 
-            [class.active]="period() === 'monthly'" 
-            (click)="periodChange.emit('monthly')"
-            class="period-btn"
-          >
-            Month
-          </button>
-          <button 
-            mat-button 
-            [class.active]="period() === 'yearly'" 
-            (click)="periodChange.emit('yearly')"
-            class="period-btn"
-          >
-            Year
-          </button>
+          <span class="section-subtitle">Live account snapshot</span>
         </div>
       </div>
       
@@ -58,7 +32,7 @@
                 }
               </div>
               <div class="metric-footer">
-                <span class="period-indicator">{{ period() | titlecase }}</span>
+                <span class="period-indicator">Live</span>
                 @if (stat.trend === 'up') {
                   <span class="positive-trend">+{{stat.change}}% vs last period</span>
                 } @else if (stat.trend === 'down') {

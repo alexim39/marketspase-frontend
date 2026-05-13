@@ -1,5 +1,5 @@
 // general-msg-notifier-banner.component.ts
-import { Component, inject, Input, OnInit, signal, Signal, OnDestroy, effect } from '@angular/core';
+import { Component, effect, inject, input, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
@@ -51,7 +51,7 @@ import { Subscription, take } from 'rxjs';
   styleUrls: ['./general-msg-notifier-banner.component.scss']
 })
 export class GeneralMsgNotifierBannerComponent implements OnDestroy {
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
+  readonly user = input<UserInterface | null>(null);
 
   private notificationBannerService = inject(NotificationBannerService);
   private subscriptions: Subscription = new Subscription();
@@ -71,7 +71,7 @@ export class GeneralMsgNotifierBannerComponent implements OnDestroy {
   private setupUserReactivity(): void {
     // Use effect to watch for user changes
     const userEffect = effect(() => {
-      const currentUser = this.user();
+      this.user();
       this.loadDismissedNotifications();
     });
 

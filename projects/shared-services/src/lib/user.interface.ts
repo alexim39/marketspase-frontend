@@ -59,6 +59,21 @@ export interface UserInterface {
   professionalInfo?: {
     skills?: string[];
     jobTitle: string;
+    profileHeadline?: string;
+    businessProfile?: {
+      brandName?: string;
+      brandSummary?: string;
+      uniqueSellingPoints?: string[];
+    };
+    socialProfiles?: {
+      website?: string;
+      instagram?: string;
+      tiktok?: string;
+      facebook?: string;
+      x?: string;
+      youtube?: string;
+      linkedin?: string;
+    };
     experience: {
       company: string;
       startDate: Date;
@@ -198,4 +213,17 @@ export interface UserInterface {
     lastMilestoneUnlockedAt?: Date | null;
     lastCalculatedAt?: Date | null;
   };
+
+  activityLog?: Array<{
+    _id?: string;
+    action: string;
+    description: string;
+    resourceType?: string;
+    resourceId?: string;
+    metadata?: Record<string, any>;
+    severity?: 'info' | 'warning' | 'critical' | string;
+    timestamp: Date | string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+  }>;
 }
