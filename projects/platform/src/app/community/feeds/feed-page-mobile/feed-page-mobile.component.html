@@ -1,6 +1,5 @@
 <div class="mobile-feed-container">
-  <!-- Top Header -->
- <!--  <header class="feed-header">
+  <header class="feed-header">
     <div class="header-tabs">
       <button
         class="tab"
@@ -22,7 +21,17 @@
         <mat-icon>search</mat-icon>
       </button>
     </div>
-  </header> -->
+  </header>
+
+  @if (trendingChallenges().length > 0) {
+    <div class="challenge-strip">
+      @for (challenge of trendingChallenges().slice(0, 3); track challenge.tag) {
+        <button class="challenge-pill" (click)="onHashtagClick(challenge.tag)">
+          #{{ challenge.tag }}
+        </button>
+      }
+    </div>
+  }
 
   <!-- Main Feed – Vertical Snap Scrolling -->
   <main class="feed-scroll" #scrollContainer>

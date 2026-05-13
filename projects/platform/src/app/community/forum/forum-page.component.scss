@@ -117,6 +117,10 @@
   min-width: 0; // Prevents overflow issues
 }
 
+.topic-follow-btn {
+  white-space: nowrap;
+}
+
 // Search and Filter Bar
 .search-filter-bar {
   display: flex;

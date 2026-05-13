@@ -75,6 +75,30 @@
   }
 }
 
+.challenge-strip {
+  display: flex;
+  gap: $spacing-2;
+  overflow-x: auto;
+  padding: 0 $spacing-4 $spacing-3;
+  margin-top: -$spacing-1;
+  position: relative;
+  z-index: 10;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .challenge-pill {
+    white-space: nowrap;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius-full;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: $font-size-sm;
+  }
+}
+
 /* Feed Scroll Container */
 .feed-scroll {
   flex: 1;

@@ -63,13 +63,13 @@
           <!-- Popular Tags Section -->
           <div class="popular-tags">
             <div class="section-header">
-              <h3>Popular Tags</h3>
+              <h3>Discover Topics</h3>
               <button mat-button class="view-all-link" (click)="filterByTag(null)">View All</button>
             </div>
             <div class="tags-container">
               @for (tag of popularTags; track tag) {
                 <button class="tag-btn" [class.active]="selectedTag === tag" (click)="filterByTag(tag)">
-                  {{tag}}
+                  #{{tag}}
                 </button>
               }
             </div>
@@ -262,12 +262,48 @@
             </div>
           </div>
 
+          <!-- Hot Topics -->
+          <div class="sidebar-card">
+            <div class="card-header">
+              <h4>
+                <mat-icon class="header-icon">local_fire_department</mat-icon>
+                Hot Topics
+              </h4>
+            </div>
+            <div class="trending-list">
+              @for (topic of hotTopics; track topic.topic) {
+                <div class="trending-item" (click)="filterByTag(topic.topic)">
+                  <div class="item-content">
+                    <h5>#{{topic.label}}</h5>
+                    <div class="item-meta">
+                      <span class="tag">{{topic.threadCount}} threads</span>
+                      <span class="activity">
+                        <mat-icon>groups</mat-icon>
+                        {{formatNumber(topic.followerCount || 0)}}
+                      </span>
+                    </div>
+                  </div>
+                  @if (user()?._id) {
+                    <button mat-stroked-button class="topic-follow-btn" (click)="followTopic(topic.topic, $event)">
+                      {{ isFollowingTopic(topic.topic) ? 'Following' : 'Follow' }}
+                    </button>
+                  }
+                </div>
+              } @empty {
+                <div class="empty-state">
+                  <mat-icon>local_fire_department</mat-icon>
+                  <p>No hot topics yet</p>
+                </div>
+              }
+            </div>
+          </div>
+
           <!-- Active Users -->
           <div class="sidebar-card">
             <div class="card-header">
               <h4>
                 <mat-icon class="header-icon">groups</mat-icon>
-                Active Contributors
+                Top Contributors
               </h4>
             </div>
             <div class="active-users-list">

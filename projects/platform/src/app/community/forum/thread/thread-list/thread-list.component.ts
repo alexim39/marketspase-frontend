@@ -84,7 +84,7 @@ export class ThreadListComponent implements OnInit {
   private checkPinPermissions(): void {
     const currentUser = this.user();
     if (currentUser) {
-      this.canPinThreads = currentUser.type === 'admin' || currentUser.type === 'moderator';
+      this.canPinThreads = currentUser.type === 'admin' || currentUser.type === 'moderator' || currentUser.role === 'admin' || currentUser.role === 'marketing_rep';
     }
   }
 
@@ -281,7 +281,6 @@ export class ThreadListComponent implements OnInit {
     }
 
     this.isUpdating = true;
-    const userId = this.user()!._id;
     const tags = this.editTagsControl.value
       ? this.editTagsControl.value.split(',').map(t => t.trim()).filter(t => t)
       : [];
@@ -292,16 +291,16 @@ export class ThreadListComponent implements OnInit {
         title: this.editTitleControl.value!,
         content: this.editContentControl.value!,
         tags: tags
-      },
-      userId
+      }
     ).pipe(takeUntil(this.destroy$)).subscribe({
       next: (updatedThread) => {
+        const threadData = updatedThread?.data || updatedThread;
         // Update the thread in the local array
         const threadIndex = this.threads.findIndex(t => t._id === this.threadInEdit!._id);
         if (threadIndex !== -1) {
           this.threads[threadIndex] = {
             ...this.threads[threadIndex],
-            ...updatedThread
+            ...threadData
           };
         }
         

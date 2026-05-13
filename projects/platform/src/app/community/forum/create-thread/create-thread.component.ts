@@ -1,41 +1,63 @@
-import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { ForumService } from '../forum.service';
-import { MatInputModule } from '@angular/material/input';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatIconModule } from '@angular/material/icon';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { map, Observable, startWith, Subscription } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserService } from '../../../common/services/user.service';
+import { map, Observable, startWith } from 'rxjs';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ForumService } from '../forum.service';
+import { UserService } from '../../../common/services/user.service';
+
+interface MediaPreview {
+  url: string;
+  type: 'image' | 'video' | 'audio';
+  mimeType: string;
+  fileName: string;
+}
 
 @Component({
   selector: 'app-create-thread',
-  providers: [ForumService],
   standalone: true,
+  providers: [ForumService],
   imports: [
-    ReactiveFormsModule, 
-    FormsModule, 
-    MatButtonModule, 
-    MatDialogModule, 
-    MatInputModule, 
-    MatChipsModule, 
+    ReactiveFormsModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatInputModule,
+    MatChipsModule,
     CommonModule,
     MatAutocompleteModule,
     MatIconModule,
-    MatProgressSpinnerModule 
+    MatProgressSpinnerModule,
   ],
   templateUrl: './create-thread.component.html',
-  styleUrls: ['./create-thread.component.scss']
+  styleUrls: ['./create-thread.component.scss'],
 })
 export class CreateThreadComponent {
   threadForm: FormGroup;
   tags: string[] = [];
+  topicTags: string[] = [];
+  categoryOptions = [
+    'discussion',
+    'announcements',
+    'questions',
+    'how-to',
+    'promotions',
+    'success-stories',
+    'feedback',
+    'marketers',
+    'promoters',
+    'conversion',
+    'payouts',
+    'bugs',
+  ];
   availableTags = [
     'announcements',
     'questions',
@@ -48,171 +70,241 @@ export class CreateThreadComponent {
     'conversion',
     'payouts',
     'bugs',
-    'discussion'
+    'discussion',
+    'facebook-ads',
+    'instagram-growth',
+    'whatsapp-sales',
+    'creator-tips',
   ];
 
-
   isSubmitting = false;
-  
-  // Media properties
-  mediaFile: File | null = null;
-  mediaPreview: string | null = null;
-  mediaType: 'image' | 'video' | 'audio' | null = null;
-  mediaFileType: string | null = null;
-  
-  // Autocomplete properties
+  showPollBuilder = false;
+  pollOptions = ['', '', '', ''];
+
+  mediaFiles: File[] = [];
+  mediaPreviews: MediaPreview[] = [];
+
   separatorKeysCodes: number[] = [ENTER, COMMA];
-  tagCtrl = new FormControl();
+  tagCtrl = new FormControl('');
+  topicCtrl = new FormControl('');
   filteredTags: Observable<string[]>;
+  filteredTopics: Observable<string[]>;
 
   private snackBar = inject(MatSnackBar);
   private cdRef = inject(ChangeDetectorRef);
-  subscriptions: Subscription[] = [];
+  private userService = inject(UserService);
+  public user = this.userService.user;
 
   @ViewChild('mediaInput') mediaInput!: ElementRef<HTMLInputElement>;
   @ViewChild('tagInput') tagInput!: ElementRef<HTMLInputElement>;
-
-  private userService = inject(UserService);
-  public user = this.userService.user;
+  @ViewChild('topicInput') topicInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private fb: FormBuilder,
     private forumService: ForumService,
-    private dialogRef: MatDialogRef<CreateThreadComponent>
+    private dialogRef: MatDialogRef<CreateThreadComponent>,
   ) {
     this.threadForm = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(200)]],
-      content: ['', [Validators.required, Validators.maxLength(5000)]]
+      content: ['', [Validators.required, Validators.maxLength(5000)]],
+      category: ['discussion', [Validators.required]],
+      pollQuestion: [''],
+      allowMultiple: [false],
     });
 
     this.filteredTags = this.tagCtrl.valueChanges.pipe(
-      startWith(null),
-      map((tag: string | null) => 
-        tag ? this._filter(tag) : this.availableTags.slice()));
+      startWith(''),
+      map((value) => this.filterList(value || '', this.tags)),
+    );
+
+    this.filteredTopics = this.topicCtrl.valueChanges.pipe(
+      startWith(''),
+      map((value) => this.filterList(value || '', this.topicTags)),
+    );
   }
 
-  // ngOnInit(): void {
-  //   this.subscriptions.push(
-  //     this.userService.getCurrentUser$.subscribe({
-  //       next: (user) => {
-  //         this.user = user;
-  //         this.cdRef.detectChanges(); 
-  //       }
-  //     })
-  //   )
-  // }
+  private filterList(value: string, selected: string[]): string[] {
+    const filterValue = value.toLowerCase();
+    return this.availableTags.filter((tag) =>
+      tag.toLowerCase().includes(filterValue) && !selected.includes(tag));
+  }
 
   onMediaSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.mediaFile = input.files[0];
-      
-      // Check file type
-      if (this.mediaFile.type.startsWith('image/')) {
-        this.mediaType = 'image';
-      } else if (this.mediaFile.type.startsWith('video/')) {
-        this.mediaType = 'video';
-      } else if (this.mediaFile.type.startsWith('audio/')) {
-        this.mediaType = 'audio';
-      } else {
-        this.snackBar.open('Unsupported file type', 'Close', { duration: 3000 });
+    const files = Array.from(input.files || []).slice(0, 6);
+
+    if (!files.length) {
+      return;
+    }
+
+    this.mediaFiles = files;
+    this.mediaPreviews = [];
+
+    files.forEach((file) => {
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
+        this.snackBar.open(`${file.name} is not a supported file type`, 'Close', { duration: 3000 });
         return;
       }
-      
-      this.mediaFileType = this.mediaFile.type;
-      
-      // Create preview
+
       const reader = new FileReader();
       reader.onload = () => {
-        this.mediaPreview = reader.result as string;
-        this.cdRef.detectChanges(); 
+        this.mediaPreviews.push({
+          url: reader.result as string,
+          type: file.type.startsWith('video/')
+            ? 'video'
+            : file.type.startsWith('audio/')
+              ? 'audio'
+              : 'image',
+          mimeType: file.type,
+          fileName: file.name,
+        });
+        this.cdRef.detectChanges();
       };
-      reader.readAsDataURL(this.mediaFile);
-    }
+      reader.readAsDataURL(file);
+    });
   }
 
-  removeMedia(): void {
-    this.mediaFile = null;
-    this.mediaPreview = null;
-    this.mediaType = null;
-    this.mediaFileType = null;
-    this.mediaInput.nativeElement.value = '';
-    this.cdRef.detectChanges(); 
+  removeMedia(index: number): void {
+    this.mediaFiles.splice(index, 1);
+    this.mediaPreviews.splice(index, 1);
+
+    if (!this.mediaFiles.length && this.mediaInput?.nativeElement) {
+      this.mediaInput.nativeElement.value = '';
+    }
+
+    this.cdRef.detectChanges();
   }
 
   addTag(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
-    
-    // Add our tag
+    const value = (event.value || '').trim().toLowerCase();
     if (value && !this.tags.includes(value)) {
       this.tags.push(value);
-      this.cdRef.detectChanges(); 
     }
-
-    // Clear the input value
-    event.chipInput!.clear();
-    this.tagCtrl.setValue(null);
+    event.chipInput?.clear();
+    this.tagCtrl.setValue('');
   }
 
   removeTag(tag: string): void {
-    const index = this.tags.indexOf(tag);
-    if (index >= 0) {
-      this.tags.splice(index, 1);
-      this.cdRef.detectChanges(); 
-    }
+    this.tags = this.tags.filter((entry) => entry !== tag);
   }
 
-  selected(event: MatAutocompleteSelectedEvent): void {
-    if (!this.tags.includes(event.option.viewValue)) {
-      this.tags.push(event.option.viewValue);
-      this.cdRef.detectChanges(); 
+  selectedTag(event: MatAutocompleteSelectedEvent): void {
+    const value = event.option.viewValue;
+    if (!this.tags.includes(value)) {
+      this.tags.push(value);
     }
     this.tagInput.nativeElement.value = '';
-    this.tagCtrl.setValue(null);
+    this.tagCtrl.setValue('');
   }
 
-  private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.availableTags.filter(tag => 
-      tag.toLowerCase().includes(filterValue) && !this.tags.includes(tag));
+  addTopicTag(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim().toLowerCase();
+    if (value && !this.topicTags.includes(value)) {
+      this.topicTags.push(value);
+    }
+    event.chipInput?.clear();
+    this.topicCtrl.setValue('');
   }
 
- onSubmit() {
-    if (this.threadForm.invalid) return;
-    if (!this.user || !this.user()?._id) {
-      this.snackBar.open('You need to sign in to make forum post', 'Close', { duration: 3000 });
-    } else {
-      this.isSubmitting = true;
-      const formData = new FormData();
-      formData.append('title', this.threadForm.value.title);
-      formData.append('content', this.threadForm.value.content);
-      formData.append('tags', JSON.stringify(this.tags));
-      formData.append('authorId', this.user()?._id as string);
-      
-      if (this.mediaFile) {
-        formData.append('media', this.mediaFile);
-        formData.append('mediaType', this.mediaType!);
-      }
-      
-      this.forumService.createThread(formData).subscribe({
-        next: (thread) => {
-          this.isSubmitting = false;
-          this.snackBar.open('Thread created successfully!', 'Close', { duration: 3000 });
-          this.dialogRef.close(thread);
-          this.cdRef.detectChanges();
-        },
-        error: (error) => {
-          this.isSubmitting = false;
-          console.error('Error creating thread:', error);
-          this.snackBar.open('Failed to create thread. Please try again.', 'Close', { duration: 3000 });
-          this.cdRef.detectChanges();
-        }
+  removeTopicTag(tag: string): void {
+    this.topicTags = this.topicTags.filter((entry) => entry !== tag);
+  }
+
+  selectedTopic(event: MatAutocompleteSelectedEvent): void {
+    const value = event.option.viewValue;
+    if (!this.topicTags.includes(value)) {
+      this.topicTags.push(value);
+    }
+    this.topicInput.nativeElement.value = '';
+    this.topicCtrl.setValue('');
+  }
+
+  togglePollBuilder(): void {
+    this.showPollBuilder = !this.showPollBuilder;
+    if (!this.showPollBuilder) {
+      this.threadForm.patchValue({
+        pollQuestion: '',
+        allowMultiple: false,
       });
+      this.pollOptions = ['', '', '', ''];
     }
   }
 
-  ngOnDestroy() {
-    // unsubscribe list
-    this.subscriptions.forEach(subscription => subscription.unsubscribe());
-  } 
+  updatePollOption(index: number, value: string): void {
+    this.pollOptions[index] = value;
+  }
+
+  private buildPollPayload(): Record<string, unknown> | null {
+    if (!this.showPollBuilder) {
+      return null;
+    }
+
+    const question = String(this.threadForm.value.pollQuestion || '').trim();
+    const options = this.pollOptions
+      .map((option) => option.trim())
+      .filter(Boolean)
+      .slice(0, 4);
+
+    if (!question || options.length < 2) {
+      return null;
+    }
+
+    return {
+      question,
+      allowMultiple: Boolean(this.threadForm.value.allowMultiple),
+      options: options.map((label, index) => ({
+        optionId: `option-${index + 1}`,
+        label,
+      })),
+    };
+  }
+
+  onSubmit(): void {
+    if (this.threadForm.invalid) {
+      return;
+    }
+
+    if (!this.user || !this.user()?._id) {
+      this.snackBar.open('You need to sign in to post in the forum', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const poll = this.buildPollPayload();
+    if (this.showPollBuilder && !poll) {
+      this.snackBar.open('Add a poll question and at least two options', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.isSubmitting = true;
+    const formData = new FormData();
+    formData.append('title', this.threadForm.value.title);
+    formData.append('content', this.threadForm.value.content);
+    formData.append('category', this.threadForm.value.category);
+    formData.append('tags', JSON.stringify(this.tags));
+    formData.append('topicTags', JSON.stringify(this.topicTags));
+    formData.append('source', 'forum');
+
+    if (poll) {
+      formData.append('poll', JSON.stringify(poll));
+    }
+
+    this.mediaFiles.forEach((file) => {
+      formData.append('media', file);
+    });
+
+    this.forumService.createThread(formData).subscribe({
+      next: (thread) => {
+        this.isSubmitting = false;
+        this.snackBar.open('Discussion created successfully', 'Close', { duration: 3000 });
+        this.dialogRef.close(thread);
+        this.cdRef.detectChanges();
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        console.error('Error creating thread:', error);
+        this.snackBar.open(error?.error?.message || 'Failed to create discussion. Please try again.', 'Close', { duration: 3000 });
+        this.cdRef.detectChanges();
+      },
+    });
+  }
 }

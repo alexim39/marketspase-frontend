@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, computed } from '@angular/core';
-import { ForumService, Thread, PinnedThread, TrendingThread } from './forum.service';
+import { ForumService, Thread, PinnedThread, TrendingThread, HotTopic } from './forum.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,6 +17,7 @@ import { finalize, Subject, takeUntil, forkJoin, debounceTime, distinctUntilChan
 import { ChangeDetectorRef } from '@angular/core';
 import { DeviceService } from '@shared/services';
 import { FormControl } from '@angular/forms';
+import { UserService } from '../../common/services/user.service';
 
 interface ActiveUser {
   id: string;
@@ -88,6 +89,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   pinnedThreads: PinnedThread[] = [];
   trendingThreads: TrendingThread[] = [];
   activeUsers: ActiveUser[] = [];
+  hotTopics: HotTopic[] = [];
+  followedTopics = new Set<string>();
   
   // Search and filter
   searchControl = new FormControl('');
@@ -105,6 +108,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   };
   
   private destroy$ = new Subject<void>();
+  private userService = inject(UserService);
+  public user = this.userService.user;
 
   isMobile = computed(() => {
     return this.deviceService.deviceState().isMobile;
@@ -180,7 +185,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
       pinned: this.forumService.getPinnedThreads(5),
       trending: this.forumService.getTrendingThreads(5),
       activeUsers: this.forumService.getActiveUsers(5),
-      popularTags: this.forumService.getPopularTags(10)
+      popularTags: this.forumService.getPopularTags(10),
+      hotTopics: this.forumService.getHotTopics(6, 'week')
     }).pipe(
       finalize(() => {
         this.isLoading = false;
@@ -204,6 +210,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         this.trendingThreads = results.trending?.data || [];
         this.activeUsers = results.activeUsers?.data || [];
         this.popularTags = results.popularTags?.data || [];
+        this.hotTopics = results.hotTopics?.data || [];
+        this.loadFollowState();
         this.cd.detectChanges();
       },
       error: (err) => {
@@ -211,6 +219,23 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         // Set fallback data for sidebar
         this.setFallbackSidebarData();
         this.loadThreads();
+      }
+    });
+  }
+
+  private loadFollowState(): void {
+    if (!this.user()?._id) {
+      this.followedTopics = new Set<string>();
+      return;
+    }
+
+    this.forumService.getForumFollows().subscribe({
+      next: (response) => {
+        this.followedTopics = new Set((response.data?.followedTopics || []).map((topic) => topic.toLowerCase()));
+        this.cd.detectChanges();
+      },
+      error: () => {
+        this.followedTopics = new Set<string>();
       }
     });
   }
@@ -542,5 +567,31 @@ export class ForumPageComponent implements OnInit, OnDestroy {
       return (num / 1000).toFixed(1) + 'k';
     }
     return num.toString();
+  }
+
+  isFollowingTopic(topic: string): boolean {
+    return this.followedTopics.has(topic.toLowerCase());
+  }
+
+  followTopic(topic: string, event: Event): void {
+    event.stopPropagation();
+    if (!this.user()?._id) {
+      return;
+    }
+
+    this.forumService.followTopic(topic).subscribe({
+      next: (response) => {
+        const followed = response.data?.followed;
+        if (followed) {
+          this.followedTopics.add(topic.toLowerCase());
+        } else {
+          this.followedTopics.delete(topic.toLowerCase());
+        }
+        this.cd.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error following topic:', error);
+      }
+    });
   }
 }

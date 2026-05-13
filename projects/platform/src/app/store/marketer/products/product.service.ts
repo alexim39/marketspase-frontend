@@ -273,7 +273,10 @@ export class ProductService {
   }
 
   /**
-   * Get published products for a store
+   * Get published products for a store.
+   * This uses the storefront-style published listing endpoint so
+   * marketers can safely select products for post creation without
+   * depending on promotion-management permissions.
    */
   getPublishedProducts(
     storeId: string,
@@ -289,7 +292,7 @@ export class ProductService {
     if (options?.includeInactive) params.includeInactive = options.includeInactive;
 
     return this.apiService.get<any>(
-      `stores/product/${storeId}/published`,
+      `stores/product/${storeId}/store-published-products`,
       params,
       undefined,
       true

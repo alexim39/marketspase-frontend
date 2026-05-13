@@ -105,6 +105,11 @@
                     {{tag}}
                   </mat-chip>
                 }
+                @for (topic of thread.topicTags || []; track topic) {
+                  <mat-chip color="accent" selected>
+                    #{{topic}}
+                  </mat-chip>
+                }
               </mat-chip-listbox>
             </div>
           }

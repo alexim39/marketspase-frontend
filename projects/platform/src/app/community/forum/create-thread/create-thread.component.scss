@@ -43,9 +43,42 @@ mat-dialog-content {
   }
 }
 
+.form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $spacing-4;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
 .full-width {
   width: 100%;
   margin-bottom: $spacing-6;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-4;
+  margin-bottom: $spacing-3;
+
+  h4 {
+    margin: 0 0 $spacing-1;
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .mat-mdc-form-field {
@@ -71,6 +104,81 @@ mat-dialog-content {
     }
   }
 }
+
+// REMOVE INNER BORDER/FOCUS RING - START
+// Remove browser default focus outline from all interactive elements
+input, 
+textarea, 
+button, 
+[matInput],
+.mat-mdc-form-field input,
+.mat-mdc-form-field textarea {
+  &:focus {
+    outline: none !important;
+  }
+}
+
+// Override Angular Material's focus styles
+.mat-mdc-form-field {
+  // Remove focus border color change
+  &.mat-focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $border-color !important;
+    }
+  }
+}
+
+// Target the specific Material components
+.mdc-text-field--focused {
+  &:not(.mdc-text-field--disabled) {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: $border-color !important;
+    }
+    
+    // Remove the focus ripple effect
+    .mdc-text-field__ripple {
+      opacity: 0 !important;
+    }
+  }
+}
+
+// Remove focus ring from the notch outline
+.mdc-notched-outline {
+  &__leading,
+  &__notch,
+  &__trailing {
+    transition: none !important;
+  }
+}
+
+// Ensure focused state has no additional styling
+.mat-mdc-form-field-flex {
+  .mdc-text-field--focused {
+    box-shadow: none !important;
+  }
+}
+
+// Remove any focus overlay or ring
+.mdc-text-field {
+  &.mdc-text-field--focused {
+    .mdc-text-field__input {
+      caret-color: $text-primary;
+    }
+  }
+}
+
+// CSS variables override for Material focus colors
+:host {
+  --mdc-outlined-text-field-focus-outline-color: transparent;
+  --mdc-outlined-text-field-hover-outline-color: #{$border-color};
+  --mdc-outlined-text-field-label-text-color-focus: #{$text-secondary};
+  --mat-form-field-focus-select-arrow-color: #{$text-secondary};
+}
+// REMOVE INNER BORDER/FOCUS RING - END
 
 .media-section {
   //margin-top: $spacing-6;
@@ -138,6 +246,16 @@ mat-dialog-content {
       }
     }
   }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-4;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
   
   .media-upload-btn {
     margin-right: $spacing-3;
@@ -196,14 +314,14 @@ mat-dialog-content {
     input {
       width: 150px;
       padding: $spacing-2;
-      border: 1px solid $border-color;
-      border-radius: $border-radius;
+      //border: 1px solid $border-color;
+      //border-radius: $border-radius;
       background-color: $surface-color;
       color: $text-primary;
       
       &:focus {
         outline: none;
-        border-color: $primary-color;
+        //border-color: $primary-color;
         box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
       }
     }
@@ -237,6 +355,31 @@ mat-dialog-content {
         color: $primary-color;
       }
     }
+  }
+}
+
+.poll-section {
+  margin-top: $spacing-6;
+
+  .poll-builder {
+    padding: $spacing-4;
+    border-radius: $border-radius-md;
+    border: 1px solid $border-color;
+    background: $surface-color;
+  }
+
+  .poll-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-4;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .multi-btn {
+    margin-top: $spacing-2;
   }
 }
 
@@ -288,7 +431,7 @@ mat-spinner {
 /* High contrast mode */
 @media (prefers-contrast: high) {
   .mat-mdc-form-field .mdc-text-field {
-    border: 2px solid $text-primary;
+    //border: 2px solid $text-primary;
   }
   
   .media-preview {

@@ -1,117 +1,208 @@
-
-
 <div class="dialog-header">
-    <h2 mat-dialog-title>Start New Discussion</h2>
-      <button mat-icon-button mat-dialog-close aria-label="Close dialog">
-        <mat-icon>close</mat-icon>
-      </button>
+  <h2 mat-dialog-title>Start a Rich Discussion</h2>
+  <button mat-icon-button mat-dialog-close aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
 </div>
 
-    <mat-dialog-content>
-      
-      <form [formGroup]="threadForm">
-        <!-- Existing form fields remain the same -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Thread Title</mat-label>
-          <input matInput formControlName="title" required>
-          @if (threadForm.get('title')?.hasError('required')) {
-            <mat-error>
-                Title is required
-            </mat-error>
-          }
-          @if (threadForm.get('title')?.hasError('maxlength')) {
-            <mat-error>
-                Title must be less than 200 characters
-            </mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Content</mat-label>
-          <textarea matInput formControlName="content" rows="8" required></textarea>
-          @if (threadForm.get('content')?.hasError('required')) {
-                <mat-error>
-                    Content is required
-                </mat-error>
-          }
-          @if (threadForm.get('content')?.hasError('maxlength')) {
-            <mat-error>
-                Content must be less than 5000 characters
-            </mat-error>
-          }
-        </mat-form-field>
-       
-        <div class="media-section">
-          <h4>Media Attachment (Optional)</h4>
-          @if (mediaPreview) {
-            <div class="media-preview">
-                @if (mediaType === 'video') {
-                    <video controls class="preview-video">
-                        <source [src]="mediaPreview" [type]="mediaFileType">
-                    </video>
-                } @else {
-                    <img [src]="mediaPreview" alt="Preview" class="preview-image">
-                }
-                @if (mediaType === 'audio') {
-                    <audio controls class="preview-audio">
-                        <source [src]="mediaPreview" [type]="mediaFileType">
-                    </audio>
-                }
-                <button mat-icon-button (click)="removeMedia()" class="remove-media-btn">
-                <mat-icon>close</mat-icon>
-                </button>
-            </div>
-            }
-          <input type="file" #mediaInput (change)="onMediaSelected($event)" accept="image/*, video/*, audio/*" hidden>
-          <button mat-stroked-button type="button" (click)="mediaInput.click()" class="media-upload-btn">
-            <mat-icon>attach_file</mat-icon>
-            {{ mediaPreview ? 'Change Media' : 'Attach Media' }}
-          </button>
-          <small class="hint">Supported formats: JPG, PNG, GIF, MP4, WEBM, MP3, WAV</small>
-        </div>
-       
-        <div class="tags-section">
-          <h4>Tags</h4>
-          <mat-form-field appearance="outline">
-            <mat-label>Add Tags</mat-label>
-            <mat-chip-grid #chipGrid>
-              <mat-chip-row *ngFor="let tag of tags" (removed)="removeTag(tag)">
-                {{tag}}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip-row>
-              <input 
-                placeholder="New tag..."
-                #tagInput
-                [formControl]="tagCtrl"
-                [matChipInputFor]="chipGrid"
-                [matAutocomplete]="auto"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="addTag($event)">
-            </mat-chip-grid>
-            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-              <mat-option *ngFor="let tag of filteredTags | async" [value]="tag">
-                {{tag}}
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field>
-        </div>
-      </form>
-    </mat-dialog-content>
+<mat-dialog-content>
+  <form [formGroup]="threadForm">
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Thread title</mat-label>
+        <input matInput formControlName="title" required>
+        @if (threadForm.get('title')?.hasError('required')) {
+          <mat-error>Title is required</mat-error>
+        }
+        @if (threadForm.get('title')?.hasError('maxlength')) {
+          <mat-error>Title must be less than 200 characters</mat-error>
+        }
+      </mat-form-field>
 
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close [disabled]="isSubmitting">Cancel</button>
-      <button mat-raised-button
-              color="primary"
-              (click)="onSubmit()"
-              [disabled]="threadForm.invalid || !user || isSubmitting">
-        <div class="submit-button-content">
-          @if (!isSubmitting) {
-            <span>Create Thread</span>
-          } @else {
-            <mat-spinner diameter="20"/>
-            <span>Creating...</span>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Category</mat-label>
+        <input matInput formControlName="category" list="forum-category-list">
+        <datalist id="forum-category-list">
+          @for (category of categoryOptions; track category) {
+            <option [value]="category"></option>
+          }
+        </datalist>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Content</mat-label>
+      <textarea matInput formControlName="content" rows="7" required></textarea>
+      @if (threadForm.get('content')?.hasError('required')) {
+        <mat-error>Content is required</mat-error>
+      }
+      @if (threadForm.get('content')?.hasError('maxlength')) {
+        <mat-error>Content must be less than 5000 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <section class="media-section">
+      <div class="section-heading">
+        <div>
+          <h4>Media</h4>
+          <p>Add up to 6 images, videos, or audio clips.</p>
+        </div>
+        <button mat-stroked-button type="button" (click)="mediaInput.click()" class="media-upload-btn">
+          <mat-icon>attach_file</mat-icon>
+          {{ mediaPreviews.length ? 'Replace media' : 'Attach media' }}
+        </button>
+      </div>
+
+      <input type="file" #mediaInput (change)="onMediaSelected($event)" accept="image/*, video/*, audio/*" multiple hidden>
+
+      @if (mediaPreviews.length) {
+        <div class="media-grid">
+          @for (preview of mediaPreviews; track preview.url; let i = $index) {
+            <div class="media-preview">
+              @if (preview.type === 'image') {
+                <img [src]="preview.url" [alt]="preview.fileName" class="preview-image">
+              }
+              @if (preview.type === 'video') {
+                <video controls class="preview-video">
+                  <source [src]="preview.url" [type]="preview.mimeType">
+                </video>
+              }
+              @if (preview.type === 'audio') {
+                <audio controls class="preview-audio">
+                  <source [src]="preview.url" [type]="preview.mimeType">
+                </audio>
+              }
+              <button mat-icon-button type="button" (click)="removeMedia(i)" class="remove-media-btn">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
           }
         </div>
-      </button>
-    </mat-dialog-actions>
+      }
+    </section>
+
+    <section class="tags-section">
+      <div class="section-heading">
+        <div>
+          <h4>Tags</h4>
+          <p>Use tags people already browse in the community.</p>
+        </div>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Add tags</mat-label>
+        <mat-chip-grid #chipGrid>
+          @for (tag of tags; track tag) {
+            <mat-chip-row (removed)="removeTag(tag)">
+              {{ tag }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+          <input
+            placeholder="Add a tag"
+            #tagInput
+            [formControl]="tagCtrl"
+            [matChipInputFor]="chipGrid"
+            [matAutocomplete]="tagAuto"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="addTag($event)">
+        </mat-chip-grid>
+        <mat-autocomplete #tagAuto="matAutocomplete" (optionSelected)="selectedTag($event)">
+          @for (tag of filteredTags | async; track tag) {
+            <mat-option [value]="tag">{{ tag }}</mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+    </section>
+
+    <section class="tags-section">
+      <div class="section-heading">
+        <div>
+          <h4>Topic tags</h4>
+          <p>Help people follow industries, channels, or themes.</p>
+        </div>
+      </div>
+      <mat-form-field appearance="outline">
+        <mat-label>Add topic tags</mat-label>
+        <mat-chip-grid #topicGrid>
+          @for (tag of topicTags; track tag) {
+            <mat-chip-row (removed)="removeTopicTag(tag)">
+              {{ tag }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+          }
+          <input
+            placeholder="Add a topic"
+            #topicInput
+            [formControl]="topicCtrl"
+            [matChipInputFor]="topicGrid"
+            [matAutocomplete]="topicAuto"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="addTopicTag($event)">
+        </mat-chip-grid>
+        <mat-autocomplete #topicAuto="matAutocomplete" (optionSelected)="selectedTopic($event)">
+          @for (tag of filteredTopics | async; track tag) {
+            <mat-option [value]="tag">{{ tag }}</mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+    </section>
+
+    <section class="poll-section">
+      <div class="section-heading">
+        <div>
+          <h4>Poll</h4>
+          <p>Turn the thread into a quick community vote.</p>
+        </div>
+        <button mat-button type="button" (click)="togglePollBuilder()">
+          <mat-icon>{{ showPollBuilder ? 'remove_circle_outline' : 'poll' }}</mat-icon>
+          {{ showPollBuilder ? 'Remove poll' : 'Add poll' }}
+        </button>
+      </div>
+
+      @if (showPollBuilder) {
+        <div class="poll-builder">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Poll question</mat-label>
+            <input matInput formControlName="pollQuestion">
+          </mat-form-field>
+
+          <div class="poll-options">
+            @for (option of pollOptions; track $index; let i = $index) {
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Option {{ i + 1 }}</mat-label>
+                <input matInput [value]="option" (input)="updatePollOption(i, $any($event.target).value)">
+              </mat-form-field>
+            }
+          </div>
+
+          <button mat-stroked-button type="button" class="multi-btn" (click)="threadForm.patchValue({ allowMultiple: !threadForm.value.allowMultiple })">
+            <mat-icon>{{ threadForm.value.allowMultiple ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            {{ threadForm.value.allowMultiple ? 'Multiple answers allowed' : 'Single answer only' }}
+          </button>
+        </div>
+      }
+    </section>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="isSubmitting">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="threadForm.invalid || !user() || isSubmitting">
+    <div class="submit-button-content">
+      @if (!isSubmitting) {
+        <span>Publish discussion</span>
+      } @else {
+        <mat-spinner diameter="20"></mat-spinner>
+        <span>Publishing...</span>
+      }
+    </div>
+  </button>
+</mat-dialog-actions>

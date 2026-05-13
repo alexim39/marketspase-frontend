@@ -1,6 +1,5 @@
 import {
   Component,
-  OnInit,
   OnDestroy,
   inject,
   signal,
@@ -29,7 +28,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
 import { FeedService, FeedPost } from './../feed.service';
 import { CommentDialogComponent } from './../comment-dialog/comment-dialog.component';
 import { UserInterface } from '@shared/services';
-import { ProfileService, SuggestedUser } from '../../../profile/services/profile.service';
+import { ProfileService } from '../../../profile/services/profile.service';
 import { SkeletonLoaderComponent } from '../shared/skeleton-loader/skeleton-loader.component';
 
 @Component({
@@ -69,6 +68,8 @@ export class MobileFeedComponent implements AfterViewInit, OnDestroy {
   loading = this.feedService.loading;
   hasMore = this.feedService.hasMore;
   trendingHashtags = this.feedService.trendingHashtags;
+  trendingChallenges = this.feedService.trendingChallenges;
+  creatorSpotlight = this.feedService.creatorSpotlight;
   featuredPost = this.feedService.featuredPost;
 
   // UI state
@@ -148,8 +149,10 @@ isCaptionVisible(postId: string): boolean {
     this.feedService.loadFeedPosts(
       this.user()?._id ?? '',
       this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      
-      //'following'
+      undefined,
+      undefined,
+      true,
+      'following'
     );
   }
 
@@ -225,7 +228,8 @@ private loadFeedWithSearch(searchTerm: string): void {
     this.selectedType() !== 'all' ? this.selectedType() : undefined,
     undefined,
     searchTerm || undefined,
-    true  // Reset when searching
+    true,
+    this.selectedTab() === 'following' ? 'following' : 'for_you'
   );
 }
 
@@ -238,7 +242,8 @@ loadFeed(reset: boolean = true): void {
     this.selectedType() !== 'all' ? this.selectedType() : undefined,
     undefined,
     this.searchQuery() || undefined,
-    reset
+    reset,
+    this.selectedTab() === 'following' ? 'following' : 'for_you'
   );
 }
 
@@ -256,7 +261,8 @@ loadMore(): void {
     this.selectedType() !== 'all' ? this.selectedType() : undefined,
     undefined,
     this.searchQuery() || undefined,
-    false  // IMPORTANT: false means don't reset, just load next page
+    false,
+    this.selectedTab() === 'following' ? 'following' : 'for_you'
   );
 }
 
@@ -273,16 +279,18 @@ loadMore(): void {
   }
 
   onShare(post: FeedPost): void {
-    if (navigator.share) {
+    const shareUrl = `${window.location.origin}/feed/${post._id}`;
+    const supportsNativeShare = typeof navigator.share === 'function';
+    if (supportsNativeShare) {
       navigator.share({
         title: `${post.author?.displayName} on MarketSpase`,
         text: post.content,
-        url: `${window.location.origin}/feed/${post._id}`
+        url: shareUrl
       }).catch(() => this.copyToClipboard(post._id));
     } else {
       this.copyToClipboard(post._id);
     }
-    this.feedService.sharePost(post._id, this.user()?._id ?? '').subscribe();
+    this.feedService.sharePost(post._id, this.user()?._id ?? '', supportsNativeShare ? 'native' : 'copy').subscribe();
   }
 
   private copyToClipboard(postId: string): void {
@@ -409,7 +417,7 @@ loadMore(): void {
     // e.g., post.campaign?.contactWhatsapp or post.author?.phone
     const phone = post.phone;
     if (phone) {
-      const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
+      const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I%27m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
       window.open(url, '_blank');
     } else {
         this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
