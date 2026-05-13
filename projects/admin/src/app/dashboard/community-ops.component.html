@@ -1,0 +1,92 @@
+<main class="community-ops-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Community desk</p>
+      <h2>Moderate the social side of MarketSpase</h2>
+      <p>Track recent feed posts, forum discussions, campaign launches, and product publishes from one place.</p>
+    </div>
+    <button type="button" class="refresh-btn" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </section>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading community operations...</span>
+    </section>
+  } @else {
+    <section class="summary-grid">
+      <div class="summary-card">
+        <strong>{{ activity()?.summary?.total24h || 0 }}</strong>
+        <span>Total activity (24h)</span>
+      </div>
+      <div class="summary-card">
+        <strong>{{ activity()?.summary?.feedPosts24h || 0 }}</strong>
+        <span>Feed posts</span>
+      </div>
+      <div class="summary-card">
+        <strong>{{ activity()?.summary?.forumThreads24h || 0 }}</strong>
+        <span>Forum threads</span>
+      </div>
+      <div class="summary-card">
+        <strong>{{ activity()?.summary?.products24h || 0 }}</strong>
+        <span>Published products</span>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Recent activity</h3>
+            <p>Use this stream to spot what needs moderation or support attention.</p>
+          </div>
+        </div>
+
+        @if (activity()?.activities?.length) {
+          <div class="activity-list">
+            @for (item of activity()!.activities; track item.id) {
+              <a class="activity-item" [routerLink]="item.actionUrl">
+                <div class="activity-icon" [class]="item.type">
+                  <mat-icon>
+                    {{ item.type === 'forum' ? 'forum' : item.type === 'campaign' ? 'campaign' : item.type === 'product' ? 'inventory_2' : 'dynamic_feed' }}
+                  </mat-icon>
+                </div>
+                <div class="copy">
+                  <strong>{{ item.author }}</strong>
+                  <span>{{ item.message }}</span>
+                  <small>{{ item.title }}</small>
+                </div>
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>hourglass_empty</mat-icon>
+            <span>No recent activity to show.</span>
+          </div>
+        }
+      </article>
+
+      <aside class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Admin routes</h3>
+            <p>Fast paths into the moderation and operations surfaces that already exist.</p>
+          </div>
+        </div>
+
+        <div class="quick-links">
+          @for (link of quickDestinations; track link.route) {
+            <a class="quick-link" [routerLink]="link.route">
+              <mat-icon>{{ link.icon }}</mat-icon>
+              <span>{{ link.title }}</span>
+            </a>
+          }
+        </div>
+      </aside>
+    </section>
+  }
+</main>

@@ -30,7 +30,66 @@ export interface UserStats {
   usersChange: number;
 }
 
-@Injectable()
+export interface AdminOverviewStats {
+  users: {
+    totalUsers: number;
+    marketers: number;
+    promoters: number;
+    activeUsers: number;
+  };
+  ads: {
+    totalCampaigns: number;
+    activeCampaigns: number;
+    pendingCampaigns: number;
+    totalPromotions: number;
+    submittedPromotions: number;
+    totalCampaignClicks: number;
+  };
+  commerce: {
+    totalStores: number;
+    totalProducts: number;
+    paidOrders: number;
+    grossMerchandiseValue: number;
+  };
+  community: {
+    totalFeedPosts: number;
+    totalThreads: number;
+    feedPosts24h: number;
+    forumThreads24h: number;
+  };
+  rewards: {
+    activeStreakUsers: number;
+    badgeAwards: number;
+    leveledUsers: number;
+  };
+}
+
+export interface AdminLiveActivityItem {
+  id: string;
+  type: 'post' | 'forum' | 'campaign' | 'product' | string;
+  createdAt: string;
+  actionUrl: string;
+  title: string;
+  message: string;
+  author: string;
+  authorId?: string;
+  avatar?: string;
+  role?: string;
+}
+
+export interface AdminLiveActivityResponse {
+  activities: AdminLiveActivityItem[];
+  summary: {
+    feedPosts24h: number;
+    forumThreads24h: number;
+    campaigns24h: number;
+    products24h: number;
+    total24h: number;
+  };
+  refreshedAt: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class DashboardService {
   private apiService: ApiService = inject(ApiService);
   private readonly apiUrl = 'dashboard';
@@ -69,28 +128,28 @@ export class DashboardService {
 
   getRevenueStats(): Observable<RevenueStats> {
     return this.getCached('revenue_stats', () =>
-      this.apiService.get<{success: boolean, data: RevenueStats}>(`${this.apiUrl}/stats/revenue`)
+      this.apiService.get<{success: boolean, data: RevenueStats}>(`${this.apiUrl}/stats/revenue`, undefined, undefined, true)
         .pipe(map(response => response.data))
     );
   }
 
   getUserStats(): Observable<UserStats> {
     return this.getCached('user_stats', () =>
-      this.apiService.get<{success: boolean, data: UserStats}>(`${this.apiUrl}/stats/users`)
+      this.apiService.get<{success: boolean, data: UserStats}>(`${this.apiUrl}/stats/users`, undefined, undefined, true)
         .pipe(map(response => response.data))
     );
   }
 
   getCampaignStats(): Observable<CampaignStats> {
     return this.getCached('campaign_stats', () =>
-      this.apiService.get<{success: boolean, data: CampaignStats}>(`${this.apiUrl}/stats/campaigns`)
+      this.apiService.get<{success: boolean, data: CampaignStats}>(`${this.apiUrl}/stats/campaigns`, undefined, undefined, true)
         .pipe(map(response => response.data))
     );
   }
 
   getEngagementStats(): Observable<EngagementStats> {
     return this.getCached('engagement_stats', () =>
-      this.apiService.get<{success: boolean, data: EngagementStats}>(`${this.apiUrl}/stats/engagement`)
+      this.apiService.get<{success: boolean, data: EngagementStats}>(`${this.apiUrl}/stats/engagement`, undefined, undefined, true)
         .pipe(map(response => response.data))
     );
   }
@@ -103,8 +162,30 @@ export class DashboardService {
     engagement: EngagementStats;
   }> {
     return this.getCached('dashboard_stats', () =>
-      this.apiService.get<{success: boolean, data: any}>(`${this.apiUrl}/stats/dashboard`)
+      this.apiService.get<{success: boolean, data: any}>(`${this.apiUrl}/stats/dashboard`, undefined, undefined, true)
         .pipe(map(response => response.data))
+    );
+  }
+
+  getAdminOverview(): Observable<AdminOverviewStats> {
+    return this.getCached('admin_overview_stats', () =>
+      this.apiService.get<{ success: boolean; data: AdminOverviewStats }>(
+        `${this.apiUrl}/stats/admin-overview`,
+        undefined,
+        undefined,
+        true
+      ).pipe(map(response => response.data))
+    );
+  }
+
+  getLiveActivity(limit: number = 12): Observable<AdminLiveActivityResponse> {
+    return this.getCached(`admin_live_activity_${limit}`, () =>
+      this.apiService.get<{ success: boolean; data: AdminLiveActivityResponse }>(
+        `${this.apiUrl}/stats/live-activity?limit=${limit}`,
+        undefined,
+        undefined,
+        true
+      ).pipe(map(response => response.data))
     );
   }
 }

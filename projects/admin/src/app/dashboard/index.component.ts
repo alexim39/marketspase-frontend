@@ -8,6 +8,7 @@ import { AuthService } from '../auth/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { LoadingService } from '../../../../shared-services/src/public-api';
+import { DashboardService } from './dashboard.service';
 
 interface MenuItem {
   id: string;
@@ -16,6 +17,14 @@ interface MenuItem {
   route?: string;
   children?: MenuItem[];
   isExpanded?: boolean;
+}
+
+interface SearchResultItem {
+  id: string;
+  title: string;
+  route: string;
+  parentTitle?: string;
+  icon: string;
 }
 
 @Component({
@@ -29,6 +38,7 @@ interface MenuItem {
 export class AdminDashboardComponent implements OnInit {
   readonly adminService = inject(AdminService);
   private authService = inject(AuthService);
+  private dashboardService = inject(DashboardService);
   private router = inject(Router);
   public loadingService = inject(LoadingService);
 
@@ -36,222 +46,144 @@ export class AdminDashboardComponent implements OnInit {
   sidebarCollapsed = signal(false);
   activeNavItem = signal('dashboard');
   searchQuery = signal('');
-  notificationCount = signal(5);
+  notificationCount = signal(0);
 
   private readonly destroyRef = inject(DestroyRef);
 
-  // Menu structure combining your original menus with comprehensive structure
+  // Keep navigation aligned to the admin routes and live platform model.
   menuItems = signal<MenuItem[]>([
     {
       id: 'dashboard',
-      title: 'Dashboard Overview',
+      title: 'Overview',
       icon: 'dashboard',
       route: '/dashboard'
     },
     {
       id: 'users',
-      title: 'User Management',
+      title: 'Users',
       icon: 'group',
       isExpanded: false,
       children: [
         { id: 'all-users', title: 'All Users', icon: 'supervisor_account', route: '/dashboard/users' },
         { id: 'marketers', title: 'Marketers', icon: 'business', route: '/dashboard/users/marketers' },
         { id: 'promoters', title: 'Promoters', icon: 'share', route: '/dashboard/users/promoters' },
-        { id: 'kyc', title: 'KYC Verification', icon: 'verified_user', route: '/dashboard/users/kyc' },
-        { id: 'trust-scores', title: 'Trust & Reputation', icon: 'star_rate', route: '/dashboard/users/trust-scores' },
-        { id: 'blacklist', title: 'Blacklist Management', icon: 'block', route: '/dashboard/users/blacklist' },
         { id: 'contacts', title: 'Contact Management', icon: 'contact_page', route: '/dashboard/users/contacts' }
       ]
     },
     {
-      id: 'campaigns',
-      title: 'Campaign Management',
+      id: 'ads',
+      title: 'Ads & Promotions',
       icon: 'campaign',
       isExpanded: false,
       children: [
         { id: 'all-campaigns', title: 'All Campaigns', icon: 'campaign', route: '/dashboard/campaigns' },
-        { id: 'active-campaigns', title: 'Active Campaigns', icon: 'play_circle', route: '/dashboard/campaigns/active' },
-        { id: 'pending-campaigns', title: 'Pending Approvals', icon: 'pending', route: '/dashboard/campaigns/pending' },
-        { id: 'campaign-performance', title: 'Performance Analytics', icon: 'trending_up', route: '/dashboard/campaigns/analytics' },
-        { id: 'campaign-archive', title: 'Campaign Archive', icon: 'archive', route: '/dashboard/campaigns/archive' },
-        { id: 'campaign-moderation', title: 'Content Moderation', icon: 'approval', route: '/dashboard/campaigns/moderation' }
-      ]
-    },
-    {
-      id: 'promotions', // Your original "Promotions" menu
-      title: 'Promotion Management',
-      icon: 'sell',
-      isExpanded: false,
-      children: [
         { id: 'all-promotions', title: 'All Promotions', icon: 'ads_click', route: '/dashboard/promotions' },
-        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' },
-        { id: 'promotion-performance', title: 'Promotion Performance', icon: 'bar_chart', route: '/dashboard/promotions/performance' },
-        { id: 'status-tracker', title: 'Status Tracking', icon: 'track_changes', route: '/dashboard/promotions/tracking' },
-        { id: 'view-analytics', title: 'View Analytics', icon: 'visibility', route: '/dashboard/promotions/views' }
+        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' }
       ]
     },
     {
-      id: 'store-management',
-      title: 'Store Management',
+      id: 'storefront',
+      title: 'Storefront',
       icon: 'storefront',
       isExpanded: false,
       children: [
-        { id: 'view-stores', title: 'View Stores', icon: 'store', route: '/dashboard/stores' },
-        { id: 'add-store', title: 'Add New Store', icon: 'add_business', route: '/dashboard/stores/add' },
-        { id: 'store-analytics', title: 'Store Analytics', icon: 'insights', route: '/dashboard/stores/analytics' },
-        { id: 'store-promotions', title: 'Store Promotions', icon: 'local_offer', route: '/dashboard/stores/promotions' },
-        { id: 'store-reviews', title: 'Store Reviews', icon: 'rate_review', route: '/dashboard/stores/reviews' }
-      ]
-    },
-    {
-      id: 'view-verification',
-      title: 'View Verification',
-      icon: 'visibility',
-      isExpanded: false,
-      children: [
-        { id: 'view-tracking', title: '24-Hour Tracking', icon: 'schedule', route: '/dashboard/verification/tracking' },
-        { id: 'validation-dashboard', title: 'Validation Dashboard', icon: 'check_circle', route: '/dashboard/verification/validation' },
-        { id: 'fraud-detection', title: 'Fraud Detection', icon: 'security', route: '/dashboard/verification/fraud' },
-        { id: 'disputes', title: 'Dispute Resolution', icon: 'gavel', route: '/dashboard/verification/disputes' },
-        { id: 'manual-verification', title: 'Manual Verification', icon: 'handyman', route: '/dashboard/verification/manual' }
+        { id: 'view-stores', title: 'Stores', icon: 'store', route: '/dashboard/stores' },
+        { id: 'store-reviews', title: 'Product Reviews', icon: 'rate_review', route: '/dashboard/stores/reviews' },
+        { id: 'store-release-requests', title: 'Delivery Releases', icon: 'verified_user', route: '/dashboard/stores/delivery-releases' }
       ]
     },
     {
       id: 'payments',
-      title: 'Payments & Finance',
+      title: 'Finance',
       icon: 'payments',
       isExpanded: false,
       children: [
-        { id: 'all-withdrawals', title: 'All Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
-        { id: 'all-transfers', title: 'All Transfers', icon: 'payment_arrow_down', route: '/dashboard/financial/transfers' },
-        { id: 'marketer-payments', title: 'Marketer Deposits', icon: 'upload', route: '/dashboard/financial/deposits' },
-        { id: 'promoter-payouts', title: 'Promoter Payouts', icon: 'download', route: '/dashboard/financial/payouts' },
-        { id: 'transactions', title: 'Transaction History', icon: 'history', route: '/dashboard/financial/transactions' },
-        { id: 'financial-reports', title: 'Financial Reports', icon: 'summarize', route: '/dashboard/financial/reports' },
+        { id: 'all-withdrawals', title: 'Overview & Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
+        { id: 'all-transfers', title: 'Transfers', icon: 'swap_horiz', route: '/dashboard/financial/transfers' },
         { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' }
       ]
     },
     {
-      id: 'testimonials', // Your original "Testimonials" menu
-      title: 'Testimonial Management',
-      icon: 'reviews',
+      id: 'community',
+      title: 'Community',
+      icon: 'forum',
       isExpanded: false,
       children: [
-        { id: 'all-testimonials', title: 'All Testimonials', icon: 'share_reviews', route: '/dashboard/testimonials' },
-        { id: 'pending-testimonials', title: 'Pending Testimonials', icon: 'hourglass_empty', route: '/dashboard/testimonials/pending' },
-        { id: 'approved-testimonials', title: 'Approved Testimonials', icon: 'check_circle', route: '/dashboard/testimonials/approved' },
-        { id: 'featured-testimonials', title: 'Featured Testimonials', icon: 'star', route: '/dashboard/testimonials/featured' },
-        { id: 'testimonial-moderate', title: 'Moderation Queue', icon: 'rate_review', route: '/dashboard/testimonials/moderate' }
+        { id: 'community-desk', title: 'Community Desk', icon: 'dynamic_feed', route: '/dashboard/community' },
+        { id: 'all-testimonials', title: 'Testimonials', icon: 'reviews', route: '/dashboard/testimonials' },
+        { id: 'newsletters', title: 'Newsletters', icon: 'newspaper', route: '/dashboard/newsletters' }
       ]
     },
     {
-      id: 'newsletters', // Your original "Newsletters" menu
-      title: 'Newsletters Management',
-      icon: 'newspaper',
+      id: 'rewards',
+      title: 'Rewards & Growth',
+      icon: 'emoji_events',
       isExpanded: false,
       children: [
-        { id: 'all-newsletter', title: 'All Newsletter', icon: 'unsubscribe', route: '/dashboard/newletters' },
-        { id: 'compose-newsletter', title: 'Compose Newsletter', icon: 'edit', route: '/dashboard/newsletters/compose' },
-        { id: 'newsletter-templates', title: 'Email Templates', icon: 'description', route: '/dashboard/newsletters/templates' },
-        { id: 'subscribers', title: 'Subscribers List', icon: 'groups', route: '/dashboard/newsletters/subscribers' },
-        { id: 'newsletter-analytics', title: 'Newsletter Analytics', icon: 'analytics', route: '/dashboard/newsletters/analytics' },
-        { id: 'campaign-newsletters', title: 'Campaign Newsletters', icon: 'campaign', route: '/dashboard/newsletters/campaigns' }
-      ]
-    },
-    {
-      id: 'fraud',
-      title: 'Fraud & Compliance',
-      icon: 'policy',
-      isExpanded: false,
-      children: [
-        { id: 'fraud-dashboard', title: 'Fraud Dashboard', icon: 'warning', route: '/dashboard/fraud/dashboard' },
-        { id: 'suspicious-activity', title: 'Suspicious Activity', icon: 'search', route: '/dashboard/fraud/activity' },
-        { id: 'compliance', title: 'Compliance Reports', icon: 'assignment', route: '/dashboard/fraud/compliance' },
-        { id: 'tos-violations', title: 'ToS Violations', icon: 'gavel', route: '/dashboard/fraud/violations' },
-        { id: 'audit-logs', title: 'Audit Logs', icon: 'list_alt', route: '/dashboard/fraud/audit' }
-      ]
-    },
-    {
-      id: 'analytics',
-      title: 'Analytics & Reports',
-      icon: 'analytics',
-      isExpanded: false,
-      children: [
-        { id: 'platform-analytics', title: 'Platform Growth', icon: 'insights', route: '/dashboard/analytics/platform' },
-        { id: 'user-analytics', title: 'User Analytics', icon: 'people', route: '/dashboard/analytics/users' },
-        { id: 'revenue-analytics', title: 'Revenue Trends', icon: 'trending_up', route: '/dashboard/analytics/revenue' },
-        { id: 'campaign-analytics', title: 'Campaign Analytics', icon: 'campaign', route: '/dashboard/analytics/campaigns' },
-        { id: 'custom-reports', title: 'Custom Reports', icon: 'description', route: '/dashboard/analytics/custom' }
-      ]
-    },
-    {
-      id: 'settings',
-      title: 'Platform Settings',
-      icon: 'settings',
-      isExpanded: false,
-      children: [
-        { id: 'platform-settings', title: 'Platform Settings', icon: 'tune', route: '/dashboard/settings/platform' },
-        { id: 'payment-settings', title: 'Payment Settings', icon: 'payments', route: '/dashboard/settings/payments' },
-        { id: 'notification-settings', title: 'Notifications', icon: 'notifications', route: '/dashboard/settings/notifications' },
-        { id: 'content-guidelines', title: 'Content Guidelines', icon: 'policy', route: '/dashboard/settings/content' },
-        { id: 'view-threshold', title: 'View Threshold (40 views)', icon: 'visibility', route: '/dashboard/settings/threshold' },
-        { id: 'min-payout', title: 'Min Payout (N200)', icon: 'attach_money', route: '/dashboard/settings/payout' },
-        { id: 'login-streak-settings', title: 'Daily Login Streak', icon: 'emoji_events', route: '/dashboard/settings/login-streaks' },
+        { id: 'login-streak-settings', title: 'Daily Login Streak', icon: 'calendar_view_day', route: '/dashboard/settings/login-streaks' },
         { id: 'badge-settings', title: 'Badges & Levels', icon: 'workspace_premium', route: '/dashboard/settings/badges' },
         { id: 'gamification-settings', title: 'Gamification', icon: 'military_tech', route: '/dashboard/settings/gamification' }
       ]
     },
     {
-      id: 'support',
-      title: 'Support & Disputes',
-      icon: 'support_agent',
+      id: 'settings',
+      title: 'Settings',
+      icon: 'settings_applications',
       isExpanded: false,
       children: [
-        { id: 'support-tickets', title: 'Support Tickets', icon: 'confirmation_number', route: '/dashboard/support/tickets' },
-        { id: 'campaign-disputes', title: 'Campaign Disputes', icon: 'campaign', route: '/dashboard/support/campaign-disputes' },
-        { id: 'payment-disputes', title: 'Payment Disputes', icon: 'payments', route: '/dashboard/support/payment-disputes' },
-        { id: 'resolution-center', title: 'Resolution Center', icon: 'mediation', route: '/dashboard/support/resolution' }
-      ]
-    },
-    {
-      id: 'marketing',
-      title: 'Marketing Tools',
-      icon: 'campaign',
-      isExpanded: false,
-      children: [
-        { id: 'platform-promotions', title: 'Platform Promotions', icon: 'local_offer', route: '/dashboard/marketing/promotions' },
-        { id: 'referral-program', title: 'Referral Program', icon: 'share', route: '/dashboard/marketing/referrals' },
-        { id: 'discount-codes', title: 'Discount/Coupon Codes', icon: 'discount', route: '/dashboard/marketing/discounts' },
-        { id: 'user-incentives', title: 'User Incentives', icon: 'emoji_events', route: '/dashboard/marketing/incentives' }
-      ]
-    },
-    {
-      id: 'system',
-      title: 'System Admin',
-      icon: 'admin_panel_settings',
-      isExpanded: false,
-      children: [
-        { id: 'admin-users', title: 'Admin Users', icon: 'manage_accounts', route: '/dashboard/system/admins' },
-        { id: 'api-management', title: 'API Management', icon: 'api', route: '/dashboard/system/api' },
-        { id: 'system-logs', title: 'System Logs', icon: 'list_alt', route: '/dashboard/system/logs' },
-        { id: 'database-management', title: 'Database Management', icon: 'storage', route: '/dashboard/system/database' },
-        { id: 'backup-restore', title: 'Backup & Restore', icon: 'backup', route: '/dashboard/system/backup' }
+        { id: 'payment-settings', title: 'Payment Settings', icon: 'payments', route: '/dashboard/settings/payments' }
       ]
     }
   ]);
 
-  // Page title computed signal - updated to handle your original page titles
+  readonly searchableMenuItems = computed<SearchResultItem[]>(() => {
+    const items: SearchResultItem[] = [];
+    const walk = (entries: MenuItem[], parentTitle?: string) => {
+      for (const entry of entries) {
+        if (entry.route) {
+          items.push({
+            id: entry.id,
+            title: entry.title,
+            route: entry.route,
+            parentTitle,
+            icon: entry.icon,
+          });
+        }
+
+        if (entry.children?.length) {
+          walk(entry.children, entry.title);
+        }
+      }
+    };
+
+    walk(this.menuItems());
+    return items;
+  });
+
+  readonly searchResults = computed(() => {
+    const query = this.searchQuery().trim().toLowerCase();
+    if (!query) {
+      return [];
+    }
+
+    return this.searchableMenuItems()
+      .filter(item => {
+        const haystack = `${item.title} ${item.parentTitle ?? ''} ${item.route}`.toLowerCase();
+        return haystack.includes(query);
+      })
+      .slice(0, 6);
+  });
+
   pageTitle = computed(() => {
     const titles: Record<string, string> = {
-      'dashboard': 'Dashboard Overview',
-      'user': 'User Management',
-      'campaigns': 'Campaign Management',
-      'promotions': 'Promotion Management',
-      'testimonials': 'Testimonial Management',
-      'newsletters': 'Newsletters Management',
-      'financial': 'Financial Management',
-      'analytics': 'Analytics & Reports',
-      'settings': 'Platform Settings',
+      'dashboard': 'Overview',
+      'users': 'Users',
+      'ads': 'Ads & Promotions',
+      'storefront': 'Storefront',
+      'payments': 'Finance',
+      'community': 'Community',
+      'rewards': 'Rewards & Growth',
+      'settings': 'Settings',
       'logout': ''
     };
 
@@ -286,9 +218,11 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.adminService.fetchAdmin();
+    this.loadActivityPulse();
 
     this.router.events
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         filter(event => event instanceof NavigationStart ||
                        event instanceof NavigationEnd ||
                        event instanceof NavigationCancel ||
@@ -338,14 +272,19 @@ export class AdminDashboardComponent implements OnInit {
     } else {
       // Fallback for your original routes
       const routeMapping: Record<string, string> = {
-        '/dashboard/users': 'user',
-        '/dashboard/campaigns': 'campaigns',
-        '/dashboard/promotions': 'promotions',
-        '/dashboard/testimonials': 'testimonials',
-        '/dashboard/newletters': 'newsletters',
-        '/dashboard/financial': 'financial',
-        '/dashboard/analytics': 'analytics',
-        '/dashboard/settings': 'settings'
+        '/dashboard/users': 'users',
+        '/dashboard/campaigns': 'ads',
+        '/dashboard/promotions': 'ads',
+        '/dashboard/stores': 'storefront',
+        '/dashboard/financial': 'payments',
+        '/dashboard/community': 'community',
+        '/dashboard/newletters': 'community',
+        '/dashboard/newsletters': 'community',
+        '/dashboard/testimonials': 'community',
+        '/dashboard/settings/payments': 'settings',
+        '/dashboard/settings/login-streaks': 'rewards',
+        '/dashboard/settings/badges': 'rewards',
+        '/dashboard/settings/gamification': 'rewards'
       };
       
       if (routeMapping[url]) {
@@ -405,6 +344,19 @@ export class AdminDashboardComponent implements OnInit {
     this.searchQuery.set(query);
   }
 
+  navigateToSearchResult(result: SearchResultItem): void {
+    this.searchQuery.set('');
+    this.setActiveNavItem(result.id);
+    this.updateExpandedStateForRoute(result.route);
+    this.router.navigate([result.route]);
+  }
+
+  openActivityDesk(): void {
+    this.setActiveNavItem('community-desk');
+    this.expandMenuItem('community');
+    this.router.navigate(['/dashboard/community']);
+  }
+
   logout() {
     this.authService.signOut({})
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -418,6 +370,29 @@ export class AdminDashboardComponent implements OnInit {
         error: (error) => {
           console.error('Error during sign out:', error);
           this.router.navigate(['/'], { replaceUrl: true });
+        }
+      });
+  }
+
+  private updateExpandedStateForRoute(route: string): void {
+    const updatedItems = this.menuItems().map(item => ({
+      ...item,
+      isExpanded: item.children?.some(child => child.route === route) ? true : item.isExpanded,
+    }));
+    this.menuItems.set(updatedItems);
+  }
+
+  private loadActivityPulse(): void {
+    this.dashboardService.getLiveActivity(1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const total = response.summary?.total24h || 0;
+          this.notificationCount.set(Math.min(total, 99));
+        },
+        error: (error) => {
+          console.error('Unable to load admin activity pulse:', error);
+          this.notificationCount.set(0);
         }
       });
   }

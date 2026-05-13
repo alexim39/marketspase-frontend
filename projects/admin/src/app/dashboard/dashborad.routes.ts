@@ -43,7 +43,16 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../newsletter/newsletter.component').then(c => c.NewsletterManagementComponent),
                 title: 'Newletters Management - Admin Dashboard'
             }, 
+            {   path: 'newsletters',
+                redirectTo: 'newletters',
+                pathMatch: 'full'
+            },
             { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },
+            {
+                path: 'community',
+                loadComponent: () => import('./community-ops.component').then(c => c.CommunityOpsComponent),
+                title: 'Community Operations - Admin Dashboard'
+            },
             {
                 path: 'settings/payments',
                 loadComponent: () => import('../settings/payment-settings.component').then(c => c.PaymentSettingsComponent),

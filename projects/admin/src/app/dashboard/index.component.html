@@ -91,15 +91,40 @@
                     <mat-icon class="search-icon">search</mat-icon>
                     <input 
                         type="text" 
-                        placeholder="Search..."
+                        placeholder="Jump to an admin area"
                         class="search-input"
                         [value]="searchQuery()"
                         (input)="onSearchInput($event)">
+                    @if (searchQuery().trim()) {
+                        <div class="search-results">
+                            @if (searchResults().length > 0) {
+                                @for (result of searchResults(); track result.route) {
+                                    <button type="button" class="search-result-item" (click)="navigateToSearchResult(result)">
+                                        <mat-icon>{{ result.icon }}</mat-icon>
+                                        <div class="search-result-copy">
+                                            <strong>{{ result.title }}</strong>
+                                            <span>{{ result.parentTitle || 'Overview' }}</span>
+                                        </div>
+                                    </button>
+                                }
+                            } @else {
+                                <div class="search-empty-state">
+                                    <mat-icon>search_off</mat-icon>
+                                    <span>No matching admin routes</span>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
                 
                 <div class="header-actions">
-                    <button class="notification-btn" [class.has-notifications]="notificationCount() > 0">
-                        <mat-icon>notifications</mat-icon>
+                    <button
+                        type="button"
+                        class="notification-btn"
+                        [class.has-notifications]="notificationCount() > 0"
+                        (click)="openActivityDesk()"
+                        aria-label="Open activity desk">
+                        <mat-icon>dynamic_feed</mat-icon>
                         @if (notificationCount() > 0) {
                             <span class="notification-badge">{{ notificationCount() }}</span>
                         }
