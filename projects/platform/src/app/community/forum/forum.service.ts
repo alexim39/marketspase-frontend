@@ -1,70 +1,101 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { HttpParams } from '@angular/common/http';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { Observable } from 'rxjs';
+import { ApiService } from '@shared/services';
+
+export interface ForumUser {
+  _id: string;
+  displayName: string;
+  username: string;
+  avatar?: string;
+  isVerified?: boolean;
+  role?: string;
+  badge?: string;
+}
+
+export interface ForumMediaItem {
+  url: string;
+  type: 'image' | 'video' | 'audio';
+  filename?: string;
+  originalName?: string;
+  size?: number;
+  mimeType?: string;
+  thumbnail?: string;
+}
+
+export interface ForumPollOption {
+  optionId: string;
+  label: string;
+  voteCount: number;
+  hasVoted?: boolean;
+}
+
+export interface ForumPoll {
+  question: string;
+  options: ForumPollOption[];
+  allowMultiple: boolean;
+  closesAt?: string | null;
+  totalVotes: number;
+  isClosed: boolean;
+}
 
 export interface Thread {
   _id: string;
   title: string;
   content: string;
-  author: {
-    _id: string;
-    displayName: string;
-    username: string;
-    avatar?: string;
-  };
+  author: ForumUser;
   tags: string[];
-  media?: {
-    url: string;
-    type: 'image' | 'video' | 'audio';
-    filename: string;
-    originalName: string;
-    size: number;
-  };
+  topicTags: string[];
+  category?: string;
+  media?: ForumMediaItem | null;
+  mediaItems?: ForumMediaItem[];
+  mediaCount?: number;
+  isCarousel?: boolean;
+  poll?: ForumPoll | null;
   likeCount: number;
   commentCount: number;
   viewCount: number;
+  shareCount?: number;
+  followerCount?: number;
+  engagementScore?: number;
+  trendingScore?: number;
   createdAt: string;
   updatedAt: string;
   isLiked?: boolean;
-  isPinned?: boolean;        // NEW
-  pinnedAt?: string;          // NEW
-  pinnedBy?: string;          // NEW
-  pinOrder?: number;      
+  isFollowing?: boolean;
+  isPinned?: boolean;
+  pinnedAt?: string;
+  pinnedBy?: string;
+  pinOrder?: number;
+}
+
+export interface Reply {
+  _id: string;
+  content: string;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+  author: ForumUser;
+  isDeleted?: boolean;
+  isLiked?: boolean;
+  likeCount?: number;
+  parentComment?: string | Comment;
+  thread?: string | Thread;
+  replyCount?: number;
+  isReply?: boolean;
+  replies?: Reply[];
 }
 
 export interface Comment {
   _id: string;
   content: string;
-  author: User;
-  createdAt: Date;
+  author: ForumUser;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
   likeCount: number;
-  replies?: Reply[]; 
+  replies?: Reply[];
   isLiked?: boolean;
   replyCount?: number;
   isReply?: boolean;
-}
-
-export interface User {
-  _id: string;
-  displayName: string;
-  username: string;
-  avatar: string;
-  isVerified?: boolean;
-}
-
-export interface Reply {
-  _id: string;  
-  content: string;
-  createdAt: Date;
-  author: User;
-  isDeleted?: boolean;
-  isLiked?: boolean;
-  likeCount?: number;
-  parentComment?: Comment;
-  thread?: Thread;
-  updatedAt?: Date;
-  replyCount?: number;
 }
 
 export interface CommunityStats {
@@ -76,31 +107,14 @@ export interface CommunityStats {
   todayActivity: number;
 }
 
-export interface PinnedThread {
-  _id: string;
-  title: string;
-  replyCount: number;
-  author: {
-    displayName: string;
-    username: string;
-    avatar?: string;
-  };
-  createdAt: string;
-  url: string;
+export interface PinnedThread extends Thread {
+  replyCount?: number;
+  url?: string;
 }
 
-export interface TrendingThread {
-  _id: string;
-  title: string;
-  tags: string[];
-  activityCount: number;
-  author: {
-    displayName: string;
-    username: string;
-    avatar?: string;
-  };
-  createdAt: string;
-  stats: {
+export interface TrendingThread extends Thread {
+  activityCount?: number;
+  stats?: {
     views: number;
     likes: number;
     comments: number;
@@ -116,48 +130,73 @@ export interface ActiveUser {
   postCount: number;
   commentCount?: number;
   totalLikes?: number;
+  role?: string;
+  badge?: string;
 }
 
-export interface User {
-  _id: string;
-  displayName: string;
-  username: string;
-  avatar: string;
-  isVerified?: boolean;
-  role?: string;              // NEW - for permission checks
+export interface HotTopic {
+  topic: string;
+  label: string;
+  threadCount: number;
+  followerCount: number;
+  engagementScore: number;
+  latestActivityAt?: string;
+}
+
+export interface ForumFollows {
+  followedTopics: string[];
+  followedThreads: Thread[];
 }
 
 @Injectable()
 export class ForumService {
   constructor(private apiService: ApiService) {}
 
-  // Thread Operations
-  createThread(formData: FormData): Observable<Thread> {
-    return this.apiService.post<Thread>('forum/threads/new', formData, undefined, true);
+  createThread(formData: FormData): Observable<any> {
+    return this.apiService.post<any>('forum/threads/new', formData, undefined, true);
   }
 
-  getThreads(params?: { page?: number; limit?: number; sortBy?: string }): Observable<any> {
+  getThreads(params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    category?: string;
+    tag?: string;
+    topic?: string;
+    search?: string;
+    following?: boolean;
+  }): Observable<any> {
     let httpParams = new HttpParams();
     if (params) {
-      if (params.page !== undefined) httpParams = httpParams.set('page', params.page.toString());
-      if (params.limit !== undefined) httpParams = httpParams.set('limit', params.limit.toString());
-      if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          httpParams = httpParams.set(key, String(value));
+        }
+      });
     }
-    return this.apiService.get<any>('forum/threads', httpParams || undefined, undefined, true);
+
+    return this.apiService.get<any>('forum/threads', httpParams, undefined, true);
   }
 
   getThreadById(id: string): Observable<any> {
     return this.apiService.get<any>(`forum/thread/${id}`, undefined, undefined, true);
   }
 
- searchThreads(query: string, sortBy?: string, category?: string, pagination?: { page?: number; limit?: number }): Observable<any> {
-  let params = new HttpParams().set('q', query);
-  if (sortBy) params = params.set('sortBy', sortBy);
-  if (category) params = params.set('category', category);
-  if (pagination?.page !== undefined) params = params.set('page', pagination.page.toString());
-  if (pagination?.limit !== undefined) params = params.set('limit', pagination.limit.toString());
-  return this.apiService.get<any>('forum/threads/search', params, undefined, true);
-}
+  searchThreads(
+    query: string,
+    sortBy?: string,
+    category?: string,
+    pagination?: { page?: number; limit?: number },
+    topic?: string
+  ): Observable<any> {
+    let params = new HttpParams().set('q', query);
+    if (sortBy) params = params.set('sortBy', sortBy);
+    if (category) params = params.set('category', category);
+    if (topic) params = params.set('topic', topic);
+    if (pagination?.page !== undefined) params = params.set('page', pagination.page.toString());
+    if (pagination?.limit !== undefined) params = params.set('limit', pagination.limit.toString());
+    return this.apiService.get<any>('forum/threads/search', params, undefined, true);
+  }
 
   getThreadsByTag(tag: string, params?: { page?: number; limit?: number }): Observable<any> {
     let httpParams = new HttpParams();
@@ -168,19 +207,41 @@ export class ForumService {
     return this.apiService.get<any>(`forum/threads/tags/${tag}`, httpParams, undefined, true);
   }
 
-  updateThread(threadId: string, data: { title?: string; content?: string; tags?: string[] }, userId: string): Observable<Thread> {
-    return this.apiService.put<Thread>(`forum/threads/${threadId}`, { ...data, userId }, undefined, true);
+  updateThread(threadId: string, data: {
+    title?: string;
+    content?: string;
+    tags?: string[];
+    topicTags?: string[];
+    category?: string;
+    poll?: any;
+  }): Observable<any> {
+    return this.apiService.put<any>(`forum/threads/${threadId}`, data, undefined, true);
   }
 
-  deleteThread(threadId: string, userId: string): Observable<any> {
-    return this.apiService.delete<any>(`forum/thread/${threadId}/${userId}`, undefined, undefined, true);
+  deleteThread(threadId: string, _userId?: string): Observable<any> {
+    return this.apiService.delete<any>(`forum/thread/${threadId}/me`, undefined, undefined, true);
   }
 
-  toggleLikeThread(threadId: string, userId: string): Observable<any> {
-    return this.apiService.put<any>(`forum/thread/like`, { threadId, userId }, undefined, true);
+  toggleLikeThread(threadId: string, _userId?: string): Observable<any> {
+    return this.apiService.put<any>('forum/thread/like', { threadId }, undefined, true);
   }
 
-  // Community Stats
+  followThread(threadId: string): Observable<any> {
+    return this.apiService.post<any>(`forum/thread/${threadId}/follow`, {}, undefined, true);
+  }
+
+  followTopic(topic: string): Observable<any> {
+    return this.apiService.post<any>(`forum/topics/${encodeURIComponent(topic)}/follow`, {}, undefined, true);
+  }
+
+  getForumFollows(): Observable<{ success: boolean; data: ForumFollows }> {
+    return this.apiService.get<{ success: boolean; data: ForumFollows }>('forum/follows', undefined, undefined, true);
+  }
+
+  voteOnPoll(threadId: string, optionIds: string[]): Observable<any> {
+    return this.apiService.post<any>(`forum/thread/${threadId}/poll/vote`, { optionIds }, undefined, true);
+  }
+
   getCommunityStats(): Observable<{ success: boolean; data: CommunityStats }> {
     return this.apiService.get<{ success: boolean; data: CommunityStats }>('forum/stats', undefined, undefined, true);
   }
@@ -194,102 +255,83 @@ export class ForumService {
   }
 
   getTrendingThreads(limit?: number, timeframe?: string): Observable<{ success: boolean; data: TrendingThread[] }> {
-    let params: HttpParams | undefined;
-    if (limit || timeframe) {
-      params = new HttpParams();
-      if (limit) params = params.set('limit', limit.toString());
-      if (timeframe) params = params.set('timeframe', timeframe);
-    }
+    let params = new HttpParams();
+    if (limit) params = params.set('limit', limit.toString());
+    if (timeframe) params = params.set('timeframe', timeframe);
     return this.apiService.get<{ success: boolean; data: TrendingThread[] }>('forum/threads/trending', params, undefined, true);
   }
 
   getActiveUsers(limit?: number, timeframe?: string): Observable<{ success: boolean; data: ActiveUser[] }> {
-    let params: HttpParams | undefined;
-    if (limit || timeframe) {
-      params = new HttpParams();
-      if (limit) params = params.set('limit', limit.toString());
-      if (timeframe) params = params.set('timeframe', timeframe);
-    }
+    let params = new HttpParams();
+    if (limit) params = params.set('limit', limit.toString());
+    if (timeframe) params = params.set('timeframe', timeframe);
     return this.apiService.get<{ success: boolean; data: ActiveUser[] }>('forum/users/active', params, undefined, true);
   }
 
   getPopularTags(limit?: number, timeframe?: string): Observable<{ success: boolean; data: string[] }> {
-    let params: HttpParams | undefined;
-    if (limit || timeframe) {
-      params = new HttpParams();
-      if (limit) params = params.set('limit', limit.toString());
-      if (timeframe) params = params.set('timeframe', timeframe);
-    }
+    let params = new HttpParams();
+    if (limit) params = params.set('limit', limit.toString());
+    if (timeframe) params = params.set('timeframe', timeframe);
     return this.apiService.get<{ success: boolean; data: string[] }>('forum/tags/popular', params, undefined, true);
+  }
+
+  getHotTopics(limit?: number, timeframe?: string): Observable<{ success: boolean; data: HotTopic[] }> {
+    let params = new HttpParams();
+    if (limit) params = params.set('limit', limit.toString());
+    if (timeframe) params = params.set('timeframe', timeframe);
+    return this.apiService.get<{ success: boolean; data: HotTopic[] }>('forum/topics/hot', params, undefined, true);
   }
 
   getCategories(): Observable<any> {
     return this.apiService.get<any>('forum/categories', undefined, undefined, true);
   }
 
-  // Comment Operations
-  addComment(threadId: string, content: string, authorId: string, parentCommentId?: string): Observable<any> {
-    return this.apiService.post<Comment>(`forum/thread/comment/new`, { content, threadId, authorId, parentCommentId }, undefined, true);
+  addComment(threadId: string, content: string, _authorId?: string, parentCommentId?: string): Observable<any> {
+    return this.apiService.post<any>('forum/thread/comment/new', { content, threadId, parentCommentId }, undefined, true);
   }
 
-  addCommentReply(content: string, authorId: string, commentId: string): Observable<any> {
-    return this.apiService.post<Comment>(`forum/thread/comment/reply`, { content, commentId, authorId }, undefined, true);
+  addCommentReply(content: string, _authorId: string | undefined, commentId: string): Observable<any> {
+    return this.apiService.post<any>('forum/thread/comment/reply', { content, commentId }, undefined, true);
   }
 
-  toggleLikeComment(commentId: string, userId: string): Observable<Comment> {
-    return this.apiService.post<Comment>(`forum/comments/like`, { commentId, userId }, undefined, true);
+  toggleLikeComment(commentId: string, _userId?: string): Observable<any> {
+    return this.apiService.post<any>('forum/comments/like', { commentId }, undefined, true);
   }
 
-  toggleLikeReply(replyId: string, userId: string): Observable<Comment> {
-    return this.apiService.post<Comment>(`forum/comments/reply/like`, { replyId, userId }, undefined, true);
+  toggleLikeReply(replyId: string, _userId?: string): Observable<any> {
+    return this.apiService.post<any>('forum/comments/reply/like', { replyId }, undefined, true);
   }
 
-  deleteComment(commentId: string, userId: string): Observable<{ success: boolean }> {
-    return this.apiService.delete<{ success: boolean }>(`forum/comment/${commentId}/${userId}`, undefined, undefined, true);
+  deleteComment(commentId: string, _userId?: string): Observable<{ success: boolean }> {
+    return this.apiService.delete<{ success: boolean }>(`forum/comment/${commentId}/me`, undefined, undefined, true);
   }
 
-  deleteReply(replyId: string, userId: string): Observable<{ success: boolean }> {
-    return this.apiService.delete<{ success: boolean }>(`forum/reply/${replyId}/${userId}`, undefined, undefined, true);
+  deleteReply(replyId: string, _userId?: string): Observable<{ success: boolean }> {
+    return this.apiService.delete<{ success: boolean }>(`forum/reply/${replyId}/me`, undefined, undefined, true);
   }
 
-  updateComment(commentId: string, content: string, userId: string): Observable<Comment> {
-    return this.apiService.put<Comment>(`forum/comments/${commentId}`, { content, userId }, undefined, true);
+  updateComment(commentId: string, content: string, _userId?: string): Observable<any> {
+    return this.apiService.put<any>(`forum/comments/${commentId}`, { content }, undefined, true);
   }
 
-  /**
-   * Pin a thread (Admin/Moderator only)
-   */
-  pinThread(threadId: string, userId: string, pinOrder?: number): Observable<any> {
-    return this.apiService.put<any>(`forum/threads/${threadId}/pin`, { userId, pinOrder }, undefined, true);
+  pinThread(threadId: string, _userId?: string, pinOrder?: number): Observable<any> {
+    return this.apiService.put<any>(`forum/threads/${threadId}/pin`, { pinOrder }, undefined, true);
   }
 
-  /**
-   * Unpin a thread (Admin/Moderator only)
-   */
-  unpinThread(threadId: string, userId: string): Observable<any> {
-    return this.apiService.put<any>(`forum/threads/${threadId}/unpin`, { userId }, undefined, true);
+  unpinThread(threadId: string, _userId?: string): Observable<any> {
+    return this.apiService.put<any>(`forum/threads/${threadId}/unpin`, {}, undefined, true);
   }
 
-  /**
-   * Toggle pin status of a thread
-   */
-  togglePinThread(threadId: string, userId: string): Observable<any> {
-    return this.apiService.put<any>(`forum/threads/${threadId}/toggle-pin`, { userId }, undefined, true);
+  togglePinThread(threadId: string, _userId?: string): Observable<any> {
+    return this.apiService.put<any>(`forum/threads/${threadId}/toggle-pin`, {}, undefined, true);
   }
 
-  /**
-   * Get all pinned threads with full details
-   */
   getAllPinnedThreads(includeStats: boolean = true): Observable<any> {
     const params = new HttpParams().set('includeStats', includeStats.toString());
     return this.apiService.get<any>('forum/threads/pinned/all', params, undefined, true);
   }
 
-  /**
-   * Reorder pinned threads
-   */
-  reorderPinnedThreads(userId: string, threadOrders: Array<{ threadId: string; order: number }>): Observable<any> {
-    return this.apiService.put<any>('forum/threads/pinned/reorder', { userId, threadOrders }, undefined, true);
+  reorderPinnedThreads(_userId: string, threadOrders: Array<{ threadId: string; order: number }>): Observable<any> {
+    return this.apiService.put<any>('forum/threads/pinned/reorder', { threadOrders }, undefined, true);
   }
-
 }

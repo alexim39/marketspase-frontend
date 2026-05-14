@@ -1,14 +1,12 @@
 // campaign-card-mobile.component.ts
 import { Component, Input, Output, EventEmitter, computed } from '@angular/core';
 import { CommonModule, TitleCasePipe } from '@angular/common';
-import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
-//import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
+import { CampaignInterface, PromotionInterface, TruncatePipe } from '@shared/services';
 import { MatIconModule } from '@angular/material/icon';
 import { PromotionDetailModalComponent } from '../promotion-detail-modal/promotion-detail-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
-import { TruncatePipe } from '../../../../../store/shared';
 
 export type ViewMode = 'grid' | 'list';
 
@@ -18,7 +16,6 @@ export type ViewMode = 'grid' | 'list';
   imports: [
     CommonModule,
     TitleCasePipe,
-    //CategoryPlaceholderPipe,
     MatIconModule,
     TruncatePipe,
     MatTooltipModule,
@@ -56,7 +53,7 @@ export class CampaignCardMobileComponent {
       this.promotions.some( // Added () assuming promotions is a Signal
         (promotion: PromotionInterface) =>
           promotion.campaign._id === campaign._id && 
-          ['accepted', 'downloaded'].includes(promotion.status)
+          ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status)
       );
   });
 
@@ -100,19 +97,28 @@ export class CampaignCardMobileComponent {
   }
 
   getDifficultyLevel(campaign: CampaignInterface): string {
-    const minViews = campaign.minViewsPerPromotion || 0;
+    const costPerClick = this.getCostPerClick(campaign);
     
-    if (minViews <= 35) return 'Easy';
-    if (minViews <= 66) return 'Medium';
-    return 'Hard';
+    if (costPerClick <= 80) return 'Low CPC';
+    if (costPerClick <= 150) return 'Standard';
+    return 'Premium';
   }
 
   getDifficultyDots(campaign: CampaignInterface): number {
-    const minViews = campaign.minViewsPerPromotion || 0;
+    const costPerClick = this.getCostPerClick(campaign);
     
-    if (minViews <= 35) return 1;
-    if (minViews <= 66) return 2;
+    if (costPerClick <= 80) return 1;
+    if (costPerClick <= 150) return 2;
     return 3;
+  }
+
+  getCostPerClick(campaign: CampaignInterface): number {
+    return campaign.costPerClick || campaign.payoutPerPromotion || 80;
+  }
+
+  getEstimatedClicks(campaign: CampaignInterface): number {
+    const remainingBudget = campaign.remainingBudget ?? campaign.budget ?? 0;
+    return Math.floor(remainingBudget / this.getCostPerClick(campaign));
   }
 
   getCategoryIcon(category: string): string {
@@ -136,7 +142,8 @@ export class CampaignCardMobileComponent {
     if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
     if (campaign.currentPromoters >= campaign.maxPromoters) return false;
     // if (campaign.totalPromotions >= campaign.maxPromoters) return false;
-    if (campaign.remainingBudget < campaign.payoutPerPromotion) return false;
+    const remainingBudget = campaign.remainingBudget ?? ((campaign.budget || 0) - (campaign.spentBudget || 0));
+    if (remainingBudget < this.getCostPerClick(campaign)) return false;
     return true;
   }
   

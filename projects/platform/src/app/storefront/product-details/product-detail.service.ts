@@ -3,10 +3,10 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 import { Product, ProductVariant } from '../../store/models';
 import { ProductReview } from './models/product-reveiw.model';
-
+import { ApiResponse } from  '@shared/services';
 
 // =========================================
 // CATEGORY MODELS
@@ -53,22 +53,6 @@ export interface CategoryAttribute {
 }
 
 
-// =========================================
-// RESPONSE MODELS
-// =========================================
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message?: string;
-  errors?: any;
-  metadata?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    pages?: number;
-  };
-}
 
 export interface ProductResponse extends ApiResponse<Product> {
   relatedProducts?: Product[];

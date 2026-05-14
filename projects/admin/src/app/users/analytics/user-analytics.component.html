@@ -1,0 +1,439 @@
+<div class="analytics-page">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">User Intelligence</p>
+      <h1>User analytics</h1>
+      <p>
+        See who is joining, where they are concentrated, how complete their profiles are,
+        and which user segments are most engaged across MarketSpase.
+      </p>
+      @if (analytics()?.generatedAt) {
+        <span class="updated-pill">
+          <mat-icon>schedule</mat-icon>
+          Updated {{ analytics()?.generatedAt | date:'medium' }}
+        </span>
+      }
+    </div>
+
+    <div class="hero-actions">
+      <a routerLink="/dashboard/users" class="secondary-btn">
+        <mat-icon>arrow_back</mat-icon>
+        User directory
+      </a>
+      <button type="button" class="primary-btn" (click)="refresh()" [disabled]="refreshing()">
+        <mat-icon>refresh</mat-icon>
+        {{ refreshing() ? 'Refreshing...' : 'Refresh analytics' }}
+      </button>
+    </div>
+  </section>
+
+  <form [formGroup]="filtersForm" class="filters-card">
+    <label class="field">
+      <span>Audience</span>
+      <select formControlName="role">
+        @for (roleOption of roleOptions; track roleOption.value) {
+          <option [value]="roleOption.value">{{ roleOption.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Activity window</span>
+      <select formControlName="windowDays">
+        @for (windowOption of windowOptions; track windowOption.value) {
+          <option [value]="windowOption.value">{{ windowOption.label }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Top rows</span>
+      <select formControlName="top">
+        @for (topOption of topOptions; track topOption) {
+          <option [value]="topOption">{{ topOption }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Trend months</span>
+      <select formControlName="months">
+        @for (monthOption of monthOptions; track monthOption) {
+          <option [value]="monthOption">{{ monthOption }} months</option>
+        }
+      </select>
+    </label>
+  </form>
+
+  @if (loading() && !analytics()) {
+    <section class="loading-card">
+      <div class="loader-copy">
+        <h3>Loading user analytics...</h3>
+        <p>We’re aggregating demographics, geography, and engagement signals.</p>
+      </div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </section>
+  } @else {
+    @if (error() && !analytics()) {
+      <section class="empty-card">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Unable to load analytics</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-btn" (click)="refresh()">Try again</button>
+      </section>
+    } @else {
+      @if (analytics(); as analyticsData) {
+        @if (error()) {
+          <div class="inline-warning">
+            <mat-icon>warning</mat-icon>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <section class="summary-grid">
+          @for (card of summaryCards(); track card.label) {
+            <article class="summary-card">
+              <div class="summary-icon">
+                <mat-icon>{{ card.icon }}</mat-icon>
+              </div>
+              <div class="summary-copy">
+                <span>{{ card.label }}</span>
+                <strong>{{ card.value }}</strong>
+                <small>{{ card.note }}</small>
+              </div>
+            </article>
+          }
+        </section>
+
+        @if (analyticsData.insights.length > 0) {
+          <section class="insights-grid">
+            @for (insight of analyticsData.insights; track insight.title) {
+              <article class="insight-card" [class]="insight.tone">
+                <strong>{{ insight.title }}</strong>
+                <p>{{ insight.message }}</p>
+              </article>
+            }
+          </section>
+        }
+
+      <section class="panel-grid two-up">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Geography</p>
+              <h3>Countries</h3>
+              <p>Top markets by active accounts, verification, and profile depth.</p>
+            </div>
+            @if (topCountry()) {
+              <span class="status-pill">
+                <mat-icon>public</mat-icon>
+                Top: {{ topCountry()?.label }}
+              </span>
+            }
+          </div>
+
+          <div class="rank-list">
+            @for (country of analyticsData.distributions.countries; track country.key) {
+              <article class="rank-row">
+                <div class="rank-copy">
+                  <strong>{{ country.label }}</strong>
+                  <small>
+                    {{ country.activeCount | number }} active ·
+                    {{ country.verifiedCount | number }} verified ·
+                    {{ country.averageProfileCompletion | number:'1.0-0' }}% profile depth
+                  </small>
+                </div>
+                <div class="rank-bars">
+                  <div class="bar-shell">
+                    <div class="bar-fill" [style.width.%]="country.share"></div>
+                  </div>
+                  <div class="meta-row">
+                    <span>{{ country.count | number }}</span>
+                    <span>{{ country.share | number:'1.0-1' }}%</span>
+                  </div>
+                  <div class="role-stack">
+                    <span class="role marketer" [style.width.%]="getRoleWidth(country, 'marketer')"></span>
+                    <span class="role promoter" [style.width.%]="getRoleWidth(country, 'promoter')"></span>
+                    <span class="role admin" [style.width.%]="getRoleWidth(country, 'admin')"></span>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Geography</p>
+              <h3>States</h3>
+              <p>Top state-level concentrations to guide campaign and community rollouts.</p>
+            </div>
+            @if (topState()) {
+              <span class="status-pill">
+                <mat-icon>location_on</mat-icon>
+                {{ topState()?.label }}
+              </span>
+            }
+          </div>
+
+          <div class="rank-list compact">
+            @for (state of analyticsData.distributions.states; track state.key) {
+              <article class="rank-row compact">
+                <div class="rank-copy">
+                  <strong>{{ state.label }}</strong>
+                  <small>{{ state.countryLabel }} · {{ state.recentCount | number }} seen in window</small>
+                </div>
+                <div class="meta-row">
+                  <span>{{ state.count | number }}</span>
+                  <span>{{ state.share | number:'1.0-1' }}%</span>
+                </div>
+              </article>
+            }
+          </div>
+        </article>
+      </section>
+
+      <section class="panel-grid three-up">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Demographics</p>
+            <h3>Role mix</h3>
+            <p>How the audience splits across marketers, promoters, and admins.</p>
+          </div>
+        </div>
+
+        <div class="distribution-list">
+          @for (item of analyticsData.distributions.roles; track item.key) {
+            <div class="distribution-row">
+              <div class="distribution-labels">
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.count | number }} users</small>
+              </div>
+              <div class="distribution-bars">
+                <div class="bar-shell">
+                  <div class="bar-fill" [style.width.%]="item.share"></div>
+                </div>
+                <span>{{ item.share | number:'1.0-1' }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Demographics</p>
+            <h3>Gender mix</h3>
+            <p>Useful for creative direction and community moderation tone.</p>
+          </div>
+        </div>
+
+        <div class="distribution-list">
+          @for (item of analyticsData.distributions.genders; track item.key) {
+            <div class="distribution-row">
+              <div class="distribution-labels">
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.count | number }}</small>
+              </div>
+              <div class="distribution-bars">
+                <div class="bar-shell">
+                  <div class="bar-fill" [style.width.%]="item.share"></div>
+                </div>
+                <span>{{ item.share | number:'1.0-1' }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Demographics</p>
+            <h3>Age bands</h3>
+            <p>Shows which age segments are strongest, alongside the share of users still missing date of birth data.</p>
+          </div>
+        </div>
+
+        <div class="distribution-list">
+          @for (item of analyticsData.distributions.ages; track item.key) {
+            <div class="distribution-row">
+              <div class="distribution-labels">
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.count | number }}</small>
+              </div>
+              <div class="distribution-bars">
+                <div class="bar-shell">
+                  <div class="bar-fill" [style.width.%]="item.share"></div>
+                </div>
+                <span>{{ item.share | number:'1.0-1' }}%</span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+      </section>
+
+      <section class="panel-grid two-up">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">User health</p>
+            <h3>Activity and profile readiness</h3>
+            <p>Helps spot activation gaps and incomplete accounts.</p>
+          </div>
+        </div>
+
+        <div class="dual-stack">
+          <div class="distribution-list">
+            <h4>Activity recency</h4>
+            @for (item of analyticsData.distributions.activity; track item.key) {
+              <div class="distribution-row">
+                <div class="distribution-labels">
+                  <strong>{{ item.label }}</strong>
+                  <small>{{ item.count | number }}</small>
+                </div>
+                <div class="distribution-bars">
+                  <div class="bar-shell">
+                    <div class="bar-fill" [style.width.%]="item.share"></div>
+                  </div>
+                  <span>{{ item.share | number:'1.0-1' }}%</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="distribution-list">
+            <h4>Profile completion</h4>
+            @for (item of analyticsData.distributions.profileCompletion; track item.key) {
+              <div class="distribution-row">
+                <div class="distribution-labels">
+                  <strong>{{ item.label }}</strong>
+                  <small>{{ item.count | number }}</small>
+                </div>
+                <div class="distribution-bars">
+                  <div class="bar-shell">
+                    <div class="bar-fill accent" [style.width.%]="item.share"></div>
+                  </div>
+                  <span>{{ item.share | number:'1.0-1' }}%</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Engagement depth</p>
+            <h3>Streak and level segments</h3>
+            <p>Shows how deeply users are leaning into rewards and repeat usage.</p>
+          </div>
+        </div>
+
+        <div class="dual-stack">
+          <div class="distribution-list">
+            <h4>Login streaks</h4>
+            @for (item of analyticsData.distributions.streaks; track item.key) {
+              <div class="distribution-row">
+                <div class="distribution-labels">
+                  <strong>{{ item.label }}</strong>
+                  <small>{{ item.count | number }}</small>
+                </div>
+                <div class="distribution-bars">
+                  <div class="bar-shell">
+                    <div class="bar-fill success" [style.width.%]="item.share"></div>
+                  </div>
+                  <span>{{ item.share | number:'1.0-1' }}%</span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="distribution-list">
+            <h4>Gamification levels</h4>
+            @for (item of analyticsData.distributions.levels; track item.key) {
+              <div class="distribution-row">
+                <div class="distribution-labels">
+                  <strong>{{ item.label }}</strong>
+                  <small>{{ item.count | number }}</small>
+                </div>
+                <div class="distribution-bars">
+                  <div class="bar-shell">
+                    <div class="bar-fill warning" [style.width.%]="item.share"></div>
+                  </div>
+                  <span>{{ item.share | number:'1.0-1' }}%</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </article>
+      </section>
+
+      <section class="panel-grid two-up">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Growth</p>
+            <h3>Signup trend</h3>
+            <p>Monthly acquisition across roles for the selected trend window.</p>
+          </div>
+        </div>
+
+        <div class="trend-list">
+          @for (item of analyticsData.distributions.monthlySignups; track item.key) {
+            <div class="trend-row">
+              <div class="trend-copy">
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.count | number }} joined</small>
+              </div>
+
+              <div class="trend-bars">
+                <div class="bar-shell tall">
+                  <div class="bar-fill" [style.width.%]="getBarWidth(item, maxTrendCount())"></div>
+                </div>
+                <div class="trend-breakdown">
+                  <span class="role-pill marketer">M {{ item.roleBreakdown.marketer | number }}</span>
+                  <span class="role-pill promoter">P {{ item.roleBreakdown.promoter | number }}</span>
+                  <span class="role-pill admin">A {{ item.roleBreakdown.admin | number }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Growth quality</p>
+            <h3>Referral-heavy markets</h3>
+            <p>Countries where referral loops are strongest per user.</p>
+          </div>
+        </div>
+
+        <div class="rank-list compact">
+          @for (item of analyticsData.distributions.referralRegions; track item.key) {
+            <article class="rank-row compact">
+              <div class="rank-copy">
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.count | number }} users in this market</small>
+              </div>
+              <div class="meta-row vertical">
+                <span>{{ item.referralCount | number }} referrals</span>
+                <span>{{ item.referralsPerUser | number:'1.0-1' }} per user</span>
+              </div>
+            </article>
+          }
+        </div>
+      </article>
+        </section>
+      }
+    }
+  }
+</div>

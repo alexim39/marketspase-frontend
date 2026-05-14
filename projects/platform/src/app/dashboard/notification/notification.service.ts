@@ -1,9 +1,7 @@
-// notification.service.ts
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, timer } from 'rxjs';
-import { catchError, switchMap, tap } from 'rxjs/operators';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { BehaviorSubject, Observable, Subscription, of, timer } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { ApiService } from '@shared/services';
 
 export interface Notification {
   _id: string;
@@ -20,85 +18,85 @@ export interface Notification {
   providedIn: 'root'
 })
 export class NotificationService {
-  private http = inject(HttpClient);
-  private apiService = inject(ApiService);
+  private readonly apiService = inject(ApiService);
 
-  private apiUrl = `${this.apiService.getBaseUrl()}/notifications`;
-  private notificationsSubject = new BehaviorSubject<Notification[]>([]);
-  private unreadCountSubject = new BehaviorSubject<number>(0);
+  private readonly notificationsSubject = new BehaviorSubject<Notification[]>([]);
+  private readonly unreadCountSubject = new BehaviorSubject<number>(0);
   private eventSource: EventSource | null = null;
+  private pollingSubscription: Subscription | null = null;
 
-  public notifications$ = this.notificationsSubject.asObservable();
-  public unreadCount$ = this.unreadCountSubject.asObservable();
+  public readonly notifications$ = this.notificationsSubject.asObservable();
+  public readonly unreadCount$ = this.unreadCountSubject.asObservable();
 
-  // Initialize polling for notifications
-  startPolling(userId: string, intervalMs: number = 30000): void {
-    timer(0, intervalMs).pipe(
-      switchMap(() => this.getNotifications({ userId })),
-      catchError(error => {
-        console.error('Polling error:', error);
+  startPolling(intervalMs: number = 30000): void {
+    if (this.pollingSubscription) {
+      return;
+    }
+
+    this.pollingSubscription = timer(0, intervalMs).pipe(
+      switchMap(() => this.getNotifications()),
+      catchError((error) => {
+        console.error('Notification polling error:', error);
         return of({ success: false, data: [] });
       })
     ).subscribe({
       next: (response: any) => {
-        if (response.success) {
-          this.notificationsSubject.next(response.data);
-          this.updateUnreadCount();
+        if (!response?.success) {
+          return;
         }
+
+        this.notificationsSubject.next(response.data || []);
+        this.updateUnreadCount();
       }
     });
   }
 
-  // Load notifications with error handling
-  loadNotifications(params?: any): void {
-    this.getNotifications(params).subscribe({
+  loadNotifications(): void {
+    this.getNotifications().subscribe({
       next: (response: any) => {
-        if (response.success) {
-          this.notificationsSubject.next(response.data);
+        if (response?.success) {
+          this.notificationsSubject.next(response.data || []);
           this.updateUnreadCount();
         }
       },
       error: (error) => {
         console.error('Error loading notifications:', error);
-        // Fallback to empty array
         this.notificationsSubject.next([]);
         this.updateUnreadCount();
       }
     });
   }
 
-  getNotifications(params?: any): Observable<any> {
-    return this.http.get(this.apiUrl, { params }).pipe(
-      catchError(error => {
+  getNotifications(): Observable<any> {
+    return this.apiService.get<any>('notifications', undefined, undefined, true).pipe(
+      catchError((error) => {
         console.error('HTTP error fetching notifications:', error);
-        // Return empty data instead of throwing error
         return of({ success: false, data: [] });
       })
     );
   }
 
   markAsRead(notificationId: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${notificationId}/read`, {}).pipe(
-      catchError(error => {
+    return this.apiService.patch<any>(`notifications/${notificationId}/read`, {}, undefined, true).pipe(
+      catchError((error) => {
         console.error('Error marking notification as read:', error);
-        // Return success even if error to maintain UI state
         return of({ success: true });
       })
     );
   }
 
-  markAllAsRead(userId: string | undefined): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/mark-all-read`, {userId}).pipe(
-      catchError(error => {
-        console.error('Error marking all as read:', error);
+  markAllAsRead(): Observable<any> {
+    return this.apiService.patch<any>('notifications/mark-all-read', {}, undefined, true).pipe(
+      catchError((error) => {
+        console.error('Error marking all notifications as read:', error);
         return of({ success: true });
       })
     );
   }
 
   getUnreadCount(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/unread-count`).pipe(
-      catchError(error => {
+    return this.apiService.get<any>('notifications/unread-count', undefined, undefined, true).pipe(
+      catchError((error) => {
         console.error('Error getting unread count:', error);
         return of({ success: false, data: { count: 0 } });
       })
@@ -106,41 +104,13 @@ export class NotificationService {
   }
 
   private updateUnreadCount(): void {
-    const unreadCount = this.notificationsSubject.value
-      .filter(n => n.status === 'unread').length;
+    const unreadCount = this.notificationsSubject.value.filter((notification) => notification.status === 'unread').length;
     this.unreadCountSubject.next(unreadCount);
   }
 
-  // Mock data for development (remove when backend is ready)
-  private getMockNotifications(): Notification[] {
-    return [
-      {
-        _id: '1',
-        type: 'promotion_assigned',
-        title: 'New Promotion Assigned',
-        message: 'You have been assigned to promote "Summer Sale Campaign"',
-        data: { campaignId: '123', promotionId: '456' },
-        status: 'unread',
-        createdAt: new Date().toISOString()
-      },
-      {
-        _id: '2',
-        type: 'payment_processed',
-        title: 'Payment Received',
-        message: 'Your payment of ₦2,500 has been processed successfully',
-        data: { amount: 2500 },
-        status: 'read',
-        createdAt: new Date(Date.now() - 3600000).toISOString()
-      }
-    ];
-  }
-
-  // Development mode - return mock data
-  private useMockData(): boolean {
-    return !this.apiService.getBaseUrl() || this.apiService.getBaseUrl().includes('localhost:8080');
-  }
-
   disconnect(): void {
+    this.pollingSubscription?.unsubscribe();
+    this.pollingSubscription = null;
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;

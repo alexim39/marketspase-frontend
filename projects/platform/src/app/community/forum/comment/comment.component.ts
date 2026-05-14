@@ -235,8 +235,9 @@ export class CommentComponent implements OnInit, OnDestroy {
 
     this.forumService.updateComment(this.comment._id, newContent, userId).subscribe({
       next: (updatedComment) => {
+        const commentData = updatedComment?.data || updatedComment;
         // Update the local comment object
-        this.comment.content = updatedComment.content;
+        this.comment.content = commentData.content;
         this.isEditing = false;
         this.isUpdating = false;
         this.cd.detectChanges();

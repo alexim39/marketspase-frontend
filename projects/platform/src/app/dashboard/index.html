@@ -23,6 +23,10 @@
       <!-- Main Content -->
       @else if (authState().isAuthenticated) {
         <div class="dashboard-wrapper" [attr.data-device]="deviceType()">
+          @if (user(); as activeUser) {
+            <app-daily-check-in [user]="activeUser" />
+          }
+
           <!-- Mobile Notice (Optional) -->
           @if (deviceType() === 'mobile') {
             <!-- Dashboard Content -->

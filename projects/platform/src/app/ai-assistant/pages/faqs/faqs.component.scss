@@ -1,0 +1,236 @@
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mix;
+
+.faqs-page {
+  padding: vars.$spacing-6;
+  max-width: 900px;
+  margin: 0 auto;
+
+  @include mix.mobile {
+    padding: vars.$spacing-4;
+  }
+}
+
+.page-header {
+  @include mix.flex-between;
+  margin-bottom: vars.$spacing-6;
+
+  h1 {
+    margin: 0;
+    font-size: vars.$font-size-3xl;
+    font-weight: vars.$font-weight-bold;
+    color: vars.$text-primary;
+  }
+
+  .subtitle {
+    margin: vars.$spacing-1 0 0;
+    color: vars.$text-secondary;
+  }
+
+  .stat {
+    background: color-mix(in srgb, vars.$primary-color, transparent 90%);
+    color: vars.$primary-color;
+    padding: vars.$spacing-2 vars.$spacing-4;
+    border-radius: vars.$border-radius-full;
+    font-weight: vars.$font-weight-semibold;
+    font-size: vars.$font-size-sm;
+  }
+}
+
+// Filter Bar
+.filter-bar {
+  @include mix.flex-center;
+  gap: vars.$spacing-4;
+  margin-bottom: vars.$spacing-6;
+  flex-wrap: wrap;
+
+  .search-field {
+    flex: 1;
+    min-width: 250px;
+
+    mat-icon {
+      color: vars.$text-tertiary;
+    }
+  }
+
+  .category-chips {
+    display: flex;
+    gap: vars.$spacing-2;
+    flex-wrap: wrap;
+
+    button {
+      font-size: vars.$font-size-sm;
+      padding: vars.$spacing-1 vars.$spacing-3;
+      border-radius: vars.$border-radius-full;
+      
+      &.active {
+        background: vars.$gradient-primary;
+        color: vars.$white;
+      }
+    }
+  }
+}
+
+// Add FAQ Card
+.add-faq-card {
+  @include mix.card-base;
+  margin-bottom: vars.$spacing-6;
+
+  mat-card-header {
+    mat-card-title {
+      @include mix.flex-center;
+      gap: vars.$spacing-2;
+      font-size: vars.$font-size-lg;
+      
+      mat-icon {
+        color: vars.$primary-color;
+      }
+    }
+  }
+
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: vars.$spacing-4;
+    padding: vars.$spacing-2 0;
+  }
+
+  .suggestion-note {
+    display: flex;
+    gap: vars.$spacing-3;
+    padding: vars.$spacing-4;
+    border: 1px solid rgba(vars.$info-color, 0.18);
+    border-radius: vars.$border-radius;
+    background: rgba(vars.$info-color, 0.06);
+
+    mat-icon {
+      color: vars.$info-color;
+      flex-shrink: 0;
+    }
+
+    strong {
+      display: block;
+      color: vars.$text-primary;
+      font-size: vars.$font-size-sm;
+    }
+
+    p {
+      margin: vars.$spacing-1 0 0;
+      color: vars.$text-secondary;
+      font-size: vars.$font-size-sm;
+      line-height: 1.5;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: vars.$spacing-4;
+
+    @include mix.mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+// FAQ List
+.faqs-list {
+  display: flex;
+  flex-direction: column;
+  gap: vars.$spacing-4;
+}
+
+.faq-card {
+  @include mix.card-base;
+  @include mix.card-hover;
+
+  .faq-header {
+    @include mix.flex-between;
+    margin-bottom: vars.$spacing-3;
+
+    h4 {
+      margin: 0;
+      font-size: vars.$font-size-lg;
+      font-weight: vars.$font-weight-semibold;
+      color: vars.$text-primary;
+      flex: 1;
+    }
+
+    .faq-actions {
+      @include mix.flex-center;
+      gap: vars.$spacing-1;
+      opacity: 0;
+      transition: opacity vars.$transition-fast;
+    }
+  }
+
+  &:hover .faq-actions {
+    opacity: 1;
+  }
+
+  .faq-answer {
+    margin: 0 0 vars.$spacing-3;
+    color: vars.$text-secondary;
+    line-height: 1.6;
+    font-size: vars.$font-size-base;
+  }
+
+  .faq-meta {
+    @include mix.flex-center;
+    gap: vars.$spacing-2;
+    flex-wrap: wrap;
+
+    .category-badge {
+      background: color-mix(in srgb, vars.$primary-color, transparent 90%);
+      color: vars.$primary-color;
+      padding: vars.$spacing-1 vars.$spacing-2;
+      border-radius: vars.$border-radius;
+      font-size: vars.$font-size-xs;
+      font-weight: vars.$font-weight-medium;
+    }
+
+    .tag-badge {
+      background: vars.$gray-100;
+      color: vars.$text-secondary;
+      padding: vars.$spacing-1 vars.$spacing-2;
+      border-radius: vars.$border-radius-full;
+      font-size: vars.$font-size-xs;
+    }
+  }
+
+  .edit-actions {
+    @include mix.flex-center;
+    justify-content: flex-end;
+    gap: vars.$spacing-3;
+    margin-top: vars.$spacing-3;
+  }
+}
+
+.loading-container {
+  @include mix.flex-column-center;
+  padding: vars.$spacing-16;
+  color: vars.$text-secondary;
+  gap: vars.$spacing-4;
+}
+
+.empty-state {
+  @include mix.flex-column-center;
+  padding: vars.$spacing-16;
+  color: vars.$text-tertiary;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: vars.$spacing-3;
+  }
+
+  p {
+    margin: 0;
+    font-size: vars.$font-size-lg;
+  }
+}

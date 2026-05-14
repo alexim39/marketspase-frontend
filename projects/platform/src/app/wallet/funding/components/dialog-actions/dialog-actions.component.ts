@@ -5,8 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PaymentStatusData } from '../payment-status/payment-status.component';
-import { DeviceService } from '../../../../../../../shared-services/src/public-api';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface, DeviceService } from '@shared/services';
 
 @Component({
   selector: 'dialog-actions',
@@ -23,7 +22,7 @@ import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-se
   styleUrls: ['./dialog-actions.component.scss']
 })
 export class DialogActionsComponent {
-    private readonly deviceService = inject(DeviceService);
+  private readonly deviceService = inject(DeviceService);
   // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());
   

@@ -50,7 +50,7 @@ export interface TransferStats {
 @Injectable()
 export class TransferService {
   private apiService: ApiService = inject(ApiService);
-  private baseUrl = 'financial/transfer';
+  private baseUrl = 'api/v1/financial/transfer';
 
   getTransferStats(): Observable<{ success: boolean; data: TransferStats }> {
     return this.apiService.get<{ success: boolean; data: TransferStats }>(`${this.baseUrl}/stats`)

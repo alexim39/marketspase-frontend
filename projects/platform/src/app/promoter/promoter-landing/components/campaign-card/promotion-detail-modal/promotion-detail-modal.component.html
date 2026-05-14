@@ -1,6 +1,4 @@
-<!-- promotion-detail-modal.component.html -->
 <div class="promotion-modal">
-  <!-- Header -->
   <div class="modal-header">
     <div class="header-content">
       <h2 class="modal-title">Campaign Details</h2>
@@ -10,9 +8,7 @@
     </div>
   </div>
 
-  <!-- Content -->
   <div class="modal-content">
-    <!-- Media Section -->
     <div class="media-section">
       <div class="media-container">
         @if (campaign.mediaType === 'video') {
@@ -48,9 +44,7 @@
       </div>
     </div>
 
-    <!-- Campaign Info -->
     <div class="campaign-info">
-      <!-- Status & Title -->
       <div class="info-header">
         <div class="status-badge" [ngClass]="getStatusBadgeClass()">
           {{getStatusBadgeText()}}
@@ -58,7 +52,7 @@
         @if (hasUserPromotion) {
           <div class="user-badge">
             <i class="material-icons">check_circle</i>
-            Already Accepted
+            Already Promoting
           </div>
         }
       </div>
@@ -66,7 +60,6 @@
       <h1 class="campaign-title">{{campaign.title | titlecase}}</h1>
       <p class="campaign-description">{{campaign.caption}}</p>
 
-      <!-- Meta Information -->
       <div class="meta-grid">
         <div class="meta-item">
           <i class="material-icons">{{getCategoryIcon(campaign.category)}}</i>
@@ -87,7 +80,10 @@
               @if (campaign.remainingDays === 'Ongoing') {
                 Budget Based
               } 
-              @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing') {
+              @if (campaign.remainingDays === 'Budget Exhausted') {
+                Exhausted
+              } 
+              @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing' && campaign.remainingDays !== 'Budget Exhausted') {
                 Expires in {{campaign.remainingDays}}
               }
             </span>
@@ -103,25 +99,24 @@
         </div>
 
         <div class="meta-item">
-          <i class="material-icons">visibility</i>
+          <i class="material-icons">touch_app</i>
           <div class="meta-content">
-            <span class="meta-label">Minimum Views</span>
-            <span class="meta-value">{{campaign.minViewsPerPromotion}}+ required</span>
+            <span class="meta-label">Estimated Clicks</span>
+            <span class="meta-value">{{getEstimatedClicks() | number}} available</span>
           </div>
         </div>
       </div>
 
-      <!-- Performance Metrics -->
       <div class="metrics-section">
-        <h3 class="section-title">Performance Requirements</h3>
+        <h3 class="section-title">Click Budget</h3>
         <div class="metrics-grid">
           <div class="metric-card">
             <div class="metric-icon">
-              <i class="material-icons">trending_up</i>
+              <i class="material-icons">payments</i>
             </div>
             <div class="metric-info">
-              <div class="metric-value">{{campaign.minViewsPerPromotion}}+</div>
-              <div class="metric-label">Minimum Views</div>
+              <div class="metric-value">NGN {{getCostPerClick() | number}}</div>
+              <div class="metric-label">Cost Per Click</div>
             </div>
           </div>
 
@@ -137,23 +132,22 @@
 
           <div class="metric-card">
             <div class="metric-icon">
-              <i class="material-icons">how_to_reg</i>
+              <i class="material-icons">touch_app</i>
             </div>
             <div class="metric-info">
-              <div class="metric-value">{{campaign.currentPromoters || 0}}</div>
-              <div class="metric-label">Current Promoters</div>
+              <div class="metric-value">{{getEstimatedClicks() | number}}</div>
+              <div class="metric-label">Estimated Clicks</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Payout & Difficulty -->
       <div class="payout-section">
         <div class="payout-info">
           <div class="payout-amount">
-            <span class="currency">₦</span>
-            <span class="amount">{{campaign.payoutPerPromotion | number}}</span>
-            <span class="payout-label">per promotion</span>
+            <span class="currency">NGN</span>
+            <span class="amount">{{getCostPerClick() | number}}</span>
+            <span class="payout-label">per click</span>
           </div>
           
           <div class="difficulty-info">
@@ -168,22 +162,4 @@
       </div>
     </div>
   </div>
-
-  <!-- Footer -->
-  <!-- <div class="modal-footer">
-    <button 
-      class="btn-secondary"
-      (click)="onClose()">
-      <i class="material-icons">close</i>
-      Close
-    </button>
-    
-    <button 
-      class="btn-primary"
-      [disabled]="!canAcceptCampaign || hasUserPromotion"
-      (click)="onAccept()">
-      <i class="material-icons">add_circle</i>
-      {{getAcceptButtonText()}}
-    </button>
-  </div> -->
 </div>

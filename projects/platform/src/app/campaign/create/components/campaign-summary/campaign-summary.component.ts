@@ -85,7 +85,7 @@ export class CampaignSummaryComponent {
   );
 
   // 3. Create the payment tier signal by watching the input signal
-  private paymentTier = toSignal(
+ /*  private paymentTier = toSignal(
     toObservable(this.budgetForm).pipe(
       switchMap(form =>
         form.get('payoutTier')!.valueChanges.pipe(
@@ -101,7 +101,7 @@ export class CampaignSummaryComponent {
     ),
     { initialValue: 0 }
   );
-
+ */
 
   // 4. Create signal for age target value
   private ageTargetValue = toSignal(
@@ -127,8 +127,23 @@ export class CampaignSummaryComponent {
     return Math.floor(budget / 200);
   });
 
- public tier = computed(() => this.paymentTier() ?? 0);
-
+ /*  private paymentTier = toSignal(
+    toObservable(this.budgetForm).pipe(
+      switchMap(form =>
+        form.get('payoutTier')!.valueChanges.pipe(
+          startWith(form.get('payoutTier')?.value)
+        )
+      ),
+      map(value => {
+        if (!value) return 0;
+        const str = String(value);
+        const cleaned = str.replace('TIER_', '');
+        return parseInt(cleaned, 10) || 0;
+      })
+    ),
+    { initialValue: 0 }
+  );
+ */
 
   // public estimatedReach = computed(() => {
   //   return this.slots() * 45;
@@ -136,8 +151,11 @@ export class CampaignSummaryComponent {
 
   public estimatedReach = computed(() => {
     const budget = this.budgetValue() || 0;
-    return Math.floor(budget * 0.25);
+    const costPerPerson = 20; // N₦20 per person as an example
+    
+    return Math.floor(budget / costPerPerson);
   });
+
 
 
   // Helper method to get friendly age target display

@@ -11,10 +11,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { CampaignInterface, DeviceService, FormatCurrencyPipe, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, PromotionInterface } from '@shared/services';
 
 import { ShortNumberPipe } from '../../common/pipes/short-number.pipe';
-//import { CategoryPlaceholderPipe } from '../../common/pipes/category-placeholder.pipe';
 import { PromotionDetailsDialogComponent } from './promotion-details-dialog/promotion-details-dialog.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { TruncateIDPipe } from './truncate-id.pipe';

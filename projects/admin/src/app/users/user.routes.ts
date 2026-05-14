@@ -20,7 +20,12 @@ export const UserRoutes: Routes = [
     {   path: 'contacts', 
         loadComponent: () => import('./../contact-mgt/contact-management.component').then(c => c.ContactManagementComponent),
         title: 'Contacts Management - Admin Dashboard'
-    }, 
+    },
+    {
+        path: 'analytics',
+        loadComponent: () => import('./analytics/user-analytics.component').then(c => c.UserAnalyticsComponent),
+        title: 'User Analytics - Admin Dashboard'
+    },
     {   path: ':id', 
         loadComponent: () => import('./user-details/user-details.component').then(c => c.UserDetailsComponent),
         title: 'User Details - Admin Dashboard'

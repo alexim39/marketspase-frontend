@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Marketspase - Connect Advertisers with WhatsApp Status Promoters</title>
+  <title>MarketSpase Control Center | Multi-Channel Marketing Operations</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Marketspase connects marketers with WhatsApp Status promoters for secure, verified campaign management with automated payments.">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-   
+  <meta name="description" content="MarketSpase Control Center manages multi-channel campaigns, storefront affiliate promotions, users, payments, analytics, and platform operations.">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -23,17 +22,20 @@
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Meta tags for social sharing -->
-  <meta property="og:title" content="Marketspase - WhatsApp Status Marketing Platform">
-  <meta property="og:description" content="Connect marketers with WhatsApp Status promoters for verified campaigns and automated payments.">
+  <meta property="og:title" content="MarketSpase Control Center - Multi-Channel Marketing Operations">
+  <meta property="og:description" content="Manage campaigns, affiliate promotions, payments, users, and analytics across the MarketSpase marketing platform.">
   <meta property="og:image" content="https://marketspase.com/img/meta_logo.png">
   <meta property="og:url" content="https://marketspase.com">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MarketSpase">
+  <meta property="og:locale" content="en_NG">
   
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@marketspase">
-  <meta name="twitter:title" content="Marketspase - WhatsApp Status Marketing Platform">
-  <meta name="twitter:description" content="Connect marketers with WhatsApp Status promoters for verified campaigns and automated payments.">
+  <meta name="twitter:title" content="MarketSpase Control Center - Multi-Channel Marketing Operations">
+  <meta name="twitter:description" content="Manage campaigns, affiliate promotions, payments, users, and analytics across the MarketSpase marketing platform.">
   <meta name="twitter:image" content="https://marketspase.com/img/x_logo.png">
+  <meta name="twitter:url" content="https://marketspase.com">
   
   <!-- Google Sign-In -->
   <!-- <script src="https://accounts.google.com/gsi/client" async defer></script> -->
@@ -81,164 +83,6 @@
   <link rel="dns-prefetch" href="//accounts.google.com">
   <link rel="dns-prefetch" href="//connect.facebook.net">
   <link rel="dns-prefetch" href="//appleid.cdn-apple.com">
-
-  
-  <style>
-    /* Global styles and CSS custom properties */
-    :root {
-      --primary-color: #667eea;
-      --primary-dark: #5a6fd8;
-      --secondary-color: #764ba2;
-      --success-color: #10b981;
-      --warning-color: #f59e0b;
-      --error-color: #ef4444;
-      --text-primary: #1f2937;
-      --text-secondary: #6b7280;
-      --background-primary: #ffffff;
-      --background-secondary: #f9fafb;
-      --border-color: #e5e7eb;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --border-radius: 8px;
-      --border-radius-lg: 12px;
-      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text-primary: #f9fafb;
-        --text-secondary: #d1d5db;
-        --background-primary: #111827;
-        --background-secondary: #1f2937;
-        --border-color: #374151;
-      }
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    html {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    
-    body {
-      color: var(--text-primary);
-      background-color: var(--background-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    
-    /* Loading spinner for initial app load */
-    .initial-loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.3s ease;
-    }
-    
-    .initial-loader.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    .loader-brand {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-    
-    .loader-logo {
-     
-      /* background: rgba(255, 255, 255, 0.2); */
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      /* border: 1px solid rgba(255, 255, 255, 0.3); */
-      backdrop-filter: blur(10px);
-    }
-
-    .loader-logo img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-    }
-    
-    .loader-brand-name {
-      color: white;
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      text-align: center;
-    }
-    
-    .loader-spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 16px;
-    }
-    
-    .loader-text {
-      color: white;
-      font-size: 12px !important;
-      text-align: center;
-    }
-    
-    .loader-text span {
-      display: block;
-      margin-top: 8px;
-      font-size: 18px !important;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* Hide loader once Angular app is ready */
-    app-root:not(:empty) + .initial-loader {
-      display: none;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 480px) {
-      .loader-brand-name {
-        font-size: 20px;
-      }
-      
-      .loader-text {
-        font-size: 16px;
-      }
-      
-      .loader-text span {
-        font-size: 12px;
-      }
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -248,13 +92,14 @@
       <div class="loader-logo">
         <img src="/img/x_logo.png">
       </div>
-      <div class="loader-brand-name">MarketSpase Control Center (MCC)<!-- Admin --></div>
+      <div class="loader-brand-name">MarketSpase Admin</div>
+      <small style="font-size: 0.6em;">MarketSpase Control Center (MCC)</small>
     </div>
     
     <div class="loader-spinner"></div>
     <div class="loader-text">
       Getting MCC ready...
-      <span>WhatsApp Marketing & Social Commerce marketplace</span>
+      <span>Social Marketing marketplace</span>
       <small>Powered by Async</small>
     </div>
   </div>

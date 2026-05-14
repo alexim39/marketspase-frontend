@@ -16,7 +16,7 @@ import { ShareService } from '../../../store/services/share.service';
 export interface QuickViewData {
   product: Product;
   store: Store | null;
-  onAddToCart: () => void;
+  onAddToCart: (quantity?: number, variant?: any | null) => void;
   onToggleWishlist: () => void;
   isInWishlist: boolean;
 }
@@ -213,9 +213,7 @@ export class ProductQuickViewComponent implements OnInit {
       storeId: product.store._id ?? ''
     };
     
-    //this.cartService.addToCart(cartItem);
-    this.data.onAddToCart();
-    this.showNotification('Added to cart');
+    this.data.onAddToCart(cartItem.quantity, variant);
     
     // Optionally close the dialog
     // this.close();

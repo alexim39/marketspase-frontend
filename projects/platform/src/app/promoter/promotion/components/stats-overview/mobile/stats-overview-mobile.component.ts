@@ -5,9 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 
 interface PromotionStats {
   total: number;
-  accepted: number;
-  submitted: number;
-  validated: number;
+  active: number;
+  totalClicks: number;
+  billableClicks: number;
+  earnings: number;
   paid: number;
   rejected: number;
 }
@@ -53,9 +54,10 @@ export class StatsOverviewMobileComponent {
   getStatLabel(statType: string): string {
     const labels: { [key: string]: string } = {
       total: 'Total Promotions',
-      pending: 'Pending Submission',
-      submitted: 'Pending Validation',
-      validated: 'Validated',
+      active: 'Active Links',
+      totalClicks: 'Total Clicks',
+      billableClicks: 'Billable Clicks',
+      earnings: 'Earned',
       paid: 'Paid',
       rejected: 'Rejected'
     };
@@ -65,9 +67,10 @@ export class StatsOverviewMobileComponent {
   getStatIcon(statType: string): string {
     const icons: { [key: string]: string } = {
       total: 'campaign',
-      pending: 'pending_actions',
-      submitted: 'hourglass_empty',
-      validated: 'check_circle',
+      active: 'link',
+      totalClicks: 'touch_app',
+      billableClicks: 'check_circle',
+      earnings: 'paid',
       paid: 'paid',
       rejected: 'cancel'
     };
@@ -76,9 +79,10 @@ export class StatsOverviewMobileComponent {
 
   getStatusText(statType: string): string {
     const status: { [key: string]: string } = {
-      pending: 'Requires Action',
-      submitted: 'In Review',
-      validated: 'Approved',
+      active: 'Live',
+      totalClicks: 'Tracked',
+      billableClicks: 'Charged',
+      earnings: 'Accumulated',
       paid: 'Completed',
       rejected: 'Needs Attention'
     };
@@ -92,7 +96,7 @@ export class StatsOverviewMobileComponent {
   }
 
   getActiveStatValue(): number {
-    if (this.activeStat && this.stats || this.activeStat !== '') {
+    if (this.activeStat && this.stats) {
       return this.stats[this.activeStat as keyof PromotionStats];
     }
     return 0;

@@ -73,6 +73,26 @@
   width: 100%;
 }
 
+.affiliate-settings {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background: color-mix(in srgb, $surface-color, $black 4%);
+
+  .affiliate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-3;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 @keyframes slideInUp {
   from {
     opacity: 0;

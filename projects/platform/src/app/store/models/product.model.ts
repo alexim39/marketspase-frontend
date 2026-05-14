@@ -5,6 +5,7 @@ export interface ProductDimensions {
 }
 
 export interface ProductVariant {
+  _id?: string;
   name: string;
   sku?: string;
   price: number;
@@ -46,6 +47,9 @@ export interface ProductResponse {
   price: number;
   originalPrice?: number;
   costPrice?: number;
+  affiliate?: AffiliateSettings;
+  amountReceivable?: number;
+  commissionPerSale?: number;
   taxClass?: string;
   taxable?: boolean;
 
@@ -125,6 +129,8 @@ export interface Product {
     unit: number;
   };
   costPrice?: number;
+  affiliate?: AffiliateSettings;
+  commissionPerSale?: number;
   taxRate?: number;
   specifications?: any;
   weightUnit?: 'kg' | 'lb' | 'g' | 'oz';
@@ -184,6 +190,12 @@ export interface Product {
     averageRating: number;
     commissionType: 'percentage' | 'fixed';
     fixedCommission?: number;
+    uniqueId?: string;
+    affiliateUrl?: string;
+    promotionUrl?: string;
+    shareUrl?: string;
+    commissionPerSale?: number;
+    amountReceivable?: number;
     conversionCount?: number;
     isActive: boolean;
     trackingCode: string;
@@ -195,7 +207,17 @@ export interface Product {
     viewCount?: number;
   };
   activePromotions: any;
+  activePromotion?: any;
 
+}
+
+export interface AffiliateSettings {
+  enabled: boolean;
+  commissionType: 'percentage' | 'fixed';
+  commissionRate: number;
+  fixedCommission?: number;
+  cookieWindowDays?: number;
+  autoApprovePromoters?: boolean;
 }
 
 export interface PromoterTracking {
@@ -216,7 +238,7 @@ export interface ProductSEO {
 }
 
 export interface ProductVariant {
-  _id: string;
+  _id?: string;
   name: string;
   options: VariantOption[];
   priceAdjustment: number;

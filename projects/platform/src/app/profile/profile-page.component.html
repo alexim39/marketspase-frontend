@@ -30,7 +30,16 @@
             }
           </div>
           <div class="username">@{{ profile.username }}</div>
-          <div class="bio">{{ profile.personalInfo?.biography || 'No bio yet' }}</div>
+          <div class="role-chip-row">
+            <span class="role-pill">{{ profile.role | titlecase }}</span>
+            @if (profile.marketerProfile?.businessOverview?.brandName) {
+              <span class="role-pill subtle">{{ profile.marketerProfile?.businessOverview?.brandName }}</span>
+            }
+          </div>
+          @if (profileHeadline()) {
+            <div class="headline">{{ profileHeadline() }}</div>
+          }
+          <div class="bio">{{ profileSummary() }}</div>
           <div class="meta-row">
             @if (profile.personalInfo?.address?.city || profile.personalInfo?.address?.country) {
               <span class="meta-item">
@@ -44,9 +53,31 @@
             </span>
             <span class="meta-item">
               <mat-icon>star</mat-icon>
-              {{ profile.rating.toFixed(1) }} ({{ profile.ratingCount }} ratings)
+              {{ profile.rating.toFixed(1) }} reputation · {{ profile.ratingCount }} signals
             </span>
           </div>
+          @if (badgeLevelSummary(); as summary) {
+            <div class="achievement-row">
+              <div class="level-chip">
+                <mat-icon>workspace_premium</mat-icon>
+                <div>
+                  <strong>Level {{ summary.level }}</strong>
+                  <span>{{ summary.levelTitle }} · {{ summary.experiencePoints }} XP</span>
+                </div>
+              </div>
+
+              @if (featuredBadges().length > 0) {
+                <div class="featured-badge-row">
+                  @for (badge of featuredBadges(); track trackBadge($index, badge)) {
+                    <div class="featured-badge-pill" [style.border-color]="badge.accentColor">
+                      <mat-icon [style.color]="badge.accentColor">{{ badge.icon }}</mat-icon>
+                      <span>{{ badge.title }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
           <div class="stats-row">
             <div class="stat" (click)="activeTabIndex.set(0)">
               <span class="stat-value">{{ profile.postsCount }}</span>
@@ -64,6 +95,12 @@
               <span class="stat-value">{{ profile.totalLikes }}</span>
               <span class="stat-label">Likes</span>
             </div>
+            @if (badgeLevelSummary(); as summary) {
+              <div class="stat" (click)="activeTabIndex.set(3)">
+                <span class="stat-value">{{ summary.badgesEarned }}</span>
+                <span class="stat-label">Badges</span>
+              </div>
+            }
           </div>
           <div class="action-row">
             @if (profile.isOwnProfile) {
@@ -85,6 +122,307 @@
         </div>
       </div>
     </div>
+
+    <div class="profile-overview-grid">
+      <section class="profile-card">
+        <div class="section-head">
+          <div>
+            <h3>Profile Overview</h3>
+            <p>Social proof and public identity for this account.</p>
+          </div>
+        </div>
+
+        <div class="overview-copy">
+          <p>{{ profileSummary() }}</p>
+
+          @if (profile.marketerProfile?.businessOverview?.uniqueSellingPoints?.length) {
+            <div class="pill-list">
+              @for (point of profile.marketerProfile?.businessOverview?.uniqueSellingPoints; track point) {
+                <span class="info-pill">{{ point }}</span>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="profile-card">
+        <div class="section-head">
+          <div>
+            <h3>Connected Profiles</h3>
+            <p>Where people can keep up with the brand or creator.</p>
+          </div>
+        </div>
+
+        @if (activeSocialLinks().length > 0) {
+          <div class="social-link-list">
+            @for (link of activeSocialLinks(); track trackSocialLink($index, link)) {
+              <a class="social-link" [href]="link.url" target="_blank" rel="noopener noreferrer">
+                <div class="social-link-copy">
+                  <mat-icon>{{ link.icon }}</mat-icon>
+                  <div>
+                    <strong>{{ link.label }}</strong>
+                    <span>{{ link.value }}</span>
+                  </div>
+                </div>
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-inline-state">
+            <mat-icon>link_off</mat-icon>
+            <p>No social profiles linked yet.</p>
+          </div>
+        }
+      </section>
+    </div>
+
+    @if (overviewMetrics().length > 0 || roleMetrics().length > 0) {
+      <section class="analytics-section">
+        <div class="section-head">
+          <div>
+            <h3>Performance Snapshot</h3>
+            <p>Live records from campaigns, products, feed, forum, and gamification.</p>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          @for (metric of overviewMetrics(); track trackMetric($index, metric)) {
+            <article class="metric-card">
+              <div class="metric-icon">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+              </div>
+              <div class="metric-copy">
+                <span class="metric-label">{{ metric.label }}</span>
+                <strong>{{ formatMetricValue(metric) }}</strong>
+                <small>{{ metric.caption }}</small>
+              </div>
+            </article>
+          }
+
+          @for (metric of roleMetrics(); track trackMetric($index, metric)) {
+            <article class="metric-card accent">
+              <div class="metric-icon">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+              </div>
+              <div class="metric-copy">
+                <span class="metric-label">{{ metric.label }}</span>
+                <strong>{{ formatMetricValue(metric) }}</strong>
+                <small>{{ metric.caption }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    @if (profile.marketerProfile; as marketerProfile) {
+      <section class="portfolio-section">
+        <div class="section-head">
+          <div>
+            <h3>Business Portfolio</h3>
+            <p>Top campaigns and products pulled from this marketer's live records.</p>
+          </div>
+        </div>
+
+        <div class="portfolio-summary-grid">
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Store footprint</span>
+            <strong>{{ marketerProfile.storeSummary?.storeCount || 0 }} storefront{{ (marketerProfile.storeSummary?.storeCount || 0) === 1 ? '' : 's' }}</strong>
+            <p>{{ marketerProfile.storeSummary?.totalProducts || 0 }} products listed and {{ marketerProfile.storeSummary?.activeCampaigns || 0 }} active campaigns.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Campaign spend</span>
+            <strong>{{ (marketerProfile.analytics?.totalCampaignSpend || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+            <p>{{ marketerProfile.analytics?.totalCampaignClicks || 0 }} clicks recorded across campaigns.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Store revenue</span>
+            <strong>{{ (marketerProfile.analytics?.totalSalesAmount || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+            <p>{{ marketerProfile.performance?.recentOrders || 0 }} paid orders in the last {{ marketerProfile.performance?.periodDays || 30 }} days.</p>
+          </article>
+        </div>
+
+        <div class="portfolio-grid">
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Campaigns</h4>
+            </div>
+
+            @if (marketerProfile.topCampaigns?.length) {
+              <div class="portfolio-list">
+                @for (campaign of marketerProfile.topCampaigns; track campaign._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (campaign.thumbnailUrl || campaign.mediaUrl) {
+                        <img [src]="campaign.thumbnailUrl || campaign.mediaUrl || ''" [alt]="campaign.title">
+                      } @else {
+                        <mat-icon>campaign</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ campaign.title }}</strong>
+                        <span class="status-pill">{{ campaign.status }}</span>
+                      </div>
+                      <span class="portfolio-meta">{{ campaign.category }} · {{ campaign.billableClicks }} billable clicks</span>
+                      <small>{{ campaign.spentBudget | currency:'NGN':'symbol':'1.0-0' }} spent from {{ campaign.budget | currency:'NGN':'symbol':'1.0-0' }}</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>campaign</mat-icon>
+                <p>No campaigns to showcase yet.</p>
+              </div>
+            }
+          </section>
+
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Products</h4>
+            </div>
+
+            @if (marketerProfile.topProducts?.length) {
+              <div class="portfolio-list">
+                @for (product of marketerProfile.topProducts; track product._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (product.image) {
+                        <img [src]="product.image" [alt]="product.name">
+                      } @else {
+                        <mat-icon>inventory_2</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ product.name }}</strong>
+                        @if (product.isPublished) {
+                          <span class="status-pill success">Published</span>
+                        }
+                      </div>
+                      <span class="portfolio-meta">{{ product.category }} · {{ product.price | currency:'NGN':'symbol':'1.0-0' }}</span>
+                      <small>{{ product.purchaseCount }} sales · {{ product.viewCount }} views · {{ product.averageRating | number:'1.1-1' }} rating</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>inventory_2</mat-icon>
+                <p>No products to showcase yet.</p>
+              </div>
+            }
+          </section>
+        </div>
+      </section>
+    }
+
+    @if (profile.promoterProfile; as promoterProfile) {
+      <section class="portfolio-section">
+        <div class="section-head">
+          <div>
+            <h3>Promoter Performance</h3>
+            <p>Campaign traction, affiliate momentum, and commission visibility.</p>
+          </div>
+        </div>
+
+        <div class="portfolio-summary-grid">
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Earned commissions</span>
+            <strong>{{ (promoterProfile.commissionSummary?.totalCommissionEarned || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+            <p>{{ (promoterProfile.commissionSummary?.pendingCommission || 0) | currency:'NGN':'symbol':'1.0-0' }} pending release.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Attributed sales</span>
+            <strong>{{ promoterProfile.commissionSummary?.totalAttributedSales || 0 }}</strong>
+            <p>{{ promoterProfile.analytics?.totalAffiliateSales || 0 }} storefront sales came from shared links.</p>
+          </article>
+
+          <article class="profile-card portfolio-summary-card">
+            <span class="portfolio-kicker">Recent activity</span>
+            <strong>{{ promoterProfile.performance?.recentAffiliateClicks || 0 }}</strong>
+            <p>{{ promoterProfile.performance?.recentAcceptedCampaigns || 0 }} campaigns accepted in the last {{ promoterProfile.performance?.periodDays || 30 }} days.</p>
+          </article>
+        </div>
+
+        <div class="portfolio-grid">
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Campaigns</h4>
+            </div>
+
+            @if (promoterProfile.topCampaigns?.length) {
+              <div class="portfolio-list">
+                @for (campaign of promoterProfile.topCampaigns; track campaign._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (campaign.thumbnailUrl || campaign.mediaUrl) {
+                        <img [src]="campaign.thumbnailUrl || campaign.mediaUrl || ''" [alt]="campaign.title">
+                      } @else {
+                        <mat-icon>campaign</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ campaign.title }}</strong>
+                        <span class="status-pill">{{ campaign.status }}</span>
+                      </div>
+                      <span class="portfolio-meta">{{ campaign.category }} · {{ campaign.billableClicks }} billable clicks</span>
+                      <small>{{ campaign.earnedAmount | currency:'NGN':'symbol':'1.0-0' }} earned from this campaign</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>campaign</mat-icon>
+                <p>No campaign performance to show yet.</p>
+              </div>
+            }
+          </section>
+
+          <section class="profile-card">
+            <div class="section-head compact">
+              <h4>Top Product Promotions</h4>
+            </div>
+
+            @if (promoterProfile.topProductPromotions?.length) {
+              <div class="portfolio-list">
+                @for (promotion of promoterProfile.topProductPromotions; track promotion._id) {
+                  <article class="portfolio-item">
+                    <div class="portfolio-media">
+                      @if (promotion.image) {
+                        <img [src]="promotion.image" [alt]="promotion.productName">
+                      } @else {
+                        <mat-icon>sell</mat-icon>
+                      }
+                    </div>
+                    <div class="portfolio-copy">
+                      <div class="portfolio-title-row">
+                        <strong>{{ promotion.productName }}</strong>
+                        <span class="status-pill success">{{ promotion.storeName }}</span>
+                      </div>
+                      <span class="portfolio-meta">{{ promotion.clickCount }} clicks · {{ promotion.conversionCount }} sales</span>
+                      <small>{{ promotion.earnings | currency:'NGN':'symbol':'1.0-0' }} earned · {{ promotion.averageOrderValue | currency:'NGN':'symbol':'1.0-0' }} avg order value</small>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-inline-state">
+                <mat-icon>sell</mat-icon>
+                <p>No storefront promotions to show yet.</p>
+              </div>
+            }
+          </section>
+        </div>
+      </section>
+    }
 
     <!-- Tabs -->
     <mat-tab-group [(selectedIndex)]="activeTabIndex" animationDuration="0ms">
@@ -187,6 +525,108 @@
               }
               <div #followingScrollAnchor class="scroll-anchor"></div>
             </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Badges">
+        <div class="tab-content badges-tab">
+          @if (badgeLoading() && !badgeOverview()) {
+            <div class="loading-spinner">
+              <mat-spinner diameter="30"></mat-spinner>
+            </div>
+          } @else if (badgeError()) {
+            <div class="empty-state">
+              <mat-icon>error_outline</mat-icon>
+              <p>{{ badgeError() }}</p>
+              <button mat-stroked-button type="button" (click)="reloadBadges()">Retry</button>
+            </div>
+          } @else {
+            @if (badgeOverview(); as badgeData) {
+              <div class="badge-summary-card">
+                <div class="summary-top">
+                  <div>
+                    <span class="summary-label">Current level</span>
+                    <strong>Level {{ badgeData.gamificationProfile?.currentLevel ?? badgeData.badgeProfile.level }}</strong>
+                    <small>{{ badgeData.gamificationProfile?.currentLevelTitle ?? badgeData.badgeProfile.levelTitle }}</small>
+                  </div>
+                  <div class="summary-pill">
+                    <mat-icon>military_tech</mat-icon>
+                    <span>{{ badgeData.gamificationProfile?.badgesUnlocked ?? badgeData.badgeProfile.badgesEarned }} badges earned</span>
+                  </div>
+                </div>
+
+                <div class="summary-meta">
+                  <span>{{ badgeData.gamificationProfile?.totalExperiencePoints ?? badgeData.badgeProfile.experiencePoints }} XP</span>
+                  @if (badgeData.gamificationProfile?.nextLevel ?? badgeData.badgeProfile.nextLevel) {
+                    <span>{{ badgeData.gamificationProfile?.experiencePointsToNextLevel ?? badgeData.badgeProfile.experiencePointsToNextLevel }} XP to level {{ badgeData.gamificationProfile?.nextLevel ?? badgeData.badgeProfile.nextLevel }}</span>
+                  } @else {
+                    <span>Top level reached</span>
+                  }
+                </div>
+                <mat-progress-bar mode="determinate" [value]="badgeData.gamificationProfile?.progressPercent ?? badgeData.badgeProfile.progressPercent"></mat-progress-bar>
+              </div>
+
+              @if (badgeData.isOwner && badgeData.nextBadges.length > 0) {
+                <section class="badge-section">
+                  <div class="badge-section-head">
+                    <h3>Progress toward next badge</h3>
+                  </div>
+
+                  <div class="next-badge-list">
+                    @for (badge of badgeData.nextBadges; track trackBadge($index, badge)) {
+                      <article class="next-badge-card">
+                        <div class="next-badge-head">
+                          <div class="next-badge-title">
+                            <mat-icon [style.color]="badge.accentColor">{{ badge.icon }}</mat-icon>
+                            <div>
+                              <strong>{{ badge.title }}</strong>
+                              <small>{{ badge.criteria.metricLabel }}</small>
+                            </div>
+                          </div>
+                          <span>{{ badge.progress?.currentValue }} / {{ badge.progress?.targetValue }}</span>
+                        </div>
+
+                        <mat-progress-bar mode="determinate" [value]="badge.progress?.progressPercent || 0"></mat-progress-bar>
+                        <p>{{ badge.shortDescription || badge.description }}</p>
+                      </article>
+                    }
+                  </div>
+                </section>
+              }
+
+              <section class="badge-section">
+                <div class="badge-section-head">
+                  <h3>Earned badges</h3>
+                  <span>{{ badgeData.earnedBadges.length }} total</span>
+                </div>
+
+                @if (badgeData.earnedBadges.length === 0) {
+                  <div class="empty-state">
+                    <mat-icon>workspace_premium</mat-icon>
+                    <p>Badge milestones will show up here as activity grows.</p>
+                  </div>
+                } @else {
+                  <div class="earned-badge-grid">
+                    @for (badge of badgeData.earnedBadges; track trackBadge($index, badge)) {
+                      <article class="earned-badge-card">
+                        <div class="earned-badge-icon" [style.background]="badge.accentColor">
+                          <mat-icon>{{ badge.icon }}</mat-icon>
+                        </div>
+                        <div class="earned-badge-copy">
+                          <div class="earned-badge-head">
+                            <strong>{{ badge.title }}</strong>
+                            <span>{{ badge.reward.experiencePoints }} XP</span>
+                          </div>
+                          <p>{{ badge.description }}</p>
+                          <small>Unlocked {{ badge.unlockedAt | date:'mediumDate' }}</small>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                }
+              </section>
+            }
           }
         </div>
       </mat-tab>

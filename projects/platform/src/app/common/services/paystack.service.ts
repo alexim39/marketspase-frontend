@@ -1,6 +1,6 @@
 import { Injectable, Inject, Optional, DestroyRef, inject } from '@angular/core';
 import { Observable, Subject, throwError } from 'rxjs';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Configuration interface for better type safety
@@ -10,10 +10,18 @@ export interface PaystackConfig {
   defaultEmailDomain?: string;
 }
 
+export interface PaymentCustomer {
+  email: string;
+  fullName?: string;
+  name?: string;
+  phone?: string;
+}
+
 // Payment request interface
 export interface PaymentRequest {
   amount: number;
-  user: UserInterface;
+  user?: UserInterface;
+  customer?: PaymentCustomer;
   metadata?: Record<string, any>;
   currency?: string;
   reference?: string;
@@ -75,7 +83,7 @@ export class PaystackService {
         return throwError(() => new Error('Paystack library is not loaded. Please ensure Paystack script is included.'));
       }
 
-      const email = this.getUserEmail(request.user);
+      const email = this.getPaymentEmail(request);
       const reference = request.reference || this.generateReference();
       const currency = request.currency || this.config.currency;
 
@@ -86,7 +94,7 @@ export class PaystackService {
         currency,
         ref: reference,
         metadata: {
-          custom_fields: this.buildCustomFields(request.user),
+          custom_fields: this.buildCustomFields(request.user, request.customer),
           ...request.metadata
         },
         callback: (response: PaymentResponse) => {
@@ -170,39 +178,57 @@ export class PaystackService {
       return 'Amount must be a valid number';
     }
 
-    if (!request.user) {
-      return 'User information is required';
-    }
-
-    if (!request.user.email && !request.user.username) {
-      return 'User email or username is required';
+    if (!this.getRequestEmail(request)) {
+      return 'Customer email is required';
     }
 
     return null;
   }
 
-  /**
-   * Generates user email from user object
-   */
-  private getUserEmail(user: UserInterface): string {
-    if (user.email?.trim()) {
-      return user.email.trim();
+  private getRequestEmail(request: PaymentRequest): string {
+    const customerEmail = request.customer?.email?.trim();
+    if (customerEmail) return customerEmail;
+
+    if (request.user?.email?.trim()) return request.user.email.trim();
+    if (request.user?.username?.trim()) {
+      return `${request.user.username.trim()}@${this.config.defaultEmailDomain}`;
     }
 
-    if (user.username?.trim()) {
-      return `${user.username.trim()}@${this.config.defaultEmailDomain}`;
-    }
+    return '';
+  }
 
-    throw new Error('Unable to generate email for user');
+  private getPaymentEmail(request: PaymentRequest): string {
+    const email = this.getRequestEmail(request);
+    if (!email) {
+      throw new Error('Unable to determine payment email');
+    }
+    return email;
   }
 
   /**
    * Builds custom fields for Paystack metadata
    */
-  private buildCustomFields(user: UserInterface): Array<{ display_name: string; variable_name: string; value: string }> {
+  private buildCustomFields(user?: UserInterface, customer?: PaymentCustomer): Array<{ display_name: string; variable_name: string; value: string }> {
     const customFields: Array<{ display_name: string; variable_name: string; value: string }> = [];
 
-    if (user.displayName?.trim()) {
+    const customerName = customer?.fullName?.trim() || customer?.name?.trim();
+    if (customerName) {
+      customFields.push({
+        display_name: 'Customer Name',
+        variable_name: 'customer_name',
+        value: customerName
+      });
+    }
+
+    if (customer?.phone?.trim()) {
+      customFields.push({
+        display_name: 'Customer Phone',
+        variable_name: 'customer_phone',
+        value: customer.phone.trim()
+      });
+    }
+
+    if (user?.displayName?.trim()) {
       customFields.push({
         display_name: 'Display Name',
         variable_name: 'display_name',
@@ -210,7 +236,7 @@ export class PaystackService {
       });
     }
 
-    if (user.username?.trim()) {
+    if (user?.username?.trim()) {
       customFields.push({
         display_name: 'Username',
         variable_name: 'username',

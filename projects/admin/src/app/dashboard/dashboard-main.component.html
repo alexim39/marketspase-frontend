@@ -1,95 +1,138 @@
-<!-- Dashboard Content -->
 <main class="dashboard-content">
-  <!-- Stats Overview -->
-  <section class="stats-section">
-    <div class="stats-grid">
-      <!-- Campaign Stats Card -->
-      <div class="stat-card primary">
-        <div class="stat-icon">
-          <mat-icon>analytics</mat-icon>
-        </div>
-        <div class="stat-content">
-          @if (isCampaignLoading()) {
-            <mat-progress-bar mode="indeterminate" />
-            <div class="loading-text">Loading campaigns...</div>
-          } @else {
-            <div class="stat-label">Total Campaigns / Active</div>
-            <div class="stat-value">{{ campaignStats().totalCampaigns }} / {{ campaignStats().activeCampaigns }}</div>
-            <div class="stat-change positive">
-              <mat-icon>trending_up</mat-icon>
-              +{{ campaignStats().activeCampaignsChange }}% this week
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- User Stats Card -->
-      <div class="stat-card info">
-        <div class="stat-icon">
-          <mat-icon>group</mat-icon>
-        </div>
-        <div class="stat-content">
-          @if (isUserLoading()) {
-            <mat-progress-bar mode="indeterminate" />
-            <div class="loading-text">Loading users...</div>
-          } @else {
-            <div class="stat-label">Total Users / Active</div>
-            <div class="stat-value">{{ userStats().totalUsers }} / {{ userStats().activeUsers }}</div>
-            <div class="stat-change positive">
-              <mat-icon>trending_up</mat-icon>
-              +{{ userStats().usersChange }}% this month
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Revenue Stats Card -->
-      <div class="stat-card success">
-        <div class="stat-icon">
-          <mat-icon>attach_money</mat-icon>
-        </div>
-        <div class="stat-content">
-          @if (isRevenueLoading()) {
-            <mat-progress-bar mode="indeterminate" />
-            <div class="loading-text">Loading revenue...</div>
-          } @else {
-            <div class="stat-label">Total Revenue</div>
-            <div class="stat-value">₦{{ 0 }}</div>
-            <!-- <div class="stat-value">₦{{ revenueStats().totalRevenue.toLocaleString() }}</div> -->
-            <div class="stat-change" [class]="revenueStats().revenueChange >= 0 ? 'positive' : 'negative'">
-              <mat-icon>{{ revenueStats().revenueChange >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-              {{ revenueStats().revenueChange >= 0 ? '+' : '' }}{{ revenueStats().revenueChange }}% this month
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Engagement Stats Card -->
-      <div class="stat-card warning">
-        <div class="stat-icon">
-          <mat-icon>monitor_heart</mat-icon>
-        </div>
-        <div class="stat-content">
-          @if (isEngagementLoading()) {
-            <mat-progress-bar mode="indeterminate" />
-            <div class="loading-text">Loading engagement...</div>
-          } @else {
-            <div class="stat-label">Avg. Engagement</div>
-            <div class="stat-value">{{ engagementStats().averageEngagement }}%</div>
-            <div class="stat-change" [class]="engagementStats().engagementChange >= 0 ? 'positive' : 'negative'">
-              <mat-icon>{{ engagementStats().engagementChange >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-              {{ engagementStats().engagementChange >= 0 ? '+' : '' }}{{ engagementStats().engagementChange }}% from last week
-            </div>
-          }
-        </div>
-      </div>
+  <section class="hero-section">
+    <div>
+      <p class="eyebrow">Operations center</p>
+      <h2>Run MarketSpase with the product we have today</h2>
+      <p>
+        This dashboard now reflects the live platform model: ads promotion, storefront commerce,
+        community engagement, and reward systems.
+      </p>
     </div>
+    <button class="refresh-btn" type="button" (click)="refreshDashboard()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
   </section>
 
-  <!-- Welcome Section -->
-  <section class="dashboard-section">
-    <h2>Welcome to Marketspase Admin Dashboard</h2>
-    <p>Manage your campaigns, users, and promotions efficiently.</p>
-    <small>Features coming up soon</small>
+  @if (loadingOverview()) {
+    <section class="loading-panel">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading platform overview...</span>
+    </section>
+  } @else if (heroCards().length > 0) {
+    <section class="stats-grid">
+      @for (card of heroCards(); track card.key) {
+        <article class="stat-card" [class]="card.tone">
+          <div class="stat-icon">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </div>
+          <div class="stat-copy">
+            <span class="label">{{ card.label }}</span>
+            <strong class="value">{{ card.value }}</strong>
+            <span class="meta">{{ card.meta }}</span>
+          </div>
+        </article>
+      }
+    </section>
+  }
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Live platform activity</h3>
+          <p>Recent feed, forum, campaign, and product activity across MarketSpase.</p>
+        </div>
+        <a routerLink="/dashboard/community" class="panel-link">Open community desk</a>
+      </div>
+
+      <div class="activity-summary">
+        <div>
+          <strong>{{ activitySummary().total24h }}</strong>
+          <span>24h activity</span>
+        </div>
+        <div>
+          <strong>{{ activitySummary().feedPosts24h }}</strong>
+          <span>Feed posts</span>
+        </div>
+        <div>
+          <strong>{{ activitySummary().forumThreads24h }}</strong>
+          <span>Forum threads</span>
+        </div>
+        <div>
+          <strong>{{ activitySummary().campaigns24h }}</strong>
+          <span>Campaigns</span>
+        </div>
+      </div>
+
+      @if (loadingActivity()) {
+        <div class="loading-panel inline">
+          <mat-progress-bar mode="indeterminate" />
+          <span>Loading live activity...</span>
+        </div>
+      } @else if (activityFeed().length > 0) {
+        <div class="activity-list">
+          @for (activity of activityFeed(); track activity.id) {
+            <a class="activity-item" [routerLink]="activity.actionUrl">
+              <div class="activity-icon" [class]="activity.type">
+                <mat-icon>
+                  {{ activity.type === 'forum' ? 'forum' : activity.type === 'campaign' ? 'campaign' : activity.type === 'product' ? 'inventory_2' : 'dynamic_feed' }}
+                </mat-icon>
+              </div>
+              <div class="activity-copy">
+                <strong>{{ activity.author }}</strong>
+                <span>{{ activity.message }}</span>
+                <small>{{ activity.title }}</small>
+              </div>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>hourglass_empty</mat-icon>
+          <span>No fresh platform activity yet.</span>
+        </div>
+      }
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Admin quick actions</h3>
+          <p>Jump into the workflows that matter most to the current product.</p>
+        </div>
+      </div>
+
+      <div class="action-list">
+        @for (action of quickActions; track action.route) {
+          <a class="action-card" [routerLink]="action.route">
+            <mat-icon>{{ action.icon }}</mat-icon>
+            <div>
+              <strong>{{ action.title }}</strong>
+              <span>{{ action.description }}</span>
+            </div>
+          </a>
+        }
+      </div>
+    </article>
+
+    <article class="panel wide">
+      <div class="panel-header">
+        <div>
+          <h3>What is live now</h3>
+          <p>A cleaner admin framing around the MarketSpase systems that are actually active.</p>
+        </div>
+      </div>
+
+      <div class="program-list">
+        @for (program of activePrograms(); track program.label) {
+          <div class="program-item">
+            <strong>{{ program.label }}</strong>
+            <span>{{ program.value }}</span>
+            <small>{{ program.detail }}</small>
+          </div>
+        }
+      </div>
+    </article>
   </section>
 </main>

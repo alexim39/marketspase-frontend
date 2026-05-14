@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, switchMap, of, throwError } from 'rxjs';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 
 export interface WithdrawableBalanceResponse {

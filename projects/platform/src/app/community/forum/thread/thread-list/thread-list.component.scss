@@ -18,6 +18,7 @@
   transition: transform $transition-normal, box-shadow $transition-normal;
   border-radius: $border-radius-md;
   overflow: hidden;
+  margin: 0 $spacing-4;
   
   &:hover {
     transform: translateY(-3px);

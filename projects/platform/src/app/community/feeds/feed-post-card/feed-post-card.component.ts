@@ -1,15 +1,15 @@
-import { Component, input, output, computed, signal, inject } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FeedPost, FeedService } from '../feed.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserInterface } from '@shared/services';
+import { FeedPost, FeedService } from '../feed.service';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 
 type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
@@ -17,14 +17,7 @@ type BadgeType = 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veter
 @Component({
   selector: 'app-feed-post-card',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    MatMenuModule,
-    MatTooltipModule
-  ],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatCardModule, MatMenuModule, MatTooltipModule],
   providers: [FeedService],
   templateUrl: './feed-post-card.component.html',
   styleUrls: ['./feed-post-card.component.scss']
@@ -34,54 +27,68 @@ export class FeedPostCardComponent {
   user = input.required<UserInterface | null>();
   isLiked = input<boolean>(false);
   isSaved = input<boolean>(false);
-  private snackBar = inject(MatSnackBar);
-  private feedService = inject(FeedService);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
 
-  postDeleted = output<string>();        // emits post ID after successful delete
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly feedService = inject(FeedService);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+
+  postDeleted = output<string>();
   postUpdated = output<FeedPost>();
+  like = output<FeedPost>();
+  save = output<string>();
+  comment = output<string>();
+  share = output<FeedPost>();
+  sharePlatform = output<string>();
+  hide = output<string>();
+  report = output<string>();
+  hashtagClick = output<string>();
 
-  // Read more state
   showFullContent = signal(false);
+  activeMediaIndex = signal(0);
 
-  // Computed for truncated content
   displayContent = computed(() => {
     const content = this.post().content;
     if (this.showFullContent() || content.length <= 200) {
       return content;
     }
-    return content.substring(0, 200) + '…';
+    return `${content.substring(0, 200)}...`;
   });
 
-  // Computed property for verified status
+  activeMedia = computed(() => {
+    const media = this.post().media || [];
+    if (!media.length) return null;
+    return media[Math.min(this.activeMediaIndex(), media.length - 1)] || media[0];
+  });
+
   isVerified = computed(() => {
     const rating = this.post().author?.rating;
-    return rating !== undefined && rating !== null && rating > 4.5;
+    return (rating !== undefined && rating !== null && rating > 4.5) || Boolean(this.post().author?.isVerified);
   });
 
-  // Helper to convert hashtags to array of strings
-  getHashtagsAsArray = computed(() => {
-    const hashtags = this.post().hashtags;
-    if (!hashtags || hashtags.length === 0) return [];
-
-    return hashtags.map(tag => {
-      if (typeof tag === 'string') return tag;
-      return (tag as any).tag || '';
-    }).filter(tag => tag);
+  hashtags = computed(() => {
+    const source = this.post().hashtags || [];
+    return source
+      .map((tag) => typeof tag === 'string' ? tag : tag?.tag || '')
+      .filter(Boolean);
   });
 
-  // Output events
-  like = output<FeedPost>();
-  save = output<string>();
-  comment = output<string>();
-  share = output<FeedPost>();
-  hide = output<string>();
-  report = output<string>();
-  hashtagClick = output<string>();
+  constructor() {
+    effect(() => {
+      const mediaLength = this.post().media?.length || 0;
+      if (!mediaLength) {
+        this.activeMediaIndex.set(0);
+        return;
+      }
+
+      if (this.activeMediaIndex() >= mediaLength) {
+        this.activeMediaIndex.set(0);
+      }
+    });
+  }
 
   toggleReadMore(): void {
-    this.showFullContent.update(v => !v);
+    this.showFullContent.update((value) => !value);
   }
 
   onLike(): void {
@@ -100,6 +107,10 @@ export class FeedPostCardComponent {
     this.share.emit(this.post());
   }
 
+  onShareTo(platform: string): void {
+    this.sharePlatform.emit(platform);
+  }
+
   onHide(): void {
     this.hide.emit(this.post()._id);
   }
@@ -112,15 +123,18 @@ export class FeedPostCardComponent {
     this.hashtagClick.emit(tag);
   }
 
-  playVideo(media: any): void {
-    // Optional: could open in a modal, but now we use inline <video>
-    if (media.url) {
-      // For inline, we rely on the video element; this method could be removed.
-    }
+  openLink(url: string): void {
+    window.open(url, '_blank', 'noopener');
   }
 
-  openLink(url: string): void {
-    window.open(url, '_blank');
+  goToProduct(post: FeedPost): void {
+    if (!post.product?.productId) return;
+    this.router.navigate(['/product', post.product.productId]);
+  }
+
+  goToStore(post: FeedPost): void {
+    if (!post.product?.storeLink) return;
+    this.router.navigate(['/store', post.product.storeLink]);
   }
 
   getBadgeColor(badge: string): string {
@@ -132,35 +146,22 @@ export class FeedPostCardComponent {
       'veteran': '#6b7280'
     };
 
-    if (this.isValidBadge(badge)) {
-      return colors[badge];
-    }
-
-    return '#667eea';
+    return this.isValidBadge(badge) ? colors[badge] : '#667eea';
   }
 
   private isValidBadge(badge: string): badge is BadgeType {
     return ['top-promoter', 'verified', 'rising-star', 'expert', 'veteran'].includes(badge);
   }
 
-  // Open WhatsApp chat (example – you can adjust the link structure)
   openWhatsApp(post: FeedPost): void {
-    // Assuming the post has a contact number or WhatsApp link
-    // e.g., post.campaign?.contactWhatsapp or post.author?.phone
-    //console.log('FeedPost ',post)
     const phone = post.phone;
-    if (phone) {
-      const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I’m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
-      window.open(url, '_blank');
-    } else {
-        this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
+    if (!phone) {
+      this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
+      return;
     }
-  }
 
-  toggleFollow(post: FeedPost): void {
-    // This would ideally emit an event to the parent to handle follow/unfollow logic
-    // For now, we can just show a snackbar as a placeholder
-    this.snackBar.open('Follow/unfollow functionality not implemented', 'OK', { duration: 2000 });
+    const url = `https://wa.me/${phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I%27m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
+    window.open(url, '_blank', 'noopener');
   }
 
   onDelete(post: FeedPost): void {
@@ -176,38 +177,50 @@ export class FeedPostCardComponent {
     this.feedService.deletePost(post._id, userId).subscribe({
       next: () => {
         this.snackBar.open('Post deleted successfully', 'OK', { duration: 2000 });
-        this.postDeleted.emit(post._id);   // notify parent to remove it
+        this.postDeleted.emit(post._id);
       },
-      error: (err) => {
-        console.error('Delete failed', err);
+      error: () => {
         this.snackBar.open('Failed to delete post', 'OK', { duration: 2000 });
       }
     });
   }
 
   onEdit(post: FeedPost): void {
-    this.router.navigate(['/dashboard/community/feeds/edit', post._id]); 
-  }
-  
-  viewProfile(post: FeedPost) {
-     this.router.navigate(['/dashboard/profile', post.author?._id]); 
+    this.router.navigate(['/dashboard/community/feeds/edit', post._id]);
   }
 
+  viewProfile(post: FeedPost): void {
+    if (!post.author?._id) return;
+    this.router.navigate(['/dashboard/profile', post.author._id]);
+  }
 
-  openImageViewer(media: any) {
-    // Get all images from the post
-    const images = this.post().media?.filter(m => m.type === 'image') || [];
-    
-    if (images.length === 0) return;
-    
-    // Find the index of the clicked image
-    const initialIndex = images.findIndex(img => img.url === media.url);
-    
+  nextMedia(): void {
+    const total = this.post().media?.length || 0;
+    if (total <= 1) return;
+    this.activeMediaIndex.update((index) => (index + 1) % total);
+  }
+
+  previousMedia(): void {
+    const total = this.post().media?.length || 0;
+    if (total <= 1) return;
+    this.activeMediaIndex.update((index) => (index - 1 + total) % total);
+  }
+
+  selectMedia(index: number): void {
+    this.activeMediaIndex.set(index);
+  }
+
+  openImageViewer(media: any): void {
+    const images = this.post().media?.filter((entry) => entry.type === 'image') || [];
+    if (!images.length) return;
+
+    const initialIndex = images.findIndex((entry) => entry.url === media.url);
+
     this.dialog.open(ImageViewerComponent, {
       data: {
-        images: images.map(img => ({
-          url: img.url,
-          thumbnail: img.thumbnail,
+        images: images.map((entry) => ({
+          url: entry.url,
+          thumbnail: entry.thumbnail,
           alt: `Image from ${this.post().author?.displayName || 'post'}`
         })),
         initialIndex: initialIndex >= 0 ? initialIndex : 0,
@@ -220,8 +233,8 @@ export class FeedPostCardComponent {
       height: '100%',
       width: '100%',
       hasBackdrop: true,
-      disableClose: true, // This prevents closing on backdrop click
-      autoFocus: false // Prevent auto-focus on dialog open
+      disableClose: true,
+      autoFocus: false
     });
   }
 }

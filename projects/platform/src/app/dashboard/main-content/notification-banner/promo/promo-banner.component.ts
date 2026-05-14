@@ -1,11 +1,11 @@
 // promo-banner.component.ts
-import { Component, Input, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { NotificationBannerService, PromoData } from '../notfication-banner.service';
 
 @Component({
@@ -57,7 +57,7 @@ import { NotificationBannerService, PromoData } from '../notfication-banner.serv
   styleUrls: ['./promo-banner.component.scss']
 })
 export class PromoBannerComponent implements OnInit {
-  @Input({ required: true }) user!: () => UserInterface | null;
+  readonly user = input<UserInterface | null>(null);
   
   private router = inject(Router);
   private promoBannerService = inject(NotificationBannerService);

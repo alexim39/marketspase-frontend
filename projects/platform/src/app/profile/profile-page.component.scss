@@ -1,74 +1,149 @@
+// profile-page.component.scss
 @import '../../styles/variables';
 @import '../../styles/mixins';
 
-
 :host {
   background: $background-color !important;
-  display: block; // ensures the host takes up full width/height
-  min-height: 100vh; // if you want full viewport height
+  display: block;
+  min-height: 100vh;
 }
 
 .profile-container {
- max-width: 800px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: $spacing-4;
+  padding: $spacing-3;
 
+  @include mobile {
+    padding: $spacing-2;
+  }
 
+  @include tablet {
+    padding: $spacing-4;
+  }
+
+  // Loading & Error States
   .loading-state, .error-state {
     @include flex-center;
     flex-direction: column;
-    min-height: 300px;
+    min-height: 400px;
+    gap: $spacing-4;
   }
 
   .error-state {
     mat-icon {
-      font-size: 48px;
+      font-size: 56px;
+      width: 56px;
+      height: 56px;
       color: $error-color;
-      margin-bottom: $spacing-4;
+      opacity: 0.7;
     }
   }
 
+  // Profile Header - Modern Card Design
   .profile-header {
     background: $surface-color;
     border-radius: $border-radius-xl;
     overflow: hidden;
-    margin-bottom: $spacing-6;
-    box-shadow: $shadow-sm;
+    margin-bottom: $spacing-4;
+    box-shadow: $shadow-md;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: $shadow-lg;
+    }
 
     .profile-cover {
-      height: 200px;
-      background: linear-gradient(135deg, $primary-color, $secondary-color);
+      height: 160px;
+      background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+      position: relative;
+
+      @include mobile {
+        height: 120px;
+      }
     }
 
     .profile-info {
       display: flex;
-      gap: $spacing-6;
-      padding: $spacing-6;
-      margin-top: -60px;
+      gap: $spacing-5;
+      padding: 0 $spacing-6 $spacing-6 $spacing-6;
+      margin-top: -48px;
+      position: relative;
+      z-index: 2;
+
+      @include mobile {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: $spacing-3;
+        padding: 0 $spacing-4 $spacing-4 $spacing-4;
+        margin-top: -40px;
+      }
+
+      @include tablet {
+        gap: $spacing-4;
+      }
 
       .profile-avatar {
-        width: 120px;
-        height: 120px;
+        width: 112px;
+        height: 112px;
         border-radius: 50%;
         border: 4px solid $surface-color;
         object-fit: cover;
+        box-shadow: $shadow-md;
+        background: $surface-color;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: scale(1.02);
+        }
+
+        @include mobile {
+          width: 88px;
+          height: 88px;
+          border-width: 3px;
+        }
       }
 
       .profile-details {
         flex: 1;
+        min-width: 0;
+
+        @include mobile {
+          width: 100%;
+        }
 
         .name-row {
           display: flex;
           align-items: center;
           gap: $spacing-2;
+          flex-wrap: wrap;
+
+          @include mobile {
+            justify-content: center;
+          }
 
           h1 {
             margin: 0;
             @include heading-medium;
+            font-weight: $font-weight-bold;
+            letter-spacing: -0.02em;
+
+            @include mobile {
+              @include heading-small;
+            }
           }
 
           .verified-badge {
             color: $primary-color;
+            font-size: 22px;
+            width: 22px;
+            height: 22px;
+
+            @include mobile {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
           }
         }
 
@@ -76,11 +151,61 @@
           @include body-large;
           color: $text-secondary;
           margin-bottom: $spacing-3;
+          font-weight: $font-weight-normal;
+
+          @include mobile {
+            @include body-medium;
+            margin-bottom: $spacing-2;
+          }
+        }
+
+        .role-chip-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: $spacing-2;
+          margin-bottom: $spacing-4;
+
+          @include mobile {
+            justify-content: center;
+            margin-bottom: $spacing-3;
+          }
+        }
+
+        .role-pill {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 14px;
+          border-radius: 100px;
+          background: rgba($primary-color, 0.12);
+          color: $primary-color;
+          @include caption;
+          font-weight: $font-weight-semibold;
+          letter-spacing: 0.01em;
+
+          &.subtle {
+            background: rgba($text-secondary, 0.1);
+            color: $text-primary;
+          }
+        }
+
+        .headline {
+          @include body-medium;
+          font-weight: $font-weight-semibold;
+          color: $text-primary;
+          margin-bottom: $spacing-2;
+          line-height: 1.4;
         }
 
         .bio {
           @include body-medium;
           margin-bottom: $spacing-4;
+          color: $text-secondary;
+          line-height: 1.5;
+
+          @include mobile {
+            @include body-small;
+            margin-bottom: $spacing-3;
+          }
         }
 
         .meta-row {
@@ -88,6 +213,15 @@
           flex-wrap: wrap;
           gap: $spacing-4;
           margin-bottom: $spacing-4;
+          padding: $spacing-2 0;
+          border-top: 1px solid rgba($border-color, 0.3);
+          border-bottom: 1px solid rgba($border-color, 0.3);
+
+          @include mobile {
+            justify-content: center;
+            gap: $spacing-3;
+            margin-bottom: $spacing-3;
+          }
 
           .meta-item {
             display: flex;
@@ -98,32 +232,145 @@
 
             mat-icon {
               font-size: 18px;
+              width: 18px;
+              height: 18px;
+              opacity: 0.7;
+
+              @include mobile {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+              }
             }
+          }
+        }
+
+        .achievement-row {
+          display: grid;
+          gap: $spacing-3;
+          margin-bottom: $spacing-4;
+
+          @include mobile {
+            gap: $spacing-2;
+          }
+        }
+
+        .level-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: $spacing-3;
+          width: fit-content;
+          padding: $spacing-3 $spacing-4;
+          border-radius: $border-radius-xl;
+          background: linear-gradient(135deg, rgba($primary-color, 0.12), rgba($secondary-color, 0.08));
+          border: 1px solid rgba($primary-color, 0.15);
+          transition: transform 0.2s ease;
+
+          &:hover {
+            transform: translateY(-1px);
+          }
+
+          @include mobile {
+            width: 100%;
+            justify-content: center;
+          }
+
+          mat-icon {
+            color: $primary-color;
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+          }
+
+          strong {
+            display: block;
+            font-size: 18px;
+          }
+
+          span {
+            @include caption;
+            color: $text-secondary;
+          }
+        }
+
+        .featured-badge-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: $spacing-2;
+
+          @include mobile {
+            justify-content: center;
+          }
+        }
+
+        .featured-badge-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: $spacing-2;
+          padding: $spacing-2 $spacing-3;
+          border-radius: 100px;
+          border: 1px solid rgba($border-color, 0.5);
+          background: rgba($surface-color, 0.95);
+          @include caption;
+          font-weight: $font-weight-medium;
+          transition: all 0.2s ease;
+
+          &:hover {
+            border-color: rgba($primary-color, 0.3);
+            transform: translateY(-1px);
+          }
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
           }
         }
 
         .stats-row {
           display: flex;
           gap: $spacing-6;
-          margin-bottom: $spacing-4;
+          margin-bottom: $spacing-5;
+          padding: $spacing-2 0;
+
+          @include mobile {
+            justify-content: space-around;
+            gap: $spacing-3;
+            margin-bottom: $spacing-4;
+          }
 
           .stat {
             cursor: pointer;
             text-align: center;
+            transition: transform 0.2s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+
+              .stat-value {
+                color: $primary-color;
+              }
+            }
+
+            &:active {
+              transform: translateY(0);
+            }
 
             .stat-value {
               display: block;
               @include heading-small;
-              font-weight: $font-weight-semibold;
+              font-weight: $font-weight-bold;
+              transition: color 0.2s ease;
+
+              @include mobile {
+                @include body-large;
+              }
             }
 
             .stat-label {
               @include caption;
               color: $text-secondary;
-            }
-
-            &:hover .stat-value {
-              color: $primary-color;
+              font-weight: $font-weight-medium;
             }
           }
         }
@@ -131,18 +378,540 @@
         .action-row {
           display: flex;
           gap: $spacing-2;
+
+          @include mobile {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+
+          button {
+            min-width: 120px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+            &:hover {
+              transform: translateY(-1px);
+              box-shadow: $shadow-sm;
+            }
+
+            @include mobile {
+              min-width: 100px;
+            }
+          }
         }
       }
     }
   }
 
+  // Cards Base Style
+  .profile-card,
+  .analytics-section,
+  .portfolio-section,
+  .badge-summary-card,
+  .badge-section {
+    background: $surface-color;
+    border: 1px solid rgba($border-color, 0.5);
+    border-radius: $border-radius-xl;
+    padding: $spacing-5;
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+      box-shadow: $shadow-md;
+    }
+
+    @include mobile {
+      padding: $spacing-4;
+    }
+  }
+
+  // Profile Overview Grid
+  .profile-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-4;
+    margin-bottom: $spacing-4;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-3;
+    }
+
+    @include tablet {
+      gap: $spacing-3;
+    }
+  }
+
+  // Section Headers
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-3;
+    margin-bottom: $spacing-4;
+
+    @include mobile {
+      margin-bottom: $spacing-3;
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-2;
+    }
+
+    h3 {
+      margin: 0;
+      @include heading-small;
+      font-weight: $font-weight-bold;
+      letter-spacing: -0.01em;
+    }
+
+    h4 {
+      margin: 0;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+    }
+
+    p {
+      margin: $spacing-1 0 0;
+      @include body-small;
+      color: $text-secondary;
+      line-height: 1.4;
+    }
+
+    &.compact {
+      margin-bottom: $spacing-3;
+
+      h4 {
+        @include body-large;
+      }
+    }
+  }
+
+  // Overview Copy
+  .overview-copy {
+    display: grid;
+    gap: $spacing-4;
+
+    p {
+      margin: 0;
+      @include body-medium;
+      color: $text-primary;
+      line-height: 1.6;
+    }
+  }
+
+  // Pill Lists
+  .pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+  }
+
+  .info-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: rgba($secondary-color, 0.1);
+    border: 1px solid rgba($secondary-color, 0.2);
+    @include caption;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba($secondary-color, 0.15);
+      transform: translateY(-1px);
+    }
+  }
+
+  // Social Links
+  .social-link-list {
+    display: grid;
+    gap: $spacing-2;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $border-radius-lg;
+    background: rgba($background-color, 0.6);
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid rgba($border-color, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: rgba($primary-color, 0.3);
+      background: rgba($background-color, 0.8);
+      transform: translateX(4px);
+    }
+  }
+
+  .social-link-copy {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    min-width: 0;
+
+    mat-icon {
+      color: $primary-color;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    strong {
+      display: block;
+      font-weight: $font-weight-semibold;
+      @include body-small;
+    }
+
+    span {
+      display: block;
+      @include caption;
+      color: $text-secondary;
+    }
+  }
+
+  // Empty States
+  .empty-inline-state {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-4;
+    border-radius: $border-radius-lg;
+    background: rgba($background-color, 0.5);
+    color: $text-secondary;
+
+    p {
+      margin: 0;
+      @include body-small;
+    }
+
+    mat-icon {
+      opacity: 0.5;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  // Analytics Section
+  .analytics-section {
+    margin-bottom: $spacing-4;
+  }
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-3;
+
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-2;
+    }
+
+    @include tablet {
+      gap: $spacing-2;
+    }
+  }
+
+  .metric-card {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: $spacing-3;
+    padding: $spacing-4;
+    border-radius: $border-radius-lg;
+    background: rgba($background-color, 0.7);
+    border: 1px solid rgba($border-color, 0.3);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+      border-color: rgba($primary-color, 0.2);
+    }
+
+    @include mobile {
+      grid-template-columns: 40px 1fr;
+      gap: $spacing-2;
+      padding: $spacing-3;
+    }
+
+    &.accent {
+      background: linear-gradient(135deg, rgba($primary-color, 0.08), rgba($secondary-color, 0.08));
+      border-color: rgba($primary-color, 0.2);
+    }
+  }
+
+  .metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba($primary-color, 0.12);
+    color: $primary-color;
+
+    @include mobile {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .metric-copy {
+    display: grid;
+    gap: 4px;
+
+    strong {
+      @include heading-small;
+      font-weight: $font-weight-bold;
+
+      @include mobile {
+        font-size: 16px;
+      }
+    }
+
+    small {
+      @include caption;
+      color: $text-secondary;
+    }
+  }
+
+  .metric-label {
+    @include caption;
+    color: $text-secondary;
+    font-weight: $font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  // Portfolio Section
+  .portfolio-section {
+    display: grid;
+    gap: $spacing-5;
+    margin-bottom: $spacing-4;
+
+    @include mobile {
+      gap: $spacing-4;
+    }
+  }
+
+  .portfolio-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-3;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-2;
+    }
+
+    @include tablet {
+      gap: $spacing-2;
+    }
+  }
+
+  .portfolio-summary-card {
+    display: grid;
+    gap: $spacing-2;
+    padding: $spacing-4;
+    background: rgba($background-color, 0.5);
+    border-radius: $border-radius-lg;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba($background-color, 0.7);
+    }
+
+    strong {
+      @include heading-small;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+    }
+
+    p {
+      margin: 0;
+      @include body-small;
+      color: $text-secondary;
+      line-height: 1.4;
+    }
+  }
+
+  .portfolio-kicker {
+    @include caption;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: $font-weight-semibold;
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-3;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-3;
+    }
+  }
+
+  .portfolio-list {
+    display: grid;
+    gap: $spacing-3;
+  }
+
+  .portfolio-item {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: $spacing-3;
+    align-items: start;
+    padding: $spacing-3 0;
+    border-bottom: 1px solid rgba($border-color, 0.3);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateX(4px);
+    }
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    @include mobile {
+      grid-template-columns: 56px 1fr;
+      gap: $spacing-2;
+    }
+  }
+
+  .portfolio-media {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: rgba($background-color, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: $text-secondary;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      opacity: 0.5;
+    }
+
+    @include mobile {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+    }
+  }
+
+  .portfolio-copy {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+
+    strong, span, small {
+      display: block;
+    }
+
+    strong {
+      font-weight: $font-weight-semibold;
+      @include body-small;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    small {
+      @include caption;
+      color: $text-secondary;
+    }
+  }
+
+  .portfolio-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+  }
+
+  .portfolio-meta {
+    @include body-small;
+    color: $text-secondary;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: rgba($primary-color, 0.12);
+    color: $primary-color;
+    @include caption;
+    text-transform: capitalize;
+    font-weight: $font-weight-medium;
+
+    &.success {
+      background: rgba($success-color, 0.12);
+      color: $success-color;
+    }
+  }
+
+  // Tabs
   .tab-content {
-    padding: $spacing-4 0;
+    padding: $spacing-5 0;
+
+    @include mobile {
+      padding: $spacing-4 0;
+    }
 
     .empty-state {
       text-align: center;
-      padding: $spacing-8;
+      padding: $spacing-8 $spacing-4;
       color: $text-secondary;
+
+      mat-icon {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+        margin-bottom: $spacing-4;
+        opacity: 0.4;
+      }
+
+      p {
+        @include body-medium;
+        margin: 0 0 $spacing-3;
+      }
     }
 
     .posts-grid {
@@ -160,93 +929,253 @@
       height: 1px;
     }
   }
-}
 
-@include mobile {
-  // Profile info section (mobile)
-  .profile-info {
+  // Badges Tab
+  .badges-tab {
+    display: grid;
+    gap: $spacing-5;
+
+    @include mobile {
+      gap: $spacing-4;
+    }
+  }
+
+  .badge-summary-card {
+    margin-bottom: 0;
+  }
+
+  .summary-top {
     display: flex;
-    flex-direction: column; // stack vertically on mobile
-    gap: $spacing-4;        // smaller gap
-    padding: $spacing-4;    // reduced padding
-    margin-top: -40px;      // adjust negative margin (smaller)
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    flex-wrap: wrap;
 
-    .profile-avatar {
-      width: 80px;           // smaller avatar
-      height: 80px;
-      border-width: 3px;     // slightly thinner border
-      margin: 0 auto;        // center on mobile
+    @include mobile {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-2;
+    }
+  }
+
+  .summary-label {
+    display: block;
+    @include caption;
+    color: $text-secondary;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .summary-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    border-radius: 100px;
+    background: rgba($primary-color, 0.12);
+    color: $primary-color;
+    @include caption;
+    font-weight: $font-weight-semibold;
+  }
+
+  .summary-meta {
+    margin: $spacing-3 0;
+    @include caption;
+    color: $text-secondary;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+
+    @include mobile {
+      flex-direction: column;
+    }
+  }
+
+  .badge-section {
+    margin-top: 0;
+
+    h3 {
+      margin: 0;
+      @include heading-small;
+      font-weight: $font-weight-bold;
+    }
+  }
+
+  .badge-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    margin-bottom: $spacing-4;
+
+    @include mobile {
+      flex-direction: column;
+      align-items: stretch;
+      gap: $spacing-2;
+    }
+  }
+
+  .next-badge-list {
+    display: grid;
+    gap: $spacing-3;
+    margin-top: $spacing-3;
+  }
+
+  .next-badge-card {
+    padding: $spacing-4;
+    border-radius: $border-radius-lg;
+    background: rgba($background-color, 0.4);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba($background-color, 0.6);
     }
 
-    .profile-details {
-      width: 100%;
-      text-align: center;    // center text for mobile
+    p {
+      margin: $spacing-2 0 0;
+      @include body-small;
+      color: $text-secondary;
+      line-height: 1.4;
+    }
 
-      .name-row {
-        justify-content: center;
-        flex-wrap: wrap;      // allow wrapping if needed
-        gap: $spacing-1;
+    mat-progress-bar {
+      margin-top: $spacing-3;
+    }
+  }
 
-        h1 {
-          @include heading-small; // smaller heading
-        }
+  .next-badge-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-3;
+    flex-wrap: wrap;
+  }
+
+  .next-badge-title {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    flex: 1;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    strong {
+      font-weight: $font-weight-semibold;
+    }
+
+    small {
+      display: block;
+      @include caption;
+      color: $text-secondary;
+    }
+  }
+
+  .earned-badge-grid {
+    display: grid;
+    gap: $spacing-3;
+    margin-top: $spacing-3;
+  }
+
+  .earned-badge-card {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: $spacing-3;
+    padding: $spacing-4;
+    border-radius: $border-radius-lg;
+    background: rgba($background-color, 0.4);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateX(4px);
+      background: rgba($background-color, 0.6);
+    }
+
+    @include mobile {
+      grid-template-columns: 48px 1fr;
+      gap: $spacing-2;
+      padding: $spacing-3;
+    }
+  }
+
+  .earned-badge-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+    margin-bottom: $spacing-2;
+  }
+
+  .earned-badge-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    @include mobile {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
       }
+    }
+  }
 
-      .username {
-        @include body-medium;     // smaller username
-        margin-bottom: $spacing-2;
-      }
+  .earned-badge-copy {
+    p {
+      margin: $spacing-2 0;
+      @include body-small;
+      color: $text-secondary;
+      line-height: 1.4;
+    }
 
-      .bio {
-        @include body-small;      // smaller bio
-        margin-bottom: $spacing-3;
-      }
+    small {
+      @include caption;
+      color: $text-secondary;
+    }
+  }
 
-      .meta-row {
-        justify-content: center;  // center meta items
-        gap: $spacing-3;
-        margin-bottom: $spacing-3;
+  // Loading Spinner
+  .loading-spinner {
+    @include flex-center;
+    padding: $spacing-8;
 
-        .meta-item {
-          @include caption;       // keep small
-          mat-icon {
-            font-size: 16px;      // smaller icons
-          }
-        }
-      }
-
-      .stats-row {
-        justify-content: space-around; // spread stats evenly
-        gap: $spacing-2;
-        margin-bottom: $spacing-3;
-
-        .stat {
-          .stat-value {
-            @include body-medium;     // smaller value
-          }
-          .stat-label {
-            @include caption;         // keep label small
-          }
-        }
-      }
-
-      .action-row {
-        justify-content: center;
-        flex-wrap: wrap;            // wrap buttons if needed
-        gap: $spacing-2;
-      }
+    mat-spinner {
+      opacity: 0.6;
     }
   }
 }
 
-// ----------------------------------------
-// Followers / Following List – Professional Design
-// ----------------------------------------
-
+// Followers / Following List - Professional Design
 .user-list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2; // subtle separation between items
+  gap: $spacing-2;
 
   .user-item {
     display: flex;
@@ -255,41 +1184,48 @@
     padding: $spacing-3 $spacing-4;
     cursor: pointer;
     border-radius: $border-radius-lg;
-    background: $surface-color; // subtle background for each item
-    transition: all 0.2s ease;
-    border: 1px solid transparent; // placeholder for hover effect
+    background: $surface-color;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba($border-color, 0.3);
 
     &:hover {
-      background: color-mix(in srgb, $surface-color, black 3%);
-      border-color: rgba($primary-color, 0.1);
+      background: color-mix(in srgb, $surface-color, black 2%);
+      border-color: rgba($primary-color, 0.2);
+      transform: translateX(4px);
       box-shadow: $shadow-sm;
-
-      // Optional: slight scale effect
-      // transform: translateY(-1px);
     }
 
-    // Active/pressed state
     &:active {
-      background: color-mix(in srgb, $surface-color, black 6%);
       transform: scale(0.99);
     }
 
+    @include mobile {
+      padding: $spacing-2 $spacing-3;
+    }
+
     .user-avatar {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba($primary-color, 0.1); // subtle ring
-      transition: border-color 0.2s;
+      border: 2px solid rgba($primary-color, 0.15);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
 
       &:hover {
-        border-color: rgba($primary-color, 0.3);
+        border-color: rgba($primary-color, 0.4);
+        transform: scale(1.02);
+      }
+
+      @include mobile {
+        width: 44px;
+        height: 44px;
       }
     }
 
     .user-info {
       flex: 1;
-      min-width: 0; // enable truncation
+      min-width: 0;
 
       .user-name {
         display: block;
@@ -311,22 +1247,23 @@
       }
     }
 
-    // Optional follow button (add if you want quick action)
     .follow-btn {
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: all 0.2s ease;
       margin-left: auto;
       background: $primary-color;
       color: white;
       border: none;
-      padding: $spacing-1 $spacing-3;
-      border-radius: $border-radius-xl;
+      padding: $spacing-1 $spacing-4;
+      border-radius: 100px;
       font-size: $font-size-sm;
       font-weight: $font-weight-medium;
       cursor: pointer;
+      flex-shrink: 0;
 
       &:hover {
         background: darken($primary-color, 5%);
+        transform: translateY(-1px);
       }
     }
 
@@ -336,17 +1273,7 @@
   }
 }
 
-// Loading spinner – centered with nice spacing
-.loading-spinner {
-  @include flex-center;
-  padding: $spacing-8;
-
-  mat-spinner {
-    opacity: 0.7;
-  }
-}
-
-// Enhanced empty state (already present, but you can refine)
+// Enhanced Empty State
 .empty-state {
   text-align: center;
   padding: $spacing-8 $spacing-4;
@@ -357,12 +1284,38 @@
     margin: 0;
   }
 
-  // Optional icon
   mat-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    margin-bottom: $spacing-3;
-    opacity: 0.5;
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: $spacing-4;
+    opacity: 0.4;
+  }
+}
+
+// Material Tabs Override (if needed)
+::ng-deep {
+  .mat-mdc-tab-header {
+    border-bottom-color: rgba($border-color, 0.3) !important;
+  }
+
+  .mat-mdc-tab {
+    font-weight: $font-weight-medium !important;
+    letter-spacing: 0.01em !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .mat-mdc-tab:hover {
+    background: rgba($primary-color, 0.04) !important;
+  }
+
+  .mat-mdc-tab.mdc-tab--active {
+    .mdc-tab__text-label {
+      color: $primary-color !important;
+    }
+  }
+
+  .mat-mdc-tab .mdc-tab-indicator__content--underline {
+    border-color: $primary-color !important;
   }
 }

@@ -2,6 +2,11 @@ import { Routes } from "@angular/router";
 
 export const FinancialRoutes: Routes = [
 
+    {
+        path: 'analytics',
+        loadComponent: () => import('./analytics/financial-analytics.component').then(c => c.FinancialAnalyticsComponent),
+        title: 'Financial Analytics - Admin Dashboard'
+    },
     {   path: '', 
         loadComponent: () => import('./financial-mgt.component').then(c => c.FinancialMgtComponent),
         title: 'Financial Management - Admin Dashboard'

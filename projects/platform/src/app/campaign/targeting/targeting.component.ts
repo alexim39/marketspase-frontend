@@ -12,7 +12,7 @@ import { TargetingComponent } from './components/targeting/targeting.component';
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 import { ErrorStateComponent } from './components/error-state/error-state.component';
 
-import { CampaignInterface, TargetingArea, TargetingSettings } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, TargetingArea, TargetingSettings } from '@shared/services';
 import { CampaignTargetingService } from './targeting.service';
 
 @Component({

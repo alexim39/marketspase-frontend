@@ -1,6 +1,7 @@
 // financial-management.component.ts
 import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
@@ -13,10 +14,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, debounceTime, distinctUntilChanged, Subscription, interval } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 
 import { FinancialService, Transaction, WithdrawalRequest, FinancialStats } from './financial.service';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+import { FinanceSectionNavComponent } from './shared/finance-section-nav.component';
 import { WithdrawalDetailsDialogComponent } from './withdrawal-details-dialog/withdrawal-details-dialog.component';
 
 @Component({
@@ -26,6 +27,7 @@ import { WithdrawalDetailsDialogComponent } from './withdrawal-details-dialog/wi
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatIconModule,
     MatButtonModule,
     MatTableModule,
@@ -37,6 +39,7 @@ import { WithdrawalDetailsDialogComponent } from './withdrawal-details-dialog/wi
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    FinanceSectionNavComponent,
   ],
   providers: [FinancialService]
 })
@@ -49,19 +52,38 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   readonly transactions = signal<Transaction[]>([]);
   readonly withdrawalRequests = signal<WithdrawalRequest[]>([]);
   readonly financialStats = signal<FinancialStats>({
-    totalRevenue: 0,
-    platformEarnings: 0,
-    totalWithdrawals: 0,
+    year: new Date().getFullYear(),
+    baseCurrency: 'NGN',
+    totalCashIn: 0,
+    totalCashOut: 0,
+    netCashFlow: 0,
+    walletFunding: 0,
+    storefrontVolume: 0,
+    platformRevenue: 0,
+    campaignSpend: 0,
+    promoterPayouts: 0,
+    walletRefunds: 0,
+    totalTransactions: 0,
+    successfulTransactions: 0,
+    totalWithdrawalCount: 0,
+    totalWithdrawalAmount: 0,
+    successfulWithdrawalCount: 0,
     successfulWithdrawals: 0,
-    failedWithdrawals: 0,
-    pendingWithdrawals: 0,
+    processingWithdrawalCount: 0,
     processingWithdrawals: 0,
-    marketerSpend: 0,
-    promoterEarnings: 0,
+    pendingApprovalCount: 0,
+    pendingApprovals: 0,
+    failedWithdrawalCount: 0,
+    failedWithdrawals: 0,
     activeBalance: 0,
     reservedBalance: 0,
-    totalTransactions: 0,
-    successfulTransactions: 0
+    marketerAvailable: 0,
+    marketerReserved: 0,
+    promoterAvailable: 0,
+    promoterReserved: 0,
+    paidOrders: 0,
+    totalOrders: 0,
+    averageOrderValue: 0,
   });
 
   readonly isLoading = signal(true);
@@ -78,6 +100,14 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
   private pollingSubscription?: Subscription;
+  readonly currencyLabel = computed(() => this.financialStats().baseCurrency || 'NGN');
+  readonly withdrawalSuccessRate = computed(() => {
+    const total = this.financialStats().totalWithdrawalCount || 0;
+    if (!total) {
+      return 0;
+    }
+    return ((this.financialStats().successfulWithdrawalCount || 0) / total) * 100;
+  });
 
   // Status badge mapping
   readonly statusConfig: Record<string, { class: string; icon: string; label: string }> = {
@@ -151,6 +181,20 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
     'status',
     'date'
   ];
+
+  readonly categoryLabels: Record<string, string> = {
+    deposit: 'Wallet funding',
+    withdrawal: 'Withdrawal',
+    campaign: 'Campaign spend',
+    promotion: 'Promotion payout',
+    fee: 'Platform fee',
+    refund: 'Refund',
+    transfer: 'Transfer',
+    commission: 'Commission',
+    store_sale: 'Store sale',
+    store_promotion: 'Store promotion',
+    ai_subscription: 'AI subscription',
+  };
 
   ngOnInit() {
     this.loadFinancialData();
@@ -408,8 +452,20 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
   }
 
   exportTransactions() {
-    // Implement if needed
-    this.showError('Export transactions not implemented');
+    this.financialService.exportTransactions({
+      format: 'csv'
+    }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          const link = document.createElement('a');
+          link.href = response.data.url;
+          link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+          link.click();
+          this.showSuccess('Transactions exported successfully');
+        }
+      },
+      error: () => this.showError('Error exporting transactions')
+    });
   }
 
   private showSuccess(message: string) {
@@ -451,5 +507,13 @@ export class FinancialMgtComponent implements OnInit, OnDestroy {
         this.showError('Error loading transactions');
       }
     });
+  }
+
+  getCategoryLabel(category: string): string {
+    return this.categoryLabels[category] || category.replace(/_/g, ' ');
+  }
+
+  getTypeLabel(type: string): string {
+    return type.replace(/_/g, ' ');
   }
 }

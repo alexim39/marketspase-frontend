@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { PromotionInterface, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { PromotionInterface, UserInterface } from '@shared/services';
 import { PromoterService } from '../../../promoter/promoter.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from '../../../common/services/user.service';

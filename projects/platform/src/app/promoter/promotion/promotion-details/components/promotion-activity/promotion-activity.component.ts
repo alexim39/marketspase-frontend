@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { PromotionInterface } from '@shared/services';
 
 @Component({
   selector: 'app-promotion-activity',

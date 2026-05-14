@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { DeviceService } from '../../../../../../../../shared-services/src/public-api';
+import { DeviceService } from '@shared/services';
 
 interface CampaignMetrics {
   pendingEarnings: number;
@@ -70,11 +70,11 @@ export class PromoterQuickStatsMobileComponent {
         value: this.formatCurrency(this.metrics.pendingEarnings),
         icon: 'pending_actions',
         category: 'earnings',
-        description: 'Awaiting verification',
+        description: 'From tracked clicks',
         trend: {
-          value: 'processing',
+          value: 'live',
           positive: true,
-          label: 'Under review'
+          label: 'Accruing'
         },
         highlight: true
       },
@@ -125,11 +125,11 @@ export class PromoterQuickStatsMobileComponent {
 
       // Engagement Category
       {
-        label: 'Total Views',
+        label: 'Total Clicks',
         value: this.formatNumber(this.metrics.totalViews),
-        icon: 'visibility',
+        icon: 'touch_app',
         category: 'engagement',
-        description: 'Lifetime reach'
+        description: 'Lifetime tracked clicks'
       },
       {
         label: 'Engagement Score',

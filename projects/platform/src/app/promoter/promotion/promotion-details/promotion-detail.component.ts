@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { PromotionInterface, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { PromotionInterface, UserInterface } from '@shared/services';
 import { PromoterService } from '../../promoter.service';
 import { interval } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -56,11 +56,12 @@ export class PromotionDetailComponent implements OnInit {
   public timeDifferenceInMilliseconds = signal(0);
   public progressPercentage = computed(() => {
     const promotionValue = this.promotion();
-    if (!promotionValue || !promotionValue.campaign.minViewsPerPromotion) return 0;
+    if (!promotionValue) return 0;
     
-    const views = promotionValue.proofViews || 0;
-    const minViews = promotionValue.campaign.minViewsPerPromotion;
-    return Math.min((views / minViews) * 100, 100);
+    const totalClicks = promotionValue.clickStats?.totalClicks || 0;
+    const billableClicks = promotionValue.clickStats?.billableClicks || 0;
+    if (!totalClicks) return 0;
+    return Math.min((billableClicks / totalClicks) * 100, 100);
   });
 
   public readonly api = this.promoterService.api;
@@ -192,13 +193,23 @@ export class PromotionDetailComponent implements OnInit {
     const promotion = this.promotion();
     if (!promotion) return;
 
-  const text = `
-  Hey! - Have you heard of MarketSpase?\n 
-  It's a platform where you earn passive income using your WhatsApp. You earn by posting on your WhatsApp status. I just promoted "*${promotion.campaign.title}*" on my status and got paid.\n
-  Check it out now on: https://marketspase.com
-  `;
+    const text = `Ad - ${promotion.upi}\nVisit ${this.getPromotionUrl(promotion)} for more.\n${promotion.campaign.caption}`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
+  }
+
+  copyPromotionLink(): void {
+    const promotion = this.promotion();
+    if (!promotion) return;
+
+    navigator.clipboard.writeText(this.getPromotionUrl(promotion)).then(() => {
+      this.snackBar.open('Promotion link copied', 'OK', { duration: 3000 });
+    });
+  }
+
+  getPromotionUrl(promotion: PromotionInterface): string {
+    if (promotion.promotionUrl) return promotion.promotionUrl;
+    return `${this.api.replace(/\/$/, '')}/campaign/track/${promotion.upi}`;
   }
 
   viewProofMedia(mediaUrl: string): void {

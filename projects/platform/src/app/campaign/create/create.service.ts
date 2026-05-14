@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { Observable, } from 'rxjs'; 
+import { ApiService } from '@shared/services';
 
 
 @Injectable()
@@ -16,6 +16,7 @@ export class CampaignService {
    * @returns An Observable that emits the API response or an error.
    */
   create(campaignData: FormData): Observable<any> {
+    //console.log('Submitting campaign data:', campaignData);
     return this.apiService.post<any>(`${this.apiUrl}/create`, campaignData, undefined, true);
   }
 
@@ -25,6 +26,7 @@ export class CampaignService {
    * @returns An Observable that emits the API response or an error.
    */
   save(campaignData: FormData): Observable<any> {
+    //console.log('Saving campaign data:', campaignData);
     return this.apiService.post<any>(`${this.apiUrl}/save`, campaignData, undefined, true);
   }
 

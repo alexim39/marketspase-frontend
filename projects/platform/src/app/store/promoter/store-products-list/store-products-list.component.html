@@ -1,0 +1,320 @@
+<!-- store-products-list.component.html -->
+<div class="store-products-container">
+  <!-- Store Header -->
+  @if (store() && !loading()) {
+    <div class="store-header">
+      <div class="store-header-content">
+        <div class="store-info">
+          <div class="store-logo">
+            @if (store()?.logo) {
+              <img [src]="store()?.logo" [alt]="store()?.name">
+            } @else {
+              <div class="logo-placeholder">
+                <mat-icon>store</mat-icon>
+              </div>
+            }
+          </div>
+          <div class="store-details">
+            <div class="store-name-row">
+              <h1 class="store-name">{{ store()?.name }}</h1>
+              @if (store()?.isVerified) {
+                <span class="verified-badge" matTooltip="Verified Store">
+                  <mat-icon>verified</mat-icon>
+                </span>
+              }
+              <span class="tier-badge" [class.premium]="store()?.verificationTier === 'premium'">
+                {{ store()?.verificationTier === 'premium' ? 'Premium' : 'Basic' }}
+              </span>
+            </div>
+            @if (store()?.description) {
+              <p class="store-description">{{ store()?.description }}</p>
+            }
+          </div>
+        </div>
+        <button mat-stroked-button class="visit-store-btn" (click)="visitStore()">
+          <mat-icon>storefront</mat-icon>
+          Visit Store
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Filters Sidebar -->
+    <aside class="filters-sidebar">
+      <div class="filters-header">
+        <h3>Filters</h3>
+        <button mat-button color="primary" (click)="clearFilters()" class="reset-btn">
+          <mat-icon>refresh</mat-icon>
+          Reset
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="filter-section">
+        <div class="search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            placeholder="Search products..."
+            [value]="searchQuery()"
+            (input)="onSearchInput($event)"
+            aria-label="Search products"
+          >
+          @if (searchQuery()) {
+            <button mat-icon-button class="clear-btn" (click)="searchQuery.set(''); applyFilters()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Stock Filter -->
+      <div class="filter-section">
+        <mat-checkbox 
+          [checked]="inStockOnly()"
+          (change)="inStockOnly.set(!inStockOnly()); applyFilters()"
+          class="stock-checkbox">
+          In Stock Only
+        </mat-checkbox>
+      </div>
+
+      <!-- Categories -->
+      @if (categories().length > 0) {
+        <div class="filter-section">
+          <h4>Categories</h4>
+          <div class="categories-list">
+            @for (cat of categories(); track cat.name) {
+              <button 
+                class="category-chip"
+                [class.active]="selectedCategory() === cat.name"
+                (click)="onCategoryChange(cat.name)">
+                <span>{{ cat.name | titlecase }}</span>
+                <span class="category-count">{{ cat.count }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Price Range -->
+      @if (priceRange().maxPrice > 0) {
+        <div class="filter-section">
+          <h4>Price Range</h4>
+          <div class="price-inputs">
+            <div class="price-field">
+              <label>Min</label>
+              <input 
+                type="number" 
+                placeholder="Min" 
+                [value]="minPrice()"
+                (change)="minPrice.set($any($event.target).value ? +$any($event.target).value : null)"
+                (blur)="applyFilters()"
+              >
+            </div>
+            <span class="price-separator">-</span>
+            <div class="price-field">
+              <label>Max</label>
+              <input 
+                type="number" 
+                placeholder="Max" 
+                [value]="maxPrice()"
+                (change)="maxPrice.set($any($event.target).value ? +$any($event.target).value : null)"
+                (blur)="applyFilters()"
+              >
+            </div>
+          </div>
+        </div>
+      }
+    </aside>
+
+    <!-- Products Content -->
+    <div class="products-content">
+      <!-- Toolbar -->
+      <div class="products-toolbar">
+        <div class="results-info">
+          <span class="results-count">{{ totalProducts() }}</span> products
+          @if (searchQuery() || selectedCategory() || inStockOnly()) {
+            <span class="filtered-info">• Filtered</span>
+          }
+        </div>
+        <div class="toolbar-actions">
+          <mat-form-field appearance="outline" class="sort-select" subscriptSizing="dynamic">
+            <mat-select 
+              [value]="selectedSort()" 
+              (selectionChange)="onSortChange($event.value)"
+              placeholder="Sort by">
+              <mat-option value="newest">Newest</mat-option>
+              <mat-option value="oldest">Oldest</mat-option>
+              <mat-option value="price_low">Price: Low to High</mat-option>
+              <mat-option value="price_high">Price: High to Low</mat-option>
+              <mat-option value="name">Name</mat-option>
+              <mat-option value="popularity">Popularity</mat-option>
+              <mat-option value="bestselling">Best Selling</mat-option>
+              <mat-option value="discount">Biggest Discount</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="loading-grid">
+          @for (item of [1,2,3,4,5,6]; track item) {
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-content">
+                <div class="skeleton-line wide"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <div class="error-state">
+          <mat-icon class="error-icon">error_outline</mat-icon>
+          <h3>Unable to Load Products</h3>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="loadProducts()">
+            <mat-icon>refresh</mat-icon>
+            Try Again
+          </button>
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && !error() && products().length === 0) {
+        <div class="empty-state">
+          <mat-icon class="empty-icon">inventory_2</mat-icon>
+          <h3>No Products Found</h3>
+          <p>This store hasn't published any products yet, or no products match your filters.</p>
+          <button mat-raised-button color="primary" (click)="clearFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+            Clear Filters
+          </button>
+        </div>
+      }
+
+      <!-- Products Grid -->
+      @if (!loading() && !error() && products().length > 0) {
+        <div class="products-grid">
+          @for (product of products(); track trackByProductId($index, product)) {
+            <mat-card class="product-card" appearance="outlined">
+              <!-- Product Image -->
+              <div class="product-image" (click)="viewProductDetails(product)">
+                @if (product.images?.[0]?.url) {
+                  <img 
+                    [src]="product.images[0].url" 
+                    [alt]="product.name"
+                    loading="lazy"
+                  >
+                } @else {
+                  <div class="image-placeholder">
+                    <mat-icon>image</mat-icon>
+                  </div>
+                }
+
+                <!-- Discount Badge -->
+                @if (getDiscountPercentage(product) > 0) {
+                  <div class="discount-badge">
+                    -{{ getDiscountPercentage(product) }}%
+                  </div>
+                }
+
+                <!-- Commission Badge -->
+                @if (product.promotion!.commissionRate > 0) {
+                  <div class="commission-badge">
+                    <mat-icon>trending_up</mat-icon>
+                    {{ product.promotion.commissionRate }}%
+                  </div>
+                }
+              </div>
+
+              <!-- Product Info -->
+              <mat-card-content>
+                <!-- Category -->
+                @if (product.category) {
+                  <span class="product-category">{{ product.category | titlecase }}</span>
+                }
+
+                <!-- Name -->
+                <h3 class="product-name" (click)="viewProductDetails(product)">
+                  {{ product.name }}
+                </h3>
+
+                <!-- Stock Status -->
+                <div class="stock-status">
+                  <span class="status-dot" [class]="getStockStatus(product).class"></span>
+                  <span>{{ getStockStatus(product).label }}</span>
+                </div>
+
+                <!-- Price -->
+                <div class="product-price">
+                  <span class="current-price">{{ product.price | currencyUtils:user?.wallets?.promoter?.currency }}</span>
+                  @if (product.originalPrice && product.originalPrice > product.price) {
+                    <span class="original-price">{{ product.originalPrice | currencyUtils:user?.wallets?.promoter?.currency }}</span>
+                  }
+                </div>
+              </mat-card-content>
+
+              <!-- Actions -->
+              <mat-card-actions>
+                <button 
+                  mat-button 
+                  color="primary" 
+                  class="view-btn"
+                  (click)="viewProductDetails(product)">
+                  <mat-icon>visibility</mat-icon>
+                  Details
+                </button>
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  class="buy-btn"
+                  (click)="buyProduct(product)">
+                  <mat-icon>shopping_bag</mat-icon>
+                  Buy
+                </button>
+                <button 
+                  mat-stroked-button 
+                  color="accent" 
+                  class="copy-btn"
+                  (click)="copyProductUrl(product)">
+                  <mat-icon>content_copy</mat-icon>
+                  Copy
+                </button>
+                <button 
+                  mat-icon-button 
+                  class="share-btn whatsapp-btn"
+                  (click)="generateWhatsAppMessage(product)"
+                  matTooltip="Share on WhatsApp">
+                  <mat-icon>whatsapp</mat-icon>
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (totalProducts() > 0 && !loading()) {
+        <div class="pagination-container">
+          <mat-paginator
+            [length]="totalProducts()"
+            [pageSize]="pageSize()"
+            [pageSizeOptions]="[12, 24, 48]"
+            [pageIndex]="currentPage() - 1"
+            (page)="onPageChange($event)"
+            showFirstLastButtons
+          >
+          </mat-paginator>
+        </div>
+      }
+    </div>
+  </div>
+</div>

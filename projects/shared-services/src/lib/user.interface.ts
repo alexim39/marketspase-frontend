@@ -18,6 +18,9 @@ export interface UserInterface {
     locationBasedAds?: boolean;
     categoryBasedAds?: boolean;
     adCategories?: string[];
+    financial?: {
+      displayCurrency?: string;
+    };
     theme?: {
       darkMode?: boolean;
       systemDefault?: boolean;
@@ -59,6 +62,21 @@ export interface UserInterface {
   professionalInfo?: {
     skills?: string[];
     jobTitle: string;
+    profileHeadline?: string;
+    businessProfile?: {
+      brandName?: string;
+      brandSummary?: string;
+      uniqueSellingPoints?: string[];
+    };
+    socialProfiles?: {
+      website?: string;
+      instagram?: string;
+      tiktok?: string;
+      facebook?: string;
+      x?: string;
+      youtube?: string;
+      linkedin?: string;
+    };
     experience: {
       company: string;
       startDate: Date;
@@ -91,11 +109,20 @@ export interface UserInterface {
       balance: number;
       reserved: number;
       currency: string;
+      baseCurrency?: string;
+      balancesByCurrency?: Record<string, number>;
+      reservedByCurrency?: Record<string, number>;
      transactions: {
         _id: string;
         amount?: number;
+        baseAmount?: number;
+        settlementAmount?: number;
         category?: string;
         createdAt: Date;
+        currency?: string;
+        baseCurrency?: string;
+        settlementCurrency?: string;
+        exchangeRate?: number;
         description?: string;
         status?: string;
         type?: string;
@@ -113,11 +140,20 @@ export interface UserInterface {
       balance: number;
       reserved: number;
       currency: string;
+      baseCurrency?: string;
+      balancesByCurrency?: Record<string, number>;
+      reservedByCurrency?: Record<string, number>;
       transactions: {
         _id: string;
         amount?: number;
+        baseAmount?: number;
+        settlementAmount?: number;
         category?: string;
         createdAt: Date;
+        currency?: string;
+        baseCurrency?: string;
+        settlementCurrency?: string;
+        exchangeRate?: number;
         description?: string;
         status?: string;
         type?: string;
@@ -149,4 +185,66 @@ export interface UserInterface {
   }[];
 
   isMarketingRep: boolean;
+
+  loginStreak?: {
+    currentStreak: number;
+    longestStreak: number;
+    lastQualifiedDateKey?: string | null;
+    lastQualifiedAt?: Date | null;
+    rewardCycleDayCount: number;
+    pendingCyclePoints: number;
+    withdrawablePoints: number;
+    totalPointsEarned: number;
+    totalPointsWithdrawn: number;
+    totalNairaWithdrawn: number;
+    lastRewardPoints: number;
+    lastRewardDateKey?: string | null;
+    lastWithdrawalAt?: Date | null;
+  };
+
+  badgeProfile?: {
+    level: number;
+    levelTitle: string;
+    experiencePoints: number;
+    badgesEarned: number;
+    lastBadgeUnlockedAt?: Date | null;
+    lastBadgeKey?: string | null;
+    lastEvaluatedAt?: Date | null;
+  };
+
+  gamificationProfile?: {
+    totalExperiencePoints: number;
+    currentLevel: number;
+    currentLevelTitle: string;
+    currentLevelMinExperiencePoints: number;
+    nextLevel?: number | null;
+    nextLevelTitle?: string | null;
+    nextLevelMinExperiencePoints?: number | null;
+    experiencePointsToNextLevel: number;
+    progressPercent: number;
+    totalEvents: number;
+    milestonesUnlocked: number;
+    badgesUnlocked: number;
+    lastActionKey?: string | null;
+    lastExperiencePointsAwarded: number;
+    lastEventAt?: Date | null;
+    recentLevelUpAt?: Date | null;
+    highestLevelReachedAt?: Date | null;
+    lastMilestoneKey?: string | null;
+    lastMilestoneUnlockedAt?: Date | null;
+    lastCalculatedAt?: Date | null;
+  };
+
+  activityLog?: Array<{
+    _id?: string;
+    action: string;
+    description: string;
+    resourceType?: string;
+    resourceId?: string;
+    metadata?: Record<string, any>;
+    severity?: 'info' | 'warning' | 'critical' | string;
+    timestamp: Date | string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+  }>;
 }

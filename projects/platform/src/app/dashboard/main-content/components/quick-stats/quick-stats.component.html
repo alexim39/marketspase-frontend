@@ -107,7 +107,7 @@
           </div>
           
           <!-- Community Stats -->
-          <!-- <div class="stats-item community-item">
+          <div class="stats-item community-item">
             <div class="stats-header">
               <h3 class="stats-title">Community Engagement</h3>
               <p class="stats-subtitle">Your social presence</p>
@@ -138,12 +138,21 @@
                   </div>
                   <div class="stat-content">
                     <span class="stat-number">{{ communityStats()?.posts || 0 }}</span>
-                    <span class="stat-label">Posts</span>
+                    <span class="stat-label">Posts & Threads</span>
+                  </div>
+                </div>
+                <div class="engagement-stat">
+                  <div class="stat-icon-wrapper likes">
+                    <mat-icon>chat</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <span class="stat-number">{{ communityStats()?.comments || 0 }}</span>
+                    <span class="stat-label">Replies & Comments</span>
                   </div>
                 </div>
               </div>
             </div>
-          </div> -->
+          </div>
         </mat-card-content>
       </mat-card>
     </div>

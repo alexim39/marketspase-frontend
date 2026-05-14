@@ -1,7 +1,7 @@
 // system.service.ts
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 export interface NotificationInterface {
   state: boolean; 
@@ -13,6 +13,12 @@ export interface ThemeInterface {
   highContrast: boolean;
   systemDefault: boolean;
   userId: string;
+}
+
+export interface AdPreferencesPayload {
+  locationBasedAds?: boolean;
+  categoryBasedAds?: boolean;
+  adCategories?: string[];
 }
 
 @Injectable()
@@ -35,7 +41,7 @@ export class SettingsService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-  submitAdsPreferences(formObject: { userId: string; preferences: any }): Observable<any> {
+  submitAdsPreferences(formObject: { userId?: string; preferences: AdPreferencesPayload }): Observable<any> {
     return this.apiService.put<any>(`${this.apiUrl}/preferences/ads`, formObject);
   }
 

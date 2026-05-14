@@ -1,10 +1,8 @@
-import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
-import { Observable, catchError, map, of, throwError, interval, switchMap, finalize, tap } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { catchError, finalize, map, Observable, of, tap, throwError } from 'rxjs';
+import { ApiService } from '@shared/services';
 
-// ============ INTERFACES ============
 export interface FeedAuthor {
   _id: string;
   username: string;
@@ -12,24 +10,120 @@ export interface FeedAuthor {
   avatar: string;
   role: string;
   rating?: number;
-  badge?: 'top-promoter' | 'verified' | 'rising-star' | 'expert' | 'veteran';
+  badge?: string;
+  isVerified?: boolean;
 }
 
-// feed.service.ts - Update the FeedPost interface
+export interface FeedProductSummary {
+  productId?: string;
+  storeId?: string;
+  storeName?: string;
+  storeLink?: string;
+  name?: string;
+  description?: string;
+  category?: string;
+  price?: number;
+  originalPrice?: number;
+  currency?: string;
+  commissionRate?: number;
+  commissionType?: string;
+  fixedCommission?: number;
+  productUrl?: string;
+  mainImage?: string;
+}
+
+export interface FeedChallengeSummary {
+  tag: string;
+  title?: string;
+  description?: string;
+  rewardLabel?: string;
+  startsAt?: string;
+  endsAt?: string;
+  isOfficial?: boolean;
+}
+
+export interface FeedStats {
+  postsToday: number;
+  activeUsers: number;
+  totalEngagement: number;
+  topHashtag: string;
+}
+
+export interface FeedTrendChallenge {
+  tag: string;
+  title: string;
+  description?: string;
+  rewardLabel?: string;
+  postCount: number;
+  totalEngagement: number;
+}
+
+export interface CreatorSpotlightEntry {
+  _id: string;
+  displayName: string;
+  username: string;
+  avatar?: string;
+  role: string;
+  rating?: number;
+  badge?: string;
+  engagementPoints: number;
+  postCount: number;
+}
+
+export interface ForumHighlight {
+  _id: string;
+  title: string;
+  content: string;
+  author?: FeedAuthor | null;
+  tags: string[];
+  topicTags: string[];
+  category?: string;
+  commentCount: number;
+  likeCount: number;
+  viewCount: number;
+  followerCount: number;
+  trendingScore: number;
+  media?: {
+    url: string;
+    type: 'image' | 'video' | 'audio';
+    originalName?: string;
+  } | null;
+  mediaItems?: Array<{
+    url: string;
+    type: 'image' | 'video' | 'audio';
+    originalName?: string;
+  }>;
+  createdAt: string;
+  isPinned?: boolean;
+}
+
+export interface FeedHotTopic {
+  topic: string;
+  label: string;
+  threadCount: number;
+  followerCount: number;
+  engagementScore: number;
+  latestActivityAt?: string;
+}
+
+export interface ForumSpotlightEntry {
+  _id: string;
+  displayName: string;
+  username: string;
+  avatar?: string;
+  role: string;
+  badge?: string;
+  threadCount: number;
+  commentCount: number;
+  engagementPoints: number;
+}
 
 export interface FeedPost {
   _id: string;
-  author?: {
-    _id: string;
-    displayName: string;
-    username?: string;
-    avatar: string;
-    role: string;
-    rating?: number;
-    badge?: string;
-  } | null;
+  author?: FeedAuthor | null;
   content: string;
-  type: 'earnings' | 'campaign' | 'question' | 'tip' | 'achievement' | 'milestone';
+  source?: 'manual' | 'campaign' | 'product';
+  type: 'earnings' | 'campaign' | 'product' | 'story' | 'challenge' | 'question' | 'tip' | 'achievement' | 'milestone';
   earnings?: {
     amount: number;
     currency?: string;
@@ -45,7 +139,12 @@ export interface FeedPost {
     spentBudget?: number;
     mediaUrl?: string;
     mediaType?: string;
+    link?: string;
+    category?: string;
+    thumbnailUrl?: string;
   };
+  product?: FeedProductSummary;
+  challenge?: FeedChallengeSummary | null;
   tip?: {
     title?: string;
     category?: string;
@@ -53,63 +152,44 @@ export interface FeedPost {
   };
   media?: Array<{
     url: string;
-    type: 'image' | 'video' | 'link';
+    type: 'image' | 'video' | 'link' | 'document';
     thumbnail?: string;
+    altText?: string;
+    order?: number;
   }>;
   likeCount: number;
   commentCount: number;
   shareCount: number;
   chatCount: number;
+  saveCount?: number;
   isLiked: boolean;
   isSaved: boolean;
   hashtags: Array<{ tag: string }> | string[];
   createdAt: string;
+  updatedAt?: string;
   isFeatured?: boolean;
   badge?: string;
-  saveCount?: number;
-  mentions?: any;
+  mentions?: any[];
   featuredUntil?: any;
   status?: string;
-  updatedAt?: Date;
-  settings?: any;
-  phone?: string; // new field to hold contact number for WhatsApp integration
-}
-
-export interface FeedResponse {
-  posts: FeedPost[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
+  settings?: {
+    postAnonymously?: boolean;
+    disableComments?: boolean;
+    allowExternalShare?: boolean;
   };
+  phone?: string;
+  recommendationScore?: number;
+  spotlightScore?: number;
+  mediaCount?: number;
+  isCarousel?: boolean;
+  primaryMediaType?: string | null;
 }
 
 export interface Hashtag {
   tag: string;
   count: number;
-  posts: string[];
+  posts?: string[];
 }
-
-export interface LiveActivity {
-  id: string;
-  type: 'like' | 'comment' | 'post' | 'earnings';
-  author: string;
-  authorId: string;
-  avatar?: string;
-  message: string;
-  time: string;
-  postId?: string;
-  postContent?: string;
-}
-
-export interface ActivityStats {
-  activeUsers: number;
-  postsToday: number;
-  totalEngagement: number;
-  topHashtag: string;
-}
-
 
 export interface FeedComment {
   _id: string;
@@ -120,11 +200,11 @@ export interface FeedComment {
     avatar: string;
   };
   content: string;
-  likeCount: number;      // changed from `likes`
+  likeCount: number;
   isLiked: boolean;
   createdAt: string;
-  replies?: FeedComment[]; // replies use same shape
-  data: any; // to hold any additional data from the backend
+  replies?: FeedComment[];
+  data: any;
 }
 
 export interface CommentsResponse {
@@ -132,46 +212,71 @@ export interface CommentsResponse {
   total: number;
   page: number;
   pages: number;
-  data?: any; // to handle cases where comments are nested inside a data object
+  data?: any;
 }
 
+interface CommunityFeedPayload {
+  posts: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+  stats?: FeedStats;
+  trendingHashtags?: Hashtag[];
+  trendingChallenges?: FeedTrendChallenge[];
+  creatorSpotlight?: CreatorSpotlightEntry[];
+  forumHighlights?: ForumHighlight[];
+  hotTopics?: FeedHotTopic[];
+  forumSpotlight?: ForumSpotlightEntry[];
+  sortMode?: string;
+}
 
-// ============ CONFIGURATION ============
+export interface LiveActivity {
+  id: string;
+  type: 'like' | 'comment' | 'post' | 'earnings' | 'forum' | 'campaign' | 'product';
+  author: string;
+  authorId: string;
+  avatar?: string;
+  message: string;
+  time: string;
+  postId?: string;
+  postContent?: string;
+  actionUrl?: string;
+}
+
 const FEED_CONFIG = {
-  POSTS_PER_PAGE: 10,
-  MAX_LIVE_ACTIVITIES: 5,
-  ACTIVITY_TIMEOUT: 5000,
-  TRENDING_REFRESH_INTERVAL: 300000, // 5 minutes
-  STATS_REFRESH_INTERVAL: 30000, // 30 seconds
-  ACTIVITY_SIMULATION_INTERVAL: 45000, // 45 seconds
-  RANDOM_ACTIVITY_CHANCE: 0.5,
-  ACTIVE_USERS_MIN: 15,
-  ACTIVE_USERS_MAX: 45,
-  MAX_RECENT_COMMENTS: 2,
-  COMMENT_PREVIEW_LENGTH: 50,
-  POST_PREVIEW_LENGTH: 100
+  POSTS_PER_PAGE: 10
 } as const;
 
-// ============ SERVICE ============
 @Injectable()
 export class FeedService {
-  private apiService: ApiService = inject(ApiService);
-  private destroyRef = inject(DestroyRef);
+  private apiService = inject(ApiService);
   private readonly apiUrl = 'feed';
 
-  // State signals
   private postsSignal = signal<FeedPost[]>([]);
   private likedPostsSignal = signal<Set<string>>(new Set());
   private savedPostsSignal = signal<Set<string>>(new Set());
-  private loadingSignal = signal<boolean>(false);
+  private loadingSignal = signal(false);
   private errorSignal = signal<string | null>(null);
-  private hasMoreSignal = signal<boolean>(true);
-  private currentPageSignal = signal<number>(1);
+  private hasMoreSignal = signal(true);
+  private currentPageSignal = signal(1);
   private trendingHashtagsSignal = signal<Hashtag[]>([]);
+  private trendingChallengesSignal = signal<FeedTrendChallenge[]>([]);
+  private creatorSpotlightSignal = signal<CreatorSpotlightEntry[]>([]);
+  private forumHighlightsSignal = signal<ForumHighlight[]>([]);
+  private hotTopicsSignal = signal<FeedHotTopic[]>([]);
+  private forumSpotlightSignal = signal<ForumSpotlightEntry[]>([]);
   private liveActivitiesSignal = signal<LiveActivity[]>([]);
-  private activityStatsSignal = signal<ActivityStats>(this.getEmptyActivityStats());
+  private activityStatsSignal = signal<FeedStats>({
+    postsToday: 0,
+    activeUsers: 0,
+    totalEngagement: 0,
+    topHashtag: ''
+  });
+  private sortModeSignal = signal<'for_you' | 'following' | 'trending' | 'latest'>('for_you');
 
-  // Public readonly signals
   public posts = this.postsSignal.asReadonly();
   public likedPosts = this.likedPostsSignal.asReadonly();
   public savedPosts = this.savedPostsSignal.asReadonly();
@@ -179,658 +284,379 @@ export class FeedService {
   public error = this.errorSignal.asReadonly();
   public hasMore = this.hasMoreSignal.asReadonly();
   public trendingHashtags = this.trendingHashtagsSignal.asReadonly();
+  public trendingChallenges = this.trendingChallengesSignal.asReadonly();
+  public creatorSpotlight = this.creatorSpotlightSignal.asReadonly();
+  public forumHighlights = this.forumHighlightsSignal.asReadonly();
+  public hotTopics = this.hotTopicsSignal.asReadonly();
+  public forumSpotlight = this.forumSpotlightSignal.asReadonly();
   public liveActivities = this.liveActivitiesSignal.asReadonly();
   public activityStats = this.activityStatsSignal.asReadonly();
+  public sortMode = this.sortModeSignal.asReadonly();
 
-  // Computed signals
   public featuredPost = computed(() => {
     const posts = this.postsSignal();
-    const featured = posts.find(post => post.isFeatured === true);
+    const featured = posts.find((post) => post.isFeatured);
     if (featured) return featured;
-    
-    return [...posts].sort((a, b) => 
-      this.calculateEngagement(b) - this.calculateEngagement(a)
-    )[0];
+
+    return [...posts].sort((a, b) => {
+      const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount;
+      const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount;
+      return scoreB - scoreA;
+    })[0];
   });
 
-  public regularPosts = computed(() => 
-    this.postsSignal().filter(post => !post.isFeatured)
-  );
+  public regularPosts = computed(() => this.postsSignal().filter((post) => !post.isFeatured));
 
-  public filteredByType = (type: string) => computed(() => 
-    this.postsSignal().filter(post => post.type === type)
-  );
-
-  constructor() {
-    this.initializeService();
+  setLiveActivities(activities: LiveActivity[]): void {
+    this.liveActivitiesSignal.set(activities.slice(0, 6));
   }
 
-  // ============ INITIALIZATION ============
-  private initializeService(): void {
-    this.loadTrendingHashtags();
-    this.startLiveActivitySimulation();
-    this.setupPeriodicRefreshes();
+  prependLiveActivity(activity: LiveActivity): void {
+    this.liveActivitiesSignal.update((activities) => [activity, ...activities.filter((entry) => entry.id !== activity.id)].slice(0, 6));
   }
 
-  private setupPeriodicRefreshes(): void {
-    // Refresh trending hashtags
-    interval(FEED_CONFIG.TRENDING_REFRESH_INTERVAL)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(() => this.fetchTrendingHashtags())
-      )
-      .subscribe(hashtags => this.trendingHashtagsSignal.set(hashtags));
-
-    // Refresh activity stats
-    interval(FEED_CONFIG.STATS_REFRESH_INTERVAL)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(() => this.fetchActivityStats())
-      )
-      .subscribe(stats => {
-        if (stats) this.activityStatsSignal.set(stats);
-      });
-  }
-
-  private shouldLoadMore(): boolean {
-    return this.hasMoreSignal() && !this.loadingSignal();
-  }
-
-  private resetFeedState(): void {
+  resetFeed(): void {
     this.currentPageSignal.set(1);
     this.hasMoreSignal.set(true);
     this.postsSignal.set([]);
+    this.loadingSignal.set(false);
+    this.errorSignal.set(null);
   }
 
-  private setLoadingState(isLoading: boolean): void {
-    this.loadingSignal.set(isLoading);
-    if (isLoading) this.errorSignal.set(null);
+  resetPagination(): void {
+    this.currentPageSignal.set(1);
+    this.hasMoreSignal.set(true);
   }
 
-  private buildFeedParams(userId: string, type?: string, hashtag?: string): any {
-    const params: any = {
-      page: this.currentPageSignal(),
-      limit: FEED_CONFIG.POSTS_PER_PAGE,
-      userId
-    };
-    
-    if (type && type !== 'all') params.type = type;
-    if (hashtag) params.hashtag = hashtag;
-    
-    return params;
-  }
+  loadFeedPosts(
+    userId: string,
+    type?: string,
+    hashtag?: string,
+    search?: string,
+    reset: boolean = false,
+    feedType: string = 'for_you'
+  ): void {
+    if (!userId) return;
 
-  private extractPostsFromResponse(response: any): { posts: any[], pagination: any } {
-    // Handle different API response structures
-    const data = response?.data || response;
-
-    //console.log('[FeedService] Raw API response:', response);
-    
-    if (data?.posts && Array.isArray(data.posts)) {
-      return { 
-        posts: data.posts, 
-        pagination: data.pagination || this.getDefaultPagination() 
-      };
+    if (reset) {
+      this.resetPagination();
+      this.postsSignal.set([]);
     }
-    
-    if (Array.isArray(data)) {
-      return { posts: data, pagination: this.getDefaultPagination() };
-    }
-    
-    if (Array.isArray(response)) {
-      return { posts: response, pagination: this.getDefaultPagination() };
-    }
-    
-    return { posts: [], pagination: this.getDefaultPagination() };
-  }
 
-  private getDefaultPagination() {
-    return { page: 1, limit: FEED_CONFIG.POSTS_PER_PAGE, total: 0, pages: 1 };
-  }
-
-
-/*   private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
-    //console.log('[FeedService] handleFeedResponse called with posts length:', result.posts.length);
-    if (!result.posts.length) {
-      if (reset) this.postsSignal.set([]);
-      this.hasMoreSignal.set(false);
+    if (!this.hasMoreSignal() || this.loadingSignal()) {
       return;
     }
 
-    const newPosts = result.posts.map(post => {
-      try {
-        return this.processPost(post);
-      } catch (err) {
-        console.error('[FeedService] Error processing post:', post._id, err);
-        return null;
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    const params = new HttpParams({
+      fromObject: {
+        page: this.currentPageSignal().toString(),
+        limit: FEED_CONFIG.POSTS_PER_PAGE.toString(),
+        userId,
+        feedType
       }
-    }).filter(p => p !== null) as FeedPost[];
-    
-    this.updatePostsSignal(newPosts, reset);
-    this.updatePagination(result.pagination);
-    this.updateLikedSavedSets(newPosts);
-    this.updateActivityStats();
-  } */
-
-  private handleFeedResponse(result: { posts: any[], pagination: any }, reset: boolean): void {
-    if (!result.posts.length) {
-      if (reset) this.postsSignal.set([]);
-      this.hasMoreSignal.set(false);
-      return;
-    }
-
-    const newPosts = result.posts.map(post => {
-      try {
-        return this.processPost(post);
-      } catch (err) {
-        console.error('[FeedService] Error processing post:', post._id, err);
-        return null;
-      }
-    }).filter(p => p !== null) as FeedPost[];
-    
-    // Update posts
-    if (reset) {
-      this.postsSignal.set(newPosts);
-    } else {
-      this.postsSignal.update(current => [...current, ...newPosts]);
-    }
-    
-    // Update pagination state
-    const { page, pages } = result.pagination;
-    this.hasMoreSignal.set(page < pages);
-    
-    // Only increment page if we have more to load
-    if (page < pages) {
-      this.currentPageSignal.set(page + 1);
-    }
-  }
-
-  private updatePostsSignal(newPosts: FeedPost[], reset: boolean): void {
-    if (reset) {
-      this.postsSignal.set(newPosts);
-    } else {
-      this.postsSignal.update(current => [...current, ...newPosts]);
-    }
-  }
-
-  private updatePagination(pagination: any): void {
-    this.hasMoreSignal.set(pagination.page < pagination.pages);
-    this.currentPageSignal.update(page => page + 1);
-  }
-
-  private updateLikedSavedSets(newPosts: FeedPost[]): void {
-    const likedSet = new Set(this.likedPostsSignal());
-    const savedSet = new Set(this.savedPostsSignal());
-    
-    newPosts.forEach(post => {
-      if (post.isLiked) likedSet.add(post._id);
-      if (post.isSaved) savedSet.add(post._id);
     });
 
-    this.likedPostsSignal.set(likedSet);
-    this.savedPostsSignal.set(savedSet);
+    let requestParams = params;
+    if (type && type !== 'all') requestParams = requestParams.set('type', type);
+    if (hashtag) requestParams = requestParams.set('hashtag', hashtag);
+    if (search) requestParams = requestParams.set('search', search);
+
+    this.apiService.get<any>(`${this.apiUrl}/community`, requestParams, undefined, true)
+      .pipe(
+        map((response) => this.extractCommunityResponse(response)),
+        tap((payload) => this.handleCommunityFeed(payload, reset)),
+        catchError((error) => this.handleFeedError(error)),
+        finalize(() => this.loadingSignal.set(false))
+      )
+      .subscribe();
   }
 
-  private handleFeedError(error: any): Observable<null> {
-    this.errorSignal.set(error.error?.message || 'Failed to load feed');
-    this.postsSignal.set([]);
-    return of(null);
+  loadMoreFeedPosts(
+    userId: string,
+    type?: string,
+    hashtag?: string,
+    search?: string,
+    feedType: string = 'for_you'
+  ): void {
+    this.loadFeedPosts(userId, type, hashtag, search, false, feedType);
   }
 
-  // ============ POST PROCESSING ============
-  private processPost(post: any): FeedPost {
-    //console.log('post ',post)
-    return {
-      _id: post._id,
-      author: this.processAuthor(post.author),
-      content: post.content || '',
-      type: post.type || 'campaign',
-      earnings: this.processEarnings(post.earnings),
-      campaign: this.processCampaign(post),
-      tip: post.tip,
-      media: post.media || [],
-      likeCount: this.getCount(post, ['likes', 'likeCount']),
-      commentCount: this.getCount(post, ['comments', 'commentCount']),
-      chatCount: this.getCount(post, ['chats', 'chatCount']),
-      shareCount: this.getCount(post, ['shares', 'shareCount']),
-      saveCount: this.getCount(post, ['savedBy', 'saveCount']),
-      isLiked: post.isLiked || false,
-      isSaved: post.isSaved || false,
-      badge: post.author?.badge,
-      hashtags: this.extractHashtags(post.hashtags),
-      mentions: post.mentions || [],
-      isFeatured: post.isFeatured || false,
-      featuredUntil: post.featuredUntil,
-      status: post.status || 'published',
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
-      settings: post.settings,
-      phone: post.phone 
-    };
-  }
-
-  private processAuthor(author: any): FeedAuthor | null {
-    if (!author) return null;
-    
-    return {
-      _id: author._id,
-      username: author.username,
-      displayName: author.displayName || author.username || 'Anonymous',
-      avatar: author.avatar || 'img/avatar.png',
-      role: author.role || 'user',
-      rating: author.rating || 0,
-      badge: author.badge
-    };
-  }
-
-  private processEarnings(earnings: any): FeedPost['earnings'] | undefined {
-    if (!earnings) return undefined;
-    
-    return {
-      amount: earnings.amount || 0,
-      currency: earnings.currency || 'NGN',
-      milestone: earnings.milestone,
-      campaignId: earnings.campaignId
-    };
-  }
-
-  private processCampaign(post: any): FeedPost['campaign'] | undefined {
-    if (!post.campaign) return undefined;
-    
-    const campaign = post.campaign;
-    const campaignName = this.extractCampaignName(campaign);
-    
-    return {
-      campaignId: this.extractCampaignId(campaign),
-      name: campaignName,
-      budget: campaign.budget || 0,
-      spentBudget: campaign.spentBudget,
-      status: campaign.status || '',
-      progress: campaign.progress,
-      mediaUrl: post.media?.[0]?.url || campaign.mediaUrl,
-      mediaType: post.media?.[0]?.type || campaign.mediaType
-    };
-  }
-
-  private extractCampaignName(campaign: any): string {
-    if (typeof campaign.name === 'string') return campaign.name;
-    if (campaign.campaignId?.name) return campaign.campaignId.name;
-    return '';
-  }
-
-  private extractCampaignId(campaign: any): string {
-    if (typeof campaign.campaignId === 'object') {
-      return campaign.campaignId._id || '';
-    }
-    return campaign.campaignId || campaign.campaignId || '';
-  }
-
-  private getCount(post: any, possibleKeys: string[]): number {
-    for (const key of possibleKeys) {
-      if (Array.isArray(post[key])) return post[key].length;
-      if (typeof post[key] === 'number') return post[key];
-    }
-    return 0;
-  }
-
-  private extractHashtags(hashtags: Hashtag[]): any[] {
-    if (!Array.isArray(hashtags)) return [];
-    
-    return hashtags
-      .map(h => typeof h === 'string' ? h : h?.tag || '')
-      .filter(tag => tag);
-  }
-
-  // ============ POST INTERACTIONS ============
-  toggleLike(post: FeedPost, id: string): Observable<any> {
-
-    // 1. Ensure the key matches backend expectations
-    const body = { userId: id }; 
-
+  toggleLike(post: FeedPost, userId: string): Observable<any> {
     const wasLiked = this.likedPostsSignal().has(post._id);
     this.updateLikeOptimistically(post._id, !wasLiked);
-    
-    // 2. Remove the 'undefined' if it's blocking the body slot
-    return this.apiService.post(`${this.apiUrl}/${post._id}/like`, body, undefined, true)
-      .pipe(
-        tap(() => this.handleLikeSuccess(post, wasLiked)),
-        catchError(error => this.handleLikeError(post._id, wasLiked, error))
-      );
-  }
 
-
-  private updateLikeOptimistically(postId: string, liked: boolean): void {
-    this.likedPostsSignal.update(set => {
-      const newSet = new Set(set);
-      liked ? newSet.add(postId) : newSet.delete(postId);
-      return newSet;
-    });
-
-    this.postsSignal.update(posts => 
-      posts.map(p => {
-        if (p._id === postId) {
-          return {
-            ...p,
-            likeCount: p.likeCount + (liked ? 1 : -1),
-            isLiked: liked
-          };
-        }
-        return p;
+    return this.apiService.post(`${this.apiUrl}/${post._id}/like`, { userId }, undefined, true).pipe(
+      catchError((error) => {
+        this.updateLikeOptimistically(post._id, wasLiked);
+        this.errorSignal.set('Failed to like post');
+        return throwError(() => error);
       })
     );
-  }
-
-  private handleLikeSuccess(post: FeedPost, wasLiked: boolean): void {
-    if (!wasLiked && post.author) {
-      this.addLiveActivity({
-        type: 'like',
-        author: 'You',
-        message: `liked ${post.author.displayName}'s post`,
-        postId: post._id
-      });
-    }
-  }
-
-  private handleLikeError(postId: string, wasLiked: boolean, error: any): Observable<never> {
-    this.updateLikeOptimistically(postId, wasLiked);
-    this.errorSignal.set('Failed to like post');
-    return throwError(() => error);
   }
 
   toggleSave(postId: string, userId: string): Observable<any> {
     const wasSaved = this.savedPostsSignal().has(postId);
-    
     this.updateSaveOptimistically(postId, !wasSaved);
-    
-    return this.apiService.post(`${this.apiUrl}/${postId}/save`, { userId })
-      .pipe(
-        catchError(error => this.handleSaveError(postId, wasSaved, error))
-      );
-  }
 
-  private updateSaveOptimistically(postId: string, saved: boolean): void {
-    this.savedPostsSignal.update(set => {
-      const newSet = new Set(set);
-      saved ? newSet.add(postId) : newSet.delete(postId);
-      return newSet;
-    });
-
-    this.postsSignal.update(posts => 
-      posts.map(p => {
-        if (p._id === postId) {
-          return {
-            ...p,
-            // Use ?? 0 to safely handle potentially undefined saveCount
-            saveCount: (p.saveCount ?? 0) + (saved ? 1 : -1),
-            isSaved: saved
-          };
-        }
-        return p;
+    return this.apiService.post(`${this.apiUrl}/${postId}/save`, { userId }, undefined, true).pipe(
+      catchError((error) => {
+        this.updateSaveOptimistically(postId, wasSaved);
+        this.errorSignal.set('Failed to save post');
+        return throwError(() => error);
       })
     );
   }
 
-  private handleSaveError(postId: string, wasSaved: boolean, error: any): Observable<never> {
-    this.updateSaveOptimistically(postId, wasSaved);
-    this.errorSignal.set('Failed to save post');
-    return throwError(() => error);
-  }
-
-  sharePost(postId: string, userId: string): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${postId}/share`, { platform: 'copy', userId })
-      .pipe(
-        tap(() => {
-          this.incrementShareCount(postId);
-        })
-      );
-  }
-
-  private incrementShareCount(postId: string): void {
-    this.postsSignal.update(posts =>
-      posts.map(p => {
-        if (p._id === postId) {
-          return { ...p, shareCount: p.shareCount + 1 };
-        }
-        return p;
+  sharePost(postId: string, userId: string, platform: string = 'copy'): Observable<any> {
+    return this.apiService.post(`${this.apiUrl}/${postId}/share`, { platform, userId }, undefined, true).pipe(
+      tap(() => {
+        this.postsSignal.update((posts) =>
+          posts.map((post) => post._id === postId ? { ...post, shareCount: post.shareCount + 1 } : post)
+        );
       })
     );
   }
 
-  private incrementChatCount(postId: string): void {
-    this.postsSignal.update(posts =>
-      posts.map(p => {
-        if (p._id === postId) {
-          return { ...p, chatCount: p.chatCount + 1 };
-        }
-        return p;
-      })
-    );
-  }
-
-  private updateShareCount(postId: string): void {
-    this.postsSignal.update(posts => 
-      posts.map(p => p._id === postId ? { ...p, shareCount: p.shareCount + 1 } : p)
-    );
-  }
-
-  private addShareActivity(post: FeedPost): void {
-    if (post.author) {
-      this.addLiveActivity({
-        type: 'post',
-        author: 'Someone',
-        message: `shared ${post.author.displayName}'s post`,
-        postId: post._id
-      });
-    }
-  }
-
-  // ============ COMMENTS ============
   getComments(postId: string, page: number = 1, limit: number = 20): Observable<CommentsResponse> {
     const params = new HttpParams({ fromObject: { page: page.toString(), limit: limit.toString() } });
-    return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true)
-      .pipe(
-        map((response: any) => response?.data || response)  // ensure we have the inner data
-      );
+    return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true).pipe(
+      map((response: any) => response?.data || response)
+    );
   }
 
   addComment(postId: string, content: string, userId: string, parentCommentId?: string): Observable<FeedComment> {
     const body: any = { content, userId };
     if (parentCommentId) body.parentCommentId = parentCommentId;
-    return this.apiService.post(`${this.apiUrl}/${postId}/comments`, body)
-      .pipe(
-        map((response: any) => response?.data || response) 
-      );
-  }
 
-  private incrementCommentCount(postId: string): void {
-    this.postsSignal.update(posts => 
-      posts.map(p => p._id === postId ? { ...p, commentCount: p.commentCount + 1 } : p)
+    return this.apiService.post(`${this.apiUrl}/${postId}/comments`, body, undefined, true).pipe(
+      map((response: any) => response?.data || response)
     );
   }
 
-  private addCommentActivity(postId: string): void {
-    const post = this.postsSignal().find(p => p._id === postId);
-    if (post?.author) {
-      this.addLiveActivity({
-        type: 'comment',
-        author: 'Someone',
-        message: `commented on ${post.author.displayName}'s post`,
-        postId
-      });
-    }
+  likeComment(postId: string, commentId: string, userId: string): Observable<any> {
+    return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId }, undefined, true).pipe(
+      map((response: any) => response?.data || response)
+    );
   }
 
-  // ============ SINGLE POST OPERATIONS ============
   getPostById(postId: string, userId?: string): Observable<FeedPost> {
     const params = userId ? new HttpParams({ fromObject: { userId } }) : undefined;
 
-    return this.apiService.get<any>(`${this.apiUrl}/${postId}`, params, undefined, true)
-      .pipe(
-        map(response => response?.data || response),
-        map(post => this.processPost(post))
-      );
+    return this.apiService.get<any>(`${this.apiUrl}/${postId}`, params, undefined, true).pipe(
+      map((response) => response?.data || response),
+      map((post) => this.processPost(post))
+    );
   }
 
-  createPost(postData: any): Observable<FeedPost> {
-    return this.apiService.post<any>(`${this.apiUrl}/create`, postData)
-      .pipe(
-        map(response => response?.data || response),
-        map(newPost => this.processPost(newPost)),
-        tap(processed => this.handleNewPost(processed))
-      );
+  createPost(postData: FormData | Record<string, any>): Observable<FeedPost> {
+    return this.apiService.post<any>(`${this.apiUrl}/create`, postData, undefined, true).pipe(
+      map((response) => response?.data || response),
+      map((post) => this.processPost(post)),
+      tap((post) => {
+        this.postsSignal.update((posts) => [post, ...posts]);
+      })
+    );
   }
 
-  private handleNewPost(post: FeedPost): void {
-    this.postsSignal.update(posts => [post, ...posts]);
-    
-    this.addLiveActivity({
-      type: 'post',
-      author: post.author?.displayName || 'Someone',
-      message: 'just shared a new update',
-      postId: post._id,
-      postContent: post.content
-    });
+  editPost(postId: string, payload: Record<string, any>): Observable<any> {
+    return this.apiService.put(`${this.apiUrl}/${postId}`, payload, undefined, true);
+  }
+
+  deletePost(postId: string, userId: string): Observable<any> {
+    const params = new HttpParams().set('userId', userId);
+    return this.apiService.delete(`${this.apiUrl}/${postId}`, params, undefined, true).pipe(
+      tap(() => {
+        this.postsSignal.update((posts) => posts.filter((post) => post._id !== postId));
+      })
+    );
   }
 
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {
     return this.apiService.get(`campaign/user/${userId}`, params, undefined, true);
   }
 
-  // ============ TRENDING HASHTAGS ============
-  private loadTrendingHashtags(): void {
-    this.fetchTrendingHashtags().subscribe(hashtags => {
-      this.trendingHashtagsSignal.set(hashtags);
-    });
-  }
+  private extractCommunityResponse(response: any): CommunityFeedPayload {
+    const data = response?.data || response || {};
 
-  private fetchTrendingHashtags(): Observable<Hashtag[]> {
-    return this.apiService.get<any>(`${this.apiUrl}/trending/hashtags`)
-      .pipe(
-        map(response => response?.data || response || []),
-        catchError(() => of([]))
-      );
-  }
-
-  // ============ ACTIVITY STATS ============
-  private getEmptyActivityStats(): ActivityStats {
     return {
-      activeUsers: 0,
-      postsToday: 0,
-      totalEngagement: 0,
-      topHashtag: ''
+      posts: Array.isArray(data.posts) ? data.posts : [],
+      pagination: data.pagination || { page: 1, limit: FEED_CONFIG.POSTS_PER_PAGE, total: 0, pages: 1 },
+      stats: data.stats,
+      trendingHashtags: Array.isArray(data.trendingHashtags) ? data.trendingHashtags : [],
+      trendingChallenges: Array.isArray(data.trendingChallenges) ? data.trendingChallenges : [],
+      creatorSpotlight: Array.isArray(data.creatorSpotlight) ? data.creatorSpotlight : [],
+      forumHighlights: Array.isArray(data.forumHighlights) ? data.forumHighlights : [],
+      hotTopics: Array.isArray(data.hotTopics) ? data.hotTopics : [],
+      forumSpotlight: Array.isArray(data.forumSpotlight) ? data.forumSpotlight : [],
+      sortMode: data.sortMode || 'for_you'
     };
   }
 
-  private fetchActivityStats(): Observable<ActivityStats | null> {
-    const posts = this.postsSignal();
-    
-    return of({
-      activeUsers: this.calculateActiveUsers(),
-      postsToday: this.calculatePostsToday(posts),
-      totalEngagement: this.calculateTotalEngagement(posts),
-      topHashtag: this.findTopHashtag(posts)
-    });
+  private handleCommunityFeed(payload: CommunityFeedPayload, reset: boolean): void {
+    const newPosts = payload.posts.map((post) => this.processPost(post));
+
+    if (reset) {
+      this.postsSignal.set(newPosts);
+    } else {
+      this.postsSignal.update((posts) => [...posts, ...newPosts]);
+    }
+
+    this.hasMoreSignal.set(payload.pagination.page < payload.pagination.pages);
+    if (payload.pagination.page < payload.pagination.pages) {
+      this.currentPageSignal.set(payload.pagination.page + 1);
+    }
+
+    this.trendingHashtagsSignal.set(payload.trendingHashtags || []);
+    this.trendingChallengesSignal.set(payload.trendingChallenges || []);
+    this.creatorSpotlightSignal.set(payload.creatorSpotlight || []);
+    this.forumHighlightsSignal.set(payload.forumHighlights || []);
+    this.hotTopicsSignal.set(payload.hotTopics || []);
+    this.forumSpotlightSignal.set(payload.forumSpotlight || []);
+    if (payload.stats) {
+      this.activityStatsSignal.set(payload.stats);
+    }
+
+    const normalizedSort = payload.sortMode === 'following'
+      ? 'following'
+      : payload.sortMode === 'trending'
+        ? 'trending'
+        : payload.sortMode === 'latest'
+          ? 'latest'
+          : 'for_you';
+    this.sortModeSignal.set(normalizedSort);
+    this.updateLikedSavedSets(newPosts);
   }
 
-  private calculateActiveUsers(): number {
-    return Math.floor(Math.random() * 
-      (FEED_CONFIG.ACTIVE_USERS_MAX - FEED_CONFIG.ACTIVE_USERS_MIN + 1)) + 
-      FEED_CONFIG.ACTIVE_USERS_MIN;
-  }
-
-  private calculatePostsToday(posts: FeedPost[]): number {
-    const today = new Date().toDateString();
-    return posts.filter(post => 
-      new Date(post.createdAt).toDateString() === today
-    ).length;
-  }
-
-  private calculateTotalEngagement(posts: FeedPost[]): number {
-    return posts.reduce((sum, post) => 
-      sum + post.likeCount + post.commentCount + post.shareCount, 0
-    );
-  }
-
-  private findTopHashtag(posts: FeedPost[]): string {
-    const hashtagCounts = new Map<string, number>();
-    
-    posts.forEach(post => {
-      post.hashtags?.forEach((tag: any) => {
-        hashtagCounts.set(tag, (hashtagCounts.get(tag) || 0) + 1);
-      });
-    });
-
-    return Array.from(hashtagCounts.entries())
-      .sort((a, b) => b[1] - a[1])[0]?.[0] || '';
-  }
-
-  private calculateEngagement(post: FeedPost): number {
-    return post.likeCount + post.commentCount + post.shareCount;
-  }
-
-  private updateActivityStats(): void {
-    this.fetchActivityStats().subscribe(stats => {
-      if (stats) this.activityStatsSignal.set(stats);
-    });
-  }
-
-  // ============ LIVE ACTIVITIES ============
-  private addLiveActivity(activity: Partial<LiveActivity>): void {
-    const newActivity: LiveActivity = {
-      id: this.generateActivityId(),
-      type: activity.type || 'post',
-      author: activity.author || 'Someone',
-      authorId: activity.authorId || '',
-      avatar: activity.avatar,
-      message: activity.message || 'interacted with a post',
-      time: this.formatTime(new Date().toISOString()),
-      postId: activity.postId,
-      postContent: activity.postContent
+  private processPost(post: any): FeedPost {
+    return {
+      _id: post._id,
+      author: post.author ? {
+        _id: post.author._id,
+        username: post.author.username,
+        displayName: post.author.displayName || post.author.username || 'Anonymous',
+        avatar: post.author.avatar || 'img/avatar.png',
+        role: post.author.role || 'user',
+        rating: post.author.rating || 0,
+        badge: post.author.badge,
+        isVerified: post.author.isVerified || false
+      } : null,
+      content: post.content || '',
+      source: post.source || 'manual',
+      type: post.type || 'story',
+      earnings: post.earnings,
+      campaign: post.campaign ? {
+        campaignId: typeof post.campaign.campaignId === 'object' ? post.campaign.campaignId?._id : post.campaign.campaignId,
+        name: post.campaign.name || post.campaign.campaignId?.title || '',
+        budget: post.campaign.budget || 0,
+        status: post.campaign.status || '',
+        progress: post.campaign.progress,
+        spentBudget: post.campaign.spentBudget,
+        mediaUrl: post.campaign.mediaUrl,
+        mediaType: post.campaign.mediaType,
+        link: post.campaign.link,
+        category: post.campaign.category,
+        thumbnailUrl: post.campaign.thumbnailUrl
+      } : undefined,
+      product: post.product ? {
+        productId: typeof post.product.productId === 'object' ? post.product.productId?._id : post.product.productId,
+        storeId: typeof post.product.storeId === 'object' ? post.product.storeId?._id : post.product.storeId,
+        storeName: post.product.storeName || post.product.storeId?.name,
+        storeLink: post.product.storeLink || post.product.storeId?.storeLink,
+        name: post.product.name || post.product.productId?.name,
+        description: post.product.description,
+        category: post.product.category || post.product.productId?.category,
+        price: post.product.price ?? post.product.productId?.price,
+        originalPrice: post.product.originalPrice ?? post.product.productId?.originalPrice,
+        currency: post.product.currency || post.product.productId?.currency || 'NGN',
+        commissionRate: post.product.commissionRate,
+        commissionType: post.product.commissionType,
+        fixedCommission: post.product.fixedCommission,
+        productUrl: post.product.productUrl,
+        mainImage: post.product.mainImage || post.product.productId?.images?.[0]?.url
+      } : undefined,
+      challenge: post.challenge || null,
+      tip: post.tip,
+      media: Array.isArray(post.media) ? [...post.media].sort((a, b) => (a.order || 0) - (b.order || 0)) : [],
+      likeCount: typeof post.likeCount === 'number' ? post.likeCount : Array.isArray(post.likes) ? post.likes.length : 0,
+      commentCount: typeof post.commentCount === 'number' ? post.commentCount : Array.isArray(post.comments) ? post.comments.length : 0,
+      shareCount: typeof post.shareCount === 'number' ? post.shareCount : Array.isArray(post.shares) ? post.shares.length : 0,
+      chatCount: post.chatCount || 0,
+      saveCount: typeof post.saveCount === 'number' ? post.saveCount : Array.isArray(post.savedBy) ? post.savedBy.length : 0,
+      isLiked: Boolean(post.isLiked),
+      isSaved: Boolean(post.isSaved),
+      hashtags: Array.isArray(post.hashtags) ? post.hashtags : [],
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      isFeatured: Boolean(post.isFeatured),
+      badge: post.author?.badge || post.badge,
+      mentions: post.mentions || [],
+      featuredUntil: post.featuredUntil,
+      status: post.status || 'published',
+      settings: post.settings,
+      phone: post.phone,
+      recommendationScore: post.recommendationScore || 0,
+      spotlightScore: post.spotlightScore || 0,
+      mediaCount: post.mediaCount || post.media?.length || 0,
+      isCarousel: Boolean(post.isCarousel || (post.media?.length || 0) > 1),
+      primaryMediaType: post.primaryMediaType || post.media?.[0]?.type || null
     };
-
-    this.liveActivitiesSignal.update(activities => 
-      [newActivity, ...activities].slice(0, FEED_CONFIG.MAX_LIVE_ACTIVITIES)
-    );
-
-    setTimeout(() => {
-      this.liveActivitiesSignal.update(activities => 
-        activities.filter(a => a.id !== newActivity.id)
-      );
-    }, FEED_CONFIG.ACTIVITY_TIMEOUT);
   }
 
-  private generateActivityId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  private updateLikedSavedSets(posts: FeedPost[]): void {
+    const liked = new Set(this.likedPostsSignal());
+    const saved = new Set(this.savedPostsSignal());
+
+    posts.forEach((post) => {
+      if (post.isLiked) liked.add(post._id);
+      if (post.isSaved) saved.add(post._id);
+    });
+
+    this.likedPostsSignal.set(liked);
+    this.savedPostsSignal.set(saved);
   }
 
-  private startLiveActivitySimulation(): void {
-    interval(FEED_CONFIG.ACTIVITY_SIMULATION_INTERVAL)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.postsSignal().length > 0 && Math.random() > FEED_CONFIG.RANDOM_ACTIVITY_CHANCE) {
-          this.generateRandomActivity();
-        }
-      });
+  private updateLikeOptimistically(postId: string, liked: boolean): void {
+    this.likedPostsSignal.update((set) => {
+      const next = new Set(set);
+      liked ? next.add(postId) : next.delete(postId);
+      return next;
+    });
+
+    this.postsSignal.update((posts) => posts.map((post) => {
+      if (post._id !== postId) return post;
+      return {
+        ...post,
+        likeCount: post.likeCount + (liked ? 1 : -1),
+        isLiked: liked
+      };
+    }));
   }
 
-  private generateRandomActivity(): void {
-    const posts = this.postsSignal();
-    if (!posts.length) return;
-    
-    const randomPost = posts[Math.floor(Math.random() * posts.length)];
-    if (!randomPost.author) return;
-    
-    const activities: Array<Partial<LiveActivity>> = [
-      { type: 'like', message: `liked ${randomPost.author.displayName}'s post` },
-      { type: 'comment', message: `commented on ${randomPost.author.displayName}'s post` },
-      { type: 'earnings', message: 'just hit a milestone!' }
-    ];
-    
-    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-    this.addLiveActivity({ ...randomActivity, postId: randomPost._id });
+  private updateSaveOptimistically(postId: string, saved: boolean): void {
+    this.savedPostsSignal.update((set) => {
+      const next = new Set(set);
+      saved ? next.add(postId) : next.delete(postId);
+      return next;
+    });
+
+    this.postsSignal.update((posts) => posts.map((post) => {
+      if (post._id !== postId) return post;
+      return {
+        ...post,
+        saveCount: (post.saveCount || 0) + (saved ? 1 : -1),
+        isSaved: saved
+      };
+    }));
   }
 
-  // ============ UTILITIES ============
+  private handleFeedError(error: any): Observable<null> {
+    this.errorSignal.set(error?.error?.message || 'Failed to load feed');
+    return of(null);
+  }
+
   formatTime(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
@@ -843,174 +669,7 @@ export class FeedService {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
-    
+
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
-
-  getRecentComments(post: FeedPost): any[] {
-    // This would normally come from the API
-    return [];
-  }
-
-  likeComment(postId: string, commentId: string, userId: string): Observable<any> {
-    return this.apiService.post(`${this.apiUrl}/${postId}/comments/${commentId}/like`, { userId })
-      .pipe(map((response: any) => response?.data || response));
-  }
-
-  editPost(postId: string, userId: string, content: string, hashtags: string[]): Observable<any> {
-    return this.apiService.put(`${this.apiUrl}/${postId}`, { content, hashtags, userId }, undefined, true);
-  }
-
-  deletePost(postId: string, userId: string): Observable<any> {
-    const params = new HttpParams().set('userId', userId);
-    return this.apiService.delete(`${this.apiUrl}/${postId}`, params, undefined, true);
-  }
-
-
- // Add these methods to the FeedService class
-
-// Reset feed state
-resetFeed(): void {
-  this.currentPageSignal.set(1);
-  this.hasMoreSignal.set(true);
-  this.postsSignal.set([]);
-  this.loadingSignal.set(false);
-  this.errorSignal.set(null);
-}
-
-// Load more posts (increment page)
-loadMoreFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, feedType?: string): void {
-  if (!userId) return;
-  if (!this.hasMoreSignal() || this.loadingSignal()) return;
-
-  this.loadingSignal.set(true);
-  this.errorSignal.set(null);
-
-  const params: any = {
-    page: this.currentPageSignal(),
-    limit: FEED_CONFIG.POSTS_PER_PAGE,
-    userId
-  };
-  
-  if (type && type !== 'all') params.type = type;
-  if (hashtag) params.hashtag = hashtag;
-  if (search) params.search = search;
-  if (feedType === 'following') params.feedType = 'following';
-
-  this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
-    .pipe(
-      map(response => this.extractPostsFromResponse(response)),
-      tap(result => this.handleMoreFeedResponse(result)),
-      catchError(error => this.handleFeedError(error)),
-      finalize(() => this.loadingSignal.set(false))
-    )
-    .subscribe();
-}
-
-private handleMoreFeedResponse(result: { posts: any[], pagination: any }): void {
-  if (!result.posts.length) {
-    this.hasMoreSignal.set(false);
-    return;
-  }
-
-  const newPosts = result.posts.map(post => {
-    try {
-      return this.processPost(post);
-    } catch (err) {
-      console.error('[FeedService] Error processing post:', post._id, err);
-      return null;
-    }
-  }).filter(p => p !== null) as FeedPost[];
-  
-  // Append new posts
-  this.postsSignal.update(current => [...current, ...newPosts]);
-  
-  // Update pagination
-  this.updatePaginationForMore(result.pagination);
-  
-  // Update liked/saved sets
-  this.updateLikedSavedSets(newPosts);
-}
-
-private updatePaginationForMore(pagination: any): void {
-  const hasMore = pagination.page < pagination.pages;
-  this.hasMoreSignal.set(hasMore);
-  
-  if (hasMore) {
-    this.currentPageSignal.update(page => page + 1);
-  }
-}
-
-/* loadFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, reset: boolean = false, feedType?: string): void {
-  if (!userId) return;
-
-  if (reset) {
-    this.resetFeed();
-  }
-  
-  if (!this.shouldLoadMore()) return;
-
-  this.setLoadingState(true);
-
-  const params: any = {
-    page: this.currentPageSignal(),
-    limit: FEED_CONFIG.POSTS_PER_PAGE,
-    userId
-  };
-  
-  if (type && type !== 'all') params.type = type;
-  if (hashtag) params.hashtag = hashtag;
-  if (search) params.search = search;
-  if (feedType === 'following') params.feedType = 'following';
-
-  this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
-    .pipe(
-      map(response => this.extractPostsFromResponse(response)),
-      tap(result => this.handleFeedResponse(result, reset)),
-      catchError(error => this.handleFeedError(error)),
-      finalize(() => this.setLoadingState(false))
-    )
-    .subscribe();
-} */
-
-  loadFeedPosts(userId: string, type?: string, hashtag?: string, search?: string, reset: boolean = false, feedType?: string): void {
-    if (!userId) return;
-
-    if (reset) {
-      this.resetPagination();
-      this.postsSignal.set([]);
-    }
-    
-    if (!this.hasMoreSignal() || this.loadingSignal()) {
-      return;
-    }
-
-    this.setLoadingState(true);
-
-    const params: any = {
-      page: this.currentPageSignal(),
-      limit: FEED_CONFIG.POSTS_PER_PAGE,
-      userId
-    };
-    
-    if (type && type !== 'all') params.type = type;
-    if (hashtag) params.hashtag = hashtag;
-    if (search) params.search = search;
-    if (feedType === 'following') params.feedType = 'following';
-
-    this.apiService.get<any>(`${this.apiUrl}/community`, params, undefined, true)
-      .pipe(
-        map(response => this.extractPostsFromResponse(response)),
-        tap(result => this.handleFeedResponse(result, reset)),
-        catchError(error => this.handleFeedError(error)),
-        finalize(() => this.setLoadingState(false))
-      )
-      .subscribe();
-  }
-
-resetPagination(): void {
-  this.currentPageSignal.set(1);
-  this.hasMoreSignal.set(true);
-}
-
 }

@@ -64,6 +64,12 @@
         gap: 16px;
         margin-bottom: 16px;
 
+        &.single-column {
+          .form-field {
+            width: 100%;
+          }
+        }
+
         .form-field {
           flex: 1;
         }

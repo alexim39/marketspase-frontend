@@ -1,0 +1,295 @@
+<main class="review-moderation-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Storefront moderation</p>
+      <h2>Review and approve customer ratings</h2>
+      <p>Handle pending reviews, flagged content, and seller-facing responses from one queue.</p>
+    </div>
+
+    <div class="hero-actions">
+      <button type="button" class="ghost-btn" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Reset filters
+      </button>
+      <button type="button" class="primary-btn" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading review moderation queue...</span>
+    </section>
+  }
+
+  <section class="stats-grid">
+    @for (card of statCards(); track card.label) {
+      <article class="stat-card" [class]="card.tone">
+        <div class="stat-icon">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </div>
+        <div class="stat-copy">
+          <strong>{{ card.value }}</strong>
+          <span>{{ card.label }}</span>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="filters-card" [formGroup]="filtersForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Search reviews</mat-label>
+      <input matInput formControlName="search" placeholder="Product, reviewer, store, or comment">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="all">All statuses</mat-option>
+        <mat-option value="pending">Pending</mat-option>
+        <mat-option value="flagged">Flagged</mat-option>
+        <mat-option value="approved">Approved</mat-option>
+        <mat-option value="rejected">Rejected</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Rating</mat-label>
+      <mat-select formControlName="rating">
+        <mat-option value="all">All ratings</mat-option>
+        <mat-option value="5">5 stars</mat-option>
+        <mat-option value="4">4 stars</mat-option>
+        <mat-option value="3">3 stars</mat-option>
+        <mat-option value="2">2 stars</mat-option>
+        <mat-option value="1">1 star</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Featured</mat-label>
+      <mat-select formControlName="featured">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="true">Featured only</mat-option>
+        <mat-option value="false">Not featured</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <label class="toggle-field">
+      <span>Reported only</span>
+      <mat-slide-toggle formControlName="reportedOnly" />
+    </label>
+  </section>
+
+  <section class="layout">
+    <article class="queue-panel">
+      <div class="panel-header">
+        <div>
+          <h3>Moderation queue</h3>
+          <p>{{ pagination().total }} reviews matched</p>
+        </div>
+        <div class="pagination-pill">
+          Page {{ pagination().page }} of {{ pagination().pages }}
+        </div>
+      </div>
+
+      @if (reviews().length > 0) {
+        <div class="review-list">
+          @for (review of reviews(); track trackByReviewId($index, review)) {
+            <button
+              type="button"
+              class="review-row"
+              [class.active]="selectedReview()?._id === review._id"
+              (click)="selectReview(review)">
+              <div class="row-top">
+                <div class="identity">
+                  <strong>{{ review.user?.displayName || 'Anonymous buyer' }}</strong>
+                  <span>{{ review.product?.name || 'Unknown product' }}</span>
+                </div>
+                <mat-chip class="status-chip" [class]="review.status">{{ review.status }}</mat-chip>
+              </div>
+
+              <div class="row-middle">
+                <span class="rating">{{ review.rating }}/5</span>
+                <span>{{ review.store?.name || 'Unknown store' }}</span>
+                @if (review.verifiedPurchase) {
+                  <span class="verified">Verified purchase</span>
+                }
+              </div>
+
+              <p class="comment-snippet">{{ review.title || review.comment }}</p>
+
+              <div class="row-meta">
+                <span>{{ review.reportCount }} reports</span>
+                <span>{{ review.helpfulCount }} helpful</span>
+                <span>{{ formatDate(review.createdAt, 'mediumDate') }}</span>
+              </div>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>rate_review</mat-icon>
+          <span>No reviews matched the current moderation filters.</span>
+        </div>
+      }
+
+      <div class="pagination-actions">
+        <button type="button" class="ghost-btn" (click)="changePage('prev')" [disabled]="pagination().page <= 1">
+          <mat-icon>chevron_left</mat-icon>
+          Previous
+        </button>
+        <button type="button" class="ghost-btn" (click)="changePage('next')" [disabled]="!pagination().hasMore">
+          Next
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </article>
+
+    <aside class="detail-panel">
+      @if (selectedReview(); as review) {
+        <div class="panel-header">
+          <div>
+            <h3>Review details</h3>
+            <p>{{ review.store?.name || 'Storefront review' }}</p>
+          </div>
+          <button type="button" class="icon-btn" [matMenuTriggerFor]="reviewMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #reviewMenu="matMenu">
+            <button mat-menu-item (click)="submitModeration('approve')">
+              <mat-icon>check_circle</mat-icon>
+              <span>Approve</span>
+            </button>
+            <button mat-menu-item (click)="submitModeration('reject')">
+              <mat-icon>cancel</mat-icon>
+              <span>Reject</span>
+            </button>
+            <button mat-menu-item (click)="submitModeration('clear_flags')">
+              <mat-icon>flag_circle</mat-icon>
+              <span>Clear flags</span>
+            </button>
+            <button mat-menu-item (click)="submitModeration('feature')">
+              <mat-icon>{{ review.isFeatured ? 'star_outline' : 'star' }}</mat-icon>
+              <span>{{ review.isFeatured ? 'Remove featured' : 'Feature review' }}</span>
+            </button>
+            <button mat-menu-item (click)="submitModeration('delete')">
+              <mat-icon>delete</mat-icon>
+              <span>Delete review</span>
+            </button>
+          </mat-menu>
+        </div>
+
+        <div class="detail-stack">
+          <div class="headline-card">
+            <div class="headline-copy">
+              <strong>{{ review.title || 'Untitled review' }}</strong>
+              <p>{{ review.comment }}</p>
+            </div>
+            <div class="headline-meta">
+              <span>{{ review.rating }}/5</span>
+              <mat-chip class="status-chip" [class]="review.status">{{ review.status }}</mat-chip>
+            </div>
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-card">
+              <span class="label">Reviewer</span>
+              <strong>{{ review.user?.displayName || 'Anonymous buyer' }}</strong>
+              <small>{{ review.user?.email || 'No email available' }}</small>
+            </div>
+            <div class="detail-card">
+              <span class="label">Product</span>
+              <strong>{{ review.product?.name || 'Unknown product' }}</strong>
+              <small>{{ review.store?.name || 'Unknown store' }}</small>
+            </div>
+            <div class="detail-card">
+              <span class="label">Signals</span>
+              <strong>{{ review.reportCount }} reports</strong>
+              <small>{{ review.helpfulCount }} helpful votes</small>
+            </div>
+            <div class="detail-card">
+              <span class="label">Submitted</span>
+              <strong>{{ formatDate(review.createdAt, 'mediumDate') }}</strong>
+              <small>{{ review.verifiedPurchase ? 'Verified purchase' : 'Manual review' }}</small>
+            </div>
+          </div>
+
+          @if (review.images.length > 0) {
+            <div class="section-card">
+              <h4>Review media</h4>
+              <div class="image-grid">
+                @for (image of review.images; track image) {
+                  <a class="review-image" [href]="image" target="_blank" rel="noopener noreferrer">
+                    <img [src]="image" alt="Review media">
+                  </a>
+                }
+              </div>
+            </div>
+          }
+
+          @if (review.reportReasons.length > 0) {
+            <div class="section-card">
+              <h4>Reports</h4>
+              <div class="report-list">
+                @for (report of review.reportReasons; track report.reason + report.reportedAt) {
+                  <div class="report-item">
+                    <strong>{{ report.reporter?.displayName || 'Reporter' }}</strong>
+                    <span>{{ report.reason }}</span>
+                    <small>{{ formatDate(report.reportedAt, 'short') }}</small>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="section-card">
+            <h4>Moderation note</h4>
+            <textarea
+              [value]="moderationNote()"
+              (input)="setModerationNote(($any($event.target)).value)"
+              placeholder="Internal note for this decision"></textarea>
+          </div>
+
+          <div class="section-card">
+            <h4>Admin response</h4>
+            <textarea
+              [value]="adminResponse()"
+              (input)="setAdminResponse(($any($event.target)).value)"
+              placeholder="Optional public response shown below the review"></textarea>
+            <button type="button" class="ghost-btn inline-btn" (click)="submitModeration('respond')" [disabled]="submitting()">
+              <mat-icon>reply</mat-icon>
+              Save response
+            </button>
+          </div>
+
+          <div class="action-row">
+            <button type="button" class="approve-btn" (click)="submitModeration('approve')" [disabled]="submitting()">
+              <mat-icon>check_circle</mat-icon>
+              Approve
+            </button>
+            <button type="button" class="reject-btn" (click)="submitModeration('reject')" [disabled]="submitting()">
+              <mat-icon>cancel</mat-icon>
+              Reject
+            </button>
+            <button type="button" class="ghost-btn" (click)="submitModeration('clear_flags')" [disabled]="submitting()">
+              <mat-icon>flag_circle</mat-icon>
+              Clear flags
+            </button>
+            <button type="button" class="ghost-btn" (click)="submitModeration('feature')" [disabled]="submitting()">
+              <mat-icon>{{ review.isFeatured ? 'star_outline' : 'star' }}</mat-icon>
+              {{ review.isFeatured ? 'Unfeature' : 'Feature' }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state detail-empty">
+          <mat-icon>visibility</mat-icon>
+          <span>Select a review to inspect and moderate it.</span>
+        </div>
+      }
+    </aside>
+  </section>
+</main>

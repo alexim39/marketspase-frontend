@@ -10,19 +10,20 @@ import { ForumService } from './forum.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from './confirmationDialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-reply',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
   template: `
     <div class="reply">
       <div class="reply-main">
-        <img class="reply-avatar" [src]="reply.author.avatar" [alt]="reply.author.name">
+        <img class="reply-avatar" [src]="reply.author.avatar" [alt]="reply.author.displayName">
         
         <div class="reply-content">
           <div class="reply-header">
-            <span class="reply-author">{{reply.author.name | titlecase}}</span>
+            <span class="reply-author">{{reply.author.displayName | titlecase}}</span>
             <span *ngIf="reply.author.isVerified" class="verified-badge">
               <mat-icon>verified</mat-icon>
             </span>

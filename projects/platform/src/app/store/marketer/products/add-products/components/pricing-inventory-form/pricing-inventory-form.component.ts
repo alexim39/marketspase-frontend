@@ -36,28 +36,58 @@ export class PricingInventoryFormComponent {
 
    // 1. Create a simple writable signal for the price
   public priceValue = signal<number>(0);
+  public commissionType = signal<'percentage' | 'fixed'>('percentage');
+  public commissionRate = signal<number>(10);
+  public fixedCommission = signal<number>(0);
 
   // 2. Compute the final amount based on that signal
-  payableAmount = computed(() => this.priceValue() * 0.9);
-  feeAmount = computed(() => this.priceValue() * 0.1);
+  feeAmount = computed(() => {
+    if (this.commissionType() === 'fixed') {
+      return Math.min(this.priceValue(), this.fixedCommission());
+    }
+
+    return this.priceValue() * (this.commissionRate() / 100);
+  });
+  payableAmount = computed(() => Math.max(0, this.priceValue() - this.feeAmount()));
 
   constructor() {
     // 3. Use an effect to set up the listener once the input is available
     effect((onCleanup) => {
       const form = this.pricingForm();
       const priceControl = form.get('price');
+      const commissionTypeControl = form.get('commissionType');
+      const commissionRateControl = form.get('commissionRate');
+      const fixedCommissionControl = form.get('fixedCommission');
 
       if (priceControl) {
         // Set initial value
         this.priceValue.set(Number(priceControl.value) || 0);
 
         // Listen for changes
-        const sub = priceControl.valueChanges.subscribe(val => {
+        const priceSub = priceControl.valueChanges.subscribe(val => {
           this.priceValue.set(Number(val) || 0);
+        });
+        const typeSub = commissionTypeControl?.valueChanges.subscribe(val => {
+          this.commissionType.set(val === 'fixed' ? 'fixed' : 'percentage');
+        });
+        const rateSub = commissionRateControl?.valueChanges.subscribe(val => {
+          this.commissionRate.set(Number(val) || 0);
+        });
+        const fixedSub = fixedCommissionControl?.valueChanges.subscribe(val => {
+          this.fixedCommission.set(Number(val) || 0);
         });
 
         // Clean up the subscription if the input changes or component dies
-        onCleanup(() => sub.unsubscribe());
+        this.commissionType.set(commissionTypeControl?.value === 'fixed' ? 'fixed' : 'percentage');
+        this.commissionRate.set(Number(commissionRateControl?.value) || 10);
+        this.fixedCommission.set(Number(fixedCommissionControl?.value) || 0);
+
+        onCleanup(() => {
+          priceSub.unsubscribe();
+          typeSub?.unsubscribe();
+          rateSub?.unsubscribe();
+          fixedSub?.unsubscribe();
+        });
       }
     });
   }

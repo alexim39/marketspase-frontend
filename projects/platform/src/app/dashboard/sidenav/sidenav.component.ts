@@ -19,7 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { UserInterface, DeviceService, CurrencyUtilsPipe } from '../../../../../shared-services/src/public-api';
+import { UserInterface, DeviceService, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 // Import new components

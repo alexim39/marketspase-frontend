@@ -48,32 +48,72 @@
 
         <mat-card-content>
           <!-- Media Display -->
-           @if (thread.media) {
-            <div class="thread-media">
-              @if (thread.media.type === 'image') {
-              <img [src]="thread.media.url" [alt]="thread.media.originalName" class="media-content">
-              }
-              @if (thread.media.type === 'video') {
-              <video controls class="media-content">
-                <source [src]="thread.media.url">
-                <!-- <source [src]="thread.media.url" [type]="getMediaType(thread.media)"> -->
-              </video>
-              }
-              @if (thread.media.type === 'audio') {
-              <audio controls class="media-content">
-                <source [src]=" thread.media.url">
-                <!-- <source [src]=" thread.media.url" [type]="getMediaType(thread.media)"> -->
-              </audio>
+          @if (thread.mediaItems?.length) {
+            <div class="thread-media-grid">
+              @for (media of thread.mediaItems; track media.url) {
+                <div class="thread-media">
+                  @if (media.type === 'image') {
+                    <img [src]="media.url" [alt]="media.originalName || thread.title" class="media-content">
+                  }
+                  @if (media.type === 'video') {
+                    <video controls class="media-content">
+                      <source [src]="media.url">
+                    </video>
+                  }
+                  @if (media.type === 'audio') {
+                    <audio controls class="media-content">
+                      <source [src]="media.url">
+                    </audio>
+                  }
+                </div>
               }
             </div>
-           }
+          }
 
           <div class="thread-content" [innerHTML]="thread.content | sanitizeHtml"></div>
+
+          @if (thread.poll) {
+            <section class="poll-card">
+              <div class="poll-header">
+                <div>
+                  <span class="poll-kicker">Community poll</span>
+                  <h4>{{ thread.poll.question }}</h4>
+                </div>
+                <span class="poll-votes">{{ thread.poll.totalVotes }} votes</span>
+              </div>
+              <div class="poll-options">
+                @for (option of thread.poll.options; track option.optionId) {
+                  <button
+                    class="poll-option"
+                    [class.selected]="isPollOptionSelected(option.optionId)"
+                    [class.voted]="option.hasVoted"
+                    [disabled]="thread.poll.isClosed"
+                    (click)="togglePollOption(option.optionId)">
+                    <span>{{ option.label }}</span>
+                    <strong>{{ option.voteCount }}</strong>
+                  </button>
+                }
+              </div>
+              @if (!thread.poll.isClosed) {
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="submitPollVote()"
+                  [disabled]="selectedPollOptions.size === 0 || !user()">
+                  Submit vote
+                </button>
+              } @else {
+                <p class="poll-closed">Voting is closed for this poll.</p>
+              }
+            </section>
+          }
           
           <mat-chip-listbox class="thread-tags">
-            <mat-chip *ngFor="let tag of thread.tags" 
-                     color="primary">
+            <mat-chip *ngFor="let tag of thread.tags" color="primary">
               {{ tag }}
+            </mat-chip>
+            <mat-chip *ngFor="let topic of thread.topicTags" color="accent">
+              #{{ topic }}
             </mat-chip>
           </mat-chip-listbox>
         </mat-card-content>
@@ -94,6 +134,10 @@
           <button mat-button color="primary" disabled>
             <mat-icon>visibility</mat-icon>
             {{ thread.viewCount }}
+          </button>
+          <button mat-button color="primary" (click)="toggleFollowThread()" [disabled]="!user()">
+            <mat-icon>{{ thread.isFollowing ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+            {{ thread.isFollowing ? 'Following' : 'Follow thread' }}
           </button>
         </mat-card-actions>
         
@@ -136,13 +180,16 @@
 
         <!-- Comments List -->
         <div class="comments-list">
-          <app-comment *ngFor="let comment of comments; trackBy: trackByCommentId"
-            [comment]="comment"
-            [threadId]="thread._id"
-            [isAuthor]="isCommentAuthor(comment)"
-            (likeComment)="toggleLikeComment($event)"
-            (commentDeleted)="onCommentDeleted($event)">
-          </app-comment>
+          @for (comment of comments; track comment._id) {
+            <app-comment 
+              [comment]="comment"
+              [threadId]="thread._id"
+              [isAuthor]="isCommentAuthor(comment)"
+              (likeComment)="toggleLikeComment($event)"
+              (commentDeleted)="onCommentDeleted($event)" />
+          } @empty {
+            <p>No comments yet.</p>
+          }
 
           <!-- Empty State -->
            @if (comments.length === 0) {

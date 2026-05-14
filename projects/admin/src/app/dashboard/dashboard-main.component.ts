@@ -1,193 +1,193 @@
-import { Component, signal, OnInit, inject, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EngagementStats, DashboardService, RevenueStats, CampaignStats, UserStats } from './dashboard.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import {
+  AdminLiveActivityItem,
+  AdminOverviewStats,
+  DashboardService,
+} from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard-main',
   standalone: true,
-  providers: [DashboardService],
   imports: [CommonModule, RouterModule, MatIconModule, MatProgressBarModule],
   templateUrl: './dashboard-main.component.html',
   styleUrls: ['./dashboard-main.component.scss']
 })
-export class DashboardMainComponent implements OnInit {
-  private readonly destroyRef = inject(DestroyRef);
+export class DashboardMainComponent {
   private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  // Loading states
-  readonly isLoading = signal({
-    campaigns: false,
-    users: false,
-    revenue: false,
-    engagement: false
+  readonly loadingOverview = signal(true);
+  readonly loadingActivity = signal(true);
+  readonly overview = signal<AdminOverviewStats | null>(null);
+  readonly activityFeed = signal<AdminLiveActivityItem[]>([]);
+  readonly activitySummary = signal({
+    feedPosts24h: 0,
+    forumThreads24h: 0,
+    campaigns24h: 0,
+    products24h: 0,
+    total24h: 0,
   });
 
-  // Campaign stats
-  readonly campaignStats = signal({
-    totalCampaigns: 0,
-    activeCampaigns: 0,
-    activeCampaignsChange: 0
+  readonly heroCards = computed(() => {
+    const overview = this.overview();
+    if (!overview) {
+      return [];
+    }
+
+    return [
+      {
+        key: 'users',
+        label: 'Users',
+        value: overview.users.totalUsers.toLocaleString(),
+        meta: `${overview.users.marketers.toLocaleString()} marketers | ${overview.users.promoters.toLocaleString()} promoters`,
+        icon: 'groups',
+        tone: 'info',
+      },
+      {
+        key: 'campaigns',
+        label: 'Ad campaigns',
+        value: overview.ads.totalCampaigns.toLocaleString(),
+        meta: `${overview.ads.activeCampaigns.toLocaleString()} active | ${overview.ads.pendingCampaigns.toLocaleString()} pending`,
+        icon: 'campaign',
+        tone: 'primary',
+      },
+      {
+        key: 'promotions',
+        label: 'Promotions',
+        value: overview.ads.totalPromotions.toLocaleString(),
+        meta: `${overview.ads.submittedPromotions.toLocaleString()} awaiting review | ${overview.ads.totalCampaignClicks.toLocaleString()} clicks tracked`,
+        icon: 'ads_click',
+        tone: 'warning',
+      },
+      {
+        key: 'commerce',
+        label: 'Storefront sales',
+        value: `NGN ${overview.commerce.grossMerchandiseValue.toLocaleString()}`,
+        meta: `${overview.commerce.paidOrders.toLocaleString()} paid orders | ${overview.commerce.totalProducts.toLocaleString()} live products`,
+        icon: 'storefront',
+        tone: 'success',
+      },
+    ];
   });
 
-  // User stats
-  readonly userStats = signal({
-    totalUsers: 0,
-    activeUsers: 0,
-    usersChange: 0
+  readonly quickActions = [
+    {
+      title: 'Review submitted promotions',
+      description: 'Validate promoter proofs and keep the pay-per-click pipeline moving.',
+      route: '/dashboard/promotions/submitted',
+      icon: 'fact_check',
+    },
+    {
+      title: 'Manage storefronts',
+      description: 'Inspect stores, products, and marketplace readiness across marketers.',
+      route: '/dashboard/stores',
+      icon: 'store',
+    },
+    {
+      title: 'Moderate product reviews',
+      description: 'Approve, reject, or clear flagged storefront ratings before they affect public trust.',
+      route: '/dashboard/stores/reviews',
+      icon: 'rate_review',
+    },
+    {
+      title: 'Handle payouts and refunds',
+      description: 'Review withdrawal requests, transfer history, and payment recovery work.',
+      route: '/dashboard/financial',
+      icon: 'account_balance_wallet',
+    },
+    {
+      title: 'Tune rewards and gamification',
+      description: 'Adjust streak, badge, gamification, and payment settings for live growth loops.',
+      route: '/dashboard/settings/login-streaks',
+      icon: 'emoji_events',
+    },
+  ];
+
+  constructor() {
+    this.loadDashboard();
+  }
+
+  readonly activePrograms = computed(() => {
+    const overview = this.overview();
+    if (!overview) {
+      return [];
+    }
+
+    return [
+      {
+        label: 'Marketplace community',
+        value: `${overview.community.totalFeedPosts.toLocaleString()} posts | ${overview.community.totalThreads.toLocaleString()} discussions`,
+        detail: `${this.activitySummary().total24h.toLocaleString()} fresh activities in the last 24 hours`,
+      },
+      {
+        label: 'Storefront engine',
+        value: `${overview.commerce.totalStores.toLocaleString()} stores | ${overview.commerce.totalProducts.toLocaleString()} published products`,
+        detail: `${overview.commerce.paidOrders.toLocaleString()} paid orders captured`,
+      },
+      {
+        label: 'Rewards system',
+        value: `${overview.rewards.activeStreakUsers.toLocaleString()} streaking users | ${overview.rewards.badgeAwards.toLocaleString()} badge awards`,
+        detail: `${overview.rewards.leveledUsers.toLocaleString()} users have moved beyond level 1`,
+      },
+    ];
   });
 
-  // Revenue stats
-  readonly revenueStats = signal({
-    totalRevenue: 0,
-    revenueChange: 0
-  });
-
-  // Engagement stats
-  readonly engagementStats = signal({
-    averageEngagement: 0,
-    engagementChange: 0
-  });
-
-  ngOnInit(): void {
-    this.loadAllStats();
-  }
-
-  private loadAllStats(): void {
-    // Load all stats in parallel for better performance
-    this.loadCampaignStats();
-    this.loadUserStats();
-    this.loadRevenueStats();
-    this.loadEngagementStats();
-  }
-
-  private loadCampaignStats(): void {
-    this.isLoading.update(state => ({ ...state, campaigns: true }));
-
-    this.dashboardService.getCampaignStats()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.isLoading.update(state => ({ ...state, campaigns: false }));
-        })
-      )
-      .subscribe({
-        next: (stats: CampaignStats) => {
-          this.campaignStats.set({
-            totalCampaigns: stats.totalCampaigns,
-            activeCampaigns: stats.activeCampaigns,
-            activeCampaignsChange: stats.activeCampaignsChange
-          });
-        },
-        error: (error) => {
-          console.error('Error loading campaign stats:', error);
-          // Set default values on error
-          this.campaignStats.set({
-            totalCampaigns: 0,
-            activeCampaigns: 0,
-            activeCampaignsChange: 0
-          });
-        }
-      });
-  }
-
-  private loadUserStats(): void {
-    this.isLoading.update(state => ({ ...state, users: true }));
-
-    this.dashboardService.getUserStats()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.isLoading.update(state => ({ ...state, users: false }));
-        })
-      )
-      .subscribe({
-        next: (stats: UserStats) => {
-          this.userStats.set({
-            totalUsers: stats.totalUsers,
-            activeUsers: stats.activeUsers,
-            usersChange: stats.usersChange
-          });
-        },
-        error: (error) => {
-          console.error('Error loading user stats:', error);
-          this.userStats.set({
-            totalUsers: 0,
-            activeUsers: 0,
-            usersChange: 0
-          });
-        }
-      });
-  }
-
-  private loadRevenueStats(): void {
-    this.isLoading.update(state => ({ ...state, revenue: true }));
-
-    this.dashboardService.getRevenueStats()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.isLoading.update(state => ({ ...state, revenue: false }));
-        })
-      )
-      .subscribe({
-        next: (stats: RevenueStats) => {
-          this.revenueStats.set({
-            totalRevenue: stats.totalRevenue,
-            revenueChange: stats.revenueChange
-          });
-        },
-        error: (error) => {
-          console.error('Error loading revenue stats:', error);
-          this.revenueStats.set({
-            totalRevenue: 0,
-            revenueChange: 0
-          });
-        }
-      });
-  }
-
-  private loadEngagementStats(): void {
-    this.isLoading.update(state => ({ ...state, engagement: true }));
-
-    this.dashboardService.getEngagementStats()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.isLoading.update(state => ({ ...state, engagement: false }));
-        })
-      )
-      .subscribe({
-        next: (stats: EngagementStats) => {
-          this.engagementStats.set({
-            averageEngagement: stats.averageEngagement,
-            engagementChange: stats.engagementChange
-          });
-        },
-        error: (error) => {
-          console.error('Error loading engagement stats:', error);
-          this.engagementStats.set({
-            averageEngagement: 0,
-            engagementChange: 0
-          });
-        }
-      });
-  }
-
-  // Helper getters for template
-  isCampaignLoading = () => this.isLoading().campaigns;
-  isUserLoading = () => this.isLoading().users;
-  isRevenueLoading = () => this.isLoading().revenue;
-  isEngagementLoading = () => this.isLoading().engagement;
-
-  // Refresh function
-  refreshStats(): void {
-    // Clear cache and reload
+  refreshDashboard(): void {
     this.dashboardService.clearCache();
-    this.loadAllStats();
+    this.loadDashboard();
+  }
+
+  private loadDashboard(): void {
+    this.loadOverview();
+    this.loadActivity();
+  }
+
+  private loadOverview(): void {
+    this.loadingOverview.set(true);
+    this.dashboardService.getAdminOverview()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingOverview.set(false)),
+      )
+      .subscribe({
+        next: (data) => {
+          this.overview.set(data);
+        },
+        error: (error) => {
+          console.error('Error loading admin overview:', error);
+          this.overview.set(null);
+        },
+      });
+  }
+
+  private loadActivity(): void {
+    this.loadingActivity.set(true);
+    this.dashboardService.getLiveActivity(12)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loadingActivity.set(false)),
+      )
+      .subscribe({
+        next: (data) => {
+          this.activityFeed.set(data.activities || []);
+          this.activitySummary.set(data.summary || {
+            feedPosts24h: 0,
+            forumThreads24h: 0,
+            campaigns24h: 0,
+            products24h: 0,
+            total24h: 0,
+          });
+        },
+        error: (error) => {
+          console.error('Error loading admin activity feed:', error);
+          this.activityFeed.set([]);
+        },
+      });
   }
 }

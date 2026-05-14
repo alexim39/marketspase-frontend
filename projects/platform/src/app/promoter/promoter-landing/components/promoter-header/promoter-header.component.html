@@ -14,8 +14,8 @@
           <span class="stat-label">Total Earnings</span>
         </div>
         <div class="stat-item">
-          <span class="stat-value">{{metrics.rating}}</span>
-          <span class="stat-label">Rating</span>
+          <span class="stat-value">{{ metrics.rating | number:'1.1-1' }}</span>
+          <span class="stat-label">Reputation</span>
         </div>
         <div class="stat-item">
           <span class="stat-value">{{metrics.completedPromotions}}</span>

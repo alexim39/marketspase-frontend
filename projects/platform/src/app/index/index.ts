@@ -1,8 +1,8 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceService } from '../../../../shared-services/src/public-api';
 import { MobileIndexComponent } from './mobile/index.component';
 import { DesktopIndexComponent } from './desktop/index.component';
+import { DeviceService } from '@shared/services';
 
 @Component({
   selector: 'app-landing-index',

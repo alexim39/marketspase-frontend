@@ -1,6 +1,4 @@
-<div class="create-feed-page" [@pageTransition]>
-  
-  <!-- Header -->
+<div class="create-feed-page">
   <header class="page-header">
     <div class="header-content">
       <button class="back-btn" (click)="onDiscard()" matTooltip="Go back">
@@ -8,273 +6,328 @@
       </button>
 
       <div class="header-title">
-        <h1>{{ isEditMode() ? 'Update post' : 'Start a Campaign Discussion' }}</h1>
-        <p>{{ isEditMode() ? 'Update your post' : 'Start a conversation around your ads to boost visibility and reach.' }}</p>
+        <h1>{{ isEditMode() ? 'Update social post' : 'Create a social post' }}</h1>
+        <p>Turn campaigns, products, and creator ideas into posts people can watch, save, and share.</p>
       </div>
 
-      
       <div class="header-actions">
-        <button 
-          class="preview-toggle" 
-          (click)="togglePreview()"
-          matTooltip="Toggle preview">
+        <button class="preview-toggle" (click)="togglePreview()" matTooltip="Toggle preview">
           <mat-icon>{{ showPreview() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
       </div>
     </div>
   </header>
-  
-  <!-- Main Content -->
+
   <div class="main-content" [class.with-preview]="showPreview()">
-    
-    <!-- Form Section -->
-    <div class="form-section" @slideIn>
-      
-      <!-- Campaign Selection -->
+    <div class="form-section">
       <div class="step-container">
         <div class="step-header">
           <div class="step-number">1</div>
-          <h2>Select Campaign</h2>
+          <h2>Choose your post source</h2>
         </div>
-        
-        <div class="step-content">
-          <mat-form-field appearance="outline" class="full-width select-campaign">
-            <mat-label>Choose a campaign</mat-label>
-            <mat-select 
-              [(ngModel)]="postData.campaignId" 
-              name="campaign"
-              (selectionChange)="onCampaignSelect($event.value)"
-              [disabled]="isLoadingCampaigns() || isEditMode()">
-              
-              @if (isLoadingCampaigns()) {
-                <mat-option disabled>Loading campaigns...</mat-option>
-              } @else {
-                @for (campaign of userCampaigns(); track campaign._id) {
-                  <mat-option [value]="campaign._id">
-                    <div class="campaign-option">
-                      <span class="campaign-title">{{ campaign.title }}</span>
-                      <span class="campaign-status" [class]="campaign.status">
-                        {{ campaign.status | titlecase }}
-                      </span>
-                      <span class="campaign-progress">
-                        {{ campaign.progress | number:'1.0-0' }}% complete
-                      </span>
-                    </div>
-                  </mat-option>
-                }
-              }
-            </mat-select>
-            @if (isLoadingCampaigns()) {
-              <div class="loading-container">
-                <!-- Set diameter to 20 or 24 for a "small" look -->
-                <mat-spinner [diameter]="20" class="loading-spinner"></mat-spinner>
-                <small class="loading-hint">Loading your campaigns...</small>
-              </div>
-            }
-          </mat-form-field>
 
-          @if (selectedCampaign()) {
-            <div class="selected-campaign-preview" @slideIn>
-              <div class="campaign-media">
-                @if (selectedCampaign()?.mediaType === 'image') {
-                  <img [src]="selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
+        <div class="step-content">
+          <div class="source-toggle-group">
+            <button type="button" class="source-toggle" [class.active]="sourceType() === 'campaign'" [disabled]="isEditMode()" (click)="onSourceChange('campaign')">
+              <mat-icon>campaign</mat-icon>
+              <span>Campaign</span>
+            </button>
+            <button type="button" class="source-toggle" [class.active]="sourceType() === 'product'" [disabled]="isEditMode()" (click)="onSourceChange('product')">
+              <mat-icon>sell</mat-icon>
+              <span>Product</span>
+            </button>
+            <button type="button" class="source-toggle" [class.active]="sourceType() === 'manual'" [disabled]="isEditMode()" (click)="onSourceChange('manual')">
+              <mat-icon>edit_square</mat-icon>
+              <span>Manual</span>
+            </button>
+          </div>
+
+          @if (sourceType() === 'campaign') {
+            <mat-form-field appearance="outline" class="full-width select-campaign">
+              <mat-label>Select campaign</mat-label>
+              <mat-select [(ngModel)]="postData.campaignId" name="campaignId" [disabled]="isLoadingCampaigns() || isEditMode()" (selectionChange)="onCampaignSelect($event.value)">
+                @if (isLoadingCampaigns()) {
+                  <mat-option disabled>Loading campaigns...</mat-option>
                 } @else {
-                  <div class="video-placeholder">
-                    <!-- <mat-icon>play_circle</mat-icon>-->
-                    <span>Video Campaign</span> 
-                    <img 
-                      [src]="selectedCampaign()?.thumbnailUrl" 
-                      class="media-preview placeholder-img" 
-                      [alt]="selectedCampaign()?.title"
-                    />
-                  </div>
+                  @for (campaign of userCampaigns(); track campaign._id) {
+                    <mat-option [value]="campaign._id">{{ campaign.title }}</mat-option>
+                  }
                 }
-              </div>
-              <div class="campaign-details">
-                <h4>{{ selectedCampaign()?.title }}</h4>
-                <div class="campaign-stats">
-                  <div class="stat">
-                    <span class="label">Budget:</span>
-                    <span class="value">₦{{ selectedCampaign()?.budget | number }}</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Spent:</span>
-                    <span class="value">₦{{ selectedCampaign()?.spentBudget | number }}</span>
-                  </div>
-                  <div class="stat">
-                    <span class="label">Progress:</span>
-                    <span class="value">{{ selectedCampaign()?.progress | number:'1.0-0' }}%</span>
+              </mat-select>
+            </mat-form-field>
+
+            @if (selectedCampaign()) {
+              <div class="selected-campaign-preview">
+                <div class="campaign-media">
+                  @if (selectedCampaign()?.mediaType === 'video') {
+                    <div class="video-placeholder">
+                      <img [src]="selectedCampaign()?.thumbnailUrl || selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
+                    </div>
+                  } @else {
+                    <img [src]="selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
+                  }
+                </div>
+                <div class="campaign-details">
+                  <h4>{{ selectedCampaign()?.title }}</h4>
+                  <div class="campaign-stats">
+                    <div class="stat">
+                      <span class="label">Budget</span>
+                      <span class="value">₦{{ selectedCampaign()?.budget | number }}</span>
+                    </div>
+                    <div class="stat">
+                      <span class="label">Progress</span>
+                      <span class="value">{{ (selectedCampaign()?.progress || 0) | number:'1.0-0' }}%</span>
+                    </div>
                   </div>
                 </div>
               </div>
+            }
+          }
+
+          @if (sourceType() === 'product') {
+            <div class="product-selection-grid">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select store</mat-label>
+                <mat-select [ngModel]="currentStoreId()" name="storeId" [disabled]="isLoadingStores() || isEditMode()" (ngModelChange)="onStoreSelect($event)">
+                  @for (store of stores(); track store._id) {
+                    <mat-option [value]="store._id">{{ store.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select product</mat-label>
+                <mat-select [(ngModel)]="postData.productId" name="productId" [disabled]="isLoadingProducts() || isEditMode()" (selectionChange)="onProductSelect($event.value)">
+                  @if (isLoadingProducts()) {
+                    <mat-option disabled>Loading published products...</mat-option>
+                  } @else {
+                    @for (product of storeProducts(); track product._id) {
+                      <mat-option [value]="product._id">{{ product.name }} · {{ product.currency || 'NGN' }} {{ product.price | number }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
             </div>
+
+            @if (selectedProduct()) {
+              <div class="selected-campaign-preview">
+                <div class="campaign-media">
+                  <img [src]="selectedProduct()?.images?.[0]?.url || 'img/placeholder.png'" [alt]="selectedProduct()?.name">
+                </div>
+                <div class="campaign-details">
+                  <h4>{{ selectedProduct()?.name }}</h4>
+                  <div class="campaign-stats">
+                    <div class="stat">
+                      <span class="label">Price</span>
+                      <span class="value">{{ selectedProduct()?.currency || 'NGN' }} {{ selectedProduct()?.price | number }}</span>
+                    </div>
+                    <div class="stat">
+                      <span class="label">Category</span>
+                      <span class="value">{{ selectedProduct()?.category || 'Product' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
           }
         </div>
       </div>
-      
-      <!-- Step 2: Content -->
+
       <div class="step-container">
         <div class="step-header">
           <div class="step-number">2</div>
-          <h2>Share Your Update</h2>
+          <h2>Write the story</h2>
         </div>
-        
+
         <div class="step-content">
-          
-          <!-- Topic Suggestions -->
           <div class="suggestions-section">
-            <h3>Need inspiration?</h3>
+            <h3>Need a starting point?</h3>
             <div class="suggestions-list">
               @for (topic of suggestedTopics(); track topic) {
-                <button class="suggestion-chip" (click)="applySuggestion(topic)">
+                <button type="button" class="suggestion-chip" (click)="applySuggestion(topic)">
                   <mat-icon>auto_awesome</mat-icon>
                   {{ topic }}
                 </button>
               }
             </div>
           </div>
-          
-          <!-- Content Input -->
+
           <div class="content-input-wrapper">
             <mat-form-field appearance="outline" class="content-field">
-              <mat-label>Your campaign update</mat-label>
-              <textarea 
+              <mat-label>Your post caption</mat-label>
+              <textarea
                 #contentTextarea
-                matInput 
-                [(ngModel)]="postData.content" 
+                matInput
+                [(ngModel)]="postData.content"
                 name="content"
                 rows="6"
-                placeholder="Share your campaign progress, results, or insights..."
-                (input)="onContentInput($any($event.target).value)"
-                maxlength="5000"></textarea>
-              <mat-hint align="end">
-                <span [class.limit-warning]="characterCount() > 4500">
-                  {{ characterCount() }}/5000
-                </span>
-              </mat-hint>
+                maxlength="5000"
+                placeholder="Tell people what is new, why it matters, and what they should do next."
+                (input)="onContentInput($any($event.target).value)"></textarea>
+              <mat-hint align="end">{{ characterCount() }}/5000</mat-hint>
             </mat-form-field>
           </div>
-          
-          <!-- Hashtags -->
+
+          @if (!isEditMode()) {
+            <div class="media-upload-panel">
+              <div class="media-upload-header">
+                <div>
+                  <h3>Rich media</h3>
+                  <p>Attach images or short videos to make the post feel native in-feed.</p>
+                </div>
+                <button type="button" mat-stroked-button (click)="mediaInput.click()">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Add media
+                </button>
+                <input #mediaInput type="file" hidden multiple accept="image/*,video/*,.pdf" (change)="onMediaSelected($event)">
+              </div>
+
+              @if (uploadedMedia().length > 0) {
+                <div class="media-grid">
+                  @for (media of uploadedMedia(); track media.url; let i = $index) {
+                    <div class="media-item">
+                      @if (media.type === 'video') {
+                        <video [src]="media.url" muted playsinline></video>
+                      } @else if (media.type === 'image') {
+                        <img [src]="media.url" [alt]="media.altText || 'Upload preview'">
+                      } @else {
+                        <div class="document-preview">
+                          <mat-icon>description</mat-icon>
+                          <span>{{ media.altText }}</span>
+                        </div>
+                      }
+                      <button type="button" class="remove-media" (click)="removeMedia(i)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              } @else if (sourceMedia().length > 0) {
+                <div class="media-grid linked-grid">
+                  @for (media of sourceMedia(); track media.url) {
+                    <div class="media-item linked">
+                      @if (media.type === 'video') {
+                        <video [src]="media.url" muted playsinline></video>
+                      } @else {
+                        <img [src]="media.url" [alt]="media.altText || 'Linked media'">
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <div class="challenge-panel">
+            <div class="hashtags-header">
+              <mat-icon>bolt</mat-icon>
+              <span>Challenge or trend</span>
+            </div>
+            <div class="challenge-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Challenge hashtag</mat-label>
+                <input matInput [ngModel]="challengeTag()" name="challengeTag" placeholder="creatorchallenge" (ngModelChange)="challengeTag.set($event); markDirty()">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Challenge title</mat-label>
+                <input matInput [ngModel]="challengeTitle()" name="challengeTitle" placeholder="Show how you would promote this" (ngModelChange)="challengeTitle.set($event); markDirty()">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Reward label</mat-label>
+                <input matInput [ngModel]="challengeReward()" name="challengeReward" placeholder="Top creator gets a spotlight badge" (ngModelChange)="challengeReward.set($event); markDirty()">
+              </mat-form-field>
+            </div>
+          </div>
+
           <div class="hashtags-section">
             <div class="hashtags-header">
               <mat-icon>tag</mat-icon>
               <span>Hashtags</span>
             </div>
-            
+
             <div class="hashtags-input">
               <mat-form-field appearance="outline" class="hashtag-field">
-                <input 
-                  matInput 
-                  [(ngModel)]="hashtagInput" 
-                  name="hashtagInput"
-                  placeholder="Add hashtag"
-                  (keydown.enter)="$event.preventDefault(); addHashtag(hashtagInput())">
+                <input matInput [ngModel]="hashtagInput()" name="hashtagInput" placeholder="Add hashtag" (ngModelChange)="hashtagInput.set($event)" (keydown.enter)="$event.preventDefault(); addHashtag(hashtagInput())">
               </mat-form-field>
-              <button 
-                class="add-hashtag-btn"
-                (click)="addHashtag(hashtagInput())">
-                Add
-              </button>
+              <button type="button" class="add-hashtag-btn" (click)="addHashtag(hashtagInput())">Add</button>
             </div>
-            
+
             @if (hashtags().length > 0) {
               <div class="hashtags-list">
                 @for (tag of hashtags(); track tag; let i = $index) {
                   <div class="hashtag-chip">
                     <span>#{{ tag }}</span>
-                    <button class="remove-hashtag" (click)="removeHashtag(i)">
+                    <button type="button" class="remove-hashtag" (click)="removeHashtag(i)">
                       <mat-icon>close</mat-icon>
                     </button>
                   </div>
                 }
               </div>
             }
-            
+
             <div class="suggested-hashtags">
               <span class="label">Suggested:</span>
               @for (tag of suggestedHashtags(); track tag) {
-                <button 
-                  class="suggested-tag"
-                  (click)="addSuggestedHashtag(tag)">
-                  #{{ tag }}
-                </button>
+                <button type="button" class="suggested-tag" (click)="addSuggestedHashtag(tag)">#{{ tag }}</button>
               }
             </div>
           </div>
-          
-          <!-- Post Options -->
-          <!-- <div class="post-options">
-            <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">
-              Post anonymously
-            </mat-checkbox>
-            <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">
-              Disable comments
-            </mat-checkbox>
-          </div> -->
-          
+
+          <div class="post-options">
+            <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">Post anonymously</mat-checkbox>
+            <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">Disable comments</mat-checkbox>
+            <mat-checkbox [(ngModel)]="postData.allowExternalShare" name="allowExternalShare">Allow external sharing</mat-checkbox>
+          </div>
         </div>
       </div>
-      
-      <!-- Publish Button -->
+
       <div class="publish-section">
-        <button 
-          class="publish-btn"
-          [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()"
-          (click)="onSubmit()">
+        <button class="publish-btn" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
           @if (isSubmitting()) {
             <mat-spinner diameter="20"></mat-spinner>
-            <span>{{ isEditMode() ? 'Updating...' : 'Posting...' }}</span>
+            <span>{{ isEditMode() ? 'Updating...' : 'Publishing...' }}</span>
           } @else {
             <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
-            <span>{{ isEditMode() ? 'Update' : 'Post' }}</span>
+            <span>{{ isEditMode() ? 'Update post' : 'Publish post' }}</span>
           }
         </button>
-        
+
         @if (!isFormValid()) {
           <div class="validation-message">
-            @if (!postData.campaignId) {
-              <p>👉 Select a campaign to continue</p>
-            } @else if (postData.content.length < 10) {
-              <p>👉 Write at least 10 characters for your update</p>
-            }
+            <p>Add enough detail to the caption and complete the selected source before publishing.</p>
           </div>
         }
       </div>
-      
     </div>
-    
-    <!-- Preview Section -->
+
     @if (showPreview()) {
-      <div class="preview-section" [@slideIn]>
+      <div class="preview-section">
         <div class="preview-header">
-          <h3>Live Preview</h3>
+          <h3>Live preview</h3>
           <button class="close-preview" (click)="showPreview.set(false)">
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        
+
         <div class="preview-content">
-          @if (previewPost()) {
-            <app-feed-post-card
-              [user]="user()"
-              [post]="previewPost()!"
-              [isLiked]="false"
-              [isSaved]="false"
-              (like)="{}"
-              (save)="{}"
-              (comment)="{}"
-              (share)="{}"
-            />
-          }
+          <app-feed-post-card
+            [user]="user()"
+            [post]="previewPost()"
+            [isLiked]="false"
+            [isSaved]="false"
+            (like)="{}"
+            (save)="{}"
+            (comment)="{}"
+            (share)="{}"
+            (sharePlatform)="{}">
+          </app-feed-post-card>
         </div>
-        
+
         <div class="preview-tips">
           <mat-icon>info</mat-icon>
-          <span>Campaign media will be automatically attached</span>
+          <span>People will see the same post card style inside the live feed.</span>
         </div>
       </div>
     }
-    
   </div>
 </div>

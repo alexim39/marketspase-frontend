@@ -6,6 +6,11 @@
         
         <!-- Statistics Toggle -->
         <div class="statistics-toggle">
+            <a mat-stroked-button routerLink="/dashboard/users/analytics" color="primary">
+                <mat-icon>insights</mat-icon>
+                User Analytics
+            </a>
+
             <button mat-stroked-button (click)="toggleStatistics()" color="primary">
                 <mat-icon>{{ showStatistics() ? 'visibility_off' : 'insights' }}</mat-icon>
                 {{ showStatistics() ? 'Hide Statistics' : 'Show Statistics' }}

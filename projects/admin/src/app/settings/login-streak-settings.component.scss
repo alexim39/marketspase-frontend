@@ -1,0 +1,231 @@
+@use 'admin-theme' as admin;
+
+.page-shell {
+  @include admin.page-shell(1.5rem);
+}
+
+.page-header,
+.panel-header,
+.toggle-row,
+.reward-row,
+.page-footer {
+  @include admin.panel-header();
+  align-items: center;
+}
+
+.page-header h1,
+.panel-header h2 {
+  margin: 0;
+  color: var(--admin-text);
+}
+
+.subcopy,
+.panel-header p,
+.field small,
+.toggle-row small,
+.page-footer,
+.summary-card small {
+  color: var(--admin-text-muted);
+}
+
+.page-header {
+  align-items: flex-start;
+}
+
+.save-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.loading-state,
+.summary-grid,
+.field-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.loading-state,
+.summary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.loading-card,
+.summary-card,
+.panel {
+  @include admin.surface-frame(16px);
+}
+
+.loading-card {
+  min-height: 120px;
+  background: linear-gradient(90deg, rgba(22, 34, 53, 0.55), rgba(45, 65, 97, 0.72), rgba(22, 34, 53, 0.55));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+.loading-card.wide {
+  grid-column: span 4;
+  min-height: 280px;
+}
+
+.summary-card,
+.panel {
+  padding: 1.1rem;
+}
+
+.summary-card {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.summary-label {
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+}
+
+.summary-card strong {
+  color: var(--admin-text);
+  font-size: 1.2rem;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.toggle-row,
+.checkbox-pill,
+.reward-row {
+  background: rgba(12, 18, 34, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+}
+
+.toggle-row {
+  padding: 1rem;
+}
+
+.toggle-row input[type='checkbox'] {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.field-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field span,
+.checkbox-pill span,
+.reward-day span,
+.reward-worth span {
+  color: var(--admin-text-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  @include admin.input-control();
+}
+
+.field.compact {
+  min-width: 150px;
+}
+
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.checkbox-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 999px;
+}
+
+.checkbox-pill input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+}
+
+.reward-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.reward-row {
+  padding: 0.95rem 1rem;
+}
+
+.reward-day,
+.reward-worth {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.reward-day strong,
+.reward-worth strong {
+  color: var(--admin-text);
+  font-size: 1.05rem;
+}
+
+.page-footer {
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 960px) {
+  .loading-state,
+  .summary-grid,
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .loading-card.wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-shell {
+    padding: 1rem;
+  }
+
+  .page-header,
+  .panel-header,
+  .toggle-row,
+  .reward-row,
+  .page-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .save-btn,
+  .field.compact,
+  .field input,
+  .field select {
+    width: 100%;
+  }
+}

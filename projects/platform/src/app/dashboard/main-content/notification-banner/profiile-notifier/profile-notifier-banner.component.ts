@@ -1,9 +1,9 @@
-import { Component, inject, Input, OnInit, signal, Signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterModule } from '@angular/router';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 
 @Component({
   selector: 'profile-notifier-banner',
@@ -11,8 +11,8 @@ import { UserInterface } from '../../../../../../../shared-services/src/public-a
   templateUrl: './profile-notifier-banner.component.html',
   styleUrls: ['./profile-notifier-banner.component.scss']
 })
-export class ProfileNotifierBannerComponent implements OnInit {
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
+export class ProfileNotifierBannerComponent {
+  readonly user = input<UserInterface | null>(null);
 
   private router = inject(Router);
 
@@ -22,15 +22,17 @@ export class ProfileNotifierBannerComponent implements OnInit {
   hasAddress = signal(false);
   
   private readonly BANNER_DISMISS_KEY = 'profile_completion_banner_dismissed';
-  private isDismissed = false;
+  private isDismissed = localStorage.getItem(this.BANNER_DISMISS_KEY) === 'true';
 
-  ngOnInit(): void {
-    // Check if user has dismissed the banner
-    this.isDismissed = localStorage.getItem(this.BANNER_DISMISS_KEY) === 'true';
-    
-    if (!this.isDismissed && this.user()) {
-      this.calculateProfileCompletion();
-    }
+  constructor() {
+    effect(() => {
+      const currentUser = this.user();
+      if (!this.isDismissed && currentUser) {
+        this.calculateProfileCompletion();
+      } else if (!currentUser) {
+        this.showBanner.set(false);
+      }
+    });
   }
 
   private calculateProfileCompletion(): void {

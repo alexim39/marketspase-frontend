@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 
 @Component({
   selector: 'async-account',
@@ -56,7 +56,7 @@ import { UserInterface } from '../../../../../shared-services/src/public-api';
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <mat-icon>alternate_email</mat-icon> Username
+                <mat-icon>alternate_email</mat-icon> Username & Social Profiles
               </mat-panel-title>
             </mat-expansion-panel-header>
             @if (user()) {

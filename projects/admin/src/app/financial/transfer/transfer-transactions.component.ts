@@ -16,6 +16,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { Subject, debounceTime, distinctUntilChanged, Subscription, interval } from 'rxjs';
 
 import { TransferService, TransferTransaction, TransferStats } from './transfer.service';
+import { FinanceSectionNavComponent } from '../shared/finance-section-nav.component';
 import { TransferDetailsDialogComponent } from './transfer-details-dialog/transfer-details-dialog.component';
 
 @Component({
@@ -36,7 +37,8 @@ import { TransferDetailsDialogComponent } from './transfer-details-dialog/transf
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatChipsModule
+    MatChipsModule,
+    FinanceSectionNavComponent,
   ],
   providers: [TransferService]
 })

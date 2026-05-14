@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil, interval, Subscription } from 'rxjs';
 
 import { StoreService } from '../../../services/store.service';
-import { DeviceService, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { DeviceService, UserInterface } from '@shared/services';
 import { Store} from '../../../models/store.model';
 import { ProductManagementComponent } from '../product-management/product-management.component';
 import { StoreAnalyticsComponent } from '../store-analytics/store-analytics.component';

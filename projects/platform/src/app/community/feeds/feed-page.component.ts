@@ -1,46 +1,40 @@
-import { 
-  Component, 
-  OnInit, 
-  OnDestroy, 
-  inject, 
-  signal, 
-  computed, 
-  effect,
-  ViewChild,
-  ElementRef,
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  Component,
+  ElementRef,
   Input,
   Signal,
+  ViewChild,
+  computed,
+  effect,
+  inject,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import { Router, RouterModule } from '@angular/router';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-//import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-
-import { FeedService, FeedPost } from './feed.service';
 import { FeedPostCardComponent } from './feed-post-card/feed-post-card.component';
 import { CommentDialogComponent } from './comment-dialog/comment-dialog.component';
-import { UserService } from '../../common/services/user.service';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { CreatorSpotlightEntry, FeedPost, FeedService, ForumHighlight, ForumSpotlightEntry } from './feed.service';
 import { ProfileService, SuggestedUser } from '../../profile/services/profile.service';
 import { SkeletonLoaderComponent } from './shared/skeleton-loader/skeleton-loader.component';
+import { UserInterface } from '@shared/services';
 
 @Component({
   selector: 'app-feed-page-desktop',
@@ -62,7 +56,6 @@ import { SkeletonLoaderComponent } from './shared/skeleton-loader/skeleton-loade
     MatBadgeModule,
     MatDividerModule,
     MatInputModule,
-    MatSelectModule,
     SkeletonLoaderComponent,
     FeedPostCardComponent
   ],
@@ -70,61 +63,102 @@ import { SkeletonLoaderComponent } from './shared/skeleton-loader/skeleton-loade
   styleUrls: ['./feed-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeedPageComponent {
- currentYear: number = new Date().getFullYear();
-  
-  private feedService = inject(FeedService);
-  private profileService = inject(ProfileService);
-  private snackBar = inject(MatSnackBar);
-  private dialog = inject(MatDialog);
-  private router = inject(Router);
+export class FeedPageComponent implements AfterViewInit {
+  currentYear = new Date().getFullYear();
+
+  private readonly feedService = inject(FeedService);
+  private readonly profileService = inject(ProfileService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   @Input({ required: true }) user!: Signal<UserInterface | null>;
-  
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
-  
-  private intersectionObserver: IntersectionObserver | null = null;
-  private isLoadingMore = signal<boolean>(false);
 
-  // Feed service signals
+  private intersectionObserver: IntersectionObserver | null = null;
+  private searchSubscription: any;
+  private isLoadingMore = signal(false);
+
   posts = this.feedService.posts;
   likedPosts = this.feedService.likedPosts;
   savedPosts = this.feedService.savedPosts;
   loading = this.feedService.loading;
   hasMore = this.feedService.hasMore;
   trendingHashtags = this.feedService.trendingHashtags;
+  trendingChallenges = this.feedService.trendingChallenges;
+  creatorSpotlight = this.feedService.creatorSpotlight;
+  forumHighlights = this.feedService.forumHighlights;
+  hotTopics = this.feedService.hotTopics;
+  forumSpotlight = this.feedService.forumSpotlight;
   featuredPost = this.feedService.featuredPost;
+  activityStats = this.feedService.activityStats;
 
-  // UI state signals
-  mobileMenuOpen = signal<boolean>(false);
-  selectedTab = signal<'for-you' | 'following' | 'trending' | 'explore' | 'notifications' | 'profile'>('for-you');
+  suggestedUsers = this.profileService.suggestedUsers;
+  following = signal<Set<string>>(new Set());
+
+  selectedTab = signal<'for-you' | 'following' | 'trending' | 'latest'>('for-you');
   selectedType = signal<string>('all');
   searchQuery = signal<string>('');
   showFilters = signal<boolean>(false);
-  unreadNotifications = signal<number>(3);
-  unreadMessages = signal<number>(2);
-  
-  // Suggested users for "Who to follow"
-  suggestedUsers = this.profileService.suggestedUsers;
 
-  // Following set
-  following = signal<Set<string>>(new Set());
+  filteredPosts = computed(() => this.posts() ?? []);
+  regularPosts = computed(() => {
+    const spotlightId = this.featuredPost()?._id;
+    return this.filteredPosts().filter((post) => post._id !== spotlightId);
+  });
+  activeFeedMode = computed(() => {
+    const tab = this.selectedTab();
+    if (tab === 'following') return 'following';
+    if (tab === 'trending') return 'trending';
+    if (tab === 'latest') return 'latest';
+    return 'for_you';
+  });
 
-filteredPosts = computed(() => this.posts() ?? []);
+  constructor() {
+    effect(() => {
+      const currentUser = this.user();
+      const tab = this.selectedTab();
+      const type = this.selectedType();
 
-  ngAfterViewInit() {
-    this.setupIntersectionObserver();
+      if (!currentUser?._id) return;
+      void tab;
+      void type;
+
+      queueMicrotask(() => {
+        this.loadFeed(true);
+        this.loadFollowingList();
+      });
+    });
+
+    effect(() => {
+      const error = this.feedService.error();
+      if (!error) return;
+      this.snackBar.open(error, 'Dismiss', {
+        duration: 4000,
+        panelClass: 'error-snackbar'
+      });
+    });
+
+    this.searchSubscription = toObservable(this.searchQuery)
+      .pipe(
+        debounceTime(350),
+        distinctUntilChanged(),
+        filter((query) => query.length === 0 || query.length > 2)
+      )
+      .subscribe(() => {
+        if (!this.user()?._id) return;
+        this.loadFeed(true);
+      });
   }
 
-
-    private setupIntersectionObserver(): void {
+  ngAfterViewInit(): void {
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !this.loading() && this.hasMore() && !this.isLoadingMore()) {
           this.loadMore();
         }
       },
-      { threshold: 0.5, rootMargin: '100px' }
+      { threshold: 0.25, rootMargin: '120px' }
     );
 
     if (this.scrollAnchor?.nativeElement) {
@@ -132,229 +166,47 @@ filteredPosts = computed(() => this.posts() ?? []);
     }
   }
 
-  loadMore(): void {
-    if (this.loading() || !this.hasMore() || this.isLoadingMore()) {
-      return;
-    }
-
-    this.isLoadingMore.set(true);
-    
-    const currentTab = this.selectedTab();
-    const currentUserId = this.user()?._id;
-    
-    if (!currentUserId) return;
-
-    // Load next page based on current tab
-    if (currentTab === 'following') {
-      this.feedService.loadMoreFeedPosts(
-        currentUserId,
-        this.selectedType() !== 'all' ? this.selectedType() : undefined,
-        undefined,
-        this.searchQuery() || undefined,
-        'following'
-      );
-    } else {
-      this.feedService.loadMoreFeedPosts(
-        currentUserId,
-        this.selectedType() !== 'all' ? this.selectedType() : undefined,
-        undefined,
-        this.searchQuery() || undefined
-      );
-    }
-
-    // Reset loading flag after a short delay
-    setTimeout(() => {
-      this.isLoadingMore.set(false);
-    }, 500);
-  }
-
-  regularPosts = computed(() => {
-    // Return all posts without featured filtering
-    return this.filteredPosts();
-  });
-
-private searchSubscription: any;
-
-
-  private readonly _ = effect(() => {
-    const currentUser = this.user();
-    const tab = this.selectedTab();
-
-    if (!currentUser?._id) return;
-
-    console.log('[Feed Effect] Loading feed for tab:', tab);
-
-    queueMicrotask(() => {
-      if (tab === 'following') {
-        this.loadFollowingFeed(true);  // Reset on tab change
-      } else {
-        this.loadFeed(true);  // Reset on tab change
-      }
-    });
-  });
-
-constructor() {
-
-  // Feed loader effect (reacts to user + tab safely)
-  effect(() => {
-    const currentUser = this.user();
-    const tab = this.selectedTab();
-
-    if (!currentUser?._id) return;
-
-    console.log('[Feed Effect] Loading feed for tab:', tab);
-
-    queueMicrotask(() => {
-      if (tab === 'following') {
-        this.loadFollowingFeed();
-      } else {
-        this.loadFeed();
-      }
-    });
-  });
-
-
-  // Error display effect
-  effect(() => {
-    const error = this.feedService.error();
-    if (!error) return;
-
-    this.snackBar.open(error, 'Dismiss', { 
-      duration: 5000,
-      panelClass: 'error-snackbar'
-    });
-  });
-
-    // Search effect with debounce
-  effect(() => {
-    const query = this.searchQuery();
-    const currentUser = this.user();
-    if (!currentUser?._id) return;
-
-    // Debounce manually using a subscription (or use toObservable)
-    // Simpler: use a separate Subject in a more advanced setup.
-    // For brevity, I'll show a basic approach with setTimeout (not ideal).
-    // Better to use rxjs with toObservable.
-  });
-
-   // Convert searchQuery signal to observable and debounce
-  this.searchSubscription = toObservable(this.searchQuery)
-    .pipe(
-      debounceTime(500),               // wait 500ms after last keystroke
-      distinctUntilChanged(),           // only if value changed
-      filter(query => query.length === 0 || query.length > 2) // optional: minimum length
-    )
-    .subscribe(query => {
-      const currentUser = this.user();
-      if (!currentUser?._id) return;
-      this.loadFeedWithSearch(query);
-    });
-}
-
-  // Load the list of users the current user follows (to populate the following set)
-  loadFollowingList(): void {
-    const currentUserId = this.user()?._id;
-    if (!currentUserId) return;
-
-    this.profileService.getFollowing(currentUserId, 1, 100).subscribe({
-      next: (res) => {
-        const followingIds = (res.following || []).map((u: any) => u._id);
-        this.following.set(new Set(followingIds));
-      },
-      error: (err) => console.error('Failed to load following list', err)
-    });
-  }
-
-  ngOnDestroy() {
-    this.searchSubscription?.unsubscribe();
-    if (this.intersectionObserver) {
-      this.intersectionObserver.disconnect();
-    }
-  }
-
-private loadFeedWithSearch(searchTerm: string): void {
-  // Reset feed and load with search term
-  this.feedService.loadFeedPosts(
-    this.user()?._id ?? '',
-    this.selectedType() !== 'all' ? this.selectedType() : undefined,
-    undefined,
-    searchTerm || undefined,   // pass undefined if empty
-    true                       // reset
-  );
-}
-
-
-  // Navigation methods
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen.set(!this.mobileMenuOpen());
-  }
-
-  navigateTo(route: string): void {
-    this.mobileMenuOpen.set(false);
-    switch(route) {
-      case 'feed':
-        this.selectedTab.set('for-you');
-        break;
-      case 'explore':
-        this.router.navigate(['/dashboard/explore']);
-        break;
-      case 'notifications':
-        this.router.navigate(['/dashboard/notifications']);
-        break;
-      case 'messages':
-        this.router.navigate(['/dashboard/messages']);
-        break;
-      case 'profile':
-        this.router.navigate(['/dashboard/profile', this.user()?._id]);
-        break;
-      case 'bookmarks':
-        this.router.navigate(['/dashboard/bookmarks']);
-        break;
-      case 'settings':
-        this.router.navigate(['/dashboard/settings']);
-        break;
-    }
-  }
-
-  // Feed methods
   loadFeed(reset: boolean = true): void {
-    if (reset) {
-      this.feedService.resetFeed();
-    }
-    this.feedService.loadFeedPosts(
-      this.user()?._id ?? '',  
-      this.selectedType() !== 'all' ? this.selectedType() : undefined,
-      undefined,
-      this.searchQuery() || undefined,
-      reset
-    );
-  }
+    const currentUserId = this.user()?._id;
+    if (!currentUserId) return;
 
-  loadFollowingFeed(reset: boolean = true): void {
     if (reset) {
       this.feedService.resetFeed();
     }
+
     this.feedService.loadFeedPosts(
-      this.user()?._id ?? '',
+      currentUserId,
       this.selectedType() !== 'all' ? this.selectedType() : undefined,
       undefined,
       this.searchQuery() || undefined,
       reset,
-      'following'
+      this.activeFeedMode()
     );
+  }
+
+  loadMore(): void {
+    const currentUserId = this.user()?._id;
+    if (!currentUserId || this.loading() || !this.hasMore()) return;
+
+    this.isLoadingMore.set(true);
+
+    this.feedService.loadMoreFeedPosts(
+      currentUserId,
+      this.selectedType() !== 'all' ? this.selectedType() : undefined,
+      undefined,
+      this.searchQuery() || undefined,
+      this.activeFeedMode()
+    );
+
+    setTimeout(() => this.isLoadingMore.set(false), 450);
   }
 
   onFilterChange(type: string): void {
     this.selectedType.set(type);
-    this.loadFeed(true);  // Reset on filter change
   }
 
   onSearch(query: string = ''): void {
     this.searchQuery.set(query);
-    // Reset and reload feed with search term
-    if (this.user()?._id) {
-      this.loadFeed(true);
-    }
   }
 
   onLike(post: FeedPost): void {
@@ -365,38 +217,42 @@ private loadFeedWithSearch(searchTerm: string): void {
     this.feedService.toggleSave(postId, this.user()?._id ?? '').subscribe();
   }
 
-  onShare(post: FeedPost): void {
-    //event.stopPropagation();
+  onShare(post: FeedPost, platform: string = 'copy'): void {
+    const shareUrl = `${window.location.origin}/feed/${post._id}`;
+    const shareText = `${post.content}\n\nSee more on MarketSpase`;
 
-    console.log('Sharing post:', post);
-    
-    if (navigator.share) {
-      navigator.share({
-        title: `${post.author?.displayName || 'Community'} on MarketSpase`,
-        text: post.content,
-        url: `${window.location.origin}/feed/${post._id}`
-      }).catch(() => {
-        this.copyToClipboard(post._id);
+    if (platform === 'copy') {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        this.snackBar.open('Link copied to clipboard', 'OK', { duration: 2200 });
       });
+    } else if (platform === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`, '_blank', 'noopener');
+    } else if (platform === 'facebook') {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener');
+    } else if (platform === 'linkedin') {
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener');
+    } else if (navigator.share) {
+      navigator.share({
+        title: `${post.author?.displayName || 'MarketSpase'} on MarketSpase`,
+        text: post.content,
+        url: shareUrl
+      }).catch(() => null);
+      platform = 'native';
     } else {
-      this.copyToClipboard(post._id);
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        this.snackBar.open('Link copied to clipboard', 'OK', { duration: 2200 });
+      });
+      platform = 'copy';
     }
-    
-    this.feedService.sharePost(post._id, this.user()?._id ?? '').subscribe();
-  }
-  
-  private copyToClipboard(postId: string): void {
-    const url = `${window.location.origin}/feed/${postId}`;
-    navigator.clipboard.writeText(url).then(() => {
-      this.snackBar.open('Link copied to clipboard!', 'OK', { duration: 2000 });
-    });
+
+    this.feedService.sharePost(post._id, this.user()?._id ?? '', platform).subscribe();
   }
 
   onComment(postId: string): void {
     this.dialog.open(CommentDialogComponent, {
-      width: '600px',
-      maxWidth: '95vw',
-      panelClass: 'comment-dialog-panel', 
+      width: '640px',
+      maxWidth: '96vw',
+      panelClass: 'comment-dialog-panel',
       disableClose: true,
       data: { postId }
     });
@@ -408,72 +264,92 @@ private loadFeedWithSearch(searchTerm: string): void {
 
   onHashtagClick(hashtag: string): void {
     this.searchQuery.set(hashtag);
-    this.selectedTab.set('for-you');
+    this.selectedTab.set('trending');
+  }
+
+  onOpenChallenge(tag: string): void {
+    this.searchQuery.set(tag);
+    this.selectedTab.set('trending');
+    this.loadFeed(true);
   }
 
   onRefresh(): void {
-    this.loadFeed();
+    this.loadFeed(true);
   }
 
-  // Follow methods
+  openForumHome(): void {
+    this.router.navigate(['/dashboard/community/discussion']);
+  }
+
+  openForumThread(threadId: string): void {
+    if (!threadId) return;
+    this.router.navigate(['/dashboard/community/discussion', threadId]);
+  }
+
+  openForumTopic(topic: string): void {
+    if (!topic) return;
+    this.router.navigate(['/dashboard/community/discussion'], {
+      queryParams: { tag: topic }
+    });
+  }
+
   isFollowing(userId: string): boolean {
     return this.following().has(userId);
   }
 
- /*  toggleFollow(userId: string): void {
-    const following = new Set(this.following());
-    if (following.has(userId)) {
-      following.delete(userId);
-      this.snackBar.open('Unfollowed', 'OK', { duration: 2000 });
-    } else {
-      following.add(userId);
-      this.snackBar.open('Following', 'OK', { duration: 2000 });
-    }
-    this.following.set(following);
-  } */
+  toggleFollow(userId: string): void {
+    const currentUserId = this.user()?._id;
+    if (!currentUserId) return;
 
-    toggleFollow(userId: string): void {
-      const currentUserId = this.user()?._id;
-      if (!currentUserId) return;
-
-      const wasFollowing = this.following().has(userId);
-      this.profileService.toggleFollow(userId, currentUserId).subscribe({
-        next: (res) => {
-          // Update local set optimistically (already reflected by button)
-          this.following.update(set => {
-            const newSet = new Set(set);
-            if (res.followed) {
-              newSet.add(userId);
-              this.snackBar.open('Followed', 'OK', { duration: 2000 });
-            } else {
-              newSet.delete(userId);
-              this.snackBar.open('Unfollowed', 'OK', { duration: 2000 });
-            }
-            return newSet;
-          });
-          // Optionally refresh suggested users to get new recommendations
-          // this.feedService.fetchSuggestedUsers(currentUserId).subscribe();
-        },
-        error: () => {
-          this.snackBar.open('Action failed', 'Dismiss', { duration: 3000 });
-        }
-      });
-    }
-
-  showMoreTrending(): void {
-    this.router.navigate(['/dashboard/trending']);
+    this.profileService.toggleFollow(userId, currentUserId).subscribe({
+      next: (res) => {
+        this.following.update((set) => {
+          const next = new Set(set);
+          if (res.followed) {
+            next.add(userId);
+          } else {
+            next.delete(userId);
+          }
+          return next;
+        });
+      },
+      error: () => {
+        this.snackBar.open('Action failed', 'Dismiss', { duration: 2800 });
+      }
+    });
   }
 
-  onNotifications(): void {
-    this.router.navigate(['/dashboard/notifications']);
+  loadFollowingList(): void {
+    const currentUserId = this.user()?._id;
+    if (!currentUserId) return;
+
+    this.profileService.getFollowing(currentUserId, 1, 100).subscribe({
+      next: (res) => {
+        const followingIds = (res.following || []).map((entry: any) => entry._id);
+        this.following.set(new Set(followingIds));
+      },
+      error: () => null
+    });
   }
 
-  onMessages(): void {
-    this.router.navigate(['/dashboard/messages']);
-  }
-
-  viewProfile(user: SuggestedUser) {
+  viewProfile(user: SuggestedUser | CreatorSpotlightEntry): void {
     this.router.navigate(['/dashboard/profile', user._id]);
   }
-  
+
+  viewForumSpotlightProfile(user: ForumSpotlightEntry): void {
+    this.router.navigate(['/dashboard/profile', user._id]);
+  }
+
+  trackForumThread(index: number, thread: ForumHighlight): string {
+    return thread._id;
+  }
+
+  formatThreadTime(date: string): string {
+    return this.feedService.formatTime(date);
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe?.();
+    this.intersectionObserver?.disconnect?.();
+  }
 }

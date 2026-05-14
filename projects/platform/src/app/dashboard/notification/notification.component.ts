@@ -1,11 +1,12 @@
 // notification-bell.component.ts
-import { Component, OnInit, OnDestroy, Input, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { NotificationService, Notification } from './notification.service';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -15,48 +16,40 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.scss']
 })
-export class NotificationBellComponent implements OnInit, OnDestroy {
+export class NotificationBellComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private cdRef = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   notifications: Notification[] = [];
   unreadCount = 0;
   showDropdown = false;
 
-  @Input({ required: true }) user!: () => UserInterface | null;
+  readonly user = input<UserInterface | null>(null);
 
   ngOnInit() {
-    const userId = this.user()?._id;
-    
-    if (userId) {
-      // Use polling instead of SSE for now (more reliable)
+    if (this.user()?._id) {
       this.loadNotifications();
-      
-      // Set up polling every 30 seconds
-      const pollInterval = setInterval(() => {
-        this.loadNotifications();
-      }, 30000);
-      
-      // Store interval ID for cleanup
-      (this as any).pollInterval = pollInterval;
     }
 
-    // Subscribe to updates - use detectChanges to handle async updates
-    this.notificationService.notifications$.subscribe(notifications => {
-      this.notifications = notifications;
-      this.cdRef.detectChanges(); // Trigger change detection after update
-    });
-    
-    this.notificationService.unreadCount$.subscribe(count => {
-      this.unreadCount = count;
-      this.cdRef.detectChanges(); // Trigger change detection after update
-    });
+    this.notificationService.notifications$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notifications) => {
+        this.notifications = notifications;
+        this.cdRef.markForCheck();
+      });
+
+    this.notificationService.unreadCount$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((count) => {
+        this.unreadCount = count;
+        this.cdRef.markForCheck();
+      });
   }
 
   loadNotifications() {
-    const userId = this.user()?._id;
-    if (userId) {
-      this.notificationService.loadNotifications({ userId });
+    if (this.user()?._id) {
+      this.notificationService.loadNotifications();
     }
   }
 
@@ -82,8 +75,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   }
 
   markAllAsRead() {
-    const userId = this.user()?._id;
-    this.notificationService.markAllAsRead(userId).subscribe({
+    this.notificationService.markAllAsRead().subscribe({
       next: () => {
         this.loadNotifications();
       },
@@ -118,13 +110,5 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
         // Default action
         console.log('Notification action:', notification);
     }
-  }
-
-  ngOnDestroy() {
-    const pollInterval = (this as any).pollInterval;
-    if (pollInterval) {
-      clearInterval(pollInterval);
-    }
-    this.notificationService.disconnect();
   }
 }

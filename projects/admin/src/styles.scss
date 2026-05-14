@@ -1,26 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
-// styles.scss - PROPER MINIMAL CONFIGURATION
-
 @use '@angular/material' as mat;
+@use './styles/admin-theme' as admin;
+
+@include admin.register-theme();
+@include admin.global-foundation();
+@include admin.material-overrides();
 
 html {
-  //color-scheme: light;
   color-scheme: dark;
-  //color-scheme: light dark;
   @include mat.theme((
-    color: mat.$rose-palette,
+    color: mat.$violet-palette,
     typography: Roboto,
     density: 0
   ));
-}
-
-html, body { height: 100%; }
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
-}
-
-// Dark theme variables
-body.dark-mode {
-  color-scheme: dark;
 }

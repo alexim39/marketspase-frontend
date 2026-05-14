@@ -24,9 +24,8 @@ import { finalize, take } from 'rxjs';
 import { Store } from '../../../../models/store.model';
 import { Product } from '../../../../models';
 import { DialogService } from '../../../../shared/services/dialog.service';
-import { TruncatePipe } from '../../../../shared';
 import { SelectionModel } from '@angular/cdk/collections';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface, TruncatePipe } from '@shared/services';
 import { UserService } from '../../../../../common/services/user.service';
 import { ProductService } from '../../product.service';
 

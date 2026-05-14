@@ -1,7 +1,6 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs'; // Import BehaviorSubject and of for reactive state
-import { ApiService } from '../../../../../shared-services/src/public-api';
-import { UserInterface } from '../../../../../shared-services/src/public-api';
+import { ApiService, UserInterface } from '@shared/services';
 
 
 @Injectable({ providedIn: 'root' })
@@ -19,9 +18,9 @@ export class UserService {
    * @param firebaseUser The signin data to be submitted.
    * @returns An Observable that emits the API response or an error.
    */
-  auth(firebaseUser: UserInterface): Observable<any> {
+  auth(firebaseUser: Partial<UserInterface> & Record<string, unknown>, idToken: string): Observable<any> {
     //console.log('check for referral record ',firebaseUser)
-    return this.apiService.post<any>(`auth`, {firebaseUser}, undefined, true);
+    return this.apiService.post<any>(`api/v1/auth`, { firebaseUser, idToken }, undefined, true);
   }
 
   /**
@@ -29,7 +28,7 @@ export class UserService {
    * @returns An Observable that emits the API response or an error.
    */
   getUser(uid: string): Observable<any> {
-    return this.apiService.get<any>(`auth/${uid}`, undefined, undefined, true)
+    return this.apiService.get<any>(`api/v1/auth/${uid}`, undefined, undefined, true)
     .pipe(
       tap(response => {
         if (response.success) {

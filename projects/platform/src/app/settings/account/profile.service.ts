@@ -1,70 +1,47 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 @Injectable()
 export class ProfileService {
+  private readonly baseUserUrl = 'api/v1/user';
+
   constructor(private apiService: ApiService) {}
 
-
-   /**
- * Submits the profile form data to the backend.
- * @param dataObject The  form data.
- * @returns An observable of the submitted form data.
- */
-  updateProfile(userObject: any): Observable<any> {
-    console.log('Updating profile with data:', userObject); 
-    return this.apiService.put<any>(`user/profile/personal`, userObject, undefined, true);
+  updateProfile(userObject: unknown): Observable<any> {
+    return this.apiService.put<any>(`${this.baseUserUrl}/profile/personal`, userObject, undefined, true);
   }
 
-  /**
- * Submits the profession form data to the backend.
- * @param dataObject The  form data.
- * @returns An observable of the submitted form data.
- */
-  updateProfession(dataObject: any): Observable<any> {
-    return this.apiService.put<any>(`user/profile/profession`, dataObject, undefined, true);
+  updateProfession(dataObject: unknown): Observable<any> {
+    return this.apiService.put<any>(`${this.baseUserUrl}/profile/profession`, dataObject, undefined, true);
   }
 
-    /**
- * Submits the username form data to the backend.
- * @param dataObject The  form data.
- * @returns An observable of the submitted form data.
- */
-  updateUsername(dataObject: any): Observable<any> {
-    return this.apiService.put<any>(`user/profile/username`, dataObject, undefined, true);
+  updateUsername(dataObject: unknown): Observable<any> {
+    return this.apiService.put<any>(`${this.baseUserUrl}/profile/username`, dataObject, undefined, true);
   }
 
-  
-  
+  updatePublicIdentity(dataObject: unknown): Observable<any> {
+    return this.apiService.put<any>(`${this.baseUserUrl}/profile/public-identity`, dataObject, undefined, true);
+  }
 
-
-
-  // Referral methods
   getReferralStats(userId: string): Observable<any> {
-    //console.log('Fetching referral stats for userId:', userId);
-    return this.apiService.get<any>(`user/referral/stats/${userId}`, undefined, undefined, true);
+    return this.apiService.get<any>(`${this.baseUserUrl}/referral/stats/${userId}`, undefined, undefined, true);
   }
 
-  getReferralDetails(userId: string, page: number = 1, limit: number = 20): Observable<any> {
-    //console.log('Fetching referral stats for userId:', userId);
-
+  getReferralDetails(userId: string, page = 1, limit = 20): Observable<any> {
     return this.apiService.get<any>(
-      `user/referral/details/${userId}?page=${page}&limit=${limit}`, 
-      undefined, 
-      undefined, 
-      true
+      `${this.baseUserUrl}/referral/details/${userId}?page=${page}&limit=${limit}`,
+      undefined,
+      undefined,
+      true,
     );
   }
 
   validateReferralCode(referralCode: string): Observable<any> {
-    //console.log('Fetching referral stats for referralCode:', referralCode);
-
-    return this.apiService.get<any>(`user/referral/validate/${referralCode}`);
+    return this.apiService.get<any>(`${this.baseUserUrl}/referral/validate/${referralCode}`);
   }
 
   copyReferralLink(link: string): Promise<void> {
     return navigator.clipboard.writeText(link);
   }
-   
 }

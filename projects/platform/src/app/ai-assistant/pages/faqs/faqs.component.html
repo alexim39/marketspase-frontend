@@ -1,0 +1,155 @@
+<div class="faqs-page">
+  <header class="page-header">
+    <div>
+      <h1>FAQs</h1>
+      <p class="subtitle">Train your AI with common questions and answers</p>
+    </div>
+    <div class="header-stats">
+      <span class="stat">{{ faqs().length }} FAQs</span>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search FAQs..."
+      >
+    </mat-form-field>
+
+    <div class="category-chips">
+      <button mat-button [class.active]="!selectedCategory()" (click)="selectCategory()">
+        All
+      </button>
+      <button
+        *ngFor="let cat of categories()"
+        mat-button
+        [class.active]="selectedCategory() === cat"
+        (click)="selectCategory(cat)"
+      >
+        {{ cat }}
+      </button>
+    </div>
+  </div>
+
+  <mat-card class="add-faq-card" *ngIf="!editingFaq()">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>add_circle</mat-icon>
+        Add New FAQ
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="form-grid">
+        <div class="suggestion-note">
+          <mat-icon>tips_and_updates</mat-icon>
+          <div>
+            <strong>Start with questions customers ask before paying.</strong>
+            <p>Price, delivery, availability, payment, returns, sizes, and pickup details are good first FAQs.</p>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Question</mat-label>
+          <input matInput [ngModel]="newFaq().question" (ngModelChange)="updateNewFaq('question', $event)" placeholder="How much is delivery?">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Answer</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [ngModel]="newFaq().answer"
+            (ngModelChange)="updateNewFaq('answer', $event)"
+            placeholder="Delivery is N2,000 within Lagos..."
+          ></textarea>
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <input matInput [ngModel]="newFaq().category" (ngModelChange)="updateNewFaq('category', $event)" placeholder="Pricing">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Tags (comma separated)</mat-label>
+            <input matInput [ngModel]="newFaq().tagsText" (ngModelChange)="updateNewFaq('tagsText', $event)" placeholder="price, cost, delivery">
+          </mat-form-field>
+        </div>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addFaq()"
+          [disabled]="!newFaq().question.trim() || !newFaq().answer.trim() || saving()"
+        >
+          <mat-icon *ngIf="!saving()">add</mat-icon>
+          <mat-spinner *ngIf="saving()" diameter="16"></mat-spinner>
+          {{ saving() ? 'Adding...' : 'Add FAQ' }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="faqs-list" *ngIf="!loading(); else loadingFaqs">
+    <mat-card *ngFor="let faq of filteredFaqs()" class="faq-card">
+      <mat-card-content *ngIf="editingFaq()?._id !== faq._id">
+        <div class="faq-header">
+          <h4>{{ faq.question }}</h4>
+          <div class="faq-actions">
+            <button mat-icon-button (click)="startEdit(faq)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteFaq(faq._id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+        <p class="faq-answer">{{ faq.answer }}</p>
+        <div class="faq-meta" *ngIf="faq.category || faq.tags?.length">
+          <span class="category-badge" *ngIf="faq.category">{{ faq.category }}</span>
+          <span class="tag-badge" *ngFor="let tag of faq.tags">{{ tag }}</span>
+        </div>
+      </mat-card-content>
+
+      <mat-card-content *ngIf="editingFaq()?._id === faq._id">
+        <mat-form-field appearance="outline" class="full-width">
+          <input matInput [ngModel]="editingFaq()?.question || ''" (ngModelChange)="updateEditingFaq('question', $event)">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <textarea matInput rows="3" [ngModel]="editingFaq()?.answer || ''" (ngModelChange)="updateEditingFaq('answer', $event)"></textarea>
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <input matInput [ngModel]="editingFaq()?.category || ''" (ngModelChange)="updateEditingFaq('category', $event)" placeholder="Category">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <input matInput [ngModel]="editingFaq()?.tagsText || ''" (ngModelChange)="updateEditingFaq('tagsText', $event)" placeholder="Tags">
+          </mat-form-field>
+        </div>
+        <div class="edit-actions">
+          <button mat-button (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" (click)="saveEdit()" [disabled]="saving()">
+            <mat-spinner *ngIf="saving()" diameter="16"></mat-spinner>
+            {{ saving() ? 'Saving...' : 'Save' }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="empty-state" *ngIf="filteredFaqs().length === 0">
+      <mat-icon>help_outline</mat-icon>
+      <p *ngIf="searchQuery() || selectedCategory()">No FAQs match your filters</p>
+      <p *ngIf="!searchQuery() && !selectedCategory()">No FAQs yet. Add your first one above.</p>
+    </div>
+  </div>
+
+  <ng-template #loadingFaqs>
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading FAQs...</p>
+    </div>
+  </ng-template>
+</div>

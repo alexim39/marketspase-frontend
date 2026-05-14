@@ -38,9 +38,13 @@ export class StoresContentViewComponent {
     }
   }
 
-  visitStore(store: Store): void {
-    const url = `https://marketspase.com/store/${store.storeLink}`;
+  visitStore(store: Store, type: 'products' | 'store' = 'store'): void {
+    const baseUrl = `https://marketspase.com/store/${store.storeLink}`;
+    const url = type === 'products' ? `${baseUrl}/products` : baseUrl;
     window.open(url, '_blank');
   }
 
+  browseProducts(store: Store): void {
+    this.router.navigate(['/dashboard/stores/store', store._id, 'products']);
+  }
 }

@@ -1,0 +1,163 @@
+<section class="leaderboard-page">
+  <header class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Leaderboard</p>
+      <h1>Top consistency on MarketSpase</h1>
+      <p class="subcopy">
+        See who is showing up, keeping streaks alive, and stacking points across the current reward cycle.
+      </p>
+    </div>
+
+    <button type="button" class="refresh-btn" (click)="refresh()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+      <span>@if (loading()) { Refreshing... } @else { Refresh } </span>
+    </button>
+  </header>
+
+  <div class="summary-grid">
+    <article class="summary-card">
+      <span class="label">Your streak</span>
+      <strong>{{ currentUserStats().currentStreak }} day{{ currentUserStats().currentStreak === 1 ? '' : 's' }}</strong>
+      <small>{{ getRoleLabel(currentUserStats().role) }}</small>
+    </article>
+
+    <article class="summary-card">
+      <span class="label">Total earned points</span>
+      <strong>{{ currentUserStats().totalPointsEarned }}</strong>
+      <small>Worth NGN {{ (currentUserStats().totalPointsEarned * (state()?.pointValueNaira || 150)) | number:'1.0-0' }}</small>
+    </article>
+
+    <article class="summary-card">
+      <span class="label">Ready to withdraw</span>
+      <strong>{{ currentUserStats().withdrawablePoints }} point{{ currentUserStats().withdrawablePoints === 1 ? '' : 's' }}</strong>
+      <small>NGN {{ (currentUserStats().withdrawablePoints * (state()?.pointValueNaira || 150)) | number:'1.0-0' }}</small>
+    </article>
+
+    <article class="summary-card">
+      <span class="label">Refresh cadence</span>
+      <strong>Every {{ state()?.refreshIntervalMinutes || 60 }} min</strong>
+      <small>{{ periodSummary() }}</small>
+    </article>
+  </div>
+
+  <section class="filters-panel">
+    <div class="filter-group">
+      <span class="group-label">Timeframe</span>
+      <div class="segmented">
+        @for (timeframe of timeframeOptions; track timeframe) {
+          <button
+            type="button"
+            class="segment"
+            [class.active]="selectedTimeframe() === timeframe"
+            (click)="setTimeframe(timeframe)">
+            {{ timeframe | titlecase }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <span class="group-label">Metric</span>
+      <div class="segmented">
+        @for (metric of availableMetrics(); track metric) {
+          <button
+            type="button"
+            class="segment"
+            [class.active]="selectedMetric() === metric"
+            (click)="setMetric(metric)">
+            {{ getMetricLabel(metric) }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="filter-meta">
+      <span>{{ state()?.periodLabel || 'Current period' }}</span>
+      <span>@if (state()?.generatedAt) { Updated {{ state()?.generatedAt | date:'short' }} }</span>
+    </div>
+  </section>
+
+  @if (!leaderboardEnabled()) {
+    <section class="empty-state">
+      <mat-icon>leaderboard</mat-icon>
+      <h2>Leaderboard is paused</h2>
+      <p>The admin team has temporarily disabled leaderboard updates.</p>
+    </section>
+  } @else if (loading() && !state()) {
+    <section class="loading-state">
+      @for (placeholder of [1, 2, 3]; track placeholder) {
+        <div class="skeleton-card"></div>
+      }
+    </section>
+  } @else if (!entries().length) {
+    <section class="empty-state">
+      <mat-icon>emoji_events</mat-icon>
+      <h2>No rankings yet</h2>
+      <p>Once users complete check-ins in this timeframe, the leaderboard will populate here.</p>
+    </section>
+  } @else {
+    <section class="podium-grid">
+      @for (entry of podiumEntries(); track entry.userId) {
+        <article class="podium-card" [class.current-user]="entry.isCurrentUser">
+          <div class="rank-badge">#{{ entry.rank }}</div>
+          <div class="avatar" [class.has-image]="!!entry.avatar">
+            @if (entry.avatar) {
+              <img [src]="entry.avatar" [alt]="entry.displayName">
+            } @else {
+              <span>{{ entry.displayName.charAt(0) }}</span>
+            }
+          </div>
+          <strong>{{ entry.displayName }}</strong>
+          <span class="role-pill">{{ getRoleLabel(entry.role) }}</span>
+          <p>{{ getMetricValue(entry) }}</p>
+          <small>{{ entry.totalPointsEarned }} lifetime points</small>
+        </article>
+      }
+    </section>
+
+    <section class="table-panel">
+      <header class="table-header">
+        <div>
+          <h2>Top {{ entries().length }} performers</h2>
+          <p>{{ state()?.totalEligibleUsers || 0 }} eligible users in this window</p>
+        </div>
+      </header>
+
+      <div class="rows">
+        @for (entry of entries(); track entry.userId) {
+          <article class="row" [class.current-user]="entry.isCurrentUser">
+            <div class="identity">
+              <span class="rank">#{{ entry.rank }}</span>
+              <div class="avatar small" [class.has-image]="!!entry.avatar">
+                @if (entry.avatar) {
+                  <img [src]="entry.avatar" [alt]="entry.displayName">
+                } @else {
+                  <span>{{ entry.displayName.charAt(0) }}</span>
+                }
+              </div>
+              <div class="name-block">
+                <strong>{{ entry.displayName }}</strong>
+                <small>{{ getRoleLabel(entry.role) }}</small>
+              </div>
+            </div>
+
+            <div class="row-metrics">
+              <div class="metric">
+                <span>{{ getMetricLabel(selectedMetric()) }}</span>
+                <strong>{{ getMetricValue(entry) }}</strong>
+              </div>
+              <div class="metric">
+                <span>Current streak</span>
+                <strong>{{ entry.currentStreak }} day{{ entry.currentStreak === 1 ? '' : 's' }}</strong>
+              </div>
+              <div class="metric">
+                <span>Total points</span>
+                <strong>{{ entry.totalPointsEarned }}</strong>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</section>

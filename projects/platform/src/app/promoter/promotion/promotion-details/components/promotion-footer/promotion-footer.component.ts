@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { PromotionInterface } from '@shared/services';
 
 @Component({
   selector: 'app-promotion-footer',
@@ -10,46 +10,34 @@ import { PromotionInterface } from '../../../../../../../../shared-services/src/
   imports: [CommonModule, MatButtonModule, MatIconModule],
   template: `
     <div class="footer-section">
-      @if (isSubmissionExpired) {
-        <div class="alert alert-error">
-          <mat-icon>warning</mat-icon>
-          <span>This promotion has expired</span>
+      @if (promotion.status === 'rejected' && promotion.rejectionReason) {
+        <div class="alert alert-info">
+          <mat-icon>info</mat-icon>
+          <span><strong>Rejection Reason:</strong> {{ promotion.rejectionReason }}</span>
         </div>
-      } @else if (isNearingExpiration) {
+      } @else {
         <div class="alert alert-warning">
-          <mat-icon>schedule</mat-icon>
-          <span>Your status expires soon! Make sure it stays active to reach the required views!</span>
+          <mat-icon>link</mat-icon>
+          <span>Share only your generated MarketSpase link so clicks can be tracked and credited.</span>
         </div>
       }
       
       <div class="footer-actions">
-        @if (promotion.status === 'downloaded' && !isSubmissionExpired) {
-          @if (promotion.isDownloaded) {
-            <!-- <button mat-flat-button class="btn btn-primary" [disabled]="!isNearingExpiration">
-              <mat-icon>cloud_upload</mat-icon>
-              Submit Proof
-            </button>
-            @if (!isNearingExpiration) {
-              <p class="footer-note">Submission will be enabled 30 minutes before expiration.</p>
-            } -->
-          } @else {
-            <!-- <button mat-flat-button class="btn btn-primary" (click)="download.emit()">
-              <mat-icon>download_for_offline</mat-icon>
-              Download Promotion
-            </button> -->
-          }            
+        @if (promotion.status !== 'rejected') {
+          <button mat-flat-button class="btn btn-primary" (click)="copyLink.emit()">
+            <mat-icon>link</mat-icon>
+            Copy Link
+          </button>
+          <button mat-flat-button class="btn btn-outline" (click)="share.emit()">
+            <mat-icon>ios_share</mat-icon>
+            Share
+          </button>
         }
-        @if (promotion.status === 'submitted' || promotion.status === 'validated') {
+        @if (promotion.status === 'submitted' || promotion.status === 'validated' || promotion.status === 'rejected') {
           <button mat-flat-button class="btn btn-outline" (click)="contactSupport.emit()">
             <mat-icon>support_agent</mat-icon>
             Contact Support
           </button>
-        }
-        @if (promotion.status === 'rejected' && promotion.rejectionReason) {
-          <div class="alert alert-info">
-            <mat-icon>info</mat-icon>
-            <span><strong>Rejection Reason:</strong> {{ promotion.rejectionReason }}</span>
-          </div>
         }
       </div>
     </div>
@@ -60,6 +48,7 @@ export class PromotionFooterComponent {
   @Input() promotion!: PromotionInterface;
   @Input() isSubmissionExpired!: boolean;
   @Input() isNearingExpiration!: boolean;
-  @Output() download = new EventEmitter<void>();
+  @Output() copyLink = new EventEmitter<void>();
+  @Output() share = new EventEmitter<void>();
   @Output() contactSupport = new EventEmitter<void>();
 }

@@ -1,0 +1,318 @@
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+:host {
+  display: block;
+}
+
+.gamification-panel {
+  position: relative;
+  overflow: hidden;
+  background: $surface-color;
+  border: 1px solid rgba($border-color, 0.7);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: $shadow-sm;
+}
+
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 4px 0 6px;
+    font-size: 1.15rem;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #7c3aed;
+}
+
+.subcopy {
+  margin: 0;
+  color: $text-secondary;
+  font-size: 0.92rem;
+}
+
+.hero-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(#7c3aed, 0.12);
+  background: linear-gradient(135deg, rgba(#7c3aed, 0.1), rgba(#06b6d4, 0.08));
+}
+
+.hero-copy,
+.hero-score,
+.section-title-row,
+.milestone-highlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.summary-label {
+  display: block;
+  color: $text-secondary;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+
+.hero-copy strong,
+.score-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.hero-copy small,
+.score-subcopy {
+  color: $text-secondary;
+  font-size: 0.84rem;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.stat-card,
+.milestone-card,
+.loading-card,
+.celebration-card {
+  border-radius: 16px;
+}
+
+.stat-card {
+  border: 1px solid rgba($border-color, 0.7);
+  padding: 14px 16px;
+  background: rgba($background-color, 0.58);
+
+  span,
+  small {
+    display: block;
+  }
+
+  span,
+  small {
+    color: $text-secondary;
+    font-size: 0.82rem;
+  }
+
+  strong {
+    display: block;
+    margin: 6px 0 4px;
+    font-size: 1rem;
+  }
+}
+
+.milestone-card {
+  margin-top: 18px;
+  border: 1px solid rgba($border-color, 0.7);
+  padding: 16px;
+  background: rgba($background-color, 0.55);
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  a {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #7c3aed;
+    text-decoration: none;
+  }
+}
+
+.milestone-highlight {
+  margin-top: 14px;
+  align-items: flex-start;
+}
+
+.milestone-icon,
+.celebration-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex: 0 0 auto;
+}
+
+.milestone-copy {
+  display: grid;
+  gap: 6px;
+
+  p,
+  small {
+    margin: 0;
+    color: $text-secondary;
+  }
+}
+
+.loading-state {
+  display: grid;
+  gap: 12px;
+}
+
+.loading-card {
+  height: 94px;
+  background: linear-gradient(90deg, rgba($border-color, 0.25), rgba($border-color, 0.45), rgba($border-color, 0.25));
+  background-size: 240px 100%;
+  animation: shimmer 1.5s infinite linear;
+
+  &.large {
+    height: 150px;
+  }
+}
+
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px 16px;
+  color: $text-secondary;
+}
+
+.empty-state.compact {
+  padding: 16px 12px;
+}
+
+.celebration-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.22);
+  z-index: 2;
+}
+
+.confetti-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  width: 10px;
+  height: 18px;
+  border-radius: 999px;
+  opacity: 0.9;
+  animation: confetti-fall 2.8s linear forwards;
+
+  @for $i from 1 through 16 {
+    &:nth-child(#{$i}) {
+      left: #{5% + ($i * 5.5%)};
+      background: nth((#7c3aed, #06b6d4, #f59e0b, #16a34a, #ec4899, #2563eb), (($i - 1) % 6) + 1);
+      animation-delay: #{($i - 1) * 0.04}s;
+      transform: rotate(#{($i * 17)}deg);
+    }
+  }
+}
+
+.celebration-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 14px;
+  width: min(100%, 420px);
+  padding: 18px;
+  border: 1px solid rgba(#ffffff, 0.2);
+  background: rgba(#0f172a, 0.92);
+  color: white;
+  box-shadow: 0 18px 48px rgba(#0f172a, 0.26);
+}
+
+.dismiss-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+}
+
+.celebration-copy {
+  display: grid;
+  gap: 6px;
+
+  strong,
+  p,
+  small {
+    margin: 0;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  small {
+    color: rgba(255, 255, 255, 0.68);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -240px 0; }
+  100% { background-position: 240px 0; }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, -10px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-20px, 340px, 0) rotate(320deg);
+    opacity: 0;
+  }
+}
+
+@include mobile {
+  .gamification-panel {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .panel-header,
+  .hero-copy,
+  .hero-score,
+  .section-title-row,
+  .milestone-highlight {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .celebration-card {
+    grid-template-columns: 1fr;
+  }
+}

@@ -34,6 +34,8 @@ export class TrendingSectionComponent {
   following = input<Set<string>>(new Set());
   categories = input<string[]>([]);
   activeCategory = input<string>('All');
+  activeUsers = input<number>(0);
+  updatedLabel = input<string>('Live now');
 
   viewAll = output<void>();
   trendClick = output<TrendingItem>();
@@ -52,14 +54,15 @@ export class TrendingSectionComponent {
     return this.filteredTrends().reduce((sum, item) => sum + item.mentions, 0);
   });
 
-  // FIXED: Computed memoizes the random value so it doesn't change during Angular's check
   trendingGrowth = computed(() => {
-    return Math.floor(Math.random() * 30) + 10;
+    const items = this.filteredTrends();
+    if (!items.length) return 0;
+    const rising = items.filter(item => item.trend === 'up' || item.trend === 'new').length;
+    return Math.round((rising / items.length) * 100);
   });
 
-  // FIXED: Computed memoizes the random value
   uniqueUsers = computed(() => {
-    return Math.floor(Math.random() * 1000) + 500;
+    return this.activeUsers();
   });
 
   topCategory = computed(() => {

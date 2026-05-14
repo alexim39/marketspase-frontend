@@ -4,7 +4,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 import { Product, Store } from '../../store/models';
 
 export interface StoreResponse {
@@ -59,6 +59,64 @@ export interface ProductImage {
   altText?: string;
   isMain: boolean;
   order: number;
+}
+
+export interface StorefrontProductReview {
+  _id: string;
+  rating: number;
+  title?: string;
+  comment: string;
+  images?: string[];
+  verifiedPurchase?: boolean;
+  helpfulCount?: number;
+  reportCount?: number;
+  isFeatured?: boolean;
+  isOwnReview?: boolean;
+  isHelpfulByCurrentUser?: boolean;
+  isReportedByCurrentUser?: boolean;
+  status?: 'pending' | 'approved' | 'rejected' | 'flagged' | string;
+  response?: {
+    content: string;
+    createdAt: string | Date;
+    responderName?: string;
+  } | null;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  user?: {
+    _id: string;
+    displayName?: string;
+    avatar?: string | null;
+  } | null;
+}
+
+export interface StorefrontProductReviewSummary {
+  averageRating: number;
+  totalReviews: number;
+  ratingBreakdown: Record<number, number>;
+  verifiedCount?: number;
+  withImagesCount?: number;
+}
+
+export interface StorefrontProductReviewListResponse {
+  success?: boolean;
+  data: StorefrontProductReview[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+  summary?: StorefrontProductReviewSummary;
+}
+
+export interface StorefrontProductReviewMutationResponse {
+  success?: boolean;
+  message?: string;
+  data: StorefrontProductReview | null;
+  summary?: {
+    averageRating: number;
+    totalReviews: number;
+  };
 }
 
 @Injectable()
@@ -165,12 +223,132 @@ export class StorefrontService {
     );
   }
 
-  getProductById(productId: string): Observable<{ data: Product }> {
-    return this.apiService.get<{ data: Product }>(`${this.apiUrl}/storefront/products/${productId}/detail`, undefined, undefined, true);
+  getProductById(
+    productId: string,
+    trackingContext: {
+      ref?: string | null;
+      promoter?: string | null;
+      clicked?: boolean;
+      trackingCode?: string | null;
+    } = {}
+  ): Observable<{ data: Product }> {
+    let params = new HttpParams();
+
+    if (trackingContext.ref) {
+      params = params.set('ref', trackingContext.ref);
+    }
+    if (trackingContext.promoter) {
+      params = params.set('promoter', trackingContext.promoter);
+    }
+    if (trackingContext.clicked) {
+      params = params.set('clicked', '1');
+    }
+    if (trackingContext.trackingCode) {
+      params = params.set('trackingCode', trackingContext.trackingCode);
+    }
+
+    return this.apiService.get<{ data: Product }>(
+      `${this.apiUrl}/storefront/products/${productId}/detail`,
+      params,
+      undefined,
+      true
+    );
   }
 
-  getProductReviews(productId: string, params: { page: number; limit: number }): Observable<{ data: any[] }> {
-    return this.apiService.get<{ data: any[] }>(`${this.apiUrl}/storefront/products/${productId}/reviews`, undefined, undefined, true);
+  getProductReviews(
+    productId: string,
+    params: {
+      page?: number;
+      limit?: number;
+      sortBy?: 'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful';
+      rating?: number;
+      verifiedOnly?: boolean;
+      withImagesOnly?: boolean;
+    } = {}
+  ): Observable<StorefrontProductReviewListResponse> {
+    let queryParams = new HttpParams();
+
+    if (params.page) queryParams = queryParams.set('page', String(params.page));
+    if (params.limit) queryParams = queryParams.set('limit', String(params.limit));
+    if (params.sortBy) queryParams = queryParams.set('sortBy', params.sortBy);
+    if (params.rating) queryParams = queryParams.set('rating', String(params.rating));
+    if (params.verifiedOnly !== undefined) queryParams = queryParams.set('verifiedOnly', String(params.verifiedOnly));
+    if (params.withImagesOnly !== undefined) queryParams = queryParams.set('withImagesOnly', String(params.withImagesOnly));
+
+    return this.apiService.get<StorefrontProductReviewListResponse>(
+      `${this.apiUrl}/storefront/products/${productId}/reviews`,
+      queryParams,
+      undefined,
+      true
+    );
+  }
+
+  getCurrentUserProductReview(productId: string): Observable<{ success?: boolean; data: StorefrontProductReview | null }> {
+    return this.apiService.get<{ success?: boolean; data: StorefrontProductReview | null }>(
+      `${this.apiUrl}/storefront/products/${productId}/reviews/me`,
+      undefined,
+      undefined,
+      true
+    );
+  }
+
+  createProductReview(
+    productId: string,
+    payload: {
+      rating: number;
+      title?: string;
+      comment: string;
+    }
+  ): Observable<StorefrontProductReviewMutationResponse> {
+    return this.apiService.post<StorefrontProductReviewMutationResponse>(
+      `${this.apiUrl}/storefront/products/${productId}/reviews`,
+      payload,
+      undefined,
+      true
+    );
+  }
+
+  updateProductReview(
+    reviewId: string,
+    payload: {
+      rating?: number;
+      title?: string;
+      comment?: string;
+    }
+  ): Observable<StorefrontProductReviewMutationResponse> {
+    return this.apiService.put<StorefrontProductReviewMutationResponse>(
+      `${this.apiUrl}/storefront/reviews/${reviewId}`,
+      payload,
+      undefined,
+      true
+    );
+  }
+
+  deleteProductReview(reviewId: string): Observable<{ success?: boolean; message?: string; summary?: { averageRating: number; totalReviews: number } }> {
+    return this.apiService.delete<{ success?: boolean; message?: string; summary?: { averageRating: number; totalReviews: number } }>(
+      `${this.apiUrl}/storefront/reviews/${reviewId}`,
+      undefined,
+      undefined,
+      true
+    );
+  }
+
+  toggleReviewHelpful(reviewId: string): Observable<{ success?: boolean; message?: string; data?: { helpfulCount: number; isHelpfulByCurrentUser: boolean } }> {
+    return this.apiService.post<{ success?: boolean; message?: string; data?: { helpfulCount: number; isHelpfulByCurrentUser: boolean } }>(
+      `${this.apiUrl}/storefront/reviews/${reviewId}/helpful`,
+      {},
+      undefined,
+      true
+    );
+  }
+
+  reportReview(reviewId: string, reason: string): Observable<{ success?: boolean; message?: string }> {
+    return this.apiService.post<{ success?: boolean; message?: string }>(
+      `${this.apiUrl}/storefront/reviews/${reviewId}/report`,
+      { reason },
+      undefined,
+      true
+    );
   }
 
   getRelatedProducts(productId: string, params: { limit: number }): Observable<{ data: Product[] }> {
@@ -179,6 +357,18 @@ export class StorefrontService {
 
   getStoreById(storeId: string): Observable<{ data: Store }> {
     return this.apiService.get<{ data: Store }>(`${this.apiUrl}/storefront/store/${storeId}`, undefined, undefined, true);
+  }
+
+  createStorefrontOrder(payload: any): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/storefront/orders`, payload, undefined, true);
+  }
+
+  confirmStorefrontPayment(orderId: string, payload: any): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/storefront/orders/${orderId}/confirm-payment`, payload, undefined, true);
+  }
+
+  confirmStorefrontDelivery(orderId: string, payload: any): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/storefront/orders/${orderId}/confirm-delivery`, payload, undefined, true);
   }
 
 }

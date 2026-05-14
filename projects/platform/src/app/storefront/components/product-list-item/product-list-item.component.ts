@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { LazyImageDirective } from '../../shared/directives/lazy-image.directive';
 import { Product, Store } from '../../../store/models';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { UserService } from '../../../common/services/user.service';
 
 @Component({

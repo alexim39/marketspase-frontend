@@ -1,0 +1,417 @@
+<div class="analytics-page">
+  <app-finance-section-nav />
+
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Finance Intelligence</p>
+      <h1>Financial analytics</h1>
+      <p>
+        Track yearly and monthly cash movement, storefront performance, wallet exposure,
+        and payout pressure from one admin finance view.
+      </p>
+      @if (analytics()?.generatedAt) {
+        <span class="updated-pill">
+          <mat-icon>schedule</mat-icon>
+          Updated {{ analytics()?.generatedAt | date:'medium' }}
+        </span>
+      }
+    </div>
+
+    <div class="hero-actions">
+      <a routerLink="/dashboard/financial" class="secondary-btn">
+        <mat-icon>arrow_back</mat-icon>
+        Finance operations
+      </a>
+      <button type="button" class="primary-btn" (click)="refresh()" [disabled]="refreshing()">
+        <mat-icon>refresh</mat-icon>
+        {{ refreshing() ? 'Refreshing...' : 'Refresh analytics' }}
+      </button>
+    </div>
+  </section>
+
+  <form [formGroup]="filtersForm" class="filters-card">
+    <label class="field">
+      <span>Reporting year</span>
+      <select formControlName="year">
+        @for (yearOption of availableYears(); track yearOption) {
+          <option [value]="yearOption">{{ yearOption }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Trend years</span>
+      <select formControlName="trendYears">
+        @for (trendYearOption of trendYearOptions; track trendYearOption) {
+          <option [value]="trendYearOption">{{ trendYearOption }} years</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Top rows</span>
+      <select formControlName="top">
+        @for (topOption of topOptions; track topOption) {
+          <option [value]="topOption">{{ topOption }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="field info-field">
+      <span>Reporting currency</span>
+      <div class="currency-pill">
+        <mat-icon>currency_exchange</mat-icon>
+        {{ baseCurrency() }}
+      </div>
+    </div>
+  </form>
+
+  @if (loading() && !analytics()) {
+    <section class="loading-card">
+      <div class="loader-copy">
+        <h3>Loading finance analytics...</h3>
+        <p>We are aggregating transactions, withdrawals, storefront orders, and wallet exposure.</p>
+      </div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </section>
+  } @else {
+    @if (error() && !analytics()) {
+      <section class="empty-card">
+        <mat-icon>error_outline</mat-icon>
+        <h3>Unable to load analytics</h3>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-btn" (click)="refresh()">Try again</button>
+      </section>
+    } @else {
+      @if (analytics(); as analyticsData) {
+        @if (error()) {
+          <div class="inline-warning">
+            <mat-icon>warning</mat-icon>
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <section class="summary-grid">
+          @for (card of summaryCards(); track card.label) {
+            <article class="summary-card">
+              <div class="summary-icon">
+                <mat-icon>{{ card.icon }}</mat-icon>
+              </div>
+              <div class="summary-copy">
+                <span>{{ card.label }}</span>
+                <strong>{{ card.value }}</strong>
+                <small>{{ card.note }}</small>
+              </div>
+            </article>
+          }
+        </section>
+
+        @if (analyticsData.insights.length > 0) {
+          <section class="insights-grid">
+            @for (insight of analyticsData.insights; track insight.title) {
+              <article class="insight-card" [class]="insight.tone">
+                <strong>{{ insight.title }}</strong>
+                <p>{{ insight.message }}</p>
+              </article>
+            }
+          </section>
+        }
+
+        <section class="panel-grid two-up">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Trend</p>
+                <h3>Monthly cash flow</h3>
+                <p>How cash in, cash out, and net movement behave across the selected year.</p>
+              </div>
+            </div>
+
+            <div class="trend-list">
+              @for (item of analyticsData.monthlyTrend; track item.label) {
+                <article class="trend-row">
+                  <div class="trend-copy">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.paidOrders || 0 }} paid orders</small>
+                  </div>
+
+                  <div class="trend-bars">
+                    <div class="bar-shell tall">
+                      <div class="bar-fill" [style.width.%]="getTrendBarWidth(item, monthlyTrendMax())"></div>
+                    </div>
+                    <div class="meta-row">
+                      <span>In {{ item.cashIn | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                      <span>Out {{ item.cashOut | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                      <span [class.positive]="item.netFlow >= 0" [class.negative]="item.netFlow < 0">
+                        Net {{ item.netFlow | currency:baseCurrency():'symbol':'1.0-0' }}
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Trend</p>
+                <h3>Yearly movement</h3>
+                <p>Compare recent years to see where the platform is scaling or cooling down.</p>
+              </div>
+            </div>
+
+            <div class="trend-list">
+              @for (item of analyticsData.yearlyTrend; track item.label) {
+                <article class="trend-row">
+                  <div class="trend-copy">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.paidOrders || 0 }} paid orders</small>
+                  </div>
+
+                  <div class="trend-bars">
+                    <div class="bar-shell tall">
+                      <div class="bar-fill accent" [style.width.%]="getTrendBarWidth(item, yearlyTrendMax())"></div>
+                    </div>
+                    <div class="meta-row">
+                      <span>In {{ item.cashIn | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                      <span>Out {{ item.cashOut | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                      <span [class.positive]="item.netFlow >= 0" [class.negative]="item.netFlow < 0">
+                        Net {{ item.netFlow | currency:baseCurrency():'symbol':'1.0-0' }}
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          </article>
+        </section>
+
+        <section class="panel-grid two-up">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Drivers</p>
+                <h3>Income mix</h3>
+                <p>The biggest inflow lines feeding the platform during the selected year.</p>
+              </div>
+            </div>
+
+            <div class="distribution-list">
+              @for (item of analyticsData.incomeCategories; track item.key) {
+                <div class="distribution-row">
+                  <div class="distribution-labels">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.count | number }} records</small>
+                  </div>
+                  <div class="distribution-bars">
+                    <div class="bar-shell">
+                      <div class="bar-fill success" [style.width.%]="getAmountBarWidth(item, incomeMax())"></div>
+                    </div>
+                    <span>{{ item.amount | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Drivers</p>
+                <h3>Expense mix</h3>
+                <p>Where money is leaving or being committed across withdrawals, refunds, and promoter payouts.</p>
+              </div>
+            </div>
+
+            <div class="distribution-list">
+              @for (item of analyticsData.expenseCategories; track item.key) {
+                <div class="distribution-row">
+                  <div class="distribution-labels">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.count | number }} records</small>
+                  </div>
+                  <div class="distribution-bars">
+                    <div class="bar-shell">
+                      <div class="bar-fill warning" [style.width.%]="getAmountBarWidth(item, expenseMax())"></div>
+                    </div>
+                    <span>{{ item.amount | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+        </section>
+
+        <section class="panel-grid three-up">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Wallet health</p>
+                <h3>Wallet exposure</h3>
+                <p>Shows what is available now versus what is still locked in reserve.</p>
+              </div>
+            </div>
+
+            <div class="stat-stack">
+              <div class="stack-row">
+                <span>Total available</span>
+                <strong>{{ analyticsData.walletExposure.totalAvailable | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="stack-row">
+                <span>Total reserved</span>
+                <strong>{{ analyticsData.walletExposure.totalReserved | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="divider"></div>
+              <div class="stack-row">
+                <span>Marketer wallet</span>
+                <strong>{{ analyticsData.walletExposure.marketerAvailable | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="stack-row sub">
+                <span>Reserved</span>
+                <small>{{ analyticsData.walletExposure.marketerReserved | currency:baseCurrency():'symbol':'1.0-0' }}</small>
+              </div>
+              <div class="stack-row">
+                <span>Promoter wallet</span>
+                <strong>{{ analyticsData.walletExposure.promoterAvailable | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="stack-row sub">
+                <span>Reserved</span>
+                <small>{{ analyticsData.walletExposure.promoterReserved | currency:baseCurrency():'symbol':'1.0-0' }}</small>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Payout health</p>
+                <h3>Withdrawal states</h3>
+                <p>Use this to spot pressure in approval, processing, and failed payout queues.</p>
+              </div>
+            </div>
+
+            <div class="distribution-list">
+              @for (item of analyticsData.withdrawalStatuses; track item.key) {
+                <div class="distribution-row compact">
+                  <div class="distribution-labels">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.count | number }} requests</small>
+                  </div>
+                  <div class="distribution-bars">
+                    <div class="bar-shell">
+                      <div class="bar-fill accent" [style.width.%]="getAmountBarWidth(item, withdrawalMax())"></div>
+                    </div>
+                    <span>{{ item.amount | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Multi-currency</p>
+                <h3>Currency activity</h3>
+                <p>All amounts are shown in {{ baseCurrency() }} after conversion where metadata exists.</p>
+              </div>
+            </div>
+
+            <div class="distribution-list">
+              @for (item of analyticsData.currencyMix; track item.key) {
+                <div class="distribution-row compact">
+                  <div class="distribution-labels">
+                    <strong>{{ item.label }}</strong>
+                    <small>{{ item.count | number }} transactions and orders</small>
+                  </div>
+                  <div class="distribution-bars">
+                    <div class="bar-shell">
+                      <div class="bar-fill" [style.width.%]="getAmountBarWidth(item, currencyMax())"></div>
+                    </div>
+                    <span>{{ item.amount | currency:baseCurrency():'symbol':'1.0-0' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+        </section>
+
+        <section class="panel-grid two-up">
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Storefront</p>
+                <h3>Commerce and escrow</h3>
+                <p>Revenue, order mix, and reserve pressure from the storefront side of MarketSpase.</p>
+              </div>
+            </div>
+
+            <div class="commerce-grid">
+              <div class="commerce-card">
+                <span>Total orders</span>
+                <strong>{{ analyticsData.commerce.totalOrders | number }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Paid orders</span>
+                <strong>{{ analyticsData.commerce.paidOrders | number }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Storefront volume</span>
+                <strong>{{ analyticsData.commerce.paidOrderVolume | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Average order value</span>
+                <strong>{{ analyticsData.commerce.averageOrderValue | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Held escrow</span>
+                <strong>{{ analyticsData.commerce.heldEscrow | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Released escrow</span>
+                <strong>{{ analyticsData.commerce.releasedEscrow | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Guest orders</span>
+                <strong>{{ analyticsData.commerce.guestOrders | number }}</strong>
+              </div>
+              <div class="commerce-card">
+                <span>Promoter commission</span>
+                <strong>{{ analyticsData.commerce.totalPromoterCommission | currency:baseCurrency():'symbol':'1.0-0' }}</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Notes</p>
+                <h3>Reporting caveats</h3>
+                <p>These notes keep the numbers decision-useful and easy to interpret later.</p>
+              </div>
+            </div>
+
+            <div class="notes-list">
+              @for (note of analyticsData.notes; track note) {
+                <div class="note-row">
+                  <mat-icon>info</mat-icon>
+                  <span>{{ note }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="notes-list secondary">
+              @for (item of analyticsData.transactionStatuses; track item.key) {
+                <div class="note-row status-row">
+                  <span>{{ item.label }}</span>
+                  <strong>{{ item.count | number }}</strong>
+                </div>
+              }
+            </div>
+          </article>
+        </section>
+      }
+    }
+  }
+</div>

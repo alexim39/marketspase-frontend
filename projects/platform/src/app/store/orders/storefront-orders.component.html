@@ -1,0 +1,144 @@
+<section class="orders-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Escrow and delivery</span>
+      <h1>{{ pageTitle() }}</h1>
+      <p>Track paid storefront orders and move funds from reserved balance only after admin review.</p>
+    </div>
+    <button mat-raised-button color="primary" type="button" (click)="loadOrders()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+
+  @if (role() !== 'admin') {
+    <div class="summary-grid">
+      <mat-card appearance="outlined">
+        <span>Total orders</span>
+        <strong>{{ stats().totalOrders || orders().length || 0 | number }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <span>Reserved</span>
+        <strong>{{ (stats().reservedRevenue || stats().pendingEarnings || 0) | currencyUtils:currency() }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <span>Released</span>
+        <strong>{{ (stats().releasedRevenue || stats().paidEarnings || 0) | currencyUtils:currency() }}</strong>
+      </mat-card>
+      <mat-card appearance="outlined">
+        <span>Pending reviews</span>
+        <strong>{{ stats().pendingReleaseRequests || 0 | number }}</strong>
+      </mat-card>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="state-panel">
+      <mat-spinner diameter="42"></mat-spinner>
+      <span>Loading orders...</span>
+    </div>
+  } @else if (orders().length === 0) {
+    <div class="state-panel">
+      <mat-icon>receipt_long</mat-icon>
+      <span>No storefront orders found.</span>
+    </div>
+  } @else {
+    <div class="orders-list">
+      @for (order of orders(); track order._id) {
+        <article class="order-card">
+          <div class="order-main">
+            <div class="order-icon">
+              <mat-icon>shopping_bag</mat-icon>
+            </div>
+            <div>
+              <h2>{{ order.orderNumber }}</h2>
+              <p>{{ firstProductName(order) }}</p>
+              <div class="chips">
+                <mat-chip>{{ order.paymentStatus | titlecase }}</mat-chip>
+                <mat-chip>{{ order.escrowStatus | titlecase }}</mat-chip>
+                @if (order.releaseRequest?.status && order.releaseRequest?.status !== 'none') {
+                  <mat-chip>{{ order.releaseRequest.status | titlecase }} Review</mat-chip>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="order-amounts">
+            <div>
+              <span>Order total</span>
+              <strong>{{ order.totalAmount | currencyUtils:(order.currency || currency()) }}</strong>
+            </div>
+            <div>
+              <span>{{ role() === 'promoter' ? 'Your commission' : 'Promoter commission' }}</span>
+              <strong>{{ orderCommission(order) | currencyUtils:(order.currency || currency()) }}</strong>
+            </div>
+            <div>
+              <span>Marketer reserve</span>
+              <strong>{{ order.marketerReservedAmount | currencyUtils:(order.currency || currency()) }}</strong>
+            </div>
+          </div>
+
+          @if (order.shippingAddress) {
+            <div class="delivery-box">
+              <mat-icon>local_shipping</mat-icon>
+              <div>
+                <strong>{{ order.shippingAddress.fullName }}</strong>
+                <span>{{ order.shippingAddress.phone }} • {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }}</span>
+              </div>
+            </div>
+          }
+
+          @if (order.releaseRequest?.status === 'requested') {
+            <div class="review-box">
+              <mat-icon>hourglass_top</mat-icon>
+              <span>
+                Requested by {{ order.releaseRequest.requestedByRole | titlecase }}.
+                {{ role() === 'admin' ? 'Review delivery evidence before releasing funds.' : 'Waiting for admin review.' }}
+              </span>
+            </div>
+          }
+
+          @if (canRequestRelease(order)) {
+            <div class="action-box">
+              <label>
+                Delivery note or proof summary
+                <textarea
+                  rows="3"
+                  [value]="releaseNotes()[order._id] || ''"
+                  (input)="setReleaseNote(order._id, $any($event.target).value)"
+                  placeholder="Add delivery details, buyer confirmation, tracking number, or proof summary."></textarea>
+              </label>
+              <button mat-raised-button color="primary" type="button" (click)="requestRelease(order)">
+                <mat-icon>task_alt</mat-icon>
+                Submit Release Request
+              </button>
+            </div>
+          }
+
+          @if (role() === 'admin' && order.releaseRequest?.status === 'requested') {
+            <div class="action-box admin">
+              <label>
+                Admin review note
+                <textarea
+                  rows="3"
+                  [value]="reviewNotes()[order._id] || ''"
+                  (input)="setReviewNote(order._id, $any($event.target).value)"
+                  placeholder="Add the reason for approval or rejection."></textarea>
+              </label>
+              <div class="admin-actions">
+                <button mat-raised-button color="primary" type="button" (click)="review(order, 'approved')">
+                  <mat-icon>verified</mat-icon>
+                  Approve Release
+                </button>
+                <button mat-stroked-button color="warn" type="button" (click)="review(order, 'rejected')">
+                  <mat-icon>block</mat-icon>
+                  Reject
+                </button>
+              </div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

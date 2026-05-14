@@ -45,6 +45,11 @@
   }
 }
 
+.activity-side-panel {
+  display: grid;
+  gap: 24px;
+}
+
 /* Trending & Connections Grid */
 .trending-connections-grid {
   display: grid;

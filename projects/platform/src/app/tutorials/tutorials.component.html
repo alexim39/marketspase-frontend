@@ -23,7 +23,7 @@
         <div class="stat-item">
           <mat-icon>people</mat-icon>
           <div>
-            <span class="stat-value">{{ formatViews(10478) }}</span>
+            <span class="stat-value">{{ formatViews(metrics()?.totalUsers || 0) }}</span>
             <span class="stat-label">Watched by</span>
           </div>
         </div>
@@ -154,7 +154,7 @@
             </div>
             <div class="featured-info">
               <h3>{{ video.title }}</h3>
-              <p>{{ video.description }}</p>
+              <p>{{ video.description | truncate:100 }}</p>
               <div class="video-meta">
                 <span class="difficulty" [class]="getDifficultyColor(video.difficulty)">
                   <mat-icon>school</mat-icon>
@@ -200,7 +200,7 @@
             </div>
             <div class="recent-info">
               <h4>{{ video.title }}</h4>
-              <p>{{ video.description | slice:0:80 }}...</p>
+              <p>{{ video.description | truncate:80 }}...</p>
             </div>
           </div>
         }
@@ -217,7 +217,7 @@
             <mat-icon>{{ section.icon }}</mat-icon>
             <div class="header-text">
               <h2>{{ section.title }}</h2>
-              <p>{{ section.description }}</p>
+              <p>{{ section.description | truncate:100 }}</p>
             </div>
           </div>
           <div class="section-stats">
@@ -250,7 +250,7 @@
                   </button>
                 </div>
                 
-                <p>{{ video.description }}</p>
+                <p>{{ video.description | truncate:100 }}</p>
                 
                 <div class="video-footer">
                   <div class="video-tags">
@@ -301,10 +301,17 @@
           <h3>Want to learn from the other perspective?</h3>
           <p>Switch to {{ userRole() ? 'Promoter' : 'Marketer' }} mode to discover tutorials tailored to your other role.</p>
         </div>
-        <button mat-raised-button color="accent" (click)="switchUserRole()">
-          Switch to {{userRole() | titlecase}}
-          <mat-icon>arrow_forward</mat-icon>
-        </button>
+        @if (isMarketer()) {
+          <button mat-raised-button color="accent" (click)="switchUserRole()">
+            Switch to Promoter
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        } @else if (isPromoter()) {
+          <button mat-raised-button color="accent" (click)="switchUserRole()">
+            Switch to Marketer
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        }
       </div>
     </section>
   }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -18,6 +18,7 @@ export class CustomAmountFormComponent {
   @Input() minAmount: number = 0;
   @Input() maxAmount: number = 0;
   @Input() disabled: boolean = false;
+  @Input() currencyCode: string | null = null;
   @Output() amountChange = new EventEmitter<Event>();
   @Output() clearSelection = new EventEmitter<void>();
   @Input({ required: true }) user: UserInterface | null = null;

@@ -1,23 +1,15 @@
 <mat-card class="post-card" [class.featured]="post().isFeatured">
-  
-  <!-- Post Header -->
   <mat-card-header class="post-header">
     <div class="user-info">
       <div class="avatar-wrapper" (click)="viewProfile(post())">
-        <img 
-          [src]="post().author?.avatar || 'img/avatar.png'" 
-          [alt]="post().author?.displayName"
-          class="avatar">
+        <img [src]="post().author?.avatar || 'img/avatar.png'" [alt]="post().author?.displayName" class="avatar">
         @if (post().author?.badge) {
-          <div 
-            class="badge" 
-            [style.background]="getBadgeColor(post().author?.badge ?? '')"
-            [matTooltip]="post().author?.badge | titlecase">
+          <div class="badge" [style.background]="getBadgeColor(post().author?.badge ?? '')" [matTooltip]="post().author?.badge | titlecase">
             <mat-icon>stars</mat-icon>
           </div>
         }
       </div>
-      
+
       <div class="user-details" (click)="viewProfile(post())">
         <h4 class="user-name">
           {{ post().author?.displayName || 'Anonymous' }}
@@ -31,24 +23,24 @@
         </div>
       </div>
     </div>
-    
+
     <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-btn">
       <mat-icon>more_horiz</mat-icon>
     </button>
-    
+
     <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="onSave()" class="save-btn">
+      <button mat-menu-item (click)="onSave()">
         <mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
         <span>{{ isSaved() ? 'Unsave' : 'Save' }}</span>
       </button>
-     <!--  <button mat-menu-item (click)="onHide()">
-        <mat-icon>visibility_off</mat-icon>
-        <span>Hide post</span>
-      </button> -->
-      <!-- <button mat-menu-item (click)="onReport()">
-        <mat-icon>flag</mat-icon>
-        <span>Report</span>
-      </button> -->
+      <button mat-menu-item (click)="onShareTo('copy')">
+        <mat-icon>content_copy</mat-icon>
+        <span>Copy link</span>
+      </button>
+      <button mat-menu-item (click)="onShareTo('whatsapp')">
+        <mat-icon>share</mat-icon>
+        <span>Share to WhatsApp</span>
+      </button>
       @if (post().author?._id === user()?._id || user()?.role === 'admin') {
         <button mat-menu-item (click)="onEdit(post())">
           <mat-icon>edit</mat-icon>
@@ -61,8 +53,7 @@
       }
     </mat-menu>
   </mat-card-header>
-  
-  <!-- Post Content -->
+
   <mat-card-content class="post-content">
     <p class="content-text">
       {{ displayContent() }}
@@ -72,198 +63,137 @@
         </button>
       }
     </p>
-    
-    <!-- Post Type Highlight -->
-    @if (post().type === 'earnings' && post().earnings) {
-      <div class="highlight earnings-highlight">
-        <div class="highlight-icon">
-          <mat-icon>emoji_events</mat-icon>
-        </div>
-        <div class="highlight-details">
-          <span class="highlight-label">Earned</span>
-          <span class="highlight-value">
-            {{ post().earnings?.currency || '₦' }} {{ post().earnings?.amount | number }}
-          </span>
-          @if (post().earnings?.milestone) {
-            <span class="highlight-milestone">{{ post().earnings?.milestone }}</span>
-          }
-        </div>
-      </div>
-    }
-    
+
     @if (post().type === 'campaign' && post().campaign) {
       <div class="highlight campaign-highlight">
         <div class="highlight-icon">
           <mat-icon>campaign</mat-icon>
         </div>
         <div class="highlight-details">
-          <span class="highlight-label">Campaign</span>
+          <span class="highlight-label">Campaign update</span>
           <span class="highlight-value">{{ post().campaign?.name }}</span>
-          @if (post().campaign?.budget || post().campaign?.status) {
+          <span class="highlight-meta">
+            @if (post().campaign?.budget) { Budget: {{ post().campaign?.budget | number }} }
+            @if (post().campaign?.status) { · {{ post().campaign?.status | titlecase }} }
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (post().type === 'product' && post().product) {
+      <div class="highlight product-highlight">
+        <div class="highlight-icon">
+          <mat-icon>sell</mat-icon>
+        </div>
+        <div class="highlight-details">
+          <span class="highlight-label">Product drop</span>
+          <span class="highlight-value">{{ post().product?.name }}</span>
+          <span class="highlight-meta">
+            {{ post().product?.currency || 'NGN' }} {{ post().product?.price | number }}
+            @if (post().product?.storeName) { · {{ post().product?.storeName }} }
+          </span>
+          <div class="inline-actions">
+            <button type="button" class="inline-link" (click)="goToProduct(post())">View product</button>
+            @if (post().product?.storeLink) {
+              <button type="button" class="inline-link" (click)="goToStore(post())">Visit store</button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (post().challenge?.tag) {
+      <div class="highlight challenge-highlight">
+        <div class="highlight-icon">
+          <mat-icon>bolt</mat-icon>
+        </div>
+        <div class="highlight-details">
+          <span class="highlight-label">Challenge</span>
+          <span class="highlight-value">{{ post().challenge?.title || ('#' + post().challenge?.tag) }}</span>
+          @if (post().challenge?.rewardLabel || post().challenge?.description) {
             <span class="highlight-meta">
-              @if (post().campaign?.budget) {
-                Budget: {{ post().campaign?.budget | number }}
-              }
-              @if (post().campaign?.budget && post().campaign?.status) {
-                • 
-              }
-              @if (post().campaign?.status) {
-                Status: {{ post().campaign?.status }}
-              }
+              {{ post().challenge?.rewardLabel || post().challenge?.description }}
             </span>
           }
         </div>
       </div>
     }
-    
-    @if (post().type === 'tip' && post().tip) {
-      <div class="highlight tip-highlight">
-        <div class="highlight-icon">
-          <mat-icon>lightbulb</mat-icon>
-        </div>
-        <div class="highlight-details">
-          <span class="highlight-label">{{ post().tip?.category || 'Tip' }}</span>
-          <span class="highlight-value">{{ post().tip?.title }}</span>
-          @if (post().tip?.views) {
-            <span class="highlight-meta">{{ post().tip?.views }} views</span>
-          }
-        </div>
-      </div>
-    }
-    
-    <!-- Hashtags -->
-    @if (post().hashtags && post().hashtags.length > 0) {
+
+    @if (hashtags().length > 0) {
       <div class="hashtags">
-        @for (tag of getHashtagsAsArray(); track tag) {
-          <button 
-            class="hashtag" 
-            (click)="onHashtagClick(tag); $event.stopPropagation()">
-            #{{ tag }}
-          </button>
+        @for (tag of hashtags(); track tag) {
+          <button class="hashtag" (click)="onHashtagClick(tag); $event.stopPropagation()">#{{ tag }}</button>
         }
       </div>
     }
-    
-    <!-- Media Preview -->
-    @if (post().media; as media) {
-      @if (media.length > 0) {
-        <div class="media-preview">
-          @if (media[0].type === 'image') {
-            <img [src]="media[0].url" 
-                alt="Post media" 
-                class="media-image" 
-                loading="lazy"
-                (click)="openImageViewer(media[0])">
-          }
-          @if (media[0].type === 'video') {
-            <video 
-              [src]="media[0].url" 
-              [poster]="media[0].thumbnail || ''"
-              controls
-              preload="metadata"
-              class="media-video"
-              (click)="$event.stopPropagation()">
-              Your browser does not support the video tag.
-            </video>
-          }
-          @if (media[0].type === 'link') {
-            <div class="link-preview" (click)="openLink(media[0].url)">
-              <mat-icon>link</mat-icon>
-              <span class="link-url">{{ media[0].url }}</span>
-              <mat-icon class="open-link">open_in_new</mat-icon>
-            </div>
-          }
-          
-          <!-- Show more images indicator -->
-          @if (media.length > 1) {
-            <div class="more-images" (click)="openImageViewer(media[0])">
-              <span>+{{ media.length - 1 }} more</span>
-            </div>
-          }
-        </div>
-      }
+
+    @if (activeMedia(); as media) {
+      <div class="media-preview" [class.carousel]="(post().media?.length || 0) > 1">
+        @if (media.type === 'image') {
+          <img [src]="media.url" [alt]="media.altText || 'Post media'" class="media-image" loading="lazy" (click)="openImageViewer(media)">
+        }
+        @if (media.type === 'video') {
+          <video [src]="media.url" [poster]="media.thumbnail || ''" controls preload="metadata" class="media-video" (click)="$event.stopPropagation()">
+            Your browser does not support the video tag.
+          </video>
+        }
+        @if (media.type === 'link') {
+          <div class="link-preview" (click)="openLink(media.url)">
+            <mat-icon>link</mat-icon>
+            <span class="link-url">{{ media.url }}</span>
+            <mat-icon class="open-link">open_in_new</mat-icon>
+          </div>
+        }
+        @if (media.type === 'document') {
+          <div class="link-preview" (click)="openLink(media.url)">
+            <mat-icon>description</mat-icon>
+            <span class="link-url">{{ media.altText || 'Open attachment' }}</span>
+            <mat-icon class="open-link">open_in_new</mat-icon>
+          </div>
+        }
+
+        @if ((post().media?.length || 0) > 1) {
+          <button class="carousel-nav prev" (click)="previousMedia(); $event.stopPropagation()">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button class="carousel-nav next" (click)="nextMedia(); $event.stopPropagation()">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+
+          <div class="carousel-dots">
+            @for (entry of post().media || []; track entry.url; let i = $index) {
+              <button class="dot" [class.active]="activeMediaIndex() === i" (click)="selectMedia(i); $event.stopPropagation()"></button>
+            }
+          </div>
+        }
+      </div>
     }
-
-   <!--  @if (post().media; as media) {
-      @if (media.length > 0) {
-        <div class="media-preview">
-          @if (media[0].type === 'image') {
-            <img [src]="media[0].url" alt="Post media" class="media-image" loading="lazy">
-          }
-          @if (media[0].type === 'video') {
-            <video 
-              [src]="media[0].url" 
-              [poster]="media[0].thumbnail || ''"
-              controls
-              preload="metadata"
-              class="media-video"
-              (click)="$event.stopPropagation()">
-              Your browser does not support the video tag.
-            </video>
-          }
-          @if (media[0].type === 'link') {
-            <div class="link-preview" (click)="openLink(media[0].url)">
-              <mat-icon>link</mat-icon>
-              <span class="link-url">{{ media[0].url }}</span>
-              <mat-icon class="open-link">open_in_new</mat-icon>
-            </div>
-          }
-        </div>
-      }
-    } -->
-
   </mat-card-content>
-  
-  <!-- Post Actions -->
+
   <mat-card-actions class="post-actions">
-    <button 
-      class="action-btn like-btn" 
-      [class.active]="isLiked()"
-      (click)="onLike()"
-      [matTooltip]="isLiked() ? 'Unlike' : 'Like'">
+    <button class="action-btn like-btn" [class.active]="isLiked()" (click)="onLike()" [matTooltip]="isLiked() ? 'Unlike' : 'Like'">
       <mat-icon>{{ isLiked() ? 'favorite' : 'favorite_border' }}</mat-icon>
       <span>{{ post().likeCount || 0 }}</span>
     </button>
-    
-    <button 
-      class="action-btn comment-btn"
-      (click)="onComment()"
-      [matTooltip]="'Comment'">
+
+    <button class="action-btn comment-btn" (click)="onComment()" [matTooltip]="'Comment'">
       <mat-icon>chat_bubble_outline</mat-icon>
       <span>{{ post().commentCount || 0 }}</span>
     </button>
-    
-    <button 
-      class="action-btn share-btn"
-      (click)="onShare()"
-      [matTooltip]="'Share'">
+
+    <button class="action-btn share-btn" (click)="onShare()" [matTooltip]="'Share'">
       <mat-icon>share</mat-icon>
       <span>{{ post().shareCount || 0 }}</span>
     </button>
 
-    <button 
-      class="action-btn share-btn"
-      (click)="openWhatsApp(post())"
-      [matTooltip]="'Chat on WhatsApp'">
-      <i class="fa fa-whatsapp" aria-hidden="true"></i>
-      <!-- <span>{{ post().chatCount || 0 }}</span> -->
-    </button>
+    @if (post().phone) {
+      <button class="action-btn share-btn" (click)="openWhatsApp(post())" [matTooltip]="'Chat on WhatsApp'">
+        <i class="fa fa-whatsapp" aria-hidden="true"></i>
+      </button>
+    }
 
-   <!--  <button 
-      class="action-btn fellow-btn"
-      (click)="toggleFollow(post())"
-      [matTooltip]="'Fellow'">
-      <mat-icon>person_add</mat-icon>
-    </button> -->
-
-    
-    <button 
-      class="action-btn save-btn"
-      [class.active]="isSaved()"
-      (click)="onSave()"
-      [matTooltip]="isSaved() ? 'Unsave' : 'Save'">
+    <button class="action-btn save-btn" [class.active]="isSaved()" (click)="onSave()" [matTooltip]="isSaved() ? 'Unsave' : 'Save'">
       <mat-icon>{{ isSaved() ? 'bookmark' : 'bookmark_border' }}</mat-icon>
     </button>
   </mat-card-actions>
-  
 </mat-card>

@@ -16,7 +16,7 @@ import { EmptyStateComponent } from './components/empty-state/empty-state.compon
 import { LoadingStateComponent } from './components/loading-state/loading-state.component';
 
 // Imported types and services
-import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CampaignInterface, DeviceService, PromotionInterface, UserInterface } from '@shared/services';
 import { formatRemainingDays, isDatePast } from '../../common/utils/time.util';
 import { PromoterLandingService } from './promoter-landing.service';
 import { CampaignCardMobileComponent } from './components/campaign-card/mobile/campaign-card-mobile.component';
@@ -124,7 +124,7 @@ export class PromoterLandingComponent implements OnInit {
     // Apply active filter
     switch (filter) {
       case 'highPayout':
-        filtered = filtered.filter(campaign => campaign.payoutPerPromotion >= 500);
+        filtered = filtered.filter(campaign => (campaign.costPerClick || campaign.payoutPerPromotion || 0) >= 100);
         break;
       case 'expiringSoon':
         filtered = filtered.filter(campaign => {
@@ -137,7 +137,7 @@ export class PromoterLandingComponent implements OnInit {
         });
         break;
       case 'quickTasks':
-        filtered = filtered.filter(campaign => campaign.minViewsPerPromotion <= 25);
+        filtered = filtered.filter(campaign => (campaign.costPerClick || campaign.payoutPerPromotion || 0) <= 100);
         break;
       case 'active':
         filtered = filtered.filter(campaign => {
@@ -162,6 +162,7 @@ export class PromoterLandingComponent implements OnInit {
 
   metrics = computed<CampaignMetrics>(() => {
     const promotions = this.promotions();
+    const userRating = Number(this.user()?.rating || 0);
 
     // Calculate earnings based on actual promotion status
     const totalEarnings = promotions
@@ -181,22 +182,17 @@ export class PromoterLandingComponent implements OnInit {
       promotion.status === 'paid'
     ).length;
 
-    // Calculate total views from proofViews in promotions (more accurate)
+    // Keep the property name for existing quick-stat components, but feed it click totals in PPC mode.
     const totalViews = promotions.reduce((sum, promotion) => 
-      sum + (promotion.proofViews || 0), 0
+      sum + (promotion.clickStats?.totalClicks || 0), 0
     );
 
     // Calculate success rate based on promotion outcomes
-    const totalAcceptedPromotions = promotions.filter(p => 
-      p.status === 'submitted' || p.status === 'validated' || p.status === 'paid'
-    ).length;
+    const totalAcceptedPromotions = promotions.filter(p => p.status !== 'rejected').length;
     
     const successfulPromotions = promotions.filter(p => p.status === 'paid').length;
     const successRate = totalAcceptedPromotions > 0 ? 
       (successfulPromotions / totalAcceptedPromotions) * 100 : 0;
-
-    // Calculate rating based on completed promotions (you might want to get this from user data)
-    const rating = this.calculateUserRating(promotions);
 
     // Expiring soon - promotions where campaign is ending in 3 days
     const expiringSoon = promotions.filter(promotion => {
@@ -211,7 +207,7 @@ export class PromoterLandingComponent implements OnInit {
 
     return {
       totalEarnings,
-      rating,
+      rating: userRating,
       completedPromotions,
       pendingEarnings,
       activePromotions,
@@ -220,19 +216,6 @@ export class PromoterLandingComponent implements OnInit {
       expiringSoon
     };
   });
-
-  // Helper method to calculate user rating
-  private calculateUserRating(promotions: PromotionInterface[]): number {
-    // If you have a user rating system, use that instead
-    const paidPromotions = promotions.filter(p => p.status === 'paid').length;
-    
-    // Simple rating calculation based on completed promotions
-    // You might want to replace this with actual user rating data
-    if (paidPromotions >= 10) return 4.8;
-    if (paidPromotions >= 5) return 4.5;
-    if (paidPromotions >= 1) return 4.0;
-    return 0; // No rating for new users
-  }
 
   ngOnInit(): void {
     this.loadCampaigns(false); // Initial load
@@ -320,7 +303,7 @@ export class PromoterLandingComponent implements OnInit {
   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
     return campaigns.map(campaign => {
       const updatedCampaign = { ...campaign };
-      updatedCampaign.progress = campaign.budget > 0 ? ( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100 : 0;
+      updatedCampaign.progress = campaign.budget > 0 ? ((campaign.spentBudget || 0) / campaign.budget) * 100 : 0;
       if (campaign.endDate) {
         const endDate = new Date(campaign.endDate);
         if (isDatePast(endDate)) {
@@ -329,8 +312,7 @@ export class PromoterLandingComponent implements OnInit {
           updatedCampaign.remainingDays = formatRemainingDays(endDate);
         }
       } else {
-        const budgetRemaining = updatedCampaign.budget - (updatedCampaign.payoutPerPromotion * updatedCampaign.currentPromoters );
-        // const budgetRemaining = updatedCampaign.budget - updatedCampaign.spentBudget;
+        const budgetRemaining = updatedCampaign.remainingBudget ?? (updatedCampaign.budget - (updatedCampaign.spentBudget || 0));
         if (budgetRemaining <= 0) {
           updatedCampaign.remainingDays = 'Budget Exhausted';
         } else {
@@ -342,11 +324,11 @@ export class PromoterLandingComponent implements OnInit {
   }
 
   getHighPayoutCount(): number {
-    return this.campaigns().filter(campaign => campaign.payoutPerPromotion >= 500).length;
+    return this.campaigns().filter(campaign => (campaign.costPerClick || campaign.payoutPerPromotion || 0) >= 100).length;
   }
 
   getQuickTasksCount(): number {
-    return this.campaigns().filter(campaign => campaign.minViewsPerPromotion <= 25).length;
+    return this.campaigns().filter(campaign => (campaign.costPerClick || campaign.payoutPerPromotion || 0) <= 100).length;
   }
 
 applyForCampaign(campaign: CampaignInterface): void {
@@ -381,17 +363,23 @@ applyForCampaign(campaign: CampaignInterface): void {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
+        const promotionUrl = response?.promotionUrl || response?.promotion?.promotionUrl;
+        const createdPromotion = response?.promotion;
         const updatedCampaigns = this.campaigns().map(c => {
           if (c._id === campaign._id) {
             return {
               ...c,
-              spentBudget: (c.spentBudget || 0) + c.payoutPerPromotion
+              currentPromoters: (c.currentPromoters || 0) + 1,
+              totalPromotions: (c.totalPromotions || 0) + 1
             };
           }
           return c;
         });
         
         this.campaigns.set(updatedCampaigns);
+        if (createdPromotion) {
+          this.promotions.update(promotions => [createdPromotion, ...promotions]);
+        }
         this.isApplying.set(false);
         this.applyingCampaignId.set(null); // Reset using signal        
         // this.snackBar.open(response.message, 'OK', { 
@@ -399,14 +387,18 @@ applyForCampaign(campaign: CampaignInterface): void {
         // });
 
         this.snackBar.open(
-          response.message,
-          'Go to Promotions',
+          response.message || 'Promotion link generated',
+          promotionUrl ? 'Copy Link' : 'Go to Promotions',
           {
             duration: 9000,
             panelClass: 'snackbar-link'
           }
         ).onAction().subscribe(() => {
-          this.router.navigate(['/dashboard/campaigns/promotions']);
+          if (promotionUrl) {
+            navigator.clipboard.writeText(promotionUrl);
+          } else {
+            this.router.navigate(['/dashboard/campaigns/promotions']);
+          }
         });
 
 

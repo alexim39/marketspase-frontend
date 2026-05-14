@@ -1,7 +1,7 @@
 // src/app/services/product.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 import { HttpParams } from '@angular/common/http';
 
 export interface CreateProductRequest {
@@ -11,6 +11,12 @@ export interface CreateProductRequest {
   price: number;
   originalPrice?: number;
   costPrice?: number;
+  affiliate?: {
+    enabled: boolean;
+    commissionType: 'percentage' | 'fixed';
+    commissionRate: number;
+    fixedCommission?: number;
+  };
   images: File[];
   quantity: number;
   category: string;
@@ -75,6 +81,15 @@ export interface ProductResponse {
   price: number;
   originalPrice: number;
   costPrice: number;
+  affiliate?: {
+    enabled: boolean;
+    commissionType: 'percentage' | 'fixed';
+    commissionRate: number;
+    fixedCommission?: number;
+    cookieWindowDays?: number;
+  };
+  amountReceivable?: number;
+  commissionPerSale?: number;
   images: Array<{
     url: string;
     altText: string;
@@ -258,7 +273,10 @@ export class ProductService {
   }
 
   /**
-   * Get published products for a store
+   * Get published products for a store.
+   * This uses the storefront-style published listing endpoint so
+   * marketers can safely select products for post creation without
+   * depending on promotion-management permissions.
    */
   getPublishedProducts(
     storeId: string,
@@ -274,7 +292,7 @@ export class ProductService {
     if (options?.includeInactive) params.includeInactive = options.includeInactive;
 
     return this.apiService.get<any>(
-      `stores/product/${storeId}/published`,
+      `stores/product/${storeId}/store-published-products`,
       params,
       undefined,
       true

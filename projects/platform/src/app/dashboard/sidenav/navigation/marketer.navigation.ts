@@ -38,6 +38,7 @@ export function getMarketerNavigation(
       children: [
         { icon: 'store', label: 'My Stores', route: '/dashboard/stores' },
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
+        { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
         // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
         // {
         //   icon: 'inventory',
@@ -49,6 +50,25 @@ export function getMarketerNavigation(
         //     { icon: 'category', label: 'Categories', route: '/dashboard/stores/categories' }
         //   ]
         // }
+      ]
+    },
+
+    // {
+    //   icon: 'android',
+    //   label: 'Assistant',
+    //   route: '/dashboard/assistant',
+    //   expanded: false
+    // },
+
+    {
+      icon: 'android',
+      label: 'AI Assistant',
+      expanded: false,
+      children: [
+        { icon: 'support_agent', label: 'Customer Support', route: '/dashboard/assistant/customer/overview' },
+        // { icon: 'dynamic_feed', label: 'Social Media Management', route: '/dashboard/assistant/social/overview' },
+        // { icon: 'analytics', label: 'Business Insights', route: '/dashboard/assistant/insights' },
+        // { icon: 'settings', label: 'Settings', route: '/dashboard/assistant/settings' }
       ]
     },
 
@@ -68,6 +88,20 @@ export function getMarketerNavigation(
           ]
         }
       ]
+    },
+
+    {
+      icon: 'leaderboard',
+      label: 'Leaderboard',
+      route: '/dashboard/leaderboard',
+      expanded: false
+    },
+
+    {
+      icon: 'military_tech',
+      label: 'Gamification',
+      route: '/dashboard/gamification',
+      expanded: false
     },
     
     {

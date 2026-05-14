@@ -1,6 +1,6 @@
 import { Component, Input, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserInterface } from '../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { MarketerLandingComponent } from '../marketer/marketing-landing/marketer-landing.component';
 import { PromoterLandingComponent } from '../promoter/promoter-landing/promoter-landing.component';
 

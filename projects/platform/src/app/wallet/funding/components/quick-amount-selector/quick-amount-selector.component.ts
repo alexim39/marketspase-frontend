@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CurrencyUtilsPipe, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 
 export interface QuickAmount {
   value: number;
@@ -23,6 +23,7 @@ export class QuickAmountSelectorComponent {
   @Input() amounts: QuickAmount[] = [];
   @Input() selectedAmount: number = 0;
   @Input() disabled: boolean = false;
+  @Input() currencyCode: string | null = null;
   @Output() amountSelected = new EventEmitter<number>();
   @Input({ required: true }) user: UserInterface | null = null;
 

@@ -17,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
           </button>
           <div class="header-title">
             <h1>Promotion Details</h1>
-            <p>Track your promotion progress and earnings</p>
+            <p>Track clicks, link status, and earnings</p>
           </div>
           <div class="header-button"></div>
         </div>

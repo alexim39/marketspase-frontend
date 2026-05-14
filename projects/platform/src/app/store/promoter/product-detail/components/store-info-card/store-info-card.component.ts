@@ -14,4 +14,12 @@ import { MatButtonModule } from '@angular/material/button';
 export class StoreInfoCardComponent {
   @Input() store: any;
   @Input() user: any;
+
+  followerCount(): number {
+    if (Array.isArray(this.store?.followers)) {
+      return this.store.followers.length;
+    }
+    const count = Number(this.store?.followerCount || 0);
+    return Number.isFinite(count) ? count : 0;
+  }
 }

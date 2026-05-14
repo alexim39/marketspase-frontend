@@ -13,7 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { HelpDialogComponent, UserInterface } from '../../../../shared-services/src/public-api';
+import { HelpDialogComponent, UserInterface } from '@shared/services';
 import { SettingsService } from './settings.service';
 import { UserService } from '../common/services/user.service';
 import { RecentActivityComponent } from './components/recent-activity/recent-activity.component';

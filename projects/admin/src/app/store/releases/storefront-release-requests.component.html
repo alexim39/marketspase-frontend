@@ -1,0 +1,172 @@
+<main class="release-requests-page">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Escrow release desk</p>
+      <h2>Review delivery release requests</h2>
+      <p>Approve or reject requests before reserved storefront funds move into marketer and promoter balances.</p>
+    </div>
+
+    <button type="button" class="primary-btn" (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </section>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <mat-progress-bar mode="indeterminate" />
+      <span>Loading release requests...</span>
+    </section>
+  }
+
+  <section class="summary-grid">
+    <article class="summary-card requested">
+      <strong>{{ summary().requested }}</strong>
+      <span>Requested</span>
+    </article>
+    <article class="summary-card approved">
+      <strong>{{ summary().approved }}</strong>
+      <span>Approved</span>
+    </article>
+    <article class="summary-card rejected">
+      <strong>{{ summary().rejected }}</strong>
+      <span>Rejected</span>
+    </article>
+  </section>
+
+  <section class="filters-card" [formGroup]="filtersForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="requested">Requested</mat-option>
+        <mat-option value="approved">Approved</mat-option>
+        <mat-option value="rejected">Rejected</mat-option>
+        <mat-option value="all">All</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  <section class="layout">
+    <article class="queue-panel">
+      <div class="panel-header">
+        <h3>Release queue</h3>
+        <span>{{ pagination().total }} total</span>
+      </div>
+
+      @if (orders().length > 0) {
+        <div class="request-list">
+          @for (order of orders(); track order._id) {
+            <button type="button" class="request-row" [class.active]="selectedOrder()?._id === order._id" (click)="selectOrder(order)">
+              <div class="row-top">
+                <strong>{{ order.orderNumber || order._id }}</strong>
+                <mat-chip class="status-chip" [class]="order.releaseRequest?.status">{{ order.releaseRequest?.status || 'requested' }}</mat-chip>
+              </div>
+              <div class="row-sub">{{ order.store?.name || 'Store' }} • {{ order.marketer?.displayName || 'Marketer' }}</div>
+              <div class="row-sub">Requested by {{ order.releaseRequest?.requestedBy?.displayName || order.releaseRequest?.requestedByRole || 'participant' }}</div>
+              <div class="row-meta">
+                <span>{{ order.currency || 'NGN' }} {{ order.totalAmount | number:'1.0-2' }}</span>
+                <span>{{ formatDate(order.releaseRequest?.requestedAt, 'mediumDate') }}</span>
+              </div>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>inventory_2</mat-icon>
+          <span>No release requests matched this status.</span>
+        </div>
+      }
+
+      <div class="pagination-actions">
+        <button type="button" class="ghost-btn" (click)="changePage('prev')" [disabled]="pagination().skip === 0">
+          <mat-icon>chevron_left</mat-icon>
+          Previous
+        </button>
+        <button type="button" class="ghost-btn" (click)="changePage('next')" [disabled]="!pagination().hasMore">
+          Next
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </article>
+
+    <aside class="detail-panel">
+      @if (selectedOrder(); as order) {
+        <div class="panel-header">
+          <div>
+            <h3>{{ order.orderNumber || 'Order' }}</h3>
+            <p>{{ order.store?.name || 'Storefront order' }}</p>
+          </div>
+          <mat-chip class="status-chip" [class]="order.releaseRequest?.status">{{ order.releaseRequest?.status || 'requested' }}</mat-chip>
+        </div>
+
+        <div class="detail-stack">
+          <div class="detail-grid">
+            <div class="detail-card">
+              <span class="label">Customer</span>
+              <strong>{{ order.customer?.displayName || order.guestCustomer?.name || 'Guest customer' }}</strong>
+              <small>{{ order.customer?.email || order.guestCustomer?.email || 'No email available' }}</small>
+            </div>
+            <div class="detail-card">
+              <span class="label">Requested by</span>
+              <strong>{{ order.releaseRequest?.requestedBy?.displayName || order.releaseRequest?.requestedByRole || 'Participant' }}</strong>
+              <small>{{ formatDate(order.releaseRequest?.requestedAt, 'short') }}</small>
+            </div>
+            <div class="detail-card">
+              <span class="label">Escrow split</span>
+              <strong>{{ order.currency || 'NGN' }} {{ order.marketerReservedAmount || 0 | number:'1.0-2' }}</strong>
+              <small>Marketer reserve • {{ order.promoterReservedAmount || 0 | number:'1.0-2' }} promoter reserve</small>
+            </div>
+            <div class="detail-card">
+              <span class="label">Delivery status</span>
+              <strong>{{ order.releaseRequest?.deliveryStatus || order.orderStatus || 'Pending' }}</strong>
+              <small>{{ order.releaseRequest?.buyerReceived ? 'Buyer confirmed receipt' : 'Buyer receipt not yet confirmed' }}</small>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4>Request note</h4>
+            <p>{{ order.releaseRequest?.note || 'No note was submitted with this request.' }}</p>
+          </div>
+
+          <div class="section-card">
+            <h4>Order items</h4>
+            <div class="item-list">
+              @for (item of order.items; track item.product?._id || item.product?.name) {
+                <div class="item-row">
+                  <strong>{{ item.product?.name || 'Product' }}</strong>
+                  <span>{{ item.quantity || 0 }} × {{ order.currency || 'NGN' }} {{ item.unitPrice || 0 | number:'1.0-2' }}</span>
+                  @if (item.promoterId?.displayName) {
+                    <small>Promoter: {{ item.promoterId?.displayName }}</small>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4>Admin note</h4>
+            <textarea [value]="note()" (input)="setNote(($any($event.target)).value)" placeholder="Add a note for your decision"></textarea>
+          </div>
+
+          @if (order.releaseRequest?.status === 'requested') {
+            <div class="action-row">
+              <button type="button" class="approve-btn" (click)="review('approved')" [disabled]="submitting()">
+                <mat-icon>check_circle</mat-icon>
+                Approve release
+              </button>
+              <button type="button" class="reject-btn" (click)="review('rejected')" [disabled]="submitting()">
+                <mat-icon>cancel</mat-icon>
+                Reject request
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state detail-empty">
+          <mat-icon>fact_check</mat-icon>
+          <span>Select a release request to review it.</span>
+        </div>
+      }
+    </aside>
+  </section>
+</main>

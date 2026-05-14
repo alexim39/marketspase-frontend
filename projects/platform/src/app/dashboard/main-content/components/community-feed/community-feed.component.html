@@ -28,16 +28,16 @@
   }
 
   <!-- Live Activity Toast -->
- <!--  @if (liveActivities().length > 0) {
-    <div class="live-activity-toast">
+  @if (liveActivities().length > 0) {
+    <button class="live-activity-toast" type="button" (click)="onLiveActivityClick(liveActivities()[0])">
       <div class="activity-content">
         <span class="activity-text">
           <strong>{{ liveActivities()[0].author }}</strong> {{ liveActivities()[0].message }}
         </span>
         <span class="activity-time">{{ liveActivities()[0].time }}</span>
       </div>
-    </div>
-  } -->
+    </button>
+  }
   
   <div class="feed-preview">
     <!-- Loading State -->
@@ -72,13 +72,14 @@
 
         <!-- Today's Activity Stats -->
         <div class="activity-stats">
-          <!-- <div class="stat-card">
+          <div class="stat-card">
             <mat-icon class="stat-icon">people</mat-icon>
             <div class="stat-info">
               <span class="stat-value">{{ activityStats().activeUsers }}</span>
               <span class="stat-label">active now</span>
             </div>
-          </div> -->
+          </div>
+
           <div class="stat-card">
             <mat-icon class="stat-icon">post_add</mat-icon>
             <div class="stat-info">
@@ -255,9 +256,9 @@
                   @if (post.type === 'earnings' && post.earnings) {
                     <div class="type-preview earnings-preview">
                       <mat-icon>emoji_events</mat-icon>
-                      <span>Earned ₦{{ post.earnings.amount | number:'1.0-0' }}</span>
+                      <span>Earned NGN {{ post.earnings.amount | number:'1.0-0' }}</span>
                       @if (post.earnings.milestone) {
-                        <span class="milestone">• {{ post.earnings.milestone }}</span>
+                        <span class="milestone">| {{ post.earnings.milestone }}</span>
                       }
                     </div>
                   }
@@ -267,7 +268,7 @@
                       <mat-icon>campaign</mat-icon>
                       <span>{{ post.campaign?.name | slice:0:30 }}</span>
                       @if (post.campaign?.progress) {
-                        <span class="progress">• {{ post.campaign?.progress }}% complete</span>
+                        <span class="progress">| {{ post.campaign?.progress }}% complete</span>
                       }
                     </div>
                   }
@@ -296,8 +297,8 @@
                   @if (post.hashtags && post.hashtags.length > 0) {
                     <div class="post-hashtags">
                       @for (tag of post.hashtags.slice(0, 3); track tag) {
-                        <button class="hashtag" (click)="onHashtagClick($event, tag)">
-                          #{{ tag }}
+                        <button class="hashtag" (click)="onHashtagClick($event, getHashtagValue(tag))">
+                          #{{ getHashtagValue(tag) }}
                         </button>
                       }
                       @if (post.hashtags.length > 3) {

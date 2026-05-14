@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { PromotionInterface } from '@shared/services';
 import { PromotionMediaComponent } from '../promotion-media/promotion-media.component';
 import { PromotionInfoComponent } from '../promotion-info/promotion-info.component';
 
@@ -24,7 +24,7 @@ import { PromotionInfoComponent } from '../promotion-info/promotion-info.compone
         <div class="promotion-status">
           <span class="status-badge" [class]="'status-' + promotion.status">
             <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
-            {{promotion.status | titlecase}}
+            {{getStatusLabel(promotion.status)}}
           </span>
           <span class="promotion-id">Promotion ID: {{promotion.upi || 'N/A'}}</span>
         </div>
@@ -69,11 +69,25 @@ export class PromotionOverviewComponent {
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
       pending: 'schedule',
+      accepted: 'link',
+      downloaded: 'link',
       submitted: 'pending_actions',
       validated: 'check_circle',
       paid: 'paid',
       rejected: 'cancel'
     };
     return icons[status] || 'help';
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: { [key: string]: string } = {
+      accepted: 'Active Link',
+      downloaded: 'Active Link',
+      submitted: 'Tracking',
+      validated: 'Approved',
+      paid: 'Paid',
+      rejected: 'Rejected'
+    };
+    return labels[status] || status;
   }
 }

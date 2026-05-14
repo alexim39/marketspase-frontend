@@ -147,7 +147,7 @@ export interface SearchPromotersData {
 export class RefundService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private readonly apiBase = 'financial/refund';
+  private readonly apiBase = 'api/v1/financial/refund';
 
   /**
    * Process a single refund to a promoter

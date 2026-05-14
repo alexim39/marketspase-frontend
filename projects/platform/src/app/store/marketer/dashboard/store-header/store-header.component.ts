@@ -13,8 +13,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Store } from '../../../models/store.model';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DialogService, TruncatePipe } from '../../../shared';
-import { DeviceService, UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { DialogService } from '../../../shared';
+import { DeviceService, UserInterface, TruncatePipe } from '@shared/services';
 import { take } from 'rxjs/internal/operators/take';
 import { StoreService } from '../../../services/store.service';
 

@@ -96,9 +96,9 @@ export class CampaignFiltersMobileComponent {
   getFilterLabel(filter: FilterType): string {
     switch (filter) {
       case 'all': return 'All';
-      case 'highPayout': return 'High Payout';
+      case 'highPayout': return 'High CPC';
       case 'expiringSoon': return 'Ending Soon';
-      case 'quickTasks': return 'Quick Tasks';
+      case 'quickTasks': return 'Low CPC';
       default: return '';
     }
   }

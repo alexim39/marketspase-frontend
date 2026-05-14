@@ -1,0 +1,126 @@
+<div class="assistant-page">
+  @if (loading()) {
+    <section class="loading-shell">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>Loading your assistant...</p>
+    </section>
+  } @else {
+    <header class="page-header">
+      <div>
+        <span class="eyebrow">AI Assistant</span>
+        <h1>Sales control room</h1>
+        <p>See what the assistant is handling, what needs you, and where sales are coming from.</p>
+      </div>
+      <button mat-raised-button color="primary" routerLink="../conversations">
+        <mat-icon>chat</mat-icon>
+        Open chats
+      </button>
+    </header>
+
+    @if (!hasSetup()) {
+      <section class="onboarding-panel">
+        <div>
+          <mat-icon>rocket_launch</mat-icon>
+          <h2>Set up your AI sales assistant</h2>
+          <p>Start with one WhatsApp number, one FAQ, and one test message. That is enough to begin replying faster.</p>
+        </div>
+        <div class="setup-steps">
+          <a routerLink="../settings"><span>1</span>Connect WhatsApp</a>
+          <a routerLink="../faqs"><span>2</span>Add first FAQ</a>
+          <button type="button" (click)="testAI()"><span>3</span>Test assistant</button>
+        </div>
+      </section>
+    }
+
+    <section class="overview-grid">
+      <mat-card class="status-card">
+        <div class="status-head">
+          <div class="status-light" [class.active]="settings().aiEnabled"></div>
+          <div>
+            <h2>{{ settings().aiEnabled ? 'AI is active' : 'AI is paused' }}</h2>
+            <p>{{ settings().aiEnabled ? 'Customers can get instant replies.' : 'New chats will need human attention.' }}</p>
+          </div>
+          <mat-slide-toggle [checked]="settings().aiEnabled" [disabled]="savingToggle()" (change)="toggleAI()"></mat-slide-toggle>
+        </div>
+
+        <div class="status-details">
+          <span><mat-icon>call</mat-icon>{{ connectedText() }}</span>
+          <span><mat-icon>record_voice_over</mat-icon>{{ (settings().tone || 'friendly') | titlecase }}</span>
+          <span><mat-icon>translate</mat-icon>{{ settings().language === 'pidgin' ? 'Nigerian Pidgin' : 'English' }}</span>
+        </div>
+
+        <button mat-button color="primary" routerLink="../automation">
+          Open automation settings
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </mat-card>
+
+      <mat-card class="test-card">
+        <h2>Test AI</h2>
+        <p>Try a customer question before you turn it loose.</p>
+        <textarea [ngModel]="testMessage()" (ngModelChange)="testMessage.set($event)" rows="3"></textarea>
+        <button mat-stroked-button color="primary" (click)="testAI()">
+          <mat-icon>smart_toy</mat-icon>
+          Test reply
+        </button>
+        @if (testReply()) {
+          <div class="test-reply">{{ testReply() }}</div>
+        }
+      </mat-card>
+    </section>
+
+    <section class="stats-grid">
+      @for (stat of quickStats(); track stat.label) {
+        <mat-card class="stat-card">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }}</span>
+        </mat-card>
+      }
+    </section>
+
+    <section class="lower-grid">
+      <mat-card class="recent-card">
+        <div class="card-title-row">
+          <div>
+            <h2>Recent conversations</h2>
+            <p>Latest customer chats from WhatsApp.</p>
+          </div>
+          <button mat-button routerLink="../conversations">View all</button>
+        </div>
+
+        @if (recentConversations().length) {
+          <div class="conversation-list">
+            @for (conversation of recentConversations(); track conversation._id) {
+              <a class="conversation-row" routerLink="../conversations" [queryParams]="{ id: conversation._id }" [class.hot]="conversation.leadTag === 'hot'" [class.escalated]="conversation.status === 'escalated'">
+                <div class="avatar">{{ getConversationName(conversation).slice(0, 1) }}</div>
+                <div class="conversation-copy">
+                  <strong>{{ getConversationName(conversation) }}</strong>
+                  <span>{{ conversation.lastMessageText || 'No message yet' }}</span>
+                </div>
+                <div class="conversation-meta">
+                  <small>{{ conversation.lastMessageAt | date:'shortTime' }}</small>
+                  <em>{{ conversation.handledBy === 'human' ? 'Human' : 'AI' }}</em>
+                </div>
+              </a>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>forum</mat-icon>
+            <h3>No conversations yet</h3>
+            <p>Once customers message your connected WhatsApp number, chats will appear here.</p>
+          </div>
+        }
+      </mat-card>
+
+      <mat-card class="actions-card">
+        <h2>Quick actions</h2>
+        <a mat-stroked-button routerLink="../faqs"><mat-icon>add</mat-icon>Add FAQ</a>
+        <a mat-stroked-button routerLink="../conversations"><mat-icon>chat</mat-icon>Open conversations</a>
+        <a mat-stroked-button routerLink="../automation"><mat-icon>tune</mat-icon>Configure automation</a>
+        <a mat-stroked-button routerLink="../settings"><mat-icon>settings</mat-icon>Connect WhatsApp</a>
+      </mat-card>
+    </section>
+  }
+</div>

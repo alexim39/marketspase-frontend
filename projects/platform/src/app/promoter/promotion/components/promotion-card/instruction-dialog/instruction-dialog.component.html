@@ -1,7 +1,7 @@
 <div class="whatsapp-dialog">
     <div class="wa-header">
     <mat-icon class="wa-icon">whatsapp</mat-icon>
-    <h2>How to Share to WhatsApp Status</h2>
+    <h2>Share Promotion Link</h2>
     <button mat-icon-button (click)="close()" class="wa-close">
         <mat-icon>close</mat-icon>
     </button>
@@ -22,15 +22,12 @@
     <div class="wa-steps">
         <p class="wa-steps-title">Steps:</p>
         <ol class="wa-steps-list">
-        <li>The media has been saved to your device</li>
         <li><strong>Copy the caption above</strong></li>
         <li>Open WhatsApp</li>
         <li>Go to the <strong>Status</strong> tab</li>
-        <li>Tap the camera icon or "+" button</li>
-        <li>Select <strong>Gallery/Photos</strong></li>
-        <li>Choose the downloaded file</li>
+        <li>Choose the campaign media if you want to include it</li>
         <li>Paste the caption (tap on text area)</li>
-        <li>Tap the send button</li>
+        <li>Post it so clicks flow through your tracked link</li>
         </ol>
     </div>
 
@@ -39,9 +36,9 @@
         <mat-icon>open_in_new</mat-icon>
         Open WhatsApp
         </button>
-        <button mat-stroked-button class="wa-action-secondary" (click)="openGallery()">
-        <mat-icon>folder_open</mat-icon>
-        Open Gallery
+        <button mat-stroked-button class="wa-action-secondary" (click)="copyCaption()">
+        <mat-icon>link</mat-icon>
+        Copy Link Text
         </button>
     </div>
     </div>

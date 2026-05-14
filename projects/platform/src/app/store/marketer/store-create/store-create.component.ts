@@ -17,7 +17,7 @@ import { StoreService } from '../../services/store.service';
 import { CreateStoreRequest } from '../../models';
 import { CATEGORIES } from '../../../common/utils/categories';
 import { UserService } from '../../../common/services/user.service';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({

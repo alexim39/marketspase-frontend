@@ -171,12 +171,12 @@
                 </div>
               </div>
               
-              <!-- Minimum Rating -->
+              <!-- Minimum Reputation -->
               @if (campaign.enableTarget && campaign.minRating) {
               <div class="info-item">
                 <mat-icon>star</mat-icon>
                 <div class="info-content">
-                  <span class="info-label">Minimum Rating</span>
+                  <span class="info-label">Minimum Reputation</span>
                   <span class="info-value">{{campaign.minRating}}+</span>
                 </div>
               </div>
@@ -367,7 +367,7 @@
                      @if (promotion.promoter.rating) {
                        <span class="promoter-rating">
                         <mat-icon>star</mat-icon>
-                        {{promotion.promoter.rating | number:'1.1-1'}}
+                        {{promotion.promoter.rating | number:'1.1-1'}} reputation
                       </span>
                      }
                     </div>

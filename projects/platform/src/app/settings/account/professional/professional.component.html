@@ -17,7 +17,7 @@
       <div class="form-section">
         <h3 class="section-header">
           <mat-icon>business_center</mat-icon>
-          Career Information
+          Public Profile
         </h3>
         
         <div class="form-row">
@@ -34,8 +34,16 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Profile Headline</mat-label>
+            <input matInput formControlName="profileHeadline" placeholder="E.g. Growth marketer helping brands scale">
+            <mat-icon matSuffix>campaign</mat-icon>
+            <mat-hint>A short line people see on your profile</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
             <mat-label>Education Background</mat-label>
-            <!-- Changed formControlName to educationBackground to match component class -->
             <mat-select formControlName="certificate" required>
               @for (education of educationOptions; track education) {
                 <mat-option [value]="education">
@@ -44,7 +52,6 @@
               }            
             </mat-select>
             <mat-icon matSuffix>school</mat-icon>
-            <!-- Changed formControlName to educationBackground -->
             @if (professionalForm.get('certificate')?.hasError('required')) {
               <mat-error>
                 Education background is required
@@ -53,6 +60,66 @@
           </mat-form-field>
         </div>
       </div>
+
+      @if (isMarketer()) {
+        <div class="form-section">
+          <h3 class="section-header">
+            <mat-icon>storefront</mat-icon>
+            Business Branding
+          </h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Brand Name</mat-label>
+              <input matInput formControlName="brandName" placeholder="E.g. MarketSpase Studio">
+              <mat-icon matSuffix>apartment</mat-icon>
+              <mat-hint>The business name to highlight on your profile</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row single-column">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Brand Summary</mat-label>
+              <textarea
+                matInput
+                formControlName="brandSummary"
+                rows="4"
+                placeholder="Tell promoters and buyers what makes your brand worth following.">
+              </textarea>
+              <mat-icon matSuffix>article</mat-icon>
+              <mat-hint>A concise overview of your business and offer</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row single-column">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Unique Selling Points</mat-label>
+              <mat-chip-grid #sellingPointGrid formControlName="uniqueSellingPoints">
+                @for (point of uniqueSellingPoints(); track point) {
+                  <mat-chip-row (removed)="removeSellingPoint(point)">
+                    {{ point }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
+                <input
+                  [matChipInputFor]="sellingPointGrid"
+                  placeholder="E.g. Same-day delivery, creator-ready assets"
+                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                  (matChipInputTokenEnd)="addSellingPoint($event)">
+              </mat-chip-grid>
+              <mat-hint>
+                @if (uniqueSellingPoints().length === 0) {
+                  Add the key reasons people should work with your brand
+                } @else {
+                  {{ uniqueSellingPoints().length }} selling point(s) added
+                }
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+      }
 
       <!-- Skills & Interests Section -->
       <div class="form-section">

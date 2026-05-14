@@ -1,0 +1,294 @@
+<section class="page-shell">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Achievement Design</p>
+      <h1>Badges & Levels</h1>
+      <p class="subcopy">
+        Configure the live badge engine, edit level thresholds, and manage every badge milestone
+        promoters and marketers can unlock across the app.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="secondary-btn" (click)="startNewBadge()">New badge</button>
+      <button type="button" class="save-btn" [disabled]="loading() || savingConfig()" (click)="saveConfig()">
+        @if (savingConfig()) {
+          Saving...
+        } @else {
+          Save rules
+        }
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state">
+      <div class="loading-card"></div>
+      <div class="loading-card"></div>
+      <div class="loading-card wide"></div>
+    </section>
+  } @else {
+    @if (payload(); as payloadData) {
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span class="summary-label">Badge system</span>
+          <strong>{{ payloadData.config.enabled ? 'Enabled' : 'Paused' }}</strong>
+          <small>{{ activeCount() }} active badges currently available to users.</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="summary-label">Feed refresh</span>
+          <strong>{{ payloadData.config.feedRefreshMinutes }} min</strong>
+          <small>Dashboard badge feed can update at this pace.</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="summary-label">Evaluation cooldown</span>
+          <strong>{{ payloadData.config.evaluationCooldownMinutes }} min</strong>
+          <small>How often the backend re-checks milestones per user.</small>
+        </article>
+
+        <article class="summary-card">
+          <span class="summary-label">Celebration window</span>
+          <strong>{{ payloadData.config.celebrationWindowHours }} hrs</strong>
+          <small>Recent unlocks stay highlighted during this window.</small>
+        </article>
+      </div>
+
+      <div class="settings-layout">
+      <section class="panel config-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Engine rules</h2>
+            <p>These rules shape level progression and how fresh badge updates feel in the live product.</p>
+          </div>
+        </div>
+
+        <form [formGroup]="configForm">
+          <div class="field-grid">
+            <label class="toggle-row span-all">
+              <div>
+                <span>Enable badge system</span>
+                <small>Pause awarding and feed refreshes without removing earned badges.</small>
+              </div>
+              <input type="checkbox" formControlName="enabled">
+            </label>
+
+            <label class="field">
+              <span>Feed refresh (minutes)</span>
+              <input type="number" formControlName="feedRefreshMinutes" min="1" max="1440">
+            </label>
+
+            <label class="field">
+              <span>Evaluation cooldown (minutes)</span>
+              <input type="number" formControlName="evaluationCooldownMinutes" min="1" max="1440">
+            </label>
+
+            <label class="field">
+              <span>Celebration window (hours)</span>
+              <input type="number" formControlName="celebrationWindowHours" min="1" max="720">
+            </label>
+          </div>
+
+          <div class="levels-head">
+            <div>
+              <h3>Level thresholds</h3>
+              <p>Each level begins once a user crosses the minimum XP threshold.</p>
+            </div>
+            <button type="button" class="secondary-btn small" (click)="addLevelThreshold()">Add level</button>
+          </div>
+
+          <div class="level-list" formArrayName="levelThresholds">
+            @for (group of levelThresholds.controls; track trackLevelRow($index)) {
+              <div class="level-row" [formGroupName]="$index">
+                <div class="level-pill">L{{ group.get('level')?.value }}</div>
+
+                <label class="field compact">
+                  <span>Title</span>
+                  <input type="text" formControlName="title">
+                </label>
+
+                <label class="field compact">
+                  <span>Min XP</span>
+                  <input type="number" formControlName="minExperiencePoints" min="0">
+                </label>
+
+                <button
+                  type="button"
+                  class="danger-btn ghost"
+                  [disabled]="levelThresholds.length <= 1"
+                  (click)="removeLevelThreshold($index)">
+                  Remove
+                </button>
+              </div>
+            }
+          </div>
+        </form>
+      </section>
+
+      <section class="panel library-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Badge library</h2>
+            <p>Choose a badge to edit, or start a new one.</p>
+          </div>
+        </div>
+
+        <div class="badge-library">
+          @for (badge of definitions(); track trackBadge($index, badge)) {
+            <button
+              type="button"
+              class="badge-list-item"
+              [class.active]="selectedBadgeId() === badge.id"
+              (click)="selectBadge(badge.id)">
+              <div class="badge-list-icon" [style.background]="badge.accentColor">
+                {{ badge.icon }}
+              </div>
+              <div class="badge-list-copy">
+                <strong>{{ badge.title }}</strong>
+                <small>{{ badge.criteria.metricLabel }} · {{ badge.criteria.targetValue }}</small>
+              </div>
+              <span class="status-pill" [class.inactive]="!badge.isActive">
+                {{ badge.isActive ? 'Active' : 'Paused' }}
+              </span>
+            </button>
+          } @empty {
+            <div class="empty-state">
+              <p>No badges configured yet.</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="panel editor-panel">
+        <div class="panel-header">
+          <div>
+            <h2>{{ selectedBadge() ? 'Edit badge' : 'Create badge' }}</h2>
+            <p>Define the milestone, who can earn it, and how much XP it should contribute.</p>
+          </div>
+
+          @if (selectedBadge()) {
+            <button type="button" class="danger-btn" [disabled]="deletingBadge()" (click)="deleteBadge()">
+              @if (deletingBadge()) { Removing... } @else { Remove badge }
+            </button>
+          }
+        </div>
+
+        <form class="editor-grid" [formGroup]="badgeForm">
+          <label class="field">
+            <span>Badge key</span>
+            <input type="text" formControlName="key" placeholder="streak-7">
+          </label>
+
+          <label class="field">
+            <span>Title</span>
+            <input type="text" formControlName="title" placeholder="Week on Fire">
+          </label>
+
+          <label class="field span-all">
+            <span>Description</span>
+            <textarea rows="3" formControlName="description"></textarea>
+          </label>
+
+          <label class="field span-all">
+            <span>Short description</span>
+            <input type="text" formControlName="shortDescription" placeholder="7-day login streak">
+          </label>
+
+          <label class="field">
+            <span>Icon name</span>
+            <input type="text" formControlName="icon" placeholder="military_tech">
+          </label>
+
+          <label class="field">
+            <span>Accent color</span>
+            <input type="text" formControlName="accentColor" placeholder="#7c3aed">
+          </label>
+
+          <label class="field">
+            <span>Category</span>
+            <select formControlName="category">
+              @for (category of categories(); track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Metric</span>
+            <select formControlName="metric">
+              @for (metric of metricCatalog(); track metric.value) {
+                <option [value]="metric.value">{{ metric.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Target value</span>
+            <input type="number" formControlName="targetValue" min="1">
+          </label>
+
+          <label class="field">
+            <span>XP reward</span>
+            <input type="number" formControlName="experiencePoints" min="0">
+          </label>
+
+          <label class="field span-all">
+            <span>Reward label</span>
+            <input type="text" formControlName="rewardLabel" placeholder="20 XP">
+          </label>
+
+          <label class="field">
+            <span>Sort order</span>
+            <input type="number" formControlName="sortOrder" min="0">
+          </label>
+
+          <div class="checkbox-grid span-all" formGroupName="roles">
+            <label class="checkbox-pill">
+              <input type="checkbox" formControlName="all">
+              <span>All users</span>
+            </label>
+            <label class="checkbox-pill">
+              <input type="checkbox" formControlName="marketer">
+              <span>Marketers</span>
+            </label>
+            <label class="checkbox-pill">
+              <input type="checkbox" formControlName="promoter">
+              <span>Promoters</span>
+            </label>
+          </div>
+
+          <label class="toggle-row span-all">
+            <div>
+              <span>Active badge</span>
+              <small>Inactive badges stay in history but stop unlocking for new users.</small>
+            </div>
+            <input type="checkbox" formControlName="isActive">
+          </label>
+
+          <label class="toggle-row span-all">
+            <div>
+              <span>Feature this badge</span>
+              <small>Featured badges are easier to surface in profile summaries later.</small>
+            </div>
+            <input type="checkbox" formControlName="isFeatured">
+          </label>
+        </form>
+
+        <footer class="editor-footer">
+          <button type="button" class="secondary-btn" (click)="startNewBadge()">Reset form</button>
+          <button type="button" class="save-btn" [disabled]="savingBadge()" (click)="saveBadge()">
+            @if (savingBadge()) {
+              Saving...
+            } @else if (selectedBadge()) {
+              Update badge
+            } @else {
+              Create badge
+            }
+          </button>
+        </footer>
+      </section>
+      </div>
+    }
+  }
+</section>

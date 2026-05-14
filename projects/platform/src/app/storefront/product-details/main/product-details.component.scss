@@ -218,6 +218,179 @@
         gap: $spacing-12;
       }
     }
+
+    .product-purchase-panel {
+      display: grid;
+      align-content: start;
+      gap: $spacing-4;
+    }
+
+    .cart-feedback-panel {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: $spacing-3;
+      align-items: center;
+      padding: $spacing-4;
+      border: 1px solid color-mix(in srgb, $success-color, transparent 62%);
+      border-radius: $border-radius;
+      background: color-mix(in srgb, $success-color, transparent 90%);
+      box-shadow: $shadow-sm;
+
+      .feedback-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: $border-radius-full;
+        display: grid;
+        place-items: center;
+        background: $success-color;
+        color: $white;
+
+        mat-icon {
+          width: 24px;
+          height: 24px;
+          font-size: 24px;
+        }
+      }
+
+      .feedback-copy {
+        min-width: 0;
+        display: grid;
+        gap: $spacing-1;
+
+        strong {
+          color: $text-primary;
+        }
+
+        span {
+          @include body-small;
+          color: $text-secondary;
+        }
+      }
+
+      .feedback-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2;
+      }
+
+      @include mobile {
+        grid-template-columns: auto minmax(0, 1fr);
+
+        .feedback-actions {
+          grid-column: 1 / -1;
+          justify-content: space-between;
+        }
+      }
+    }
+
+    .checkout-section {
+      margin-top: $spacing-6;
+      border-radius: $border-radius;
+      border-color: $border-color;
+      background: $surface-color;
+
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        color: $text-primary;
+      }
+
+      .checkout-summary {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: $spacing-3;
+        margin: $spacing-4 0;
+
+        @include tablet {
+          grid-template-columns: 2fr 1fr 1fr;
+        }
+
+        > div {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-1;
+          padding: $spacing-3;
+          border: 1px solid $border-color;
+          border-radius: $border-radius-sm;
+          background: color-mix(in srgb, $surface-color, $black 4%);
+        }
+
+        .summary-label {
+          @include caption;
+          color: $text-tertiary;
+        }
+      }
+
+      .checkout-form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: $spacing-3;
+        margin-top: $spacing-4;
+
+        @include tablet {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .full-width,
+        .checkout-error,
+        .checkout-actions {
+          grid-column: 1 / -1;
+        }
+      }
+
+      .checkout-error {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        color: $error-color;
+        background: color-mix(in srgb, $error-color, transparent 88%);
+        border: 1px solid color-mix(in srgb, $error-color, transparent 70%);
+        border-radius: $border-radius-sm;
+        padding: $spacing-3;
+      }
+
+      .checkout-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: $spacing-3;
+
+        @include mobile {
+          flex-direction: column-reverse;
+        }
+
+        button {
+          min-height: 44px;
+
+          mat-spinner {
+            margin-right: $spacing-2;
+          }
+        }
+      }
+    }
+
+    .checkout-success {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      margin-top: $spacing-4;
+      padding: $spacing-4;
+      border: 1px solid color-mix(in srgb, $success-color, transparent 60%);
+      border-radius: $border-radius;
+      background: color-mix(in srgb, $success-color, transparent 88%);
+      color: $success-color;
+
+      div {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-1;
+      }
+
+      span {
+        @include body-small;
+        color: $text-secondary;
+      }
+    }
   }
 
   // =========================================

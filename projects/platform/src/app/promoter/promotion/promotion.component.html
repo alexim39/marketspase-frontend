@@ -12,10 +12,8 @@
       
       <div class="campaign-list-section">
         <nav mat-tab-nav-bar [tabPanel]="tabPanel">
-          <a mat-tab-link [active]="selectedTab() === 'all'" (click)="onTabChange('all')">All Promotions ({{ stats().total }})</a>
-          <a mat-tab-link [active]="selectedTab() === 'accepted'" (click)="onTabChange('accepted')">Accepted ({{ stats().accepted }})</a>
-          <a mat-tab-link [active]="selectedTab() === 'submitted'" (click)="onTabChange('submitted')">Submitted ({{ stats().submitted }})</a>
-          <a mat-tab-link [active]="selectedTab() === 'validated'" (click)="onTabChange('validated')">Validated ({{ stats().validated }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'all'" (click)="onTabChange('all')">All Links ({{ stats().total }})</a>
+          <a mat-tab-link [active]="selectedTab() === 'accepted'" (click)="onTabChange('accepted')">Active Links ({{ stats().active }})</a>
           <a mat-tab-link [active]="selectedTab() === 'paid'" (click)="onTabChange('paid')">Paid ({{ stats().paid }})</a>
           <a mat-tab-link [active]="selectedTab() === 'rejected'" (click)="onTabChange('rejected')">Rejected ({{ stats().rejected }})</a>
         </nav>
@@ -32,7 +30,6 @@
               @for (promotion of filteredPromotions(); track promotion._id) {
                 <app-promotion-card
                   [promotion]="promotion"
-                  (openSubmitDialog)="openSubmitProofDialog($event)"
                 />
               }
             </div>

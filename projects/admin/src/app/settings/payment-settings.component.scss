@@ -1,0 +1,140 @@
+@use 'admin-theme' as admin;
+
+.page-shell {
+  @include admin.page-shell(1.5rem);
+}
+
+.hero,
+.panel,
+.state-card,
+.summary-grid div,
+.currency-card {
+  @include admin.surface-frame();
+}
+
+.hero,
+.panel,
+.state-card {
+  padding: 1.5rem;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hero h1,
+.panel h2 {
+  margin: 0 0 0.35rem;
+  color: var(--admin-text);
+}
+
+.hero p,
+.panel p,
+.field small,
+.updated-pill,
+.summary-grid span,
+.state-card span {
+  color: var(--admin-text-muted);
+}
+
+.updated-pill {
+  white-space: nowrap;
+  padding: 0.45rem 0.8rem;
+}
+
+.settings-layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.panel-header,
+.card-top,
+.actions {
+  @include admin.panel-header();
+  align-items: center;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.field-grid.compact {
+  flex: 1;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+  color: var(--admin-text-soft);
+}
+
+.field input,
+.field select {
+  @include admin.input-control();
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.summary-grid div {
+  padding: 1rem;
+}
+
+.summary-grid strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 1.35rem;
+  color: var(--admin-text);
+}
+
+.currency-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.currency-card {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  font-size: 0.92rem;
+  color: var(--admin-text-soft);
+}
+
+.toggle-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ghost-btn {
+  color: #fca5a5;
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 1rem;
+  }
+
+  .hero,
+  .panel-header,
+  .card-top,
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

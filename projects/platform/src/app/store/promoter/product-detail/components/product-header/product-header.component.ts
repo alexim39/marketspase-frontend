@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { CurrencyUtilsPipe } from '../../../../../../../../shared-services/src/public-api';
-import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
+import { CurrencyUtilsPipe, TruncatePipe } from '@shared/services';
 
 @Component({
   selector: 'app-product-header',

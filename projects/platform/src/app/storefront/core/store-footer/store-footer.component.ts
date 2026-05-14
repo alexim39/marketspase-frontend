@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Subject, takeUntil } from 'rxjs';
 import { MatMenuModule } from '@angular/material/menu';
-import { TruncatePipe } from '../../../store/shared';
+import { TruncatePipe } from '@shared/services';
 
 export interface FooterLink {
   label: string;

@@ -69,6 +69,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
 
   // Signals for state management
   isLoading = signal(true);
+  selectedTabIndex = signal(0);
   campaign = signal<CampaignInterface | null>(null);
   promotions = signal<PromotionInterface[]>([]);
   public readonly api = this.campaignService.api;
@@ -78,7 +79,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   promotionsDataSource: MatTableDataSource<PromotionInterface> = new MatTableDataSource<PromotionInterface>([]);
 
   ngOnInit(): void {
-    this.adminService.fetchAdmin;
+    this.adminService.fetchAdmin();
 
     this.loadCampaignDetails();
   }
@@ -150,8 +151,7 @@ export class CampaignDetailsComponent implements OnInit, OnDestroy {
   }
 
   viewActivityLog(): void {
-    // This could open a dialog or navigate to a dedicated activity log page
-    this.snackBar.open('Activity log feature coming soon', 'Close', { duration: 3000 });
+    this.selectedTabIndex.set(2);
   }
 
   viewPromotionProof(promotion: PromotionInterface): void {

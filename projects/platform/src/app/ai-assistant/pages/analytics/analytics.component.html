@@ -1,0 +1,141 @@
+<div class="analytics-page">
+  <header class="page-header">
+    <div>
+      <h1>Analytics</h1>
+      <p class="subtitle">See whether the AI Assistant is saving time and moving buyers closer to payment.</p>
+    </div>
+    <button mat-stroked-button color="primary" type="button" (click)="loadAnalytics()" [disabled]="loading()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+
+  <div class="loading-container" *ngIf="loading()">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading performance data...</p>
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <section class="roi-strip">
+      <div>
+        <span>Estimated sales influence</span>
+        <strong>{{ stats().estimatedConversions || 0 }}</strong>
+        <p>Conversations that look close to buying.</p>
+      </div>
+      <div>
+        <span>Conversion rate</span>
+        <strong>{{ stats().conversionRate || 0 }}%</strong>
+        <p>Resolved or paid leads from all chats.</p>
+      </div>
+      <div>
+        <span>Escalation rate</span>
+        <strong>{{ stats().escalationRate || 0 }}%</strong>
+        <p>Chats needing human attention.</p>
+      </div>
+    </section>
+
+    <section class="metrics-grid">
+      <mat-card class="metric-card">
+        <span class="metric-icon messages"><mat-icon>forum</mat-icon></span>
+        <div>
+          <p>Total messages</p>
+          <strong>{{ stats().totalMessages || 0 }}</strong>
+          <small>{{ stats().messagesToday || 0 }} today</small>
+        </div>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <span class="metric-icon ai"><mat-icon>smart_toy</mat-icon></span>
+        <div>
+          <p>AI handled</p>
+          <strong>{{ stats().aiHandledPercent || 0 }}%</strong>
+          <small>{{ stats().aiHandled || 0 }} replies</small>
+        </div>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <span class="metric-icon human"><mat-icon>support_agent</mat-icon></span>
+        <div>
+          <p>Human handled</p>
+          <strong>{{ stats().humanHandledPercent || 0 }}%</strong>
+          <small>{{ stats().humanHandled || 0 }} replies</small>
+        </div>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <span class="metric-icon speed"><mat-icon>speed</mat-icon></span>
+        <div>
+          <p>Avg response time</p>
+          <strong>{{ stats().responseTime || 0 }}s</strong>
+          <small>{{ stats().escalatedCount || 0 }} escalated chats</small>
+        </div>
+      </mat-card>
+    </section>
+
+    <section class="charts-grid">
+      <mat-card class="chart-card wide">
+        <div class="chart-heading">
+          <div>
+            <h2>Daily Conversations</h2>
+            <p>Conversation volume over the last 7 days.</p>
+          </div>
+        </div>
+
+        <div class="empty-chart" *ngIf="!hasConversationData()">
+          <mat-icon>bar_chart</mat-icon>
+          <p>No conversation activity yet.</p>
+        </div>
+
+        <div class="bar-chart" *ngIf="hasConversationData()">
+          <div class="bar-item" *ngFor="let point of dailyConversations()">
+            <div class="bar-track">
+              <span class="bar" [style.height]="barHeight(point.count, maxDailyCount())"></span>
+            </div>
+            <strong>{{ point.count }}</strong>
+            <small>{{ formatDay(point.date) }}</small>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <div class="chart-heading">
+          <div>
+            <h2>AI vs Human</h2>
+            <p>Who handled the replies.</p>
+          </div>
+        </div>
+
+        <div class="activity-bars">
+          <div class="activity-row" *ngFor="let item of aiVsHumanActivity()">
+            <div class="activity-label">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </div>
+            <div class="activity-track">
+              <span [class.ai-bar]="item.label === 'AI'" [style.width]="barHeight(item.value, maxActivityValue())"></span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <div class="chart-heading">
+          <div>
+            <h2>Conversion Signals</h2>
+            <p>Paid, hot, and resolved lead trend.</p>
+          </div>
+        </div>
+
+        <div class="trend-list">
+          <div class="trend-row" *ngFor="let point of conversionTrend()">
+            <span>{{ formatDay(point.date) }}</span>
+            <div class="mini-track">
+              <span [style.width]="barHeight(point.count, maxDailyCount())"></span>
+            </div>
+            <strong>{{ point.count || 0 }}</strong>
+          </div>
+        </div>
+      </mat-card>
+    </section>
+  </ng-container>
+</div>

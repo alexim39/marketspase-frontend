@@ -3,7 +3,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
+import { PromotionInterface } from '@shared/services';
 import { ImageViewerModalComponent, ImageViewerModalData } from './image-viewer-modal.component';
 
 @Component({

@@ -14,23 +14,30 @@
     
     <button mat-raised-button color="primary" class="write-review-btn" (click)="writeReview.emit()">
       <mat-icon>rate_review</mat-icon>
-      Write a Review
+      {{ currentUserReview ? 'Update Your Review' : 'Write a Review' }}
     </button>
   </div>
+
+  @if (currentUserReview?.status && currentUserReview?.status !== 'approved') {
+    <div class="review-status-banner">
+      <mat-icon>info</mat-icon>
+      <span>Your review is currently {{ currentUserReview?.status }}. You can still update it any time.</span>
+    </div>
+  }
 
   <!-- Rating Breakdown -->
   @if (ratingCount > 0) {
     <div class="rating-breakdown">
-      @for (stars of [5,4,3,2,1]; track stars; let i = $index) {
+      @for (stars of [5,4,3,2,1]; track stars) {
         <div class="breakdown-row">
           <span class="stars-label">{{ stars }} stars</span>
           <div class="progress-bar-container">
             <div 
               class="progress-bar-fill"
-              [style.width.%]="(ratingBreakdown()[i] / ratingCount * 100)">
+              [style.width.%]="(getBreakdownCount(stars) / ratingCount * 100)">
             </div>
           </div>
-          <span class="stars-count">{{ ratingBreakdown()[i] }}</span>
+          <span class="stars-count">{{ getBreakdownCount(stars) }}</span>
         </div>
       }
     </div>
@@ -82,6 +89,30 @@
             <div class="verified-purchase">
               <mat-icon>verified</mat-icon>
               <span>Verified Purchase</span>
+            </div>
+          }
+
+          <div class="review-actions">
+            <button
+              mat-button
+              type="button"
+              [disabled]="review.isOwnReview"
+              (click)="helpful.emit(review)">
+              <mat-icon>thumb_up</mat-icon>
+              <span>{{ getActionLabel(review) }}</span>
+              @if ((review.helpfulCount || 0) > 0) {
+                <strong>{{ review.helpfulCount }}</strong>
+              }
+            </button>
+          </div>
+
+          @if (review.response?.content) {
+            <div class="seller-response">
+              <div class="response-head">
+                <mat-icon>support_agent</mat-icon>
+                <strong>{{ review.response?.responderName || 'Seller response' }}</strong>
+              </div>
+              <p>{{ review.response?.content }}</p>
             </div>
           }
         </div>

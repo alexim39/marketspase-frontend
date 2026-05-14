@@ -1,0 +1,245 @@
+<section class="journey-shell">
+  <header class="journey-header">
+    <div>
+      <p class="eyebrow">Gamification</p>
+      <h1>Engagement Journey</h1>
+      <p class="subcopy">
+        Follow how your streaks, badges, campaigns, promotions, and storefront activity build into long-term growth.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a mat-stroked-button routerLink="/dashboard/leaderboard">
+        Leaderboard
+      </a>
+      <button mat-flat-button color="primary" type="button" (click)="loadDashboard()">
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state">
+      <div class="loading-card hero"></div>
+      <div class="loading-card"></div>
+      <div class="loading-card"></div>
+    </section>
+  } @else if (error()) {
+    <section class="error-state">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button type="button" (click)="loadDashboard()">Retry</button>
+    </section>
+  } @else {
+    @if (state(); as dashboard) {
+      @if (profile(); as progress) {
+        <section class="hero-panel">
+          <div class="hero-copy">
+            <span class="hero-label">Current level</span>
+            <h2>Level {{ progress.currentLevel }} · {{ progress.currentLevelTitle }}</h2>
+            <p>{{ progress.totalExperiencePoints }} XP earned across your MarketSpase journey.</p>
+          </div>
+
+          <div class="hero-status">
+            <div class="hero-stat">
+              <strong>{{ progress.totalEvents }}</strong>
+              <span>Tracked actions</span>
+            </div>
+            <div class="hero-stat">
+              <strong>{{ progress.milestonesUnlocked }}</strong>
+              <span>Milestones unlocked</span>
+            </div>
+            <div class="hero-stat">
+              <strong>{{ badgeSummary()?.badgesEarned || progress.badgesUnlocked }}</strong>
+              <span>Badges earned</span>
+            </div>
+          </div>
+
+          <div class="xp-strip">
+            <div class="xp-copy">
+              <span>{{ progress.totalExperiencePoints }} XP</span>
+              @if (progress.nextLevel) {
+                <span>{{ progress.experiencePointsToNextLevel }} XP to level {{ progress.nextLevel }}</span>
+              } @else {
+                <span>Top configured level reached</span>
+              }
+            </div>
+            <mat-progress-bar mode="determinate" [value]="progress.progressPercent"></mat-progress-bar>
+          </div>
+        </section>
+      }
+
+      <div class="stat-grid">
+        <article class="stat-card">
+          <span>Current streak</span>
+          <strong>{{ streakSummary()?.currentStreak || 0 }} days</strong>
+          <small>{{ streakSummary()?.totalPointsEarned || 0 }} streak points earned</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Withdrawable streak points</span>
+          <strong>{{ streakSummary()?.withdrawablePoints || 0 }}</strong>
+          <small>Ready to move into your wallet when you choose</small>
+        </article>
+
+        <article class="stat-card">
+          <span>Latest level-up</span>
+          <strong>{{ profile()?.recentLevelUpAt ? (profile()?.recentLevelUpAt | date:'mediumDate') : 'Not yet' }}</strong>
+          <small>{{ profile()?.lastActionKey || 'Your latest action will show here' }}</small>
+        </article>
+      </div>
+
+      <div class="journey-grid">
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>Next milestones</h3>
+            <small>{{ upcomingMilestones().length }} ahead</small>
+          </div>
+
+          @if (upcomingMilestones().length === 0) {
+            <div class="empty-state">
+              <mat-icon>auto_awesome</mat-icon>
+              <p>You have completed the current milestone ladder.</p>
+            </div>
+          } @else {
+            <div class="milestone-list">
+              @for (milestone of upcomingMilestones(); track milestone.level) {
+                <article class="milestone-item">
+                  <div class="milestone-icon" [style.background]="milestone.accentColor">
+                    <mat-icon>{{ milestone.icon }}</mat-icon>
+                  </div>
+                  <div class="milestone-copy">
+                    <strong>Level {{ milestone.level }} · {{ milestone.title }}</strong>
+                    <p>{{ milestone.description }}</p>
+                    <small>{{ milestone.experiencePointsRemaining }} XP remaining</small>
+                    @if (milestone.rewardLabel) {
+                      <span class="reward-pill">{{ milestone.rewardLabel }}</span>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>Action breakdown</h3>
+            <small>Where your XP is coming from</small>
+          </div>
+
+          @if (actionBreakdown().length === 0) {
+            <div class="empty-state">
+              <mat-icon>insights</mat-icon>
+              <p>Your action history will appear here as soon as progress starts landing.</p>
+            </div>
+          } @else {
+            <div class="breakdown-list">
+              @for (item of actionBreakdown(); track item.actionKey) {
+                <article class="breakdown-item">
+                  <div class="breakdown-title">
+                    <div class="milestone-icon small" [style.background]="item.accentColor">
+                      <mat-icon>{{ item.icon }}</mat-icon>
+                    </div>
+                    <div>
+                      <strong>{{ item.label }}</strong>
+                      <small>{{ item.totalCount }} time{{ item.totalCount === 1 ? '' : 's' }}</small>
+                    </div>
+                  </div>
+                  <span>{{ item.totalExperiencePoints }} XP</span>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      </div>
+
+      <div class="journey-grid">
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>Recent celebrations</h3>
+            <small>Fresh wins across your journey</small>
+          </div>
+
+          @if (recentCelebrations().length === 0) {
+            <div class="empty-state compact">
+              <mat-icon>celebration</mat-icon>
+              <p>Your next level-up, milestone, or badge unlock will show here.</p>
+            </div>
+          } @else {
+            <div class="celebration-list">
+              @for (celebration of recentCelebrations(); track celebration.key) {
+                <article class="celebration-item">
+                  <div class="milestone-icon small" [style.background]="celebration.accentColor">
+                    <mat-icon>{{ celebration.icon }}</mat-icon>
+                  </div>
+                  <div class="celebration-copy">
+                    <strong>{{ celebration.title }}</strong>
+                    <p>{{ celebration.description }}</p>
+                    <small>{{ celebration.happenedAt | date:'medium' }}</small>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>Recent activity</h3>
+            <small>Your latest XP entries</small>
+          </div>
+
+          @if (recentEvents().length === 0) {
+            <div class="empty-state compact">
+              <mat-icon>bolt</mat-icon>
+              <p>Once the engine records a qualifying action, it will appear here.</p>
+            </div>
+          } @else {
+            <div class="event-list">
+              @for (event of recentEvents(); track event.id) {
+                <article class="event-item">
+                  <div>
+                    <strong>{{ event.label }}</strong>
+                    <p>{{ event.description }}</p>
+                  </div>
+                  <div class="event-meta">
+                    <span>+{{ event.experiencePointsAwarded }} XP</span>
+                    <small>{{ event.awardedAt | date:'mediumDate' }}</small>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h3>Unlocked milestones</h3>
+          <small>{{ unlockedMilestones().length }} most recent</small>
+        </div>
+
+        @if (unlockedMilestones().length === 0) {
+          <div class="empty-state compact">
+            <mat-icon>military_tech</mat-icon>
+            <p>Your first level milestone will appear here once you progress further.</p>
+          </div>
+        } @else {
+          <div class="unlocked-grid">
+            @for (milestone of unlockedMilestones(); track milestone.id) {
+              <article class="unlocked-card">
+                <div class="milestone-icon small" [style.background]="milestone.accentColor">
+                  <mat-icon>{{ milestone.icon }}</mat-icon>
+                </div>
+                <strong>{{ milestone.title }}</strong>
+                <p>{{ milestone.description }}</p>
+                <small>Unlocked {{ milestone.unlockedAt | date:'mediumDate' }}</small>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+</section>

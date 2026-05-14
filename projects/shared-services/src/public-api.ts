@@ -3,6 +3,7 @@
  */
 
 export * from './lib/api-service';
+export * from './lib/api-response';
 export * from './lib/campaign.interface';
 export * from './lib/promotion.interface';
 export * from './lib/user.interface';
@@ -10,4 +11,5 @@ export * from './lib/device.service';
 export * from './lib/help-dialog.component';
 export * from './lib/format-currency.pipe';
 export * from './lib/loading.service';
-export * from './lib/currency.utils';
+export { CurrencyUtilsPipe } from './lib/currency.utils';
+export { TruncatePipe } from './lib/truncater.pipe';

@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 import { Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AboutSkeletonComponent } from './loading-skeleton/loading-skeleton.component';
-import { LoadingService } from '../../../../shared-services/src/public-api';
+import { LoadingService } from '@shared/services';
 
 @Component({
     selector: 'app-resources-index',

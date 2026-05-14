@@ -1,0 +1,208 @@
+<section class="promoted-products-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Storefront affiliate system</span>
+      <h1>Promoted Products</h1>
+      <p>Track affiliate links, clicks, sales, reserved commission, and delivery-release progress.</p>
+    </div>
+
+    <button mat-raised-button color="primary" type="button" (click)="loadDashboard(); loadAffiliateOrders()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="state-panel">
+      <mat-spinner diameter="42"></mat-spinner>
+      <span>Loading promotion analytics...</span>
+    </div>
+  } @else if (error()) {
+    <div class="state-panel error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button mat-button type="button" (click)="loadDashboard()">Try again</button>
+    </div>
+  } @else {
+    <div class="summary-grid">
+      @for (card of summaryCards(); track card.label) {
+        <mat-card class="summary-card" appearance="outlined">
+          <mat-icon>{{ card.icon }}</mat-icon>
+          <div>
+            <span>{{ card.label }}</span>
+            <strong>
+              @if (card.money) {
+                {{ card.value | currencyUtils:currency() }}
+              } @else {
+                {{ card.value | number }}
+              }
+            </strong>
+          </div>
+        </mat-card>
+      }
+    </div>
+
+    <div class="content-layout">
+      <section class="analytics-panel">
+        <div class="section-toolbar">
+          <div>
+            <h2>Promotion Performance</h2>
+            <p>{{ filteredPromotions().length }} active promotion{{ filteredPromotions().length === 1 ? '' : 's' }}</p>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Search products</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Product, store, code">
+          </mat-form-field>
+        </div>
+
+        @if (filteredPromotions().length === 0) {
+          <div class="empty-state">
+            <mat-icon>inventory_2</mat-icon>
+            <h3>No promoted products yet</h3>
+            <p>Create affiliate links from Browse Products to start tracking performance here.</p>
+            <a mat-raised-button color="primary" routerLink="/dashboard/stores/products">
+              Browse Products
+            </a>
+          </div>
+        } @else {
+          <div class="promotion-list">
+            @for (promotion of filteredPromotions(); track promotion.trackingId) {
+              <article class="promotion-card">
+                <div class="product-media">
+                  @if (promotion.productImage) {
+                    <img [src]="promotion.productImage" [alt]="promotion.productName">
+                  } @else {
+                    <mat-icon>inventory_2</mat-icon>
+                  }
+                </div>
+
+                <div class="promotion-main">
+                  <div class="promotion-heading">
+                    <div>
+                      <h3>{{ promotion.productName }}</h3>
+                      <p>{{ promotion.store?.name || 'MarketSpase Store' }}</p>
+                    </div>
+                    <mat-chip [class]="performanceClass(promotion)">
+                      {{ performanceClass(promotion) | titlecase }}
+                    </mat-chip>
+                  </div>
+
+                  <div class="metric-row">
+                    <div>
+                      <span>Views</span>
+                      <strong>{{ promotion.views | number }}</strong>
+                    </div>
+                    <div>
+                      <span>Clicks</span>
+                      <strong>{{ promotion.clicks | number }}</strong>
+                    </div>
+                    <div>
+                      <span>Sales</span>
+                      <strong>{{ promotion.conversions | number }}</strong>
+                    </div>
+                    <div>
+                      <span>Commission</span>
+                      <strong>{{ promotion.earnings | currencyUtils:currency() }}</strong>
+                    </div>
+                  </div>
+
+                  <div class="progress-group">
+                    <div>
+                      <span>Click-through rate</span>
+                      <strong>{{ promotion.clickThroughRate | number:'1.1-1' }}%</strong>
+                    </div>
+                    <div class="bar">
+                      <span [style.width.%]="promotion.clickThroughRate > 100 ? 100 : promotion.clickThroughRate"></span>
+                    </div>
+                  </div>
+
+                  <div class="promotion-actions">
+                    <button mat-stroked-button type="button" (click)="copyLink(promotion)">
+                      <mat-icon>content_copy</mat-icon>
+                      Copy Link
+                    </button>
+                    <button mat-button type="button" (click)="shareOnWhatsApp(promotion)">
+                      <mat-icon>chat</mat-icon>
+                      WhatsApp
+                    </button>
+                    <a mat-button [routerLink]="['/product', promotion.productId]" [queryParams]="{ track: promotion.uniqueCode, ref: promotion.uniqueId }">
+                      <mat-icon>open_in_new</mat-icon>
+                      View Page
+                    </a>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <aside class="sales-panel">
+        <div class="sales-header">
+          <div>
+            <h2>Affiliate Sales</h2>
+            <p>Admin-vetted release workflow</p>
+          </div>
+          @if (ordersLoading()) {
+            <mat-spinner diameter="24"></mat-spinner>
+          }
+        </div>
+
+        @if (affiliateOrders().length === 0) {
+          <div class="mini-empty">
+            <mat-icon>receipt_long</mat-icon>
+            <span>No affiliate sales yet.</span>
+          </div>
+        } @else {
+          <div class="order-list">
+            @for (order of affiliateOrders(); track order._id) {
+              <article class="order-card">
+                <div class="order-top">
+                  <div>
+                    <strong>{{ order.orderNumber }}</strong>
+                    <span>{{ firstProductName(order) }}</span>
+                  </div>
+                  <mat-chip>{{ order.escrowStatus | titlecase }}</mat-chip>
+                </div>
+
+                <div class="order-money">
+                  <span>Commission</span>
+                  <strong>{{ order.totalPromoterCommission | currencyUtils:currency() }}</strong>
+                </div>
+
+                @if (order.releaseRequest?.status === 'requested') {
+                  <div class="release-status">
+                    <mat-icon>hourglass_top</mat-icon>
+                    Waiting for admin review
+                  </div>
+                } @else if (order.releaseRequest?.status === 'rejected') {
+                  <div class="release-status rejected">
+                    <mat-icon>report</mat-icon>
+                    Release rejected. Update proof and resubmit.
+                  </div>
+                }
+
+                @if (canRequestRelease(order)) {
+                  <label class="release-note">
+                    Delivery note or proof summary
+                    <textarea
+                      rows="3"
+                      [value]="releaseNotes()[order._id] || ''"
+                      (input)="setReleaseNote(order._id, $any($event.target).value)"
+                      placeholder="Example: Buyer confirmed receipt on WhatsApp. Delivery completed today."></textarea>
+                  </label>
+                  <button mat-raised-button color="primary" type="button" (click)="requestRelease(order)">
+                    <mat-icon>task_alt</mat-icon>
+                    Request Release Review
+                  </button>
+                }
+              </article>
+            }
+          </div>
+        }
+      </aside>
+    </div>
+  }
+</section>

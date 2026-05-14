@@ -3,7 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { from, Subject, switchMap, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -191,14 +191,21 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
 
   private handleAuthSuccess(response: any): void {
     this.setLoadingState('Verifying', true); // This sets loading for backend verification
-    if (response.success) {    
+    if (response.success && response.user) {    
       const signupData = {
-        ...response.user,
+        uid: response.user.uid,
+        displayName: response.user.displayName,
+        email: response.user.email,
+        photoURL: response.user.photoURL,
+        providerData: response.user.providerData,
         referralCode: this.referralCode, // Include referral code in signup data
         userDevice: this.userDevice,
       }; 
-        this.userService.auth(signupData)
-        .pipe(takeUntil(this.destroy$))
+        from(response.user.getIdToken() as Promise<string>)
+        .pipe(
+          switchMap((idToken: string) => this.userService.auth(signupData, idToken)),
+          takeUntil(this.destroy$)
+        )
         .subscribe({
           next: (response) => {
             if (response.success) {

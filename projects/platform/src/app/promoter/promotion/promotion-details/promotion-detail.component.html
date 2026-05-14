@@ -29,7 +29,6 @@
             [countdown]="countdownSignal()"
             [isNearingExpiration]="isNearingExpiration()"
             (share)="shareToWhatsApp()"
-            (download)="downloadPromotion(promotion._id)"
           />
           
           <app-promotion-metrics 
@@ -51,7 +50,8 @@
             [promotion]="promotion"
             [isSubmissionExpired]="isSubmissionExpired()"
             [isNearingExpiration]="isNearingExpiration()"
-            (download)="downloadPromotion(promotion._id)"
+            (copyLink)="copyPromotionLink()"
+            (share)="shareToWhatsApp()"
             (contactSupport)="contactSupport()"
           />
         </div>

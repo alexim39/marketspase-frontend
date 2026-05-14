@@ -1,0 +1,72 @@
+<div class="ai-assistant-layout">
+  <!-- Mobile Header -->
+   @if (isMobile) {
+    <mat-toolbar color="primary" class="mobile-header">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="brand">AI Sales Assistant</span>
+      <span class="spacer"></span>
+      <button mat-icon-button [matBadge]="unreadCount" [matBadgeHidden]="unreadCount === 0">
+        <mat-icon>notifications</mat-icon>
+      </button>
+    </mat-toolbar>
+  }
+
+  <!-- Desktop Header -->
+   @if (!isMobile) {
+    <mat-toolbar color="primary" class="desktop-header">
+      <span class="brand">AI Sales Assistant</span>
+      <span class="spacer"></span>
+      <nav class="top-nav">
+        <a *ngFor="let item of navItems" 
+          [routerLink]="item.path" 
+          routerLinkActive="active"
+          [matBadge]="item.badge || ''" 
+          [matBadgeHidden]="!item.badge">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      </nav>
+      <span class="spacer"></span>
+      <!-- <button mat-icon-button>
+        <mat-icon>account_circle</mat-icon>
+      </button> -->
+    </mat-toolbar>
+  }
+
+  <!-- Sidenav for Mobile -->
+  <mat-sidenav-container class="sidenav-container" [hasBackdrop]="isMobile">
+    <mat-sidenav #sidenav 
+                 [mode]="isMobile ? 'over' : 'side'" 
+                 [opened]="sidenavOpened"
+                 (closedStart)="sidenavOpened = false"
+                 class="sidebar-nav">
+      <div class="sidenav-header">
+        <span class="brand">Menu</span>
+        @if (isMobile) {
+          <button mat-icon-button (click)="toggleSidenav()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+      <mat-nav-list>
+        <a mat-list-item 
+           *ngFor="let item of navItems" 
+           [routerLink]="item.path"
+           routerLinkActive="active-link"
+           (click)="isMobile && toggleSidenav()">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+          @if (item.badge) {
+            <span matListItemMeta class="badge">{{ item.badge }}</span>
+          }
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="content">
+      <router-outlet/>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from '../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 export interface TransactionInterface {
   message: string;
@@ -31,6 +31,14 @@ export interface WithdrawalRequestData {
   amount: number;
   userId: string;
   saveAccount: boolean;
+  role?: string;
+  payableAmount?: number;
+  totalDeduction?: number;
+  feeAmount?: number;
+  feeRate?: number;
+  finalAmount?: number;
+  currency?: string;
+  quote?: any;
 }
 
 // Transaction Summary Interfaces

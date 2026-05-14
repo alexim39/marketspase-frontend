@@ -8,7 +8,8 @@ import {
   computed,
   DestroyRef,
   Signal,
-  OnDestroy
+  OnDestroy,
+  effect
 } from '@angular/core';
 import {
   FormBuilder,
@@ -30,7 +31,7 @@ import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserService } from '../../../common/services/user.service';
-import { UserInterface } from '../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 import { ProfileService } from '../profile.service';
 
 @Component({
@@ -68,17 +69,24 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   public isLoading = signal<boolean>(false);
   private skillsSig = signal<string[]>([]);
   private hobbiesSig = signal<string[]>([]);
+  private sellingPointsSig = signal<string[]>([]);
 
   // Computed signals provide a read-only, memoized view of the private signals
   public skills = computed(() => this.skillsSig());
   public hobbies = computed(() => this.hobbiesSig());
+  public uniqueSellingPoints = computed(() => this.sellingPointsSig());
+  public isMarketer = computed(() => this.user()?.role === 'marketer');
 
   // Use FormBuilder for a cleaner form group definition
   public professionalForm = this.fb.group({
     jobTitle: ['', [Validators.required, Validators.maxLength(50)]],
+    profileHeadline: ['', [Validators.maxLength(160)]],
     certificate: ['', [Validators.required]],
     skills: [[] as string[], [Validators.required]],
     hobbies: [[] as string[], [Validators.required]],
+    brandName: ['', [Validators.maxLength(120)]],
+    brandSummary: ['', [Validators.maxLength(1000)]],
+    uniqueSellingPoints: [[] as string[]],
     userId: [''],
   });
 
@@ -98,9 +106,14 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
 
   public readonly separatorKeysCodes = [ENTER, COMMA] as const;
 
+  constructor() {
+    effect(() => {
+      this.initializeFormWithUserData();
+    });
+  }
+
   ngOnInit(): void {
-    // Call the initializer method to set form values from the input signal
-    this.initializeFormWithUserData();
+    this.toggleMarketerControls(this.isMarketer());
   }
 
   
@@ -117,20 +130,47 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
       // Use patchValue to set form controls based on available data
       this.professionalForm.patchValue({
         jobTitle: userData.professionalInfo?.jobTitle || '',
+        profileHeadline: userData.professionalInfo?.profileHeadline || '',
         certificate: userData.professionalInfo?.education?.certificate || '',
+        brandName: userData.professionalInfo?.businessProfile?.brandName || '',
+        brandSummary: userData.professionalInfo?.businessProfile?.brandSummary || '',
         userId: userData._id || '',
-      });
+      }, { emitEvent: false });
 
       // Initialize the skills and hobbies signals with user data
       if (userData.professionalInfo?.skills) {
         this.skillsSig.set(userData.professionalInfo.skills);
+      } else {
+        this.skillsSig.set([]);
       }
       if (userData.interests?.hobbies) {
         this.hobbiesSig.set(userData.interests.hobbies);
+      } else {
+        this.hobbiesSig.set([]);
+      }
+      if (userData.professionalInfo?.businessProfile?.uniqueSellingPoints) {
+        this.sellingPointsSig.set(userData.professionalInfo.businessProfile.uniqueSellingPoints);
+      } else {
+        this.sellingPointsSig.set([]);
       }
       // Update form controls with the new signal values
       this.professionalForm.get('skills')?.setValue(this.skillsSig());
       this.professionalForm.get('hobbies')?.setValue(this.hobbiesSig());
+      this.professionalForm.get('uniqueSellingPoints')?.setValue(this.sellingPointsSig());
+      this.toggleMarketerControls(userData.role === 'marketer');
+    }
+  }
+
+  private toggleMarketerControls(isMarketer: boolean): void {
+    const controls = ['brandName', 'brandSummary', 'uniqueSellingPoints'];
+    for (const controlName of controls) {
+      const control = this.professionalForm.get(controlName);
+      if (!control) continue;
+      if (isMarketer) {
+        control.enable({ emitEvent: false });
+      } else {
+        control.disable({ emitEvent: false });
+      }
     }
   }
 
@@ -142,7 +182,12 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading.set(true); // Update the loading signal
-    const professionalData = this.professionalForm.value;
+    const professionalData = {
+      ...this.professionalForm.getRawValue(),
+      skills: this.skillsSig(),
+      hobbies: this.hobbiesSig(),
+      uniqueSellingPoints: this.sellingPointsSig(),
+    };
 
     this.profileService.updateProfession(professionalData)
     .pipe(
@@ -208,5 +253,19 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
   removeHobby(hobby: string): void {
     this.hobbiesSig.update(currentHobbies => currentHobbies.filter(h => h !== hobby));
     this.professionalForm.get('hobbies')?.setValue(this.hobbiesSig());
+  }
+
+  addSellingPoint(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.sellingPointsSig.update((current) => [...current, value]);
+      this.professionalForm.get('uniqueSellingPoints')?.setValue(this.sellingPointsSig());
+    }
+    event.chipInput?.clear();
+  }
+
+  removeSellingPoint(point: string): void {
+    this.sellingPointsSig.update((current) => current.filter((item) => item !== point));
+    this.professionalForm.get('uniqueSellingPoints')?.setValue(this.sellingPointsSig());
   }
 }

@@ -431,7 +431,9 @@
         justify-content: space-between;
         gap: $spacing-2;
         
-        .details-btn, .promote-btn {
+        .details-btn,
+        .buy-btn,
+        .promote-btn {
           flex: 1;
           
           mat-icon {
@@ -440,36 +442,26 @@
         }
 
         .share-btn {
-          // WhatsApp Signature Colors
-          $whatsapp-dark-green: #128c7e;
-
-          border-color: $whatsapp-dark-green !important;
-          color: $whatsapp-dark-green !important;
-          border-radius: 25px; // Rounded "pill" shape
-          padding: 0 20px;
-          font-weight: 600;
-          transition: all 0.3s ease;
+          flex: 0 0 40px;
+          width: 40px;
+          height: 40px;
+          color: $text-secondary !important;
+          background: transparent;
+          border-radius: $border-radius-full;
+          transition: all 0.2s ease;
 
           mat-icon {
-            margin-right: 8px;
-            color: $whatsapp-dark-green;
+            margin: 0;
+            color: inherit;
           }
 
           &:hover {
-            background-color: rgba($whatsapp-dark-green, 0.05) !important;
-            border-color: $whatsapp-dark-green !important;
-            color: $whatsapp-dark-green !important;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-
-            mat-icon {
-              color: $whatsapp-dark-green;
-            }
+            background-color: rgba(18, 140, 126, 0.08) !important;
+            color: #128c7e !important;
           }
 
           &:active {
             transform: translateY(0);
-            background-color: rgba($whatsapp-dark-green, 0.1) !important;
           }
         }
       }

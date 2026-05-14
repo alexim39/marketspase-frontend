@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
-import { ApiService, PromotionInterface } from '../../../../shared-services/src/public-api';
+import { ApiService, PromotionInterface } from '@shared/services';
 import { HttpParams } from '@angular/common/http';
 
 // Cache entry interface

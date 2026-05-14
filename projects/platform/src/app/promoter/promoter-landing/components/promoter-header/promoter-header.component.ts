@@ -1,6 +1,6 @@
 import { Component, Input, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserInterface } from '../../../../../../../shared-services/src/public-api';
+import { UserInterface } from '@shared/services';
 
 interface CampaignMetrics {
   totalEarnings: number;

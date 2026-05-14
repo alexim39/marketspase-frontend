@@ -17,6 +17,12 @@ export const StoreRoutes: Routes = [
     },
 
     {
+        path: 'orders',
+        loadComponent: () => import('./orders/storefront-orders.component').then(c => c.StorefrontOrdersComponent),
+        title: "Storefront Orders - Delivery and Release Review",
+    },
+
+    {
         path: 'create',
         loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
         title: "Create New Store - Setup your Marketer Store",
@@ -57,11 +63,17 @@ export const StoreRoutes: Routes = [
         loadComponent: () => import('./marketer/products/product-detail/marketer-product-detail.component').then(c => c.MarketerProductDetailComponent),
         title: "Product Details - View and Manage Product Information",
     },
+
+     {
+        path: 'store/:storeId/products',
+        loadComponent: () => import('./promoter/store-products-list/store-products-list.component').then(c => c.StoreProductsListComponent),
+        title: "Store Products - Browse Published Products",
+    },
     
-   /*  {
+    {
         path: 'promotions',
         loadComponent: () => import('./promoter/promoted-products/promoted-products.component').then(c => c.PromotedProductsComponent),
-        title: "Promoted products - View and Manage Product you are promoting",
-    }, */
+        title: "Promoted Products - Affiliate Analytics",
+    },
     
 ]

@@ -23,7 +23,7 @@ import { CommentComponent } from '../../comment/comment.component';
 import { timeAgo as timeAgoUtil } from '../../../../common/utils/time.util';
 import { SanitizeHtmlPipe } from '../../../../common/pipes/sanitize-html.pipe';
 import { UserService } from '../../../../common/services/user.service';
-import { ApiService } from '../../../../../../../shared-services/src/public-api';
+import { ApiService } from '@shared/services';
 
 @Component({
   selector: 'app-thread-detail',
@@ -62,6 +62,7 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
   loadingStates = false;
   isSubmitting = false;
   error: string | null = null;
+  selectedPollOptions = new Set<string>();
 
   private userService = inject(UserService);
   public user = this.userService.user;
@@ -88,7 +89,7 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
 
   getMediaType(media: Thread['media']): string {
     if (!media) return '';
-    const extension = media.filename.split('.').pop()?.toLowerCase();
+    const extension = media.filename?.split('.').pop()?.toLowerCase();
     
     switch (media.type) {
       case 'image':
@@ -117,6 +118,7 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
         this.loadingStates = false;
         if (response.data) {
           this.comments = response.data.comments || [];
+          this.selectedPollOptions.clear();
           this.cd.markForCheck();
         }
       },
@@ -191,8 +193,8 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (updatedComment) => {
-        if (updatedComment) {
-          this.updateCommentInList(updatedComment);
+        if (updatedComment?.data) {
+          this.updateCommentInList(updatedComment.data);
           this.cd.markForCheck();
         }
       },
@@ -250,5 +252,56 @@ export class ThreadDetailComponent implements OnInit, OnDestroy {
 
   viewProfile(userId: string) {
     this.router.navigate(['/dashboard/profile', userId]);
+  }
+
+  toggleFollowThread(): void {
+    if (!this.thread || !this.user()) return;
+
+    this.forumService.followThread(this.thread._id).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        this.thread = response.data?.thread || this.thread;
+        this.cd.markForCheck();
+      },
+      error: () => this.showError('Failed to update thread follow')
+    });
+  }
+
+  togglePollOption(optionId: string): void {
+    if (!this.thread?.poll) return;
+
+    if (this.thread.poll.allowMultiple) {
+      if (this.selectedPollOptions.has(optionId)) {
+        this.selectedPollOptions.delete(optionId);
+      } else {
+        this.selectedPollOptions.add(optionId);
+      }
+    } else {
+      this.selectedPollOptions = new Set([optionId]);
+    }
+    this.cd.markForCheck();
+  }
+
+  submitPollVote(): void {
+    if (!this.thread?.poll || !this.user() || this.selectedPollOptions.size === 0) return;
+
+    this.forumService.voteOnPoll(this.thread._id, [...this.selectedPollOptions]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (response) => {
+        this.thread = response.data || this.thread;
+        this.selectedPollOptions.clear();
+        this.snackBar.open('Vote recorded', 'Close', { duration: 2500 });
+        this.cd.markForCheck();
+      },
+      error: (error) => {
+        this.showError(error?.error?.message || 'Failed to vote on poll');
+      }
+    });
+  }
+
+  isPollOptionSelected(optionId: string): boolean {
+    return this.selectedPollOptions.has(optionId);
   }
 }

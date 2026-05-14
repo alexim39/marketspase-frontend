@@ -1,172 +1,236 @@
 <mat-card class="username-card">
-    <mat-card-header>
+  <mat-card-header>
     <mat-card-title class="username-title">
-        <mat-icon class="username-icon">alternate_email</mat-icon>
-        Customize Your Profile URL
+      <mat-icon class="username-icon">alternate_email</mat-icon>
+      Public Identity
     </mat-card-title>
     <mat-card-subtitle class="username-subtitle">
-        Choose a unique username that will be part of your profile, store and referral link
+      Manage the username, profile links, and referral URL people use to find you across MarketSpase
     </mat-card-subtitle>
-    </mat-card-header>
+  </mat-card-header>
 
-    <mat-divider></mat-divider>
+  <mat-divider></mat-divider>
 
-    <mat-card-content>
+  <mat-card-content>
     <form [formGroup]="usernameForm" class="username-form">
-        <div class="form-section">
+      <div class="form-section">
+        <div class="section-header">
+          <div>
+            <h3>Profile URL</h3>
+            <p>Your username powers your public profile, store link, and referral link.</p>
+          </div>
+          <button
+            mat-icon-button
+            (click)="showHelp()"
+            matTooltip="Username guidelines"
+            type="button"
+            class="header-help-button"
+          >
+            <mat-icon>help_outline</mat-icon>
+          </button>
+        </div>
+
         <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Username</mat-label>
-            <input
+          <mat-label>Username</mat-label>
+          <input
             matInput
             formControlName="username"
             required
             placeholder="Enter your unique username"
-            />
-            <button
-            mat-icon-button
-            matSuffix
-            (click)="showHelp()"
-            matTooltip="Username guidelines"
-            type="button"
-            >
-            <mat-icon>help_outline</mat-icon>
-            </button>
-            <mat-hint>3-30 characters, letters, numbers and underscores only</mat-hint>
-            @if (usernameForm.get('username')?.hasError('required')) {
+          />
+          <mat-hint>3-30 characters, letters, numbers and underscores only</mat-hint>
+          @if (usernameForm.get('username')?.hasError('required')) {
             <mat-error>Username is required</mat-error>
-            }
-            @if (usernameForm.get('username')?.hasError('pattern')) {
+          }
+          @if (usernameForm.get('username')?.hasError('pattern')) {
             <mat-error>Only letters, numbers and underscores allowed</mat-error>
-            }
-            @if (usernameForm.get('username')?.hasError('minlength')) {
+          }
+          @if (usernameForm.get('username')?.hasError('minlength')) {
             <mat-error>Minimum 3 characters required</mat-error>
-            }
-            @if (usernameForm.get('username')?.hasError('maxlength')) {
+          }
+          @if (usernameForm.get('username')?.hasError('maxlength')) {
             <mat-error>Maximum 30 characters allowed</mat-error>
-            }
-            @if (usernameForm.get('username')?.hasError('restrictedWord')) {
+          }
+          @if (usernameForm.get('username')?.hasError('restrictedWord')) {
             <mat-error>This username contains a restricted word.</mat-error>
-            }
+          }
         </mat-form-field>
 
         <div class="url-preview">
-            <div class="preview-label">
+          <div class="preview-label">
             <mat-icon>link</mat-icon>
             <span>Your personal URL will be:</span>
-            </div>
-            <div class="preview-value">
+          </div>
+          <div class="preview-value">
             marketspase.com/{{ username() | lowercase }}
-            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header section-header--stacked">
+          <div>
+            <h3>Linked Social Profiles</h3>
+            <p>These links strengthen trust on your profile and help people discover your brand outside the app.</p>
+          </div>
+          <div class="profile-count">
+            <mat-icon>share</mat-icon>
+            <span>{{ connectedProfilesCount() }} linked</span>
+          </div>
         </div>
+
+        <div class="social-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Website</mat-label>
+            <input matInput formControlName="website" placeholder="https://yourbrand.com" />
+            <mat-icon matSuffix>language</mat-icon>
+            <mat-hint>Add your main site or portfolio</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Instagram</mat-label>
+            <input matInput formControlName="instagram" placeholder="@yourhandle or full URL" />
+            <mat-icon matSuffix>photo_camera</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>TikTok</mat-label>
+            <input matInput formControlName="tiktok" placeholder="@yourhandle or full URL" />
+            <mat-icon matSuffix>smart_display</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Facebook</mat-label>
+            <input matInput formControlName="facebook" placeholder="Page name or full URL" />
+            <mat-icon matSuffix>thumb_up</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>X / Twitter</mat-label>
+            <input matInput formControlName="x" placeholder="@yourhandle or full URL" />
+            <mat-icon matSuffix>alternate_email</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>YouTube</mat-label>
+            <input matInput formControlName="youtube" placeholder="Channel URL" />
+            <mat-icon matSuffix>play_circle</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field social-grid__full">
+            <mat-label>LinkedIn</mat-label>
+            <input matInput formControlName="linkedin" placeholder="Profile or company URL" />
+            <mat-icon matSuffix>badge</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
     </form>
 
-    <!-- Referral Section -->
-    @if (referralStats() && usernameForm.get('username')?.valid) {
-        <div class="referral-section">
+    @if (referralStats(); as stats) {
+      @if (usernameForm.get('username')?.valid) {
+      <div class="referral-section">
         <div class="referral-info">
-            <h4 class="referral-title">
+          <h4 class="referral-title">
             <mat-icon class="referral-icon">card_giftcard</mat-icon>
             Your Referral Program
-            </h4>
-            
-            <div class="referral-stats">
+          </h4>
+
+          <div class="referral-stats">
             <div class="stat-item">
-                <span class="stat-label">Total Referrals:</span>
-                <span class="stat-value">{{ referralStats().totalReferrals }}</span>
+              <span class="stat-label">Total Referrals:</span>
+              <span class="stat-value">{{ stats.totalReferrals }}</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Pending Referrals:</span>
-                <span class="stat-value">{{ referralStats().pendingReferrals }}</span>
+              <span class="stat-label">Pending Referrals:</span>
+              <span class="stat-value">{{ stats.pendingReferrals }}</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Completed Referrals:</span>
-                <span class="stat-value">{{ referralStats().paidReferrals }}</span>
+              <span class="stat-label">Completed Referrals:</span>
+              <span class="stat-value">{{ stats.paidReferrals }}</span>
             </div>
             <div class="stat-item earnings">
-                <span class="stat-label">Total Earned:</span>
-                <span class="stat-value">₦{{ referralStats().totalEarned }}</span>
+              <span class="stat-label">Total Earned:</span>
+              <span class="stat-value">₦{{ stats.totalEarned }}</span>
             </div>
-            @if (referralStats().estimatedEarnings > 0) {
-                <div class="stat-item potential">
+            @if (stats.estimatedEarnings > 0) {
+              <div class="stat-item potential">
                 <span class="stat-label">Potential Earnings:</span>
-                <span class="stat-value">₦{{ referralStats().estimatedEarnings }}</span>
-                </div>
+                <span class="stat-value">₦{{ stats.estimatedEarnings }}</span>
+              </div>
             }
-            </div>
+          </div>
 
-            <div class="referral-link-container">
+          <div class="referral-link-container">
             <label class="link-label">Your Referral Link:</label>
             <div class="referral-link">
-                <code class="link-code">{{ referralStats().referralLink }}</code>
-                <button 
-                mat-icon-button 
-                (click)="copyReferralLink()" 
+              <code class="link-code">{{ stats.referralLink }}</code>
+              <button
+                mat-icon-button
+                (click)="copyReferralLink()"
                 matTooltip="Copy referral link"
                 class="copy-button"
-                >
+              >
                 <mat-icon>content_copy</mat-icon>
-                </button>
+              </button>
             </div>
-            </div>
+          </div>
 
-            @if (referralStats()) {
-            <div class="sharing-options">
-                <h5>Share Your Referral Link:</h5>
-                <div class="share-buttons">
-                <button mat-button (click)="shareOnWhatsApp()">
-                    <mat-icon>chat</mat-icon>
-                    WhatsApp
-                </button>
-                <button mat-button (click)="shareOnFacebook()">
-                    <mat-icon>facebook</mat-icon>
-                    Facebook
-                </button>
-                <button mat-button (click)="copyReferralLink()">
-                    <mat-icon>link</mat-icon>
-                    Copy Link
-                </button>
-                </div>
+          <div class="sharing-options">
+            <h5>Share Your Referral Link:</h5>
+            <div class="share-buttons">
+              <button mat-button (click)="shareOnWhatsApp()">
+                <mat-icon>chat</mat-icon>
+                WhatsApp
+              </button>
+              <button mat-button (click)="shareOnFacebook()">
+                <mat-icon>facebook</mat-icon>
+                Facebook
+              </button>
+              <button mat-button (click)="copyReferralLink()">
+                <mat-icon>link</mat-icon>
+                Copy Link
+              </button>
             </div>
-            }
+          </div>
 
-            <div class="referral-rules">
+          <div class="referral-rules">
             <h5 class="rules-title">How it works:</h5>
             <ul class="rules-list">
-                <li>
+              <li>
                 <strong>Earn ₦1,250</strong> when a <strong>marketer</strong> you refer makes their first payment (minimum ₦2,000)
-                </li>
-                <!-- <li>
+              </li>
+              <!-- <li>
                 <strong>Earn ₦250</strong> when a <strong>promoter</strong> you refer completes their first paid promotion
-                </li> -->
-                <li>
+              </li> -->
+              <li>
                 <strong>One-time bonus:</strong> Each person can only generate one bonus for you, regardless of role changes
-                </li>
-                <li>
+              </li>
+              <li>
                 <strong>Instant payment:</strong> Bonuses are paid automatically to your wallet
-                </li>
+              </li>
             </ul>
-            </div>
+          </div>
         </div>
-        </div>
+      </div>
+      }
     }
-    </mat-card-content>
+  </mat-card-content>
 
-    <mat-divider/>
+  <mat-divider/>
 
-    <mat-card-actions class="form-actions">
+  <mat-card-actions class="form-actions">
     <button
-        mat-flat-button
-        color="primary"
-        class="save-button"
-        [disabled]="usernameForm.invalid || isLoading()"
-        (click)="onSubmit()"
+      mat-flat-button
+      color="primary"
+      class="save-button"
+      [disabled]="usernameForm.invalid || isLoading()"
+      (click)="onSubmit()"
     >
-        @if (!isLoading()) {
-        <span>Save Changes</span>
-        } @else {
+      @if (!isLoading()) {
+        <span>Save Public Identity</span>
+      } @else {
         <mat-spinner diameter="20"></mat-spinner>
-        }
+      }
     </button>
-    </mat-card-actions>
+  </mat-card-actions>
 </mat-card>

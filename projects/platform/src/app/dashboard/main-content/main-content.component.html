@@ -1,6 +1,6 @@
-<promo-banner [user]="user" />
-<profile-notifier-banner [user]="user" />
-<general-msg-notifier-banner [user]="user" />
+<promo-banner [user]="user()" />
+<profile-notifier-banner [user]="user()" />
+<general-msg-notifier-banner [user]="user()" />
 
 <!-- Dashboard Content -->
 <div class="dashboard-content">
@@ -50,15 +50,21 @@
         (viewWallet)="viewWallet()"
       />
 
-      <!-- Recent Activity -->
-      <recent-activity
-        [activities]="recentActivity()"
-        [userRole]="user()?.role"
-        (viewAll)="viewWallet()"
-        (activityClick)="onActivityClick($event)"
-        (browseCampaigns)="browseCampaign()"
-        (createCampaign)="createCampaign()"
-      />
+      <div class="activity-side-panel">
+        <app-gamification-spotlight />
+
+        <app-badge-feed />
+
+        <!-- Recent Activity -->
+        <recent-activity
+          [activities]="recentActivity()"
+          [userRole]="user()?.role"
+          (viewAll)="viewWallet()"
+          (activityClick)="onActivityClick($event)"
+          (browseCampaigns)="browseCampaign()"
+          (createCampaign)="createCampaign()"
+        />
+      </div>
     </div>
 
     <!-- Trending & Connections Grid -->
@@ -68,6 +74,8 @@
         [following]="followingTrends()"
         [categories]="trendingCategories()"
         [activeCategory]="activeTrendingCategory()"
+        [activeUsers]="trendingActiveUsers()"
+        [updatedLabel]="liveActivityUpdatedLabel()"
         (viewAll)="viewTrending()"
         (trendClick)="onTrendClick($event)"
         (follow)="followTrend($event)"
@@ -83,7 +91,7 @@
         [activeFilter]="activeConnectionFilter()"
         (viewAll)="viewAllConnections()"
         (connect)="connectUser($event)"
-        (message)="onMessageConnection($event)"
+        (view)="onViewConnection($event)"
         (profileClick)="onProfileClick($event)"
         (filterChange)="onConnectionFilterChange($event)"
         (refresh)="refreshConnections()"

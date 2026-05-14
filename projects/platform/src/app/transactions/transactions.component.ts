@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
-import { CurrencyUtilsPipe, DeviceService, UserInterface } from '../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
 import { Transaction } from './transactions.model';
 import { ShortenIdPipe } from './shorten-id.pipe';
 import { MatDialog } from '@angular/material/dialog';

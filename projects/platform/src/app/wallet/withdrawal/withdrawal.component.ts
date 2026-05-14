@@ -45,9 +45,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CurrencyUtilsPipe, HelpDialogComponent, UserInterface } from '../../../../../shared-services/src/public-api';
+import { CurrencyUtilsPipe, HelpDialogComponent, UserInterface } from '@shared/services';
 import { UserService } from '../../common/services/user.service';
 import { TransactionSummaryComponent } from '../../transactions/summary/transaction-summary.component';
+import { CurrencyQuote, PaymentCurrencyService, WalletOverviewResponse } from '../../common/services/payment-currency.service';
 
 interface BankInterface {
   code: string;
@@ -98,6 +99,7 @@ export class WithdrawalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
   private readonly withdrawalService = inject(WithdrawalService);
+  private readonly paymentCurrencyService = inject(PaymentCurrencyService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -113,6 +115,10 @@ export class WithdrawalComponent implements OnInit {
   readonly isResolvingAccount = signal<boolean>(false);
   readonly banks = signal<BankInterface[]>([]);
   readonly savedAccounts = signal<SavedAccountInterface[]>([]);
+  readonly walletOverview = signal<WalletOverviewResponse['data'] | null>(null);
+  readonly selectedCurrency = signal<string>('NGN');
+  readonly withdrawalQuote = signal<CurrencyQuote | null>(null);
+  readonly isQuoteLoading = signal<boolean>(false);
 
   // Role-specific signals
   readonly userRole = computed(() => this.user()?.role || 'promoter');
@@ -140,7 +146,8 @@ export class WithdrawalComponent implements OnInit {
   // Role-specific balance signals
   readonly roleAvailableBalance = computed(() => this.roleWallet()?.balance || 0);
   readonly rolePendingBalance = computed(() => this.roleWallet()?.reserved || 0);
-  readonly roleCurrency = computed(() => this.roleWallet()?.currency || 'NGN');
+  readonly roleCurrency = computed(() => this.selectedCurrency() || this.roleWallet()?.currency || 'NGN');
+  readonly walletBaseCurrency = computed(() => this.walletOverview()?.baseCurrency || this.roleWallet()?.baseCurrency || this.roleWallet()?.currency || 'NGN');
 
   // Constants
   public readonly MIN_WITHDRAWAL_AMOUNT = 100;
@@ -165,6 +172,13 @@ export class WithdrawalComponent implements OnInit {
   }
 
   private updateBalancesFromRole(): void {
+    if (this.walletOverview()) {
+      const selectedCurrency = this.selectedCurrency() || this.walletOverview()?.displayCurrency || this.walletBaseCurrency();
+      this.availableBalance.set(Number(this.walletOverview()?.balancesByCurrency?.[selectedCurrency] ?? 0));
+      this.pendingBalance.set(Number(this.walletOverview()?.reservedByCurrency?.[selectedCurrency] ?? 0));
+      return;
+    }
+
     this.availableBalance.set(this.roleAvailableBalance());
     this.pendingBalance.set(this.rolePendingBalance());
   }
@@ -177,13 +191,7 @@ export class WithdrawalComponent implements OnInit {
   // Total deduction based on role (with fee for promoters, no fee for marketers)
   readonly totalDeduction = computed(() => {
     const amount = this.withdrawForm?.get('amount')?.value || 0;
-    const withdrawalAmount = parseFloat(amount) || 0;
-    
-    // For promoters: withdrawal amount + fee
-    // For marketers: just withdrawal amount (no fee)
-    return this.isPromoter() 
-      ? withdrawalAmount + (withdrawalAmount * this.PROMOTER_FEE_RATE)
-      : withdrawalAmount;
+    return parseFloat(amount) || 0;
   });
 
   // Update payable amount based on role
@@ -209,6 +217,7 @@ export class WithdrawalComponent implements OnInit {
       : withdrawalAmount;
     
     this.payableAmount.set(Math.max(0, Math.round(payable * 100) / 100));
+    this.refreshWithdrawalQuote();
   }
 
   // Get fee amount for display
@@ -222,14 +231,7 @@ export class WithdrawalComponent implements OnInit {
   readonly maxWithdrawableAmount = computed(() => {
     const availableBalance = this.availableBalance();
     
-    if (this.isMarketer()) {
-      // Marketers can withdraw up to their full available balance
-      return Math.max(0, Math.floor(availableBalance));
-    } else {
-      // Promoters: account for fee
-      const maxAmount = availableBalance / (1 + this.PROMOTER_FEE_RATE);
-      return Math.max(0, Math.floor(maxAmount));
-    }
+    return Math.max(0, Math.floor(availableBalance));
   });
 
   // Computed values
@@ -327,21 +329,42 @@ export class WithdrawalComponent implements OnInit {
   private loadInitialData(): void {
     this.loadBanks();
     this.loadSavedAccounts();
+    this.loadWalletOverview();
   }
 
   // Balance methods
   fetchBalance(): void {
-    if (!this.user()?._id) return;
-    this.isBalanceLoading.set(true);
-    // You might want to add a service call here to refresh balance from backend
-    setTimeout(() => {
-      this.updateBalancesFromRole();
-      this.isBalanceLoading.set(false);
-    }, 500);
+    this.loadWalletOverview();
   }
 
   refreshBalance(): void {
     this.fetchBalance();
+  }
+
+  private loadWalletOverview(): void {
+    const role = this.userRole() as 'marketer' | 'promoter';
+    this.isBalanceLoading.set(true);
+    this.paymentCurrencyService.getWalletOverview(role, this.selectedCurrency())
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.showErrorMessage(error.error?.message || 'Failed to load wallet overview.');
+          return of(null);
+        }),
+        finalize(() => this.isBalanceLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((response) => {
+        if (!response?.data) {
+          return;
+        }
+
+        this.walletOverview.set(response.data);
+        const nextCurrency = this.selectedCurrency() || response.data.displayCurrency || response.data.baseCurrency || 'NGN';
+        this.selectedCurrency.set(nextCurrency);
+        this.availableBalance.set(Number(response.data.balancesByCurrency?.[nextCurrency] ?? 0));
+        this.pendingBalance.set(Number(response.data.reservedByCurrency?.[nextCurrency] ?? 0));
+        this.refreshWithdrawalQuote();
+      });
   }
 
   // Bank methods
@@ -438,6 +461,42 @@ export class WithdrawalComponent implements OnInit {
     this.selectedBankName.set(selectedAccount.bank);
   }
 
+  private refreshWithdrawalQuote(): void {
+    const netAmount = this.payableAmount();
+    if (!netAmount || netAmount <= 0 || !this.selectedCurrency()) {
+      this.withdrawalQuote.set(null);
+      return;
+    }
+
+    this.isQuoteLoading.set(true);
+    this.paymentCurrencyService.getQuote({
+      amount: netAmount,
+      fromCurrency: this.selectedCurrency(),
+      toCurrency: 'NGN',
+      purpose: 'wallet_withdrawal',
+    })
+      .pipe(
+        catchError(() => of(null)),
+        finalize(() => this.isQuoteLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((response) => {
+        this.withdrawalQuote.set(response?.data || null);
+      });
+  }
+
+  onCurrencySelectionChange(currencyCode: string): void {
+    this.selectedCurrency.set(currencyCode || this.walletBaseCurrency());
+    this.paymentCurrencyService.updateDisplayCurrency(this.selectedCurrency())
+      .pipe(
+        catchError(() => of(null)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+    this.updateBalancesFromRole();
+    this.refreshWithdrawalQuote();
+  }
+
   // Form submission
   onSubmit(): void {
     if (!this.withdrawForm.valid || this.isSubmitting()) {
@@ -464,7 +523,8 @@ export class WithdrawalComponent implements OnInit {
       feeRate: this.feeRate(),
       finalAmount: this.withdrawForm.get('amount')?.value,
       role: this.userRole(), // Include role in withdrawal request
-      currency: this.roleCurrency() // Include currency
+      currency: this.selectedCurrency(),
+      quote: this.withdrawalQuote(),
     };
 
     this.withdrawalService.withdrawRequest(formData)
@@ -507,6 +567,7 @@ export class WithdrawalComponent implements OnInit {
   private resetForm(): void {
     this.withdrawForm.reset();
     this.selectedBankName.set('');
+    this.withdrawalQuote.set(null);
     this.withdrawForm.patchValue({
       userId: this.user()?._id,
       saveAccount: false,

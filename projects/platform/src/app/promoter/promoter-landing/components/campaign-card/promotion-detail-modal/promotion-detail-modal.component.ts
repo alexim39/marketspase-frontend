@@ -5,8 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CampaignInterface, PromotionInterface } from '../../../../../../../../shared-services/src/public-api';
-//import { CategoryPlaceholderPipe } from '../../../../../common/pipes/category-placeholder.pipe';
+import { CampaignInterface, PromotionInterface } from '@shared/services';
 
 export interface PromotionDetailModalData {
   campaign: CampaignInterface;
@@ -89,19 +88,28 @@ export class PromotionDetailModalComponent {
   }
 
   getDifficultyLevel(): string {
-    const minViews = this.campaign.minViewsPerPromotion || 0;
+    const costPerClick = this.getCostPerClick();
     
-    if (minViews <= 25) return 'Easy';
-    if (minViews <= 35) return 'Medium';
-    return 'Hard';
+    if (costPerClick <= 80) return 'Low CPC';
+    if (costPerClick <= 150) return 'Standard';
+    return 'Premium';
   }
 
   getDifficultyDots(): number {
-    const minViews = this.campaign.minViewsPerPromotion || 0;
+    const costPerClick = this.getCostPerClick();
     
-    if (minViews <= 25) return 1;
-    if (minViews <= 35) return 2;
+    if (costPerClick <= 80) return 1;
+    if (costPerClick <= 150) return 2;
     return 3;
+  }
+
+  getCostPerClick(): number {
+    return this.campaign.costPerClick || this.campaign.payoutPerPromotion || 80;
+  }
+
+  getEstimatedClicks(): number {
+    const remainingBudget = this.campaign.remainingBudget ?? this.campaign.budget ?? 0;
+    return Math.floor(remainingBudget / this.getCostPerClick());
   }
 
   getCategoryIcon(category: string): string {

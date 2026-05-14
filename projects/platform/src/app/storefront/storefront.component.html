@@ -7,7 +7,10 @@
     [isFavorited]="isFavorited()"
     (toggleFavorite)="toggleFavorite()"
     (shareStore)="shareStore()"
-    (contactViaWhatsApp)="contactViaWhatsApp()"
+    (contactStore)="handleStoreContact($event)"
+    (reportStore)="reportStore()"
+    (tabChange)="onStoreTabChange($event)"
+    (viewAllProducts)="clearFilters()"
     (headerTransform)="onHeaderTransform($event)"
   />
 
@@ -22,17 +25,24 @@
               <mat-icon>star</mat-icon>
               Featured Products
             </h2>
-            <a [routerLink]="['/store', store()?.storeLink, 'featured']" mat-button>
-              View All
+            <button mat-button type="button" (click)="showFeaturedOnly()">
+              View Featured
               <mat-icon>chevron_right</mat-icon>
-            </a>
+            </button>
           </div>
           
           <div class="featured-carousel">
             @for (product of featuredProducts(); track trackByProductId($index, product)) {
-              <div class="featured-card">
-                <!-- Featured product card content -->
-              </div>
+              <app-product-grid-card
+                [product]="product"
+                [store]="store()"
+                [isInWishlist]="isInWishlist(product._id ?? '')"
+                (addToCart)="addToCart($event)"
+                (toggleWishlist)="toggleWishlist($event)"
+                (quickView)="openQuickView($event)"
+                (share)="shareProduct($event)"
+                (viewDetails)="viewProductDetails($event)"
+              />
             }
           </div>
         </section>
@@ -44,7 +54,7 @@
         [searchControl]="searchControl"
         [sortControl]="sortControl"
         [isScrolled]="isScrolled()"
-        [filteredProductsCount]="filteredProducts().length"
+        [filteredProductsCount]="totalFilteredProducts()"
         [totalProductsCount]="products().length"
         [activeFilters]="activeFilters()"
         (viewModeChange)="toggleViewMode($event)"

@@ -32,7 +32,7 @@
                     </div>
                   </div>
                   <div class="activity-amount" [class]="activity.type">
-                    {{activity.type === 'credit' ? '+' : '-'}}₦{{activity.amount | number:'1.0-0'}}
+                    {{activity.type === 'credit' ? '+' : '-'}}NGN {{activity.amount | number:'1.0-0'}}
                   </div>
                 </div>
               }
@@ -69,16 +69,16 @@
             <div class="activity-summary">
               <div class="summary-item">
                 <div class="summary-label">Total Credits</div>
-                <div class="summary-value credit">+₦{{totalCredits() | number:'1.0-0'}}</div>
+                <div class="summary-value credit">+NGN {{totalCredits() | number:'1.0-0'}}</div>
               </div>
               <div class="summary-item">
                 <div class="summary-label">Total Debits</div>
-                <div class="summary-value debit">-₦{{totalDebits() | number:'1.0-0'}}</div>
+                <div class="summary-value debit">-NGN {{totalDebits() | number:'1.0-0'}}</div>
               </div>
               <div class="summary-item">
                 <div class="summary-label">Net Change</div>
                 <div class="summary-value" [class]="netChange() >= 0 ? 'credit' : 'debit'">
-                  {{netChange() >= 0 ? '+' : ''}}₦{{netChange() | number:'1.0-0'}}
+                  {{netChange() >= 0 ? '+' : ''}}NGN {{netChange() | number:'1.0-0'}}
                 </div>
               </div>
             </div>

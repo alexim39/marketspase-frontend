@@ -43,7 +43,36 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../newsletter/newsletter.component').then(c => c.NewsletterManagementComponent),
                 title: 'Newletters Management - Admin Dashboard'
             }, 
+            {   path: 'newsletters',
+                redirectTo: 'newletters',
+                pathMatch: 'full'
+            },
             { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },
+            {
+                path: 'community',
+                loadComponent: () => import('./community-ops.component').then(c => c.CommunityOpsComponent),
+                title: 'Community Operations - Admin Dashboard'
+            },
+            {
+                path: 'settings/payments',
+                loadComponent: () => import('../settings/payment-settings.component').then(c => c.PaymentSettingsComponent),
+                title: 'Payment Settings - Admin Dashboard'
+            },
+            {
+                path: 'settings/login-streaks',
+                loadComponent: () => import('../settings/login-streak-settings.component').then(c => c.LoginStreakSettingsComponent),
+                title: 'Daily Login Streak Settings - Admin Dashboard'
+            },
+            {
+                path: 'settings/badges',
+                loadComponent: () => import('../settings/badge-settings.component').then(c => c.BadgeSettingsComponent),
+                title: 'Badge & Level Settings - Admin Dashboard'
+            },
+            {
+                path: 'settings/gamification',
+                loadComponent: () => import('../settings/gamification-settings.component').then(c => c.GamificationSettingsComponent),
+                title: 'Gamification Settings - Admin Dashboard'
+            },
             
                               
             // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  
