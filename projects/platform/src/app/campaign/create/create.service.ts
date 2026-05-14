@@ -7,7 +7,7 @@ import { ApiService } from '@shared/services';
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
-  private readonly apiUrl = 'campaign';
+  private readonly apiUrl = 'api/v1/campaign';
   
 
   /**
