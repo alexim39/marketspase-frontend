@@ -87,13 +87,6 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
     brandName: ['', [Validators.maxLength(120)]],
     brandSummary: ['', [Validators.maxLength(1000)]],
     uniqueSellingPoints: [[] as string[]],
-    website: ['', [Validators.maxLength(300)]],
-    instagram: ['', [Validators.maxLength(160)]],
-    tiktok: ['', [Validators.maxLength(160)]],
-    facebook: ['', [Validators.maxLength(160)]],
-    x: ['', [Validators.maxLength(160)]],
-    youtube: ['', [Validators.maxLength(160)]],
-    linkedin: ['', [Validators.maxLength(160)]],
     userId: [''],
   });
 
@@ -141,13 +134,6 @@ export class ProfessionalInfoComponent implements OnInit, OnDestroy {
         certificate: userData.professionalInfo?.education?.certificate || '',
         brandName: userData.professionalInfo?.businessProfile?.brandName || '',
         brandSummary: userData.professionalInfo?.businessProfile?.brandSummary || '',
-        website: userData.professionalInfo?.socialProfiles?.website || '',
-        instagram: userData.professionalInfo?.socialProfiles?.instagram || '',
-        tiktok: userData.professionalInfo?.socialProfiles?.tiktok || '',
-        facebook: userData.professionalInfo?.socialProfiles?.facebook || '',
-        x: userData.professionalInfo?.socialProfiles?.x || '',
-        youtube: userData.professionalInfo?.socialProfiles?.youtube || '',
-        linkedin: userData.professionalInfo?.socialProfiles?.linkedin || '',
         userId: userData._id || '',
       }, { emitEvent: false });
 

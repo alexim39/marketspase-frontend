@@ -56,7 +56,7 @@ import { UserInterface } from '@shared/services';
           <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
-                <mat-icon>alternate_email</mat-icon> Username
+                <mat-icon>alternate_email</mat-icon> Username & Social Profiles
               </mat-panel-title>
             </mat-expansion-panel-header>
             @if (user()) {

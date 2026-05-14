@@ -130,7 +130,7 @@ function buildHttpParams(params: any): HttpParams {
 @Injectable()
 export class UserService {
   private apiService: ApiService = inject(ApiService);
-  private readonly apiUrl = 'user';
+  private readonly apiUrl = 'api/v1/user/admin';
   
   // State management for reactive filtering
   private filtersSubject = new BehaviorSubject<UserFilters>({
@@ -224,7 +224,7 @@ export class UserService {
     }
 
     // Make API call
-    this.apiService.get<UsersResponse>(`${this.apiUrl}/admin/users`, params).subscribe({
+    this.apiService.get<UsersResponse>(`${this.apiUrl}/users`, params).subscribe({
       next: (response) => {
         this.usersSubject.next(response);
       },
@@ -254,7 +254,7 @@ export class UserService {
 
   // Update user display name
   updateUserDisplayName(userId: string, displayName: string): Observable<any> {
-    return this.apiService.patch(`${this.apiUrl}/admin/${userId}/display-name`, { displayName });
+    return this.apiService.patch(`${this.apiUrl}/users/${userId}/display-name`, { displayName });
   }
 
   // Stream users for export
@@ -267,7 +267,7 @@ export class UserService {
       'Accept': 'application/json, application/octet-stream'
     });
     
-    return this.apiService.get(`${this.apiUrl}/admin/users/stream`, params, headers, false).pipe(
+    return this.apiService.get(`${this.apiUrl}/users/stream`, params, headers, false).pipe(
       map(response => response as Blob),
       catchError(error => {
         console.error('Error streaming users:', error);
@@ -288,7 +288,7 @@ export class UserService {
       return of(cached.data);
     }
     
-    return this.apiService.get<StatisticsResponse>(`${this.apiUrl}/admin/users/summary`).pipe(
+    return this.apiService.get<StatisticsResponse>(`${this.apiUrl}/users/summary`).pipe(
       tap(response => {
         if (response.success) {
           this.cache.set(cacheKey, { data: response, timestamp: now });
@@ -306,7 +306,7 @@ export class UserService {
    */
   getUsersByRole(role: string, filters?: UserFilters): Observable<PaginatedResponse<any>> {
     const params = filters ? this.buildQueryParams(filters) : undefined;
-    return this.apiService.get<PaginatedResponse<any>>(`${this.apiUrl}/admin/users/role/${role}`, params).pipe(
+    return this.apiService.get<PaginatedResponse<any>>(`${this.apiUrl}/users/role/${role}`, params).pipe(
       map(response => ({
         ...response,
         data: {
@@ -334,7 +334,7 @@ export class UserService {
       return of(cached.data);
     }
     
-    return this.apiService.get<StatisticsResponse>(`${this.apiUrl}/admin/users/role/${role}/stats`).pipe(
+    return this.apiService.get<StatisticsResponse>(`${this.apiUrl}/users/role/${role}/stats`).pipe(
       tap(response => {
         if (response.success) {
           this.cache.set(cacheKey, { data: response, timestamp: now });
@@ -359,7 +359,7 @@ export class UserService {
       return of(cached.data);
     }
     
-    return this.apiService.get<any>(`${this.apiUrl}/admin/${id}`).pipe(
+    return this.apiService.get<any>(`${this.apiUrl}/${id}`).pipe(
       map(response => ({
         ...response,
         data: response.data
@@ -381,7 +381,7 @@ export class UserService {
    * Update user status
    */
   updateUserStatus(id: string, isActive: boolean): Observable<any> {
-    return this.apiService.patch<any>(`${this.apiUrl}/admin/${id}/status`, { isActive }).pipe(
+    return this.apiService.patch<any>(`${this.apiUrl}/${id}/status`, { isActive }).pipe(
       tap(response => {
         if (response.success) {
           // Clear cache for this user
@@ -456,7 +456,7 @@ export class UserService {
   
   // update user to marketing rep
   updateMarketingStatus(newValue: boolean, userId: string): any {
-    return this.apiService.patch<any>(`${this.apiUrl}/admin/make-marketing-rep`, {newValue, userId}).pipe(map(response => response));
+    return this.apiService.patch<any>(`${this.apiUrl}/users/make-marketing-rep`, {newValue, userId}).pipe(map(response => response));
   }
   
   /**

@@ -43,15 +43,15 @@
           <div class="toggle-section">
             <div class="toggle-header">
               <span class="toggle-title">Location-Based Ads</span>
-              <div class="status-indicator" [class.active]="preferences().categoryBasedAds">
+              <div class="status-indicator" [class.active]="preferences().locationBasedAds">
                 <span class="status-dot"></span>
                 {{ preferences().locationBasedAds ? 'Active' : 'Inactive' }}
               </div>
             </div>
 
             <mat-slide-toggle
-              [(ngModel)]="preferences().locationBasedAds"
-              (ngModelChange)="onPreferenceChange()"
+              [ngModel]="preferences().locationBasedAds"
+              (ngModelChange)="updateLocationBasedAds($event)"
               color="primary"
               [disabled]="isSaving()"
               class="large-toggle">
@@ -65,6 +65,13 @@
                  'You will receive location-specific promotions' :
                  'Location-based promotions are turned off' }}
             </div>
+
+            @if (showLocationProfileHint()) {
+              <div class="location-warning">
+                <mat-icon>info</mat-icon>
+                <span>Add your address in personal profile settings so location-based promotions can match correctly.</span>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -84,8 +91,8 @@
           <div class="category-controls">
             <div class="category-toggle-section">
               <mat-slide-toggle
-                [(ngModel)]="preferences().categoryBasedAds"
-                (ngModelChange)="onCategoryToggleChange()"
+                [ngModel]="preferences().categoryBasedAds"
+                (ngModelChange)="updateCategoryBasedAds($event)"
                 color="primary"
                 [disabled]="isSaving()">
                 {{ preferences().categoryBasedAds ? 'You enabled category based promotion' : 'You disabled category based promotion' }}
@@ -95,21 +102,21 @@
             <div class="category-section" [class.disabled]="!preferences().categoryBasedAds">
               <div class="category-header">
                 <span class="selection-count">
-                  {{ preferences().selectedCategories.length }}/6 selected
+                  {{ selectedCategoryCount() }}/{{ maxSelectedCategories }} selected
                 </span>
                 @if (preferences().categoryBasedAds) {
                     <span class="selection-hint">
-                    Select up to 6 categories
+                    Select up to {{ maxSelectedCategories }} categories
                     </span>
                 }
               </div>
 
               <div class="categories-grid">
-                @for (category of allCategories; track category) {
+                @for (category of allCategories; track category.value) {
                      <mat-chip-option
                         (click)="toggleCategory(category.value)"
                         [selected]="preferences().selectedCategories.includes(category.value)"
-                        [disabled]="isSaving() || (!preferences().selectedCategories.includes(category.value) && preferences().selectedCategories.length >= 6)"
+                        [disabled]="isSaving() || (!preferences().selectedCategories.includes(category.value) && selectedCategoryCount() >= maxSelectedCategories)"
                         color="primary"
                         class="category-chip">
                         {{ category.label }}
@@ -165,10 +172,10 @@
 
         <button
         class="reset-button"
-        (click)="resetToDefault()"
+        (click)="discardChanges()"
         [disabled]="isSaving()">
         <mat-icon>refresh</mat-icon>
-        Reset to Default
+        Discard Changes
         </button>
     </div>
    }

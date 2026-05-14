@@ -44,6 +44,23 @@
   align-items: center;
   gap: 0.85rem;
   min-width: 0;
+  .logo-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: var(--admin-shadow-soft);
+
+    img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+  }
 }
 
 .logo-icon {

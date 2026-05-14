@@ -20,7 +20,7 @@ export class UserService {
    */
   auth(firebaseUser: Partial<UserInterface> & Record<string, unknown>, idToken: string): Observable<any> {
     //console.log('check for referral record ',firebaseUser)
-    return this.apiService.post<any>(`auth`, { firebaseUser, idToken }, undefined, true);
+    return this.apiService.post<any>(`api/v1/auth`, { firebaseUser, idToken }, undefined, true);
   }
 
   /**
@@ -28,7 +28,7 @@ export class UserService {
    * @returns An Observable that emits the API response or an error.
    */
   getUser(uid: string): Observable<any> {
-    return this.apiService.get<any>(`auth/${uid}`, undefined, undefined, true)
+    return this.apiService.get<any>(`api/v1/auth/${uid}`, undefined, undefined, true)
     .pipe(
       tap(response => {
         if (response.success) {

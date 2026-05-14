@@ -15,6 +15,12 @@ export interface ThemeInterface {
   userId: string;
 }
 
+export interface AdPreferencesPayload {
+  locationBasedAds?: boolean;
+  categoryBasedAds?: boolean;
+  adCategories?: string[];
+}
+
 @Injectable()
 export class SettingsService {
   apiUrl = 'settings';
@@ -35,7 +41,7 @@ export class SettingsService {
    * @param formObject The form data.
    * @returns An observable of the submitted form data.
    */
-  submitAdsPreferences(formObject: { userId: string; preferences: any }): Observable<any> {
+  submitAdsPreferences(formObject: { userId?: string; preferences: AdPreferencesPayload }): Observable<any> {
     return this.apiService.put<any>(`${this.apiUrl}/preferences/ads`, formObject);
   }
 

@@ -1,6 +1,18 @@
-<!-- financial-management.component.html -->
 <main class="financial-content">
-  <!-- Stats Overview with real data -->
+  <app-finance-section-nav />
+
+  <section class="section-header analytics-link-row">
+    <div>
+      <h2>Finance operations</h2>
+      <p>Handle withdrawals and transaction reviews here, then use analytics for deeper trend analysis.</p>
+    </div>
+
+    <a routerLink="/dashboard/financial/analytics" class="btn btn-primary">
+      <mat-icon>query_stats</mat-icon>
+      Open analytics
+    </a>
+  </section>
+
   <section class="stats-section">
     <div class="stats-grid">
       <div class="stat-card primary">
@@ -8,11 +20,11 @@
           <mat-icon>account_balance</mat-icon>
         </div>
         <div class="stat-content">
-          <div class="stat-label">Total Platform Revenue</div>
-          <div class="stat-value">₦{{ financialStats().totalRevenue.toLocaleString() }}</div>
+          <div class="stat-label">Total Cash In</div>
+          <div class="stat-value">{{ currencyLabel() }} {{ financialStats().totalCashIn.toLocaleString() }}</div>
           <div class="stat-change positive">
             <mat-icon>trending_up</mat-icon>
-            +{{ ((financialStats().successfulWithdrawals || 0) / (financialStats().totalWithdrawals || 1) * 100).toFixed(1) }}% success rate
+            {{ withdrawalSuccessRate().toFixed(1) }}% withdrawal success rate
           </div>
         </div>
       </div>
@@ -23,10 +35,10 @@
         </div>
         <div class="stat-content">
           <div class="stat-label">Completed Withdrawals</div>
-          <div class="stat-value">₦{{ totalSuccessfulAmount().toLocaleString() }}</div>
+          <div class="stat-value">{{ currencyLabel() }} {{ financialStats().successfulWithdrawals.toLocaleString() }}</div>
           <div class="stat-change positive">
             <mat-icon>check</mat-icon>
-            {{ financialStats().successfulWithdrawals || 0 }} transactions
+            {{ financialStats().successfulWithdrawalCount || 0 }} transactions
           </div>
         </div>
       </div>
@@ -36,11 +48,13 @@
           <mat-icon>pending</mat-icon>
         </div>
         <div class="stat-content">
-          <div class="stat-label">Processing</div>
-          <div class="stat-value">₦{{ totalProcessingAmount().toLocaleString() }}</div>
+          <div class="stat-label">Processing Queue</div>
+          <div class="stat-value">
+            {{ currencyLabel() }} {{ (financialStats().processingWithdrawals + financialStats().pendingApprovals).toLocaleString() }}
+          </div>
           <div class="stat-change">
             <mat-icon>schedule</mat-icon>
-            {{ financialStats().processingWithdrawals || 0 }} pending
+            {{ (financialStats().processingWithdrawalCount + financialStats().pendingApprovalCount) || 0 }} in queue
           </div>
         </div>
       </div>
@@ -51,62 +65,59 @@
         </div>
         <div class="stat-content">
           <div class="stat-label">Failed</div>
-          <div class="stat-value">₦{{ totalFailedAmount().toLocaleString() }}</div>
+          <div class="stat-value">{{ currencyLabel() }} {{ financialStats().failedWithdrawals.toLocaleString() }}</div>
           <div class="stat-change negative">
             <mat-icon>warning</mat-icon>
-            {{ financialStats().failedWithdrawals || 0 }} failed
+            {{ financialStats().failedWithdrawalCount || 0 }} failed
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Financial Management Tabs -->
   <section class="management-section">
     <mat-tab-group (selectedTabChange)="onTabChange($event)">
-      <!-- Withdrawal Requests Tab -->
       <mat-tab label="Withdrawals">
         <div class="tab-content">
-          <!-- Filters and Actions -->
           <div class="section-header">
             <div class="filters-container">
               <div class="search-box">
                 <mat-icon>search</mat-icon>
-                <input 
-                  type="text" 
-                  placeholder="Search by name, email, bank, or reference..." 
+                <input
+                  type="text"
+                  placeholder="Search by name, email, bank, or reference..."
                   (input)="onSearchChange($event)"
                   [value]="searchTerm()"
                   class="search-input">
               </div>
-              
+
               <div class="filter-buttons">
-                <button 
-                  class="filter-btn" 
+                <button
+                  class="filter-btn"
                   [class.active]="statusFilter() === 'all'"
                   (click)="onStatusFilterChange('all')">
-                  All 
+                  All
                 </button>
-                <button 
-                  class="filter-btn warning" 
+                <button
+                  class="filter-btn warning"
                   [class.active]="statusFilter() === 'pending_approval'"
                   (click)="onStatusFilterChange('pending_approval')">
                   Pending Approval
                 </button>
-                <button 
-                  class="filter-btn info" 
+                <button
+                  class="filter-btn info"
                   [class.active]="statusFilter() === 'processing'"
                   (click)="onStatusFilterChange('processing')">
                   Processing
                 </button>
-                <button 
-                  class="filter-btn success" 
+                <button
+                  class="filter-btn success"
                   [class.active]="statusFilter() === 'successful'"
                   (click)="onStatusFilterChange('successful')">
                   Completed
                 </button>
-                <button 
-                  class="filter-btn danger" 
+                <button
+                  class="filter-btn danger"
                   [class.active]="statusFilter() === 'failed'"
                   (click)="onStatusFilterChange('failed')">
                   Failed
@@ -115,17 +126,16 @@
             </div>
 
             <div class="action-buttons">
-              <button class="btn btn-secondary" (click)="clearFilters()" matTooltip="Clear all filters">
+              <button mat-icon-button class="btn btn-secondary" (click)="clearFilters()" matTooltip="Clear all filters">
                 <mat-icon>clear</mat-icon>
               </button>
-              <button class="btn btn-primary" (click)="exportWithdrawals()" matTooltip="Export to CSV">
+              <button mat-flat-button class="btn btn-primary" (click)="exportWithdrawals()" matTooltip="Export to CSV">
                 <mat-icon>download</mat-icon>
                 Export
               </button>
             </div>
           </div>
 
-          <!-- Withdrawal Requests Table -->
           <div class="table-container">
             @if (isWithdrawalsLoading()) {
               <div class="loading-state">
@@ -134,7 +144,6 @@
               </div>
             } @else {
               <table mat-table [dataSource]="paginatedWithdrawals()" class="financial-table">
-                <!-- User Column -->
                 <ng-container matColumnDef="user">
                   <th mat-header-cell *matHeaderCellDef>User</th>
                   <td mat-cell *matCellDef="let request">
@@ -145,37 +154,34 @@
                   </td>
                 </ng-container>
 
-                <!-- Amount Column -->
                 <ng-container matColumnDef="amount">
                   <th mat-header-cell *matHeaderCellDef>Amount</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="amount-cell">
                       <div class="amount" [class.text-danger]="request.status === 'failed'">
-                        ₦{{ request.amount.toLocaleString() }}
+                        {{ currencyLabel() }} {{ request.amount.toLocaleString() }}
                       </div>
                       <div class="date">{{ request.createdAt | date:'MMM d, y' }}</div>
                     </div>
                   </td>
                 </ng-container>
 
-                <!-- Payable Amount Column -->
                 <ng-container matColumnDef="amountPayable">
                   <th mat-header-cell *matHeaderCellDef>Net Amount</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="amount-cell">
                       @if (request.amountPayable) {
                         <div class="amount success-text">
-                          ₦{{ request.amountPayable.toLocaleString() }}
+                          {{ currencyLabel() }} {{ request.amountPayable.toLocaleString() }}
                         </div>
-                        <div class="date">Fee: ₦{{ (request.amount - request.amountPayable).toLocaleString() }}</div>
+                        <div class="date">Fee: {{ currencyLabel() }} {{ (request.amount - request.amountPayable).toLocaleString() }}</div>
                       } @else {
-                        <div class="amount">—</div>
+                        <div class="amount">-</div>
                       }
                     </div>
                   </td>
                 </ng-container>
 
-                <!-- Bank Details Column -->
                 <ng-container matColumnDef="bankDetails">
                   <th mat-header-cell *matHeaderCellDef>Bank Details</th>
                   <td mat-cell *matCellDef="let request">
@@ -187,7 +193,6 @@
                   </td>
                 </ng-container>
 
-                <!-- Reference Column -->
                 <ng-container matColumnDef="reference">
                   <th mat-header-cell *matHeaderCellDef>Reference</th>
                   <td mat-cell *matCellDef="let request">
@@ -195,8 +200,8 @@
                       <div class="ref" matTooltip="{{ request.reference }}">
                         {{ request.reference | slice:0:12 }}...
                       </div>
-                      @if (request.providerReference) {
-                        <div class="provider-ref" matTooltip="Paystack ref: {{ request.providerReference }}">
+                      @if (request.transferCode) {
+                        <div class="provider-ref" matTooltip="Transfer code: {{ request.transferCode }}">
                           <mat-icon class="small-icon">paid</mat-icon>
                         </div>
                       }
@@ -204,7 +209,6 @@
                   </td>
                 </ng-container>
 
-                <!-- Status Column -->
                 <ng-container matColumnDef="status">
                   <th mat-header-cell *matHeaderCellDef>Status</th>
                   <td mat-cell *matCellDef="let request">
@@ -224,7 +228,6 @@
                   </td>
                 </ng-container>
 
-                <!-- Date Column -->
                 <ng-container matColumnDef="date">
                   <th mat-header-cell *matHeaderCellDef>Date</th>
                   <td mat-cell *matCellDef="let request">
@@ -240,27 +243,26 @@
                   </td>
                 </ng-container>
 
-                <!-- Actions Column -->
                 <ng-container matColumnDef="actions">
                   <th mat-header-cell *matHeaderCellDef>Actions</th>
                   <td mat-cell *matCellDef="let request">
                     <div class="action-buttons">
-                      <button 
-                        class="btn-icon" 
+                      <button
+                        class="btn-icon"
                         (click)="viewWithdrawalDetails(request)"
                         matTooltip="View Details">
                         <mat-icon>visibility</mat-icon>
                       </button>
 
                       @if (request.status === 'pending_approval') {
-                        <button 
-                          class="btn-icon success" 
+                        <button
+                          class="btn-icon success"
                           (click)="approveWithdrawal(request)"
                           matTooltip="Approve Withdrawal">
                           <mat-icon>check_circle</mat-icon>
                         </button>
-                        <button 
-                          class="btn-icon danger" 
+                        <button
+                          class="btn-icon danger"
                           (click)="rejectWithdrawal(request)"
                           matTooltip="Reject Withdrawal">
                           <mat-icon>cancel</mat-icon>
@@ -268,8 +270,8 @@
                       }
 
                       @if (request.status === 'failed') {
-                        <button 
-                          class="btn-icon warning" 
+                        <button
+                          class="btn-icon warning"
                           (click)="retryWithdrawal(request)"
                           matTooltip="Retry Failed Withdrawal">
                           <mat-icon>refresh</mat-icon>
@@ -283,7 +285,6 @@
                 <tr mat-row *matRowDef="let row; columns: withdrawalColumns;"></tr>
               </table>
 
-              <!-- Empty State -->
               @if (paginatedWithdrawals().length === 0) {
                 <div class="empty-state">
                   <mat-icon>payments</mat-icon>
@@ -297,7 +298,6 @@
                 </div>
               }
 
-              <!-- Pagination -->
               @if (totalItems() > pageSize()) {
                 <mat-paginator
                   [length]="totalItems()"
@@ -314,8 +314,7 @@
         </div>
       </mat-tab>
 
-      <!-- Transaction History Tab -->
-      <mat-tab label="Deposits">
+      <mat-tab label="Transactions">
         <div class="tab-content">
           <div class="section-header">
             <h3>All Transactions</h3>
@@ -332,8 +331,85 @@
                 <p>Loading transactions...</p>
               </div>
             } @else {
-              <!-- Transaction table would go here -->
-              <p>Transaction history table implementation...</p>
+              <table mat-table [dataSource]="transactions()" class="financial-table">
+                <ng-container matColumnDef="user">
+                  <th mat-header-cell *matHeaderCellDef>User</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    <div class="user-info">
+                      <div class="user-name">{{ transaction.userName }}</div>
+                      <div class="user-email">{{ transaction.userRole }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="type">
+                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    <span class="status-badge" [class.success-text]="transaction.type === 'credit'" [class.text-danger]="transaction.type === 'debit'">
+                      {{ getTypeLabel(transaction.type) }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    <div class="amount-cell">
+                      <div class="amount">{{ transaction.baseCurrency || currencyLabel() }} {{ transaction.amount.toLocaleString() }}</div>
+                      <div class="date">{{ transaction.currency || transaction.baseCurrency || currencyLabel() }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="category">
+                  <th mat-header-cell *matHeaderCellDef>Category</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    {{ getCategoryLabel(transaction.category) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>Description</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    {{ transaction.description }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    <div class="status-container">
+                      <mat-icon class="status-icon" [class]="getStatusClass(transaction.status)">
+                        {{ getStatusIcon(transaction.status) }}
+                      </mat-icon>
+                      <span class="status-badge" [class]="getStatusClass(transaction.status)">
+                        {{ getStatusLabel(transaction.status) }}
+                      </span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Date</th>
+                  <td mat-cell *matCellDef="let transaction">
+                    <div class="date-cell">
+                      <div class="created-date">{{ transaction.createdAt | date:'MMM d, y' }}</div>
+                      <div class="time">{{ transaction.createdAt | date:'shortTime' }}</div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="transactionColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: transactionColumns;"></tr>
+              </table>
+
+              @if (transactions().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>receipt_long</mat-icon>
+                  <h3>No transactions found</h3>
+                  <p>We could not find any finance records for the current filter window.</p>
+                </div>
+              }
             }
           </div>
         </div>

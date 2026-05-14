@@ -6,7 +6,7 @@ import { NotificationSettingsComponent } from './notification/notification.compo
 import { UserService } from '../../common/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { UserInterface } from '@shared/services';
-import { AdsSettingsComponent } from './ads/ads.component';
+import { AdsPreferenceSettingsComponent } from './ads/ads-preference.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { ThemeSettingsComponent } from './theme/theme.component';
 
@@ -14,7 +14,7 @@ import { ThemeSettingsComponent } from './theme/theme.component';
 @Component({
   selector: 'async-system-setting',
   standalone: true,
-  imports: [MatTabsModule, MatCardModule, CommonModule, MatIconModule, AdsSettingsComponent, NotificationSettingsComponent, MatExpansionModule, ThemeSettingsComponent],
+  imports: [MatTabsModule, MatCardModule, CommonModule, MatIconModule, AdsPreferenceSettingsComponent, NotificationSettingsComponent, MatExpansionModule, ThemeSettingsComponent],
   template: `
   <div class="settings-container">
 
@@ -48,7 +48,7 @@ import { ThemeSettingsComponent } from './theme/theme.component';
           </mat-tab>
           <mat-tab label="Ads Preferences">
             @if (user()) {
-              <async-ads [user]="user"/>
+              <async-ads-preference [user]="user"/>
             }
           </mat-tab>
           

@@ -34,6 +34,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 // Services
 import { AdminService } from '../../common/services/user.service';
 import { RefundService } from './refund.service';
+import { FinanceSectionNavComponent } from '../shared/finance-section-nav.component';
 
 // Types
 export interface PromoterRefund {
@@ -96,6 +97,7 @@ export interface BulkRefundItem {
     MatOptionModule,
     MatRadioModule,
     MatCheckboxModule,
+    FinanceSectionNavComponent,
   ],
   templateUrl: './refund.component.html',
   styleUrls: ['./refund.component.scss'],

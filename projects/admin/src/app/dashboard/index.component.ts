@@ -65,6 +65,7 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: false,
       children: [
         { id: 'all-users', title: 'All Users', icon: 'supervisor_account', route: '/dashboard/users' },
+        { id: 'user-analytics', title: 'User Analytics', icon: 'insights', route: '/dashboard/users/analytics' },
         { id: 'marketers', title: 'Marketers', icon: 'business', route: '/dashboard/users/marketers' },
         { id: 'promoters', title: 'Promoters', icon: 'share', route: '/dashboard/users/promoters' },
         { id: 'contacts', title: 'Contact Management', icon: 'contact_page', route: '/dashboard/users/contacts' }
@@ -96,8 +97,9 @@ export class AdminDashboardComponent implements OnInit {
       id: 'payments',
       title: 'Finance',
       icon: 'payments',
-      isExpanded: false,
+      isExpanded: true,
       children: [
+        { id: 'financial-analytics', title: 'Financial Analytics', icon: 'query_stats', route: '/dashboard/financial/analytics' },
         { id: 'all-withdrawals', title: 'Overview & Withdrawals', icon: 'payment_arrow_down', route: '/dashboard/financial' },
         { id: 'all-transfers', title: 'Transfers', icon: 'swap_horiz', route: '/dashboard/financial/transfers' },
         { id: 'refund-requests', title: 'Refund Requests', icon: 'currency_exchange', route: '/dashboard/financial/refunds' }
