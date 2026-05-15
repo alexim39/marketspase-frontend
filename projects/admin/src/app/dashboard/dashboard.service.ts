@@ -92,7 +92,7 @@ export interface AdminLiveActivityResponse {
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private apiService: ApiService = inject(ApiService);
-  private readonly apiUrl = 'dashboard';
+  private readonly apiUrl = 'api/v1/dashboard';
   
   // Cache responses for 5 minutes to prevent duplicate calls
   private readonly CACHE_DURATION = 5 * 60 * 1000;

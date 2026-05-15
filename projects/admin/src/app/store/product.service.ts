@@ -8,7 +8,7 @@ import { ApiService } from '../../../../shared-services/src/public-api';
 @Injectable()
 export class ProductService {
   private readonly apiService: ApiService = inject(ApiService);
-  private readonly apiUrl = 'stores/admin';
+  private readonly apiUrl = 'api/v1/stores/admin';
   
   // Get products for a store with filtering
   getStoreProducts(storeId: string, filters?: ProductFilterOptions): Observable<{ data: Product[], pagination: any }> {

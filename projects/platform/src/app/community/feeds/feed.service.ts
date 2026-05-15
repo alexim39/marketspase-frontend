@@ -253,7 +253,7 @@ const FEED_CONFIG = {
 @Injectable()
 export class FeedService {
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'feed';
+  private readonly apiUrl = 'api/v1/feed';
 
   private postsSignal = signal<FeedPost[]>([]);
   private likedPostsSignal = signal<Set<string>>(new Set());
@@ -475,7 +475,7 @@ export class FeedService {
   }
 
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {
-    return this.apiService.get(`campaign/user/${userId}`, params, undefined, true);
+    return this.apiService.get(`api/v1/campaign/user/${userId}`, params, undefined, true);
   }
 
   private extractCommunityResponse(response: any): CommunityFeedPayload {

@@ -73,28 +73,15 @@
           <i class="material-icons">schedule</i>
           <div class="meta-content">
             <span class="meta-label">Duration</span>
-            <span class="meta-value">
-              @if (campaign.remainingDays === 'Expired') {
-                Expired
-              }
-              @if (campaign.remainingDays === 'Ongoing') {
-                Budget Based
-              } 
-              @if (campaign.remainingDays === 'Budget Exhausted') {
-                Exhausted
-              } 
-              @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing' && campaign.remainingDays !== 'Budget Exhausted') {
-                Expires in {{campaign.remainingDays}}
-              }
-            </span>
+            <span class="meta-value">{{ getTimingLabel() }}</span>
           </div>
         </div>
 
         <div class="meta-item">
           <i class="material-icons">people</i>
           <div class="meta-content">
-            <span class="meta-label">Promoters</span>
-            <span class="meta-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}} slots filled</span>
+            <span class="meta-label">{{ getSlotLabel() }}</span>
+            <span class="meta-value">{{ getSlotValue() }}</span>
           </div>
         </div>
 
@@ -115,7 +102,7 @@
               <i class="material-icons">payments</i>
             </div>
             <div class="metric-info">
-              <div class="metric-value">NGN {{getCostPerClick() | number}}</div>
+              <div class="metric-value">{{campaign.currency || 'NGN'}} {{getCostPerClick() | number}}</div>
               <div class="metric-label">Cost Per Click</div>
             </div>
           </div>
@@ -125,8 +112,8 @@
               <i class="material-icons">group</i>
             </div>
             <div class="metric-info">
-              <div class="metric-value">{{campaign.maxPromoters}}</div>
-              <div class="metric-label">Max Promoters</div>
+              <div class="metric-value">{{campaign.currentPromoters || 0}}</div>
+              <div class="metric-label">Active Promoters</div>
             </div>
           </div>
 
@@ -145,7 +132,7 @@
       <div class="payout-section">
         <div class="payout-info">
           <div class="payout-amount">
-            <span class="currency">NGN</span>
+            <span class="currency">{{campaign.currency || 'NGN'}}</span>
             <span class="amount">{{getCostPerClick() | number}}</span>
             <span class="payout-label">per click</span>
           </div>

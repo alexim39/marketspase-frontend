@@ -40,7 +40,7 @@ export interface PaginatedResponse<T> {
 @Injectable()
 export class StoreService {
   private readonly apiService: ApiService = inject(ApiService);
-  private readonly apiUrl = 'stores/admin';
+  private readonly apiUrl = 'api/v1/stores/admin';
 
   getStores(filters?: StoreFilters): Observable<PaginatedResponse<Store>> {
     // Build query params
@@ -71,7 +71,7 @@ export class StoreService {
   }
 
   getStoreOwners(): Observable<{ data: User[], success: boolean }> {
-    return this.apiService.get<{ data: User[], success: boolean }>('/api/admin/users/store-owners');
+    return this.apiService.get<{ data: User[], success: boolean }>('api/v1/stores/admin/store-owners');
   }
 
   getStoreStatistics(): Observable<StoreStatistics> {

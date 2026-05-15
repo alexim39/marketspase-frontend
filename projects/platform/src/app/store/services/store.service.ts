@@ -8,7 +8,7 @@ import { ApiService } from '@shared/services';
 @Injectable()
 export class StoreService {
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'stores';
+  private readonly apiUrl = 'api/v1/stores';
 
   // Signals for state management
   private stores = signal<Store[]>([]);

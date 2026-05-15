@@ -23,7 +23,7 @@ export interface AdPreferencesPayload {
 
 @Injectable()
 export class SettingsService {
-  apiUrl = 'settings';
+  apiUrl = 'api/v1/settings';
   
   constructor(private apiService: ApiService) {}
 

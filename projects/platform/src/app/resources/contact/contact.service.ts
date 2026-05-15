@@ -24,6 +24,6 @@ export class ContactService {
    */
   submit(payload: ContactFormData): Observable<ContactFormData> {
     console.log('payload ',payload)
-    return this.apiService.post<any>('contact/external-contact', payload);
+    return this.apiService.post<any>('api/v1/contact/external-contact', payload);
   }
 }

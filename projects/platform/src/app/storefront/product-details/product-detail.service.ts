@@ -182,9 +182,9 @@ export interface SearchOptions {
 export class ProductDetailService {
   private snackBar = inject(MatSnackBar);
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'products';
-  private readonly categoryUrl = 'categories';
-  private readonly reviewUrl = 'reviews';
+  private readonly apiUrl = 'api/v1/stores/storefront/products';
+  private readonly categoryUrl = 'api/v1/stores/storefront/categories';
+  private readonly reviewUrl = 'api/v1/stores/storefront/reviews';
 
   // Cache for product data
   private productCache = new Map<string, { data: Product; timestamp: number }>();
@@ -235,7 +235,7 @@ export class ProductDetailService {
       params = params.set('includeAnalytics', 'true');
     }
 
-    return this.apiService.get<ProductResponse>(`${this.apiUrl}/${productId}`,  params )
+    return this.apiService.get<ProductResponse>(`${this.apiUrl}/${productId}/detail`,  params )
       .pipe(
         tap(response => {
           if (response.success && response.data) {
@@ -507,7 +507,7 @@ export class ProductDetailService {
       });
     }
 
-    return this.apiService.get<ReviewsResponse>(`${this.reviewUrl}/product/${productId}`,  params )
+    return this.apiService.get<ReviewsResponse>(`${this.apiUrl}/${productId}/reviews`,  params )
       .pipe(
         catchError(error => {
           console.error('Failed to load reviews:', error);
@@ -546,7 +546,7 @@ export class ProductDetailService {
       });
     }
 
-    return this.apiService.post<ReviewResponse>(this.reviewUrl, formData)
+    return this.apiService.post<ReviewResponse>(`${this.apiUrl}/${reviewData.productId}/reviews`, formData)
       .pipe(
         tap(() => {
           this.showSuccess('Review submitted successfully');

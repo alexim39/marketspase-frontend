@@ -83,10 +83,10 @@ export class PromotionOverviewComponent {
     const labels: { [key: string]: string } = {
       accepted: 'Active Link',
       downloaded: 'Active Link',
-      submitted: 'Tracking',
+      submitted: 'Review Pending',
       validated: 'Approved',
       paid: 'Paid',
-      rejected: 'Rejected'
+      rejected: 'Needs Attention'
     };
     return labels[status] || status;
   }

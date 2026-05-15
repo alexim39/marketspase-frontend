@@ -68,7 +68,7 @@ export class NotificationService {
   }
 
   getNotifications(): Observable<any> {
-    return this.apiService.get<any>('notifications', undefined, undefined, true).pipe(
+    return this.apiService.get<any>('api/v1/notifications', undefined, undefined, true).pipe(
       catchError((error) => {
         console.error('HTTP error fetching notifications:', error);
         return of({ success: false, data: [] });
@@ -77,7 +77,7 @@ export class NotificationService {
   }
 
   markAsRead(notificationId: string): Observable<any> {
-    return this.apiService.patch<any>(`notifications/${notificationId}/read`, {}, undefined, true).pipe(
+    return this.apiService.patch<any>(`api/v1/notifications/${notificationId}/read`, {}, undefined, true).pipe(
       catchError((error) => {
         console.error('Error marking notification as read:', error);
         return of({ success: true });
@@ -86,7 +86,7 @@ export class NotificationService {
   }
 
   markAllAsRead(): Observable<any> {
-    return this.apiService.patch<any>('notifications/mark-all-read', {}, undefined, true).pipe(
+    return this.apiService.patch<any>('api/v1/notifications/mark-all-read', {}, undefined, true).pipe(
       catchError((error) => {
         console.error('Error marking all notifications as read:', error);
         return of({ success: true });
@@ -95,7 +95,7 @@ export class NotificationService {
   }
 
   getUnreadCount(): Observable<any> {
-    return this.apiService.get<any>('notifications/unread-count', undefined, undefined, true).pipe(
+    return this.apiService.get<any>('api/v1/notifications/unread-count', undefined, undefined, true).pipe(
       catchError((error) => {
         console.error('Error getting unread count:', error);
         return of({ success: false, data: { count: 0 } });

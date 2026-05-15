@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiService, PromotionInterface } from '@shared/services';
 import { HttpParams } from '@angular/common/http';
 
@@ -14,6 +14,8 @@ interface CacheEntry<T> {
 export class PromoterService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
+  private readonly campaignsEndpoint = 'api/v1/campaign';
+  private readonly promotionsEndpoint = 'api/v1/promotion';
   
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
@@ -33,7 +35,9 @@ export class PromoterService {
       return of(cached.data);
     }
     
-    return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true).pipe(
+    const params = new HttpParams().set('status', status);
+
+    return this.apiService.get<any>(this.campaignsEndpoint, params, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -65,7 +69,7 @@ export class PromoterService {
       return of(cached.data);
     }
     
-    return this.apiService.get<any>(`promotion/${id}/${userId}`, undefined, undefined, true).pipe(
+    return this.apiService.get<any>(`${this.promotionsEndpoint}/${id}/${userId}`, undefined, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -81,28 +85,6 @@ export class PromoterService {
       })
     );
   }
-
-  /**
-   * Promoter accept a campaign.
-   * @param campaignId The campaign ID.
-   * @param userId The user ID.
-   * @returns An observable of the API response.
-   */
- /*  acceptCampaign(campaignId: string, userId: string): Observable<any> {
-    return this.apiService.post<any>(`campaign/${campaignId}/accept`, { userId }, undefined, true).pipe(
-      tap(response => {
-        if (response.success) {
-          // Invalidate relevant cache entries
-          this.invalidateUserPromotionsCache(userId);
-          this.invalidateCampaignsCache();
-        }
-      }),
-      catchError(error => {
-        console.error(`Error accepting campaign ${campaignId}:`, error);
-        return throwError(() => new Error('Failed to accept campaign'));
-      })
-    );
-  } */
 
   /**
    * Get user's promotions with pagination and filtering.
@@ -145,7 +127,7 @@ export class PromoterService {
       if (filters.sortOrder) params = params.set('sortOrder', filters.sortOrder);
     }
 
-    return this.apiService.get<any>(`promotion/user/${userId}`, params, undefined, true).pipe(
+    return this.apiService.get<any>(`${this.promotionsEndpoint}/user/${userId}`, params, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -169,7 +151,7 @@ export class PromoterService {
    * @returns An observable of the API response.
    */
   submitProof(formData: FormData, userId: string): Observable<any> {
-    return this.apiService.post<any>(`promotion/submit-proof/${userId}`, formData, undefined, true).pipe(
+    return this.apiService.post<any>(`${this.promotionsEndpoint}/submit-proof/${userId}`, formData, undefined, true).pipe(
       tap(response => {
         if (response.success) {
           // Invalidate cache for this user's promotions
@@ -203,7 +185,7 @@ export class PromoterService {
       promotionId
     };
     
-    return this.apiService.post<any>('promotion/download', payload, undefined, true).pipe(
+    return this.apiService.post<any>(`${this.promotionsEndpoint}/download`, payload, undefined, true).pipe(
       tap(response => {
         if (response.success) {
           // Invalidate relevant cache entries

@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from '@shared/services';
+import { HttpParams } from '@angular/common/http';
 
 export interface PaginationParams {
   page?: number;
@@ -41,7 +42,7 @@ interface CacheEntry<T> {
 export class MarketerService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
-  private readonly apiUrl = 'campaign';
+  private readonly campaignsEndpoint = 'api/v1/campaign';
   
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
@@ -70,38 +71,38 @@ export class MarketerService {
     }
     
     // Build query parameters
-    const params: any = {};
+    let params = new HttpParams();
     
     // Add pagination parameters if provided
     if (pagination?.page) {
-      params.page = pagination.page.toString();
+      params = params.set('page', pagination.page.toString());
     }
     if (pagination?.limit) {
-      params.limit = pagination.limit.toString();
+      params = params.set('limit', pagination.limit.toString());
     }
 
     // Add filter parameters if provided
     if (filters?.status && filters.status !== 'all') {
-      params.status = filters.status;
+      params = params.set('status', filters.status);
     }
     if (filters?.search) {
-      params.search = filters.search;
+      params = params.set('search', filters.search);
     }
     if (filters?.category) {
-      params.category = filters.category;
+      params = params.set('category', filters.category);
     }
     if (filters?.campaignType) {
-      params.campaignType = filters.campaignType;
+      params = params.set('campaignType', filters.campaignType);
     }
     if (filters?.sortBy) {
-      params.sortBy = filters.sortBy;
+      params = params.set('sortBy', filters.sortBy);
     }
     if (filters?.sortOrder) {
-      params.sortOrder = filters.sortOrder;
+      params = params.set('sortOrder', filters.sortOrder);
     }
 
     return this.apiService.get<PaginatedResponse<any>>(
-      `${this.apiUrl}/user/${userId}`,
+      `${this.campaignsEndpoint}/user/${userId}`,
       params, // Pass both pagination and filter parameters as query params
       undefined, 
       true

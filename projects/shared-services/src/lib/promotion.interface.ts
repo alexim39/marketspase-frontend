@@ -42,6 +42,10 @@ export interface PromotionInterface {
   isActive?: boolean;
   clickStats?: PromotionClickStats;
   isDownloaded: boolean;
+  isExpired?: boolean;
+  timeRemaining?: string;
+  progressPercentage?: number;
+  viewsNeeded?: number;
 
 
   // check

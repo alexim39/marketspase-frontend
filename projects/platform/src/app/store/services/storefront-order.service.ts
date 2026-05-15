@@ -6,7 +6,7 @@ import { ApiService } from '@shared/services';
 @Injectable({ providedIn: 'root' })
 export class StorefrontOrderService {
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'stores/storefront/orders';
+  private readonly apiUrl = 'api/v1/stores/storefront/orders';
 
   getPromoterOrders(promoterId: string, options: { limit?: number; skip?: number } = {}): Observable<any> {
     let params = new HttpParams()

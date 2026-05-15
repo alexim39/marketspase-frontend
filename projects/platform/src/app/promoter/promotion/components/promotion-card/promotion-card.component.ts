@@ -42,7 +42,7 @@ export class PromotionCardComponent {
 
   getPromotionUrl(): string {
     if (this.promotion.promotionUrl) return this.promotion.promotionUrl;
-    return `${this.api.replace(/\/$/, '')}/campaign/track/${this.promotion.upi}`;
+    return `${this.api.replace(/\/$/, '')}/api/v1/campaign/track/${this.promotion.upi}`;
   }
 
   getAssetUrl(): string {
@@ -73,10 +73,10 @@ export class PromotionCardComponent {
     const labels: { [key: string]: string } = {
       accepted: 'Active Link',
       downloaded: 'Active Link',
-      submitted: 'Tracking',
+      submitted: 'Review Pending',
       validated: 'Approved',
       paid: 'Paid',
-      rejected: 'Rejected'
+      rejected: 'Needs Attention'
     };
     return labels[status] || 'Promotion';
   }
@@ -97,10 +97,10 @@ export class PromotionCardComponent {
     const icons: { [key: string]: string } = {
       accepted: 'link',
       downloaded: 'link',
-      submitted: 'touch_app',
+      submitted: 'pending_actions',
       validated: 'check_circle',
       paid: 'paid',
-      rejected: 'cancel'
+      rejected: 'warning'
     };
     return icons[status] || 'help';
   }

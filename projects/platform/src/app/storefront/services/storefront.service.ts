@@ -123,7 +123,7 @@ export interface StorefrontProductReviewMutationResponse {
 export class StorefrontService {
   private snackBar = inject(MatSnackBar);
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'stores';
+  private readonly apiUrl = 'api/v1/stores';
   
 
   // Cache for store data (simple in-memory cache)

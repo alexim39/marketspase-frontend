@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from '@shared/services';
+import { HttpParams } from '@angular/common/http';
 
 // Cache entry interface
 interface CacheEntry<T> {
@@ -13,8 +14,8 @@ interface CacheEntry<T> {
 export class PromoterLandingService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
-  private readonly apiUrl = 'promotion';
-  private readonly apiUrl2 = 'campaign';
+  private readonly promotionsEndpoint = 'api/v1/promotion';
+  private readonly campaignsEndpoint = 'api/v1/campaign';
   
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
@@ -34,7 +35,7 @@ export class PromoterLandingService {
       return of(cached.data);
     }
     
-    return this.apiService.get<any>(`${this.apiUrl}/user/${userId}`, undefined, undefined, true).pipe(
+    return this.apiService.get<any>(`${this.promotionsEndpoint}/user/${userId}`, undefined, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -74,17 +75,18 @@ export class PromoterLandingService {
       return of(cached.data);
     }
     
-    // Build query string manually
-    const queryParams = new URLSearchParams({
-      status: status,
-      userId: userId || '',
-      page: page.toString(),
-      limit: limit.toString()
-    }).toString();
+    let params = new HttpParams()
+      .set('status', status)
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    if (userId) {
+      params = params.set('userId', userId);
+    }
     
     return this.apiService.get<any>(
-      `${this.apiUrl2}/?${queryParams}`, 
-      undefined, 
+      this.campaignsEndpoint,
+      params,
       undefined, 
       true
     ).pipe(
@@ -111,7 +113,7 @@ export class PromoterLandingService {
    * @returns An observable of the API response.
    */
   acceptCampaign(campaignId: string, userId: string): Observable<any> {
-    return this.apiService.post<any>(`${this.apiUrl2}/${campaignId}/accept`, { userId }, undefined, true).pipe(
+    return this.apiService.post<any>(`${this.campaignsEndpoint}/${campaignId}/accept`, { userId }, undefined, true).pipe(
       tap(response => {
         if (response.success) {
           // Invalidate relevant cache entries

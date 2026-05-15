@@ -41,8 +41,8 @@ export interface ClaimResponse {
 @Injectable()
 export class NotificationBannerService {
   private apiService: ApiService = inject(ApiService);
-  private readonly apiUrl = 'user/promo';
-  private readonly bannerApiUrl = 'dashboard/banner-messages';
+  private readonly apiUrl = 'api/v1/user/promo';
+  private readonly bannerApiUrl = 'api/v1/dashboard/banner-messages';
 
   /**
    * Get active promotional offer for current user

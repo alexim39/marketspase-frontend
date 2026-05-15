@@ -222,7 +222,7 @@ export class StoreProductsListComponent implements OnInit, OnDestroy, OnChanges 
 
       // FIXED: Correct API endpoint path
       const response = await this.apiService.get<StoreProductsResponse>(
-        `stores/product/${this.storeId}/store-published-products`,
+        `api/v1/stores/product/${this.storeId}/store-published-products`,
         params,
         undefined,
         true

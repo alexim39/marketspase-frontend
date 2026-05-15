@@ -41,7 +41,7 @@ export interface PromotionStats {
 @Injectable()
 export class PromotionService {
   private apiService = inject(ApiService);
-  private apiUrl = 'stores/product/promotions';
+  private apiUrl = 'api/v1/stores/product/promotions';
   private router = inject(Router);
 
   /**
@@ -181,7 +181,7 @@ Secure checkout is available on MarketSpase, with payment held until delivery is
       params = params.set('promoterId', promoterId);
     }
     
-    return this.apiService.get(`stores/product/${productId}/promotion-stats`, params);
+    return this.apiService.get(`api/v1/stores/product/${productId}/promotion-stats`, params);
   }
  */
   /**

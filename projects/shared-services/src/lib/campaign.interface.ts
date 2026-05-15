@@ -73,6 +73,7 @@ export interface CampaignInterface {
   priority: 'low' | 'medium' | 'high';
   updatedAt: string;
   spentBudget: number; 
+  reservedBudget?: number;
   totalClicks?: number;
   billableClicks?: number;
   invalidClicks?: number;
@@ -85,6 +86,7 @@ export interface CampaignInterface {
   totalPromotions: number;
   promotions: PromotionInterface[];
   remainingBudget: number;
+  canAcceptPromoters?: boolean;
   thumbnailUrl?: string;
   ageTarget: string;
 

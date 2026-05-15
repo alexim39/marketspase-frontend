@@ -7,7 +7,7 @@ import { ApiService, CampaignInterface, } from '@shared/services';
 export class CampaignDetailsService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
-  private readonly apiUrl = 'campaign';
+  private readonly apiUrl = 'api/v1/campaign';
 
 
    /**
@@ -20,7 +20,7 @@ export class CampaignDetailsService {
   }
 
   updateCampaignStatus(id: string, status: string, performedBy: string): Observable<any> {
-    return this.apiService.patch<any>(`campaign/admin/${id}/status`, { status, performedBy }, undefined, true);
+    return this.apiService.patch<any>(`api/v1/campaign/admin/${id}/status`, { status, performedBy }, undefined, true);
   }
 
 

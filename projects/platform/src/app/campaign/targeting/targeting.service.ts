@@ -7,7 +7,7 @@ import { ApiService, CampaignInterface, TargetingArea } from '@shared/services';
 export class CampaignTargetingService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private apiUrl = 'campaign';
+  private apiUrl = 'api/v1/campaign';
 
   getCampaignById(id: string): Observable<any> {
     return this.apiService.get<CampaignInterface>(`${this.apiUrl}/${id}`);

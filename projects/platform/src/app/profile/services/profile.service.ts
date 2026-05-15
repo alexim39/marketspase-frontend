@@ -261,7 +261,7 @@ export interface PaginatedResponse<T> {
 @Injectable()
 export class ProfileService {
   private apiService: ApiService = inject(ApiService);
-  private baseUrl = 'profile';
+  private baseUrl = 'api/v1/profile';
 
   // New signals
   suggestedUsers = signal<SuggestedUser[]>([]);

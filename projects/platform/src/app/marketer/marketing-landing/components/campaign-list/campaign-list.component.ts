@@ -5,10 +5,20 @@ import { MatButtonModule } from '@angular/material/button';
 
 // Components
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
-import { CampaignInterface, DeviceService, PromotionInterface, TruncatePipe } from '@shared/services';
+import { CampaignInterface, DeviceService, TruncatePipe } from '@shared/services';
 import { CampaignCardComponent } from '../campaign-card/campaign-card.component';
 import { CampaignSkeletonComponent } from '../campaign-skeleton/campaign-skeleton.component';
 import { CampaignCardMobileComponent } from '../campaign-card/mobile/campaign-card-mobile.component';
+import {
+  getCampaignBudgetProgress,
+  getCampaignLifecycleClass,
+  getCampaignLifecycleLabel,
+  getCampaignRemainingBudget,
+  getCampaignSlotLabel,
+  getCampaignSlotValue,
+  getCampaignTimingLabel,
+  getCampaignTotalClicks,
+} from '../../../../common/utils/campaign-performance.util';
 
 @Component({
   selector: 'app-campaign-list',
@@ -120,12 +130,36 @@ export class CampaignListComponent {
     this.itemsPerPageChange.emit(limit);
   }
 
-  getViewCount(promotions: PromotionInterface[]): number {
-    let totalViews = 0;
-    promotions?.forEach(promotion => {
-      totalViews += promotion.proofViews || 0;
-    });
-    return totalViews;
+  getStatusClass(campaign: CampaignInterface): string {
+    return getCampaignLifecycleClass(campaign);
+  }
+
+  getStatusLabel(campaign: CampaignInterface): string {
+    return getCampaignLifecycleLabel(campaign);
+  }
+
+  getTimingLabel(campaign: CampaignInterface): string {
+    return getCampaignTimingLabel(campaign);
+  }
+
+  getClickCount(campaign: CampaignInterface): number {
+    return getCampaignTotalClicks(campaign);
+  }
+
+  getBudgetProgress(campaign: CampaignInterface): number {
+    return getCampaignBudgetProgress(campaign);
+  }
+
+  getRemainingBudget(campaign: CampaignInterface): number {
+    return getCampaignRemainingBudget(campaign);
+  }
+
+  getPromoterAccessValue(campaign: CampaignInterface): string {
+    return getCampaignSlotValue(campaign);
+  }
+
+  getPromoterAccessLabel(campaign: CampaignInterface): string {
+    return getCampaignSlotLabel(campaign);
   }
 
   getProgressColor(progress: number): string {

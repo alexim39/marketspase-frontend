@@ -6,8 +6,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { TitleCasePipe } from '@angular/common';
 import { ShortNumberPipe } from '../../../../../common/pipes/short-number.pipe';
-import { CampaignInterface, CurrencyUtilsPipe, PromotionInterface, TruncatePipe } from '@shared/services';
+import { CampaignInterface, CurrencyUtilsPipe, TruncatePipe } from '@shared/services';
 import { Router } from '@angular/router';
+import {
+  getCampaignBillableClicks,
+  getCampaignBudgetProgress,
+  getCampaignLifecycleClass,
+  getCampaignLifecycleLabel,
+  getCampaignRemainingBudget,
+  getCampaignSlotLabel,
+  getCampaignSlotValue,
+  getCampaignTimingLabel,
+  getCampaignTotalClicks,
+} from '../../../../../common/utils/campaign-performance.util';
 
 @Component({
   selector: 'app-campaign-card-mobile',
@@ -38,16 +49,16 @@ export class CampaignCardMobileComponent {
   @Output() resumeCampaign = new EventEmitter<string>();
   @Output() deleteCampaign = new EventEmitter<string>();
 
-   isNumber(value: number | string | null): string {
-    //console.log('the value is', value);
-    if (typeof value === 'number') {
-      if (value === 0) {
-        return 'Expired'; // Consistent string format for zero
-      }
-      return `Expires in ${value} ${value === 1 ? 'day' : 'days'}`;
-    } else {
-      return value === null ? 'Invalid duration' : String(value); // Explicitly handle null
-    }
+  getStatusClass(): string {
+    return getCampaignLifecycleClass(this.campaign);
+  }
+
+  getStatusLabel(): string {
+    return getCampaignLifecycleLabel(this.campaign);
+  }
+
+  getTimingLabel(): string {
+    return getCampaignTimingLabel(this.campaign);
   }
 
   onViewDetails(): void {
@@ -81,13 +92,28 @@ export class CampaignCardMobileComponent {
     this.deleteCampaign.emit(this.campaign._id);
   }
 
-  getViewCount(promotions: PromotionInterface[]): number {
-    let totalViews = 0;
-    promotions?.forEach(promotion => {
-      totalViews += promotion.proofViews || 0;
-    });
-    return totalViews;
+  getClickCount(): number {
+    return getCampaignTotalClicks(this.campaign);
   }
 
+  getBillableClicks(): number {
+    return getCampaignBillableClicks(this.campaign);
+  }
+
+  getBudgetProgress(): number {
+    return getCampaignBudgetProgress(this.campaign);
+  }
+
+  getRemainingBudget(): number {
+    return getCampaignRemainingBudget(this.campaign);
+  }
+
+  getPromoterAccessValue(): string {
+    return getCampaignSlotValue(this.campaign);
+  }
+
+  getPromoterAccessLabel(): string {
+    return getCampaignSlotLabel(this.campaign);
+  }
 
 }

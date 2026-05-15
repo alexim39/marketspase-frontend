@@ -69,7 +69,7 @@ export interface ContactFilter {
 
 @Injectable()
 export class ContactService {
-  private apiUrl = 'contact';
+  private apiUrl = 'api/v1/contact';
   private apiService: ApiService = inject(ApiService);
 
   getContactMessages(filter?: ContactFilter, page: number = 1, limit: number = 20): Observable<{ data: ContactMessage[]; total: number; page: number; limit: number; stats: ContactStats }> {
@@ -185,6 +185,6 @@ export class ContactService {
   }
 
   getAdmins(): Observable<Array<{ _id: string; username: string; displayName: string }>> {
-    return this.apiService.get<Array<{ _id: string; username: string; displayName: string }>>('/api/admin/users/admins');
+    return this.apiService.get<Array<{ _id: string; username: string; displayName: string }>>('api/v1/contact/admins');
   }
 }

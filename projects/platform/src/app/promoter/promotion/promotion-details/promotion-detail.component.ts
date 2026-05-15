@@ -18,6 +18,7 @@ import { PromotionProofComponent } from './components/promotion-proof/promotion-
 import { PromotionActivityComponent } from './components/promotion-activity/promotion-activity.component';
 import { PromotionFooterComponent } from './components/promotion-footer/promotion-footer.component';
 import { MatIconModule } from '@angular/material/icon';
+import { getCampaignCostPerClick, getCampaignRemainingBudget } from '../../utils/campaign-availability.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -102,38 +103,38 @@ export class PromotionDetailComponent implements OnInit {
     const promotion = this.promotion();
     if (!promotion) return;
 
-    const creationTime = new Date(promotion.createdAt).getTime();
-    const expirationTime = creationTime + (24 * 60 * 60 * 1000);
-    const currentTime = new Date().getTime();
-    this.timeDifferenceInMilliseconds.set(expirationTime - currentTime);
-
-    if (this.timeDifferenceInMilliseconds() <= 0) {
-      this.countdownSignal.set('Expired');
+    if (!promotion.campaign?.endDate) {
+      const remainingBudget = getCampaignRemainingBudget(promotion.campaign);
+      this.countdownSignal.set(
+        remainingBudget < getCampaignCostPerClick(promotion.campaign)
+          ? 'Budget Exhausted'
+          : 'Budget Based'
+      );
+      this.timeDifferenceInMilliseconds.set(0);
       return;
     }
+
+    this.updateCountdown();
 
     interval(1000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.updateCountdown();
       });
-
-    this.updateCountdown();
   }
 
   private updateCountdown(): void {
     const promotion = this.promotion();
-    if (!promotion) return;
+    if (!promotion?.campaign?.endDate) return;
 
-    const creationTime = new Date(promotion.createdAt).getTime();
-    const expirationTime = creationTime + (24 * 60 * 60 * 1000);
+    const endDate = new Date(promotion.campaign.endDate).getTime();
     const currentTime = new Date().getTime();
-    const timeDifference = expirationTime - currentTime;
+    const timeDifference = endDate - currentTime;
     
     this.timeDifferenceInMilliseconds.set(timeDifference);
 
     if (timeDifference <= 0) {
-      this.countdownSignal.set('Expired');
+      this.countdownSignal.set('Campaign Ended');
       return;
     }
 
@@ -158,11 +159,11 @@ export class PromotionDetailComponent implements OnInit {
     const promotion = this.promotion();
     if (!promotion) return true;
 
-    const createdAtUtc = new Date(promotion.createdAt);
-    const expiryTimeUtc = createdAtUtc.getTime() + (24 * 60 * 60 * 1000);
-    const nowUtc = new Date().getTime();
+    if (!promotion.campaign?.endDate) {
+      return getCampaignRemainingBudget(promotion.campaign) < getCampaignCostPerClick(promotion.campaign);
+    }
 
-    return nowUtc > expiryTimeUtc;
+    return Date.now() > new Date(promotion.campaign.endDate).getTime();
   }
 
   downloadPromotion(promotionId: string): void {
@@ -209,7 +210,7 @@ export class PromotionDetailComponent implements OnInit {
 
   getPromotionUrl(promotion: PromotionInterface): string {
     if (promotion.promotionUrl) return promotion.promotionUrl;
-    return `${this.api.replace(/\/$/, '')}/campaign/track/${promotion.upi}`;
+    return `${this.api.replace(/\/$/, '')}/api/v1/campaign/track/${promotion.upi}`;
   }
 
   viewProofMedia(mediaUrl: string): void {

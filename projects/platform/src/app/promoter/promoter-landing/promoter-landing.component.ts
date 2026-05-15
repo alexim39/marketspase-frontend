@@ -24,6 +24,14 @@ import { PromoterQuickStatsMobileComponent } from './components/promoter-quick-s
 import { CampaignFiltersMobileComponent, FilterType } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingStateMobileComponent } from './components/loading-state/mobile/loading-state-mobile.component';
+import {
+  canCampaignBeAccepted,
+  getCampaignCostPerClick,
+  getCampaignRemainingBudget,
+  hasCampaignOpenPromoterSlots,
+  isCampaignBudgetExhausted,
+  isCampaignExpired,
+} from '../utils/campaign-availability.util';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -141,10 +149,7 @@ export class PromoterLandingComponent implements OnInit {
         break;
       case 'active':
         filtered = filtered.filter(campaign => {
-          // A campaign is active if it's not explicitly expired or budget exhausted
-          const isInactive = campaign.remainingDays === 'Expired' || 
-                            campaign.remainingDays === 'Budget Exhausted';
-          return !isInactive && campaign.status === 'active';
+          return canCampaignBeAccepted(campaign);
         });
         break;
       case 'all':
@@ -167,15 +172,21 @@ export class PromoterLandingComponent implements OnInit {
     // Calculate earnings based on actual promotion status
     const totalEarnings = promotions
       .filter(promotion => promotion.status === 'paid')
-      .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
+      .reduce((sum, promotion) => {
+        const earnedAmount = promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0;
+        return sum + earnedAmount;
+      }, 0);
 
     const pendingEarnings = promotions
-      //.filter(promotion => promotion.status === 'submitted')
-      .filter(promotion => promotion.status === 'submitted' || promotion.status === 'accepted')
-      .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
+      .filter(promotion => !['paid', 'rejected'].includes(promotion.status))
+      .reduce((sum, promotion) => {
+        const earnedAmount = promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0;
+        return sum + earnedAmount;
+      }, 0);
 
     const activePromotions = promotions.filter(promotion => 
-      promotion.status === 'accepted' || promotion.status === 'submitted'
+      ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status) &&
+      promotion.isActive !== false
     ).length;
 
     const completedPromotions = promotions.filter(promotion => 
@@ -202,7 +213,7 @@ export class PromoterLandingComponent implements OnInit {
       const diffTime = endDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return diffDays <= 3 && diffDays > 0 && 
-            (promotion.status === 'accepted' || promotion.status === 'submitted');
+            ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status);
     }).length;
 
     return {
@@ -293,8 +304,12 @@ export class PromoterLandingComponent implements OnInit {
             },
             error: (error: HttpErrorResponse) => {
               console.error('Failed to load campaigns:', error);
+              if (!loadMore) {
+                this.campaigns.set([]);
+              }
               this.isLoading.set(false);
               this.hasLoaded.set(true);
+              this.hasMoreCampaigns.set(false);
             }
           });
       }
@@ -303,22 +318,28 @@ export class PromoterLandingComponent implements OnInit {
   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
     return campaigns.map(campaign => {
       const updatedCampaign = { ...campaign };
-      updatedCampaign.progress = campaign.budget > 0 ? ((campaign.spentBudget || 0) / campaign.budget) * 100 : 0;
-      if (campaign.endDate) {
+
+      const remainingBudget = getCampaignRemainingBudget(updatedCampaign);
+      const costPerClick = getCampaignCostPerClick(updatedCampaign);
+      updatedCampaign.remainingBudget = remainingBudget;
+      updatedCampaign.costPerClick = costPerClick;
+      updatedCampaign.progress = updatedCampaign.budget > 0
+        ? Math.min(((updatedCampaign.spentBudget || 0) / updatedCampaign.budget) * 100, 100)
+        : 0;
+
+      if (isCampaignExpired(updatedCampaign)) {
+        updatedCampaign.remainingDays = 'Expired';
+      } else if (isCampaignBudgetExhausted(updatedCampaign)) {
+        updatedCampaign.remainingDays = 'Budget Exhausted';
+      } else if (campaign.endDate) {
         const endDate = new Date(campaign.endDate);
-        if (isDatePast(endDate)) {
-          updatedCampaign.remainingDays = 'Expired';
-        } else {
-          updatedCampaign.remainingDays = formatRemainingDays(endDate);
-        }
+        updatedCampaign.remainingDays = isDatePast(endDate) ? 'Expired' : formatRemainingDays(endDate);
       } else {
-        const budgetRemaining = updatedCampaign.remainingBudget ?? (updatedCampaign.budget - (updatedCampaign.spentBudget || 0));
-        if (budgetRemaining <= 0) {
-          updatedCampaign.remainingDays = 'Budget Exhausted';
-        } else {
-          updatedCampaign.remainingDays = 'Ongoing';
-        }
+        updatedCampaign.remainingDays = 'Ongoing';
       }
+
+      updatedCampaign.canAcceptPromoters = hasCampaignOpenPromoterSlots(updatedCampaign) && remainingBudget >= costPerClick;
+
       return updatedCampaign;
     });
   }

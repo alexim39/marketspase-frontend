@@ -13,7 +13,7 @@ export interface PromotionResponse {
 export class PromotionService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private readonly apiUrl = 'promotion';
+  private readonly apiUrl = 'api/v1/promotion';
 
   getAllPromotions(): Observable<PromotionResponse> {
     return this.apiService.get<PromotionResponse>(`${this.apiUrl}/admin/promotions`);

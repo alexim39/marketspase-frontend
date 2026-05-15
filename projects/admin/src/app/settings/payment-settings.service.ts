@@ -39,10 +39,10 @@ export class PaymentSettingsService {
   private readonly apiService = inject(ApiService);
 
   getConfig(): Observable<PaymentSettingsResponse> {
-    return this.apiService.get<PaymentSettingsResponse>('wallet/admin/payment-config', undefined, undefined, true);
+    return this.apiService.get<PaymentSettingsResponse>('api/v1/wallet/admin/payment-config', undefined, undefined, true);
   }
 
   updateConfig(payload: AdminPaymentCurrencyConfig): Observable<PaymentSettingsResponse> {
-    return this.apiService.put<PaymentSettingsResponse>('wallet/admin/payment-config', payload, undefined, true);
+    return this.apiService.put<PaymentSettingsResponse>('api/v1/wallet/admin/payment-config', payload, undefined, true);
   }
 }

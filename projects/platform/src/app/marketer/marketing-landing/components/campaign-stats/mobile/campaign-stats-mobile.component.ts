@@ -1,36 +1,30 @@
-import { Component, computed, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CurrencyUtilsPipe, DeviceService, UserInterface } from '@shared/services';
 
 interface CampaignStats {
-  // Campaign counts
   totalCampaigns: number;
   activeCampaigns: number;
   draftCampaigns: number;
   completedCampaigns: number;
   pendingCampaigns: number;
-  
-  // Financial metrics
+  exhaustedCampaigns: number;
   totalSpent: number;
   totalBudget: number;
+  remainingBudget: number;
   budgetUtilization: number;
-  
-  // Performance metrics
-  totalViews: number;
+  totalClicks: number;
+  billableClicks: number;
+  invalidClicks: number;
   totalPromoters: number;
   totalPromotions: number;
-  successfulPromotions: number;
-  
-  // Engagement metrics
-  engagementRate: number;
-  successRate: number;
-  avgCompletionTime: string;
-  
-  // Additional metrics
-  avgPayout: number;
-  pendingPayout: number;
+  activePromotions: number;
+  clickQualityRate: number;
+  promoterActivationRate: number;
+  avgCostPerClick: number;
+  estimatedRemainingClicks: number;
   campaignsWithPromotions: number;
   campaignsNeedingAttention: number;
 }
@@ -54,20 +48,21 @@ interface StatItem {
 export class CampaignStatsMobileComponent implements OnChanges {
   @Input() stats!: CampaignStats;
   @Input() user!: UserInterface | null;
-  private deviceService = inject(DeviceService);
+
+  private readonly deviceService = inject(DeviceService);
+
+  readonly deviceType = computed(() => this.deviceService.type());
 
   statsArray: StatItem[] = [];
   filteredStats: StatItem[] = [];
   activeTab = 0;
-  
-  categories = [
+
+  readonly categories = [
     { key: 'overview', label: 'Overview', icon: 'dashboard' },
     { key: 'financial', label: 'Financial', icon: 'payments' },
     { key: 'performance', label: 'Performance', icon: 'trending_up' },
     { key: 'engagement', label: 'Engagement', icon: 'engagement' }
-  ];
-
-  deviceType = computed(() => this.deviceService.type());
+  ] as const;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['stats'] && this.stats) {
@@ -78,31 +73,28 @@ export class CampaignStatsMobileComponent implements OnChanges {
 
   private updateStatsArray(): void {
     this.statsArray = [
-      // Overview Section
       {
         label: 'Total Campaigns',
         value: this.stats.totalCampaigns.toString(),
         icon: 'campaign',
         category: 'overview',
-        description: `${this.stats.activeCampaigns} active • ${this.stats.draftCampaigns} drafts`
+        description: `${this.stats.activeCampaigns} live • ${this.stats.draftCampaigns} drafts`
       },
       {
-        label: 'Active Campaigns',
+        label: 'Live Campaigns',
         value: this.stats.activeCampaigns.toString(),
         icon: 'play_arrow',
         category: 'overview',
         highlight: true,
-        description: `${this.stats.campaignsWithPromotions} with promotions`
+        description: `${this.stats.campaignsWithPromotions} with promoter activity`
       },
       {
         label: 'Need Attention',
         value: this.stats.campaignsNeedingAttention.toString(),
         icon: 'warning',
         category: 'overview',
-        description: 'Active campaigns without promoters'
+        description: 'Live campaigns without active promoters'
       },
-
-      // Financial Section
       {
         label: 'Total Spent',
         value: this.formatCurrency(this.stats.totalSpent),
@@ -112,24 +104,22 @@ export class CampaignStatsMobileComponent implements OnChanges {
       },
       {
         label: 'Budget Used',
-        value: this.stats.budgetUtilization + '%',
+        value: `${this.stats.budgetUtilization}%`,
         icon: 'pie_chart',
         category: 'financial',
         description: 'Budget utilization rate'
       },
       {
-        label: 'Pending Payout',
-        value: this.formatCurrency(this.stats.pendingPayout),
-        icon: 'pending_actions',
+        label: 'Remaining Budget',
+        value: this.formatCurrency(this.stats.remainingBudget),
+        icon: 'account_balance_wallet',
         category: 'financial',
-        description: 'Awaiting validation/payment'
+        description: `${this.formatNumber(this.stats.estimatedRemainingClicks)} estimated clicks left`
       },
-
-      // Performance Section
       {
-        label: 'Total Views',
-        value: this.formatNumber(this.stats.totalViews),
-        icon: 'visibility',
+        label: 'Total Clicks',
+        value: this.formatNumber(this.stats.totalClicks),
+        icon: 'ads_click',
         category: 'performance',
         description: 'Across all promotions'
       },
@@ -141,34 +131,32 @@ export class CampaignStatsMobileComponent implements OnChanges {
         description: 'Active promoters'
       },
       {
-        label: 'Total Promotions',
+        label: 'Promotion Links',
         value: this.stats.totalPromotions.toString(),
-        icon: 'assignment',
+        icon: 'link',
         category: 'performance',
-        description: `${this.stats.successfulPromotions} successful`
+        description: `${this.stats.activePromotions} currently active`
       },
-
-      // Engagement Section
       {
-        label: 'Success Rate',
-        value: this.stats.successRate + '%',
+        label: 'Click Quality',
+        value: `${this.stats.clickQualityRate}%`,
         icon: 'verified',
         category: 'engagement',
-        description: 'Promotions completed'
+        description: `${this.formatNumber(this.stats.invalidClicks)} invalid or duplicate clicks`
       },
       {
-        label: 'Engagement Rate',
-        value: this.stats.engagementRate + '%',
+        label: 'Promoter Activation',
+        value: `${this.stats.promoterActivationRate}%`,
         icon: 'trending_up',
         category: 'engagement',
-        description: 'Views vs expected'
+        description: 'Live campaigns with promoter participation'
       },
       {
-        label: 'Avg Time',
-        value: this.stats.avgCompletionTime + 'h',
-        icon: 'schedule',
+        label: 'Average CPC',
+        value: this.formatCurrency(this.stats.avgCostPerClick),
+        icon: 'payments',
         category: 'engagement',
-        description: 'Submission to payment'
+        description: `${this.stats.exhaustedCampaigns} campaigns exhausted`
       }
     ];
   }
@@ -176,27 +164,27 @@ export class CampaignStatsMobileComponent implements OnChanges {
   filterStatsByCategory(tabIndex: number): void {
     this.activeTab = tabIndex;
     const category = this.categories[tabIndex].key;
-    this.filteredStats = this.statsArray.filter(stat => stat.category === category);
+    this.filteredStats = this.statsArray.filter((stat) => stat.category === category);
   }
 
   formatCurrency(amount: number): string {
-    if (!amount || isNaN(amount)) return '₦0';
+    if (!amount || Number.isNaN(amount)) return 'NGN 0';
     if (amount >= 1000000) {
-      return `₦${(amount / 1000000).toFixed(1)}M`;
+      return `NGN ${(amount / 1000000).toFixed(1)}M`;
     }
     if (amount >= 1000) {
-      return `₦${(amount / 1000).toFixed(1)}k`;
+      return `NGN ${(amount / 1000).toFixed(1)}k`;
     }
-    return `₦${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
+    return `NGN ${amount.toLocaleString('en-NG', { maximumFractionDigits: 0 })}`;
   }
 
   formatNumber(num: number): string {
-    if (!num || isNaN(num)) return '0';
+    if (!num || Number.isNaN(num)) return '0';
     if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
+      return `${(num / 1000000).toFixed(1)}M`;
     }
     if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'k';
+      return `${(num / 1000).toFixed(1)}k`;
     }
     return num.toString();
   }
