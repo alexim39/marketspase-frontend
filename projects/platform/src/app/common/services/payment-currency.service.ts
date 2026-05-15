@@ -64,6 +64,11 @@ export interface WalletOverviewResponse {
       name: string;
       symbol: string;
     }>;
+    supportedWithdrawalCurrencies: Array<{
+      code: string;
+      name: string;
+      symbol: string;
+    }>;
     lastRateRefreshAt?: string | Date | null;
   };
 }
@@ -73,7 +78,7 @@ export class PaymentCurrencyService {
   private readonly apiService = inject(ApiService);
 
   getConfig(): Observable<{ success: boolean; data: PaymentCurrencyConfig }> {
-    return this.apiService.get<{ success: boolean; data: PaymentCurrencyConfig }>('wallet/currencies/config');
+    return this.apiService.get<{ success: boolean; data: PaymentCurrencyConfig }>('api/v1/wallet/currencies/config');
   }
 
   getQuote(params: {
@@ -90,7 +95,7 @@ export class PaymentCurrencyService {
         purpose: params.purpose,
       },
     });
-    return this.apiService.get<{ success: boolean; data: CurrencyQuote }>('wallet/currencies/quote', query);
+    return this.apiService.get<{ success: boolean; data: CurrencyQuote }>('api/v1/wallet/currencies/quote', query);
   }
 
   getWalletOverview(role: 'marketer' | 'promoter', displayCurrency?: string): Observable<WalletOverviewResponse> {
@@ -98,12 +103,12 @@ export class PaymentCurrencyService {
     if (displayCurrency) {
       query = query.set('displayCurrency', displayCurrency);
     }
-    return this.apiService.get<WalletOverviewResponse>('wallet/wallet-overview', query, undefined, true);
+    return this.apiService.get<WalletOverviewResponse>('api/v1/wallet/wallet-overview', query, undefined, true);
   }
 
   updateDisplayCurrency(displayCurrency: string): Observable<{ success: boolean; data: { displayCurrency: string } }> {
     return this.apiService.put<{ success: boolean; data: { displayCurrency: string } }>(
-      'wallet/display-currency',
+      'api/v1/wallet/display-currency',
       { displayCurrency },
       undefined,
       true,
