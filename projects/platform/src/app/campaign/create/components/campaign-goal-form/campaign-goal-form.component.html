@@ -1,0 +1,44 @@
+<mat-card class="form-card goal-form-card">
+  <mat-card-header>
+    <mat-card-title>Campaign Goal</mat-card-title>
+    <mat-card-subtitle>
+      Pick the result you want this campaign to optimize for. You can choose one goal for each campaign.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="goal-grid" [formGroup]="formGroup">
+      @for (goal of goalOptions; track goal.value) {
+        <button
+          type="button"
+          class="goal-card"
+          [class.selected]="isSelected(goal.value)"
+          (click)="selectGoal(goal.value)"
+        >
+          <div class="goal-card-header">
+            <div class="goal-icon-wrap">
+              <mat-icon>{{ goal.icon }}</mat-icon>
+            </div>
+
+            <div class="goal-title-group">
+              <h3>{{ goal.title }}</h3>
+              <p>{{ goal.footer }}</p>
+            </div>
+
+            <div class="goal-selected-indicator" [class.active]="isSelected(goal.value)">
+              <mat-icon>{{ isSelected(goal.value) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </div>
+          </div>
+
+          <p class="goal-description">{{ goal.description }}</p>
+
+          <div class="goal-highlights">
+            @for (item of goal.highlights; track item) {
+              <span class="highlight-chip">{{ item }}</span>
+            }
+          </div>
+        </button>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

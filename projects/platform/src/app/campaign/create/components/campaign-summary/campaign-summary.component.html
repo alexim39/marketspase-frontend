@@ -7,7 +7,7 @@
   </mat-card-header>
   <mat-card-content class="preview-content">
     <div class="whatsapp-preview">
-      <p class="preview-header">WhatsApp Status Preview</p>
+      <p class="preview-header">Campaign Preview</p>
       <div class="phone-frame">
         <div class="status-view">
           @if (selectedMedia()?.url) {
@@ -26,10 +26,7 @@
           }
 
           <div class="status-top-bar">
-            <div class="status-progress"></div> 
-            <!-- <button mat-icon-button class="close-status-btn">
-              <mat-icon>close</mat-icon>
-            </button> -->
+            <div class="status-progress"></div>
           </div>
 
           <div class="status-footer">
@@ -40,12 +37,12 @@
             </div>
             @if (contentForm().get('caption')?.value) {
               <div class="status-caption">
-                <p>{{contentForm().get('caption')?.value}}</p>
+                <p>{{ contentForm().get('caption')?.value }}</p>
               </div>
             }
             @if (contentForm().get('link')?.value) {
               <a [href]="contentForm().get('link')?.value" target="_blank" class="status-link">
-                <mat-icon>link</mat-icon> {{contentForm().get('link')?.value | slice:0:30}}...
+                <mat-icon>link</mat-icon> {{ contentForm().get('link')?.value | slice:0:30 }}...
               </a>
             }
             <div class="status-action-prompt">
@@ -64,44 +61,33 @@
 
       <div class="detail-item">
         <span class="detail-label">Title</span>
-        <span class="detail-value">{{contentForm().get('title')?.value}}</span>
+        <span class="detail-value">{{ contentForm().get('title')?.value }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Category</span>
-        <span class="detail-value">{{contentForm().get('category')?.value}}</span>
+        <span class="detail-value">{{ contentForm().get('category')?.value }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Goal</span>
+        <div class="detail-value detail-value-goal">
+          <mat-icon>{{ getGoalIcon() }}</mat-icon>
+          <span>{{ selectedGoal().label }}</span>
+        </div>
       </div>
       <div class="detail-item">
         <span class="detail-label">Budget</span>
-        <span class="detail-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>
+        <span class="detail-value">{{ budgetForm().get('budget')?.value | currency: 'NGN':'symbol':'1.0-2' }}</span>
       </div>
-      <!-- <div class="detail-item">
-        <span class="detail-label">Promoter Slots</span>
-        <span class="detail-value">{{ slots() }}</span>
-      </div> -->
-
-      <!-- <div class="detail-item">
-        <span class="detail-label">Estimated Reach</span>
-        <span class="detail-value"> ~{{ estimatedReach() | shortNumber }} views</span>
-      </div> -->
-
       <div class="detail-item">
-        <span class="detail-label">Minimum Leads</span>
+        <span class="detail-label">{{ selectedGoal().outcomeLabel }}</span>
         <span class="detail-value">
-          ~{{ estimatedReach() | shortNumber }} leads
+          ~{{ estimatedOutcome() | shortNumber }} {{ selectedGoal().outcomeSuffix }}
         </span>
       </div>
-
       <div class="detail-item">
         <span class="detail-label">Payout Model</span>
         <span class="detail-value">Pay-Per-Click</span>
       </div>
-
-      <!-- <div class="detail-item">
-        <span class="detail-label">Payout Per Promoter</span>
-        <span class="detail-value">{{ tier() | currency: '₦':'symbol':'1.0-2' }}</span>
-      </div> -->
-
-
       <div class="detail-item">
         <span class="detail-label">Location Target</span>
         <span class="detail-value">{{ budgetForm().get('enableTarget')?.value ? 'Local Reach' : 'Wider Reach' }}</span>
@@ -118,11 +104,11 @@
       </div>
       <div class="detail-item">
         <span class="detail-label">Start Date</span>
-        <span class="detail-value">{{scheduleForm().get('startDate')?.value | date:'shortDate'}}</span>
+        <span class="detail-value">{{ scheduleForm().get('startDate')?.value | date:'shortDate' }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">End Date</span>
-        <span class="detail-value">{{scheduleForm().get('endDate')?.value ? (scheduleForm().get('endDate')?.value | date:'shortDate') : 'No end date'}}</span>
+        <span class="detail-value">{{ scheduleForm().get('endDate')?.value ? (scheduleForm().get('endDate')?.value | date:'shortDate') : 'No end date' }}</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Duration</span>
@@ -133,9 +119,7 @@
     <div class="final-cost-summary">
       <mat-icon class="summary-icon">info</mat-icon>
       <p class="summary-text">
-         Promoters are paid based on actual engagement. Your campaign automatically stops when your budget runs out or the end date is reached.
-        <!-- <span class="cost-value">{{budgetForm().get('budget')?.value | currency: '₦':'symbol':'1.0-2'}}</span>,
-        which will be deducted from your wallet upon launch. -->
+        {{ selectedGoal().description }} Promoters are paid based on verified clicks, and your campaign automatically stops when the budget is exhausted or the end date is reached.
       </p>
     </div>
   </mat-card-content>

@@ -66,6 +66,7 @@ export interface CampaignInterface {
   mediaUrl?: string;
   mediaType?: string;
   category: string;
+  campaignGoal?: 'awareness' | 'leads';
   progress: number;
   remainingDays?: number | string | 'Expired' | 'Budget Exhausted' | 'Budget-based';
   campaignType: 'standard' | 'premium' | 'boost';

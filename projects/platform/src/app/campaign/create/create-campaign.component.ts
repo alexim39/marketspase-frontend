@@ -29,6 +29,7 @@ import { DeviceService, UserInterface } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CampaignContentFormComponent } from './components/campaign-content-form/campaign-content-form.component';
+import { CampaignGoalFormComponent } from './components/campaign-goal-form/campaign-goal-form.component';
 import { CampaignBudgetFormComponent } from './components/campaign-budget-form/campaign-budget-form.component';
 import { CampaignScheduleFormComponent } from './components/campaign-schedule-form/campaign-schedule-form.component';
 import { CampaignSummaryComponent } from './components/campaign-summary/campaign-summary.component';
@@ -60,6 +61,7 @@ import { MediaFile } from './media-file.model';
     MatTooltipModule,
     // Refactored Components
     CampaignContentFormComponent,
+    CampaignGoalFormComponent,
     CampaignBudgetFormComponent,
     CampaignScheduleFormComponent,
     CampaignSummaryComponent
@@ -88,11 +90,13 @@ export class CreateCampaignComponent implements OnInit {
 
   // Form groups to be passed down to child components
   contentForm!: FormGroup;
+  goalForm!: FormGroup;
   budgetForm!: FormGroup;
   scheduleForm!: FormGroup;
 
   // Signals to track validity of each step
   isContentValid = signal(false);
+  isGoalValid = signal(false);
   isBudgetValid = signal(false);
   isScheduleValid = signal(true);
   // isScheduleValid = signal(false);
@@ -106,6 +110,7 @@ export class CreateCampaignComponent implements OnInit {
 
   campaignIsReady = computed(() =>
     this.isContentValid() &&
+    this.isGoalValid() &&
     this.isBudgetValid() &&
     this.isScheduleValid() &&
     this.walletBalance() >= this.budgetValue()
@@ -114,6 +119,7 @@ export class CreateCampaignComponent implements OnInit {
 
   campaignIsReadyAsDraft = computed(() =>
     this.isContentValid() &&
+    this.isGoalValid() &&
     this.isBudgetValid() &&
     this.isScheduleValid()
   );
@@ -140,6 +146,11 @@ export class CreateCampaignComponent implements OnInit {
       category: ['other', Validators.required]
     });
 
+    this.goalForm = this.fb.group({
+      campaignGoal: ['awareness', Validators.required]
+    });
+    this.isGoalValid.set(this.goalForm.valid);
+
     this.budgetForm = this.fb.group({
       budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
       //enableTarget: [true],
@@ -161,10 +172,12 @@ export class CreateCampaignComponent implements OnInit {
     const current = this.currentStep();
     if (current === 1 && this.isContentValid()) {
       this.currentStep.set(2);
-    } else if (current === 2 && this.isBudgetValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value) {
+    } else if (current === 2 && this.isGoalValid()) {
       this.currentStep.set(3);
-    } else if (current === 3 && this.isScheduleValid()) {
+    } else if (current === 3 && this.isBudgetValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value) {
       this.currentStep.set(4);
+    } else if (current === 4 && this.isScheduleValid()) {
+      this.currentStep.set(5);
     }
   }
 
@@ -177,9 +190,10 @@ export class CreateCampaignComponent implements OnInit {
 
   isStepActive(step: number): boolean {
     if (step === 1) return this.isContentValid();
-    if (step === 2) return this.isBudgetValid();
-    if (step === 3) return this.isScheduleValid();
-    if (step === 4) return this.campaignIsReady();
+    if (step === 2) return this.isGoalValid();
+    if (step === 3) return this.isBudgetValid();
+    if (step === 4) return this.isScheduleValid();
+    if (step === 5) return this.campaignIsReady();
     return false;
   }
 
@@ -194,6 +208,10 @@ export class CreateCampaignComponent implements OnInit {
 
   onMediaChange(media: MediaFile | null): void {
     this.selectedMedia.set(media);
+  }
+
+  onGoalValidityChange(isValid: boolean): void {
+    this.isGoalValid.set(isValid);
   }
 
   onBudgetValidityChange(isValid: boolean): void {
@@ -225,41 +243,7 @@ export class CreateCampaignComponent implements OnInit {
     this.isSubmitting.set(true);
 
     if (this.campaignIsReady()) {
-      const formData = new FormData();
-      formData.append('title', this.contentForm.get('title')?.value);
-      formData.append('caption', this.contentForm.get('caption')?.value);
-      formData.append('link', this.contentForm.get('link')?.value);
-      formData.append('category', this.contentForm.get('category')?.value);
-      formData.append('budget', this.budgetForm.get('budget')?.value);
-      formData.append('enableTarget', this.budgetForm.get('enableTarget')?.value);
-      formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
-      formData.append('currency', 'NGN');
-      formData.append('owner', this.user()?._id ?? '');
-      formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
-
-    
-
-
-
-     /*  formData.append(
-        'minViewsPerPromotion',
-        String(this.budgetForm.get('minViews')?.value)
-      );
-
-      formData.append(
-        'maxViewsPerPromotion',
-        String(this.budgetForm.get('maxViews')?.value)
-      ); */
-
-
-      if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
-        formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
-      }
-
-      const selected = this.selectedMedia();
-      if (selected && selected.file) {
-        formData.append('media', selected.file);
-      }
+      const formData = this.buildCampaignFormData();
 
       this.campaignService.create(formData)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -356,39 +340,7 @@ export class CreateCampaignComponent implements OnInit {
     this.isSubmitting.set(true);
 
     if (this.campaignIsReadyAsDraft()) {
-      const formData = new FormData();
-      formData.append('title', this.contentForm.get('title')?.value);
-      formData.append('caption', this.contentForm.get('caption')?.value);
-      formData.append('link', this.contentForm.get('link')?.value);
-      formData.append('category', this.contentForm.get('category')?.value);
-      formData.append('budget', this.budgetForm.get('budget')?.value);
-      formData.append('enableTarget', this.budgetForm.get('enableTarget')?.value);
-      formData.append('startDate', this.scheduleForm.get('startDate')?.value?.toISOString());
-      formData.append('currency', 'NGN');
-      formData.append('owner', this.user()?._id ?? '');
-      formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value);
-
-
-
-     /*  formData.append(
-        'minViewsPerPromotion',
-        String(this.budgetForm.get('minViews')?.value)
-      );
-
-      formData.append(
-        'maxViewsPerPromotion',
-        String(this.budgetForm.get('maxViews')?.value)
-      ); */
-
-
-      if (this.scheduleForm.get('hasEndDate')?.value && this.scheduleForm.get('endDate')?.value) {
-        formData.append('endDate', this.scheduleForm.get('endDate')?.value?.toISOString());
-      }
-
-      const selected = this.selectedMedia();
-      if (selected && selected.file) {
-        formData.append('media', selected.file);
-      }
+      const formData = this.buildCampaignFormData();
 
       this.campaignService.save(formData)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -418,10 +370,10 @@ export class CreateCampaignComponent implements OnInit {
 
   onSaveAsDraft(): void {
     // Just navigate to the next step without saving
-    if (this.currentStep() === 2) {
+    if (this.currentStep() === 3) {
       // Optionally validate that basic required fields are filled
       if ( this.budgetForm.get('ageTarget')?.valid) {
-        this.currentStep.set(3);
+        this.currentStep.set(4);
         this.snackBar.open('Proceeding to save campaign as draft', 'OK', { duration: 2000 });
       } else {
         this.snackBar.open('Please select age target first', 'OK', { duration: 3000 });
@@ -448,6 +400,40 @@ export class CreateCampaignComponent implements OnInit {
       // Update validation status
       linkControl?.updateValueAndValidity();
     });
+  }
+
+  private buildCampaignFormData(): FormData {
+    const formData = new FormData();
+    const startDate = this.scheduleForm.get('startDate')?.value;
+    const endDate = this.scheduleForm.get('endDate')?.value;
+    const hasEndDate = Boolean(this.scheduleForm.get('hasEndDate')?.value);
+
+    formData.append('title', this.contentForm.get('title')?.value ?? '');
+    formData.append('caption', this.contentForm.get('caption')?.value ?? '');
+    formData.append('link', this.contentForm.get('link')?.value ?? '');
+    formData.append('category', this.contentForm.get('category')?.value ?? 'other');
+    formData.append('campaignGoal', this.goalForm.get('campaignGoal')?.value ?? 'awareness');
+    formData.append('budget', String(this.budgetForm.get('budget')?.value ?? ''));
+    formData.append('enableTarget', String(this.budgetForm.get('enableTarget')?.value ?? true));
+    formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value ?? 'all');
+    formData.append('currency', 'NGN');
+    formData.append('owner', this.user()?._id ?? '');
+    formData.append('hasEndDate', String(hasEndDate));
+
+    if (startDate) {
+      formData.append('startDate', startDate.toISOString());
+    }
+
+    if (hasEndDate && endDate) {
+      formData.append('endDate', endDate.toISOString());
+    }
+
+    const selected = this.selectedMedia();
+    if (selected?.file) {
+      formData.append('media', selected.file);
+    }
+
+    return formData;
   }
 
 }
