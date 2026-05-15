@@ -174,6 +174,21 @@ export const getCampaignTimingLabel = (campaign: CampaignInterface): string => {
   return 'Budget based';
 };
 
+export const getCampaignLocationMatchLabel = (campaign: CampaignInterface): string | null => {
+  switch (campaign.ownerAddressMatchLevel) {
+    case 'street':
+      return 'Same area as you';
+    case 'city':
+      return 'Same city as you';
+    case 'state':
+      return 'Same state as you';
+    case 'country':
+      return 'Same country as you';
+    default:
+      return campaign.marketerLocationSummary || null;
+  }
+};
+
 export const getCampaignSlotValue = (campaign: CampaignInterface): string => {
   if (!hasCampaignPromoterLimit(campaign)) {
     return 'Open';

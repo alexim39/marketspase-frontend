@@ -90,6 +90,8 @@ export interface CampaignInterface {
   canAcceptPromoters?: boolean;
   thumbnailUrl?: string;
   ageTarget: string;
+  marketerLocationSummary?: string | null;
+  ownerAddressMatchLevel?: 'street' | 'city' | 'state' | 'country' | 'none';
 
 
   //filledSlots: number;

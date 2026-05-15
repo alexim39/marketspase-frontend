@@ -79,10 +79,6 @@ export class PromoterLandingService {
       .set('status', status)
       .set('page', page.toString())
       .set('limit', limit.toString());
-
-    if (userId) {
-      params = params.set('userId', userId);
-    }
     
     return this.apiService.get<any>(
       this.campaignsEndpoint,
@@ -113,7 +109,7 @@ export class PromoterLandingService {
    * @returns An observable of the API response.
    */
   acceptCampaign(campaignId: string, userId: string): Observable<any> {
-    return this.apiService.post<any>(`${this.campaignsEndpoint}/${campaignId}/accept`, { userId }, undefined, true).pipe(
+    return this.apiService.post<any>(`${this.campaignsEndpoint}/${campaignId}/accept`, {}, undefined, true).pipe(
       tap(response => {
         if (response.success) {
           // Invalidate relevant cache entries

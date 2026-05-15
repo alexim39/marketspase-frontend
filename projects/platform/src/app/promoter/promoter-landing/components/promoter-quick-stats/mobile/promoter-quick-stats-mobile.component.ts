@@ -10,7 +10,7 @@ interface CampaignMetrics {
   activePromotions: number;
   expiringSoon: number;
   successRate: number;
-  totalViews: number;
+  totalClicks: number;
   completedPromotions?: number;
   avgEarnings?: number;
 }
@@ -95,7 +95,7 @@ export class PromoterQuickStatsMobileComponent {
 
       // Performance Category
       {
-        label: 'Active Campaigns',
+        label: 'Active Promotions',
         value: this.metrics.activePromotions.toString(),
         icon: 'campaign',
         category: 'performance',
@@ -117,7 +117,7 @@ export class PromoterQuickStatsMobileComponent {
       },
       {
         label: 'Completion Rate',
-        value: `${Math.min(100, Math.round((this.metrics.completedPromotions || 0) / this.metrics.activePromotions * 100))}%`,
+        value: `${this.getCompletionRate()}%`,
         icon: 'task_alt',
         category: 'performance',
         description: 'Promotions completed'
@@ -126,21 +126,21 @@ export class PromoterQuickStatsMobileComponent {
       // Engagement Category
       {
         label: 'Total Clicks',
-        value: this.formatNumber(this.metrics.totalViews),
+        value: this.formatNumber(this.metrics.totalClicks),
         icon: 'touch_app',
         category: 'engagement',
         description: 'Lifetime tracked clicks'
       },
       {
         label: 'Engagement Score',
-        value: `${Math.min(100, Math.round(this.metrics.successRate * 0.7 + (this.metrics.totalViews / 1000)))}%`,
+        value: `${Math.min(100, Math.round(this.metrics.successRate * 0.7 + (this.metrics.totalClicks / 1000)))}%`,
         icon: 'insights',
         category: 'engagement',
         description: 'Overall performance'
       },
       {
         label: 'Active Rate',
-        value: `${Math.min(100, Math.round((this.metrics.activePromotions / (this.metrics.completedPromotions || 1)) * 100))}%`,
+        value: `${this.getActiveRate()}%`,
         icon: 'work',
         category: 'engagement',
         description: 'Current activity level'
@@ -174,5 +174,21 @@ export class PromoterQuickStatsMobileComponent {
     if (successRate >= 70) return 'Great performance';
     if (successRate >= 60) return 'Good performance';
     return 'Needs improvement';
+  }
+
+  private getCompletionRate(): number {
+    if (!this.metrics.activePromotions) {
+      return 0;
+    }
+
+    return Math.min(100, Math.round(((this.metrics.completedPromotions || 0) / this.metrics.activePromotions) * 100));
+  }
+
+  private getActiveRate(): number {
+    if (!(this.metrics.completedPromotions || 0)) {
+      return this.metrics.activePromotions > 0 ? 100 : 0;
+    }
+
+    return Math.min(100, Math.round((this.metrics.activePromotions / (this.metrics.completedPromotions || 1)) * 100));
   }
 }
