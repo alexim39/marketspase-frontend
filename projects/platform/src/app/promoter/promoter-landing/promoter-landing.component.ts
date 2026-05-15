@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -77,6 +77,7 @@ export class PromoterLandingComponent implements OnInit {
   private promoterLandingService = inject(PromoterLandingService);
   private snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   
   public readonly api = this.promoterLandingService.api;
 
@@ -234,7 +235,7 @@ export class PromoterLandingComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    toObservable(this.user)
+    runInInjectionContext(this.injector, () => toObservable(this.user))
       .pipe(
         filter((user): user is UserInterface => !!user?._id),
         distinctUntilChanged((previous, current) => previous._id === current._id),
