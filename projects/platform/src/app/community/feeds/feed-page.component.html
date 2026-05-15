@@ -137,6 +137,7 @@
               (save)="onSave(post._id)"
               (comment)="onComment(post._id)"
               (share)="onShare(post)"
+              (chat)="onChat($event)"
               (sharePlatform)="onShare(post, $event)"
               (hashtagClick)="onHashtagClick($event)">
             </app-feed-post-card>
@@ -163,6 +164,7 @@
               (save)="onSave($event)"
               (comment)="onComment($event)"
               (share)="onShare(post)"
+              (chat)="onChat($event)"
               (sharePlatform)="onShare(post, $event)"
               (hashtagClick)="onHashtagClick($event)">
             </app-feed-post-card>

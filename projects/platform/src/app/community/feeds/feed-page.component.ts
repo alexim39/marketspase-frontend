@@ -63,7 +63,7 @@ import { UserInterface } from '@shared/services';
   styleUrls: ['./feed-page.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FeedPageComponent implements AfterViewInit {
+export class DesktopFeedPageComponent implements AfterViewInit {
   currentYear = new Date().getFullYear();
 
   private readonly feedService = inject(FeedService);
@@ -246,6 +246,24 @@ export class FeedPageComponent implements AfterViewInit {
     }
 
     this.feedService.sharePost(post._id, this.user()?._id ?? '', platform).subscribe();
+  }
+
+  onChat(post: FeedPost): void {
+    const phone = post.phone;
+    if (!phone) {
+      this.snackBar.open('No WhatsApp contact is available for this post yet.', 'Dismiss', { duration: 2600 });
+      return;
+    }
+
+    window.open(
+      `https://wa.me/${phone}?text=${encodeURIComponent('Hello, I found your post on MarketSpase and I would like to learn more.')}`,
+      '_blank',
+      'noopener'
+    );
+
+    this.feedService.trackChatClick(post._id, this.user()?._id ?? undefined).subscribe({
+      error: () => null
+    });
   }
 
   onComment(postId: string): void {

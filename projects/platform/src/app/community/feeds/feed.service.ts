@@ -299,8 +299,8 @@ export class FeedService {
     if (featured) return featured;
 
     return [...posts].sort((a, b) => {
-      const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount;
-      const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount;
+      const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount + (a.chatCount || 0);
+      const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount + (b.chatCount || 0);
       return scoreB - scoreA;
     })[0];
   });
@@ -415,6 +415,23 @@ export class FeedService {
       tap(() => {
         this.postsSignal.update((posts) =>
           posts.map((post) => post._id === postId ? { ...post, shareCount: post.shareCount + 1 } : post)
+        );
+      })
+    );
+  }
+
+  trackChatClick(postId: string, userId?: string): Observable<{ chatCount: number }> {
+    const body = userId ? { userId } : {};
+    return this.apiService.post<any>(`${this.apiUrl}/${postId}/chat-click`, body, undefined, true).pipe(
+      map((response) => response?.data || response),
+      tap((payload) => {
+        const nextCount = typeof payload?.chatCount === 'number' ? payload.chatCount : null;
+        this.postsSignal.update((posts) =>
+          posts.map((post) =>
+            post._id === postId
+              ? { ...post, chatCount: nextCount ?? ((post.chatCount || 0) + 1) }
+              : post
+          )
         );
       })
     );

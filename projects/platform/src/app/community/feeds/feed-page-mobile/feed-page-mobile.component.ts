@@ -413,14 +413,15 @@ loadMore(): void {
 
   // Open WhatsApp chat (example – you can adjust the link structure)
   openWhatsApp(post: FeedPost): void {
-    // Assuming the post has a contact number or WhatsApp link
-    // e.g., post.campaign?.contactWhatsapp or post.author?.phone
     const phone = post.phone;
     if (phone) {
-      const url = `https://wa.me/${post.phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I%27m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
-      window.open(url, '_blank');
+      const url = `https://wa.me/${post.phone}?text=${encodeURIComponent('Hello, I found your post on MarketSpase and I would like to learn more.')}`;
+      window.open(url, '_blank', 'noopener');
+      this.feedService.trackChatClick(post._id, this.user()?._id ?? undefined).subscribe({
+        error: () => null
+      });
     } else {
-        this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
+      this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
     }
   }
 

@@ -59,6 +59,7 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
                 (save)="onSave($event)"
                 (comment)="onComment($event)"
                 (share)="onShare(currentPost)"
+                (chat)="onChat($event)"
                 (sharePlatform)="onShare(currentPost, $event)"
                 (hashtagClick)="openTag($event)">
               </app-feed-post-card>
@@ -212,6 +213,26 @@ export class PublicFeedPostComponent {
     if (this.user()?._id) {
       this.feedService.sharePost(post._id, this.user()?._id ?? '', platform).subscribe();
     }
+  }
+
+  onChat(post: FeedPost): void {
+    if (!post.phone) {
+      this.snackBar.open('No WhatsApp contact is available for this post yet.', 'OK', { duration: 2200 });
+      return;
+    }
+
+    window.open(
+      `https://wa.me/${post.phone}?text=${encodeURIComponent('Hello, I found your post on MarketSpase and I would like to learn more.')}`,
+      '_blank',
+      'noopener'
+    );
+
+    this.feedService.trackChatClick(post._id, this.user()?._id ?? undefined).subscribe({
+      next: (payload) => {
+        this.post.update((current) => current ? { ...current, chatCount: payload.chatCount } : current);
+      },
+      error: () => null
+    });
   }
 
   openTag(tag: string): void {

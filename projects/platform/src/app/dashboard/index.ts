@@ -62,9 +62,17 @@ export class DashboardIndexComponent {
   });
 
   readonly user = signal<UserInterface | null>(null);
+  private readonly currentRoute = signal(this.router.url);
   protected readonly deviceType = computed(() => this.deviceService.type());
   protected readonly isLoading = computed(() => this.authState().isLoading);
   protected readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
+  protected readonly showDailyCheckIn = computed(() => {
+    if (this.deviceType() !== 'mobile') {
+      return true;
+    }
+
+    return this.isDashboardHomeRoute(this.currentRoute());
+  });
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dailyCheckInService.deactivate());
@@ -110,9 +118,19 @@ export class DashboardIndexComponent {
 
         this.loadingService.hide();
         if (event instanceof NavigationEnd) {
+          this.currentRoute.set(event.urlAfterRedirects || event.url);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       });
+  }
+
+  private isDashboardHomeRoute(url: string): boolean {
+    const normalized = (url || '')
+      .split('?')[0]
+      .split('#')[0]
+      .replace(/\/+$/, '');
+
+    return normalized === '/dashboard' || normalized === '';
   }
 
   private loadDashboardUser(uid: string): void {
@@ -127,7 +145,14 @@ export class DashboardIndexComponent {
 
           const resolvedUser = response.data as UserInterface;
           this.user.set(resolvedUser);
-          this.dailyCheckInService.activate(resolvedUser);
+
+          // Let the dashboard shell finish its initial render before streak state
+          // starts toggling prompt/session signals.
+          queueMicrotask(() => {
+            if (this.user()?._id === resolvedUser._id) {
+              this.dailyCheckInService.activate(resolvedUser);
+            }
+          });
         },
         error: (error: HttpErrorResponse) => {
           const message = error.error?.message || 'We could not load your dashboard.';

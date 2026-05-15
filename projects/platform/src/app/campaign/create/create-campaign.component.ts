@@ -35,6 +35,8 @@ import { CampaignScheduleFormComponent } from './components/campaign-schedule-fo
 import { CampaignSummaryComponent } from './components/campaign-summary/campaign-summary.component';
 import { MediaFile } from './media-file.model';
 
+const DEFAULT_CAMPAIGN_COST_PER_CLICK = 80;
+
 @Component({
   selector: 'app-create-campaign',
   standalone: true,
@@ -414,6 +416,7 @@ export class CreateCampaignComponent implements OnInit {
     formData.append('category', this.contentForm.get('category')?.value ?? 'other');
     formData.append('campaignGoal', this.goalForm.get('campaignGoal')?.value ?? 'awareness');
     formData.append('budget', String(this.budgetForm.get('budget')?.value ?? ''));
+    formData.append('costPerClick', String(DEFAULT_CAMPAIGN_COST_PER_CLICK));
     formData.append('enableTarget', String(this.budgetForm.get('enableTarget')?.value ?? true));
     formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value ?? 'all');
     formData.append('currency', 'NGN');

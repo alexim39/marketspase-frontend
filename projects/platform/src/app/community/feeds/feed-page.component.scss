@@ -2,30 +2,38 @@
 @import '../../../styles/mixins';
 
 // Variables specific to feed page
-$sidebar-width: 280px;
-$main-content-max-width: 680px;
+$sidebar-width: 320px;
+$main-content-max-width: 940px;
+$desktop-shell-max-width: 1360px;
+$desktop-shell-wide-max-width: 1640px;
 
 // Main Container – now always uses desktop layout
 .feed-container {
   min-height: 100vh;
-  background: $background-color;
+  background:
+    radial-gradient(circle at top left, rgba(var(--primary-rgb), 0.08), transparent 28%),
+    $background-color;
   display: flex;
   padding-left: $sidebar-width;
 }
 
 .desktop-layout {
-  display: flex;
-  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $spacing-6;
+  width: min(100%, $desktop-shell-max-width);
   min-height: 100vh;
+  align-items: flex-start;
+  margin: 0 auto;
 }
 
 
 // Main Content
 .main-content {
-  flex: 1;
+  width: 100%;
   max-width: $main-content-max-width;
   margin: 0 auto;
-  padding: $spacing-4;
+  padding: $spacing-5 $spacing-6 $spacing-8;
 
   .feed-header {
     @include flex-between;
@@ -318,6 +326,7 @@ $main-content-max-width: 680px;
     .featured-post-container {
       position: relative;
       margin-bottom: $spacing-6;
+      grid-column: 1 / -1;
 
       .featured-badge {
         position: absolute;
@@ -403,8 +412,9 @@ $main-content-max-width: 680px;
 
 // Right Sidebar
 .right-sidebar {
-  width: $sidebar-width;
-  padding: $spacing-4;
+  width: min(100%, 760px);
+  padding: 0 $spacing-6 $spacing-8;
+  margin: 0 auto;
 
   .search-box {
     position: relative;
@@ -629,11 +639,10 @@ $main-content-max-width: 680px;
   }
 
   // Sticky behaviour
-  position: sticky;
-  top: $spacing-4;
-  height: fit-content;
-  max-height: calc(100vh - #{$spacing-4 * 2});
-  overflow-y: auto;
+  position: static;
+  height: auto;
+  max-height: none;
+  overflow: visible;
 
   &::-webkit-scrollbar {
     display: none;
@@ -643,12 +652,11 @@ $main-content-max-width: 680px;
 // Posts grid
 .feed-posts {
   .posts-grid {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-4;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $spacing-5;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+    align-items: stretch;
   }
 }
 
@@ -656,12 +664,80 @@ $main-content-max-width: 680px;
 :host ::ng-deep app-feed-post-card {
   display: block;
   width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 1480px) {
+  .desktop-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, $sidebar-width);
+    width: min(100%, 1480px);
+  }
+
+  .main-content {
+    max-width: 980px;
+    padding-right: $spacing-4;
+  }
+
+  .right-sidebar {
+    width: auto;
+    padding: $spacing-5 $spacing-5 $spacing-8 0;
+    position: sticky;
+    top: $spacing-4;
+    height: fit-content;
+    max-height: calc(100vh - #{$spacing-4 * 2});
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 1760px) {
+  .desktop-layout {
+    width: min(100%, $desktop-shell-wide-max-width);
+  }
+
+  .main-content {
+    max-width: 1180px;
+  }
+
+  .feed-posts .posts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1480px) {
+  .main-content {
+    padding-right: $spacing-4;
+    padding-left: $spacing-4;
+  }
+}
+
+@media (max-width: 1180px) {
+  .feed-container {
+    padding-left: 0;
+  }
+
+  .desktop-layout {
+    width: 100%;
+  }
+
+  .right-sidebar {
+    width: 100%;
+    padding: 0 $spacing-4 $spacing-8;
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 @media (max-width: 1100px) {
   .main-content {
     .feed-stats {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .forum-highlights {
+      .forum-highlight-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
   }
 }

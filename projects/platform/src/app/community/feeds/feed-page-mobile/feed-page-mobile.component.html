@@ -145,11 +145,10 @@
               }}</mat-icon>
             </button>
 
-            <!-- WhatsApp contact (only for campaign posts) -->
-            @if (post.type === 'campaign') {
+            @if (post.phone) {
               <button class="action-btn" (click)="openWhatsApp(post)">
                 <i class="fa fa-whatsapp" aria-hidden="true" style="height: 2em; width: 2em;"></i>
-                <!-- <span>Contact</span> -->
+                <span>{{ post.chatCount || 0 }}</span>
               </button>
             }
 
