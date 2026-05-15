@@ -51,6 +51,9 @@
     <div class="card-meta">
       <span><i class="material-icons">{{getCategoryIcon(campaign.category)}}</i> {{campaign.category | titlecase}}</span>
       <span><i class="material-icons">schedule</i> {{ getTimingLabel(campaign) }}</span>
+      @if (getLocationLabel(campaign)) {
+        <span><i class="material-icons">near_me</i> {{ getLocationLabel(campaign) }}</span>
+      }
     </div>
 
     <div class="metrics">

@@ -58,6 +58,12 @@
             <i class="material-icons">schedule</i>
             {{ getTimingLabel(campaign) }}
           </span>
+          @if (getLocationLabel(campaign)) {
+            <span class="duration">
+              <i class="material-icons">near_me</i>
+              {{ getLocationLabel(campaign) }}
+            </span>
+          }
         </div>
         
         <div class="compact-stats">
@@ -155,6 +161,12 @@
               <i class="material-icons">schedule</i>
               <span>{{ getTimingLabel(campaign) }}</span>
             </div>
+            @if (getLocationLabel(campaign)) {
+              <div class="meta-item">
+                <i class="material-icons">near_me</i>
+                <span>{{ getLocationLabel(campaign) }}</span>
+              </div>
+            }
             <div class="meta-item">
               <i class="material-icons">touch_app</i>
               <span>{{getEstimatedClicks(campaign) | number}} estimated clicks</span>

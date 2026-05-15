@@ -11,6 +11,7 @@ import {
   getCampaignAcceptButtonText,
   getCampaignCostPerClick,
   getCampaignEstimatedClicks,
+  getCampaignLocationMatchLabel,
   getCampaignSlotLabel,
   getCampaignSlotValue,
   getCampaignStatusBadgeClass,
@@ -104,6 +105,10 @@ export class CampaignCardComponent {
 
   getTimingLabel(campaign: CampaignInterface): string {
     return getCampaignTimingLabel(campaign);
+  }
+
+  getLocationLabel(campaign: CampaignInterface): string | null {
+    return getCampaignLocationMatchLabel(campaign);
   }
 
   getCategoryIcon(category: string): string {
