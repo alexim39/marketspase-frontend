@@ -19,7 +19,6 @@ export interface SubmitProofDialogData {
 @Component({
   selector: 'app-submit-proof-dialog',
   standalone: true,
-  providers: [PromoterService],
   imports: [
     CommonModule,
     ReactiveFormsModule,

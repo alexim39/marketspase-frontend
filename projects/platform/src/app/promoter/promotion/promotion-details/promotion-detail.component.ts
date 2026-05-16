@@ -23,7 +23,6 @@ import { getCampaignCostPerClick, getCampaignRemainingBudget } from '../../utils
 @Component({
   selector: 'app-promotion-detail',
   standalone: true,
-  providers: [PromoterService],
   imports: [
     CommonModule,
     MatProgressBarModule,

@@ -49,6 +49,10 @@ export class PromotionCardComponent {
     return this.normalizeAssetUrl(this.promotion.campaign?.mediaUrl);
   }
 
+  getPreviewUrl(): string {
+    return this.normalizeAssetUrl(this.promotion.campaign?.thumbnailUrl || this.promotion.campaign?.mediaUrl);
+  }
+
   getThumbnailUrl(): string {
     return this.normalizeAssetUrl(this.promotion.campaign?.thumbnailUrl || this.promotion.campaign?.mediaUrl);
   }

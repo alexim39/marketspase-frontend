@@ -10,7 +10,9 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class PromoterService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();

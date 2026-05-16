@@ -41,7 +41,6 @@ interface PaginationInfo {
 @Component({
   selector: 'app-promotion',
   standalone: true,
-  providers: [PromoterService],
   imports: [
     CommonModule,
     RouterModule,

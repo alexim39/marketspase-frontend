@@ -40,7 +40,12 @@
     </div>
     
     @if (promotion.campaign.mediaType === "image") {
-      <img [src]="getAssetUrl()" [alt]="promotion.campaign.title" class="media-preview">
+      <img
+        [src]="getPreviewUrl()"
+        [alt]="promotion.campaign.title"
+        class="media-preview"
+        loading="lazy"
+        decoding="async">
     }
     @if (promotion.campaign.mediaType === "video") {
       <div class="video-placeholder">
@@ -48,6 +53,8 @@
             [src]="getThumbnailUrl()" 
             class="media-preview placeholder-img" 
             [alt]="promotion.campaign.title"
+            loading="lazy"
+            decoding="async"
           />
         <div class="video-play-btn">
           <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg> 
