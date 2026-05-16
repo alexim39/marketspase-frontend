@@ -21,12 +21,11 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Category</mat-label>
-        <input matInput formControlName="category" list="forum-category-list">
-        <datalist id="forum-category-list">
+        <mat-select formControlName="category">
           @for (category of categoryOptions; track category) {
-            <option [value]="category"></option>
+            <mat-option [value]="category">{{ category }}</mat-option>
           }
-        </datalist>
+        </mat-select>
       </mat-form-field>
     </div>
 

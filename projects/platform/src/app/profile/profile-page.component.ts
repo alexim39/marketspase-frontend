@@ -738,6 +738,33 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     });
   }
 
+  onChat(post: FeedPostWithFlags): void {
+    const phone = this.normalizeWhatsAppPhone(post.phone);
+    if (!phone) {
+      this.snackBar.open('No WhatsApp contact is available for this post yet.', 'Dismiss', { duration: 2600 });
+      return;
+    }
+
+    window.open(
+      `https://wa.me/${phone}?text=${encodeURIComponent('Hello, I found your post on MarketSpase and I would like to learn more.')}`,
+      '_blank',
+      'noopener'
+    );
+
+    this.feedService.trackChatClick(post._id, this.currentUser()?._id ?? undefined).subscribe({
+      next: (payload) => {
+        this.posts.update((posts) =>
+          posts.map((entry) =>
+            entry._id === post._id
+              ? { ...entry, chatCount: payload.chatCount }
+              : entry
+          )
+        );
+      },
+      error: () => null
+    });
+  }
+
   onShare(post: FeedPostWithFlags): void {
     const userId = this.currentUser()?._id;
     if (!userId) {
@@ -814,5 +841,9 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
 
     const cleanValue = value.replace(/^@/, '').replace(/^\/+/, '');
     return `${baseUrl}${cleanValue}`;
+  }
+
+  private normalizeWhatsAppPhone(phone?: string | null): string {
+    return String(phone || '').replace(/\D/g, '');
   }
 }
