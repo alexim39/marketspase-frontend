@@ -134,14 +134,22 @@
           <!-- Date Range Filters -->
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>From Date</mat-label>
-            <input matInput [matDatepicker]="fromPicker" [(ngModel)]="dateFromFilter" (dateChange)="onFilterChange()">
+            <input matInput
+                   [matDatepicker]="fromPicker"
+                   [ngModel]="dateFromFilter()"
+                   (ngModelChange)="dateFromFilter.set($event)"
+                   (dateChange)="onDateFromChange($event.value ?? null)">
             <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
             <mat-datepicker #fromPicker></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>To Date</mat-label>
-            <input matInput [matDatepicker]="toPicker" [(ngModel)]="dateToFilter" (dateChange)="onFilterChange()">
+            <input matInput
+                   [matDatepicker]="toPicker"
+                   [ngModel]="dateToFilter()"
+                   (ngModelChange)="dateToFilter.set($event)"
+                   (dateChange)="onDateToChange($event.value ?? null)">
             <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
             <mat-datepicker #toPicker></mat-datepicker>
           </mat-form-field>
@@ -149,7 +157,7 @@
           <!-- Assignee Filter -->
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Assigned To</mat-label>
-            <mat-select [value]="assigneeFilter()" (selectionChange)="yourUpdateMethod($event.value)">
+            <mat-select [value]="assigneeFilter()" (selectionChange)="onAssigneeFilterChange($event.value)">
               <mat-option value="all">All Assignees</mat-option>
               @for (admin of admins(); track admin._id) {
                 <mat-option [value]="admin._id">{{ admin.displayName }}</mat-option>
@@ -158,7 +166,9 @@
           </mat-form-field>
 
           <!-- Archived Filter -->
-          <mat-checkbox [(ngModel)]="showArchived" (change)="onFilterChange()" class="archive-checkbox">
+          <mat-checkbox [ngModel]="showArchived()"
+                        (ngModelChange)="onShowArchivedChange($event)"
+                        class="archive-checkbox">
             Show Archived
           </mat-checkbox>
         </div>

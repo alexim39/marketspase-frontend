@@ -51,6 +51,24 @@ export class NotificationService {
     });
   }
 
+  startUnreadCountPolling(intervalMs: number = 30000): void {
+    if (this.pollingSubscription) {
+      return;
+    }
+
+    this.pollingSubscription = timer(0, intervalMs).pipe(
+      switchMap(() => this.getUnreadCount()),
+      catchError((error) => {
+        console.error('Unread count polling error:', error);
+        return of({ success: false, data: { count: 0 } });
+      })
+    ).subscribe({
+      next: (response: any) => {
+        this.unreadCountSubject.next(response?.data?.count || 0);
+      }
+    });
+  }
+
   loadNotifications(): void {
     this.getNotifications().subscribe({
       next: (response: any) => {
@@ -63,6 +81,18 @@ export class NotificationService {
         console.error('Error loading notifications:', error);
         this.notificationsSubject.next([]);
         this.updateUnreadCount();
+      }
+    });
+  }
+
+  loadUnreadCount(): void {
+    this.getUnreadCount().subscribe({
+      next: (response: any) => {
+        this.unreadCountSubject.next(response?.data?.count || 0);
+      },
+      error: (error) => {
+        console.error('Error loading unread notification count:', error);
+        this.unreadCountSubject.next(0);
       }
     });
   }

@@ -41,6 +41,8 @@ export class GamificationComponent {
   readonly recentCelebrations = computed(() => this.state()?.recentCelebrations ?? []);
   readonly streakSummary = computed(() => this.state()?.streakSummary ?? null);
   readonly badgeSummary = computed(() => this.state()?.badgeSummary ?? null);
+  readonly showInitialLoader = computed(() => this.loading() && !this.state());
+  readonly isRefreshing = computed(() => this.loading() && !!this.state());
 
   constructor() {
     this.loadDashboard();

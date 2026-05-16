@@ -334,7 +334,8 @@ export class FeedService {
     hashtag?: string,
     search?: string,
     reset: boolean = false,
-    feedType: string = 'for_you'
+    feedType: string = 'for_you',
+    limit: number = FEED_CONFIG.POSTS_PER_PAGE
   ): void {
     if (!userId) return;
 
@@ -353,7 +354,7 @@ export class FeedService {
     const params = new HttpParams({
       fromObject: {
         page: this.currentPageSignal().toString(),
-        limit: FEED_CONFIG.POSTS_PER_PAGE.toString(),
+        limit: Math.max(1, Math.min(24, Number(limit || FEED_CONFIG.POSTS_PER_PAGE))).toString(),
         userId,
         feedType
       }

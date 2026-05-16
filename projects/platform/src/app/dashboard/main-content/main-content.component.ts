@@ -583,7 +583,7 @@ export class DashboardMainContainer {
   private loadDashboardData(user: UserInterface, resetFeed: boolean): void {
     if (resetFeed || !this.feedService.posts().length) {
       this.feedService.resetFeed();
-      this.feedService.loadFeedPosts(user._id, undefined, undefined, undefined, true, 'for_you');
+      this.feedService.loadFeedPosts(user._id, undefined, undefined, undefined, true, 'for_you', 4);
     }
 
     this.loadProfileSnapshot(user._id);
@@ -594,7 +594,7 @@ export class DashboardMainContainer {
       this.loadSuggestedConnections(user._id);
       this.loadFollowingState(user._id);
       this.loadTutorialCourses(user.role);
-      this.notificationService.loadNotifications();
+      this.notificationService.loadUnreadCount();
     }
   }
 
@@ -604,7 +604,7 @@ export class DashboardMainContainer {
     }
 
     this.notificationPollingStarted = true;
-    this.notificationService.startPolling(30000);
+    this.notificationService.startUnreadCountPolling(30000);
   }
 
   private startBackgroundRefresh(): void {
@@ -628,7 +628,7 @@ export class DashboardMainContainer {
   }
 
   private loadProfileSnapshot(userId: string): void {
-    this.profileService.getProfile(userId, userId)
+    this.profileService.getProfile(userId, userId, 'summary')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (profile) => this.profileSnapshot.set(profile),
