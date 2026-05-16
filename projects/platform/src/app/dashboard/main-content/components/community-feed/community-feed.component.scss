@@ -69,7 +69,9 @@
 // Main Section
 .community-feed-section {
   position: relative;
-  
+  @include mobile {
+    margin: 0 1em;
+  }  
   
   .section-header {
     @include flex-between;
@@ -149,8 +151,15 @@
           transform: translateY(-2px);
         }
       }
+
       .full {
-        width: 100% !important;
+        width: auto !important;
+      }
+
+      @include mobile {
+        .full {
+          width: 100% !important;
+        }
       }
     }
   }
@@ -1043,6 +1052,274 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+}
+
+// Dashboard feed polish: make the preview feel closer to a social timeline
+.community-feed-section {
+  .recent-posts-grid {
+    max-width: 1120px;
+    margin-left: auto;
+    margin-right: auto;
+
+    .grid-title {
+      margin-bottom: $spacing-5;
+      font-size: $font-size-lg;
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: $spacing-5;
+      align-items: stretch;
+    }
+  }
+}
+
+.community-post-card,
+.community-post-card.mat-mdc-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background-color: $surface-color !important;
+  color: $text-primary;
+  border: 1px solid color-mix(in srgb, #{$border-color}, transparent 10%) !important;
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, #{$surface-color}, white 3%) 0%,
+      color-mix(in srgb, #{$surface-color}, black 3%) 100%
+    ) !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+
+  &.spotlight {
+    border-color: color-mix(in srgb, #{$primary-color}, transparent 76%) !important;
+    box-shadow: 0 24px 54px rgba($primary-color, 0.14);
+  }
+
+  .post-header {
+    padding-bottom: $spacing-3;
+  }
+
+  .post-content {
+    flex: 1;
+  }
+}
+
+.post-content-shell {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  height: 100%;
+}
+
+.post-body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.post-copy {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  min-width: 0;
+}
+
+.post-context-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.post-context-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: $border-radius-full;
+  background: color-mix(in srgb, #{$primary-color}, transparent 88%);
+  color: $primary-color;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+
+  &.subtle {
+    background: color-mix(in srgb, #{$surface-color}, #{$text-primary} 6%);
+    color: $text-secondary;
+  }
+}
+
+.community-post-card {
+  .post-text {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
+    font-size: $font-size-sm;
+    line-height: 1.7;
+    color: $text-primary;
+  }
+
+  &.spotlight .post-text {
+    -webkit-line-clamp: 5;
+    font-size: 0.95rem;
+  }
+
+  .post-actions-mini {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    margin-top: auto;
+    padding-top: $spacing-1;
+    border-top: none;
+
+    .action-item {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-1;
+      padding: $spacing-2 $spacing-3;
+      border: 1px solid color-mix(in srgb, #{$border-color}, transparent 14%);
+      border-radius: $border-radius-full;
+      background: color-mix(in srgb, #{$surface-color}, #{$text-primary} 4%);
+      color: $text-secondary;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-semibold;
+      transition: transform $transition-fast, border-color $transition-fast, background $transition-fast, color $transition-fast;
+
+      &:hover {
+        transform: translateY(-1px);
+        border-color: rgba($primary-color, 0.24);
+        background: rgba($primary-color, 0.08);
+        color: $primary-color;
+      }
+
+      mat-icon,
+      .fa-whatsapp {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .action-item--save {
+      margin-left: auto;
+    }
+
+    .action-item--whatsapp {
+      color: #0f9d58;
+      background: rgba(37, 211, 102, 0.09);
+      border-color: rgba(37, 211, 102, 0.18);
+
+      &:hover {
+        color: #0f9d58;
+        background: rgba(37, 211, 102, 0.14);
+        border-color: rgba(37, 211, 102, 0.28);
+      }
+    }
+  }
+
+  .post-hashtags {
+    margin-top: 0;
+  }
+}
+
+.post-media-preview {
+  margin: 0;
+
+  .media-container,
+  .video-container,
+  .expanded-media-container,
+  .link-preview {
+    border-radius: 20px;
+  }
+
+  .media-container,
+  .video-container {
+    aspect-ratio: 16 / 10;
+    max-height: 360px;
+  }
+
+  .media-container .media-image,
+  .video-container .media-image,
+  .video-container .inline-video {
+    width: 100%;
+    height: 100%;
+  }
+
+  .link-preview {
+    min-height: 132px;
+  }
+}
+
+@media (min-width: 768px) {
+  .community-feed-section .recent-posts-grid .posts-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .community-post-card {
+    grid-column: auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .community-feed-section {
+    .section-header {
+      align-items: flex-end;
+
+      .section-actions {
+        flex-wrap: nowrap;
+        align-items: center;
+      }
+    }
+  }
+
+  .community-post-card {
+    grid-column: auto;
+  }
+
+  .community-post-card.spotlight {
+    grid-column: auto;
+  }
+
+  .community-post-card.has-media {
+    .post-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 420px);
+      align-items: start;
+      gap: $spacing-5;
+    }
+
+    .post-media-preview {
+      align-self: stretch;
+    }
+
+    .media-container,
+    .video-container {
+      max-height: 420px;
+    }
+  }
+
+  .community-post-card.spotlight.has-media {
+    .post-body {
+      grid-template-columns: minmax(0, 1.28fr) minmax(360px, 460px);
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .community-post-card {
+    border-radius: 20px;
+
+    .post-content {
+      padding: $spacing-3;
+    }
+
+    .post-actions-mini {
+      .action-item--save {
+        margin-left: 0;
+      }
     }
   }
 }

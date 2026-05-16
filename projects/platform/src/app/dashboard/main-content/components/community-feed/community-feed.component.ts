@@ -59,7 +59,7 @@ export class CommunityFeedComponent {
 
   // Computed for display
   recentPosts = computed(() => {
-    return this.posts()
+    return [...this.posts()]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, this.limit());
   });
@@ -90,6 +90,28 @@ export class CommunityFeedComponent {
     }
     
     this.feedService.sharePost(post._id, this.userId() ?? '').subscribe();
+  }
+
+  onCommentPreview(event: Event, postId: string): void {
+    event.stopPropagation();
+    this.onPostClick(postId);
+  }
+
+  onChat(event: Event, post: FeedPost): void {
+    event.stopPropagation();
+
+    const phone = this.normalizeWhatsAppPhone(post.phone);
+    if (!phone) {
+      this.snackBar.open('No WhatsApp contact is available for this post yet.', 'Dismiss', { duration: 2600 });
+      return;
+    }
+
+    const message = encodeURIComponent('Hello, I found your post on MarketSpase and I would like to learn more.');
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank', 'noopener');
+
+    this.feedService.trackChatClick(post._id, this.userId() ?? undefined).subscribe({
+      error: () => null
+    });
   }
 
   onPostClick(postId: string): void {
@@ -262,5 +284,9 @@ export class CommunityFeedComponent {
 
   getHashtagValue(tag: string | { tag: string }): string {
     return typeof tag === 'string' ? tag : tag?.tag || '';
+  }
+
+  private normalizeWhatsAppPhone(phone?: string | null): string {
+    return String(phone || '').replace(/\D/g, '');
   }
 }

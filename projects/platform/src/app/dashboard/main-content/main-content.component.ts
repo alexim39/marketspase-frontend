@@ -571,7 +571,9 @@ export class DashboardMainContainer {
   }
 
   onViewPost(postId: string): void {
-    this.router.navigate(['/feed', postId]);
+    this.router.navigate(['/feed', postId], {
+      queryParams: { returnTo: this.router.url }
+    });
   }
 
   onHashtagClick(_tag: string): void {

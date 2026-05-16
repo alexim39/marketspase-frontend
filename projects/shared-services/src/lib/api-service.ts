@@ -3,7 +3,8 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { catchError, Observable, retry, throwError } from 'rxjs';
 
 const DEFAULT_LOCAL_API_URL = 'http://localhost:8080';
-const DEFAULT_PRODUCTION_API_URL = 'https://apimarketspase1-hyrqzkeb.b4a.run';
+const DEFAULT_PRODUCTION_API_URL = 'api.marketspase.com';
+// const DEFAULT_PRODUCTION_API_URL = 'https://apimarketspase1-hyrqzkeb.b4a.run';
 
 const resolveApiBaseUrl = (): string => {
   const override = (globalThis as { __MARKETSPASE_API_URL__?: string }).__MARKETSPASE_API_URL__;

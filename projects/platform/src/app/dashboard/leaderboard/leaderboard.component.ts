@@ -15,6 +15,7 @@ import {
   LeaderboardState,
   LeaderboardTimeframe,
 } from './leaderboard.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-leaderboard',
@@ -27,6 +28,7 @@ import {
 export class LeaderboardComponent {
   private readonly leaderboardService = inject(LeaderboardService);
   private readonly userService = inject(UserService);
+  private readonly router = inject(Router);
 
   readonly state = this.leaderboardService.state;
   readonly loading = this.leaderboardService.loading;
@@ -134,5 +136,10 @@ export class LeaderboardComponent {
     }
 
     return 'User';
+  }
+
+  viewProfile(userId: string): void {
+    if (!userId) return;
+    this.router.navigate(['/dashboard/profile', userId]);
   }
 }

@@ -126,7 +126,7 @@
       <div class="rows">
         @for (entry of entries(); track entry.userId) {
           <article class="row" [class.current-user]="entry.isCurrentUser">
-            <div class="identity">
+            <div class="identity" (click)="viewProfile(entry.userId)">
               <span class="rank">#{{ entry.rank }}</span>
               <div class="avatar small" [class.has-image]="!!entry.avatar">
                 @if (entry.avatar) {
