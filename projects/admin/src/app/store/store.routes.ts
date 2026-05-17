@@ -17,6 +17,11 @@ export const StoreRoutes: Routes = [
         title: 'Delivery Release Requests - Admin Dashboard'
     },
     {
+        path: 'buyers',
+        loadComponent: () => import('../store/buyers/store-buyers.component').then(c => c.StoreBuyersComponent),
+        title: 'Store Buyers - Admin Dashboard'
+    },
+    {
         path: 'products/:storeId',
         loadComponent: () => import('../store/products/store-products.component').then(c => c.StoreProductsComponent),
         title: "Store Products - Store Management",

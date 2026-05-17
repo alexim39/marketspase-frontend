@@ -23,6 +23,12 @@ export const StoreRoutes: Routes = [
     },
 
     {
+        path: 'support',
+        loadComponent: () => import('./marketer/customer-support/customer-support.component').then(c => c.CustomerSupportComponent),
+        title: "Customer Support - Buyer CRM",
+    },
+
+    {
         path: 'create',
         loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
         title: "Create New Store - Setup your Marketer Store",

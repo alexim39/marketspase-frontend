@@ -90,6 +90,7 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: false,
       children: [
         { id: 'view-stores', title: 'Stores', icon: 'store', route: '/dashboard/stores' },
+        { id: 'store-buyers', title: 'Buyers', icon: 'groups', route: '/dashboard/stores/buyers' },
         { id: 'store-reviews', title: 'Product Reviews', icon: 'rate_review', route: '/dashboard/stores/reviews' },
         { id: 'store-release-requests', title: 'Delivery Releases', icon: 'verified_user', route: '/dashboard/stores/delivery-releases' }
       ]

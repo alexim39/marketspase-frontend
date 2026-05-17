@@ -1,0 +1,408 @@
+<section class="buyers-page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Customer Admin</p>
+      <h1>Store Buyers</h1>
+      <p class="subtitle">
+        Review every storefront buyer across the platform, understand who is driving revenue, and keep lifecycle records clean for support, compliance, and retention work.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <button type="button" mat-stroked-button (click)="copyVisibleEmails()">
+        <mat-icon>content_copy</mat-icon>
+        Copy emails
+      </button>
+      <button type="button" mat-stroked-button (click)="exportVisibleBuyers()">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+      <button type="button" mat-flat-button color="primary" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <section class="summary-grid">
+    @for (card of summaryCards(); track card.label) {
+      <article class="summary-card" [class]="card.tone">
+        <div class="summary-icon">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </div>
+        <div class="summary-copy">
+          <strong>
+            @if (card.label === 'Revenue') {
+              {{ summary().totalRevenue | currency:'NGN':'symbol-narrow':'1.0-0' }}
+            } @else {
+              {{ card.value }}
+            }
+          </strong>
+          <span>{{ card.label }}</span>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="content-grid">
+    <div class="main-column">
+      <section class="filters-card">
+        <div class="filters-grid">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search buyers</mat-label>
+            <input
+              matInput
+              [ngModel]="search()"
+              (ngModelChange)="search.set($event); loadBuyers(true)"
+              placeholder="Name, email, phone, or tag">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Store</mat-label>
+            <mat-select [ngModel]="storeFilter()" (ngModelChange)="storeFilter.set($event); loadBuyers(true)">
+              <mat-option value="all">All stores</mat-option>
+              @for (store of storeOptions(); track store._id) {
+                <mat-option [value]="store._id">{{ store.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Marketer</mat-label>
+            <mat-select [ngModel]="marketerFilter()" (ngModelChange)="marketerFilter.set($event); loadBuyers(true)">
+              <mat-option value="all">All marketers</mat-option>
+              @for (marketer of marketerOptions(); track marketer._id) {
+                <mat-option [value]="marketer._id">
+                  {{ marketer.displayName || marketer.username || marketer.email || 'Marketer' }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Lifecycle stage</mat-label>
+            <mat-select [ngModel]="lifecycleFilter()" (ngModelChange)="lifecycleFilter.set($event); loadBuyers(true)">
+              <mat-option value="all">All stages</mat-option>
+              <mat-option value="new">New</mat-option>
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="repeat">Repeat</mat-option>
+              <mat-option value="vip">VIP</mat-option>
+              <mat-option value="at_risk">At risk</mat-option>
+              <mat-option value="suppressed">Suppressed</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Segment</mat-label>
+            <mat-select [ngModel]="segmentFilter()" (ngModelChange)="segmentFilter.set($event); loadBuyers(true)">
+              <mat-option value="all">All segments</mat-option>
+              <mat-option value="new">New</mat-option>
+              <mat-option value="repeat">Repeat</mat-option>
+              <mat-option value="vip">VIP</mat-option>
+              <mat-option value="at_risk">At risk</mat-option>
+              <mat-option value="suppressed">Suppressed</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Customer type</mat-label>
+            <mat-select [ngModel]="customerTypeFilter()" (ngModelChange)="customerTypeFilter.set($event); loadBuyers(true)">
+              <mat-option value="all">All buyer types</mat-option>
+              <mat-option value="registered">Registered</mat-option>
+              <mat-option value="guest">Guest</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Marketing consent</mat-label>
+            <mat-select [ngModel]="marketingFilter()" (ngModelChange)="marketingFilter.set($event); loadBuyers(true)">
+              <mat-option value="all">All buyers</mat-option>
+              <mat-option value="true">Opted in</mat-option>
+              <mat-option value="false">Opted out</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="buyers-card">
+        <div class="panel-topbar">
+          <div>
+            <p class="topbar-label">Buyer Directory</p>
+            <strong>{{ pagination().total }} buyers</strong>
+          </div>
+          <span>Page {{ pagination().page }} of {{ pagination().totalPages || 1 }}</span>
+        </div>
+
+        @if (loading()) {
+          <div class="state-panel">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Loading buyer records...</span>
+          </div>
+        } @else if (buyers().length === 0) {
+          <div class="state-panel">
+            <mat-icon>group_off</mat-icon>
+            <span>No buyers match the current filters.</span>
+          </div>
+        } @else {
+          <div class="buyer-list">
+            @for (buyer of buyers(); track buyer.buyerKey) {
+              <article class="buyer-card" [class.active]="activeBuyerKey() === buyer.buyerKey" (click)="selectBuyer(buyer.buyerKey)">
+                <div class="buyer-card-top">
+                  <div class="buyer-avatar">{{ initials(buyerTitle(buyer)) }}</div>
+
+                  <div class="buyer-copy">
+                    <div class="buyer-title-row">
+                      <h2>{{ buyerTitle(buyer) }}</h2>
+                      <span class="badge stage">{{ lifecycleStageLabel(buyer.lifecycleStage) }}</span>
+                      <span class="badge segment" [class]="behaviorSegmentClass(buyer.behaviorSegment)">{{ behaviorSegmentLabel(buyer.behaviorSegment) }}</span>
+                      @if (buyer.hasRegisteredAccount) {
+                        <span class="badge registered">Registered</span>
+                      }
+                    </div>
+                    <p>{{ buyer.email }}</p>
+                    <p>{{ buyer.phone || 'No phone number captured' }}</p>
+                  </div>
+
+                  <div class="buyer-quick-actions" (click)="$event.stopPropagation()">
+                    <button type="button" mat-icon-button (click)="openBuyerEmail(buyer.email)">
+                      <mat-icon>mail</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button (click)="openBuyerSms(buyer.phone)">
+                      <mat-icon>sms</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button (click)="copyBuyerContact(buyer)">
+                      <mat-icon>content_copy</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="buyer-metrics">
+                  <div>
+                    <span>Orders</span>
+                    <strong>{{ buyer.orderCount }}</strong>
+                  </div>
+                  <div>
+                    <span>Total spent</span>
+                    <strong>{{ buyer.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong>
+                  </div>
+                  <div>
+                    <span>Stores</span>
+                    <strong>{{ buyer.linkedStoreCount }}</strong>
+                  </div>
+                  <div>
+                    <span>Marketers</span>
+                    <strong>{{ buyer.linkedMarketerCount }}</strong>
+                  </div>
+                </div>
+
+                <div class="buyer-footnote">
+                  <div class="inline-meta">
+                    <span class="meta-pill">{{ storePreview(buyer) }}</span>
+                    <span class="meta-pill">{{ marketerPreview(buyer) }}</span>
+                  </div>
+                  <div class="status-copy">
+                    <span [class.opted-out]="!buyer.marketingOptIn">{{ buyer.marketingOptIn ? 'Marketing ready' : 'Opted out' }}</span>
+                    <span>Last order {{ buyer.lastOrderAt ? (buyer.lastOrderAt | date:'mediumDate') : 'not available' }}</span>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        <div class="pagination-bar">
+          <button type="button" mat-stroked-button (click)="previousPage()" [disabled]="pagination().page <= 1 || loading()">Previous</button>
+          <button type="button" mat-stroked-button (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages || loading()">Next</button>
+        </div>
+      </section>
+    </div>
+
+    <aside class="detail-column">
+      <section class="detail-card">
+        <div class="panel-topbar detail-topbar">
+          <div>
+            <p class="topbar-label">Buyer Record</p>
+            <strong>Support and retention context</strong>
+          </div>
+        </div>
+
+        @if (detailLoading()) {
+          <div class="detail-state">
+            <mat-spinner diameter="36"></mat-spinner>
+            <span>Loading buyer detail...</span>
+          </div>
+        } @else {
+          @if (activeDetail(); as detail) {
+            <div class="detail-headline">
+              <div class="buyer-avatar large">{{ initials(detail.buyer.fullName || detail.buyer.email) }}</div>
+              <div>
+                <h3>{{ detail.buyer.fullName || detail.buyer.email }}</h3>
+                <p>{{ detail.buyer.email }}</p>
+                <p>{{ detail.buyer.phone || 'No phone number available' }}</p>
+              </div>
+            </div>
+
+            <div class="detail-meta-grid">
+              <div>
+                <span>Total spent</span>
+                <strong>{{ detail.buyer.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong>
+              </div>
+              <div>
+                <span>Orders</span>
+                <strong>{{ detail.buyer.orderCount }}</strong>
+              </div>
+              <div>
+                <span>Stores</span>
+                <strong>{{ detail.buyer.linkedStoreCount }}</strong>
+              </div>
+              <div>
+                <span>Marketers</span>
+                <strong>{{ detail.buyer.linkedMarketerCount }}</strong>
+              </div>
+            </div>
+
+            <div class="detail-action-row">
+              <button type="button" mat-stroked-button (click)="openBuyerEmail(detail.buyer.email)">
+                <mat-icon>mail</mat-icon>
+                Email
+              </button>
+              <button type="button" mat-stroked-button (click)="openBuyerSms(detail.buyer.phone)">
+                <mat-icon>sms</mat-icon>
+                SMS
+              </button>
+              <button type="button" mat-stroked-button (click)="copyBuyerContact(detail.buyer)">
+                <mat-icon>content_copy</mat-icon>
+                Copy contact
+              </button>
+            </div>
+
+            <div class="meta-strip">
+              <span class="meta-pill">{{ lastKnownLocation(detail) }}</span>
+              <span class="meta-pill">{{ detail.buyer.hasRegisteredAccount ? 'Registered account' : 'Guest checkout only' }}</span>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Lifecycle stage</mat-label>
+              <mat-select [ngModel]="detailLifecycle()" (ngModelChange)="detailLifecycle.set($event)">
+                <mat-option value="new">New</mat-option>
+                <mat-option value="active">Active</mat-option>
+                <mat-option value="repeat">Repeat</mat-option>
+                <mat-option value="vip">VIP</mat-option>
+                <mat-option value="at_risk">At risk</mat-option>
+                <mat-option value="suppressed">Suppressed</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="toggle-row">
+              <mat-slide-toggle [ngModel]="detailMarketingOptIn()" (ngModelChange)="detailMarketingOptIn.set($event)">
+                Buyer can receive outreach
+              </mat-slide-toggle>
+            </div>
+
+            <div class="preferred-channels">
+              <span>Preferred channels</span>
+              <label>
+                <mat-checkbox [checked]="detailPreferredChannels().includes('email')" (change)="setPreferredChannel('email', $event.checked)">Email</mat-checkbox>
+              </label>
+              <label>
+                <mat-checkbox [checked]="detailPreferredChannels().includes('sms')" (change)="setPreferredChannel('sms', $event.checked)">SMS</mat-checkbox>
+              </label>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Last campaign label</mat-label>
+              <input matInput [ngModel]="detailLastCampaignName()" (ngModelChange)="detailLastCampaignName.set($event)" placeholder="Track the last outreach, win-back, or support campaign">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="notes-field">
+              <mat-label>Internal notes</mat-label>
+              <textarea
+                matInput
+                rows="5"
+                [ngModel]="detailNotes()"
+                (ngModelChange)="detailNotes.set($event)"
+                placeholder="Support notes, high-value context, delivery preferences, or compliance remarks."></textarea>
+            </mat-form-field>
+
+            <div class="detail-save">
+              <button type="button" mat-flat-button color="primary" (click)="saveBuyer()" [disabled]="saving()">
+                @if (saving()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
+                Save record
+              </button>
+            </div>
+
+            <div class="detail-section">
+              <h4>Linked stores</h4>
+              <div class="linked-list">
+                @for (record of detail.storeRecords; track record._id) {
+                  <article class="linked-card">
+                    <div>
+                      <strong>{{ record.store?.name || 'Store' }}</strong>
+                      <span>{{ record.orderCount }} orders - {{ record.totalSpent | currency:'NGN':'symbol-narrow':'1.0-0' }}</span>
+                    </div>
+                    <small>{{ record.lastOrderAt ? (record.lastOrderAt | date:'mediumDate') : 'No recent order' }}</small>
+                  </article>
+                }
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <h4>Linked marketers</h4>
+              <div class="linked-list">
+                @for (marketer of detail.buyer.linkedMarketers; track marketer._id) {
+                  <article class="linked-card compact">
+                    <div>
+                      <strong>{{ marketer.displayName || marketer.username || marketer.email || 'Marketer' }}</strong>
+                      <span>{{ marketer.email || 'No email available' }}</span>
+                    </div>
+                  </article>
+                }
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <h4>Recent purchases</h4>
+              <div class="order-list">
+                @for (order of detail.orders; track order._id) {
+                  <article class="order-card">
+                    <div class="order-top">
+                      <strong>{{ order.orderNumber }}</strong>
+                      <span>{{ order.totalAmount | currency:(order.currency || 'NGN'):'symbol-narrow':'1.0-0' }}</span>
+                    </div>
+                    <p>{{ order.store?.name || 'Storefront order' }} - {{ order.createdAt ? (order.createdAt | date:'medium') : 'No date' }}</p>
+                    <div class="order-meta">
+                      <span>{{ order.paymentStatus | titlecase }}</span>
+                      <span>{{ order.orderStatus | titlecase }}</span>
+                      <span>{{ order.escrowStatus | titlecase }}</span>
+                    </div>
+                    <div class="order-items">
+                      @for (item of order.items.slice(0, 3); track item._id) {
+                        <span>{{ item.name }} x{{ item.quantity }}</span>
+                      }
+                    </div>
+                  </article>
+                }
+                @if (detail.orders.length === 0) {
+                  <div class="detail-state compact">
+                    <mat-icon>shopping_bag</mat-icon>
+                    <span>No purchases recorded for this buyer yet.</span>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="detail-state">
+              <mat-icon>support_agent</mat-icon>
+              <span>Select a buyer to review their linked stores, purchases, and outreach record.</span>
+            </div>
+          }
+        }
+      </section>
+    </aside>
+  </section>
+</section>

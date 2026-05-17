@@ -37,6 +37,126 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface AdminBuyerLinkedStore {
+  _id: string;
+  name: string;
+  storeLink?: string;
+  logo?: string;
+}
+
+export interface AdminBuyerLinkedMarketer {
+  _id: string;
+  displayName?: string;
+  username?: string;
+  email?: string;
+}
+
+export interface AdminBuyerRecord {
+  buyerKey: string;
+  email: string;
+  fullName: string;
+  phone?: string;
+  notes?: string;
+  lifecycleStage: 'new' | 'active' | 'repeat' | 'vip' | 'at_risk' | 'suppressed';
+  preferredChannels: Array<'email' | 'sms'>;
+  lastContactedAt?: string | null;
+  lastContactChannel?: 'email' | 'sms' | 'manual' | '';
+  lastCampaignName?: string;
+  marketingOptIn: boolean;
+  orderCount: number;
+  totalSpent: number;
+  averageOrderValue: number;
+  firstSeenAt?: string | null;
+  lastOrderAt?: string | null;
+  linkedStoreCount: number;
+  linkedMarketerCount: number;
+  hasRegisteredAccount: boolean;
+  customerTypes: string[];
+  tags: string[];
+  behaviorSegment: 'new' | 'repeat' | 'vip' | 'at_risk' | 'suppressed';
+  linkedStores: AdminBuyerLinkedStore[];
+  linkedMarketers: AdminBuyerLinkedMarketer[];
+}
+
+export interface AdminBuyerSummary {
+  totalCustomers: number;
+  optedInCustomers: number;
+  repeatCustomers: number;
+  vipCustomers: number;
+  suppressedCustomers: number;
+  totalRevenue: number;
+  totalOrders: number;
+  linkedStores: number;
+  averageOrderValue: number;
+}
+
+export interface AdminBuyerOrder {
+  _id: string;
+  orderNumber: string;
+  totalAmount: number;
+  currency: string;
+  orderStatus: string;
+  paymentStatus: string;
+  escrowStatus: string;
+  paidAt?: string | null;
+  createdAt?: string | null;
+  deliveredAt?: string | null;
+  shippingAddress?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  } | null;
+  store?: AdminBuyerLinkedStore | null;
+  items: Array<{
+    _id: string;
+    name: string;
+    quantity: number;
+    totalPrice: number;
+    commissionEarned: number;
+  }>;
+}
+
+export interface AdminBuyerDetail {
+  buyer: AdminBuyerRecord & {
+    lastKnownLocation?: {
+      city?: string;
+      state?: string;
+      country?: string;
+    } | null;
+  };
+  storeRecords: Array<{
+    _id: string;
+    store: AdminBuyerLinkedStore | null;
+    orderCount: number;
+    totalSpent: number;
+    lastOrderAt?: string | null;
+    firstSeenAt?: string | null;
+    customerType: string;
+    marketingOptIn: boolean;
+    tags: string[];
+    source?: string;
+  }>;
+  orders: AdminBuyerOrder[];
+}
+
+export interface AdminBuyersResponse {
+  buyers: AdminBuyerRecord[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  summary: AdminBuyerSummary;
+  filters: {
+    stores: AdminBuyerLinkedStore[];
+    marketers: AdminBuyerLinkedMarketer[];
+  };
+}
+
 @Injectable()
 export class StoreService {
   private readonly apiService: ApiService = inject(ApiService);
@@ -126,5 +246,59 @@ export class StoreService {
     return this.apiService.get<{ data: any, success: boolean }>(
       `${this.apiUrl}/${storeId}/products`
     ).pipe(map(response => response.data));
+  }
+
+  getAdminBuyers(filters?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    marketerId?: string;
+    storeId?: string;
+    lifecycleStage?: string;
+    marketingOptIn?: string;
+    customerType?: string;
+    segment?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }): Observable<{ success: boolean; data: AdminBuyersResponse }> {
+    let queryParams = '';
+    if (filters) {
+      const params = new URLSearchParams();
+      if (filters.page) params.set('page', String(filters.page));
+      if (filters.limit) params.set('limit', String(filters.limit));
+      if (filters.search) params.set('search', filters.search);
+      if (filters.marketerId) params.set('marketerId', filters.marketerId);
+      if (filters.storeId) params.set('storeId', filters.storeId);
+      if (filters.lifecycleStage) params.set('lifecycleStage', filters.lifecycleStage);
+      if (filters.marketingOptIn) params.set('marketingOptIn', filters.marketingOptIn);
+      if (filters.customerType) params.set('customerType', filters.customerType);
+      if (filters.segment) params.set('segment', filters.segment);
+      if (filters.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.set('sortOrder', filters.sortOrder);
+      const paramString = params.toString();
+      if (paramString) queryParams = `?${paramString}`;
+    }
+
+    return this.apiService.get<{ success: boolean; data: AdminBuyersResponse }>(`${this.apiUrl}/buyers${queryParams}`);
+  }
+
+  getAdminBuyerDetail(email: string): Observable<{ success: boolean; data: AdminBuyerDetail }> {
+    const query = new URLSearchParams({ email }).toString();
+    return this.apiService.get<{ success: boolean; data: AdminBuyerDetail }>(`${this.apiUrl}/buyers/detail?${query}`);
+  }
+
+  updateAdminBuyerMeta(payload: {
+    email: string;
+    marketerId?: string;
+    lifecycleStage?: string;
+    notes?: string;
+    marketingOptIn?: boolean | string;
+    preferredChannels?: string[];
+    lastContactChannel?: string;
+    lastCampaignName?: string;
+    addTags?: string[];
+    removeTags?: string[];
+  }): Observable<{ success: boolean; message: string }> {
+    return this.apiService.patch<{ success: boolean; message: string }>(`${this.apiUrl}/buyers/meta`, payload);
   }
 }
