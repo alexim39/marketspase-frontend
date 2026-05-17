@@ -106,6 +106,9 @@ export interface ProfileUser {
   role: 'marketer' | 'promoter' | 'admin';
   rating: number;
   ratingCount: number;
+  collaborationRating?: number;
+  collaborationRatingCount?: number;
+  collaborationReviewCount?: number;
   isVerified: boolean;
   createdAt: Date;
   postsCount: number;

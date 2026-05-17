@@ -602,6 +602,146 @@
     margin-bottom: $spacing-4;
   }
 
+  .collaboration-section {
+    display: grid;
+    gap: $spacing-4;
+    margin-bottom: $spacing-4;
+  }
+
+  .collaboration-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.25fr);
+    gap: $spacing-4;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-3;
+    }
+  }
+
+  .collaboration-summary-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-2 $spacing-4;
+    border-radius: 100px;
+    background: rgba($primary-color, 0.08);
+    border: 1px solid rgba($primary-color, 0.16);
+
+    mat-icon {
+      color: #f59e0b;
+    }
+
+    strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    span {
+      @include caption;
+      color: $text-secondary;
+    }
+  }
+
+  .collaboration-overview,
+  .collaboration-review-list {
+    display: grid;
+    gap: $spacing-3;
+  }
+
+  .star-row,
+  .mini-stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    mat-icon {
+      color: rgba($warning-color, 0.4);
+
+      &.active {
+        color: $warning-color;
+      }
+    }
+  }
+
+  .star-row mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .helper-text {
+    margin: 0;
+    @include body-small;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+
+  .action-inline {
+    display: flex;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+  }
+
+  .review-card {
+    padding: $spacing-4;
+    border-radius: $border-radius-lg;
+    background: rgba($background-color, 0.5);
+    border: 1px solid rgba($border-color, 0.3);
+    display: grid;
+    gap: $spacing-2;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: rgba($primary-color, 0.2);
+    }
+
+    p {
+      margin: 0;
+      @include body-small;
+      color: $text-primary;
+      line-height: 1.55;
+    }
+  }
+
+  .review-card-head,
+  .review-actions,
+  .review-context {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-2;
+    flex-wrap: wrap;
+  }
+
+  .reviewer-summary {
+    display: grid;
+    gap: 2px;
+
+    strong {
+      @include body-small;
+      font-weight: $font-weight-semibold;
+    }
+
+    span {
+      @include caption;
+      color: $text-secondary;
+      text-transform: capitalize;
+    }
+  }
+
+  .review-title {
+    @include body-medium;
+    font-weight: $font-weight-semibold;
+  }
+
+  .review-context {
+    @include caption;
+    color: $text-secondary;
+  }
+
   .analytics-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

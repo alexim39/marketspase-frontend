@@ -27,7 +27,9 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'list_alt', label: 'My Campaigns', route: '/dashboard/campaigns' },
-        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' }
+        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' },
+        { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
+        { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
       ]
     },
 

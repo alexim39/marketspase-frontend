@@ -249,6 +249,10 @@ export interface UserInterface {
     latestCase?: string | null;
   };
 
+  collaborationRating?: number;
+  collaborationRatingCount?: number;
+  collaborationReviewCount?: number;
+
   activityLog?: Array<{
     _id?: string;
     action: string;

@@ -108,7 +108,7 @@ export class DashboardHeaderComponent {
   }
 
   openMessages(): void {
-    this.router.navigate(['dashboard/messages']);
+    this.router.navigate(['dashboard/campaigns/collaboration']);
   }
 
   openNotifications(): void {

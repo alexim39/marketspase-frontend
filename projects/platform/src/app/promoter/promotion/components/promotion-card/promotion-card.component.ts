@@ -130,10 +130,40 @@ export class PromotionCardComponent {
     return categoryIcons[category] || 'category';
   }
 
+  getMarketerId(): string | null {
+    const owner = this.promotion?.campaign?.owner as { _id?: string | null } | string | null | undefined;
+    if (!owner) {
+      return null;
+    }
+
+    if (typeof owner === 'string') {
+      return owner;
+    }
+
+    return owner._id || null;
+  }
+
   viewDetails(): void {
     if (this.promotion) {
       this.router.navigate(['/dashboard/campaigns/promotions', this.promotion._id]);
     }
+  }
+
+  openPromotionRoom(): void {
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: { promotionId: this.promotion._id }
+    });
+  }
+
+  messageMarketer(): void {
+    const marketerId = this.getMarketerId();
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: {
+        promotionId: this.promotion._id,
+        campaignId: this.promotion.campaign?._id || null,
+        targetUserId: marketerId || null,
+      }
+    });
   }
 
   openPromotionLink(): void {

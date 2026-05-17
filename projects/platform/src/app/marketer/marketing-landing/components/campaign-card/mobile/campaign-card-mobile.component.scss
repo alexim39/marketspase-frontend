@@ -320,6 +320,13 @@
         // UPDATED: Use gray-200 variable for hover state
         background: $gray-200;
       }
+
+      &:disabled {
+        color: $text-tertiary;
+        background: rgba($primary-color, 0.06);
+        border: 1px solid $border-color;
+        cursor: not-allowed;
+      }
     }
     
     mat-icon {

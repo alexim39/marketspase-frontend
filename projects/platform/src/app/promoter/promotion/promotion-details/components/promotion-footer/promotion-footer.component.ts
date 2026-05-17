@@ -28,6 +28,12 @@ import { PromotionInterface } from '@shared/services';
       }
       
       <div class="footer-actions">
+        @if (promotion.status !== 'rejected') {
+          <button mat-flat-button class="btn btn-outline" (click)="openCollaboration.emit()">
+            <mat-icon>chat</mat-icon>
+            Message Marketer
+          </button>
+        }
         @if (promotion.status !== 'rejected' && !isLinkRestricted) {
           <button mat-flat-button class="btn btn-primary" (click)="copyLink.emit()">
             <mat-icon>link</mat-icon>
@@ -57,4 +63,5 @@ export class PromotionFooterComponent {
   @Output() copyLink = new EventEmitter<void>();
   @Output() share = new EventEmitter<void>();
   @Output() contactSupport = new EventEmitter<void>();
+  @Output() openCollaboration = new EventEmitter<void>();
 }

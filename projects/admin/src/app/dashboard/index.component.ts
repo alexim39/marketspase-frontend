@@ -66,6 +66,7 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { id: 'all-users', title: 'All Users', icon: 'supervisor_account', route: '/dashboard/users' },
         { id: 'user-analytics', title: 'User Analytics', icon: 'insights', route: '/dashboard/users/analytics' },
+        { id: 'collaboration-reviews', title: 'Collaboration Reviews', icon: 'reviews', route: '/dashboard/users/reviews' },
         { id: 'marketers', title: 'Marketers', icon: 'business', route: '/dashboard/users/marketers' },
         { id: 'promoters', title: 'Promoters', icon: 'share', route: '/dashboard/users/promoters' },
         { id: 'contacts', title: 'Contact Management', icon: 'contact_page', route: '/dashboard/users/contacts' }

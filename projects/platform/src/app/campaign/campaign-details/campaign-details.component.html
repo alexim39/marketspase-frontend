@@ -21,6 +21,10 @@
             </button>
             }
           }
+          <button class="btn btn-outline" mat-raised-button (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+            <mat-icon>forum</mat-icon>
+            {{ canOpenCollaborationRoom() ? 'Open Collaboration Room' : 'Waiting for promoter' }}
+          </button>
           <!-- <button class="btn btn-primary" mat-flat-button>
             <mat-icon>edit</mat-icon>
             Export Data
@@ -65,6 +69,10 @@
               <button mat-menu-item (click)="targetAudienceByLocation()">
                 <mat-icon>edit_location</mat-icon>
                 Set Location Target
+              </button>
+              <button mat-menu-item (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+                <mat-icon>forum</mat-icon>
+                {{ canOpenCollaborationRoom() ? 'Open Collaboration Room' : 'Waiting for promoter' }}
               </button>
               @if (campaign.status === 'active') {
                   <button mat-menu-item (click)="pauseCampaign(campaign)">
@@ -420,6 +428,9 @@
                   <div class="action-buttons">
                     <button mat-button class="icon-btn" (click)="viewPromotionDetails(promotion)" matTooltip="View Details">
                       <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-button class="icon-btn" (click)="messagePromoter(promotion)" matTooltip="Message promoter">
+                      <mat-icon>chat</mat-icon>
                     </button>
                    <!--  @if (promotion.status === 'submitted') {
                       <button mat-button class="icon-btn" (click)="validatePromotion(promotion)" matTooltip="Validate">

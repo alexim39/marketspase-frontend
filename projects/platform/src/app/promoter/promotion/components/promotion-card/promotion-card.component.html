@@ -21,6 +21,14 @@
           <mat-icon>download</mat-icon>
           <span>Download Ad Asset</span>
         </button>
+        <button mat-menu-item (click)="openPromotionRoom()">
+          <mat-icon>forum</mat-icon>
+          <span>Open Room</span>
+        </button>
+        <button mat-menu-item (click)="messageMarketer()">
+          <mat-icon>chat</mat-icon>
+          <span>Message Marketer</span>
+        </button>
         <button mat-menu-item (click)="openPromotionLink()" [disabled]="isPromotionRestricted()">
           <mat-icon>open_in_new</mat-icon>
           <span>Open Link</span>
@@ -148,9 +156,17 @@
           <i class="material-icons">download</i>
           <span>{{ isDownloading() ? 'Downloading...' : 'Download Ad' }}</span>
         </button>
+        <button class="action-btn secondary" (click)="messageMarketer()">
+          <i class="material-icons">chat</i>
+          <span>Message Marketer</span>
+        </button>
         <button class="action-btn secondary" (click)="copyPromotionLink()" [disabled]="isSharing()">
           <i class="material-icons">link</i>
           <span>Copy Link</span>
+        </button>
+        <button class="action-btn secondary" (click)="openPromotionRoom()">
+          <i class="material-icons">forum</i>
+          <span>Open Room</span>
         </button>
         <button class="action-btn secondary" (click)="showWhatsAppSharingInstructions(promotion)" [disabled]="isSharing()">
           <i class="material-icons">ios_share</i>

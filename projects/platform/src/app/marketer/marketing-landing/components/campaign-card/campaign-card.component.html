@@ -20,6 +20,10 @@
         <mat-icon>edit_location</mat-icon>
         Set Location Target
       </button>
+      <button mat-menu-item (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+        <mat-icon>forum</mat-icon>
+        {{ getCollaborationLabel() }}
+      </button>
       <!-- @if (campaign.status === 'active') {
         <button mat-menu-item (click)="onPauseCampaign()">
           <mat-icon>pause</mat-icon>
@@ -133,9 +137,15 @@
 
   <!-- Footer -->
   <div class="card-footer">
-    <button class="view-details-btn" (click)="onViewDetails()">
-      <mat-icon>analytics</mat-icon>
-      View Details
-    </button>
+    <div class="footer-actions">
+      <button class="view-details-btn" (click)="onViewDetails()">
+        <mat-icon>analytics</mat-icon>
+        View Details
+      </button>
+      <button class="collaboration-btn" (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+        <mat-icon>forum</mat-icon>
+        {{ getCollaborationLabel() }}
+      </button>
+    </div>
   </div>
 </div>

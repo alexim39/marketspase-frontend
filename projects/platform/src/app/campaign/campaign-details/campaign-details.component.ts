@@ -236,6 +236,44 @@ export class CampaignDetailsComponent implements OnInit {
     }
   }
 
+  canOpenCollaborationRoom(): boolean {
+    return this.engagedPromoters() > 0;
+  }
+
+  openCollaborationRoom(): void {
+    const campaign = this.campaign();
+    if (!campaign) {
+      return;
+    }
+
+    if (!this.canOpenCollaborationRoom()) {
+      this.snackBar.open('This room becomes available after a promoter accepts the campaign.', 'Close', { duration: 3200 });
+      return;
+    }
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: { campaignId: campaign._id }
+    });
+  }
+
+  messagePromoter(promotion: PromotionInterface): void {
+    const campaign = this.campaign();
+    const promoterId = promotion.promoter?._id;
+
+    if (!promoterId) {
+      this.snackBar.open('We could not find this promoter profile for chat yet.', 'Close', { duration: 3200 });
+      return;
+    }
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: {
+        targetUserId: promoterId,
+        campaignId: campaign?._id || null,
+        promotionId: promotion._id,
+      }
+    });
+  }
+
   targetAudienceByLocation() {
     const campaign = this.campaign();
     if (campaign) {

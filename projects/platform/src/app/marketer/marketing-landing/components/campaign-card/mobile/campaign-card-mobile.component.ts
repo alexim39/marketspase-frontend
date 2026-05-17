@@ -77,6 +77,24 @@ export class CampaignCardMobileComponent {
     }
   }
 
+  canOpenCollaborationRoom(): boolean {
+    return Number(this.campaign?.promotionSummary?.uniquePromoters ?? this.campaign?.totalPromotions ?? 0) > 0;
+  }
+
+  getCollaborationLabel(): string {
+    return this.canOpenCollaborationRoom() ? 'Open Room' : 'Waiting';
+  }
+
+  openCollaborationRoom(): void {
+    if (!this.canOpenCollaborationRoom()) {
+      return;
+    }
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: { campaignId: this.campaign._id }
+    });
+  }
+
   onPauseCampaign(): void {
     this.pauseCampaign.emit(this.campaign._id);
   }
@@ -120,5 +138,4 @@ export class CampaignCardMobileComponent {
   getPromoterAccessLabel(): string {
     return getCampaignSlotLabel(this.campaign);
   }
-
 }

@@ -20,6 +20,16 @@ export const CampaignRoutes: Routes = [
         title: "Promotions - List all accepted promoter promotions",
     }, 
     {
+        path: 'analytics',
+        loadComponent: () => import('./analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
+        title: "Campaign Analytics - Live campaign and promotion performance",
+    },
+    {
+        path: 'collaboration',
+        loadComponent: () => import('./collaboration/collaboration.component').then(c => c.CampaignCollaborationComponent),
+        title: "Collaboration - Real-time messaging for campaigns and promotions",
+    },
+    {
         path: 'edit/:id',
         loadComponent: () => import('./campaign-edit/campaign-edit.component').then(c => c.CampaignEditComponent),
         title: "Campaign Edit - Edit a campaign",

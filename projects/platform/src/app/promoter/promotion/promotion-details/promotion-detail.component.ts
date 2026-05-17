@@ -215,6 +215,24 @@ export class PromotionDetailComponent implements OnInit {
     return `${this.api.replace(/\/$/, '')}/api/v1/campaign/track/${promotion.upi}`;
   }
 
+  openCollaboration(): void {
+    const promotion = this.promotion();
+    if (!promotion) {
+      return;
+    }
+
+    const owner = promotion.campaign?.owner as { _id?: string | null } | string | null | undefined;
+    const marketerId = typeof owner === 'string' ? owner : owner?._id || null;
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: {
+        promotionId: promotion._id,
+        campaignId: promotion.campaign?._id || null,
+        targetUserId: marketerId,
+      }
+    });
+  }
+
   viewProofMedia(mediaUrl: string): void {
     window.open(`${this.api}${mediaUrl}`, '_blank');
   }

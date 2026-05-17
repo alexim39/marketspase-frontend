@@ -102,6 +102,10 @@
       <mat-icon>analytics</mat-icon>
       Details
     </button>
+    <button class="action-btn secondary" (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+      <mat-icon>forum</mat-icon>
+      {{ getCollaborationLabel() }}
+    </button>
     <!-- <button class="action-btn secondary" (click)="onEditCampaign()">
       <mat-icon>edit</mat-icon>
       Edit
@@ -121,6 +125,10 @@
     <button mat-menu-item (click)="targetAudienceByLocation()">
         <mat-icon>edit_location</mat-icon>
         Set Location Target
+    </button>
+    <button mat-menu-item (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+      <mat-icon>forum</mat-icon>
+      {{ canOpenCollaborationRoom() ? 'Open Collaboration Room' : 'Waiting for promoter' }}
     </button>
    <!--  @if (campaign.status === 'active') {
       <button mat-menu-item (click)="onPauseCampaign()">

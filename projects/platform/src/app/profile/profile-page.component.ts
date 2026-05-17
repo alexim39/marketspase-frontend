@@ -18,6 +18,13 @@ import { UserService } from '../common/services/user.service';
 import { CommentDialogComponent } from '../community/feeds/comment-dialog/comment-dialog.component';
 import { ProfileSkeletonComponent } from './components/profile-skeleton.component';
 import { BadgeOverviewPayload, BadgeService, UserBadge } from '../common/services/badge.service';
+import { CollaborationReviewDialogComponent } from './components/collaboration-review-dialog.component';
+import { ReviewFlagDialogComponent } from './components/review-flag-dialog.component';
+import {
+  CollaborationReview,
+  CollaborationService,
+  ReviewEligibilityResponse,
+} from '../campaign/collaboration/collaboration.service';
 
 // Extend FeedPost to include interaction flags (returned by backend)
 interface FeedPostWithFlags extends FeedPost {
@@ -69,6 +76,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private badgeService = inject(BadgeService);
+  private collaborationService = inject(CollaborationService);
 
   // Current logged-in user
   currentUser = this.userService.user; // signal
@@ -80,6 +88,15 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   badgeOverview = signal<BadgeOverviewPayload | null>(null);
   badgeLoading = signal(false);
   badgeError = signal<string | null>(null);
+  collaborationReviews = signal<CollaborationReview[]>([]);
+  collaborationReviewLoading = signal(false);
+  collaborationReviewSummary = signal<{ averageRating: number; totalReviews: number; flagged?: number }>({
+    averageRating: 0,
+    totalReviews: 0,
+    flagged: 0,
+  });
+  reviewEligibility = signal<ReviewEligibilityResponse['data'] | null>(null);
+  reviewEligibilityLoading = signal(false);
 
   // Posts
   posts = signal<FeedPostWithFlags[]>([]);
@@ -128,6 +145,26 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     const marketerLinks = this.profile()?.marketerProfile?.businessOverview?.socialProfiles;
     const profileLinks = this.profile()?.professionalInfo?.socialProfiles;
     return this.buildSocialLinks(marketerLinks || profileLinks || {});
+  });
+  collaborationAverage = computed(() => {
+    const summary = this.collaborationReviewSummary();
+    if (summary.totalReviews > 0) {
+      return Number(summary.averageRating || 0);
+    }
+
+    return Number(this.profile()?.collaborationRating || 0);
+  });
+  collaborationReviewCount = computed(() => {
+    const summary = this.collaborationReviewSummary();
+    if (summary.totalReviews > 0) {
+      return Number(summary.totalReviews || 0);
+    }
+
+    return Number(this.profile()?.collaborationReviewCount || this.profile()?.collaborationRatingCount || 0);
+  });
+  collaborationStars = computed(() => {
+    const roundedAverage = Math.round(this.collaborationAverage());
+    return [1, 2, 3, 4, 5].map((value) => value <= roundedAverage);
   });
   overviewMetrics = computed<ProfileMetricCard[]>(() => {
     const profile = this.profile();
@@ -261,6 +298,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
 
   followersFetched = signal(false);
   followingFetched = signal(false);
+  private lastReviewEligibilityKey: string | null = null;
 
   // Infinite scroll anchors
   @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
@@ -292,6 +330,25 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
       } else if (tab === 'following' && !this.followingFetched() && !this.loadingFollowing()) {
         this.loadFollowing(true);
       }
+    });
+
+    effect(() => {
+      const profile = this.profile();
+      const currentUser = this.currentUser();
+
+      if (!profile?._id || !currentUser?._id || profile.isOwnProfile) {
+        this.reviewEligibility.set(null);
+        this.lastReviewEligibilityKey = null;
+        return;
+      }
+
+      const eligibilityKey = `${currentUser._id}:${profile._id}`;
+      if (this.lastReviewEligibilityKey === eligibilityKey) {
+        return;
+      }
+
+      this.lastReviewEligibilityKey = eligibilityKey;
+      this.loadReviewEligibility(profile._id);
     });
   }
 
@@ -335,6 +392,7 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
             this.loading.set(false);
             this.loadPosts(true); // load first page of posts
             this.loadBadgeOverview(profile._id);
+            this.loadCollaborationReviews(profile._id);
           }
         },
         error: (err) => {
@@ -548,6 +606,10 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
     return link.key;
   }
 
+  trackReview(_index: number, review: CollaborationReview): string {
+    return review._id;
+  }
+
   formatMetricValue(metric: ProfileMetricCard): string {
     if (metric.kind === 'currency') {
       return this.currencyFormatter.format(metric.value || 0);
@@ -620,6 +682,95 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
   // Edit profile (navigate to settings)
   editProfile(): void {
     this.router.navigate(['/dashboard/settings/account']);
+  }
+
+  openCollaborationThread(): void {
+    const profile = this.profile();
+    if (!profile || profile.isOwnProfile) {
+      return;
+    }
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: {
+        targetUserId: profile._id,
+      },
+    });
+  }
+
+  openReviewDialog(): void {
+    const profile = this.profile();
+    const eligibility = this.reviewEligibility();
+    if (!profile || !eligibility?.eligible || !eligibility.promotion?._id) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(CollaborationReviewDialogComponent, {
+      width: '560px',
+      maxWidth: '96vw',
+      data: {
+        targetName: profile.displayName,
+        campaignTitle: eligibility.campaign?.title || null,
+        promotionId: eligibility.promotion._id,
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(
+        filter(Boolean),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((payload) => {
+        this.collaborationService.createReview({
+          revieweeId: profile._id,
+          promotionId: eligibility.promotion?._id || '',
+          rating: payload.rating,
+          title: payload.title,
+          comment: payload.comment,
+        }).subscribe({
+          next: () => {
+            this.snackBar.open('Review published successfully.', 'Close', { duration: 2800 });
+            this.loadCollaborationReviews(profile._id);
+            this.loadReviewEligibility(profile._id);
+          },
+          error: (error) => {
+            this.snackBar.open(error?.error?.message || 'We could not publish that review.', 'Close', { duration: 3200 });
+          }
+        });
+      });
+  }
+
+  flagReview(review: CollaborationReview): void {
+    if (!review._id || review.reviewer?._id === this.currentUser()?._id) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ReviewFlagDialogComponent, {
+      width: '520px',
+      maxWidth: '96vw',
+      data: {
+        reviewerName: review.reviewer?.displayName || review.reviewer?.username || 'Reviewer',
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(
+        filter(Boolean),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((payload) => {
+        this.collaborationService.flagReview(review._id, payload).subscribe({
+          next: () => {
+            this.snackBar.open('Review flagged for moderation.', 'Close', { duration: 2800 });
+            const profileId = this.profile()?._id;
+            if (profileId) {
+              this.loadCollaborationReviews(profileId);
+            }
+          },
+          error: (error) => {
+            this.snackBar.open(error?.error?.message || 'We could not flag that review right now.', 'Close', { duration: 3200 });
+          }
+        });
+      });
   }
 
   // View another profile
@@ -845,5 +996,42 @@ export class ProfilePageComponent implements OnInit, OnDestroy {
 
   private normalizeWhatsAppPhone(phone?: string | null): string {
     return String(phone || '').replace(/\D/g, '');
+  }
+
+  private loadCollaborationReviews(userId: string): void {
+    this.collaborationReviewLoading.set(true);
+    this.collaborationService.getReceivedReviews(userId, 1, 6)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.collaborationReviews.set(response.data || []);
+          this.collaborationReviewSummary.set(response.summary || {
+            averageRating: 0,
+            totalReviews: 0,
+            flagged: 0,
+          });
+          this.collaborationReviewLoading.set(false);
+        },
+        error: () => {
+          this.collaborationReviews.set([]);
+          this.collaborationReviewLoading.set(false);
+        }
+      });
+  }
+
+  private loadReviewEligibility(targetUserId: string): void {
+    this.reviewEligibilityLoading.set(true);
+    this.collaborationService.getReviewEligibility(targetUserId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.reviewEligibility.set(response.data);
+          this.reviewEligibilityLoading.set(false);
+        },
+        error: () => {
+          this.reviewEligibility.set(null);
+          this.reviewEligibilityLoading.set(false);
+        }
+      });
   }
 }
