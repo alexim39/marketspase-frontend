@@ -343,7 +343,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const promotions = this.user()?.promotion;
     if (Array.isArray(promotions)) {
       this.pendingPromotionsCount = promotions.filter(
-        (p: any) => p.status === 'pending' || p.status === 'submitted'
+        (p: any) => p.status === 'accepted' && p.isActive !== false
       ).length;
     } else {
       this.pendingPromotionsCount = 0;

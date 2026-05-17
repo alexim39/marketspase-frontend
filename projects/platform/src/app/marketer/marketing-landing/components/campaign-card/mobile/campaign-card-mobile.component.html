@@ -134,6 +134,12 @@
         Activate
       </button>
     }
+    @if (campaign.status === 'active' || campaign.status === 'paused' || campaign.status === 'exhausted') {
+      <button mat-menu-item (click)="onTopUpCampaign()">
+        <mat-icon>add_circle</mat-icon>
+        Top Up Budget
+      </button>
+    }
     <!-- @if (campaign.status === 'paused') {
       <button mat-menu-item (click)="onResumeCampaign()">
         <mat-icon>play_arrow</mat-icon>

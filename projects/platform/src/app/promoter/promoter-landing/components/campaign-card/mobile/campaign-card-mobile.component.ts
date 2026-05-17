@@ -65,7 +65,7 @@ export class CampaignCardMobileComponent {
       this.promotions.some( // Added () assuming promotions is a Signal
         (promotion: PromotionInterface) =>
           promotion.campaign._id === campaign._id && 
-          ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status)
+          promotion.status === 'accepted'
       );
   });
 

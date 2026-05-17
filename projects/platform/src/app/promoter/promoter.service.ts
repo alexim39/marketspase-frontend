@@ -147,65 +147,6 @@ export class PromoterService {
   }
 
   /**
-   * Submit promotion proofs.
-   * @param formData Form data containing proofs.
-   * @param userId The user ID.
-   * @returns An observable of the API response.
-   */
-  submitProof(formData: FormData, userId: string): Observable<any> {
-    return this.apiService.post<any>(`${this.promotionsEndpoint}/submit-proof/${userId}`, formData, undefined, true).pipe(
-      tap(response => {
-        if (response.success) {
-          // Invalidate cache for this user's promotions
-          this.invalidateUserPromotionsCache(userId);
-          
-          // If response contains promotionId, invalidate specific promotion cache
-          if (response.data?.promotionId) {
-            this.cache.delete(`promotion_${response.data.promotionId}_user_${userId}`);
-          }
-        }
-      }),
-      catchError(error => {
-        console.error('Error submitting proof:', error);
-        return throwError(() => new Error('Failed to submit proof'));
-      })
-    );
-  }
-
-  /**
-   * Download a promotion media.
-   * This action registers the promoter for the campaign.
-   * @param campaignId The campaign ID.
-   * @param promoterId The promoter ID.
-   * @param promotionId The promotion ID.
-   * @returns An observable of the API response.
-   */
-  downloadPromotion(campaignId: string, promoterId: string, promotionId: string): Observable<any> {
-    const payload = {
-      campaignId,
-      promoterId,
-      promotionId
-    };
-    
-    return this.apiService.post<any>(`${this.promotionsEndpoint}/download`, payload, undefined, true).pipe(
-      tap(response => {
-        if (response.success) {
-          // Invalidate relevant cache entries
-          this.invalidateUserPromotionsCache(promoterId);
-          this.invalidateCampaignsCache();
-          
-          // Invalidate specific promotion cache
-          this.cache.delete(`promotion_${promotionId}_user_${promoterId}`);
-        }
-      }),
-      catchError(error => {
-        console.error(`Error downloading promotion ${promotionId}:`, error);
-        return throwError(() => new Error('Failed to download promotion'));
-      })
-    );
-  }
-
-  /**
    * Clear all cache entries for a specific user.
    * @param userId The user ID.
    */

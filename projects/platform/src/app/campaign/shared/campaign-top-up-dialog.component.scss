@@ -1,0 +1,79 @@
+@import '../../../styles/variables';
+
+.campaign-top-up-dialog {
+  width: min(100%, 32rem);
+  padding: 1.5rem;
+  color: $text-primary;
+  background: $surface-color;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.dialog-header p {
+  margin: 0.45rem 0 0;
+  color: $text-secondary;
+  line-height: 1.6;
+}
+
+.campaign-summary {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.summary-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-secondary;
+}
+
+.summary-meta {
+  color: $text-secondary;
+  font-size: 0.95rem;
+}
+
+.dialog-body {
+  margin-top: 1.25rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.dialog-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .campaign-top-up-dialog {
+    padding: 1rem;
+  }
+
+  .dialog-actions {
+    flex-direction: column-reverse;
+  }
+
+  .dialog-actions button {
+    width: 100%;
+  }
+}

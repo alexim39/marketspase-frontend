@@ -21,6 +21,7 @@ import { CampaignStatsMobileComponent } from './components/campaign-stats/mobile
 import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 import { CampaignDetailsService } from '../../campaign/campaign-details/campaign-details.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import {
   getCampaignBillableClicks,
   getCampaignCostPerClick,
@@ -32,6 +33,7 @@ import {
   isCampaignBudgetExhausted,
   isCampaignExpired,
 } from '../../common/utils/campaign-performance.util';
+import { CampaignTopUpDialogComponent } from '../../campaign/shared/campaign-top-up-dialog.component';
 
 interface FilterOptions {
   status: string;
@@ -101,6 +103,7 @@ export class MarketerLandingComponent implements OnInit {
   private marketerService = inject(MarketerService);
   private campaignDetailsService = inject(CampaignDetailsService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   
   public apiBaseUrl = this.marketerService.api;
 
@@ -308,9 +311,11 @@ export class MarketerLandingComponent implements OnInit {
     const invalidClicks = campaigns.reduce((sum, campaign) => sum + getCampaignInvalidClicks(campaign), 0);
 
     const uniquePromoters = getCampaignUniquePromoterCount(allPromotions);
-    const campaignsWithPromotions = campaigns.filter(campaign => (campaign.totalPromotions || campaign.currentPromoters || 0) > 0).length;
+    const campaignsWithPromotions = campaigns.filter(campaign =>
+      Number(campaign.promotionSummary?.uniquePromoters ?? campaign.totalPromotions ?? 0) > 0
+    ).length;
     const activePromotions = allPromotions.filter(promotion =>
-      ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status)
+      promotion.status === 'accepted' && promotion.isActive !== false
     ).length;
 
     const activeCampaigns = campaigns.filter(campaign =>
@@ -318,7 +323,7 @@ export class MarketerLandingComponent implements OnInit {
     );
     const draftCampaigns = campaigns.filter(campaign => campaign.status === 'draft');
     const completedCampaigns = campaigns.filter(campaign =>
-      ['completed', 'expired', 'ended'].includes(String(campaign.status)) || isCampaignExpired(campaign)
+      ['completed', 'expired'].includes(String(campaign.status)) || isCampaignExpired(campaign)
     );
     const pendingCampaigns = campaigns.filter(campaign => campaign.status === 'pending');
     const exhaustedCampaigns = campaigns.filter(campaign =>
@@ -361,7 +366,7 @@ export class MarketerLandingComponent implements OnInit {
         campaign.status === 'active' &&
         !isCampaignBudgetExhausted(campaign) &&
         !isCampaignExpired(campaign) &&
-        Number(campaign.currentPromoters || 0) === 0
+        Number(campaign.promotionSummary?.uniquePromoters ?? 0) === 0
       ).length
     };
   }
@@ -406,7 +411,19 @@ export class MarketerLandingComponent implements OnInit {
 
   // Campaign actions
   pauseCampaign(campaignId: string): void {
-    console.log('Pausing campaign:', campaignId);
+    this.campaignDetailsService.updateCampaignStatus(campaignId, 'paused', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackBar.open('Campaign paused successfully', 'Close', { duration: 3000 });
+            this.refreshCampaigns();
+          }
+        },
+        error: (error) => {
+          this.snackBar.open(error.error?.message || 'Failed to pause campaign', 'Close', { duration: 3000 });
+        }
+      });
   }
 
   activateCampaign(campaignId: string): void {
@@ -431,7 +448,60 @@ export class MarketerLandingComponent implements OnInit {
   }
 
   resumeCampaign(campaignId: string): void {
-    console.log('Resuming campaign:', campaignId);
+    this.campaignDetailsService.updateCampaignStatus(campaignId, 'active', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackBar.open(response.message, 'Close', { duration: 3000 });
+            this.refreshCampaigns();
+          }
+        },
+        error: (error) => {
+          this.snackBar.open(error.error?.message || 'Failed to resume campaign', 'Close', { duration: 3000 });
+        }
+      });
+  }
+
+  topUpCampaign(campaignId: string): void {
+    const campaign = this.campaigns().find((item) => item._id === campaignId);
+    if (!campaign) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(CampaignTopUpDialogComponent, {
+      width: '460px',
+      maxWidth: '95vw',
+      data: {
+        title: campaign.title,
+        currency: campaign.currency || 'NGN',
+        remainingBudget: getCampaignRemainingBudget(campaign),
+        recommendedAmount: Math.max(Number(campaign.costPerClick ?? 0) * 25, 1000),
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        const amount = Number(result?.amount ?? 0);
+        if (!amount) {
+          return;
+        }
+
+        this.campaignDetailsService.topUpCampaign(campaignId, amount, this.user()?._id || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.snackBar.open(response.message, 'Close', { duration: 3200 });
+                this.refreshCampaigns();
+              }
+            },
+            error: (error) => {
+              this.snackBar.open(error.error?.message || 'Failed to top up campaign', 'Close', { duration: 3200 });
+            }
+          });
+      });
   }
 
   deleteCampaign(campaignId: string): void {

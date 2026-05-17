@@ -13,17 +13,17 @@ export interface CampaignSummary {
   completed: number;
   totalBudget: number;
   spentBudget: number;
-  totalPromoters: number;
+  engagedPromoters: number;
 }
 
 export interface PromotionSummary {
   total: number;
-  accepted: number;
-  submitted: number;
-  validated: number;
+  activeLinks: number;
   paid: number;
+  rejected: number;
+  totalClicks: number;
+  billableClicks: number;
   totalEarnings: number;
-  pendingEarnings: number;
   availableEarnings: number;
 }
 

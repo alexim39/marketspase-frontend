@@ -179,7 +179,7 @@
               <span class="stat-label">{{ getSlotLabel(campaign) }}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-number">{{ campaign.currentPromoters || 0 }}</span>
+              <span class="stat-number">{{ campaign.promotionSummary?.uniquePromoters || campaign.totalPromotions || 0 }}</span>
               <span class="stat-label">Active Promoters</span>
             </div>
             <div class="stat-card">

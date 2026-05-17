@@ -38,7 +38,7 @@ import { PromotionInterface } from '@shared/services';
             Share
           </button>
         }
-        @if (promotion.status === 'submitted' || promotion.status === 'validated' || promotion.status === 'rejected') {
+        @if (promotion.status === 'rejected') {
           <button mat-flat-button class="btn btn-outline" (click)="contactSupport.emit()">
             <mat-icon>support_agent</mat-icon>
             Contact Support

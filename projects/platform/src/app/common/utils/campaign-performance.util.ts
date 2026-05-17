@@ -7,7 +7,6 @@ export type CampaignAvailabilityState =
   | 'expired'
   | 'budget_exhausted'
   | 'inactive'
-  | 'slots_full'
   | 'new'
   | 'popular'
   | 'active';
@@ -25,28 +24,22 @@ export const getCampaignRemainingBudget = (campaign: CampaignInterface): number 
 
   const budget = Number(campaign.budget ?? 0);
   const spentBudget = Number(campaign.spentBudget ?? 0);
-  const reservedBudget = Number(campaign.reservedBudget ?? 0);
 
-  return Math.max(budget - spentBudget - reservedBudget, 0);
+  return Math.max(budget - spentBudget, 0);
 };
 
 export const hasCampaignPromoterLimit = (campaign: CampaignInterface): boolean => {
-  const maxPromoters = Number(campaign.maxPromoters ?? 0);
-  return Number.isFinite(maxPromoters) && maxPromoters > 0;
+  void campaign;
+  return false;
 };
 
 export const hasCampaignOpenPromoterSlots = (campaign: CampaignInterface): boolean => {
-  if (!hasCampaignPromoterLimit(campaign)) {
-    return true;
-  }
-
-  const maxPromoters = Number(campaign.maxPromoters ?? 0);
-  const currentPromoters = Number(campaign.currentPromoters ?? campaign.totalPromotions ?? 0);
-  return currentPromoters < maxPromoters;
+  void campaign;
+  return true;
 };
 
 export const isCampaignExpired = (campaign: CampaignInterface): boolean => {
-  if (['completed', 'expired', 'ended'].includes(String(campaign.status))) {
+  if (['completed', 'expired'].includes(String(campaign.status))) {
     return true;
   }
 
@@ -78,21 +71,18 @@ export const getCampaignAvailabilityState = (campaign: CampaignInterface): Campa
     return 'inactive';
   }
 
-  if (!hasCampaignOpenPromoterSlots(campaign)) {
-    return 'slots_full';
-  }
-
-  const currentPromoters = Number(campaign.currentPromoters ?? campaign.totalPromotions ?? 0);
+  const currentPromoters = Number(
+    campaign.promotionSummary?.uniquePromoters
+    ?? campaign.totalPromotions
+    ?? 0
+  );
 
   if (currentPromoters === 0) {
     return 'new';
   }
 
-  if (hasCampaignPromoterLimit(campaign)) {
-    const maxPromoters = Number(campaign.maxPromoters ?? 0);
-    if (maxPromoters > 0 && currentPromoters / maxPromoters >= 0.7) {
-      return 'popular';
-    }
+  if (currentPromoters >= 5 || getCampaignBillableClicks(campaign) >= 50) {
+    return 'popular';
   }
 
   return 'active';
@@ -109,10 +99,6 @@ export const getCampaignStatusBadgeClass = (campaign: CampaignInterface): string
     return 'status-completed';
   }
 
-  if (state === 'slots_full') {
-    return 'status-paused';
-  }
-
   return 'status-active';
 };
 
@@ -124,8 +110,6 @@ export const getCampaignStatusBadgeText = (campaign: CampaignInterface): string 
       return 'Exhausted';
     case 'inactive':
       return 'Unavailable';
-    case 'slots_full':
-      return 'No Slots';
     case 'new':
       return 'New';
     case 'popular':
@@ -145,8 +129,6 @@ export const getCampaignAcceptButtonText = (campaign: CampaignInterface): string
       return 'Budget Exhausted';
     case 'inactive':
       return String(campaign.status) === 'paused' ? 'Paused' : 'Not Available';
-    case 'slots_full':
-      return 'No Slots';
     default:
       return 'Accept Campaign';
   }
@@ -190,15 +172,18 @@ export const getCampaignLocationMatchLabel = (campaign: CampaignInterface): stri
 };
 
 export const getCampaignSlotValue = (campaign: CampaignInterface): string => {
-  if (!hasCampaignPromoterLimit(campaign)) {
-    return 'Open';
-  }
-
-  return `${Number(campaign.currentPromoters ?? 0)}/${Number(campaign.maxPromoters ?? 0)}`;
+  const promoterCount = Number(
+    campaign.promotionSummary?.uniquePromoters
+    ?? campaign.totalPromotions
+    ?? 0
+  );
+  return `${promoterCount}`;
 };
 
 export const getCampaignSlotLabel = (campaign: CampaignInterface): string => {
-  return hasCampaignPromoterLimit(campaign) ? 'Slots Filled' : 'Promoter Access';
+  return Number(campaign.promotionSummary?.uniquePromoters ?? 0) > 0
+    ? 'Active Promoters'
+    : 'Promoter Reach';
 };
 
 export const getCampaignLifecycleLabel = (campaign: CampaignInterface): string => {

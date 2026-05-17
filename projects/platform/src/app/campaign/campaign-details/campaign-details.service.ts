@@ -20,8 +20,11 @@ export class CampaignDetailsService {
   }
 
   updateCampaignStatus(id: string, status: string, performedBy: string): Observable<any> {
-    return this.apiService.patch<any>(`api/v1/campaign/admin/${id}/status`, { status, performedBy }, undefined, true);
+    return this.apiService.patch<any>(`${this.apiUrl}/${id}/status`, { status, performedBy }, undefined, true);
   }
 
+  topUpCampaign(id: string, amount: number, performedBy: string): Observable<any> {
+    return this.apiService.post<any>(`${this.apiUrl}/${id}/top-up`, { amount, performedBy }, undefined, true);
+  }
 
 }

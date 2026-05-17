@@ -1,6 +1,6 @@
-// promotion-details.component.ts
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PromotionInterface, CampaignInterface } from '../../../../../shared-services/src/public-api';
 import { PromotionProofComponent } from '../promotion-proof/promotion-proof.component';
 import { CampaignService } from '../../campaign/campaign.service';
-import { AdminService } from '../../common/services/user.service';
 
 @Component({
   selector: 'admin-promotion-details',
@@ -28,14 +27,14 @@ import { AdminService } from '../../common/services/user.service';
   templateUrl: './promotion-details.component.html',
   styleUrls: ['./promotion-details.component.scss']
 })
-export class PromotionDetailsComponent implements OnInit {
+export class PromotionDetailsComponent {
   readonly dialogRef = inject(MatDialogRef<PromotionDetailsComponent>);
   readonly data = inject<{ promotion: PromotionInterface }>(MAT_DIALOG_DATA);
   readonly campaignService = inject(CampaignService);
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
   readonly datePipe = inject(DatePipe);
-  readonly adminService = inject(AdminService);
+  readonly clipboard = inject(Clipboard);
 
   isLoading = signal(true);
   promotion = signal<PromotionInterface | null>(null);
@@ -43,19 +42,18 @@ export class PromotionDetailsComponent implements OnInit {
   public readonly api = this.campaignService.api;
 
   ngOnInit(): void {
-    this.adminService.fetchAdmin;
-
     this.promotion.set(this.data.promotion);
     this.loadCampaignDetails();
   }
 
   loadCampaignDetails(): void {
-    if (!this.promotion()?.campaign) {
+    const campaignId = this.promotion()?.campaign?._id as string | undefined;
+    if (!campaignId) {
       this.isLoading.set(false);
       return;
     }
 
-    this.campaignService.getCampaignById(this.promotion()!.campaign._id as string)
+    this.campaignService.getCampaignById(campaignId)
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -75,6 +73,11 @@ export class PromotionDetailsComponent implements OnInit {
   }
 
   viewProof(): void {
+    if (!this.promotion()?.proofMedia?.length) {
+      this.snackBar.open('No legacy proof files are attached to this promotion.', 'Close', { duration: 3000 });
+      return;
+    }
+
     this.dialog.open(PromotionProofComponent, {
       width: '90%',
       maxWidth: '1200px',
@@ -82,71 +85,79 @@ export class PromotionDetailsComponent implements OnInit {
     });
   }
 
-  validatePromotion(): void {
-    if (!this.promotion()) return;
+  copyTrackingLink(): void {
+    const promotionUrl = this.promotion()?.promotionUrl;
+    if (!promotionUrl) {
+      this.snackBar.open('No tracking link is available for this promotion.', 'Close', { duration: 3000 });
+      return;
+    }
 
-    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'validated', this.adminService.adminData()?._id || '')
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
-            this.promotion.set({ ...this.promotion()!, status: 'validated', validatedAt: new Date() });
-          } else {
-            this.snackBar.open('Failed to validate promotion', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error validating promotion:', error);
-          this.snackBar.open('Error validating promotion', 'Close', { duration: 3000 });
-        }
-      });
+    this.clipboard.copy(promotionUrl);
+    this.snackBar.open('Tracking link copied', 'Close', { duration: 2200 });
   }
 
-  rejectPromotion(): void {
-    if (!this.promotion()) return;
+  openTrackingLink(): void {
+    const promotionUrl = this.promotion()?.promotionUrl;
+    if (!promotionUrl) {
+      this.snackBar.open('No tracking link is available for this promotion.', 'Close', { duration: 3000 });
+      return;
+    }
 
-    // In a real implementation, you would open a dialog to get rejection reason
-    const rejectionReason = prompt('Please enter rejection reason:');
-    if (!rejectionReason) return;
-
-    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'rejected', rejectionReason, this.adminService.adminData()?._id || '')
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
-            this.promotion.set({ 
-              ...this.promotion()!, 
-              status: 'rejected', 
-              rejectionReason 
-            });
-          } else {
-            this.snackBar.open('Failed to reject promotion', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error rejecting promotion:', error);
-          this.snackBar.open('Error rejecting promotion', 'Close', { duration: 3000 });
-        }
-      });
+    window.open(promotionUrl, '_blank', 'noopener');
   }
 
-  markAsPaid(): void {
-    if (!this.promotion()) return;
+  getStatusChipClass(): string {
+    const promotion = this.promotion();
+    if (promotion?.fraudStatus?.isFlagged) {
+      return 'flagged';
+    }
 
-    this.campaignService.updatePromotionStatus(this.promotion()!._id, 'paid', this.adminService.adminData()?._id || '')
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion marked as paid successfully', 'Close', { duration: 3000 });
-            this.promotion.set({ ...this.promotion()!, status: 'paid', paidAt: new Date() });
-          } else {
-            this.snackBar.open('Failed to mark promotion as paid', 'Close', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error marking promotion as paid:', error);
-          this.snackBar.open('Error marking promotion as paid', 'Close', { duration: 3000 });
-        }
-      });
+    if (String(promotion?.status) === 'accepted' && promotion?.isActive === false) {
+      return 'inactive';
+    }
+
+    return String(promotion?.status || 'accepted');
+  }
+
+  getStatusLabel(): string {
+    const promotion = this.promotion();
+    if (promotion?.fraudStatus?.isFlagged) {
+      return 'Under Review';
+    }
+
+    if (String(promotion?.status) === 'accepted' && promotion?.isActive === false) {
+      return 'Inactive Link';
+    }
+
+    if (String(promotion?.status) === 'accepted') {
+      return 'Active Link';
+    }
+
+    if (String(promotion?.status) === 'paid') {
+      return 'Legacy Paid';
+    }
+
+    if (String(promotion?.status) === 'rejected') {
+      return 'Rejected';
+    }
+
+    return String(promotion?.status || 'Promotion');
+  }
+
+  getTrackedClicks(): number {
+    return Number(this.promotion()?.clickStats?.totalClicks ?? 0);
+  }
+
+  getBillableClicks(): number {
+    return Number(this.promotion()?.clickStats?.billableClicks ?? 0);
+  }
+
+  getInvalidClicks(): number {
+    const promotion = this.promotion();
+    return Number(promotion?.clickStats?.invalidClicks ?? 0) + Number(promotion?.clickStats?.duplicateClicks ?? 0);
+  }
+
+  getEarnedAmount(): number {
+    return Number(this.promotion()?.clickStats?.earnedAmount ?? this.promotion()?.payoutAmount ?? 0);
   }
 }

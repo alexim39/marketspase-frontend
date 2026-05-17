@@ -58,6 +58,7 @@ export class CampaignListComponent {
   @Output() pauseCampaign = new EventEmitter<string>();
   @Output() activateCampaign = new EventEmitter<string>();
   @Output() resumeCampaign = new EventEmitter<string>();
+  @Output() topUpCampaign = new EventEmitter<string>();
   @Output() deleteCampaign = new EventEmitter<string>();
   @Output() createCampaign = new EventEmitter<void>();
   @Output() clearFilters = new EventEmitter<void>();
@@ -94,6 +95,10 @@ export class CampaignListComponent {
 
   onResumeCampaign(campaignId: string): void {
     this.resumeCampaign.emit(campaignId);
+  }
+
+  onTopUpCampaign(campaignId: string): void {
+    this.topUpCampaign.emit(campaignId);
   }
 
   onDeleteCampaign(campaignId: string): void {

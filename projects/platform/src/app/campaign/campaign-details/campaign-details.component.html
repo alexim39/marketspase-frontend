@@ -13,6 +13,14 @@
           <p>Monitor performance and manage your campaign</p>
         </div>
         <div class="header-actions">
+          @if (campaign(); as currentCampaign) {
+            @if (currentCampaign.status === 'active' || currentCampaign.status === 'paused' || currentCampaign.status === 'exhausted') {
+            <button class="btn btn-primary" mat-flat-button (click)="openTopUpDialog(currentCampaign)">
+              <mat-icon>add_circle</mat-icon>
+              Top Up Budget
+            </button>
+            }
+          }
           <!-- <button class="btn btn-primary" mat-flat-button>
             <mat-icon>edit</mat-icon>
             Export Data
@@ -69,6 +77,12 @@
                   <mat-icon>play_circle</mat-icon>
                     Resume Campaign
                   </button>
+              }
+              @if (campaign.status === 'active' || campaign.status === 'paused' || campaign.status === 'exhausted') {
+                <button mat-menu-item (click)="openTopUpDialog(campaign)">
+                  <mat-icon>add_circle</mat-icon>
+                  Top Up Budget
+                </button>
               }
               @if (campaign.status === 'draft') {
                   <button mat-menu-item (click)="activateCampaign(campaign)">
@@ -220,9 +234,9 @@
               <div class="info-item">
                 <mat-icon>group</mat-icon>
                 <div class="info-content">
-                  <span class="info-label">Promoter Access</span>
+                  <span class="info-label">Promoter Reach</span>
                   <span class="info-value">
-                    {{campaign.maxPromoters && campaign.maxPromoters > 0 ? (engagedPromoters() + ' / ' + campaign.maxPromoters + ' engaged') : 'Open access'}}
+                    {{engagedPromoters()}} engaged promoters
                   </span>
                 </div>
               </div>
@@ -286,20 +300,9 @@
               <mat-icon>group</mat-icon>
             </div>
             <div class="metric-content">
-              <div class="metric-value">
-                {{campaign.maxPromoters && campaign.maxPromoters > 0 ? (engagedPromoters() + '/' + campaign.maxPromoters) : engagedPromoters()}}
-              </div>
+              <div class="metric-value">{{engagedPromoters()}}</div>
               <div class="metric-label">Promoters Engaged</div>
               <div class="metric-subtext">{{activePromotionCount()}} active promotions</div>
-              @if (campaign.maxPromoters && campaign.maxPromoters > 0) {
-                <div class="metric-progress">
-                  <div class="progress-bar">
-                    <div class="progress-fill" [class]="'progress-' + getProgressColor(promoterSlotProgress())" 
-                         [style.width]="promoterSlotProgress() + '%'"></div>
-                  </div>
-                  <span class="progress-percentage">{{promoterSlotProgress() | number:'1.0-0'}}%</span>
-                </div>
-              }
             </div>
           </div>
           
@@ -366,10 +369,7 @@
             </button>
             <mat-menu #statusFilterMenu="matMenu">
               <button mat-menu-item (click)="updateStatusFilter('')">All</button>
-              <button mat-menu-item (click)="updateStatusFilter('accepted')">Accepted</button>
-              <button mat-menu-item (click)="updateStatusFilter('downloaded')">Downloaded</button>
-              <button mat-menu-item (click)="updateStatusFilter('submitted')">Submitted</button>
-              <button mat-menu-item (click)="updateStatusFilter('validated')">Validated</button>
+              <button mat-menu-item (click)="updateStatusFilter('accepted')">Active Link</button>
               <button mat-menu-item (click)="updateStatusFilter('paid')">Paid</button>
               <button mat-menu-item (click)="updateStatusFilter('rejected')">Rejected</button>
             </mat-menu>

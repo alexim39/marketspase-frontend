@@ -28,7 +28,6 @@ import {
   canCampaignBeAccepted,
   getCampaignCostPerClick,
   getCampaignRemainingBudget,
-  hasCampaignOpenPromoterSlots,
   isCampaignBudgetExhausted,
   isCampaignExpired,
 } from '../utils/campaign-availability.util';
@@ -190,7 +189,7 @@ export class PromoterLandingComponent implements OnInit {
       }, 0);
 
     const activePromotions = promotions.filter(promotion => 
-      ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status) &&
+      promotion.status === 'accepted' &&
       promotion.isActive !== false
     ).length;
 
@@ -218,7 +217,8 @@ export class PromoterLandingComponent implements OnInit {
       const diffTime = endDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return diffDays <= 3 && diffDays > 0 && 
-            ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status);
+            promotion.status === 'accepted' &&
+            promotion.isActive !== false;
     }).length;
 
     return {
@@ -349,7 +349,7 @@ export class PromoterLandingComponent implements OnInit {
         updatedCampaign.remainingDays = 'Ongoing';
       }
 
-      updatedCampaign.canAcceptPromoters = hasCampaignOpenPromoterSlots(updatedCampaign) && remainingBudget >= costPerClick;
+      updatedCampaign.canAcceptPromoters = remainingBudget >= costPerClick;
 
       return updatedCampaign;
     });
@@ -399,10 +399,27 @@ applyForCampaign(campaign: CampaignInterface): void {
         const createdPromotion = response?.promotion;
         const updatedCampaigns = this.campaigns().map(c => {
           if (c._id === campaign._id) {
+            const currentSummary = c.promotionSummary || {
+              totalPromotions: 0,
+              activePromotions: 0,
+              uniquePromoters: 0,
+              clickStats: {
+                totalClicks: 0,
+                billableClicks: 0,
+                invalidClicks: 0,
+                duplicateClicks: 0,
+                earnedAmount: 0,
+              }
+            };
             return {
               ...c,
-              currentPromoters: (c.currentPromoters || 0) + 1,
-              totalPromotions: (c.totalPromotions || 0) + 1
+              totalPromotions: Number(c.totalPromotions || 0) + 1,
+              promotionSummary: {
+                ...currentSummary,
+                totalPromotions: Number(currentSummary.totalPromotions || 0) + 1,
+                activePromotions: Number(currentSummary.activePromotions || 0) + 1,
+                uniquePromoters: Number(currentSummary.uniquePromoters || 0) + 1,
+              }
             };
           }
           return c;

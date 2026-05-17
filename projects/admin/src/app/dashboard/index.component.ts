@@ -79,7 +79,6 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { id: 'all-campaigns', title: 'All Campaigns', icon: 'campaign', route: '/dashboard/campaigns' },
         { id: 'all-promotions', title: 'All Promotions', icon: 'ads_click', route: '/dashboard/promotions' },
-        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' },
         { id: 'promotion-fraud', title: 'Fraud Monitor', icon: 'shield', route: '/dashboard/promotions/fraud' }
       ]
     },

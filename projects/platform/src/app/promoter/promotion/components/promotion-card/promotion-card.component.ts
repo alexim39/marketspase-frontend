@@ -90,9 +90,6 @@ export class PromotionCardComponent {
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
       accepted: 'Active Link',
-      downloaded: 'Active Link',
-      submitted: 'Review Pending',
-      validated: 'Approved',
       paid: 'Paid',
       rejected: 'Needs Attention'
     };
@@ -102,9 +99,6 @@ export class PromotionCardComponent {
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
       accepted: 'success',
-      downloaded: 'success',
-      submitted: 'info',
-      validated: 'success',
       paid: 'primary',
       rejected: 'error'
     };
@@ -114,9 +108,6 @@ export class PromotionCardComponent {
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
       accepted: 'link',
-      downloaded: 'link',
-      submitted: 'pending_actions',
-      validated: 'check_circle',
       paid: 'paid',
       rejected: 'warning'
     };

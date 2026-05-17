@@ -28,11 +28,17 @@ export class PromotionsSummaryCardComponent {
   @Output() viewWithdrawal = new EventEmitter<void>();
   @Output() startPromotion = new EventEmitter<void>();
 
+  getActivePromotionCount(): number {
+    return this.user()?.promotion?.filter(
+      (promotion) => promotion.status === 'accepted' && promotion.isActive !== false
+    )?.length || 0;
+  }
+
   getRejectedPromotionCount(): number {
     return this.user()?.promotion?.filter(p => p.status === 'rejected')?.length || 0;
   }
 
-  getValidatedPromotionCount(): number {
-    return this.user()?.promotion?.filter(p => p.status === 'validated')?.length || 0;
+  getPaidPromotionCount(): number {
+    return this.user()?.promotion?.filter(p => p.status === 'paid')?.length || 0;
   }
 }

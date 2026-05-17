@@ -249,22 +249,12 @@
 .status-chip {
     font-size: 12px;
     font-weight: 500;
+    color: white;
     
-    &.active, &.validated, &.paid {
-    background: #2e7d32;
-    }
-    
-    &.paused, &.pending {
-    background: #ef6c00;
-    }
-    
-    &.rejected {
-    background: #c62828;
-    }
-    
-    &.submitted {
-    background: #1976d2;
-    }
+    &.active, &.accepted, &.paid { background: #2e7d32; }
+    &.paused, &.pending, &.inactive { background: #ef6c00; }
+    &.rejected { background: #c62828; }
+    &.flagged { background: #f97316; }
     
     &.small {
     font-size: 10px;

@@ -1,5 +1,5 @@
 // promotion-proof.component.ts
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -34,6 +34,7 @@ export class PromotionProofComponent implements OnInit {
   promotion = signal<PromotionInterface | null>(null);
   activeImageIndex = signal(0);
   public readonly api = this.campaignService.api;
+  readonly proofMedia = computed(() => this.promotion()?.proofMedia ?? []);
 
   ngOnInit(): void {
     this.promotion.set(this.data.promotion);
@@ -46,16 +47,18 @@ export class PromotionProofComponent implements OnInit {
   }
 
   nextImage(): void {
-    if (this.promotion()?.proofMedia && this.promotion()!.proofMedia.length > 0) {
-      const nextIndex = (this.activeImageIndex() + 1) % this.promotion()!.proofMedia.length;
+    const proofMedia = this.promotion()?.proofMedia;
+    if (proofMedia && proofMedia.length > 0) {
+      const nextIndex = (this.activeImageIndex() + 1) % proofMedia.length;
       this.activeImageIndex.set(nextIndex);
     }
   }
 
   prevImage(): void {
-    if (this.promotion()?.proofMedia && this.promotion()!.proofMedia.length > 0) {
-      const prevIndex = (this.activeImageIndex() - 1 + this.promotion()!.proofMedia.length) % 
-                        this.promotion()!.proofMedia.length;
+    const proofMedia = this.promotion()?.proofMedia;
+    if (proofMedia && proofMedia.length > 0) {
+      const prevIndex = (this.activeImageIndex() - 1 + proofMedia.length) %
+                        proofMedia.length;
       this.activeImageIndex.set(prevIndex);
     }
   }

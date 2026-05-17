@@ -63,7 +63,7 @@ export class DashboardMainComponent {
         key: 'promotions',
         label: 'Promotions',
         value: overview.ads.totalPromotions.toLocaleString(),
-        meta: `${overview.ads.submittedPromotions.toLocaleString()} awaiting review | ${overview.ads.totalCampaignClicks.toLocaleString()} clicks tracked`,
+        meta: `${overview.ads.activeCampaigns.toLocaleString()} live campaigns | ${overview.ads.totalCampaignClicks.toLocaleString()} clicks tracked`,
         icon: 'ads_click',
         tone: 'warning',
       },
@@ -86,35 +86,35 @@ export class DashboardMainComponent {
         icon: 'shield',
       },
       {
-        title: 'Review submitted promotions',
-        description: 'Validate promoter proofs and keep the pay-per-click pipeline moving.',
-        route: '/dashboard/promotions/submitted',
-      icon: 'fact_check',
-    },
-    {
-      title: 'Manage storefronts',
-      description: 'Inspect stores, products, and marketplace readiness across marketers.',
-      route: '/dashboard/stores',
-      icon: 'store',
-    },
-    {
-      title: 'Moderate product reviews',
-      description: 'Approve, reject, or clear flagged storefront ratings before they affect public trust.',
-      route: '/dashboard/stores/reviews',
-      icon: 'rate_review',
-    },
-    {
-      title: 'Handle payouts and refunds',
-      description: 'Review withdrawal requests, transfer history, and payment recovery work.',
-      route: '/dashboard/financial',
-      icon: 'account_balance_wallet',
-    },
-    {
-      title: 'Tune rewards and gamification',
-      description: 'Adjust streak, badge, gamification, and payment settings for live growth loops.',
-      route: '/dashboard/settings/login-streaks',
-      icon: 'emoji_events',
-    },
+        title: 'Manage promotion ledger',
+        description: 'Review promotion performance, payout outcomes, and link health across the marketplace.',
+        route: '/dashboard/promotions',
+        icon: 'ads_click',
+      },
+      {
+        title: 'Manage storefronts',
+        description: 'Inspect stores, products, and marketplace readiness across marketers.',
+        route: '/dashboard/stores',
+        icon: 'store',
+      },
+      {
+        title: 'Moderate product reviews',
+        description: 'Approve, reject, or clear flagged storefront ratings before they affect public trust.',
+        route: '/dashboard/stores/reviews',
+        icon: 'rate_review',
+      },
+      {
+        title: 'Handle payouts and refunds',
+        description: 'Review withdrawal requests, transfer history, and payment recovery work.',
+        route: '/dashboard/financial',
+        icon: 'account_balance_wallet',
+      },
+      {
+        title: 'Tune rewards and gamification',
+        description: 'Adjust streak, badge, gamification, and payment settings for live growth loops.',
+        route: '/dashboard/settings/login-streaks',
+        icon: 'emoji_events',
+      },
   ];
 
   constructor() {

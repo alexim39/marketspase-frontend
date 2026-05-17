@@ -107,7 +107,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     {
         question: 'What leads to campaign rejection?',
-        answer: `A promotion may be rejected if you replace the MarketSpase tracking link, remove the UPI or required caption details, use the wrong media, or ignore campaign-specific instructions. Suspicious, fake, repeated, or manipulated traffic can also lead to rejection or account sanctions. If a campaign requests extra proof, follow the instructions shown on that promotion before submitting.`,
+        answer: `A promotion may be rejected if you replace the MarketSpase tracking link, remove the UPI or required caption details, use the wrong media, or ignore campaign-specific instructions. Suspicious, fake, repeated, bot-driven, or manipulated traffic can also lead to rejection, link suspension, or account sanctions.`,
         target: 'promoter'
     },
     {
@@ -333,7 +333,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         id: 4,
         title: 'Share the Tracked Link and Monitor Results',
-        description: 'Share only the generated MarketSpase link, keep the UPI and campaign details intact, and use the Promotions page to monitor tracked clicks, billable clicks, status, and earnings. Follow any extra proof instructions shown on the promotion when required.',
+        description: 'Share only the generated MarketSpase link, keep the UPI and campaign details intact, and use the Promotions page to monitor tracked clicks, billable clicks, status, and earnings.',
         icon: 'insights',
         action: 'Open Promotions',
         actionLink: '/dashboard/campaigns/promotions',
@@ -357,7 +357,6 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     const walletFunded = (user.wallets?.marketer?.balance || 0) > 0 || (user.wallets?.promoter?.balance || 0) > 0;
     const hasCampaigns = (user.campaigns?.length || 0) > 0;
     const isVerified = user.verified || false;
-    const payoutSet = (user.savedAccounts?.length || 0) > 0;
     const hasSharedCampaigns = (user.promotion?.length || 0) > 0;
 
     let completedSteps = 0;
@@ -374,9 +373,23 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
       completedSteps = updatedMarketerSteps.filter(s => s.completed).length;
       totalSteps = updatedMarketerSteps.length;
     } else if (user.role === 'promoter') {
+      const hasAcceptedPromotions = (user.promotion?.length || 0) > 0;
+      const hasTrackedPromotionResults = (user.promotion || []).some((promotion) => {
+        const totalClicks = Number(promotion.clickStats?.totalClicks ?? 0);
+        const billableClicks = Number(promotion.clickStats?.billableClicks ?? 0);
+        return totalClicks > 0 || billableClicks > 0;
+      });
+
       const updatedPromoterSteps = this.promoterSteps().map((step, index) => ({
         ...step,
-        completed: index === 0 ? profileComplete : index === 1 ? isVerified : index === 2 ? payoutSet : hasSharedCampaigns
+        completed:
+          index === 0
+            ? profileComplete
+            : index === 1
+              ? isVerified
+              : index === 2
+                ? hasAcceptedPromotions
+                : hasTrackedPromotionResults || hasSharedCampaigns
       }));
       if (JSON.stringify(this.promoterSteps()) !== JSON.stringify(updatedPromoterSteps)) {
         this.promoterSteps.set(updatedPromoterSteps);

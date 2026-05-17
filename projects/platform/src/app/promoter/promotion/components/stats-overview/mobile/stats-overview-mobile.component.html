@@ -30,7 +30,7 @@
     <div class="stats-container" [class.hidden]="isCompactView">
     <div class="stats-grid">
       <!-- Active Links Card -->
-      <div class="stat-card pending" 
+      <div class="stat-card active" 
            (click)="onStatClick('active')" 
            [class.active]="activeStat === 'active'">
         <div class="card-background"></div>
@@ -52,7 +52,7 @@
       </div>
 
       <!-- Clicks Card -->
-      <div class="stat-card submitted" 
+      <div class="stat-card tracked" 
            (click)="onStatClick('totalClicks')" 
            [class.active]="activeStat === 'totalClicks'">
         <div class="card-background"></div>
@@ -74,7 +74,7 @@
       </div>
 
       <!-- Billable Card -->
-      <div class="stat-card validated" 
+      <div class="stat-card billable" 
            (click)="onStatClick('billableClicks')" 
            [class.active]="activeStat === 'billableClicks'">
         <div class="card-background"></div>

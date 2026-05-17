@@ -26,8 +26,8 @@ export interface PromotionFraudStatus {
 
 export interface PromotionInterface {
   _id: string;
-  status: 'accepted' | 'submitted' | 'validated' | 'paid' | 'rejected' | 'downloaded';
-  payoutModel?: 'pay_per_click' | 'pay_per_view' | string;
+  status: 'accepted' | 'paid' | 'rejected' | string;
+  payoutModel?: 'pay_per_click' | string;
   costPerClick?: number;
   payoutAmount?: number;
   payoutSnapshot?: {
@@ -42,7 +42,7 @@ export interface PromotionInterface {
   validatedAt?: Date;
   rejectedAt?: Date | string;
   paidAt?: Date;
-  proofMedia: string[];
+  proofMedia?: string[];
   proofViews?: number;
   viewsAchieved?: number;
   campaign: CampaignInterface;
@@ -57,7 +57,7 @@ export interface PromotionInterface {
   isActive?: boolean;
   clickStats?: PromotionClickStats;
   fraudStatus?: PromotionFraudStatus;
-  isDownloaded: boolean;
+  isDownloaded?: boolean;
   isExpired?: boolean;
   timeRemaining?: string;
   progressPercentage?: number;

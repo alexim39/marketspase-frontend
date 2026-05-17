@@ -139,7 +139,7 @@ export class DashboardMainContainer {
   readonly campaignSummary = computed<CampaignSummary>(() => {
     const user = this.user();
     if (!user?.campaigns?.length) {
-      return { active: 0, completed: 0, totalBudget: 0, spentBudget: 0, totalPromoters: 0 };
+      return { active: 0, completed: 0, totalBudget: 0, spentBudget: 0, engagedPromoters: 0 };
     }
 
     const campaigns = Array.isArray(user.campaigns) ? user.campaigns : [];
@@ -151,7 +151,10 @@ export class DashboardMainContainer {
       completed,
       totalBudget: campaigns.reduce((sum, campaign) => sum + (campaign.budget || 0), 0),
       spentBudget: campaigns.reduce((sum, campaign) => sum + (campaign.spentBudget || 0), 0),
-      totalPromoters: campaigns.reduce((sum, campaign) => sum + (campaign.currentPromoters || 0), 0),
+      engagedPromoters: campaigns.reduce(
+        (sum, campaign) => sum + Number(campaign.promotionSummary?.uniquePromoters ?? campaign.totalPromotions ?? 0),
+        0
+      ),
     };
   });
 
@@ -162,16 +165,23 @@ export class DashboardMainContainer {
 
     return {
       total: promotions.length,
-      accepted: promotions.filter((promotion) => promotion.status === 'accepted').length,
-      submitted: promotions.filter((promotion) => promotion.status === 'submitted').length,
-      validated: promotions.filter((promotion) => promotion.status === 'validated').length,
+      activeLinks: promotions.filter(
+        (promotion) => promotion.status === 'accepted' && promotion.isActive !== false
+      ).length,
       paid: promotions.filter((promotion) => promotion.status === 'paid').length,
-      totalEarnings: promotions
-        .filter((promotion) => promotion.status === 'paid')
-        .reduce((sum, promotion) => sum + (promotion.payoutAmount ?? 0), 0),
-      pendingEarnings: promotions
-        .filter((promotion) => promotion.status === 'validated')
-        .reduce((sum, promotion) => sum + (promotion.payoutAmount ?? 0), 0),
+      rejected: promotions.filter((promotion) => promotion.status === 'rejected').length,
+      totalClicks: promotions.reduce(
+        (sum, promotion) => sum + Number(promotion.clickStats?.totalClicks ?? 0),
+        0
+      ),
+      billableClicks: promotions.reduce(
+        (sum, promotion) => sum + Number(promotion.clickStats?.billableClicks ?? 0),
+        0
+      ),
+      totalEarnings: promotions.reduce(
+        (sum, promotion) => sum + Number(promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0),
+        0
+      ),
       availableEarnings: promoterWallet?.balance || 0,
     };
   });
@@ -212,7 +222,7 @@ export class DashboardMainContainer {
           label: 'Active Campaigns',
           value: String(summary.active),
           color: '#667eea',
-          subtitle: `${summary.totalPromoters} promoters onboard`,
+          subtitle: `${summary.engagedPromoters} engaged promoters`,
         },
         {
           icon: 'payments',
@@ -247,21 +257,21 @@ export class DashboardMainContainer {
         label: 'Available Earnings',
         value: this.formatCurrencyCompact(wallet?.balance || 0),
         color: '#16a34a',
-        subtitle: `${this.formatCurrencyCompact(summary.pendingEarnings)} pending release`,
+        subtitle: `${summary.billableClicks} billable clicks`,
+      },
+      {
+        icon: 'link',
+        label: 'Active Links',
+        value: String(summary.activeLinks),
+        color: '#2563eb',
+        subtitle: `${summary.totalClicks} tracked clicks`,
       },
       {
         icon: 'task_alt',
         label: 'Paid Promotions',
         value: String(summary.paid),
-        color: '#2563eb',
-        subtitle: `${summary.total} total promotions`,
-      },
-      {
-        icon: 'hourglass_top',
-        label: 'Pending Review',
-        value: String(summary.submitted),
         color: '#f59e0b',
-        subtitle: `${summary.validated} validated`,
+        subtitle: `${summary.rejected} rejected`,
       },
       {
         icon: 'military_tech',

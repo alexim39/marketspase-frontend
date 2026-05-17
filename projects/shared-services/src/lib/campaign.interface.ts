@@ -25,7 +25,6 @@ export interface ActivityLogItem {
 export enum CampaignStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
-  ENDED = 'ended',
   PAUSED = 'paused',
   COMPLETED = 'completed',
   EXHAUSTED = 'exhausted',
@@ -56,10 +55,10 @@ export interface CampaignInterface {
   title: string;
   status: CampaignStatus;
   budget: number;
-  payoutPerPromotion: number;
+  payoutPerPromotion?: number;
   costPerClick?: number;
-  maxPromoters: number;
-  currentPromoters: number;
+  maxPromoters?: number;
+  currentPromoters?: number;
   startDate: Date;
   endDate: Date; // It can be null or undefined
   createdAt: Date;
@@ -81,10 +80,10 @@ export interface CampaignInterface {
   duplicateClicks?: number;
   exhaustedAt?: Date | string;
   lastClickAt?: Date | string;
-  paidPromotions: number;
-  minViewsPerPromotion: number;
-  validatedPromotions: number;
-  totalPromotions: number;
+  paidPromotions?: number;
+  minViewsPerPromotion?: number;
+  validatedPromotions?: number;
+  totalPromotions?: number;
   promotions: PromotionInterface[];
   remainingBudget: number;
   canAcceptPromoters?: boolean;
@@ -115,9 +114,9 @@ export interface CampaignInterface {
   //isApproved: boolean;
   //targetAudience: any;
 
-  minViewsPerPromoter: number;
-  maxViewsPerPromoter: number;
-  payoutModel: string;
+  minViewsPerPromoter?: number;
+  maxViewsPerPromoter?: number;
+  payoutModel?: string;
 
 
 

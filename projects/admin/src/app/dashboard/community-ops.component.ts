@@ -23,7 +23,7 @@ export class CommunityOpsComponent {
 
   readonly quickDestinations = [
     { title: 'Campaign moderation', route: '/dashboard/campaigns', icon: 'campaign' },
-    { title: 'Promotion reviews', route: '/dashboard/promotions/submitted', icon: 'fact_check' },
+    { title: 'Promotion fraud monitor', route: '/dashboard/promotions/fraud', icon: 'shield' },
     { title: 'Store management', route: '/dashboard/stores', icon: 'storefront' },
     { title: 'Testimonials', route: '/dashboard/testimonials', icon: 'reviews' },
   ];

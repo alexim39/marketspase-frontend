@@ -29,13 +29,12 @@ import {
   getCampaignRemainingBudget,
   getCampaignTotalClicks,
   getCampaignUniquePromoterCount,
-  hasCampaignPromoterLimit,
 } from '../../common/utils/campaign-performance.util';
+import { CampaignTopUpDialogComponent } from '../shared/campaign-top-up-dialog.component';
 
 export enum CampaignStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
-  ENDED = 'ended',
   PAUSED = 'paused',
   COMPLETED = 'completed',
   EXHAUSTED = 'exhausted',
@@ -155,7 +154,7 @@ export class CampaignDetailsComponent implements OnInit {
     }
 
     return (campaign.promotions || []).filter((promotion) =>
-      ['accepted', 'downloaded', 'submitted', 'validated'].includes(String(promotion.status))
+      String(promotion.status) === 'accepted' && promotion.isActive !== false
     ).length;
   });
 
@@ -168,17 +167,6 @@ export class CampaignDetailsComponent implements OnInit {
     }
 
     return getCampaignUniquePromoterCount(campaign.promotions || []);
-  });
-
-  readonly promoterSlotProgress = computed(() => {
-    const campaign = this.campaign();
-    if (!campaign || !hasCampaignPromoterLimit(campaign)) {
-      return 0;
-    }
-
-    const currentPromoters = Number(campaign.currentPromoters ?? this.engagedPromoters());
-    const maxPromoters = Number(campaign.maxPromoters ?? 0);
-    return maxPromoters > 0 ? Math.min((currentPromoters / maxPromoters) * 100, 100) : 0;
   });
 
   readonly clickQualityRate = computed(() => {
@@ -337,14 +325,8 @@ export class CampaignDetailsComponent implements OnInit {
         campaignCurrency: this.campaign()?.currency || 'NGN',
       }
     });
-    
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'validated') {
-        //this.validatePromotion(promotion);
-      } else if (result === 'rejected') {
-        //this.rejectPromotion(promotion);
-      }
-    });
+
+    dialogRef.afterClosed().subscribe();
   }
 
   getPromotionTrackedClicks(promotion: PromotionInterface): number {
@@ -374,8 +356,6 @@ export class CampaignDetailsComponent implements OnInit {
     return (
       promotion.clickStats?.lastClickAt ||
       promotion.paidAt ||
-      promotion.validatedAt ||
-      promotion.submittedAt ||
       promotion.downloadedAt ||
       promotion.acceptedAt ||
       promotion.updatedAt ||
@@ -515,6 +495,45 @@ export class CampaignDetailsComponent implements OnInit {
           this.snackBar.open(error.error.message, 'Close', { duration: 3000 });
         }
       })
+  }
+
+  openTopUpDialog(campaign: CampaignInterface): void {
+    const dialogRef = this.dialog.open(CampaignTopUpDialogComponent, {
+      width: '460px',
+      maxWidth: '95vw',
+      data: {
+        title: campaign.title,
+        currency: campaign.currency || 'NGN',
+        remainingBudget: this.remainingBudget(),
+        recommendedAmount: Math.max(Number(campaign.costPerClick ?? 0) * 25, 1000),
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        const amount = Number(result?.amount ?? 0);
+        if (!amount) {
+          return;
+        }
+
+        this.campaignDetailsService.topUpCampaign(campaign._id, amount, this.user()?._id || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.snackBar.open(response.message, 'Close', { duration: 3200 });
+                this.loadCampaign();
+              } else {
+                this.snackBar.open(response.message || 'Unable to top up campaign', 'Close', { duration: 3200 });
+              }
+            },
+            error: (error) => {
+              console.error('Error topping up campaign:', error);
+              this.snackBar.open(error.error?.message || 'Unable to top up campaign', 'Close', { duration: 3200 });
+            },
+          });
+      });
   }
   
 }

@@ -148,12 +148,12 @@
             color: $success-color;
           }
           
-          &.submitted {
+          &.tracked {
             background: rgba($warning-color, 0.1);
             color: $warning-color;
           }
           
-          &.validated {
+          &.billable {
             background: rgba($info-color, 0.1);
             color: $info-color;
           }

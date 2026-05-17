@@ -47,6 +47,7 @@ export class CampaignCardMobileComponent {
   @Output() pauseCampaign = new EventEmitter<string>();
   @Output() activateCampaign = new EventEmitter<string>();
   @Output() resumeCampaign = new EventEmitter<string>();
+  @Output() topUpCampaign = new EventEmitter<string>();
   @Output() deleteCampaign = new EventEmitter<string>();
 
   getStatusClass(): string {
@@ -86,6 +87,10 @@ export class CampaignCardMobileComponent {
 
   onResumeCampaign(): void {
     this.resumeCampaign.emit(this.campaign._id);
+  }
+
+  onTopUpCampaign(): void {
+    this.topUpCampaign.emit(this.campaign._id);
   }
 
   onDeleteCampaign(): void {

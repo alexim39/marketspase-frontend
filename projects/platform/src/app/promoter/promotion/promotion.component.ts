@@ -234,7 +234,7 @@ export class PromotionComponent implements OnInit {
       acc.billableClicks += billableClicks;
       acc.earnings += earnedAmount;
 
-      if (['accepted', 'downloaded', 'submitted', 'validated'].includes(promo.status) && promo.isActive !== false) {
+      if (promo.status === 'accepted' && promo.isActive !== false) {
         acc.active++;
       }
       if (promo.status === 'paid') acc.paid++;

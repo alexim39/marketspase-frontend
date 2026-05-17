@@ -14,7 +14,6 @@ import { UserService } from '../../../common/services/user.service';
 import { PromotionHeaderComponent } from './components/promotion-header/promotion-header.component';
 import { PromotionOverviewComponent } from './components/promotion-overview/promotion-overview.component';
 import { PromotionMetricsComponent } from './components/promotion-metrics/promotion-metrics.component';
-import { PromotionProofComponent } from './components/promotion-proof/promotion-proof.component';
 import { PromotionActivityComponent } from './components/promotion-activity/promotion-activity.component';
 import { PromotionFooterComponent } from './components/promotion-footer/promotion-footer.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -30,7 +29,6 @@ import { getCampaignCostPerClick, getCampaignRemainingBudget } from '../../utils
     PromotionHeaderComponent,
     PromotionOverviewComponent,
     PromotionMetricsComponent,
-    PromotionProofComponent,
     PromotionActivityComponent,
     PromotionFooterComponent,
     MatIconModule
@@ -176,26 +174,14 @@ export class PromotionDetailComponent implements OnInit {
 
   downloadPromotion(promotionId: string): void {
     const promotion = this.promotion();
-    if (!promotion) return;
+    const mediaUrl = promotion?.campaign?.mediaUrl;
+    if (!promotion || !mediaUrl) {
+      this.snackBar.open('Campaign media is not available right now.', 'OK', { duration: 3000 });
+      return;
+    }
 
-    const campaignId = promotion.campaign._id;
-    const promoterId = promotion.promoter._id;
-
-    this.promoterService.downloadPromotion(campaignId, promoterId, promotionId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.snackBar.open('Promotion downloaded successfully', 'OK', { duration: 3000 });
-          } else {
-            this.snackBar.open(response.message, 'OK', { duration: 3000 });
-          }
-        },
-        error: (error) => {
-          console.error('Error downloading promotion:', error);
-          this.snackBar.open(error.error?.message || 'Failed to download promotion', 'OK', { duration: 3000 });
-        }
-      });
+    window.open(mediaUrl, '_blank', 'noopener');
+    this.snackBar.open('Campaign media opened in a new tab.', 'OK', { duration: 3000 });
   }
 
   shareToWhatsApp(): void {

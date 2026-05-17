@@ -11,11 +11,6 @@ export const PromotionRoutes: Routes = [
         path: 'fraud',
         loadComponent: () => import('./promotion-fraud-monitor/promotion-fraud-monitor.component').then(c => c.PromotionFraudMonitorComponent),
         title: 'Promotion Fraud Monitor - Admin Dashboard'
-    },
-    {
-        path: 'submitted',
-        loadComponent: () => import('./promotion-mgt/submitted-promotion-list/submitted-promotion-list.component').then(c => c.SubmittedPromotionListComponent),
-        title: "Submitted Promotions - List all submitted promotions",
     }, 
    
     
