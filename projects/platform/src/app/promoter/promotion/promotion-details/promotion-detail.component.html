@@ -24,6 +24,16 @@
       
       <main class="main-content">
         <div class="container">
+          @if (isLinkRestricted()) {
+            <div class="fraud-notice">
+              <mat-icon>shield</mat-icon>
+              <div>
+                <strong>Promotion link paused</strong>
+                <span>{{ getFraudNotice() }}</span>
+              </div>
+            </div>
+          }
+
           <app-promotion-overview 
             [promotion]="promotion"
             [countdown]="countdownSignal()"
@@ -50,6 +60,7 @@
             [promotion]="promotion"
             [isSubmissionExpired]="isSubmissionExpired()"
             [isNearingExpiration]="isNearingExpiration()"
+            [isLinkRestricted]="isLinkRestricted()"
             (copyLink)="copyPromotionLink()"
             (share)="shareToWhatsApp()"
             (contactSupport)="contactSupport()"

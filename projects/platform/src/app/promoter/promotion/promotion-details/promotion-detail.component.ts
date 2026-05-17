@@ -65,6 +65,15 @@ export class PromotionDetailComponent implements OnInit {
   });
 
   public readonly api = this.promoterService.api;
+  public readonly isLinkRestricted = computed(() => {
+    const promotion = this.promotion();
+    const reviewStatus = promotion?.fraudStatus?.reviewStatus;
+    return Boolean(
+      promotion?.fraudStatus?.isFlagged &&
+      reviewStatus &&
+      ['warning', 'final_warning', 'blocked'].includes(reviewStatus)
+    ) || promotion?.isActive === false && Boolean(promotion?.fraudStatus?.isFlagged);
+  });
 
   ngOnInit(): void {
     const promotionId = this.route.snapshot.paramMap.get('id');
@@ -192,6 +201,10 @@ export class PromotionDetailComponent implements OnInit {
   shareToWhatsApp(): void {
     const promotion = this.promotion();
     if (!promotion) return;
+    if (this.isLinkRestricted()) {
+      this.snackBar.open('This promotion link is paused while suspicious traffic is being reviewed.', 'OK', { duration: 3500 });
+      return;
+    }
 
     const text = `Ad - ${promotion.upi}\nVisit ${this.getPromotionUrl(promotion)} for more.\n${promotion.campaign.caption}`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -201,6 +214,10 @@ export class PromotionDetailComponent implements OnInit {
   copyPromotionLink(): void {
     const promotion = this.promotion();
     if (!promotion) return;
+    if (this.isLinkRestricted()) {
+      this.snackBar.open('This promotion link is paused and cannot be copied right now.', 'OK', { duration: 3500 });
+      return;
+    }
 
     navigator.clipboard.writeText(this.getPromotionUrl(promotion)).then(() => {
       this.snackBar.open('Promotion link copied', 'OK', { duration: 3000 });
@@ -223,5 +240,10 @@ export class PromotionDetailComponent implements OnInit {
   contactSupport(): void {
     // Implement contact support logic
     this.snackBar.open('Contact support functionality will be implemented soon', 'OK', { duration: 3000 });
+  }
+
+  getFraudNotice(): string {
+    return this.promotion()?.fraudStatus?.reasonSummary
+      || 'This promotion is paused while MarketSpase reviews suspicious traffic linked to it.';
   }
 }

@@ -48,25 +48,41 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
               <mat-icon>assignment</mat-icon>
             </div>
             <div class="step-content">
-              <span class="step-title">Assigned</span>
+              <span class="step-title">Accepted</span>
               <br>
-              <span class="step-time">{{data.promotion.createdAt | date:'medium'}}</span>
+              <span class="step-time">{{(data.promotion.acceptedAt || data.promotion.createdAt) | date:'medium'}}</span>
             </div>
           </div>
           
-          <div class="status-step" [class.active]="data.promotion.status !== 'downloaded'">
+          <div class="status-step" [class.active]="['accepted', 'downloaded', 'submitted', 'validated', 'paid'].includes(data.promotion.status)">
             <div class="step-icon">
-              <mat-icon>file_upload</mat-icon>
+              <mat-icon>link</mat-icon>
+            </div>
+            <div class="step-content">
+              <span class="step-title">Link Ready</span>
+              <br>
+               @if (data.promotion.downloadedAt || data.promotion.acceptedAt) { 
+                 <span class="step-time">
+                  {{(data.promotion.downloadedAt || data.promotion.acceptedAt) | date:'medium'}}
+                </span>
+               }
+             
+            </div>
+          </div>
+          
+          <div class="status-step" [class.active]="['submitted', 'validated', 'paid'].includes(data.promotion.status)">
+            <div class="step-icon">
+              <mat-icon>upload_file</mat-icon>
             </div>
             <div class="step-content">
               <span class="step-title">Submitted</span>
               <br>
                @if (data.promotion.submittedAt) { 
-                 <span class="step-time">
+                <span class="step-time">
                   {{data.promotion.submittedAt | date:'medium'}}
                 </span>
                }
-             
+              
             </div>
           </div>
           
@@ -85,7 +101,7 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
               
             </div>
           </div>
-          
+
           <div class="status-step" [class.active]="data.promotion.status === 'paid'">
             <div class="step-icon">
               <mat-icon>payments</mat-icon>
@@ -101,6 +117,53 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
               
             </div>
           </div>
+        </div>
+      </div>
+
+      <div class="dialog-section">
+        <h3>Tracking Performance</h3>
+        <div class="metrics-grid">
+          <div class="metric-tile">
+            <span class="metric-label">Tracked Clicks</span>
+            <strong>{{getTrackedClicks() | number:'1.0-0'}}</strong>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Billable Clicks</span>
+            <strong>{{getBillableClicks() | number:'1.0-0'}}</strong>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Invalid Clicks</span>
+            <strong>{{getInvalidClicks() | number:'1.0-0'}}</strong>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Spend / Earnings</span>
+            <strong>{{formatCurrency(getTrackedSpend())}}</strong>
+          </div>
+        </div>
+
+        <div class="meta-list">
+          <div class="meta-row">
+            <span class="meta-label">UPI</span>
+            <span class="meta-value">{{data.promotion.upi || 'N/A'}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Tracking Link</span>
+            <span class="meta-value meta-link">{{data.promotion.promotionUrl || 'Not generated'}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Cost per Click</span>
+            <span class="meta-value">{{formatCurrency(data.promotion.costPerClick || 0)}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Last Click</span>
+            <span class="meta-value">{{data.promotion.clickStats?.lastClickAt ? (data.promotion.clickStats?.lastClickAt | date:'medium') : 'No click activity yet'}}</span>
+          </div>
+          @if (data.promotion.proofViews) {
+            <div class="meta-row">
+              <span class="meta-label">Legacy Proof Views</span>
+              <span class="meta-value">{{data.promotion.proofViews | number:'1.0-0'}}</span>
+            </div>
+          }
         </div>
       </div>
       
@@ -160,7 +223,7 @@ export class PromotionDetailsDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<PromotionDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { promotion: PromotionInterface }
+    @Inject(MAT_DIALOG_DATA) public data: { promotion: PromotionInterface; campaignCurrency?: string }
   ) {}
   
   getInitials(name: string | undefined): string {
@@ -186,5 +249,35 @@ export class PromotionDetailsDialogComponent {
       maxHeight: '90vh',
       panelClass: 'media-viewer-dialog-container'
     });
+  }
+
+  getTrackedClicks(): number {
+    return Number(this.data.promotion.clickStats?.totalClicks ?? 0);
+  }
+
+  getBillableClicks(): number {
+    return Number(this.data.promotion.clickStats?.billableClicks ?? 0);
+  }
+
+  getInvalidClicks(): number {
+    const invalidClicks = Number(this.data.promotion.clickStats?.invalidClicks ?? 0);
+    const duplicateClicks = Number(this.data.promotion.clickStats?.duplicateClicks ?? 0);
+    return invalidClicks + duplicateClicks;
+  }
+
+  getTrackedSpend(): number {
+    const earnedAmount = Number(this.data.promotion.clickStats?.earnedAmount ?? 0);
+    if (earnedAmount > 0) {
+      return earnedAmount;
+    }
+
+    return Number(this.data.promotion.payoutAmount ?? 0);
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: this.data.campaignCurrency || 'NGN',
+    }).format(Number.isFinite(amount) ? amount : 0);
   }
 }

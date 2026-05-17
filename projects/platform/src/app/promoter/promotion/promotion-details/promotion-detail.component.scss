@@ -19,6 +19,35 @@
   }
 }
 
+.fraud-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, $warning-color, white 70%);
+  background: color-mix(in srgb, $warning-color, white 90%);
+  color: $warning-color;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  span {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+}
+
 .loading-container, .error-container {
   display: flex;
   align-items: center;

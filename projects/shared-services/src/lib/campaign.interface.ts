@@ -92,6 +92,18 @@ export interface CampaignInterface {
   ageTarget: string;
   marketerLocationSummary?: string | null;
   ownerAddressMatchLevel?: 'street' | 'city' | 'state' | 'country' | 'none';
+  promotionSummary?: {
+    totalPromotions: number;
+    activePromotions: number;
+    uniquePromoters: number;
+    clickStats: {
+      totalClicks: number;
+      billableClicks: number;
+      invalidClicks: number;
+      duplicateClicks: number;
+      earnedAmount?: number;
+    };
+  };
 
 
   //filledSlots: number;

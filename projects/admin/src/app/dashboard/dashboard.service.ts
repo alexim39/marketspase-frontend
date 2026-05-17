@@ -89,6 +89,18 @@ export interface AdminLiveActivityResponse {
   refreshedAt: string;
 }
 
+export interface AdminFraudPulseResponse {
+  count: number;
+  recent: Array<{
+    id: string;
+    title: string;
+    promoter: string;
+    status: string;
+    riskLevel: string;
+    updatedAt: string;
+  }>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private apiService: ApiService = inject(ApiService);
@@ -187,5 +199,14 @@ export class DashboardService {
         true
       ).pipe(map(response => response.data))
     );
+  }
+
+  getFraudPulse(): Observable<AdminFraudPulseResponse> {
+    return this.apiService.get<{ success: boolean; data: AdminFraudPulseResponse }>(
+      `${this.apiUrl}/stats/fraud-pulse`,
+      undefined,
+      undefined,
+      true
+    ).pipe(map(response => response.data));
   }
 }

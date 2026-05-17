@@ -79,7 +79,8 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { id: 'all-campaigns', title: 'All Campaigns', icon: 'campaign', route: '/dashboard/campaigns' },
         { id: 'all-promotions', title: 'All Promotions', icon: 'ads_click', route: '/dashboard/promotions' },
-        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' }
+        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' },
+        { id: 'promotion-fraud', title: 'Fraud Monitor', icon: 'shield', route: '/dashboard/promotions/fraud' }
       ]
     },
     {
@@ -220,7 +221,7 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.adminService.fetchAdmin();
-    this.loadActivityPulse();
+    this.loadFraudPulse();
 
     this.router.events
       .pipe(
@@ -353,10 +354,10 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate([result.route]);
   }
 
-  openActivityDesk(): void {
-    this.setActiveNavItem('community-desk');
-    this.expandMenuItem('community');
-    this.router.navigate(['/dashboard/community']);
+  openFraudDesk(): void {
+    this.setActiveNavItem('promotion-fraud');
+    this.expandMenuItem('ads');
+    this.router.navigate(['/dashboard/promotions/fraud']);
   }
 
   logout() {
@@ -384,16 +385,16 @@ export class AdminDashboardComponent implements OnInit {
     this.menuItems.set(updatedItems);
   }
 
-  private loadActivityPulse(): void {
-    this.dashboardService.getLiveActivity(1)
+  private loadFraudPulse(): void {
+    this.dashboardService.getFraudPulse()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const total = response.summary?.total24h || 0;
+          const total = response?.count || 0;
           this.notificationCount.set(Math.min(total, 99));
         },
         error: (error) => {
-          console.error('Unable to load admin activity pulse:', error);
+          console.error('Unable to load admin fraud pulse:', error);
           this.notificationCount.set(0);
         }
       });

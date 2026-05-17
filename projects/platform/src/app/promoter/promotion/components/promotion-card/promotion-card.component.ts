@@ -40,6 +40,20 @@ export class PromotionCardComponent {
   private router = inject(Router);
   public readonly api = this.promoterService.api;
 
+  isPromotionRestricted(): boolean {
+    const reviewStatus = this.promotion?.fraudStatus?.reviewStatus;
+    return Boolean(
+      this.promotion?.fraudStatus?.isFlagged &&
+      reviewStatus &&
+      ['warning', 'final_warning', 'blocked'].includes(reviewStatus)
+    ) || this.promotion?.isActive === false && Boolean(this.promotion?.fraudStatus?.isFlagged);
+  }
+
+  getRestrictionSummary(): string {
+    return this.promotion?.fraudStatus?.reasonSummary
+      || 'This promotion link is paused while MarketSpase reviews suspicious traffic on it.';
+  }
+
   getPromotionUrl(): string {
     if (this.promotion.promotionUrl) return this.promotion.promotionUrl;
     return `${this.api.replace(/\/$/, '')}/api/v1/campaign/track/${this.promotion.upi}`;
@@ -132,6 +146,10 @@ export class PromotionCardComponent {
   }
 
   openPromotionLink(): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion link is paused while fraud checks are in progress.', 'OK', { duration: 3500 });
+      return;
+    }
     window.open(this.getPromotionUrl(), '_blank', 'noopener');
   }
 
@@ -170,14 +188,27 @@ export class PromotionCardComponent {
   }
 
   copyPromotionLink(): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion link is paused and cannot be copied right now.', 'OK', { duration: 3500 });
+      return;
+    }
     this.copyText(this.getPromotionUrl(), 'Promotion link copied');
   }
 
   copyCaption(caption?: string): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('Sharing is paused on this promotion while it is under review.', 'OK', { duration: 3500 });
+      return;
+    }
     this.copyText(this.buildShareText(caption), 'Caption and tracked link copied');
   }
 
   showWhatsAppSharingInstructions(promotion: PromotionInterface): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion is paused while suspicious traffic is being reviewed.', 'OK', { duration: 3500 });
+      return;
+    }
+
     const captionText = this.buildShareText(promotion.campaign?.caption);
 
     this.dialog.open(WhatsAppInstructionsDialogComponent, {

@@ -116,6 +116,33 @@
       </div>
     </article>
 
+    <article class="panel">
+      <div class="panel-header">
+        <div>
+          <h3>Fraud monitor</h3>
+          <p>Watch suspicious promotion traffic and intervene before marketers get low-quality clicks.</p>
+        </div>
+        <a routerLink="/dashboard/promotions/fraud" class="panel-link">Open fraud monitor</a>
+      </div>
+
+      @if (fraudHighlights().length > 0) {
+        <div class="program-list">
+          @for (item of fraudHighlights(); track item.label) {
+            <div class="program-item">
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.value }}</span>
+              <small>{{ item.detail }}</small>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>shield</mat-icon>
+          <span>No fraud signals are active right now.</span>
+        </div>
+      }
+    </article>
+
     <article class="panel wide">
       <div class="panel-header">
         <div>

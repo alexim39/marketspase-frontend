@@ -11,6 +11,18 @@ export interface PromotionClickStats {
   lastClickAt?: Date | string;
 }
 
+export interface PromotionFraudStatus {
+  isFlagged: boolean;
+  reviewStatus: 'clear' | 'warning' | 'final_warning' | 'blocked' | 'resolved' | string;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical' | string;
+  reasonSummary?: string;
+  reasons?: string[];
+  warningCount?: number;
+  firstFlaggedAt?: Date | string;
+  lastFlaggedAt?: Date | string;
+  blockedAt?: Date | string;
+  lastCaseId?: string | null;
+}
 
 export interface PromotionInterface {
   _id: string;
@@ -22,10 +34,13 @@ export interface PromotionInterface {
     model?: string;
     unitCost?: number;
     budgetAtAcceptance?: number;
-    acceptedAt?: Date | string;
+      acceptedAt?: Date | string;
   };
+  acceptedAt?: Date | string;
+  downloadedAt?: Date | string;
   submittedAt?: Date;
   validatedAt?: Date;
+  rejectedAt?: Date | string;
   paidAt?: Date;
   proofMedia: string[];
   proofViews?: number;
@@ -41,6 +56,7 @@ export interface PromotionInterface {
   destinationUrl?: string;
   isActive?: boolean;
   clickStats?: PromotionClickStats;
+  fraudStatus?: PromotionFraudStatus;
   isDownloaded: boolean;
   isExpired?: boolean;
   timeRemaining?: string;

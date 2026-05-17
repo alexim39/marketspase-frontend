@@ -125,9 +125,9 @@
                         type="button"
                         class="notification-btn"
                         [class.has-notifications]="notificationCount() > 0"
-                        (click)="openActivityDesk()"
-                        aria-label="Open activity desk">
-                        <mat-icon>dynamic_feed</mat-icon>
+                        (click)="openFraudDesk()"
+                        aria-label="Open fraud monitor">
+                        <mat-icon>shield</mat-icon>
                         @if (notificationCount() > 0) {
                             <span class="notification-badge">{{ notificationCount() }}</span>
                         }

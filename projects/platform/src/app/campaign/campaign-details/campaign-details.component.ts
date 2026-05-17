@@ -21,6 +21,16 @@ import { CampaignDetailsService } from './campaign-details.service';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
 import { UserService } from '../../common/services/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  getCampaignBillableClicks,
+  getCampaignBudgetProgress,
+  getCampaignCostPerClick,
+  getCampaignInvalidClicks,
+  getCampaignRemainingBudget,
+  getCampaignTotalClicks,
+  getCampaignUniquePromoterCount,
+  hasCampaignPromoterLimit,
+} from '../../common/utils/campaign-performance.util';
 
 export enum CampaignStatus {
   PENDING = 'pending',
@@ -104,6 +114,87 @@ export class CampaignDetailsComponent implements OnInit {
     }
     
     return promotions;
+  });
+
+  readonly totalClicks = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignTotalClicks(campaign) : 0;
+  });
+
+  readonly billableClicks = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignBillableClicks(campaign) : 0;
+  });
+
+  readonly invalidClicks = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignInvalidClicks(campaign) : 0;
+  });
+
+  readonly remainingBudget = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignRemainingBudget(campaign) : 0;
+  });
+
+  readonly budgetProgress = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignBudgetProgress(campaign) : 0;
+  });
+
+  readonly campaignCostPerClick = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignCostPerClick(campaign) : 0;
+  });
+
+  readonly activePromotionCount = computed(() => {
+    const campaign = this.campaign();
+    if (!campaign) return 0;
+
+    if (Number.isFinite(Number(campaign.promotionSummary?.activePromotions))) {
+      return Number(campaign.promotionSummary?.activePromotions ?? 0);
+    }
+
+    return (campaign.promotions || []).filter((promotion) =>
+      ['accepted', 'downloaded', 'submitted', 'validated'].includes(String(promotion.status))
+    ).length;
+  });
+
+  readonly engagedPromoters = computed(() => {
+    const campaign = this.campaign();
+    if (!campaign) return 0;
+
+    if (Number.isFinite(Number(campaign.promotionSummary?.uniquePromoters))) {
+      return Number(campaign.promotionSummary?.uniquePromoters ?? 0);
+    }
+
+    return getCampaignUniquePromoterCount(campaign.promotions || []);
+  });
+
+  readonly promoterSlotProgress = computed(() => {
+    const campaign = this.campaign();
+    if (!campaign || !hasCampaignPromoterLimit(campaign)) {
+      return 0;
+    }
+
+    const currentPromoters = Number(campaign.currentPromoters ?? this.engagedPromoters());
+    const maxPromoters = Number(campaign.maxPromoters ?? 0);
+    return maxPromoters > 0 ? Math.min((currentPromoters / maxPromoters) * 100, 100) : 0;
+  });
+
+  readonly clickQualityRate = computed(() => {
+    const totalClicks = this.totalClicks();
+    if (!totalClicks) return 0;
+    return Math.min((this.billableClicks() / totalClicks) * 100, 100);
+  });
+
+  readonly averageCostPerBillableClick = computed(() => {
+    const billableClicks = this.billableClicks();
+    const spentBudget = Number(this.campaign()?.spentBudget ?? 0);
+    if (!billableClicks || !spentBudget) {
+      return this.campaignCostPerClick();
+    }
+
+    return spentBudget / billableClicks;
   });
 
   ngOnInit() {
@@ -218,17 +309,11 @@ export class CampaignDetailsComponent implements OnInit {
     return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
   }
 
-  getTotalViews(promotions: PromotionInterface[] | undefined): number {
-    if (!promotions) return 0;
-    return promotions.reduce((total, promotion) => total + (promotion.proofViews || 0), 0);
-  }
-
-  formatCurrency(amount: number | undefined): string {
+  formatCurrency(amount: number | undefined, currency?: string): string {
     if (amount === undefined || amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      //currency: 'USD'
-      currency: 'NGN'
+      currency: currency || this.campaign()?.currency || 'NGN'
     }).format(amount);
   }
 
@@ -247,7 +332,10 @@ export class CampaignDetailsComponent implements OnInit {
     const dialogRef = this.dialog.open(PromotionDetailsDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
-      data: { promotion }
+      data: {
+        promotion,
+        campaignCurrency: this.campaign()?.currency || 'NGN',
+      }
     });
     
     dialogRef.afterClosed().subscribe(result => {
@@ -257,6 +345,56 @@ export class CampaignDetailsComponent implements OnInit {
         //this.rejectPromotion(promotion);
       }
     });
+  }
+
+  getPromotionTrackedClicks(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.totalClicks ?? 0);
+  }
+
+  getPromotionBillableClicks(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.billableClicks ?? 0);
+  }
+
+  getPromotionInvalidClicks(promotion: PromotionInterface): number {
+    const invalidClicks = Number(promotion.clickStats?.invalidClicks ?? 0);
+    const duplicateClicks = Number(promotion.clickStats?.duplicateClicks ?? 0);
+    return invalidClicks + duplicateClicks;
+  }
+
+  getPromotionSpend(promotion: PromotionInterface): number {
+    const trackedSpend = Number(promotion.clickStats?.earnedAmount ?? 0);
+    if (trackedSpend > 0) {
+      return trackedSpend;
+    }
+
+    return Number(promotion.payoutAmount ?? 0);
+  }
+
+  getPromotionLastActivity(promotion: PromotionInterface): Date | string | undefined {
+    return (
+      promotion.clickStats?.lastClickAt ||
+      promotion.paidAt ||
+      promotion.validatedAt ||
+      promotion.submittedAt ||
+      promotion.downloadedAt ||
+      promotion.acceptedAt ||
+      promotion.updatedAt ||
+      promotion.createdAt
+    );
+  }
+
+  getPayoutModelLabel(campaign: CampaignInterface | null): string {
+    const payoutModel = String(campaign?.payoutModel || '').trim().toLowerCase();
+
+    if (payoutModel === 'pay_per_click') {
+      return 'Pay per click';
+    }
+
+    if (payoutModel === 'fixed_per_promoter') {
+      return 'Fixed per promoter';
+    }
+
+    return payoutModel ? payoutModel.replace(/_/g, ' ') : 'Pay per click';
   }
 
  /*  validatePromotion(promotion: PromotionInterface) {

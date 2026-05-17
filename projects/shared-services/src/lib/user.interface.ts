@@ -235,6 +235,20 @@ export interface UserInterface {
     lastCalculatedAt?: Date | null;
   };
 
+  fraudProfile?: {
+    trustScore: number;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical' | string;
+    warningCount: number;
+    strikeCount: number;
+    activeCaseCount: number;
+    lastFlaggedAt?: Date | string | null;
+    lastWarningAt?: Date | string | null;
+    lastFinalWarningAt?: Date | string | null;
+    suspendedUntil?: Date | string | null;
+    suspensionReason?: string;
+    latestCase?: string | null;
+  };
+
   activityLog?: Array<{
     _id?: string;
     action: string;

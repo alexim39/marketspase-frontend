@@ -15,6 +15,11 @@ import { PromotionInterface } from '@shared/services';
           <mat-icon>info</mat-icon>
           <span><strong>Rejection Reason:</strong> {{ promotion.rejectionReason }}</span>
         </div>
+      } @else if (isLinkRestricted) {
+        <div class="alert alert-warning">
+          <mat-icon>shield</mat-icon>
+          <span>Sharing is paused on this promotion while MarketSpase reviews suspicious traffic on it.</span>
+        </div>
       } @else {
         <div class="alert alert-warning">
           <mat-icon>link</mat-icon>
@@ -23,7 +28,7 @@ import { PromotionInterface } from '@shared/services';
       }
       
       <div class="footer-actions">
-        @if (promotion.status !== 'rejected') {
+        @if (promotion.status !== 'rejected' && !isLinkRestricted) {
           <button mat-flat-button class="btn btn-primary" (click)="copyLink.emit()">
             <mat-icon>link</mat-icon>
             Copy Link
@@ -48,6 +53,7 @@ export class PromotionFooterComponent {
   @Input() promotion!: PromotionInterface;
   @Input() isSubmissionExpired!: boolean;
   @Input() isNearingExpiration!: boolean;
+  @Input() isLinkRestricted = false;
   @Output() copyLink = new EventEmitter<void>();
   @Output() share = new EventEmitter<void>();
   @Output() contactSupport = new EventEmitter<void>();

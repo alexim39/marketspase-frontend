@@ -10,7 +10,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { UserService } from '../../common/services/user.service';
 import { DashboardService } from '../../dashboard/dashboard.service';
-import { ProofGuideService } from './proof-model/proof-guide.service';
 
 // Import child components
 import { HeroComponent } from './hero/hero.component';
@@ -38,7 +37,7 @@ export interface OnboardingStep {
 @Component({
   selector: 'marketspase-get-started',
   standalone: true,
-  providers: [DashboardService, ProofGuideService],
+  providers: [DashboardService],
   imports: [
     CommonModule,
     HeroComponent,
@@ -62,7 +61,6 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private userService = inject(UserService);
   private dashboardService = inject(DashboardService);
-  private proofGuideService = inject(ProofGuideService);
   private destroyRef = inject(DestroyRef);
 
   // User signal from service
@@ -104,25 +102,22 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     faqItems = signal([
     {
         question: 'How do I get paid as a promoter?',
-        answer: 'You earn money for every verified promotion posted on your WhatsApp status. Payments are processed automatically to your wallet after validation.',
+        answer: 'You earn from valid performance on your accepted promotions. Share the MarketSpase tracked link from your Promotions dashboard, and your earnings build from valid billable clicks recorded on that promotion.',
         target: 'promoter'
     },
     {
         question: 'What leads to campaign rejection?',
-        answer: `A promotion may be rejected if the required proof is incomplete or unclear, if the promotion is not posted to WhatsApp within 15 minutes of download, or if submitted details (such as view count or promotion ID) do not match the proof provided. 
-        Promotions will also be rejected if the uploaded image is unrecognized, fake, edited, AI-generated, or suspicious. 
-        Additionally, removing a promotion from WhatsApp status early—even after reaching the minimum view requirement—is not allowed and can lead to rejection or account sanctions.`,
+        answer: `A promotion may be rejected if you replace the MarketSpase tracking link, remove the UPI or required caption details, use the wrong media, or ignore campaign-specific instructions. Suspicious, fake, repeated, or manipulated traffic can also lead to rejection or account sanctions. If a campaign requests extra proof, follow the instructions shown on that promotion before submitting.`,
         target: 'promoter'
     },
     {
-        question: 'How are views verified on MarketSpase?',
-        answer: `MarketSpase uses unique tracking ID combined with AI-powered verification (Martha) to track and validate views. 
-        This system filters out fake, repeated, AI-generated or manipulated views and ensures that only genuine human recorded/screenshoted views are counted toward campaign performance and promoter earnings.`,
+        question: 'How are clicks tracked and verified on MarketSpase?',
+        answer: `Each accepted promotion comes with a unique tracking link and UPI. MarketSpase uses that link, campaign-side attribution, and platform quality checks to separate valid billable clicks from invalid or suspicious activity, so promoters and marketers both work from trusted performance data.`,
         target: 'promoter'
     },
     {
         question: 'Can I be both a marketer and promoter?',
-        answer: `Yes! Many users manage their business campaigns on MarketSpase while earning extra income by promoting other business on their WhatsApp status.`,
+        answer: `Yes! Many users manage their business campaigns on MarketSpase while earning extra income by promoting other businesses through their tracked campaign links.`,
         target: 'both'
     },
     {
@@ -135,7 +130,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
         {
         target: 'both',
         question: 'How does MarketSpase work?',
-        answer: 'MarketSpase is a marketing platform that uses a micro-influencer model to advertise businesses through real people on WhatsApp Status. Businesses create campaigns, and verified users (called promoters) post these ads on their WhatsApp Status to reach real, engaged audiences.'
+        answer: 'MarketSpase is a marketing platform that helps businesses run campaigns through real people and trusted social sharing. Marketers create campaigns, and verified promoters accept them, share them with their unique tracked links, and earn from valid campaign performance.'
         },
 
     {
@@ -146,12 +141,12 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     {
         target: 'marketer',
         question: 'How does MarketSpase help my business?',
-        answer: 'MarketSpase helps your business reach real people directly through WhatsApp, which is more personal and trusted than traditional ads. Your ads appears on multiple WhatsApp statuses, increasing visibility, engagement, inquiries, and potential sales.'
+        answer: 'MarketSpase helps your business reach real people through trusted social sharing, direct conversations, and promoter networks. Your campaigns are shared by real users using tracked promotion links, which can increase visibility, enquiries, clicks, and sales opportunities.'
     },
     {
         target: 'marketer',
         question: 'How Does MarketSpase advertise my business?',
-        answer: 'Your ad is seen by WhatsApp users across different locations and interest groups, depending on the promoters who pick up your campaign to post on their status. This allows your business to reach diverse and organic audiences.'
+        answer: 'Your campaign is distributed by promoters whose audiences match the type of attention you want. They share your approved media and tracked link across WhatsApp and other supported social surfaces, helping your business reach diverse and organic audiences.'
     },
     {
         target: 'marketer',
@@ -166,7 +161,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     {
         target: 'marketer',
         question: 'How fast will my campaign start running?',
-        answer: 'Once your campaign is approved, promoters can start picking it up almost immediately to post on their WhatsApp statuses, allowing your ad to go live within minutes.'
+        answer: 'Once your campaign is approved, promoters can start accepting and sharing it almost immediately, allowing your tracked promotion traffic to start within minutes.'
     },
     {
         target: 'marketer',
@@ -176,7 +171,7 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
     {
         target: 'marketer',
         question: 'Can I track my campaign performance?',
-        answer: 'Yes. Your dashboard shows campaign progress, verified views, spending, and transaction history—so you can clearly see the value you\'re getting.'
+        answer: 'Yes. Your dashboard shows campaign progress, tracked clicks, billable clicks, spending, promotion status, and transaction history so you can clearly see performance and value.'
     },
     {
         target: 'marketer',
@@ -284,14 +279,16 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
         description: 'To launch a WhatsApp ad. Simply upload your content (image or video), set your budget, and target your audience. Each ad is automatically watermarked.',
         icon: 'campaign',
         action: 'Create Campaign',
+        actionLink: '/dashboard/campaigns/create',
         completed: false
       },
       {
         id: 4,
-        title: 'Real-time Performance Tracking',
-        description: 'Monitor your campaign performance with live analytics, view counts, and engagement metrics.',
+        title: 'Track Performance Live',
+        description: 'Monitor tracked clicks, billable clicks, campaign spend, and promotion progress from your dashboard in real time.',
         icon: 'analytics',
         action: 'View Dashboard',
+        actionLink: '/dashboard/campaigns',
         completed: false
       }
     ]);
@@ -308,34 +305,38 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       {
         id: 2,
-        title: 'Accept Available Campaigns',
-        description: 'Choose from hundreds of promotional campaigns that match your audience. Each campaign shows exactly how much you\'ll earn and the minimum view required.',
-        icon: 'verified',
-        action: 'Verify Now',
+        title: 'Get Verified as a Promoter',
+        description: 'Complete promoter verification so you can accept campaigns, receive your unique UPI, and access tracked promotion links.',
+        icon: 'verified_user',
+        action: 'Open Verification',
+        actionLink: '/dashboard/settings/account',
         completed: false
       },
+      // {
+      //   id: 3,
+      //   title: 'Add Your Payout Account',
+      //   description: 'Set up the account details you want to use for withdrawals so your earnings can move smoothly once promotions begin performing.',
+      //   icon: 'account_balance_wallet',
+      //   action: 'Add Payout Details',
+      //   actionLink: '/dashboard/settings/account',
+      //   completed: false
+      // },
       {
         id: 3,
-        title: 'Post on Your WhatsApp Status',
-        description: 'Download the ads asset (image, video) and post it to your WhatsApp status. Keep it live for at least 22 hours.',
-        icon: 'payments',
-        action: 'Add Method',
+        title: 'Accept a Campaign and Prepare the Promotion',
+        description: 'Browse available campaigns, accept the ones that fit your audience, then open Dashboard > Campaigns > Promotions to download the media, copy the caption, and copy your MarketSpase tracking link.',
+        icon: 'campaign',
+        action: 'Browse Campaigns',
+        actionLink: '/dashboard/campaigns',
         completed: false
       },
       {
         id: 4,
-        title: 'Submit Proof',
-        description: 'Take a screenshot or screen recording showing the view counts, the timeline, and the provided promotion ID. Submit it on the same page it was downloaded it on MarketSpace.',
-        icon: 'share',
-        action: 'Browse Campaigns',
-        completed: false
-      },
-      {
-        id: 5,
-        title: 'Get Paid Automatically',
-        description: 'Once your proof is validated, they system automatically transfer the earnings to your wallet where you can request withdrawal.',
-        icon: 'share',
-        action: 'Browse Campaigns',
+        title: 'Share the Tracked Link and Monitor Results',
+        description: 'Share only the generated MarketSpase link, keep the UPI and campaign details intact, and use the Promotions page to monitor tracked clicks, billable clicks, status, and earnings. Follow any extra proof instructions shown on the promotion when required.',
+        icon: 'insights',
+        action: 'Open Promotions',
+        actionLink: '/dashboard/campaigns/promotions',
         completed: false
       }
     ]);
@@ -450,11 +451,6 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
   // Step navigation
   navigateToStep(step: OnboardingStep): void {
     if (step.actionLink) this.router.navigate([step.actionLink]);
-  }
-
-  // Open proof guide
-  openProofGuide(): void {
-    this.proofGuideService.openProofGuide();
   }
 
   // Scroll to video guides
