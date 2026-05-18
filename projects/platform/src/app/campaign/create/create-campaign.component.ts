@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal, computed, Signal, DestroyRef } from 
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
+import { firstValueFrom, filter, map, tap } from 'rxjs';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -20,13 +22,16 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DeviceService, UserInterface } from '@shared/services';
 import { WalletFundingComponent } from '../../wallet/funding/funding.component';
 import { UserService } from '../../common/services/user.service';
-import { CampaignService } from './create.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { DeviceService, UserInterface } from '@shared/services';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  CampaignMediaAsset,
+  CampaignMediaUploadResponse,
+  CampaignService,
+} from './create.service';
 
 import { CampaignContentFormComponent } from './components/campaign-content-form/campaign-content-form.component';
 import { CampaignGoalFormComponent } from './components/campaign-goal-form/campaign-goal-form.component';
@@ -36,6 +41,8 @@ import { CampaignSummaryComponent } from './components/campaign-summary/campaign
 import { MediaFile } from './media-file.model';
 
 const DEFAULT_CAMPAIGN_COST_PER_CLICK = 80;
+
+type SubmissionStage = 'idle' | 'uploading' | 'creating';
 
 @Component({
   selector: 'app-create-campaign',
@@ -61,12 +68,11 @@ const DEFAULT_CAMPAIGN_COST_PER_CLICK = 80;
     MatSlideToggleModule,
     DragDropModule,
     MatTooltipModule,
-    // Refactored Components
     CampaignContentFormComponent,
     CampaignGoalFormComponent,
     CampaignBudgetFormComponent,
     CampaignScheduleFormComponent,
-    CampaignSummaryComponent
+    CampaignSummaryComponent,
   ],
   templateUrl: './create-campaign.component.html',
   styleUrls: ['./create-campaign.component.scss']
@@ -80,71 +86,89 @@ export class CreateCampaignComponent implements OnInit {
   private campaignService = inject(CampaignService);
   private readonly deviceService = inject(DeviceService);
 
-  // Public properties for the template
   protected readonly deviceType = computed(() => this.deviceService.type());
 
   private userService: UserService = inject(UserService);
   public user: Signal<UserInterface | null> = this.userService.user;
-  
+
   public today: Date = new Date();
   public currentStep = signal<number>(1);
   public isSubmitting = signal(false);
+  public submissionStage = signal<SubmissionStage>('idle');
+  public uploadProgress = signal<number | null>(null);
 
-  // Form groups to be passed down to child components
   contentForm!: FormGroup;
   goalForm!: FormGroup;
   budgetForm!: FormGroup;
   scheduleForm!: FormGroup;
 
-  // Signals to track validity of each step
   isContentValid = signal(false);
   isGoalValid = signal(false);
   isBudgetValid = signal(false);
   isScheduleValid = signal(true);
-  // isScheduleValid = signal(false);
   selectedMedia = signal<MediaFile | null>(null);
 
-  // Computed signals for derived state
-  walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
-  //campaignIsReady = computed(() => this.isContentValid() && this.isBudgetValid() && this.isScheduleValid() && this.walletBalance() >= this.budgetForm.get('budget')?.value);
+  private uploadedMediaAsset = signal<CampaignMediaAsset | null>(null);
+  private uploadedMediaKey = signal<string | null>(null);
 
+  walletBalance = computed(() => this.user()?.wallets?.marketer?.balance ?? 0);
   budgetValue = signal<number>(0);
+  campaignHasMedia = computed(() => Boolean(this.selectedMedia()?.file));
 
   campaignIsReady = computed(() =>
     this.isContentValid() &&
     this.isGoalValid() &&
     this.isBudgetValid() &&
     this.isScheduleValid() &&
+    this.campaignHasMedia() &&
     this.walletBalance() >= this.budgetValue()
   );
-
 
   campaignIsReadyAsDraft = computed(() =>
     this.isContentValid() &&
     this.isGoalValid() &&
     this.isBudgetValid() &&
-    this.isScheduleValid()
+    this.isScheduleValid() &&
+    this.campaignHasMedia()
   );
+
+  submissionTitle = computed(() =>
+    this.submissionStage() === 'uploading'
+      ? 'Uploading campaign media'
+      : this.submissionStage() === 'creating'
+        ? 'Creating campaign'
+        : ''
+  );
+
+  submissionDescription = computed(() => {
+    if (this.submissionStage() === 'uploading') {
+      return 'We are uploading your media first so the final campaign request stays fast and reliable.';
+    }
+
+    if (this.submissionStage() === 'creating') {
+      return 'Your media is ready. We are now saving the campaign and finishing the setup.';
+    }
+
+    return '';
+  });
 
   ngOnInit(): void {
     this.initializeForms();
     this.setupFormListeners();
-    
-    // Update the signal whenever budget changes
+
     this.budgetForm.get('budget')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(value => {
+      .subscribe((value) => {
         this.budgetValue.set(value || 0);
       });
   }
-
 
   private initializeForms(): void {
     this.contentForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(100)]],
       caption: ['', [Validators.required, Validators.maxLength(300)]],
       link: ['', [this.urlValidator]],
-      enableDirectChat: [false], // Add this line
+      enableDirectChat: [false],
       category: ['other', Validators.required]
     });
 
@@ -155,11 +179,9 @@ export class CreateCampaignComponent implements OnInit {
 
     this.budgetForm = this.fb.group({
       budget: [null, [Validators.required, Validators.min(1000), Validators.max(1000000)]],
-      //enableTarget: [true],
       enableTarget: [{ value: true, disabled: true }],
       ageTarget: ['all', Validators.required]
     });
-
 
     this.scheduleForm = this.fb.group({
       startDate: [new Date(), Validators.required],
@@ -169,7 +191,6 @@ export class CreateCampaignComponent implements OnInit {
     });
   }
 
-  // --- Step Navigation Methods ---
   goToNextStep(): void {
     const current = this.currentStep();
     if (current === 1 && this.isContentValid()) {
@@ -203,13 +224,20 @@ export class CreateCampaignComponent implements OnInit {
     return this.currentStep() === step;
   }
 
-  // Event handlers from child components
   onContentValidityChange(isValid: boolean): void {
     this.isContentValid.set(isValid);
   }
 
   onMediaChange(media: MediaFile | null): void {
     this.selectedMedia.set(media);
+
+    const mediaKey = this.getMediaKey(media);
+    if (!mediaKey || mediaKey !== this.uploadedMediaKey()) {
+      this.uploadedMediaAsset.set(null);
+      this.uploadedMediaKey.set(null);
+    }
+
+    this.uploadProgress.set(null);
   }
 
   onGoalValidityChange(isValid: boolean): void {
@@ -224,9 +252,7 @@ export class CreateCampaignComponent implements OnInit {
     this.isScheduleValid.set(isValid);
   }
 
-  // Final submission logic
-  submitCampaign(): void {
-
+  async submitCampaign(): Promise<void> {
     if (!this.user()?.personalInfo?.phone || !this.user()?.personalInfo?.address) {
       this.snackBar.open(
         'Please complete your profile setup to create campaign',
@@ -242,71 +268,47 @@ export class CreateCampaignComponent implements OnInit {
       return;
     }
 
-    this.isSubmitting.set(true);
-
-    if (this.campaignIsReady()) {
-      const formData = this.buildCampaignFormData();
-
-      this.campaignService.create(formData)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.snackBar.open(response.message, 'OK', { duration: 3000 });
-              this.router.navigate(['/dashboard/campaigns']);
-            }
-            this.isSubmitting.set(false);
-          },
-          error: (error: HttpErrorResponse) => {
-            const errorMessage = error.error?.message || 'Server error occurred, please try again.';
-            this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
-            this.isSubmitting.set(false);
-          }
-        });
-    } else {
-      this.snackBar.open('Please complete all required fields and ensure you have sufficient funds.', 'OK', { duration: 3000 });
-      this.isSubmitting.set(false);
+    if (!this.campaignIsReady()) {
+      this.snackBar.open('Please complete all required fields, add campaign media, and ensure you have sufficient funds.', 'OK', { duration: 3000 });
+      return;
     }
+
+    await this.persistCampaign('create');
   }
 
   private urlValidator(control: AbstractControl): { [key: string]: any } | null {
-
-     // Get the parent form group to check the enableDirectChat value
     const formGroup = control.parent;
-    
+
     if (!formGroup) {
       return null;
     }
-    
+
     const enableDirectChat = formGroup.get('enableDirectChat')?.value;
-    
-    // If direct chat is enabled, link is optional
+
     if (enableDirectChat) {
       return null;
     }
-  
+
     if (!control.value) return null;
-    
+
     const urlPattern = /^(https?|ftp):\/\/(-\.)?([^\s\/?\.#]+\.?)+(\/[^\s]*)?$/i;
     const localhostPattern = /^(https?):\/\/localhost(:\d+)?(\/.*)?$/i;
     const ipPattern = /^(https?):\/\/(\d{1,3}\.){3}\d{1,3}(:\d+)?(\/.*)?$/i;
-    
+
     let urlToTest = control.value.trim();
-    
-    // Add protocol if missing (default to http)
+
     if (!/^https?:\/\//i.test(urlToTest)) {
       urlToTest = 'https://' + urlToTest;
     }
-    
+
     try {
-      // Test against various URL patterns
-      if (urlPattern.test(urlToTest) || 
-          localhostPattern.test(urlToTest) || 
-          ipPattern.test(urlToTest)) {
-        
+      if (
+        urlPattern.test(urlToTest) ||
+        localhostPattern.test(urlToTest) ||
+        ipPattern.test(urlToTest)
+      ) {
         const url = new URL(urlToTest);
-        
-        // Additional validation for basic URL structure
+
         if (url.hostname && url.protocol && url.protocol.match(/^(https?|ftp):$/)) {
           return null;
         }
@@ -317,13 +319,11 @@ export class CreateCampaignComponent implements OnInit {
     }
   }
 
-  // Navigation and other actions
   goBack(): void {
     this.router.navigate(['/dashboard/campaigns']);
   }
 
-  saveDraft(): void {
-
+  async saveDraft(): Promise<void> {
     if (!this.user()?.personalInfo?.phone || !this.user()?.personalInfo?.address) {
       this.snackBar.open(
         'Please complete your profile setup to create campaign',
@@ -339,31 +339,12 @@ export class CreateCampaignComponent implements OnInit {
       return;
     }
 
-    this.isSubmitting.set(true);
-
-    if (this.campaignIsReadyAsDraft()) {
-      const formData = this.buildCampaignFormData();
-
-      this.campaignService.save(formData)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.snackBar.open(response.message, 'OK', { duration: 3000 });
-              this.router.navigate(['/dashboard/campaigns']);
-            }
-            this.isSubmitting.set(false);
-          },
-          error: (error: HttpErrorResponse) => {
-            const errorMessage = error.error?.message || 'Server error occurred, please try again.';
-            this.snackBar.open(errorMessage, 'Ok', { duration: 3000 });
-            this.isSubmitting.set(false);
-          }
-        });
-    } else {
-      this.snackBar.open('Please complete all required fields to save campaign as draft', 'OK', { duration: 3000 });
-      this.isSubmitting.set(false);
+    if (!this.campaignIsReadyAsDraft()) {
+      this.snackBar.open('Please complete all required fields and add campaign media before saving as draft.', 'OK', { duration: 3000 });
+      return;
     }
+
+    await this.persistCampaign('save');
   }
 
   fundWallet(): void {
@@ -371,10 +352,8 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   onSaveAsDraft(): void {
-    // Just navigate to the next step without saving
     if (this.currentStep() === 3) {
-      // Optionally validate that basic required fields are filled
-      if ( this.budgetForm.get('ageTarget')?.valid) {
+      if (this.budgetForm.get('ageTarget')?.valid) {
         this.currentStep.set(4);
         this.snackBar.open('Proceeding to save campaign as draft', 'OK', { duration: 2000 });
       } else {
@@ -384,59 +363,162 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   private setupFormListeners(): void {
-    // Listen to enableDirectChat changes
-    this.contentForm.get('enableDirectChat')?.valueChanges.subscribe((enabled) => {
-      const linkControl = this.contentForm.get('link');
-      
-      if (enabled) {
-        // Disable and clear validation
-        linkControl?.disable();
-        linkControl?.clearValidators();
-        linkControl?.setValue('');
-      } else {
-        // Enable and set validation
-        linkControl?.enable();
-        linkControl?.setValidators([this.urlValidator.bind(this)]);
-      }
-      
-      // Update validation status
-      linkControl?.updateValueAndValidity();
-    });
+    this.contentForm.get('enableDirectChat')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        const linkControl = this.contentForm.get('link');
+
+        if (enabled) {
+          linkControl?.disable();
+          linkControl?.clearValidators();
+          linkControl?.setValue('');
+        } else {
+          linkControl?.enable();
+          linkControl?.setValidators([this.urlValidator.bind(this)]);
+        }
+
+        linkControl?.updateValueAndValidity();
+      });
   }
 
-  private buildCampaignFormData(): FormData {
-    const formData = new FormData();
+  private async persistCampaign(mode: 'create' | 'save'): Promise<void> {
+    this.isSubmitting.set(true);
+
+    try {
+      const mediaAsset = await this.ensureUploadedMedia();
+      this.submissionStage.set('creating');
+      this.uploadProgress.set(null);
+
+      const payload = this.buildCampaignPayload(mediaAsset);
+      const request$ = mode === 'create'
+        ? this.campaignService.create(payload)
+        : this.campaignService.save(payload);
+
+      const response = await firstValueFrom(request$);
+
+      if (!response?.success) {
+        throw new Error(
+          response?.message ||
+          (mode === 'create'
+            ? 'Failed to create campaign.'
+            : 'Failed to save campaign as draft.')
+        );
+      }
+
+      this.snackBar.open(response.message, 'OK', { duration: 3000 });
+      this.router.navigate(['/dashboard/campaigns']);
+    } catch (error) {
+      this.snackBar.open(
+        this.getSubmissionErrorMessage(
+          error,
+          mode === 'create'
+            ? 'Server error occurred while creating campaign. Please try again.'
+            : 'Server error occurred while saving campaign draft. Please try again.'
+        ),
+        'OK',
+        { duration: 4000 }
+      );
+    } finally {
+      this.isSubmitting.set(false);
+      this.submissionStage.set('idle');
+      this.uploadProgress.set(null);
+    }
+  }
+
+  private async ensureUploadedMedia(): Promise<CampaignMediaAsset> {
+    const selected = this.selectedMedia();
+    if (!selected?.file) {
+      throw new Error('Please add campaign media before continuing.');
+    }
+
+    const mediaKey = this.getMediaKey(selected);
+    const existingAsset = this.uploadedMediaAsset();
+
+    if (mediaKey && existingAsset && this.uploadedMediaKey() === mediaKey) {
+      return existingAsset;
+    }
+
+    this.submissionStage.set('uploading');
+    this.uploadProgress.set(0);
+
+    const uploadResponse = await firstValueFrom(
+      this.campaignService.uploadMedia(selected.file).pipe(
+        tap((event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const total = event.total ?? selected.file.size;
+            if (total > 0) {
+              this.uploadProgress.set(Math.round((event.loaded / total) * 100));
+            }
+          }
+        }),
+        filter((event): event is HttpResponse<CampaignMediaUploadResponse> => event.type === HttpEventType.Response),
+        map((event) => event.body)
+      )
+    );
+
+    if (!uploadResponse?.success || !uploadResponse.data) {
+      throw new Error(uploadResponse?.message || 'Failed to upload campaign media.');
+    }
+
+    this.uploadedMediaAsset.set(uploadResponse.data);
+    this.uploadedMediaKey.set(mediaKey);
+    this.uploadProgress.set(100);
+
+    return uploadResponse.data;
+  }
+
+  private buildCampaignPayload(mediaAsset: CampaignMediaAsset): Record<string, unknown> {
     const startDate = this.scheduleForm.get('startDate')?.value;
     const endDate = this.scheduleForm.get('endDate')?.value;
     const hasEndDate = Boolean(this.scheduleForm.get('hasEndDate')?.value);
 
-    formData.append('title', this.contentForm.get('title')?.value ?? '');
-    formData.append('caption', this.contentForm.get('caption')?.value ?? '');
-    formData.append('link', this.contentForm.get('link')?.value ?? '');
-    formData.append('category', this.contentForm.get('category')?.value ?? 'other');
-    formData.append('campaignGoal', this.goalForm.get('campaignGoal')?.value ?? 'awareness');
-    formData.append('budget', String(this.budgetForm.get('budget')?.value ?? ''));
-    formData.append('costPerClick', String(DEFAULT_CAMPAIGN_COST_PER_CLICK));
-    formData.append('enableTarget', String(this.budgetForm.get('enableTarget')?.value ?? true));
-    formData.append('ageTarget', this.budgetForm.get('ageTarget')?.value ?? 'all');
-    formData.append('currency', 'NGN');
-    formData.append('owner', this.user()?._id ?? '');
-    formData.append('hasEndDate', String(hasEndDate));
+    const payload: Record<string, unknown> = {
+      title: this.contentForm.get('title')?.value ?? '',
+      caption: this.contentForm.get('caption')?.value ?? '',
+      link: this.contentForm.get('link')?.value ?? '',
+      category: this.contentForm.get('category')?.value ?? 'other',
+      campaignGoal: this.goalForm.get('campaignGoal')?.value ?? 'awareness',
+      budget: this.budgetForm.get('budget')?.value ?? '',
+      costPerClick: DEFAULT_CAMPAIGN_COST_PER_CLICK,
+      enableTarget: this.budgetForm.get('enableTarget')?.value ?? true,
+      ageTarget: this.budgetForm.get('ageTarget')?.value ?? 'all',
+      currency: 'NGN',
+      owner: this.user()?._id ?? '',
+      hasEndDate,
+      mediaUrl: mediaAsset.mediaUrl,
+      mediaType: mediaAsset.mediaType,
+      thumbnailUrl: mediaAsset.thumbnailUrl,
+      mediaPublicId: mediaAsset.mediaPublicId ?? '',
+    };
 
     if (startDate) {
-      formData.append('startDate', startDate.toISOString());
+      payload['startDate'] = startDate.toISOString();
     }
 
     if (hasEndDate && endDate) {
-      formData.append('endDate', endDate.toISOString());
+      payload['endDate'] = endDate.toISOString();
     }
 
-    const selected = this.selectedMedia();
-    if (selected?.file) {
-      formData.append('media', selected.file);
-    }
-
-    return formData;
+    return payload;
   }
 
+  private getMediaKey(media: MediaFile | null): string | null {
+    if (!media?.file) {
+      return null;
+    }
+
+    return `${media.file.name}:${media.file.size}:${media.file.lastModified}`;
+  }
+
+  private getSubmissionErrorMessage(error: unknown, fallbackMessage: string): string {
+    if (error instanceof HttpErrorResponse) {
+      return error.error?.message || fallbackMessage;
+    }
+
+    if (error instanceof Error) {
+      return error.message || fallbackMessage;
+    }
+
+    return fallbackMessage;
+  }
 }

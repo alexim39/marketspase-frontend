@@ -1,13 +1,32 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, } from 'rxjs'; 
+import { HttpClient, HttpErrorResponse, HttpEvent } from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs'; 
 import { ApiService } from '@shared/services';
 
+export interface CampaignMediaAsset {
+  mediaUrl: string;
+  mediaType: string;
+  thumbnailUrl: string;
+  mediaPublicId?: string;
+}
+
+export interface CampaignMediaUploadResponse {
+  success: boolean;
+  message: string;
+  data: CampaignMediaAsset;
+}
 
 @Injectable()
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
+  private http = inject(HttpClient);
   public readonly api = this.apiService.getBaseUrl();
   private readonly apiUrl = 'api/v1/campaign';
+
+  private handleUploadError(error: HttpErrorResponse): Observable<never> {
+    console.error('Campaign media upload failed:', error);
+    return throwError(() => error);
+  }
   
 
   /**
@@ -15,8 +34,7 @@ export class CampaignService {
    * @post campaignObject The user data to be submitted.
    * @returns An Observable that emits the API response or an error.
    */
-  create(campaignData: FormData): Observable<any> {
-    //console.log('Submitting campaign data:', campaignData);
+  create(campaignData: Record<string, unknown>): Observable<any> {
     return this.apiService.post<any>(`${this.apiUrl}/create`, campaignData, undefined, true);
   }
 
@@ -25,9 +43,25 @@ export class CampaignService {
    * @post campaignObject The user data to be submitted.
    * @returns An Observable that emits the API response or an error.
    */
-  save(campaignData: FormData): Observable<any> {
-    //console.log('Saving campaign data:', campaignData);
+  save(campaignData: Record<string, unknown>): Observable<any> {
     return this.apiService.post<any>(`${this.apiUrl}/save`, campaignData, undefined, true);
+  }
+
+  uploadMedia(file: File): Observable<HttpEvent<CampaignMediaUploadResponse>> {
+    const formData = new FormData();
+    formData.append('media', file);
+
+    return this.http.post<CampaignMediaUploadResponse>(
+      `${this.api}/${this.apiUrl}/media/upload`,
+      formData,
+      {
+        observe: 'events',
+        reportProgress: true,
+        withCredentials: true,
+      }
+    ).pipe(
+      catchError((error: HttpErrorResponse) => this.handleUploadError(error))
+    );
   }
 
 }
