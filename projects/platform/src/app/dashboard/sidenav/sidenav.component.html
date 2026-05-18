@@ -17,6 +17,10 @@
         </button>
       </div>
     </mat-toolbar>
+
+    <div class="mobile-search-row">
+      <app-global-search-bar [compact]="true" />
+    </div>
   }
 
   <mat-sidenav-container class="sidenav-container" [hasBackdrop]="isMobile()">
@@ -52,8 +56,14 @@
     <mat-sidenav-content class="main-content">
       @if (!isMobile()) {
         <mat-toolbar class="desktop-header">
-          <span class="page-title">{{getPageTitle()}}</span>
-          <div class="header-spacer"></div>
+          <div class="header-title-group">
+            <span class="page-title">{{getPageTitle()}}</span>
+          </div>
+
+          <div class="header-search">
+            <app-global-search-bar />
+          </div>
+
           <div class="header-actions">
             <div class="wallet-display" (click)="openWallet()">
               <mat-icon>account_balance_wallet</mat-icon>

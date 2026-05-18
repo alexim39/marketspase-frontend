@@ -33,6 +33,10 @@ export const dashboardRoutes: Routes = [
                 path: 'gamification',
                 loadComponent: () => import('./gamification/gamification.component').then(c => c.GamificationComponent),
             },
+            {
+                path: 'search',
+                loadComponent: () => import('./search/global-search-page.component').then(c => c.GlobalSearchPageComponent),
+            },
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            
             // { path: 'business', loadChildren: () => import('./business/business-routes').then(r => r.BusinessRoutes) },            

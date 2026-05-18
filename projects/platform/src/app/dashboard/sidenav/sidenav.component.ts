@@ -28,6 +28,7 @@ import { SidenavNavigationComponent } from './components/sidenav-navigation/side
 import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
 import { CartDialogComponent } from './components/cart-dialog/cart-dialog.component';
 import { NotificationBellComponent } from '../notification/notification.component';
+import { GlobalSearchBarComponent } from '../search/global-search-bar.component';
 
 import {
   getMarketerNavigation,
@@ -67,6 +68,7 @@ import { Subscription } from 'rxjs';
     QuickActionsComponent,
     CartDialogComponent,
     NotificationBellComponent,
+    GlobalSearchBarComponent,
     CurrencyUtilsPipe,
     CountdownOverlayComponent
   ],

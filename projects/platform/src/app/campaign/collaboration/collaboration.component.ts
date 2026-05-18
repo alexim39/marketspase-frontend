@@ -416,6 +416,26 @@ export class CampaignCollaborationComponent {
     return message._id;
   }
 
+  isOwnMessage(message: CollaborationMessage): boolean {
+    return message.sender?._id === this.currentUser()?._id;
+  }
+
+  isSystemMessage(message: CollaborationMessage): boolean {
+    return message.messageType === 'system';
+  }
+
+  getMessageSenderName(message: CollaborationMessage): string {
+    if (this.isOwnMessage(message)) {
+      return 'You';
+    }
+
+    return message.sender?.displayName || message.sender?.username || 'User';
+  }
+
+  getMessageSenderInitial(message: CollaborationMessage): string {
+    return this.getMessageSenderName(message).charAt(0).toUpperCase();
+  }
+
   trackStarterCampaign(_index: number, campaign: CollaborationStarterCampaign): string {
     return campaign._id;
   }

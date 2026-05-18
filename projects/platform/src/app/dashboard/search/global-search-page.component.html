@@ -1,0 +1,253 @@
+<div class="search-page">
+  <section class="hero-card">
+    <div class="hero-copy">
+      <span class="hero-kicker">Global Search</span>
+      <h1>Find people, campaigns, promotions, products, and stores fast.</h1>
+      <p>
+        Search across your live MarketSpase workspace with role-aware visibility, smart ranking, and filters that stay fast as data grows.
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      <button mat-stroked-button color="primary" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Reset filters
+      </button>
+      <button mat-flat-button color="primary" (click)="exportResults()" [disabled]="!hasResults()">
+        <mat-icon>download</mat-icon>
+        Export current page
+      </button>
+    </div>
+  </section>
+
+  <section class="query-card">
+    <form class="query-form" (submit)="submitSearch(); $event.preventDefault()">
+      <mat-form-field appearance="outline" class="query-field">
+        <mat-label>Search term</mat-label>
+        <input
+          matInput
+          type="search"
+          [formControl]="searchControl"
+          placeholder="Search names, campaigns, promotions, products, and stores">
+        @if (searchControl.value.trim()) {
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Clear search"
+            (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        } @else {
+          <mat-icon matSuffix>manage_search</mat-icon>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit">
+        <mat-icon>search</mat-icon>
+        Search
+      </button>
+    </form>
+
+    @if (isLoading()) {
+      <div class="query-status" aria-live="polite">
+        <mat-spinner diameter="18"></mat-spinner>
+        <span>Search is still running. We’ll surface the closest live matches as soon as they land.</span>
+      </div>
+    }
+  </section>
+
+  <section class="filter-card">
+    <div class="type-row">
+      @for (option of typeOptions; track option.value) {
+        <button
+          type="button"
+          class="type-chip"
+          [class.active]="selectedType() === option.value"
+          (click)="selectType(option.value)">
+          <mat-icon>{{ option.icon }}</mat-icon>
+          <span>{{ option.label }}</span>
+          <strong>{{ getEntityCount(option.value) }}</strong>
+        </button>
+      }
+    </div>
+
+    <div class="filter-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>User type</mat-label>
+        <mat-select [value]="selectedUserType()" (valueChange)="selectUserType($event)">
+          <mat-option value="all">All user types</mat-option>
+          @for (userType of availableUserTypes(); track userType) {
+            <mat-option [value]="userType">{{ formatLabel(userType) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="selectedStatus()" (valueChange)="selectStatus($event)">
+          <mat-option value="all">All statuses</mat-option>
+          @for (status of availableStatuses(); track status) {
+            <mat-option [value]="status">{{ formatLabel(status) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Region</mat-label>
+        <input matInput [formControl]="regionControl" placeholder="Filter by city, state, or country">
+      </mat-form-field>
+    </div>
+
+    @if (quickRegionSuggestions().length > 0) {
+      <div class="region-chip-row">
+        @for (region of quickRegionSuggestions(); track region) {
+          <button type="button" class="region-chip" (click)="applyQuickRegion(region)">
+            <mat-icon>place</mat-icon>
+            <span>{{ region }}</span>
+          </button>
+        }
+      </div>
+    }
+  </section>
+
+  @if (isLoading()) {
+    <section class="loading-card">
+      <mat-spinner diameter="34"></mat-spinner>
+      <div>
+        <strong>Searching MarketSpase</strong>
+        <p>We're ranking the closest matches for "{{ query() || 'your filters' }}".</p>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Search is having a rough moment.</h2>
+      <p>{{ error() }}</p>
+    </section>
+  } @else if (!query() && !hasResults()) {
+    <section class="empty-state">
+      <mat-icon>manage_search</mat-icon>
+      <h2>Start from the search bar above.</h2>
+      <p>Type a name, campaign title, promotion code, product, or store to pull live results here.</p>
+    </section>
+  } @else if (!hasResults()) {
+    <section class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <h2>No results matched this search.</h2>
+      <p>Try a broader keyword or clear one of the filters to widen the match.</p>
+    </section>
+  } @else {
+    @if (spotlightResult(); as spotlight) {
+      <section class="spotlight-card">
+        <div class="spotlight-visual">
+          @if (spotlight.primaryImage) {
+            <img [src]="spotlight.primaryImage" [alt]="spotlight.title">
+          } @else {
+            <mat-icon>{{ getEntityIcon(spotlight) }}</mat-icon>
+          }
+        </div>
+
+        <div class="spotlight-copy">
+          <div class="spotlight-head">
+            <span class="type-pill">{{ spotlight.entityLabel }}</span>
+            @if (spotlight.status) {
+              <span class="status-pill" [class.inactive]="!spotlight.isActive">{{ formatLabel(spotlight.status) }}</span>
+            }
+          </div>
+          <h2>{{ spotlight.title }}</h2>
+          <p>{{ spotlight.subtitle }}</p>
+          @if (spotlight.description) {
+            <small>{{ spotlight.description }}</small>
+          }
+
+          <div class="metric-row">
+            @for (metric of getResultMetrics(spotlight); track metric.label) {
+              <div class="metric-chip">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+                <span>{{ metric.label }}</span>
+                <strong>{{ metric.value }}</strong>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="spotlight-actions">
+          <button mat-flat-button color="primary" (click)="openResult(spotlight)">
+            <mat-icon>arrow_forward</mat-icon>
+            Open result
+          </button>
+        </div>
+      </section>
+    }
+
+    <section class="results-grid">
+      @for (result of remainingResults(); track result.entityType + ':' + result.entityId) {
+        <article class="result-card">
+          <div class="result-top">
+            <div class="result-identity">
+              <div class="result-avatar">
+                @if (result.primaryImage) {
+                  <img [src]="result.primaryImage" [alt]="result.title">
+                } @else {
+                  <mat-icon>{{ getEntityIcon(result) }}</mat-icon>
+                }
+              </div>
+
+              <div class="result-copy">
+                <div class="title-row">
+                  <strong>{{ result.title }}</strong>
+                  <span class="type-pill">{{ result.entityLabel }}</span>
+                </div>
+                <span>{{ result.subtitle }}</span>
+              </div>
+            </div>
+
+            @if (result.status) {
+              <span class="status-pill" [class.inactive]="!result.isActive">{{ formatLabel(result.status) }}</span>
+            }
+          </div>
+
+          @if (result.description) {
+            <p class="result-description">{{ result.description }}</p>
+          }
+
+          <div class="metric-grid">
+            @for (metric of getResultMetrics(result); track metric.label) {
+              <div class="metric-item">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+                <span>{{ metric.label }}</span>
+                <strong>{{ metric.value }}</strong>
+              </div>
+            }
+          </div>
+
+          <div class="result-footer">
+            <div class="result-meta">
+              @if (result.userType) {
+                <span>{{ formatLabel(result.userType) }}</span>
+              }
+              @if (result.region?.label) {
+                <span>{{ result.region.label }}</span>
+              }
+            </div>
+
+            <button mat-stroked-button color="primary" (click)="openResult(result)">
+              <mat-icon>open_in_new</mat-icon>
+              Open
+            </button>
+          </div>
+        </article>
+      }
+    </section>
+
+    <mat-paginator
+      class="search-paginator"
+      [length]="pagination().total"
+      [pageIndex]="pagination().page - 1"
+      [pageSize]="pagination().limit"
+      [pageSizeOptions]="[12, 18, 24]"
+      (page)="handlePageChange($event)">
+    </mat-paginator>
+  }
+</div>

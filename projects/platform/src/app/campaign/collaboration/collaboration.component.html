@@ -312,15 +312,33 @@
         } @else {
           <div class="message-stream">
             @for (message of messages(); track trackMessage($index, message)) {
-              <article
-                class="message-card"
-                [class.mine]="message.sender._id === currentUser()?._id">
-                <div class="message-meta">
-                  <strong>{{ message.sender.displayName || message.sender.username || 'User' }}</strong>
-                  <span>{{ formatTime(message.createdAt) }}</span>
-                </div>
-                <p>{{ message.content }}</p>
-              </article>
+              <div
+                class="message-row"
+                [class.mine]="isOwnMessage(message)"
+                [class.system]="isSystemMessage(message)">
+                @if (!isOwnMessage(message) && !isSystemMessage(message)) {
+                  <div class="message-avatar" aria-hidden="true">
+                    @if (message.sender.avatar) {
+                      <img [src]="message.sender.avatar" [alt]="getMessageSenderName(message)">
+                    } @else {
+                      <span>{{ getMessageSenderInitial(message) }}</span>
+                    }
+                  </div>
+                }
+
+                <article class="message-card">
+                  <div class="message-meta">
+                    <div class="message-author">
+                      <strong>{{ getMessageSenderName(message) }}</strong>
+                      @if (message.sender.role && !isSystemMessage(message)) {
+                        <span class="sender-role">{{ message.sender.role | titlecase }}</span>
+                      }
+                    </div>
+                    <span>{{ formatTime(message.createdAt) }}</span>
+                  </div>
+                  <p>{{ message.content }}</p>
+                </article>
+              </div>
             }
           </div>
         }
