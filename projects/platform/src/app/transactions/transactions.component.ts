@@ -70,7 +70,13 @@ export class TransactionComponent {
     const walletType = userData.role === 'promoter' ? 'promoter' : 'marketer';
     const walletTransactions = userData.wallets?.[walletType]?.transactions;
     
-    return Array.isArray(walletTransactions) ? [...walletTransactions].reverse() : [];
+    return Array.isArray(walletTransactions)
+      ? [...walletTransactions].sort((left, right) => {
+          const leftTime = new Date(left?.createdAt || 0).getTime();
+          const rightTime = new Date(right?.createdAt || 0).getTime();
+          return rightTime - leftTime;
+        })
+      : [];
   });
 
   // Get balance based on user role
@@ -124,7 +130,7 @@ export class TransactionComponent {
       } else if (this.currentFilter() === 'campaigns') {
         filtered = filtered.filter(t => t.category === 'campaign');
       } else if (this.currentFilter() === 'earnings' && this.user()?.role === 'promoter') {
-        filtered = filtered.filter(t => t.type === 'credit' && t.category === 'promotion');
+        filtered = filtered.filter(t => t.type === 'credit' && (t.category === 'promotion' || t.category === 'bonus'));
       } else if (this.currentFilter() === 'spending' && this.user()?.role === 'marketer') {
         filtered = filtered.filter(t => t.type === 'debit' && (t.category === 'campaign' || t.category === 'promotion'));
       }
@@ -132,7 +138,7 @@ export class TransactionComponent {
     
     // Apply status filter
     if (this.statusFilter().length > 0) {
-      filtered = filtered.filter(t => this.statusFilter().includes(t.status?.at(0) ?? ''));
+      filtered = filtered.filter(t => this.statusFilter().includes(this.normalizeStatus(t.status)));
     }
     
     // Apply search filter
@@ -229,11 +235,22 @@ export class TransactionComponent {
   }
 
   getStatusIcon(status: string): string {
-    switch (status) {
+    switch (this.normalizeStatus(status)) {
       case 'successful': return 'check_circle';
       case 'pending': return 'schedule';
       case 'failed': return 'error';
       default: return 'help_outline';
+    }
+  }
+
+  normalizeStatus(status?: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'completed':
+        return 'successful';
+      case 'processing':
+        return 'pending';
+      default:
+        return (status || '').toLowerCase();
     }
   }
 

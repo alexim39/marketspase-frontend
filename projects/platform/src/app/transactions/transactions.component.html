@@ -63,7 +63,7 @@
         </div>
         <div class="balance-amount earnings">{{ totalAmount() | currencyUtils:user()?.wallets?.promoter?.currency }}</div>
         <div class="balance-subtext">
-          {{ user()?.role === 'promoter' ? 'All-time campaign earnings' : 'All-time campaign spending' }}
+          {{ user()?.role === 'promoter' ? 'All-time promotion and bonus credits' : 'All-time campaign spending' }}
         </div>
       </div>
     </mat-card-content>
