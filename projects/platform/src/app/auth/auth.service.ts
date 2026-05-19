@@ -4,6 +4,7 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   TwitterAuthProvider,
+  getAdditionalUserInfo,
   signInWithPopup,
   UserCredential,
   User, 
@@ -14,6 +15,71 @@ import { map, catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from '../common/services/user.service';
 
+export interface BackendProviderProfilePayload {
+  providerId: string | null;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+}
+
+export interface BackendAuthPayload {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  providerData: Array<{
+    providerId: string | null;
+    uid: string | null;
+    displayName: string | null;
+    email: string | null;
+    photoURL: string | null;
+  }>;
+  providerProfile: BackendProviderProfilePayload | null;
+  referralCode: string | null;
+  userDevice: string | null;
+}
+
+export interface BackendAuthRequest {
+  firebaseUser: BackendAuthPayload;
+  idToken: string;
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const readProfileString = (
+  profile: Record<string, unknown> | null,
+  keys: string[]
+): string | null => {
+  if (!profile) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = profile[key];
+    if (typeof value === 'string') {
+      const normalizedValue = value.trim();
+      if (normalizedValue) {
+        return normalizedValue;
+      }
+    }
+  }
+
+  return null;
+};
+
+const resolveProfileDisplayName = (profile: Record<string, unknown> | null): string | null => {
+  const directDisplayName = readProfileString(profile, ['name', 'displayName', 'screen_name', 'nickname']);
+  if (directDisplayName) {
+    return directDisplayName;
+  }
+
+  const givenName = readProfileString(profile, ['given_name', 'givenName', 'first_name']);
+  const familyName = readProfileString(profile, ['family_name', 'familyName', 'last_name']);
+  const combinedName = [givenName, familyName].filter(Boolean).join(' ').trim();
+
+  return combinedName || null;
+};
 
 @Injectable({
   providedIn: 'root' // This makes the service a singleton
@@ -210,6 +276,79 @@ export class AuthService {
         throw new HttpErrorResponse({ error: { message: 'Failed to sign out.' }, status: 500 });
       })
     );
+  }
+
+  private buildProviderProfilePayload(
+    authResult: UserCredential | User,
+    resolvedUser: User
+  ): BackendProviderProfilePayload | null {
+    if (!('user' in authResult)) {
+      return null;
+    }
+
+    const additionalUserInfo = getAdditionalUserInfo(authResult);
+    const rawProfile = isRecord(additionalUserInfo?.profile) ? additionalUserInfo.profile : null;
+    const providerId =
+      additionalUserInfo?.providerId?.trim() ||
+      resolvedUser.providerData.find((provider) => !!provider.providerId)?.providerId?.trim() ||
+      null;
+
+    const providerProfile: BackendProviderProfilePayload = {
+      providerId,
+      displayName: resolveProfileDisplayName(rawProfile),
+      email: readProfileString(rawProfile, ['email']),
+      photoURL: readProfileString(rawProfile, ['picture', 'photoURL', 'profile_image_url_https', 'avatar_url']),
+    };
+
+    return providerProfile.providerId ||
+      providerProfile.displayName ||
+      providerProfile.email ||
+      providerProfile.photoURL
+      ? providerProfile
+      : null;
+  }
+
+  async prepareBackendAuthRequest(
+    authResult: UserCredential | User,
+    extras: { referralCode?: string | null; userDevice?: string | null } = {}
+  ): Promise<BackendAuthRequest> {
+    const firebaseUser = 'user' in authResult ? authResult.user : authResult;
+
+    try {
+      await firebaseUser.reload();
+    } catch (error) {
+      console.warn('Firebase user reload failed before backend auth sync:', error);
+    }
+
+    const resolvedUser =
+      (this.firebaseAuth.currentUser && this.firebaseAuth.currentUser.uid === firebaseUser.uid
+        ? this.firebaseAuth.currentUser
+        : null) || firebaseUser;
+
+    const idToken = await resolvedUser.getIdToken(true);
+    const providerProfile = this.buildProviderProfilePayload(authResult, resolvedUser);
+
+    return {
+      idToken,
+      firebaseUser: {
+        uid: resolvedUser.uid,
+        displayName: resolvedUser.displayName ?? null,
+        email: resolvedUser.email ?? null,
+        photoURL: resolvedUser.photoURL ?? null,
+        providerData: Array.isArray(resolvedUser.providerData)
+          ? resolvedUser.providerData.map((provider) => ({
+              providerId: provider.providerId ?? null,
+              uid: provider.uid ?? null,
+              displayName: provider.displayName ?? null,
+              email: provider.email ?? null,
+              photoURL: provider.photoURL ?? null,
+            }))
+          : [],
+        providerProfile,
+        referralCode: extras.referralCode ?? null,
+        userDevice: extras.userDevice ?? null,
+      },
+    };
   }
 
 /**

@@ -139,8 +139,7 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (userCredential: UserCredential) => {
-          //console.log('Authenticated Firebase User:', userCredential.user);
-          this.handleAuthSuccess({ success: true, user: userCredential.user });
+          this.handleAuthSuccess(userCredential);
         },
         error: (error: AuthError | HttpErrorResponse) => { // Updated error type to include AuthError
           this.handleAuthError(error, 'Google');
@@ -155,8 +154,7 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (userCredential: UserCredential) => {
-          //console.log('Authenticated Firebase User:', userCredential.user);
-          this.handleAuthSuccess({ success: true, user: userCredential.user });
+          this.handleAuthSuccess(userCredential);
         },
         error: (error: AuthError | HttpErrorResponse) => { // Updated error type to include AuthError
           this.handleAuthError(error, 'Facebook');
@@ -179,8 +177,7 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (userCredential: UserCredential) => {
-          //console.log('Authenticated Firebase User:', userCredential.user);
-          this.handleAuthSuccess({ success: true, user: userCredential.user });
+          this.handleAuthSuccess(userCredential);
         },
         error: (error: AuthError | HttpErrorResponse) => { // Best to type Firebase Auth errors as AuthError
           this.handleAuthError(error, 'Twitter');
@@ -189,21 +186,15 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
   }
   // --- END NEW ---
 
-  private handleAuthSuccess(response: any): void {
+  private handleAuthSuccess(userCredential: UserCredential | null): void {
     this.setLoadingState('Verifying', true); // This sets loading for backend verification
-    if (response.success && response.user) {    
-      const signupData = {
-        uid: response.user.uid,
-        displayName: response.user.displayName,
-        email: response.user.email,
-        photoURL: response.user.photoURL,
-        providerData: response.user.providerData,
-        referralCode: this.referralCode, // Include referral code in signup data
-        userDevice: this.userDevice,
-      }; 
-        from(response.user.getIdToken() as Promise<string>)
+    if (userCredential?.user) {    
+        from(this.authService.prepareBackendAuthRequest(userCredential, {
+          referralCode: this.referralCode,
+          userDevice: this.userDevice,
+        }))
         .pipe(
-          switchMap((idToken: string) => this.userService.auth(signupData, idToken)),
+          switchMap(({ firebaseUser, idToken }) => this.userService.auth(firebaseUser, idToken)),
           takeUntil(this.destroy$)
         )
         .subscribe({
