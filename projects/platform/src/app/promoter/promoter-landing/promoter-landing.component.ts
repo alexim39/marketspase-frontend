@@ -31,7 +31,7 @@ import {
   isCampaignBudgetExhausted,
   isCampaignExpired,
 } from '../utils/campaign-availability.util';
-import { distinctUntilChanged, filter } from 'rxjs';
+import { distinctUntilChanged, filter, finalize } from 'rxjs';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -392,7 +392,13 @@ applyForCampaign(campaign: CampaignInterface): void {
   this.isApplying.set(true);
   
   this.promoterLandingService.acceptCampaign(campaign._id, this.user()!._id)
-    .pipe(takeUntilDestroyed(this.destroyRef))
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.isApplying.set(false);
+        this.applyingCampaignId.set(null);
+      })
+    )
     .subscribe({
       next: (response) => {
         const promotionUrl = response?.promotionUrl || response?.promotion?.promotionUrl;
@@ -429,8 +435,6 @@ applyForCampaign(campaign: CampaignInterface): void {
         if (createdPromotion) {
           this.promotions.update(promotions => [createdPromotion, ...promotions]);
         }
-        this.isApplying.set(false);
-        this.applyingCampaignId.set(null); // Reset using signal        
         // this.snackBar.open(response.message, 'OK', { 
         //     duration: 9000,
         // });
@@ -454,12 +458,15 @@ applyForCampaign(campaign: CampaignInterface): void {
         
         this.loadUserPromotions(this.user()!._id);
       },
-      error: (error: HttpErrorResponse) => {
-        //console.log('error ',error.message)
-        this.isApplying.set(false);
-        this.applyingCampaignId.set(null); // Reset using signal
-        
-        this.snackBar.open((error?.message || 'Unknown error'), 'OK', { 
+      error: (error: unknown) => {
+        const errorMessage =
+          error instanceof HttpErrorResponse
+            ? error.error?.message || error.message
+            : error instanceof Error
+              ? error.message
+              : 'Unknown error';
+
+        this.snackBar.open((errorMessage || 'Unknown error'), 'OK', { 
             duration: 9000,
         });
       }
