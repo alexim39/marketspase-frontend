@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
 import { ApiService } from '@shared/services';
 import { HttpParams } from '@angular/common/http';
 
@@ -19,6 +19,7 @@ export class PromoterLandingService {
   
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
+  private inFlightRequests = new Map<string, Observable<any>>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
   
   /**
@@ -34,8 +35,13 @@ export class PromoterLandingService {
     if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
       return of(cached.data);
     }
-    
-    return this.apiService.get<any>(`${this.promotionsEndpoint}/user/${userId}`, undefined, undefined, true).pipe(
+
+    const inFlight = this.inFlightRequests.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const request$ = this.apiService.get<any>(`${this.promotionsEndpoint}/user/${userId}`, undefined, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -48,8 +54,13 @@ export class PromoterLandingService {
       catchError(error => {
         //console.error(`Error fetching promotions for user ${userId}:`, error);
         return throwError(() => new Error('Failed to fetch user promotions'));
-      })
+      }),
+      finalize(() => this.inFlightRequests.delete(cacheKey)),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    this.inFlightRequests.set(cacheKey, request$);
+    return request$;
   }
 
   /**
@@ -74,13 +85,18 @@ export class PromoterLandingService {
     if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
       return of(cached.data);
     }
+
+    const inFlight = this.inFlightRequests.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
     
     let params = new HttpParams()
       .set('status', status)
       .set('page', page.toString())
       .set('limit', limit.toString());
     
-    return this.apiService.get<any>(
+    const request$ = this.apiService.get<any>(
       this.campaignsEndpoint,
       params,
       undefined, 
@@ -98,8 +114,13 @@ export class PromoterLandingService {
       catchError(error => {
         //console.error(`Error fetching ${status} campaigns:`, error);
         return throwError(() => new Error(`Failed to fetch ${status} campaigns`));
-      })
+      }),
+      finalize(() => this.inFlightRequests.delete(cacheKey)),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    this.inFlightRequests.set(cacheKey, request$);
+    return request$;
   }
 
   /**
@@ -198,6 +219,7 @@ export class PromoterLandingService {
    */
   clearCache(): void {
     this.cache.clear();
+    this.inFlightRequests.clear();
   }
 
   /**

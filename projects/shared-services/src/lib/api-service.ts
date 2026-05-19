@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { catchError, Observable, retry, throwError } from 'rxjs';
+import { catchError, Observable, retry, throwError, timer } from 'rxjs';
 
 const DEFAULT_LOCAL_API_URL = 'http://localhost:8080';
 //const DEFAULT_PRODUCTION_API_URL = 'api.marketspase.com';
@@ -32,6 +32,11 @@ const resolveApiBaseUrl = (): string => {
 export class ApiService {
   private readonly domain = resolveApiBaseUrl();
 
+  private isRetryableGetError(error: HttpErrorResponse): boolean {
+    const retryableStatusCodes = new Set([408, 429, 502, 503, 504]);
+    return retryableStatusCodes.has(Number(error?.status || 0));
+  }
+
   public getBaseUrl(): string {
     return this.domain; 
   }
@@ -45,7 +50,16 @@ export class ApiService {
 
   public get<T>(endpoint: string, params?: HttpParams, headers?: HttpHeaders, withCredentials: boolean = false): Observable<T> {
     return this.http.get<T>(`${this.domain}/${endpoint}`, { params, headers, withCredentials }).pipe(
-      retry({ count: 1, delay: 0 }),
+      retry({
+        count: 1,
+        delay: (error: HttpErrorResponse) => {
+          if (this.isRetryableGetError(error)) {
+            return timer(250);
+          }
+
+          throw error;
+        }
+      }),
       catchError(this.handleError)
     );
   }
@@ -76,7 +90,16 @@ export class ApiService {
 
   public head<T>(endpoint: string, params?: HttpParams, headers?: HttpHeaders, withCredentials: boolean = false): Observable<T> {
     return this.http.head<T>(`${this.domain}/${endpoint}`, { params, headers, withCredentials }).pipe(
-      retry({ count: 1, delay: 0 }),
+      retry({
+        count: 1,
+        delay: (error: HttpErrorResponse) => {
+          if (this.isRetryableGetError(error)) {
+            return timer(250);
+          }
+
+          throw error;
+        }
+      }),
       catchError(this.handleError)
     );
   }
