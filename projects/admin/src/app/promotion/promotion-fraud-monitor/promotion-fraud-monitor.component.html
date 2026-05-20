@@ -105,8 +105,19 @@
               <span>{{ caseItem.promoter?.email || 'No email on file' }}</span>
               <small>
                 Trust {{ caseItem.promoter?.fraudProfile?.trustScore ?? 100 }} |
-                Warnings {{ caseItem.promoter?.fraudProfile?.warningCount ?? 0 }}
+                Warnings {{ caseItem.promoter?.fraudProfile?.warningCount ?? 0 }} |
+                Strikes {{ caseItem.promoter?.fraudProfile?.strikeCount ?? 0 }}
               </small>
+              <small>
+                Active cases {{ caseItem.promoter?.fraudProfile?.activeCaseCount ?? 0 }} |
+                Suspensions {{ caseItem.promoter?.fraudProfile?.suspensionHistory?.length ?? 0 }}
+              </small>
+              @if (caseItem.promoter?.fraudProfile?.lastWarningAt) {
+                <small>Last warning {{ caseItem.promoter?.fraudProfile?.lastWarningAt | date:'medium' }}</small>
+              }
+              @if (caseItem.promoter?.fraudProfile?.suspendedUntil) {
+                <small>Account suspended until {{ caseItem.promoter?.fraudProfile?.suspendedUntil | date:'medium' }}</small>
+              }
             </div>
 
             <div class="case-panel">
@@ -117,6 +128,12 @@
                 {{ caseItem.promotion?.clickStats?.billableClicks || 0 }} billable |
                 {{ caseItem.promotion?.clickStats?.invalidClicks || 0 }} invalid
               </small>
+              @if (caseItem.promotion?.fraudStatus?.blockedUntil) {
+                <small>Link hold ends {{ caseItem.promotion?.fraudStatus?.blockedUntil | date:'medium' }}</small>
+              }
+              @if (caseItem.promotion?.fraudStatus?.autoRestoredAt) {
+                <small>Auto-restored {{ caseItem.promotion?.fraudStatus?.autoRestoredAt | date:'medium' }}</small>
+              }
             </div>
 
             <div class="case-panel">
@@ -133,6 +150,9 @@
                   No direct fingerprint match recorded
                 }
               </small>
+              @if (caseItem.evidence?.notes) {
+                <small>{{ caseItem.evidence?.notes }}</small>
+              }
             </div>
           </div>
 
@@ -144,10 +164,31 @@
             </div>
           }
 
+          @if (caseItem.actionLog?.length) {
+            <div class="history-panel">
+              <span class="panel-label">Fraud action history</span>
+              <div class="history-list">
+                @for (historyItem of (caseItem.actionLog ?? []).slice().reverse().slice(0, 6); track $index) {
+                  <div class="history-item">
+                    <div class="history-copy">
+                      <strong>{{ historyItem.action.replaceAll('_', ' ') | titlecase }}</strong>
+                      @if (historyItem.details) {
+                        <span>{{ historyItem.details }}</span>
+                      }
+                    </div>
+                    @if (historyItem.timestamp) {
+                      <time>{{ historyItem.timestamp | date:'medium' }}</time>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
           <div class="case-actions">
-            <button type="button" mat-stroked-button color="warn" (click)="openAction(caseItem, 'suspend_30_days')">
+            <button type="button" mat-stroked-button color="warn" (click)="openAction(caseItem, 'suspend_2_hours')">
               <mat-icon>person_off</mat-icon>
-              Suspend 30 days
+              Suspend 2 hours
             </button>
             <button type="button" mat-stroked-button (click)="openAction(caseItem, 'reactivate_promotion')">
               <mat-icon>published_with_changes</mat-icon>

@@ -56,8 +56,17 @@ export interface PromotionFraudCase {
       trustScore?: number;
       riskLevel?: string;
       warningCount?: number;
+      strikeCount?: number;
       activeCaseCount?: number;
+      lastWarningAt?: string;
+      lastFinalWarningAt?: string;
       suspendedUntil?: string | null;
+      suspensionHistory?: Array<{
+        startedAt?: string;
+        endsAt?: string;
+        reason?: string;
+        caseId?: string;
+      }>;
     };
   };
   campaign?: {
@@ -83,8 +92,16 @@ export interface PromotionFraudCase {
     fraudStatus?: {
       reviewStatus?: string;
       reasonSummary?: string;
+      blockedAt?: string;
+      blockedUntil?: string | null;
+      autoRestoredAt?: string | null;
     };
   };
+  actionLog?: Array<{
+    action: string;
+    details?: string;
+    timestamp?: string;
+  }>;
   adminSummaryTitle?: string;
   resolutionNotes?: string;
   createdAt?: string;

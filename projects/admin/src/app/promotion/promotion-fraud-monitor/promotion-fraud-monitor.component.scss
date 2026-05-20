@@ -284,6 +284,57 @@
   pointer-events: none;
 }
 
+.history-panel {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgba(8, 13, 27, 0.74);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.history-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.history-item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.history-copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.history-copy strong {
+  color: var(--admin-text);
+  font-size: 0.92rem;
+}
+
+.history-copy span,
+.history-item time {
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.history-item time {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .case-actions {
   padding-top: 0.2rem;
 }
@@ -528,5 +579,13 @@
   .pagination-actions button,
   .hero-actions button {
     flex: 1 1 180px;
+  }
+
+  .history-item {
+    flex-direction: column;
+  }
+
+  .history-item time {
+    white-space: normal;
   }
 }
