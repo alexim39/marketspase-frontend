@@ -109,10 +109,14 @@ export class PromotionService {
    * Generate WhatsApp message with tracking link
    */
   generateWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number, affiliateUrl?: string): string {
+    return encodeURIComponent(this.buildWhatsAppMessage(product, uniqueCode, commissionRate, price, affiliateUrl));
+  }
+
+  buildWhatsAppMessage(product: Product, uniqueCode: string, commissionRate: number, price: number, affiliateUrl?: string): string {
     const link = affiliateUrl || this.getTrackingLink(uniqueCode, product._id ?? '');
     const storeName = product.store?.name ? ` from ${product.store.name}` : '';
 
-    const message = `*${product.name}*
+    return `*${product.name}*
 
 I found this${storeName} on MarketSpase and thought you might like it.
 
@@ -122,8 +126,23 @@ View or order here:
 ${link}
 
 Secure checkout is available on MarketSpase, with payment held until delivery is confirmed.`;
+  }
 
-    return encodeURIComponent(message);
+  buildWhatsAppStatusCaption(product: Product, uniqueCode: string, price: number, affiliateUrl?: string): string {
+    const link = affiliateUrl || this.getTrackingLink(uniqueCode, product._id ?? '');
+    const storeName = product.store?.name ? ` from ${product.store.name}` : '';
+    const priceLabel = `NGN ${Number(price || 0).toLocaleString('en-NG')}`;
+
+    return [
+      'Tap this MarketSpase product link now before it is gone:',
+      link,
+      '',
+      `*${product.name}*${storeName}`,
+      `Price: ${priceLabel}`,
+      'Open the link to view details and order securely on MarketSpase.',
+      '',
+      `Track Ref: ${uniqueCode}`
+    ].join('\n');
   }
 
   /**

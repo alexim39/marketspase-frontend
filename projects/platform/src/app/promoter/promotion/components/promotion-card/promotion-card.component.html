@@ -17,6 +17,10 @@
           <mat-icon>content_copy</mat-icon>
           <span>Copy Caption</span>
         </button>
+        <button mat-menu-item class="whatsapp-menu-item" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing() || isPromotionRestricted()">
+          <mat-icon>share</mat-icon>
+          <span>{{ isStatusSharing() ? 'Preparing Status...' : 'Post to WhatsApp Status' }}</span>
+        </button>
         <button mat-menu-item (click)="downloadAdAsset()" [disabled]="isDownloading()">
           <mat-icon>download</mat-icon>
           <span>Download Ad Asset</span>
@@ -152,6 +156,10 @@
           <span>Review Pause</span>
         </button>
       } @else {
+        <button class="action-btn secondary whatsapp-status-btn" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing()">
+          <i class="material-icons">share</i>
+          <span>{{ isStatusSharing() ? 'Preparing Status...' : 'Post to Status' }}</span>
+        </button>
         <button class="action-btn primary" (click)="downloadAdAsset()" [disabled]="isDownloading()">
           <i class="material-icons">download</i>
           <span>{{ isDownloading() ? 'Downloading...' : 'Download Ad' }}</span>

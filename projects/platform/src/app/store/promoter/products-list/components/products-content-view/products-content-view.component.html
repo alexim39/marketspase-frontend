@@ -116,9 +116,18 @@
               </button>
               <button
                 mat-icon-button
+                class="status-btn"
+                color="accent"
+                (click)="onShareWhatsAppStatus(product); $event.stopPropagation()"
+                matTooltip="Post to WhatsApp Status"
+              >
+                <mat-icon>share</mat-icon>
+              </button>
+              <button
+                mat-icon-button
                 color="accent"
                 (click)="onShareWhatsApp(product); $event.stopPropagation()"
-                matTooltip="Share via WhatsApp"
+                matTooltip="Share via WhatsApp chat"
               >
                 <mat-icon>whatsapp</mat-icon>
               </button>
@@ -201,34 +210,57 @@
 
           <!-- Actions -->
           <mat-card-actions>
-            <button mat-button color="primary" (click)="viewProduct.emit(product)" class="details-btn">
-              <mat-icon>visibility</mat-icon>
-              Details
-            </button>
+            <div class="primary-actions">
+              <button mat-button color="primary" (click)="viewProduct.emit(product)" class="details-btn">
+                <mat-icon>visibility</mat-icon>
+                Details
+              </button>
 
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="onBuyProduct(product)"
-              class="buy-btn"
-            >
-              <mat-icon>shopping_bag</mat-icon>
-              Buy
-            </button>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onBuyProduct(product)"
+                class="buy-btn"
+              >
+                <mat-icon>shopping_bag</mat-icon>
+                Buy
+              </button>
+            </div>
 
-            <button
-              mat-stroked-button
-              color="accent"
-              (click)="onCopyUrl(product)"
-              class="promote-btn"
-            >
-              <mat-icon>content_copy</mat-icon>
-              Copy
-            </button>
+            <div class="secondary-actions">
+              <button
+                mat-stroked-button
+                color="accent"
+                (click)="onCopyUrl(product)"
+                class="promote-btn"
+              >
+                <mat-icon>content_copy</mat-icon>
+                Copy
+              </button>
 
-            <button mat-icon-button type="button" (click)="onShareWhatsApp(product)" class="share-btn" matTooltip="Share on WhatsApp">
-              <mat-icon>whatsapp</mat-icon>
-            </button>
+              <div class="share-actions" role="group" aria-label="WhatsApp share actions">
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="onShareWhatsAppStatus(product)"
+                  class="share-btn status-share-btn"
+                  matTooltip="Post to WhatsApp Status"
+                >
+                  <mat-icon>share</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="onShareWhatsApp(product)"
+                  class="share-btn whatsapp-share-btn"
+                  matTooltip="Share on WhatsApp chat"
+                >
+                  <!-- <mat-icon>whatsapp</mat-icon> -->
+                  <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
           </mat-card-actions>
         </mat-card>
       }
@@ -352,9 +384,13 @@
                 <mat-icon>shopping_bag</mat-icon>
                 Buy Product
               </button>
+              <button mat-menu-item (click)="onShareWhatsAppStatus(product)">
+                <mat-icon>share</mat-icon>
+                Post to WhatsApp Status
+              </button>
               <button mat-menu-item (click)="onShareWhatsApp(product)">
                 <mat-icon>whatsapp</mat-icon>
-                Share via WhatsApp
+                Share via WhatsApp chat
               </button>
               <button mat-menu-item (click)="onCopyUrl(product)">
                 <mat-icon>content_copy</mat-icon>

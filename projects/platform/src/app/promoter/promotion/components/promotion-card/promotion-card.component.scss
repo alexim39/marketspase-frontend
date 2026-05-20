@@ -627,6 +627,7 @@
 
 // WhatsApp Status Button Styles
 .whatsapp-status-btn {
+  grid-column: 1 / -1;
   background-color: rgba(37, 211, 102, 0.1) !important;
   color: #25D366 !important;
   border: 1px solid rgba(37, 211, 102, 0.3) !important;

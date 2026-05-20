@@ -12,6 +12,7 @@ import { TruncatePipe } from '@shared/services';
 import { Product, Store } from '../../../store/models';
 import { CurrencyUtilsPipe, UserInterface } from '@shared/services';
 import { UserService } from '../../../common/services/user.service';
+import { buildWhatsAppChatUrl } from '../../../common/utils/whatsapp.util';
 
 /**
  * Product Grid Card Component
@@ -204,24 +205,12 @@ export class ProductGridCardComponent {
   onContactSeller(event: Event): void {
     event.stopPropagation();
 
-    //console.log('user phone number', this.store);
-    
-    // const phoneNumber = this.user()?.personalInfo?.phone; // Replace with your actual data path
-    const phoneNumber = this.store?.owner?.personalInfo?.phone; // Replace with your actual data path
-    const storeName = this.store?.name || 'the store';
+    const phoneNumber = this.store?.whatsappNumber || this.store?.owner?.personalInfo?.phone;
+    const whatsappUrl = buildWhatsAppChatUrl(phoneNumber);
 
-    if (phoneNumber) {
-      // 1. Clean the phone number (remove spaces, +, or dashes)
-      const cleanNumber = phoneNumber.replace(/\D/g, '');
-      
-      // 2. Create an optional encoded message
-      const message = encodeURIComponent(`Hello! I'm interested in a product from ${storeName} on MarketSpase.`);
-      
-      // 3. Open the WhatsApp link in a new tab
-      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
-      window.open(whatsappUrl, '_blank');
+    if (whatsappUrl) {
+      window.open(whatsappUrl, '_blank', 'noopener');
     } else {
-      // Optional: Show a toast or snackbar error if no number exists
       console.error('No phone number available for this seller');
     }
   }

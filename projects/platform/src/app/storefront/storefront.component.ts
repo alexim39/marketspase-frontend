@@ -37,6 +37,7 @@ import { Product, ProductVariant, Store } from '../store/models';
 import { MatIconModule } from '@angular/material/icon';
 import { StorefrontCartService } from './services/storefront-cart.service';
 import { ShareService } from '../store/services/share.service';
+import { buildWhatsAppChatUrl } from '../common/utils/whatsapp.util';
 
 @Component({
   selector: 'app-storefront',
@@ -554,9 +555,10 @@ export class StorefrontComponent implements OnInit, OnDestroy, AfterViewInit {
     const store = this.store();
     if (!store?.whatsappNumber) return;
 
-    const message = `Hello ${store.name}, I'm interested in your products.`;
-    const url = `https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const url = buildWhatsAppChatUrl(store.whatsappNumber);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    }
   }
 
   handleStoreContact(method: 'whatsapp' | 'email' | 'chat'): void {
