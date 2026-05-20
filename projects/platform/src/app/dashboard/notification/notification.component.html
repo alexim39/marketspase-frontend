@@ -3,6 +3,7 @@
     <button 
       mat-icon-button 
       [matMenuTriggerFor]="notificationMenu"
+      (menuOpened)="handleMenuOpened()"
       class="notification-button"
       aria-label="Notifications"
       [attr.aria-describedby]="unreadCount > 0 ? 'unread-notifications' : null">

@@ -29,7 +29,7 @@ export class NotificationBellComponent implements OnInit {
 
   ngOnInit() {
     if (this.user()?._id) {
-      this.loadNotifications();
+      this.notificationService.loadUnreadCount();
     }
 
     this.notificationService.notifications$
@@ -51,6 +51,10 @@ export class NotificationBellComponent implements OnInit {
     if (this.user()?._id) {
       this.notificationService.loadNotifications();
     }
+  }
+
+  handleMenuOpened() {
+    this.loadNotifications();
   }
 
   handleNotificationClick(notification: Notification) {
