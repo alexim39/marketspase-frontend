@@ -77,7 +77,7 @@
         @if (isLoadingOverview()) {
           <div class="loading-block">
             <mat-spinner diameter="34"></mat-spinner>
-            <span>Loading overview…</span>
+            <span>Loading overview...</span>
           </div>
         } @else {
           <div class="summary-grid">
@@ -195,12 +195,12 @@
         </mat-form-field>
       </div>
 
-      @if (isLoadingPromoters()) {
-        <div class="loading-block">
-          <mat-spinner diameter="34"></mat-spinner>
-          <span>Loading promoters…</span>
-        </div>
-      } @else {
+        @if (isLoadingPromoters()) {
+          <div class="loading-block">
+            <mat-spinner diameter="34"></mat-spinner>
+            <span>Loading promoters...</span>
+          </div>
+        } @else {
         <div class="table-wrap">
           <table mat-table [dataSource]="promoters()" matSort (matSortChange)="onSortChange($event)" class="ppc-table">
             <ng-container matColumnDef="promoter">
@@ -216,7 +216,7 @@
                   </div>
                   <div class="promoter-sub">
                     @if (row.promoter.email) { <span>{{ row.promoter.email }}</span> }
-                    @if (row.promoter.phone) { <span class="sep">•</span> <span>{{ row.promoter.phone }}</span> }
+                    @if (row.promoter.phone) { <span class="sep">|</span> <span>{{ row.promoter.phone }}</span> }
                   </div>
                 </div>
               </td>
@@ -238,7 +238,7 @@
               <td mat-cell *matCellDef="let row">
                 <div class="metric-stack">
                   <div class="big">{{ row.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</div>
-                  <div class="muted">Dup {{ row.metrics.duplicateClicks }} • Inv {{ row.metrics.invalidClicks }}</div>
+                  <div class="muted">Dup {{ row.metrics.duplicateClicks }} | Inv {{ row.metrics.invalidClicks }}</div>
                 </div>
               </td>
             </ng-container>
@@ -258,7 +258,7 @@
               <td mat-cell *matCellDef="let row">
                 <div class="metric-stack">
                   <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableRate }}%</span></div>
-                  <div><span class="k">Click→Conv</span> <span class="v">{{ row.metrics.clickToConversionRate }}%</span></div>
+                  <div><span class="k">Click-&gt;Conv</span> <span class="v">{{ row.metrics.clickToConversionRate }}%</span></div>
                 </div>
               </td>
             </ng-container>
@@ -416,7 +416,7 @@
           <button mat-stroked-button type="button" (click)="closeActionDialog()" [disabled]="actionBusy()">Cancel</button>
           <button mat-flat-button color="warn" type="button" (click)="confirmAction()" [disabled]="actionBusy()">
             @if (actionBusy()) {
-              Working…
+              Working...
             } @else {
               Confirm
             }
@@ -426,4 +426,3 @@
     </div>
   </ng-template>
 </div>
-
