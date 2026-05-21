@@ -8,6 +8,11 @@ export const PromotionRoutes: Routes = [
         pathMatch: 'full'
     }, 
     {
+        path: 'ppc-analytics',
+        loadComponent: () => import('./ppc-analytics/ppc-analytics.component').then(c => c.PpcAnalyticsComponent),
+        title: 'PPC Analytics - Admin Dashboard'
+    },
+    {
         path: 'fraud',
         loadComponent: () => import('./promotion-fraud-monitor/promotion-fraud-monitor.component').then(c => c.PromotionFraudMonitorComponent),
         title: 'Promotion Fraud Monitor - Admin Dashboard'
