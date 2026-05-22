@@ -1,0 +1,270 @@
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.ad-builder-page {
+  min-height: 100%;
+  padding: $spacing-6;
+  background: $background-color;
+  color: $text-primary;
+  transition: background-color $transition-normal, color $transition-normal;
+}
+
+.inline-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-4;
+  align-items: flex-start;
+  margin-bottom: $spacing-5;
+
+  h1 {
+    margin: 4px 0 6px;
+    font-size: $font-size-4xl;
+    line-height: $line-height-tight;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    max-width: 720px;
+    font-size: $font-size-base;
+    line-height: $line-height-normal;
+  }
+}
+
+.eyebrow {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: $primary-color;
+}
+
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: $spacing-4;
+  align-items: start;
+
+  &.mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.builder-panel {
+  overflow: hidden;
+}
+
+.builder-stepper {
+  // Keep the stepper content from feeling cramped.
+  ::ng-deep .mat-horizontal-content-container,
+  ::ng-deep .mat-vertical-content-container {
+    padding: $spacing-4 0 0;
+  }
+}
+
+.step-grid {
+  display: grid;
+  gap: $spacing-4;
+  padding: $spacing-2 0;
+}
+
+.link-mode {
+  width: max-content;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-3;
+
+  @media (max-width: 880px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wide {
+  width: 100%;
+}
+
+.inline-loading,
+.preview-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
+
+.inline-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-2;
+
+  @media (max-width: 880px) {
+    justify-content: space-between;
+  }
+}
+
+.media-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex-wrap: wrap;
+}
+
+.hint-row {
+  display: inline-flex;
+  gap: $spacing-2;
+  align-items: center;
+  color: $text-secondary;
+
+  mat-icon {
+    color: $text-tertiary;
+  }
+}
+
+.muted {
+  color: $text-secondary;
+}
+
+.copy-card {
+  padding: $spacing-3;
+  display: grid;
+  gap: $spacing-3;
+}
+
+.copy-row {
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  @media (max-width: 880px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.copy-meta {
+  display: grid;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.copy-title {
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.copy-value {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  word-break: break-word;
+}
+
+.copy-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  justify-content: flex-end;
+
+  @media (max-width: 880px) {
+    justify-content: flex-start;
+  }
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.pre {
+  white-space: pre-wrap;
+}
+
+.export-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.notice {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: $spacing-3;
+  border-radius: $border-radius-md;
+  border: $border-width solid $border-color;
+  background: $surface-color;
+  color: $text-secondary;
+
+  &.error {
+    border-color: rgba($error-color, 0.35);
+    color: $error-color;
+
+    mat-icon {
+      color: $error-color;
+    }
+  }
+}
+
+.preview-panel {
+  position: sticky;
+  top: $spacing-6;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-2;
+  margin-bottom: $spacing-3;
+}
+
+.preview-title {
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.preview-subtitle {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.preview-shell {
+  width: 100%;
+  border-radius: $border-radius-md;
+  border: $border-width solid $border-color;
+  background: #050a14;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+
+  canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+.builder-layout.mobile {
+  .preview-panel {
+    position: static;
+  }
+
+  .preview-shell {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}

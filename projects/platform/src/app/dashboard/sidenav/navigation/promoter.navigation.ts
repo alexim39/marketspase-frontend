@@ -28,6 +28,7 @@ export function getPromoterNavigation(
       children: [
         { icon: 'search', label: 'Find Campaigns', route: '/dashboard/campaigns' },
         { icon: 'list_alt', label: 'My Promotions', route: '/dashboard/campaigns/promotions' },
+        { icon: 'design_services', label: 'Ad Template Builder', route: '/dashboard/campaigns/promotions/ad-builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
         { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
       ]

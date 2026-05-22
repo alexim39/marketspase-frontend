@@ -20,6 +20,11 @@ export const CampaignRoutes: Routes = [
         title: "Promotions - List all accepted promoter promotions",
     }, 
     {
+        path: 'promotions/ad-builder',
+        loadComponent: () => import('../promoter/promotion/ad-template-builder/ad-template-builder.component').then(c => c.AdTemplateBuilderComponent),
+        title: "Ad Template Builder - Create social-ready promotions",
+    },
+    {
         path: 'analytics',
         loadComponent: () => import('./analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
         title: "Campaign Analytics - Live campaign and promotion performance",

@@ -25,6 +25,7 @@ export const dashboardRoutes: Routes = [
             { path: 'profile', loadChildren: () => import('../profile/profile-routes').then(r => r.ProfileRoutes) },    
             { path: 'tutorials', loadChildren: () => import('../tutorials/tutorials.routes').then(r => r.TutorialRoutes) },       
             { path: 'assistant', loadChildren: () => import('../ai-assistant/ai-assistant.routes').then(r => r.AssistantRoutes) },      
+            { path: 'ads', loadChildren: () => import('../admin/admin.routes').then(r => r.AdminRoutes) },
             {
                 path: 'leaderboard',
                 loadComponent: () => import('./leaderboard/leaderboard.component').then(c => c.LeaderboardComponent),

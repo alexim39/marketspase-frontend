@@ -1,0 +1,292 @@
+<section class="ad-builder-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Promotions</span>
+      <h1>Ad Template Builder</h1>
+      <p>Create a ready-to-post creative and caption for WhatsApp, Instagram, Facebook, TikTok, and X.</p>
+    </div>
+
+    <a mat-stroked-button routerLink="/dashboard/campaigns/promotions">
+      <mat-icon>arrow_back</mat-icon>
+      My Promotions
+    </a>
+  </header>
+
+  <div class="builder-layout" [class.mobile]="deviceType() === 'mobile'">
+    <mat-card class="builder-panel" appearance="outlined">
+      <mat-card-content>
+        <mat-stepper
+          [linear]="true"
+          class="builder-stepper"
+          [orientation]="deviceType() === 'mobile' ? 'vertical' : 'horizontal'"
+        >
+          <mat-step [completed]="canContinueSelectPromotion()">
+            <ng-template matStepLabel>Link</ng-template>
+
+            <div class="step-grid">
+              <mat-button-toggle-group
+                class="link-mode"
+                [value]="builderForm.controls.linkMode.value"
+                (change)="onLinkModeChanged($event.value)"
+                aria-label="Select link mode"
+              >
+                <mat-button-toggle value="select">Use my link</mat-button-toggle>
+                <mat-button-toggle value="paste">Paste link</mat-button-toggle>
+              </mat-button-toggle-group>
+
+              @if (builderForm.controls.linkMode.value === 'select') {
+                <mat-form-field appearance="outline" class="wide">
+                  <mat-label>Select promotion</mat-label>
+                  <mat-select
+                    [value]="builderForm.controls.promotionId.value"
+                    (selectionChange)="builderForm.controls.promotionId.setValue($event.value); onPromotionSelected($event.value)"
+                    [disabled]="isLoadingPromotions()"
+                  >
+                    @for (p of promotions(); track p._id) {
+                      <mat-option [value]="p._id">
+                        {{ p.campaign?.title || 'Promotion' }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                @if (isLoadingPromotions()) {
+                  <div class="inline-loading">
+                    <mat-spinner diameter="24"></mat-spinner>
+                    <span>Loading promotions...</span>
+                  </div>
+                } @else if (promotionsLoadError()) {
+                  <div class="inline-empty">
+                    <span>{{ promotionsLoadError() }}</span>
+                    <button mat-button type="button" (click)="loadPromotions()">Retry</button>
+                  </div>
+                } @else if (promotions().length === 0) {
+                  <div class="inline-empty">
+                    <span>No accepted promotions found.</span>
+                    <button mat-button type="button" routerLink="/dashboard/campaigns/promotions">View promotions</button>
+                  </div>
+                }
+              } @else {
+                <mat-form-field appearance="outline" class="wide">
+                  <mat-label>Paste promotion link</mat-label>
+                  <input matInput placeholder="https://..." [formControl]="builderForm.controls.customLink" />
+                </mat-form-field>
+              }
+
+              <div class="inline-actions">
+                <button mat-flat-button color="primary" matStepperNext [disabled]="!canContinueSelectPromotion()">
+                  Continue
+                </button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step [completed]="canContinueTemplate()">
+            <ng-template matStepLabel>Template</ng-template>
+
+            <div class="step-grid">
+              <div class="two-col">
+                <mat-form-field appearance="outline">
+                  <mat-label>Platform</mat-label>
+                  <mat-select [formControl]="builderForm.controls.platformId">
+                    @for (p of platforms; track p.id) {
+                      <mat-option [value]="p.id">
+                        <mat-icon class="option-icon">{{ p.icon }}</mat-icon>
+                        {{ p.label }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Industry (optional)</mat-label>
+                  <mat-select [formControl]="builderForm.controls.industryId">
+                    @for (i of industries; track i.id) {
+                      <mat-option [value]="i.id">
+                        <mat-icon class="option-icon">{{ i.icon }}</mat-icon>
+                        {{ i.label }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Layout</mat-label>
+                <mat-select [formControl]="builderForm.controls.layoutId">
+                  @for (layout of availableLayouts(); track layout.id) {
+                    <mat-option [value]="layout.id">
+                      {{ layout.label }} ({{ layout.aspectLabel }}) - {{ layout.usageHint }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="wide">
+                <mat-label>Accent color</mat-label>
+                <input matInput [formControl]="builderForm.controls.accentColor" placeholder="#2563eb" />
+              </mat-form-field>
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+                <button mat-flat-button color="primary" matStepperNext type="button" [disabled]="!canContinueTemplate()">
+                  Continue
+                </button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step>
+            <ng-template matStepLabel>Media</ng-template>
+
+            <div class="step-grid">
+              <mat-button-toggle-group
+                class="media-mode"
+                [value]="builderForm.controls.mediaSource.value"
+                (change)="builderForm.controls.mediaSource.setValue($event.value); $event.value === 'campaign' ? useCampaignMedia() : null"
+                aria-label="Select media source"
+              >
+                <mat-button-toggle value="campaign">Campaign</mat-button-toggle>
+                <mat-button-toggle value="upload">Upload</mat-button-toggle>
+                <mat-button-toggle value="none">None</mat-button-toggle>
+              </mat-button-toggle-group>
+
+              @if (builderForm.controls.mediaSource.value === 'upload') {
+                <div class="upload-row">
+                  <button mat-stroked-button type="button" (click)="fileInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    Choose image
+                  </button>
+                  <span class="muted">{{ mediaLabel() }}</span>
+                  <input #fileInput type="file" accept="image/*" hidden (change)="onMediaFilePicked($any($event.target).files?.[0] || null)" />
+                </div>
+              } @else if (builderForm.controls.mediaSource.value === 'campaign') {
+                <div class="hint-row">
+                  <mat-icon>image</mat-icon>
+                  <span class="muted">{{ mediaLabel() }}</span>
+                </div>
+              } @else {
+                <div class="hint-row">
+                  <mat-icon>hide_image</mat-icon>
+                  <span class="muted">No media selected.</span>
+                </div>
+              }
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+                <button mat-flat-button color="primary" matStepperNext type="button">Continue</button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step [completed]="canContinueCopy()">
+            <ng-template matStepLabel>Copy</ng-template>
+
+            <div class="step-grid">
+              <div class="two-col">
+                <mat-form-field appearance="outline">
+                  <mat-label>Headline</mat-label>
+                  <input matInput [formControl]="builderForm.controls.headline" maxlength="90" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Caption</mat-label>
+                  <textarea matInput rows="4" [formControl]="builderForm.controls.caption" maxlength="700"></textarea>
+                </mat-form-field>
+              </div>
+
+              <mat-card class="copy-card" appearance="outlined">
+                <div class="copy-row">
+                  <div class="copy-meta">
+                    <div class="copy-title">Promotion link</div>
+                    <div class="copy-value mono">{{ promotionLink() || 'Select or paste a link' }}</div>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="copyLink()" [disabled]="!promotionLink()">
+                    <mat-icon>content_copy</mat-icon>
+                    Copy
+                  </button>
+                </div>
+
+                <div class="copy-row">
+                  <div class="copy-meta">
+                    <div class="copy-title">Ready-to-post caption</div>
+                    <div class="copy-value pre">{{ captionWithLink() || '' }}</div>
+                  </div>
+                  <div class="copy-actions">
+                    <button mat-stroked-button type="button" (click)="copyCaption()">
+                      <mat-icon>content_copy</mat-icon>
+                      Copy caption
+                    </button>
+                    <button mat-flat-button color="primary" type="button" (click)="copyCaptionWithLink()" [disabled]="!captionWithLink().trim()">
+                      <mat-icon>link</mat-icon>
+                      Copy caption + link
+                    </button>
+                  </div>
+                </div>
+              </mat-card>
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+                <button mat-flat-button color="primary" matStepperNext type="button" [disabled]="!canContinueCopy()">
+                  Continue
+                </button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step>
+            <ng-template matStepLabel>Export</ng-template>
+
+            <div class="step-grid">
+              @if (previewError()) {
+                <div class="notice error">
+                  <mat-icon>error_outline</mat-icon>
+                  <span>{{ previewError() }}</span>
+                </div>
+              }
+
+              <div class="export-actions">
+                <button mat-flat-button color="primary" type="button" (click)="exportJpeg()" [disabled]="previewBusy()">
+                  <mat-icon>download</mat-icon>
+                  Export JPEG
+                </button>
+                <button mat-stroked-button type="button" (click)="exportVideo()" [disabled]="previewBusy()">
+                  <mat-icon>movie</mat-icon>
+                  Export video
+                </button>
+              </div>
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              </div>
+            </div>
+          </mat-step>
+        </mat-stepper>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="preview-panel" appearance="outlined">
+      <mat-card-content>
+        <div class="preview-header">
+          <div>
+            <div class="preview-title">Preview</div>
+            <div class="preview-subtitle">
+              {{ selectedPlatform()?.label || 'Platform' }} - {{ selectedLayout()?.label || 'Layout' }}
+            </div>
+          </div>
+
+          @if (previewBusy()) {
+            <div class="preview-loading">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Working...</span>
+            </div>
+          }
+        </div>
+
+        <div class="preview-shell" [style.aspectRatio]="previewAspectRatio()">
+          <canvas #previewCanvas></canvas>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
