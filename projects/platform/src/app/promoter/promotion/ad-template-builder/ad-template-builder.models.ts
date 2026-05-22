@@ -19,6 +19,13 @@ export interface AdPlatformConfig {
   label: string;
   icon: string;
   layoutIds: AdLayoutId[];
+  copyGuidelines?: {
+    headlineMaxChars: number;
+    captionMaxChars: number;
+    captionPreviewChars?: number;
+    linkHint?: string;
+    tips: string[];
+  };
 }
 
 export interface AdLayoutConfig {
@@ -57,4 +64,3 @@ export interface AdBuildConfig {
   caption: string;
   includeQr: boolean;
 }
-

@@ -31,6 +31,16 @@ export const SettingsRoutes: Routes = [
         loadComponent: () => import('./support/support.component').then(c => c.SupportComponent),
         title: "Support & Testimonial - Get support and testify about MarketSpase",
       },
+      {
+        path: 'ads',
+        children: [
+          {
+            path: 'preferences',
+            loadComponent: () => import('./ads/preference/ads-preference.component').then(c => c.AdsPreferenceSettingsComponent),
+            title: "Ads Preferences - Configure your ad preferences",
+          }
+        ]
+      }
     ],
   },
 ];

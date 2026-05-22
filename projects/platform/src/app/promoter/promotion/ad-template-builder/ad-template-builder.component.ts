@@ -135,10 +135,23 @@ export class AdTemplateBuilderComponent {
     const raw = String(value || '').trim();
     if (!raw) return '';
 
+    // Promoters sometimes paste a full caption that includes a URL; extract the first URL-like token.
+    const urlMatch = raw.match(/\bhttps?:\/\/[^\s<>"']+/i);
+    if (urlMatch?.[0]) return urlMatch[0];
+
     if (/^https?:\/\//i.test(raw)) return raw;
 
     // Allow pasting "www.example.com/..." or "example.com/..." without scheme.
-    if (/^www\./i.test(raw)) return `https://${raw}`;
+    const wwwMatch = raw.match(/\bwww\.[^\s<>"']+/i);
+    if (wwwMatch?.[0]) return `https://${wwwMatch[0]}`;
+
+    // Allow pasting a relative API path (common in dev / copied from logs).
+    if (/^\/?api\//i.test(raw)) {
+      const base = String(this.apiBase || '').replace(/\/$/, '');
+      const path = raw.startsWith('/') ? raw : `/${raw}`;
+      return `${base}${path}`;
+    }
+
     if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(raw)) return `https://${raw}`;
 
     return raw;
@@ -174,6 +187,86 @@ export class AdTemplateBuilderComponent {
   readonly selectedLayout = computed(() => getLayoutById(this.formValue().layoutId));
   readonly selectedPlatform = computed(() => getPlatformById(this.formValue().platformId));
   readonly selectedIndustry = computed(() => getIndustryById(this.formValue().industryId));
+  readonly platformGuidelines = computed(() => {
+    return (
+      this.selectedPlatform()?.copyGuidelines ?? {
+        headlineMaxChars: 90,
+        captionMaxChars: 1000,
+        captionPreviewChars: 140,
+        linkHint: 'Place the link on a new line.',
+        tips: [],
+      }
+    );
+  });
+
+  readonly headlineMaxChars = computed(() => this.platformGuidelines().headlineMaxChars);
+  readonly captionMaxChars = computed(() => this.platformGuidelines().captionMaxChars);
+  readonly headlineChars = computed(() => String(this.formValue().headline || '').length);
+  readonly captionChars = computed(() => String(this.formValue().caption || '').length);
+  readonly headlineOverLimit = computed(() => this.headlineChars() > this.headlineMaxChars());
+  readonly captionOverLimit = computed(() => this.captionChars() > this.captionMaxChars());
+
+  readonly captionPreviewText = computed(() => {
+    const raw = String(this.formValue().caption || '');
+    const max = Number(this.platformGuidelines().captionPreviewChars || 0);
+    if (!max || raw.length <= max) return raw;
+    return `${raw.slice(0, max).trimEnd()}…`;
+  });
+
+  readonly postingSteps = computed(() => {
+    const platform = this.selectedPlatform()?.id || 'generic';
+    const layout = this.selectedLayout()?.id || 'square_1_1';
+    const placement =
+      layout === 'story_9_16'
+        ? 'Story/Status (9:16)'
+        : layout === 'portrait_4_5'
+          ? 'Feed portrait (4:5)'
+          : layout === 'square_1_1'
+            ? 'Feed square (1:1)'
+            : 'Landscape (16:9)';
+
+    if (platform === 'whatsapp') {
+      return [
+        `Post the creative as ${placement} or send it directly in chats.`,
+        'Paste your caption/message and include the tracked link on its own line.',
+        'Ask for a reply (example: "Reply YES to order") to drive conversions.',
+      ];
+    }
+    if (platform === 'instagram') {
+      return [
+        `Post the creative to ${placement}.`,
+        'Paste the caption (keep the first line strong).',
+        'If your caption link is not clickable, use a Story link sticker or put the tracked link in your bio.',
+      ];
+    }
+    if (platform === 'facebook') {
+      return [
+        `Post the creative to ${placement}.`,
+        'Paste the caption and add the tracked link after the offer/benefit.',
+        'Keep paragraphs short for readability.',
+      ];
+    }
+    if (platform === 'tiktok') {
+      return [
+        'Use a 9:16 creative for best framing (TikTok is vertical-first).',
+        'Paste the caption and keep it benefit-driven.',
+        'Add the tracked link where your account supports it.',
+      ];
+    }
+    if (platform === 'x') {
+      return [
+        `Attach the creative (${placement}) and paste your post text.`,
+        'Keep it short and place the tracked link at the end.',
+        'If you need more detail, post a short thread (2-4 posts).',
+      ];
+    }
+
+    return [
+      `Post the creative to ${placement}.`,
+      'Paste your caption and add the tracked link on a new line.',
+      'Keep it simple: offer, benefit, call-to-action.',
+    ];
+  });
 
   readonly previewAspectRatio = computed(() => {
     const layout = this.selectedLayout();
@@ -195,12 +288,11 @@ export class AdTemplateBuilderComponent {
     return `${this.apiBase.replace(/\/$/, '')}/api/v1/campaign/track/${promo.upi}`;
   });
 
-  readonly captionWithLink = computed(() => {
+  readonly copyPack = computed(() => {
+    const headline = String(this.formValue().headline || '').trim();
     const caption = String(this.formValue().caption || '').trim();
-    const link = this.promotionLink();
-    if (!link) return caption;
-    if (!caption) return link;
-    return `${caption}\n\n${link}`;
+    const link = String(this.promotionLink() || '').trim();
+    return [headline, caption, link].filter(Boolean).join('\n\n');
   });
 
   readonly canContinueSelectPromotion = computed(() => {
@@ -213,7 +305,29 @@ export class AdTemplateBuilderComponent {
 
   readonly canContinueTemplate = computed(() => Boolean(this.selectedLayout() && this.selectedPlatform()));
 
-  readonly canContinueCopy = computed(() => Boolean(this.captionWithLink().trim()));
+  readonly canContinueVisual = computed(() => {
+    const source = (this.formValue().mediaSource as AdMediaSource) || 'none';
+    if (source === 'none') return true;
+
+    if (source === 'upload') {
+      return Boolean(this.mediaElement);
+    }
+
+    // campaign: allow continue even before the image finishes loading as long as we have a URL.
+    if (source === 'campaign') {
+      const ref = this.promotionRef();
+      return Boolean(ref?.campaignMediaUrl || ref?.campaignThumbnailUrl || this.mediaElement);
+    }
+
+    return false;
+  });
+
+  readonly canContinueCopy = computed(() => {
+    const headline = String(this.formValue().headline || '').trim();
+    const caption = String(this.formValue().caption || '').trim();
+    const link = String(this.promotionLink() || '').trim();
+    return Boolean(link && (headline || caption) && !this.headlineOverLimit() && !this.captionOverLimit());
+  });
 
   private loadedPromotionsForUserId: string | null = null;
 
@@ -355,6 +469,32 @@ export class AdTemplateBuilderComponent {
     await this.loadImageFromUrl(objectUrl, file.name, true);
   }
 
+  async onMediaSourceChanged(source: AdMediaSource): Promise<void> {
+    const next = (source as AdMediaSource) || 'none';
+
+    if (next === 'campaign') {
+      await this.useCampaignMedia();
+      return;
+    }
+
+    this.builderForm.controls.mediaSource.setValue(next as any);
+
+    if (next === 'upload') {
+      // Clear current media until the user picks a file (avoids showing stale campaign media).
+      this.mediaElement = null;
+      this.mediaUrl.set(null);
+      this.mediaLabel.set('No image selected');
+      this.renderPreview();
+      return;
+    }
+
+    // none
+    this.mediaElement = null;
+    this.mediaUrl.set(null);
+    this.mediaLabel.set('No media');
+    this.renderPreview();
+  }
+
   private async loadImageFromUrl(url: string, label: string, alreadyObjectUrl = false): Promise<void> {
     this.previewBusy.set(true);
     this.previewError.set(null);
@@ -419,13 +559,14 @@ export class AdTemplateBuilderComponent {
     if (!canvas || !layout) return;
 
     const config = this.getRenderConfig();
+    const media = config.mediaSource === 'none' ? null : this.mediaElement;
 
     renderAdFrame({
       canvas,
       layout,
       promotion: this.promotionRef(),
       config,
-      media: this.mediaElement,
+      media,
       timeMs: 0,
     });
   }
@@ -470,7 +611,7 @@ export class AdTemplateBuilderComponent {
     try {
       const config = this.getRenderConfig();
       const promotion = this.promotionRef();
-      const media = this.mediaElement;
+      const media = config.mediaSource === 'none' ? null : this.mediaElement;
 
       const blob = await recordCanvasVideo({
         canvas,
@@ -502,10 +643,48 @@ export class AdTemplateBuilderComponent {
     }
   }
 
+  async copyImage(): Promise<void> {
+    const layout = this.selectedLayout();
+    const canvas = this.previewCanvas?.nativeElement;
+    if (!canvas || !layout) return;
+
+    this.previewBusy.set(true);
+    this.previewError.set(null);
+
+    try {
+      this.renderPreview();
+      const blob = await canvasToJpegBlob(canvas);
+
+      // Clipboard image write is not supported everywhere (e.g., some browsers / insecure contexts).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const anyWindow = window as any;
+      const ClipboardItemCtor = anyWindow.ClipboardItem as any;
+      if (!navigator.clipboard || typeof (navigator.clipboard as any).write !== 'function' || !ClipboardItemCtor) {
+        this.snackBar.open('Copy image is not supported here. Use Export JPEG instead.', 'OK', { duration: 3500 });
+        return;
+      }
+
+      const item = new ClipboardItemCtor({ 'image/jpeg': blob });
+      await (navigator.clipboard as any).write([item]);
+      this.snackBar.open('Image copied to clipboard.', 'OK', { duration: 2200 });
+    } catch (error: any) {
+      console.error('Copy image failed:', error);
+      this.previewError.set(error?.message || 'Failed to copy image.');
+      this.snackBar.open('Failed to copy image.', 'OK', { duration: 3200 });
+    } finally {
+      this.previewBusy.set(false);
+    }
+  }
+
   async copyLink(): Promise<void> {
     const link = this.promotionLink();
     if (!link) return;
     await this.shareService.copyToClipboard(link);
+  }
+
+  async copyHeadline(): Promise<void> {
+    const headline = String(this.builderForm.controls.headline.value || '');
+    await this.shareService.copyToClipboard(headline);
   }
 
   async copyCaption(): Promise<void> {
@@ -513,8 +692,8 @@ export class AdTemplateBuilderComponent {
     await this.shareService.copyToClipboard(String(caption));
   }
 
-  async copyCaptionWithLink(): Promise<void> {
-    await this.shareService.copyToClipboard(this.captionWithLink());
+  async copyAllText(): Promise<void> {
+    await this.shareService.copyToClipboard(this.copyPack());
   }
 
   private buildFilename(ext: string): string {

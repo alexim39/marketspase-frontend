@@ -28,7 +28,7 @@ export function getPromoterNavigation(
       children: [
         { icon: 'search', label: 'Find Campaigns', route: '/dashboard/campaigns' },
         { icon: 'list_alt', label: 'My Promotions', route: '/dashboard/campaigns/promotions' },
-        { icon: 'design_services', label: 'Ad Template Builder', route: '/dashboard/campaigns/promotions/ad-builder' },
+        // { icon: 'design_services', label: 'Ad Template Builder', route: '/dashboard/campaigns/promotions/ad-builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
         { icon: 'gpp_bad', label: 'Account Health', route: '/dashboard/campaigns/promotions/compliance' },
         { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
@@ -117,7 +117,15 @@ export function getPromoterNavigation(
           children: [
            { icon: 'notifications', label: 'Theme & Notifications', route: '/dashboard/settings/system' }
           ]
-        }
+        },
+        {
+          icon: 'ads_click',
+          label: 'Ads',
+          expanded: false,
+          children: [
+           { icon: 'adjust', label: 'Preferences', route: '/dashboard/settings/ads/preferences' }
+          ]
+        },
       ]
     },
 

@@ -22,9 +22,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DeviceService, UserInterface } from '@shared/services';
 
-import { UserService } from '../../../common/services/user.service';
 import { CATEGORIES } from '../../../common/utils/categories';
-import { AdPreferencesPayload, SettingsService } from '../system.service';
+import { AdPreferencesPayload, SettingsService } from '../../system/system.service';
+import { UserService } from '../../../common/services/user.service';
 
 interface AdPreferences {
   locationBasedAds: boolean;
@@ -51,7 +51,17 @@ const ALLOWED_AD_CATEGORIES = new Set(CATEGORIES.map((category) => category.valu
   ],
 })
 export class AdsPreferenceSettingsComponent {
-  @Input({ required: true }) user!: Signal<UserInterface | null>;
+  //@Input({ required: true }) user!: Signal<UserInterface | null>;
+
+    private userService = inject(UserService);
+    // Expose the signal directly to the template
+    public user: Signal<UserInterface | null> = this.userService.user;
+
+    private readonly snackBar = inject(MatSnackBar);
+    private readonly settingsService = inject(SettingsService);
+    private readonly deviceService = inject(DeviceService);
+    private readonly destroyRef = inject(DestroyRef);
+
 
   readonly maxSelectedCategories = MAX_AD_CATEGORIES;
   readonly allCategories = CATEGORIES;
@@ -88,11 +98,6 @@ export class AdsPreferenceSettingsComponent {
     },
   ];
 
-  private readonly snackBar = inject(MatSnackBar);
-  private readonly settingsService = inject(SettingsService);
-  private readonly deviceService = inject(DeviceService);
-  private readonly userService = inject(UserService);
-  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     effect(() => {

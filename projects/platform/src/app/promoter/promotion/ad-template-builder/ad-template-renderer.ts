@@ -26,65 +26,6 @@ const fitCover = (srcW: number, srcH: number, dstW: number, dstH: number) => {
   return { dx, dy, dw: drawW, dh: drawH };
 };
 
-const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) => {
-  const words = String(text || '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter(Boolean);
-
-  const lines: string[] = [];
-  let current = '';
-
-  for (const word of words) {
-    const next = current ? `${current} ${word}` : word;
-    if (ctx.measureText(next).width <= maxWidth) {
-      current = next;
-      continue;
-    }
-
-    if (current) {
-      lines.push(current);
-      current = word;
-    } else {
-      // A single word is longer than maxWidth; hard-break it.
-      lines.push(word);
-      current = '';
-    }
-  }
-
-  if (current) lines.push(current);
-  return lines;
-};
-
-const drawTextBlock = (ctx: CanvasRenderingContext2D, options: {
-  x: number;
-  y: number;
-  maxWidth: number;
-  text: string;
-  font: string;
-  fill: string;
-  lineHeight: number;
-  maxLines: number;
-  shadow?: boolean;
-}) => {
-  ctx.save();
-  ctx.font = options.font;
-  ctx.fillStyle = options.fill;
-
-  if (options.shadow) {
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 4;
-  }
-
-  const lines = wrapLines(ctx, options.text, options.maxWidth).slice(0, options.maxLines);
-  lines.forEach((line, idx) => {
-    ctx.fillText(line, options.x, options.y + idx * options.lineHeight);
-  });
-  ctx.restore();
-};
-
 const getSafeInsets = (layout: AdLayoutConfig) => {
   if (layout.id === 'story_9_16') {
     return { top: 120, right: 90, bottom: 260, left: 90 };
@@ -98,31 +39,6 @@ const getSafeInsets = (layout: AdLayoutConfig) => {
   return { top: 80, right: 80, bottom: 160, left: 80 };
 };
 
-const roundRectPath = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number
-) => {
-  const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
-  // Prefer native roundRect when available.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const anyCtx = ctx as any;
-  if (typeof anyCtx.roundRect === 'function') {
-    anyCtx.roundRect(x, y, w, h, radius);
-    return;
-  }
-
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + w, y, x + w, y + h, radius);
-  ctx.arcTo(x + w, y + h, x, y + h, radius);
-  ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y, x + w, y, radius);
-  ctx.closePath();
-};
-
 export const renderAdFrame = (args: {
   canvas: HTMLCanvasElement;
   layout: AdLayoutConfig;
@@ -131,7 +47,7 @@ export const renderAdFrame = (args: {
   media: MediaLike;
   timeMs?: number;
 }) => {
-  const { canvas, layout, config, promotion, media } = args;
+  const { canvas, layout, config, media } = args;
   const t = Number(args.timeMs || 0);
 
   canvas.width = layout.width;
@@ -170,83 +86,15 @@ export const renderAdFrame = (args: {
     ctx.restore();
   }
 
-  // Readability overlay
-  const gradient = ctx.createLinearGradient(0, canvas.height * 0.55, 0, canvas.height);
-  gradient.addColorStop(0, 'rgba(0,0,0,0)');
-  gradient.addColorStop(1, 'rgba(0,0,0,0.72)');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, canvas.height * 0.52, canvas.width, canvas.height * 0.48);
-
-  // Top chip (platform + industry)
+  // NOTE: PPC flow now keeps copy (headline/caption/link) outside the visual asset.
+  // The canvas export should remain a clean creative that promoters can reuse per platform.
   const insets = getSafeInsets(layout);
-  const chipText = `${promotion?.title || 'Promotion'}${config.platformId ? `  -  ${config.platformId.toUpperCase()}` : ''}`;
-  ctx.save();
-  ctx.font = '600 30px Inter, system-ui, -apple-system, Segoe UI, sans-serif';
-  const chipW = ctx.measureText(chipText).width + 44;
-  const chipH = 52;
-  const chipX = insets.left;
-  const chipY = insets.top - 72;
-
-  ctx.fillStyle = 'rgba(0,0,0,0.42)';
-  ctx.beginPath();
-  const r = 16;
-  roundRectPath(ctx, chipX, chipY, chipW, chipH, r);
-  ctx.fill();
-
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(chipText, chipX + 22, chipY + 35);
-  ctx.restore();
 
   // Accent bar
   ctx.save();
   ctx.fillStyle = config.accentColor || '#2563eb';
   ctx.globalAlpha = 0.95;
   ctx.fillRect(insets.left, canvas.height - insets.bottom - 8, 120, 8);
-  ctx.restore();
-
-  // Headline + caption
-  const textLeft = insets.left;
-  const textRight = canvas.width - insets.right;
-  const maxWidth = Math.max(1, textRight - textLeft);
-  const textBottom = canvas.height - insets.bottom;
-
-  const headline = String(config.headline || '').trim();
-  const caption = String(config.caption || '').trim();
-
-  const baseHeadlineSize =
-    layout.id === 'landscape_16_9' ? 68 : layout.id === 'square_1_1' ? 72 : 82;
-  const headlineSize = clamp(baseHeadlineSize - Math.max(0, Math.floor(headline.length / 18) * 8), 44, baseHeadlineSize);
-
-  drawTextBlock(ctx, {
-    x: textLeft,
-    y: textBottom,
-    maxWidth,
-    text: headline || 'Write a headline',
-    font: `800 ${headlineSize}px Inter, system-ui, -apple-system, Segoe UI, sans-serif`,
-    fill: '#ffffff',
-    lineHeight: Math.round(headlineSize * 1.08),
-    maxLines: layout.id === 'landscape_16_9' ? 2 : 3,
-    shadow: true,
-  });
-
-  const captionStartY = textBottom + Math.round(headlineSize * 1.1) * (layout.id === 'landscape_16_9' ? 1.6 : 1.9);
-  drawTextBlock(ctx, {
-    x: textLeft,
-    y: captionStartY,
-    maxWidth,
-    text: caption,
-    font: `500 ${layout.id === 'landscape_16_9' ? 34 : 36}px Inter, system-ui, -apple-system, Segoe UI, sans-serif`,
-    fill: 'rgba(255,255,255,0.9)',
-    lineHeight: layout.id === 'landscape_16_9' ? 44 : 46,
-    maxLines: layout.id === 'story_9_16' ? 4 : 3,
-    shadow: false,
-  });
-
-  // Footer hint (copyable link will be provided outside the image/video)
-  ctx.save();
-  ctx.font = `600 ${layout.id === 'landscape_16_9' ? 28 : 30}px Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.78)';
-  ctx.fillText('Tap the link in the caption', textLeft, canvas.height - Math.max(40, insets.bottom - 24));
   ctx.restore();
 };
 

@@ -147,7 +147,15 @@ export function getMarketerNavigation(
           children: [
            { icon: 'notifications', label: 'Theme & Notifications', route: '/dashboard/settings/system' }
           ]
-        }
+        },
+        {
+          icon: 'ads_click',
+          label: 'Ads',
+          expanded: false,
+          children: [
+           { icon: 'adjust', label: 'Preferences', route: '/dashboard/settings/ads/preferences' }
+          ]
+        },
       ]
     },
 
