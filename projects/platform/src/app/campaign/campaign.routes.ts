@@ -16,19 +16,31 @@ export const CampaignRoutes: Routes = [
     }, 
     {
         path: 'promotions',
-        loadComponent: () => import('../promoter/promotion/promotion.component').then(c => c.PromotionComponent),
-        title: "Promotions - List all accepted promoter promotions",
+        children: [
+           {
+                path: '',
+                loadComponent: () => import('../promoter/promotion/promotion.component').then(c => c.PromotionComponent),
+                title: "Promotions - List all accepted promoter promotions",
+           },
+           {
+                path: 'ad-builder',
+                loadComponent: () => import('../promoter/promotion/ad-template-builder/ad-template-builder.component').then(c => c.AdTemplateBuilderComponent),
+                title: "Ad Template Builder - Create social-ready promotions",
+            },
+            {
+                path: 'compliance',
+                loadComponent: () => import('../promoter/promotion/compliance/promotion-compliance.component').then(c => c.PromotionComplianceComponent),
+                title: "Account Health - Promotion compliance and fraud status",
+            },
+             {
+                path: ':id',
+                loadComponent: () => import('../promoter/promotion/promotion-details/promotion-detail.component').then(c => c.PromotionDetailComponent),
+                title: "Promotion Details - List all accepted promoter promotions",
+            },
+        ]
+        
     }, 
-    {
-        path: 'promotions/ad-builder',
-        loadComponent: () => import('../promoter/promotion/ad-template-builder/ad-template-builder.component').then(c => c.AdTemplateBuilderComponent),
-        title: "Ad Template Builder - Create social-ready promotions",
-    },
-    {
-        path: 'promotions/compliance',
-        loadComponent: () => import('../promoter/promotion/compliance/promotion-compliance.component').then(c => c.PromotionComplianceComponent),
-        title: "Account Health - Promotion compliance and fraud status",
-    },
+    
     {
         path: 'analytics',
         loadComponent: () => import('./analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
@@ -54,10 +66,6 @@ export const CampaignRoutes: Routes = [
         loadComponent: () => import('./campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
         title: "Campaign Details - List all accepted promoter promotions",
     },
-    {
-        path: 'promotions/:id',
-        loadComponent: () => import('../promoter/promotion/promotion-details/promotion-detail.component').then(c => c.PromotionDetailComponent),
-        title: "Promotion Details - List all accepted promoter promotions",
-    },
+   
     
 ]

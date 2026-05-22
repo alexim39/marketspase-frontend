@@ -4,9 +4,8 @@
 // Global overflow prevention
 :host {
   display: block;
-  width: 100%;
-  max-width: 100%;
   overflow-x: hidden;
+  margin: 0 1em;
 }
 
 // Force all elements to respect box-sizing
@@ -53,6 +52,11 @@
   // Small horizontal padding to prevent edge contact
   padding-left: 0.75rem;
   padding-right: 0.75rem;
+}
+
+.warning-card {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 // Adjust card padding for better spacing
