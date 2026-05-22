@@ -11,6 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { UserService } from '../../common/services/user.service';
 import {
@@ -42,6 +43,26 @@ interface TimeSeriesBar {
   billableWidth: number;
 }
 
+interface TrendBarRow {
+  date: string;
+  label: string;
+  trackedVisits: number;
+  billableClicks: number;
+  invalidClicks: number;
+  duplicateClicks: number;
+  spend: number;
+  earnings: number;
+  widthTracked: number;
+  widthBillable: number;
+  tooltip: string;
+}
+
+interface SparklineModel {
+  tracked: string;
+  billable: string;
+  max: number;
+}
+
 interface BreakdownBar {
   label: string;
   value: number;
@@ -64,6 +85,7 @@ interface BreakdownBar {
     MatProgressSpinnerModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatTooltipModule,
   ],
   providers: [CurrencyPipe, DatePipe, DecimalPipe, TitleCasePipe],
   templateUrl: './campaign-analytics.component.html',
@@ -203,6 +225,64 @@ export class CampaignAnalyticsComponent {
       trackedWidth: Math.max((row.trackedVisits / maxValue) * 100, row.trackedVisits ? 8 : 0),
       billableWidth: Math.max((row.billableClicks / maxValue) * 100, row.billableClicks ? 8 : 0),
     }));
+  });
+
+  readonly timeSeriesHasData = computed(() => {
+    const rows = this.analytics()?.timeSeries ?? [];
+    return rows.some(
+      (r) => Number(r.trackedVisits || 0) > 0 || Number(r.billableClicks || 0) > 0
+    );
+  });
+
+  readonly sparkline = computed<SparklineModel>(() => {
+    const rows = this.analytics()?.timeSeries ?? [];
+    if (!rows.length) {
+      return { tracked: '', billable: '', max: 0 };
+    }
+
+    const tracked = rows.map((r) => Number(r.trackedVisits || 0));
+    const billable = rows.map((r) => Number(r.billableClicks || 0));
+    const max = Math.max(1, ...tracked, ...billable);
+
+    return {
+      tracked: this.buildSparklinePath(tracked, 640, 120, max),
+      billable: this.buildSparklinePath(billable, 640, 120, max),
+      max,
+    };
+  });
+
+  readonly trendBars = computed<TrendBarRow[]>(() => {
+    const rows = this.analytics()?.timeSeries ?? [];
+    const role = this.dashboardRole();
+    const maxTotal = Math.max(1, ...rows.map((r) => Number(r.trackedVisits || 0)));
+
+    return rows.map((row) => {
+      const trackedVisits = Number(row.trackedVisits || 0);
+      const billableClicks = Number(row.billableClicks || 0);
+      const invalidClicks = Number(row.invalidClicks || 0);
+      const duplicateClicks = Number(row.duplicateClicks || 0);
+      const spend = Number(row.spend || 0);
+      const earnings = Number(row.earnings || 0);
+
+      const label = this.datePipe.transform(row.date, 'MMM d') || row.date;
+      const moneyLine = role === 'marketer'
+        ? `Spend: ${this.formatCurrency(spend)}`
+        : `Earnings: ${this.formatCurrency(earnings)}`;
+
+      return {
+        date: row.date,
+        label,
+        trackedVisits,
+        billableClicks,
+        invalidClicks,
+        duplicateClicks,
+        spend,
+        earnings,
+        widthTracked: trackedVisits ? Math.max((trackedVisits / maxTotal) * 100, 6) : 0,
+        widthBillable: billableClicks ? Math.max((billableClicks / maxTotal) * 100, 6) : 0,
+        tooltip: `Tracked: ${trackedVisits} | Billable: ${billableClicks} | Invalid: ${invalidClicks} | Duplicates: ${duplicateClicks} | ${moneyLine}`,
+      };
+    });
   });
 
   readonly deviceBreakdown = computed<BreakdownBar[]>(() => {
@@ -445,5 +525,23 @@ export class CampaignAnalyticsComponent {
     ];
 
     return lines.join('\n');
+  }
+
+  private buildSparklinePath(values: number[], width: number, height: number, max: number): string {
+    if (!values.length) {
+      return '';
+    }
+
+    const w = Math.max(1, width);
+    const h = Math.max(1, height);
+    const step = values.length > 1 ? w / (values.length - 1) : 0;
+
+    const points = values.map((v, idx) => {
+      const x = idx * step;
+      const y = h - (Math.min(Math.max(v, 0), max) / max) * h;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    });
+
+    return points.join(' ');
   }
 }

@@ -94,7 +94,7 @@
         <mat-spinner diameter="36"></mat-spinner>
         <div>
           <strong>Loading analytics</strong>
-          <span>We’re compiling your latest campaign and promotion activity.</span>
+          <span>We're compiling your latest campaign and promotion activity.</span>
         </div>
       </div>
     </section>
@@ -127,7 +127,7 @@
         <div class="panel-head">
           <div>
             <h2>Traffic Timeline</h2>
-            <p>Tracked visits versus billable clicks across the selected period.</p>
+            <p>Total tracked visits (grey) versus billable clicks (green) across the selected period.</p>
           </div>
 
           @if (refreshing()) {
@@ -138,18 +138,75 @@
           }
         </div>
 
-        @if (chartRows().length > 0) {
+        @if (timeSeriesHasData()) {
+          <div class="timeline-grid">
+            <div class="timeline-panel-section">
+              <div class="trend-head">
+                <div class="trend-title">Click trend</div>
+                <div class="trend-legend">
+                  <span class="legend-item">
+                    <span class="legend-swatch tracked"></span>
+                    Tracked
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-swatch billable"></span>
+                    Billable
+                  </span>
+                </div>
+              </div>
+
+              <svg class="sparkline" viewBox="0 0 640 120" preserveAspectRatio="none" aria-hidden="true">
+                <polyline class="sparkline-tracked" [attr.points]="sparkline().tracked"></polyline>
+                <polyline class="sparkline-billable" [attr.points]="sparkline().billable"></polyline>
+              </svg>
+            </div>
+
+            <div class="timeline-panel-section">
+              <div class="trend-head">
+                <div class="trend-title">Recent buckets</div>
+              </div>
+
+              <div class="bucket-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Day</th>
+                      <th class="num">Tracked</th>
+                      <th class="num">Billable</th>
+                      <th class="num">{{ dashboardRole() === 'marketer' ? 'Spend' : 'Earnings' }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of trendBars().slice(-8); track row.date) {
+                      <tr [matTooltip]="row.tooltip">
+                        <td>{{ row.label }}</td>
+                        <td class="num">{{ row.trackedVisits }}</td>
+                        <td class="num">{{ row.billableClicks }}</td>
+                        <td class="num">
+                          @if (dashboardRole() === 'marketer') {
+                            {{ formatCurrency(row.spend || 0) }}
+                          } @else {
+                            {{ formatCurrency(row.earnings || 0) }}
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <div class="timeline-list">
-            @for (row of chartRows(); track trackByDate($index, row)) {
-              <div class="timeline-row">
+            @for (row of trendBars(); track row.date) {
+              <div class="timeline-row" [matTooltip]="row.tooltip">
                 <div class="timeline-meta">
                   <strong>{{ row.label }}</strong>
-                  <span>{{ row.trackedVisits }} tracked · {{ row.billableClicks }} billable</span>
+                  <span>{{ row.trackedVisits }} tracked | {{ row.billableClicks }} billable</span>
                 </div>
-
                 <div class="timeline-bars">
-                  <div class="timeline-bar tracked" [style.width.%]="row.trackedWidth"></div>
-                  <div class="timeline-bar billable" [style.width.%]="row.billableWidth"></div>
+                  <div class="timeline-bar tracked" [style.width.%]="row.widthTracked"></div>
+                  <div class="timeline-bar billable" [style.width.%]="row.widthBillable"></div>
                 </div>
               </div>
             }
@@ -255,24 +312,26 @@
             <tbody>
               @for (row of data.campaignBreakdown; track trackByCampaign($index, row)) {
                 <tr>
-                  <td>
+                  <td data-label="Campaign">
                     <div class="cell-stack">
                       <strong>{{ row.title }}</strong>
                       <span>
                         @if (dashboardRole() === 'marketer') {
-                          {{ formatCurrency(row.spentBudget || 0) }} spent · {{ formatCurrency(row.remainingBudget || 0) }} left
+                          {{ formatCurrency(row.spentBudget || 0) }} spent | {{ formatCurrency(row.remainingBudget || 0) }} left
                         } @else {
                           {{ row.earnings ? formatCurrency(row.earnings) : 'No earnings yet' }}
                         }
                       </span>
                     </div>
                   </td>
-                  <td><span class="status-badge">{{ row.status | titlecase }}</span></td>
-                  <td>{{ row.trackedVisits }}</td>
-                  <td>{{ row.billableClicks }}</td>
-                  <td>{{ row.invalidClicks + row.duplicateClicks }}</td>
-                  <td>{{ dashboardRole() === 'marketer' ? formatCurrency(row.spend || 0) : formatCurrency(row.earnings || 0) }}</td>
-                  <td>
+                  <td data-label="Status"><span class="status-badge">{{ row.status | titlecase }}</span></td>
+                  <td data-label="Tracked">{{ row.trackedVisits }}</td>
+                  <td data-label="Billable">{{ row.billableClicks }}</td>
+                  <td data-label="Invalid">{{ row.invalidClicks + row.duplicateClicks }}</td>
+                  <td [attr.data-label]="dashboardRole() === 'marketer' ? 'Spend' : 'Earnings'">
+                    {{ dashboardRole() === 'marketer' ? formatCurrency(row.spend || 0) : formatCurrency(row.earnings || 0) }}
+                  </td>
+                  <td data-label="Action">
                     <button mat-button type="button" (click)="openCampaignRoom(row.campaignId)">
                       <mat-icon>forum</mat-icon>
                       Room
@@ -321,7 +380,7 @@
               <tbody>
                 @for (row of data.promoterBreakdown; track trackByPromoter($index, row)) {
                   <tr>
-                    <td>
+                    <td data-label="Promoter">
                       <div class="identity-cell">
                         <div class="avatar-badge">
                           @if (row.avatar) {
@@ -336,11 +395,11 @@
                         </div>
                       </div>
                     </td>
-                    <td>{{ row.trackedVisits }}</td>
-                    <td>{{ row.billableClicks }}</td>
-                    <td>{{ row.invalidClicks + row.duplicateClicks }}</td>
-                    <td>{{ formatCurrency(row.earnings || 0) }}</td>
-                    <td>
+                    <td data-label="Tracked">{{ row.trackedVisits }}</td>
+                    <td data-label="Billable">{{ row.billableClicks }}</td>
+                    <td data-label="Invalid">{{ row.invalidClicks + row.duplicateClicks }}</td>
+                    <td data-label="Earnings">{{ formatCurrency(row.earnings || 0) }}</td>
+                    <td data-label="Action">
                       <button mat-button type="button" (click)="openPromoterConversation(row)">
                         <mat-icon>chat</mat-icon>
                         Message
@@ -389,22 +448,22 @@
               <tbody>
                 @for (row of data.promotionBreakdown; track trackByPromotion($index, row)) {
                   <tr>
-                    <td>
+                    <td data-label="Promotion">
                       <div class="cell-stack">
                         <strong>{{ row.title }}</strong>
-                        <span>{{ row.upi }} · {{ row.lastClickAt | date:'mediumDate' }}</span>
+                        <span>{{ row.upi }} | {{ row.lastClickAt | date:'mediumDate' }}</span>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span class="status-badge" [class.inactive]="!row.isActive">
                         {{ row.status | titlecase }}
                       </span>
                     </td>
-                    <td>{{ row.trackedVisits }}</td>
-                    <td>{{ row.billableClicks }}</td>
-                    <td>{{ row.invalidClicks + row.duplicateClicks }}</td>
-                    <td>{{ formatCurrency(row.earnings || 0) }}</td>
-                    <td>
+                    <td data-label="Tracked">{{ row.trackedVisits }}</td>
+                    <td data-label="Billable">{{ row.billableClicks }}</td>
+                    <td data-label="Invalid">{{ row.invalidClicks + row.duplicateClicks }}</td>
+                    <td data-label="Earnings">{{ formatCurrency(row.earnings || 0) }}</td>
+                    <td data-label="Action">
                       <button mat-button type="button" (click)="openPromotionRoom(row.promotionId)">
                         <mat-icon>forum</mat-icon>
                         Room

@@ -178,6 +178,114 @@
   font-size: 1.1rem;
 }
 
+.timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-panel-section {
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  background: rgba(var(--primary-rgb), 0.02);
+}
+
+.trend-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+.trend-title {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.trend-legend {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.legend-swatch.tracked {
+  background: rgba(148, 163, 184, 0.9);
+}
+
+.legend-swatch.billable {
+  background: rgba(16, 185, 129, 0.85);
+}
+
+.sparkline {
+  width: 100%;
+  height: 140px;
+}
+
+.sparkline-tracked {
+  fill: none;
+  stroke: rgba(148, 163, 184, 0.95);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sparkline-billable {
+  fill: none;
+  stroke: rgba(16, 185, 129, 0.95);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bucket-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bucket-table {
+  overflow-x: auto;
+}
+
+.bucket-table th,
+.bucket-table td {
+  padding: 0.55rem 0.35rem;
+  border-bottom: 1px solid rgba(var(--primary-rgb), 0.1);
+  font-size: 0.9rem;
+}
+
+.bucket-table th {
+  text-align: left;
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bucket-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .timeline-list,
 .breakdown-list {
   display: grid;
@@ -417,5 +525,59 @@
 
   .data-table {
     min-width: 620px;
+  }
+}
+
+@media (max-width: 640px) {
+  .table-wrap {
+    overflow-x: visible;
+  }
+
+  .data-table {
+    min-width: 0;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .data-table tr {
+    display: block;
+    border: 1px solid rgba(var(--primary-rgb), 0.12);
+    border-radius: 16px;
+    padding: 0.25rem 0.95rem;
+    background: rgba(var(--primary-rgb), 0.02);
+  }
+
+  .data-table td {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    padding: 0.65rem 0;
+    border-bottom: 1px dashed rgba(var(--primary-rgb), 0.12);
+  }
+
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+
+  .data-table td::before {
+    content: attr(data-label);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-top: 0.1rem;
+  }
+
+  .data-table td button {
+    justify-content: flex-start;
   }
 }

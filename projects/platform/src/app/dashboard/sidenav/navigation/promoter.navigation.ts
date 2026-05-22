@@ -30,6 +30,7 @@ export function getPromoterNavigation(
         { icon: 'list_alt', label: 'My Promotions', route: '/dashboard/campaigns/promotions' },
         { icon: 'design_services', label: 'Ad Template Builder', route: '/dashboard/campaigns/promotions/ad-builder' },
         { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
+        { icon: 'gpp_bad', label: 'Account Health', route: '/dashboard/campaigns/promotions/compliance' },
         { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
       ]
     },

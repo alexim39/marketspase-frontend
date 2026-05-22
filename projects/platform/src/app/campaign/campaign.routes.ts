@@ -25,6 +25,11 @@ export const CampaignRoutes: Routes = [
         title: "Ad Template Builder - Create social-ready promotions",
     },
     {
+        path: 'promotions/compliance',
+        loadComponent: () => import('../promoter/promotion/compliance/promotion-compliance.component').then(c => c.PromotionComplianceComponent),
+        title: "Account Health - Promotion compliance and fraud status",
+    },
+    {
         path: 'analytics',
         loadComponent: () => import('./analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
         title: "Campaign Analytics - Live campaign and promotion performance",
