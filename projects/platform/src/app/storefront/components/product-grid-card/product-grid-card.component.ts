@@ -52,6 +52,8 @@ export class ProductGridCardComponent {
   @Input({ required: true }) product!: Product;
   @Input({ required: true }) store: Store | null = null;
   @Input({ required: true }) isInWishlist = false;
+  // Rendering density. "compact" is used in tight spaces like horizontal carousels.
+  @Input() density: 'default' | 'compact' = 'default';
 
   // =========================================
   // OUTPUTS

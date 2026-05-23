@@ -1,5 +1,5 @@
 <!-- product-grid-card.component.html -->
-<article class="product-card" (click)="onViewDetails($event)">
+<article class="product-card" [class.is-compact]="density === 'compact'" (click)="onViewDetails($event)">
   <!-- Product Image Container -->
   <div class="product-image-wrapper">
     <!-- Badges Overlay -->
@@ -106,10 +106,12 @@
       </div>
     }
 
-    <!-- Description (Hidden on Mobile) -->
-    <p class="product-description">
-      {{ (product.description ?? '') | truncate:80 }}
-    </p>
+    <!-- Description (Hidden on Mobile / Compact) -->
+    @if (density !== 'compact') {
+      <p class="product-description">
+        {{ (product.description ?? '') | truncate:80 }}
+      </p>
+    }
 
     <!-- Price Section -->
     <div class="product-pricing">
@@ -151,15 +153,17 @@
     </div>
 
     <!-- Trust Badges (Footer) -->
-    <div class="trust-badges">
-      <div class="trust-item">
-        <mat-icon>local_shipping</mat-icon>
-        <span>Shipping Available</span>
+    @if (density !== 'compact') {
+      <div class="trust-badges">
+        <div class="trust-item">
+          <mat-icon>local_shipping</mat-icon>
+          <span>Shipping Available</span>
+        </div>
+        <div class="trust-item">
+          <mat-icon>verified_user</mat-icon>
+          <span>Secure</span>
+        </div>
       </div>
-      <div class="trust-item">
-        <mat-icon>verified_user</mat-icon>
-        <span>Secure</span>
-      </div>
-    </div>
+    }
   </div>
 </article>

@@ -36,6 +36,7 @@
               <app-product-grid-card
                 [product]="product"
                 [store]="store()"
+                density="compact"
                 [isInWishlist]="isInWishlist(product._id ?? '')"
                 (addToCart)="addToCart($event)"
                 (toggleWishlist)="toggleWishlist($event)"
