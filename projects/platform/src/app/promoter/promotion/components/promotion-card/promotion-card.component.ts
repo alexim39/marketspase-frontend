@@ -298,7 +298,7 @@ export class PromotionCardComponent {
       await navigator.share(shareData);
 
       this.snackBar.open(
-        'Share ready. Choose WhatsApp, then tap My Status to post it.',
+        'Share ready. Choose WhatsApp, then select My Status or a contact to post it.',
         'OK',
         { duration: 5000, panelClass: ['whatsapp-snackbar'] }
       );

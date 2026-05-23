@@ -213,7 +213,10 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     const promotion = await this.createPromotion(product);
     if (!promotion) return;
 
-    const message = this.promotionService.generateWhatsAppMessage(
+    // Best-effort "direct share" on the web:
+    // 1) On mobile browsers that support sharing files, share the product image + caption (includes link).
+    // 2) Fall back to WhatsApp click-to-chat with text-only.
+    const captionText = this.promotionService.buildWhatsAppMessage(
       product,
       promotion.trackingCode,
       product.promotion.commissionRate,
@@ -221,7 +224,41 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       promotion.affiliateUrl
     );
 
-    window.open(`https://wa.me/?text=${message}`, '_blank');
+    const assetUrl = this.getProductMediaUrl(product);
+
+    try {
+      if (assetUrl && typeof navigator.share === 'function') {
+        const shareFile = await this.createShareFile(assetUrl, product, promotion.trackingCode);
+        const shareData: ShareData = {
+          title: product.name,
+          text: captionText,
+          files: [shareFile],
+        };
+
+        if (typeof navigator.canShare === 'function' && !this.canShareFiles(shareData)) {
+          throw new Error('native-file-share-unavailable');
+        }
+
+        await navigator.share(shareData);
+
+        this.snackBar.open(
+          'Share ready. Choose WhatsApp, then select My Status or a contact to post it.',
+          'Close',
+          { duration: 5000, panelClass: ['success-snackbar'] }
+        );
+        return;
+      }
+    } catch (error) {
+      if (this.isShareCanceled(error)) {
+        return;
+      }
+
+      console.warn('Native share with media failed, falling back to WhatsApp text-only:', error);
+      // fall through to text-only
+    }
+
+    const encodedMessage = encodeURIComponent(captionText);
+    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank', 'noopener');
   }
 
   shareToWhatsAppStatus(product: Product): void {
@@ -264,7 +301,7 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       await navigator.share(shareData);
 
       this.snackBar.open(
-        'Share ready. Choose WhatsApp, then tap My Status to post it.',
+        'Share ready. Choose WhatsApp, then select My Status or a contact to post it.',
         'Close',
         { duration: 5000, panelClass: ['success-snackbar'] }
       );
