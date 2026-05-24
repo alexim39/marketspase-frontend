@@ -133,12 +133,18 @@ export class ShareService {
    * Generate WhatsApp message with product details
    */
   generateWhatsAppMessage(product: any): string {
+    // Prefer the server-side affiliate link when present (it records clicks and redirects),
+    // otherwise fall back to the public product page.
+    const promoUrl =
+      product?.promotion?.affiliateUrl ||
+      (product?._id ? `${window.location.origin}/product/${product._id}` : window.location.origin);
+
     const message = `🎯 *${product.name}*\n\n` +
                    `💰 Price: $${product.price}\n` +
                    `🎁 Commission: ${product.promotion?.commissionRate || 15}%\n\n` +
                    `📦 Category: ${product.category}\n` +
                    `🏪 Store: ${product.store?.name || 'Unknown Store'}\n\n` +
-                   `👉 Promo Link: ${window.location.origin}/promote/${product.promotion?.trackingCode || product._id}\n\n` +
+                   `👉 Promo Link: ${promoUrl}\n\n` +
                    `#${product.category.replace(/\s+/g, '')} #Promotion`;
     
     return message;
