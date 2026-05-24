@@ -96,7 +96,8 @@ export function getMarketerNavigation(
            { icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' },
            { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
           ]
-        }
+        },
+        { icon: 'military_tech', label: 'Gamification', route: '/dashboard/gamification' },
       ]
     },
 
@@ -107,12 +108,12 @@ export function getMarketerNavigation(
       expanded: false
     },
 
-    {
-      icon: 'military_tech',
-      label: 'Gamification',
-      route: '/dashboard/gamification',
-      expanded: false
-    },
+    // {
+    //   icon: 'military_tech',
+    //   label: 'Gamification',
+    //   route: '/dashboard/gamification',
+    //   expanded: false
+    // },
     
     {
       icon: 'currency_exchange',

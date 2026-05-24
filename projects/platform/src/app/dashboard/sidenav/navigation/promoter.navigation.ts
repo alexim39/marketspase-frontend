@@ -65,7 +65,8 @@ export function getPromoterNavigation(
            //{ icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' }, Promoters should not be able to create post at the time
            { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
           ]
-        }
+        },
+        { icon: 'military_tech', label: 'Gamification', route: '/dashboard/gamification' },
       ]
     },
 
@@ -76,12 +77,12 @@ export function getPromoterNavigation(
       expanded: false
     },
 
-    {
-      icon: 'military_tech',
-      label: 'Gamification',
-      route: '/dashboard/gamification',
-      expanded: false
-    },
+    // {
+    //   icon: 'military_tech',
+    //   label: 'Gamification',
+    //   route: '/dashboard/gamification',
+    //   expanded: false
+    // },
 
 
     {
