@@ -1,0 +1,286 @@
+<div class="notification-center">
+  <div class="page-header">
+    <div class="title-block">
+      <h1>Notifications</h1>
+      <div class="subtitle">
+        Updates from campaigns, promotions, payments, and system activity.
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button type="button" (click)="refresh()" [disabled]="loadingFirstPage()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+
+      @if (!selectionMode()) {
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="markAllAsRead()"
+          [disabled]="unreadInViewCount() === 0"
+        >
+          <mat-icon>done_all</mat-icon>
+          Mark All Read
+        </button>
+
+        <button mat-stroked-button type="button" (click)="enterSelectionMode()" [disabled]="items().length === 0">
+          <mat-icon>check_box</mat-icon>
+          Select
+        </button>
+      } @else {
+        <button mat-stroked-button type="button" (click)="exitSelectionMode()" [disabled]="deleting()">
+          <mat-icon>close</mat-icon>
+          Done
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="toggleSelectAllInView()"
+          [disabled]="filteredItems().length === 0 || deleting()"
+          [matTooltip]="allInViewSelected() ? 'Clear selection in this view' : 'Select all notifications in this view'"
+        >
+          <mat-icon>{{ allInViewSelected() ? 'remove_done' : 'select_all' }}</mat-icon>
+          {{ allInViewSelected() ? 'Clear' : 'Select All' }}
+        </button>
+
+        <button
+          mat-flat-button
+          color="warn"
+          type="button"
+          (click)="deleteSelected()"
+          [disabled]="selectedCount() === 0 || deleting()"
+        >
+          <mat-icon>delete</mat-icon>
+          Delete ({{ selectedCount() }})
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="main">
+      <mat-card class="filters-card">
+        <div class="filters-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value)">
+              @for (opt of statusOptions; track opt.key) {
+                <mat-option [value]="opt.key">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select [value]="categoryFilter()" (selectionChange)="categoryFilter.set($event.value)">
+              @for (opt of categoryOptions; track opt.key) {
+                <mat-option [value]="opt.key">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Priority</mat-label>
+            <mat-select [value]="priorityFilter()" (selectionChange)="priorityFilter.set($event.value)">
+              @for (opt of priorityOptions; track opt.key) {
+                <mat-option [value]="opt.key">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Search</mat-label>
+            <input
+              matInput
+              type="text"
+              [value]="searchTerm()"
+              (input)="onSearchInput(($any($event.target)).value)"
+              placeholder="Title or message"
+            />
+            <button
+              matSuffix
+              mat-icon-button
+              type="button"
+              aria-label="Clear search"
+              (click)="onSearchInput('')"
+              [disabled]="!searchTerm()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div class="filters-meta">
+          @if (unreadInViewCount() > 0) {
+            <span class="meta-pill">
+              <span class="dot dot-unread"></span>
+              {{ unreadInViewCount() }} unread
+            </span>
+          }
+
+          @if (mutedCategories().size > 0) {
+            <span class="meta-pill muted">
+              <mat-icon>volume_off</mat-icon>
+              {{ mutedCategories().size }} muted categories
+            </span>
+          }
+        </div>
+      </mat-card>
+
+      <mat-card class="list-card">
+        <div class="list-body">
+          @if (loadingFirstPage() && items().length === 0) {
+            <div class="skeleton-list" aria-label="Loading notifications">
+              @for (i of [0,1,2,3,4,5,6]; track i) {
+                <div class="skeleton-row">
+                  <div class="skeleton-icon"></div>
+                  <div class="skeleton-body">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-time"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else if (!loadingFirstPage() && loadedOnce() && items().length === 0) {
+            <div class="empty-state">
+              <mat-icon>notifications_off</mat-icon>
+              <div class="empty-title">You have no notifications yet.</div>
+              <div class="empty-sub">When something happens, it will show up here.</div>
+            </div>
+          } @else if (!loadingFirstPage() && loadedOnce() && filteredItems().length === 0) {
+            <div class="empty-state">
+              <mat-icon>filter_alt_off</mat-icon>
+              <div class="empty-title">No notifications match your filters.</div>
+              <div class="empty-sub">Try changing category, status, priority, or search.</div>
+              <div class="empty-actions">
+                <button mat-stroked-button type="button" (click)="statusFilter.set('all'); categoryFilter.set('all'); priorityFilter.set('all'); onSearchInput('')">
+                  Clear filters
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="groups">
+              @for (g of groups(); track g.label) {
+                <div class="group">
+                  <div class="group-label">{{ g.label }}</div>
+
+                  <div class="group-items">
+                    @for (n of g.items; track n._id) {
+                      <div
+                        class="notification-row"
+                        [class.unread]="n.status === 'unread'"
+                        [class.tone-info]="priorityTone(n) === 'info'"
+                        [class.tone-success]="priorityTone(n) === 'success'"
+                        [class.tone-warning]="priorityTone(n) === 'warning'"
+                        [class.tone-critical]="priorityTone(n) === 'critical'"
+                        [class.selecting]="selectionMode()"
+                      >
+                        @if (selectionMode()) {
+                          <mat-checkbox
+                            class="row-select"
+                            [checked]="isSelected(n._id)"
+                            (click)="$event.stopPropagation()"
+                            (change)="toggleSelected(n._id, $event.checked)"
+                            aria-label="Select notification"
+                          ></mat-checkbox>
+                        }
+
+                        <button
+                          type="button"
+                          class="row-main"
+                          (click)="onRowPrimaryAction(n)"
+                          [attr.aria-label]="selectionMode() ? 'Toggle selection' : 'Open notification'"
+                        >
+                          <div class="row-icon" aria-hidden="true">
+                            <mat-icon>{{ iconFor(n) }}</mat-icon>
+                          </div>
+
+                          <div class="row-content">
+                            <div class="row-top">
+                              <div class="row-title">{{ n.title }}</div>
+                              <div class="row-time">{{ n.createdAt | date:'short' }}</div>
+                            </div>
+                            <div class="row-message">{{ n.message }}</div>
+                            <div class="row-bottom">
+                              <span class="row-chip">{{ categoryLabel(categoryFor(n.type)) }}</span>
+                              @if (n.status === 'unread') {
+                                <span class="row-chip chip-unread">
+                                  <span class="dot dot-unread"></span>
+                                  Unread
+                                </span>
+                              }
+                            </div>
+                          </div>
+                        </button>
+
+                        <button
+                          mat-icon-button
+                          type="button"
+                          class="row-delete"
+                          aria-label="Delete notification"
+                          (click)="deleteOne(n._id, $event)"
+                          [disabled]="deleting()"
+                          [matTooltip]="'Delete'"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="list-footer">
+            @if (loadingMore()) {
+              <div class="footer-loading" aria-label="Loading more notifications">
+                <mat-progress-spinner mode="indeterminate" diameter="22"></mat-progress-spinner>
+                <span>Loading more...</span>
+              </div>
+            } @else if (loadedOnce() && !pageInfo().hasNextPage) {
+              <div class="footer-end">You are all caught up.</div>
+            }
+
+          <div
+            class="load-more-sentinel"
+            appIntersectionObserver
+            [options]="{ rootMargin: '700px', threshold: 0 }"
+            (visible)="onLoadMoreVisible($event)"
+          ></div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="side">
+      <mat-card class="prefs-card">
+        <div class="prefs-header">
+          <div class="prefs-title">Preferences</div>
+          <div class="prefs-sub">Mute categories you do not want to see.</div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="prefs-list">
+          @for (opt of categoryOptions; track opt.key) {
+            @if (opt.key !== 'all') {
+              <div class="prefs-row">
+                <mat-checkbox
+                  [checked]="isCategoryMuted(opt.key)"
+                  (change)="toggleMuteCategory(opt.key, $event.checked)"
+                >
+                  Mute {{ opt.label }}
+                </mat-checkbox>
+              </div>
+            }
+          }
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>
