@@ -383,6 +383,15 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   async copyProductUrl(product: Product): Promise<void> {
     try {
+      // Prefer copying the backend-computed affiliate URL already attached to the product payload.
+      // This avoids broken links when the API base URL or routing differs across environments.
+      const directAffiliateUrl = (product as any)?.promotion?.affiliateUrl || (product as any)?.promotion?.promotionUrl;
+      if (directAffiliateUrl) {
+        await navigator.clipboard.writeText(directAffiliateUrl);
+        this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+        return;
+      }
+
       const existingPromotion = this.activePromotions().get(product._id ?? '');
 
       if (!existingPromotion) {

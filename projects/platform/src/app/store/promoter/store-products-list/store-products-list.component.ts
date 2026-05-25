@@ -363,21 +363,31 @@ Don't miss out! 🎯`;
   async copyProductUrl(product: Product): Promise<void> {
     try {
       const existingPromotion = this.activePromotions().get(product._id ?? '');
-      
+
+      // Prefer copying the server-generated affiliate URL.
+      // Older builds/hosts sometimes generated broken links when composing URLs client-side.
+      const directAffiliateUrl = (product as any)?.promotion?.affiliateUrl || (product as any)?.promotion?.promotionUrl;
+      if (directAffiliateUrl) {
+        await navigator.clipboard.writeText(directAffiliateUrl);
+        this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+        return;
+      }
+
       if (!existingPromotion) {
         const promotion = await this.createPromotion(product);
         if (!promotion) return;
-        
+
         await navigator.clipboard.writeText(promotion.affiliateUrl);
         this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
-      } else {
-        const trackingLink = this.promotionService.getTrackingLink(
-          existingPromotion.uniqueCode, 
-          product._id ?? ''
-        );
-        await navigator.clipboard.writeText(trackingLink);
-        this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+        return;
       }
+
+      const trackingLink = existingPromotion.affiliateUrl || this.promotionService.getTrackingLink(
+        existingPromotion.uniqueCode,
+        product._id ?? ''
+      );
+      await navigator.clipboard.writeText(trackingLink);
+      this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
     } catch (error) {
       console.error('Copy failed', error);
       this.snackBar.open('Failed to copy link.', 'Close', { duration: 3000 });
