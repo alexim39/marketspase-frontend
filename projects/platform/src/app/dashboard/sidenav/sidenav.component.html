@@ -23,7 +23,7 @@
     </div>
   }
 
-  <mat-sidenav-container class="sidenav-container" [hasBackdrop]="isMobile()">
+  <mat-sidenav-container class="sidenav-container">
     <mat-sidenav #sidenav [mode]="isMobile() ? 'over' : 'side'" [opened]="!isMobile()" class="sidenav">
       @if (!isMobile()) {
         <div class="sidenav-header">

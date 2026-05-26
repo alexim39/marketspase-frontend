@@ -1,0 +1,517 @@
+<section class="promoted-products-analytics-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Storefront promotions</span>
+      <h1>Promoted Products Analytics</h1>
+      <p>Monitor promoter performance, clicks, orders, revenue, and commission across your storefront products.</p>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button type="button" (click)="refresh(false)" [disabled]="isLoading() || isRefreshing()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button mat-raised-button color="primary" type="button" (click)="exportCsv()" [disabled]="isLoading()">
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <mat-spinner diameter="42"></mat-spinner>
+      <span>Loading promoted product analytics...</span>
+    </div>
+  } @else if (error()) {
+    <div class="state-panel error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button mat-button type="button" (click)="refresh(false)">Try again</button>
+    </div>
+  } @else {
+    <div class="summary-grid">
+      @for (card of summaryCards(); track card.label) {
+        <mat-card class="summary-card" appearance="outlined" [class.warn]="card.tone === 'warn'" [class.primary]="card.tone === 'primary'">
+          <mat-icon>{{ card.icon }}</mat-icon>
+          <div>
+            <span>{{ card.label }}</span>
+            <strong>
+              @if (card.format === 'money') {
+                {{ card.value | currencyUtils:'NGN' }}
+              } @else if (card.format === 'percent') {
+                {{ card.value | number:'1.1-1' }}%
+              } @else {
+                {{ card.value | number }}
+              }
+            </strong>
+          </div>
+        </mat-card>
+      }
+    </div>
+
+    <section class="filters-panel">
+      <form class="filters-form" [formGroup]="filtersForm">
+      <div class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Range (days)</mat-label>
+          <input matInput type="number" min="1" max="180" formControlName="rangeDays">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End date</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Store</mat-label>
+          <mat-icon matPrefix>store</mat-icon>
+          <select matNativeControl formControlName="storeId">
+            <option value="">All stores</option>
+            @for (s of storeOptions(); track s._id) {
+              <option [value]="s._id">{{ s.name }}</option>
+            }
+          </select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Product</mat-label>
+          <mat-icon matPrefix>inventory_2</mat-icon>
+          <input matInput formControlName="product" [matAutocomplete]="productAuto" placeholder="Search & select" />
+          <mat-autocomplete #productAuto="matAutocomplete" [displayWith]="productDisplay">
+            @for (p of productOptions(); track p._id) {
+              <mat-option [value]="p">
+                {{ p.name }}
+                @if (p.category) { <span class="option-meta">{{ p.category }}</span> }
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Promoter</mat-label>
+          <mat-icon matPrefix>person_search</mat-icon>
+          <input matInput formControlName="promoter" [matAutocomplete]="promoterAuto" placeholder="Search & select" />
+          <mat-autocomplete #promoterAuto="matAutocomplete" [displayWith]="promoterDisplay">
+            @for (p of promoterOptions(); track p._id) {
+              <mat-option [value]="p">
+                {{ promoterLabel(p) }}
+                @if (p.email) { <span class="option-meta">{{ p.email }}</span> }
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-icon matPrefix>category</mat-icon>
+          <input matInput formControlName="category" placeholder="e.g. Fashion">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Search products</mat-label>
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput formControlName="search" placeholder="Product name">
+        </mat-form-field>
+      </div>
+
+      <div class="filters-footer">
+        <div class="refresh-meta">
+          @if (isRefreshing()) {
+            <mat-spinner diameter="18"></mat-spinner>
+            <span>Refreshing…</span>
+          } @else if (lastRefreshedAt()) {
+            <span>Updated {{ lastRefreshedAt() | date:'shortTime' }}</span>
+          }
+        </div>
+
+        <button mat-button type="button" (click)="filtersForm.reset({ rangeDays: 7, page: 1, limit: 20 })">
+          <mat-icon>restart_alt</mat-icon>
+          Reset filters
+        </button>
+      </div>
+      </form>
+    </section>
+
+    @if (alerts().length) {
+      <section class="alerts-panel">
+        <mat-icon>tips_and_updates</mat-icon>
+        <div>
+          <strong>Insights</strong>
+          <div class="alerts-list">
+            @for (a of alerts(); track a) {
+              <span class="alert-chip">{{ a }}</span>
+            }
+          </div>
+        </div>
+      </section>
+    }
+
+    <section class="trend-panel">
+      <div class="trend-header">
+        <div>
+          <h2>Trends</h2>
+          <p>Revenue and clicks over the selected range.</p>
+        </div>
+        <mat-button-toggle-group [value]="trendView()" (valueChange)="setTrendView($event)">
+          <mat-button-toggle value="daily">Daily</mat-button-toggle>
+          <mat-button-toggle value="weekly">Weekly</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="trend-grid">
+        <mat-card class="trend-card" appearance="outlined">
+          <div class="trend-card-header">
+            <span>Revenue</span>
+            <strong>{{ (overview()?.summary?.grossRevenue || 0) | currencyUtils:'NGN' }}</strong>
+          </div>
+          <svg viewBox="0 0 720 140" preserveAspectRatio="none" class="sparkline">
+            <polyline [attr.points]="revenueSparkline().points" />
+          </svg>
+        </mat-card>
+
+        <mat-card class="trend-card" appearance="outlined">
+          <div class="trend-card-header">
+            <span>Clicks</span>
+            <strong>{{ (overview()?.summary?.clicks || 0) | number }}</strong>
+          </div>
+          <svg viewBox="0 0 720 140" preserveAspectRatio="none" class="sparkline alt">
+            <polyline [attr.points]="clickSparkline().points" />
+          </svg>
+        </mat-card>
+      </div>
+    </section>
+
+    <section class="leaders-panel">
+      <div class="leaders-grid">
+        <mat-card class="leaders-card" appearance="outlined">
+          <div class="leaders-header">
+            <div>
+              <h2>Top Products</h2>
+              <p>Highest revenue within the selected range.</p>
+            </div>
+          </div>
+
+          @if (topProducts().length === 0) {
+            <div class="mini-empty">
+              <mat-icon>inventory_2</mat-icon>
+              <span>No sales data yet.</span>
+            </div>
+          } @else {
+            <div class="leaders-list">
+              @for (row of topProducts(); track row.product?._id || row.productId) {
+                <button class="leader-row" type="button" (click)="row.product?._id && openBreakdownForProduct(row.product._id, row.product.name, row.product.category, row.product.image)">
+                  <div class="leader-main">
+                    <strong>{{ row.product?.name || 'Product' }}</strong>
+                    <span class="sub">{{ row.product?.category || 'Uncategorized' }}</span>
+                  </div>
+                  <div class="leader-metrics">
+                    <span>{{ row.revenue | currencyUtils:'NGN' }}</span>
+                    <span class="muted">{{ row.orders | number }} orders</span>
+                  </div>
+                </button>
+              }
+            </div>
+          }
+        </mat-card>
+
+        <mat-card class="leaders-card" appearance="outlined">
+          <div class="leaders-header">
+            <div>
+              <h2>Top Promoters</h2>
+              <p>Highest revenue driven within the selected range.</p>
+            </div>
+          </div>
+
+          @if (topPromoters().length === 0) {
+            <div class="mini-empty">
+              <mat-icon>group</mat-icon>
+              <span>No promoter sales yet.</span>
+            </div>
+           } @else {
+             <div class="leaders-list">
+               @for (row of topPromoters(); track row.promoter?._id || row.promoterId) {
+                <button class="leader-row" type="button" (click)="row.promoter?._id && applyPromoterFilter(row.promoter)">
+                  <div class="leader-main">
+                    <strong>{{ promoterLabel(row.promoter) }}</strong>
+                    <span class="sub">{{ row.promoter?.email || '' }}</span>
+                  </div>
+                  <div class="leader-metrics">
+                    <span>{{ row.revenue | currencyUtils:'NGN' }}</span>
+                    <span class="muted">{{ row.orders | number }} orders</span>
+                  </div>
+                </button>
+               }
+             </div>
+           }
+         </mat-card>
+       </div>
+     </section>
+
+    <section class="products-panel">
+      <div class="section-toolbar">
+        <div>
+          <h2>Promoted Products</h2>
+          <p>{{ productsPage().total | number }} product{{ productsPage().total === 1 ? '' : 's' }} with active promoter links</p>
+        </div>
+      </div>
+
+      @if (sortedProductRows().length === 0) {
+        <div class="empty-state">
+          <mat-icon>inventory_2</mat-icon>
+          <h3>No promoted products found</h3>
+          <p>Once promoters start generating links and clicks, your product analytics will show here.</p>
+          <a mat-raised-button color="primary" routerLink="/dashboard/stores">
+            Go to Stores
+          </a>
+        </div>
+      } @else {
+        <div class="products-table-wrap">
+          <table mat-table [dataSource]="sortedProductRows()" matSort (matSortChange)="sortProducts($event)" class="products-table">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="product">Product</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="cell-product">
+                  <div class="thumb">
+                    @if (productImage(row)) {
+                      <img [src]="productImage(row)!" [alt]="row.product.name">
+                    } @else {
+                      <mat-icon>inventory_2</mat-icon>
+                    }
+                  </div>
+                  <div>
+                    <strong>{{ row.product.name }}</strong>
+                    <span class="sub">{{ row.product.category || 'Uncategorized' }}</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="store">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="store">Store</th>
+              <td mat-cell *matCellDef="let row">
+                <span>{{ row.store?.name || 'Store' }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="views">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="views">Views</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="cell-metric">
+                  <strong>{{ row.range.views | number }}</strong>
+                  <span class="sub">{{ row.range.uniqueViews | number }} unique</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="clicks">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="clicks">Clicks</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="cell-metric">
+                  <strong>{{ row.range.clicks | number }}</strong>
+                  <span class="sub">{{ row.range.uniqueClicks | number }} unique</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="orders">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="orders">Paid Orders</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="cell-metric">
+                  <strong>{{ row.range.paidOrders | number }}</strong>
+                  <span class="sub">{{ row.range.pendingOrders | number }} pending</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="conversion">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="conversion">CVR</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-chip class="chip" [class.bad]="row.range.conversionRate < 0.8" [class.good]="row.range.conversionRate >= 2">
+                  {{ row.range.conversionRate | number:'1.1-1' }}%
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="revenue">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="grossRevenue">Revenue</th>
+              <td mat-cell *matCellDef="let row">
+                <strong>{{ row.range.grossRevenue | currencyUtils:'NGN' }}</strong>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="commission">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="commission">Commission</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="cell-metric">
+                  <strong>{{ row.range.commissionAccrued | currencyUtils:'NGN' }}</strong>
+                  <span class="sub">{{ row.range.commissionPaid | currencyUtils:'NGN' }} paid</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="topPromoters">
+              <th mat-header-cell *matHeaderCellDef>Top Promoters</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="promoter-pill-row">
+                  @for (p of row.topPromoters; track p.promoter._id) {
+                    <span class="promoter-pill" [matTooltip]="promoterLabel(p.promoter)">
+                      {{ promoterLabel(p.promoter) }}
+                    </span>
+                  }
+                  @if (row.topPromoters.length === 0) {
+                    <span class="muted">—</span>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-stroked-button type="button" (click)="openProductBreakdown(row)">
+                  <mat-icon>insights</mat-icon>
+                  Details
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedProductColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedProductColumns; trackBy: trackByProductId"></tr>
+          </table>
+        </div>
+
+        <mat-paginator
+          [length]="productsPage().total"
+          [pageIndex]="productsPage().page - 1"
+          [pageSize]="productsPage().limit"
+          [pageSizeOptions]="[10, 20, 50, 100]"
+          (page)="onPage($event)">
+        </mat-paginator>
+      }
+    </section>
+  }
+
+  <ng-template #productPromotersDialog>
+    <div class="dialog-header">
+      <div>
+        <h2>Promoter Breakdown</h2>
+        <p>{{ selectedProduct()?.product?.name }}</p>
+      </div>
+      <button mat-icon-button type="button" (click)="closeBreakdown()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      <div class="dialog-kpis">
+        <div class="dialog-kpi">
+          <span>Views</span>
+          <strong>{{ (selectedProduct()?.range?.views || 0) | number }}</strong>
+          <small>{{ (selectedProduct()?.range?.uniqueViews || 0) | number }} unique</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>Clicks</span>
+          <strong>{{ (selectedProduct()?.range?.clicks || 0) | number }}</strong>
+          <small>{{ (selectedProduct()?.range?.uniqueClicks || 0) | number }} unique</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>CTR</span>
+          <strong>{{ (selectedProduct()?.range?.clickThroughRate || 0) | number:'1.1-1' }}%</strong>
+          <small>Click-through</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>CVR</span>
+          <strong>{{ (selectedProduct()?.range?.conversionRate || 0) | number:'1.1-1' }}%</strong>
+          <small>Paid orders / clicks</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>Orders</span>
+          <strong>{{ (selectedProduct()?.range?.paidOrders || 0) | number }}</strong>
+          <small>{{ (selectedProduct()?.range?.pendingOrders || 0) | number }} pending</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>Revenue</span>
+          <strong>{{ (selectedProduct()?.range?.grossRevenue || 0) | currencyUtils:'NGN' }}</strong>
+          <small>{{ (selectedProduct()?.range?.units || 0) | number }} units</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>Commission</span>
+          <strong>{{ (selectedProduct()?.range?.commissionAccrued || 0) | currencyUtils:'NGN' }}</strong>
+          <small>{{ (selectedProduct()?.range?.commissionPaid || 0) | currencyUtils:'NGN' }} paid</small>
+        </div>
+        <div class="dialog-kpi">
+          <span>Last activity</span>
+          @if (selectedProduct()?.lastActivityAt) {
+            <strong>{{ selectedProduct()?.lastActivityAt | date:'short' }}</strong>
+          } @else {
+            <strong>-</strong>
+          }
+          <small>Latest click or view</small>
+        </div>
+      </div>
+
+      @if (breakdownLoading()) {
+        <div class="mini-loading">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Loading breakdown…</span>
+        </div>
+      } @else if (breakdownRows().length === 0) {
+        <div class="mini-empty">
+          <mat-icon>group</mat-icon>
+          <span>No promoter activity in this range.</span>
+        </div>
+      } @else {
+        <div class="breakdown-table-wrap">
+          <table mat-table [dataSource]="breakdownRows()" class="breakdown-table">
+          <ng-container matColumnDef="promoter">
+            <th mat-header-cell *matHeaderCellDef>Promoter</th>
+            <td mat-cell *matCellDef="let row">
+              <div class="cell-promoter">
+                <strong>{{ promoterLabel(row.promoter) }}</strong>
+                <span class="sub">{{ row.promoter?.email || '' }}</span>
+              </div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="views">
+            <th mat-header-cell *matHeaderCellDef>Views</th>
+            <td mat-cell *matCellDef="let row">{{ row.views | number }}</td>
+          </ng-container>
+          <ng-container matColumnDef="clicks">
+            <th mat-header-cell *matHeaderCellDef>Clicks</th>
+            <td mat-cell *matCellDef="let row">{{ row.clicks | number }}</td>
+          </ng-container>
+          <ng-container matColumnDef="orders">
+            <th mat-header-cell *matHeaderCellDef>Paid Orders</th>
+            <td mat-cell *matCellDef="let row">{{ row.paidOrders | number }}</td>
+          </ng-container>
+          <ng-container matColumnDef="conversion">
+            <th mat-header-cell *matHeaderCellDef>CVR</th>
+            <td mat-cell *matCellDef="let row">{{ row.conversionRate | number:'1.1-1' }}%</td>
+          </ng-container>
+          <ng-container matColumnDef="revenue">
+            <th mat-header-cell *matHeaderCellDef>Revenue</th>
+            <td mat-cell *matCellDef="let row">{{ row.revenue | currencyUtils:'NGN' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="commission">
+            <th mat-header-cell *matHeaderCellDef>Commission</th>
+            <td mat-cell *matCellDef="let row">{{ row.commission | currencyUtils:'NGN' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedBreakdownColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedBreakdownColumns"></tr>
+          </table>
+        </div>
+      }
+    </div>
+  </ng-template>
+</section>

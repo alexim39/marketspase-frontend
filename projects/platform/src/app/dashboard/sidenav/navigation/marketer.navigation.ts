@@ -41,12 +41,14 @@ export function getMarketerNavigation(
         { icon: 'store', label: 'My Stores', route: '/dashboard/stores' },
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
         { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
+        { icon: 'insights', label: 'Promoted Products Analytics', route: '/dashboard/stores/promoted-products-analytics' },
         {
           icon: 'support_agent',
           label: 'Customer Support',
           expanded: false,
           children: [
-            { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' }
+            { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' },
+            { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
           ]
         }
         // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },

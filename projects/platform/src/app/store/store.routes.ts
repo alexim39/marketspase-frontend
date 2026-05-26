@@ -29,6 +29,18 @@ export const StoreRoutes: Routes = [
     },
 
     {
+        path: 'subscribers',
+        loadComponent: () => import('./marketer/subscribers/store-subscribers.component').then(c => c.StoreEmailSubscribersComponent),
+        title: "Email Subscribers - Storefront Newsletter List",
+    },
+
+    {
+        path: 'promoted-products-analytics',
+        loadComponent: () => import('./marketer/promoted-products-analytics/marketer-promoted-products-analytics.component').then(c => c.MarketerPromotedProductsAnalyticsComponent),
+        title: "Promoted Products Analytics - Track promoter activity and storefront sales",
+    },
+
+    {
         path: 'create',
         loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
         title: "Create New Store - Setup your Marketer Store",

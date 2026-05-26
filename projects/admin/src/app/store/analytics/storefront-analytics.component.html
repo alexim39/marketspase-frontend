@@ -1,0 +1,836 @@
+<div class="storefront-analytics">
+  <div class="page-header">
+    <div class="page-title">
+      <h2>Storefront Analytics</h2>
+      <p>Sales, promoters, buyers, and payout signals across the marketplace storefront</p>
+    </div>
+
+    <div class="page-actions">
+      <div class="action-row">
+        <button mat-stroked-button type="button" (click)="refresh()" [disabled]="isLoading()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+
+        <button mat-stroked-button type="button" [matMenuTriggerFor]="exportMenu" [disabled]="!overview()">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item type="button" (click)="exportCsv()">
+            <mat-icon>table_view</mat-icon>
+            <span>Export CSV</span>
+          </button>
+          <button mat-menu-item type="button" (click)="exportPdf()">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>Print / Save PDF</span>
+          </button>
+        </mat-menu>
+      </div>
+
+      <div class="last-updated">
+        @if (lastRefreshedAt()) {
+          Updated {{ lastRefreshedAt() | date:'medium' }}
+        } @else {
+          Not updated yet
+        }
+      </div>
+    </div>
+  </div>
+
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <form class="filters-grid" [formGroup]="filtersForm">
+        <mat-form-field appearance="outline">
+          <mat-label>Quick range</mat-label>
+          <mat-select formControlName="rangeDays">
+            <mat-option [value]="1">Last 24 hours</mat-option>
+            <mat-option [value]="7">Last 7 days</mat-option>
+            <mat-option [value]="30">Last 30 days</mat-option>
+            <mat-option [value]="90">Last 90 days</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End date</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Store (optional)</mat-label>
+          <input matInput formControlName="store" [matAutocomplete]="storeAuto" placeholder="Search by store name or link" />
+          <button mat-icon-button matSuffix type="button" (click)="clearStore()" [disabled]="!filtersForm.controls.store.value" aria-label="Clear store">
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-autocomplete #storeAuto="matAutocomplete" [displayWith]="storeDisplay.bind(this)">
+            @for (store of storeOptions(); track store._id) {
+              <mat-option [value]="store">
+                <div class="option-row">
+                  <span class="option-title">{{ store.name }}</span>
+                  <span class="option-sub">{{ store.storeLink || store._id }}</span>
+                </div>
+              </mat-option>
+            }
+            @if (storeOptions().length === 0 && (filtersForm.controls.store.value || '').toString().length >= 2) {
+              <mat-option disabled>No stores found</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category" [disabled]="isLoadingFilters()">
+            <mat-option value="">All categories</mat-option>
+            @for (cat of categories(); track cat) {
+              <mat-option [value]="cat">{{ cat }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Product (optional)</mat-label>
+          <input matInput formControlName="product" [matAutocomplete]="productAuto" placeholder="Search product name" />
+          <button mat-icon-button matSuffix type="button" (click)="clearProduct()" [disabled]="!filtersForm.controls.product.value" aria-label="Clear product">
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-autocomplete #productAuto="matAutocomplete" [displayWith]="productDisplay.bind(this)">
+            @for (product of productOptions(); track product._id) {
+              <mat-option [value]="product">
+                <div class="option-row">
+                  <span class="option-title">{{ product.name }}</span>
+                  <span class="option-sub">{{ product.store?.name || 'Unknown store' }} • {{ product.category || 'Uncategorized' }}</span>
+                </div>
+              </mat-option>
+            }
+            @if (productOptions().length === 0 && (filtersForm.controls.product.value || '').toString().length >= 2) {
+              <mat-option disabled>No products found</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Promoter ID (optional)</mat-label>
+          <input matInput formControlName="promoterId" placeholder="Filter to a single promoter" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Buyer country (optional)</mat-label>
+          <input matInput formControlName="buyerCountry" placeholder="e.g. Nigeria" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Buyer state (optional)</mat-label>
+          <input matInput formControlName="buyerState" placeholder="e.g. Lagos" />
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="overview-section">
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Overview</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (isLoading()) {
+          <div class="loading-block">
+            <mat-spinner diameter="34"></mat-spinner>
+            <span>Loading storefront analytics...</span>
+          </div>
+        } @else {
+          <div class="summary-grid">
+            @for (card of summaryCards(); track card.label) {
+              <button class="metric-tile" type="button" [class.tone-primary]="card.tone === 'primary'" [class.tone-warn]="card.tone === 'warn'">
+                <div class="metric-icon">
+                  <mat-icon>{{ card.icon }}</mat-icon>
+                </div>
+                <div class="metric-meta">
+                  <div class="metric-label">{{ card.label }}</div>
+                  <div class="metric-value">
+                    @if (card.format === 'currency') {
+                      {{ card.value || 0 | currency:'NGN':'symbol-narrow':'1.0-0' }}
+                    } @else {
+                      {{ card.value || 0 }}
+                    }
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+
+          @if (alerts().length) {
+            <div class="alerts">
+              <div class="alerts-title">
+                <mat-icon>warning</mat-icon>
+                Anomalies
+              </div>
+              <mat-chip-set>
+                @for (alert of alerts(); track alert) {
+                  <mat-chip class="chip-warn">{{ alert }}</mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="grid-two">
+    <mat-card class="trend-card">
+      <mat-card-header>
+        <mat-card-title>Sales trend</mat-card-title>
+        <mat-card-subtitle>Revenue and orders over time (paid orders)</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="trend-toolbar">
+          <mat-button-toggle-group [value]="trendView()" (change)="setTrendView($event.value)" aria-label="Trend granularity">
+            <mat-button-toggle value="daily">Daily</mat-button-toggle>
+            <mat-button-toggle value="weekly">Weekly</mat-button-toggle>
+          </mat-button-toggle-group>
+
+          <div class="trend-legend">
+            <span class="legend-item">
+              <span class="legend-swatch revenue"></span>
+              Revenue
+            </span>
+            <span class="legend-item">
+              <span class="legend-swatch orders"></span>
+              Orders
+            </span>
+          </div>
+        </div>
+
+        @if (isLoading()) {
+          <div class="loading-block">
+            <mat-spinner diameter="28"></mat-spinner>
+            <span>Loading trends...</span>
+          </div>
+        } @else if (series().length === 0) {
+          <div class="no-trend">
+            <mat-icon>timeline</mat-icon>
+            No paid order activity in the selected range.
+          </div>
+        } @else {
+          <svg class="sparkline" viewBox="0 0 720 140" preserveAspectRatio="none" aria-label="Revenue trend chart">
+            <polyline class="sparkline-revenue" [attr.points]="revenueSparkline().points"></polyline>
+            <polyline class="sparkline-orders" [attr.points]="ordersSparkline().points"></polyline>
+          </svg>
+
+          <div class="bucket-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Bucket</th>
+                  <th class="num">Revenue</th>
+                  <th class="num">Orders</th>
+                  <th class="num">Units</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of series().slice(-10); track row.bucket) {
+                  <tr>
+                    <td>{{ row.bucket }}</td>
+                    <td class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                    <td class="num">{{ row.orders }}</td>
+                    <td class="num">{{ row.units }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="category-card">
+      <mat-card-header>
+        <mat-card-title>Category totals</mat-card-title>
+        <mat-card-subtitle>Total sales grouped by product category</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (isLoading()) {
+          <div class="loading-block">
+            <mat-spinner diameter="28"></mat-spinner>
+            <span>Loading categories...</span>
+          </div>
+        } @else if (sortedCategoryRows().length === 0) {
+          <div class="no-trend">
+            <mat-icon>category</mat-icon>
+            No category data for the selected filters.
+          </div>
+        } @else {
+          <div class="category-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th class="num">Revenue</th>
+                  <th class="num">Orders</th>
+                  <th class="num">Units</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of sortedCategoryRows(); track row.category) {
+                  <tr class="clickable" (click)="applyCategory(row.category)" tabindex="0">
+                    <td>{{ row.category }}</td>
+                    <td class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                    <td class="num">{{ row.orders }}</td>
+                    <td class="num">{{ row.units }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="category-hint">
+            Click a category to drill down.
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>Top-selling products</mat-card-title>
+      <mat-card-subtitle>Sales by product with promoter attribution (paid orders)</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-block">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Loading products...</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="sortedTopProducts()" matSort (matSortChange)="onTopProductsSort($event)" class="analytics-table">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="product">Product</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="entity">
+                  <div class="entity-main">{{ row.product?.name || 'Unknown product' }}</div>
+                  <div class="entity-sub">{{ row.product?.category || 'Uncategorized' }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="store">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="store">Store</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-button class="link-button" type="button" (click)="openStoreProducts(row.store?._id)">
+                  {{ row.store?.name || 'Store' }}
+                </button>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="revenue">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="revenue" class="num">Revenue</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="units">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="units" class="num">Units</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.units }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="commission">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="commission" class="num">Commission</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.commission | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="topPromoters">
+              <th mat-header-cell *matHeaderCellDef>Top promoters</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="chips-inline">
+                  @if (!row.topPromoters?.length) {
+                    <span class="muted">No promoter attribution</span>
+                  } @else {
+                    @for (p of row.topPromoters; track (p.promoterId || p.promoter?._id || p.orderCount)) {
+                      <mat-chip class="chip-neutral" [matTooltip]="(p.promoter?.email || p.promoterId) || ''">
+                        {{ p.promoter?.displayName || p.promoter?.username || 'Promoter' }} • {{ p.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}
+                      </mat-chip>
+                    }
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-stroked-button type="button" (click)="openProductBreakdown(row)" [disabled]="!row.product?._id">
+                  <mat-icon>query_stats</mat-icon>
+                  Breakdown
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedTopProductColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedTopProductColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>Top promoters</mat-card-title>
+      <mat-card-subtitle>Promoter performance and payout status (paid orders)</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-block">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Loading promoters...</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="sortedTopPromoters()" matSort (matSortChange)="onTopPromotersSort($event)" class="analytics-table">
+            <ng-container matColumnDef="promoter">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="promoter">Promoter</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="entity">
+                  <button mat-button class="link-button" type="button" (click)="openUserDetails(row.promoter?._id || row.promoterId)">
+                    {{ row.promoter?.displayName || row.promoter?.email || row.promoterId }}
+                  </button>
+                  <div class="entity-sub">{{ row.promoter?.email || '' }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="revenue">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="revenue" class="num">Revenue</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="orders">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="orders" class="num">Orders</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.orders }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="units">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="units" class="num">Units</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.units }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="commission">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="commission" class="num">Commission</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.commission | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="payout">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="commissionPending" class="num">Payout</th>
+              <td mat-cell *matCellDef="let row" class="num">
+                <div class="payout">
+                  <div class="payout-paid">{{ row.commissionPaid | currency:'NGN':'symbol-narrow':'1.0-0' }} paid</div>
+                  <div class="payout-pending">{{ row.commissionPending | currency:'NGN':'symbol-narrow':'1.0-0' }} pending</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-stroked-button type="button" (click)="openPromoterBreakdown(row)">
+                  <mat-icon>list_alt</mat-icon>
+                  Products
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedTopPromoterColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedTopPromoterColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>Best-performing stores</mat-card-title>
+      <mat-card-subtitle>Top stores by revenue (paid orders)</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-block">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Loading stores...</span>
+        </div>
+      } @else if ((overview()?.topStores || []).length === 0) {
+        <div class="no-trend">
+          <mat-icon>storefront</mat-icon>
+          No store totals match the selected filters.
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="overview()?.topStores || []" class="analytics-table">
+            <ng-container matColumnDef="store">
+              <th mat-header-cell *matHeaderCellDef>Store</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-button class="link-button" type="button" (click)="openStoreProducts(row.store?._id)">
+                  {{ row.store?.name || row.store?._id || 'Store' }}
+                </button>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="revenue">
+              <th mat-header-cell *matHeaderCellDef class="num">Revenue</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="orders">
+              <th mat-header-cell *matHeaderCellDef class="num">Orders</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.orders }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="units">
+              <th mat-header-cell *matHeaderCellDef class="num">Units</th>
+              <td mat-cell *matCellDef="let row" class="num">{{ row.units }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-stroked-button type="button" (click)="copyText(row.store?._id || '', 'Store id copied.')" [disabled]="!row.store?._id">
+                  <mat-icon>content_copy</mat-icon>
+                  Copy ID
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedTopStoreColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedTopStoreColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>Pending (unfulfilled) orders</mat-card-title>
+      <mat-card-subtitle>Paid orders that are not yet delivered</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-block">
+          <mat-spinner diameter="28"></mat-spinner>
+          <span>Loading pending orders...</span>
+        </div>
+      } @else if ((overview()?.pendingOrders || []).length === 0) {
+        <div class="no-trend">
+          <mat-icon>task_alt</mat-icon>
+          No pending paid orders match the selected filters.
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="overview()?.pendingOrders || []" class="analytics-table pending-table">
+            <ng-container matColumnDef="order">
+              <th mat-header-cell *matHeaderCellDef>Order</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="entity">
+                  <div class="entity-main">{{ row.orderNumber || row._id }}</div>
+                  <div class="entity-sub">Placed {{ row.placedAt ? (row.placedAt | date:'mediumDate') : 'n/a' }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="store">
+              <th mat-header-cell *matHeaderCellDef>Store</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-button class="link-button" type="button" (click)="openStoreProducts(row.store?._id)">
+                  {{ row.store?.name || 'Store' }}
+                </button>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="buyer">
+              <th mat-header-cell *matHeaderCellDef>Buyer</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="entity">
+                  <div class="entity-main">{{ row.buyer?.name || row.buyer?.email || 'Buyer' }}</div>
+                  <div class="entity-sub">{{ row.buyer?.country || '' }} {{ row.buyer?.state ? ('• ' + row.buyer?.state) : '' }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="promoters">
+              <th mat-header-cell *matHeaderCellDef>Promoters</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="chips-inline">
+                  @if (!row.promoters?.length) {
+                    <span class="muted">n/a</span>
+                  } @else {
+                    @for (p of row.promoters; track p._id) {
+                      <mat-chip class="chip-neutral" (click)="openUserDetails(p._id)" [matTooltip]="p.email || ''">
+                        {{ p.displayName || p.email || p._id }}
+                      </mat-chip>
+                    }
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef class="num">Amount</th>
+              <td mat-cell *matCellDef="let row" class="num">
+                {{ (row.selectionRevenue || row.totalAmount || 0) | currency:(row.currency || 'NGN'):'symbol-narrow':'1.0-0' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let row">
+                <mat-chip-set>
+                  <mat-chip class="chip-warn">{{ row.orderStatus || 'pending' }}</mat-chip>
+                  @if (row.escrowStatus) {
+                    <mat-chip class="chip-neutral">{{ row.escrowStatus }}</mat-chip>
+                  }
+                </mat-chip-set>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-stroked-button type="button" (click)="copyText(row._id, 'Order id copied.')">
+                  <mat-icon>content_copy</mat-icon>
+                  Copy ID
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedPendingOrderColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedPendingOrderColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <div class="grid-two">
+    <mat-card class="small-table-card">
+      <mat-card-header>
+        <mat-card-title>Buyer demographics</mat-card-title>
+        <mat-card-subtitle>Top buyer locations (paid orders)</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoading()) {
+          <div class="loading-block">
+            <mat-spinner diameter="26"></mat-spinner>
+            <span>Loading buyer geo...</span>
+          </div>
+        } @else if ((overview()?.buyerGeo || []).length === 0) {
+          <div class="no-trend">
+            <mat-icon>public</mat-icon>
+            No buyer geo records.
+          </div>
+        } @else {
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th>Region</th>
+                <th class="num">Orders</th>
+                <th class="num">Revenue</th>
+                <th class="num">Buyers</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of (overview()?.buyerGeo || []); track (row.country + row.state)) {
+                <tr>
+                  <td>{{ row.country || 'Unknown' }} {{ row.state ? ('• ' + row.state) : '' }}</td>
+                  <td class="num">{{ row.orders }}</td>
+                  <td class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                  <td class="num">{{ row.buyers }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="small-table-card">
+      <mat-card-header>
+        <mat-card-title>Referral sources</mat-card-title>
+        <mat-card-subtitle>Where buyers are coming from</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @if (isLoading()) {
+          <div class="loading-block">
+            <mat-spinner diameter="26"></mat-spinner>
+            <span>Loading sources...</span>
+          </div>
+        } @else if ((overview()?.referralSources || []).length === 0) {
+          <div class="no-trend">
+            <mat-icon>assistant</mat-icon>
+            No referral source records.
+          </div>
+        } @else {
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th class="num">Orders</th>
+                <th class="num">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of (overview()?.referralSources || []); track row.source) {
+                <tr>
+                  <td>{{ row.source || 'unknown' }}</td>
+                  <td class="num">{{ row.orders }}</td>
+                  <td class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <ng-template #productBreakdownDialog>
+    <div class="dialog-shell">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <h3>Product promoter breakdown</h3>
+          <p>Which promoters generated sales for this product</p>
+        </div>
+        <button mat-icon-button type="button" (click)="closeBreakdownDialog()" aria-label="Close breakdown dialog">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="dialog-content">
+        @if (isLoadingBreakdown()) {
+          <div class="loading-block">
+            <mat-spinner diameter="28"></mat-spinner>
+            <span>Loading breakdown...</span>
+          </div>
+        } @else if (!productBreakdown()) {
+          <div class="no-trend">
+            <mat-icon>error_outline</mat-icon>
+            No breakdown data available.
+          </div>
+        } @else {
+          <div class="dialog-meta">
+            <div class="entity">
+              <div class="entity-main">{{ productBreakdown()?.product?.name }}</div>
+              <div class="entity-sub">{{ productBreakdown()?.product?.store?.name }} • {{ productBreakdown()?.product?.category }}</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>Promoter</th>
+                  <th class="num">Revenue</th>
+                  <th class="num">Orders</th>
+                  <th class="num">Units</th>
+                  <th class="num">Commission</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of (productBreakdown()?.breakdown || []); track row.promoterId) {
+                  <tr>
+                    <td>
+                      <button mat-button class="link-button" type="button" (click)="openUserDetails(row.promoter?._id || row.promoterId)">
+                        {{ row.promoter?.displayName || row.promoter?.email || row.promoterId }}
+                      </button>
+                    </td>
+                    <td class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                    <td class="num">{{ row.orderCount }}</td>
+                    <td class="num">{{ row.units }}</td>
+                    <td class="num">{{ row.commission | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #promoterBreakdownDialog>
+    <div class="dialog-shell">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <h3>Promoter product breakdown</h3>
+          <p>Products this promoter generated sales for</p>
+        </div>
+        <button mat-icon-button type="button" (click)="closeBreakdownDialog()" aria-label="Close breakdown dialog">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="dialog-content">
+        @if (isLoadingBreakdown()) {
+          <div class="loading-block">
+            <mat-spinner diameter="28"></mat-spinner>
+            <span>Loading breakdown...</span>
+          </div>
+        } @else if (!promoterBreakdown()) {
+          <div class="no-trend">
+            <mat-icon>error_outline</mat-icon>
+            No breakdown data available.
+          </div>
+        } @else {
+          <div class="table-wrap">
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Store</th>
+                  <th class="num">Revenue</th>
+                  <th class="num">Orders</th>
+                  <th class="num">Units</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of (promoterBreakdown()?.breakdown || []); track row.productId) {
+                  <tr>
+                    <td>
+                      <div class="entity">
+                        <div class="entity-main">{{ row.product?.name || row.productId }}</div>
+                        <div class="entity-sub">{{ row.product?.category || '' }}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <button mat-button class="link-button" type="button" (click)="openStoreProducts(row.store?._id)">
+                        {{ row.store?.name || 'Store' }}
+                      </button>
+                    </td>
+                    <td class="num">{{ row.revenue | currency:'NGN':'symbol-narrow':'1.0-0' }}</td>
+                    <td class="num">{{ row.orderCount }}</td>
+                    <td class="num">{{ row.units }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -371,4 +371,13 @@ export class StorefrontService {
     return this.apiService.post<any>(`${this.apiUrl}/storefront/orders/${orderId}/confirm-delivery`, payload, undefined, true);
   }
 
+  subscribeStoreNewsletter(storeId: string, email: string, payload?: { source?: string; referrer?: string; metadata?: any }): Observable<any> {
+    return this.apiService.post<any>(
+      `${this.apiUrl}/storefront/${storeId}/subscribers`,
+      { email, ...(payload || {}) },
+      undefined,
+      true
+    );
+  }
+
 }

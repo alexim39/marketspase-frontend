@@ -157,6 +157,19 @@ export interface AdminBuyersResponse {
   };
 }
 
+export interface AdminSubscribersResponse {
+  subscribers: any[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  filters: {
+    stores: AdminBuyerLinkedStore[];
+  };
+}
+
 @Injectable()
 export class StoreService {
   private readonly apiService: ApiService = inject(ApiService);
@@ -300,5 +313,45 @@ export class StoreService {
     removeTags?: string[];
   }): Observable<{ success: boolean; message: string }> {
     return this.apiService.patch<{ success: boolean; message: string }>(`${this.apiUrl}/buyers/meta`, payload);
+  }
+
+  getAdminSubscribers(filters?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    storeId?: string;
+    ownerId?: string;
+    status?: string;
+    source?: string;
+    startDate?: Date;
+    endDate?: Date;
+    sortBy?: string;
+    sortOrder?: string;
+  }): Observable<{ success: boolean; data: AdminSubscribersResponse }> {
+    let queryParams = '';
+    if (filters) {
+      const params = new URLSearchParams();
+      if (filters.page) params.set('page', String(filters.page));
+      if (filters.limit) params.set('limit', String(filters.limit));
+      if (filters.search) params.set('search', filters.search);
+      if (filters.storeId) params.set('storeId', filters.storeId);
+      if (filters.ownerId) params.set('ownerId', filters.ownerId);
+      if (filters.status) params.set('status', filters.status);
+      if (filters.source) params.set('source', filters.source);
+      if (filters.startDate) params.set('startDate', filters.startDate.toISOString());
+      if (filters.endDate) params.set('endDate', filters.endDate.toISOString());
+      if (filters.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.set('sortOrder', filters.sortOrder);
+      const paramString = params.toString();
+      if (paramString) queryParams = `?${paramString}`;
+    }
+
+    return this.apiService.get<{ success: boolean; data: AdminSubscribersResponse }>(`${this.apiUrl}/subscribers${queryParams}`);
+  }
+
+  deleteAdminSubscriber(subscriberId: string): Observable<{ success: boolean; message?: string; data?: any }> {
+    return this.apiService.delete<{ success: boolean; message?: string; data?: any }>(
+      `${this.apiUrl}/subscribers/${subscriberId}`
+    );
   }
 }
