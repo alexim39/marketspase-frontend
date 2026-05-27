@@ -41,7 +41,7 @@ export function getMarketerNavigation(
         { icon: 'store', label: 'My Stores', route: '/dashboard/stores' },
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
         { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
-        { icon: 'insights', label: 'Promoted Products Analytics', route: '/dashboard/stores/promoted-products-analytics' },
+        { icon: 'insights', label: 'Products Analytics', route: '/dashboard/stores/promoted-products-analytics' },
         {
           icon: 'support_agent',
           label: 'Customer Support',

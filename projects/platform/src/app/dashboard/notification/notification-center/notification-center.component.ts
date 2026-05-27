@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject, combineLatest, debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
@@ -27,6 +28,7 @@ import { Notification, NotificationPageInfo, NotificationService } from '../noti
 import { NotificationRealtimeService } from '../notification-realtime.service';
 import { NotificationPreferencesService } from '../notification-preferences.service';
 import { UserInterface } from '@shared/services';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../store/shared/confirm-dialog/confirm-dialog.component';
 
 type NotificationStatusFilter = 'all' | 'unread' | 'read';
 type NotificationCategoryKey =
@@ -67,6 +69,7 @@ interface NotificationGroup {
     MatDividerModule,
     MatCheckboxModule,
     MatTooltipModule,
+    MatDialogModule,
     IntersectionObserverDirective,
   ],
   templateUrl: './notification-center.component.html',
@@ -80,6 +83,7 @@ export class NotificationCenterComponent {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly user = this.userService.user;
@@ -448,30 +452,51 @@ export class NotificationCenterComponent {
     ev?.preventDefault();
 
     if (!notificationId || this.deleting()) return;
-    const ok = window.confirm('Delete this notification? This cannot be undone.');
-    if (!ok) return;
 
-    this.deleting.set(true);
-    this.notificationService.deleteNotification(notificationId).subscribe({
-      next: (res: any) => {
-        if (!res?.success) {
-          this.snackBar.open('Failed to delete notification.', 'OK', { duration: 3000 });
-          return;
-        }
+    const data: ConfirmDialogData = {
+      title: 'Delete notification',
+      message: 'Delete this notification? This cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmColor: 'warn',
+      icon: 'delete_forever',
+      iconColor: 'warn',
+    };
 
-        this.items.update((current) => current.filter((n) => n._id !== notificationId));
-        this.selectedIds.update((current) => {
-          const next = new Set(current);
-          next.delete(notificationId);
-          return next;
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data,
+        width: '400px',
+        disableClose: false,
+        autoFocus: true,
+        panelClass: 'confirm-dialog-panel',
+      })
+      .afterClosed()
+      .subscribe((ok) => {
+        if (!ok) return;
+
+        this.deleting.set(true);
+        this.notificationService.deleteNotification(notificationId).subscribe({
+          next: (res: any) => {
+            if (!res?.success) {
+              this.snackBar.open('Failed to delete notification.', 'OK', { duration: 3000 });
+              return;
+            }
+
+            this.items.update((current) => current.filter((n) => n._id !== notificationId));
+            this.selectedIds.update((current) => {
+              const next = new Set(current);
+              next.delete(notificationId);
+              return next;
+            });
+          },
+          error: (err) => {
+            console.error('Failed to delete notification:', err);
+            this.snackBar.open('Failed to delete notification.', 'OK', { duration: 3000 });
+          },
+          complete: () => this.deleting.set(false),
         });
-      },
-      error: (err) => {
-        console.error('Failed to delete notification:', err);
-        this.snackBar.open('Failed to delete notification.', 'OK', { duration: 3000 });
-      },
-      complete: () => this.deleting.set(false),
-    });
+      });
   }
 
   deleteSelected(): void {
@@ -479,30 +504,50 @@ export class NotificationCenterComponent {
     const ids = Array.from(this.selectedIds().values());
     if (ids.length === 0) return;
 
-    const ok = window.confirm(`Delete ${ids.length} notification(s)? This cannot be undone.`);
-    if (!ok) return;
+    const data: ConfirmDialogData = {
+      title: `Delete ${ids.length} notification(s)`,
+      message: `Delete ${ids.length} notification(s)? This cannot be undone.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmColor: 'warn',
+      icon: 'delete_forever',
+      iconColor: 'warn',
+    };
 
-    this.deleting.set(true);
-    const idSet = new Set(ids);
+    this.dialog
+      .open(ConfirmDialogComponent, {
+        data,
+        width: '420px',
+        disableClose: false,
+        autoFocus: true,
+        panelClass: 'confirm-dialog-panel',
+      })
+      .afterClosed()
+      .subscribe((ok) => {
+        if (!ok) return;
 
-    this.notificationService.bulkDeleteNotifications(ids).subscribe({
-      next: (res: any) => {
-        if (!res?.success) {
-          this.snackBar.open('Failed to delete notifications.', 'OK', { duration: 3000 });
-          return;
-        }
+        this.deleting.set(true);
+        const idSet = new Set(ids);
 
-        this.items.update((current) => current.filter((n) => !idSet.has(n._id)));
-        this.selectedIds.set(new Set());
-        this.selectionMode.set(false);
-        this.snackBar.open(`Deleted ${ids.length} notification(s).`, 'OK', { duration: 2500 });
-      },
-      error: (err) => {
-        console.error('Failed to bulk delete notifications:', err);
-        this.snackBar.open('Failed to delete notifications.', 'OK', { duration: 3000 });
-      },
-      complete: () => this.deleting.set(false),
-    });
+        this.notificationService.bulkDeleteNotifications(ids).subscribe({
+          next: (res: any) => {
+            if (!res?.success) {
+              this.snackBar.open('Failed to delete notifications.', 'OK', { duration: 3000 });
+              return;
+            }
+
+            this.items.update((current) => current.filter((n) => !idSet.has(n._id)));
+            this.selectedIds.set(new Set());
+            this.selectionMode.set(false);
+            this.snackBar.open(`Deleted ${ids.length} notification(s).`, 'OK', { duration: 2500 });
+          },
+          error: (err) => {
+            console.error('Failed to bulk delete notifications:', err);
+            this.snackBar.open('Failed to delete notifications.', 'OK', { duration: 3000 });
+          },
+          complete: () => this.deleting.set(false),
+        });
+      });
   }
 
   onNotificationClick(n: Notification): void {
