@@ -161,34 +161,65 @@
 .status-container {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    
+    gap: 6px;
+
     .status-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 64px;
+        height: 28px;
+        padding: 0 12px;
+        border-radius: 16px;
         font-size: 12px;
-        font-weight: 500;
-        padding: 4px 12px;
-        
+        font-weight: 600;
+        text-transform: capitalize;
+        letter-spacing: 0.2px;
+        color: #ffffff;
+        box-shadow: none;
+        transition: background-color 120ms ease, transform 120ms ease;
+
         &.active {
-            //background-color: #e8f5e9;
-            background: #2e7d32;
+            background: #2e7d32 !important;; /* green */
+            
         }
-        
+
         &.inactive {
-            //background-color: #fff3e0;
-            background: #ef6c00;
+            background: #ef6c00 !important;; /* orange */
         }
-        
+
         &.deleted {
-            //background-color: #ffebee;
-            background: #c62828;
+            background: #c62828 !important;; /* red */
         }
     }
-    
+
     .verification-chip {
-        //background-color: #e8f5e9;
-        background: #2e7d32;
+        display: inline-flex;
+        align-items: center;
+        height: 20px;
+        padding: 0 8px;
+        border-radius: 12px;
+        background: #2e7d32 !important;;
+        color: #ffffff;
         font-size: 10px;
-        padding: 2px 8px;
+        font-weight: 600;
+    }
+
+    /* Ensure Angular Material mat-chip background is overridden by using the element selector for higher specificity */
+    mat-chip.status-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 64px;
+        height: 28px;
+        padding: 0 12px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+        letter-spacing: 0.2px;
+        color: #ffffff;
+        box-shadow: none;
     }
 }
 

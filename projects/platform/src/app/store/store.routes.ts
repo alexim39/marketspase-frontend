@@ -90,7 +90,7 @@ export const StoreRoutes: Routes = [
     
     {
         path: 'promotions',
-        loadComponent: () => import('./promoter/promoted-products/promoted-products.component').then(c => c.PromotedProductsComponent),
+        loadComponent: () => import('./promoter/promoted-products').then(c => c.PromotionsIndexComponent),
         title: "Promoted Products - Affiliate Analytics",
     },
     

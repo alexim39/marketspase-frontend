@@ -12,12 +12,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CurrencyUtilsPipe } from '@shared/services';
-import { UserService } from '../../../common/services/user.service';
-import { StorefrontOrderService } from '../../services/storefront-order.service';
-import { PromotionService } from '../services/promotion.service';
+import { UserService } from '../../../../common/services/user.service';
+import { StorefrontOrderService } from '../../../services/storefront-order.service';
+import { PromotionService } from '../../services/promotion.service';
 
 @Component({
-  selector: 'app-promoted-products',
+  selector: 'app-mobile-promoted-products',
   standalone: true,
   imports: [
     CommonModule,
@@ -35,10 +35,10 @@ import { PromotionService } from '../services/promotion.service';
     CurrencyUtilsPipe
   ],
   providers: [PromotionService],
-  templateUrl: './promoted-products.component.html',
-  styleUrls: ['./promoted-products.component.scss']
+  templateUrl: './mobile-promoted-products.component.html',
+  styleUrls: ['./mobile-promoted-products.component.scss']
 })
-export class PromotedProductsComponent implements OnInit {
+export class MobilePromotedProductsComponent implements OnInit {
   private promotionService = inject(PromotionService);
   private orderService = inject(StorefrontOrderService);
   private userService = inject(UserService);

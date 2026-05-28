@@ -1,0 +1,501 @@
+// promoted-products.component.scss - Mobile-only version (corrected)
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.promoted-products-page {
+  min-height: 100%;
+  padding: $spacing-4;
+  background: $background-color;
+  color: $text-primary;
+  transition: background-color $transition-normal, color $transition-normal;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-5;
+
+  h1 {
+    margin: 4px 0 6px;
+    font-size: $font-size-3xl;
+    line-height: $line-height-tight;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: $font-size-base;
+    line-height: $line-height-normal;
+  }
+
+  button {
+    align-self: flex-start;
+    min-height: 44px;
+  }
+}
+
+.eyebrow {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: $primary-color;
+}
+
+/* State Panels & Empty States */
+.state-panel,
+.empty-state,
+.mini-empty {
+  display: grid;
+  place-items: center;
+  gap: $spacing-3;
+  min-height: 240px;
+  padding: $spacing-6;
+  text-align: center;
+  background: $surface-color;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-md;
+
+  mat-icon {
+    color: $text-tertiary;
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.state-panel.error {
+  color: $error-color;
+  
+  mat-icon {
+    color: $error-color;
+  }
+}
+
+/* Summary Grid - 2 columns on mobile, 1 on very small */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-3;
+  margin-bottom: $spacing-5;
+}
+
+@include small-screen {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-3;
+  align-items: center;
+  padding: $spacing-3;
+  border-radius: $border-radius-md;
+  background: $surface-color;
+  border: $border-width solid $border-color;
+  transition: background-color $transition-normal, 
+              border-color $transition-normal;
+
+  mat-icon {
+    color: $primary-color;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  span {
+    display: block;
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+  }
+
+  strong {
+    display: block;
+    margin-top: $spacing-1;
+    font-size: $font-size-base;      // was $font-size-md
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+/* Content Layout - stacked, sales panel first */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-5;
+  align-items: start;
+}
+
+.sales-panel {
+  order: -1;
+}
+
+/* Panels */
+.analytics-panel,
+.sales-panel {
+  background: $surface-color;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-md;
+  padding: $spacing-4;
+  transition: background-color $transition-normal, 
+              border-color $transition-normal;
+}
+
+/* Toolbars & Headers - stacked on mobile */
+.section-toolbar,
+.sales-header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+
+  h2 {
+    margin: 0 0 $spacing-1;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+/* Promotion & Order Lists */
+.promotion-list,
+.order-list {
+  display: grid;
+  gap: $spacing-3;
+}
+
+/* Promotion Card - vertical stacked */
+.promotion-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-md;
+  background: $surface-color;
+  transition: border-color $transition-normal;
+
+  &:active {
+    border-color: $primary-color;
+  }
+}
+
+.product-media {
+  width: 100%;
+  max-height: 200px;
+  aspect-ratio: 1;
+  border-radius: $border-radius-md;
+  background: $divider-color;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+
+  mat-icon {
+    color: $text-tertiary;
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* Promotion Headers - stacked */
+.promotion-heading {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  align-items: flex-start;
+
+  h3 {
+    margin: 0 0 $spacing-1;
+    font-size: $font-size-base;      // was $font-size-md
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+
+  p,
+  span {
+    margin: 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+}
+
+/* Performance Chips - Theme-Aware */
+mat-chip {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: capitalize;
+  min-height: 32px;
+  
+  &.high {
+    @include lighten-bg($success-color, 10%);
+    color: $success-color;
+  }
+
+  &.medium {
+    @include lighten-bg($info-color, 10%);
+    color: $info-color;
+  }
+
+  &.low {
+    @include lighten-bg($warning-color, 10%);
+    color: $warning-color;
+  }
+}
+
+/* Metric Rows - 2 columns, collapses to 1 on small */
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-2;
+  margin: $spacing-4 0;
+
+  div {
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius-md;
+    background: $divider-color;
+    transition: background-color $transition-normal;
+  }
+
+  span {
+    display: block;
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+  }
+
+  strong {
+    display: block;
+    margin-top: $spacing-1;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+  }
+}
+
+@include small-screen {
+  .metric-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Progress Bars */
+.progress-group {
+  display: grid;
+  gap: $spacing-2;
+  margin-bottom: $spacing-3;
+
+  > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.bar {
+  height: 8px;
+  border-radius: $border-radius-full;
+  background: $divider-color;
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    background: $primary-color;
+    border-radius: $border-radius-full;
+    transition: width $transition-slow;
+  }
+}
+
+/* Action Buttons - full width, stacked, min 44px height */
+.promotion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  button,
+  a {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+
+    mat-icon {
+      margin-right: $spacing-1;
+    }
+  }
+}
+
+/* Order Cards */
+.order-card {
+  display: grid;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius-md;
+  background: $surface-color;
+  transition: border-color $transition-normal;
+
+  &:active {
+    border-color: $primary-color;
+  }
+}
+
+.order-top {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  strong {
+    font-size: $font-size-sm;
+  }
+
+  span {
+    color: $text-secondary;
+    font-size: $font-size-xs;
+  }
+}
+
+.order-money {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-3;
+  border-radius: $border-radius-md;
+  background: $divider-color;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  
+  strong {
+    color: $text-primary;
+    font-weight: $font-weight-bold;
+  }
+}
+
+/* Release Statuses */
+.release-status {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+  padding: $spacing-3;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  
+  @include lighten-bg($info-color, 85%);
+  color: $info-color;
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &.rejected {
+    @include lighten-bg($error-color, 85%);
+    color: $error-color;
+  }
+}
+
+.release-note {
+  display: grid;
+  gap: $spacing-2;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: $border-width solid $border-color;
+    border-radius: $border-radius-md;
+    padding: $spacing-3;
+    resize: vertical;
+    font: inherit;
+    font-size: 16px; // Prevents zoom on iOS
+    background: $surface-color;
+    color: $text-primary;
+    transition: border-color $transition-normal,
+                box-shadow $transition-normal;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-rgb, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-tertiary;
+    }
+  }
+}
+
+/* Request Release Button - full width */
+.order-card button[mat-raised-button] {
+  width: 100%;
+  min-height: 44px;
+}
+
+/* Dark Mode Specific Adjustments */
+[data-theme="dark"] {
+  .promotion-card:active,
+  .order-card:active {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 1px $primary-color;
+  }
+
+  .product-media {
+    background: $border-color;
+  }
+
+  .bar {
+    background: $border-color;
+  }
+
+  .release-note textarea:focus {
+    box-shadow: 0 0 0 3px rgba($primary-rgb, 0.2);
+  }
+}
+
+/* High Contrast Mode Support */
+@media (forced-colors: active) {
+  .promotion-card,
+  .order-card {
+    border: $border-width-2 solid ButtonText;
+  }
+
+  .bar span {
+    background: ButtonText;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .promotion-card,
+  .order-card,
+  .bar span {
+    transition: none;
+  }
+}

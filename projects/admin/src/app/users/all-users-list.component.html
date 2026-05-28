@@ -29,9 +29,7 @@
     </div>
 
     <!-- Statistics Component (Conditional) -->
-    @if (showStatistics()) {
-        <app-role-statistics/>
-    }
+    <app-role-statistics *ngIf="showStatistics()"></app-role-statistics>
 
     <!-- Filters Card -->
     <mat-card class="filters-card">
@@ -90,9 +88,7 @@
             </div>
             
             <!-- Loading indicator -->
-            @if (isRefreshing()) {
-                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            }
+            <mat-progress-bar *ngIf="isRefreshing()" mode="indeterminate"></mat-progress-bar>
         </mat-card-content>
     </mat-card>
 
@@ -100,18 +96,18 @@
     <mat-card class="table-card">
         <mat-card-content>
             <div class="table-container">
-                @if (isLoading()) {
-                    <div class="loading-spinner">
-                        <mat-spinner diameter="40"></mat-spinner>
-                        <p>Loading users...</p>
-                    </div>
-                } @else if (dataSource.data.length === 0) {
-                    <div class="no-data">
-                        <mat-icon>people</mat-icon>
-                        <h3>No users found</h3>
-                        <p>Try adjusting your filters or search terms</p>
-                    </div>
-                } @else {
+                <div *ngIf="isLoading()" class="loading-spinner">
+                    <mat-spinner diameter="40"></mat-spinner>
+                    <p>Loading users...</p>
+                </div>
+
+                <div *ngIf="!isLoading() && dataSource.data.length === 0" class="no-data">
+                    <mat-icon>people</mat-icon>
+                    <h3>No users found</h3>
+                    <p>Try adjusting your filters or search terms</p>
+                </div>
+
+                <div *ngIf="!isLoading() && dataSource.data.length > 0">
                     <table mat-table [dataSource]="dataSource" matSort class="users-table">
                         <!-- Avatar Column -->
                         <ng-container matColumnDef="avatar">
@@ -175,17 +171,17 @@
                             <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
                             <td mat-cell *matCellDef="let user">
                                 <div class="status-container">
-                                    <mat-chip 
-                                        [class.active]="user.isActive && !user.isDeleted" 
-                                        [class.inactive]="!user.isActive && !user.isDeleted"
-                                        [class.deleted]="user.isDeleted"
-                                        class="status-chip">
-                                        {{ user.isDeleted ? 'Deleted' : (user.isActive ? 'Active' : 'Inactive') }}
-                                    </mat-chip>
-                                    @if (user.isVerified && !user.isDeleted) {
-                                        <mat-chip class="verification-chip">
-                                            Verified
-                                        </mat-chip>
+                                    @if (user.isActive && !user.isDeleted) {
+                                        <mat-chip class="status-chip active">Active</mat-chip>
+                                    }
+                                    @if (!user.isActive && !user.isDeleted) {
+                                        <mat-chip class="status-chip inactive">Inactive</mat-chip>
+                                    }
+                                    @if (user.isDeleted) {
+                                        <mat-chip class="status-chip deleted">Deleted</mat-chip>
+                                    }
+                                    @else if (user.isVerified && !user.isDeleted) {
+                                        <mat-chip class="verification-chip">Verified</mat-chip>
                                     }
                                 </div>
                             </td>
@@ -238,19 +234,16 @@
                                         <mat-icon>edit</mat-icon>
                                     </button>
                                     
-                                    @if (user.isActive && !user.isDeleted) {
-                                        <button mat-icon-button 
-                                                matTooltip="Deactivate"
-                                                (click)="deactivateUser(user)">
-                                            <mat-icon>toggle_off</mat-icon>
-                                        </button>
-                                    } @else if (!user.isDeleted) {
-                                        <button mat-icon-button 
-                                                matTooltip="Activate"
-                                                (click)="activateUser(user)">
-                                            <mat-icon>toggle_on</mat-icon>
-                                        </button>
-                                    }
+                                    <button mat-icon-button *ngIf="user.isActive && !user.isDeleted"
+                                            matTooltip="Deactivate"
+                                            (click)="deactivateUser(user)">
+                                        <mat-icon>toggle_off</mat-icon>
+                                    </button>
+                                    <button mat-icon-button *ngIf="!user.isActive && !user.isDeleted"
+                                            matTooltip="Activate"
+                                            (click)="activateUser(user)">
+                                        <mat-icon>toggle_on</mat-icon>
+                                    </button>
                                 </div>
                             </td>
                         </ng-container>
@@ -258,27 +251,24 @@
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                     </table>
-                }
+                </div>
             </div>
 
-            @if (!isLoading() && dataSource.data.length > 0) {
-                <mat-paginator [length]="totalUsers"
-                            [pageSize]="pageSize"
-                            [pageSizeOptions]="pageSizeOptions"
-                            [pageIndex]="pageIndex"
-                            (page)="onPageChange($event)"
-                            showFirstLastButtons
-                            aria-label="Select page of users">
-                </mat-paginator>
-            }
+            <mat-paginator *ngIf="!isLoading() && dataSource.data.length > 0"
+                           [length]="totalUsers"
+                           [pageSize]="pageSize"
+                           [pageSizeOptions]="pageSizeOptions"
+                           [pageIndex]="pageIndex"
+                           (page)="onPageChange($event)"
+                           showFirstLastButtons
+                           aria-label="Select page of users">
+            </mat-paginator>
                         
             <!-- Export Progress -->
-            @if (isExporting()) {
-                <div class="export-progress">
-                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-                    <p>Preparing export...</p>
-                </div>
-            }
+            <div *ngIf="isExporting()" class="export-progress">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                <p>Preparing export...</p>
+            </div>
         </mat-card-content>
     </mat-card>
 </div>
