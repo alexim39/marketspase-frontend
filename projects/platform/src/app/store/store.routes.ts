@@ -24,7 +24,7 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'support',
-        loadComponent: () => import('./marketer/customer-support/customer-support.component').then(c => c.CustomerSupportComponent),
+        loadComponent: () => import('./marketer/customer-support').then(c => c.CustomerSupportIndexComponent),
         title: "Customer Support - Buyer CRM",
     },
 
@@ -42,15 +42,15 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'create',
-        loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
+        loadComponent: () => import('./marketer/store-create').then(c => c.StoreCreateIndexComponent),
         title: "Create New Store - Setup your Marketer Store",
     }, 
    
     { 
         path: 'edit/:id', 
-        loadComponent: () => import('./marketer/edit-store/store-edit.component').then(c => c.StoreEditComponent),
+        loadComponent: () => import('./marketer/edit-store').then(c => c.StoreEditIndexComponent),
         title: "Edit Store - Update Store Information",
-    },
+    }, 
 
     {
         path: 'product/:productId',
@@ -60,25 +60,25 @@ export const StoreRoutes: Routes = [
 
     {
         path: ':storeId/products/create',
-        loadComponent: () => import('./marketer/products/add-products/add-product.component').then(c => c.AddProductComponent),
+        loadComponent: () => import('./marketer/products/add-products').then(c => c.AddProductIndexComponent),
         title: "Add New Product - Create Product for Store",
     },
 
     {
         path: ':storeId/products/edit/:productId',
-        loadComponent: () => import('./marketer/products/edit-product/edit-product.component').then(m => m.EditProductComponent),
+        loadComponent: () => import('./marketer/products/edit-product').then(m => m.EditProductIndexComponent),
         title: "Update Store Product - Edit Product Information",
     },
 
     {
         path: ':storeId/products',
-        loadComponent: () => import('./marketer/products/product-list/marketer-product-list-index.component').then(c => c.MarketerProductListComponent),
+        loadComponent: () => import('./marketer/products/product-list').then(c => c.MarketerProductListIndexComponent),
         title: "Product List - View and Manage Store Products",
     },
 
     {
         path: ':storeId/products/:productId',
-        loadComponent: () => import('./marketer/products/product-detail/marketer-product-detail.component').then(c => c.MarketerProductDetailComponent),
+        loadComponent: () => import('./marketer/products/product-detail').then(c => c.MarketerProductDetailIndexComponent),
         title: "Product Details - View and Manage Product Information",
     },
 

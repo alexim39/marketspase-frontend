@@ -38,6 +38,16 @@ Existing device-aware work already exists in these areas:
 | Notification center | Upgraded in this pass | `/dashboard/notifications` keeps shared realtime/cursor/delete logic while mobile/tablet now use bottom-sheet filters and mute preferences. |
 | Public product details | Converted in this pass | `/product/:productId` and `/promote/:productId` now use a device-aware wrapper; mobile/tablet users get a gallery-first product page with sticky buy/promote/share actions and bottom-sheet checkout. |
 | Public storefront landing | Converted in this pass | `/store/:storeLink` now uses a device-aware wrapper; mobile/tablet users get a native shop-feed with compact store hero, search, category rail, featured products, product cards, filters sheet, and sticky cart/contact actions. |
+| Public cart checkout | Converted in this pass | `/cart` now uses a device-aware wrapper; mobile/tablet users get grouped cart cards, store chips, quantity controls, escrow trust messaging, sticky checkout, and a bottom-sheet delivery/payment form. |
+| Marketer product management | Converted in this pass | `/dashboard/stores/:storeId/products` now uses a device-aware wrapper; mobile/tablet users get native inventory cards, stock/publishing filters, bulk publish/unpublish, and product action sheets. |
+| Marketer product creation | Converted in this pass | `/dashboard/stores/:storeId/products/create` now uses a device-aware wrapper; mobile/tablet users get a native product creation wizard with photo rail, pricing/commission preview, delivery controls, SEO fields, review step, and sticky publish actions. |
+| Marketer product editing | Converted in this pass | `/dashboard/stores/:storeId/products/edit/:productId` now uses a device-aware wrapper; mobile/tablet users get a focused update wizard that preserves existing product images, handles new image uploads/removals, updates pricing, stock, commission, delivery, SEO, visibility, and review state. |
+| Marketer product detail | Converted in this pass | `/dashboard/stores/:storeId/products/:productId` now uses a device-aware wrapper; mobile/tablet users get a gallery-first product control page with KPI rail, management section sheets, copy/preview actions, and sticky edit controls. |
+| Marketer store dashboard | Converted in this pass | `/dashboard/stores` now routes marketer mobile/tablet users to a native storefront control center with store switching, KPI rails, quick actions, inventory warnings, and top product cards. |
+| Promoter store browser | Converted in this pass | `/dashboard/stores` now routes promoter mobile/tablet users to a native store discovery feed with search, category chips, bottom-sheet filters, premium storefront picks, product previews, follow actions, and pagination. |
+| Marketer store creation | Converted in this pass | `/dashboard/stores/create` now uses a device-aware wrapper; mobile/tablet users get a native storefront setup wizard with brand basics, logo upload, contact review, trust tips, live preview, and sticky create actions. |
+| Marketer store editing | Converted in this pass | `/dashboard/stores/edit/:id` now uses a device-aware wrapper; mobile/tablet users get a native storefront update wizard with identity editing, logo replacement/removal, review state, and sticky save actions. |
+| Storefront customer support | Converted in this pass | `/dashboard/stores/support` now uses a device-aware wrapper; mobile/tablet users get a native Buyer CRM with KPI rail, customer cards, bottom-sheet filters, outreach composer, and customer detail sheet. |
 | Community feed | Has mobile feed component | Social feed pattern already exists. |
 | Promoter landing | Has several mobile child components | Campaign cards and filters have mobile variants. |
 | Marketer campaign landing | Has several mobile child components | Campaign stats, cards, and filters have mobile variants. |
@@ -58,7 +68,15 @@ The migration should start with routes that are used often, affect money movemen
 | P1 | `/dashboard/stores/promoted-products-analytics` | Mobile KPI carousel, product/promoter drilldown cards, insight panels. Completed in this pass. |
 | P1 | `/dashboard/stores/subscribers` | Subscriber cards, store filter sheet, export actions. Completed in this pass. |
 | P1 | `/dashboard/stores/promotions` | Promoter store-promotion earnings, link health, affiliate sales, and release requests in mobile cards. Completed in this pass. |
-| P1 | Storefront and product public pages | Product details and storefront landing completed in this pass with carousel-first/product-feed layouts, sticky buy/promote/share/cart/contact actions, and mobile checkout. |
+| P1 | Storefront and product public pages | Product details, storefront landing, and public cart checkout completed in this pass with carousel-first/product-feed/cart-card layouts, sticky buy/promote/share/cart/contact/checkout actions, and mobile checkout sheets. |
+| P2 | `/dashboard/stores/:storeId/products` | Marketer inventory cards, stock health, publish/unpublish controls, and product action sheets. Completed in this pass. |
+| P2 | `/dashboard/stores/:storeId/products/create` | Mobile product creation wizard with progressive steps, photo management, commission preview, shipping/digital settings, and final review. Completed in this pass. |
+| P2 | `/dashboard/stores/:storeId/products/edit/:productId` | Mobile product editing wizard with existing-image preservation, update review, pricing, stock, commission, delivery, and visibility controls. Completed in this pass. |
+| P2 | `/dashboard/stores/:storeId/products/:productId` | Mobile product control page with gallery, KPI rail, stock/pricing/promotion sheets, public preview/copy, and sticky edit actions. Completed in this pass. |
+| P2 | `/dashboard/stores` | Mobile storefront command center for marketers and mobile store discovery feed for promoters. Completed in this pass. |
+| P2 | `/dashboard/stores/create` | Mobile storefront setup wizard with logo upload, brand description, contact confirmation, trust guidance, and preview. Completed in this pass. |
+| P2 | `/dashboard/stores/edit/:id` | Mobile storefront update wizard with existing-logo preservation, logo replacement/removal, brand identity editing, review, and save controls. Completed in this pass. |
+| P2 | `/dashboard/stores/support` | Mobile Buyer CRM cards, segment filters, bottom-sheet outreach composer, customer detail editing, order history, and export/copy actions. Completed in this pass. |
 | P2 | Settings, assistant, resources, tutorials, legal | Grouped mobile settings and readable content layouts. |
 
 ## Component Conversion Checklist
@@ -279,6 +297,176 @@ The mobile component reuses the existing storefront data, cart, wishlist, search
 Accessibility:
 Primary actions are real buttons with labels, search uses a native input, sort uses a native select, filter controls use a modal dialog pattern, and sticky actions keep touch targets at mobile-friendly sizes.
 
+## Public Cart Checkout Mobile UX Analysis
+
+Purpose:
+`/cart` is the public storefront checkout surface. It must let buyers review products, adjust quantities, preserve affiliate tracking, choose a store checkout group, provide delivery details, and pay through the existing Paystack flow.
+
+Desktop behavior:
+The desktop cart uses a broad hero, store-group cards, inline item rows, and a sticky checkout panel with Material form fields.
+
+Mobile decisions:
+The mobile cart is organized around store groups because checkout is intentionally one store at a time. Buyers see an escrow-protected hero, store chips when multiple stores exist, product cards with quantity controls, affiliate-sale labels, clear-store and checkout actions, a sticky checkout bar, and a bottom-sheet checkout form. The form uses native mobile inputs/selects for speed and better low-end Android behavior while preserving the same validation and checkout logic.
+
+Performance:
+The mobile component extends the existing cart component, so it reuses cart grouping, quantity updates, currency quotes, Paystack initiation, payment confirmation, and cart clearing. It avoids Material form-field overhead on the mobile presentation and renders only the active checkout sheet when needed.
+
+Accessibility:
+All quantity, remove, checkout, close, continue-shopping, and store-selection controls are real labelled buttons. Checkout uses native inputs with autocomplete hints, and the bottom sheet uses dialog semantics.
+
+## Marketer Product Management Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/:storeId/products` is where marketers manage their storefront inventory, edit products, monitor stock, publish or unpublish products for promoter discovery, and delete stale products.
+
+Desktop behavior:
+The desktop product manager uses a large dashboard header, grid/list controls, Material tables, hover overlays, desktop filters, bulk actions, and paginator controls.
+
+Mobile decisions:
+The mobile version treats the screen as an inventory control center. It opens with a compact app bar, store inventory hero, horizontal KPI cards, persistent search, thumb-sized status/category chips, and product cards. Each card prioritizes image, active/published state, price, stock health, views, sales, clicks, conversion, commission, and direct view/edit/publish actions. Advanced filters and destructive actions move into bottom sheets to keep the feed scannable.
+
+Performance:
+The mobile route reuses the existing store-product data loader and the existing product management mutation methods. It avoids Material tables on mobile, renders only the active page of cards, lazy-loads images, and keeps bulk operations tied to the existing selection model.
+
+Accessibility:
+Navigation, search, filters, selection, publish, unpublish, edit, view, and delete are real controls with labelled actions. Bottom sheets use dialog semantics, and mobile controls are sized for touch use.
+
+## Marketer Product Creation Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/:storeId/products/create` lets marketers add storefront products with images, category details, price, stock, promoter commission, shipping or digital delivery settings, SEO metadata, visibility, and final publishing.
+
+Desktop behavior:
+The desktop component uses a multi-step Material form and child sections for details, pricing, shipping, promotions, SEO, and review. It already owns the validated reactive form, image handling, and create-product submit logic.
+
+Mobile decisions:
+The mobile version keeps the existing form and submit path but redesigns the presentation as a native wizard. It leads with a compact app bar, progress summary, horizontal step rail, large touch fields, image preview rail, quick tag chips, commission preview, delivery mode controls, SEO/visibility controls, and a final review card. Cancel confirmation moves into a bottom sheet instead of using a browser confirm.
+
+Performance:
+The mobile component extends the existing product creation logic so the create API path, validation, image handling, and payload structure stay aligned with desktop. It avoids loading the desktop child form sections on mobile and renders only one step at a time to keep DOM size low.
+
+Accessibility:
+Steps, inputs, image controls, cancel confirmation, and publish actions use labelled native controls. The sticky action bar keeps primary navigation reachable by thumb, and the discard confirmation sheet uses dialog semantics.
+
+## Marketer Product Editing Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/:storeId/products/edit/:productId` lets marketers safely update an existing product without losing current product history, existing media, promoter commission settings, stock state, SEO, visibility, or delivery configuration.
+
+Desktop behavior:
+The desktop edit component reuses the add-product child form sections and owns product loading, form population, existing-image tracking, removed-image tracking, and the `updateProduct` submit path.
+
+Mobile decisions:
+The mobile version keeps that same loading, form population, and update API behavior while presenting the edit task as a phone-first wizard. Existing images and newly selected images are shown in one rail, with saved images marked and removals tracked through the existing `removedImages` flow. The review step calls out removed saved photos before update so marketers do not accidentally delete media.
+
+Performance:
+The mobile edit component extends the existing edit logic and only changes presentation. It avoids loading the desktop child form sections on mobile, renders one step at a time, and reuses the product creation mobile styles with small edit-specific overrides to keep CSS and layout behavior consistent.
+
+Accessibility:
+The mobile edit flow uses labelled inputs, native selects, real buttons, dialog semantics for leave confirmation, and sticky thumb actions for back/continue/update. Existing-image removal and final update are explicit touch controls.
+
+## Marketer Product Detail Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/:storeId/products/:productId` lets marketers inspect one storefront product, review pricing, inventory, delivery, SEO, variants, and promotion performance, then quickly edit, preview, copy the public link, or delete the product.
+
+Desktop behavior:
+The desktop component uses a broad management layout with breadcrumb header, large stats bar, image gallery, quick info cards, pricing sections, product details, specifications, variants table, shipping information, and menu-based actions.
+
+Mobile decisions:
+The mobile page is a gallery-first product control surface. It leads with the product image, live/stock status, price, and primary KPIs. Desktop side sections become touch-friendly management cards that open bottom sheets for overview, pricing, inventory, promotion, delivery, variants, and SEO. Edit, preview, copy link, and delete remain available through quick actions and a sticky action bar.
+
+Performance:
+The mobile component extends the existing product detail component so product loading, image viewer, edit navigation, delete confirmation, and permission-sensitive API paths remain unchanged. The mobile view avoids the desktop grid/table surface, renders compact cards by default, and only creates dense detail content when a bottom sheet is opened.
+
+Accessibility:
+The mobile page uses labelled navigation buttons, real links for public preview, real buttons for copy/edit/delete, dialog semantics for bottom sheets, text status labels in addition to color, and touch-sized sticky actions.
+
+## Marketer Store Dashboard Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores` is the marketer's storefront command center. It helps store owners select a store, understand storefront health, act on low stock, add products, preview the public store, and jump into orders, analytics, subscribers, and buyer CRM.
+
+Desktop behavior:
+The desktop route switches by user role and sends marketers into `MarketerStoreDashboardComponent`, which owns store loading, current-store selection, product loading, quick actions, filters, metrics, auto-refresh, and navigation. The desktop template still uses header/control-bar patterns and Material-heavy controls.
+
+Mobile decisions:
+The mobile version keeps that same dashboard logic but reshapes it as a native store management home. The first screen prioritizes store identity, verification/status, add-product and preview actions, KPI rail, revenue/product-health summary, low-stock warning, and quick action tiles. Store switching, product filters, action toggles, and stock attention move into bottom sheets so the main view stays scannable and thumb-friendly.
+
+Performance:
+The mobile component extends the existing dashboard class, preserving store/product service calls and mutations. It avoids rendering desktop control bars and child dashboard surfaces on mobile, keeps product preview to five records, and creates sheet content only when opened.
+
+Accessibility:
+Store switching, filtering, quick actions, product links, and sticky actions are real labelled controls. Status uses text plus icon, bottom sheets use dialog semantics, and the primary touch targets are sized for mobile use.
+
+## Promoter Store Browser Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores` is also the promoter's storefront discovery surface. It helps promoters find verified stores, compare available product volume, assess promoter traffic and commission potential, follow useful stores, open product lists, and preview public storefronts before choosing what to promote.
+
+Desktop behavior:
+The existing promoter branch renders a desktop store list with header, sidebar filters, content views, pagination, and store follow/product navigation. It owns store loading, filter state, search, pagination, sort, and follow mutations.
+
+Mobile decisions:
+The mobile version keeps the existing store-list logic but turns discovery into a feed. The first screen prioritizes search, category chips, total/verified/following counts, quick sort and insight controls, premium store picks, and store cards with product previews. Dense filters, sort choices, and top-store insights move into bottom sheets so promoters can browse with one hand without table or sidebar pressure.
+
+Performance:
+The mobile component extends the existing promoter store list class, preserving API calls, filter state, pagination, and follow behavior. It limits featured and product preview rails, lazy-loads store/product images, and only renders bottom-sheet content when requested.
+
+Accessibility:
+Search, filters, sorting, follow, product browsing, public store visits, pagination, and sheet close actions are real labelled controls. Store status uses text with icons, bottom sheets use dialog semantics, and thumb actions meet mobile touch sizing.
+
+## Marketer Store Creation Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/create` lets marketers create a storefront, upload a required logo, define the store category and description, confirm WhatsApp contact details, and create the default storefront settings that later support products and promoter commissions.
+
+Desktop behavior:
+The desktop component uses a two-column Material form with store information, contact information, logo upload, preview, help tips, and submit overlay. It owns validation, logo upload/preview, default store settings, and the `createStore` submit path.
+
+Mobile decisions:
+The mobile view keeps the existing form, validation, logo handling, and submit behavior but presents setup as a native three-step wizard: Brand, Contact, and Review. Logo upload becomes a large touch target with initials fallback, help content becomes compact trust tips, and the preview becomes a mobile storefront card. Browser confirm is replaced with a bottom-sheet discard confirmation.
+
+Performance:
+The mobile component extends the existing create component and avoids Material form-field/card overhead on mobile. It renders only one step at a time, uses native inputs/selects, and keeps submit/loading feedback lightweight.
+
+Accessibility:
+All navigation, upload, remove-logo, cancel, continue, and create actions are real labelled controls with 48px touch targets. The leave confirmation uses dialog semantics and the loading state announces progress with readable text.
+
+## Marketer Store Editing Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/edit/:id` lets marketers update an existing storefront name, category, description, and logo without breaking live store ownership, product associations, or promoter-facing storefront links.
+
+Desktop behavior:
+The desktop component uses a two-column Material edit form with store data loading, logo preview, file validation, optional logo replacement, logo removal, and the existing `updateStore` submit path.
+
+Mobile decisions:
+The mobile view keeps the existing load, validation, image preview, and update behavior but presents the task as a three-step wizard: Identity, Logo, and Review. Logo editing is explicit: keep the current logo, replace it with a new file, or remove it so the store falls back to initials. Browser confirm is replaced with a bottom-sheet discard confirmation.
+
+Performance:
+The mobile component extends the existing edit component, so it does not duplicate the API path or payload rules. It renders one step at a time, uses native inputs/selects, and reuses the store creation mobile CSS foundation with edit-specific overrides.
+
+Accessibility:
+The mobile edit flow uses labelled fields, native selects, real buttons, touch-sized upload/remove controls, loading announcements, and a dialog-style discard sheet. The sticky action bar keeps navigation and save actions reachable on one-handed mobile use.
+
+## Storefront Customer Support Mobile UX Analysis
+
+Purpose:
+`/dashboard/stores/support` helps marketers review storefront buyers, understand customer value, track lifecycle/segment state, prepare email or SMS follow-ups, export buyer lists, and update internal CRM notes.
+
+Desktop behavior:
+The desktop component uses a wide Buyer CRM workspace with summary cards, Material filters, selection toolbar, customer cards, an outreach composer column, and a sticky customer detail panel with purchase history and metadata editing.
+
+Mobile decisions:
+The mobile view keeps the existing service calls, selection model, export, copy, email/SMS draft, and detail save behavior. It presents the CRM as a mobile app screen with a compact app bar, KPI rail, buyer cards, thumb filters, selected-audience toolbar, and pagination. Dense desktop side panels move into bottom sheets: advanced filters, outreach composer, and customer profile/order history.
+
+Performance:
+The mobile component extends the existing customer support component and renders only the active mobile surfaces instead of the full desktop two-column workspace. Detail and composer controls are created only when their sheets are open, keeping the default buyer feed lighter on low-end devices.
+
+Accessibility:
+Search, filters, selection, customer profile, email, SMS, copy, export, pagination, and save actions use labelled native controls or real buttons. Bottom sheets use dialog semantics, and touch controls are sized for mobile use.
+
 ## Implementation Pattern Used
 
 Files added:
@@ -334,6 +522,47 @@ projects/platform/src/app/storefront/index.ts
 projects/platform/src/app/storefront/mobile/storefront-mobile.component.ts
 projects/platform/src/app/storefront/mobile/storefront-mobile.component.html
 projects/platform/src/app/storefront/mobile/storefront-mobile.component.scss
+projects/platform/src/app/storefront/cart/index.ts
+projects/platform/src/app/storefront/cart/mobile/storefront-cart-mobile.component.ts
+projects/platform/src/app/storefront/cart/mobile/storefront-cart-mobile.component.html
+projects/platform/src/app/storefront/cart/mobile/storefront-cart-mobile.component.scss
+projects/platform/src/app/store/marketer/products/product-list/index.ts
+projects/platform/src/app/store/marketer/products/product-list/mobile/marketer-product-list-mobile.component.ts
+projects/platform/src/app/store/marketer/products/product-list/mobile/marketer-product-list-mobile.component.html
+projects/platform/src/app/store/marketer/products/product-list/mobile/marketer-product-list-mobile.component.scss
+projects/platform/src/app/store/marketer/products/product-list/mobile/marketer-product-list-management-mobile.component.ts
+projects/platform/src/app/store/marketer/products/product-list/mobile/marketer-product-list-management-mobile.component.html
+projects/platform/src/app/store/marketer/products/product-list/mobile/marketer-product-list-management-mobile.component.scss
+projects/platform/src/app/store/marketer/products/add-products/index.ts
+projects/platform/src/app/store/marketer/products/add-products/mobile/add-product-mobile.component.ts
+projects/platform/src/app/store/marketer/products/add-products/mobile/add-product-mobile.component.html
+projects/platform/src/app/store/marketer/products/add-products/mobile/add-product-mobile.component.scss
+projects/platform/src/app/store/marketer/products/edit-product/index.ts
+projects/platform/src/app/store/marketer/products/edit-product/mobile/edit-product-mobile.component.ts
+projects/platform/src/app/store/marketer/products/edit-product/mobile/edit-product-mobile.component.html
+projects/platform/src/app/store/marketer/products/edit-product/mobile/edit-product-mobile.component.scss
+projects/platform/src/app/store/marketer/products/product-detail/index.ts
+projects/platform/src/app/store/marketer/products/product-detail/mobile/marketer-product-detail-mobile.component.ts
+projects/platform/src/app/store/marketer/products/product-detail/mobile/marketer-product-detail-mobile.component.html
+projects/platform/src/app/store/marketer/products/product-detail/mobile/marketer-product-detail-mobile.component.scss
+projects/platform/src/app/store/marketer/dashboard/store-dashboard/mobile/store-dashboard-mobile.component.ts
+projects/platform/src/app/store/marketer/dashboard/store-dashboard/mobile/store-dashboard-mobile.component.html
+projects/platform/src/app/store/marketer/dashboard/store-dashboard/mobile/store-dashboard-mobile.component.scss
+projects/platform/src/app/store/promoter/stores-list/mobile/promoter-stores-list-mobile.component.ts
+projects/platform/src/app/store/promoter/stores-list/mobile/promoter-stores-list-mobile.component.html
+projects/platform/src/app/store/promoter/stores-list/mobile/promoter-stores-list-mobile.component.scss
+projects/platform/src/app/store/marketer/store-create/index.ts
+projects/platform/src/app/store/marketer/store-create/mobile/store-create-mobile.component.ts
+projects/platform/src/app/store/marketer/store-create/mobile/store-create-mobile.component.html
+projects/platform/src/app/store/marketer/store-create/mobile/store-create-mobile.component.scss
+projects/platform/src/app/store/marketer/edit-store/index.ts
+projects/platform/src/app/store/marketer/edit-store/mobile/store-edit-mobile.component.ts
+projects/platform/src/app/store/marketer/edit-store/mobile/store-edit-mobile.component.html
+projects/platform/src/app/store/marketer/edit-store/mobile/store-edit-mobile.component.scss
+projects/platform/src/app/store/marketer/customer-support/index.ts
+projects/platform/src/app/store/marketer/customer-support/mobile/customer-support-mobile.component.ts
+projects/platform/src/app/store/marketer/customer-support/mobile/customer-support-mobile.component.html
+projects/platform/src/app/store/marketer/customer-support/mobile/customer-support-mobile.component.scss
 ```
 
 Files updated:
@@ -342,6 +571,7 @@ Files updated:
 projects/platform/src/app/transactions/index.ts
 projects/platform/src/app/campaign/campaign.component.ts
 projects/platform/src/app/campaign/campaign.routes.ts
+projects/platform/src/app/store/index.ts
 projects/platform/src/app/store/store.routes.ts
 projects/platform/src/app/store/promoter/promoted-products/index.ts
 projects/platform/src/app/app.routes.ts
@@ -369,6 +599,26 @@ The desktop public `ProductDetailsComponent` is unchanged. The product details r
 
 The desktop public `StorefrontComponent` is unchanged. The storefront route wrapper now renders `MobileStorefrontComponent` for mobile/tablet and keeps the existing desktop storefront for desktop.
 
+The desktop public `StorefrontCartComponent` is unchanged. The cart route wrapper now renders `MobileStorefrontCartComponent` for mobile/tablet and keeps the existing desktop cart/checkout for desktop.
+
+The desktop marketer `MarketerProductListComponent` and `MarketerProductListManagementComponent` are unchanged. The new product-list wrapper renders `MarketerProductListMobileComponent` for mobile/tablet and keeps the existing desktop product manager for desktop.
+
+The desktop marketer `AddProductComponent` is unchanged. The new add-product wrapper renders `AddProductMobileComponent` for mobile/tablet and keeps the existing desktop product creation flow for desktop.
+
+The desktop marketer `EditProductComponent` is unchanged. The new edit-product wrapper renders `EditProductMobileComponent` for mobile/tablet and keeps the existing desktop product editing flow for desktop.
+
+The desktop marketer `MarketerProductDetailComponent` is unchanged. The new product-detail wrapper renders `MarketerProductDetailMobileComponent` for mobile/tablet and keeps the existing desktop product detail workspace for desktop.
+
+The desktop marketer `MarketerStoreDashboardComponent` is unchanged. The store route now renders `MarketerStoreDashboardMobileComponent` for marketer mobile/tablet users and keeps the existing dashboard for desktop.
+
+The desktop promoter `PromoterStoresListComponent` is unchanged. The store route now renders `PromoterStoresListMobileComponent` for promoter mobile/tablet users and keeps the existing store list for desktop.
+
+The desktop marketer `StoreCreateComponent` is unchanged. The new store-create wrapper renders `StoreCreateMobileComponent` for mobile/tablet and keeps the existing desktop store creation flow for desktop.
+
+The desktop marketer `StoreEditComponent` is unchanged. The new store-edit wrapper renders `StoreEditMobileComponent` for mobile/tablet and keeps the existing desktop store editing flow for desktop.
+
+The desktop marketer `CustomerSupportComponent` is unchanged. The new customer-support wrapper renders `CustomerSupportMobileComponent` for mobile/tablet and keeps the existing desktop Buyer CRM for desktop.
+
 ## Remaining Migration Notes
 
-Product management remains a high-value migration target because it affects publishing, promotion links, stock, and buyer trust. Public storefront browsing and product details are now covered; the next storefront-related pass should focus on cart/checkout mobile polish or marketer product management.
+Product management is now covered for the core list/manage route, product creation flow, product editing flow, and product detail workspace. The marketer storefront dashboard, promoter store browsing, store creation, store editing, and storefront customer support are also covered. The next passes should focus on settings, assistant/resources/tutorial content, legal pages, and other dense desktop-first dashboard pages.

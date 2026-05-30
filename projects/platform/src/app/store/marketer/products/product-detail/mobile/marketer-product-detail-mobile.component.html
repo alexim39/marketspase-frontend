@@ -1,0 +1,368 @@
+<main class="mobile-product-detail">
+  <header class="mobile-topbar" aria-label="Product detail navigation">
+    <button type="button" class="icon-button" (click)="goBack()" aria-label="Back to products">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="topbar-title">
+      <span>Product control</span>
+      <strong>{{ product?.name || 'Product detail' }}</strong>
+    </div>
+    <button type="button" class="icon-button primary" (click)="openActions()" aria-label="Open product actions">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="mobile-state" aria-live="polite">
+      <mat-spinner diameter="42"></mat-spinner>
+      <h1>Loading product</h1>
+      <p>Getting inventory, pricing, and promotion details.</p>
+    </section>
+  } @else if (error()) {
+    <section class="mobile-state error">
+      <mat-icon>error_outline</mat-icon>
+      <h1>Product not found</h1>
+      <p>This product may have been removed or you may not have access to it.</p>
+      <button type="button" (click)="goBack()">Back to products</button>
+    </section>
+  } @else {
+    @if (product; as item) {
+    <section class="product-hero" [class.stock-bad]="stockTone() === 'bad'">
+      <div class="hero-image" (click)="openImageViewer(0)" role="button" tabindex="0" aria-label="Open product images">
+        @if (primaryImageUrl()) {
+          <img [src]="primaryImageUrl()!" [alt]="item.name" loading="eager" (error)="handleImageError($event)" />
+        } @else {
+          <div class="image-placeholder">
+            <mat-icon>image</mat-icon>
+            <span>No product image</span>
+          </div>
+        }
+
+        @if (productImages().length > 1) {
+          <span class="image-count">
+            <mat-icon>photo_library</mat-icon>
+            {{ productImages().length }}
+          </span>
+        }
+      </div>
+
+      @if (productImages().length > 1) {
+        <div class="thumbnail-rail" aria-label="Product images">
+          @for (image of productImages(); track trackImage($index, image); let i = $index) {
+            <button
+              type="button"
+              class="thumb"
+              [class.active]="selectedImage?.url === image.url || (!selectedImage && i === 0)"
+              (click)="selectImage(image)"
+              [attr.aria-label]="'Show image ' + (i + 1)">
+              <img [src]="image.url" [alt]="image.altText || item.name" loading="lazy" (error)="handleThumbnailError($event)" />
+            </button>
+          }
+        </div>
+      }
+
+      <div class="hero-copy">
+        <div class="status-row">
+          <span class="status-pill" [class.good]="visibilityTone() === 'good'" [class.warn]="visibilityTone() === 'warn'" [class.bad]="visibilityTone() === 'bad'">
+            <mat-icon>{{ visibilityTone() === 'good' ? 'verified' : visibilityTone() === 'warn' ? 'visibility_off' : 'block' }}</mat-icon>
+            {{ visibilityLabel() }}
+          </span>
+          <span class="status-pill" [class.good]="stockTone() === 'good'" [class.warn]="stockTone() === 'warn'" [class.bad]="stockTone() === 'bad'">
+            <mat-icon>{{ getStockStatus().icon }}</mat-icon>
+            {{ stockLabel() }}
+          </span>
+        </div>
+
+        <h1>{{ item.name }}</h1>
+        <p class="category">{{ item.category || 'Uncategorized' }} @if (item.brand) { <span>- {{ item.brand }}</span> }</p>
+
+        <div class="price-row">
+          <strong>{{ item.price | currencyUtils:item.currency }}</strong>
+          @if (discountPercent() > 0) {
+            <span>{{ discountPercent() }}% off</span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="metric-rail" aria-label="Product metrics">
+      @for (metric of metricCards(); track metric.label) {
+        <article class="metric-card" [class.good]="metric.tone === 'good'" [class.warn]="metric.tone === 'warn'" [class.bad]="metric.tone === 'bad'">
+          <mat-icon>{{ metric.icon }}</mat-icon>
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+        </article>
+      }
+    </section>
+
+    <section class="quick-actions" aria-label="Product actions">
+      <button type="button" (click)="editProduct()">
+        <mat-icon>edit</mat-icon>
+        <span>Edit</span>
+      </button>
+      <a [routerLink]="['/product', item._id]" aria-label="Preview public product page">
+        <mat-icon>open_in_new</mat-icon>
+        <span>Preview</span>
+      </a>
+      <button type="button" (click)="copyPublicLink()">
+        <mat-icon>content_copy</mat-icon>
+        <span>Copy link</span>
+      </button>
+    </section>
+
+    <section class="decision-card">
+      <div>
+        <span>Amount receivable</span>
+        <strong>{{ receivableAmount() | currencyUtils:item.currency }}</strong>
+      </div>
+      <div>
+        <span>Promoter commission</span>
+        <strong>{{ commissionText() }}</strong>
+      </div>
+      <div>
+        <span>Conversion</span>
+        <strong>{{ conversionRate() }}%</strong>
+      </div>
+    </section>
+
+    <section class="section-grid" aria-label="Product management sections">
+      <button type="button" (click)="openSection('overview')">
+        <mat-icon>article</mat-icon>
+        <span>Overview</span>
+        <small>Description, tags, specs</small>
+      </button>
+      <button type="button" (click)="openSection('pricing')">
+        <mat-icon>payments</mat-icon>
+        <span>Pricing</span>
+        <small>Price, discount, margins</small>
+      </button>
+      <button type="button" (click)="openSection('inventory')">
+        <mat-icon>inventory</mat-icon>
+        <span>Inventory</span>
+        <small>Stock and alerts</small>
+      </button>
+      <button type="button" (click)="openSection('promotion')">
+        <mat-icon>campaign</mat-icon>
+        <span>Promotion</span>
+        <small>Affiliate status</small>
+      </button>
+      <button type="button" (click)="openSection('shipping')">
+        <mat-icon>local_shipping</mat-icon>
+        <span>Delivery</span>
+        <small>Weight and dimensions</small>
+      </button>
+      <button type="button" (click)="openSection('variants')">
+        <mat-icon>tune</mat-icon>
+        <span>Variants</span>
+        <small>{{ item.variants?.length || 0 }} variant(s)</small>
+      </button>
+    </section>
+
+    @if ((item.quantity || 0) <= (item.lowStockAlert || 10)) {
+      <aside class="insight-card" [class.bad]="stockTone() === 'bad'">
+        <mat-icon>{{ stockTone() === 'bad' ? 'production_quantity_limits' : 'warning' }}</mat-icon>
+        <div>
+          <strong>{{ stockTone() === 'bad' ? 'Product is out of stock' : 'Stock is getting low' }}</strong>
+          <p>Update stock quickly so promoters and buyers do not push traffic to a product that cannot be fulfilled.</p>
+        </div>
+      </aside>
+    }
+
+    <nav class="sticky-actions" aria-label="Sticky product actions">
+      <button type="button" class="secondary" (click)="openActions()">
+        <mat-icon>more_horiz</mat-icon>
+        More
+      </button>
+      <button type="button" class="primary" (click)="editProduct()">
+        <mat-icon>edit</mat-icon>
+        Edit product
+      </button>
+    </nav>
+    }
+  }
+</main>
+
+@if (detailSheetOpen()) {
+  @if (product; as item) {
+    <div class="sheet-backdrop" (click)="closeSection()"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="detailSheetTitle">
+    <div class="sheet-handle"></div>
+    <header>
+      <div>
+        <span>Product details</span>
+        <h2 id="detailSheetTitle">
+          @switch (activeSection()) {
+            @case ('pricing') { Pricing }
+            @case ('inventory') { Inventory }
+            @case ('promotion') { Promotion }
+            @case ('shipping') { Delivery }
+            @case ('variants') { Variants }
+            @case ('seo') { SEO }
+            @default { Overview }
+          }
+        </h2>
+      </div>
+      <button type="button" (click)="closeSection()" aria-label="Close detail sheet">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="sheet-body">
+      @switch (activeSection()) {
+        @case ('pricing') {
+          <div class="row-list">
+            <div><span>Current price</span><strong>{{ item.price | currencyUtils:item.currency }}</strong></div>
+            @if (item.originalPrice) {
+              <div><span>Original price</span><strong>{{ item.originalPrice | currencyUtils:item.currency }}</strong></div>
+            }
+            @if (discountPercent() > 0) {
+              <div><span>Discount</span><strong>{{ discountPercent() }}%</strong></div>
+            }
+            @if (item.costPrice) {
+              <div><span>Cost price</span><strong>{{ item.costPrice | currencyUtils:item.currency }}</strong></div>
+            }
+            <div><span>Amount receivable</span><strong>{{ receivableAmount() | currencyUtils:item.currency }}</strong></div>
+            @if (item.taxRate) {
+              <div><span>Tax rate</span><strong>{{ item.taxRate }}%</strong></div>
+            }
+          </div>
+        }
+
+        @case ('inventory') {
+          <div class="row-list">
+            <div><span>Stock status</span><strong>{{ stockLabel() }}</strong></div>
+            <div><span>Quantity available</span><strong>{{ item.quantity || 0 }}</strong></div>
+            <div><span>Low stock alert</span><strong>{{ item.lowStockAlert || 10 }}</strong></div>
+            <div><span>Manage stock</span><strong>{{ item.manageStock === false ? 'No' : 'Yes' }}</strong></div>
+            <div><span>Sold individually</span><strong>{{ item.soldIndividually ? 'Yes' : 'No' }}</strong></div>
+          </div>
+        }
+
+        @case ('promotion') {
+          <div class="row-list">
+            <div><span>Promotion status</span><strong>{{ item.promotion?.isActive ? 'Enabled' : item.affiliate?.enabled ? 'Enabled' : 'Not enabled' }}</strong></div>
+            <div><span>Commission</span><strong>{{ commissionText() }}</strong></div>
+            <div><span>Promotion views</span><strong>{{ item.promotion?.views || item.promotion?.viewCount || 0 }}</strong></div>
+            <div><span>Referral clicks</span><strong>{{ item.promotion?.clickCount || 0 }}</strong></div>
+            <div><span>Conversions</span><strong>{{ item.promotion?.conversions || item.promotion?.conversionCount || 0 }}</strong></div>
+            <div><span>Conversion rate</span><strong>{{ conversionRate() }}%</strong></div>
+          </div>
+        }
+
+        @case ('shipping') {
+          <div class="row-list">
+            <div><span>Requires shipping</span><strong>{{ item.requiresShipping === false || item.isDigital ? 'No' : 'Yes' }}</strong></div>
+            <div><span>Digital product</span><strong>{{ item.isDigital ? 'Yes' : 'No' }}</strong></div>
+            <div><span>Weight</span><strong>{{ item.weight ? item.weight + ' ' + (item.weightUnit || 'kg') : 'Not specified' }}</strong></div>
+            <div>
+              <span>Dimensions</span>
+              <strong>
+                @if (item.dimensions) {
+                  {{ item.dimensions.length }} x {{ item.dimensions.width }} x {{ item.dimensions.height }} {{ item.dimensions.unit || 'cm' }}
+                } @else {
+                  Not specified
+                }
+              </strong>
+            </div>
+            <div><span>Shipping class</span><strong>{{ item.shippingClass || 'Standard' }}</strong></div>
+          </div>
+        }
+
+        @case ('variants') {
+          @if (item.variants?.length) {
+            <div class="variant-list">
+              @for (variant of item.variants; track trackVariant($index, variant)) {
+                <article>
+                  <strong>{{ variant.name || variant.sku || 'Variant' }}</strong>
+                  <span>{{ variant.sku || 'No SKU' }}</span>
+                  <div>
+                    <small>{{ variant.price | currencyUtils:item.currency }}</small>
+                    <small>{{ variant.quantity || 0 }} in stock</small>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <p class="empty-copy">No product variants have been added.</p>
+          }
+        }
+
+        @case ('seo') {
+          <div class="row-list">
+            <div><span>SEO title</span><strong>{{ item.seo?.title || 'Not set' }}</strong></div>
+            <div><span>Slug</span><strong>{{ item.seo?.slug || 'Not set' }}</strong></div>
+            <div><span>SEO description</span><strong>{{ item.seo?.description || 'Not set' }}</strong></div>
+          </div>
+        }
+
+        @default {
+          <div class="overview-copy">
+            <h3>Description</h3>
+            <p>{{ item.description || 'No description provided.' }}</p>
+
+            @if (item.tags?.length) {
+              <h3>Tags</h3>
+              <div class="tag-row">
+                @for (tag of item.tags; track trackTag($index, tag)) {
+                  <span>{{ tag | titlecase }}</span>
+                }
+              </div>
+            }
+
+            @if (specificationRows().length) {
+              <h3>Specifications</h3>
+              <div class="row-list compact">
+                @for (spec of specificationRows(); track spec.key) {
+                  <div><span>{{ spec.key }}</span><strong>{{ spec.value }}</strong></div>
+                }
+              </div>
+            }
+
+            <button type="button" class="sheet-link" (click)="openSection('seo')">
+              <mat-icon>manage_search</mat-icon>
+              View SEO details
+            </button>
+          </div>
+        }
+      }
+    </div>
+    </section>
+  }
+}
+
+@if (actionSheetOpen()) {
+  @if (product; as item) {
+    <div class="sheet-backdrop" (click)="closeActions()"></div>
+    <section class="bottom-sheet action-sheet" role="dialog" aria-modal="true" aria-labelledby="actionSheetTitle">
+    <div class="sheet-handle"></div>
+    <header>
+      <div>
+        <span>Actions</span>
+        <h2 id="actionSheetTitle">{{ item.name }}</h2>
+      </div>
+      <button type="button" (click)="closeActions()" aria-label="Close actions">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="sheet-actions">
+      <button type="button" (click)="editProduct()">
+        <mat-icon>edit</mat-icon>
+        <span>Edit product</span>
+      </button>
+      <a [routerLink]="['/product', item._id]">
+        <mat-icon>open_in_new</mat-icon>
+        <span>Preview public page</span>
+      </a>
+      <button type="button" (click)="copyPublicLink()">
+        <mat-icon>content_copy</mat-icon>
+        <span>Copy public link</span>
+      </button>
+      <button type="button" class="danger" (click)="deleteProduct()">
+        <mat-icon>delete</mat-icon>
+        <span>Delete product</span>
+      </button>
+    </div>
+    </section>
+  }
+}
