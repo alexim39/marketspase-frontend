@@ -1,0 +1,366 @@
+<section class="mobile-product-page">
+  @if (loading()) {
+    <div class="mobile-loading" aria-label="Loading product details">
+      <div class="skeleton media"></div>
+      <div class="skeleton title"></div>
+      <div class="skeleton line"></div>
+      <div class="skeleton card"></div>
+    </div>
+  } @else if (error()) {
+    <div class="mobile-state error" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <h1>Product could not load</h1>
+      <p>{{ error() }}</p>
+      <button type="button" class="primary-action" (click)="loadProductData()">Try again</button>
+      <button type="button" class="soft-action" (click)="goBack()">Go back</button>
+    </div>
+  } @else if (product()) {
+    <header class="mobile-appbar" [class.scrolled]="isScrolled()">
+      <button type="button" class="icon-button" aria-label="Go back" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <span>{{ store()?.name || product()?.store?.name || 'MarketSpase Store' }}</span>
+        <strong>{{ product()!.name | truncate:34 }}</strong>
+      </div>
+      <button type="button" class="icon-button" aria-label="Share product" (click)="shareProduct()">
+        <mat-icon>ios_share</mat-icon>
+      </button>
+    </header>
+
+    <main class="mobile-product-content">
+      <section class="gallery-card" aria-label="Product media">
+        <div class="hero-media">
+          @if (activeImage()?.url) {
+            <img [src]="activeImage()!.url" [alt]="activeImage()?.altText || product()!.name">
+          } @else {
+            <mat-icon>inventory_2</mat-icon>
+          }
+
+          <div class="media-badges">
+            @if (hasDiscount()) {
+              <span class="badge discount">-{{ discountPercentage() }}%</span>
+            }
+            <span class="badge" [ngClass]="stockTone()">{{ stockLabel() }}</span>
+          </div>
+        </div>
+
+        @if (images().length > 1) {
+          <nav class="thumbnail-strip" aria-label="Product image selector">
+            @for (image of images(); track image.url; let index = $index) {
+              <button
+                type="button"
+                class="thumb"
+                [class.active]="selectedImageIndex() === index"
+                [attr.aria-label]="'Show product image ' + (index + 1)"
+                (click)="setImage(index)"
+              >
+                <img [src]="image.thumbnail || image.url" [alt]="image.altText || product()!.name">
+              </button>
+            }
+          </nav>
+        }
+      </section>
+
+      <section class="summary-card">
+        <button type="button" class="store-pill" (click)="viewStore()">
+          <mat-icon>storefront</mat-icon>
+          <span>{{ store()?.name || product()?.store?.name || 'View store' }}</span>
+          @if (store()?.isVerified || product()?.store?.isVerified) {
+            <mat-icon class="verified">verified</mat-icon>
+          }
+        </button>
+
+        <h1>{{ product()!.name }}</h1>
+
+        <div class="rating-row">
+          <button type="button" (click)="scrollToReviews()">
+            <mat-icon>star</mat-icon>
+            <strong>{{ averageRating() | number:'1.1-1' }}</strong>
+            <span>{{ ratingCount() | number }} review{{ ratingCount() === 1 ? '' : 's' }}</span>
+          </button>
+          @if (product()?.category) {
+            <span class="category-pill">{{ product()?.category }}</span>
+          }
+        </div>
+
+        <div class="price-row">
+          <strong>{{ currentPrice() | currencyUtils:(product()?.currency || 'NGN') }}</strong>
+          @if (originalPrice()) {
+            <span>{{ originalPrice() | currencyUtils:(product()?.currency || 'NGN') }}</span>
+          }
+        </div>
+
+        @if (hasPromotionContext()) {
+          <div class="promotion-note">
+            <mat-icon>ads_click</mat-icon>
+            <span>This link is promotion-ready and keeps referral tracking attached.</span>
+          </div>
+        }
+
+        <div class="quick-actions">
+          <button type="button" (click)="copyProductLink()">
+            <mat-icon>content_copy</mat-icon>
+            <span>{{ hasPromotionContext() ? 'Copy referral' : 'Copy link' }}</span>
+          </button>
+          <button type="button" (click)="shareProduct()">
+            <mat-icon>share</mat-icon>
+            <span>Share</span>
+          </button>
+          <a routerLink="/dashboard/stores/products">
+            <mat-icon>campaign</mat-icon>
+            <span>Promote</span>
+          </a>
+        </div>
+      </section>
+
+      @if (hasVariants()) {
+        <section class="option-card">
+          <div class="section-title">
+            <h2>Choose option</h2>
+            <span>{{ variants().length }} available</span>
+          </div>
+          <div class="variant-scroll">
+            @for (variant of variants(); track variant._id || variant.name) {
+              <button
+                type="button"
+                class="variant-chip"
+                [class.active]="selectedVariant()?._id === variant._id"
+                (click)="selectVariant(variant)"
+              >
+                <strong>{{ variant.name || 'Variant' }}</strong>
+                @if (variant.price) {
+                  <span>{{ variant.price | currencyUtils:(product()?.currency || 'NGN') }}</span>
+                }
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="option-card">
+        <div class="section-title">
+          <h2>Quantity</h2>
+          <span>Maximum {{ maxQuantity() }}</span>
+        </div>
+        <div class="quantity-stepper">
+          <button type="button" aria-label="Reduce quantity" (click)="decreaseQuantity()" [disabled]="quantity() <= 1">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <strong>{{ quantity() }}</strong>
+          <button type="button" aria-label="Increase quantity" (click)="increaseQuantity()" [disabled]="quantity() >= maxQuantity()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </section>
+
+      @if (cartFeedback(); as feedback) {
+        <section class="feedback-card">
+          <mat-icon>check_circle</mat-icon>
+          <div>
+            <strong>Added to cart</strong>
+            <span>{{ feedback.quantity }} x {{ feedback.name }}. Cart has {{ feedback.totalItems }} item{{ feedback.totalItems === 1 ? '' : 's' }}.</span>
+          </div>
+          <button type="button" (click)="goToCart()">View cart</button>
+        </section>
+      }
+
+      @if (checkoutSuccess()) {
+        <section class="feedback-card success">
+          <mat-icon>verified</mat-icon>
+          <div>
+            <strong>Order placed successfully</strong>
+            <span>Order {{ checkoutSuccess()?.orderNumber }} is paid and held in escrow.</span>
+          </div>
+        </section>
+      }
+
+      <section class="details-card">
+        <nav class="details-tabs" aria-label="Product details tabs">
+          <button type="button" [class.active]="detailsOpen() === 'description'" (click)="detailsOpen.set('description')">Details</button>
+          <button type="button" [class.active]="detailsOpen() === 'specs'" (click)="detailsOpen.set('specs')">Specs</button>
+          <button type="button" [class.active]="detailsOpen() === 'reviews'" (click)="detailsOpen.set('reviews')">Reviews</button>
+        </nav>
+
+        @if (detailsOpen() === 'description') {
+          <div class="description-panel">
+            <p>{{ product()?.description || 'This product does not have a full description yet. Contact the store for more details before ordering.' }}</p>
+            <div class="trust-grid">
+              <div>
+                <mat-icon>lock</mat-icon>
+                <strong>Escrow payment</strong>
+                <span>Funds stay protected until delivery is confirmed.</span>
+              </div>
+              <div>
+                <mat-icon>support_agent</mat-icon>
+                <strong>Store support</strong>
+                <span>Contact the seller before or after purchase.</span>
+              </div>
+            </div>
+          </div>
+        } @else if (detailsOpen() === 'specs') {
+          <div #specsSection class="specs-panel">
+            <app-product-specifications [product]="product()" />
+          </div>
+        } @else {
+          <div #reviewsSection class="reviews-panel">
+            <app-product-reviews
+              [reviews]="reviews()"
+              [averageRating]="averageRating()"
+              [ratingCount]="ratingCount()"
+              [loadingReviews]="loadingReviews()"
+              [hasMoreReviews]="hasMoreReviews()"
+              [currentUserReview]="currentUserReview()"
+              [ratingBreakdown]="reviewSummary().ratingBreakdown"
+              (loadMore)="loadMoreReviews()"
+              (writeReview)="writeReview()"
+              (helpful)="onReviewHelpful($event)"
+            />
+          </div>
+        }
+      </section>
+
+      <section class="store-contact-card">
+        <div>
+          <span>Need help?</span>
+          <h2>Ask {{ store()?.name || product()?.store?.name || 'the store' }}</h2>
+        </div>
+        <div>
+          <button type="button" class="soft-action" (click)="contactStore()">
+            <mat-icon>chat</mat-icon>
+            WhatsApp
+          </button>
+          <button type="button" class="soft-action" (click)="emailStore()">
+            <mat-icon>email</mat-icon>
+            Email
+          </button>
+        </div>
+      </section>
+
+      @if (relatedProducts().length > 0) {
+        <app-related-products
+          [products]="relatedProducts()"
+          [storeLink]="store()?.storeLink || ''"
+          [userCurrency]="product()?.currency || 'NGN'"
+          [user]="user()"
+          [showAddToCart]="true"
+          (addToCart)="addRelatedProductToCart($event)"
+        />
+      }
+    </main>
+
+    <footer class="sticky-buy-bar" aria-label="Product purchase actions">
+      <div>
+        <span>Total</span>
+        <strong>{{ checkoutTotal() | currencyUtils:(product()?.currency || 'NGN') }}</strong>
+      </div>
+      <button type="button" class="cart-action" (click)="addToCart()" [disabled]="!canAddToCart()">
+        <mat-icon>shopping_cart</mat-icon>
+      </button>
+      <button type="button" class="buy-action" (click)="buyNow()" [disabled]="!canAddToCart()">
+        Buy now
+      </button>
+    </footer>
+
+    @if (checkoutOpen()) {
+      <div class="checkout-backdrop" (click)="cancelCheckout()" aria-hidden="true"></div>
+      <section class="checkout-sheet" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+        <header>
+          <div>
+            <span>Secure checkout</span>
+            <h2 id="checkout-title">{{ product()!.name | truncate:44 }}</h2>
+          </div>
+          <button type="button" class="icon-button" aria-label="Close checkout" (click)="cancelCheckout()" [disabled]="checkoutLoading()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="checkout-total">
+          <span>{{ quantity() }} item{{ quantity() === 1 ? '' : 's' }}</span>
+          <strong>{{ checkoutTotal() | currencyUtils:(product()?.currency || 'NGN') }}</strong>
+        </div>
+
+        @if (supportedCheckoutCurrencies().length > 0) {
+          <mat-form-field appearance="outline">
+            <mat-label>Pay in</mat-label>
+            <mat-select [value]="selectedCheckoutCurrency()" (valueChange)="onCheckoutCurrencyChange($event)">
+              @for (currency of supportedCheckoutCurrencies(); track currency.code) {
+                <mat-option [value]="currency.code">{{ currency.code }} - {{ currency.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        @if (checkoutQuote() && checkoutQuote()!.targetCurrency !== checkoutQuote()!.sourceCurrency) {
+          <div class="conversion-card">
+            <span>Charge total</span>
+            <strong>{{ checkoutQuote()!.targetAmount | currencyUtils:checkoutQuote()!.targetCurrency }}</strong>
+            <small>1 {{ checkoutQuote()!.sourceCurrency }} = {{ checkoutQuote()!.exchangeRate | number:'1.2-4' }} {{ checkoutQuote()!.targetCurrency }}</small>
+          </div>
+        }
+
+        <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="submitCheckout()">
+          <mat-form-field appearance="outline">
+            <mat-label>Full name</mat-label>
+            <input matInput formControlName="fullName">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Phone number</mat-label>
+            <input matInput formControlName="phone">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Street address</mat-label>
+            <input matInput formControlName="street">
+          </mat-form-field>
+
+          <div class="field-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>State</mat-label>
+              <input matInput formControlName="state">
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country">
+          </mat-form-field>
+
+          @if (checkoutError()) {
+            <div class="checkout-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ checkoutError() }}</span>
+            </div>
+          }
+
+          <button type="submit" class="sheet-pay-action" [disabled]="checkoutLoading()">
+            @if (checkoutLoading()) {
+              <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+            } @else {
+              <mat-icon>lock</mat-icon>
+            }
+            Pay securely
+          </button>
+        </form>
+      </section>
+    }
+  }
+</section>
+
+@if (!loading() && !error() && product()) {
+  <app-store-footer
+    [store]="store()"
+    (contactViaWhatsApp)="contactViaWhatsApp()"
+  />
+}

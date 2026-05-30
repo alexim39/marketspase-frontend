@@ -1,208 +1,255 @@
-<section class="promoted-products-page">
-  <header class="page-header">
+<section class="store-promotions-mobile">
+  <header class="mobile-topbar">
     <div>
-      <span class="eyebrow">Storefront affiliate system</span>
-      <h1>Promoted Products</h1>
-      <p>Track affiliate links, clicks, sales, reserved commission, and delivery-release progress.</p>
+      <span class="eyebrow">Storefront promotions</span>
+      <h1>Promoted products</h1>
+      <p>Track links, clicks, sales, commissions, and release requests from your phone.</p>
     </div>
 
-    <button mat-raised-button color="primary" type="button" (click)="loadDashboard(); loadAffiliateOrders()">
+    <button class="icon-button" type="button" aria-label="Refresh promoted products" (click)="refreshAll()">
       <mat-icon>refresh</mat-icon>
-      Refresh
     </button>
   </header>
 
   @if (loading()) {
-    <div class="state-panel">
-      <mat-spinner diameter="42"></mat-spinner>
-      <span>Loading promotion analytics...</span>
+    <div class="skeleton-stack" aria-label="Loading promotion analytics">
+      <div class="skeleton hero"></div>
+      <div class="skeleton-row">
+        <div class="skeleton tile"></div>
+        <div class="skeleton tile"></div>
+      </div>
+      <div class="skeleton card"></div>
+      <div class="skeleton card"></div>
     </div>
   } @else if (error()) {
-    <div class="state-panel error">
+    <div class="state-card error" role="alert">
       <mat-icon>error_outline</mat-icon>
-      <span>{{ error() }}</span>
-      <button mat-button type="button" (click)="loadDashboard()">Try again</button>
+      <h2>Could not load promotions</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="primary-action" (click)="refreshAll()">Try again</button>
     </div>
   } @else {
-    <div class="summary-grid">
+    <section class="earnings-hero" aria-label="Promotion summary">
+      <div>
+        <span>Estimated earnings</span>
+        <strong>{{ heroEarnings() | currencyUtils:currency() }}</strong>
+        <small>{{ activePromotionCount() | number }} active link{{ activePromotionCount() === 1 ? '' : 's' }}</small>
+      </div>
+      <div class="hero-badge">
+        <mat-icon>monitoring</mat-icon>
+        <span>{{ sales()?.totalSales || dashboard()?.totalConversions || 0 | number }} sale{{ (sales()?.totalSales || dashboard()?.totalConversions || 0) === 1 ? '' : 's' }}</span>
+      </div>
+    </section>
+
+    <section class="metric-rail" aria-label="Key promotion metrics">
       @for (card of summaryCards(); track card.label) {
-        <mat-card class="summary-card" appearance="outlined">
+        <article class="metric-tile">
           <mat-icon>{{ card.icon }}</mat-icon>
-          <div>
-            <span>{{ card.label }}</span>
-            <strong>
-              @if (card.money) {
-                {{ card.value | currencyUtils:currency() }}
-              } @else {
-                {{ card.value | number }}
-              }
-            </strong>
-          </div>
-        </mat-card>
+          <span>{{ card.label }}</span>
+          <strong>
+            @if (card.money) {
+              {{ card.value | currencyUtils:currency() }}
+            } @else {
+              {{ card.value | number }}
+            }
+          </strong>
+        </article>
       }
-    </div>
+    </section>
 
-    <div class="content-layout">
-      <section class="analytics-panel">
-        <div class="section-toolbar">
-          <div>
-            <h2>Promotion Performance</h2>
-            <p>{{ filteredPromotions().length }} active promotion{{ filteredPromotions().length === 1 ? '' : 's' }}</p>
-          </div>
+    <section class="control-card" aria-label="Promotion filters">
+      <label class="search-box">
+        <mat-icon>search</mat-icon>
+        <input
+          type="search"
+          [value]="search()"
+          (input)="search.set($any($event.target).value)"
+          placeholder="Search product, store, code"
+          aria-label="Search promoted products">
+      </label>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Search products</mat-label>
-            <mat-icon matPrefix>search</mat-icon>
-            <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Product, store, code">
-          </mat-form-field>
+      <div class="segmented-scroll" aria-label="Filter promoted products">
+        <button type="button" class="segmented-chip" [class.is-active]="promotionFilter() === 'all'" [attr.aria-pressed]="promotionFilter() === 'all'" (click)="promotionFilter.set('all')">
+          All
+        </button>
+        <button type="button" class="segmented-chip" [class.is-active]="promotionFilter() === 'earning'" [attr.aria-pressed]="promotionFilter() === 'earning'" (click)="promotionFilter.set('earning')">
+          Earning
+        </button>
+        <button type="button" class="segmented-chip" [class.is-active]="promotionFilter() === 'attention'" [attr.aria-pressed]="promotionFilter() === 'attention'" (click)="promotionFilter.set('attention')">
+          Needs attention
+        </button>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <div>
+          <h2>Promotion links</h2>
+          <p>{{ filteredPromotions().length }} result{{ filteredPromotions().length === 1 ? '' : 's' }}</p>
         </div>
+        <a class="text-link" routerLink="/dashboard/stores/products">Browse</a>
+      </div>
 
-        @if (filteredPromotions().length === 0) {
-          <div class="empty-state">
-            <mat-icon>inventory_2</mat-icon>
-            <h3>No promoted products yet</h3>
-            <p>Create affiliate links from Browse Products to start tracking performance here.</p>
-            <a mat-raised-button color="primary" routerLink="/dashboard/stores/products">
-              Browse Products
-            </a>
-          </div>
-        } @else {
-          <div class="promotion-list">
-            @for (promotion of filteredPromotions(); track promotion.trackingId) {
-              <article class="promotion-card">
+      @if (filteredPromotions().length === 0) {
+        <div class="state-card">
+          <mat-icon>inventory_2</mat-icon>
+          <h2>No promoted products found</h2>
+          <p>Create or search for a storefront promotion link to start tracking performance.</p>
+          <a class="primary-action" routerLink="/dashboard/stores/products">Browse products</a>
+        </div>
+      } @else {
+        <div class="promotion-list">
+          @for (promotion of filteredPromotions(); track trackPromotion($index, promotion)) {
+            <article class="promotion-card">
+              <div class="product-row">
                 <div class="product-media">
                   @if (promotion.productImage) {
-                    <img [src]="promotion.productImage" [alt]="promotion.productName">
+                    <img [src]="promotion.productImage" [alt]="promotion.productName || 'Promoted product image'">
                   } @else {
                     <mat-icon>inventory_2</mat-icon>
                   }
                 </div>
 
-                <div class="promotion-main">
-                  <div class="promotion-heading">
-                    <div>
-                      <h3>{{ promotion.productName }}</h3>
-                      <p>{{ promotion.store?.name || 'MarketSpase Store' }}</p>
-                    </div>
-                    <mat-chip [class]="performanceClass(promotion)">
-                      {{ performanceClass(promotion) | titlecase }}
-                    </mat-chip>
+                <div class="product-copy">
+                  <div class="card-meta">
+                    <span class="status-pill" [ngClass]="promotionHealthClass(promotion)">{{ promotionHealthLabel(promotion) }}</span>
+                    @if (promotion.productCategory) {
+                      <span>{{ promotion.productCategory }}</span>
+                    }
                   </div>
-
-                  <div class="metric-row">
-                    <div>
-                      <span>Views</span>
-                      <strong>{{ promotion.views | number }}</strong>
-                    </div>
-                    <div>
-                      <span>Clicks</span>
-                      <strong>{{ promotion.clicks | number }}</strong>
-                    </div>
-                    <div>
-                      <span>Sales</span>
-                      <strong>{{ promotion.conversions | number }}</strong>
-                    </div>
-                    <div>
-                      <span>Commission</span>
-                      <strong>{{ promotion.earnings | currencyUtils:currency() }}</strong>
-                    </div>
-                  </div>
-
-                  <div class="progress-group">
-                    <div>
-                      <span>Click-through rate</span>
-                      <strong>{{ promotion.clickThroughRate | number:'1.1-1' }}%</strong>
-                    </div>
-                    <div class="bar">
-                      <span [style.width.%]="promotion.clickThroughRate > 100 ? 100 : promotion.clickThroughRate"></span>
-                    </div>
-                  </div>
-
-                  <div class="promotion-actions">
-                    <button mat-stroked-button type="button" (click)="copyLink(promotion)">
-                      <mat-icon>content_copy</mat-icon>
-                      Copy Link
-                    </button>
-                    <button mat-button type="button" (click)="shareOnWhatsApp(promotion)">
-                      <mat-icon>chat</mat-icon>
-                      WhatsApp
-                    </button>
-                    <a mat-button [routerLink]="['/product', promotion.productId]" [queryParams]="{ track: promotion.uniqueCode, ref: promotion.uniqueId }">
-                      <mat-icon>open_in_new</mat-icon>
-                      View Page
-                    </a>
-                  </div>
+                  <h3>{{ promotion.productName || 'Storefront product' }}</h3>
+                  <p>{{ promotion.store?.name || 'MarketSpase Store' }}</p>
                 </div>
-              </article>
-            }
-          </div>
-        }
-      </section>
+              </div>
 
-      <aside class="sales-panel">
-        <div class="sales-header">
-          <div>
-            <h2>Affiliate Sales</h2>
-            <p>Admin-vetted release workflow</p>
-          </div>
-          @if (ordersLoading()) {
-            <mat-spinner diameter="24"></mat-spinner>
+              <div class="mini-metrics" aria-label="Promotion metrics">
+                <div>
+                  <span>Views</span>
+                  <strong>{{ promotion.views || 0 | number }}</strong>
+                </div>
+                <div>
+                  <span>Clicks</span>
+                  <strong>{{ promotion.clicks || 0 | number }}</strong>
+                </div>
+                <div>
+                  <span>Sales</span>
+                  <strong>{{ promotion.conversions || 0 | number }}</strong>
+                </div>
+                <div>
+                  <span>Earned</span>
+                  <strong>{{ promotion.earnings || 0 | currencyUtils:currency() }}</strong>
+                </div>
+              </div>
+
+              <div class="progress-group">
+                <div>
+                  <span>Click-through rate</span>
+                  <strong>{{ promotion.clickThroughRate || 0 | number:'1.1-1' }}%</strong>
+                </div>
+                <div class="progress-bar">
+                  <span [style.width.%]="percent(promotion.clickThroughRate)"></span>
+                </div>
+              </div>
+
+              <div class="action-grid">
+                <button type="button" class="primary-action" [disabled]="!promotion.affiliateUrl" (click)="copyLink(promotion)">
+                  <mat-icon>content_copy</mat-icon>
+                  Copy link
+                </button>
+                <button type="button" class="soft-action" [disabled]="!promotion.affiliateUrl" (click)="shareOnWhatsApp(promotion)">
+                  <mat-icon>chat</mat-icon>
+                  WhatsApp
+                </button>
+                <a class="soft-action" [routerLink]="['/product', promotion.productId]" [queryParams]="{ track: promotion.uniqueCode, ref: promotion.uniqueId }">
+                  <mat-icon>open_in_new</mat-icon>
+                  View
+                </a>
+              </div>
+            </article>
           }
         </div>
+      }
+    </section>
 
-        @if (affiliateOrders().length === 0) {
-          <div class="mini-empty">
-            <mat-icon>receipt_long</mat-icon>
-            <span>No affiliate sales yet.</span>
-          </div>
-        } @else {
-          <div class="order-list">
-            @for (order of affiliateOrders(); track order._id) {
-              <article class="order-card">
-                <div class="order-top">
-                  <div>
-                    <strong>{{ order.orderNumber }}</strong>
-                    <span>{{ firstProductName(order) }}</span>
-                  </div>
-                  <mat-chip>{{ order.escrowStatus | titlecase }}</mat-chip>
-                </div>
-
-                <div class="order-money">
-                  <span>Commission</span>
-                  <strong>{{ order.totalPromoterCommission | currencyUtils:currency() }}</strong>
-                </div>
-
-                @if (order.releaseRequest?.status === 'requested') {
-                  <div class="release-status">
-                    <mat-icon>hourglass_top</mat-icon>
-                    Waiting for admin review
-                  </div>
-                } @else if (order.releaseRequest?.status === 'rejected') {
-                  <div class="release-status rejected">
-                    <mat-icon>report</mat-icon>
-                    Release rejected. Update proof and resubmit.
-                  </div>
-                }
-
-                @if (canRequestRelease(order)) {
-                  <label class="release-note">
-                    Delivery note or proof summary
-                    <textarea
-                      rows="3"
-                      [value]="releaseNotes()[order._id] || ''"
-                      (input)="setReleaseNote(order._id, $any($event.target).value)"
-                      placeholder="Example: Buyer confirmed receipt on WhatsApp. Delivery completed today."></textarea>
-                  </label>
-                  <button mat-raised-button color="primary" type="button" (click)="requestRelease(order)">
-                    <mat-icon>task_alt</mat-icon>
-                    Request Release Review
-                  </button>
-                }
-              </article>
-            }
-          </div>
+    <section class="section-block sales-block">
+      <div class="section-heading">
+        <div>
+          <h2>Affiliate sales</h2>
+          <p>{{ releaseReadyCount() | number }} ready, {{ waitingReviewCount() | number }} under review</p>
+        </div>
+        @if (ordersLoading()) {
+          <mat-spinner diameter="24"></mat-spinner>
         }
-      </aside>
-    </div>
+      </div>
+
+      <div class="segmented-scroll order-filter" aria-label="Filter affiliate sales">
+        <button type="button" class="segmented-chip" [class.is-active]="orderFilter() === 'all'" [attr.aria-pressed]="orderFilter() === 'all'" (click)="orderFilter.set('all')">
+          All
+        </button>
+        <button type="button" class="segmented-chip" [class.is-active]="orderFilter() === 'ready'" [attr.aria-pressed]="orderFilter() === 'ready'" (click)="orderFilter.set('ready')">
+          Ready
+        </button>
+        <button type="button" class="segmented-chip" [class.is-active]="orderFilter() === 'waiting'" [attr.aria-pressed]="orderFilter() === 'waiting'" (click)="orderFilter.set('waiting')">
+          Review
+        </button>
+        <button type="button" class="segmented-chip" [class.is-active]="orderFilter() === 'rejected'" [attr.aria-pressed]="orderFilter() === 'rejected'" (click)="orderFilter.set('rejected')">
+          Rejected
+        </button>
+      </div>
+
+      @if (filteredAffiliateOrders().length === 0) {
+        <div class="state-card compact">
+          <mat-icon>receipt_long</mat-icon>
+          <h2>No affiliate sales here yet</h2>
+          <p>Sales from your product links will appear with escrow and release status.</p>
+        </div>
+      } @else {
+        <div class="order-list">
+          @for (order of filteredAffiliateOrders(); track trackOrder($index, order)) {
+            <article class="order-card">
+              <div class="order-header">
+                <div>
+                  <span class="overline">{{ order.orderNumber || 'Store order' }}</span>
+                  <h3>{{ firstProductName(order) }}</h3>
+                </div>
+                <span class="status-pill" [ngClass]="orderStatusClass(order)">{{ orderStatusLabel(order) | titlecase }}</span>
+              </div>
+
+              <div class="order-money">
+                <span>Commission</span>
+                <strong>{{ order.totalPromoterCommission || 0 | currencyUtils:currency() }}</strong>
+              </div>
+
+              @if (order.releaseRequest?.status === 'requested') {
+                <div class="release-note-box">
+                  <mat-icon>hourglass_top</mat-icon>
+                  <span>Waiting for admin review before commission release.</span>
+                </div>
+              } @else if (order.releaseRequest?.status === 'rejected') {
+                <div class="release-note-box rejected">
+                  <mat-icon>report</mat-icon>
+                  <span>Release was rejected. Add clearer proof and resubmit.</span>
+                </div>
+              }
+
+              @if (canRequestRelease(order)) {
+                <label class="proof-field">
+                  <span>Delivery note or proof summary</span>
+                  <textarea
+                    rows="3"
+                    [value]="releaseNotes()[order._id] || ''"
+                    (input)="setReleaseNote(order._id, $any($event.target).value)"
+                    placeholder="Example: Buyer confirmed receipt on WhatsApp. Delivery completed today."></textarea>
+                </label>
+                <button type="button" class="primary-action full" (click)="requestRelease(order)">
+                  <mat-icon>task_alt</mat-icon>
+                  Request release review
+                </button>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
   }
 </section>

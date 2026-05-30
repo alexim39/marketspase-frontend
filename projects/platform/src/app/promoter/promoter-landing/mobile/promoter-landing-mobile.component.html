@@ -1,0 +1,90 @@
+<section class="mobile-promoter-campaigns-page">
+  <header class="mobile-topbar">
+    <div>
+      <p class="eyebrow">Promoter campaigns</p>
+      <h1>Find campaigns</h1>
+    </div>
+    <button type="button" class="icon-action" aria-label="View active promotions" (click)="viewPromotions()">
+      <mat-icon>campaign</mat-icon>
+    </button>
+  </header>
+
+  <section class="hero-card">
+    <div>
+      <span>Pending earnings</span>
+      <strong>{{ metrics().pendingEarnings | number }}</strong>
+      <p>{{ metrics().activePromotions | number }} active promotions</p>
+    </div>
+    <button type="button" (click)="viewPromotions()">
+      <mat-icon>link</mat-icon>
+      My links
+    </button>
+  </section>
+
+  <promoter-quick-stats-mobile [metrics]="metrics()" />
+
+  @if (metrics().activePromotions > 0) {
+    <section class="active-alert" aria-label="Active promotions">
+      <mat-icon>notification_important</mat-icon>
+      <div>
+        <h2>{{ metrics().activePromotions }} running promotions</h2>
+        <p>Copy your tracked links and keep sharing where your audience is active.</p>
+      </div>
+      <button type="button" (click)="viewPromotions()">View</button>
+    </section>
+  }
+
+  <campaign-filters-mobile
+    [searchTerm]="searchTerm()"
+    [allCampaignsCount]="filteredCampaigns().length"
+    [highPayoutCount]="getHighPayoutCount()"
+    [expiringSoonCount]="metrics().expiringSoon"
+    [quickTasksCount]="getQuickTasksCount()"
+    [viewMode]="viewMode()"
+    [activeFilter]="activeFilter()"
+    (searchTermChange)="searchTerm.set($event)"
+    (viewModeChange)="viewMode.set($event)"
+    (filterChange)="onFilterChange($event)"
+  />
+
+  @if (isCampaignsLoading() && campaigns().length === 0) {
+    <loading-state-mobile />
+  } @else if (filteredCampaigns().length === 0 && !isCampaignsLoading() && hasLoaded()) {
+    <empty-state />
+  } @else {
+    <section class="campaign-feed" [class.list-mode]="viewMode() === 'list'" aria-label="Available campaigns">
+      @for (campaign of filteredCampaigns(); track campaignTrack($index, campaign)) {
+        <app-campaign-card-mobile
+          [campaign]="campaign"
+          [promotions]="promotions()"
+          [api]="api"
+          [applyingCampaignId]="applyingCampaignId()"
+          [viewMode]="viewMode()"
+          (applyForCampaign)="applyForCampaign($event)"
+        />
+      }
+    </section>
+
+    @if (isCampaignsLoading() && campaigns().length > 0) {
+      <div class="loading-more">
+        <mat-spinner diameter="28" />
+        <span>Loading more campaigns...</span>
+      </div>
+    }
+
+    @if (hasMoreCampaigns() && !isCampaignsLoading() && filteredCampaigns().length > 0) {
+      <button type="button" class="load-more-btn" (click)="loadMoreCampaigns()">
+        <mat-icon>expand_more</mat-icon>
+        Load more campaigns
+      </button>
+    }
+
+    @if (!hasMoreCampaigns() && campaigns().length > 0 && filteredCampaigns().length > 0) {
+      <p class="end-note">You have reached the end of available campaigns.</p>
+    }
+  }
+
+  <button type="button" class="mobile-fab" aria-label="View active promotions" (click)="viewPromotions()">
+    <mat-icon>link</mat-icon>
+  </button>
+</section>

@@ -1,0 +1,163 @@
+<section class="mobile-transactions" aria-labelledby="transactions-title">
+  <header class="mobile-topbar">
+    <div>
+      <p class="eyebrow">{{ user()?.role | titlecase }} wallet</p>
+      <h1 id="transactions-title">Transactions</h1>
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Refresh transactions"
+      (click)="refreshTransactions()"
+      [disabled]="isLoading()"
+    >
+      @if (isLoading()) {
+        <mat-progress-spinner diameter="22" mode="indeterminate"></mat-progress-spinner>
+      } @else {
+        <mat-icon>refresh</mat-icon>
+      }
+    </button>
+  </header>
+
+  <section class="balance-hero" aria-label="Wallet summary">
+    <div class="balance-main">
+      <span>Available balance</span>
+      <strong>{{ currentBalance() | currencyUtils:walletCurrency() }}</strong>
+    </div>
+
+    <div class="balance-grid">
+      <article class="balance-tile">
+        <mat-icon>lock_clock</mat-icon>
+        <span>{{ user()?.role === 'promoter' ? 'Reserved' : 'Active budget' }}</span>
+        <strong>{{ currentReserved() | currencyUtils:walletCurrency() }}</strong>
+      </article>
+
+      <article class="balance-tile">
+        <mat-icon>{{ user()?.role === 'promoter' ? 'trending_up' : 'paid' }}</mat-icon>
+        <span>{{ user()?.role === 'promoter' ? 'Total earned' : 'Total spent' }}</span>
+        <strong>{{ totalAmount() | currencyUtils:walletCurrency() }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <nav class="filter-strip" aria-label="Transaction type filters">
+    @for (filter of filterOptions(); track filter.key) {
+      <button
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter() === filter.key"
+        (click)="setFilter(filter.key)"
+      >
+        <mat-icon>{{ filter.icon }}</mat-icon>
+        <span>{{ filter.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <section class="search-panel" aria-label="Search and status filters">
+    <label class="search-box">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        placeholder="Search amount, campaign, status"
+        [value]="searchTerm()"
+        (input)="applySearch(($any($event.target)).value)"
+      />
+      @if (searchTerm()) {
+        <button type="button" aria-label="Clear search" (click)="applySearch('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+
+    <div class="status-strip" aria-label="Transaction status filters">
+      @for (status of ['all', 'successful', 'pending', 'failed']; track status) {
+        <button
+          type="button"
+          [class.active]="statusFilter() === status"
+          (click)="setStatusFilter(status)"
+        >
+          {{ status | titlecase }}
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (hasActiveFilters()) {
+    <div class="filter-summary">
+      <span>{{ filteredTransactions().length }} result(s)</span>
+      <button type="button" (click)="clearFilters()">Clear filters</button>
+    </div>
+  }
+
+  <main class="transaction-feed">
+    @if (filteredTransactions().length === 0) {
+      <section class="empty-state">
+        <mat-icon>receipt_long</mat-icon>
+        <h2>No transactions found</h2>
+        <p>Try another filter or search term.</p>
+        @if (hasActiveFilters()) {
+          <button mat-stroked-button type="button" (click)="clearFilters()">Clear filters</button>
+        }
+      </section>
+    } @else {
+      @for (group of groups(); track group.label) {
+        <section class="transaction-group" [attr.aria-label]="group.label + ' transactions'">
+          <h2>{{ group.label }}</h2>
+
+          @for (transaction of group.items; track transaction._id || transaction.createdAt) {
+            <article class="transaction-card" [class.credit]="transaction.type === 'credit'" [class.debit]="transaction.type === 'debit'">
+              <div class="icon-wrap" [class]="transaction.category || 'default'">
+                <mat-icon>{{ getCategoryIcon(transaction.category) }}</mat-icon>
+              </div>
+
+              <div class="transaction-main">
+                <div class="transaction-title-row">
+                  <h3>{{ transaction.description || 'Transaction' }}</h3>
+                  <strong [class]="transaction.type">
+                    {{ (transaction.type === 'credit' ? '+' : '-') + transaction.amount | currencyUtils:walletCurrency() }}
+                  </strong>
+                </div>
+
+                <div class="transaction-meta">
+                  <span>{{ transaction.category || 'wallet' | titlecase }}</span>
+                  <span>{{ formatDate(transaction.createdAt) }}</span>
+                  <span>{{ formatTime(transaction.createdAt) }}</span>
+                </div>
+
+                <div class="transaction-footer">
+                  <span class="status-pill" [class]="normalizeStatus(transaction.status)">
+                    <mat-icon>{{ getStatusIcon(transaction.status) }}</mat-icon>
+                    {{ normalizeStatus(transaction.status) | titlecase }}
+                  </span>
+
+                  @if (user()?.role === 'promoter' && transaction.amountPayable) {
+                    <span class="payable">Payable: {{ transaction.amountPayable | currencyUtils:walletCurrency() }}</span>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </section>
+      }
+
+      @if (hasMore()) {
+        <button class="load-more" mat-stroked-button type="button" (click)="loadMore()">
+          Load more transactions
+        </button>
+      }
+    }
+  </main>
+
+  <button
+    class="summary-fab"
+    mat-fab
+    color="primary"
+    type="button"
+    aria-label="Open transaction summary"
+    (click)="viewTransactionSummary()"
+  >
+    <mat-icon>analytics</mat-icon>
+  </button>
+</section>

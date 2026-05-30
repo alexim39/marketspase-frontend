@@ -1,0 +1,260 @@
+<section class="mobile-orders-page">
+  <header class="mobile-topbar">
+    <div>
+      <p class="eyebrow">Escrow and delivery</p>
+      <h1>{{ pageTitle() }}</h1>
+    </div>
+    <button type="button" class="icon-action" aria-label="Refresh orders" (click)="loadOrders()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <section class="hero-card">
+    <div>
+      <span>{{ role() === 'promoter' ? 'Affiliate orders' : role() === 'admin' ? 'Release reviews' : 'Store orders' }}</span>
+      <strong>{{ stats().totalOrders || orders().length || 0 | number }}</strong>
+      <p>
+        @if (role() === 'admin') {
+          Review delivery evidence before funds leave escrow.
+        } @else {
+          Track paid orders, escrow status, and release requests.
+        }
+      </p>
+    </div>
+    <mat-icon>shopping_bag</mat-icon>
+  </section>
+
+  @if (role() !== 'admin') {
+    <section class="summary-strip" aria-label="Order financial summary">
+      <article>
+        <span>Reserved</span>
+        <strong>{{ (stats().reservedRevenue || stats().pendingEarnings || 0) | currencyUtils:currency() }}</strong>
+      </article>
+      <article>
+        <span>Released</span>
+        <strong>{{ (stats().releasedRevenue || stats().paidEarnings || 0) | currencyUtils:currency() }}</strong>
+      </article>
+      <article>
+        <span>Pending reviews</span>
+        <strong>{{ stats().pendingReleaseRequests || 0 | number }}</strong>
+      </article>
+    </section>
+  }
+
+  <section class="search-panel" aria-label="Search orders">
+    <label>
+      <mat-icon>search</mat-icon>
+      <input
+        #searchInput
+        type="search"
+        [value]="searchQuery()"
+        placeholder="Search order, buyer, phone or city"
+        aria-label="Search orders"
+        (input)="onSearchInput(searchInput.value)"
+      />
+      @if (searchQuery()) {
+        <button type="button" aria-label="Clear search" (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+  </section>
+
+  <nav class="filter-strip" aria-label="Filter orders">
+    @for (filter of filterOptions(); track filter.id) {
+      <button
+        type="button"
+        [class.active]="activeFilter() === filter.id"
+        (click)="setFilter(filter.id)"
+      >
+        <mat-icon>{{ filter.icon }}</mat-icon>
+        <span>{{ filter.label }}</span>
+        <em>{{ filter.count | number }}</em>
+      </button>
+    }
+  </nav>
+
+  @if (loading()) {
+    <section class="skeleton-list" aria-label="Loading orders">
+      @for (item of [1, 2, 3]; track item) {
+        <article class="order-skeleton">
+          <div></div>
+          <span></span>
+          <span></span>
+          <section></section>
+        </article>
+      }
+    </section>
+  } @else if (orders().length === 0) {
+    <section class="state-panel">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>No storefront orders yet</h2>
+      <p>Orders connected to storefront purchases and promoter referrals will appear here.</p>
+    </section>
+  } @else if (filteredOrders().length === 0) {
+    <section class="state-panel">
+      <mat-icon>search_off</mat-icon>
+      <h2>No matching orders</h2>
+      <p>Try another filter or search term.</p>
+      <button type="button" class="secondary-action" (click)="clearSearch(); setFilter('all')">Clear filters</button>
+    </section>
+  } @else {
+    <section class="orders-feed">
+      @for (group of groupedOrders(); track group.label) {
+        <div class="group-label">{{ group.label }}</div>
+
+        @for (order of group.rows; track order._id) {
+          <article class="order-card">
+            <header>
+              <div class="order-title">
+                <span>{{ order.orderNumber || 'Storefront order' }}</span>
+                <strong>{{ firstProductName(order) }}</strong>
+              </div>
+              <time>{{ orderDate(order) | date:'MMM d' }}</time>
+            </header>
+
+            <div class="status-row">
+              <span [class.good]="paymentTone(order) === 'good'" [class.warn]="paymentTone(order) === 'warn'" [class.bad]="paymentTone(order) === 'bad'">
+                <mat-icon>payments</mat-icon>
+                {{ order.paymentStatus || 'unknown' | titlecase }}
+              </span>
+              <span [class.good]="escrowTone(order) === 'good'" [class.warn]="escrowTone(order) === 'warn'" [class.bad]="escrowTone(order) === 'bad'">
+                <mat-icon>account_balance_wallet</mat-icon>
+                {{ order.escrowStatus || 'unknown' | titlecase }}
+              </span>
+              @if (order.releaseRequest?.status && order.releaseRequest?.status !== 'none') {
+                <span class="review">
+                  <mat-icon>fact_check</mat-icon>
+                  {{ order.releaseRequest.status | titlecase }}
+                </span>
+              }
+            </div>
+
+            <section class="amount-grid" aria-label="Order amounts">
+              <div>
+                <span>Order total</span>
+                <strong>{{ order.totalAmount | currencyUtils:(order.currency || currency()) }}</strong>
+              </div>
+              <div>
+                <span>{{ role() === 'promoter' ? 'Your commission' : 'Commission' }}</span>
+                <strong>{{ orderCommission(order) | currencyUtils:(order.currency || currency()) }}</strong>
+              </div>
+              <div>
+                <span>Reserve</span>
+                <strong>{{ order.marketerReservedAmount | currencyUtils:(order.currency || currency()) }}</strong>
+              </div>
+            </section>
+
+            <section class="buyer-card">
+              <mat-icon>local_shipping</mat-icon>
+              <div>
+                <strong>{{ order.shippingAddress?.fullName || 'Buyer details unavailable' }}</strong>
+                <span>{{ buyerLine(order) }}</span>
+                <small>Delivery: {{ deliveryLabel(order) | titlecase }}</small>
+              </div>
+            </section>
+
+            @if (order.releaseRequest?.status === 'requested') {
+              <section class="review-note">
+                <mat-icon>hourglass_top</mat-icon>
+                <span>
+                  Requested by {{ order.releaseRequest.requestedByRole | titlecase }}.
+                  {{ role() === 'admin' ? 'Check evidence before release.' : 'Admin review is pending.' }}
+                </span>
+              </section>
+            }
+
+            <footer class="card-actions">
+              @if (canRequestRelease(order)) {
+                <button type="button" class="primary-action" (click)="openReleaseSheet(order)">
+                  <mat-icon>task_alt</mat-icon>
+                  Request release
+                </button>
+              }
+
+              @if (role() === 'admin' && order.releaseRequest?.status === 'requested') {
+                <button type="button" class="primary-action" (click)="openReviewSheet(order)">
+                  <mat-icon>verified</mat-icon>
+                  Review request
+                </button>
+              }
+
+              @if (!canRequestRelease(order) && !(role() === 'admin' && order.releaseRequest?.status === 'requested')) {
+                <span class="passive-state">
+                  <mat-icon>info</mat-icon>
+                  No action required
+                </span>
+              }
+            </footer>
+          </article>
+        }
+      }
+    </section>
+  }
+
+  @if (selectedReleaseOrder(); as order) {
+    <div class="sheet-backdrop" (click)="closeReleaseSheet()" aria-hidden="true"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Request release">
+      <div class="sheet-handle"></div>
+      <header>
+        <div>
+          <h2>Request release</h2>
+          <p>{{ order.orderNumber }} • {{ firstProductName(order) }}</p>
+        </div>
+        <button type="button" aria-label="Close release request" (click)="closeReleaseSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <label>
+        Delivery note or proof summary
+        <textarea
+          rows="5"
+          [value]="releaseNotes()[order._id] || ''"
+          (input)="setReleaseNote(order._id, $any($event.target).value)"
+          placeholder="Add delivery details, buyer confirmation, tracking number, or proof summary."></textarea>
+      </label>
+
+      <button type="button" class="primary-action" (click)="submitRelease(order)">
+        <mat-icon>task_alt</mat-icon>
+        Submit for admin review
+      </button>
+    </section>
+  }
+
+  @if (selectedReviewOrder(); as order) {
+    <div class="sheet-backdrop" (click)="closeReviewSheet()" aria-hidden="true"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Review release request">
+      <div class="sheet-handle"></div>
+      <header>
+        <div>
+          <h2>Review release</h2>
+          <p>{{ order.orderNumber }} • Requested by {{ order.releaseRequest?.requestedByRole | titlecase }}</p>
+        </div>
+        <button type="button" aria-label="Close review" (click)="closeReviewSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <label>
+        Admin review note
+        <textarea
+          rows="5"
+          [value]="reviewNotes()[order._id] || ''"
+          (input)="setReviewNote(order._id, $any($event.target).value)"
+          placeholder="Add the reason for approval or rejection."></textarea>
+      </label>
+
+      <div class="review-actions">
+        <button type="button" class="primary-action" (click)="submitReview(order, 'approved')">
+          <mat-icon>verified</mat-icon>
+          Approve release
+        </button>
+        <button type="button" class="danger-action" (click)="submitReview(order, 'rejected')">
+          <mat-icon>block</mat-icon>
+          Reject
+        </button>
+      </div>
+    </section>
+  }
+</section>

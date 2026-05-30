@@ -1,0 +1,334 @@
+<section class="mobile-analytics-page">
+  <header class="mobile-topbar">
+    <div>
+      <p class="eyebrow">Live performance</p>
+      <h1>{{ heading() }}</h1>
+    </div>
+    <button type="button" class="icon-action" aria-label="Refresh analytics" (click)="refreshNow()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <section class="hero-card">
+    <div>
+      <span>{{ dashboardRole() === 'marketer' ? 'Spend quality' : 'Earning quality' }}</span>
+      <strong>{{ (analytics()?.summary?.qualityRate || 0) | number:'1.0-1' }}%</strong>
+      <p>{{ helperCopy() }}</p>
+    </div>
+    <span class="update-pill">
+      <mat-icon>update</mat-icon>
+      @if (generatedAt()) {
+        {{ generatedAt() | date:'shortTime' }}
+      } @else {
+        Live
+      }
+    </span>
+  </section>
+
+  <form [formGroup]="filtersForm" class="mobile-filters" aria-label="Analytics filters">
+    <nav class="range-strip" aria-label="Date range">
+      @for (option of rangeOptions; track option.value) {
+        <button
+          type="button"
+          [class.active]="filtersForm.controls.range.value === option.value"
+          (click)="filtersForm.controls.range.setValue(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </nav>
+
+    @if (filtersForm.controls.range.value === 'custom') {
+      <div class="date-grid">
+        <label>
+          <span>Start</span>
+          <input type="date" formControlName="startDate" />
+        </label>
+        <label>
+          <span>End</span>
+          <input type="date" formControlName="endDate" />
+        </label>
+      </div>
+    }
+
+    <label class="select-field">
+      <span>Campaign</span>
+      <select formControlName="campaignId">
+        <option value="">All campaigns</option>
+        @for (campaign of campaignOptions(); track trackByCampaign($index, campaign)) {
+          <option [value]="campaign.campaignId">{{ campaign.title }}</option>
+        }
+      </select>
+    </label>
+
+    @if (dashboardRole() === 'marketer') {
+      <label class="select-field">
+        <span>Promoter</span>
+        <select formControlName="promoterId">
+          <option value="">All promoters</option>
+          @for (promoter of promoterOptions(); track trackByPromoter($index, promoter)) {
+            <option [value]="promoter.promoterId">{{ promoter.displayName || promoter.username || 'Promoter' }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <div class="filter-actions">
+      <button type="button" (click)="clearFilters()">
+        <mat-icon>restart_alt</mat-icon>
+        Reset
+      </button>
+      <button type="button" (click)="exportCsv('timeSeries')">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <mat-spinner diameter="34" />
+      <div>
+        <strong>Loading analytics</strong>
+        <span>Compiling the latest campaign traffic and earnings.</span>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="state-card">
+      <mat-icon>insights</mat-icon>
+      <h2>Analytics need another try</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="refreshNow()">Retry</button>
+    </section>
+  } @else {
+    @if (analytics(); as data) {
+    <section class="kpi-carousel" aria-label="Analytics summary">
+      @for (card of summaryCards(); track trackByLabel($index, card)) {
+        <article class="kpi-card" [class]="card.tone">
+          <div class="kpi-icon"><mat-icon>{{ card.icon }}</mat-icon></div>
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+          <p>{{ card.caption }}</p>
+        </article>
+      }
+    </section>
+
+    <section class="panel-card">
+      <header class="panel-head">
+        <div>
+          <h2>Click trend</h2>
+          <p>Tracked visits and billable clicks over the selected range.</p>
+        </div>
+        @if (refreshing()) {
+          <span class="sync-pill"><mat-icon>sync</mat-icon> Syncing</span>
+        }
+      </header>
+
+      @if (timeSeriesHasData()) {
+        <svg class="sparkline" viewBox="0 0 640 120" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="sparkline-tracked" [attr.points]="sparkline().tracked"></polyline>
+          <polyline class="sparkline-billable" [attr.points]="sparkline().billable"></polyline>
+        </svg>
+
+        <div class="legend-row">
+          <span><i class="tracked"></i>Tracked</span>
+          <span><i class="billable"></i>Billable</span>
+        </div>
+
+        <div class="trend-list">
+          @for (row of visibleTrendRows(); track row.date) {
+            <article class="trend-row">
+              <div>
+                <strong>{{ row.label }}</strong>
+                <span>{{ row.trackedVisits }} tracked | {{ row.billableClicks }} billable</span>
+              </div>
+              <div class="trend-bars">
+                <i class="tracked" [style.width.%]="row.widthTracked"></i>
+                <i class="billable" [style.width.%]="row.widthBillable"></i>
+              </div>
+              <em>
+                @if (dashboardRole() === 'marketer') {
+                  {{ formatCurrency(row.spend || 0) }}
+                } @else {
+                  {{ formatCurrency(row.earnings || 0) }}
+                }
+              </em>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="inline-empty">
+          <mat-icon>timeline</mat-icon>
+          <p>No click activity has landed in this window yet.</p>
+        </div>
+      }
+    </section>
+
+    <section class="breakdown-grid">
+      <article class="panel-card">
+        <header class="panel-head compact">
+          <h2>Sources</h2>
+          <p>Where traffic is coming from.</p>
+        </header>
+
+        @if (sourceBreakdown().length) {
+          <div class="breakdown-list">
+            @for (source of sourceBreakdown(); track trackByLabel($index, source)) {
+              <div class="breakdown-row">
+                <div>
+                  <strong>{{ source.label }}</strong>
+                  <span>{{ source.helper }}</span>
+                </div>
+                <b>{{ source.value }}</b>
+                <i [style.width.%]="source.width"></i>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="inline-empty compact"><mat-icon>travel_explore</mat-icon><p>No source data yet.</p></div>
+        }
+      </article>
+
+      <article class="panel-card">
+        <header class="panel-head compact">
+          <h2>Devices</h2>
+          <p>What users click from.</p>
+        </header>
+
+        @if (deviceBreakdown().length) {
+          <div class="breakdown-list">
+            @for (device of deviceBreakdown(); track trackByLabel($index, device)) {
+              <div class="breakdown-row device">
+                <div>
+                  <strong>{{ device.label }}</strong>
+                  <span>{{ device.helper }}</span>
+                </div>
+                <b>{{ device.value }}</b>
+                <i [style.width.%]="device.width"></i>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="inline-empty compact"><mat-icon>devices</mat-icon><p>No device data yet.</p></div>
+        }
+      </article>
+    </section>
+
+    <section class="panel-card drilldown-panel">
+      <header class="panel-head">
+        <div>
+          <h2>Campaigns</h2>
+          <p>Tap a room when you need to coordinate performance improvements.</p>
+        </div>
+        <button type="button" (click)="exportCsv('campaigns')">
+          <mat-icon>download</mat-icon>
+        </button>
+      </header>
+
+      @if (data.campaignBreakdown?.length) {
+        <div class="drilldown-list">
+          @for (row of data.campaignBreakdown; track trackByCampaign($index, row)) {
+            <article class="drilldown-card">
+              <div>
+                <span class="status-badge">{{ row.status | titlecase }}</span>
+                <h3>{{ row.title }}</h3>
+                <p>{{ row.trackedVisits }} tracked | {{ row.billableClicks }} billable | {{ row.invalidClicks + row.duplicateClicks }} filtered</p>
+              </div>
+              <strong>
+                @if (dashboardRole() === 'marketer') {
+                  {{ formatCurrency(row.spend || 0) }}
+                } @else {
+                  {{ formatCurrency(row.earnings || 0) }}
+                }
+              </strong>
+              <button type="button" (click)="openCampaignRoom(row.campaignId)">
+                <mat-icon>forum</mat-icon>
+                Room
+              </button>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="inline-empty"><mat-icon>campaign</mat-icon><p>No campaign rows match the current filters.</p></div>
+      }
+    </section>
+
+    @if (dashboardRole() === 'marketer') {
+      <section class="panel-card drilldown-panel">
+        <header class="panel-head">
+          <div>
+            <h2>Promoters</h2>
+            <p>Who is driving the most useful traffic.</p>
+          </div>
+          <button type="button" (click)="exportCsv('promoters')">
+            <mat-icon>download</mat-icon>
+          </button>
+        </header>
+
+        @if (data.promoterBreakdown?.length) {
+          <div class="drilldown-list">
+            @for (row of data.promoterBreakdown; track trackByPromoter($index, row)) {
+              <article class="drilldown-card identity">
+                <div class="avatar">
+                  @if (row.avatar) {
+                    <img [src]="row.avatar" [alt]="row.displayName || row.username || 'Promoter'" />
+                  } @else {
+                    <mat-icon>person</mat-icon>
+                  }
+                </div>
+                <div>
+                  <h3>{{ row.displayName || row.username || 'Promoter' }}</h3>
+                  <p>{{ row.trackedVisits }} tracked | {{ row.billableClicks }} billable | {{ formatCurrency(row.earnings || 0) }}</p>
+                </div>
+                <button type="button" (click)="openPromoterConversation(row)">
+                  <mat-icon>chat</mat-icon>
+                  Message
+                </button>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="inline-empty"><mat-icon>groups</mat-icon><p>Promoter rows will appear as campaign traffic grows.</p></div>
+        }
+      </section>
+    } @else {
+      <section class="panel-card drilldown-panel">
+        <header class="panel-head">
+          <div>
+            <h2>Promotions</h2>
+            <p>Each accepted link as its own performance line.</p>
+          </div>
+          <button type="button" (click)="exportCsv('promotions')">
+            <mat-icon>download</mat-icon>
+          </button>
+        </header>
+
+        @if (data.promotionBreakdown?.length) {
+          <div class="drilldown-list">
+            @for (row of data.promotionBreakdown; track trackByPromotion($index, row)) {
+              <article class="drilldown-card">
+                <div>
+                  <span class="status-badge" [class.inactive]="!row.isActive">{{ row.status | titlecase }}</span>
+                  <h3>{{ row.title }}</h3>
+                  <p>{{ row.upi }} | {{ row.trackedVisits }} tracked | {{ row.billableClicks }} billable</p>
+                </div>
+                <strong>{{ formatCurrency(row.earnings || 0) }}</strong>
+                <button type="button" (click)="openPromotionRoom(row.promotionId)">
+                  <mat-icon>forum</mat-icon>
+                  Room
+                </button>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="inline-empty"><mat-icon>ads_click</mat-icon><p>Promotion rows will show up after you accept campaigns.</p></div>
+        }
+      </section>
+    }
+    }
+  }
+
+  <button type="button" class="mobile-fab" aria-label="Refresh analytics" (click)="refreshNow()">
+    <mat-icon>refresh</mat-icon>
+  </button>
+</section>

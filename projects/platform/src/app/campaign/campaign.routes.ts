@@ -19,7 +19,7 @@ export const CampaignRoutes: Routes = [
         children: [
            {
                 path: '',
-                loadComponent: () => import('../promoter/promotion/promotion.component').then(c => c.PromotionComponent),
+                loadComponent: () => import('../promoter/promotion').then(c => c.PromotionIndexComponent),
                 title: "Promotions - List all accepted promoter promotions",
            },
            {
@@ -43,7 +43,7 @@ export const CampaignRoutes: Routes = [
     
     {
         path: 'analytics',
-        loadComponent: () => import('./analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
+        loadComponent: () => import('./analytics').then(c => c.CampaignAnalyticsIndexComponent),
         title: "Campaign Analytics - Live campaign and promotion performance",
     },
     {

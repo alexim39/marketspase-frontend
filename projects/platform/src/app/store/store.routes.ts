@@ -12,13 +12,13 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'products',
-        loadComponent: () => import('./promoter/products-list/promoter-products-list.component').then(c => c.PromoterProductsListComponent),
+        loadComponent: () => import('./promoter/products-list').then(c => c.PromoterProductsListIndexComponent),
         title: "Promoted products - View and Manage Product you are promoting",
     },
 
     {
         path: 'orders',
-        loadComponent: () => import('./orders/storefront-orders.component').then(c => c.StorefrontOrdersComponent),
+        loadComponent: () => import('./orders').then(c => c.StorefrontOrdersIndexComponent),
         title: "Storefront Orders - Delivery and Release Review",
     },
 
@@ -30,13 +30,13 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'subscribers',
-        loadComponent: () => import('./marketer/subscribers/store-subscribers.component').then(c => c.StoreEmailSubscribersComponent),
+        loadComponent: () => import('./marketer/subscribers').then(c => c.StoreEmailSubscribersIndexComponent),
         title: "Email Subscribers - Storefront Newsletter List",
     },
 
     {
         path: 'promoted-products-analytics',
-        loadComponent: () => import('./marketer/promoted-products-analytics/marketer-promoted-products-analytics.component').then(c => c.MarketerPromotedProductsAnalyticsComponent),
+        loadComponent: () => import('./marketer/promoted-products-analytics').then(c => c.MarketerPromotedProductsAnalyticsIndexComponent),
         title: "Promoted Products Analytics - Track promoter activity and storefront sales",
     },
 

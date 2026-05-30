@@ -1,0 +1,82 @@
+<section class="mobile-promotions-page">
+  <header class="mobile-topbar">
+    <div>
+      <p class="eyebrow">Promotion links</p>
+      <h1>My Promotions</h1>
+    </div>
+    <a class="icon-action" routerLink="/dashboard/campaigns/promotions/ad-builder" aria-label="Open ad builder">
+      <mat-icon>auto_awesome</mat-icon>
+    </a>
+  </header>
+
+  <section class="hero-card">
+    <div>
+      <span>Estimated earnings</span>
+      <strong>{{ stats().earnings | number }}</strong>
+      <p>{{ stats().billableClicks | number }} billable clicks from {{ stats().active | number }} active links</p>
+    </div>
+    <a routerLink="/dashboard/campaigns" aria-label="Find campaigns">
+      <mat-icon>add</mat-icon>
+      Find
+    </a>
+  </section>
+
+  <section class="metric-grid" aria-label="Promotion summary">
+    <article>
+      <span>Total clicks</span>
+      <strong>{{ stats().totalClicks | number }}</strong>
+    </article>
+    <article>
+      <span>Paid</span>
+      <strong>{{ stats().paid | number }}</strong>
+    </article>
+    <article>
+      <span>Under review</span>
+      <strong>{{ stats().rejected | number }}</strong>
+    </article>
+  </section>
+
+  <nav class="status-strip" aria-label="Filter promotions">
+    @for (tab of mobileTabs; track tab.value) {
+      <button type="button" [class.active]="selectedTab() === tab.value" (click)="onTabChange(tab.value)">
+        <mat-icon>{{ tab.icon }}</mat-icon>
+        <span>{{ tab.label }}</span>
+        <em>{{ getTabCount(tab.value) | number }}</em>
+      </button>
+    }
+  </nav>
+
+  @if (isLoading()) {
+    <app-loading-state />
+  } @else if (isEmptyState()) {
+    <app-empty-state />
+  } @else {
+    <section class="promotion-feed" aria-label="Promotion cards">
+      @for (promotion of filteredPromotions(); track promotionTrack($index, promotion)) {
+        <app-promotion-card-mobile [promotion]="promotion" />
+      }
+    </section>
+
+    @if (isLoadingMore()) {
+      <div class="loading-more">
+        <mat-spinner diameter="28" />
+        <span>Loading more promotions...</span>
+      </div>
+    }
+
+    @if (hasMoreData() && !isLoadingMore()) {
+      <button type="button" class="load-more-btn" (click)="loadMorePromotions()">
+        <mat-icon>expand_more</mat-icon>
+        Load more
+      </button>
+    }
+
+    <p class="result-count">
+      Showing {{ filteredPromotions().length | number }} of {{ pagination().total | number }} promotions
+    </p>
+  }
+
+  <a class="mobile-fab" routerLink="/dashboard/campaigns/promotions/ad-builder" aria-label="Open ad builder">
+    <mat-icon>auto_awesome</mat-icon>
+  </a>
+</section>

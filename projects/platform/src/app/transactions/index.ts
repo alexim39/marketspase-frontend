@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../common/services/user.service';
 import { DeviceService, UserInterface } from '@shared/services';
 import { TransactionComponent } from './transactions.component';
+import { MobileTransactionsComponent } from './mobile/index.component';
 
 
 @Component({
   selector: 'index',
   standalone: true,
-  imports: [CommonModule, TransactionComponent],
+  imports: [CommonModule, TransactionComponent, MobileTransactionsComponent],
   template: `
     <div class="page-container">
       
@@ -20,7 +21,7 @@ import { TransactionComponent } from './transactions.component';
             <!-- Dashboard Content -->
             <main class="page-main" role="main">
               @if (user()) {
-                <app-transactions [user]="user"/>
+                <app-transactions-mobile [user]="user"/>
               }              
             </main>
           }
@@ -30,7 +31,7 @@ import { TransactionComponent } from './transactions.component';
             <!-- Dashboard Content -->
              <main class="page-main" role="main">
               @if (user()) {
-                <app-transactions [user]="user"/>
+                <app-transactions-mobile [user]="user"/>
               }              
             </main>
           }

@@ -1,0 +1,197 @@
+<section class="mobile-subscribers-page">
+  <header class="mobile-topbar">
+    <div>
+      <span class="eyebrow">Storefront</span>
+      <h1>Email Subscribers</h1>
+      <p>Keep every store subscriber reachable for product drops, promos, and customer updates.</p>
+    </div>
+    <button type="button" class="icon-action" aria-label="Refresh subscribers" (click)="loadSubscribers(true)">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <section class="summary-card">
+    <div>
+      <span>Total subscribers</span>
+      <strong>{{ pagination().total | number }}</strong>
+      <p>{{ subscribers().length | number }} shown on this page across {{ visibleStoreCount() | number }} store{{ visibleStoreCount() === 1 ? '' : 's' }}.</p>
+    </div>
+    <mat-icon>mark_email_read</mat-icon>
+  </section>
+
+  <section class="kpi-grid" aria-label="Visible subscriber summary">
+    <article>
+      <span>Subscribed</span>
+      <strong>{{ subscribedOnPage() | number }}</strong>
+    </article>
+    <article>
+      <span>Unsubscribed</span>
+      <strong>{{ unsubscribedOnPage() | number }}</strong>
+    </article>
+    <article>
+      <span>Page</span>
+      <strong>{{ pagination().page }} / {{ pagination().totalPages }}</strong>
+    </article>
+  </section>
+
+  <section class="filter-card" aria-label="Subscriber filters">
+    <div class="search-row">
+      <label>
+        <span>Search</span>
+        <input
+          #searchInput
+          type="search"
+          [value]="search()"
+          placeholder="Email or referrer"
+          (keyup.enter)="applySearch(searchInput.value)"
+        />
+      </label>
+      <button type="button" (click)="applySearch(searchInput.value)" aria-label="Apply search">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+
+    <nav class="chip-strip" aria-label="Subscription status">
+      @for (option of statusOptions; track option.value) {
+        <button type="button" [class.active]="statusFilter() === option.value" (click)="setStatusFilter(option.value)">
+          {{ option.label }}
+        </button>
+      }
+    </nav>
+
+    <label class="select-field">
+      <span>Store</span>
+      <select [ngModel]="storeFilter()" (ngModelChange)="storeFilter.set($event); loadSubscribers(true)">
+        <option value="all">All stores</option>
+        @for (store of storeOptions(); track store._id) {
+          <option [value]="store._id">{{ store.name }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="field-grid">
+      <label>
+        <span>Source</span>
+        <select [ngModel]="sourceFilter()" (ngModelChange)="sourceFilter.set($event); loadSubscribers(true)">
+          @for (source of sourceOptions; track source.value) {
+            <option [value]="source.value">{{ source.label }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>From</span>
+        <input type="date" [value]="dateInputValue(startDate())" (change)="setStartDate($any($event.target).value)" />
+      </label>
+      <label>
+        <span>To</span>
+        <input type="date" [value]="dateInputValue(endDate())" (change)="setEndDate($any($event.target).value)" />
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" (click)="resetFilters()">
+        <mat-icon>filter_alt_off</mat-icon>
+        Reset
+      </button>
+      <button type="button" (click)="copyVisibleEmails()" [disabled]="loading() || subscribers().length === 0">
+        <mat-icon>content_copy</mat-icon>
+        Copy visible
+      </button>
+      <button type="button" (click)="exportCsv()" [disabled]="loading() || subscribers().length === 0">
+        <mat-icon>download</mat-icon>
+        CSV
+      </button>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <mat-spinner diameter="34"></mat-spinner>
+      <div>
+        <strong>Loading subscribers</strong>
+        <span>Fetching the latest storefront email list.</span>
+      </div>
+    </section>
+  } @else if (subscribers().length === 0) {
+    <section class="empty-card">
+      <mat-icon>mark_email_read</mat-icon>
+      <h2>No subscribers yet</h2>
+      <p>When shoppers subscribe from your store pages, they will appear here with source, device, and date details.</p>
+      <a routerLink="/dashboard/stores">Go to Stores</a>
+    </section>
+  } @else {
+    <section class="subscriber-list" aria-label="Subscriber records">
+      @for (row of subscribers(); track row._id || row.email) {
+        <article class="subscriber-card" [class.inactive]="statusTone(row.status) === 'warn'">
+          <header>
+            <div>
+              <span class="status-pill" [class.warn]="statusTone(row.status) === 'warn'">
+                {{ statusLabel(row.status) }}
+              </span>
+              <h2>{{ row.email }}</h2>
+            </div>
+            <button type="button" aria-label="Copy subscriber email" (click)="copyEmail(row.email)">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </header>
+
+          <div class="store-line">
+            <mat-icon>storefront</mat-icon>
+            <div>
+              <strong>{{ row.store?.name || 'Store' }}</strong>
+              @if (row.store?.storeLink) {
+                <span>{{ row.store?.storeLink }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="meta-grid">
+            <div>
+              <span>Subscribed</span>
+              <strong>{{ row.subscribedAt ? (row.subscribedAt | date:'mediumDate') : '-' }}</strong>
+            </div>
+            <div>
+              <span>Source</span>
+              <strong>{{ sourceLabel(row.source) }}</strong>
+            </div>
+            <div>
+              <span>Device</span>
+              <strong><mat-icon>{{ deviceIcon(row.deviceType) }}</mat-icon>{{ row.deviceType || '-' }}</strong>
+            </div>
+          </div>
+
+          @if (row.referrer) {
+            <p class="referrer">{{ row.referrer }}</p>
+          }
+
+          <footer>
+            <button type="button" (click)="openEmail(row.email)">
+              <mat-icon>mail</mat-icon>
+              Email
+            </button>
+            <button type="button" (click)="copyEmail(row.email)">
+              <mat-icon>content_copy</mat-icon>
+              Copy
+            </button>
+          </footer>
+        </article>
+      }
+    </section>
+
+    <footer class="pager-card">
+      <button type="button" (click)="prevPage()" [disabled]="pagination().page <= 1">
+        <mat-icon>chevron_left</mat-icon>
+        Prev
+      </button>
+      <span>Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages">
+        Next
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </footer>
+  }
+
+  <button type="button" class="mobile-fab" aria-label="Export subscribers CSV" (click)="exportCsv()" [disabled]="loading() || subscribers().length === 0">
+    <mat-icon>download</mat-icon>
+  </button>
+</section>

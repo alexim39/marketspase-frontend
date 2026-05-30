@@ -41,8 +41,8 @@ export const dashboardRoutes: Routes = [
             {
                 path: 'notifications',
                 loadComponent: () =>
-                    import('./notification/notification-center/notification-center.component').then(
-                        c => c.NotificationCenterComponent
+                    import('./notification/notification-center/index.component').then(
+                        c => c.NotificationCenterIndexComponent
                     ),
             },
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            

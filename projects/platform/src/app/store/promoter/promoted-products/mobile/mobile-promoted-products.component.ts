@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +15,9 @@ import { CurrencyUtilsPipe } from '@shared/services';
 import { UserService } from '../../../../common/services/user.service';
 import { StorefrontOrderService } from '../../../services/storefront-order.service';
 import { PromotionService } from '../../services/promotion.service';
+
+type PromotionFilter = 'all' | 'earning' | 'attention';
+type OrderFilter = 'all' | 'ready' | 'waiting' | 'rejected';
 
 @Component({
   selector: 'app-mobile-promoted-products',
@@ -36,7 +39,8 @@ import { PromotionService } from '../../services/promotion.service';
   ],
   providers: [PromotionService],
   templateUrl: './mobile-promoted-products.component.html',
-  styleUrls: ['./mobile-promoted-products.component.scss']
+  styleUrls: ['./mobile-promoted-products.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MobilePromotedProductsComponent implements OnInit {
   private promotionService = inject(PromotionService);
@@ -51,11 +55,17 @@ export class MobilePromotedProductsComponent implements OnInit {
   dashboard = signal<any | null>(null);
   affiliateOrders = signal<any[]>([]);
   search = signal('');
+  promotionFilter = signal<PromotionFilter>('all');
+  orderFilter = signal<OrderFilter>('all');
   releaseNotes = signal<Record<string, string>>({});
 
   currency = computed(() => this.user()?.wallets?.promoter?.currency || 'NGN');
   promotions = computed(() => this.dashboard()?.promotions || []);
   sales = computed(() => this.dashboard()?.sales || {});
+  heroEarnings = computed(() => this.dashboard()?.totalEarnings || this.sales()?.totalCommission || 0);
+  activePromotionCount = computed(() => this.dashboard()?.activePromotions || this.promotions().filter((promotion: any) => promotion?.affiliateUrl).length);
+  releaseReadyCount = computed(() => this.affiliateOrders().filter((order) => this.canRequestRelease(order)).length);
+  waitingReviewCount = computed(() => this.affiliateOrders().filter((order) => order?.releaseRequest?.status === 'requested').length);
   summaryCards = computed(() => {
     const data = this.dashboard() || {};
     const sales = this.sales();
@@ -72,9 +82,25 @@ export class MobilePromotedProductsComponent implements OnInit {
 
   filteredPromotions = computed(() => {
     const term = this.search().trim().toLowerCase();
-    if (!term) return this.promotions();
+    const filter = this.promotionFilter();
 
-    return this.promotions().filter((promotion: any) => {
+    let rows = this.promotions();
+
+    if (filter === 'earning') {
+      rows = rows.filter((promotion: any) => Number(promotion?.earnings || promotion?.conversions || 0) > 0);
+    }
+
+    if (filter === 'attention') {
+      rows = rows.filter((promotion: any) => {
+        const clicks = Number(promotion?.clicks || 0);
+        const sales = Number(promotion?.conversions || 0);
+        return !promotion?.affiliateUrl || this.performanceClass(promotion) === 'low' || (clicks >= 10 && sales === 0);
+      });
+    }
+
+    if (!term) return rows;
+
+    return rows.filter((promotion: any) => {
       return [
         promotion.productName,
         promotion.store?.name,
@@ -84,7 +110,30 @@ export class MobilePromotedProductsComponent implements OnInit {
     });
   });
 
+  filteredAffiliateOrders = computed(() => {
+    const filter = this.orderFilter();
+
+    if (filter === 'ready') {
+      return this.affiliateOrders().filter((order) => this.canRequestRelease(order));
+    }
+
+    if (filter === 'waiting') {
+      return this.affiliateOrders().filter((order) => order?.releaseRequest?.status === 'requested');
+    }
+
+    if (filter === 'rejected') {
+      return this.affiliateOrders().filter((order) => order?.releaseRequest?.status === 'rejected');
+    }
+
+    return this.affiliateOrders();
+  });
+
   ngOnInit(): void {
+    this.loadDashboard();
+    this.loadAffiliateOrders();
+  }
+
+  refreshAll(): void {
     this.loadDashboard();
     this.loadAffiliateOrders();
   }
@@ -132,11 +181,22 @@ export class MobilePromotedProductsComponent implements OnInit {
 
   async copyLink(promotion: any): Promise<void> {
     if (!promotion?.affiliateUrl) return;
-    await navigator.clipboard.writeText(promotion.affiliateUrl);
-    this.snackBar.open('Promotion link copied', 'Close', { duration: 2500 });
+
+    try {
+      await navigator.clipboard.writeText(promotion.affiliateUrl);
+      this.snackBar.open('Promotion link copied', 'Close', { duration: 2500 });
+    } catch (error) {
+      console.error('Failed to copy promotion link:', error);
+      this.snackBar.open('Unable to copy link on this device', 'Close', { duration: 3000 });
+    }
   }
 
   shareOnWhatsApp(promotion: any): void {
+    if (!promotion?.affiliateUrl) {
+      this.snackBar.open('Promotion link is not available yet', 'Close', { duration: 3000 });
+      return;
+    }
+
     const message = encodeURIComponent(`${promotion.productName}\n\nOrder securely on MarketSpase:\n${promotion.affiliateUrl}`);
     window.open(`https://wa.me/?text=${message}`, '_blank');
   }
@@ -181,7 +241,58 @@ export class MobilePromotedProductsComponent implements OnInit {
     return promotion?.performance || 'medium';
   }
 
+  promotionHealthLabel(promotion: any): string {
+    if (!promotion?.affiliateUrl) return 'Missing link';
+
+    const clicks = Number(promotion?.clicks || 0);
+    const conversions = Number(promotion?.conversions || 0);
+
+    if (clicks >= 10 && conversions === 0) return 'Needs conversion';
+    if (this.performanceClass(promotion) === 'high') return 'High traction';
+    if (this.performanceClass(promotion) === 'low') return 'Needs attention';
+    return 'Stable';
+  }
+
+  promotionHealthClass(promotion: any): string {
+    const label = this.promotionHealthLabel(promotion);
+
+    if (label === 'High traction') return 'tone-good';
+    if (label === 'Needs conversion' || label === 'Needs attention') return 'tone-warn';
+    if (label === 'Missing link') return 'tone-bad';
+    return 'tone-info';
+  }
+
+  orderStatusLabel(order: any): string {
+    if (order?.releaseRequest?.status === 'requested') return 'Admin review';
+    if (order?.releaseRequest?.status === 'rejected') return 'Rejected';
+    if (order?.escrowStatus === 'released') return 'Released';
+    if (this.canRequestRelease(order)) return 'Ready to request';
+    if (order?.paymentStatus !== 'paid') return 'Awaiting payment';
+    return String(order?.escrowStatus || order?.status || 'Processing').replace(/_/g, ' ');
+  }
+
+  orderStatusClass(order: any): string {
+    if (order?.releaseRequest?.status === 'rejected') return 'tone-bad';
+    if (order?.releaseRequest?.status === 'requested') return 'tone-warn';
+    if (order?.escrowStatus === 'released') return 'tone-good';
+    if (this.canRequestRelease(order)) return 'tone-info';
+    return 'tone-muted';
+  }
+
+  percent(value: unknown): number {
+    const parsed = Number(value || 0);
+    return Math.max(0, Math.min(100, Number.isFinite(parsed) ? parsed : 0));
+  }
+
   firstProductName(order: any): string {
     return order?.items?.[0]?.product?.name || 'Storefront order';
+  }
+
+  trackPromotion(index: number, promotion: any): string {
+    return promotion?.trackingId || promotion?.uniqueCode || promotion?.productId || String(index);
+  }
+
+  trackOrder(index: number, order: any): string {
+    return order?._id || order?.orderNumber || String(index);
   }
 }

@@ -1,0 +1,316 @@
+<section class="mobile-notifications" aria-labelledby="notification-title">
+  <header class="mobile-header">
+    <div>
+      <p class="eyebrow">Activity center</p>
+      <h1 id="notification-title">Notifications</h1>
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Refresh notifications"
+      (click)="refresh()"
+      [disabled]="loadingFirstPage()"
+    >
+      @if (loadingFirstPage()) {
+        <mat-progress-spinner diameter="22" mode="indeterminate"></mat-progress-spinner>
+      } @else {
+        <mat-icon>refresh</mat-icon>
+      }
+    </button>
+  </header>
+
+  <section class="quick-actions" aria-label="Notification actions">
+    @if (!selectionMode()) {
+      <button type="button" class="action-pill primary" (click)="markAllAsRead()" [disabled]="unreadInViewCount() === 0">
+        <mat-icon>done_all</mat-icon>
+        <span>Mark read</span>
+      </button>
+
+      <button type="button" class="action-pill" (click)="enterSelectionMode()" [disabled]="items().length === 0">
+        <mat-icon>check_box</mat-icon>
+        <span>Select</span>
+      </button>
+    } @else {
+      <button type="button" class="action-pill" (click)="exitSelectionMode()" [disabled]="deleting()">
+        <mat-icon>close</mat-icon>
+        <span>Done</span>
+      </button>
+
+      <button type="button" class="action-pill" (click)="toggleSelectAllInView()" [disabled]="filteredItems().length === 0 || deleting()">
+        <mat-icon>{{ allInViewSelected() ? 'remove_done' : 'select_all' }}</mat-icon>
+        <span>{{ allInViewSelected() ? 'Clear' : 'All' }}</span>
+      </button>
+
+      <button type="button" class="action-pill danger" (click)="deleteSelected()" [disabled]="selectedCount() === 0 || deleting()">
+        <mat-icon>delete</mat-icon>
+        <span>Delete {{ selectedCount() }}</span>
+      </button>
+    }
+  </section>
+
+  <section class="mobile-filter-summary" aria-label="Notification filters">
+    <label class="search-box">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        placeholder="Search title or message"
+        [value]="searchTerm()"
+        (input)="onSearchInput(($any($event.target)).value)"
+      />
+      @if (searchTerm()) {
+        <button type="button" aria-label="Clear search" (click)="onSearchInput('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+
+    <div class="filter-buttons">
+      <button type="button" class="filter-button" (click)="filtersOpen.set(true)">
+        <mat-icon>tune</mat-icon>
+        <span>{{ activeFilterSummary() }}</span>
+        @if (activeFilterCount() > 0) {
+          <strong>{{ activeFilterCount() }}</strong>
+        }
+      </button>
+
+      <button type="button" class="filter-button compact" aria-label="Notification preferences" (click)="preferencesOpen.set(true)">
+        <mat-icon>volume_off</mat-icon>
+        @if (mutedCategories().size > 0) {
+          <strong>{{ mutedCategories().size }}</strong>
+        }
+      </button>
+    </div>
+  </section>
+
+  <div class="status-line">
+    @if (unreadInViewCount() > 0) {
+      <span><i></i>{{ unreadInViewCount() }} unread</span>
+    } @else {
+      <span>All caught up in this view</span>
+    }
+
+    @if (mutedCategories().size > 0) {
+      <span>{{ mutedCategories().size }} muted</span>
+    }
+  </div>
+
+  <main class="notification-feed">
+    @if (loadingFirstPage() && items().length === 0) {
+      <div class="skeleton-list" aria-label="Loading notifications">
+        @for (i of [0,1,2,3,4,5]; track i) {
+          <div class="skeleton-card">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-title"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-time"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (!loadingFirstPage() && loadedOnce() && items().length === 0) {
+      <section class="empty-state">
+        <mat-icon>notifications_off</mat-icon>
+        <h2>You have no notifications yet.</h2>
+        <p>Campaign, store, payment, and system updates will appear here.</p>
+      </section>
+    } @else if (!loadingFirstPage() && loadedOnce() && filteredItems().length === 0) {
+      <section class="empty-state">
+        <mat-icon>filter_alt_off</mat-icon>
+        <h2>No matching notifications.</h2>
+        <p>Try another category, priority, status, or search term.</p>
+        <button mat-stroked-button type="button" (click)="statusFilter.set('all'); categoryFilter.set('all'); priorityFilter.set('all'); onSearchInput('')">
+          Clear filters
+        </button>
+      </section>
+    } @else {
+      @for (g of groups(); track g.label) {
+        <section class="notification-group" [attr.aria-label]="g.label + ' notifications'">
+          <h2>{{ g.label }}</h2>
+
+          @for (n of g.items; track n._id) {
+            <article
+              class="notification-card"
+              [class.unread]="n.status === 'unread'"
+              [class.selecting]="selectionMode()"
+              [class.tone-info]="priorityTone(n) === 'info'"
+              [class.tone-success]="priorityTone(n) === 'success'"
+              [class.tone-warning]="priorityTone(n) === 'warning'"
+              [class.tone-critical]="priorityTone(n) === 'critical'"
+            >
+              @if (selectionMode()) {
+                <mat-checkbox
+                  class="card-select"
+                  [checked]="isSelected(n._id)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleSelected(n._id, $event.checked)"
+                  aria-label="Select notification"
+                />
+              }
+
+              <button type="button" class="card-main" (click)="onRowPrimaryAction(n)">
+                <span class="card-icon">
+                  <mat-icon>{{ iconFor(n) }}</mat-icon>
+                </span>
+
+                <span class="card-content">
+                  <span class="card-top">
+                    <strong>{{ n.title }}</strong>
+                    <time>{{ n.createdAt | date:'shortTime' }}</time>
+                  </span>
+
+                  <span class="card-message">{{ n.message }}</span>
+
+                  <span class="card-meta">
+                    <span>{{ categoryLabel(categoryFor(n.type)) }}</span>
+                    @if (n.status === 'unread') {
+                      <span class="unread-pill"><i></i>Unread</span>
+                    }
+                  </span>
+                </span>
+              </button>
+
+              <button
+                mat-icon-button
+                type="button"
+                class="delete-button"
+                aria-label="Delete notification"
+                (click)="deleteOne(n._id, $event)"
+                [disabled]="deleting()"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </article>
+          }
+        </section>
+      }
+    }
+
+    <footer class="feed-footer">
+      @if (loadingMore()) {
+        <div class="footer-loading">
+          <mat-progress-spinner mode="indeterminate" diameter="22" />
+          <span>Loading more...</span>
+        </div>
+      } @else if (loadedOnce() && !pageInfo().hasNextPage) {
+        <span>You are all caught up.</span>
+      }
+
+      <div
+        class="load-more-sentinel"
+        appIntersectionObserver
+        [options]="{ rootMargin: '700px', threshold: 0 }"
+        (visible)="onLoadMoreVisible($event)"
+      ></div>
+    </footer>
+  </main>
+
+  @if (filtersOpen()) {
+    <div class="sheet-backdrop" (click)="filtersOpen.set(false)" aria-hidden="true"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="notification-filter-title">
+      <header class="sheet-header">
+        <div>
+          <span class="sheet-eyebrow">Refine feed</span>
+          <h2 id="notification-filter-title">Filters</h2>
+        </div>
+        <button type="button" class="sheet-close" aria-label="Close filters" (click)="filtersOpen.set(false)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="sheet-section">
+        <h3>Status</h3>
+        <div class="sheet-chip-grid">
+          @for (opt of statusOptions; track opt.key) {
+            <button
+              type="button"
+              class="sheet-chip"
+              [class.active]="statusFilter() === opt.key"
+              [attr.aria-pressed]="statusFilter() === opt.key"
+              (click)="statusFilter.set(opt.key)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <h3>Priority</h3>
+        <div class="sheet-chip-grid">
+          @for (opt of priorityOptions; track opt.key) {
+            <button
+              type="button"
+              class="sheet-chip"
+              [class.active]="priorityFilter() === opt.key"
+              [attr.aria-pressed]="priorityFilter() === opt.key"
+              (click)="priorityFilter.set(opt.key)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <h3>Category</h3>
+        <div class="sheet-chip-grid">
+          @for (opt of categoryOptions; track opt.key) {
+            <button
+              type="button"
+              class="sheet-chip"
+              [class.active]="categoryFilter() === opt.key"
+              [attr.aria-pressed]="categoryFilter() === opt.key"
+              (click)="categoryFilter.set(opt.key)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <footer class="sheet-actions">
+        <button type="button" class="sheet-secondary" (click)="clearMobileFilters()">Clear</button>
+        <button type="button" class="sheet-primary" (click)="filtersOpen.set(false)">Apply filters</button>
+      </footer>
+    </section>
+  }
+
+  @if (preferencesOpen()) {
+    <div class="sheet-backdrop" (click)="preferencesOpen.set(false)" aria-hidden="true"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="notification-preferences-title">
+      <header class="sheet-header">
+        <div>
+          <span class="sheet-eyebrow">Quiet the noise</span>
+          <h2 id="notification-preferences-title">Preferences</h2>
+        </div>
+        <button type="button" class="sheet-close" aria-label="Close preferences" (click)="preferencesOpen.set(false)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <p class="sheet-copy">Mute categories you do not want to see in this notification center.</p>
+
+      <div class="mute-list">
+        @for (opt of categoryOptions; track opt.key) {
+          @if (opt.key !== 'all') {
+            <button
+              type="button"
+              class="mute-row"
+              [class.muted]="isCategoryMuted(opt.key)"
+              [attr.aria-pressed]="isCategoryMuted(opt.key)"
+              (click)="toggleMuteCategory(opt.key, !isCategoryMuted(opt.key))"
+            >
+              <span>
+                <strong>{{ opt.label }}</strong>
+                <small>{{ isCategoryMuted(opt.key) ? 'Muted' : 'Visible' }}</small>
+              </span>
+              <mat-icon>{{ isCategoryMuted(opt.key) ? 'volume_off' : 'notifications_active' }}</mat-icon>
+            </button>
+          }
+        }
+      </div>
+    </section>
+  }
+</section>

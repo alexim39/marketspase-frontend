@@ -1,0 +1,401 @@
+<section class="mobile-promoted-analytics">
+  <header class="mobile-topbar">
+    <div>
+      <span class="eyebrow">Storefront analytics</span>
+      <h1>Promoted Products</h1>
+      <p>Track which products and promoters are turning traffic into sales.</p>
+    </div>
+    <button type="button" class="icon-button" aria-label="Refresh analytics" (click)="refresh(false)" [disabled]="isLoading() || isRefreshing()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <form [formGroup]="filtersForm" class="filter-card" aria-label="Promoted product analytics filters">
+    <nav class="range-strip" aria-label="Date range">
+      @for (option of rangeOptions; track option.value) {
+        <button
+          type="button"
+          [class.active]="filtersForm.controls.rangeDays.value === option.value"
+          (click)="setRange(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </nav>
+
+    <div class="field-grid">
+      <label>
+        <span>From</span>
+        <input type="date" formControlName="startDate" />
+      </label>
+      <label>
+        <span>To</span>
+        <input type="date" formControlName="endDate" />
+      </label>
+    </div>
+
+    <label class="select-field">
+      <span>Store</span>
+      <select formControlName="storeId">
+        <option value="">All stores</option>
+        @for (store of storeOptions(); track store._id) {
+          <option [value]="store._id">{{ store.name }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="field-grid">
+      <label>
+        <span>Search</span>
+        <input type="search" formControlName="search" placeholder="Product name" />
+      </label>
+      <label>
+        <span>Category</span>
+        <input type="text" formControlName="category" placeholder="Fashion, tech..." />
+      </label>
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" (click)="resetMobileFilters()">
+        <mat-icon>restart_alt</mat-icon>
+        Reset
+      </button>
+      <button type="button" (click)="exportCsv()">
+        <mat-icon>download</mat-icon>
+        CSV
+      </button>
+    </div>
+  </form>
+
+  @if (isLoading()) {
+    <section class="loading-card">
+      <mat-spinner diameter="34"></mat-spinner>
+      <div>
+        <strong>Loading product analytics</strong>
+        <span>Compiling promoter clicks, orders, revenue, and commission.</span>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="state-card error">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Analytics could not load</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="refresh(false)">Try again</button>
+    </section>
+  } @else {
+    @if (overview(); as data) {
+      <section class="hero-card">
+        <div>
+          <span>Total revenue</span>
+          <strong>{{ (data.summary.grossRevenue || 0) | currencyUtils:'NGN' }}</strong>
+          <p>{{ (data.summary.paidOrders || 0) | number }} paid orders from {{ (data.summary.activePromoters || 0) | number }} active promoters.</p>
+        </div>
+        <span class="quality-pill" [class.warn]="(data.summary.clickToOrderRate || 0) < 0.8">
+          {{ (data.summary.clickToOrderRate || 0) | number:'1.1-1' }}% CVR
+        </span>
+      </section>
+
+      <section class="kpi-rail" aria-label="Promoted product KPI summary">
+        @for (card of summaryCards(); track card.label) {
+          <article class="kpi-card" [class.warn]="card.tone === 'warn'" [class.primary]="card.tone === 'primary'">
+            <mat-icon>{{ card.icon }}</mat-icon>
+            <span>{{ card.label }}</span>
+            <strong>
+              @if (card.format === 'money') {
+                {{ card.value | currencyUtils:'NGN' }}
+              } @else if (card.format === 'percent') {
+                {{ card.value | number:'1.1-1' }}%
+              } @else {
+                {{ card.value | number }}
+              }
+            </strong>
+          </article>
+        }
+      </section>
+
+      @if (alerts().length) {
+        <section class="insights-card">
+          <header>
+            <mat-icon>tips_and_updates</mat-icon>
+            <div>
+              <h2>Insights</h2>
+              <p>Signals that may need attention.</p>
+            </div>
+          </header>
+          <div class="insight-list">
+            @for (alert of alerts(); track alert) {
+              <span>{{ alert }}</span>
+            }
+          </div>
+        </section>
+      }
+
+      <section class="panel-card">
+        <header class="panel-head">
+          <div>
+            <h2>Trend</h2>
+            <p>Revenue and clicks in the selected range.</p>
+          </div>
+          <div class="segmented">
+            <button type="button" [class.active]="trendView() === 'daily'" (click)="setTrendView('daily')">Daily</button>
+            <button type="button" [class.active]="trendView() === 'weekly'" (click)="setTrendView('weekly')">Weekly</button>
+          </div>
+        </header>
+
+        @if (visibleSeries().length) {
+          <div class="trend-list">
+            @for (point of visibleSeries(); track point.bucket) {
+              <article class="trend-row">
+                <div class="trend-copy">
+                  <strong>{{ point.label }}</strong>
+                  <span>{{ point.orders | number }} orders | {{ point.clicks | number }} clicks</span>
+                </div>
+                <div class="bar-stack" aria-hidden="true">
+                  <i class="revenue" [style.width.%]="point.revenueWidth"></i>
+                  <i class="clicks" [style.width.%]="point.clickWidth"></i>
+                </div>
+                <b>{{ point.revenue | currencyUtils:'NGN' }}</b>
+              </article>
+            }
+          </div>
+          <div class="legend">
+            <span><i class="revenue"></i>Revenue</span>
+            <span><i class="clicks"></i>Clicks</span>
+          </div>
+        } @else {
+          <div class="inline-empty">
+            <mat-icon>show_chart</mat-icon>
+            <p>No trend data for this period yet.</p>
+          </div>
+        }
+      </section>
+
+      <section class="leader-grid">
+        <article class="panel-card">
+          <header class="panel-head compact">
+            <h2>Top products</h2>
+            <p>Best revenue performers.</p>
+          </header>
+
+          @if (topProductCards().length) {
+            <div class="leader-list">
+              @for (row of topProductCards(); track row.product?._id || row.productId) {
+                <button
+                  type="button"
+                  class="leader-row"
+                  (click)="row.product?._id && openBreakdownForProduct(row.product._id, row.product.name, row.product.category, row.product.image)"
+                >
+                  <div>
+                    <strong>{{ row.product?.name || 'Product' }}</strong>
+                    <span>{{ row.product?.category || 'Uncategorized' }}</span>
+                  </div>
+                  <b>{{ row.revenue | currencyUtils:'NGN' }}</b>
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="inline-empty compact">
+              <mat-icon>inventory_2</mat-icon>
+              <p>No product sales yet.</p>
+            </div>
+          }
+        </article>
+
+        <article class="panel-card">
+          <header class="panel-head compact">
+            <h2>Top promoters</h2>
+            <p>Promoters driving paid orders.</p>
+          </header>
+
+          @if (topPromoterCards().length) {
+            <div class="leader-list">
+              @for (row of topPromoterCards(); track row.promoter?._id || row.promoterId) {
+                <button type="button" class="leader-row" (click)="row.promoter?._id && applyPromoterFilter(row.promoter)">
+                  <div>
+                    <strong>{{ promoterLabel(row.promoter) }}</strong>
+                    <span>{{ row.orders | number }} orders</span>
+                  </div>
+                  <b>{{ row.revenue | currencyUtils:'NGN' }}</b>
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="inline-empty compact">
+              <mat-icon>group</mat-icon>
+              <p>No promoter sales yet.</p>
+            </div>
+          }
+        </article>
+      </section>
+
+      <section class="products-panel">
+        <header class="panel-head">
+          <div>
+            <h2>Product performance</h2>
+            <p>{{ productsPage().total | number }} promoted product{{ productsPage().total === 1 ? '' : 's' }}</p>
+          </div>
+          @if (isRefreshing()) {
+            <span class="sync-pill"><mat-icon>sync</mat-icon> Syncing</span>
+          } @else if (lastRefreshedAt()) {
+            <span class="sync-pill">Updated {{ lastRefreshedAt() | date:'shortTime' }}</span>
+          }
+        </header>
+
+        @if (mobileProducts().length) {
+          <div class="product-list">
+            @for (row of mobileProducts(); track trackByProductId($index, row)) {
+              <article class="product-card" [class.warn]="productHealth(row) === 'warn'" [class.bad]="productHealth(row) === 'bad'">
+                <div class="product-top">
+                  <div class="product-thumb">
+                    @if (productImage(row)) {
+                      <img [src]="productImage(row)!" [alt]="row.product.name" loading="lazy" />
+                    } @else {
+                      <mat-icon>inventory_2</mat-icon>
+                    }
+                  </div>
+                  <div class="product-title">
+                    <span class="health-chip" [class.warn]="productHealth(row) === 'warn'" [class.bad]="productHealth(row) === 'bad'">
+                      {{ productHealthLabel(row) }}
+                    </span>
+                    <h3>{{ row.product.name }}</h3>
+                    <p>{{ row.store?.name || 'Store' }} | {{ row.product.category || 'Uncategorized' }}</p>
+                  </div>
+                </div>
+
+                <div class="metrics-grid">
+                  <div>
+                    <span>Revenue</span>
+                    <strong>{{ row.range.grossRevenue | currencyUtils:'NGN' }}</strong>
+                  </div>
+                  <div>
+                    <span>Orders</span>
+                    <strong>{{ row.range.paidOrders | number }}</strong>
+                  </div>
+                  <div>
+                    <span>Clicks</span>
+                    <strong>{{ row.range.clicks | number }}</strong>
+                  </div>
+                  <div>
+                    <span>CVR</span>
+                    <strong>{{ row.range.conversionRate | number:'1.1-1' }}%</strong>
+                  </div>
+                </div>
+
+                <div class="order-strip">
+                  <span>{{ row.range.pendingOrders | number }} pending</span>
+                  <span>{{ row.range.fulfilledOrders | number }} fulfilled</span>
+                  <span>{{ row.range.refundedOrders | number }} refunded</span>
+                </div>
+
+                @if (row.topPromoters.length) {
+                  <div class="promoter-strip">
+                    @for (promoter of row.topPromoters.slice(0, 3); track promoter.promoter._id) {
+                      <span>{{ promoterLabel(promoter.promoter) }}</span>
+                    }
+                  </div>
+                }
+
+                <div class="card-actions">
+                  <button type="button" (click)="openProductBreakdown(row)">
+                    <mat-icon>insights</mat-icon>
+                    Details
+                  </button>
+                  @if (row.product?._id) {
+                    <a [routerLink]="['/dashboard/stores', row.store?._id, 'products', row.product._id]">
+                      <mat-icon>open_in_new</mat-icon>
+                      Product
+                    </a>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+
+          <footer class="pager">
+            <button type="button" (click)="goToProductPage('previous')" [disabled]="productsPage().page <= 1">
+              <mat-icon>chevron_left</mat-icon>
+              Prev
+            </button>
+            <span>Page {{ productsPage().page }} of {{ totalPages() }}</span>
+            <button type="button" (click)="goToProductPage('next')" [disabled]="productsPage().page >= totalPages()">
+              Next
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </footer>
+        } @else {
+          <section class="state-card">
+            <mat-icon>inventory_2</mat-icon>
+            <h2>No promoted products found</h2>
+            <p>When promoters generate links and buyers start clicking, performance will appear here.</p>
+            <a routerLink="/dashboard/stores">Go to Stores</a>
+          </section>
+        }
+      </section>
+    }
+  }
+
+  <button type="button" class="mobile-fab" aria-label="Export promoted product analytics" (click)="exportCsv()">
+    <mat-icon>download</mat-icon>
+  </button>
+
+  <ng-template #productPromotersDialog>
+    <section class="mobile-breakdown-dialog">
+      <header class="dialog-header">
+        <div>
+          <span>Promoter breakdown</span>
+          <h2>{{ selectedProduct()?.product?.name }}</h2>
+        </div>
+        <button type="button" aria-label="Close breakdown" (click)="closeBreakdown()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="dialog-kpis">
+        <div>
+          <span>Revenue</span>
+          <strong>{{ (selectedProduct()?.range?.grossRevenue || 0) | currencyUtils:'NGN' }}</strong>
+        </div>
+        <div>
+          <span>Orders</span>
+          <strong>{{ (selectedProduct()?.range?.paidOrders || 0) | number }}</strong>
+        </div>
+        <div>
+          <span>Clicks</span>
+          <strong>{{ (selectedProduct()?.range?.clicks || 0) | number }}</strong>
+        </div>
+        <div>
+          <span>Commission</span>
+          <strong>{{ (selectedProduct()?.range?.commissionAccrued || 0) | currencyUtils:'NGN' }}</strong>
+        </div>
+      </div>
+
+      @if (breakdownLoading()) {
+        <div class="mini-loading">
+          <mat-spinner diameter="30"></mat-spinner>
+          <span>Loading promoters...</span>
+        </div>
+      } @else if (breakdownRows().length === 0) {
+        <div class="inline-empty">
+          <mat-icon>group</mat-icon>
+          <p>No promoter activity in this range.</p>
+        </div>
+      } @else {
+        <div class="breakdown-list">
+          @for (row of breakdownRows(); track row.promoter?._id || $index) {
+            <article class="breakdown-card">
+              <div>
+                <h3>{{ promoterLabel(row.promoter) }}</h3>
+                <p>{{ row.clicks | number }} clicks | {{ row.paidOrders | number }} paid orders</p>
+              </div>
+              <div class="breakdown-metrics">
+                <span>{{ row.revenue | currencyUtils:'NGN' }}</span>
+                <span>{{ row.conversionRate | number:'1.1-1' }}% CVR</span>
+                <span>{{ row.commission | currencyUtils:'NGN' }} commission</span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </ng-template>
+</section>
