@@ -1,0 +1,153 @@
+<section class="mobile-campaigns-page">
+  <header class="mobile-topbar">
+    <div>
+      <p class="eyebrow">Campaign manager</p>
+      <h1>My campaigns</h1>
+    </div>
+    <button type="button" class="icon-action" aria-label="Refresh campaigns" (click)="refreshCampaigns()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <section class="hero-card">
+    <div>
+      <span>Total campaigns</span>
+      <strong>{{ campaignStats().totalCampaigns | number }}</strong>
+      <p>{{ campaignStats().activeCampaigns | number }} active campaigns</p>
+    </div>
+    <button type="button" (click)="createCampaign()">
+      <mat-icon>add</mat-icon>
+      Create
+    </button>
+  </section>
+
+  <section class="kpi-strip" aria-label="Campaign summary">
+    <article>
+      <span>Total budget</span>
+      <strong>{{ campaignStats().totalBudget | currencyUtils:(user()?.wallets?.marketer?.currency || 'NGN') }}</strong>
+    </article>
+    <article>
+      <span>Spent</span>
+      <strong>{{ campaignStats().totalSpent | currencyUtils:(user()?.wallets?.marketer?.currency || 'NGN') }}</strong>
+    </article>
+    <article>
+      <span>Billable clicks</span>
+      <strong>{{ campaignStats().billableClicks | number }}</strong>
+    </article>
+    <article>
+      <span>Needs attention</span>
+      <strong>{{ campaignStats().campaignsNeedingAttention | number }}</strong>
+    </article>
+  </section>
+
+  <section class="search-panel" aria-label="Search campaigns">
+    <label>
+      <mat-icon>search</mat-icon>
+      <input
+        #searchInput
+        type="search"
+        [value]="searchControl.value || ''"
+        placeholder="Search title, category or caption"
+        aria-label="Search campaigns"
+        (input)="setMobileSearch(searchInput.value)"
+      />
+      @if (searchControl.value) {
+        <button type="button" aria-label="Clear search" (click)="setMobileSearch('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+  </section>
+
+  <nav class="status-strip" aria-label="Filter campaign status">
+    @for (option of statusOptions; track option.value) {
+      <button
+        type="button"
+        [class.active]="currentFilters().status === option.value"
+        (click)="setStatus(option.value)"
+      >
+        <mat-icon>{{ option.icon }}</mat-icon>
+        <span>{{ option.label }}</span>
+        @if (campaignCounts()[option.value] !== undefined) {
+          <em>{{ campaignCounts()[option.value] | number }}</em>
+        }
+      </button>
+    }
+  </nav>
+
+  <nav class="sort-strip" aria-label="Sort campaigns">
+    @for (option of mobileSortOptions; track option.label) {
+      <button
+        type="button"
+        [class.active]="isSortActive(option.sortBy)"
+        (click)="setSort(option.sortBy, option.sortOrder)"
+      >
+        <mat-icon>{{ option.icon }}</mat-icon>
+        {{ option.label }}
+      </button>
+    }
+  </nav>
+
+  @if (hasActiveFilters()) {
+    <div class="active-filter-row">
+      <span>Filters applied</span>
+      <button type="button" (click)="clearAllFilters()">Clear all</button>
+    </div>
+  }
+
+  @if (isLoading() && campaigns().length === 0) {
+    <app-campaign-skeleton view="grid" />
+  } @else if (campaigns().length === 0) {
+    <section class="state-panel">
+      <mat-icon>campaign</mat-icon>
+      <h2>No campaigns found</h2>
+      @if (hasActiveFilters()) {
+        <p>Try clearing filters or searching with a different keyword.</p>
+        <button type="button" class="secondary-action" (click)="clearAllFilters()">Clear filters</button>
+      } @else {
+        <p>Create a campaign to start getting promoters and track PPC performance.</p>
+        <button type="button" class="primary-action" (click)="createCampaign()">Create campaign</button>
+      }
+    </section>
+  } @else {
+    <section class="campaign-feed" aria-label="Campaign list">
+      @for (campaign of campaigns(); track campaignTrack($index, campaign)) {
+        <app-campaign-card-mobile
+          [campaign]="campaign"
+          [apiBaseUrl]="apiBaseUrl"
+          [view]="currentView()"
+          (viewDetails)="viewCampaignDetails($event)"
+          (editCampaign)="editCampaign($event)"
+          (pauseCampaign)="pauseCampaign($event)"
+          (activateCampaign)="activateCampaign($event)"
+          (resumeCampaign)="resumeCampaign($event)"
+          (topUpCampaign)="topUpCampaign($event)"
+          (deleteCampaign)="deleteCampaign($event)"
+        />
+      }
+    </section>
+
+    @if (isLoading() && campaigns().length > 0) {
+      <div class="loading-more">
+        <mat-spinner diameter="28" />
+        <span>Refreshing campaigns...</span>
+      </div>
+    }
+
+    <footer class="mobile-pagination">
+      <button type="button" [disabled]="!hasPrevPage()" (click)="onPrevPage()">
+        <mat-icon>chevron_left</mat-icon>
+        Previous
+      </button>
+      <span>{{ currentPage() }} / {{ totalPages() || 1 }}</span>
+      <button type="button" [disabled]="!hasNextPage()" (click)="onNextPage()">
+        Next
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </footer>
+  }
+
+  <button type="button" class="mobile-fab" aria-label="Create campaign" (click)="createCampaign()">
+    <mat-icon>add</mat-icon>
+  </button>
+</section>

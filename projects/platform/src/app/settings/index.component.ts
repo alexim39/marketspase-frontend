@@ -13,12 +13,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { HelpDialogComponent, UserInterface } from '@shared/services';
+import { DeviceService, HelpDialogComponent, UserInterface } from '@shared/services';
 import { SettingsService } from './settings.service';
 import { UserService } from '../common/services/user.service';
 import { RecentActivityComponent } from './components/recent-activity/recent-activity.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DashboardService } from '../dashboard/dashboard.service';
+import { SettingsMobileIndexComponent } from './mobile/settings-mobile-index.component';
 
 // Define the activity interface based on your user model
 interface UserActivity {
@@ -66,7 +67,8 @@ interface UserWithActivities extends UserInterface {
     MatMenuModule,
     MatProgressBarModule,
     MatDividerModule,
-    RecentActivityComponent
+    RecentActivityComponent,
+    SettingsMobileIndexComponent
   ],
   templateUrl: './index.component.html',
   styleUrls: ['./index.component.scss']
@@ -83,6 +85,12 @@ export class SettingsIndexComponent implements OnInit {
   private settingsService = inject(SettingsService);
   private readonly snackBar = inject(MatSnackBar);
   private dashboardService = inject(DashboardService);
+  private readonly deviceService = inject(DeviceService);
+  protected readonly deviceType = computed(() => this.deviceService.type());
+  protected readonly isMobileExperience = computed(() => {
+    const deviceType = this.deviceType();
+    return deviceType === 'mobile' || deviceType === 'tablet';
+  });
 
   // Enhanced Properties
   isMobile = false;

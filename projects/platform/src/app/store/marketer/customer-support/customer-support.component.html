@@ -1,0 +1,459 @@
+<section class="customer-support-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Customer Support</p>
+      <h1>Buyer CRM</h1>
+      <p class="subtitle">
+        Keep a clean record of storefront buyers, understand who is ready for a follow-up, and prepare SMS or email outreach without losing purchase context.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" mat-stroked-button (click)="exportVisibleCustomers()">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+      <button type="button" mat-raised-button color="primary" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <section class="summary-grid">
+    @for (card of summaryCardRows(); track card.label) {
+      <article class="summary-card" [class]="card.tone">
+        <div class="summary-icon">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </div>
+        <div class="summary-copy">
+          <strong>
+            @if (card.label === 'Revenue') {
+              {{ summary().totalRevenue | currencyUtils:currencyCode() }}
+            } @else {
+              {{ card.value }}
+            }
+          </strong>
+          <span>{{ card.label }}</span>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="workspace-grid">
+    <div class="main-column">
+      <section class="filters-panel">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search buyers</mat-label>
+          <input
+            matInput
+            [ngModel]="search()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Search by name, email, phone, or tag">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Store</mat-label>
+          <mat-select [ngModel]="storeFilter()" (ngModelChange)="storeFilter.set($event); loadCustomers(true)">
+            <mat-option value="all">All stores</mat-option>
+            @for (store of storeOptions(); track store._id) {
+              <mat-option [value]="store._id">{{ store.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Lifecycle</mat-label>
+          <mat-select [ngModel]="lifecycleFilter()" (ngModelChange)="lifecycleFilter.set($event); loadCustomers(true)">
+            <mat-option value="all">All stages</mat-option>
+            <mat-option value="new">New</mat-option>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="repeat">Repeat</mat-option>
+            <mat-option value="vip">VIP</mat-option>
+            <mat-option value="at_risk">At risk</mat-option>
+            <mat-option value="suppressed">Suppressed</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Marketing consent</mat-label>
+          <mat-select [ngModel]="marketingFilter()" (ngModelChange)="marketingFilter.set($event); loadCustomers(true)">
+            <mat-option value="all">All buyers</mat-option>
+            <mat-option value="true">Opted in</mat-option>
+            <mat-option value="false">Opted out</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="segment-row">
+          <button type="button" class="segment-chip" [class.active]="segmentFilter() === 'all'" (click)="segmentFilter.set('all'); loadCustomers(true)">All</button>
+          <button type="button" class="segment-chip" [class.active]="segmentFilter() === 'new'" (click)="segmentFilter.set('new'); loadCustomers(true)">New</button>
+          <button type="button" class="segment-chip" [class.active]="segmentFilter() === 'repeat'" (click)="segmentFilter.set('repeat'); loadCustomers(true)">Repeat</button>
+          <button type="button" class="segment-chip" [class.active]="segmentFilter() === 'vip'" (click)="segmentFilter.set('vip'); loadCustomers(true)">VIP</button>
+          <button type="button" class="segment-chip" [class.active]="segmentFilter() === 'at_risk'" (click)="segmentFilter.set('at_risk'); loadCustomers(true)">At Risk</button>
+          <button type="button" class="segment-chip" [class.active]="segmentFilter() === 'suppressed'" (click)="segmentFilter.set('suppressed'); loadCustomers(true)">Suppressed</button>
+        </div>
+      </section>
+
+      @if (selectedBuyerKeys().length > 0) {
+        <section class="selection-toolbar">
+          <div>
+            <strong>{{ selectedBuyerKeys().length }}</strong>
+            <span>buyers selected</span>
+          </div>
+          <div class="selection-actions">
+            <button type="button" mat-stroked-button (click)="copyRecipients('emails')">
+              <mat-icon>mail</mat-icon>
+              Copy emails
+            </button>
+            <button type="button" mat-stroked-button (click)="copyRecipients('phones')">
+              <mat-icon>sms</mat-icon>
+              Copy phones
+            </button>
+            <button type="button" mat-stroked-button (click)="exportSelectedCustomers()">
+              <mat-icon>download</mat-icon>
+              Export selected
+            </button>
+            <button type="button" mat-button (click)="clearSelection()">Clear</button>
+          </div>
+        </section>
+      }
+
+      <section class="list-panel">
+        <div class="panel-topbar">
+          <label class="select-all">
+            <mat-checkbox [checked]="allVisibleSelected()" (change)="toggleSelectAllVisible($event.checked)">Select visible</mat-checkbox>
+          </label>
+          <span>{{ pagination().total }} buyers</span>
+        </div>
+
+        @if (loading()) {
+          <div class="state-panel">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Loading buyer records...</span>
+          </div>
+        } @else if (customers().length === 0) {
+          <div class="state-panel">
+            <mat-icon>group_off</mat-icon>
+            <span>No buyers match the current filters.</span>
+          </div>
+        } @else {
+          <div class="customer-list">
+            @for (customer of customers(); track customer.buyerKey) {
+              <article class="customer-card" [class.active]="activeBuyerKey() === customer.buyerKey" (click)="selectBuyer(customer.buyerKey)">
+                <div class="customer-card-top">
+                  <mat-checkbox
+                    [checked]="isBuyerSelected(customer.buyerKey)"
+                    (click)="$event.stopPropagation()"
+                    (change)="toggleBuyerSelection(customer.buyerKey, $event.checked)">
+                  </mat-checkbox>
+
+                  <div class="customer-avatar">{{ initials(customerHeadline(customer)) }}</div>
+
+                  <div class="customer-copy">
+                    <div class="customer-title-row">
+                      <h2>{{ customerHeadline(customer) }}</h2>
+                      <span class="badge stage">{{ lifecycleStageLabel(customer.lifecycleStage) }}</span>
+                      <span class="badge segment" [class]="behaviorSegmentClass(customer.behaviorSegment)">{{ behaviorSegmentLabel(customer.behaviorSegment) }}</span>
+                    </div>
+                    <p>{{ customer.email }}</p>
+                    <p>{{ customer.phone || 'No phone number captured yet' }}</p>
+                  </div>
+
+                  <div class="customer-actions" (click)="$event.stopPropagation()">
+                    <button type="button" mat-icon-button matTooltip="Email customer" (click)="openIndividualEmail(customer)">
+                      <mat-icon>mail</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button matTooltip="SMS customer" (click)="launchSmsDraft(customer)">
+                      <mat-icon>sms</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button matTooltip="Copy contact" (click)="copyCustomerContact(customer)">
+                      <mat-icon>content_copy</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="customer-metrics">
+                  <div>
+                    <span>Orders</span>
+                    <strong>{{ customer.orderCount }}</strong>
+                  </div>
+                  <div>
+                    <span>Total spent</span>
+                    <strong>{{ customer.totalSpent | currencyUtils:currencyCode() }}</strong>
+                  </div>
+                  <div>
+                    <span>Average order</span>
+                    <strong>{{ customer.averageOrderValue | currencyUtils:currencyCode() }}</strong>
+                  </div>
+                  <div>
+                    <span>Linked stores</span>
+                    <strong>{{ customer.linkedStoreCount }}</strong>
+                  </div>
+                </div>
+
+                <div class="customer-footer">
+                  <div class="store-chips">
+                    @for (store of customer.linkedStores.slice(0, 3); track store._id) {
+                      <span class="store-chip">{{ store.name }}</span>
+                    }
+                    @if (customer.linkedStores.length > 3) {
+                      <span class="store-chip more">+{{ customer.linkedStores.length - 3 }} more</span>
+                    }
+                  </div>
+                  <div class="customer-meta">
+                    <span [class.opted-out]="!customer.marketingOptIn">{{ customer.marketingOptIn ? 'Marketing ready' : 'Opted out' }}</span>
+                    <span>Last order {{ customer.lastOrderAt ? (customer.lastOrderAt | date:'mediumDate') : 'not available' }}</span>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        <div class="pagination-bar">
+          <span>Page {{ pagination().page }} of {{ pagination().totalPages || 1 }}</span>
+          <div class="pagination-actions">
+            <button type="button" mat-stroked-button (click)="previousPage()" [disabled]="pagination().page <= 1 || loading()">Previous</button>
+            <button type="button" mat-stroked-button (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages || loading()">Next</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side-column">
+      <section class="composer-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Remarketing Workspace</p>
+            <h2>Draft outreach</h2>
+          </div>
+          <span class="audience-pill">{{ visibleAudienceCount() }} recipients</span>
+        </div>
+
+        <div class="channel-switch">
+          <button type="button" class="channel-button" [class.active]="composeChannel() === 'email'" (click)="composeChannel.set('email')">
+            <mat-icon>mail</mat-icon>
+            Email
+          </button>
+          <button type="button" class="channel-button" [class.active]="composeChannel() === 'sms'" (click)="composeChannel.set('sms')">
+            <mat-icon>sms</mat-icon>
+            SMS
+          </button>
+        </div>
+
+        <div class="template-row">
+          @for (template of composeTemplates; track template.id) {
+            <button type="button" class="template-chip" [class.active]="activeTemplate() === template.id" (click)="setComposeTemplate(template.id)">
+              {{ template.label }}
+            </button>
+          }
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Campaign label</mat-label>
+          <input matInput [ngModel]="campaignName()" (ngModelChange)="campaignName.set($event)" placeholder="e.g. April VIP follow-up">
+        </mat-form-field>
+
+        @if (composeChannel() === 'email') {
+          <mat-form-field appearance="outline">
+            <mat-label>Email subject</mat-label>
+            <input matInput [ngModel]="composeSubject()" (ngModelChange)="composeSubject.set($event)">
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline" class="message-field">
+          <mat-label>{{ composeChannel() === 'email' ? 'Message body' : 'SMS message' }}</mat-label>
+          <textarea
+            matInput
+            rows="6"
+            [ngModel]="composeMessage()"
+            (ngModelChange)="composeMessage.set($event)"
+            [placeholder]="'Use {{firstName}} to personalize the opening line.'"></textarea>
+        </mat-form-field>
+
+        <div class="audience-meta">
+          <span>{{ recipientEmails().length }} emails</span>
+          <span>{{ recipientPhones().length }} phones</span>
+          <span>{{ optedInSelectedCustomers().length > 0 ? 'Selected audience' : 'Focused audience' }}</span>
+        </div>
+
+        <div class="composer-actions">
+          <button type="button" mat-stroked-button (click)="copyMessage()">
+            <mat-icon>content_copy</mat-icon>
+            Copy message
+          </button>
+          @if (composeChannel() === 'email') {
+            <button type="button" mat-raised-button color="primary" (click)="launchEmailDraft()">
+              <mat-icon>send</mat-icon>
+              Open email draft
+            </button>
+          } @else {
+            <button type="button" mat-raised-button color="primary" (click)="launchSmsDraft()">
+              <mat-icon>send_to_mobile</mat-icon>
+              Prepare SMS
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="detail-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Customer Record</p>
+            <h2>Profile and purchase history</h2>
+          </div>
+        </div>
+
+        @if (detailLoading()) {
+          <div class="detail-state">
+            <mat-spinner diameter="34"></mat-spinner>
+            <span>Loading customer detail...</span>
+          </div>
+        } @else {
+          @if (activeDetail(); as detail) {
+            <div class="detail-headline">
+              <div class="customer-avatar large">{{ initials(detail.buyer.fullName || detail.buyer.email) }}</div>
+              <div>
+                <h3>{{ detail.buyer.fullName || detail.buyer.email }}</h3>
+                <p>{{ detail.buyer.email }}</p>
+                <p>{{ detail.buyer.phone || 'No phone number available' }}</p>
+              </div>
+            </div>
+
+            <div class="detail-meta-grid">
+              <div>
+                <span>Total spent</span>
+                <strong>{{ detail.buyer.totalSpent | currencyUtils:currencyCode() }}</strong>
+              </div>
+              <div>
+                <span>Orders</span>
+                <strong>{{ detail.buyer.orderCount }}</strong>
+              </div>
+              <div>
+                <span>Linked stores</span>
+                <strong>{{ detail.buyer.linkedStoreCount }}</strong>
+              </div>
+              <div>
+                <span>Last order</span>
+                <strong>{{ detail.buyer.lastOrderAt ? (detail.buyer.lastOrderAt | date:'mediumDate') : 'No paid order yet' }}</strong>
+              </div>
+            </div>
+
+            <div class="detail-actions">
+              <button type="button" mat-stroked-button (click)="openIndividualEmail(detail.buyer)">
+                <mat-icon>mail</mat-icon>
+                Email
+              </button>
+              <button type="button" mat-stroked-button (click)="launchSmsDraft(detail.buyer)">
+                <mat-icon>sms</mat-icon>
+                SMS
+              </button>
+              <button type="button" mat-stroked-button (click)="copyCustomerContact(detail.buyer)">
+                <mat-icon>content_copy</mat-icon>
+                Copy contact
+              </button>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Lifecycle stage</mat-label>
+              <mat-select [ngModel]="detailLifecycle()" (ngModelChange)="detailLifecycle.set($event)">
+                <mat-option value="new">New</mat-option>
+                <mat-option value="active">Active</mat-option>
+                <mat-option value="repeat">Repeat</mat-option>
+                <mat-option value="vip">VIP</mat-option>
+                <mat-option value="at_risk">At risk</mat-option>
+                <mat-option value="suppressed">Suppressed</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="toggle-row">
+              <mat-slide-toggle [ngModel]="detailMarketingOptIn()" (ngModelChange)="detailMarketingOptIn.set($event)">
+                Buyer can receive marketing follow-ups
+              </mat-slide-toggle>
+            </div>
+
+            <div class="preferred-channels">
+              <span>Preferred channels</span>
+              <label>
+                <mat-checkbox [checked]="detailPreferredChannels().includes('email')" (change)="setPreferredChannel('email', $event.checked)">Email</mat-checkbox>
+              </label>
+              <label>
+                <mat-checkbox [checked]="detailPreferredChannels().includes('sms')" (change)="setPreferredChannel('sms', $event.checked)">SMS</mat-checkbox>
+              </label>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Last campaign label</mat-label>
+              <input matInput [ngModel]="detailLastCampaignName()" (ngModelChange)="detailLastCampaignName.set($event)" placeholder="Track the last outreach or offer name">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="message-field">
+              <mat-label>Internal notes</mat-label>
+              <textarea
+                matInput
+                rows="5"
+                [ngModel]="detailNotes()"
+                (ngModelChange)="detailNotes.set($event)"
+                placeholder="Store preferences, delivery quirks, favorite products, or follow-up notes."></textarea>
+            </mat-form-field>
+
+            <div class="detail-save">
+              <button type="button" mat-raised-button color="primary" (click)="saveCustomerRecord()" [disabled]="savingDetail()">
+                @if (savingDetail()) {
+                  <mat-spinner diameter="18"></mat-spinner>
+                } @else {
+                  <mat-icon>save</mat-icon>
+                }
+                Save record
+              </button>
+            </div>
+
+            <div class="detail-section">
+              <h4>Linked stores</h4>
+              <div class="linked-store-list">
+                @for (storeRecord of detail.storeRecords; track storeRecord._id) {
+                  <article class="linked-store-card">
+                    <div>
+                      <strong>{{ storeRecord.store?.name || 'Store' }}</strong>
+                      <span>{{ storeRecord.orderCount }} orders - {{ storeRecord.totalSpent | currencyUtils:currencyCode() }}</span>
+                    </div>
+                    <small>{{ storeRecord.lastOrderAt ? (storeRecord.lastOrderAt | date:'mediumDate') : 'No order date' }}</small>
+                  </article>
+                }
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <h4>Recent orders</h4>
+              <div class="order-history">
+                @for (order of detail.orders; track order._id) {
+                  <article class="order-row">
+                    <div class="order-row-top">
+                      <strong>{{ order.orderNumber }}</strong>
+                      <span>{{ order.totalAmount | currencyUtils:(order.currency || currencyCode()) }}</span>
+                    </div>
+                    <p>{{ order.store?.name || 'Storefront order' }} - {{ order.createdAt ? (order.createdAt | date:'medium') : 'No date' }}</p>
+                    <div class="order-items-preview">
+                      @for (item of order.items.slice(0, 3); track item._id) {
+                        <span>{{ item.name }} x{{ item.quantity }}</span>
+                      }
+                    </div>
+                  </article>
+                }
+                @if (detail.orders.length === 0) {
+                  <div class="mini-empty-state">No orders captured for this buyer yet.</div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="detail-state">
+              <mat-icon>contact_support</mat-icon>
+              <span>Select a buyer to review their record, stores, and order history.</span>
+            </div>
+          }
+        }
+      </section>
+    </aside>
+  </section>
+</section>

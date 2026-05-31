@@ -1,0 +1,103 @@
+<article class="mobile-promotion-card" [class.restricted]="isPromotionRestricted()">
+  <header class="card-top">
+    <span class="status-pill" [ngClass]="getStatusColor(promotion.status)">
+      <mat-icon>{{ getStatusIcon(promotion.status) }}</mat-icon>
+      {{ getStatusLabel(promotion.status) }}
+    </span>
+
+    <button type="button" class="icon-btn" aria-label="Promotion details" (click)="viewDetails()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </header>
+
+  <section class="media-panel" (click)="viewDetails()">
+    <span class="media-type">
+      <mat-icon>{{ promotion.campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>
+      {{ promotion.campaign.mediaType | titlecase }}
+    </span>
+
+    @if (promotion.campaign.mediaType === 'video') {
+      <img [src]="getThumbnailUrl()" [alt]="promotion.campaign.title" loading="lazy" decoding="async" />
+      <span class="play-btn"><mat-icon>play_arrow</mat-icon></span>
+    } @else {
+      <img [src]="getPreviewUrl()" [alt]="promotion.campaign.title" loading="lazy" decoding="async" />
+    }
+  </section>
+
+  <section class="card-body">
+    @if (isPromotionRestricted()) {
+      <div class="fraud-alert">
+        <mat-icon>shield</mat-icon>
+        <div>
+          <strong>Promotion paused</strong>
+          <span>{{ getRestrictionSummary() }}</span>
+        </div>
+      </div>
+    }
+
+    <div class="title-row">
+      <div>
+        <p>{{ promotion.campaign.category | titlecase }}</p>
+        <h2>{{ promotion.campaign.title }}</h2>
+      </div>
+      <button type="button" aria-label="Sharing instructions" (click)="showWhatsAppSharingInstructions(promotion)" [disabled]="isPromotionRestricted()">
+        <mat-icon>help</mat-icon>
+      </button>
+    </div>
+
+    <p class="caption">{{ promotion.campaign.caption }}</p>
+
+    <div class="link-strip">
+      <mat-icon>link</mat-icon>
+      <span>{{ getPromotionUrl() }}</span>
+      <button type="button" aria-label="Copy promotion link" (click)="copyPromotionLink()" [disabled]="isSharing() || isPromotionRestricted()">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <dl class="metrics-grid">
+      <div>
+        <dt>Total clicks</dt>
+        <dd>{{ getTotalClicks() | number }}</dd>
+      </div>
+      <div>
+        <dt>Billable</dt>
+        <dd>{{ getBillableClicks() | number }}</dd>
+      </div>
+      <div>
+        <dt>Earned</dt>
+        <dd>{{ promotion.campaign.currency || 'NGN' }} {{ getEarnedAmount() | number }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <footer class="quick-actions">
+    @if (promotion.status === 'rejected' || isPromotionRestricted()) {
+      <button type="button" class="danger" (click)="viewDetails()">
+        <mat-icon>info</mat-icon>
+        Review
+      </button>
+      <button type="button" (click)="messageMarketer()">
+        <mat-icon>chat</mat-icon>
+        Message
+      </button>
+    } @else {
+      <button type="button" class="primary" (click)="copyPromotionLink()" [disabled]="isSharing()">
+        <mat-icon>link</mat-icon>
+        Copy link
+      </button>
+      <button type="button" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing()">
+        <mat-icon>share</mat-icon>
+        {{ isStatusSharing() ? 'Preparing' : 'Status' }}
+      </button>
+      <button type="button" (click)="copyCaption(promotion.campaign.caption)">
+        <mat-icon>content_copy</mat-icon>
+        Caption
+      </button>
+      <button type="button" (click)="downloadAdAsset()" [disabled]="isDownloading()">
+        <mat-icon>download</mat-icon>
+        Asset
+      </button>
+    }
+  </footer>
+</article>

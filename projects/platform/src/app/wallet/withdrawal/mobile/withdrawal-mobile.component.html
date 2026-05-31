@@ -1,0 +1,363 @@
+<main class="withdraw-mobile">
+  <header class="mobile-header">
+    <div>
+      <span class="eyebrow">Wallet withdrawal</span>
+      <h1>{{ getRoleDisplayName() }} payout</h1>
+      <p>Send available wallet balance to a verified Nigerian bank account.</p>
+    </div>
+
+    <button type="button" class="icon-button" (click)="openHelpSheet()" aria-label="Open withdrawal help">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </header>
+
+  <section class="balance-hero" aria-label="Withdrawal balance">
+    <article class="available-card">
+      <div>
+        <span>{{ getBalanceLabel() }}</span>
+        <strong>{{ availableBalance() | currencyUtils:roleCurrency() }}</strong>
+        @if (walletBaseCurrency() !== roleCurrency()) {
+          <small>Base value: {{ walletOverview()?.available?.baseAmount || 0 | currencyUtils:walletBaseCurrency() }}</small>
+        }
+      </div>
+
+      <button type="button" (click)="refreshBalance()" [disabled]="isBalanceLoading()" aria-label="Refresh balance">
+        <mat-icon [class.spin]="isBalanceLoading()">refresh</mat-icon>
+      </button>
+    </article>
+
+    <div class="balance-grid">
+      <article>
+        <span>{{ getPendingLabel() }}</span>
+        <strong>{{ pendingBalance() | currencyUtils:roleCurrency() }}</strong>
+      </article>
+      <article>
+        <span>Fee rule</span>
+        <strong>{{ getFeeDescription() }}</strong>
+      </article>
+    </div>
+  </section>
+
+  @if (userRole() === 'marketer') {
+    <section class="warning-card" role="alert">
+      <mat-icon>lock</mat-icon>
+      <div>
+        <strong>Marketer withdrawal is currently unavailable</strong>
+        <p>The existing withdrawal rules disable marketer cash-out. Use this page only where the submit action is available.</p>
+      </div>
+    </section>
+  }
+
+  @if (supportedWithdrawalCurrencies().length) {
+    <section class="currency-strip" aria-label="Withdrawal currency">
+      <span>Currency</span>
+      <div>
+        @for (currency of supportedWithdrawalCurrencies(); track currency.code) {
+          <button
+            type="button"
+            [class.active]="selectedCurrency() === currency.code"
+            (click)="onCurrencySelectionChange(currency.code)">
+            {{ currency.code }}
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <nav class="stepper" aria-label="Withdrawal steps">
+    <span>Step {{ currentStepIndex() }} of 3</span>
+    <div class="step-track">
+      @for (step of stepItems(); track step) {
+        <span [class.active]="step < currentStepIndex()"></span>
+      }
+    </div>
+  </nav>
+
+  <form class="withdraw-flow" [formGroup]="withdrawForm" (ngSubmit)="onSubmit()">
+    @if (activeStep() === 'account') {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Bank account</span>
+          <h2>Choose where to receive money</h2>
+          <p>Enter a Nigerian bank account. We will resolve the account name before you submit.</p>
+        </div>
+
+        @if (savedAccounts().length > 0) {
+          <button type="button" class="saved-account-action" (click)="openSavedAccountSheet()">
+            <mat-icon>account_balance</mat-icon>
+            <span>
+              <strong>Use saved account</strong>
+              <small>{{ savedAccounts().length }} saved option{{ savedAccounts().length === 1 ? '' : 's' }}</small>
+            </span>
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        }
+
+        <button type="button" class="bank-picker" (click)="openBankSheet()">
+          <span>
+            <small>Bank</small>
+            <strong>{{ selectedBankLabel() || 'Select bank' }}</strong>
+          </span>
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+
+        <label class="field-label" for="accountNumber">Account number</label>
+        <div class="native-field">
+          <mat-icon>pin</mat-icon>
+          <input
+            id="accountNumber"
+            type="tel"
+            inputmode="numeric"
+            formControlName="accountNumber"
+            placeholder="10-digit account number"
+            maxlength="10" />
+        </div>
+
+        @if (isResolvingAccount()) {
+          <mat-progress-bar mode="indeterminate" />
+        }
+
+        <article class="resolved-card" [class.pending]="!accountResolved()">
+          <mat-icon>{{ accountResolved() ? 'verified' : 'person_search' }}</mat-icon>
+          <span>
+            <small>Account name</small>
+            <strong>{{ accountNameValue() || 'Waiting for valid bank and account number' }}</strong>
+          </span>
+        </article>
+      </section>
+    }
+
+    @if (activeStep() === 'amount') {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Amount</span>
+          <h2>How much should we request?</h2>
+          <p>{{ isPromoter() ? 'Promoter withdrawals include the current service fee.' : 'No service fee applies for this role.' }}</p>
+        </div>
+
+        <label class="field-label" for="amount">Withdrawal amount</label>
+        <div class="native-field amount-field">
+          <span>{{ roleCurrency() }}</span>
+          <input
+            id="amount"
+            type="number"
+            formControlName="amount"
+            [placeholder]="'Minimum ' + MIN_WITHDRAWAL_AMOUNT"
+            [min]="MIN_WITHDRAWAL_AMOUNT"
+            [max]="maxWithdrawableAmount()" />
+        </div>
+
+        <div class="quick-amounts" aria-label="Quick amount choices">
+          @for (amount of quickAmounts(); track amount) {
+            <button type="button" [class.selected]="amountValue() === amount" (click)="setQuickAmount(amount)">
+              {{ amount | currencyUtils:roleCurrency() }}
+            </button>
+          }
+        </div>
+
+        <section class="payout-preview">
+          <article>
+            <span>Service fee</span>
+            <strong>{{ feeAmount() | currencyUtils:roleCurrency() }}</strong>
+          </article>
+          <article>
+            <span>You receive</span>
+            <strong>{{ payableAmount() | currencyUtils:roleCurrency() }}</strong>
+          </article>
+          @if (withdrawalQuote()) {
+            <article>
+              <span>Estimated bank payout</span>
+              <strong>{{ withdrawalQuote()?.targetAmount | currencyUtils:'NGN' }}</strong>
+            </article>
+          } @else if (isQuoteLoading()) {
+            <article>
+              <span>Bank payout</span>
+              <strong>Estimating...</strong>
+            </article>
+          }
+        </section>
+
+        <label class="save-toggle">
+          <input type="checkbox" formControlName="saveAccount" />
+          <span>
+            <strong>Save this account</strong>
+            <small>Use it faster next time</small>
+          </span>
+        </label>
+      </section>
+    }
+
+    @if (activeStep() === 'review') {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Review</span>
+          <h2>Confirm withdrawal request</h2>
+          <p>Check every detail before submitting your payout request.</p>
+        </div>
+
+        <div class="review-list">
+          <article>
+            <span>Bank</span>
+            <strong>{{ selectedBankLabel() || 'Not selected' }}</strong>
+          </article>
+          <article>
+            <span>Account</span>
+            <strong>{{ accountNumberValue() || 'Not entered' }}</strong>
+          </article>
+          <article>
+            <span>Account name</span>
+            <strong>{{ accountNameValue() || 'Not resolved' }}</strong>
+          </article>
+          <article>
+            <span>Amount requested</span>
+            <strong>{{ amountValue() | currencyUtils:roleCurrency() }}</strong>
+          </article>
+          <article>
+            <span>Expected payout</span>
+            <strong>{{ payableAmount() | currencyUtils:roleCurrency() }}</strong>
+          </article>
+        </div>
+
+        <aside class="final-warning">
+          <mat-icon>priority_high</mat-icon>
+          <div>
+            <strong>Bank details must be correct.</strong>
+            <p>Wrong account details can delay payout processing.</p>
+          </div>
+        </aside>
+      </section>
+    }
+
+    <footer class="sticky-actions">
+      @if (activeStep() !== 'account') {
+        <button type="button" class="secondary-action" (click)="previousStep()">Back</button>
+      }
+
+      @if (activeStep() !== 'review') {
+        <button type="button" class="primary-action" (click)="nextStep()">
+          Continue
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      } @else {
+        <button
+          type="submit"
+          class="primary-action"
+          [disabled]="withdrawForm.invalid || isSubmitting() || totalDeduction() > availableBalance() || userRole() === 'marketer'">
+          <mat-icon>send</mat-icon>
+          <span>{{ isSubmitting() ? 'Submitting...' : 'Submit request' }}</span>
+        </button>
+      }
+    </footer>
+  </form>
+
+  <section class="mobile-info">
+    <h2>Withdrawal notes</h2>
+    <ul>
+      <li>Only available balance can be requested for payout.</li>
+      <li>Promoter withdrawal service fee is shown before submission.</li>
+      <li>Saved accounts can speed up future withdrawal requests.</li>
+    </ul>
+  </section>
+
+  @if (bankSheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeBankSheet()">
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="bank-sheet-title" (click)="$event.stopPropagation()">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header>
+          <div>
+            <span class="eyebrow">Select bank</span>
+            <h2 id="bank-sheet-title">Nigerian banks</h2>
+          </div>
+          <button type="button" class="icon-button" (click)="closeBankSheet()" aria-label="Close bank list">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <label class="field-label" for="bankSearch">Search bank</label>
+        <div class="native-field">
+          <mat-icon>search</mat-icon>
+          <input id="bankSearch" type="search" placeholder="Search bank name" (input)="onSearchChange($event)" />
+        </div>
+
+        <div class="bank-list">
+          @for (bank of bankOptions(); track bank.code) {
+            <button type="button" [class.selected]="withdrawForm.get('bank')?.value === bank.code" (click)="selectBank(bank)">
+              <span>{{ bank.name }}</span>
+              @if (withdrawForm.get('bank')?.value === bank.code) {
+                <mat-icon>check_circle</mat-icon>
+              }
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (savedAccountSheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeSavedAccountSheet()">
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="saved-sheet-title" (click)="$event.stopPropagation()">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header>
+          <div>
+            <span class="eyebrow">Saved accounts</span>
+            <h2 id="saved-sheet-title">Choose account</h2>
+          </div>
+          <button type="button" class="icon-button" (click)="closeSavedAccountSheet()" aria-label="Close saved accounts">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+
+        <div class="saved-list">
+          @for (account of savedAccounts(); track account._id || account.accountNumber) {
+            <button type="button" (click)="selectSavedAccount(account)">
+              <mat-icon>account_balance</mat-icon>
+              <span>
+                <strong>{{ account.bank }}</strong>
+                <small>{{ account.accountNumber }} - {{ account.accountName }}</small>
+              </span>
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (helpSheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeHelpSheet()">
+      <section class="bottom-sheet help-sheet" role="dialog" aria-modal="true" aria-labelledby="withdraw-help-title" (click)="$event.stopPropagation()">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header>
+          <div>
+            <span class="eyebrow">Withdrawal help</span>
+            <h2 id="withdraw-help-title">How payouts work</h2>
+          </div>
+          <button type="button" class="icon-button" (click)="closeHelpSheet()" aria-label="Close withdrawal help">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+        <article>
+          <mat-icon>payments</mat-icon>
+          <div>
+            <strong>Available balance</strong>
+            <p>This is the amount currently eligible for withdrawal.</p>
+          </div>
+        </article>
+        <article>
+          <mat-icon>percent</mat-icon>
+          <div>
+            <strong>Service fee</strong>
+            <p>{{ isPromoter() ? 'Promoter withdrawals include a 20% service fee.' : 'No service fee is configured for this role.' }}</p>
+          </div>
+        </article>
+        <article>
+          <mat-icon>verified_user</mat-icon>
+          <div>
+            <strong>Account verification</strong>
+            <p>We resolve account names before submission to reduce wrong payouts.</p>
+          </div>
+        </article>
+      </section>
+    </div>
+  }
+</main>

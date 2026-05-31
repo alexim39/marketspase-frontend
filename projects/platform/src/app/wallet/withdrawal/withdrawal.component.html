@@ -103,11 +103,11 @@
               }
 
               <form [formGroup]="withdrawForm" (ngSubmit)="onSubmit()">
-                @if (walletOverview()?.supportedDisplayCurrencies?.length) {
+                @if (supportedWithdrawalCurrencies().length) {
                   <mat-form-field appearance="outline">
                     <mat-label>Source Currency</mat-label>
                     <mat-select [value]="selectedCurrency()" (selectionChange)="onCurrencySelectionChange($event.value)">
-                      @for (currency of walletOverview()?.supportedDisplayCurrencies || []; track currency.code) {
+                      @for (currency of supportedWithdrawalCurrencies(); track currency.code) {
                         <mat-option [value]="currency.code">
                           {{ currency.code }} - {{ currency.name }}
                         </mat-option>
@@ -229,7 +229,7 @@
 
                   @if (withdrawForm.get('amount')?.value && totalDeduction() > availableBalance()) {
                     <mat-error>
-                      Amount exceeds available {{ userRole() }} balance. Your balance must cover the withdrawal amount{{ isPromoter() ? ' plus service fee' : '' }}.
+                      Amount exceeds available {{ userRole() }} balance in {{ roleCurrency() }}.
                     </mat-error>
                   }
                 </mat-form-field>
@@ -242,7 +242,7 @@
                     mat-flat-button
                     color="primary"
                     type="submit"
-                    [disabled]="withdrawForm.invalid || isSubmitting() || totalDeduction() > availableBalance()">
+                    [disabled]="withdrawForm.invalid || isSubmitting() || totalDeduction() > availableBalance() || userRole() === 'marketer'">
                     <mat-icon>send</mat-icon>
                     {{ isSubmitting() ? 'Processing...' : 'Submit Request' }}
                   </button>

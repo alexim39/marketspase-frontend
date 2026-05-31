@@ -1,0 +1,351 @@
+<section class="health-page">
+  <header class="hero-card" [class.good]="healthTone() === 'good'" [class.warn]="healthTone() === 'warn'" [class.bad]="healthTone() === 'bad'">
+    <div class="hero-copy">
+      <span class="hero-kicker">Compliance & Account Health</span>
+      <h1>{{ headline() }}</h1>
+      <p>{{ warningCopy() }}</p>
+      <div class="hero-meta">
+        <mat-chip-set>
+          <mat-chip
+            [class.chip-risk-low]="riskTone() === 'low'"
+            [class.chip-risk-medium]="riskTone() === 'medium'"
+            [class.chip-risk-high]="riskTone() === 'high'"
+            [class.chip-risk-critical]="riskTone() === 'critical'"
+          >
+            <mat-icon>{{ riskTone() === 'low' ? 'gpp_good' : (riskTone() === 'medium' ? 'gpp_maybe' : 'gpp_bad') }}</mat-icon>
+            Risk: {{ riskLabel(fraudProfile()?.riskLevel || 'low') }}
+          </mat-chip>
+          @if (fraudProfile()?.suspendedUntil) {
+            <mat-chip class="chip-bad">
+              <mat-icon>block</mat-icon>
+              Suspended until {{ fraudProfile()?.suspendedUntil | date:'medium' }}
+            </mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <div class="pulse-chip">
+        <mat-icon>update</mat-icon>
+        <span>
+          @if (generatedAt()) {
+            Updated {{ generatedAt() | date:'mediumTime' }}
+          } @else {
+            Waiting for first load
+          }
+        </span>
+      </div>
+
+      <button mat-flat-button color="primary" type="button" (click)="refreshNow()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <section class="warning-card">
+    <div class="warning-icon">
+      <mat-icon>report_problem</mat-icon>
+    </div>
+    <div class="warning-body">
+      <strong>Important</strong>
+      <p>
+        Fraud or suspicious click activity hurts the marketplace. If this continues, your trust score will drop, you can be paid less per click, you will receive fewer campaigns, and penalties (including suspension) will apply.
+      </p>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <section class="loading-card">
+      <div class="loading-copy">
+        <mat-spinner diameter="34"></mat-spinner>
+        <div>
+          <strong>Loading account health</strong>
+          <span>We're checking your promotion compliance history.</span>
+        </div>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="empty-state">
+      <mat-icon>gpp_maybe</mat-icon>
+      <h2>Unable to load compliance report</h2>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="refreshNow()">Retry</button>
+    </section>
+  } @else {
+    <section class="summary-grid">
+      <article class="summary-card">
+        <div class="summary-head">
+          <span>Trust score (rating)</span>
+          <strong>{{ trustScoreLabel() }}</strong>
+        </div>
+        <mat-progress-bar [value]="trustScore()" [color]="healthTone() === 'bad' ? 'warn' : 'primary'"></mat-progress-bar>
+        <small>
+          Keep clicks unique and buyer-driven. Repeated fraud signals reduce your score.
+        </small>
+      </article>
+
+      <article class="summary-card">
+        <div class="summary-row">
+          <div class="metric">
+            <span>Active cases</span>
+            <strong>{{ summary()?.activeCases || 0 }}</strong>
+          </div>
+          <div class="metric">
+            <span>Total cases</span>
+            <strong>{{ summary()?.totalCases || 0 }}</strong>
+          </div>
+        </div>
+        <div class="summary-row">
+          <div class="metric">
+            <span>Suspensions</span>
+            <strong>{{ summary()?.suspendedCases || 0 }}</strong>
+          </div>
+          <div class="metric">
+            <span>Banned promotions</span>
+            <strong>{{ summary()?.blockedPromotions || 0 }}</strong>
+          </div>
+        </div>
+        <small>
+          Cases are created when traffic patterns look suspicious. Suspensions apply when signals are severe or repeated.
+        </small>
+      </article>
+
+      <article class="summary-card">
+        <div class="summary-row">
+          <div class="metric">
+            <span>Risk level</span>
+            <strong>{{ riskLabel(fraudProfile()?.riskLevel || 'low') }}</strong>
+          </div>
+          <div class="metric">
+            <span>Warnings</span>
+            <strong>{{ fraudProfile()?.warningCount || 0 }}</strong>
+          </div>
+        </div>
+        <div class="summary-row">
+          <div class="metric">
+            <span>Strikes</span>
+            <strong>{{ fraudProfile()?.strikeCount || 0 }}</strong>
+          </div>
+          <div class="metric">
+            <span>Account status</span>
+            <strong>{{ accountStatusLabel() }}</strong>
+          </div>
+        </div>
+        <small>
+          A higher risk level reduces the campaigns you qualify for. Keep traffic clean to protect earnings.
+        </small>
+      </article>
+    </section>
+
+    <section class="filters-card">
+      <form [formGroup]="filtersForm" class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="all">All</mat-option>
+            <mat-option value="open">Open review</mat-option>
+            <mat-option value="warning_sent">Warning</mat-option>
+            <mat-option value="final_warning_sent">Final warning</mat-option>
+            <mat-option value="suspended">Suspended</mat-option>
+            <mat-option value="resolved">Resolved</mat-option>
+            <mat-option value="dismissed">Dismissed</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Risk level</mat-label>
+          <mat-select formControlName="riskLevel">
+            <mat-option value="all">All</mat-option>
+            <mat-option value="low">Low</mat-option>
+            <mat-option value="medium">Medium</mat-option>
+            <mat-option value="high">High</mat-option>
+            <mat-option value="critical">Critical</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search</mat-label>
+          <input matInput formControlName="search" placeholder="Campaign title, UPI, status..." />
+        </mat-form-field>
+      </form>
+    </section>
+
+    <section class="panel-card">
+      <div class="panel-head">
+        <div>
+          <h2>Promotion Compliance History</h2>
+          <p>Each item below shows a promotion that has been reviewed for suspicious activity.</p>
+        </div>
+        @if (refreshing()) {
+          <span class="inline-chip">
+            <mat-icon>sync</mat-icon>
+            Refreshing
+          </span>
+        }
+      </div>
+
+      @if (groupedIncidents().length === 0) {
+        <div class="inline-empty">
+          <mat-icon>verified_user</mat-icon>
+          <p>No compliance cases found for the current filters.</p>
+        </div>
+      } @else {
+        <mat-accordion class="incident-accordion" multi>
+          @for (item of groupedIncidents(); track item.promotionId) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div class="incident-title">
+                    <strong>{{ item.campaignTitle }}</strong>
+                    <span class="mono">{{ item.upi }}</span>
+                  </div>
+                </mat-panel-title>
+                <mat-panel-description>
+                  <div class="incident-meta">
+                    <span class="pill" [class.pill-bad]="item.openCount > 0" [class.pill-good]="item.openCount === 0">
+                      {{ item.openCount > 0 ? 'Open' : 'Closed' }}
+                    </span>
+                    <span class="pill">
+                      {{ item.incidentCount }} incident{{ item.incidentCount === 1 ? '' : 's' }}
+                    </span>
+                    <span class="pill" [class.pill-bad]="item.suspensionCount > 0">
+                      {{ item.suspensionCount }} suspension{{ item.suspensionCount === 1 ? '' : 's' }}
+                    </span>
+                    <span class="pill" [class.pill-bad]="item.lastRiskLevel === 'critical' || item.lastRiskLevel === 'high'">
+                      {{ riskLabel(item.lastRiskLevel) }}
+                    </span>
+                  </div>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="case-list">
+                @for (c of item.cases; track c._id) {
+                  <article class="case-card">
+                    <div class="case-top">
+                      <div class="case-badges">
+                        <span class="status-chip" [class.suspended]="c.status === 'suspended'" [class.warn]="c.status === 'warning_sent' || c.status === 'final_warning_sent'">
+                          {{ statusLabel(c.status) }}
+                        </span>
+                        <span
+                          class="risk-chip"
+                          [class.low]="c.riskLevel === 'low'"
+                          [class.medium]="c.riskLevel === 'medium'"
+                          [class.high]="c.riskLevel === 'high'"
+                          [class.critical]="c.riskLevel === 'critical'"
+                        >
+                          Risk: {{ riskLabel(c.riskLevel) }}
+                        </span>
+                        @let access = promotionAccess(c.promotion);
+                        <span
+                          class="access-chip"
+                          [class.access-good]="access.tone === 'good'"
+                          [class.access-warn]="access.tone === 'warn'"
+                          [class.access-bad]="access.tone === 'bad'"
+                        >
+                          Access: {{ access.label }}
+                        </span>
+                      </div>
+                      <div class="case-date">
+                        {{ formatDate(c.updatedAt || c.createdAt, 'medium') }}
+                      </div>
+                    </div>
+
+                    <div class="case-grid">
+                      <div class="case-field">
+                        <span>Reason</span>
+                        <strong>{{ c.reasons?.[0]?.label || c.promotion?.fraudStatus?.reasonSummary || 'Suspicious activity detected' }}</strong>
+                        @if ((c.reasons?.length || 0) > 1) {
+                          <small>+{{ c.reasons.length - 1 }} more signal(s)</small>
+                        }
+                      </div>
+
+                      <div class="case-field">
+                        <span>Suspended</span>
+                        <strong>{{ formatDate(c.suspendedAt, 'medium') }}</strong>
+                        <small>Until {{ formatDate(c.suspendedUntil, 'medium') }}</small>
+                      </div>
+
+                      <div class="case-field">
+                        <span>Reviewed / Closed</span>
+                        <strong>{{ formatDate(c.reviewedAt, 'medium') }}</strong>
+                        <small>{{ c.status === 'resolved' ? 'Resolved' : (c.status === 'dismissed' ? 'Dismissed' : '--') }}</small>
+                      </div>
+
+                      <div class="case-field">
+                        <span>Ban / Block</span>
+                        <strong>{{ formatDate(c.promotion?.fraudStatus?.blockedAt, 'medium') }}</strong>
+                        @if (c.promotion?.fraudStatus?.blockedUntil) {
+                          <small>Until {{ formatDate(c.promotion?.fraudStatus?.blockedUntil, 'medium') }}</small>
+                        } @else if (c.promotion?.fraudStatus?.autoRestoredAt) {
+                          <small>Restored {{ formatDate(c.promotion?.fraudStatus?.autoRestoredAt, 'medium') }}</small>
+                        } @else {
+                          <small>--</small>
+                        }
+                      </div>
+                    </div>
+
+                    @if (c.reasons?.length) {
+                      <div class="reason-chips">
+                        @for (r of c.reasons; track r.code) {
+                          <mat-chip>{{ r.label }}</mat-chip>
+                        }
+                      </div>
+                    }
+
+                    @if (c.promotion?.clickStats; as stats) {
+                      <div class="click-metrics">
+                        <div class="mini-metric">
+                          <span>Total clicks</span>
+                          <strong>{{ stats.totalClicks || 0 }}</strong>
+                        </div>
+                        <div class="mini-metric">
+                          <span>Billable</span>
+                          <strong>{{ stats.billableClicks || 0 }}</strong>
+                        </div>
+                        <div class="mini-metric">
+                          <span>Invalid</span>
+                          <strong>{{ stats.invalidClicks || 0 }}</strong>
+                        </div>
+                        <div class="mini-metric">
+                          <span>Duplicate</span>
+                          <strong>{{ stats.duplicateClicks || 0 }}</strong>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="case-actions">
+                      @if (c.promotion; as promo) {
+                        <a mat-stroked-button [routerLink]="['/dashboard/campaigns/promotions', promo._id]">
+                          <mat-icon>open_in_new</mat-icon>
+                          View promotion
+                        </a>
+                      } @else {
+                        <button mat-stroked-button type="button" disabled>
+                          <mat-icon>link_off</mat-icon>
+                          Promotion unavailable
+                        </button>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+
+              <div class="guidance">
+                <h3>How to avoid penalties</h3>
+                <ul>
+                  <li>Never click your own link or ask friends to spam clicks.</li>
+                  <li>Share to real buyers and communities that match the campaign audience.</li>
+                  <li>Avoid repeated clicks from the same device, IP, or WhatsApp group.</li>
+                  <li>Do not use bots, click farms, or traffic exchanges.</li>
+                  <li>Use one official promo link per campaign. Do not rotate links to hide patterns.</li>
+                </ul>
+              </div>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      }
+    </section>
+  }
+</section>

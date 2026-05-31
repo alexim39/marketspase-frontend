@@ -69,6 +69,7 @@ export interface UserSearchResponse {
 @Injectable()
 export class TransferService {
   constructor(private apiService: ApiService) {}
+  private readonly apiUrl = 'api/v1/wallet/transfer';
 
   /**
    * Get user's wallet balances (both promoter and marketer)
@@ -76,7 +77,7 @@ export class TransferService {
    * @returns Observable with wallet balances
    */
   getWalletBalances(userId: string): Observable<WalletBalanceResponse> {
-    return this.apiService.get<WalletBalanceResponse>(`wallet/transfer/balances/${userId}`);
+    return this.apiService.get<WalletBalanceResponse>(`${this.apiUrl}/balances/${userId}`);
   }
  
 
@@ -86,7 +87,7 @@ export class TransferService {
   * @returns Observable with transfer result
   */
   transferFunds(payload: TransferRequestData): Observable<TransferResponse> {
-    return this.apiService.post<TransferResponse>('wallet/transfer', payload, undefined, true);
+    return this.apiService.post<TransferResponse>(this.apiUrl, payload, undefined, true);
   }
 
   /**
@@ -97,7 +98,7 @@ export class TransferService {
    * @returns Observable with search results
    */
   searchUsers(query: string, role?: string, excludeSelf: boolean = true): Observable<UserSearchResponse> {
-    let url = `wallet/transfer/users/search?q=${encodeURIComponent(query)}`;
+    let url = `${this.apiUrl}/users/search?q=${encodeURIComponent(query)}`;
     if (role) {
       url += `&role=${role}`;
     }

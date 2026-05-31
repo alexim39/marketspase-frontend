@@ -1,0 +1,406 @@
+<section class="mobile-product-manager">
+  <header class="mobile-topbar">
+    <a class="icon-link" routerLink="/dashboard/stores" aria-label="Back to stores">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="topbar-title">
+      <span>Store products</span>
+      <strong>{{ store().name }}</strong>
+    </div>
+
+    <button type="button" class="icon-link primary" (click)="addProduct()" aria-label="Add product">
+      <mat-icon>add</mat-icon>
+    </button>
+  </header>
+
+  <section class="inventory-hero">
+    <div>
+      <p class="eyebrow">Inventory control</p>
+      <h1>{{ store().name }}</h1>
+      <p class="hero-copy">Manage product visibility, stock health, and promotion publishing from one mobile workspace.</p>
+    </div>
+
+    <button type="button" class="hero-action" (click)="addProduct()">
+      <mat-icon>add_circle</mat-icon>
+      Add product
+    </button>
+  </section>
+
+  <section class="metric-rail" aria-label="Product summary">
+    <article class="metric-card">
+      <mat-icon>inventory_2</mat-icon>
+      <span>Total</span>
+      <strong>{{ products().length }}</strong>
+    </article>
+
+    <article class="metric-card">
+      <mat-icon>task_alt</mat-icon>
+      <span>Active</span>
+      <strong>{{ activeProducts() }}</strong>
+    </article>
+
+    <article class="metric-card">
+      <mat-icon>campaign</mat-icon>
+      <span>Published</span>
+      <strong>{{ publishedProducts() }}</strong>
+    </article>
+
+    <article class="metric-card danger" [class.is-clear]="outOfStockProducts().length === 0">
+      <mat-icon>production_quantity_limits</mat-icon>
+      <span>Out</span>
+      <strong>{{ outOfStockProducts().length }}</strong>
+    </article>
+  </section>
+
+  <section class="search-panel">
+    <label class="search-box">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        placeholder="Search name, SKU, tags"
+        [value]="searchQuery()"
+        (input)="onSearch($event)"
+        aria-label="Search products"
+      />
+      @if (searchQuery()) {
+        <button type="button" (click)="clearSearch()" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+
+    <button type="button" class="filter-button" (click)="openFilters()" aria-label="Open filters">
+      <mat-icon>tune</mat-icon>
+      Filters
+    </button>
+  </section>
+
+  <nav class="status-chips" aria-label="Product status filters">
+    <button type="button" [class.active]="statusFilter() === 'all'" [attr.aria-pressed]="statusFilter() === 'all'" (click)="setStatusFilter('all')">
+      All
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'published'" [attr.aria-pressed]="statusFilter() === 'published'" (click)="setStatusFilter('published')">
+      Published
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'unpublished'" [attr.aria-pressed]="statusFilter() === 'unpublished'" (click)="setStatusFilter('unpublished')">
+      Unpublished
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'low-stock'" [attr.aria-pressed]="statusFilter() === 'low-stock'" (click)="setStatusFilter('low-stock')">
+      Low stock
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'out-of-stock'" [attr.aria-pressed]="statusFilter() === 'out-of-stock'" (click)="setStatusFilter('out-of-stock')">
+      Out of stock
+    </button>
+  </nav>
+
+  @if (categories().length > 0) {
+    <nav class="category-rail" aria-label="Product category filters">
+      <button type="button" [class.active]="selectedCategory() === 'all'" (click)="onCategoryChange('all')">All categories</button>
+      @for (category of categories().slice(0, 8); track category) {
+        <button type="button" [class.active]="selectedCategory() === category" (click)="onCategoryChange(category)">
+          {{ category }}
+        </button>
+      }
+    </nav>
+  }
+
+  @if (selectedProducts.length > 0) {
+    <section class="bulk-bar" aria-live="polite">
+      <button type="button" class="select-toggle" (click)="toggleVisibleSelection()">
+        <mat-icon>{{ isAllVisibleSelected() ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+        {{ selectedProducts.length }} selected
+      </button>
+
+      <div class="bulk-actions">
+        <button type="button" (click)="publishedSelectedForPromotion()" [disabled]="isPublishDisabled()">
+          <mat-icon>publish</mat-icon>
+          Publish
+        </button>
+        <button type="button" (click)="unpublishSelectedProducts()" [disabled]="isUnpublishDisabled()">
+          <mat-icon>unpublished</mat-icon>
+          Unpublish
+        </button>
+        <button type="button" class="ghost" (click)="clearSelection()">Clear</button>
+      </div>
+    </section>
+  }
+
+  <section class="result-summary">
+    <span>{{ mobileFilteredProducts().length }} products</span>
+    <span>Sorted by {{ sortBy() === 'createdAt' ? 'newest' : sortBy() }}</span>
+  </section>
+
+  <section class="product-feed" aria-label="Products">
+    @if (loading()) {
+      <div class="inline-loader">
+        <mat-spinner diameter="32" />
+        <span>Updating products...</span>
+      </div>
+    }
+
+    @if (mobileFilteredProducts().length === 0 && !loading()) {
+      <article class="empty-card">
+        <mat-icon>inventory</mat-icon>
+        <h2>No products found</h2>
+        <p>
+          @if (searchQuery() || selectedCategory() !== 'all' || statusFilter() !== 'all') {
+            Try a different search, category, or status filter.
+          } @else {
+            Add your first product so buyers and promoters can discover this store.
+          }
+        </p>
+        <div>
+          @if (searchQuery() || selectedCategory() !== 'all' || statusFilter() !== 'all') {
+            <button type="button" class="secondary-action" (click)="clearFilters()">Clear filters</button>
+          }
+          <button type="button" class="primary-action" (click)="addProduct()">Add product</button>
+        </div>
+      </article>
+    }
+
+    @for (product of mobilePaginatedProducts(); track trackByProductId($index, product)) {
+      <article class="product-card" [class.selected]="isProductSelected(product)">
+        <div class="product-card-header">
+          <mat-checkbox
+            [checked]="isProductSelected(product)"
+            (change)="toggleProductSelection(product)"
+            [attr.aria-label]="'Select ' + product.name"
+          />
+
+          <button type="button" class="more-button" (click)="openActions(product)" [attr.aria-label]="'Open actions for ' + product.name">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+        </div>
+
+        <div class="product-main">
+          <button type="button" class="product-image" (click)="viewProduct(product)" [attr.aria-label]="'View ' + product.name">
+            @if (productImage(product)) {
+              <img [src]="productImage(product)!" [alt]="product.name" loading="lazy" (error)="handleImageError($event)" />
+            } @else {
+              <span>
+                <mat-icon>image</mat-icon>
+              </span>
+            }
+          </button>
+
+          <div class="product-info">
+            <div class="badge-row">
+              <span class="status-pill" [class.good]="product.isActive" [class.bad]="!product.isActive">
+                {{ product.isActive ? 'Active' : 'Inactive' }}
+              </span>
+              <span class="status-pill promo" [class.good]="product.isPublished">
+                {{ getPublicationStatus(product).text }}
+              </span>
+            </div>
+
+            <h2>{{ product.name }}</h2>
+            <p>{{ product.description || 'No product description added yet.' | truncate:90 }}</p>
+
+            <div class="product-price-line">
+              <strong>{{ product.price | currencyUtils:product.currency }}</strong>
+              @if (product.originalPrice && product.originalPrice > product.price) {
+                <span>{{ product.originalPrice | currencyUtils:product.currency }}</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="stock-block" [class.warn]="getStockStatus(product).color !== 'primary'">
+          <div>
+            <span>{{ getStockStatus(product).text }}</span>
+            <strong>{{ product.quantity }} in stock</strong>
+          </div>
+          <div class="stock-bar" aria-hidden="true">
+            <i [style.width.%]="stockPercent(product)"></i>
+          </div>
+        </div>
+
+        <div class="insight-grid">
+          <div>
+            <span>Views</span>
+            <strong>{{ product.viewCount || product.promotion?.viewCount || product.promotion?.views || 0 }}</strong>
+          </div>
+          <div>
+            <span>Sales</span>
+            <strong>{{ product.purchaseCount || product.promotion?.conversions || 0 }}</strong>
+          </div>
+          <div>
+            <span>CTR clicks</span>
+            <strong>{{ product.promotion?.clickCount || 0 }}</strong>
+          </div>
+          <div>
+            <span>Conv.</span>
+            <strong>{{ conversionRate(product) }}%</strong>
+          </div>
+        </div>
+
+        <div class="commerce-row">
+          <div>
+            <span>Commission</span>
+            <strong>{{ commissionLabel(product) }}</strong>
+          </div>
+          <div>
+            <span>Category</span>
+            <strong>{{ product.category || 'Uncategorized' }}</strong>
+          </div>
+        </div>
+
+        @if (product.promotionEndDate) {
+          <p class="promotion-note">
+            <mat-icon>event</mat-icon>
+            Promotion window ends {{ product.promotionEndDate | date:'mediumDate' }}
+          </p>
+        }
+
+        <div class="card-actions">
+          <button type="button" (click)="viewProduct(product)">
+            <mat-icon>visibility</mat-icon>
+            View
+          </button>
+          <button type="button" (click)="editProduct(product)">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          @if (product.isPublished) {
+            <button type="button" class="danger-text" (click)="unpublishProduct(product)">
+              <mat-icon>unpublished</mat-icon>
+              Unpublish
+            </button>
+          } @else {
+            <button type="button" class="primary-text" (click)="publishProductFromSheet(product)">
+              <mat-icon>publish</mat-icon>
+              Publish
+            </button>
+          }
+        </div>
+      </article>
+    }
+  </section>
+
+  @if (mobileFilteredProducts().length > pageSize()) {
+    <footer class="mobile-pagination">
+      <button type="button" [disabled]="!hasPreviousPage()" (click)="goToPreviousPage()">
+        <mat-icon>chevron_left</mat-icon>
+        Prev
+      </button>
+      <span>{{ pageStart() }}-{{ pageEnd() }} of {{ mobileFilteredProducts().length }}</span>
+      <button type="button" [disabled]="!hasNextPage()" (click)="goToNextPage()">
+        Next
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </footer>
+  }
+
+  <button type="button" class="fab-add" (click)="addProduct()" aria-label="Add product">
+    <mat-icon>add</mat-icon>
+  </button>
+</section>
+
+@if (filtersOpen()) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeFilters()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="product-filter-title">
+    <header>
+      <div>
+        <span>Filter inventory</span>
+        <h2 id="product-filter-title">Find products faster</h2>
+      </div>
+      <button type="button" (click)="closeFilters()" aria-label="Close filters">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="sheet-section">
+      <h3>Status</h3>
+      <div class="sheet-chips">
+        <button type="button" [class.active]="statusFilter() === 'all'" (click)="setStatusFilter('all')">All</button>
+        <button type="button" [class.active]="statusFilter() === 'published'" (click)="setStatusFilter('published')">Published</button>
+        <button type="button" [class.active]="statusFilter() === 'unpublished'" (click)="setStatusFilter('unpublished')">Unpublished</button>
+        <button type="button" [class.active]="statusFilter() === 'low-stock'" (click)="setStatusFilter('low-stock')">Low stock</button>
+        <button type="button" [class.active]="statusFilter() === 'out-of-stock'" (click)="setStatusFilter('out-of-stock')">Out of stock</button>
+      </div>
+    </div>
+
+    <div class="sheet-section">
+      <h3>Category</h3>
+      <div class="sheet-chips">
+        <button type="button" [class.active]="selectedCategory() === 'all'" (click)="onCategoryChange('all')">All categories</button>
+        @for (category of categories(); track category) {
+          <button type="button" [class.active]="selectedCategory() === category" (click)="onCategoryChange(category)">
+            {{ category }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <label class="native-field">
+      <span>Sort products</span>
+      <select [value]="sortBy()" (change)="onSort($any($event.target).value)">
+        <option value="createdAt">Newest first</option>
+        <option value="name">Name A-Z</option>
+        <option value="price">Price low to high</option>
+        <option value="price_desc">Price high to low</option>
+        <option value="quantity">Stock level</option>
+        <option value="sales">Best selling</option>
+      </select>
+    </label>
+
+    <label class="native-field">
+      <span>Cards per page</span>
+      <select [value]="pageSize()" (change)="pageSize.set(+$any($event.target).value); currentPage.set(0); clearSelection()">
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+      </select>
+    </label>
+
+    <footer>
+      <button type="button" class="secondary-action" (click)="clearFilters()">Reset</button>
+      <button type="button" class="primary-action" (click)="closeFilters()">Apply filters</button>
+    </footer>
+  </section>
+}
+
+@if (actionProduct(); as product) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeActions()"></div>
+  <section class="bottom-sheet action-sheet" role="dialog" aria-modal="true" aria-label="Product actions">
+    <header>
+      <div>
+        <span>Product actions</span>
+        <h2>{{ product.name }}</h2>
+      </div>
+      <button type="button" (click)="closeActions()" aria-label="Close actions">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <button type="button" (click)="closeActions(); viewProduct(product)">
+      <mat-icon>visibility</mat-icon>
+      View details
+    </button>
+    <button type="button" (click)="closeActions(); editProduct(product)">
+      <mat-icon>edit</mat-icon>
+      Edit product
+    </button>
+    <button type="button" (click)="selectProductFromSheet(product)">
+      <mat-icon>{{ isProductSelected(product) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+      {{ isProductSelected(product) ? 'Remove from selection' : 'Select product' }}
+    </button>
+    @if (product.isPublished) {
+      <button type="button" (click)="unpublishProductFromSheet(product)">
+        <mat-icon>unpublished</mat-icon>
+        Unpublish from promotions
+      </button>
+    } @else {
+      <button type="button" (click)="publishProductFromSheet(product)">
+        <mat-icon>publish</mat-icon>
+        Publish for promotion
+      </button>
+    }
+    <mat-divider />
+    <button type="button" class="danger-action" (click)="deleteProductFromSheet(product)">
+      <mat-icon>delete</mat-icon>
+      Delete product
+    </button>
+  </section>
+}

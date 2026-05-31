@@ -6,6 +6,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import {
+  AdminFraudPulseResponse,
   AdminLiveActivityItem,
   AdminOverviewStats,
   DashboardService,
@@ -26,6 +27,7 @@ export class DashboardMainComponent {
   readonly loadingActivity = signal(true);
   readonly overview = signal<AdminOverviewStats | null>(null);
   readonly activityFeed = signal<AdminLiveActivityItem[]>([]);
+  readonly fraudPulse = signal<AdminFraudPulseResponse | null>(null);
   readonly activitySummary = signal({
     feedPosts24h: 0,
     forumThreads24h: 0,
@@ -61,7 +63,7 @@ export class DashboardMainComponent {
         key: 'promotions',
         label: 'Promotions',
         value: overview.ads.totalPromotions.toLocaleString(),
-        meta: `${overview.ads.submittedPromotions.toLocaleString()} awaiting review | ${overview.ads.totalCampaignClicks.toLocaleString()} clicks tracked`,
+        meta: `${overview.ads.activeCampaigns.toLocaleString()} live campaigns | ${overview.ads.totalCampaignClicks.toLocaleString()} clicks tracked`,
         icon: 'ads_click',
         tone: 'warning',
       },
@@ -77,41 +79,67 @@ export class DashboardMainComponent {
   });
 
   readonly quickActions = [
-    {
-      title: 'Review submitted promotions',
-      description: 'Validate promoter proofs and keep the pay-per-click pipeline moving.',
-      route: '/dashboard/promotions/submitted',
-      icon: 'fact_check',
-    },
-    {
-      title: 'Manage storefronts',
-      description: 'Inspect stores, products, and marketplace readiness across marketers.',
-      route: '/dashboard/stores',
-      icon: 'store',
-    },
-    {
-      title: 'Moderate product reviews',
-      description: 'Approve, reject, or clear flagged storefront ratings before they affect public trust.',
-      route: '/dashboard/stores/reviews',
-      icon: 'rate_review',
-    },
-    {
-      title: 'Handle payouts and refunds',
-      description: 'Review withdrawal requests, transfer history, and payment recovery work.',
-      route: '/dashboard/financial',
-      icon: 'account_balance_wallet',
-    },
-    {
-      title: 'Tune rewards and gamification',
-      description: 'Adjust streak, badge, gamification, and payment settings for live growth loops.',
-      route: '/dashboard/settings/login-streaks',
-      icon: 'emoji_events',
-    },
+      {
+        title: 'Review fraud cases',
+        description: 'Inspect suspicious promotion traffic, pause links, and suspend repeat offenders.',
+        route: '/dashboard/promotions/fraud',
+        icon: 'shield',
+      },
+      {
+        title: 'Manage promotion ledger',
+        description: 'Review promotion performance, payout outcomes, and link health across the marketplace.',
+        route: '/dashboard/promotions',
+        icon: 'ads_click',
+      },
+      {
+        title: 'Manage storefronts',
+        description: 'Inspect stores, products, and marketplace readiness across marketers.',
+        route: '/dashboard/stores',
+        icon: 'store',
+      },
+      {
+        title: 'Moderate product reviews',
+        description: 'Approve, reject, or clear flagged storefront ratings before they affect public trust.',
+        route: '/dashboard/stores/reviews',
+        icon: 'rate_review',
+      },
+      {
+        title: 'Handle payouts and refunds',
+        description: 'Review withdrawal requests, transfer history, and payment recovery work.',
+        route: '/dashboard/financial',
+        icon: 'account_balance_wallet',
+      },
+      {
+        title: 'Tune rewards and gamification',
+        description: 'Adjust streak, badge, gamification, and payment settings for live growth loops.',
+        route: '/dashboard/settings/login-streaks',
+        icon: 'emoji_events',
+      },
   ];
 
   constructor() {
     this.loadDashboard();
   }
+
+  readonly fraudHighlights = computed(() => {
+    const pulse = this.fraudPulse();
+    if (!pulse) {
+      return [];
+    }
+
+    return [
+      {
+        label: 'Open fraud cases',
+        value: pulse.count.toLocaleString(),
+        detail: pulse.count > 0 ? 'Needs admin review' : 'No active fraud cases',
+      },
+      ...pulse.recent.slice(0, 2).map((item) => ({
+        label: item.title,
+        value: item.promoter,
+        detail: `${item.riskLevel} risk | ${item.status.replace(/_/g, ' ')}`,
+      })),
+    ];
+  });
 
   readonly activePrograms = computed(() => {
     const overview = this.overview();
@@ -146,6 +174,7 @@ export class DashboardMainComponent {
   private loadDashboard(): void {
     this.loadOverview();
     this.loadActivity();
+    this.loadFraudPulse();
   }
 
   private loadOverview(): void {
@@ -187,6 +216,20 @@ export class DashboardMainComponent {
         error: (error) => {
           console.error('Error loading admin activity feed:', error);
           this.activityFeed.set([]);
+        },
+      });
+  }
+
+  private loadFraudPulse(): void {
+    this.dashboardService.getFraudPulse()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.fraudPulse.set(data);
+        },
+        error: (error) => {
+          console.error('Error loading admin fraud pulse:', error);
+          this.fraudPulse.set(null);
         },
       });
   }

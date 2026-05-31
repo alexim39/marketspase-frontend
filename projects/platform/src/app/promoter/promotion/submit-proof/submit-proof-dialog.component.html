@@ -1,174 +1,35 @@
 <div class="submit-proof-dialog">
-  <h2 mat-dialog-title>Submit Proof of Promotion</h2>
+  <h2 mat-dialog-title>Promotion Workflow Updated</h2>
 
   <mat-dialog-content>
-   
-
-    <!-- Campaign Info -->
     <div class="campaign-info">
-      <h3>{{ campaign().title | titlecase}}</h3>
+      <h3>{{ campaign().title | titlecase }}</h3>
       <p class="caption">{{ campaign().caption }}</p>
-      
+
       <div class="campaign-details">
         <div class="detail-item">
-          <mat-icon>paid</mat-icon>
-          <span>Payout: ₦{{ campaign().payoutPerPromotion | number }}</span>
+          <mat-icon>ads_click</mat-icon>
+          <span>PPC campaign</span>
         </div>
         <div class="detail-item">
-          <mat-icon>visibility</mat-icon>
-          <span>Min Views: {{ campaign().minViewsPerPromotion }}</span>
+          <mat-icon>link</mat-icon>
+          <span>Share the generated MarketSpase tracking link to earn from valid clicks.</span>
         </div>
-        <!-- @if (daysRemaining() > 0) {
-          <div class="detail-item">
-            <mat-icon>schedule</mat-icon>
-            <span>{{ daysRemaining() }} days remaining</span>
-          </div>
-        }
-        @if (daysRemaining() <= 0) {
-           <div class="detail-item">
-            <mat-icon class="expired">warning</mat-icon>
-            <span class="expired">Submission expired</span>
-          </div>
-        } -->
       </div>
     </div>
 
-    <!-- Requirements -->
     <div class="requirements">
-      <h4>Proof Requirements:</h4>
+      <h4>Proof submission is no longer required.</h4>
       <ul>
-        <li>A minimum of 3 screenshots is required.</li>
-        <li>Screenshots must clearly show the image, promotion ID, view count, and timestamp.</li>
-        <li>The second screenshot should display the list of actual viewers.</li>
-        <li>All proofs must be clear, free of distortion, and unobstructed. Minimum {{ campaign().minViewsPerPromotion }} views</li>
-        <li class="aiwarning">Note: AI-generated proofs are not allowed and will result in a permanent ban of your account.</li>
+        <li>Open your accepted promotion from the Promotions page.</li>
+        <li>Use the approved caption and the generated tracking link.</li>
+        <li>Clicks are tracked automatically while the campaign remains active.</li>
+        <li>When a campaign ends or is paused, the link stops billing and redirects visitors safely.</li>
       </ul>
     </div>
-
-    <!-- Proof Form -->
-    <form [formGroup]="proofForm" class="proof-form">
-      <!-- Views Count -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Number of Views</mat-label>
-        <input matInput type="number" formControlName="viewsCount" [min]="campaign().minViewsPerPromotion" max="1000">
-        <mat-icon matSuffix>visibility</mat-icon>
-        @if (proofForm.get('viewsCount')?.hasError('required')) {
-          <mat-error>
-          Views count is required
-        </mat-error>
-        }
-        @if (proofForm.get('viewsCount')?.hasError('min')) {
-          <mat-error>
-            Minimum {{ campaign().minViewsPerPromotion }} views required
-          </mat-error>
-        }
-        @if (proofForm.get('viewsCount')?.hasError('max')) {
-          <mat-error>
-            Maximum 1000 views allowed
-          </mat-error>
-        }
-      </mat-form-field>
-
-      <!-- Notes -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Additional Notes (Optional)</mat-label>
-        <textarea matInput formControlName="notes" rows="3" placeholder="Any additional information about your promotion..."></textarea>
-      </mat-form-field>
-
-      <!-- File Upload -->
-      <div class="file-upload-section">
-        <h4>Upload Proof Screenshots (3 images Required)</h4>
-
-        <div class="upload-area" [class.has-files]="hasFiles()">
-          <input 
-            type="file" 
-            #fileInput 
-            multiple 
-            accept="image/*" 
-            (change)="onFileSelected($event)"
-            [disabled]="selectedFiles().length >= maxFiles"
-          >
-          <!-- Show placeholder when no files -->
-          @if (selectedFiles().length === 0) {
-            <div class="upload-placeholder">
-              <mat-icon>cloud_upload</mat-icon>
-              <p>Click to upload or drag and drop</p>
-              <span>PNG, JPG up to 5MB each</span>
-            </div>
-          }
-          
-          <!-- Always show previews when there are files -->
-          @if (selectedFiles().length > 0) {
-            <div class="file-previews">
-              @for (url of previewUrls(); track url; let i = $index) {
-                <div class="file-preview">
-                  <img [src]="url" alt="Proof screenshot">
-                  <button mat-icon-button class="remove-btn" (click)="removeFile(i)" [disabled]="isSubmitting()">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              }
-              <!-- Show "Add more" button when less than maxFiles -->
-              @if (selectedFiles().length < maxFiles) {
-                <div class="upload-more" (click)="fileInput.click()">
-                  <mat-icon>add</mat-icon>
-                  <span>Add more</span>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="upload-info">
-          <span>{{ selectedFiles().length }}/{{ maxFiles }} files selected</span>
-          @if (selectedFiles().length < minFiles || selectedFiles().length > maxFiles) {
-            <span class="file-error">* {{ maxFiles }} proof images are required</span>
-            <!-- <span class="file-error">* Between {{ minFiles }} and {{ maxFiles }} proof images are required</span> -->
-          }
-        </div>
-      </div>
-    </form>
-
-    
-
   </mat-dialog-content>
 
-  @if (isSubmitting()) {
-    <mat-progress-bar mode="indeterminate" class="progress-bar"/>
-  }
-
   <mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()" [disabled]="isSubmitting()">Cancel</button>
-    <button 
-      mat-flat-button 
-      color="primary" 
-      (click)="onSubmit()" 
-      [disabled]="!canSubmit()"
-    >
-    @if (!isSubmitting()) {
-      <span>Submit Proof</span>
-    } @else {
-      <span>Submitting...</span>
-    }
-    </button>
-
-
-    <!-- Status Messages -->
-    @if (submissionStatus() === 'success') {
-      <div class="status-message success">
-        <mat-icon>check_circle</mat-icon>
-        <span>{{ statusMessage() }}</span>
-      </div>
-    }
-    @if (submissionStatus() === 'error') {
-      <div class="status-message error">
-        <mat-icon>error</mat-icon>
-        <span>{{ statusMessage() }}</span>
-        <button mat-icon-button (click)="submissionStatus.set('idle'); statusMessage.set('')">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-    }
-
+    <button mat-button (click)="onCancel()">Close</button>
   </mat-dialog-actions>
 </div>

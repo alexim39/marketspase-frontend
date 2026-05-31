@@ -8,7 +8,7 @@ import { ApiService } from '@shared/services';
 @Injectable()
 export class StoreService {
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'stores';
+  private readonly apiUrl = 'api/v1/stores';
 
   // Signals for state management
   private stores = signal<Store[]>([]);
@@ -31,6 +31,38 @@ export class StoreService {
   public readonly promotionsState = this.promotions.asReadonly();
 
   private cache: Map<string, any> = new Map();
+
+  getStoreEmailSubscribers(filters?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    storeId?: string;
+    status?: string;
+    source?: string;
+    startDate?: Date;
+    endDate?: Date;
+    sortBy?: string;
+    sortOrder?: string;
+  }): Observable<any> {
+    let queryParams = '';
+    if (filters) {
+      const params = new URLSearchParams();
+      if (filters.page) params.set('page', String(filters.page));
+      if (filters.limit) params.set('limit', String(filters.limit));
+      if (filters.search) params.set('search', filters.search);
+      if (filters.storeId) params.set('storeId', filters.storeId);
+      if (filters.status) params.set('status', filters.status);
+      if (filters.source) params.set('source', filters.source);
+      if (filters.startDate) params.set('startDate', filters.startDate.toISOString());
+      if (filters.endDate) params.set('endDate', filters.endDate.toISOString());
+      if (filters.sortBy) params.set('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.set('sortOrder', filters.sortOrder);
+      const s = params.toString();
+      if (s) queryParams = `?${s}`;
+    }
+
+    return this.apiService.get<any>(`${this.apiUrl}/store/subscribers${queryParams}`);
+  }
 
   // Clear store state
   clearStoreState(): void {

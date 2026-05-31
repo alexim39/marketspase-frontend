@@ -1,0 +1,131 @@
+<section class="campaign-targeting-mobile" aria-label="Campaign location targeting">
+  @if (isLoading()) {
+    <div class="state-card loading-state" role="status" aria-live="polite">
+      <mat-spinner diameter="32" />
+      <div>
+        <h2>Loading targeting</h2>
+        <p>Fetching this campaign's location settings.</p>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="state-card error-state" role="alert">
+      <div class="state-icon">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <div>
+        <h2>Targeting could not load</h2>
+        <p>{{ error() }}</p>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="loadCampaign()">
+        Retry
+      </button>
+    </div>
+  } @else if (campaign()) {
+    <header class="mobile-topbar">
+      <button mat-icon-button type="button" aria-label="Back to campaign details" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="topbar-copy">
+        <span>Audience setup</span>
+        <h1>Location targeting</h1>
+      </div>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        class="topbar-save"
+        [disabled]="isSaving()"
+        (click)="saveCampaign()"
+      >
+        @if (isSaving()) {
+          <mat-spinner diameter="16" />
+        } @else {
+          Save
+        }
+      </button>
+    </header>
+
+    <main class="mobile-content">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p>{{ targetingStateLabel() }}</p>
+          <h2>{{ campaignTitle() }}</h2>
+          <span>{{ targetingStateDetail() }}</span>
+        </div>
+        <div class="hero-metric" aria-label="Selected targeting locations">
+          <strong>{{ locationCount() }}</strong>
+          <span>{{ locationCount() === 1 ? 'Area' : 'Areas' }}</span>
+        </div>
+      </section>
+
+      <section class="guidance-card" [class.is-warning]="hasEmptyEnabledTargeting()">
+        <mat-icon>{{ hasEmptyEnabledTargeting() ? 'warning_amber' : 'tips_and_updates' }}</mat-icon>
+        <div>
+          <h3>{{ hasEmptyEnabledTargeting() ? 'Add at least one location' : 'Keep targeting intentional' }}</h3>
+          <p>
+            @if (hasEmptyEnabledTargeting()) {
+              Location targeting is enabled, but no areas are selected yet. Add cities, addresses, or countries before saving.
+            } @else {
+              Use this when a campaign should only reach promoters sharing in selected locations. Leave it broad for nationwide or flexible campaigns.
+            }
+          </p>
+        </div>
+      </section>
+
+      @if (selectedLocationPreview().length > 0) {
+        <section class="selected-card" aria-label="Selected target locations">
+          <div class="section-heading">
+            <div>
+              <span>Selected reach</span>
+              <h3>Current areas</h3>
+            </div>
+            <button mat-button type="button" (click)="removeLocation('all')">Clear</button>
+          </div>
+          <div class="location-list">
+            @for (area of selectedLocationPreview(); track area.id) {
+              <article class="location-row">
+                <mat-icon>{{ area.type === 'country' ? 'public' : area.type === 'city' ? 'location_city' : 'place' }}</mat-icon>
+                <div>
+                  <strong>{{ area.name }}</strong>
+                  <span>{{ area.type | titlecase }} precision: {{ area.precision || 'medium' }}</span>
+                </div>
+              </article>
+            }
+          </div>
+          @if (locationCount() > selectedLocationPreview().length) {
+            <p class="more-count">+{{ locationCount() - selectedLocationPreview().length }} more selected areas</p>
+          }
+        </section>
+      }
+
+      <section class="targeting-panel">
+        <div class="section-heading">
+          <div>
+            <span>Targeting controls</span>
+            <h3>Add or remove areas</h3>
+          </div>
+        </div>
+        <app-targeting
+          [enableTarget]="enableTarget()"
+          [targetLocations]="targetLocations()"
+          (enableTargetChange)="onEnableTargetChange($event)"
+          (addLocation)="addLocation($event)"
+          (removeLocation)="removeLocation($event)"
+          (targetingSettingsChange)="onTargetingSettingsChange($event)"
+        />
+      </section>
+    </main>
+
+    <footer class="sticky-actions" aria-label="Campaign targeting actions">
+      <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+      <button mat-flat-button color="primary" type="button" [disabled]="isSaving()" (click)="saveCampaign()">
+        @if (isSaving()) {
+          <mat-spinner diameter="18" />
+          Saving
+        } @else {
+          Save targeting
+        }
+      </button>
+    </footer>
+  }
+</section>

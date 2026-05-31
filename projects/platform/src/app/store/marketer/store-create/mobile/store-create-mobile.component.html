@@ -1,0 +1,248 @@
+<main class="mobile-store-create">
+  <header class="mobile-topbar">
+    <button type="button" class="icon-button" (click)="requestCancel()" aria-label="Close store creation">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <div>
+      <span>New storefront</span>
+      <strong>{{ mobileStepLabels[currentStep()] }}</strong>
+    </div>
+
+    <button type="button" class="icon-button primary" [disabled]="isSubmitting()" (click)="onSubmit()" aria-label="Create store">
+      @if (isSubmitting()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon>check</mat-icon>
+      }
+    </button>
+  </header>
+
+  @if (isSubmitting()) {
+    <section class="submit-overlay" aria-live="polite">
+      <mat-spinner diameter="42" />
+      <h2>Creating your store</h2>
+      <p>We are setting up your storefront, logo, and default settings.</p>
+    </section>
+  }
+
+  <section class="create-hero">
+    <p class="eyebrow">Storefront setup</p>
+    <h1>Build a store buyers can trust</h1>
+    <p>Add a clear logo, category, description, and WhatsApp contact so customers know what you sell and how to reach you.</p>
+
+    <div class="progress-track" aria-label="Store creation progress">
+      <i [style.width.%]="progressPercent()"></i>
+    </div>
+    <span class="progress-label">Step {{ currentStep() + 1 }} of {{ mobileStepLabels.length }}</span>
+  </section>
+
+  <nav class="step-rail" aria-label="Store creation steps">
+    @for (label of mobileStepLabels; track label; let i = $index) {
+      <button
+        type="button"
+        [class.active]="currentStep() === i"
+        [class.done]="i < currentStep()"
+        [attr.aria-pressed]="currentStep() === i"
+        (click)="goToStep(i)"
+      >
+        <span>{{ i + 1 }}</span>
+        {{ label }}
+      </button>
+    }
+  </nav>
+
+  <form [formGroup]="storeForm" class="mobile-form-card" (ngSubmit)="onSubmit()">
+    @if (currentStep() === 0) {
+      <div class="step-heading">
+        <mat-icon>storefront</mat-icon>
+        <div>
+          <h2>Brand basics</h2>
+          <p>Choose the name, category, story, and logo buyers will see first.</p>
+        </div>
+      </div>
+
+      <label class="field full">
+        <span>Store name *</span>
+        <input type="text" formControlName="name" maxlength="50" placeholder="e.g. V3 Homes Limited" autocomplete="organization" />
+        <small [class.error]="isFieldInvalid('name')">{{ isFieldInvalid('name') ? getFieldError('name') : nameLength() + '/50' }}</small>
+      </label>
+
+      <label class="field full">
+        <span>Category *</span>
+        <select formControlName="category">
+          <option value="">Choose category</option>
+          @for (category of categories; track category.value) {
+            <option [value]="category.value">{{ category.label }}</option>
+          }
+        </select>
+        @if (isFieldInvalid('category')) {
+          <small class="error">{{ getFieldError('category') }}</small>
+        }
+      </label>
+
+      <label class="field full">
+        <span>Description *</span>
+        <textarea rows="5" maxlength="500" formControlName="description" placeholder="Describe what your store sells, who it serves, and why buyers should trust you."></textarea>
+        <small [class.error]="isFieldInvalid('description')">{{ isFieldInvalid('description') ? getFieldError('description') : descriptionLength() + '/500' }}</small>
+      </label>
+
+      <section class="logo-section">
+        <div class="section-label">
+          <span>Store logo *</span>
+          <strong>Square works best</strong>
+        </div>
+
+        <div class="logo-preview-card" [class.has-logo]="previewImage()" [class.error]="logoError()">
+          @if (previewImage()) {
+            <img [src]="previewImage()!" alt="Store logo preview" />
+            <button type="button" class="remove-logo" (click)="removeLogo()" aria-label="Remove logo">
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <div class="logo-placeholder">
+              <span>{{ storeInitials() }}</span>
+              <mat-icon>add_photo_alternate</mat-icon>
+            </div>
+          }
+        </div>
+
+        <input type="file" id="mobileLogoUpload" accept="image/*" (change)="onFileSelected($event)" hidden />
+        <label for="mobileLogoUpload" class="upload-button">
+          <mat-icon>cloud_upload</mat-icon>
+          {{ previewImage() ? 'Change logo' : 'Upload logo' }}
+        </label>
+
+        @if (isLogoRequired() || logoError()) {
+          <small class="logo-error-text">Store logo is required.</small>
+        } @else {
+          <small class="upload-hint">JPG, PNG, WebP or GIF. Max 5MB.</small>
+        }
+      </section>
+    }
+
+    @if (currentStep() === 1) {
+      <div class="step-heading">
+        <mat-icon>support_agent</mat-icon>
+        <div>
+          <h2>Customer contact</h2>
+          <p>This number comes from your profile and will be used for buyer inquiries.</p>
+        </div>
+      </div>
+
+      <label class="field full">
+        <span>WhatsApp Business Number</span>
+        <input type="tel" formControlName="whatsappNumber" placeholder="e.g. 08012345678" autocomplete="tel" />
+        @if (isFieldInvalid('whatsappNumber')) {
+          <small class="error">{{ getFieldError('whatsappNumber') }}</small>
+        } @else {
+          <small>Update your profile phone number if this is wrong.</small>
+        }
+      </label>
+
+      <section class="tips-card">
+        <article>
+          <mat-icon>verified</mat-icon>
+          <div>
+            <strong>Trust starts here</strong>
+            <span>Use a real brand name, clear logo, and specific description.</span>
+          </div>
+        </article>
+        <article>
+          <mat-icon>chat</mat-icon>
+          <div>
+            <strong>WhatsApp-ready</strong>
+            <span>Buyers can contact your store quickly from your storefront.</span>
+          </div>
+        </article>
+        <article>
+          <mat-icon>inventory_2</mat-icon>
+          <div>
+            <strong>Next step</strong>
+            <span>After creating this store, add products and enable promoter commissions.</span>
+          </div>
+        </article>
+      </section>
+    }
+
+    @if (currentStep() === 2) {
+      <div class="step-heading">
+        <mat-icon>visibility</mat-icon>
+        <div>
+          <h2>Review storefront</h2>
+          <p>Confirm this is how your store should appear before creating it.</p>
+        </div>
+      </div>
+
+      <section class="store-preview">
+        <div class="preview-cover">
+          @if (previewImage()) {
+            <img [src]="previewImage()!" alt="Store logo" />
+          } @else {
+            <span>{{ storeInitials() }}</span>
+          }
+        </div>
+
+        <div class="preview-body">
+          <strong>{{ storeForm.get('name')?.value || 'Your Store Name' }}</strong>
+          <span>{{ storeForm.get('category')?.value || 'Store category' }}</span>
+          <p>{{ storeForm.get('description')?.value || 'Your store description will appear here.' }}</p>
+        </div>
+
+        <div class="preview-contact">
+          <mat-icon>phone</mat-icon>
+          <span>{{ displayPhone() }}</span>
+        </div>
+      </section>
+
+      @if (storeForm.invalid) {
+        <section class="warning-card">
+          <mat-icon>error_outline</mat-icon>
+          <div>
+            <strong>Some required details are missing</strong>
+            <span>Review store name, category, description, and logo before creating.</span>
+          </div>
+        </section>
+      }
+    }
+  </form>
+
+  <footer class="sticky-actions">
+    <button type="button" class="secondary-action" [disabled]="currentStep() === 0 || isSubmitting()" (click)="goBack()">
+      <mat-icon>chevron_left</mat-icon>
+      Back
+    </button>
+
+    @if (currentStep() < mobileStepLabels.length - 1) {
+      <button type="button" class="primary-action" [disabled]="isSubmitting()" (click)="goNext()">
+        Continue
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    } @else {
+      <button type="button" class="primary-action" [disabled]="storeForm.invalid || isSubmitting()" (click)="onSubmit()">
+        @if (isSubmitting()) {
+          <mat-spinner diameter="20" />
+          Creating
+        } @else {
+          Create store
+          <mat-icon>add_business</mat-icon>
+        }
+      </button>
+    }
+  </footer>
+</main>
+
+@if (confirmLeaveOpen()) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeLeaveConfirm()"></div>
+  <section class="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="leave-store-create-title">
+    <div class="confirm-icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <h2 id="leave-store-create-title">Discard store setup?</h2>
+    <p>You have unsaved store details. Leaving now will remove this setup from the screen.</p>
+    <div>
+      <button type="button" class="secondary-action" (click)="closeLeaveConfirm()">Keep editing</button>
+      <button type="button" class="danger-action" (click)="leaveForm()">Discard</button>
+    </div>
+  </section>
+}

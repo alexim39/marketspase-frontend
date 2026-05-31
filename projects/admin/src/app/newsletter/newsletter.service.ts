@@ -69,7 +69,7 @@ export interface NewsletterListResponse {
 export class NewsletterService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private readonly apiUrl = 'newsletter';
+  private readonly apiUrl = 'api/v1/newsletter';
 
   // Get all newsletters with optional filtering - FIXED
   getNewsletters(params?: {

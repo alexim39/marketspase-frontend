@@ -36,6 +36,7 @@ import { StoreHeaderComponent, StoreStats } from '../../core/store-header/store-
 import { PromotionService } from '../../../store/promoter/services/promotion.service';
 import { PaystackService } from '../../../common/services/paystack.service';
 import { ShareService } from '../../../store/services/share.service';
+import { buildWhatsAppChatUrl } from '../../../common/utils/whatsapp.util';
 
 // Child Components
 import { ProductGalleryComponent } from './components/product-gallery/product-gallery.component';
@@ -673,20 +674,21 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   contactStore(): void {
     const store = this.store();
     if (!store?.whatsappNumber) return;
-    
-    const product = this.product();
-    const message = `Hello ${store?.name}, I'm interested in your product: ${product?.name}`;
-    const url = `https://wa.me/${store?.whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+
+    const url = buildWhatsAppChatUrl(store.whatsappNumber);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    }
   }
 
   contactViaWhatsApp(): void {
     const store = this.store();
     if (!store?.whatsappNumber) return;
 
-    const message = `Hello ${store.name}, I'm interested in your products.`;
-    const url = `https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const url = buildWhatsAppChatUrl(store.whatsappNumber);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    }
   }
 
   handleStoreContact(method: 'whatsapp' | 'email' | 'chat'): void {

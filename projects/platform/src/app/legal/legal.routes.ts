@@ -7,21 +7,21 @@ export const legalRoutes: Routes = [
 
         children: [
             { path: '', 
-                loadComponent: () => import('./legal.component').then(c => c.LegalComponent),
+                loadComponent: () => import('./index').then(c => c.LegalIndexComponent),
                 title: "MarketSpase Legal - Terms and conditions of website use",
                 //redirectTo: 'terms',
                 //pathMatch: 'prefix',
                 children: [
                     { path: 'cookies', 
-                        loadComponent: () => import('./cookies/cookies.component').then(c => c.CookiesComponent),
+                        loadComponent: () => import('./cookies').then(c => c.CookiesIndexComponent),
                         title: "Legal - Cookies terms of use"
                     },
                     { path: 'terms', 
-                        loadComponent: () => import('./terms/terms.component').then(c => c.TermsComponent),
+                        loadComponent: () => import('./terms').then(c => c.TermsIndexComponent),
                         title: "Legal - Terms of use"
                     },
                     { path: 'privacy', 
-                        loadComponent: () => import('./privacy/privacy.component').then(c => c.PrivacyComponent),
+                        loadComponent: () => import('./privacy').then(c => c.PrivacyIndexComponent),
                         title: "Legal - Privacy terms of use"
                     },
                 ]

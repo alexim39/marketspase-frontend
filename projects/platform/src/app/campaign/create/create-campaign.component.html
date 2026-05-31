@@ -5,10 +5,10 @@
     </button>
     <div class="header-title">
       <h1>Create Campaign</h1>
-      <p>Launch your WhatsApp Status promotion</p>
+      <p>Launch a click-based promotion campaign across your audience channels</p>
     </div>
     <div class="header-actions">
-      <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later">
+      <button mat-stroked-button (click)="saveDraft()" class="save-draft-btn" matTooltip="Save campaign for later" [disabled]="isSubmitting()">
         <!-- <mat-icon>save</mat-icon> -->
          Save
         @if (deviceType() === 'desktop') {
@@ -27,16 +27,21 @@
       <div class="step-connector" [class.completed]="isStepActive(1)"></div>
       <div class="step" [class.active]="isStepActive(2)" [class.current]="isStepCurrent(2)">
         <div class="step-number">2</div>
-        <span class="step-label">Budget/Target</span>
+        <span class="step-label">Goal</span>
       </div>
       <div class="step-connector" [class.completed]="isStepActive(2)"></div>
       <div class="step" [class.active]="isStepActive(3)" [class.current]="isStepCurrent(3)">
         <div class="step-number">3</div>
-        <span class="step-label">Schedule</span>
+        <span class="step-label">Budget/Target</span>
       </div>
       <div class="step-connector" [class.completed]="isStepActive(3)"></div>
       <div class="step" [class.active]="isStepActive(4)" [class.current]="isStepCurrent(4)">
         <div class="step-number">4</div>
+        <span class="step-label">Schedule</span>
+      </div>
+      <div class="step-connector" [class.completed]="isStepActive(4)"></div>
+      <div class="step" [class.active]="isStepActive(5)" [class.current]="isStepCurrent(5)">
+        <div class="step-number">5</div>
         <span class="step-label">Summary</span>
       </div>
     </div>
@@ -49,6 +54,10 @@
       }
 
       @if (currentStep() === 2) {
+        <app-campaign-goal-form [formGroup]="goalForm" (validityChange)="onGoalValidityChange($event)" />
+      }
+
+      @if (currentStep() === 3) {
         <app-campaign-budget-form 
           [formGroup]="budgetForm" 
           [walletBalance]="walletBalance()" 
@@ -58,28 +67,43 @@
         />
       }
 
-      @if (currentStep() === 3) {
+      @if (currentStep() === 4) {
         <app-campaign-schedule-form [formGroup]="scheduleForm" [minStartDate]="today" (validityChange)="onScheduleValidityChange($event)" />
       }
 
-      @if (currentStep() === 4) {
-        <app-campaign-summary [contentForm]="contentForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" />
+      @if (currentStep() === 5) {
+        <app-campaign-summary [contentForm]="contentForm" [goalForm]="goalForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" />
       }
 
       @if (isSubmitting()) {
-          <mat-progress-bar mode="indeterminate"/>
+        <div class="submission-status" role="status" aria-live="polite">
+          <div class="submission-status__copy">
+            <p class="submission-status__eyebrow">Campaign setup in progress</p>
+            <h3>{{ submissionTitle() }}</h3>
+            <p>{{ submissionDescription() }}</p>
+          </div>
+
+          @if (submissionStage() === 'uploading') {
+            <div class="submission-status__progress">
+              <mat-progress-bar mode="determinate" [value]="uploadProgress() ?? 0"></mat-progress-bar>
+              <span>{{ uploadProgress() ?? 0 }}%</span>
+            </div>
+          } @else {
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          }
+        </div>
       }
 
       <div class="action-buttons">
-        <button mat-stroked-button (click)="goToPreviousStep()" [disabled]="currentStep() === 1">
+        <button mat-stroked-button (click)="goToPreviousStep()" [disabled]="currentStep() === 1 || isSubmitting()">
           <mat-icon>arrow_back</mat-icon> Previous
         </button>
-        @if (currentStep() < 4) {
-          <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="!isStepActive(currentStep()) || (currentStep() === 2 && walletBalance() < budgetForm.get('budget')?.value)">
+        @if (currentStep() < 5) {
+          <button mat-flat-button color="primary" (click)="goToNextStep()" [disabled]="isSubmitting() || !isStepActive(currentStep()) || (currentStep() === 3 && walletBalance() < budgetForm.get('budget')?.value)">
             Next Step <mat-icon>arrow_forward</mat-icon>
           </button>
         }
-        @if (currentStep() === 4) {
+        @if (currentStep() === 5) {
           <button mat-flat-button color="primary" (click)="submitCampaign()" [disabled]="!campaignIsReady() || isSubmitting()">
             <mat-icon>launch</mat-icon> Launch Campaign
           </button>

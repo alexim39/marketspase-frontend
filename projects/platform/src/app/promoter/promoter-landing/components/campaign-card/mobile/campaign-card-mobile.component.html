@@ -56,25 +56,20 @@
           </span>
           <span class="duration">
             <i class="material-icons">schedule</i>
-            @if (campaign.remainingDays === 'Expired') {
-              Expired
-            }
-            @if (campaign.remainingDays === 'Ongoing') {
-              Budget Based
-            } 
-            @if (campaign.remainingDays === 'Budget Exhausted') {
-              Exhausted
-            } 
-            @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing' && campaign.remainingDays !== 'Budget Exhausted') {
-              Expires in {{campaign.remainingDays}}
-            }
+            {{ getTimingLabel(campaign) }}
           </span>
+          @if (getLocationLabel(campaign)) {
+            <span class="duration">
+              <i class="material-icons">near_me</i>
+              {{ getLocationLabel(campaign) }}
+            </span>
+          }
         </div>
         
         <div class="compact-stats">
           <div class="stat">
-            <span class="stat-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</span>
-            <span class="stat-label">Slots</span>
+            <span class="stat-value">{{ getSlotValue(campaign) }}</span>
+            <span class="stat-label">{{ getSlotLabel(campaign) }}</span>
           </div>
           <div class="stat">
             <span class="stat-value">{{getEstimatedClicks(campaign) | number}}</span>
@@ -92,7 +87,7 @@
         
         <div class="compact-footer">
           <div class="payout">
-            <span class="payout-amount">NGN {{getCostPerClick(campaign)}}</span>
+            <span class="payout-amount">{{ campaign.currency || 'NGN' }} {{getCostPerClick(campaign)}}</span>
             <span class="payout-label">/ click</span>
           </div>
           <button 
@@ -164,21 +159,14 @@
             </div>
             <div class="meta-item">
               <i class="material-icons">schedule</i>
-              <span>
-                @if (campaign.remainingDays === 'Expired') {
-                  Expired
-                }
-                @if (campaign.remainingDays === 'Ongoing') {
-                  Budget Based
-                } 
-                @if (campaign.remainingDays === 'Budget Exhausted') {
-                  Exhausted
-                } 
-                @if (campaign.remainingDays !== 'Expired' && campaign.remainingDays !== 'Ongoing' && campaign.remainingDays !== 'Budget Exhausted') {
-                  Expires in {{campaign.remainingDays}}
-                }
-              </span>
+              <span>{{ getTimingLabel(campaign) }}</span>
             </div>
+            @if (getLocationLabel(campaign)) {
+              <div class="meta-item">
+                <i class="material-icons">near_me</i>
+                <span>{{ getLocationLabel(campaign) }}</span>
+              </div>
+            }
             <div class="meta-item">
               <i class="material-icons">touch_app</i>
               <span>{{getEstimatedClicks(campaign) | number}} estimated clicks</span>
@@ -187,12 +175,12 @@
 
           <div class="stats-grid">
             <div class="stat-card">
-              <span class="stat-number">{{campaign.totalPromotions || 0}}</span>
-              <span class="stat-label">Filled Slots</span>
+              <span class="stat-number">{{ getSlotValue(campaign) }}</span>
+              <span class="stat-label">{{ getSlotLabel(campaign) }}</span>
             </div>
             <div class="stat-card">
-              <span class="stat-number">{{campaign.maxPromoters}}</span>
-              <span class="stat-label">Total Slots</span>
+              <span class="stat-number">{{ campaign.promotionSummary?.uniquePromoters || campaign.totalPromotions || 0 }}</span>
+              <span class="stat-label">Active Promoters</span>
             </div>
             <div class="stat-card">
               <span class="stat-number">{{getDifficultyLevel(campaign)}}</span>
@@ -216,7 +204,7 @@
         <div class="payout-section">
           <div class="payout-info">
             <span class="payout-label">Payout per click</span>
-            <span class="payout-amount">NGN {{getCostPerClick(campaign)}}</span>
+            <span class="payout-amount">{{ campaign.currency || 'NGN' }} {{getCostPerClick(campaign)}}</span>
           </div>
           <button 
             class="mobile-apply-btn large"

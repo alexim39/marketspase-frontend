@@ -12,26 +12,127 @@
       <a mat-stroked-button routerLink="/dashboard/leaderboard">
         Leaderboard
       </a>
-      <button mat-flat-button color="primary" type="button" (click)="loadDashboard()">
-        Refresh
+      <button mat-flat-button color="primary" type="button" (click)="loadDashboard()" [disabled]="loading()">
+        @if (isRefreshing()) {
+          Refreshing...
+        } @else if (showInitialLoader()) {
+          Loading...
+        } @else {
+          Refresh
+        }
       </button>
     </div>
   </header>
 
-  @if (loading()) {
-    <section class="loading-state">
-      <div class="loading-card hero"></div>
-      <div class="loading-card"></div>
-      <div class="loading-card"></div>
+  @if (isRefreshing()) {
+    <section class="refresh-state" aria-live="polite">
+      <div class="refresh-copy">
+        <span class="refresh-badge">Updating progress</span>
+        <small>Refreshing your latest streaks, levels, and reward activity.</small>
+      </div>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </section>
-  } @else if (error()) {
+  }
+
+  @if (showInitialLoader()) {
+    <section class="loading-state" aria-busy="true" aria-label="Loading gamification dashboard">
+      <article class="loading-card loading-hero-card">
+        <div class="skeleton-pill"></div>
+        <div class="skeleton-line skeleton-title"></div>
+        <div class="skeleton-line skeleton-copy wide"></div>
+        <div class="skeleton-line skeleton-copy medium"></div>
+
+        <div class="loading-stat-strip">
+          @for (placeholder of [1, 2, 3]; track placeholder) {
+            <div class="loading-mini-stat">
+              <div class="skeleton-line skeleton-stat-value"></div>
+              <div class="skeleton-line skeleton-stat-label"></div>
+            </div>
+          }
+        </div>
+
+        <div class="loading-progress-strip">
+          <div class="skeleton-line skeleton-progress-label"></div>
+          <div class="skeleton-bar"></div>
+        </div>
+      </article>
+
+      <div class="loading-stat-grid">
+        @for (placeholder of [1, 2, 3]; track placeholder) {
+          <article class="loading-card loading-stat-card">
+            <div class="skeleton-line skeleton-section-label"></div>
+            <div class="skeleton-line skeleton-value"></div>
+            <div class="skeleton-line skeleton-copy short"></div>
+          </article>
+        }
+      </div>
+
+      <div class="loading-panel-grid">
+        @for (placeholder of [1, 2]; track placeholder) {
+          <article class="loading-card loading-panel-card">
+            <div class="loading-panel-heading">
+              <div class="skeleton-line skeleton-heading"></div>
+              <div class="skeleton-line skeleton-heading-meta"></div>
+            </div>
+
+            @for (item of [1, 2, 3]; track item) {
+              <div class="loading-list-item">
+                <div class="skeleton-avatar"></div>
+                <div class="loading-list-copy">
+                  <div class="skeleton-line skeleton-item-title"></div>
+                  <div class="skeleton-line skeleton-copy wide"></div>
+                  <div class="skeleton-line skeleton-copy short"></div>
+                </div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+
+      <div class="loading-panel-grid">
+        @for (placeholder of [1, 2]; track placeholder) {
+          <article class="loading-card loading-panel-card compact">
+            <div class="loading-panel-heading">
+              <div class="skeleton-line skeleton-heading"></div>
+              <div class="skeleton-line skeleton-heading-meta"></div>
+            </div>
+
+            @for (item of [1, 2, 3, 4]; track item) {
+              <div class="loading-row">
+                <div class="skeleton-line skeleton-item-title"></div>
+                <div class="skeleton-line skeleton-item-meta"></div>
+              </div>
+            }
+          </article>
+        }
+      </div>
+
+      <article class="loading-card loading-panel-card unlocked">
+        <div class="loading-panel-heading">
+          <div class="skeleton-line skeleton-heading"></div>
+          <div class="skeleton-line skeleton-heading-meta"></div>
+        </div>
+
+        <div class="loading-unlocked-grid">
+          @for (item of [1, 2, 3]; track item) {
+            <div class="loading-unlocked-card">
+              <div class="skeleton-avatar small"></div>
+              <div class="skeleton-line skeleton-item-title"></div>
+              <div class="skeleton-line skeleton-copy wide"></div>
+              <div class="skeleton-line skeleton-copy short"></div>
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+  } @else if (error() && !state()) {
     <section class="error-state">
       <mat-icon>error_outline</mat-icon>
       <p>{{ error() }}</p>
       <button mat-stroked-button type="button" (click)="loadDashboard()">Retry</button>
     </section>
   } @else {
-    @if (state(); as dashboard) {
+    @if (state()) {
       @if (profile(); as progress) {
         <section class="hero-panel">
           <div class="hero-copy">

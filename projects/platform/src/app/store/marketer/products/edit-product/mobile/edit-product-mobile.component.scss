@@ -1,0 +1,38 @@
+@use '../../../../../../styles/variables' as vars;
+@use '../../../../../../styles/mixins' as mixins;
+
+@import '../../add-products/mobile/add-product-mobile.component.scss';
+
+.mobile-loading-state {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-secondary);
+
+  h1 {
+    margin: 8px 0 0;
+    color: var(--text-primary);
+    font-size: 22px;
+  }
+
+  p {
+    margin: 0;
+    max-width: 260px;
+    line-height: 1.5;
+  }
+}
+
+.mobile-edit-product {
+  .edit-hero {
+    background:
+      linear-gradient(135deg, rgba(13, 148, 136, 0.92), rgba(15, 23, 42, 0.94)),
+      radial-gradient(circle at top right, rgba(250, 204, 21, 0.35), transparent 34%);
+  }
+
+  .image-rail article span {
+    max-width: 72px;
+  }
+}

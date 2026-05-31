@@ -1,0 +1,37 @@
+<div class="campaign-top-up-dialog">
+  <div class="dialog-header">
+    <div>
+      <h2>Top up campaign budget</h2>
+      <p>{{ headline() }}</p>
+    </div>
+    <button mat-icon-button type="button" (click)="close()" aria-label="Close top-up dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="campaign-summary">
+    <span class="summary-label">Campaign</span>
+    <strong>{{ data.title }}</strong>
+    <span class="summary-meta">Current remaining budget: {{ data.remainingBudget | number:'1.0-0' }} {{ data.currency }}</span>
+  </div>
+
+  <form class="dialog-body" [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Top-up amount</mat-label>
+      <input matInput type="number" min="1000" step="1000" formControlName="amount" />
+      <span matTextPrefix>{{ data.currency }}&nbsp;</span>
+      <mat-hint>Minimum {{ data.currency }} {{ minAmount | number:'1.0-0' }}</mat-hint>
+      @if (form.controls.amount.invalid && form.controls.amount.touched) {
+        <mat-error>Enter at least {{ minAmount | number:'1.0-0' }}.</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="dialog-actions">
+      <button mat-stroked-button type="button" (click)="close()">Cancel</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting()">
+        <mat-icon>add_circle</mat-icon>
+        Add budget
+      </button>
+    </div>
+  </form>
+</div>

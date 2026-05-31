@@ -1,0 +1,310 @@
+<main class="mobile-store-dashboard">
+  <header class="mobile-topbar" aria-label="Store dashboard navigation">
+    <button type="button" class="icon-button" (click)="openSheet('stores')" aria-label="Switch store">
+      <mat-icon>storefront</mat-icon>
+    </button>
+    <div class="topbar-title">
+      <span>Storefront</span>
+      <strong>{{ currentStore()?.name || 'My stores' }}</strong>
+    </div>
+    <button type="button" class="icon-button primary" (click)="openSheet('actions')" aria-label="Open store actions">
+      <mat-icon>bolt</mat-icon>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="mobile-state" aria-live="polite">
+      <mat-spinner diameter="42"></mat-spinner>
+      <h1>Loading storefront</h1>
+      <p>Getting your store, products, and sales summary.</p>
+    </section>
+  } @else if (!currentStore()) {
+    <section class="empty-store-card">
+      <div class="empty-mark">
+        <mat-icon>add_business</mat-icon>
+      </div>
+      <h1>Create your storefront</h1>
+      <p>Set up your store, add products, and let promoters start driving buyers to your products.</p>
+      <button type="button" (click)="createStore()">
+        <mat-icon>add</mat-icon>
+        Create store
+      </button>
+    </section>
+  } @else {
+    @if (currentStore(); as store) {
+      <section class="store-hero">
+        <div class="hero-head">
+          <div class="store-logo">
+            @if (store.logo) {
+              <img [src]="store.logo" [alt]="store.name + ' logo'" loading="lazy" />
+            } @else {
+              <span>{{ storeInitials(store) }}</span>
+            }
+          </div>
+          <div class="hero-title">
+            <span>{{ store.category || 'Storefront' }}</span>
+            <h1>{{ store.name }}</h1>
+            <p>{{ store.description || 'Manage products, orders, subscribers, and promoter activity from one place.' }}</p>
+          </div>
+        </div>
+
+        <div class="hero-status">
+          <span [class.good]="store.isVerified">
+            <mat-icon>{{ store.isVerified ? 'verified' : 'gpp_maybe' }}</mat-icon>
+            {{ store.isVerified ? 'Verified' : 'Verification pending' }}
+          </span>
+          <span [class.good]="store.status === 'active'" [class.bad]="store.status !== 'active'">
+            <mat-icon>{{ store.status === 'active' ? 'check_circle' : 'block' }}</mat-icon>
+            {{ store.status | titlecase }}
+          </span>
+        </div>
+
+        <div class="hero-actions">
+          <button type="button" (click)="addProduct()">
+            <mat-icon>add_box</mat-icon>
+            Add product
+          </button>
+          <a [routerLink]="['/store', store.storeLink]" aria-label="Preview public storefront">
+            <mat-icon>open_in_new</mat-icon>
+            Preview
+          </a>
+        </div>
+      </section>
+
+      <section class="metric-rail" aria-label="Store metrics">
+        @for (stat of dashboardStats(); track trackByStatId($index, stat)) {
+          <article class="metric-card" [class.down]="stat.trend === 'down'" [class.up]="stat.trend === 'up'">
+            <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+            <span>{{ stat.label }}</span>
+            <strong>{{ stat.value }}</strong>
+            @if (stat.subtitle) {
+              <small>{{ stat.subtitle }}</small>
+            }
+          </article>
+        }
+      </section>
+
+      <section class="money-card">
+        <div>
+          <span>Total revenue</span>
+          <strong>{{ revenueValue() | currencyUtils:'NGN' }}</strong>
+        </div>
+        <div>
+          <span>Product health</span>
+          <strong>{{ productHealthPercent() }}%</strong>
+        </div>
+        <div>
+          <span>Promoter traffic</span>
+          <strong>{{ store.analytics.promoterTraffic || 0 }}</strong>
+        </div>
+      </section>
+
+      @if (lowStockProducts().length > 0) {
+        <aside class="alert-card">
+          <mat-icon>warning</mat-icon>
+          <div>
+            <strong>{{ lowStockProducts().length }} product(s) need stock attention</strong>
+            <p>Low or empty stock can waste promoter traffic and hurt buyer trust.</p>
+          </div>
+          <button type="button" (click)="openSheet('health')">Review</button>
+        </aside>
+      }
+
+      <section class="quick-grid" aria-label="Store quick actions">
+        <button type="button" (click)="openStoreProducts()">
+          <mat-icon>inventory_2</mat-icon>
+          <span>Products</span>
+          <small>{{ products().length || 0 }} total</small>
+        </button>
+        <a routerLink="/dashboard/stores/orders">
+          <mat-icon>local_shipping</mat-icon>
+          <span>Orders</span>
+          <small>Fulfilment</small>
+        </a>
+        <a routerLink="/dashboard/stores/promoted-products-analytics">
+          <mat-icon>query_stats</mat-icon>
+          <span>Analytics</span>
+          <small>Promoter sales</small>
+        </a>
+        <a routerLink="/dashboard/stores/subscribers">
+          <mat-icon>alternate_email</mat-icon>
+          <span>Subscribers</span>
+          <small>Email list</small>
+        </a>
+        <a routerLink="/dashboard/stores/support">
+          <mat-icon>support_agent</mat-icon>
+          <span>Buyer CRM</span>
+          <small>Follow ups</small>
+        </a>
+        <button type="button" (click)="openSheet('filters')">
+          <mat-icon>filter_alt</mat-icon>
+          <span>Filter products</span>
+          <small>{{ selectedCategory() === 'all' ? 'All categories' : selectedCategory() }}</small>
+        </button>
+      </section>
+
+      <section class="product-preview">
+        <div class="section-heading">
+          <div>
+            <span>Inventory pulse</span>
+            <h2>Top products</h2>
+          </div>
+          <button type="button" (click)="openStoreProducts()">View all</button>
+        </div>
+
+        @if (topProducts().length) {
+          <div class="product-list">
+            @for (product of topProducts(); track trackProduct($index, product)) {
+              <article class="product-card">
+                <div class="product-image">
+                  @if (product.images?.[0]?.url) {
+                    <img [src]="product.images[0].url" [alt]="product.name" loading="lazy" />
+                  } @else {
+                    <mat-icon>image</mat-icon>
+                  }
+                </div>
+                <div class="product-copy">
+                  <strong>{{ product.name }}</strong>
+                  <span>{{ product.category || 'Uncategorized' }}</span>
+                  <small>{{ product.price | currencyUtils:product.currency }} · {{ product.quantity || 0 }} in stock</small>
+                </div>
+                <a [routerLink]="['/dashboard/stores', store._id, 'products', product._id]" aria-label="Open product detail">
+                  <mat-icon>chevron_right</mat-icon>
+                </a>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="mini-empty">
+            <mat-icon>inventory_2</mat-icon>
+            <p>No products yet. Add your first product to start selling.</p>
+          </div>
+        }
+      </section>
+
+      <nav class="sticky-actions" aria-label="Store dashboard sticky actions">
+        <button type="button" class="secondary" (click)="openSheet('stores')">
+          <mat-icon>swap_horiz</mat-icon>
+          Stores
+        </button>
+        <button type="button" class="primary" (click)="addProduct()">
+          <mat-icon>add</mat-icon>
+          Add product
+        </button>
+      </nav>
+    }
+  }
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="storeDashboardSheetTitle">
+    <div class="sheet-handle"></div>
+    <header>
+      <div>
+        <span>Storefront</span>
+        <h2 id="storeDashboardSheetTitle">
+          @switch (activeSheet()) {
+            @case ('stores') { Switch store }
+            @case ('filters') { Product filters }
+            @case ('health') { Stock attention }
+            @default { Quick actions }
+          }
+        </h2>
+      </div>
+      <button type="button" (click)="closeSheet()" aria-label="Close sheet">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="sheet-body">
+      @switch (activeSheet()) {
+        @case ('stores') {
+          <div class="store-sheet-list">
+            @for (store of stores(); track trackStore($index, store)) {
+              <button type="button" [class.active]="store._id === currentStore()?._id" (click)="selectStoreFromSheet(store)">
+                <span class="store-mini-logo">
+                  @if (store.logo) {
+                    <img [src]="store.logo" [alt]="store.name + ' logo'" loading="lazy" />
+                  } @else {
+                    {{ storeInitials(store) }}
+                  }
+                </span>
+                <span>
+                  <strong>{{ store.name }}</strong>
+                  <small>{{ store.category || 'Storefront' }} · {{ store.status | titlecase }}</small>
+                </span>
+                <mat-icon>{{ store._id === currentStore()?._id ? 'check_circle' : 'chevron_right' }}</mat-icon>
+              </button>
+            }
+          </div>
+          <button type="button" class="sheet-primary" (click)="createStore()">
+            <mat-icon>add_business</mat-icon>
+            Create another store
+          </button>
+        }
+
+        @case ('filters') {
+          <label class="mobile-input">
+            <span>Search products</span>
+            <input type="search" placeholder="Search products" [value]="searchQuery()" (input)="onSearch($any($event.target).value)" />
+          </label>
+
+          <div class="chip-list" aria-label="Product categories">
+            <button type="button" [class.active]="selectedCategory() === 'all'" (click)="applyCategory('all')">All</button>
+            @for (category of uniqueCategories(); track category) {
+              <button type="button" [class.active]="selectedCategory() === category" (click)="applyCategory(category)">{{ category }}</button>
+            }
+          </div>
+
+          <button type="button" class="sheet-secondary" (click)="clearProductFilters()">Clear filters</button>
+        }
+
+        @case ('health') {
+          @if (urgentStockProducts().length) {
+            <div class="health-list">
+              @for (product of urgentStockProducts(); track trackProduct($index, product)) {
+                <a [routerLink]="['/dashboard/stores', currentStore()?._id, 'products', product._id]" (click)="closeSheet()">
+                  <mat-icon>{{ product.quantity === 0 ? 'production_quantity_limits' : 'warning' }}</mat-icon>
+                  <span>
+                    <strong>{{ product.name }}</strong>
+                    <small>{{ product.quantity || 0 }} left · alert at {{ product.lowStockAlert || 10 }}</small>
+                  </span>
+                </a>
+              }
+            </div>
+          } @else {
+            <p class="sheet-copy">Inventory looks healthy right now.</p>
+          }
+        }
+
+        @default {
+          <div class="sheet-actions">
+            <button type="button" (click)="addProduct()">
+              <mat-icon>add_box</mat-icon>
+              <span>Add product</span>
+            </button>
+            <button type="button" (click)="openStoreProducts()">
+              <mat-icon>inventory</mat-icon>
+              <span>Manage products</span>
+            </button>
+            <button type="button" (click)="refreshStoreData(); closeSheet()">
+              <mat-icon>refresh</mat-icon>
+              <span>Refresh data</span>
+            </button>
+            <button type="button" (click)="toggleAutoRefresh()">
+              <mat-icon>{{ autoRefresh() ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+              <span>Auto-refresh {{ autoRefresh() ? 'on' : 'off' }}</span>
+            </button>
+            @if (currentStore()?._id) {
+              <a [routerLink]="['/dashboard/stores/edit', currentStore()?._id]">
+                <mat-icon>settings</mat-icon>
+                <span>Edit store</span>
+              </a>
+            }
+          </div>
+        }
+      }
+    </div>
+  </section>
+}

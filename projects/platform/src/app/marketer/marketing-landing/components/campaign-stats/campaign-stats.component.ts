@@ -10,26 +10,27 @@ interface CampaignStats {
   draftCampaigns: number;
   completedCampaigns: number;
   pendingCampaigns: number;
+  exhaustedCampaigns: number;
   
   // Financial metrics
   totalSpent: number;
   totalBudget: number;
+  remainingBudget: number;
   budgetUtilization: number;
   
   // Performance metrics
-  totalViews: number;
+  totalClicks: number;
+  billableClicks: number;
+  invalidClicks: number;
   totalPromoters: number;
   totalPromotions: number;
-  successfulPromotions: number;
+  activePromotions: number;
   
   // Engagement metrics
-  engagementRate: number;
-  successRate: number;
-  avgCompletionTime: string;
-  
-  // Additional metrics
-  avgPayout: number;
-  pendingPayout: number;
+  clickQualityRate: number;
+  promoterActivationRate: number;
+  avgCostPerClick: number;
+  estimatedRemainingClicks: number;
   campaignsWithPromotions: number;
   campaignsNeedingAttention: number;
 }
@@ -80,20 +81,20 @@ export class CampaignStatsComponent implements OnChanges {
         label: 'Total Campaigns',
         value: this.stats.totalCampaigns.toString(),
         icon: 'campaign',
-        description: `${this.stats.activeCampaigns} active, ${this.stats.draftCampaigns} drafts`
+        description: `${this.stats.activeCampaigns} live • ${this.stats.draftCampaigns} drafts`
       },
       {
-        label: 'Active Campaigns',
+        label: 'Live Campaigns',
         value: this.stats.activeCampaigns.toString(),
         icon: 'play_arrow',
         highlight: true,
-        description: `${this.stats.campaignsWithPromotions} with promotions`
+        description: `${this.stats.campaignsWithPromotions} with promoter activity`
       },
       {
         label: 'Campaigns Needing Attention',
         value: this.stats.campaignsNeedingAttention.toString(),
         icon: 'warning',
-        description: 'Active campaigns without promoters'
+        description: 'Live campaigns without active promoters'
       },
 
       // Financial Section
@@ -110,18 +111,18 @@ export class CampaignStatsComponent implements OnChanges {
         description: 'of total budget used'
       },
       {
-        label: 'Pending Payout',
-        value: this.formatCurrency(this.stats.pendingPayout),
-        icon: 'pending_actions',
-        description: 'Awaiting validation/payment'
+        label: 'Remaining Budget',
+        value: this.formatCurrency(this.stats.remainingBudget),
+        icon: 'account_balance_wallet',
+        description: `${this.formatNumber(this.stats.estimatedRemainingClicks)} estimated clicks left`
       },
 
       // Performance Section
       {
-        label: 'Total Views',
-        value: this.formatNumber(this.stats.totalViews),
-        icon: 'visibility',
-        description: 'Across all promotions'
+        label: 'Total Clicks',
+        value: this.formatNumber(this.stats.totalClicks),
+        icon: 'touch_app',
+        description: `${this.formatNumber(this.stats.billableClicks)} billable clicks`
       },
       {
         label: 'Unique Promoters',
@@ -130,30 +131,30 @@ export class CampaignStatsComponent implements OnChanges {
         description: 'Active promoters'
       },
       {
-        label: 'Total Promotions',
+        label: 'Promotion Links',
         value: this.stats.totalPromotions.toString(),
-        icon: 'assignment',
-        description: `${this.stats.successfulPromotions} successful`
+        icon: 'link',
+        description: `${this.stats.activePromotions} currently active`
       },
 
       // Engagement Section
       {
-        label: 'Success Rate',
-        value: this.stats.successRate + '%',
+        label: 'Click Quality',
+        value: this.stats.clickQualityRate + '%',
         icon: 'verified',
-        description: 'Promotions completed successfully'
+        description: `${this.formatNumber(this.stats.invalidClicks)} invalid or duplicate clicks`
       },
       {
-        label: 'Engagement Rate',
-        value: this.stats.engagementRate + '%',
+        label: 'Promoter Activation',
+        value: this.stats.promoterActivationRate + '%',
         icon: 'trending_up',
-        description: 'Views vs expected'
+        description: 'Live campaigns with promoter participation'
       },
       {
-        label: 'Avg Completion Time',
-        value: this.stats.avgCompletionTime + 'h',
-        icon: 'schedule',
-        description: 'From submission to payment'
+        label: 'Average CPC',
+        value: this.formatCurrency(this.stats.avgCostPerClick),
+        icon: 'payments',
+        description: `${this.stats.exhaustedCampaigns} campaigns exhausted`
       }
     ];
   }

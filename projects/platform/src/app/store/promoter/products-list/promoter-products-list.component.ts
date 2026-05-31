@@ -6,7 +6,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap } fro
 
 import { PromoterProductService } from '../../services/promoter-product.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DeviceService, UserInterface } from '@shared/services';
+import { ApiService, DeviceService, UserInterface } from '@shared/services';
 import { PromotionService } from '../services/promotion.service';
 
 // Child Components
@@ -33,6 +33,7 @@ import { UserService } from '../../../common/services/user.service';
 export class PromoterProductsListComponent implements OnInit, OnDestroy {
   private productService = inject(PromoterProductService);
   private promotionService = inject(PromotionService);
+  private apiService = inject(ApiService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private destroy$ = new Subject<void>();
@@ -212,7 +213,10 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     const promotion = await this.createPromotion(product);
     if (!promotion) return;
 
-    const message = this.promotionService.generateWhatsAppMessage(
+    // Best-effort "direct share" on the web:
+    // 1) On mobile browsers that support sharing files, share the product image + caption (includes link).
+    // 2) Fall back to WhatsApp click-to-chat with text-only.
+    const captionText = this.promotionService.buildWhatsAppMessage(
       product,
       promotion.trackingCode,
       product.promotion.commissionRate,
@@ -220,7 +224,95 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
       promotion.affiliateUrl
     );
 
-    window.open(`https://wa.me/?text=${message}`, '_blank');
+    const assetUrl = this.getProductMediaUrl(product);
+
+    try {
+      if (assetUrl && typeof navigator.share === 'function') {
+        const shareFile = await this.createShareFile(assetUrl, product, promotion.trackingCode);
+        const shareData: ShareData = {
+          title: product.name,
+          text: captionText,
+          files: [shareFile],
+        };
+
+        if (typeof navigator.canShare === 'function' && !this.canShareFiles(shareData)) {
+          throw new Error('native-file-share-unavailable');
+        }
+
+        await navigator.share(shareData);
+
+        this.snackBar.open(
+          'Share ready. Choose WhatsApp, then select My Status or a contact to post it.',
+          'Close',
+          { duration: 5000, panelClass: ['success-snackbar'] }
+        );
+        return;
+      }
+    } catch (error) {
+      if (this.isShareCanceled(error)) {
+        return;
+      }
+
+      console.warn('Native share with media failed, falling back to WhatsApp text-only:', error);
+      // fall through to text-only
+    }
+
+    const encodedMessage = encodeURIComponent(captionText);
+    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank', 'noopener');
+  }
+
+  shareToWhatsAppStatus(product: Product): void {
+    void this.shareGeneratedWhatsAppStatus(product);
+  }
+
+  private async shareGeneratedWhatsAppStatus(product: Product): Promise<void> {
+    const promotion = await this.createPromotion(product);
+    if (!promotion) return;
+
+    const assetUrl = this.getProductMediaUrl(product);
+    if (!assetUrl) {
+      this.snackBar.open('This product does not have a shareable image yet.', 'Close', { duration: 3500 });
+      return;
+    }
+
+    const caption = this.promotionService.buildWhatsAppStatusCaption(
+      product,
+      promotion.trackingCode,
+      product.price,
+      promotion.affiliateUrl
+    );
+
+    try {
+      const shareFile = await this.createShareFile(assetUrl, product, promotion.trackingCode);
+      const shareData: ShareData = {
+        title: product.name,
+        text: caption,
+        files: [shareFile]
+      };
+
+      if (typeof navigator.share !== 'function') {
+        throw new Error('native-share-unavailable');
+      }
+
+      if (typeof navigator.canShare === 'function' && !this.canShareFiles(shareData)) {
+        throw new Error('native-file-share-unavailable');
+      }
+
+      await navigator.share(shareData);
+
+      this.snackBar.open(
+        'Share ready. Choose WhatsApp, then select My Status or a contact to post it.',
+        'Close',
+        { duration: 5000, panelClass: ['success-snackbar'] }
+      );
+    } catch (error) {
+      if (this.isShareCanceled(error)) {
+        return;
+      }
+
+      console.warn('WhatsApp Status share fell back to manual flow:', error);
+      await this.handleStatusShareFallback(assetUrl, caption);
+    }
   }
 
   // Promotion methods moved from child component
@@ -291,6 +383,15 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
 
   async copyProductUrl(product: Product): Promise<void> {
     try {
+      // Prefer copying the backend-computed affiliate URL already attached to the product payload.
+      // This avoids broken links when the API base URL or routing differs across environments.
+      const directAffiliateUrl = (product as any)?.promotion?.affiliateUrl || (product as any)?.promotion?.promotionUrl;
+      if (directAffiliateUrl) {
+        await navigator.clipboard.writeText(directAffiliateUrl);
+        this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
+        return;
+      }
+
       const existingPromotion = this.activePromotions().get(product._id ?? '');
 
       if (!existingPromotion) {
@@ -322,6 +423,83 @@ export class PromoterProductsListComponent implements OnInit, OnDestroy {
     );
     
     window.open(`https://wa.me/?text=${message}`, '_blank');
+  }
+
+  private getProductMediaUrl(product: Product): string {
+    const primaryImage = product.images?.[0]?.url || '';
+
+    if (!primaryImage) {
+      return '';
+    }
+
+    if (/^https?:\/\//i.test(primaryImage)) {
+      return primaryImage;
+    }
+
+    if (primaryImage.startsWith('/')) {
+      return `${this.apiService.getBaseUrl().replace(/\/$/, '')}${primaryImage}`;
+    }
+
+    return primaryImage;
+  }
+
+  private async createShareFile(assetUrl: string, product: Product, trackingCode: string): Promise<File> {
+    const response = await fetch(assetUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch product media for sharing: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const mimeType = blob.type || 'image/jpeg';
+    const extension = this.getFileExtensionForMimeType(mimeType) || 'jpg';
+    const safeName = (product.name || 'marketspase-product')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'marketspase-product';
+
+    return new File([blob], `${safeName}-${trackingCode}.${extension}`, {
+      type: mimeType,
+      lastModified: Date.now()
+    });
+  }
+
+  private getFileExtensionForMimeType(mimeType: string): string {
+    const normalizedMimeType = mimeType.toLowerCase();
+
+    if (normalizedMimeType.includes('png')) return 'png';
+    if (normalizedMimeType.includes('gif')) return 'gif';
+    if (normalizedMimeType.includes('webp')) return 'webp';
+    if (normalizedMimeType.includes('jpeg') || normalizedMimeType.includes('jpg')) return 'jpg';
+
+    return '';
+  }
+
+  private canShareFiles(shareData: ShareData): boolean {
+    try {
+      return navigator.canShare(shareData);
+    } catch {
+      return false;
+    }
+  }
+
+  private isShareCanceled(error: unknown): boolean {
+    return error instanceof DOMException && error.name === 'AbortError';
+  }
+
+  private async handleStatusShareFallback(assetUrl: string, caption: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(caption);
+    } catch (clipboardError) {
+      console.warn('Failed to copy product status caption automatically:', clipboardError);
+    }
+
+    window.open(assetUrl, '_blank', 'noopener');
+
+    this.snackBar.open(
+      'We copied your caption and opened the product image. Add it to WhatsApp Status and paste the caption.',
+      'Close',
+      { duration: 5500 }
+    );
   }
 
   getPerformanceColor(rate: number): string {

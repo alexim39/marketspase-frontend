@@ -33,8 +33,8 @@
               <mat-icon class="metric-icon">trending_up</mat-icon>
             </div>
             <div class="metric-info">
-              <span class="metric-value">{{ getValidatedPromotionCount() }}</span>
-              <span class="metric-label">Validated Promotions</span>
+              <span class="metric-value">{{ getActivePromotionCount() }}</span>
+              <span class="metric-label">Active Links</span>
             </div>
           </div>
 
@@ -44,17 +44,17 @@
             </div>
             <div class="metric-info">
               <span class="metric-value">{{ getRejectedPromotionCount() }}</span>
-              <span class="metric-label">Rejected Promotion</span>
+              <span class="metric-label">Rejected Links</span>
             </div>
           </div>
 
           <div class="metric-summary budget-remaining">
             <div class="metric-icon-wrapper">
-              <mat-icon class="metric-icon">account_balance_wallet</mat-icon>
+              <mat-icon class="metric-icon">paid</mat-icon>
             </div>
             <div class="metric-info">
-              <span class="metric-value">{{ user()?.wallets?.promoter?.reserved || 0 | currencyUtils:user()?.wallets?.promoter?.currency}}</span>
-              <span class="metric-label">Reserved Amount</span>
+              <span class="metric-value">{{ user()?.wallets?.promoter?.balance || 0 | currencyUtils:user()?.wallets?.promoter?.currency}}</span>
+              <span class="metric-label">Available Earnings</span>
             </div>
           </div>
         </div>
@@ -64,8 +64,8 @@
         <div class="empty-cart-icon">
           <mat-icon>campaign</mat-icon>
         </div>
-        <h4>No active promotion</h4>
-        <p>You have no active campaign yet</p>
+        <h4>No active promotion links</h4>
+        <p>You have not accepted any live campaign yet.</p>
         <a
           mat-flat-button
           color="primary"

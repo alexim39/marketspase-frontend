@@ -1,0 +1,392 @@
+<section class="ad-builder-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Promotions</span>
+      <h1>Ad Template Builder</h1>
+      <p>Generate a clean creative (image/video) and get platform-ready text blocks you can paste into each social app.</p>
+    </div>
+
+    <a mat-stroked-button routerLink="/dashboard/campaigns/promotions">
+      <mat-icon>arrow_back</mat-icon>
+      My Promotions
+    </a>
+  </header>
+
+  <div class="builder-layout" [class.mobile]="deviceType() === 'mobile'">
+    <mat-card class="builder-panel" appearance="outlined">
+      <mat-card-content>
+        <mat-stepper
+          [linear]="true"
+          class="builder-stepper"
+          [orientation]="deviceType() === 'mobile' ? 'vertical' : 'horizontal'"
+        >
+          <mat-step [completed]="canContinueSelectPromotion()">
+            <ng-template matStepLabel>Link</ng-template>
+
+            <div class="step-grid">
+              <mat-button-toggle-group
+                class="link-mode"
+                [value]="builderForm.controls.linkMode.value"
+                (change)="onLinkModeChanged($event.value)"
+                aria-label="Select link mode"
+              >
+                <mat-button-toggle value="select">Use my link</mat-button-toggle>
+                <mat-button-toggle value="paste">Paste link</mat-button-toggle>
+              </mat-button-toggle-group>
+
+              @if (builderForm.controls.linkMode.value === 'select') {
+                <mat-form-field appearance="outline" class="wide">
+                  <mat-label>Select promotion</mat-label>
+                  <mat-select
+                    [value]="builderForm.controls.promotionId.value"
+                    (selectionChange)="builderForm.controls.promotionId.setValue($event.value); onPromotionSelected($event.value)"
+                    [disabled]="isLoadingPromotions()"
+                  >
+                    @for (p of promotions(); track p._id) {
+                      <mat-option [value]="p._id">
+                        {{ p.campaign?.title || 'Promotion' }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                @if (isLoadingPromotions()) {
+                  <div class="inline-loading">
+                    <mat-spinner diameter="24"></mat-spinner>
+                    <span>Loading promotions...</span>
+                  </div>
+                } @else if (promotionsLoadError()) {
+                  <div class="inline-empty">
+                    <span>{{ promotionsLoadError() }}</span>
+                    <button mat-button type="button" (click)="loadPromotions()">Retry</button>
+                  </div>
+                } @else if (promotions().length === 0) {
+                  <div class="inline-empty">
+                    <span>No accepted promotions found.</span>
+                    <button mat-button type="button" routerLink="/dashboard/campaigns/promotions">View promotions</button>
+                  </div>
+                }
+              } @else {
+                <mat-form-field appearance="outline" class="wide">
+                  <mat-label>Paste promotion link</mat-label>
+                  <input matInput placeholder="https://..." [formControl]="builderForm.controls.customLink" />
+                </mat-form-field>
+              }
+
+              @if (promotionLink()) {
+                <div class="link-summary">
+                  <div class="link-summary-header">
+                    <div>
+                      <div class="link-summary-title">Tracked promotion link</div>
+                      <div class="link-summary-value mono">{{ promotionLink() }}</div>
+                    </div>
+                    <button mat-stroked-button type="button" (click)="copyLink()">
+                      <mat-icon>content_copy</mat-icon>
+                      Copy
+                    </button>
+                  </div>
+                  <div class="link-summary-note muted">
+                    This is the link that records your clicks for PPC. Use it exactly as-is when posting.
+                  </div>
+                </div>
+              }
+
+              <div class="inline-actions">
+                <button mat-flat-button color="primary" matStepperNext [disabled]="!canContinueSelectPromotion()">
+                  Continue
+                </button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step [completed]="canContinueTemplate()">
+            <ng-template matStepLabel>Platform</ng-template>
+
+            <div class="step-grid">
+              <div class="two-col">
+                <mat-form-field appearance="outline">
+                  <mat-label>Platform</mat-label>
+                  <mat-select [formControl]="builderForm.controls.platformId">
+                    @for (p of platforms; track p.id) {
+                      <mat-option [value]="p.id">
+                        <mat-icon class="option-icon">{{ p.icon }}</mat-icon>
+                        {{ p.label }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Category (optional)</mat-label>
+                  <mat-select [formControl]="builderForm.controls.industryId">
+                    @for (i of industries; track i.id) {
+                      <mat-option [value]="i.id">
+                        <mat-icon class="option-icon">{{ i.icon }}</mat-icon>
+                        {{ i.label }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="placement-panel">
+                <div class="placement-title">Where will you post?</div>
+                <div class="placement-subtitle">Pick a placement to set the right aspect ratio.</div>
+
+                <div class="placement-grid">
+                  @for (layout of availableLayouts(); track layout.id) {
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      class="placement-card"
+                      [class.selected]="builderForm.controls.layoutId.value === layout.id"
+                      (click)="builderForm.controls.layoutId.setValue(layout.id)"
+                    >
+                      <div class="placement-card-title">{{ layout.label }}</div>
+                      <div class="placement-card-meta">{{ layout.aspectLabel }} | {{ layout.usageHint }}</div>
+                    </button>
+                  }
+                </div>
+
+                <mat-form-field appearance="outline" class="wide">
+                  <mat-label>Accent color (optional)</mat-label>
+                  <input matInput [formControl]="builderForm.controls.accentColor" placeholder="#2563eb" />
+                </mat-form-field>
+              </div>
+
+              <div class="guidelines-panel">
+                <div class="guidelines-header">
+                  <mat-icon>info</mat-icon>
+                  <div>
+                    <div class="guidelines-title">{{ selectedPlatform()?.label || 'Platform' }} best practices</div>
+                    <div class="guidelines-meta">Headline max: {{ headlineMaxChars() }} | Caption max: {{ captionMaxChars() }}</div>
+                  </div>
+                </div>
+
+                @if (platformGuidelines().linkHint) {
+                  <div class="guidelines-hint">
+                    <mat-icon>link</mat-icon>
+                    <span>{{ platformGuidelines().linkHint }}</span>
+                  </div>
+                }
+
+                @if (platformGuidelines().tips?.length) {
+                  <ul class="guidelines-list">
+                    @for (tip of platformGuidelines().tips; track tip) {
+                      <li>{{ tip }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+                <button mat-flat-button color="primary" matStepperNext type="button" [disabled]="!canContinueTemplate()">
+                  Continue
+                </button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step [completed]="canContinueVisual()">
+            <ng-template matStepLabel>Visual</ng-template>
+
+            <div class="step-grid">
+              <div class="media-row">
+                <span class="muted">Source</span>
+                <mat-button-toggle-group
+                  [value]="builderForm.controls.mediaSource.value"
+                  (change)="onMediaSourceChanged($event.value)"
+                  aria-label="Select media source"
+                >
+                  <mat-button-toggle value="campaign">Campaign</mat-button-toggle>
+                  <mat-button-toggle value="upload">Upload</mat-button-toggle>
+                  <mat-button-toggle value="none">None</mat-button-toggle>
+                </mat-button-toggle-group>
+              </div>
+
+              @if (builderForm.controls.mediaSource.value === 'upload') {
+                <div class="upload-row">
+                  <button mat-stroked-button type="button" (click)="fileInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    Choose image
+                  </button>
+                  <span class="muted">{{ mediaLabel() }}</span>
+                  <input #fileInput type="file" accept="image/*" hidden (change)="onMediaFilePicked($any($event.target).files?.[0] || null)" />
+                </div>
+              } @else if (builderForm.controls.mediaSource.value === 'campaign') {
+                <div class="hint-row">
+                  <mat-icon>image</mat-icon>
+                  <span class="muted">{{ mediaLabel() }}</span>
+                </div>
+              } @else {
+                <div class="hint-row">
+                  <mat-icon>hide_image</mat-icon>
+                  <span class="muted">No media selected.</span>
+                </div>
+              }
+
+              @if (previewError()) {
+                <div class="notice error">
+                  <mat-icon>error_outline</mat-icon>
+                  <span>{{ previewError() }}</span>
+                </div>
+              }
+
+              <div class="export-actions">
+                <button mat-flat-button color="primary" type="button" (click)="exportJpeg()" [disabled]="previewBusy()">
+                  <mat-icon>download</mat-icon>
+                  Download JPEG
+                </button>
+                <button mat-stroked-button type="button" (click)="copyImage()" [disabled]="previewBusy()">
+                  <mat-icon>content_copy</mat-icon>
+                  Copy image
+                </button>
+                <button mat-stroked-button type="button" (click)="exportVideo()" [disabled]="previewBusy()">
+                  <mat-icon>movie</mat-icon>
+                  Export video
+                </button>
+              </div>
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+                <button mat-flat-button color="primary" matStepperNext type="button" [disabled]="!canContinueVisual()">
+                  Continue
+                </button>
+              </div>
+            </div>
+          </mat-step>
+
+          <mat-step [completed]="canContinueCopy()">
+            <ng-template matStepLabel>Copy</ng-template>
+
+            <div class="step-grid">
+              <div class="two-col">
+                <mat-form-field appearance="outline">
+                  <mat-label>Headline</mat-label>
+                  <input matInput [formControl]="builderForm.controls.headline" [maxlength]="headlineMaxChars()" />
+                  <mat-hint align="end">{{ headlineChars() }}/{{ headlineMaxChars() }}</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Caption</mat-label>
+                  <textarea matInput rows="5" [formControl]="builderForm.controls.caption" [maxlength]="captionMaxChars()"></textarea>
+                  <mat-hint align="end">{{ captionChars() }}/{{ captionMaxChars() }}</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <div class="copy-panel">
+                <div class="copy-row">
+                  <div class="copy-meta">
+                    <div class="copy-title">Promotion link</div>
+                    <div class="copy-value mono">{{ promotionLink() || 'Select or paste a link' }}</div>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="copyLink()" [disabled]="!promotionLink()">
+                    <mat-icon>content_copy</mat-icon>
+                    Copy
+                  </button>
+                </div>
+
+                <div class="copy-row">
+                  <div class="copy-meta">
+                    <div class="copy-title">Headline</div>
+                    <div class="copy-value pre">{{ builderForm.controls.headline.value || '' }}</div>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="copyHeadline()">
+                    <mat-icon>content_copy</mat-icon>
+                    Copy
+                  </button>
+                </div>
+
+                <div class="copy-row">
+                  <div class="copy-meta">
+                    <div class="copy-title">Caption</div>
+                    <div class="copy-value pre">{{ builderForm.controls.caption.value || '' }}</div>
+                  </div>
+                  <button mat-stroked-button type="button" (click)="copyCaption()">
+                    <mat-icon>content_copy</mat-icon>
+                    Copy
+                  </button>
+                </div>
+
+                <div class="copy-row">
+                  <div class="copy-meta">
+                    <div class="copy-title">Copy everything</div>
+                    <div class="copy-value pre">{{ copyPack() }}</div>
+                  </div>
+                  <button mat-flat-button color="primary" type="button" (click)="copyAllText()" [disabled]="!copyPack().trim()">
+                    <mat-icon>done</mat-icon>
+                    Copy all
+                  </button>
+                </div>
+              </div>
+
+              <div class="posting-panel">
+                <div class="posting-header">
+                  <mat-icon>task_alt</mat-icon>
+                  <div>
+                    <div class="posting-title">Posting checklist</div>
+                    <div class="posting-subtitle">Do this in your social app after exporting the creative.</div>
+                  </div>
+                </div>
+                <ul class="posting-list">
+                  @for (step of postingSteps(); track step) {
+                    <li>{{ step }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="inline-actions">
+                <button mat-stroked-button matStepperPrevious type="button">Back</button>
+              </div>
+            </div>
+          </mat-step>
+        </mat-stepper>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="preview-panel" appearance="outlined">
+      <mat-card-content>
+        <div class="preview-header">
+          <div>
+            <div class="preview-title">Preview</div>
+            <div class="preview-subtitle">
+              {{ selectedPlatform()?.label || 'Platform' }} - {{ selectedLayout()?.label || 'Layout' }}
+            </div>
+          </div>
+
+          @if (previewBusy()) {
+            <div class="preview-loading">
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Working...</span>
+            </div>
+          }
+        </div>
+
+        <div class="preview-shell" [style.aspectRatio]="previewAspectRatio()">
+          <canvas #previewCanvas></canvas>
+        </div>
+
+        <div class="text-preview">
+          <div class="text-preview-title">Platform text preview</div>
+          <div class="text-preview-body">
+            @if (selectedPlatform()?.id === 'instagram') {
+              <div class="text-preview-line"><strong>Headline:</strong> {{ (builderForm.controls.headline.value || '') }}</div>
+              <div class="text-preview-line"><strong>Caption preview:</strong> {{ captionPreviewText() }}</div>
+              <div class="text-preview-line"><strong>Link:</strong> {{ promotionLink() || '' }}</div>
+            } @else if (selectedPlatform()?.id === 'whatsapp') {
+              <div class="text-preview-line pre">{{ copyPack() }}</div>
+            } @else if (selectedPlatform()?.id === 'x') {
+              <div class="text-preview-line pre">{{ copyPack() }}</div>
+            } @else if (selectedPlatform()?.id === 'tiktok') {
+              <div class="text-preview-line"><strong>Caption:</strong> {{ (builderForm.controls.caption.value || '') }}</div>
+              <div class="text-preview-line"><strong>Link:</strong> {{ promotionLink() || '' }}</div>
+            } @else {
+              <div class="text-preview-line pre">{{ copyPack() }}</div>
+            }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

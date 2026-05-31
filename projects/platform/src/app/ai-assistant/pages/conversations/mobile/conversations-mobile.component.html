@@ -1,0 +1,267 @@
+<main class="conversations-mobile" [class.chat-open]="!!selectedConversation()">
+  @if (!selectedConversation()) {
+    <header class="mobile-hero">
+      <div>
+        <span>AI Sales Assistant</span>
+        <h1>Conversations</h1>
+        <p>Reply fast, take over escalated chats, and move hot leads toward payment.</p>
+      </div>
+      <button type="button" class="hero-action" (click)="loadConversations()" aria-label="Refresh conversations">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </header>
+
+    <section class="summary-rail" aria-label="Conversation summary">
+      <article>
+        <strong>{{ conversations().length }}</strong>
+        <span>Chats</span>
+      </article>
+      <article class="warning">
+        <strong>{{ escalatedCount() }}</strong>
+        <span>Need you</span>
+      </article>
+      <article>
+        <strong>{{ totalUnread() }}</strong>
+        <span>Unread</span>
+      </article>
+      <article>
+        <strong>{{ humanCount() }}</strong>
+        <span>Human</span>
+      </article>
+    </section>
+
+    <section class="search-panel">
+      <label>
+        <mat-icon>search</mat-icon>
+        <input
+          type="search"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search name, number, message"
+        />
+      </label>
+      <button type="button" (click)="openSheet('filters')" aria-label="Open conversation filters">
+        <mat-icon>tune</mat-icon>
+      </button>
+    </section>
+
+    <nav class="status-rail" aria-label="Conversation status filters">
+      <button type="button" [class.active]="!filterStatus()" (click)="setFilterStatus('')">All</button>
+      <button type="button" [class.active]="filterStatus() === 'active'" (click)="setFilterStatus('active')">Active</button>
+      <button type="button" [class.active]="filterStatus() === 'escalated'" (click)="setFilterStatus('escalated')">Escalated</button>
+      <button type="button" [class.active]="filterStatus() === 'resolved'" (click)="setFilterStatus('resolved')">Resolved</button>
+    </nav>
+
+    @if (loading()) {
+      <section class="loading-state" aria-live="polite">
+        <mat-spinner diameter="34"></mat-spinner>
+        <p>Loading chats...</p>
+      </section>
+    } @else if (conversations().length) {
+      <section class="conversation-list">
+        @for (conversation of conversations(); track conversation._id) {
+          <button
+            type="button"
+            class="conversation-card"
+            [class.escalated]="conversation.status === 'escalated'"
+            [class.hot]="conversation.leadTag === 'hot'"
+            (click)="selectConversation(conversation)"
+          >
+            <span class="avatar">{{ initials(conversation) }}</span>
+            <span class="conversation-copy">
+              <span class="topline">
+                <strong>{{ getName(conversation) }}</strong>
+                <small>{{ conversation.lastMessageAt | date:'shortTime' }}</small>
+              </span>
+              <span class="last-message">{{ conversation.lastMessageText || 'No message yet' }}</span>
+              <span class="badges">
+                <em>{{ chatStatusLabel(conversation) }}</em>
+                <em class="lead">{{ getLeadLabel(conversation.leadTag) }}</em>
+              </span>
+            </span>
+            @if (conversation.unreadCount) {
+              <b>{{ conversation.unreadCount }}</b>
+            }
+          </button>
+        }
+      </section>
+    } @else {
+      <section class="empty-state">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <h2>No conversations yet</h2>
+        <p>Customer messages will appear here after your WhatsApp number is connected.</p>
+      </section>
+    }
+  } @else {
+    @if (selectedConversation(); as activeConversation) {
+      <section class="chat-screen">
+        <header class="chat-topbar">
+          <button type="button" (click)="backToList()" aria-label="Back to conversations">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <span class="avatar small">{{ initials(activeConversation) }}</span>
+          <div class="chat-title">
+            <h1>{{ getName(activeConversation) }}</h1>
+            <p>{{ chatStatusLabel(activeConversation) }}</p>
+          </div>
+          <button type="button" (click)="openSheet('actions')" aria-label="Open chat actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </header>
+
+        @if (activeConversation.escalationReason) {
+          <section class="escalation-note">
+            <mat-icon>priority_high</mat-icon>
+            <span>{{ activeConversation.escalationReason }}</span>
+          </section>
+        }
+
+        <section class="chat-action-strip" aria-label="Chat quick actions">
+          @if (activeConversation.handledBy !== 'human') {
+            <button type="button" (click)="takeover()">
+              <mat-icon>support_agent</mat-icon>
+              Take over
+            </button>
+          }
+          <button type="button" (click)="quickAction('storefront')">
+            <mat-icon>storefront</mat-icon>
+            Store
+          </button>
+          <button type="button" (click)="quickAction('payment')">
+            <mat-icon>payments</mat-icon>
+            Payment
+          </button>
+          <button type="button" (click)="openSheet('leadTag')">
+            <mat-icon>sell</mat-icon>
+            {{ getLeadLabel(activeConversation.leadTag) }}
+          </button>
+        </section>
+
+        <section class="messages" #scrollContainer>
+          @if (messagesLoading()) {
+            <div class="messages-loading">
+              <mat-spinner diameter="34"></mat-spinner>
+            </div>
+          } @else {
+            @for (message of messages(); track message._id) {
+              <div class="message-row" [class.inbound]="message.direction === 'inbound'" [class.outbound]="message.direction === 'outbound'">
+                <article class="bubble" [class.ai]="message.source === 'ai' || message.source === 'faq'" [class.agent]="message.source === 'agent'">
+                  <p>{{ message.content }}</p>
+                  <span>{{ message.timestamp | date:'shortTime' }} · {{ messageSourceLabel(message) }}</span>
+                </article>
+              </div>
+            }
+          }
+        </section>
+
+        <footer class="composer">
+          <input
+            #messageInput
+            type="text"
+            placeholder="Type a reply..."
+            [ngModel]="newMessage()"
+            (ngModelChange)="newMessage.set($event)"
+            (keydown.enter)="sendMessage()"
+          />
+          <button type="button" [disabled]="!newMessage().trim() || sending()" (click)="sendMessage()" aria-label="Send message">
+            <mat-icon>send</mat-icon>
+          </button>
+        </footer>
+      </section>
+    }
+  }
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()"></div>
+
+  <section class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="activeSheet() + ' conversations panel'">
+    <div class="sheet-handle"></div>
+
+    @if (activeSheet() === 'filters') {
+      <header>
+        <h2>Filter chats</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close filters">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="filter-section">
+        <span>Status</span>
+        <div class="sheet-choice-grid">
+          <button type="button" [class.active]="!filterStatus()" (click)="setStatusAndClose('')">All</button>
+          <button type="button" [class.active]="filterStatus() === 'active'" (click)="setStatusAndClose('active')">Active</button>
+          <button type="button" [class.active]="filterStatus() === 'escalated'" (click)="setStatusAndClose('escalated')">Escalated</button>
+          <button type="button" [class.active]="filterStatus() === 'resolved'" (click)="setStatusAndClose('resolved')">Resolved</button>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <span>Lead tag</span>
+        <div class="sheet-choice-grid">
+          <button type="button" [class.active]="!filterLeadTag()" (click)="setLeadAndClose('')">All tags</button>
+          @for (tag of leadTags; track tag.value) {
+            <button type="button" [class.active]="filterLeadTag() === tag.value" (click)="setLeadAndClose(tag.value)">
+              <mat-icon>{{ tag.icon }}</mat-icon>
+              {{ tag.label }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (activeSheet() === 'actions' && selectedConversation(); as activeConversation) {
+      <header>
+        <h2>Chat actions</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close chat actions">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="action-list">
+        @if (activeConversation.handledBy !== 'human') {
+          <button type="button" (click)="takeover(); closeSheet()">
+            <mat-icon>support_agent</mat-icon>
+            Take over chat
+          </button>
+        }
+        @if (activeConversation.status !== 'resolved') {
+          <button type="button" (click)="resolve(); closeSheet()">
+            <mat-icon>check_circle</mat-icon>
+            Mark resolved
+          </button>
+        }
+        <button type="button" (click)="escalate(); closeSheet()">
+          <mat-icon>notification_important</mat-icon>
+          Escalate
+        </button>
+        <button type="button" (click)="quickAction('storefront'); closeSheet()">
+          <mat-icon>storefront</mat-icon>
+          Send storefront link
+        </button>
+        <button type="button" (click)="quickAction('payment'); closeSheet()">
+          <mat-icon>payments</mat-icon>
+          Send payment link
+        </button>
+      </div>
+    }
+
+    @if (activeSheet() === 'leadTag') {
+      <header>
+        <h2>Lead tag</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close lead tag panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="lead-tag-list">
+        @for (tag of leadTags; track tag.value) {
+          <button type="button" [class.active]="selectedConversation()?.leadTag === tag.value" (click)="tagLeadAndClose(tag.value)">
+            <mat-icon>{{ tag.icon }}</mat-icon>
+            <span>{{ tag.label }}</span>
+          </button>
+        }
+      </div>
+    }
+  </section>
+}

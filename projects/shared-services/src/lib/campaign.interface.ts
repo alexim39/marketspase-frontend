@@ -25,7 +25,6 @@ export interface ActivityLogItem {
 export enum CampaignStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
-  ENDED = 'ended',
   PAUSED = 'paused',
   COMPLETED = 'completed',
   EXHAUSTED = 'exhausted',
@@ -56,16 +55,17 @@ export interface CampaignInterface {
   title: string;
   status: CampaignStatus;
   budget: number;
-  payoutPerPromotion: number;
+  payoutPerPromotion?: number;
   costPerClick?: number;
-  maxPromoters: number;
-  currentPromoters: number;
+  maxPromoters?: number;
+  currentPromoters?: number;
   startDate: Date;
   endDate: Date; // It can be null or undefined
   createdAt: Date;
   mediaUrl?: string;
   mediaType?: string;
   category: string;
+  campaignGoal?: 'awareness' | 'leads';
   progress: number;
   remainingDays?: number | string | 'Expired' | 'Budget Exhausted' | 'Budget-based';
   campaignType: 'standard' | 'premium' | 'boost';
@@ -73,20 +73,36 @@ export interface CampaignInterface {
   priority: 'low' | 'medium' | 'high';
   updatedAt: string;
   spentBudget: number; 
+  reservedBudget?: number;
   totalClicks?: number;
   billableClicks?: number;
   invalidClicks?: number;
   duplicateClicks?: number;
   exhaustedAt?: Date | string;
   lastClickAt?: Date | string;
-  paidPromotions: number;
-  minViewsPerPromotion: number;
-  validatedPromotions: number;
-  totalPromotions: number;
+  paidPromotions?: number;
+  minViewsPerPromotion?: number;
+  validatedPromotions?: number;
+  totalPromotions?: number;
   promotions: PromotionInterface[];
   remainingBudget: number;
+  canAcceptPromoters?: boolean;
   thumbnailUrl?: string;
   ageTarget: string;
+  marketerLocationSummary?: string | null;
+  ownerAddressMatchLevel?: 'street' | 'city' | 'state' | 'country' | 'none';
+  promotionSummary?: {
+    totalPromotions: number;
+    activePromotions: number;
+    uniquePromoters: number;
+    clickStats: {
+      totalClicks: number;
+      billableClicks: number;
+      invalidClicks: number;
+      duplicateClicks: number;
+      earnedAmount?: number;
+    };
+  };
 
 
   //filledSlots: number;
@@ -98,9 +114,9 @@ export interface CampaignInterface {
   //isApproved: boolean;
   //targetAudience: any;
 
-  minViewsPerPromoter: number;
-  maxViewsPerPromoter: number;
-  payoutModel: string;
+  minViewsPerPromoter?: number;
+  maxViewsPerPromoter?: number;
+  payoutModel?: string;
 
 
 

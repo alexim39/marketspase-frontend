@@ -1,0 +1,239 @@
+<section class="thread-mobile" aria-labelledby="threadMobileTitle">
+  <header class="thread-appbar">
+    <button type="button" class="icon-button" (click)="handleBack()" aria-label="Back to discussions">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <p class="eyebrow">Discussion</p>
+      <h1 id="threadMobileTitle">Thread details</h1>
+    </div>
+    <button type="button" class="icon-button accent" (click)="focusCommentBox()" aria-label="Jump to comment box">
+      <mat-icon>chat</mat-icon>
+    </button>
+  </header>
+
+  @if (loadingStates) {
+    <div class="thread-loading" aria-live="polite">
+      @for (item of skeletonItems; track item) {
+        <article class="skeleton-card">
+          <span></span>
+          <strong></strong>
+          <p></p>
+        </article>
+      }
+    </div>
+  }
+
+  @if (error && !loadingStates) {
+    <section class="state-card error-state">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Unable to load thread</h2>
+      <p>{{ error }}</p>
+      <button type="button" (click)="loadThreadData()">Try again</button>
+    </section>
+  }
+
+  @if (thread && !loadingStates) {
+    <article class="thread-reader">
+      <div class="thread-kicker">
+        <span>{{ thread.category || 'discussion' }}</span>
+        <span>{{ timeAgo(thread.createdAt) }}</span>
+      </div>
+
+      <h2>{{ thread.title }}</h2>
+
+      <button type="button" class="author-card" (click)="viewProfile(thread.author._id)">
+        <img [src]="thread.author.avatar || 'img/avatar.png'" [alt]="thread.author.displayName || 'Author avatar'">
+        <span>
+          <strong>{{ thread.author.displayName | titlecase }}</strong>
+          <small>@{{ thread.author.username }}</small>
+        </span>
+        @if (thread.author.isVerified) {
+          <mat-icon>verified</mat-icon>
+        }
+      </button>
+
+      <section class="metric-rail" aria-label="Thread engagement">
+        <article>
+          <mat-icon>thumb_up</mat-icon>
+          <strong>{{ thread.likeCount || 0 }}</strong>
+          <span>Likes</span>
+        </article>
+        <article>
+          <mat-icon>comment</mat-icon>
+          <strong>{{ thread.commentCount || 0 }}</strong>
+          <span>Comments</span>
+        </article>
+        <article>
+          <mat-icon>visibility</mat-icon>
+          <strong>{{ thread.viewCount || 0 }}</strong>
+          <span>Views</span>
+        </article>
+        <article>
+          <mat-icon>{{ thread.isFollowing ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+          <strong>{{ thread.followerCount || 0 }}</strong>
+          <span>Followers</span>
+        </article>
+      </section>
+
+      @if (mediaItems.length) {
+        <section class="media-rail" aria-label="Thread media">
+          @for (media of mediaItems; track media.url) {
+            <div class="media-card">
+              @if (media.type === 'image') {
+                <img [src]="media.url" [alt]="media.originalName || thread.title" loading="lazy">
+              }
+              @if (media.type === 'video') {
+                <video controls preload="metadata">
+                  <source [src]="media.url" [type]="media.mimeType">
+                </video>
+              }
+              @if (media.type === 'audio') {
+                <audio controls preload="metadata">
+                  <source [src]="media.url" [type]="media.mimeType">
+                </audio>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      <div class="thread-content" [innerHTML]="thread.content | sanitizeHtml"></div>
+
+      @if (thread.poll) {
+        <section class="poll-card">
+          <div class="poll-header">
+            <div>
+              <p class="eyebrow">Community poll</p>
+              <h3>{{ thread.poll.question }}</h3>
+            </div>
+            <span>{{ thread.poll.totalVotes }} votes</span>
+          </div>
+
+          <div class="poll-options">
+            @for (option of thread.poll.options; track option.optionId) {
+              <button
+                type="button"
+                [class.selected]="isPollOptionSelected(option.optionId)"
+                [class.voted]="option.hasVoted"
+                [disabled]="thread.poll.isClosed"
+                [attr.aria-pressed]="isPollOptionSelected(option.optionId)"
+                (click)="togglePollOption(option.optionId)">
+                <span>{{ option.label }}</span>
+                <strong>{{ option.voteCount }}</strong>
+              </button>
+            }
+          </div>
+
+          @if (!thread.poll.isClosed) {
+            <button
+              type="button"
+              class="poll-submit"
+              (click)="submitPollVote()"
+              [disabled]="selectedPollOptions.size === 0 || !user()">
+              Submit vote
+            </button>
+          } @else {
+            <p class="poll-closed">Voting is closed for this poll.</p>
+          }
+        </section>
+      }
+
+      @if (visibleTags.length) {
+        <nav class="tag-rail" aria-label="Thread tags">
+          @for (tag of visibleTags; track tag) {
+            <span>{{ tag }}</span>
+          }
+        </nav>
+      }
+
+      <div class="action-row" aria-label="Thread actions">
+        <button
+          type="button"
+          [class.active]="thread.isLiked"
+          [attr.aria-pressed]="thread.isLiked"
+          [disabled]="!user()"
+          (click)="toggleLikeThread()">
+          <mat-icon>thumb_up</mat-icon>
+          {{ thread.isLiked ? 'Liked' : 'Like' }}
+        </button>
+        <button type="button" (click)="focusCommentBox()">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          Comment
+        </button>
+        <button type="button" [class.active]="thread.isFollowing" [disabled]="!user()" (click)="toggleFollowThread()">
+          <mat-icon>{{ thread.isFollowing ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+          {{ thread.isFollowing ? 'Following' : 'Follow' }}
+        </button>
+      </div>
+    </article>
+
+    <section class="comment-panel" aria-labelledby="mobileCommentsHeading">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Conversation</p>
+          <h2 id="mobileCommentsHeading">Comments</h2>
+        </div>
+        <span>{{ comments.length }}</span>
+      </div>
+
+      <form [formGroup]="commentForm" class="comment-form">
+        <label for="mobileCommentBox">Add your comment</label>
+        <textarea
+          id="mobileCommentBox"
+          formControlName="content"
+          rows="4"
+          maxlength="2000"
+          placeholder="Share a helpful answer, tip, or question"></textarea>
+        <div class="comment-form__footer">
+          <small>{{ remainingChars }} characters left</small>
+          <button
+            type="button"
+            (click)="addComment()"
+            [disabled]="commentForm.invalid || isSubmitting || !user()">
+            @if (!isSubmitting) {
+              <span>Post</span>
+            } @else {
+              <mat-spinner diameter="18" />
+            }
+          </button>
+        </div>
+      </form>
+
+      @if (hasComments) {
+        <div class="comments-list">
+          @for (comment of comments; track comment._id) {
+            <app-comment
+              [comment]="comment"
+              [threadId]="thread._id"
+              [isAuthor]="isCommentAuthor(comment)"
+              (likeComment)="toggleLikeComment($event)"
+              (commentDeleted)="onCommentDeleted($event)" />
+          }
+        </div>
+      } @else {
+        <div class="state-card empty-comments">
+          <mat-icon>forum</mat-icon>
+          <h3>No comments yet</h3>
+          <p>Be the first person to add a useful reply to this discussion.</p>
+        </div>
+      }
+    </section>
+  }
+</section>
+
+@if (thread && !loadingStates) {
+  <div class="sticky-actions">
+    <button type="button" [class.active]="thread.isLiked" [disabled]="!user()" (click)="toggleLikeThread()">
+      <mat-icon>thumb_up</mat-icon>
+      {{ thread.likeCount || 0 }}
+    </button>
+    <button type="button" class="primary" (click)="focusCommentBox()">
+      <mat-icon>reply</mat-icon>
+      Reply
+    </button>
+    <button type="button" [class.active]="thread.isFollowing" [disabled]="!user()" (click)="toggleFollowThread()">
+      <mat-icon>{{ thread.isFollowing ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+    </button>
+  </div>
+}

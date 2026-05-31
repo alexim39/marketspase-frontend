@@ -1,0 +1,289 @@
+<main class="mobile-store-products" aria-label="Store products">
+  <header class="mobile-topbar">
+    <button type="button" class="icon-button" routerLink="/dashboard/stores" aria-label="Back to stores">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="topbar-title">
+      <span>Store products</span>
+      <strong>{{ store()?.name || 'Browse products' }}</strong>
+    </div>
+    <button type="button" class="icon-button accent" (click)="visitStore()" aria-label="Visit store">
+      <mat-icon>storefront</mat-icon>
+    </button>
+  </header>
+
+  @if (store() && !loading()) {
+    <section class="store-hero">
+      <div class="store-logo">
+        @if (store()?.logo) {
+          <img [src]="store()?.logo" [alt]="store()?.name || 'Store logo'" />
+        } @else {
+          <mat-icon>store</mat-icon>
+        }
+      </div>
+      <div class="store-copy">
+        <div class="store-badges">
+          @if (store()?.isVerified) {
+            <span class="badge good"><mat-icon>verified</mat-icon>Verified</span>
+          }
+          <span class="badge" [class.premium]="store()?.verificationTier === 'premium'">
+            {{ store()?.verificationTier === 'premium' ? 'Premium store' : 'Basic store' }}
+          </span>
+        </div>
+        <h1>{{ store()?.name }}</h1>
+        @if (store()?.description) {
+          <p>{{ store()?.description }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="stat-rail" aria-label="Store product summary">
+      @for (stat of storeStats(); track trackStat($index, stat)) {
+        <article class="stat-card">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </article>
+      }
+    </section>
+  }
+
+  <section class="search-card" aria-label="Search and filters">
+    <label class="search-box">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="updateSearch($event)"
+        placeholder="Search products in this store"
+        aria-label="Search products in this store" />
+      @if (searchQuery()) {
+        <button type="button" (click)="updateSearch('')" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+
+    <div class="action-row">
+      <button type="button" (click)="openSheet('filters')">
+        <mat-icon>tune</mat-icon>
+        Filters
+        @if (activeFilterCount() > 0) {
+          <span>{{ activeFilterCount() }}</span>
+        }
+      </button>
+      <button type="button" (click)="openSheet('sort')">
+        <mat-icon>sort</mat-icon>
+        Sort
+      </button>
+      <button type="button" [class.active]="inStockOnly()" (click)="toggleStockOnly()">
+        <mat-icon>inventory</mat-icon>
+        In stock
+      </button>
+    </div>
+  </section>
+
+  @if (quickCategories().length > 0) {
+    <nav class="category-rail" aria-label="Product categories">
+      <button
+        type="button"
+        [class.active]="!selectedCategory()"
+        (click)="onCategoryChange(selectedCategory())">
+        All
+      </button>
+      @for (category of quickCategories(); track trackCategory($index, category)) {
+        <button
+          type="button"
+          [class.active]="selectedCategory() === category.name"
+          (click)="onCategoryChange(category.name)">
+          {{ category.name }}
+          <span>{{ category.count }}</span>
+        </button>
+      }
+    </nav>
+  }
+
+  <section class="results-bar">
+    <div>
+      <strong>{{ totalProducts() }}</strong>
+      <span>products</span>
+    </div>
+    <button type="button" (click)="loadProducts()" aria-label="Refresh products">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </section>
+
+  @if (loading()) {
+    <section class="product-feed" aria-live="polite">
+      @for (item of [1,2,3,4]; track item) {
+        <article class="product-skeleton">
+          <span></span>
+          <div>
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+        </article>
+      }
+    </section>
+  } @else if (error()) {
+    <section class="mobile-state error">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Unable to load products</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadProducts()">Try again</button>
+    </section>
+  } @else if (products().length === 0) {
+    <section class="mobile-state">
+      <mat-icon>inventory_2</mat-icon>
+      <h2>No products found</h2>
+      <p>This store has no matching products right now. Clear filters or check back later.</p>
+      <button type="button" (click)="clearMobileFilters()">Clear filters</button>
+    </section>
+  } @else {
+    <section class="product-feed" aria-label="Products">
+      @for (product of products(); track trackByProductId($index, product)) {
+        <article class="product-card">
+          <button type="button" class="product-image" (click)="viewProductDetails(product)" [attr.aria-label]="'View ' + product.name">
+            @if (primaryImage(product)) {
+              <img [src]="primaryImage(product)!" [alt]="product.name" loading="lazy" />
+            } @else {
+              <span class="image-placeholder"><mat-icon>image</mat-icon></span>
+            }
+
+            @if (getDiscountPercentage(product) > 0) {
+              <span class="discount-badge">-{{ getDiscountPercentage(product) }}%</span>
+            }
+            <span class="commission-badge">
+              <mat-icon>payments</mat-icon>
+              {{ commissionText(product) }}
+            </span>
+          </button>
+
+          <div class="product-body">
+            <div class="product-meta">
+              <span>{{ product.category || 'Product' }}</span>
+              <span class="stock-chip" [class.good]="stockTone(product) === 'good'" [class.warn]="stockTone(product) === 'warn'" [class.bad]="stockTone(product) === 'bad'">
+                {{ getStockStatus(product).label }}
+              </span>
+            </div>
+
+            <h2 (click)="viewProductDetails(product)">{{ product.name }}</h2>
+
+            <div class="price-row">
+              <strong>{{ product.price | currencyUtils:user?.wallets?.promoter?.currency }}</strong>
+              @if ((product.originalPrice || 0) > product.price) {
+                <span>{{ product.originalPrice | currencyUtils:user?.wallets?.promoter?.currency }}</span>
+              }
+            </div>
+
+            <div class="product-actions">
+              <button type="button" (click)="viewProductDetails(product)">
+                <mat-icon>visibility</mat-icon>
+                Details
+              </button>
+              <button type="button" (click)="copyProductUrl(product)">
+                <mat-icon>content_copy</mat-icon>
+                Copy
+              </button>
+              <button type="button" (click)="generateWhatsAppMessage(product)">
+                <mat-icon>chat</mat-icon>
+                WhatsApp
+              </button>
+              <button type="button" class="primary" (click)="buyProduct(product)">
+                <mat-icon>shopping_bag</mat-icon>
+                Buy
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+
+    <nav class="pager" aria-label="Product pagination">
+      <button type="button" [disabled]="currentPage() <= 1" (click)="loadPreviousPage()">
+        <mat-icon>chevron_left</mat-icon>
+        Previous
+      </button>
+      <span>Page {{ currentPage() }} of {{ totalPages() || 1 }}</span>
+      <button type="button" [disabled]="currentPage() >= totalPages()" (click)="loadNextPage()">
+        Next
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </nav>
+  }
+
+  @if (activeSheet() === 'filters') {
+    <div class="sheet-backdrop" role="presentation" (click)="closeSheet()"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Product filters">
+      <div class="sheet-handle"></div>
+      <header>
+        <div>
+          <span>Filters</span>
+          <strong>Refine store products</strong>
+        </div>
+        <button type="button" (click)="closeSheet()" aria-label="Close filters">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <label class="check-row">
+        <input type="checkbox" [checked]="inStockOnly()" (change)="inStockOnly.set(!inStockOnly())" />
+        <span>Show in-stock products only</span>
+      </label>
+
+      <div class="field-grid">
+        <label>
+          Min price
+          <input type="number" inputmode="decimal" [ngModel]="priceDraft().min" (ngModelChange)="priceDraft.set({ min: $event, max: priceDraft().max })" />
+        </label>
+        <label>
+          Max price
+          <input type="number" inputmode="decimal" [ngModel]="priceDraft().max" (ngModelChange)="priceDraft.set({ min: priceDraft().min, max: $event })" />
+        </label>
+        <label>
+          Min commission
+          <input type="number" inputmode="decimal" [ngModel]="commissionDraft().min" (ngModelChange)="commissionDraft.set({ min: $event, max: commissionDraft().max })" />
+        </label>
+        <label>
+          Max commission
+          <input type="number" inputmode="decimal" [ngModel]="commissionDraft().max" (ngModelChange)="commissionDraft.set({ min: commissionDraft().min, max: $event })" />
+        </label>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" (click)="clearMobileFilters()">Clear</button>
+        <button type="button" class="primary" (click)="applyAdvancedFilters()">Apply filters</button>
+      </div>
+    </section>
+  }
+
+  @if (activeSheet() === 'sort') {
+    <div class="sheet-backdrop" role="presentation" (click)="closeSheet()"></div>
+    <section class="bottom-sheet sort-sheet" role="dialog" aria-modal="true" aria-label="Sort products">
+      <div class="sheet-handle"></div>
+      <header>
+        <div>
+          <span>Sort products</span>
+          <strong>Choose product order</strong>
+        </div>
+        <button type="button" (click)="closeSheet()" aria-label="Close sort">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="sort-list">
+        @for (option of sortOptions; track option.value) {
+          <button type="button" [class.active]="selectedSort() === option.value" (click)="selectSort(option.value)">
+            <mat-icon>{{ option.icon }}</mat-icon>
+            <span>{{ option.label }}</span>
+            @if (selectedSort() === option.value) {
+              <mat-icon>check_circle</mat-icon>
+            }
+          </button>
+        }
+      </div>
+    </section>
+  }
+</main>

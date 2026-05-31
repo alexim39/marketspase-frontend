@@ -39,9 +39,10 @@
   width: 32px;
   height: 32px;
   
-  &.submitted {
-    color: #1976d2;
-  }
+  &.accepted { color: #10b981; }
+  &.inactive { color: #f59e0b; }
+  &.flagged { color: #f97316; }
+  &.clicks { color: #38bdf8; }
 }
 
 .stat-details {
@@ -204,28 +205,13 @@
 .status-chip {
   font-size: 12px;
   font-weight: 500;
+  color: white;
   
-  &.submitted {
-    background: #1976d2;
-    color: white;
-  }
-  &.validated {
-    background: #10b981;
-    color: white;
-  }
-  &.rejected {
-    background: #ef4444;
-    color: white;
-  }
-  &.paid {
-    background: #4caf50;
-    color: white;
-  }
-
-  &.pending {
-    background: #ff9800;
-    color: white;
-  }
+  &.accepted { background: #10b981; }
+  &.inactive { background: #f59e0b; }
+  &.flagged { background: #f97316; }
+  &.rejected { background: #ef4444; }
+  &.paid { background: #4caf50; }
 }
 
 .overdue-icon {

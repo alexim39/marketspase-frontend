@@ -18,19 +18,29 @@ export const SettingsRoutes: Routes = [
       },
       {
         path: 'system',
-        loadComponent: () => import('./system/system.component').then(c => c.SystemSettingComponent),
+        loadComponent: () => import('./system').then(c => c.SystemSettingIndexComponent),
         title: "System Setting - Configure the look and feel",
       },
       {
         path: 'account',
-        loadComponent: () => import('./account/account.component').then(c => c.AccountComponent),
+        loadComponent: () => import('./account').then(c => c.AccountIndexComponent),
         title: "Account Setting - Configure your profile settings",
       },
       {
         path: 'support',
-        loadComponent: () => import('./support/support.component').then(c => c.SupportComponent),
+        loadComponent: () => import('./support').then(c => c.SupportIndexComponent),
         title: "Support & Testimonial - Get support and testify about MarketSpase",
       },
+      {
+        path: 'ads',
+        children: [
+          {
+            path: 'preferences',
+            loadComponent: () => import('./ads/preference').then(c => c.AdsPreferenceIndexComponent),
+            title: "Ads Preferences - Configure your ad preferences",
+          }
+        ]
+      }
     ],
   },
 ];

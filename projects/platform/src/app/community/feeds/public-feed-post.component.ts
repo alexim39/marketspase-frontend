@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, computed, effect, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,13 +26,11 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
   template: `
     <div class="public-feed-page">
       <header class="page-header">
-        <button mat-button type="button" (click)="goHome()">
-          <mat-icon>arrow_back</mat-icon>
-          MarketSpase
+        <button mat-icon-button type="button" class="close-button" (click)="closeViewer()" aria-label="Close post viewer">
+          <mat-icon>close</mat-icon>
         </button>
-        <div class="header-actions">
-          <button mat-stroked-button type="button" routerLink="/">Explore platform</button>
-          <button mat-flat-button color="primary" type="button" routerLink="/dashboard">Open dashboard</button>
+        <div class="header-meta">
+          <span class="viewer-label">Post viewer</span>
         </div>
       </header>
 
@@ -59,6 +57,7 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
                 (save)="onSave($event)"
                 (comment)="onComment($event)"
                 (share)="onShare(currentPost)"
+                (chat)="onChat($event)"
                 (sharePlatform)="onShare(currentPost, $event)"
                 (hashtagClick)="openTag($event)">
               </app-feed-post-card>
@@ -71,27 +70,42 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
   styles: [`
     .public-feed-page {
       min-height: 100vh;
-      background: #f8fafc;
+      background: var(--background-color, #f8fafc);
+      color: var(--text-primary, #0f172a);
     }
 
     .page-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       gap: 16px;
       padding: 16px 24px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid color-mix(in srgb, var(--border-color, rgba(15, 23, 42, 0.08)), transparent 12%);
+      background: color-mix(in srgb, var(--surface-color, #ffffff), transparent 8%);
       backdrop-filter: blur(10px);
       position: sticky;
       top: 0;
       z-index: 5;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .close-button {
+      flex-shrink: 0;
+      border: 1px solid color-mix(in srgb, var(--border-color, rgba(15, 23, 42, 0.12)), transparent 8%);
+      background: color-mix(in srgb, var(--surface-color, #ffffff), var(--background-color, #f8fafc) 24%);
+      color: var(--text-primary, #0f172a);
+    }
+
+    .header-meta {
+      min-width: 0;
+    }
+
+    .viewer-label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary, #0f172a);
     }
 
     .page-content {
@@ -102,8 +116,8 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
 
     .state-card,
     .post-shell {
-      background: white;
-      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: var(--surface-color, white);
+      border: 1px solid color-mix(in srgb, var(--border-color, rgba(15, 23, 42, 0.08)), transparent 10%);
       border-radius: 20px;
       padding: 16px;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
@@ -122,8 +136,6 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
     @media (max-width: 720px) {
       .page-header {
         padding: 12px 16px;
-        align-items: flex-start;
-        flex-direction: column;
       }
 
       .page-content {
@@ -136,6 +148,7 @@ import { CommentDialogComponent } from './comment-dialog/comment-dialog.componen
 export class PublicFeedPostComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly feedService = inject(FeedService);
   private readonly userService = inject(UserService);
   private readonly snackBar = inject(MatSnackBar);
@@ -146,6 +159,7 @@ export class PublicFeedPostComponent {
   error = signal<string | null>(null);
   post = signal<FeedPost | null>(null);
   postId = computed(() => this.route.snapshot.paramMap.get('postId') || '');
+  returnTo = computed(() => this.route.snapshot.queryParamMap.get('returnTo') || '');
 
   constructor() {
     effect(() => {
@@ -214,11 +228,48 @@ export class PublicFeedPostComponent {
     }
   }
 
+  onChat(post: FeedPost): void {
+    if (!post.phone) {
+      this.snackBar.open('No WhatsApp contact is available for this post yet.', 'OK', { duration: 2200 });
+      return;
+    }
+
+    window.open(
+      `https://wa.me/${post.phone}?text=${encodeURIComponent('Hello, I found your post on MarketSpase and I would like to learn more.')}`,
+      '_blank',
+      'noopener'
+    );
+
+    this.feedService.trackChatClick(post._id, this.user()?._id ?? undefined).subscribe({
+      next: (payload) => {
+        this.post.update((current) => current ? { ...current, chatCount: payload.chatCount } : current);
+      },
+      error: () => null
+    });
+  }
+
   openTag(tag: string): void {
     this.router.navigate(['/dashboard/community/feeds'], { queryParams: { tag } });
   }
 
-  goHome(): void {
+  closeViewer(): void {
+    const returnTo = this.returnTo();
+
+    if (returnTo) {
+      this.router.navigateByUrl(returnTo);
+      return;
+    }
+
+    if (window.history.length > 1) {
+      this.location.back();
+      return;
+    }
+
+    if (this.user()?._id) {
+      this.router.navigate(['/dashboard/community/feeds']);
+      return;
+    }
+
     this.router.navigate(['/']);
   }
 }

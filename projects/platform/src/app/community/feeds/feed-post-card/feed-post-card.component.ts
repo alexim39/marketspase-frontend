@@ -39,6 +39,7 @@ export class FeedPostCardComponent {
   save = output<string>();
   comment = output<string>();
   share = output<FeedPost>();
+  chat = output<FeedPost>();
   sharePlatform = output<string>();
   hide = output<string>();
   report = output<string>();
@@ -107,6 +108,10 @@ export class FeedPostCardComponent {
     this.share.emit(this.post());
   }
 
+  onChat(): void {
+    this.chat.emit(this.post());
+  }
+
   onShareTo(platform: string): void {
     this.sharePlatform.emit(platform);
   }
@@ -151,17 +156,6 @@ export class FeedPostCardComponent {
 
   private isValidBadge(badge: string): badge is BadgeType {
     return ['top-promoter', 'verified', 'rising-star', 'expert', 'veteran'].includes(badge);
-  }
-
-  openWhatsApp(post: FeedPost): void {
-    const phone = post.phone;
-    if (!phone) {
-      this.snackBar.open('No contact number available', 'OK', { duration: 2000 });
-      return;
-    }
-
-    const url = `https://wa.me/${phone}?text=Hello%20I%20found%20your%20business%20on%20MarketSpase%20and%20I%27m%20interested%20in%20what%20you%20offer.%20Please%20share%20more%20details.`;
-    window.open(url, '_blank', 'noopener');
   }
 
   onDelete(post: FeedPost): void {

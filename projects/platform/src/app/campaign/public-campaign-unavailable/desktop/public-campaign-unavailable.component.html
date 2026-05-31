@@ -1,0 +1,47 @@
+<section class="campaign-unavailable-page">
+  <div class="campaign-unavailable-shell">
+    <div class="campaign-unavailable-copy">
+      <span class="eyebrow">
+        <mat-icon>campaign</mat-icon>
+        Promotion redirect
+      </span>
+
+      <h1>{{ headline() }}</h1>
+      <p class="lead">{{ body() }}</p>
+
+      <div class="campaign-summary" aria-label="Campaign summary">
+        <div class="summary-label">Campaign</div>
+        <div class="summary-value">{{ title() }}</div>
+      </div>
+
+      <div class="actions">
+        <a mat-flat-button color="primary" routerLink="/">
+          <mat-icon>travel_explore</mat-icon>
+          Explore MarketSpase
+        </a>
+        <a mat-stroked-button routerLink="/">
+          <mat-icon>home</mat-icon>
+          Visit homepage
+        </a>
+        @if (contactUrl()) {
+          <a mat-stroked-button [href]="contactUrl()" target="_blank" rel="noopener noreferrer">
+            <mat-icon>support_agent</mat-icon>
+            Contact seller
+          </a>
+        }
+      </div>
+    </div>
+
+    <div class="campaign-unavailable-panel">
+      <div class="panel-icon">
+        <mat-icon>link_off</mat-icon>
+      </div>
+      <h2>What happened?</h2>
+      <ul>
+        <li>MarketSpase has stopped billing this promotion link.</li>
+        <li>Old shared links now come here instead of a broken endpoint.</li>
+        <li>You can continue browsing other active campaigns and storefronts.</li>
+      </ul>
+    </div>
+  </div>
+</section>

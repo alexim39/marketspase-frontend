@@ -1,0 +1,378 @@
+<section class="collaboration-page">
+  <header class="hero-card">
+    <div class="hero-copy">
+      <span class="hero-kicker">Messaging & Collaboration</span>
+      <h1>Campaign workbench conversations</h1>
+      <p>Keep marketers and promoters aligned inside the same campaign flow, without pushing people into scattered DMs or making anyone hunt for the right room.</p>
+    </div>
+
+    <div class="hero-actions">
+      <button mat-flat-button color="primary" type="button" (click)="openPrimaryStarter()">
+        <mat-icon>forum</mat-icon>
+        {{ primaryStarterLabel() }}
+      </button>
+      <button mat-stroked-button type="button" (click)="openCampaignAnalytics()">
+        <mat-icon>insights</mat-icon>
+        View analytics
+      </button>
+      <button mat-stroked-button type="button" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <section class="workspace-metrics">
+    <article class="summary-card">
+      <span class="summary-label">Open conversations</span>
+      <strong>{{ workspaceStats().total }}</strong>
+      <p>Everything active across direct chats and rooms.</p>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">Unread</span>
+      <strong>{{ workspaceStats().unread }}</strong>
+      <p>Messages waiting for your attention.</p>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">Direct chats</span>
+      <strong>{{ workspaceStats().direct }}</strong>
+      <p>One-on-one threads for fast decisions.</p>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">Rooms</span>
+      <strong>{{ workspaceStats().rooms }}</strong>
+      <p>Campaign and promotion rooms with shared context.</p>
+    </article>
+  </section>
+
+  <section class="starter-grid">
+    <article class="starter-card starter-card--primary">
+      <div class="starter-head">
+        <div>
+          <span class="hero-kicker">Quick Start</span>
+          @if (isMarketer()) {
+            <h2>Open campaign rooms where promoter activity already exists</h2>
+            <p>Campaign rooms become available as soon as promoters start working your campaign.</p>
+          } @else if (isPromoter()) {
+            <h2>Jump back into the promotions you are actively pushing</h2>
+            <p>Open the promotion room or message the marketer directly without leaving your workflow.</p>
+          } @else {
+            <h2>Start from the work that already has context</h2>
+            <p>Recent campaigns, promotions, and collaborators show up here first.</p>
+          }
+        </div>
+      </div>
+
+      @if (loadingStarters()) {
+        <div class="starter-empty">
+          <mat-spinner diameter="28"></mat-spinner>
+          <p>Loading starter options...</p>
+        </div>
+      } @else if (isMarketer()) {
+        @if (starterCampaigns().length === 0) {
+          <div class="starter-empty">
+            <mat-icon>campaign</mat-icon>
+            <p>Your recent campaigns will appear here once you have live work to coordinate.</p>
+          </div>
+        } @else {
+          <div class="starter-list">
+            @for (campaign of starterCampaigns(); track trackStarterCampaign($index, campaign)) {
+              <article class="starter-row">
+                <div class="starter-copy">
+                  <strong>{{ campaign.title }}</strong>
+                  <span>{{ formatConversationType(campaign.status) }} · {{ getCampaignStarterNote(campaign) }}</span>
+                </div>
+
+                <div class="starter-actions">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    [disabled]="!canOpenCampaignRoom(campaign)"
+                    (click)="openCampaignRoom(campaign._id)">
+                    <mat-icon>groups</mat-icon>
+                    {{ canOpenCampaignRoom(campaign) ? 'Open room' : 'Waiting for promoter' }}
+                  </button>
+                  <button mat-stroked-button type="button" (click)="openCampaignDetails(campaign._id)">
+                    <mat-icon>visibility</mat-icon>
+                    View campaign
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      } @else if (isPromoter()) {
+        @if (starterPromotions().length === 0) {
+          <div class="starter-empty">
+            <mat-icon>bolt</mat-icon>
+            <p>Your active promotions will appear here once you accept a campaign.</p>
+          </div>
+        } @else {
+          <div class="starter-list">
+            @for (promotion of starterPromotions(); track trackStarterPromotion($index, promotion)) {
+              <article class="starter-row">
+                <div class="starter-copy">
+                  <strong>{{ promotion.campaign.title }}</strong>
+                  <span>Promotion {{ promotion.upi }} · {{ getPromotionStarterNote(promotion) }}</span>
+                </div>
+
+                <div class="starter-actions">
+                  <button mat-flat-button color="primary" type="button" (click)="openPromotionRoom(promotion._id)">
+                    <mat-icon>forum</mat-icon>
+                    Open room
+                  </button>
+                  @if (getPromotionOwnerId(promotion); as ownerId) {
+                    <button mat-stroked-button type="button" (click)="openDirectChat(ownerId, promotion.campaign._id, promotion._id)">
+                      <mat-icon>chat</mat-icon>
+                      Message marketer
+                    </button>
+                  } @else {
+                    <button mat-stroked-button type="button" (click)="openPromotionDetails(promotion._id)">
+                      <mat-icon>visibility</mat-icon>
+                      View promotion
+                    </button>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      } @else {
+        <div class="starter-empty">
+          <mat-icon>forum</mat-icon>
+          <p>Sign in as a marketer or promoter to load role-based collaboration starters.</p>
+        </div>
+      }
+    </article>
+
+    <article class="starter-card">
+      <div class="starter-head">
+        <div>
+          <span class="hero-kicker">Recent People</span>
+          <h2>Reopen direct chats fast</h2>
+          <p>Use these shortcuts when you need a quick one-on-one answer instead of a room update.</p>
+        </div>
+      </div>
+
+      @if (recentCollaborators().length === 0) {
+        <div class="starter-empty starter-empty--compact">
+          <mat-icon>person_search</mat-icon>
+          <p>Your recent collaborators will appear here after your first conversation.</p>
+        </div>
+      } @else {
+        <div class="collaborator-list">
+          @for (collaborator of recentCollaborators(); track trackCollaborator($index, collaborator)) {
+            <button
+              type="button"
+              class="collaborator-chip"
+              (click)="openDirectChat(collaborator._id, collaborator.campaignId, collaborator.promotionId)">
+              <span class="collaborator-avatar">
+                {{ collaborator.displayName.charAt(0) }}
+              </span>
+              <span class="collaborator-copy">
+                <strong>{{ collaborator.displayName }}</strong>
+                <small>{{ collaborator.role ? (collaborator.role | titlecase) : 'Collaboration user' }}</small>
+              </span>
+              <mat-icon>chat</mat-icon>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="guide-panel">
+        <div class="guide-row">
+          <mat-icon>groups</mat-icon>
+          <div>
+            <strong>Campaign room</strong>
+            <p>Use for shared planning across everyone linked to the campaign.</p>
+          </div>
+        </div>
+        <div class="guide-row">
+          <mat-icon>forum</mat-icon>
+          <div>
+            <strong>Promotion room</strong>
+            <p>Use when the discussion belongs to a specific accepted promotion.</p>
+          </div>
+        </div>
+        <div class="guide-row">
+          <mat-icon>chat</mat-icon>
+          <div>
+            <strong>Direct chat</strong>
+            <p>Use for quick one-on-one clarifications while keeping campaign or promotion context attached.</p>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="workspace-shell">
+    <aside class="thread-rail">
+      <div class="rail-head">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search rooms</mat-label>
+          <input
+            matInput
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)"
+            placeholder="Campaign, promoter, or latest message">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <div class="filter-row">
+          @for (kind of ['all', 'direct', 'campaign_room', 'promotion_room']; track kind) {
+            <button
+              type="button"
+              class="filter-chip"
+              [class.active]="kindFilter() === kind"
+              (click)="setKindFilter(kind)">
+              {{ formatConversationType(kind) }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (loadingConversations()) {
+        <div class="rail-empty">
+          <mat-spinner diameter="28"></mat-spinner>
+          <p>Loading conversations...</p>
+        </div>
+      } @else if (visibleConversations().length === 0) {
+        <div class="rail-empty">
+          <mat-icon>forum</mat-icon>
+          <p>No matching conversations yet.</p>
+        </div>
+      } @else {
+        <div class="thread-list">
+          @for (conversation of visibleConversations(); track trackConversation($index, conversation)) {
+            <button
+              type="button"
+              class="thread-row"
+              [class.active]="selectedConversation()?._id === conversation._id"
+              (click)="selectConversation(conversation)">
+              <div class="thread-row-top">
+                <strong>{{ formatConversationTitle(conversation) }}</strong>
+                @if (conversation.unreadCount > 0) {
+                  <span class="unread-pill">{{ conversation.unreadCount }}</span>
+                }
+              </div>
+
+              <div class="thread-row-meta">
+                <span>{{ formatConversationType(conversation.type) }}</span>
+                <span>{{ formatTime(conversation.lastMessageAt || conversation.updatedAt) }}</span>
+              </div>
+
+              <p>{{ conversation.lastMessagePreview || 'No messages yet. Start the conversation when you are ready.' }}</p>
+            </button>
+          }
+        </div>
+      }
+    </aside>
+
+    <main class="conversation-panel">
+      @if (selectedConversation(); as conversation) {
+        <header class="conversation-head">
+          <div>
+            <span class="context-chip">{{ contextLabel() }}</span>
+            <h2>{{ formatConversationTitle(conversation) }}</h2>
+            <p>
+              @if (conversation.campaign?.title) {
+                {{ conversation.campaign?.title }}
+              } @else if (conversation.promotion?.upi) {
+                Promotion {{ conversation.promotion?.upi }}
+              } @else {
+                {{ counterpartyLabel() }}
+              }
+            </p>
+          </div>
+
+          <div class="conversation-actions">
+            @if (conversation.campaign?._id) {
+              <button mat-button type="button" (click)="openCampaignAnalytics()">
+                <mat-icon>bar_chart</mat-icon>
+                Analytics
+              </button>
+            }
+          </div>
+        </header>
+
+        @if (loadingMessages()) {
+          <div class="conversation-empty">
+            <mat-spinner diameter="32"></mat-spinner>
+            <p>Loading messages...</p>
+          </div>
+        } @else if (messages().length === 0) {
+          <div class="conversation-empty">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <p>No messages here yet. Start the thread with a quick update or question.</p>
+          </div>
+        } @else {
+          <div class="message-stream">
+            @for (message of messages(); track trackMessage($index, message)) {
+              <div
+                class="message-row"
+                [class.mine]="isOwnMessage(message)"
+                [class.system]="isSystemMessage(message)">
+                @if (!isOwnMessage(message) && !isSystemMessage(message)) {
+                  <div class="message-avatar" aria-hidden="true">
+                    @if (message.sender.avatar) {
+                      <img [src]="message.sender.avatar" [alt]="getMessageSenderName(message)">
+                    } @else {
+                      <span>{{ getMessageSenderInitial(message) }}</span>
+                    }
+                  </div>
+                }
+
+                <article class="message-card">
+                  <div class="message-meta">
+                    <div class="message-author">
+                      <strong>{{ getMessageSenderName(message) }}</strong>
+                      @if (message.sender.role && !isSystemMessage(message)) {
+                        <span class="sender-role">{{ message.sender.role | titlecase }}</span>
+                      }
+                    </div>
+                    <span>{{ formatTime(message.createdAt) }}</span>
+                  </div>
+                  <p>{{ message.content }}</p>
+                </article>
+              </div>
+            }
+          </div>
+        }
+
+        <footer class="composer">
+          <mat-form-field appearance="outline" class="composer-field">
+            <mat-label>Write a message</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              [ngModel]="draftMessage()"
+              (ngModelChange)="draftMessage.set($event)"
+              placeholder="Share context, next steps, or a quick question."></textarea>
+          </mat-form-field>
+
+          <div class="composer-actions">
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              [disabled]="sendingMessage() || !draftMessage().trim()"
+              (click)="sendMessage()">
+              <mat-icon>send</mat-icon>
+              {{ sendingMessage() ? 'Sending...' : 'Send message' }}
+            </button>
+          </div>
+        </footer>
+      } @else {
+        <div class="conversation-empty conversation-empty--full">
+          <mat-icon>forum</mat-icon>
+          <h2>No conversation selected</h2>
+          <p>Choose a room on the left to continue a live campaign discussion or start a new one from a linked workflow.</p>
+        </div>
+      }
+    </main>
+  </section>
+</section>

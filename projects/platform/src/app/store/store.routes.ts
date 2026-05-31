@@ -12,67 +12,85 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'products',
-        loadComponent: () => import('./promoter/products-list/promoter-products-list.component').then(c => c.PromoterProductsListComponent),
+        loadComponent: () => import('./promoter/products-list').then(c => c.PromoterProductsListIndexComponent),
         title: "Promoted products - View and Manage Product you are promoting",
     },
 
     {
         path: 'orders',
-        loadComponent: () => import('./orders/storefront-orders.component').then(c => c.StorefrontOrdersComponent),
+        loadComponent: () => import('./orders').then(c => c.StorefrontOrdersIndexComponent),
         title: "Storefront Orders - Delivery and Release Review",
     },
 
     {
+        path: 'support',
+        loadComponent: () => import('./marketer/customer-support').then(c => c.CustomerSupportIndexComponent),
+        title: "Customer Support - Buyer CRM",
+    },
+
+    {
+        path: 'subscribers',
+        loadComponent: () => import('./marketer/subscribers').then(c => c.StoreEmailSubscribersIndexComponent),
+        title: "Email Subscribers - Storefront Newsletter List",
+    },
+
+    {
+        path: 'promoted-products-analytics',
+        loadComponent: () => import('./marketer/promoted-products-analytics').then(c => c.MarketerPromotedProductsAnalyticsIndexComponent),
+        title: "Promoted Products Analytics - Track promoter activity and storefront sales",
+    },
+
+    {
         path: 'create',
-        loadComponent: () => import('./marketer/store-create/store-create.component').then(c => c.StoreCreateComponent),
+        loadComponent: () => import('./marketer/store-create').then(c => c.StoreCreateIndexComponent),
         title: "Create New Store - Setup your Marketer Store",
     }, 
    
     { 
         path: 'edit/:id', 
-        loadComponent: () => import('./marketer/edit-store/store-edit.component').then(c => c.StoreEditComponent),
+        loadComponent: () => import('./marketer/edit-store').then(c => c.StoreEditIndexComponent),
         title: "Edit Store - Update Store Information",
-    },
+    }, 
 
     {
         path: 'product/:productId',
-        loadComponent: () => import('./promoter/product-detail/promoter-product-details.component').then(c => c.PromoterProductDetailsComponent),
+        loadComponent: () => import('./promoter/product-detail').then(c => c.PromoterProductDetailIndexComponent),
         title: "Product Details - View Product Information",
     }, 
 
     {
         path: ':storeId/products/create',
-        loadComponent: () => import('./marketer/products/add-products/add-product.component').then(c => c.AddProductComponent),
+        loadComponent: () => import('./marketer/products/add-products').then(c => c.AddProductIndexComponent),
         title: "Add New Product - Create Product for Store",
     },
 
     {
         path: ':storeId/products/edit/:productId',
-        loadComponent: () => import('./marketer/products/edit-product/edit-product.component').then(m => m.EditProductComponent),
+        loadComponent: () => import('./marketer/products/edit-product').then(m => m.EditProductIndexComponent),
         title: "Update Store Product - Edit Product Information",
     },
 
     {
         path: ':storeId/products',
-        loadComponent: () => import('./marketer/products/product-list/marketer-product-list-index.component').then(c => c.MarketerProductListComponent),
+        loadComponent: () => import('./marketer/products/product-list').then(c => c.MarketerProductListIndexComponent),
         title: "Product List - View and Manage Store Products",
     },
 
     {
         path: ':storeId/products/:productId',
-        loadComponent: () => import('./marketer/products/product-detail/marketer-product-detail.component').then(c => c.MarketerProductDetailComponent),
+        loadComponent: () => import('./marketer/products/product-detail').then(c => c.MarketerProductDetailIndexComponent),
         title: "Product Details - View and Manage Product Information",
     },
 
      {
         path: 'store/:storeId/products',
-        loadComponent: () => import('./promoter/store-products-list/store-products-list.component').then(c => c.StoreProductsListComponent),
+        loadComponent: () => import('./promoter/store-products-list').then(c => c.StoreProductsListIndexComponent),
         title: "Store Products - Browse Published Products",
     },
     
     {
         path: 'promotions',
-        loadComponent: () => import('./promoter/promoted-products/promoted-products.component').then(c => c.PromotedProductsComponent),
+        loadComponent: () => import('./promoter/promoted-products').then(c => c.PromotionsIndexComponent),
         title: "Promoted Products - Affiliate Analytics",
     },
     

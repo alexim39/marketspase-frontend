@@ -53,8 +53,10 @@ $black-hex: #000000;
   --primary-color: #{$primary-color-hex};
   --primary-dark: #{$primary-dark-hex};
   --primary-light: #{$primary-light-hex};
-  
+
   --secondary-color: #{$secondary-color-hex};
+  --on-primary-color: #{$white-hex};
+  --on-error-color: #{$white-hex};
 
   --gradient-primary: linear-gradient(135deg, #{$primary-color-hex} 0%, #{$secondary-color-hex} 100%);
 }
@@ -76,6 +78,8 @@ $black-hex: #000000;
   --primary-light: #{$gray-200-hex}; // Make light primary very light or gray
 
   --secondary-color: #{$secondary-light-hex};
+  --on-primary-color: #{$white-hex};
+  --on-error-color: #{$white-hex};
 
   --gradient-primary: linear-gradient(135deg, #{$primary-light-hex} 0%, #{$secondary-light-hex} 100%);
 }
@@ -91,6 +95,8 @@ $primary-dark: var(--primary-dark);
 $primary-light: var(--primary-light); // Restored this variable
 
 $secondary-color: var(--secondary-color);
+$on-primary-color: var(--on-primary-color);
+$on-error-color: var(--on-error-color);
 $text-primary: var(--text-primary);
 $text-secondary: var(--text-secondary);
 $text-tertiary: var(--text-tertiary);

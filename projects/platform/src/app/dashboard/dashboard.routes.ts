@@ -1,7 +1,7 @@
 import { Routes } from "@angular/router";
 import { AuthGuard } from "./guard.service";
 import { DashboardIndexComponent } from "./index";
-import { DashboardMainContainer } from "./main-content/main-content.component";
+import { DashboardMainIndexComponent } from "./main-content";
 
 export const dashboardRoutes: Routes = [
     {
@@ -14,7 +14,7 @@ export const dashboardRoutes: Routes = [
         children: [
             {
                 path: '',
-               component: DashboardMainContainer,
+               component: DashboardMainIndexComponent,
             },                    
             { path: 'campaigns', loadChildren: () => import('../campaign/campaign.routes').then(r => r.CampaignRoutes) },           
             { path: 'stores', loadChildren: () => import('../store/store.routes').then(r => r.StoreRoutes) },           
@@ -25,13 +25,25 @@ export const dashboardRoutes: Routes = [
             { path: 'profile', loadChildren: () => import('../profile/profile-routes').then(r => r.ProfileRoutes) },    
             { path: 'tutorials', loadChildren: () => import('../tutorials/tutorials.routes').then(r => r.TutorialRoutes) },       
             { path: 'assistant', loadChildren: () => import('../ai-assistant/ai-assistant.routes').then(r => r.AssistantRoutes) },      
+            { path: 'ads', loadChildren: () => import('../admin/admin.routes').then(r => r.AdminRoutes) },
             {
                 path: 'leaderboard',
-                loadComponent: () => import('./leaderboard/leaderboard.component').then(c => c.LeaderboardComponent),
+                loadComponent: () => import('./leaderboard').then(c => c.LeaderboardIndexComponent),
             },
             {
                 path: 'gamification',
-                loadComponent: () => import('./gamification/gamification.component').then(c => c.GamificationComponent),
+                loadComponent: () => import('./gamification').then(c => c.GamificationIndexComponent),
+            },
+            {
+                path: 'search',
+                loadComponent: () => import('./search').then(c => c.GlobalSearchIndexComponent),
+            },
+            {
+                path: 'notifications',
+                loadComponent: () =>
+                    import('./notification/notification-center/index.component').then(
+                        c => c.NotificationCenterIndexComponent
+                    ),
             },
             // { path: 'settings', loadChildren: () => import('./settings/settings-routes').then(r => r.SettingsRoutes) },            
             // { path: 'support', loadChildren: () => import('./support/support-routes').then(r => r.SupportRoutes) },            

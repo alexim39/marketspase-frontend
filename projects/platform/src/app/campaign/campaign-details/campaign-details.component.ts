@@ -21,11 +21,20 @@ import { CampaignDetailsService } from './campaign-details.service';
 import { MediaViewerOnlyDialogComponent } from './media-viewer-dialog/media-viewer-dialog.component';
 import { UserService } from '../../common/services/user.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  getCampaignBillableClicks,
+  getCampaignBudgetProgress,
+  getCampaignCostPerClick,
+  getCampaignInvalidClicks,
+  getCampaignRemainingBudget,
+  getCampaignTotalClicks,
+  getCampaignUniquePromoterCount,
+} from '../../common/utils/campaign-performance.util';
+import { CampaignTopUpDialogComponent } from '../shared/campaign-top-up-dialog.component';
 
 export enum CampaignStatus {
   PENDING = 'pending',
   ACTIVE = 'active',
-  ENDED = 'ended',
   PAUSED = 'paused',
   COMPLETED = 'completed',
   EXHAUSTED = 'exhausted',
@@ -106,6 +115,76 @@ export class CampaignDetailsComponent implements OnInit {
     return promotions;
   });
 
+  readonly totalClicks = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignTotalClicks(campaign) : 0;
+  });
+
+  readonly billableClicks = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignBillableClicks(campaign) : 0;
+  });
+
+  readonly invalidClicks = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignInvalidClicks(campaign) : 0;
+  });
+
+  readonly remainingBudget = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignRemainingBudget(campaign) : 0;
+  });
+
+  readonly budgetProgress = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignBudgetProgress(campaign) : 0;
+  });
+
+  readonly campaignCostPerClick = computed(() => {
+    const campaign = this.campaign();
+    return campaign ? getCampaignCostPerClick(campaign) : 0;
+  });
+
+  readonly activePromotionCount = computed(() => {
+    const campaign = this.campaign();
+    if (!campaign) return 0;
+
+    if (Number.isFinite(Number(campaign.promotionSummary?.activePromotions))) {
+      return Number(campaign.promotionSummary?.activePromotions ?? 0);
+    }
+
+    return (campaign.promotions || []).filter((promotion) =>
+      String(promotion.status) === 'accepted' && promotion.isActive !== false
+    ).length;
+  });
+
+  readonly engagedPromoters = computed(() => {
+    const campaign = this.campaign();
+    if (!campaign) return 0;
+
+    if (Number.isFinite(Number(campaign.promotionSummary?.uniquePromoters))) {
+      return Number(campaign.promotionSummary?.uniquePromoters ?? 0);
+    }
+
+    return getCampaignUniquePromoterCount(campaign.promotions || []);
+  });
+
+  readonly clickQualityRate = computed(() => {
+    const totalClicks = this.totalClicks();
+    if (!totalClicks) return 0;
+    return Math.min((this.billableClicks() / totalClicks) * 100, 100);
+  });
+
+  readonly averageCostPerBillableClick = computed(() => {
+    const billableClicks = this.billableClicks();
+    const spentBudget = Number(this.campaign()?.spentBudget ?? 0);
+    if (!billableClicks || !spentBudget) {
+      return this.campaignCostPerClick();
+    }
+
+    return spentBudget / billableClicks;
+  });
+
   ngOnInit() {
     this.loadCampaign();
     
@@ -155,6 +234,44 @@ export class CampaignDetailsComponent implements OnInit {
     if (campaign) {
       this.router.navigate(['/dashboard/campaigns/edit', campaign._id]);
     }
+  }
+
+  canOpenCollaborationRoom(): boolean {
+    return this.engagedPromoters() > 0;
+  }
+
+  openCollaborationRoom(): void {
+    const campaign = this.campaign();
+    if (!campaign) {
+      return;
+    }
+
+    if (!this.canOpenCollaborationRoom()) {
+      this.snackBar.open('This room becomes available after a promoter accepts the campaign.', 'Close', { duration: 3200 });
+      return;
+    }
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: { campaignId: campaign._id }
+    });
+  }
+
+  messagePromoter(promotion: PromotionInterface): void {
+    const campaign = this.campaign();
+    const promoterId = promotion.promoter?._id;
+
+    if (!promoterId) {
+      this.snackBar.open('We could not find this promoter profile for chat yet.', 'Close', { duration: 3200 });
+      return;
+    }
+
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: {
+        targetUserId: promoterId,
+        campaignId: campaign?._id || null,
+        promotionId: promotion._id,
+      }
+    });
   }
 
   targetAudienceByLocation() {
@@ -218,17 +335,11 @@ export class CampaignDetailsComponent implements OnInit {
     return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
   }
 
-  getTotalViews(promotions: PromotionInterface[] | undefined): number {
-    if (!promotions) return 0;
-    return promotions.reduce((total, promotion) => total + (promotion.proofViews || 0), 0);
-  }
-
-  formatCurrency(amount: number | undefined): string {
+  formatCurrency(amount: number | undefined, currency?: string): string {
     if (amount === undefined || amount === null) return 'N/A';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      //currency: 'USD'
-      currency: 'NGN'
+      currency: currency || this.campaign()?.currency || 'NGN'
     }).format(amount);
   }
 
@@ -247,16 +358,61 @@ export class CampaignDetailsComponent implements OnInit {
     const dialogRef = this.dialog.open(PromotionDetailsDialogComponent, {
       width: '600px',
       maxWidth: '90vw',
-      data: { promotion }
-    });
-    
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'validated') {
-        //this.validatePromotion(promotion);
-      } else if (result === 'rejected') {
-        //this.rejectPromotion(promotion);
+      data: {
+        promotion,
+        campaignCurrency: this.campaign()?.currency || 'NGN',
       }
     });
+
+    dialogRef.afterClosed().subscribe();
+  }
+
+  getPromotionTrackedClicks(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.totalClicks ?? 0);
+  }
+
+  getPromotionBillableClicks(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.billableClicks ?? 0);
+  }
+
+  getPromotionInvalidClicks(promotion: PromotionInterface): number {
+    const invalidClicks = Number(promotion.clickStats?.invalidClicks ?? 0);
+    const duplicateClicks = Number(promotion.clickStats?.duplicateClicks ?? 0);
+    return invalidClicks + duplicateClicks;
+  }
+
+  getPromotionSpend(promotion: PromotionInterface): number {
+    const trackedSpend = Number(promotion.clickStats?.earnedAmount ?? 0);
+    if (trackedSpend > 0) {
+      return trackedSpend;
+    }
+
+    return Number(promotion.payoutAmount ?? 0);
+  }
+
+  getPromotionLastActivity(promotion: PromotionInterface): Date | string | undefined {
+    return (
+      promotion.clickStats?.lastClickAt ||
+      promotion.paidAt ||
+      promotion.downloadedAt ||
+      promotion.acceptedAt ||
+      promotion.updatedAt ||
+      promotion.createdAt
+    );
+  }
+
+  getPayoutModelLabel(campaign: CampaignInterface | null): string {
+    const payoutModel = String(campaign?.payoutModel || '').trim().toLowerCase();
+
+    if (payoutModel === 'pay_per_click') {
+      return 'Pay per click';
+    }
+
+    if (payoutModel === 'fixed_per_promoter') {
+      return 'Fixed per promoter';
+    }
+
+    return payoutModel ? payoutModel.replace(/_/g, ' ') : 'Pay per click';
   }
 
  /*  validatePromotion(promotion: PromotionInterface) {
@@ -377,6 +533,45 @@ export class CampaignDetailsComponent implements OnInit {
           this.snackBar.open(error.error.message, 'Close', { duration: 3000 });
         }
       })
+  }
+
+  openTopUpDialog(campaign: CampaignInterface): void {
+    const dialogRef = this.dialog.open(CampaignTopUpDialogComponent, {
+      width: '460px',
+      maxWidth: '95vw',
+      data: {
+        title: campaign.title,
+        currency: campaign.currency || 'NGN',
+        remainingBudget: this.remainingBudget(),
+        recommendedAmount: Math.max(Number(campaign.costPerClick ?? 0) * 25, 1000),
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        const amount = Number(result?.amount ?? 0);
+        if (!amount) {
+          return;
+        }
+
+        this.campaignDetailsService.topUpCampaign(campaign._id, amount, this.user()?._id || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.snackBar.open(response.message, 'Close', { duration: 3200 });
+                this.loadCampaign();
+              } else {
+                this.snackBar.open(response.message || 'Unable to top up campaign', 'Close', { duration: 3200 });
+              }
+            },
+            error: (error) => {
+              console.error('Error topping up campaign:', error);
+              this.snackBar.open(error.error?.message || 'Unable to top up campaign', 'Close', { duration: 3200 });
+            },
+          });
+      });
   }
   
 }

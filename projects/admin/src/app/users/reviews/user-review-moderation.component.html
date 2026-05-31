@@ -1,0 +1,211 @@
+<section class="review-moderation-page">
+  <header class="hero">
+    <div>
+      <h2>Collaboration Reviews</h2>
+      <p>Moderate marketer and promoter feedback, flag abuse early, and keep the public reputation layer trustworthy.</p>
+    </div>
+
+    <div class="hero-actions">
+      <button mat-stroked-button type="button" (click)="clearFilters()">
+        <mat-icon>restart_alt</mat-icon>
+        Reset filters
+      </button>
+      <button mat-flat-button color="primary" type="button" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-card">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <span>Loading review moderation queue...</span>
+    </div>
+  }
+
+  <section class="stats-grid">
+    @for (card of statCards(); track card.label) {
+      <article class="stat-card" [class]="card.tone">
+        <div class="stat-icon">
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </div>
+        <div class="stat-copy">
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="filters-card" [formGroup]="filtersForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Search</mat-label>
+      <input matInput formControlName="search" placeholder="Reviewer, reviewee, title, or comment">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="all">All statuses</mat-option>
+        <mat-option value="published">Published</mat-option>
+        <mat-option value="flagged">Flagged</mat-option>
+        <mat-option value="hidden">Hidden</mat-option>
+        <mat-option value="removed">Removed</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <label class="toggle-field">
+      <span>Flagged only</span>
+      <mat-slide-toggle formControlName="flaggedOnly"></mat-slide-toggle>
+    </label>
+  </section>
+
+  <section class="layout">
+    <div class="queue-panel">
+      <div class="panel-header">
+        <div>
+          <h3>Review Queue</h3>
+          <p>{{ pagination().total }} total moderation records</p>
+        </div>
+        <div class="pagination-pill">{{ pagination().page }} / {{ pagination().totalPages }}</div>
+      </div>
+
+      @if (reviews().length === 0) {
+        <div class="empty-state">
+          <mat-icon>reviews</mat-icon>
+          <p>No collaboration reviews match the current filters.</p>
+        </div>
+      } @else {
+        <div class="review-list">
+          @for (review of reviews(); track trackByReviewId($index, review)) {
+            <button type="button" class="review-row" [class.active]="selectedReview()?._id === review._id" (click)="selectReview(review)">
+              <div class="row-top">
+                <div class="identity">
+                  <strong>{{ review.reviewer?.displayName || review.reviewer?.username || 'Reviewer' }}</strong>
+                  <span>{{ formatRelationshipType(review.relationshipType) }}</span>
+                </div>
+                <span class="status-chip" [class]="review.status">{{ review.status }}</span>
+              </div>
+
+              <div class="row-middle">
+                <span>{{ review.reviewee?.displayName || review.reviewee?.username || 'Review target' }}</span>
+                <span>{{ review.rating }}/5</span>
+              </div>
+
+              <p class="comment-snippet">{{ review.comment || review.title || 'No review copy provided.' }}</p>
+
+              <div class="row-meta">
+                <span>{{ review.campaign?.title || 'Campaign collaboration' }}</span>
+                <span>{{ review.flagCount }} flag(s)</span>
+                <span>{{ formatDate(review.createdAt, 'mediumDate') }}</span>
+              </div>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="pagination-actions">
+        <button mat-stroked-button type="button" (click)="changePage('prev')" [disabled]="pagination().page <= 1">Previous</button>
+        <button mat-stroked-button type="button" (click)="changePage('next')" [disabled]="pagination().page >= pagination().totalPages">Next</button>
+      </div>
+    </div>
+
+    <div class="detail-panel">
+      @if (selectedReview(); as review) {
+        <div class="panel-header">
+          <div>
+            <h3>Moderation Detail</h3>
+            <p>{{ review.campaign?.title || 'Campaign collaboration' }}</p>
+          </div>
+          <div class="action-row">
+            <button mat-stroked-button type="button" (click)="quickModerate(review, 'publish')">Publish</button>
+            <button mat-stroked-button type="button" (click)="quickModerate(review, 'hide')">Hide</button>
+            <button mat-stroked-button color="warn" type="button" (click)="quickModerate(review, 'remove')">Remove</button>
+          </div>
+        </div>
+
+        <section class="headline-card">
+          <div class="headline-copy">
+            <strong>{{ review.title || 'Untitled review' }}</strong>
+            <p>{{ review.comment || 'No review copy attached.' }}</p>
+          </div>
+          <div class="headline-meta">
+            <span class="rating">{{ review.rating }}/5</span>
+            <span class="status-chip" [class]="review.status">{{ review.status }}</span>
+          </div>
+        </section>
+
+        <div class="detail-grid">
+          <article class="detail-card">
+            <span class="label">Reviewer</span>
+            <strong>{{ review.reviewer?.displayName || review.reviewer?.username || 'Unknown' }}</strong>
+            <small>{{ review.reviewer?.role || 'user' }}</small>
+          </article>
+
+          <article class="detail-card">
+            <span class="label">Reviewee</span>
+            <strong>{{ review.reviewee?.displayName || review.reviewee?.username || 'Unknown' }}</strong>
+            <small>{{ review.reviewee?.role || 'user' }}</small>
+          </article>
+
+          <article class="detail-card">
+            <span class="label">Promotion</span>
+            <strong>{{ review.promotion?.upi || 'Not linked' }}</strong>
+            <small>{{ review.promotion?.status || 'n/a' }}</small>
+          </article>
+
+          <article class="detail-card">
+            <span class="label">Created</span>
+            <strong>{{ formatDate(review.createdAt, 'mediumDate') }}</strong>
+            <small>{{ review.flagCount }} moderation flag(s)</small>
+          </article>
+        </div>
+
+        @if (review.flags?.length) {
+          <section class="section-card">
+            <h4>Flags</h4>
+            <div class="report-list">
+              @for (flag of review.flags; track $index) {
+                <article class="report-item">
+                  <strong>{{ flag.reason || 'Reason not supplied' }}</strong>
+                  <span>{{ flag.details || 'No extra context supplied.' }}</span>
+                  <small>{{ formatDate(flag.createdAt || null, 'medium') }}</small>
+                </article>
+              }
+            </div>
+          </section>
+        }
+
+        <section class="section-card">
+          <h4>Moderator Notes</h4>
+          <mat-form-field appearance="outline">
+            <mat-label>Internal note</mat-label>
+            <textarea matInput rows="4" [ngModel]="moderationNote()" (ngModelChange)="setModerationNote($event)"></textarea>
+          </mat-form-field>
+        </section>
+
+        <section class="section-card">
+          <h4>Admin Response</h4>
+          <mat-form-field appearance="outline">
+            <mat-label>Response text</mat-label>
+            <textarea matInput rows="4" [ngModel]="adminResponse()" (ngModelChange)="setAdminResponse($event)"></textarea>
+          </mat-form-field>
+        </section>
+
+        <div class="action-row">
+          <button mat-flat-button color="primary" type="button" [disabled]="submitting()" (click)="submitModeration('publish')">Publish</button>
+          <button mat-stroked-button type="button" [disabled]="submitting()" (click)="submitModeration('hide')">Hide</button>
+          <button mat-stroked-button type="button" [disabled]="submitting()" (click)="submitModeration('restore')">Restore</button>
+          <button mat-stroked-button color="warn" type="button" [disabled]="submitting()" (click)="submitModeration('remove')">Remove</button>
+        </div>
+      } @else {
+        <div class="empty-state detail-empty">
+          <mat-icon>visibility</mat-icon>
+          <p>Select a review to inspect its context and moderation history.</p>
+        </div>
+      }
+    </div>
+  </section>
+</section>

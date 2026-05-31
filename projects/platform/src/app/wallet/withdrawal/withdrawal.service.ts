@@ -107,7 +107,7 @@ export class WithdrawalService {
    * @returns An observable of the submitted form data.
    */
   getTransactions(userId: string): Observable<any> {
-    return this.apiService.get<any>(`wallet/${userId}`);
+    return this.apiService.get<any>(`api/v1/wallet/${userId}`);
   }
   
   /**
@@ -116,11 +116,11 @@ export class WithdrawalService {
    * @returns An observable of the submitted form data.
    */
   withdrawRequest(payload: WithdrawalRequestData): Observable<any> {
-    return this.apiService.post<any>('wallet/withdraw-request', payload, undefined, true);
+    return this.apiService.post<any>('api/v1/wallet/withdraw-request', payload, undefined, true);
   }
 
   resolveAccount(accountNumber: string, bankCode: string) {
-    return this.apiService.get<any>(`wallet/resolve-account?accountNumber=${accountNumber}&bankCode=${bankCode}`, undefined, undefined, true);
+    return this.apiService.get<any>(`api/v1/wallet/resolve-account?accountNumber=${accountNumber}&bankCode=${bankCode}`, undefined, undefined, true);
   }
   
   /**
@@ -129,7 +129,7 @@ export class WithdrawalService {
    * @returns An observable of the submitted form data.
    */
   removeSavedAccount(accountNumber: string, userId: string): Observable<any> {
-    return this.apiService.delete<any>(`wallet/saved-accounts/${userId}/${accountNumber}`, undefined, undefined, true);
+    return this.apiService.delete<any>(`api/v1/wallet/saved-accounts/${userId}/${accountNumber}`, undefined, undefined, true);
   }
 
   /**
@@ -138,7 +138,7 @@ export class WithdrawalService {
    * @returns An observable of the submitted form data.
    */
   getBalance(userId: string): Observable<any> {
-    return this.apiService.get<any>(`wallet/saved-accounts/${userId}`, undefined, undefined, true);
+    return this.apiService.get<any>(`api/v1/wallet/saved-accounts/${userId}`, undefined, undefined, true);
   }
 
   /**
@@ -148,6 +148,6 @@ export class WithdrawalService {
    */
   getTransactionSummary(params: TransactionSummaryParams): Observable<TransactionSummaryResponse> {
     const { userId, role, period } = params;
-    return this.apiService.get<TransactionSummaryResponse>(`wallet/transactions/summary?userId=${userId}&role=${role}&period=${period}`, undefined, undefined, true);
+    return this.apiService.get<TransactionSummaryResponse>(`api/v1/wallet/transactions/summary?userId=${userId}&role=${role}&period=${period}`, undefined, undefined, true);
   }
 }

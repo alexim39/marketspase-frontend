@@ -1,0 +1,283 @@
+<main class="mobile-product-detail" aria-label="Promoter product details">
+  <header class="mobile-topbar">
+    <button type="button" class="icon-button" (click)="goBack()" aria-label="Back to promoted products">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="topbar-title">
+      <span>Promote product</span>
+      <strong>{{ product()?.name || 'Product details' }}</strong>
+    </div>
+    <button type="button" class="icon-button accent" (click)="copyPromotionLink()" aria-label="Copy promotion link">
+      <mat-icon>link</mat-icon>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="mobile-state" aria-live="polite">
+      <mat-spinner diameter="42"></mat-spinner>
+      <h1>Loading product</h1>
+      <p>Preparing the promotion link, commission details, and store trust signals.</p>
+    </section>
+  } @else if (error()) {
+    <section class="mobile-state error">
+      <mat-icon>error_outline</mat-icon>
+      <h1>Unable to load product</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="retryLoadProduct()">Try again</button>
+    </section>
+  } @else {
+    @if (product(); as item) {
+      <section class="product-hero">
+        <div class="image-frame">
+          @if (currentImage()?.url) {
+            <img [src]="currentImage()?.url" [alt]="imageAlt(item)" loading="eager" />
+          } @else {
+            <div class="image-placeholder">
+              <mat-icon>image</mat-icon>
+              <span>No product image</span>
+            </div>
+          }
+
+          @if (productImages().length > 1) {
+            <div class="image-controls">
+              <button type="button" (click)="previousImage()" aria-label="Previous image">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <span>{{ selectedImageIndex() + 1 }} / {{ productImages().length }}</span>
+              <button type="button" (click)="nextImage()" aria-label="Next image">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+          }
+
+          <span class="commission-ribbon">
+            <mat-icon>payments</mat-icon>
+            {{ commissionLabel(item) }}
+          </span>
+        </div>
+
+        @if (productImages().length > 1) {
+          <div class="thumbnail-rail" aria-label="Product images">
+            @for (image of productImages(); track trackImage($index, image); let i = $index) {
+              <button
+                type="button"
+                class="thumb"
+                [class.active]="selectedImageIndex() === i"
+                (click)="selectImage(i)"
+                [attr.aria-label]="'Show product image ' + (i + 1)">
+                <img [src]="image.url" [alt]="image.altText || item.name" loading="lazy" />
+              </button>
+            }
+          </div>
+        }
+
+        <div class="hero-copy">
+          <div class="status-row">
+            <span class="status-chip" [class.good]="stockTone(item) === 'good'" [class.warn]="stockTone(item) === 'warn'" [class.bad]="stockTone(item) === 'bad'">
+              <mat-icon>{{ stockTone(item) === 'good' ? 'inventory' : stockTone(item) === 'warn' ? 'warning' : 'block' }}</mat-icon>
+              {{ stockLabel(item) }}
+            </span>
+            @if (item.store?.verificationTier) {
+              <span class="status-chip trust">
+                <mat-icon>verified</mat-icon>
+                {{ item.store.verificationTier | titlecase }}
+              </span>
+            }
+          </div>
+
+          <h1>{{ item.name | titlecase }}</h1>
+          <p class="product-meta">{{ item.category | titlecase }} @if (item.brand) { <span>- {{ item.brand }}</span> }</p>
+
+          <div class="price-row">
+            <strong>{{ item.price | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
+            @if ((item.originalPrice || 0) > item.price) {
+              <span>{{ item.originalPrice | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="earning-card">
+        <span>Potential earning per sale</span>
+        <strong>{{ potentialEarning(item) | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
+        <p>Copy your unique link before sharing so every buyer click is attributed to you.</p>
+      </section>
+
+      <section class="metric-rail" aria-label="Product promotion metrics">
+        @for (metric of metricCards(item); track trackMetric($index, metric)) {
+          <article class="metric-card" [class.good]="metric.tone === 'good'" [class.warn]="metric.tone === 'warn'" [class.bad]="metric.tone === 'bad'">
+            <mat-icon>{{ metric.icon }}</mat-icon>
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.value }}</strong>
+          </article>
+        }
+      </section>
+
+      <section class="quick-actions" aria-label="Promotion actions">
+        <button type="button" class="primary-action" (click)="copyPromotionLink()">
+          <mat-icon>content_copy</mat-icon>
+          <span>Copy link</span>
+        </button>
+        <button type="button" (click)="generateWhatsAppMessage()">
+          <mat-icon>chat</mat-icon>
+          <span>WhatsApp</span>
+        </button>
+        <button type="button" (click)="shareNative()">
+          <mat-icon>ios_share</mat-icon>
+          <span>Share</span>
+        </button>
+      </section>
+
+      <nav class="section-tabs" aria-label="Product detail sections">
+        @for (section of sectionItems; track section.id) {
+          <button
+            type="button"
+            [class.active]="activeSection() === section.id"
+            (click)="setSection(section.id)"
+            [attr.aria-pressed]="activeSection() === section.id">
+            <mat-icon>{{ section.icon }}</mat-icon>
+            <span>{{ section.label }}</span>
+          </button>
+        }
+      </nav>
+
+      <section class="section-panel">
+        @switch (activeSection()) {
+          @case ('pitch') {
+            <div class="panel-heading">
+              <span>Ready-to-share pitch</span>
+              <button type="button" (click)="copyPitch()">
+                <mat-icon>content_copy</mat-icon>
+                Copy
+              </button>
+            </div>
+            <p class="pitch-text">
+              {{ item.description || 'Use the product image and your promotion link to tell buyers why this product is worth checking out on MarketSpase.' }}
+            </p>
+            @if ((item.tags?.length || 0) > 0) {
+              <div class="tag-row">
+                @for (tag of item.tags || []; track tag) {
+                  <span>#{{ tag }}</span>
+                }
+              </div>
+            }
+          }
+
+          @case ('performance') {
+            <div class="info-grid">
+              <div>
+                <span>Click-through rate</span>
+                <strong>{{ (performanceStats()?.ctr || 0) | number:'1.1-1' }}%</strong>
+              </div>
+              <div>
+                <span>Conversion rate</span>
+                <strong>{{ (performanceStats()?.cvr || 0) | number:'1.1-1' }}%</strong>
+              </div>
+              <div>
+                <span>Total earned</span>
+                <strong>{{ item.promotion?.earnings || 0 | currencyUtils:user()?.wallets?.promoter?.currency }}</strong>
+              </div>
+              <div>
+                <span>Performance score</span>
+                <strong>{{ performanceStats()?.performanceScore || '0.0' }}/10</strong>
+              </div>
+            </div>
+          }
+
+          @case ('store') {
+            <div class="store-card">
+              <div class="store-avatar">
+                @if (item.store?.logo) {
+                  <img [src]="item.store.logo" [alt]="item.store.name" />
+                } @else {
+                  <mat-icon>store</mat-icon>
+                }
+              </div>
+              <div>
+                <h2>{{ item.store?.name || 'Store' }}</h2>
+                <p>{{ item.store?.description || 'Verified MarketSpase storefront.' }}</p>
+              </div>
+            </div>
+            <div class="info-grid store-stats">
+              <div>
+                <span>Products</span>
+                <strong>{{ item.store?.productCount || 0 }}</strong>
+              </div>
+              <div>
+                <span>Rating</span>
+                <strong>{{ item.store?.rating || 'N/A' }}</strong>
+              </div>
+              <div>
+                <span>Reviews</span>
+                <strong>{{ item.store?.reviewCount || 0 }}</strong>
+              </div>
+              <div>
+                <span>Joined</span>
+                <strong>{{ getFormattedDate(item.store?.createdAt || '') }}</strong>
+              </div>
+            </div>
+            @if (storeUrl(item)) {
+              <a class="store-link" [href]="storeUrl(item)" target="_blank" rel="noopener">
+                <mat-icon>open_in_new</mat-icon>
+                Visit store
+              </a>
+            }
+          }
+
+          @case ('details') {
+            <div class="info-list">
+              <div>
+                <span>SKU</span>
+                <strong>{{ item.sku || 'Not provided' }}</strong>
+              </div>
+              <div>
+                <span>Quantity</span>
+                <strong>{{ item.quantity || 0 }}</strong>
+              </div>
+              <div>
+                <span>Featured</span>
+                <strong>{{ item.isFeatured ? 'Yes' : 'No' }}</strong>
+              </div>
+              <div>
+                <span>Listed</span>
+                <strong>{{ getFormattedDate(item.createdAt || '') }}</strong>
+              </div>
+            </div>
+          }
+        }
+      </section>
+
+      @if (relatedProducts().length > 0) {
+        <section class="related-products">
+          <div class="panel-heading">
+            <span>Related products</span>
+          </div>
+          <div class="related-rail">
+            @for (related of relatedProducts(); track related._id) {
+              <button type="button" class="related-card" (click)="navigateToProduct(related)">
+                @if (related.images?.[0]?.url) {
+                  <img [src]="related.images?.[0]?.url" [alt]="related.name" loading="lazy" />
+                } @else {
+                  <span class="mini-placeholder"><mat-icon>image</mat-icon></span>
+                }
+                <strong>{{ related.name }}</strong>
+                <span>{{ related.price | currencyUtils:user()?.wallets?.promoter?.currency }}</span>
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      <div class="sticky-action-bar" aria-label="Sticky promotion actions">
+        <button type="button" (click)="generateWhatsAppMessage()">
+          <mat-icon>chat</mat-icon>
+          WhatsApp
+        </button>
+        <button type="button" class="primary" (click)="copyPromotionLink()">
+          <mat-icon>link</mat-icon>
+          Copy promotion link
+        </button>
+      </div>
+    }
+  }
+</main>

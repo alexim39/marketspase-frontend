@@ -1,0 +1,330 @@
+<app-header />
+
+<main class="mobile-contact-page">
+  <section class="contact-hero" aria-labelledby="mobile-contact-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Contact</span>
+    </nav>
+
+    <span class="eyebrow">MarketSpase support</span>
+    <h1 id="mobile-contact-title">Get help from the right team.</h1>
+    <p>
+      Choose a support channel, send account details, and get help with campaigns, payments, stores, or promoter issues.
+    </p>
+
+    <div class="hero-actions">
+      <button type="button" (click)="startLiveChat()">
+        <mat-icon>chat</mat-icon>
+        WhatsApp chat
+      </button>
+      <a routerLink="/resources/help-center">
+        <mat-icon>help_center</mat-icon>
+        Help Center
+      </a>
+    </div>
+  </section>
+
+  <section class="response-summary" aria-label="Support response summary">
+    <article>
+      <strong>&lt;5m</strong>
+      <span>Chat start</span>
+    </article>
+    <article>
+      <strong>24/7</strong>
+      <span>Support</span>
+    </article>
+    <article>
+      <strong>98%</strong>
+      <span>Satisfaction</span>
+    </article>
+  </section>
+
+  <section class="channel-section" aria-labelledby="channels-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Channels</span>
+        <h2 id="channels-title">Reach us quickly</h2>
+      </div>
+      <button type="button" (click)="openSheet('channels')" aria-label="View all contact channels">
+        <mat-icon>more_horiz</mat-icon>
+      </button>
+    </div>
+
+    <div class="channel-rail" role="list">
+      @for (method of contactMethods(); track method.title; let i = $index) {
+        <button
+          type="button"
+          role="listitem"
+          class="channel-card"
+          [ngClass]="methodTone(i)"
+          [class.active]="selectedMethod()?.title === method.title"
+          (click)="selectMethod(method)"
+        >
+          <span class="channel-icon">
+            <mat-icon>{{ method.icon }}</mat-icon>
+          </span>
+          <strong>{{ method.title }}</strong>
+          <small>{{ method.value }}</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <form [formGroup]="contactForm" class="mobile-contact-form" (ngSubmit)="submitMobileForm()">
+    <section class="step-card" aria-labelledby="contact-flow-title">
+      <div class="step-header">
+        <div>
+          <span class="eyebrow">Message flow</span>
+          <h2 id="contact-flow-title">{{ progress() }}</h2>
+        </div>
+        <div class="step-dots" aria-hidden="true">
+          @for (step of [1, 2, 3, 4]; track step) {
+            <span [class.active]="currentStep() >= step"></span>
+          }
+        </div>
+      </div>
+
+      @switch (currentStep()) {
+        @case (1) {
+          <div class="step-body">
+            <h3>What do you need help with?</h3>
+            <p>Select the closest issue. This helps route your message properly.</p>
+
+            <div class="inquiry-grid">
+              @for (option of inquiryOptions; track option.value) {
+                <button
+                  type="button"
+                  [class.active]="contactForm.get('inquiryType')?.value === option.value"
+                  (click)="selectInquiry(option.value)"
+                >
+                  <mat-icon>{{ option.icon }}</mat-icon>
+                  <span>{{ option.label }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
+        @case (2) {
+          <div class="step-body">
+            <h3>Your contact details</h3>
+            <p>Use the email connected to your MarketSpase account if you already have one.</p>
+
+            <label class="field-label">
+              Full name
+              <input type="text" formControlName="fullName" placeholder="Enter your full name" autocomplete="name" />
+              @if (contactForm.get('fullName')?.touched && contactForm.get('fullName')?.invalid) {
+                <small>Name is required.</small>
+              }
+            </label>
+
+            <label class="field-label">
+              Email address
+              <input type="email" formControlName="email" placeholder="you@example.com" autocomplete="email" />
+              @if (contactForm.get('email')?.touched && contactForm.get('email')?.invalid) {
+                <small>Enter a valid email.</small>
+              }
+            </label>
+
+            <label class="field-label">
+              Phone number
+              <input type="tel" formControlName="phone" placeholder="+234..." autocomplete="tel" />
+            </label>
+          </div>
+        }
+        @case (3) {
+          <div class="step-body">
+            <h3>Describe the issue</h3>
+            <p>Add campaign, promotion, wallet, store, or order IDs if they apply.</p>
+
+            <label class="field-label">
+              Company or store name
+              <input type="text" formControlName="company" placeholder="Optional" autocomplete="organization" />
+            </label>
+
+            <label class="field-label">
+              Message
+              <textarea formControlName="message" rows="7" placeholder="Tell us what happened and what you need help with."></textarea>
+              @if (contactForm.get('message')?.touched && contactForm.get('message')?.invalid) {
+                <small>Message must be at least 10 characters.</small>
+              }
+            </label>
+          </div>
+        }
+        @case (4) {
+          <div class="step-body">
+            <h3>Review and send</h3>
+            <p>Make sure everything is correct before sending your request.</p>
+
+            <div class="review-list">
+              <div>
+                <span>Topic</span>
+                <strong>{{ selectedInquiryLabel() }}</strong>
+              </div>
+              <div>
+                <span>Channel</span>
+                <strong>{{ selectedMethod()?.title || 'Contact form' }}</strong>
+              </div>
+              <div>
+                <span>Email</span>
+                <strong>{{ contactForm.get('email')?.value || 'Not provided' }}</strong>
+              </div>
+            </div>
+
+            <label class="check-row">
+              <input type="checkbox" formControlName="newsletter" />
+              <span>Send me product updates and marketing tips.</span>
+            </label>
+
+            <label class="check-row">
+              <input type="checkbox" formControlName="terms" />
+              <span>
+                I agree to the
+                <a routerLink="/privacy" target="_blank">Privacy Policy</a>
+                and
+                <a routerLink="/terms" target="_blank">Terms of Service</a>.
+              </span>
+            </label>
+            @if (contactForm.get('terms')?.touched && contactForm.get('terms')?.invalid) {
+              <small class="terms-error">You need to accept the terms before sending.</small>
+            }
+          </div>
+        }
+      }
+
+      <div class="step-actions">
+        @if (currentStep() > 1) {
+          <button type="button" class="secondary-action" (click)="previousStep()">Back</button>
+        }
+        @if (currentStep() < 4) {
+          <button type="button" class="primary-action" (click)="nextStep()">Continue</button>
+        } @else {
+          <button type="submit" class="primary-action" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              Sending...
+            } @else {
+              Send message
+            }
+          </button>
+        }
+      </div>
+    </section>
+  </form>
+
+  <section class="urgent-card">
+    <div>
+      <span class="eyebrow">Urgent issue?</span>
+      <h2>Payment, campaign, or access problem?</h2>
+      <p>Use WhatsApp live chat and include screenshots or references.</p>
+    </div>
+    <button type="button" (click)="startLiveChat()">
+      <mat-icon>chat</mat-icon>
+      Chat now
+    </button>
+  </section>
+
+  <section class="team-section" aria-labelledby="team-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Support team</span>
+        <h2 id="team-title">People who can help</h2>
+      </div>
+    </div>
+
+    <div class="team-list">
+      @for (member of topTeamMembers(); track member.name) {
+        <button type="button" class="team-card" (click)="openTeamMember(member)">
+          <img [src]="member.avatar" [alt]="member.name" />
+          <span>
+            <strong>{{ member.name }}</strong>
+            <small>{{ member.role }}</small>
+          </span>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="faq-strip">
+    <div>
+      <span class="eyebrow">Before you send</span>
+      <h2>Quick support answers</h2>
+    </div>
+    <button type="button" (click)="openSheet('faq')">View</button>
+  </section>
+</main>
+
+@if (activeSheet(); as sheet) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeSheet()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Contact details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (sheet) {
+      @case ('channels') {
+        <span class="eyebrow">Contact channels</span>
+        <h2>Choose how you want to reach us.</h2>
+        <div class="sheet-list">
+          @for (method of contactMethods(); track method.title) {
+            <button type="button" (click)="handleContactAction(method)">
+              <mat-icon>{{ method.icon }}</mat-icon>
+              <span>
+                <strong>{{ method.title }}</strong>
+                <small>{{ method.description }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      }
+      @case ('team') {
+        @if (selectedTeamMember(); as member) {
+          <span class="eyebrow">{{ member.department }}</span>
+          <div class="sheet-profile">
+            <img [src]="member.avatar" [alt]="member.name" />
+            <div>
+              <h2>{{ member.name }}</h2>
+              <p>{{ member.role }}</p>
+            </div>
+          </div>
+          <div class="review-list">
+            <div>
+              <span>Email</span>
+              <strong>{{ member.email }}</strong>
+            </div>
+          </div>
+          <div class="sheet-actions">
+            <button type="button" class="primary-action" (click)="emailTeamMember(member)">Send email</button>
+            <button type="button" class="secondary-action" (click)="closeSheet()">Close</button>
+          </div>
+        }
+      }
+      @case ('faq') {
+        <span class="eyebrow">Quick answers</span>
+        <h2>Helpful details for faster support.</h2>
+        <div class="mobile-faq-list">
+          @for (faq of mobileFaqs; track faq.question; let i = $index) {
+            <article>
+              <button type="button" (click)="toggleFaq(i)">
+                <strong>{{ faq.question }}</strong>
+                <mat-icon>{{ isFaqOpen(i) ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+              @if (isFaqOpen(i)) {
+                <p>{{ faq.answer }}</p>
+              }
+            </article>
+          }
+        </div>
+        <div class="sheet-actions">
+          <a class="primary-action link-action" routerLink="/resources/faqs" (click)="closeSheet()">Open full FAQ</a>
+        </div>
+      }
+    }
+  </section>
+}
+
+<app-footer />

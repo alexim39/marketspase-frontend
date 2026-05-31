@@ -1,0 +1,108 @@
+<main class="support-mobile" aria-label="Support and testimonial settings">
+  <header class="mobile-hero">
+    <a class="icon-button" routerLink="/dashboard/settings" aria-label="Back to settings">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="hero-copy">
+      <span>Support center</span>
+      <h1>Help and testimonial</h1>
+      <p>Get account help, contact support, or share your experience.</p>
+    </div>
+
+    <div class="hero-badge" aria-hidden="true">
+      <mat-icon>support_agent</mat-icon>
+    </div>
+  </header>
+
+  @if (!user()) {
+    <section class="loading-state" aria-live="polite">
+      <mat-spinner diameter="28"></mat-spinner>
+      <div>
+        <strong>Loading support tools</strong>
+        <span>Getting your account context ready</span>
+      </div>
+    </section>
+  } @else {
+    <section class="support-status">
+      <div class="status-copy">
+        <span>{{ activeSection() === 'contact' ? 'Fastest support path' : 'Your public story' }}</span>
+        <strong>{{ activeSection() === 'contact' ? 'WhatsApp live help' : testimonialStatus() }}</strong>
+        <p>{{ guidance() }}</p>
+      </div>
+      <div class="status-icon">
+        <mat-icon>{{ activeSection() === 'contact' ? 'chat' : 'rate_review' }}</mat-icon>
+      </div>
+    </section>
+
+    <section class="quick-actions" aria-label="Quick support actions">
+      <button type="button" class="quick-action primary" (click)="openLiveChat()">
+        <mat-icon>chat</mat-icon>
+        <span>Live chat</span>
+      </button>
+      <button type="button" class="quick-action" (click)="openWhatsAppChannel()">
+        <mat-icon>groups</mat-icon>
+        <span>WhatsApp channel</span>
+      </button>
+    </section>
+
+    <section class="summary-grid" aria-label="Support summary">
+      @for (stat of supportStats(); track stat.label) {
+        <article class="summary-card" [class.good]="stat.tone === 'good'" [class.warn]="stat.tone === 'warn'">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </article>
+      }
+    </section>
+
+    <section class="section-cards" aria-label="Support sections">
+      @for (section of sections; track section.id) {
+        <button
+          type="button"
+          class="section-card"
+          [class.active]="activeSection() === section.id"
+          (click)="selectSection(section.id)">
+          <span class="section-icon">
+            <mat-icon>{{ section.icon }}</mat-icon>
+          </span>
+          <span class="section-copy">
+            <strong>{{ section.label }}</strong>
+            <small>{{ section.description }}</small>
+          </span>
+          <span class="section-status" [class.ready]="sectionStatus(section.id) !== 'Not posted' && sectionStatus(section.id) !== 'Needs retry'">
+            {{ sectionStatus(section.id) }}
+          </span>
+        </button>
+      }
+    </section>
+
+    <nav class="mobile-tabs" aria-label="Support setting sections">
+      @for (section of sections; track section.id) {
+        <button
+          type="button"
+          [class.active]="activeSection() === section.id"
+          (click)="selectSection(section.id)">
+          <mat-icon>{{ section.icon }}</mat-icon>
+          <span>{{ section.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <section class="mobile-support-shell">
+      @switch (activeSection()) {
+        @case ('contact') {
+          <async-contact [user]="user" />
+        }
+        @case ('testimonial') {
+          <async-testimonial-writeup-settings
+            [user]="user"
+            [testimonial]="testimonial"
+            [isLoading]="isLoading"
+            [error]="error"
+          />
+        }
+      }
+    </section>
+  }
+</main>

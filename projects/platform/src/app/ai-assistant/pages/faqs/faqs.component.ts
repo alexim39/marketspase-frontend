@@ -12,7 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormsModule } from '@angular/forms';
 import { AiAssistantService } from '../../services/ai-assistant.service';
 
-interface FAQ {
+export interface FAQ {
   _id: string;
   question: string;
   answer: string;
@@ -20,14 +20,14 @@ interface FAQ {
   tags?: string[];
 }
 
-interface FaqDraft {
+export interface FaqDraft {
   question: string;
   answer: string;
   category: string;
   tagsText: string;
 }
 
-interface EditingFaqDraft extends FaqDraft {
+export interface EditingFaqDraft extends FaqDraft {
   _id: string;
 }
 
@@ -52,9 +52,9 @@ interface EditingFaqDraft extends FaqDraft {
   providers: [AiAssistantService]
 })
 export class FaqsComponent implements OnInit {
-  private aiService = inject(AiAssistantService);
-  private snackBar = inject(MatSnackBar);
-  private destroyRef = inject(DestroyRef);
+  protected aiService = inject(AiAssistantService);
+  protected snackBar = inject(MatSnackBar);
+  protected destroyRef = inject(DestroyRef);
 
   readonly faqs = signal<FAQ[]>([]);
   readonly editingFaq = signal<EditingFaqDraft | null>(null);
@@ -186,7 +186,11 @@ export class FaqsComponent implements OnInit {
 
   deleteFaq(id: string): void {
     if (!confirm('Are you sure you want to delete this FAQ?')) return;
-    
+
+    this.removeFaq(id);
+  }
+
+  protected removeFaq(id: string): void {
     this.aiService.deleteFaq(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -204,11 +208,11 @@ export class FaqsComponent implements OnInit {
     this.editingFaq.set(null);
   }
 
-  private createEmptyDraft(): FaqDraft {
+  protected createEmptyDraft(): FaqDraft {
     return { question: '', answer: '', category: '', tagsText: '' };
   }
 
-  private parseTags(value: string): string[] {
+  protected parseTags(value: string): string[] {
     return value.split(',').map(tag => tag.trim()).filter(Boolean);
   }
 }

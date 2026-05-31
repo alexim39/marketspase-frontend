@@ -1,0 +1,168 @@
+<section class="subscribers-page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Storefront</p>
+      <h1>Email Subscribers</h1>
+      <p class="subtitle">
+        See everyone who subscribed from your storefront pages. Use filters to focus on a store, export lists, and keep outreach organized.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" mat-stroked-button (click)="copyVisibleEmails()" [disabled]="loading() || subscribers().length === 0">
+        <mat-icon>content_copy</mat-icon>
+        Copy emails
+      </button>
+      <button type="button" mat-stroked-button (click)="exportCsv()" [disabled]="loading() || subscribers().length === 0">
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
+      <button type="button" mat-raised-button color="primary" (click)="loadSubscribers(true)">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <section class="filters-panel">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input
+        matInput
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event); loadSubscribers(true)"
+        placeholder="Email or referrer">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Store</mat-label>
+      <mat-select [ngModel]="storeFilter()" (ngModelChange)="storeFilter.set($event); loadSubscribers(true)">
+        <mat-option value="all">All stores</mat-option>
+        @for (store of storeOptions(); track store._id) {
+          <mat-option [value]="store._id">{{ store.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); loadSubscribers(true)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="subscribed">Subscribed</mat-option>
+        <mat-option value="unsubscribed">Unsubscribed</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Source</mat-label>
+      <mat-select [ngModel]="sourceFilter()" (ngModelChange)="sourceFilter.set($event); loadSubscribers(true)">
+        <mat-option value="all">All</mat-option>
+        <mat-option value="storefront">storefront</mat-option>
+        <mat-option value="storefront_footer">storefront_footer</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>From</mat-label>
+      <input matInput [matDatepicker]="fromPicker" [ngModel]="startDate()" (ngModelChange)="startDate.set($event); loadSubscribers(true)">
+      <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #fromPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>To</mat-label>
+      <input matInput [matDatepicker]="toPicker" [ngModel]="endDate()" (ngModelChange)="endDate.set($event); loadSubscribers(true)">
+      <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+      <mat-datepicker #toPicker></mat-datepicker>
+    </mat-form-field>
+
+    <button type="button" mat-stroked-button class="reset-btn" (click)="resetFilters()">
+      <mat-icon>filter_alt_off</mat-icon>
+      Reset
+    </button>
+  </section>
+
+  <section class="table-card">
+    @if (loading()) {
+      <div class="loading">
+        <mat-spinner diameter="36"></mat-spinner>
+        <span>Loading subscribers...</span>
+      </div>
+    } @else if (subscribers().length === 0) {
+      <div class="empty">
+        <mat-icon>mark_email_read</mat-icon>
+        <h3>No subscribers yet</h3>
+        <p>When shoppers subscribe from your store page, they will show up here.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="subscribers-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Store</th>
+              <th>Subscribed</th>
+              <th>Source</th>
+              <th>Device</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of subscribers(); track row._id) {
+              <tr>
+                <td class="email-cell">
+                  <span class="email">{{ row.email }}</span>
+                  @if (row.referrer) {
+                    <span class="muted referrer" title="{{ row.referrer }}">{{ row.referrer }}</span>
+                  }
+                </td>
+                <td>
+                  <mat-chip-set>
+                    <mat-chip [class.chip-good]="statusTone(row.status) === 'good'" [class.chip-warn]="statusTone(row.status) === 'warn'">
+                      {{ statusLabel(row.status) }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </td>
+                <td>
+                  <div class="store-cell">
+                    <strong>{{ row.store?.name || 'Store' }}</strong>
+                    <span class="muted">{{ row.store?.storeLink || '' }}</span>
+                  </div>
+                </td>
+                <td class="muted">{{ row.subscribedAt ? (row.subscribedAt | date:'medium') : '-' }}</td>
+                <td class="muted">{{ row.source || '-' }}</td>
+                <td class="muted">{{ row.deviceType || '-' }}</td>
+                <td class="actions">
+                  <button type="button" mat-icon-button (click)="copyEmail(row.email)" aria-label="Copy email">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                  <button type="button" mat-icon-button (click)="openEmail(row.email)" aria-label="Send email">
+                    <mat-icon>mail</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <div class="pager-meta muted">
+          Page {{ pagination().page }} of {{ pagination().totalPages }} - {{ pagination().total }} records
+        </div>
+        <div class="pager-actions">
+          <button type="button" mat-stroked-button (click)="prevPage()" [disabled]="pagination().page <= 1">
+            <mat-icon>chevron_left</mat-icon>
+            Prev
+          </button>
+          <button type="button" mat-stroked-button (click)="nextPage()" [disabled]="pagination().page >= pagination().totalPages">
+            Next
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</section>

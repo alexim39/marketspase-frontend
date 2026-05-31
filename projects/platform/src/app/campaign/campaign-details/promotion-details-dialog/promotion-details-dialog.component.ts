@@ -1,18 +1,15 @@
-import { Component, inject, Inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { DatePipe } from '@angular/common';
 import { PromotionInterface } from '@shared/services';
-import { MarketerService } from '../../../marketer/marketer.service';
 import { MaskEmailPipe } from './mask-email.pipe';
-import { MediaViewerDialogComponent } from './media-viewer-dialog.component'; 
 
 @Component({
   selector: 'app-promotion-details-dialog',
   standalone: true,
-  providers: [MarketerService],
   imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, DatePipe, MaskEmailPipe],
   template: `
   <div class="promotion-details-dialog">
@@ -48,76 +45,102 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
               <mat-icon>assignment</mat-icon>
             </div>
             <div class="step-content">
-              <span class="step-title">Assigned</span>
+              <span class="step-title">Accepted</span>
               <br>
-              <span class="step-time">{{data.promotion.createdAt | date:'medium'}}</span>
+              <span class="step-time">{{(data.promotion.acceptedAt || data.promotion.createdAt) | date:'medium'}}</span>
             </div>
           </div>
           
-          <div class="status-step" [class.active]="data.promotion.status !== 'downloaded'">
+          <div class="status-step" [class.active]="true">
             <div class="step-icon">
-              <mat-icon>file_upload</mat-icon>
+              <mat-icon>link</mat-icon>
             </div>
             <div class="step-content">
-              <span class="step-title">Submitted</span>
+              <span class="step-title">Link Active</span>
               <br>
-               @if (data.promotion.submittedAt) { 
+               @if (data.promotion.acceptedAt || data.promotion.createdAt) { 
                  <span class="step-time">
-                  {{data.promotion.submittedAt | date:'medium'}}
+                  {{(data.promotion.acceptedAt || data.promotion.createdAt) | date:'medium'}}
                 </span>
                }
              
             </div>
           </div>
           
-          <div class="status-step" [class.active]="['validated', 'paid'].includes(data.promotion.status)">
+          <div class="status-step" [class.active]="!!data.promotion.clickStats?.lastClickAt">
             <div class="step-icon">
-              <mat-icon>check_circle</mat-icon>
+              <mat-icon>ads_click</mat-icon>
             </div>
             <div class="step-content">
-              <span class="step-title">Validated</span>
+              <span class="step-title">Last Click</span>
               <br>
-               @if (data.promotion.validatedAt) { 
+               @if (data.promotion.clickStats?.lastClickAt) { 
                 <span class="step-time">
-                  {{data.promotion.validatedAt | date:'medium'}}
+                  {{data.promotion.clickStats?.lastClickAt | date:'medium'}}
                 </span>
                }
               
             </div>
           </div>
           
-          <div class="status-step" [class.active]="data.promotion.status === 'paid'">
+          <div class="status-step" [class.active]="true">
             <div class="step-icon">
-              <mat-icon>payments</mat-icon>
+              <mat-icon>{{ getCurrentStateIcon() }}</mat-icon>
             </div>
             <div class="step-content">
-              <span class="step-title">Paid</span>
+              <span class="step-title">{{ getCurrentStateLabel() }}</span>
               <br>
-               @if (data.promotion.paidAt) {
+               @if (getCurrentStateTimestamp()) {
                 <span class="step-time" >
-                  {{data.promotion.paidAt | date:'medium'}}
+                  {{getCurrentStateTimestamp() | date:'medium'}}
                 </span>
               }
-              
             </div>
           </div>
         </div>
       </div>
-      
-       @if (data.promotion.proofMedia && data.promotion.proofMedia.length > 0) {
-        <div class="dialog-section">
-          <h3>Proof Media</h3>
-          <div class="proof-media-grid">
-            @for (media of data.promotion.proofMedia; track media; let i = $index) {
-              <div class="proof-media-item">
-                <img [src]="media" [alt]="'Proof ' + (i + 1)" (click)="openMediaDialog(media)" class="proof-image">
-              </div>
-            }
+
+      <div class="dialog-section">
+        <h3>Tracking Performance</h3>
+        <div class="metrics-grid">
+          <div class="metric-tile">
+            <span class="metric-label">Tracked Clicks</span>
+            <strong>{{getTrackedClicks() | number:'1.0-0'}}</strong>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Billable Clicks</span>
+            <strong>{{getBillableClicks() | number:'1.0-0'}}</strong>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Invalid Clicks</span>
+            <strong>{{getInvalidClicks() | number:'1.0-0'}}</strong>
+          </div>
+          <div class="metric-tile">
+            <span class="metric-label">Spend / Earnings</span>
+            <strong>{{formatCurrency(getTrackedSpend())}}</strong>
           </div>
         </div>
-       }
-      
-      
+
+        <div class="meta-list">
+          <div class="meta-row">
+            <span class="meta-label">UPI</span>
+            <span class="meta-value">{{data.promotion.upi || 'N/A'}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Tracking Link</span>
+            <span class="meta-value meta-link">{{data.promotion.promotionUrl || 'Not generated'}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Cost per Click</span>
+            <span class="meta-value">{{formatCurrency(data.promotion.costPerClick || 0)}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Last Click</span>
+            <span class="meta-value">{{data.promotion.clickStats?.lastClickAt ? (data.promotion.clickStats?.lastClickAt | date:'medium') : 'No click activity yet'}}</span>
+          </div>
+        </div>
+      </div>
+
        @if (data.promotion.rejectionReason) { 
         <div class="dialog-section">
           <h3>Rejection Reason</h3>
@@ -136,31 +159,15 @@ import { MediaViewerDialogComponent } from './media-viewer-dialog.component';
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Close</button>
-      <!--  @if (data.promotion.status === 'submitted') {
-        <button mat-flat-button color="primary" (click)="validatePromotion()">
-          Validate
-        </button>
-       } -->
-      
-      <!--  @if (data.promotion.status === 'submitted') {
-        <button mat-flat-button color="warn" (click)="rejectPromotion()">
-          Reject
-        </button>
-       } -->
-      
     </mat-dialog-actions>
   </div>
   `,
   styleUrls: ['./promotion-details-dialog.component.scss']
 })
 export class PromotionDetailsDialogComponent {
-  private marketerService = inject(MarketerService);
-  private dialog = inject(MatDialog); // Inject MatDialog service
-  public readonly api = this.marketerService.api;
-
   constructor(
     public dialogRef: MatDialogRef<PromotionDetailsDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { promotion: PromotionInterface }
+    @Inject(MAT_DIALOG_DATA) public data: { promotion: PromotionInterface; campaignCurrency?: string }
   ) {}
   
   getInitials(name: string | undefined): string {
@@ -169,22 +176,81 @@ export class PromotionDetailsDialogComponent {
     return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
   }
 
-  validatePromotion() {
-    this.dialogRef.close('validated');
+  getTrackedClicks(): number {
+    return Number(this.data.promotion.clickStats?.totalClicks ?? 0);
   }
 
-  rejectPromotion() {
-    this.dialogRef.close('rejected');
+  getBillableClicks(): number {
+    return Number(this.data.promotion.clickStats?.billableClicks ?? 0);
   }
 
-  openMediaDialog(mediaUrl: string) {
-    const fullMediaUrl = mediaUrl;
-    
-    this.dialog.open(MediaViewerDialogComponent, {
-      data: { mediaUrl: fullMediaUrl },
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-      panelClass: 'media-viewer-dialog-container'
-    });
+  getInvalidClicks(): number {
+    const invalidClicks = Number(this.data.promotion.clickStats?.invalidClicks ?? 0);
+    const duplicateClicks = Number(this.data.promotion.clickStats?.duplicateClicks ?? 0);
+    return invalidClicks + duplicateClicks;
+  }
+
+  getTrackedSpend(): number {
+    const earnedAmount = Number(this.data.promotion.clickStats?.earnedAmount ?? 0);
+    if (earnedAmount > 0) {
+      return earnedAmount;
+    }
+
+    return Number(this.data.promotion.payoutAmount ?? 0);
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: this.data.campaignCurrency || 'NGN',
+    }).format(Number.isFinite(amount) ? amount : 0);
+  }
+
+  getCurrentStateLabel(): string {
+    if (this.data.promotion.fraudStatus?.isFlagged) {
+      return 'Under Review';
+    }
+
+    if (this.data.promotion.status === 'rejected') {
+      return 'Rejected';
+    }
+
+    if (this.data.promotion.isActive === false) {
+      return 'Inactive';
+    }
+
+    if (this.data.promotion.status === 'paid') {
+      return 'Legacy Paid';
+    }
+
+    return 'Running';
+  }
+
+  getCurrentStateIcon(): string {
+    if (this.data.promotion.fraudStatus?.isFlagged) {
+      return 'gpp_maybe';
+    }
+
+    if (this.data.promotion.status === 'rejected') {
+      return 'warning';
+    }
+
+    if (this.data.promotion.isActive === false) {
+      return 'pause_circle';
+    }
+
+    if (this.data.promotion.status === 'paid') {
+      return 'paid';
+    }
+
+    return 'check_circle';
+  }
+
+  getCurrentStateTimestamp(): Date | string | undefined {
+    return this.data.promotion.rejectedAt
+      || this.data.promotion.paidAt
+      || this.data.promotion.updatedAt
+      || this.data.promotion.acceptedAt
+      || this.data.promotion.createdAt;
   }
 }

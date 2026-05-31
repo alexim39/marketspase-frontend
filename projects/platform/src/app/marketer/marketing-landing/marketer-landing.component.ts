@@ -21,6 +21,19 @@ import { CampaignStatsMobileComponent } from './components/campaign-stats/mobile
 import { CampaignFiltersMobileComponent } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 import { CampaignDetailsService } from '../../campaign/campaign-details/campaign-details.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  getCampaignBillableClicks,
+  getCampaignCostPerClick,
+  getCampaignEstimatedClicks,
+  getCampaignInvalidClicks,
+  getCampaignRemainingBudget,
+  getCampaignTotalClicks,
+  getCampaignUniquePromoterCount,
+  isCampaignBudgetExhausted,
+  isCampaignExpired,
+} from '../../common/utils/campaign-performance.util';
+import { CampaignTopUpDialogComponent } from '../../campaign/shared/campaign-top-up-dialog.component';
 
 interface FilterOptions {
   status: string;
@@ -36,6 +49,31 @@ interface StatusOption {
   value: string;
   label: string;
   icon: string;
+}
+
+interface CampaignDashboardStats {
+  totalCampaigns: number;
+  activeCampaigns: number;
+  draftCampaigns: number;
+  completedCampaigns: number;
+  pendingCampaigns: number;
+  exhaustedCampaigns: number;
+  totalSpent: number;
+  totalBudget: number;
+  remainingBudget: number;
+  budgetUtilization: number;
+  totalClicks: number;
+  billableClicks: number;
+  invalidClicks: number;
+  totalPromoters: number;
+  totalPromotions: number;
+  activePromotions: number;
+  clickQualityRate: number;
+  promoterActivationRate: number;
+  avgCostPerClick: number;
+  estimatedRemainingClicks: number;
+  campaignsWithPromotions: number;
+  campaignsNeedingAttention: number;
 }
 
 @Component({
@@ -65,6 +103,7 @@ export class MarketerLandingComponent implements OnInit {
   private marketerService = inject(MarketerService);
   private campaignDetailsService = inject(CampaignDetailsService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   
   public apiBaseUrl = this.marketerService.api;
 
@@ -97,7 +136,7 @@ export class MarketerLandingComponent implements OnInit {
   searchControl = new FormControl('');
 
   // Computed properties
-  campaignStats = computed(() => this.calculateStats());
+  campaignStats = computed<CampaignDashboardStats>(() => this.calculateStats());
   
   campaignCounts = computed(() => {
     const counts: Record<string, number> = { all: this.totalCampaigns() };
@@ -181,6 +220,11 @@ export class MarketerLandingComponent implements OnInit {
           error: (error: HttpErrorResponse) => {
             this.isLoading.set(false);
             console.error('Failed to load campaigns:', error);
+            this.campaigns.set([]);
+            this.totalCampaigns.set(0);
+            this.totalPages.set(0);
+            this.hasNextPage.set(false);
+            this.hasPrevPage.set(false);
           }
         });
     }
@@ -254,107 +298,75 @@ export class MarketerLandingComponent implements OnInit {
     this.loadCampaigns();
   }
 
-  private calculateStats() {
+  private calculateStats(): CampaignDashboardStats {
     const campaigns = this.campaigns();
-    
-    // Flatten all promotions from all campaigns
     const allPromotions = campaigns.flatMap(campaign => campaign.promotions || []);
-    
-    // Calculate metrics based on actual data
-    const totalSpent = campaigns.reduce((sum, c) => sum + (c.spentBudget || 0), 0);
-    
-    // Calculate total views from proofViews in promotions
-    const totalViews = allPromotions.reduce((sum, promotion) => 
-      sum + (promotion.proofViews || 0), 0
+
+    const totalSpent = campaigns.reduce((sum, campaign) => sum + Number(campaign.spentBudget || 0), 0);
+    const totalBudget = campaigns.reduce((sum, campaign) => sum + Number(campaign.budget || 0), 0);
+    const remainingBudget = campaigns.reduce((sum, campaign) => sum + getCampaignRemainingBudget(campaign), 0);
+
+    const totalClicks = campaigns.reduce((sum, campaign) => sum + getCampaignTotalClicks(campaign), 0);
+    const billableClicks = campaigns.reduce((sum, campaign) => sum + getCampaignBillableClicks(campaign), 0);
+    const invalidClicks = campaigns.reduce((sum, campaign) => sum + getCampaignInvalidClicks(campaign), 0);
+
+    const uniquePromoters = getCampaignUniquePromoterCount(allPromotions);
+    const campaignsWithPromotions = campaigns.filter(campaign =>
+      Number(campaign.promotionSummary?.uniquePromoters ?? campaign.totalPromotions ?? 0) > 0
+    ).length;
+    const activePromotions = allPromotions.filter(promotion =>
+      promotion.status === 'accepted' && promotion.isActive !== false
+    ).length;
+
+    const activeCampaigns = campaigns.filter(campaign =>
+      campaign.status === 'active' && !isCampaignBudgetExhausted(campaign) && !isCampaignExpired(campaign)
     );
-    
-    // Calculate total promoters (unique promoters across all campaigns)
-    const uniquePromoters = new Set(
-      allPromotions.map(p => p.promoter).filter(Boolean)
-    ).size;
-    
-    // Calculate engagement metrics
-    const submittedPromotions = allPromotions.filter(p => p.status === 'submitted' || p.status === 'validated' || p.status === 'paid');
-    const paidPromotions = allPromotions.filter(p => p.status === 'paid');
-    
-    // Calculate CTR (Click-Through Rate) - if you have link clicks data
-    // For now, using a calculated engagement rate based on views vs expected
-    const totalExpectedViews = campaigns.reduce((sum, c) => 
-      sum + ((c.minViewsPerPromotion || 0) * (c.totalPromotions || 0)), 0
+    const draftCampaigns = campaigns.filter(campaign => campaign.status === 'draft');
+    const completedCampaigns = campaigns.filter(campaign =>
+      ['completed', 'expired'].includes(String(campaign.status)) || isCampaignExpired(campaign)
     );
-    
-    const engagementRate = totalExpectedViews > 0 ? 
-      (totalViews / totalExpectedViews) * 100 : 0;
-    
-    // Calculate success rate (paid vs submitted promotions)
-    const successRate = submittedPromotions.length > 0 ? 
-      (paidPromotions.length / submittedPromotions.length) * 100 : 0;
-    
-    // Calculate average completion time (if you have timing data)
-    const completedPromotions = allPromotions.filter(p => 
-      p.status === 'paid' && p.submittedAt && p.paidAt
+    const pendingCampaigns = campaigns.filter(campaign => campaign.status === 'pending');
+    const exhaustedCampaigns = campaigns.filter(campaign =>
+      campaign.status === 'exhausted' || isCampaignBudgetExhausted(campaign)
     );
-    
-    const avgCompletionTime = completedPromotions.length > 0 ? 
-      completedPromotions.reduce((sum, p) => {
-        const submitTime = new Date(p.submittedAt!).getTime();
-        const paidTime = new Date(p.paidAt!).getTime();
-        return sum + (paidTime - submitTime);
-      }, 0) / completedPromotions.length : 0;
-    
-    // Format average completion time to hours
-    const avgCompletionHours = avgCompletionTime > 0 ? 
-      (avgCompletionTime / (1000 * 60 * 60)).toFixed(1) : '0';
-    
-    // Campaign status breakdown
-    const activeCampaigns = campaigns.filter(c => c.status === 'active');
-    const draftCampaigns = campaigns.filter(c => c.status === 'draft');
-    const completedCampaigns = campaigns.filter(c => 
-      c.status === 'completed' || c.remainingBudget <= 0
-    );
-    const pendingCampaigns = campaigns.filter(c => c.status === 'pending');
-    
-    // Calculate budget utilization
-    const totalBudget = campaigns.reduce((sum, c) => sum + (c.budget || 0), 0);
-    const budgetUtilization = totalBudget > 0 ? 
-      (totalSpent / totalBudget) * 100 : 0;
-    
+
+    const budgetUtilization = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+    const clickQualityRate = totalClicks > 0 ? (billableClicks / totalClicks) * 100 : 0;
+    const promoterActivationRate = activeCampaigns.length > 0 ? (campaignsWithPromotions / activeCampaigns.length) * 100 : 0;
+    const avgCostPerClick = billableClicks > 0
+      ? totalSpent / billableClicks
+      : (campaigns.length > 0
+          ? campaigns.reduce((sum, campaign) => sum + getCampaignCostPerClick(campaign), 0) / campaigns.length
+          : 0);
+    const estimatedRemainingClicks = campaigns.reduce((sum, campaign) => sum + getCampaignEstimatedClicks(campaign), 0);
+
     return {
-      // Campaign counts
-      totalCampaigns: this.totalCampaigns(), // Use total from backend
+      totalCampaigns: this.totalCampaigns(),
       activeCampaigns: activeCampaigns.length,
       draftCampaigns: draftCampaigns.length,
       completedCampaigns: completedCampaigns.length,
       pendingCampaigns: pendingCampaigns.length,
-      
-      // Financial metrics
+      exhaustedCampaigns: exhaustedCampaigns.length,
       totalSpent,
       totalBudget,
+      remainingBudget,
       budgetUtilization: Math.round(budgetUtilization),
-      
-      // Performance metrics
-      totalViews,
+      totalClicks,
+      billableClicks,
+      invalidClicks,
       totalPromoters: uniquePromoters,
-      totalPromotions: allPromotions.length,
-      successfulPromotions: paidPromotions.length,
-      
-      // Engagement metrics
-      engagementRate: Math.round(engagementRate),
-      successRate: Math.round(successRate),
-      avgCompletionTime: avgCompletionHours,
-      
-      // Additional useful metrics
-      avgPayout: paidPromotions.length > 0 ? 
-        paidPromotions.reduce((sum, p) => sum + (p.payoutAmount || 0), 0) / paidPromotions.length : 0,
-      
-      pendingPayout: allPromotions
-        .filter(p => p.status === 'submitted' || p.status === 'validated')
-        .reduce((sum, p) => sum + (p.payoutAmount || 0), 0),
-      
-      // Campaign performance indicators
-      campaignsWithPromotions: campaigns.filter(c => (c.promotions?.length || 0) > 0).length,
-      campaignsNeedingAttention: campaigns.filter(c => 
-        c.status === 'active' && (c.promotions?.length || 0) === 0
+      totalPromotions: campaigns.reduce((sum, campaign) => sum + Number(campaign.totalPromotions || 0), 0),
+      activePromotions,
+      clickQualityRate: Math.round(clickQualityRate),
+      promoterActivationRate: Math.round(promoterActivationRate),
+      avgCostPerClick,
+      estimatedRemainingClicks,
+      campaignsWithPromotions,
+      campaignsNeedingAttention: campaigns.filter(campaign =>
+        campaign.status === 'active' &&
+        !isCampaignBudgetExhausted(campaign) &&
+        !isCampaignExpired(campaign) &&
+        Number(campaign.promotionSummary?.uniquePromoters ?? 0) === 0
       ).length
     };
   }
@@ -399,7 +411,19 @@ export class MarketerLandingComponent implements OnInit {
 
   // Campaign actions
   pauseCampaign(campaignId: string): void {
-    console.log('Pausing campaign:', campaignId);
+    this.campaignDetailsService.updateCampaignStatus(campaignId, 'paused', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackBar.open('Campaign paused successfully', 'Close', { duration: 3000 });
+            this.refreshCampaigns();
+          }
+        },
+        error: (error) => {
+          this.snackBar.open(error.error?.message || 'Failed to pause campaign', 'Close', { duration: 3000 });
+        }
+      });
   }
 
   activateCampaign(campaignId: string): void {
@@ -424,7 +448,60 @@ export class MarketerLandingComponent implements OnInit {
   }
 
   resumeCampaign(campaignId: string): void {
-    console.log('Resuming campaign:', campaignId);
+    this.campaignDetailsService.updateCampaignStatus(campaignId, 'active', this.user()?._id || '')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.snackBar.open(response.message, 'Close', { duration: 3000 });
+            this.refreshCampaigns();
+          }
+        },
+        error: (error) => {
+          this.snackBar.open(error.error?.message || 'Failed to resume campaign', 'Close', { duration: 3000 });
+        }
+      });
+  }
+
+  topUpCampaign(campaignId: string): void {
+    const campaign = this.campaigns().find((item) => item._id === campaignId);
+    if (!campaign) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(CampaignTopUpDialogComponent, {
+      width: '460px',
+      maxWidth: '95vw',
+      data: {
+        title: campaign.title,
+        currency: campaign.currency || 'NGN',
+        remainingBudget: getCampaignRemainingBudget(campaign),
+        recommendedAmount: Math.max(Number(campaign.costPerClick ?? 0) * 25, 1000),
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        const amount = Number(result?.amount ?? 0);
+        if (!amount) {
+          return;
+        }
+
+        this.campaignDetailsService.topUpCampaign(campaignId, amount, this.user()?._id || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.snackBar.open(response.message, 'Close', { duration: 3200 });
+                this.refreshCampaigns();
+              }
+            },
+            error: (error) => {
+              this.snackBar.open(error.error?.message || 'Failed to top up campaign', 'Close', { duration: 3200 });
+            }
+          });
+      });
   }
 
   deleteCampaign(campaignId: string): void {

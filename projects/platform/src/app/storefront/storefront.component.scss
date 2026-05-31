@@ -32,10 +32,11 @@
     // Featured Products Carousel
     .featured-section {
       margin-bottom: $spacing-12;
-      padding: $spacing-6;
+      padding: $spacing-5;
       background: $surface-color;
-      border-radius: $border-radius-lg;
-      box-shadow: $shadow-lg;
+      border-radius: $border-radius-md;
+      // Keep this as a section band, not a floating card.
+      box-shadow: none;
       border: 1px solid $border-color;
 
       .section-header {
@@ -70,6 +71,8 @@
       .featured-carousel {
         display: grid;
         grid-auto-flow: column;
+        // Keep a stable card width so the carousel feels intentional (not oversized).
+        grid-auto-columns: minmax(220px, 260px);
         gap: $spacing-4;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
@@ -77,30 +80,9 @@
         padding: $spacing-2;
         @include scrollbar;
 
-        .featured-card {
+        // Ensure the card snaps nicely even though it's a component host element.
+        > app-product-grid-card {
           scroll-snap-align: start;
-          min-width: 280px;
-          background: $surface-color;
-          border-radius: $border-radius-lg;
-          overflow: hidden;
-          @include card-hover;
-          position: relative;
-          border: 1px solid $border-color;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: $gradient-primary;
-          }
-
-          .card-content {
-            padding: $spacing-4;
-            color: $text-primary;
-          }
         }
       }
     }
@@ -145,12 +127,7 @@
 
         .featured-carousel {
           gap: $spacing-3;
-          
-          .featured-card {
-            min-width: 240px;
-            background: $surface-color;
-            border-color: $border-color;
-          }
+          grid-auto-columns: minmax(200px, 240px);
         }
       }
 

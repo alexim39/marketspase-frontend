@@ -1,11 +1,16 @@
 import { Routes } from "@angular/router";
 
 export const StoreRoutes: Routes = [
-
+ 
     {   path: '', 
         loadComponent: () => import('../store/store-management/store-management.component').then(c => c.StoreManagementComponent),
         title: 'Stores Management - Admin Dashboard'
     }, 
+    {
+        path: 'analytics',
+        loadComponent: () => import('../store/analytics/storefront-analytics.component').then(c => c.StorefrontAnalyticsComponent),
+        title: 'Storefront Analytics - Admin Dashboard'
+    },
     {
         path: 'reviews',
         loadComponent: () => import('../store/reviews/store-review-moderation.component').then(c => c.StoreReviewModerationComponent),
@@ -15,6 +20,16 @@ export const StoreRoutes: Routes = [
         path: 'delivery-releases',
         loadComponent: () => import('../store/releases/storefront-release-requests.component').then(c => c.StorefrontReleaseRequestsComponent),
         title: 'Delivery Release Requests - Admin Dashboard'
+    },
+    {
+        path: 'buyers',
+        loadComponent: () => import('../store/buyers/store-buyers.component').then(c => c.StoreBuyersComponent),
+        title: 'Store Buyers - Admin Dashboard'
+    },
+    {
+        path: 'subscribers',
+        loadComponent: () => import('../store/subscribers/store-subscribers.component').then(c => c.StoreSubscribersComponent),
+        title: 'Storefront Email Subscribers - Admin Dashboard'
     },
     {
         path: 'products/:storeId',

@@ -8,8 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { PromotionInterface, UserInterface } from '@shared/services';
-import { PromoterService } from '../../../promoter/promoter.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { UserService } from '../../../common/services/user.service';
 
 export interface SubmitProofDialogData {
@@ -19,7 +17,6 @@ export interface SubmitProofDialogData {
 @Component({
   selector: 'app-submit-proof-dialog',
   standalone: true,
-  providers: [PromoterService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -97,8 +94,7 @@ export class SubmitProofDialogComponent {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<SubmitProofDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: SubmitProofDialogData,
-    private promoterService: PromoterService
+    @Inject(MAT_DIALOG_DATA) public data: SubmitProofDialogData
   ) {
     // Initialize form with proper validation
     this.proofForm = this.fb.group({
@@ -188,53 +184,7 @@ export class SubmitProofDialogComponent {
   }
 
   onSubmit(): void {
-    // console.log('Submitting form:', {
-    //   valid: this.proofForm.valid,
-    //   values: this.proofForm.value,
-    //   files: this.selectedFiles().length
-    // });
-
-    if (this.proofForm.invalid || !this.hasFiles()) {
-      this.showMessage('error', `Please fill all required fields and upload at least ${this.minFiles} proof images`);
-      return;
-    }
-
-    // if (this.proofForm.invalid || !this.hasFiles()) {
-    //   this.showMessage('error', 'Please fill all required fields and upload at least one proof image');
-    //   return;
-    // }
-
-    this.isSubmitting.set(true);
-    this.submissionStatus.set('idle');
-
-    const formData = new FormData();
-    formData.append('promotionId', this.data.promotion._id);
-    formData.append('viewsCount', this.proofForm.get('viewsCount')?.value);
-    formData.append('notes', this.proofForm.get('notes')?.value || '');
-
-    this.selectedFiles().forEach((file) => {
-      formData.append('proofImages', file);
-    });
-
-    this.promoterService.submitProof(formData, this.user()!._id).subscribe({
-      next: (response) => {
-        this.isSubmitting.set(false);
-        if (response.success) {
-          this.submissionStatus.set('success');
-          this.showMessage('success', response.message);
-          setTimeout(() => this.dialogRef.close('submitted'), 2000);
-        } else {
-          this.submissionStatus.set('error');
-          this.showMessage('error', response.message || 'Submission failed');
-        }
-      },
-      error: (error: HttpErrorResponse) => {
-        this.isSubmitting.set(false);
-        this.submissionStatus.set('error');
-        const errorMessage = error.error?.message || 'Server error occurred, please try again.';
-        this.showMessage('error', errorMessage);
-      }
-    });
+    this.showMessage('error', 'Proof submission is no longer required for PPC campaigns.');
   }
 
   onCancel(): void {

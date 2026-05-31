@@ -1,0 +1,81 @@
+<main class="campaign-unavailable-mobile" [attr.data-tone]="reasonTone()" aria-labelledby="campaignUnavailableTitle">
+  <header class="mobile-appbar">
+    <a class="icon-button" routerLink="/" aria-label="Go to MarketSpase home">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="appbar-copy">
+      <p class="eyebrow">Promotion redirect</p>
+      <h1 id="campaignUnavailableTitle">Campaign unavailable</h1>
+    </div>
+
+    <span class="status-dot" aria-hidden="true">
+      <mat-icon>{{ reasonIcon() }}</mat-icon>
+    </span>
+  </header>
+
+  <section class="reason-card">
+    <span class="reason-chip">
+      <mat-icon>{{ reasonIcon() }}</mat-icon>
+      {{ reasonLabel() }}
+    </span>
+
+    <h2>{{ headline() }}</h2>
+    <p>{{ body() }}</p>
+  </section>
+
+  <section class="campaign-card" aria-label="Campaign summary">
+    <div class="section-heading">
+      <p class="eyebrow">Campaign</p>
+      <h2>{{ title() }}</h2>
+    </div>
+
+    <div class="signal-grid">
+      <article>
+        <mat-icon aria-hidden="true">money_off</mat-icon>
+        <span>Billing stopped</span>
+      </article>
+      <article>
+        <mat-icon aria-hidden="true">verified_user</mat-icon>
+        <span>Safe redirect</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="next-step-card" aria-label="What happened">
+    <div class="section-heading">
+      <p class="eyebrow">What happened?</p>
+      <h2>No broken landing page</h2>
+    </div>
+
+    <div class="step-list">
+      @for (step of nextSteps; track step) {
+        <article class="step-row">
+          <span aria-hidden="true">{{ $index + 1 }}</span>
+          <p>{{ step }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  @if (contactUrl()) {
+    <section class="seller-card" aria-label="Seller support">
+      <mat-icon aria-hidden="true">support_agent</mat-icon>
+      <div>
+        <h2>Need help from the seller?</h2>
+        <p>You can contact the seller if this link came from a product or store promotion.</p>
+      </div>
+      <a mat-stroked-button [href]="contactUrl()" target="_blank" rel="noopener noreferrer">
+        Contact seller
+      </a>
+    </section>
+  }
+</main>
+
+<footer class="sticky-actions" aria-label="Campaign unavailable actions">
+  <a mat-flat-button color="primary" routerLink="/">
+    <mat-icon>travel_explore</mat-icon>
+    Explore MarketSpase
+  </a>
+  <a mat-button routerLink="/resources/help-center">Get help</a>
+</footer>

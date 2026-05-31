@@ -44,12 +44,12 @@
           background: color-mix(in srgb, $info-color, white 85%);
           color: $info-color;
         }
-        &.pending, &.submitted {
+        &.active, &.tracked {
           // UPDATED: Use warning-color with light background
           background: color-mix(in srgb, $warning-color, white 85%);
           color: $warning-color;
         }
-        &.validated {
+        &.billable {
           // UPDATED: Use success-color with light background
           background: color-mix(in srgb, $success-color, white 85%);
           color: $success-color;

@@ -1,0 +1,197 @@
+<main class="ads-preference-mobile" aria-label="Ad preferences">
+  <header class="mobile-hero">
+    <a class="icon-button" routerLink="/dashboard/settings" aria-label="Back to settings">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="hero-copy">
+      <span>Ad preferences</span>
+      <h1>Control your ads</h1>
+      <p>Choose the campaign signals MarketSpase can use for you.</p>
+    </div>
+
+    <div class="hero-badge" aria-hidden="true">
+      <mat-icon>campaign</mat-icon>
+    </div>
+  </header>
+
+  @if (!user() || !isInitialized()) {
+    <section class="loading-state" aria-live="polite">
+      <mat-spinner diameter="28"></mat-spinner>
+      <div>
+        <strong>Loading ad controls</strong>
+        <span>Preparing your saved preferences</span>
+      </div>
+    </section>
+  } @else {
+    <section class="relevance-card" [class.good]="relevanceTone() === 'good'" [class.warn]="relevanceTone() === 'warn'" [class.bad]="relevanceTone() === 'bad'">
+      <div class="relevance-heading">
+        <div>
+          <span>Ad relevance</span>
+          <strong>{{ relevanceScore() }}%</strong>
+        </div>
+        <mat-icon>{{ relevanceTone() === 'good' ? 'verified' : relevanceTone() === 'warn' ? 'tips_and_updates' : 'privacy_tip' }}</mat-icon>
+      </div>
+
+      <div class="progress-track" aria-hidden="true">
+        <span [style.width.%]="relevanceScore()"></span>
+      </div>
+
+      <p>{{ guidanceText() }}</p>
+    </section>
+
+    <section class="status-grid" aria-label="Preference summary">
+      @for (card of statusCards(); track card.label) {
+        <article class="status-card" [class.good]="card.tone === 'good'" [class.warn]="card.tone === 'warn'">
+          <mat-icon>{{ card.icon }}</mat-icon>
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+        </article>
+      }
+    </section>
+
+    <section class="preference-stack" aria-label="Ad preference controls">
+      <article class="preference-panel">
+        <div class="panel-heading">
+          <span class="panel-icon location">
+            <mat-icon>location_on</mat-icon>
+          </span>
+          <div>
+            <h2>Local campaign matching</h2>
+            <p>Show promotions from businesses and campaigns near your area.</p>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <strong>{{ preferences().locationBasedAds ? 'Location ads enabled' : 'Location ads disabled' }}</strong>
+            <span>{{ preferences().locationBasedAds ? 'You can receive nearby store offers.' : 'Nearby offers will not be prioritized.' }}</span>
+          </div>
+
+          <mat-slide-toggle
+            [ngModel]="preferences().locationBasedAds"
+            (ngModelChange)="updateLocationBasedAds($event)"
+            color="primary"
+            [disabled]="isSaving()"
+            aria-label="Toggle location-based ads">
+          </mat-slide-toggle>
+        </div>
+
+        <div class="benefit-list">
+          <span><mat-icon>storefront</mat-icon> Local store offers</span>
+          <span><mat-icon>event_available</mat-icon> Nearby events</span>
+          <span><mat-icon>inventory_2</mat-icon> Regional availability</span>
+        </div>
+
+        @if (showLocationProfileHint()) {
+          <a class="profile-warning" routerLink="/dashboard/settings/account">
+            <mat-icon>info</mat-icon>
+            <span>Add your address so matching works better.</span>
+          </a>
+        }
+      </article>
+
+      <article class="preference-panel">
+        <div class="panel-heading">
+          <span class="panel-icon interest">
+            <mat-icon>interests</mat-icon>
+          </span>
+          <div>
+            <h2>Interest categories</h2>
+            <p>Pick up to {{ maxSelectedCategories }} categories you care about most.</p>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <strong>{{ preferences().categoryBasedAds ? 'Interest ads enabled' : 'Interest ads disabled' }}</strong>
+            <span>{{ preferences().categoryBasedAds ? 'Categories below will shape your ads.' : 'Category matching is paused.' }}</span>
+          </div>
+
+          <mat-slide-toggle
+            [ngModel]="preferences().categoryBasedAds"
+            (ngModelChange)="updateCategoryBasedAds($event)"
+            color="primary"
+            [disabled]="isSaving()"
+            aria-label="Toggle interest-based ads">
+          </mat-slide-toggle>
+        </div>
+
+        <div class="selected-strip" [class.empty]="selectedCategoryLabels().length === 0">
+          @if (selectedCategoryLabels().length) {
+            @for (label of selectedCategoryLabels(); track label) {
+              <span>{{ label }}</span>
+            }
+          } @else {
+            <span>No categories selected yet</span>
+          }
+        </div>
+      </article>
+    </section>
+
+    <section class="category-picker" [class.disabled]="!preferences().categoryBasedAds" aria-label="Choose interest categories">
+      <div class="picker-heading">
+        <div>
+          <span>Interest picker</span>
+          <h2>{{ selectedCategoryCount() }}/{{ maxSelectedCategories }} selected</h2>
+        </div>
+        <mat-icon>tune</mat-icon>
+      </div>
+
+      <div class="category-grid">
+        @for (category of allCategories; track category.value) {
+          <button
+            type="button"
+            class="category-button"
+            [class.selected]="preferences().selectedCategories.includes(category.value)"
+            [disabled]="isSaving() || !preferences().categoryBasedAds || (!preferences().selectedCategories.includes(category.value) && selectedCategoryCount() >= maxSelectedCategories)"
+            [attr.aria-pressed]="preferences().selectedCategories.includes(category.value)"
+            (click)="toggleCategory(category.value)">
+            <span>{{ category.label }}</span>
+            @if (preferences().selectedCategories.includes(category.value)) {
+              <mat-icon>check</mat-icon>
+            }
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="ad-type-guide" aria-label="Ad types you may receive">
+      <div class="guide-heading">
+        <span>What this affects</span>
+        <h2>Campaigns you may see</h2>
+      </div>
+
+      @for (type of adTypes; track type.title) {
+        <article class="guide-card">
+          <mat-icon>{{ type.icon }}</mat-icon>
+          <div>
+            <strong>{{ type.title }}</strong>
+            <span>{{ type.description }}</span>
+          </div>
+        </article>
+      }
+    </section>
+
+    @if (preferencesSaved()) {
+      <div class="saved-toast" role="status">
+        <mat-icon>check_circle</mat-icon>
+        <span>Preferences saved successfully.</span>
+      </div>
+    }
+
+    @if (hasChanges()) {
+      <footer class="sticky-actions" aria-label="Preference actions">
+        <button type="button" class="secondary-action" (click)="discardChanges()" [disabled]="isSaving()">
+          <mat-icon>refresh</mat-icon>
+          <span>Discard</span>
+        </button>
+
+        <button type="button" class="primary-action" (click)="savePreferences()" [disabled]="isSaving()">
+          <mat-icon>{{ isSaving() ? 'autorenew' : 'save' }}</mat-icon>
+          <span>{{ isSaving() ? 'Saving' : 'Save' }}</span>
+        </button>
+      </footer>
+    }
+  }
+</main>

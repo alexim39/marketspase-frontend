@@ -1,0 +1,104 @@
+<main class="referral-mobile" aria-labelledby="referralTitle">
+  <header class="referral-appbar">
+    <a class="icon-button" routerLink="/" aria-label="Go to MarketSpase home">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="appbar-copy">
+      <p class="eyebrow">MarketSpase invite</p>
+      <h1 id="referralTitle">Referral access</h1>
+    </div>
+
+    <span class="brand-mark" aria-hidden="true">M</span>
+  </header>
+
+  <section class="hero-card" aria-live="polite">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <span class="state-icon loading-icon">
+          <mat-spinner diameter="34" />
+        </span>
+        <p class="eyebrow">Checking invite</p>
+        <h2>Preparing your referral link</h2>
+        <p>
+          We are confirming the promoter and saving the invite so signup can continue smoothly.
+        </p>
+
+        <div class="skeleton-list" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading() && isSuccess()) {
+      <div class="result-state success-state">
+        <span class="state-icon success-icon">
+          <mat-icon>check_circle</mat-icon>
+        </span>
+        <p class="eyebrow">Invite applied</p>
+        <h2>You were referred by {{ referrerName() }}</h2>
+        <p>
+          This referral is saved for signup. Continue to MarketSpase and complete your first
+          qualifying activity to unlock the referral benefit.
+        </p>
+      </div>
+    }
+
+    @if (!isLoading() && !isSuccess() && errorMessage()) {
+      <div class="result-state error-state">
+        <span class="state-icon error-icon">
+          <mat-icon>error</mat-icon>
+        </span>
+        <p class="eyebrow">Invite unavailable</p>
+        <h2>We could not apply this referral</h2>
+        <p>{{ errorMessage() }}</p>
+        <p class="helper-copy">You can still continue to MarketSpase and create an account.</p>
+      </div>
+    }
+  </section>
+
+  <section class="process-card" aria-label="How referral signup works">
+    <div class="section-heading">
+      <p class="eyebrow">What happens next</p>
+      <h2>Simple, safe signup flow</h2>
+    </div>
+
+    <div class="step-list">
+      @for (step of steps; track step.title) {
+        <article class="step-row">
+          <span class="step-icon" aria-hidden="true">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.body }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="trust-strip" aria-label="Referral trust notes">
+    <article>
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      <span>Secure referral tracking</span>
+    </article>
+    <article>
+      <mat-icon aria-hidden="true">payments</mat-icon>
+      <span>Bonus rules stay protected</span>
+    </article>
+  </section>
+</main>
+
+<footer class="sticky-actions" aria-label="Referral actions">
+  <button mat-flat-button color="primary" type="button" (click)="navigateToHome()">
+    @if (isSuccess()) {
+      Continue to Sign Up
+    } @else {
+      Go to MarketSpase
+    }
+  </button>
+  <a mat-button routerLink="/resources/help-center">Need help?</a>
+</footer>

@@ -19,6 +19,7 @@
               (pauseCampaign)="onPauseCampaign($event)"
               (activateCampaign)="onActivateCampaign($event)"
               (resumeCampaign)="onResumeCampaign($event)"
+              (topUpCampaign)="onTopUpCampaign($event)"
               (deleteCampaign)="onDeleteCampaign($event)"
             />
           } @else {
@@ -31,6 +32,7 @@
               (pauseCampaign)="onPauseCampaign($event)"
               (activateCampaign)="onActivateCampaign($event)"
               (resumeCampaign)="onResumeCampaign($event)"
+              (topUpCampaign)="onTopUpCampaign($event)"
               (deleteCampaign)="onDeleteCampaign($event)"
             />
           }
@@ -59,8 +61,8 @@
                       {{campaign.title | titlecase}}
                     }
                   </h3>
-                  <div class="status-badge" [class]="'status-' + campaign.status">
-                    {{campaign.status | titlecase}}
+                  <div class="status-badge" [class]="getStatusClass(campaign)">
+                    {{ getStatusLabel(campaign) }}
                   </div>
                 </div>
                 
@@ -70,21 +72,21 @@
                 
                 <div class="list-item-meta">
                   <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
-                  <span><mat-icon>calendar_today</mat-icon> {{campaign.duration}}</span>
+                  <span><mat-icon>calendar_today</mat-icon> {{ getTimingLabel(campaign) }}</span>
                 </div>
                 
                 <div class="list-item-metrics">
                   <div class="metric">
-                    <span class="metric-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</span>
-                    <span class="metric-label">Promoters</span>
+                    <span class="metric-value">{{ getPromoterAccessValue(campaign) }}</span>
+                    <span class="metric-label">{{ getPromoterAccessLabel(campaign) }}</span>
                   </div>
                   <div class="metric">
-                    <span class="metric-value">{{getViewCount(campaign.promotions) | shortNumber}}</span>
-                    <span class="metric-label">Views</span>
+                    <span class="metric-value">{{getClickCount(campaign) | shortNumber}}</span>
+                    <span class="metric-label">Clicks</span>
                   </div>
                   <div class="metric">
-                    <span class="metric-value">{{formatCurrency((campaign.currentPromoters * campaign.payoutPerPromotion))}}</span>
-                    <span class="metric-label">Spent</span>
+                    <span class="metric-value">{{formatCurrency(getRemainingBudget(campaign))}}</span>
+                    <span class="metric-label">Remaining</span>
                   </div>
                 </div>
               </div>

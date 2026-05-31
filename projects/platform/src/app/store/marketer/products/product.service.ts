@@ -199,7 +199,7 @@ export class ProductService {
    * Create product with file upload support (multipart form data)
    */
   createProduct(storeId: string, userId: string, formData: FormData): Observable<ProductResponse> {
-    return this.apiService.post<ProductResponse>(`stores/product/${storeId}/${userId}/create`, formData, undefined, true);
+    return this.apiService.post<ProductResponse>(`api/v1/stores/product/${storeId}/${userId}/create`, formData, undefined, true);
   }
 
   /**
@@ -207,14 +207,14 @@ export class ProductService {
    */
   getProduct(userId: string, productId: string): Observable<ProductResponse> {
     const params = new HttpParams({ fromObject: { userId } });
-    return this.apiService.get<ProductResponse>(`stores/product/${productId}`, params, undefined, true );
+    return this.apiService.get<ProductResponse>(`api/v1/stores/product/${productId}`, params, undefined, true );
   }
 
   /**
    * Update product
    */
   updateProduct(storeId: string, userId: string, productId: string, productData: Partial<CreateProductRequest>): Observable<ProductResponse> {
-    return this.apiService.put<ProductResponse>(`stores/product/${storeId}/${userId}/${productId}`, productData, undefined, true);
+    return this.apiService.put<ProductResponse>(`api/v1/stores/product/${storeId}/${userId}/${productId}`, productData, undefined, true);
   }
 
 
@@ -222,7 +222,7 @@ export class ProductService {
    * Permanently delete product (use with caution)
    */
   deleteProduct(storeId: string, userId: string, productId: string): Observable<{ success: boolean; message: string }> {
-    return this.apiService.delete<{ success: boolean; message: string }>(`stores/product/${storeId}/${userId}/${productId}/permanent`, undefined, undefined, true);
+    return this.apiService.delete<{ success: boolean; message: string }>(`api/v1/stores/product/${storeId}/${userId}/${productId}/permanent`, undefined, undefined, true);
   }
 
    /**
@@ -234,7 +234,7 @@ export class ProductService {
     productIds: string[]
   ): Observable<PublishProductsResponse> {
     return this.apiService.post<PublishProductsResponse>(
-      `stores/product/${storeId}/${userId}/publish`,
+      `api/v1/stores/product/${storeId}/${userId}/publish`,
       { productIds },
       undefined,
       true
@@ -249,7 +249,7 @@ export class ProductService {
     productIds: string[]
   ): Observable<any> {
     return this.apiService.post<any>(
-      `stores/product/${storeId}/unpublish`,
+      `api/v1/stores/product/${storeId}/unpublish`,
       { productIds },
       undefined,
       true
@@ -265,7 +265,7 @@ export class ProductService {
   ): Observable<any> {
    // console.log('Unpublishing single product:', { storeId, productId });
     return this.apiService.post<any>(
-      `stores/product/${storeId}/${productId}/unpublish`,
+      `api/v1/stores/product/${storeId}/${productId}/unpublish`,
       {},
       undefined,
       true
@@ -292,7 +292,7 @@ export class ProductService {
     if (options?.includeInactive) params.includeInactive = options.includeInactive;
 
     return this.apiService.get<any>(
-      `stores/product/${storeId}/store-published-products`,
+      `api/v1/stores/product/${storeId}/store-published-products`,
       params,
       undefined,
       true

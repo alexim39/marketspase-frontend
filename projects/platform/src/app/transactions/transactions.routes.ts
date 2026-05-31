@@ -8,12 +8,12 @@ export const TransactionsRoutes: Routes = [
     },
     {
         path: 'withdrawal',
-        loadComponent: () => import('../wallet/withdrawal/withdrawal.component').then(c => c.WithdrawalComponent),
+        loadComponent: () => import('../wallet/withdrawal').then(c => c.WithdrawalIndexComponent),
         title: "Withdrawal Transanction - Request fund withdrawal",
     }, 
     {
         path: 'transfer',
-        loadComponent: () => import('../wallet/transfer/transfer-funds.component').then(c => c.TransferFundsComponent),
+        loadComponent: () => import('../wallet/transfer').then(c => c.TransferFundsIndexComponent),
         title: "Transfer Transanction - Request fund transfer",
     }, 
     // {

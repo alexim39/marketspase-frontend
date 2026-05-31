@@ -41,7 +41,6 @@ interface PaginationInfo {
 @Component({
   selector: 'app-promotion',
   standalone: true,
-  providers: [PromoterService],
   imports: [
     CommonModule,
     RouterModule,
@@ -186,6 +185,16 @@ export class PromotionComponent implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           console.error('Failed to load promotions:', error);
+          if (!loadMore) {
+            this.currentPagePromotions.set([]);
+            this.stats.set(this.calculateStats([]));
+            this.pagination.update(current => ({
+              ...current,
+              page: 1,
+              total: 0,
+              totalPages: 0
+            }));
+          }
           this.isLoading.set(false);
           this.isLoadingMore.set(false);
         }
@@ -225,7 +234,9 @@ export class PromotionComponent implements OnInit {
       acc.billableClicks += billableClicks;
       acc.earnings += earnedAmount;
 
-      if ((promo.status === 'accepted' || promo.status === 'downloaded') && promo.isActive !== false) acc.active++;
+      if (promo.status === 'accepted' && promo.isActive !== false) {
+        acc.active++;
+      }
       if (promo.status === 'paid') acc.paid++;
       if (promo.status === 'rejected') acc.rejected++;
 

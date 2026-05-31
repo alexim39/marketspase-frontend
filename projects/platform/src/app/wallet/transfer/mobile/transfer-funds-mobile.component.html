@@ -1,0 +1,305 @@
+<main class="transfer-mobile">
+  <header class="mobile-header">
+    <div>
+      <span class="eyebrow">Wallet transfer</span>
+      <h1>Move funds safely</h1>
+      <p>Transfer from promoter balance to your marketer wallet or another promoter.</p>
+    </div>
+
+    <button type="button" class="icon-button" (click)="openHelpSheet()" aria-label="Open transfer help">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </header>
+
+  <section class="balance-hero" aria-label="Wallet balances">
+    <article class="primary-balance">
+      <div>
+        <span>Promoter available</span>
+        <strong>{{ promoterAvailableBalance() | currencyUtils:promoterCurrency() }}</strong>
+      </div>
+
+      <button type="button" (click)="refreshBalance()" [disabled]="isBalanceLoading()" aria-label="Refresh wallet balances">
+        <mat-icon [class.spin]="isBalanceLoading()">refresh</mat-icon>
+      </button>
+    </article>
+
+    <div class="balance-rail">
+      <article>
+        <span>Pending</span>
+        <strong>{{ promoterPendingBalance() | currencyUtils:promoterCurrency() }}</strong>
+      </article>
+      <article>
+        <span>Marketer wallet</span>
+        <strong>{{ marketerBalance() | currencyUtils:marketerCurrency() }}</strong>
+      </article>
+    </div>
+  </section>
+
+  @if (!isPromoter()) {
+    <section class="role-warning" role="alert">
+      <mat-icon>warning</mat-icon>
+      <div>
+        <strong>Switch to promoter mode</strong>
+        <p>Transfer is designed around your promoter wallet. Use the role switcher before moving funds.</p>
+      </div>
+    </section>
+  }
+
+  <nav class="stepper" aria-label="Transfer steps">
+    <span>Step {{ mobileStepIndex() }} of {{ mobileStepCount() }}</span>
+    <div class="step-track">
+      @for (step of [].constructor(mobileStepCount()); track $index) {
+        <span [class.active]="$index < mobileStepIndex()"></span>
+      }
+    </div>
+  </nav>
+
+  <form class="transfer-flow" [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+    @if (activeStep() === 'destination') {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Destination</span>
+          <h2>Where should this money go?</h2>
+        </div>
+
+        <div class="choice-stack" role="radiogroup" aria-label="Transfer type">
+          @for (type of TRANSFER_TYPES; track type.value) {
+            <button
+              type="button"
+              class="choice-card"
+              [class.selected]="currentTransferType() === type.value"
+              (click)="selectTransferType(type.value)"
+              [attr.aria-pressed]="currentTransferType() === type.value">
+              <span class="choice-icon">
+                <mat-icon>{{ type.value === 'self' ? 'campaign' : 'person_search' }}</mat-icon>
+              </span>
+              <span class="choice-copy">
+                <strong>{{ type.label }}</strong>
+                <small>{{ type.description }}</small>
+              </span>
+              <mat-icon>{{ currentTransferType() === type.value ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    @if (activeStep() === 'recipient' && isOtherTransfer()) {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Recipient</span>
+          <h2>Select the promoter</h2>
+          <p>Search by username, then choose the exact account before continuing.</p>
+        </div>
+
+        <label class="field-label" for="recipientUsername">Recipient username</label>
+        <div class="native-field">
+          <mat-icon>alternate_email</mat-icon>
+          <input
+            id="recipientUsername"
+            type="text"
+            formControlName="recipientUsername"
+            placeholder="Type at least 3 characters"
+            autocomplete="off" />
+
+          @if (selectedDestinationUser()) {
+            <button type="button" (click)="clearSelectedRecipient()" aria-label="Clear selected recipient">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+
+        @if (isSearchingUser()) {
+          <mat-progress-bar mode="indeterminate" />
+        }
+
+        @if (searchResults().length > 0 && !selectedDestinationUser()) {
+          <div class="recipient-results">
+            @for (user of searchResults(); track user._id) {
+              <button type="button" class="recipient-row" (click)="selectRecipient(user)">
+                <img [src]="user.avatar || '/img/avatar.png'" [alt]="user.displayName" />
+                <span>
+                  <strong>{{ user.displayName }}</strong>
+                  <small>&#64;{{ user.username }}</small>
+                </span>
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
+        @if (selectedDestinationUser(); as recipient) {
+          <article class="selected-recipient">
+            <img [src]="recipient.avatar || '/img/avatar.png'" [alt]="recipient.displayName" />
+            <span>
+              <strong>{{ recipient.displayName }}</strong>
+              <small>&#64;{{ recipient.username }}</small>
+            </span>
+            <mat-icon>verified</mat-icon>
+          </article>
+        }
+      </section>
+    }
+
+    @if (activeStep() === 'amount') {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Amount</span>
+          <h2>How much are you transferring?</h2>
+          <p>{{ selectedTransferTypeDescription() }}</p>
+        </div>
+
+        @if (isSelfTransfer()) {
+          <aside class="policy-note">
+            <mat-icon>lock</mat-icon>
+            <div>
+              <strong>Marketer wallet transfer is locked for app use.</strong>
+              <p>Funds moved into your marketer wallet cannot be withdrawn to a bank account.</p>
+            </div>
+          </aside>
+        }
+
+        <label class="field-label" for="amount">Amount</label>
+        <div class="native-field amount-field">
+          <span>{{ promoterCurrency() }}</span>
+          <input
+            id="amount"
+            type="number"
+            formControlName="amount"
+            [placeholder]="'Minimum ' + MIN_TRANSFER_AMOUNT"
+            [min]="MIN_TRANSFER_AMOUNT"
+            [max]="maxTransferAmount()" />
+        </div>
+
+        <div class="quick-amounts" aria-label="Quick amount choices">
+          @for (amount of quickAmounts(); track amount) {
+            <button type="button" [class.selected]="amountValue() === amount" (click)="setQuickAmount(amount)">
+              {{ amount | currencyUtils:promoterCurrency() }}
+            </button>
+          }
+        </div>
+
+        <div class="field-helper">
+          <span>Available: {{ maxTransferAmount() | currencyUtils:promoterCurrency() }}</span>
+          @if (transferForm.get('amount')?.hasError('min') && transferForm.get('amount')?.touched) {
+            <strong>Minimum transfer is {{ MIN_TRANSFER_AMOUNT | currencyUtils:promoterCurrency() }}</strong>
+          }
+        </div>
+
+        <label class="field-label" for="note">Note</label>
+        <textarea
+          id="note"
+          class="native-textarea"
+          formControlName="note"
+          placeholder="Optional note for your records"
+          rows="3"
+          maxlength="200"></textarea>
+        <p class="counter">{{ noteLength() }}/200</p>
+      </section>
+    }
+
+    @if (activeStep() === 'review') {
+      <section class="flow-card">
+        <div class="section-heading">
+          <span>Review</span>
+          <h2>Confirm transfer details</h2>
+          <p>Transfers are instant and cannot be reversed after completion.</p>
+        </div>
+
+        <div class="review-list">
+          <article>
+            <span>Transfer type</span>
+            <strong>{{ isSelfTransfer() ? 'To my marketer wallet' : 'To another promoter' }}</strong>
+          </article>
+          @if (isOtherTransfer() && selectedDestinationUser(); as recipient) {
+            <article>
+              <span>Recipient</span>
+              <strong>{{ recipient.displayName }} (&#64;{{ recipient.username }})</strong>
+            </article>
+          }
+          <article>
+            <span>Amount</span>
+            <strong>{{ amountValue() | currencyUtils:promoterCurrency() }}</strong>
+          </article>
+          <article>
+            <span>Balance after transfer</span>
+            <strong>{{ (promoterAvailableBalance() - amountValue()) | currencyUtils:promoterCurrency() }}</strong>
+          </article>
+        </div>
+
+        <aside class="policy-note danger">
+          <mat-icon>priority_high</mat-icon>
+          <div>
+            <strong>Check carefully before confirming.</strong>
+            <p>Only available promoter balance can be transferred, and completed transfers are final.</p>
+          </div>
+        </aside>
+      </section>
+    }
+
+    <footer class="sticky-actions">
+      @if (activeStep() !== 'destination') {
+        <button type="button" class="secondary-action" (click)="previousStep()">Back</button>
+      }
+
+      @if (activeStep() !== 'review') {
+        <button type="button" class="primary-action" (click)="nextStep()">
+          Continue
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      } @else {
+        <button type="submit" class="primary-action" [disabled]="transferForm.invalid || isSubmitting()">
+          <mat-icon>sync_alt</mat-icon>
+          <span>{{ isSubmitting() ? 'Processing...' : 'Transfer funds' }}</span>
+        </button>
+      }
+    </footer>
+  </form>
+
+  <section class="mobile-info">
+    <h2>Before you transfer</h2>
+    <ul>
+      <li>Self transfers move promoter funds into marketer wallet for campaigns and purchases.</li>
+      <li>Money sent to another promoter enters their available balance.</li>
+      <li>Transfers are instant, without service fee, and final.</li>
+    </ul>
+  </section>
+
+  @if (helpSheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeHelpSheet()">
+      <section class="help-sheet" role="dialog" aria-modal="true" aria-labelledby="transfer-help-title" (click)="$event.stopPropagation()">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header>
+          <div>
+            <span class="eyebrow">Transfer help</span>
+            <h2 id="transfer-help-title">How transfers work</h2>
+          </div>
+          <button type="button" class="icon-button" (click)="closeHelpSheet()" aria-label="Close transfer help">
+            <mat-icon>close</mat-icon>
+          </button>
+        </header>
+        <article>
+          <mat-icon>campaign</mat-icon>
+          <div>
+            <strong>To marketer wallet</strong>
+            <p>Use this when you want to fund campaigns or in-app purchases. This balance cannot be withdrawn.</p>
+          </div>
+        </article>
+        <article>
+          <mat-icon>person</mat-icon>
+          <div>
+            <strong>To another promoter</strong>
+            <p>Search and select the promoter account. Their received balance follows normal withdrawal rules.</p>
+          </div>
+        </article>
+        <article>
+          <mat-icon>verified_user</mat-icon>
+          <div>
+            <strong>Minimum and balance checks</strong>
+            <p>Minimum transfer is {{ MIN_TRANSFER_AMOUNT | currencyUtils:promoterCurrency() }} and only available balance can move.</p>
+          </div>
+        </article>
+      </section>
+    </div>
+  }
+</main>

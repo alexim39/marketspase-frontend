@@ -1,0 +1,181 @@
+<main class="mobile-terms-page">
+  <section class="terms-hero">
+    <nav class="breadcrumb" aria-label="Terms breadcrumb">
+      <a routerLink="/" (click)="scrollToTop()">
+        <mat-icon aria-hidden="true">home</mat-icon>
+        Home
+      </a>
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      <a routerLink="/legal/terms" (click)="scrollToTop()">Legal</a>
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      <span>Terms</span>
+    </nav>
+
+    <span class="eyebrow">Terms of service</span>
+    <h1>The rules for using MarketSpase.</h1>
+    <p>
+      A mobile-friendly guide to account duties, submitted content, security rules, acceptable use, intellectual property,
+      third-party links, and how to contact MarketSpase.
+    </p>
+
+    <div class="hero-actions" aria-label="Terms actions">
+      <button type="button" class="primary-action" (click)="openRules()">
+        <mat-icon aria-hidden="true">rule</mat-icon>
+        Key rules
+      </button>
+      <a routerLink="/legal/privacy" (click)="scrollToTop()">
+        <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+        Privacy
+      </a>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Terms summary">
+    @for (stat of termsStats; track stat.label) {
+      <article>
+        <mat-icon aria-hidden="true">{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="notice-card">
+    <mat-icon aria-hidden="true">gavel</mat-icon>
+    <div>
+      <strong>Using MarketSpase means accepting these terms.</strong>
+      <span>
+        The full agreement remains available on desktop. This mobile view summarizes the key user responsibilities and platform rules.
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Agreement topics</span>
+        <h2>Review the terms by section</h2>
+      </div>
+      <span>{{ termsSections.length }} topics</span>
+    </div>
+
+    <div class="section-list">
+      @for (section of termsSections; track section.title) {
+        <button type="button" class="terms-card" (click)="openSection(section)">
+          <span class="card-icon">
+            <mat-icon aria-hidden="true">{{ section.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ section.title }}</strong>
+            <small>{{ section.summary }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="conduct-preview">
+    <span class="eyebrow">Good standing</span>
+    <h2>Use the platform with care.</h2>
+    <p>
+      MarketSpase expects users to be honest, keep their accounts secure, avoid harmful conduct, and respect other people's rights.
+    </p>
+
+    <button type="button" (click)="openRules()">
+      See conduct rules
+      <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+    </button>
+  </section>
+
+  <section class="contact-strip">
+    <span class="eyebrow">Questions?</span>
+    <h2>Need help understanding the agreement?</h2>
+    <p>Contact MarketSpase if you have terms, account, or technical questions about using the website.</p>
+    <a [href]="contactHref">
+      <mat-icon aria-hidden="true">mail</mat-icon>
+      {{ contactEmail }}
+    </a>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <button type="button" class="sheet-backdrop" aria-label="Close terms sheet" (click)="closeSheet()"></button>
+
+  @if (activeSheet() === 'section') {
+    @if (selectedSection(); as section) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="section.title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+
+        <span class="sheet-icon">
+          <mat-icon aria-hidden="true">{{ section.icon }}</mat-icon>
+        </span>
+        <h2>{{ section.title }}</h2>
+        <p>{{ section.detail }}</p>
+
+        <div class="sheet-list">
+          @for (item of section.bullets; track item) {
+            <span>
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              {{ item }}
+            </span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'rules') {
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Key conduct rules">
+      <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+
+      <span class="sheet-icon">
+        <mat-icon aria-hidden="true">rule</mat-icon>
+      </span>
+      <h2>Key conduct rules</h2>
+      <p>These are the high-signal behaviors users should remember when using MarketSpase.</p>
+
+      <div class="rules-list">
+        @for (rule of conductRules; track rule.title) {
+          <article [class.good]="rule.tone === 'good'" [class.warn]="rule.tone === 'warn'" [class.bad]="rule.tone === 'bad'">
+            <mat-icon aria-hidden="true">{{ rule.icon }}</mat-icon>
+            <span>
+              <strong>{{ rule.title }}</strong>
+              <small>{{ rule.description }}</small>
+            </span>
+          </article>
+        }
+      </div>
+
+      <a class="sheet-action" routerLink="/legal/privacy" (click)="closeSheet(); scrollToTop()">
+        <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+        Read privacy policy
+      </a>
+    </section>
+  }
+
+  @if (activeSheet() === 'contact') {
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Contact MarketSpase about terms">
+      <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+
+      <span class="sheet-icon">
+        <mat-icon aria-hidden="true">contact_support</mat-icon>
+      </span>
+      <h2>Contact MarketSpase</h2>
+      <p>
+        For questions about this agreement or website operation, send a message to the official support email.
+      </p>
+
+      <a class="sheet-action" [href]="contactHref">
+        <mat-icon aria-hidden="true">mail</mat-icon>
+        {{ contactEmail }}
+      </a>
+    </section>
+  }
+}

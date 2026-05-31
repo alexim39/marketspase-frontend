@@ -6,7 +6,7 @@ import { ApiService, CampaignInterface } from '@shared/services';
 export class CampaignEditService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private apiUrl = 'campaign';
+  private apiUrl = 'api/v1/campaign';
 
   /**
    * Get campaign by ID

@@ -1,0 +1,234 @@
+<main class="mobile-store-create mobile-store-edit">
+  <header class="mobile-topbar">
+    <button type="button" class="icon-button" (click)="requestCancel()" aria-label="Close store editing">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <div>
+      <span>Edit storefront</span>
+      <strong>{{ mobileStepLabels[currentStep()] }}</strong>
+    </div>
+
+    <button type="button" class="icon-button primary" [disabled]="isSubmitting() || loading()" (click)="onSubmit()" aria-label="Save store changes">
+      @if (isSubmitting()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        <mat-icon>check</mat-icon>
+      }
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="submit-overlay loading-state" aria-live="polite">
+      <mat-spinner diameter="42" />
+      <h2>Loading store</h2>
+      <p>Getting your storefront details ready for editing.</p>
+    </section>
+  }
+
+  @if (isSubmitting()) {
+    <section class="submit-overlay" aria-live="polite">
+      <mat-spinner diameter="42" />
+      <h2>Updating your store</h2>
+      <p>Saving the storefront changes and keeping the live page in sync.</p>
+    </section>
+  }
+
+  <section class="create-hero">
+    <p class="eyebrow">Storefront update</p>
+    <h1>Refresh your store without losing the flow</h1>
+    <p>Update the brand details buyers see first, then review the final storefront card before saving.</p>
+
+    <div class="progress-track" aria-label="Store editing progress">
+      <i [style.width.%]="progressPercent()"></i>
+    </div>
+    <span class="progress-label">Step {{ currentStep() + 1 }} of {{ mobileStepLabels.length }}</span>
+  </section>
+
+  <nav class="step-rail" aria-label="Store editing steps">
+    @for (label of mobileStepLabels; track label; let i = $index) {
+      <button
+        type="button"
+        [class.active]="currentStep() === i"
+        [class.done]="i < currentStep()"
+        [attr.aria-pressed]="currentStep() === i"
+        (click)="goToStep(i)"
+      >
+        <span>{{ i + 1 }}</span>
+        {{ label }}
+      </button>
+    }
+  </nav>
+
+  <form [formGroup]="storeForm" class="mobile-form-card" (ngSubmit)="onSubmit()">
+    @if (currentStep() === 0) {
+      <div class="step-heading">
+        <mat-icon>edit_square</mat-icon>
+        <div>
+          <h2>Store identity</h2>
+          <p>Keep the name, category, and description clear so buyers immediately understand what you sell.</p>
+        </div>
+      </div>
+
+      <label class="field full">
+        <span>Store name *</span>
+        <input type="text" formControlName="name" maxlength="50" placeholder="e.g. MarketSpase Store" autocomplete="organization" />
+        <small [class.error]="isFieldInvalid('name')">{{ isFieldInvalid('name') ? getFieldError('name') : nameLength() + '/50' }}</small>
+      </label>
+
+      <label class="field full">
+        <span>Category *</span>
+        <select formControlName="category">
+          <option value="">Choose category</option>
+          @for (category of categories; track category.value) {
+            <option [value]="category.value">{{ category.label }}</option>
+          }
+        </select>
+        @if (isFieldInvalid('category')) {
+          <small class="error">{{ getFieldError('category') }}</small>
+        }
+      </label>
+
+      <label class="field full">
+        <span>Description *</span>
+        <textarea rows="6" maxlength="500" formControlName="description" placeholder="Tell buyers what your store offers, who it serves, and why they can trust it."></textarea>
+        <small [class.error]="isFieldInvalid('description')">{{ isFieldInvalid('description') ? getFieldError('description') : descriptionLength() + '/500' }}</small>
+      </label>
+    }
+
+    @if (currentStep() === 1) {
+      <div class="step-heading">
+        <mat-icon>add_photo_alternate</mat-icon>
+        <div>
+          <h2>Logo update</h2>
+          <p>Keep the current logo, replace it with a new image, or remove it if the store should use initials.</p>
+        </div>
+      </div>
+
+      <section class="logo-section">
+        <div class="section-label">
+          <span>Store logo</span>
+          <strong>Square, 500 x 500px</strong>
+        </div>
+
+        <div class="logo-preview-card" [class.has-logo]="previewImage()">
+          @if (previewImage()) {
+            <img [src]="previewImage()!" alt="Store logo preview" />
+            <button type="button" class="remove-logo" (click)="removeLogo()" aria-label="Remove logo">
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <div class="logo-placeholder">
+              <span>{{ storeInitials() }}</span>
+              <mat-icon>add_photo_alternate</mat-icon>
+            </div>
+          }
+        </div>
+
+        <input type="file" id="logoUpload" accept="image/*" (change)="onFileSelected($event)" hidden />
+        <label for="logoUpload" class="upload-button">
+          <mat-icon>cloud_upload</mat-icon>
+          {{ previewImage() ? 'Change logo' : 'Upload logo' }}
+        </label>
+
+        @if (logoValueIsFile()) {
+          <small class="logo-status-note success">New logo selected. It will replace the live logo after saving.</small>
+        } @else if (previewImage()) {
+          <small class="upload-hint">This is the current live logo. Upload a new image only if you want to replace it.</small>
+        } @else {
+          <small class="logo-status-note warning">No logo selected. Saving will remove the current store logo.</small>
+        }
+      </section>
+    }
+
+    @if (currentStep() === 2) {
+      <div class="step-heading">
+        <mat-icon>visibility</mat-icon>
+        <div>
+          <h2>Review changes</h2>
+          <p>Confirm the storefront card before these details go live.</p>
+        </div>
+      </div>
+
+      <section class="store-preview">
+        <div class="preview-cover">
+          @if (previewImage()) {
+            <img [src]="previewImage()!" alt="Store logo" />
+          } @else {
+            <span>{{ storeInitials() }}</span>
+          }
+        </div>
+
+        <div class="preview-body">
+          <strong>{{ storeForm.get('name')?.value || 'Your Store Name' }}</strong>
+          <span>{{ categoryLabel() }}</span>
+          <p>{{ storeForm.get('description')?.value || 'Your store description will appear here.' }}</p>
+        </div>
+
+        <div class="preview-contact">
+          <mat-icon>storefront</mat-icon>
+          <span>{{ storeToEdit()?.storeLink || storeToEdit()?.slug || 'Live storefront' }}</span>
+        </div>
+      </section>
+
+      @if (logoValueIsFile()) {
+        <section class="info-card">
+          <mat-icon>image</mat-icon>
+          <div>
+            <strong>Logo will be replaced</strong>
+            <span>The uploaded image will become the new storefront logo after saving.</span>
+          </div>
+        </section>
+      }
+
+      @if (storeForm.invalid) {
+        <section class="warning-card">
+          <mat-icon>error_outline</mat-icon>
+          <div>
+            <strong>Some required details are missing</strong>
+            <span>Review store name, category, and description before updating.</span>
+          </div>
+        </section>
+      }
+    }
+  </form>
+
+  <footer class="sticky-actions">
+    <button type="button" class="secondary-action" [disabled]="currentStep() === 0 || isSubmitting() || loading()" (click)="goBack()">
+      <mat-icon>chevron_left</mat-icon>
+      Back
+    </button>
+
+    @if (currentStep() < mobileStepLabels.length - 1) {
+      <button type="button" class="primary-action" [disabled]="isSubmitting() || loading()" (click)="goNext()">
+        Continue
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    } @else {
+      <button type="button" class="primary-action" [disabled]="storeForm.invalid || isSubmitting() || loading()" (click)="onSubmit()">
+        @if (isSubmitting()) {
+          <mat-spinner diameter="20" />
+          Updating
+        } @else {
+          Update store
+          <mat-icon>save</mat-icon>
+        }
+      </button>
+    }
+  </footer>
+</main>
+
+@if (confirmLeaveOpen()) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeLeaveConfirm()"></div>
+  <section class="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="leave-store-edit-title">
+    <div class="confirm-icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <h2 id="leave-store-edit-title">Discard store changes?</h2>
+    <p>You have unsaved store edits. Leaving now will remove those changes from this screen.</p>
+    <div>
+      <button type="button" class="secondary-action" (click)="closeLeaveConfirm()">Keep editing</button>
+      <button type="button" class="danger-action" (click)="leaveForm()">Discard</button>
+    </div>
+  </section>
+}

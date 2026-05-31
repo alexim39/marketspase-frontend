@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { RatingComponent } from '../../shared/rating/rating.component';
 import { Product, Store } from '../../../store/models';
 import { ShareService } from '../../../store/services/share.service';
+import { buildWhatsAppChatUrl } from '../../../common/utils/whatsapp.util';
 
 export interface QuickViewData {
   product: Product;
@@ -248,9 +249,10 @@ export class ProductQuickViewComponent implements OnInit {
     const store = this.store();
     if (!store?.whatsappNumber) return;
 
-    const message = `Hello ${store.name}, I'm interested in your product: ${this.product().name}`;
-    const url = `https://wa.me/${store.whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const url = buildWhatsAppChatUrl(store.whatsappNumber);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+    }
   }
 
   // Helpers

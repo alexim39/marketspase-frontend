@@ -33,6 +33,7 @@ export class PromotionCardComponent {
 
   public isSharing = signal<boolean>(false);
   public isDownloading = signal<boolean>(false);
+  public isStatusSharing = signal<boolean>(false);
 
   private promoterService = inject(PromoterService);
   private dialog = inject(MatDialog);
@@ -40,13 +41,31 @@ export class PromotionCardComponent {
   private router = inject(Router);
   public readonly api = this.promoterService.api;
 
+  isPromotionRestricted(): boolean {
+    const reviewStatus = this.promotion?.fraudStatus?.reviewStatus;
+    return Boolean(
+      this.promotion?.fraudStatus?.isFlagged &&
+      reviewStatus &&
+      ['warning', 'final_warning', 'blocked'].includes(reviewStatus)
+    ) || this.promotion?.isActive === false && Boolean(this.promotion?.fraudStatus?.isFlagged);
+  }
+
+  getRestrictionSummary(): string {
+    return this.promotion?.fraudStatus?.reasonSummary
+      || 'This promotion link is paused while MarketSpase reviews suspicious traffic on it.';
+  }
+
   getPromotionUrl(): string {
     if (this.promotion.promotionUrl) return this.promotion.promotionUrl;
-    return `${this.api.replace(/\/$/, '')}/campaign/track/${this.promotion.upi}`;
+    return `${this.api.replace(/\/$/, '')}/api/v1/campaign/track/${this.promotion.upi}`;
   }
 
   getAssetUrl(): string {
     return this.normalizeAssetUrl(this.promotion.campaign?.mediaUrl);
+  }
+
+  getPreviewUrl(): string {
+    return this.normalizeAssetUrl(this.promotion.campaign?.thumbnailUrl || this.promotion.campaign?.mediaUrl);
   }
 
   getThumbnailUrl(): string {
@@ -72,11 +91,8 @@ export class PromotionCardComponent {
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
       accepted: 'Active Link',
-      downloaded: 'Active Link',
-      submitted: 'Tracking',
-      validated: 'Approved',
       paid: 'Paid',
-      rejected: 'Rejected'
+      rejected: 'Needs Attention'
     };
     return labels[status] || 'Promotion';
   }
@@ -84,9 +100,6 @@ export class PromotionCardComponent {
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
       accepted: 'success',
-      downloaded: 'success',
-      submitted: 'info',
-      validated: 'success',
       paid: 'primary',
       rejected: 'error'
     };
@@ -96,11 +109,8 @@ export class PromotionCardComponent {
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
       accepted: 'link',
-      downloaded: 'link',
-      submitted: 'touch_app',
-      validated: 'check_circle',
       paid: 'paid',
-      rejected: 'cancel'
+      rejected: 'warning'
     };
     return icons[status] || 'help';
   }
@@ -121,13 +131,47 @@ export class PromotionCardComponent {
     return categoryIcons[category] || 'category';
   }
 
+  getMarketerId(): string | null {
+    const owner = this.promotion?.campaign?.owner as { _id?: string | null } | string | null | undefined;
+    if (!owner) {
+      return null;
+    }
+
+    if (typeof owner === 'string') {
+      return owner;
+    }
+
+    return owner._id || null;
+  }
+
   viewDetails(): void {
     if (this.promotion) {
       this.router.navigate(['/dashboard/campaigns/promotions', this.promotion._id]);
     }
   }
 
+  openPromotionRoom(): void {
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: { promotionId: this.promotion._id }
+    });
+  }
+
+  messageMarketer(): void {
+    const marketerId = this.getMarketerId();
+    this.router.navigate(['/dashboard/campaigns/collaboration'], {
+      queryParams: {
+        promotionId: this.promotion._id,
+        campaignId: this.promotion.campaign?._id || null,
+        targetUserId: marketerId || null,
+      }
+    });
+  }
+
   openPromotionLink(): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion link is paused while fraud checks are in progress.', 'OK', { duration: 3500 });
+      return;
+    }
     window.open(this.getPromotionUrl(), '_blank', 'noopener');
   }
 
@@ -166,14 +210,27 @@ export class PromotionCardComponent {
   }
 
   copyPromotionLink(): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion link is paused and cannot be copied right now.', 'OK', { duration: 3500 });
+      return;
+    }
     this.copyText(this.getPromotionUrl(), 'Promotion link copied');
   }
 
   copyCaption(caption?: string): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('Sharing is paused on this promotion while it is under review.', 'OK', { duration: 3500 });
+      return;
+    }
     this.copyText(this.buildShareText(caption), 'Caption and tracked link copied');
   }
 
   showWhatsAppSharingInstructions(promotion: PromotionInterface): void {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion is paused while suspicious traffic is being reviewed.', 'OK', { duration: 3500 });
+      return;
+    }
+
     const captionText = this.buildShareText(promotion.campaign?.caption);
 
     this.dialog.open(WhatsAppInstructionsDialogComponent, {
@@ -188,8 +245,73 @@ export class PromotionCardComponent {
   }
 
   private buildShareText(caption?: string): string {
-    const body = caption || this.promotion.campaign?.caption || 'Visit the link for more details.';
-    return `Ad - ${this.promotion.upi}\nVisit ${this.getPromotionUrl()} for more.\n${body}`;
+    const title = this.promotion.campaign?.title?.trim() || 'Featured offer on MarketSpase';
+    const body = this.truncateText(
+      caption || this.promotion.campaign?.caption || 'Open the link for the full offer details.',
+      220
+    );
+
+    return [
+      'Tap this MarketSpase offer now for the full details:',
+      this.getPromotionUrl(),
+      '',
+      title,
+      body,
+      '',
+      `Track Ref: ${this.promotion.upi}`
+    ].join('\n');
+  }
+
+  async shareToWhatsAppStatus(): Promise<void> {
+    if (this.isPromotionRestricted()) {
+      this.snackBar.open('This promotion is paused while suspicious traffic is being reviewed.', 'OK', { duration: 3500 });
+      return;
+    }
+
+    const assetUrl = this.getAssetUrl();
+    if (!assetUrl) {
+      this.snackBar.open('Campaign media is not available for WhatsApp Status yet.', 'OK', { duration: 3500 });
+      return;
+    }
+
+    const shareText = this.buildShareText(this.promotion.campaign?.caption);
+    const shareTitle = this.promotion.campaign?.title || 'Promotion on MarketSpase';
+
+    try {
+      this.isStatusSharing.set(true);
+
+      const shareFile = await this.createShareFile(assetUrl);
+      const shareData: ShareData = {
+        title: shareTitle,
+        text: shareText,
+        files: [shareFile]
+      };
+
+      if (typeof navigator.share !== 'function') {
+        throw new Error('native-share-unavailable');
+      }
+
+      if (typeof navigator.canShare === 'function' && !this.canShareFiles(shareData)) {
+        throw new Error('native-file-share-unavailable');
+      }
+
+      await navigator.share(shareData);
+
+      this.snackBar.open(
+        'Share ready. Choose WhatsApp, then select My Status or a contact to post it.',
+        'OK',
+        { duration: 5000, panelClass: ['whatsapp-snackbar'] }
+      );
+    } catch (err) {
+      if (this.isShareCanceled(err)) {
+        return;
+      }
+
+      console.warn('Native WhatsApp status share fell back to manual flow:', err);
+      await this.handleManualStatusShareFallback(assetUrl, shareText);
+    } finally {
+      this.isStatusSharing.set(false);
+    }
   }
 
   private normalizeAssetUrl(url?: string): string {
@@ -214,6 +336,84 @@ export class PromotionCardComponent {
     } catch {}
 
     return this.promotion.campaign?.mediaType === 'video' ? 'mp4' : 'jpg';
+  }
+
+  private async createShareFile(assetUrl: string): Promise<File> {
+    const response = await fetch(assetUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch campaign media for sharing: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const mimeType = blob.type || this.getFallbackMimeType();
+    const extension = this.getFileExtensionForMimeType(mimeType) || this.getAssetExtension(assetUrl);
+    const fileName = this.getAssetFileNameWithExtension(extension);
+
+    return new File([blob], fileName, {
+      type: mimeType,
+      lastModified: Date.now()
+    });
+  }
+
+  private getAssetFileNameWithExtension(extension: string): string {
+    const title = this.promotion.campaign?.title || `marketspase-promotion-${this.promotion.upi}`;
+    const safeTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'marketspase-promotion';
+    return `${safeTitle}-${this.promotion.upi}.${extension}`;
+  }
+
+  private getFallbackMimeType(): string {
+    return this.promotion.campaign?.mediaType === 'video' ? 'video/mp4' : 'image/jpeg';
+  }
+
+  private getFileExtensionForMimeType(mimeType: string): string {
+    const normalizedMimeType = mimeType.toLowerCase();
+
+    if (normalizedMimeType.includes('mp4')) return 'mp4';
+    if (normalizedMimeType.includes('quicktime')) return 'mov';
+    if (normalizedMimeType.includes('webm')) return 'webm';
+    if (normalizedMimeType.includes('png')) return 'png';
+    if (normalizedMimeType.includes('gif')) return 'gif';
+    if (normalizedMimeType.includes('webp')) return 'webp';
+    if (normalizedMimeType.includes('jpeg') || normalizedMimeType.includes('jpg')) return 'jpg';
+
+    return '';
+  }
+
+  private canShareFiles(shareData: ShareData): boolean {
+    try {
+      return navigator.canShare(shareData);
+    } catch {
+      return false;
+    }
+  }
+
+  private isShareCanceled(err: unknown): boolean {
+    return err instanceof DOMException && err.name === 'AbortError';
+  }
+
+  private async handleManualStatusShareFallback(assetUrl: string, shareText: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(shareText);
+    } catch (clipboardError) {
+      console.warn('Failed to copy WhatsApp status caption automatically:', clipboardError);
+    }
+
+    window.open(assetUrl, '_blank', 'noopener');
+
+    this.snackBar.open(
+      'We copied your caption and opened the ad media. Add it to WhatsApp Status and paste the caption.',
+      'OK',
+      { duration: 5500, panelClass: ['whatsapp-snackbar'] }
+    );
+  }
+
+  private truncateText(value: string, maxLength: number): string {
+    const normalizedValue = value.trim();
+    if (normalizedValue.length <= maxLength) {
+      return normalizedValue;
+    }
+
+    return `${normalizedValue.slice(0, maxLength - 1).trimEnd()}...`;
   }
 
   private async copyText(text: string, successMessage: string): Promise<void> {

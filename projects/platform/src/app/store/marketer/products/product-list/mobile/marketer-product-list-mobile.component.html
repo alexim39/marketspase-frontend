@@ -1,0 +1,29 @@
+<main class="mobile-products-page">
+  @if (loading()) {
+    <section class="mobile-loader" aria-live="polite">
+      <mat-spinner diameter="38" />
+      <div>
+        <h1>Loading products</h1>
+        <p>Getting your store inventory ready.</p>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="mobile-error">
+      <div class="error-icon">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <h1>Products could not load</h1>
+      <p>{{ error() }}</p>
+      <button mat-flat-button color="primary" type="button" (click)="loadProducts()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </section>
+  } @else {
+    <app-marketer-product-list-management-mobile
+      [store]="store()!"
+      [products]="products()"
+      (productUpdated)="loadProducts()"
+    />
+  }
+</main>

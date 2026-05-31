@@ -1,0 +1,192 @@
+<main class="mobile-cookies-page">
+  <section class="cookies-hero">
+    <nav class="breadcrumb" aria-label="Cookies breadcrumb">
+      <a routerLink="/" (click)="scrollToTop()">
+        <mat-icon aria-hidden="true">home</mat-icon>
+        Home
+      </a>
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      <a routerLink="/legal/cookies" (click)="scrollToTop()">Legal</a>
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      <span>Cookies</span>
+    </nav>
+
+    <span class="eyebrow">Cookies policy</span>
+    <h1>How cookies help MarketSpase work better.</h1>
+    <p>
+      Cookies can remember preferences, help us understand website usage, and improve your return visits.
+      You can manage them from your browser.
+    </p>
+
+    <div class="hero-actions" aria-label="Cookie actions">
+      <button type="button" class="primary-action" (click)="openControls()">
+        <mat-icon aria-hidden="true">tune</mat-icon>
+        Manage cookies
+      </button>
+      <button type="button" (click)="openLinks()">
+        <mat-icon aria-hidden="true">policy</mat-icon>
+        Legal links
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Cookies summary">
+    @for (stat of cookieStats; track stat.label) {
+      <article>
+        <mat-icon aria-hidden="true">{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="notice-card">
+    <mat-icon aria-hidden="true">info</mat-icon>
+    <div>
+      <strong>You stay in control from your browser.</strong>
+      <span>
+        You can block or delete cookies, but some areas of MarketSpase may not work fully if cookies are disabled.
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Cookie topics</span>
+        <h2>Understand the policy quickly</h2>
+      </div>
+      <span>{{ topics.length }} topics</span>
+    </div>
+
+    <div class="topic-list">
+      @for (topic of topics; track topic.title) {
+        <button type="button" class="topic-card" (click)="openTopic(topic)">
+          <span class="card-icon">
+            <mat-icon aria-hidden="true">{{ topic.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ topic.title }}</strong>
+            <small>{{ topic.summary }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="browser-card">
+    <span class="eyebrow">Browser settings</span>
+    <h2>Choose the cookie level that fits you.</h2>
+    <p>
+      Cookie controls usually live inside browser privacy settings. You can block cookies, remove existing cookies,
+      or keep them enabled for a smoother experience.
+    </p>
+
+    <button type="button" (click)="openControls()">
+      See browser controls
+      <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+    </button>
+  </section>
+
+  <section class="legal-strip">
+    <span class="eyebrow">Related policies</span>
+    <h2>Cookies connect with privacy and terms.</h2>
+    <p>Review the wider legal context if you want to understand data handling and website-use rules.</p>
+    <div>
+      <a routerLink="/legal/privacy" (click)="scrollToTop()">
+        <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+        Privacy
+      </a>
+      <a routerLink="/legal/terms" (click)="scrollToTop()">
+        <mat-icon aria-hidden="true">gavel</mat-icon>
+        Terms
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <button type="button" class="sheet-backdrop" aria-label="Close cookies sheet" (click)="closeSheet()"></button>
+
+  @if (activeSheet() === 'topic') {
+    @if (selectedTopic(); as topic) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="topic.title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+
+        <span class="sheet-icon">
+          <mat-icon aria-hidden="true">{{ topic.icon }}</mat-icon>
+        </span>
+        <h2>{{ topic.title }}</h2>
+        <p>{{ topic.detail }}</p>
+
+        <div class="sheet-list">
+          @for (item of topic.bullets; track item) {
+            <span>
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              {{ item }}
+            </span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'controls') {
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Browser cookie controls">
+      <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+
+      <span class="sheet-icon">
+        <mat-icon aria-hidden="true">tune</mat-icon>
+      </span>
+      <h2>Browser cookie controls</h2>
+      <p>Use your browser privacy settings to choose how cookies behave on your device.</p>
+
+      <div class="control-list">
+        @for (control of browserControls; track control.title) {
+          <article>
+            <mat-icon aria-hidden="true">{{ control.icon }}</mat-icon>
+            <span>
+              <strong>{{ control.title }}</strong>
+              <small>{{ control.description }}</small>
+            </span>
+          </article>
+        }
+      </div>
+
+      <a class="sheet-action" href="https://www.allaboutcookies.org/" target="_blank" rel="noopener noreferrer">
+        <mat-icon aria-hidden="true">open_in_new</mat-icon>
+        Read All About Cookies
+      </a>
+    </section>
+  }
+
+  @if (activeSheet() === 'links') {
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Related legal links">
+      <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+
+      <span class="sheet-icon">
+        <mat-icon aria-hidden="true">policy</mat-icon>
+      </span>
+      <h2>Related legal pages</h2>
+      <p>Cookies are part of a wider legal picture around privacy, data use, and website rules.</p>
+
+      <div class="link-list">
+        <a routerLink="/legal/privacy" (click)="closeSheet(); scrollToTop()">
+          <mat-icon aria-hidden="true">privacy_tip</mat-icon>
+          Privacy policy
+        </a>
+        <a routerLink="/legal/terms" (click)="closeSheet(); scrollToTop()">
+          <mat-icon aria-hidden="true">gavel</mat-icon>
+          Terms of service
+        </a>
+      </div>
+    </section>
+  }
+}

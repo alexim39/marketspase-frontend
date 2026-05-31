@@ -6,7 +6,7 @@ interface CampaignMetrics {
   activePromotions: number;
   expiringSoon: number;
   successRate: number;
-  totalViews: number;
+  totalClicks: number;
 }
 
 @Component({

@@ -6,6 +6,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { PromotionDetailModalComponent } from './promotion-detail-modal/promotion-detail-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import {
+  canCampaignBeAccepted,
+  getCampaignAcceptButtonText,
+  getCampaignCostPerClick,
+  getCampaignEstimatedClicks,
+  getCampaignLocationMatchLabel,
+  getCampaignSlotLabel,
+  getCampaignSlotValue,
+  getCampaignStatusBadgeClass,
+  getCampaignStatusBadgeText,
+  getCampaignTimingLabel,
+} from '../../../utils/campaign-availability.util';
 
 export type ViewMode = 'grid' | 'list';
 
@@ -46,48 +58,17 @@ export class CampaignCardComponent {
       this.promotions.some( // Added () assuming promotions is a Signal
         (promotion: PromotionInterface) =>
           promotion.campaign._id === campaign._id && 
-          ['accepted', 'downloaded', 'submitted', 'validated'].includes(promotion.status)
+          promotion.status === 'accepted'
       );
   });
 
 
   getStatusBadgeClass(campaign: CampaignInterface): string {
-    //console.log('Campaign Remaining Days:', campaign);
-    if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
-      return 'status-completed';
-    }
-    
-    const slotsFilled = campaign.totalPromotions || 0;
-    const maxSlots = campaign.maxPromoters || 0;
-    
-    if (slotsFilled >= maxSlots) {
-      return 'status-paused';
-    }
-    
-    return 'status-active';
+    return getCampaignStatusBadgeClass(campaign);
   }
 
   getStatusBadgeText(campaign: CampaignInterface): string {
-    if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') {
-      return 'Completed';
-    }
-    
-    const slotsFilled = campaign.totalPromotions || 0;
-    const maxSlots = campaign.maxPromoters || 0;
-    
-    if (slotsFilled >= maxSlots) {
-      return 'Full';
-    }
-    
-    if (slotsFilled === 0) {
-      return 'New';
-    }
-    
-    if (slotsFilled / maxSlots > 0.7) {
-      return 'Popular';
-    }
-    
-    return 'Active';
+    return getCampaignStatusBadgeText(campaign);
   }
 
   getDifficultyLevel(campaign: CampaignInterface): string {
@@ -107,12 +88,27 @@ export class CampaignCardComponent {
   }
 
   getCostPerClick(campaign: CampaignInterface): number {
-    return campaign.costPerClick || campaign.payoutPerPromotion || 80;
+    return getCampaignCostPerClick(campaign);
   }
 
   getEstimatedClicks(campaign: CampaignInterface): number {
-    const remainingBudget = campaign.remainingBudget ?? campaign.budget ?? 0;
-    return Math.floor(remainingBudget / this.getCostPerClick(campaign));
+    return getCampaignEstimatedClicks(campaign);
+  }
+
+  getSlotValue(campaign: CampaignInterface): string {
+    return getCampaignSlotValue(campaign);
+  }
+
+  getSlotLabel(campaign: CampaignInterface): string {
+    return getCampaignSlotLabel(campaign);
+  }
+
+  getTimingLabel(campaign: CampaignInterface): string {
+    return getCampaignTimingLabel(campaign);
+  }
+
+  getLocationLabel(campaign: CampaignInterface): string | null {
+    return getCampaignLocationMatchLabel(campaign);
   }
 
   getCategoryIcon(category: string): string {
@@ -132,13 +128,7 @@ export class CampaignCardComponent {
   }
 
   canAcceptCampaign(campaign: CampaignInterface): boolean {
-    if (campaign.status !== 'active') return false;
-    if (campaign.remainingDays === 'Expired' || campaign.remainingDays === 'Budget Exhausted') return false;
-    if (campaign.currentPromoters >= campaign.maxPromoters) return false;
-    // if (campaign.totalPromotions >= campaign.maxPromoters) return false;
-    const remainingBudget = campaign.remainingBudget ?? ((campaign.budget || 0) - (campaign.spentBudget || 0));
-    if (remainingBudget < this.getCostPerClick(campaign)) return false;
-    return true;
+    return canCampaignBeAccepted(campaign);
   }
   
   getAcceptButtonText(campaign: CampaignInterface): string {
@@ -147,15 +137,9 @@ export class CampaignCardComponent {
       return 'Promoting';
     }
     
-    if (!this.canAcceptCampaign(campaign)) {
-      if (campaign.status !== 'active') return 'Not Available';
-      if (campaign.remainingDays === 'Expired') return 'Expired';
-      if (campaign.remainingDays === 'Budget Exhausted') return 'Budget Full';
-      const slotsFilled = campaign.totalPromotions || 0;
-      if (slotsFilled >= campaign.maxPromoters) return 'Full';
-      return 'Cannot Accept';
-    }
-    return 'Accept Campaign';
+    return this.canAcceptCampaign(campaign)
+      ? 'Accept Campaign'
+      : getCampaignAcceptButtonText(campaign);
   }
 
   // Add method to open modal

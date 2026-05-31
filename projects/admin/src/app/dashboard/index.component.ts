@@ -66,6 +66,7 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { id: 'all-users', title: 'All Users', icon: 'supervisor_account', route: '/dashboard/users' },
         { id: 'user-analytics', title: 'User Analytics', icon: 'insights', route: '/dashboard/users/analytics' },
+        { id: 'collaboration-reviews', title: 'Collaboration Reviews', icon: 'reviews', route: '/dashboard/users/reviews' },
         { id: 'marketers', title: 'Marketers', icon: 'business', route: '/dashboard/users/marketers' },
         { id: 'promoters', title: 'Promoters', icon: 'share', route: '/dashboard/users/promoters' },
         { id: 'contacts', title: 'Contact Management', icon: 'contact_page', route: '/dashboard/users/contacts' }
@@ -79,7 +80,8 @@ export class AdminDashboardComponent implements OnInit {
       children: [
         { id: 'all-campaigns', title: 'All Campaigns', icon: 'campaign', route: '/dashboard/campaigns' },
         { id: 'all-promotions', title: 'All Promotions', icon: 'ads_click', route: '/dashboard/promotions' },
-        { id: 'submitted-promotions', title: 'Submitted Promotions', icon: 'rocket_launch', route: '/dashboard/promotions/submitted' }
+        { id: 'ppc-analytics', title: 'PPC Analytics', icon: 'query_stats', route: '/dashboard/promotions/ppc-analytics' },
+        { id: 'promotion-fraud', title: 'Fraud Monitor', icon: 'shield', route: '/dashboard/promotions/fraud' }
       ]
     },
     {
@@ -89,6 +91,9 @@ export class AdminDashboardComponent implements OnInit {
       isExpanded: false,
       children: [
         { id: 'view-stores', title: 'Stores', icon: 'store', route: '/dashboard/stores' },
+        { id: 'storefront-analytics', title: 'Storefront Analytics', icon: 'query_stats', route: '/dashboard/stores/analytics' },
+        { id: 'store-subscribers', title: 'Email Subscribers', icon: 'mark_email_read', route: '/dashboard/stores/subscribers' },
+        { id: 'store-buyers', title: 'Buyers', icon: 'groups', route: '/dashboard/stores/buyers' },
         { id: 'store-reviews', title: 'Product Reviews', icon: 'rate_review', route: '/dashboard/stores/reviews' },
         { id: 'store-release-requests', title: 'Delivery Releases', icon: 'verified_user', route: '/dashboard/stores/delivery-releases' }
       ]
@@ -220,7 +225,7 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.adminService.fetchAdmin();
-    this.loadActivityPulse();
+    this.loadFraudPulse();
 
     this.router.events
       .pipe(
@@ -353,10 +358,10 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate([result.route]);
   }
 
-  openActivityDesk(): void {
-    this.setActiveNavItem('community-desk');
-    this.expandMenuItem('community');
-    this.router.navigate(['/dashboard/community']);
+  openFraudDesk(): void {
+    this.setActiveNavItem('promotion-fraud');
+    this.expandMenuItem('ads');
+    this.router.navigate(['/dashboard/promotions/fraud']);
   }
 
   logout() {
@@ -384,16 +389,16 @@ export class AdminDashboardComponent implements OnInit {
     this.menuItems.set(updatedItems);
   }
 
-  private loadActivityPulse(): void {
-    this.dashboardService.getLiveActivity(1)
+  private loadFraudPulse(): void {
+    this.dashboardService.getFraudPulse()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          const total = response.summary?.total24h || 0;
+          const total = response?.count || 0;
           this.notificationCount.set(Math.min(total, 99));
         },
         error: (error) => {
-          console.error('Unable to load admin activity pulse:', error);
+          console.error('Unable to load admin fraud pulse:', error);
           this.notificationCount.set(0);
         }
       });

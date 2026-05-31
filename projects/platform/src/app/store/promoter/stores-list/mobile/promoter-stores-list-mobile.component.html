@@ -1,0 +1,329 @@
+<main class="mobile-store-browser">
+  <header class="mobile-topbar" aria-label="Store discovery navigation">
+    <button type="button" class="icon-button" (click)="openSheet('filters')" aria-label="Open filters">
+      <mat-icon>tune</mat-icon>
+      @if (activeFilterCount() > 0) {
+        <span class="badge">{{ activeFilterCount() }}</span>
+      }
+    </button>
+    <div class="topbar-title">
+      <span>Promoter stores</span>
+      <strong>Find products to promote</strong>
+    </div>
+    <button type="button" class="icon-button primary" (click)="retryLoading()" aria-label="Refresh stores">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  <section class="discovery-hero">
+    <div>
+      <p class="eyebrow">Storefront discovery</p>
+      <h1>Browse stores with products ready for promotion.</h1>
+      <p class="hero-copy">Compare product counts, commission potential, verification, and promoter traffic before choosing where to focus.</p>
+    </div>
+    <div class="hero-stats">
+      <article>
+        <span>Total stores</span>
+        <strong>{{ stats().total || totalStores() }}</strong>
+      </article>
+      <article>
+        <span>Verified</span>
+        <strong>{{ stats().verified }}</strong>
+      </article>
+      <article>
+        <span>Following</span>
+        <strong>{{ followedStoresCount() }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="search-card" aria-label="Search stores">
+    <mat-icon>search</mat-icon>
+    <input type="search" placeholder="Search stores, products, categories" [formControl]="searchControl" />
+    @if (searchControl.value) {
+      <button type="button" (click)="searchControl.setValue('')" aria-label="Clear search">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </section>
+
+  <section class="category-rail" aria-label="Popular categories">
+    <button type="button" [class.active]="currentFilters().selectedCategories.length === 0" (click)="applyFilters({ selectedCategories: [] })">
+      All
+    </button>
+    @for (category of categories().slice(0, 10); track trackCategory($index, category)) {
+      <button
+        type="button"
+        [class.active]="currentFilters().selectedCategories.includes(category.name)"
+        (click)="toggleCategory(category.name)">
+        {{ category.name }}
+        <small>{{ category.count }}</small>
+      </button>
+    }
+  </section>
+
+  <section class="quick-controls" aria-label="Store sorting and insights">
+    <button type="button" (click)="openSheet('sort')">
+      <mat-icon>sort</mat-icon>
+      {{ currentFilters().sortBy | titlecase }}
+    </button>
+    <button type="button" (click)="openSheet('insights')">
+      <mat-icon>insights</mat-icon>
+      Insights
+    </button>
+    <button type="button" (click)="clearFilters()">
+      <mat-icon>restart_alt</mat-icon>
+      Reset
+    </button>
+  </section>
+
+  @if (loading()) {
+    <section class="mobile-state" aria-live="polite">
+      <mat-spinner diameter="42"></mat-spinner>
+      <h2>Loading stores</h2>
+      <p>Finding storefronts with products you can promote.</p>
+    </section>
+  } @else if (error()) {
+    <section class="mobile-state error">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Could not load stores</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="retryLoading()">Try again</button>
+    </section>
+  } @else if (!stores().length) {
+    <section class="mobile-state">
+      <mat-icon>store_off</mat-icon>
+      <h2>No stores found</h2>
+      <p>Try removing filters or searching a broader category.</p>
+      <button type="button" (click)="clearFilters()">Clear filters</button>
+    </section>
+  } @else {
+    @if (premiumStores().length) {
+      <section class="featured-strip" aria-label="Premium stores">
+        <div class="section-heading">
+          <div>
+            <span>Verified picks</span>
+            <h2>Premium storefronts</h2>
+          </div>
+          <button type="button" (click)="toggleVerificationTier('premium')">Filter</button>
+        </div>
+        <div class="featured-rail">
+          @for (store of premiumStores(); track trackStore($index, store)) {
+            <button type="button" class="featured-store" (click)="browseProducts(store)">
+              <span class="featured-logo">
+                @if (store.logo) {
+                  <img [src]="store.logo" [alt]="store.name + ' logo'" loading="lazy" />
+                } @else {
+                  {{ storeInitials(store) }}
+                }
+              </span>
+              <strong>{{ store.name }}</strong>
+              <small>{{ store.productCount }} products</small>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="store-feed" aria-label="Stores">
+      <div class="section-heading">
+        <div>
+          <span>{{ totalStores() }} result(s)</span>
+          <h2>Stores to promote</h2>
+        </div>
+        <small>Page {{ currentPage() }} of {{ totalPages() || 1 }}</small>
+      </div>
+
+      @for (store of stores(); track trackStore($index, store)) {
+        <article class="store-card">
+          <div class="card-head">
+            <button type="button" class="store-logo" (click)="openPublicStore(store)" [attr.aria-label]="'Open ' + store.name">
+              @if (store.logo) {
+                <img [src]="store.logo" [alt]="store.name + ' logo'" loading="lazy" />
+              } @else {
+                {{ storeInitials(store) }}
+              }
+            </button>
+
+            <div class="store-copy">
+              <div class="name-row">
+                <h3>{{ store.name }}</h3>
+                @if (store.isVerified) {
+                  <span class="verified"><mat-icon>verified</mat-icon>{{ store.verificationTier | titlecase }}</span>
+                }
+              </div>
+              <p>{{ store.description || 'No store description yet.' }}</p>
+              <div class="store-meta">
+                <span><mat-icon>inventory_2</mat-icon>{{ store.productCount }} products</span>
+                <span><mat-icon>visibility</mat-icon>{{ store.analytics.totalViews | number }} views</span>
+                <span><mat-icon>trending_up</mat-icon>{{ store.analytics.conversionRate || 0 }}% conv.</span>
+              </div>
+            </div>
+          </div>
+
+          @if ((store.productPreview || []).length) {
+            <div class="product-rail" aria-label="Product preview">
+              @for (product of (store.productPreview || []).slice(0, 4); track trackProduct($index, product)) {
+                <button type="button" class="product-preview" (click)="browseProducts(store)">
+                  <span class="product-image">
+                    @if (product.images?.[0]?.url) {
+                      <img [src]="product.images?.[0]?.url" [alt]="product.name" loading="lazy" />
+                    } @else {
+                      <mat-icon>image</mat-icon>
+                    }
+                  </span>
+                  <strong>{{ product.name }}</strong>
+                  <small>{{ product.price | currencyUtils:'NGN' }}</small>
+                  <em>{{ product.promotion?.commissionRate || 0 }}%</em>
+                </button>
+              }
+            </div>
+          }
+
+          <div class="opportunity-row">
+            <span>
+              <mat-icon>paid</mat-icon>
+              Best commission: {{ bestCommission(store) }}%
+            </span>
+            @if (store.address?.state) {
+              <span>
+                <mat-icon>location_on</mat-icon>
+                {{ store.address?.state }}
+              </span>
+            }
+          </div>
+
+          <div class="card-actions">
+            <button type="button" class="follow" [class.following]="store.isFollowing" (click)="followStore(store)">
+              <mat-icon>{{ store.isFollowing ? 'favorite' : 'favorite_border' }}</mat-icon>
+              {{ store.isFollowing ? 'Following' : 'Follow' }}
+            </button>
+            <button type="button" class="primary" (click)="browseProducts(store)">
+              <mat-icon>shopping_bag</mat-icon>
+              Products
+            </button>
+            <button type="button" (click)="openPublicStore(store)">
+              <mat-icon>storefront</mat-icon>
+              Visit
+            </button>
+          </div>
+        </article>
+      }
+
+      @if (totalPages() > 1) {
+        <nav class="pager" aria-label="Store result pages">
+          <button type="button" [disabled]="currentPage() <= 1" (click)="previousPage()">
+            <mat-icon>chevron_left</mat-icon>
+            Previous
+          </button>
+          <span>{{ currentPage() }} / {{ totalPages() }}</span>
+          <button type="button" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+            Next
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </nav>
+      }
+    </section>
+  }
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="storeBrowserSheetTitle">
+    <div class="sheet-handle"></div>
+    <header>
+      <div>
+        <span>Store discovery</span>
+        <h2 id="storeBrowserSheetTitle">
+          @switch (activeSheet()) {
+            @case ('sort') { Sort stores }
+            @case ('insights') { Discovery insights }
+            @default { Filters }
+          }
+        </h2>
+      </div>
+      <button type="button" (click)="closeSheet()" aria-label="Close sheet">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="sheet-body">
+      @switch (activeSheet()) {
+        @case ('sort') {
+          <div class="sheet-actions">
+            <button type="button" [class.active]="currentFilters().sortBy === 'createdAt'" (click)="updateSort('createdAt')">
+              <mat-icon>schedule</mat-icon>
+              Newest stores
+            </button>
+            <button type="button" [class.active]="currentFilters().sortBy === 'productCount'" (click)="updateSort('productCount')">
+              <mat-icon>inventory_2</mat-icon>
+              Most products
+            </button>
+            <button type="button" [class.active]="currentFilters().sortBy === 'totalViews'" (click)="updateSort('totalViews')">
+              <mat-icon>visibility</mat-icon>
+              Most viewed
+            </button>
+            <button type="button" [class.active]="currentFilters().sortBy === 'name'" (click)="updateSort('name', 'asc')">
+              <mat-icon>sort_by_alpha</mat-icon>
+              Store name
+            </button>
+          </div>
+        }
+
+        @case ('insights') {
+          <div class="insight-list">
+            @for (store of topStores(); track trackStore($index, store)) {
+              <button type="button" (click)="browseProducts(store)">
+                <span class="rank">{{ $index + 1 }}</span>
+                <span>
+                  <strong>{{ store.name }}</strong>
+                  <small>{{ store.productCount }} products - {{ bestCommission(store) }}% best commission</small>
+                </span>
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
+        @default {
+          <label class="mobile-input">
+            <span>Minimum products</span>
+            <input type="number" min="0" [value]="currentFilters().minProducts" (input)="updateMinimumProducts($any($event.target).value)" />
+          </label>
+
+          <div class="sheet-section">
+            <h3>Verification</h3>
+            <div class="chip-list">
+              @for (tier of verificationTiers(); track tier.name) {
+                <button
+                  type="button"
+                  [class.active]="currentFilters().selectedVerificationTiers.includes(tier.name)"
+                  (click)="toggleVerificationTier(tier.name)">
+                  {{ tier.name | titlecase }}
+                  <small>{{ tier.count }}</small>
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="sheet-section">
+            <h3>Categories</h3>
+            <div class="chip-list">
+              @for (category of categories(); track trackCategory($index, category)) {
+                <button
+                  type="button"
+                  [class.active]="currentFilters().selectedCategories.includes(category.name)"
+                  (click)="toggleCategory(category.name)">
+                  {{ category.name }}
+                  <small>{{ category.count }}</small>
+                </button>
+              }
+            </div>
+          </div>
+
+          <button type="button" class="clear-sheet" (click)="clearFilters(); closeSheet()">Clear all filters</button>
+        }
+      }
+    </div>
+  </section>
+}

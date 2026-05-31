@@ -11,23 +11,38 @@ export interface PromotionClickStats {
   lastClickAt?: Date | string;
 }
 
+export interface PromotionFraudStatus {
+  isFlagged: boolean;
+  reviewStatus: 'clear' | 'warning' | 'final_warning' | 'blocked' | 'resolved' | string;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical' | string;
+  reasonSummary?: string;
+  reasons?: string[];
+  warningCount?: number;
+  firstFlaggedAt?: Date | string;
+  lastFlaggedAt?: Date | string;
+  blockedAt?: Date | string;
+  lastCaseId?: string | null;
+}
 
 export interface PromotionInterface {
   _id: string;
-  status: 'accepted' | 'submitted' | 'validated' | 'paid' | 'rejected' | 'downloaded';
-  payoutModel?: 'pay_per_click' | 'pay_per_view' | string;
+  status: 'accepted' | 'paid' | 'rejected' | string;
+  payoutModel?: 'pay_per_click' | string;
   costPerClick?: number;
   payoutAmount?: number;
   payoutSnapshot?: {
     model?: string;
     unitCost?: number;
     budgetAtAcceptance?: number;
-    acceptedAt?: Date | string;
+      acceptedAt?: Date | string;
   };
+  acceptedAt?: Date | string;
+  downloadedAt?: Date | string;
   submittedAt?: Date;
   validatedAt?: Date;
+  rejectedAt?: Date | string;
   paidAt?: Date;
-  proofMedia: string[];
+  proofMedia?: string[];
   proofViews?: number;
   viewsAchieved?: number;
   campaign: CampaignInterface;
@@ -41,7 +56,12 @@ export interface PromotionInterface {
   destinationUrl?: string;
   isActive?: boolean;
   clickStats?: PromotionClickStats;
-  isDownloaded: boolean;
+  fraudStatus?: PromotionFraudStatus;
+  isDownloaded?: boolean;
+  isExpired?: boolean;
+  timeRemaining?: string;
+  progressPercentage?: number;
+  viewsNeeded?: number;
 
 
   // check

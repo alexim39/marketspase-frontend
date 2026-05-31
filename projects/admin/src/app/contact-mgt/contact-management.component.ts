@@ -271,6 +271,21 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
     this.applyFilters();
   }
 
+  onDateFromChange(date: Date | null): void {
+    this.dateFromFilter.set(date);
+    this.onFilterChange();
+  }
+
+  onDateToChange(date: Date | null): void {
+    this.dateToFilter.set(date);
+    this.onFilterChange();
+  }
+
+  onShowArchivedChange(showArchived: boolean): void {
+    this.showArchived.set(showArchived);
+    this.onFilterChange();
+  }
+
   onPageChange(event: PageEvent): void {
     this.pageSize.set(event.pageSize);
     this.pageIndex.set(event.pageIndex);
@@ -550,7 +565,7 @@ export class ContactManagementComponent implements OnInit, AfterViewInit {
     });
   }
 
-  yourUpdateMethod(value: string): void {
+  onAssigneeFilterChange(value: string): void {
     this.assigneeFilter.set(value);
     this.onFilterChange();
   }

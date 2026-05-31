@@ -253,7 +253,7 @@ const FEED_CONFIG = {
 @Injectable()
 export class FeedService {
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'feed';
+  private readonly apiUrl = 'api/v1/feed';
 
   private postsSignal = signal<FeedPost[]>([]);
   private likedPostsSignal = signal<Set<string>>(new Set());
@@ -299,8 +299,8 @@ export class FeedService {
     if (featured) return featured;
 
     return [...posts].sort((a, b) => {
-      const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount;
-      const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount;
+      const scoreA = (a.recommendationScore || 0) + a.likeCount + a.commentCount + a.shareCount + (a.chatCount || 0);
+      const scoreB = (b.recommendationScore || 0) + b.likeCount + b.commentCount + b.shareCount + (b.chatCount || 0);
       return scoreB - scoreA;
     })[0];
   });
@@ -334,7 +334,8 @@ export class FeedService {
     hashtag?: string,
     search?: string,
     reset: boolean = false,
-    feedType: string = 'for_you'
+    feedType: string = 'for_you',
+    limit: number = FEED_CONFIG.POSTS_PER_PAGE
   ): void {
     if (!userId) return;
 
@@ -353,7 +354,7 @@ export class FeedService {
     const params = new HttpParams({
       fromObject: {
         page: this.currentPageSignal().toString(),
-        limit: FEED_CONFIG.POSTS_PER_PAGE.toString(),
+        limit: Math.max(1, Math.min(24, Number(limit || FEED_CONFIG.POSTS_PER_PAGE))).toString(),
         userId,
         feedType
       }
@@ -420,6 +421,23 @@ export class FeedService {
     );
   }
 
+  trackChatClick(postId: string, userId?: string): Observable<{ chatCount: number }> {
+    const body = userId ? { userId } : {};
+    return this.apiService.post<any>(`${this.apiUrl}/${postId}/chat-click`, body, undefined, true).pipe(
+      map((response) => response?.data || response),
+      tap((payload) => {
+        const nextCount = typeof payload?.chatCount === 'number' ? payload.chatCount : null;
+        this.postsSignal.update((posts) =>
+          posts.map((post) =>
+            post._id === postId
+              ? { ...post, chatCount: nextCount ?? ((post.chatCount || 0) + 1) }
+              : post
+          )
+        );
+      })
+    );
+  }
+
   getComments(postId: string, page: number = 1, limit: number = 20): Observable<CommentsResponse> {
     const params = new HttpParams({ fromObject: { page: page.toString(), limit: limit.toString() } });
     return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true).pipe(
@@ -475,7 +493,7 @@ export class FeedService {
   }
 
   getMarketerCampaigns(userId: string, params?: any): Observable<any> {
-    return this.apiService.get(`campaign/user/${userId}`, params, undefined, true);
+    return this.apiService.get(`api/v1/campaign/user/${userId}`, params, undefined, true);
   }
 
   private extractCommunityResponse(response: any): CommunityFeedPayload {

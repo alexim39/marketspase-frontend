@@ -3,12 +3,14 @@
     <button 
       mat-icon-button 
       [matMenuTriggerFor]="notificationMenu"
+      (menuOpened)="handleMenuOpened()"
       class="notification-button"
       aria-label="Notifications"
       [attr.aria-describedby]="unreadCount > 0 ? 'unread-notifications' : null">
       
       <mat-icon 
-        [matBadge]="unreadCount" 
+        [matBadge]="badgeText()"
+        [matBadgeHidden]="unreadCount <= 0"
         [matBadgeColor]="unreadCount > 0 ? 'warn' : 'primary'"
         matBadgePosition="above after"
         aria-hidden="false">
@@ -37,10 +39,20 @@
       </div>
 
       <div class="notification-list">
-        @if (notifications.length === 0) {
+        @if (isLoading && notifications.length === 0) {
+          <div class="notification-skeleton" aria-label="Loading notifications">
+            @for (i of [0,1,2,3,4]; track i) {
+              <div class="skeleton-item">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-time"></div>
+              </div>
+            }
+          </div>
+        } @else if (!isLoading && hasLoadedOnce && notifications.length === 0) {
           <div class="no-notifications">
             <mat-icon>notifications_off</mat-icon>
-            <p>No notifications</p>
+            <p>You have no notifications yet.</p>
           </div>
         } @else {
           @for (notification of notifications; track notification._id) {
@@ -65,10 +77,10 @@
         }
       </div>
 
-      <!-- <div class="notification-footer">
-        <button mat-button color="primary" (click)="viewAllNotifications()">
+      <div class="notification-footer">
+        <button mat-raised-button color="primary" (click)="viewAllNotifications()">
           View All Notifications
         </button>
-      </div> -->
+      </div>
     </mat-menu>
   </div>

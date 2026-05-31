@@ -1,235 +1,361 @@
-<div class="mobile-feed-container">
-  <header class="feed-header">
-    <div class="header-tabs">
+<div class="ms-reels-shell" [class.sheet-open]="isSheetOpen()">
+  <header class="reels-topbar" aria-label="Community feed controls">
+    <button class="top-icon" routerLink="/dashboard" aria-label="Back to dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="feed-tabs" role="tablist" aria-label="Feed mode">
       <button
-        class="tab"
+        type="button"
+        role="tab"
+        [attr.aria-selected]="selectedTab() === 'following'"
         [class.active]="selectedTab() === 'following'"
         (click)="selectedTab.set('following')"
       >
         Following
       </button>
       <button
-        class="tab"
+        type="button"
+        role="tab"
+        [attr.aria-selected]="selectedTab() === 'for-you'"
         [class.active]="selectedTab() === 'for-you'"
         (click)="selectedTab.set('for-you')"
       >
         For You
       </button>
     </div>
-    <div class="header-actions">
-      <button class="icon-btn" (click)="onSearch()">
-        <mat-icon>search</mat-icon>
-      </button>
-    </div>
+
+    <button class="top-icon" type="button" (click)="refreshFeed()" aria-label="Refresh feed">
+      <mat-icon>refresh</mat-icon>
+    </button>
   </header>
 
-  @if (trendingChallenges().length > 0) {
-    <div class="challenge-strip">
-      @for (challenge of trendingChallenges().slice(0, 3); track challenge.tag) {
-        <button class="challenge-pill" (click)="onHashtagClick(challenge.tag)">
-          #{{ challenge.tag }}
-        </button>
-      }
-    </div>
-  }
+  <div class="pull-indicator" [class.visible]="isPulling() || isRefreshing()">
+    @if (isRefreshing()) {
+      <mat-spinner diameter="22"></mat-spinner>
+      <span>Refreshing</span>
+    } @else {
+      <mat-icon>keyboard_arrow_down</mat-icon>
+      <span>Pull to refresh</span>
+    }
+  </div>
 
-  <!-- Main Feed – Vertical Snap Scrolling -->
-  <main class="feed-scroll" #scrollContainer>
-    @for (post of regularPosts(); track post._id) {
-      <section class="post-full" [attr.data-post-id]="post._id">
-        <!-- Media fills entire post -->
-        <div class="post-media">
-          @if (post.media && post.media.length > 0) {
-            @let firstMedia = post.media[0];
-            @if (firstMedia.type === 'video') {
-              <video
-                #videoPlayer
-                [src]="firstMedia.url"
-                [poster]="firstMedia.thumbnail || ''"
-                muted
-                loop
-                playsinline
-                preload="metadata"
-                class="media-video"
-                (click)="togglePlayPause($event, videoPlayer)"
-              ></video>
-            } @else if (firstMedia.type === 'image') {
-              <img
-                [src]="firstMedia.url"
-                alt="Post media"
-                class="media-image"
-                loading="lazy"
-              />
-            } @else if (firstMedia.type === 'link') {
-              <div class="link-preview" (click)="openLink(firstMedia.url)">
-                <mat-icon>link</mat-icon>
-                <span class="link-url">{{ firstMedia.url }}</span>
-                <mat-icon class="open-link">open_in_new</mat-icon>
-              </div>
+  <main
+    class="reels-scroll"
+    #scrollContainer
+    aria-label="MarketSpase community video feed"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+  >
+    @if (loading() && regularPosts().length === 0) {
+      @for (placeholder of [1, 2]; track placeholder) {
+        <section class="reel-post skeleton-post" aria-hidden="true">
+          <div class="skeleton-media"></div>
+          <div class="skeleton-overlay">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </section>
+      }
+    }
+
+    @for (post of regularPosts(); track trackPost($index, post); let index = $index) {
+      <section
+        #postPanel
+        class="reel-post"
+        [class.active]="activePostId() === post._id"
+        [attr.data-post-id]="post._id"
+        [attr.data-index]="index"
+        [attr.aria-label]="'Post by ' + (post.author?.displayName || post.author?.username || 'MarketSpase creator')"
+        (pointerdown)="onLongPressStart($event, post)"
+        (pointerup)="onLongPressEnd()"
+        (pointercancel)="onLongPressEnd()"
+        (pointerleave)="onLongPressEnd()"
+      >
+        <div class="media-layer">
+          @if (activeMedia(post); as media) {
+            @switch (media.type) {
+              @case ('video') {
+                <video
+                  #videoPlayer
+                  class="reel-video"
+                  [attr.data-post-id]="post._id"
+                  [src]="media.url"
+                  [poster]="media.thumbnail || post.campaign?.thumbnailUrl || post.product?.mainImage || ''"
+                  [muted]="isVideoMuted(post._id)"
+                  [preload]="shouldPreloadMedia(index) ? 'auto' : 'metadata'"
+                  loop
+                  playsinline
+                  (click)="onMediaTap($event, post, videoPlayer)"
+                ></video>
+              }
+
+              @case ('image') {
+                <img
+                  class="reel-image"
+                  [src]="media.url"
+                  [alt]="mediaAlt(post)"
+                  [loading]="shouldPreloadMedia(index) ? 'eager' : 'lazy'"
+                  (click)="onMediaTap($event, post)"
+                />
+              }
+
+              @case ('link') {
+                <button class="link-preview" type="button" (click)="openLink(media.url, $event)">
+                  <mat-icon>link</mat-icon>
+                  <span>{{ media.url }}</span>
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              }
+
+              @default {
+                <button class="document-preview" type="button" (click)="openLink(media.url, $event)">
+                  <mat-icon>description</mat-icon>
+                  <span>Open attachment</span>
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              }
             }
+          } @else if (post.product?.mainImage) {
+            <img
+              class="reel-image"
+              [src]="post.product?.mainImage"
+              [alt]="post.product?.name || mediaAlt(post)"
+              [loading]="shouldPreloadMedia(index) ? 'eager' : 'lazy'"
+              (click)="onMediaTap($event, post)"
+            />
           } @else {
-            <div class="no-media-placeholder">
-              <mat-icon>article</mat-icon>
+            <div class="story-only">
+              <mat-icon>forum</mat-icon>
+              <p>{{ post.content || 'MarketSpase community update' }}</p>
+            </div>
+          }
+
+          @if (heartBursts().has(post._id)) {
+            <div class="heart-burst" aria-hidden="true">
+              <mat-icon>favorite</mat-icon>
             </div>
           }
         </div>
 
-        <!-- Overlay UI -->
-        <div class="post-overlay">
-          <!-- Sound control (top right) -->
-          @if (post.media?.[0]?.type === 'video') {
-            <div class="sound-control">
-              <button class="control-btn" (click)="toggleMute(post._id)">
-                <mat-icon>{{ isVideoMuted(post._id) ? 'volume_off' : 'volume_up' }}</mat-icon>
-              </button>
-            </div>
+        @if (isVideo(post)) {
+          <button class="sound-chip" type="button" (click)="toggleMute(post._id, $event)" [attr.aria-label]="isVideoMuted(post._id) ? 'Unmute video' : 'Mute video'">
+            <mat-icon>{{ isVideoMuted(post._id) ? 'volume_off' : 'volume_up' }}</mat-icon>
+          </button>
+        }
+
+        <aside class="action-rail" aria-label="Post actions">
+          <button class="rail-action like-action" type="button" [class.active]="likedPosts().has(post._id)" (click)="onLike(post)" aria-label="Like post">
+            <span class="rail-icon"><mat-icon>{{ likedPosts().has(post._id) ? 'favorite' : 'favorite_border' }}</mat-icon></span>
+            <span>{{ formatCount(post.likeCount) }}</span>
+          </button>
+
+          <button class="rail-action" type="button" (click)="onComment(post._id, $event)" aria-label="Open comments">
+            <span class="rail-icon"><mat-icon>mode_comment</mat-icon></span>
+            <span>{{ formatCount(post.commentCount) }}</span>
+          </button>
+
+          <button class="rail-action" type="button" (click)="openShareSheet(post, $event)" aria-label="Share post">
+            <span class="rail-icon"><mat-icon>send</mat-icon></span>
+            <span>{{ formatCount(post.shareCount) }}</span>
+          </button>
+
+          <button class="rail-action" type="button" [class.active]="savedPosts().has(post._id)" (click)="onSave(post._id)" aria-label="Save post">
+            <span class="rail-icon"><mat-icon>{{ savedPosts().has(post._id) ? 'bookmark' : 'bookmark_border' }}</mat-icon></span>
+            <span>{{ formatCount(post.saveCount || 0) }}</span>
+          </button>
+
+          @if (user()?.role === 'promoter' && isPromotional(post)) {
+            <button class="rail-action promote-action" type="button" (click)="promotePost(post, $event)" aria-label="Promote this post">
+              <span class="rail-icon"><mat-icon>campaign</mat-icon></span>
+              <span>Promote</span>
+            </button>
           }
 
-          <!-- Bottom left: user & caption (conditionally visible) -->
-          <div class="post-info">
-            <div class="user-row">
-              <img
-                [src]="post.author?.avatar || 'img/avatar.png'"
-                class="user-avatar"
-                alt="avatar"
-                (click)="viewProfile(post.author?._id || '')"
-              />
-              <span class="username" (click)="viewProfile(post.author?._id || '')">&#64;{{ post.author?.username }}</span>
-              @if (post.author?._id !== user()?._id) {
-                <button
-                  class="follow-btn"
-                  (click)="toggleFollow(post.author!._id)"
-                >
-                  {{ isFollowing(post.author!._id) ? 'Following' : 'Follow' }}
-                </button>
-              }
-            </div>
+          @if (post.phone) {
+            <button class="rail-action whatsapp-action" type="button" (click)="openWhatsApp(post, $event)" aria-label="Contact on WhatsApp">
+              <span class="rail-icon"><mat-icon>chat</mat-icon></span>
+              <span>{{ formatCount(post.chatCount) }}</span>
+            </button>
+          }
 
-            <!-- Caption – shown only when toggled on -->
-            @if (isCaptionVisible(post._id)) {
-              <div class="caption">
-                <span class="caption-text">{{ post.content }}</span>
-                @for (tag of post.hashtags; track tag) {
-                  <span class="hashtag" (click)="onHashtagClick(typeof tag === 'string' ? tag : tag.tag)">#{{ typeof tag === 'string' ? tag : tag.tag }}</span>
+          <button class="rail-action" type="button" (click)="openMoreSheet(post, $event)" aria-label="More options">
+            <span class="rail-icon"><mat-icon>more_horiz</mat-icon></span>
+          </button>
+        </aside>
+
+        <div class="content-overlay">
+          <div class="creator-row">
+            <button class="avatar-button" type="button" (click)="viewProfile(post.author?._id, $event)" aria-label="View creator profile">
+              <img [src]="post.author?.avatar || 'img/avatar.png'" [alt]="post.author?.displayName || post.author?.username || 'Creator avatar'" />
+            </button>
+
+            <button class="creator-copy" type="button" (click)="viewProfile(post.author?._id, $event)">
+              <span class="creator-name">
+                {{ post.author?.displayName || post.author?.username || 'MarketSpase creator' }}
+                @if (post.author?.isVerified) {
+                  <mat-icon>verified</mat-icon>
+                }
+              </span>
+              <span class="creator-meta">&#64;{{ post.author?.username || 'marketspase' }} · {{ formatTime(post.createdAt) }}</span>
+            </button>
+
+            @if (post.author?._id && post.author?._id !== user()?._id) {
+              <button class="follow-pill" type="button" [class.following]="isFollowing(post.author!._id)" (click)="toggleFollow(post.author!._id, $event)">
+                {{ isFollowing(post.author!._id) ? 'Following' : 'Follow' }}
+              </button>
+            }
+          </div>
+
+          <div class="caption-panel" [class.expanded]="isCaptionExpanded(post._id)">
+            @if (post.type || post.source) {
+              <span class="post-badge">
+                <mat-icon>{{ post.source === 'product' ? 'shopping_bag' : post.source === 'campaign' ? 'ads_click' : 'auto_awesome' }}</mat-icon>
+                {{ post.source === 'product' ? 'Product post' : post.source === 'campaign' ? 'Campaign post' : post.type }}
+              </span>
+            }
+
+            <p>{{ captionText(post) }}</p>
+
+            @if (shouldShowReadMore(post)) {
+              <button class="read-more" type="button" (click)="toggleCaption(post._id, $event)">
+                {{ isCaptionExpanded(post._id) ? 'Show less' : 'Read more' }}
+              </button>
+            }
+
+            @if (post.hashtags?.length) {
+              <div class="hashtag-row">
+                @for (tag of post.hashtags; track $index) {
+                  <button type="button" (click)="onHashtagClick(tagLabel(tag), $event)">#{{ tagLabel(tag) }}</button>
                 }
               </div>
             }
           </div>
 
-          <!-- Right side: action buttons -->
-          <div class="action-buttons">
-            <!-- Like -->
-            <button class="action-btn" (click)="onLike(post)">
-              <mat-icon>{{
-                likedPosts().has(post._id) ? 'favorite' : 'favorite_border'
-              }}</mat-icon>
-              <span>{{ post.likeCount || 0 }}</span>
-            </button>
-
-            <!-- Comment -->
-            <button class="action-btn" (click)="onComment(post._id)">
-              <mat-icon>chat_bubble_outline</mat-icon>
-              <span>{{ post.commentCount || 0 }}</span>
-            </button>
-
-            <!-- Share -->
-            <button class="action-btn" (click)="onShare(post)">
-              <mat-icon>send</mat-icon>
-              <span>{{ post.shareCount || 0 }}</span>
-            </button>
-
-            <!-- Save -->
-            <button class="action-btn" (click)="onSave(post._id)">
-              <mat-icon>{{
-                savedPosts().has(post._id) ? 'bookmark' : 'bookmark_border'
-              }}</mat-icon>
-            </button>
-
-            <!-- WhatsApp contact (only for campaign posts) -->
-            @if (post.type === 'campaign') {
-              <button class="action-btn" (click)="openWhatsApp(post)">
-                <i class="fa fa-whatsapp" aria-hidden="true" style="height: 2em; width: 2em;"></i>
-                <!-- <span>Contact</span> -->
-              </button>
-            }
-
-            <!-- Show/Hide caption toggle -->
-            <button class="action-btn" (click)="toggleCaption(post._id)">
-              <mat-icon>{{ isCaptionVisible(post._id) ? 'expand_less' : 'expand_more' }}</mat-icon>
-              <span>{{ isCaptionVisible(post._id) ? 'Hide' : 'Read' }}</span>
-            </button>
-
-          @if (post.author?._id === user()?._id || user()?.role === 'admin') {
-            <div class="admin-actions">
-              <button mat-icon-button class="edit-btn" (click)="onEdit(post)">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button class="delete-btn" (click)="onDelete(post)">
-                <mat-icon>delete</mat-icon>
+          @if (post.product?.productId || post.product?.name) {
+            <div class="commerce-card">
+              @if (post.product?.mainImage) {
+                <img [src]="post.product?.mainImage" [alt]="post.product?.name || 'Product image'" />
+              }
+              <div>
+                <span class="commerce-label">{{ post.product?.storeName || 'MarketSpase Store' }}</span>
+                <strong>{{ post.product?.name || 'Featured product' }}</strong>
+                @if (productPrice(post)) {
+                  <span class="price">{{ productPrice(post) }}</span>
+                }
+              </div>
+              <button type="button" class="shop-button" (click)="openProduct(post, $event)">Shop</button>
+              <button type="button" class="copy-button" (click)="copyProductLink(post, $event)" [attr.aria-label]="copiedPostId() === post._id ? 'Product link copied' : 'Copy product link'">
+                <mat-icon>{{ copiedPostId() === post._id ? 'check' : 'content_copy' }}</mat-icon>
               </button>
             </div>
+          } @else if (post.campaign?.campaignId) {
+            <div class="commerce-card campaign-card">
+              <mat-icon>campaign</mat-icon>
+              <div>
+                <span class="commerce-label">Promotion campaign</span>
+                <strong>{{ post.campaign?.name || 'MarketSpase campaign' }}</strong>
+              </div>
+              <button type="button" class="shop-button" (click)="promotePost(post, $event)">View</button>
+            </div>
           }
-
-          </div>
         </div>
       </section>
     } @empty {
       @if (!loading()) {
-        <div class="empty-feed">
-          <mat-icon>smart_display</mat-icon>
-          <p>No posts yet</p>
-          <button mat-raised-button color="primary" (click)="onCreatePost()">
-            Create the first one
-          </button>
-        </div>
+        <section class="empty-feed">
+          <mat-icon>video_library</mat-icon>
+          <h2>No community posts yet</h2>
+          <p>Follow creators or publish the first MarketSpase community update.</p>
+          @if (user()?.role === 'marketer') {
+            <button mat-raised-button color="primary" type="button" (click)="onCreatePost()">Create post</button>
+          }
+        </section>
       }
     }
 
-   <!-- Initial Loading - Skeleton Loader -->
-    @if (loading() && regularPosts().length === 0) {
-      <app-skeleton-loader 
-        [mobileCount]="2"
-        [isMobile]="true"
-        [showCreatePost]="false"
-        [showFeatured]="false">
-      </app-skeleton-loader>
-    }
-
-    <!-- Loading more indicator (keep this) -->
     @if (loading() && regularPosts().length > 0) {
-      <div class="loading-spinner">
-        <mat-spinner diameter="36"></mat-spinner>
+      <div class="loading-more" aria-live="polite">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span>Loading more posts</span>
       </div>
     }
 
-    <!-- End Anchor for Infinite Scroll -->
-    <div #scrollAnchor class="scroll-anchor"></div>
+    <div #scrollAnchor class="scroll-anchor" aria-hidden="true"></div>
   </main>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
+  @if (user()?.role === 'marketer') {
+    <button class="create-fab" type="button" (click)="onCreatePost()" aria-label="Create a community post">
+      <mat-icon>add</mat-icon>
+    </button>
+  }
 
-    <!-- <button class="nav-item" [class.active]="selectedTab() === 'for-you'" (click)="selectedTab.set('for-you'); router.navigate(['dashboard'])">
-      <mat-icon>home</mat-icon>
-    </button> -->
+  @if (shareSheetPost(); as post) {
+    <div class="sheet-backdrop" (click)="closeShareSheet()" aria-hidden="true"></div>
+    <section class="mobile-sheet" role="dialog" aria-modal="true" aria-labelledby="share-sheet-title">
+      <div class="sheet-handle"></div>
+      <h2 id="share-sheet-title">Share this post</h2>
+      <p>Send it to a customer, promoter, or your audience.</p>
 
-    <!-- <button class="nav-item" (click)="navigateTo('explore')">
-      <mat-icon>explore</mat-icon>
-    </button> -->
-
-    @if(user()?.role === 'marketer') {
-        <button class="nav-item create-btn" (click)="onCreatePost()">
-            <mat-icon>add</mat-icon>
+      <div class="sheet-grid">
+        @if (canNativeShare()) {
+          <button type="button" (click)="shareTo('native')">
+            <mat-icon>ios_share</mat-icon>
+            <span>Share</span>
+          </button>
+        }
+        <button type="button" (click)="shareTo('whatsapp')">
+          <mat-icon>chat</mat-icon>
+          <span>WhatsApp</span>
         </button>
-    }
+        <button type="button" (click)="shareTo('facebook')">
+          <mat-icon>facebook</mat-icon>
+          <span>Facebook</span>
+        </button>
+        <button type="button" (click)="shareTo('x')">
+          <mat-icon>alternate_email</mat-icon>
+          <span>X</span>
+        </button>
+        <button type="button" (click)="shareTo('copy')">
+          <mat-icon>link</mat-icon>
+          <span>Copy link</span>
+        </button>
+      </div>
+    </section>
+  }
 
-   <!--  <button class="nav-item" (click)="onNotifications()">
-      <mat-icon>notifications</mat-icon>
-    </button> -->
+  @if (moreSheetPost(); as post) {
+    <div class="sheet-backdrop" (click)="closeMoreSheet()" aria-hidden="true"></div>
+    <section class="mobile-sheet compact-sheet" role="dialog" aria-modal="true" aria-labelledby="more-sheet-title">
+      <div class="sheet-handle"></div>
+      <h2 id="more-sheet-title">Post options</h2>
 
-    <!-- <button class="nav-item" (click)="navigateTo('profile')">
-      <mat-icon>person</mat-icon>
-    </button> -->
-
-  </nav>
+      <button class="sheet-row" type="button" (click)="viewProfile(post.author?._id, $event); closeMoreSheet()">
+        <mat-icon>person</mat-icon>
+        <span>View creator profile</span>
+      </button>
+      <button class="sheet-row" type="button" (click)="openShareSheet(post, $event); closeMoreSheet()">
+        <mat-icon>send</mat-icon>
+        <span>Share post</span>
+      </button>
+      @if (isPromotional(post)) {
+        <button class="sheet-row" type="button" (click)="promotePost(post, $event); closeMoreSheet()">
+          <mat-icon>campaign</mat-icon>
+          <span>{{ user()?.role === 'promoter' ? 'Promote this post' : 'View promotion' }}</span>
+        </button>
+      }
+      @if (post.author?._id === user()?._id || user()?.role === 'admin') {
+        <button class="sheet-row" type="button" (click)="onEdit(post)">
+          <mat-icon>edit</mat-icon>
+          <span>Edit post</span>
+        </button>
+        <button class="sheet-row danger" type="button" (click)="onDelete(post)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete post</span>
+        </button>
+      }
+    </section>
+  }
 </div>

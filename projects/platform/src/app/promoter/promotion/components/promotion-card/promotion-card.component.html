@@ -9,19 +9,31 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #cardMenu="matMenu">
-        <button mat-menu-item (click)="copyPromotionLink()">
+        <button mat-menu-item (click)="copyPromotionLink()" [disabled]="isPromotionRestricted()">
           <mat-icon>link</mat-icon>
           <span>Copy Link</span>
         </button>
-        <button mat-menu-item (click)="copyCaption(promotion.campaign.caption)">
+        <button mat-menu-item (click)="copyCaption(promotion.campaign.caption)" [disabled]="isPromotionRestricted()">
           <mat-icon>content_copy</mat-icon>
           <span>Copy Caption</span>
+        </button>
+        <button mat-menu-item class="whatsapp-menu-item" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing() || isPromotionRestricted()">
+          <mat-icon>share</mat-icon>
+          <span>{{ isStatusSharing() ? 'Preparing Status...' : 'Post to WhatsApp Status' }}</span>
         </button>
         <button mat-menu-item (click)="downloadAdAsset()" [disabled]="isDownloading()">
           <mat-icon>download</mat-icon>
           <span>Download Ad Asset</span>
         </button>
-        <button mat-menu-item (click)="openPromotionLink()">
+        <button mat-menu-item (click)="openPromotionRoom()">
+          <mat-icon>forum</mat-icon>
+          <span>Open Room</span>
+        </button>
+        <button mat-menu-item (click)="messageMarketer()">
+          <mat-icon>chat</mat-icon>
+          <span>Message Marketer</span>
+        </button>
+        <button mat-menu-item (click)="openPromotionLink()" [disabled]="isPromotionRestricted()">
           <mat-icon>open_in_new</mat-icon>
           <span>Open Link</span>
         </button>
@@ -40,7 +52,12 @@
     </div>
     
     @if (promotion.campaign.mediaType === "image") {
-      <img [src]="getAssetUrl()" [alt]="promotion.campaign.title" class="media-preview">
+      <img
+        [src]="getPreviewUrl()"
+        [alt]="promotion.campaign.title"
+        class="media-preview"
+        loading="lazy"
+        decoding="async">
     }
     @if (promotion.campaign.mediaType === "video") {
       <div class="video-placeholder">
@@ -48,6 +65,8 @@
             [src]="getThumbnailUrl()" 
             class="media-preview placeholder-img" 
             [alt]="promotion.campaign.title"
+            loading="lazy"
+            decoding="async"
           />
         <div class="video-play-btn">
           <svg viewBox="0 0 48 48"><polygon points="18,14 36,24 18,34" /></svg> 
@@ -57,6 +76,16 @@
   </div>
 
   <div class="card-content">
+    @if (isPromotionRestricted()) {
+      <div class="fraud-alert">
+        <mat-icon>shield</mat-icon>
+        <div>
+          <strong>Promotion paused</strong>
+          <span>{{ getRestrictionSummary() }}</span>
+        </div>
+      </div>
+    }
+
     <div class="title-section">
       <mat-icon matTooltip="Sharing instructions" (click)="showWhatsAppSharingInstructions(promotion)">help</mat-icon>
       <h3 class="card-title">{{ promotion.campaign.title }}</h3>
@@ -64,7 +93,7 @@
 
     <div class="caption-container">
       <p class="card-description">{{ promotion.campaign.caption }}</p>
-      <button class="copy-btn" (click)="copyCaption(promotion.campaign.caption)" matTooltip="Copy caption with tracked link" aria-label="Copy caption with tracked link">
+      <button class="copy-btn" (click)="copyCaption(promotion.campaign.caption)" [disabled]="isPromotionRestricted()" matTooltip="Copy caption with tracked link" aria-label="Copy caption with tracked link">
         <mat-icon>content_copy</mat-icon>
       </button>
     </div>
@@ -72,7 +101,7 @@
     <div class="tracking-link">
       <mat-icon>link</mat-icon>
       <span>{{ getPromotionUrl() }}</span>
-      <button class="copy-btn compact" (click)="copyPromotionLink()" matTooltip="Copy promotion link" aria-label="Copy promotion link">
+      <button class="copy-btn compact" (click)="copyPromotionLink()" [disabled]="isPromotionRestricted()" matTooltip="Copy promotion link" aria-label="Copy promotion link">
         <mat-icon>content_copy</mat-icon>
       </button>
     </div>
@@ -121,14 +150,31 @@
           <span>View Reason</span>
           <i class="material-icons info-sub">info_outline</i>
         </button>
+      } @else if (isPromotionRestricted()) {
+        <button class="action-btn danger" (click)="viewDetails()">
+          <i class="material-icons">shield</i>
+          <span>Review Pause</span>
+        </button>
       } @else {
+        <button class="action-btn secondary whatsapp-status-btn" (click)="shareToWhatsAppStatus()" [disabled]="isStatusSharing()">
+          <i class="material-icons">share</i>
+          <span>{{ isStatusSharing() ? 'Preparing Status...' : 'Post to Status' }}</span>
+        </button>
         <button class="action-btn primary" (click)="downloadAdAsset()" [disabled]="isDownloading()">
           <i class="material-icons">download</i>
           <span>{{ isDownloading() ? 'Downloading...' : 'Download Ad' }}</span>
         </button>
+        <button class="action-btn secondary" (click)="messageMarketer()">
+          <i class="material-icons">chat</i>
+          <span>Message Marketer</span>
+        </button>
         <button class="action-btn secondary" (click)="copyPromotionLink()" [disabled]="isSharing()">
           <i class="material-icons">link</i>
           <span>Copy Link</span>
+        </button>
+        <button class="action-btn secondary" (click)="openPromotionRoom()">
+          <i class="material-icons">forum</i>
+          <span>Open Room</span>
         </button>
         <button class="action-btn secondary" (click)="showWhatsAppSharingInstructions(promotion)" [disabled]="isSharing()">
           <i class="material-icons">ios_share</i>

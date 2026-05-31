@@ -1,0 +1,203 @@
+<app-header />
+
+<main class="mobile-benefits-page">
+  <section class="benefits-hero" aria-labelledby="mobile-benefits-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Benefits</span>
+    </nav>
+
+    <span class="eyebrow">Why MarketSpase</span>
+    <h1 id="mobile-benefits-title">Grow sales or earn from your audience.</h1>
+    <p>
+      MarketSpase helps businesses get performance-based promotion while promoters earn from trusted product sharing.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/auth">
+        <mat-icon>rocket_launch</mat-icon>
+        Get started
+      </a>
+      <a routerLink="/resources/how-it-works">
+        <mat-icon>route</mat-icon>
+        How it works
+      </a>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="MarketSpase benefit summary">
+    @for (stat of mobileStats; track stat.label) {
+      <article>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section aria-labelledby="audience-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Pick your goal</span>
+        <h2 id="audience-title">What do you want from MarketSpase?</h2>
+      </div>
+      <button type="button" (click)="openAudienceSheet()" aria-label="Compare all benefit groups">
+        <mat-icon>compare_arrows</mat-icon>
+      </button>
+    </div>
+
+    <div class="audience-rail" role="list" aria-label="Benefit groups">
+      @for (card of audienceCards; track card.id) {
+        <button
+          type="button"
+          role="listitem"
+          class="audience-card"
+          [class.active]="selectedAudience() === card.id"
+          (click)="selectAudience(card.id)"
+        >
+          <span class="card-icon">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </span>
+          <strong>{{ card.title }}</strong>
+          <small>{{ card.summary }}</small>
+          <span>{{ card.action }}</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="focus-card" aria-labelledby="focus-title">
+    <span class="focus-icon">
+      <mat-icon>{{ activeAudienceCard().icon }}</mat-icon>
+    </span>
+    <div>
+      <span class="eyebrow">Current focus</span>
+      <h2 id="focus-title">{{ activeAudienceCard().title }}</h2>
+      <p>{{ activeAudienceCard().summary }}</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="top-benefits-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Best reasons</span>
+        <h2 id="top-benefits-title">Top benefits</h2>
+      </div>
+    </div>
+
+    <div class="highlight-grid">
+      @for (benefit of highlightedBenefits(); track benefit.title; let i = $index) {
+        <button type="button" class="highlight-card" [ngClass]="benefitTone(i)" (click)="openBenefit(benefit)">
+          <span class="card-icon">
+            <mat-icon>{{ benefit.icon }}</mat-icon>
+          </span>
+          <strong>{{ benefit.title }}</strong>
+          <small>{{ benefit.description }}</small>
+          <span class="card-link">
+            Read more
+            <mat-icon>arrow_forward</mat-icon>
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="all-benefits-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Complete list</span>
+        <h2 id="all-benefits-title">Everything included</h2>
+      </div>
+    </div>
+
+    <div class="benefit-list">
+      @for (benefit of activeBenefits(); track benefit.title; let i = $index) {
+        <button type="button" class="benefit-row" (click)="openBenefit(benefit)">
+          <span class="row-icon" [ngClass]="benefitTone(i)">
+            <mat-icon>{{ benefit.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ benefit.title }}</strong>
+            <small>{{ benefit.description }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <div>
+      <span class="eyebrow">Simple next step</span>
+      <h2>Start with the role that fits you today.</h2>
+      <p>Create an account, set up a store, or start promoting products your audience can trust.</p>
+    </div>
+    <div class="cta-actions">
+      <a routerLink="/auth">
+        <mat-icon>person_add</mat-icon>
+        Join free
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>support_agent</mat-icon>
+        Ask support
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Benefit details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (activeSheet()) {
+      @case ('benefit') {
+        @if (selectedBenefit(); as benefit) {
+          <span class="sheet-icon">
+            <mat-icon>{{ benefit.icon }}</mat-icon>
+          </span>
+          <h2>{{ benefit.title }}</h2>
+          <p>{{ benefit.description }}</p>
+          <div class="sheet-note">
+            <mat-icon>lightbulb</mat-icon>
+            <span>
+              @if (benefit.category === 'business') {
+                Use this to decide which product or campaign should get promoter support first.
+              } @else if (benefit.category === 'promoter') {
+                Use this to choose products that fit your audience and protect your promoter rating.
+              } @else {
+                This protects trust between buyers, marketers, and promoters as the marketplace grows.
+              }
+            </span>
+          </div>
+        }
+      }
+      @case ('audience') {
+        <span class="sheet-icon">
+          <mat-icon>compare_arrows</mat-icon>
+        </span>
+        <h2>Compare benefit groups</h2>
+        <p>Choose the path closest to what you want to do on MarketSpase.</p>
+
+        <div class="sheet-list">
+          @for (card of audienceCards; track card.id) {
+            <button type="button" (click)="selectAudience(card.id); closeSheet()">
+              <mat-icon>{{ card.icon }}</mat-icon>
+              <span>
+                <strong>{{ card.title }}</strong>
+                <small>{{ card.summary }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      }
+    }
+  </section>
+}
+
+<app-footer />

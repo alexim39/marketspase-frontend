@@ -56,6 +56,7 @@ export class ProductsContentViewComponent implements OnChanges {
   
   @Output() viewProduct = new EventEmitter<Product>();
   @Output() buyProduct = new EventEmitter<Product>();
+  @Output() shareWhatsAppStatus = new EventEmitter<Product>();
   @Output() shareWhatsApp = new EventEmitter<Product>();
   @Output() promoteProduct = new EventEmitter<Product>();
   @Output() copyProductUrl = new EventEmitter<Product>();
@@ -125,5 +126,9 @@ export class ProductsContentViewComponent implements OnChanges {
 
   onShareWhatsApp(product: Product): void {
     this.shareWhatsApp.emit(product);
+  }
+
+  onShareWhatsAppStatus(product: Product): void {
+    this.shareWhatsAppStatus.emit(product);
   }
 }

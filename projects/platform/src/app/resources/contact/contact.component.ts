@@ -16,7 +16,7 @@ import { HeaderComponent } from '../core/header/header.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ContactFormData, ContactService } from './contact.service';
 
-interface ContactMethod {
+export interface ContactMethod {
   icon: string;
   title: string;
   description: string;
@@ -25,7 +25,7 @@ interface ContactMethod {
   gradient: string;
 }
 
-interface TeamMember {
+export interface TeamMember {
   name: string;
   role: string;
   department: string;

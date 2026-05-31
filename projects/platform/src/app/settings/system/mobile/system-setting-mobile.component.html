@@ -1,0 +1,92 @@
+<main class="system-mobile" aria-label="System settings">
+  <header class="mobile-hero">
+    <a class="icon-button" routerLink="/dashboard/settings" aria-label="Back to settings">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="hero-copy">
+      <span>System settings</span>
+      <h1>Notifications and theme</h1>
+      <p>Keep alerts useful and the app comfortable to read.</p>
+    </div>
+
+    <div class="hero-badge" aria-hidden="true">
+      <mat-icon>tune</mat-icon>
+    </div>
+  </header>
+
+  @if (!user()) {
+    <section class="loading-state" aria-live="polite">
+      <mat-spinner diameter="28"></mat-spinner>
+      <div>
+        <strong>Loading preferences</strong>
+        <span>Getting your system settings ready</span>
+      </div>
+    </section>
+  } @else {
+    <section class="system-status">
+      <div class="status-copy">
+        <span>Current setup</span>
+        <strong>{{ currentThemeLabel() }} theme</strong>
+        <p>{{ systemAdvice() }}</p>
+      </div>
+      <div class="status-icon">
+        <mat-icon>{{ currentThemeLabel() === 'Dark' ? 'dark_mode' : currentThemeLabel() === 'Light' ? 'light_mode' : 'auto_mode' }}</mat-icon>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="System summary">
+      @for (stat of summaryStats(); track stat.label) {
+        <article class="summary-card" [class.good]="stat.tone === 'good'" [class.warn]="stat.tone === 'warn'">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </article>
+      }
+    </section>
+
+    <section class="section-cards" aria-label="System preference sections">
+      @for (section of sections; track section.id) {
+        <button
+          type="button"
+          class="section-card"
+          [class.active]="activeSection() === section.id"
+          (click)="selectSection(section.id)">
+          <span class="section-icon">
+            <mat-icon>{{ section.icon }}</mat-icon>
+          </span>
+          <span class="section-copy">
+            <strong>{{ section.label }}</strong>
+            <small>{{ section.description }}</small>
+          </span>
+          <span class="section-status" [class.ready]="sectionStatus(section.id) !== 'Off' && sectionStatus(section.id) !== 'Pending'">
+            {{ sectionStatus(section.id) }}
+          </span>
+        </button>
+      }
+    </section>
+
+    <nav class="mobile-tabs" aria-label="System setting sections">
+      @for (section of sections; track section.id) {
+        <button
+          type="button"
+          [class.active]="activeSection() === section.id"
+          (click)="selectSection(section.id)">
+          <mat-icon>{{ section.icon }}</mat-icon>
+          <span>{{ section.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <section class="mobile-settings-shell">
+      @switch (activeSection()) {
+        @case ('notifications') {
+          <async-notification [user]="user" />
+        }
+        @case ('theme') {
+          <async-theme-settings [user]="user" />
+        }
+      }
+    </section>
+  }
+</main>

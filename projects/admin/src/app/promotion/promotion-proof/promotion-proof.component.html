@@ -19,26 +19,26 @@
     <div class="image-viewer-section">
       <h3>Proof Images</h3>
       
-      @if (promotion()?.proofMedia && promotion()!.proofMedia.length > 0) {
+      @if (proofMedia().length > 0) {
       <div class="image-viewer">
         <div class="main-image-container">
           <button mat-icon-button class="nav-button prev-button" (click)="prevImage()" 
-                  [disabled]="promotion()!.proofMedia.length <= 1">
+                  [disabled]="proofMedia().length <= 1">
             <mat-icon>chevron_left</mat-icon>
           </button>
           
-          <img [src]="promotion()!.proofMedia[activeImageIndex()]" 
+          <img [src]="proofMedia()[activeImageIndex()]" 
                alt="Proof image" class="main-image">
           
           <button mat-icon-button class="nav-button next-button" (click)="nextImage()" 
-                  [disabled]="promotion()!.proofMedia.length <= 1">
+                  [disabled]="proofMedia().length <= 1">
             <mat-icon>chevron_right</mat-icon>
           </button>
         </div>
         
-        @if (promotion()!.proofMedia.length > 1) {
+        @if (proofMedia().length > 1) {
         <div class="image-thumbnails">
-          @for (image of promotion()!.proofMedia; track $index; let i = $index) {
+          @for (image of proofMedia(); track $index; let i = $index) {
           <img [src]="image" 
                [class.active]="i === activeImageIndex()"
                (click)="setActiveImage(i)"

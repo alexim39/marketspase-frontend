@@ -1,21 +1,30 @@
-import { Component, input, computed, inject, Signal } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { FormGroup } from '@angular/forms';
 import { MediaFile } from '../../media-file.model';
-import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ShortNumberPipe } from '../../../../common/pipes/short-number.pipe';
-import { map, startWith, switchMap } from 'rxjs/operators';
+import { startWith, switchMap } from 'rxjs/operators';
 
-// Define age group interface for better type safety
 interface AgeGroupInfo {
   value: string;
   label: string;
   description: string;
   icon: string;
   range: string;
+}
+
+type CampaignGoal = 'awareness' | 'leads';
+
+interface GoalSummaryInfo {
+  label: string;
+  icon: string;
+  outcomeLabel: string;
+  outcomeSuffix: string;
+  description: string;
 }
 
 @Component({
@@ -34,14 +43,13 @@ interface AgeGroupInfo {
   styleUrls: ['./campaign-summary.component.scss']
 })
 export class CampaignSummaryComponent {
-  // 1. Convert @Inputs to Signal Inputs
   contentForm = input.required<FormGroup>();
+  goalForm = input.required<FormGroup>();
   budgetForm = input.required<FormGroup>();
   scheduleForm = input.required<FormGroup>();
   selectedMedia = input<MediaFile | null>(null);
 
-  // Age group configuration matching the budget component
-  private ageGroups: AgeGroupInfo[] = [
+  private readonly ageGroups: AgeGroupInfo[] = [
     {
       value: 'all',
       label: 'All Ages',
@@ -72,10 +80,26 @@ export class CampaignSummaryComponent {
     }
   ];
 
-  // 2. Create the budget signal by watching the input signal
+  private readonly goalConfig: Record<CampaignGoal, GoalSummaryInfo> = {
+    awareness: {
+      label: 'Customer Awareness',
+      icon: 'campaign',
+      outcomeLabel: 'Estimated Reach',
+      outcomeSuffix: 'awareness-driven clicks',
+      description: 'Best for visibility, announcements, causes, programs, launches, and wide message spread.'
+    },
+    leads: {
+      label: 'Customer Leads',
+      icon: 'support_agent',
+      outcomeLabel: 'Estimated Leads',
+      outcomeSuffix: 'sales-focused clicks',
+      description: 'Best for WhatsApp chats, direct enquiries, CTA clicks, and sales-oriented campaigns.'
+    }
+  };
+
   private budgetValue = toSignal(
     toObservable(this.budgetForm).pipe(
-      switchMap(form => 
+      switchMap((form) =>
         form.get('budget')!.valueChanges.pipe(
           startWith(form.get('budget')?.value)
         )
@@ -84,29 +108,9 @@ export class CampaignSummaryComponent {
     { initialValue: 0 }
   );
 
-  // 3. Create the payment tier signal by watching the input signal
- /*  private paymentTier = toSignal(
-    toObservable(this.budgetForm).pipe(
-      switchMap(form =>
-        form.get('payoutTier')!.valueChanges.pipe(
-          startWith(form.get('payoutTier')?.value)
-        )
-      ),
-      map(value => {
-        if (!value) return 0;
-        const str = String(value);
-        const cleaned = str.replace('TIER_', '');
-        return parseInt(cleaned, 10) || 0;
-      })
-    ),
-    { initialValue: 0 }
-  );
- */
-
-  // 4. Create signal for age target value
   private ageTargetValue = toSignal(
     toObservable(this.budgetForm).pipe(
-      switchMap(form => 
+      switchMap((form) =>
         form.get('ageTarget')!.valueChanges.pipe(
           startWith(form.get('ageTarget')?.value || 'all')
         )
@@ -115,62 +119,47 @@ export class CampaignSummaryComponent {
     { initialValue: 'all' }
   );
 
-  // 4. Computed signal for age target display
+  private goalValue = toSignal(
+    toObservable(this.goalForm).pipe(
+      switchMap((form) =>
+        form.get('campaignGoal')!.valueChanges.pipe(
+          startWith(form.get('campaignGoal')?.value || 'awareness')
+        )
+      )
+    ),
+    { initialValue: 'awareness' }
+  );
+
   public selectedAgeGroup = computed(() => {
     const ageTarget = this.ageTargetValue();
-    const group = this.ageGroups.find(g => g.value === ageTarget);
-    return group || this.ageGroups[0]; // Default to "All Ages" if not found
+    return this.ageGroups.find((group) => group.value === ageTarget) || this.ageGroups[0];
   });
 
-  public slots = computed(() => {
+  public selectedGoal = computed(() => {
+    const goal = (this.goalValue() as CampaignGoal) || 'awareness';
+    return this.goalConfig[goal] ?? this.goalConfig.awareness;
+  });
+
+  public estimatedOutcome = computed(() => {
     const budget = this.budgetValue() || 0;
-    return Math.floor(budget / 200);
+    const costPerClick = 80;
+    return Math.floor(budget / costPerClick);
   });
 
- /*  private paymentTier = toSignal(
-    toObservable(this.budgetForm).pipe(
-      switchMap(form =>
-        form.get('payoutTier')!.valueChanges.pipe(
-          startWith(form.get('payoutTier')?.value)
-        )
-      ),
-      map(value => {
-        if (!value) return 0;
-        const str = String(value);
-        const cleaned = str.replace('TIER_', '');
-        return parseInt(cleaned, 10) || 0;
-      })
-    ),
-    { initialValue: 0 }
-  );
- */
-
-  // public estimatedReach = computed(() => {
-  //   return this.slots() * 45;
-  // });
-
-  public estimatedReach = computed(() => {
-    const budget = this.budgetValue() || 0;
-    const costPerPerson = 20; // N₦20 per person as an example
-    
-    return Math.floor(budget / costPerPerson);
-  });
-
-
-
-  // Helper method to get friendly age target display
   public getAgeTargetDisplay(): string {
     return this.selectedAgeGroup().label;
   }
 
-  // Helper method to get age range
   public getAgeRange(): string {
     return this.selectedAgeGroup().range;
   }
 
-  // Helper method to get icon name
   public getAgeIcon(): string {
     return this.selectedAgeGroup().icon;
+  }
+
+  public getGoalIcon(): string {
+    return this.selectedGoal().icon;
   }
 
   getDuration(): string {
@@ -182,7 +171,7 @@ export class CampaignSummaryComponent {
       const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
       return `${days} days`;
     }
+
     return 'Budget Based';
   }
-
 }

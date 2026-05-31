@@ -1,0 +1,526 @@
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mixins;
+
+:host {
+  display: block;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(var(--primary-rgb), 0.14), transparent 30%),
+    vars.$background-color;
+  color: vars.$text-primary;
+}
+
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.support-mobile {
+  min-height: 100%;
+  padding: calc(10px + env(safe-area-inset-top)) vars.$spacing-3 calc(28px + env(safe-area-inset-bottom));
+}
+
+.mobile-hero {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 56px;
+  gap: vars.$spacing-3;
+  align-items: center;
+  padding: vars.$spacing-2 0 vars.$spacing-3;
+  background: linear-gradient(180deg, vars.$background-color 78%, transparent);
+
+  .icon-button {
+    width: 48px;
+    height: 48px;
+    border: 1px solid vars.$border-color;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: vars.$surface-color;
+    color: vars.$text-primary;
+    box-shadow: vars.$shadow-sm;
+    text-decoration: none;
+  }
+
+  .hero-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: vars.$gradient-primary;
+    color: vars.$on-primary-color;
+    box-shadow: vars.$shadow-md;
+  }
+}
+
+.hero-copy {
+  min-width: 0;
+
+  span {
+    display: block;
+    margin-bottom: 2px;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-xl;
+    line-height: vars.$line-height-tight;
+    @include mixins.text-ellipsis;
+  }
+
+  p {
+    margin: 3px 0 0;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    @include mixins.text-ellipsis;
+  }
+}
+
+.loading-state,
+.support-status,
+.summary-card,
+.section-card {
+  border: 1px solid vars.$border-color;
+  background: vars.$surface-color;
+  box-shadow: vars.$shadow-sm;
+}
+
+.loading-state {
+  min-height: 156px;
+  border-radius: vars.$border-radius-xl;
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-4;
+  padding: vars.$spacing-5;
+
+  div {
+    display: grid;
+    gap: 2px;
+  }
+
+  strong {
+    color: vars.$text-primary;
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+  }
+}
+
+.support-status {
+  border-radius: vars.$border-radius-xl;
+  padding: vars.$spacing-4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  gap: vars.$spacing-3;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent 58%);
+    pointer-events: none;
+  }
+}
+
+.status-copy,
+.status-icon {
+  position: relative;
+  z-index: 1;
+}
+
+.status-copy {
+  min-width: 0;
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    text-transform: uppercase;
+  }
+
+  strong {
+    display: block;
+    margin-top: 4px;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-2xl;
+    line-height: vars.$line-height-tight;
+  }
+
+  p {
+    margin: vars.$spacing-2 0 0;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.status-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--primary-rgb), 0.11);
+  color: var(--primary-color);
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: vars.$spacing-2;
+  margin-top: vars.$spacing-3;
+}
+
+.quick-action {
+  min-width: 0;
+  min-height: 52px;
+  border: 1px solid vars.$border-color;
+  border-radius: vars.$border-radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: vars.$spacing-2;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
+  font-weight: vars.$font-weight-semibold;
+  box-shadow: vars.$shadow-sm;
+
+  &.primary {
+    border-color: rgba(vars.$success-color, 0.35);
+    background: linear-gradient(135deg, #128c7e, #0b5824);
+    color: vars.$on-primary-color;
+  }
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: vars.$spacing-2;
+  margin-top: vars.$spacing-3;
+}
+
+.summary-card {
+  min-width: 0;
+  min-height: 92px;
+  border-radius: vars.$border-radius-lg;
+  padding: vars.$spacing-3;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+
+  mat-icon {
+    color: var(--primary-color);
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+  }
+
+  strong {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-sm;
+    overflow-wrap: anywhere;
+  }
+
+  &.good mat-icon {
+    color: vars.$success-color;
+  }
+
+  &.warn mat-icon {
+    color: vars.$warning-color;
+  }
+}
+
+.section-cards {
+  display: grid;
+  gap: vars.$spacing-3;
+  margin-top: vars.$spacing-4;
+}
+
+.section-card {
+  width: 100%;
+  min-height: 76px;
+  border-radius: vars.$border-radius-xl;
+  padding: vars.$spacing-3;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: vars.$spacing-3;
+  align-items: center;
+  color: vars.$text-primary;
+  text-align: left;
+
+  &.active {
+    border-color: rgba(var(--primary-rgb), 0.38);
+    background: rgba(var(--primary-rgb), 0.08);
+
+    .section-icon {
+      background: vars.$gradient-primary;
+      color: vars.$on-primary-color;
+    }
+  }
+}
+
+.section-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--surface-color), var(--text-primary) 5%);
+  color: var(--primary-color);
+}
+
+.section-copy {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+
+  strong {
+    color: vars.$text-primary;
+  }
+
+  small {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    line-height: vars.$line-height-normal;
+    @include mixins.text-multiline-ellipsis(2);
+  }
+}
+
+.section-status {
+  padding: 6px 9px;
+  border-radius: vars.$border-radius-full;
+  background: rgba(vars.$warning-color, 0.11);
+  color: vars.$warning-color;
+  font-size: vars.$font-size-xs;
+  font-weight: vars.$font-weight-bold;
+  white-space: nowrap;
+
+  &.ready {
+    background: rgba(vars.$success-color, 0.11);
+    color: vars.$success-color;
+  }
+}
+
+.mobile-tabs {
+  position: sticky;
+  top: 70px;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: vars.$spacing-2;
+  margin: vars.$spacing-4 0 vars.$spacing-3;
+  padding: vars.$spacing-2;
+  border: 1px solid vars.$border-color;
+  border-radius: vars.$border-radius-xl;
+  background: color-mix(in srgb, var(--surface-color), var(--background-color) 18%);
+  box-shadow: vars.$shadow-sm;
+  backdrop-filter: blur(18px);
+
+  button {
+    min-width: 0;
+    min-height: 52px;
+    border: 0;
+    border-radius: vars.$border-radius-lg;
+    display: grid;
+    place-items: center;
+    gap: 2px;
+    background: transparent;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-semibold;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &.active {
+      background: var(--primary-color);
+      color: vars.$on-primary-color;
+      box-shadow: vars.$shadow-sm;
+    }
+  }
+}
+
+.mobile-support-shell {
+  min-width: 0;
+}
+
+:host ::ng-deep {
+  .mobile-support-shell {
+    .contact-container,
+    .testimonial-settings {
+      min-height: auto;
+      padding: 0;
+      background: transparent;
+    }
+
+    .contact-header,
+    .contact-info {
+      display: none;
+    }
+
+    .contact-card,
+    .testimonial-form-card,
+    .existing-testimonial,
+    .write-testimonial-prompt,
+    .profile-completion-notification,
+    .loading-state,
+    .error-state {
+      margin: 0;
+      border-radius: vars.$border-radius-xl;
+      border: 1px solid vars.$border-color;
+      box-shadow: vars.$shadow-sm;
+      background: vars.$surface-color;
+      overflow: hidden;
+    }
+
+    .contact-card {
+      max-width: none;
+    }
+
+    .card-header {
+      padding: vars.$spacing-4;
+      background: vars.$gradient-primary;
+    }
+
+    .card-title {
+      font-size: vars.$font-size-lg;
+      line-height: vars.$line-height-tight;
+    }
+
+    .card-subtitle {
+      font-size: vars.$font-size-sm;
+      line-height: vars.$line-height-normal;
+    }
+
+    .card-content,
+    mat-card-content {
+      padding: vars.$spacing-4;
+    }
+
+    .contact-form,
+    .testimonial-form-card form {
+      display: grid;
+      gap: vars.$spacing-4;
+    }
+
+    .form-section {
+      margin: 0;
+    }
+
+    mat-form-field,
+    .full-width {
+      width: 100%;
+      min-width: 0;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      margin-top: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: vars.$spacing-2;
+
+      button {
+        min-height: 48px;
+        border-radius: vars.$border-radius-lg;
+      }
+    }
+
+    .section-title {
+      margin: 0 0 vars.$spacing-1;
+      color: vars.$text-primary;
+      font-size: vars.$font-size-lg;
+      line-height: vars.$line-height-tight;
+    }
+
+    .section-description {
+      margin: 0 0 vars.$spacing-4;
+      color: vars.$text-secondary;
+      font-size: vars.$font-size-sm;
+      line-height: vars.$line-height-normal;
+    }
+
+    .prompt-content,
+    .notification-content {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: vars.$spacing-3;
+      align-items: start;
+
+      button {
+        grid-column: 1 / -1;
+        min-height: 48px;
+        border-radius: vars.$border-radius-lg;
+      }
+    }
+
+    .existing-testimonial {
+      margin-bottom: vars.$spacing-3;
+    }
+
+    .rating-display,
+    .rating-options,
+    .form-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: vars.$spacing-3;
+    }
+
+    .rating-option {
+      min-height: 48px;
+      border: 1px solid vars.$border-color;
+      border-radius: vars.$border-radius-lg;
+      padding: vars.$spacing-2;
+    }
+
+    .stars {
+      display: inline-flex;
+      flex-wrap: wrap;
+      color: vars.$warning-color;
+    }
+
+    .testimonial-content {
+      overflow-wrap: anywhere;
+      line-height: vars.$line-height-normal;
+    }
+
+    mat-card-actions {
+      padding: vars.$spacing-3 vars.$spacing-4 vars.$spacing-4;
+    }
+  }
+}
+
+@include mixins.tablet {
+  .support-mobile {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .summary-grid {
+    gap: vars.$spacing-3;
+  }
+}

@@ -1,0 +1,94 @@
+<form class="search-shell" [class.compact]="compact" (submit)="submitSearch(); $event.preventDefault()">
+  <div class="search-field">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      type="search"
+      [formControl]="queryControl"
+      [placeholder]="compact ? 'Search MarketSpase' : 'Search users, campaigns, promotions, products, and stores'"
+      (focus)="handleFocus()"
+      (blur)="handleBlur()"
+      autocomplete="off"
+      aria-label="Global search"
+    />
+
+    @if (hasQuery()) {
+      <button
+        type="button"
+        mat-icon-button
+        class="clear-btn"
+        matTooltip="Clear search"
+        (click)="clearQuery($event)">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
+
+  @if (showSuggestions()) {
+    <div class="suggestions-panel">
+      @if (!canRunSuggestions()) {
+        <div class="suggestions-hint" aria-live="polite">
+          <mat-icon>keyboard</mat-icon>
+          <div class="hint-copy">
+            <strong>Keep typing</strong>
+            <span>Enter at least 2 characters to search MarketSpase.</span>
+          </div>
+        </div>
+      } @else if (isLoading()) {
+        <div class="suggestions-loading" aria-live="polite">
+          <mat-spinner diameter="18"></mat-spinner>
+          <span>Searching live results...</span>
+        </div>
+
+        <div class="suggestions-skeleton" aria-hidden="true">
+          @for (placeholder of loadingPlaceholders; track placeholder) {
+            <div class="skeleton-row">
+              <div class="skeleton-visual"></div>
+              <div class="skeleton-copy">
+                <span class="skeleton-line title"></span>
+                <span class="skeleton-line subtitle"></span>
+              </div>
+            </div>
+          }
+        </div>
+      } @else if (hasSettledSuggestions() && suggestions().length === 0) {
+        <div class="suggestions-empty">
+          <mat-icon>manage_search</mat-icon>
+          <p>No matches yet. Try a different keyword.</p>
+        </div>
+      } @else {
+        <div class="suggestions-list">
+          @for (result of suggestions(); track result.entityType + ':' + result.entityId) {
+            <button
+              type="button"
+              class="suggestion-row"
+              (click)="openResult(result)">
+              <div class="suggestion-visual">
+                @if (result.primaryImage) {
+                  <img [src]="result.primaryImage" [alt]="result.title">
+                } @else {
+                  <mat-icon>{{ getEntityIcon(result) }}</mat-icon>
+                }
+              </div>
+
+              <div class="suggestion-copy">
+                <div class="suggestion-title-row">
+                  <strong>{{ result.title }}</strong>
+                  <span class="type-chip">{{ result.entityLabel }}</span>
+                </div>
+                <span class="suggestion-subtitle">{{ result.subtitle }}</span>
+                @if (result.region?.label) {
+                  <span class="suggestion-meta">{{ result.region.label }}</span>
+                }
+              </div>
+            </button>
+          }
+        </div>
+
+        <button type="button" class="view-all-btn" (click)="viewAllResults()">
+          <span>View all results</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      }
+    </div>
+  }
+</form>

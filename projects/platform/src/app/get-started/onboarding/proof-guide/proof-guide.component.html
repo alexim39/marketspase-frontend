@@ -1,45 +1,53 @@
 <div class="proof-guide-section">
   <div class="proof-guide-card">
     <div class="proof-guide-header">
-      <mat-icon color="primary">photo_library</mat-icon>
+      <mat-icon color="primary">share</mat-icon>
       <div class="proof-guide-title">
-        <h3>📸 Need Help With Proof Screenshots?</h3>
-        <p>Learn exactly what screenshots we accept and avoid rejections</p>
+        <h3>Promoter Success Guide</h3>
+        <p>Use the current tracked-link workflow so your promotion is credited correctly from the start.</p>
       </div>
     </div>
-    
+
     <div class="proof-guide-content">
       <div class="proof-tips">
         <div class="proof-tip">
           <mat-icon color="primary">check_circle</mat-icon>
-          <span>View count must be clearly visible</span>
+          <span>Accept campaigns that fit your audience and review the campaign rules before you share.</span>
         </div>
         <div class="proof-tip">
           <mat-icon color="primary">check_circle</mat-icon>
-          <span>Promotion ID should appear in status</span>
+          <span>Work from Dashboard &gt; Campaigns &gt; Promotions to download media, copy the caption, and copy your tracked link.</span>
         </div>
         <div class="proof-tip">
           <mat-icon color="primary">check_circle</mat-icon>
-          <span>Keep status for 22+ hours minimum</span>
+          <span>Share only the generated MarketSpase link and keep the UPI or required campaign details intact.</span>
+        </div>
+        <div class="proof-tip">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <span>Monitor tracked clicks, billable clicks, status, and earnings from the promotion details page.</span>
+        </div>
+        <div class="proof-tip">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <span>Avoid fake clicks, self-clicks, spam traffic, or edited links. Fraud signals can pause the promotion and restrict your account.</span>
         </div>
       </div>
-      
-      <button 
-        mat-flat-button 
-        color="accent" 
+
+      <button
+        mat-flat-button
+        color="accent"
         class="view-guide-button"
-        (click)="openGuide.emit()">
-        <mat-icon>visibility</mat-icon>
-        View Complete Proof Guide
+        routerLink="/dashboard/campaigns/promotions">
+        <mat-icon>rocket_launch</mat-icon>
+        Open Promotions Workspace
       </button>
-      
-      <button 
-        mat-stroked-button 
-        color="primary" 
+
+      <button
+        mat-stroked-button
+        color="primary"
         class="quick-example-button"
-        (click)="openGuide.emit()">
-        <mat-icon>image</mat-icon>
-        See Example Screenshots
+        routerLink="/dashboard/campaigns">
+        <mat-icon>campaign</mat-icon>
+        Browse Available Campaigns
       </button>
     </div>
   </div>

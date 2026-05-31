@@ -1,0 +1,521 @@
+<main class="mobile-add-product mobile-edit-product">
+  @if (initialLoading()) {
+    <section class="mobile-loading-state" aria-live="polite">
+      <mat-spinner diameter="42" />
+      <h1>Loading product</h1>
+      <p>Getting the latest product details before you edit.</p>
+    </section>
+  } @else if (productForm) {
+    <header class="mobile-topbar">
+      <button type="button" class="icon-button" (click)="requestCancel()" aria-label="Close edit product form">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <div>
+        <span>Edit product</span>
+        <strong>{{ mobileStepLabels[currentStep()] }}</strong>
+      </div>
+
+      <button type="button" class="icon-button primary" [disabled]="loading()" (click)="onSubmit()" aria-label="Update product">
+        @if (loading()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          <mat-icon>check</mat-icon>
+        }
+      </button>
+    </header>
+
+    <section class="create-hero edit-hero">
+      <p class="eyebrow">Storefront inventory</p>
+      <h1>Update this product cleanly</h1>
+      <p>Adjust price, stock, photos, promoter commission, visibility, and delivery details without losing the current product record.</p>
+
+      <div class="progress-track" aria-label="Product update progress">
+        <i [style.width.%]="progressPercent()"></i>
+      </div>
+      <span class="progress-label">Step {{ currentStep() + 1 }} of {{ mobileStepLabels.length }}</span>
+    </section>
+
+    <nav class="step-rail" aria-label="Product edit steps">
+      @for (label of mobileStepLabels; track label; let i = $index) {
+        <button
+          type="button"
+          [class.active]="currentStep() === i"
+          [class.done]="i < currentStep()"
+          [attr.aria-pressed]="currentStep() === i"
+          (click)="goToStep(i)"
+        >
+          <span>{{ i + 1 }}</span>
+          {{ label }}
+        </button>
+      }
+    </nav>
+
+    <section class="mobile-form-card">
+      @if (currentStep() === 0) {
+        <div class="step-heading">
+          <mat-icon>inventory_2</mat-icon>
+          <div>
+            <h2>Product details</h2>
+            <p>Name, category, photos, tags, and description.</p>
+          </div>
+        </div>
+
+        <form class="native-form" [formGroup]="basicInfo">
+          <label class="field full">
+            <span>Product name *</span>
+            <input type="text" formControlName="name" placeholder="e.g. Premium leather bag" autocomplete="off" />
+            @if (basicInfo.get('name')?.touched && basicInfo.get('name')?.invalid) {
+              <small>Enter at least 3 characters.</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Category *</span>
+            <select formControlName="category">
+              <option value="">Choose category</option>
+              @for (category of productCategories(); track category.value) {
+                <option [value]="category.value">{{ category.label }}</option>
+              }
+            </select>
+            @if (basicInfo.get('category')?.touched && basicInfo.get('category')?.invalid) {
+              <small>Select a category.</small>
+            }
+          </label>
+
+          <label class="field">
+            <span>Brand</span>
+            <input type="text" formControlName="brand" placeholder="Optional" autocomplete="organization" />
+          </label>
+
+          <div class="tag-builder full">
+            <span>Tags</span>
+            <div class="tag-input">
+              <input type="text" [value]="tagDraft()" (input)="tagDraft.set($any($event.target).value)" placeholder="Add tag" (keydown.enter)="addTag(); $event.preventDefault()" />
+              <button type="button" (click)="addTag()">Add</button>
+            </div>
+
+            <div class="quick-chip-row">
+              @for (tag of quickTags; track tag) {
+                <button type="button" (click)="addTag(tag)">{{ tag }}</button>
+              }
+            </div>
+
+            @if (tagsArray.length > 0) {
+              <div class="selected-chip-row">
+                @for (tag of tagsArray.controls; track $index; let i = $index) {
+                  <button type="button" (click)="removeTag(i)">
+                    {{ tag.value }}
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <label class="field full">
+            <span>Description *</span>
+            <textarea rows="5" formControlName="description" placeholder="Describe product features, quality, use case, warranty, delivery notes..."></textarea>
+            @if (basicInfo.get('description')?.touched && basicInfo.get('description')?.invalid) {
+              <small>Product description is required.</small>
+            }
+          </label>
+        </form>
+
+        <section class="image-section">
+          <div class="section-label">
+            <span>Product photos</span>
+            <strong>{{ imagePreviews().length }}/{{ maxImages }}</strong>
+          </div>
+
+          <label class="upload-tile" [class.disabled]="imagePreviews().length >= maxImages">
+            <input type="file" accept="image/*" multiple [disabled]="imagePreviews().length >= maxImages" (change)="handleImageInput($event)" />
+            <mat-icon>add_photo_alternate</mat-icon>
+            <strong>Add or replace photos</strong>
+            <span>Existing photos are kept unless you remove them.</span>
+          </label>
+
+          @if (imagePreviews().length > 0) {
+            <div class="image-rail">
+              @for (image of imagePreviews(); track image; let i = $index) {
+                <article>
+                  <img [src]="image" [alt]="'Product preview ' + (i + 1)" />
+                  @if (i === 0) {
+                    <span>Main</span>
+                  } @else if (i < existingImages().length) {
+                    <span>Saved</span>
+                  }
+                  <button type="button" (click)="removeImage(i)" aria-label="Remove image">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </article>
+              }
+            </div>
+          }
+        </section>
+      }
+
+      @if (currentStep() === 1) {
+        <div class="step-heading">
+          <mat-icon>payments</mat-icon>
+          <div>
+            <h2>Price and stock</h2>
+            <p>Keep pricing honest and stock accurate for buyers.</p>
+          </div>
+        </div>
+
+        <form class="native-form" [formGroup]="pricing">
+          <label class="field">
+            <span>Selling price *</span>
+            <input type="number" min="100" inputmode="decimal" formControlName="price" placeholder="0" />
+          </label>
+
+          <label class="field">
+            <span>Original price</span>
+            <input type="number" min="0" inputmode="decimal" formControlName="originalPrice" placeholder="Optional" />
+          </label>
+
+          <label class="field">
+            <span>Cost price</span>
+            <input type="number" min="0" inputmode="decimal" formControlName="costPrice" placeholder="Optional" />
+          </label>
+
+          <label class="switch-row full">
+            <input type="checkbox" formControlName="taxable" />
+            <span>
+              <strong>Taxable product</strong>
+              <small>Include this product in tax calculations.</small>
+            </span>
+          </label>
+        </form>
+
+        <form class="native-form" [formGroup]="inventory">
+          <label class="field">
+            <span>SKU</span>
+            <input type="text" formControlName="sku" placeholder="Product SKU" />
+          </label>
+
+          <label class="field">
+            <span>Quantity *</span>
+            <input type="number" min="0" inputmode="numeric" formControlName="quantity" />
+          </label>
+
+          <label class="field">
+            <span>Low stock alert</span>
+            <input type="number" min="0" inputmode="numeric" formControlName="lowStockAlert" />
+          </label>
+
+          <label class="switch-row">
+            <input type="checkbox" formControlName="manageStock" />
+            <span>
+              <strong>Manage stock</strong>
+              <small>Track stock and low inventory.</small>
+            </span>
+          </label>
+
+          <label class="switch-row">
+            <input type="checkbox" formControlName="backorderAllowed" />
+            <span>
+              <strong>Allow backorders</strong>
+              <small>Buyers can order when stock is low.</small>
+            </span>
+          </label>
+        </form>
+      }
+
+      @if (currentStep() === 2) {
+        <div class="step-heading">
+          <mat-icon>campaign</mat-icon>
+          <div>
+            <h2>Promoter settings</h2>
+            <p>Update how attractive this product is for promoters.</p>
+          </div>
+        </div>
+
+        <form class="native-form" [formGroup]="pricing">
+          <label class="switch-row full">
+            <input type="checkbox" formControlName="affiliateEnabled" />
+            <span>
+              <strong>Enable promoter commission</strong>
+              <small>Allow promoters to earn when they drive a sale.</small>
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Commission type</span>
+            <select formControlName="commissionType">
+              <option value="percentage">Percentage</option>
+              <option value="fixed">Fixed amount</option>
+            </select>
+          </label>
+
+          @if (pricing.get('commissionType')?.value === 'fixed') {
+            <label class="field">
+              <span>Fixed commission</span>
+              <input type="number" min="0" inputmode="decimal" formControlName="fixedCommission" />
+            </label>
+          } @else {
+            <label class="field">
+              <span>Commission rate (%)</span>
+              <input type="number" min="0" max="100" inputmode="decimal" formControlName="commissionRate" />
+            </label>
+          }
+        </form>
+
+        <section class="commission-preview">
+          <article>
+            <span>Buyer pays</span>
+            <strong>NGN {{ priceValue() | number:'1.0-0' }}</strong>
+          </article>
+          <article>
+            <span>Promoter gets</span>
+            <strong>NGN {{ commissionValue() | number:'1.0-0' }}</strong>
+          </article>
+          <article>
+            <span>You receive</span>
+            <strong>NGN {{ receivableValue() | number:'1.0-0' }}</strong>
+          </article>
+        </section>
+      }
+
+      @if (currentStep() === 3) {
+        <div class="step-heading">
+          <mat-icon>local_shipping</mat-icon>
+          <div>
+            <h2>Delivery</h2>
+            <p>Update delivery, parcel, or digital product settings.</p>
+          </div>
+        </div>
+
+        <form class="native-form" [formGroup]="shipping">
+          <label class="switch-row full">
+            <input type="checkbox" formControlName="requiresShipping" />
+            <span>
+              <strong>Requires delivery</strong>
+              <small>Turn off for digital-only products.</small>
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Weight</span>
+            <input type="text" formControlName="weight" placeholder="e.g. 1.2" inputmode="decimal" />
+          </label>
+
+          <label class="field">
+            <span>Shipping class</span>
+            <input type="text" formControlName="shippingClass" placeholder="Optional" />
+          </label>
+
+          <div class="native-form full nested-fields" [formGroup]="dimensionsGroup">
+            <label class="field">
+              <span>Length</span>
+              <input type="text" formControlName="length" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Width</span>
+              <input type="text" formControlName="width" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Height</span>
+              <input type="text" formControlName="height" inputmode="decimal" />
+            </label>
+          </div>
+        </form>
+
+        <form class="native-form" [formGroup]="digital">
+          <label class="switch-row full">
+            <input type="checkbox" formControlName="isDigital" />
+            <span>
+              <strong>Digital product</strong>
+              <small>Use this for files, links, or downloadable items.</small>
+            </span>
+          </label>
+
+          @if (digital.get('isDigital')?.value) {
+            <label class="field">
+              <span>Download limit</span>
+              <input type="number" min="0" formControlName="downloadLimit" inputmode="numeric" />
+            </label>
+            <label class="field">
+              <span>Download expiry</span>
+              <input type="date" formControlName="downloadExpiry" />
+            </label>
+          }
+        </form>
+      }
+
+      @if (currentStep() === 4) {
+        <div class="step-heading">
+          <mat-icon>public</mat-icon>
+          <div>
+            <h2>Visibility and SEO</h2>
+            <p>Control if the product is live and how it appears in search.</p>
+          </div>
+        </div>
+
+        <form class="native-form" [formGroup]="seo">
+          <label class="field full">
+            <span>SEO title</span>
+            <input type="text" formControlName="seoTitle" placeholder="Short searchable product title" />
+          </label>
+
+          <label class="field full">
+            <span>SEO description</span>
+            <textarea rows="4" formControlName="seoDescription" placeholder="Search-friendly summary"></textarea>
+          </label>
+
+          <div class="tag-builder full">
+            <span>Meta keywords</span>
+            <div class="tag-input">
+              <input type="text" [value]="keywordDraft()" (input)="keywordDraft.set($any($event.target).value)" placeholder="Add keyword" (keydown.enter)="addKeyword(); $event.preventDefault()" />
+              <button type="button" (click)="addKeyword()">Add</button>
+            </div>
+
+            @if (keywordsArray.length > 0) {
+              <div class="selected-chip-row">
+                @for (keyword of keywordsArray.controls; track $index; let i = $index) {
+                  <button type="button" (click)="removeKeyword(i)">
+                    {{ keyword.value }}
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </form>
+
+        <form class="native-form" [formGroup]="advanced">
+          <label class="switch-row">
+            <input type="checkbox" formControlName="isActive" />
+            <span>
+              <strong>Active product</strong>
+              <small>Make the product visible after update.</small>
+            </span>
+          </label>
+
+          <label class="switch-row">
+            <input type="checkbox" formControlName="isFeatured" />
+            <span>
+              <strong>Feature product</strong>
+              <small>Show it more prominently in your store.</small>
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Schedule start</span>
+            <input type="datetime-local" formControlName="scheduledStart" />
+          </label>
+
+          <label class="field">
+            <span>Schedule end</span>
+            <input type="datetime-local" formControlName="scheduledEnd" />
+          </label>
+        </form>
+      }
+
+      @if (currentStep() === 5) {
+        <div class="step-heading">
+          <mat-icon>fact_check</mat-icon>
+          <div>
+            <h2>Review update</h2>
+            <p>Confirm the product still looks right before saving.</p>
+          </div>
+        </div>
+
+        <section class="review-card">
+          <div class="review-media">
+            @if (imagePreviews()[0]) {
+              <img [src]="imagePreviews()[0]" alt="Main product preview" />
+            } @else {
+              <mat-icon>image</mat-icon>
+            }
+          </div>
+
+          <div class="review-summary">
+            <h3>{{ basicInfo.get('name')?.value || 'Untitled product' }}</h3>
+            <p>{{ basicInfo.get('description')?.value || 'No description yet.' }}</p>
+            <strong>NGN {{ priceValue() | number:'1.0-0' }}</strong>
+          </div>
+        </section>
+
+        <section class="review-grid">
+          <article>
+            <span>Category</span>
+            <strong>{{ basicInfo.get('category')?.value || 'Not selected' }}</strong>
+          </article>
+          <article>
+            <span>Stock</span>
+            <strong>{{ inventory.get('quantity')?.value || 0 }} units</strong>
+          </article>
+          <article>
+            <span>Commission</span>
+            <strong>NGN {{ commissionValue() | number:'1.0-0' }}</strong>
+          </article>
+          <article>
+            <span>Photos</span>
+            <strong>{{ imagePreviews().length }}</strong>
+          </article>
+        </section>
+
+        @if (removedImages().length > 0) {
+          <section class="warning-card">
+            <mat-icon>photo_library</mat-icon>
+            <div>
+              <strong>{{ removedImages().length }} saved photo(s) will be removed</strong>
+              <span>This only takes effect when you update the product.</span>
+            </div>
+          </section>
+        }
+
+        @if (productForm.invalid) {
+          <section class="warning-card">
+            <mat-icon>error_outline</mat-icon>
+            <div>
+              <strong>Some required details are missing</strong>
+              <span>Review product details, category, price, stock, and description before saving.</span>
+            </div>
+          </section>
+        }
+      }
+    </section>
+
+    <footer class="sticky-actions">
+      <button type="button" class="secondary-action" [disabled]="currentStep() === 0 || loading()" (click)="previousStep()">
+        <mat-icon>chevron_left</mat-icon>
+        Back
+      </button>
+
+      @if (currentStep() < mobileStepLabels.length - 1) {
+        <button type="button" class="primary-action" [disabled]="loading()" (click)="goNext()">
+          Continue
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      } @else {
+        <button type="button" class="primary-action" [disabled]="loading()" (click)="onSubmit()">
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+            Saving
+          } @else {
+            Update product
+            <mat-icon>check_circle</mat-icon>
+          }
+        </button>
+      }
+    </footer>
+  }
+</main>
+
+@if (confirmLeaveOpen()) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeLeaveConfirm()"></div>
+  <section class="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="leave-edit-product-title">
+    <div class="confirm-icon">
+      <mat-icon>warning</mat-icon>
+    </div>
+    <h2 id="leave-edit-product-title">Leave without saving?</h2>
+    <p>You have unsaved product changes. Leaving now will keep the current saved product unchanged.</p>
+    <div>
+      <button type="button" class="secondary-action" (click)="closeLeaveConfirm()">Keep editing</button>
+      <button type="button" class="danger-action" (click)="leaveForm()">Leave</button>
+    </div>
+  </section>
+}

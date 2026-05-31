@@ -1,0 +1,373 @@
+<div class="feed-composer-mobile">
+  <header class="composer-appbar">
+    <button type="button" class="icon-button" (click)="onDiscard()" aria-label="Go back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="appbar-copy">
+      <p class="eyebrow">{{ isEditMode() ? 'Edit post' : 'Create post' }}</p>
+      <h1>{{ isEditMode() ? 'Update feed post' : 'Share with MarketSpase' }}</h1>
+    </div>
+
+    <button type="button" class="icon-button preview-trigger" (click)="openPreview()" aria-label="Open live preview">
+      <mat-icon>visibility</mat-icon>
+    </button>
+  </header>
+
+  @if (isLoadingPost()) {
+    <section class="loading-card" aria-live="polite">
+      <mat-spinner diameter="28"></mat-spinner>
+      <div>
+        <strong>Loading post</strong>
+        <span>Preparing your editor.</span>
+      </div>
+    </section>
+  }
+
+  <section class="composer-status-card">
+    <div>
+      <span class="status-pill">{{ completionLabel() }}</span>
+      <h2>{{ sourceSummary() }}</h2>
+      <p>Pick the business source, add the story, attach media, then publish into the community feed.</p>
+    </div>
+    <button type="button" class="mini-preview" (click)="openPreview()">
+      <mat-icon>dynamic_feed</mat-icon>
+      Preview
+    </button>
+  </section>
+
+  <section class="mobile-section">
+    <div class="section-heading">
+      <span class="step-badge">1</span>
+      <div>
+        <h2>Choose source</h2>
+        <p>Connect the post to a campaign, product, or a manual story.</p>
+      </div>
+    </div>
+
+    <div class="source-tabs" role="tablist" aria-label="Post source">
+      <button
+        type="button"
+        role="tab"
+        class="source-tab"
+        [class.active]="sourceType() === 'campaign'"
+        [disabled]="isEditMode()"
+        (click)="onSourceChange('campaign')">
+        <mat-icon>campaign</mat-icon>
+        <span>Campaign</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="source-tab"
+        [class.active]="sourceType() === 'product'"
+        [disabled]="isEditMode()"
+        (click)="onSourceChange('product')">
+        <mat-icon>sell</mat-icon>
+        <span>Product</span>
+      </button>
+
+      <button
+        type="button"
+        role="tab"
+        class="source-tab"
+        [class.active]="sourceType() === 'manual'"
+        [disabled]="isEditMode()"
+        (click)="onSourceChange('manual')">
+        <mat-icon>edit_square</mat-icon>
+        <span>Manual</span>
+      </button>
+    </div>
+
+    @if (sourceType() === 'campaign') {
+      <mat-form-field appearance="outline" class="mobile-field">
+        <mat-label>Select campaign</mat-label>
+        <mat-select [(ngModel)]="postData.campaignId" name="campaignId" [disabled]="isLoadingCampaigns() || isEditMode()" (selectionChange)="onCampaignSelect($event.value)">
+          @if (isLoadingCampaigns()) {
+            <mat-option disabled>Loading campaigns...</mat-option>
+          } @else {
+            @for (campaign of userCampaigns(); track campaign._id) {
+              <mat-option [value]="campaign._id">{{ campaign.title }}</mat-option>
+            }
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (selectedCampaign()) {
+        <article class="selected-source-card">
+          <div class="source-media">
+            @if (selectedCampaign()?.mediaType === 'video') {
+              <img [src]="selectedCampaign()?.thumbnailUrl || selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
+              <span class="media-kind"><mat-icon>play_arrow</mat-icon></span>
+            } @else {
+              <img [src]="selectedCampaign()?.mediaUrl" [alt]="selectedCampaign()?.title">
+            }
+          </div>
+          <div>
+            <h3>{{ selectedCampaign()?.title }}</h3>
+            <div class="source-meta">
+              <span>Budget: NGN {{ selectedCampaign()?.budget | number }}</span>
+              <span>{{ (selectedCampaign()?.progress || 0) | number:'1.0-0' }}% spent</span>
+            </div>
+          </div>
+        </article>
+      }
+    }
+
+    @if (sourceType() === 'product') {
+      <mat-form-field appearance="outline" class="mobile-field">
+        <mat-label>Select store</mat-label>
+        <mat-select [ngModel]="currentStoreId()" name="storeId" [disabled]="isLoadingStores() || isEditMode()" (ngModelChange)="onStoreSelect($event)">
+          @if (isLoadingStores()) {
+            <mat-option disabled>Loading stores...</mat-option>
+          } @else {
+            @for (store of stores(); track store._id) {
+              <mat-option [value]="store._id">{{ store.name }}</mat-option>
+            }
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="mobile-field">
+        <mat-label>Select product</mat-label>
+        <mat-select [(ngModel)]="postData.productId" name="productId" [disabled]="isLoadingProducts() || isEditMode()" (selectionChange)="onProductSelect($event.value)">
+          @if (isLoadingProducts()) {
+            <mat-option disabled>Loading published products...</mat-option>
+          } @else {
+            @for (product of storeProducts(); track product._id) {
+              <mat-option [value]="product._id">{{ product.name }} - {{ product.currency || 'NGN' }} {{ product.price | number }}</mat-option>
+            }
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (selectedProduct()) {
+        <article class="selected-source-card">
+          <div class="source-media">
+            <img [src]="selectedProduct()?.images?.[0]?.url || 'img/placeholder.png'" [alt]="selectedProduct()?.name">
+          </div>
+          <div>
+            <h3>{{ selectedProduct()?.name }}</h3>
+            <div class="source-meta">
+              <span>{{ selectedProduct()?.currency || 'NGN' }} {{ selectedProduct()?.price | number }}</span>
+              <span>{{ selectedProduct()?.category || 'Product' }}</span>
+            </div>
+          </div>
+        </article>
+      }
+    }
+  </section>
+
+  <section class="mobile-section">
+    <div class="section-heading">
+      <span class="step-badge">2</span>
+      <div>
+        <h2>Write story</h2>
+        <p>Keep it direct, useful, and easy for readers to respond to.</p>
+      </div>
+    </div>
+
+    <div class="suggestion-strip" aria-label="Caption starters">
+      @for (topic of suggestedTopics(); track topic) {
+        <button type="button" class="suggestion-card" (click)="applySuggestion(topic)">
+          <mat-icon>auto_awesome</mat-icon>
+          <span>{{ topic }}</span>
+        </button>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" class="mobile-field caption-field">
+      <mat-label>Your post caption</mat-label>
+      <textarea
+        matInput
+        [(ngModel)]="postData.content"
+        name="content"
+        rows="7"
+        maxlength="5000"
+        placeholder="Tell people what is new, why it matters, and what they should do next."
+        (input)="onContentInput($any($event.target).value)"></textarea>
+      <mat-hint align="end">{{ characterCount() }}/5000</mat-hint>
+    </mat-form-field>
+  </section>
+
+  <section class="mobile-section">
+    <div class="section-heading">
+      <span class="step-badge">3</span>
+      <div>
+        <h2>Media</h2>
+        <p>Use source media or add up to six images, or videos.</p>
+      </div>
+    </div>
+
+    @if (!isEditMode()) {
+      <button type="button" class="upload-drop" (click)="mediaInput.click()">
+        <mat-icon>cloud_upload</mat-icon>
+        <span>Add media</span>
+        <small>Images, or videos</small>
+      </button>
+      <input #mediaInput type="file" hidden multiple accept="image/*,video/*,.pdf" (change)="onMediaSelected($event)">
+    }
+
+    @if (uploadedMedia().length > 0) {
+      <div class="media-rail" aria-label="Uploaded media">
+        @for (media of uploadedMedia(); track media.url; let i = $index) {
+          <article class="media-tile">
+            @if (media.type === 'video') {
+              <video [src]="media.url" muted playsinline></video>
+            } @else if (media.type === 'image') {
+              <img [src]="media.url" [alt]="media.altText || 'Upload preview'">
+            } @else {
+              <div class="document-tile">
+                <mat-icon>description</mat-icon>
+                <span>{{ media.altText }}</span>
+              </div>
+            }
+            <button type="button" class="remove-media" (click)="removeMedia(i)" aria-label="Remove media">
+              <mat-icon>close</mat-icon>
+            </button>
+          </article>
+        }
+      </div>
+    } @else if (sourceMedia().length > 0) {
+      <div class="media-rail" aria-label="Linked source media">
+        @for (media of sourceMedia(); track media.url) {
+          <article class="media-tile linked">
+            @if (media.type === 'video') {
+              <video [src]="media.url" muted playsinline></video>
+              <span class="media-kind"><mat-icon>play_arrow</mat-icon></span>
+            } @else if (media.type === 'document') {
+              <div class="document-tile">
+                <mat-icon>description</mat-icon>
+                <span>{{ media.altText || 'Document' }}</span>
+              </div>
+            } @else {
+              <img [src]="media.url" [alt]="media.altText || 'Linked media'">
+            }
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="empty-media">
+        <mat-icon>image</mat-icon>
+        <span>No media selected yet.</span>
+      </div>
+    }
+  </section>
+
+  <details class="mobile-section advanced-section">
+    <summary>
+      <span>
+        <strong>Hashtags, challenge and options</strong>
+        <small>Optional reach and privacy settings</small>
+      </span>
+      <mat-icon>expand_more</mat-icon>
+    </summary>
+
+    <div class="advanced-content">
+      <div class="field-group">
+        <h3>Challenge or trend</h3>
+        <mat-form-field appearance="outline" class="mobile-field">
+          <mat-label>Challenge hashtag</mat-label>
+          <input matInput [ngModel]="challengeTag()" name="challengeTag" placeholder="creatorchallenge" (ngModelChange)="challengeTag.set($event); markDirty()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="mobile-field">
+          <mat-label>Challenge title</mat-label>
+          <input matInput [ngModel]="challengeTitle()" name="challengeTitle" placeholder="Show how you would promote this" (ngModelChange)="challengeTitle.set($event); markDirty()">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="mobile-field">
+          <mat-label>Reward label</mat-label>
+          <input matInput [ngModel]="challengeReward()" name="challengeReward" placeholder="Top creator gets a spotlight badge" (ngModelChange)="challengeReward.set($event); markDirty()">
+        </mat-form-field>
+      </div>
+
+      <div class="field-group">
+        <h3>Hashtags</h3>
+        <div class="hashtag-row">
+          <mat-form-field appearance="outline" class="hashtag-input">
+            <mat-label>Add hashtag</mat-label>
+            <input matInput [ngModel]="hashtagInput()" name="hashtagInput" placeholder="marketspase" (ngModelChange)="hashtagInput.set($event)" (keydown.enter)="$event.preventDefault(); addHashtag(hashtagInput())">
+          </mat-form-field>
+          <button type="button" class="add-tag-button" (click)="addHashtag(hashtagInput())">Add</button>
+        </div>
+
+        @if (hashtags().length > 0) {
+          <div class="hashtag-list">
+            @for (tag of hashtags(); track tag; let i = $index) {
+              <button type="button" class="hashtag-chip" (click)="removeHashtag(i)" [attr.aria-label]="'Remove hashtag ' + tag">
+                #{{ tag }}
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
+        <div class="suggested-tags">
+          @for (tag of suggestedHashtags(); track tag) {
+            <button type="button" (click)="addSuggestedHashtag(tag)">#{{ tag }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="field-group options-group">
+        <h3>Post options</h3>
+        <mat-checkbox [(ngModel)]="postData.postAnonymously" name="postAnonymously">Post anonymously</mat-checkbox>
+        <mat-checkbox [(ngModel)]="postData.disableComments" name="disableComments">Disable comments</mat-checkbox>
+        <mat-checkbox [(ngModel)]="postData.allowExternalShare" name="allowExternalShare">Allow external sharing</mat-checkbox>
+      </div>
+    </div>
+  </details>
+
+  @if (!isFormValid()) {
+    <p class="validation-copy">Complete the selected source and add at least a caption or media before publishing.</p>
+  }
+
+  <div class="sticky-publish">
+    <button type="button" class="secondary-action" (click)="openPreview()">
+      <mat-icon>visibility</mat-icon>
+      Preview
+    </button>
+
+    <button type="button" class="publish-action" [disabled]="!isFormValid() || isSubmitting() || isLoadingPost()" (click)="onSubmit()">
+      @if (isSubmitting()) {
+        <mat-spinner diameter="18"></mat-spinner>
+        <span>{{ isEditMode() ? 'Updating' : 'Publishing' }}</span>
+      } @else {
+        <mat-icon>{{ isEditMode() ? 'edit' : 'publish' }}</mat-icon>
+        <span>{{ isEditMode() ? 'Update post' : 'Publish post' }}</span>
+      }
+    </button>
+  </div>
+</div>
+
+@if (isPreviewOpen()) {
+  <div class="preview-sheet" role="dialog" aria-modal="true" aria-label="Live post preview">
+    <button type="button" class="sheet-backdrop" (click)="closePreview()" aria-label="Close preview"></button>
+    <section class="sheet-panel">
+      <header class="sheet-header">
+        <div>
+          <p class="eyebrow">Live preview</p>
+          <h2>Community card</h2>
+        </div>
+        <button type="button" class="icon-button" (click)="closePreview()" aria-label="Close preview">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="preview-card-shell">
+        <app-feed-post-card
+          [user]="user()"
+          [post]="previewPost()"
+          [isLiked]="false"
+          [isSaved]="false"
+          (like)="{}"
+          (save)="{}"
+          (comment)="{}"
+          (share)="{}"
+          (chat)="{}"
+          (sharePlatform)="{}">
+        </app-feed-post-card>
+      </div>
+    </section>
+  </div>
+}

@@ -76,9 +76,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 5%;
-    position: relative;
     width: 100%;
-    max-width: 800px;
+    max-width: 960px;
     margin: 0 auto;
 
     .step {
@@ -126,12 +125,11 @@
       flex: 1;
       height: 4px;
       background-color: #d1d1d1;
-      position: absolute;
-      width: calc(100% - 10%);
-      left: 5%;
-      top: 20px;
+      position: relative;
       z-index: 0;
       transition: all 0.3s ease;
+      min-width: 1.5rem;
+      margin: 0 0.45rem 1.75rem;
       
       &.completed {
         background: linear-gradient(90deg, #4CAF50 0%, #4CAF50 100%);
@@ -147,8 +145,63 @@
   }
 
   .form-content {
-    max-width: 800px;
+    max-width: 860px;
     width: 100%;
+
+    .submission-status {
+      margin-top: 1rem;
+      padding: 1rem 1.125rem;
+      border-radius: 18px;
+      border: 1px solid rgba($primary-color, 0.16);
+      background: rgba($primary-color, 0.06);
+      display: grid;
+      gap: 0.875rem;
+
+      &__copy {
+        display: grid;
+        gap: 0.35rem;
+
+        h3 {
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 700;
+          color: $text-primary;
+        }
+
+        p {
+          margin: 0;
+          color: $text-secondary;
+          font-size: 0.92rem;
+          line-height: 1.5;
+        }
+      }
+
+      &__eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: $primary-color !important;
+      }
+
+      &__progress {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+
+        mat-progress-bar {
+          flex: 1;
+        }
+
+        span {
+          min-width: 3rem;
+          text-align: right;
+          color: $text-secondary;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+      }
+    }
 
     .action-buttons {
       margin-top: 1em;
@@ -171,6 +224,17 @@
       padding: 0 10px;
       .step-label {
         display: none;
+      }
+    }
+
+    .form-content {
+      .action-buttons {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+
+        button {
+          flex: 1 1 160px;
+        }
       }
     }
   }

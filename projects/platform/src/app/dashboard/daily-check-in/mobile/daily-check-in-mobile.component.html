@@ -1,0 +1,137 @@
+@if (status(); as streakStatus) {
+  <div class="mobile-checkin" [class.is-open]="promptOpen()">
+    <button
+      class="streak-dock"
+      type="button"
+      [class.tone-building]="rewardTone() === 'building'"
+      [class.tone-secured]="rewardTone() === 'secured'"
+      [class.tone-ready]="rewardTone() === 'ready'"
+      (click)="reopenPrompt()"
+      aria-label="Open daily check-in streak">
+      <span class="dock-icon" aria-hidden="true">
+        <mat-icon>local_fire_department</mat-icon>
+      </span>
+      <span class="dock-copy">
+        <span class="dock-title">{{ streakStatus.currentStreak }} day streak</span>
+        <span class="dock-meta">{{ sessionStateLabel() }}</span>
+      </span>
+      <mat-icon class="dock-chevron" aria-hidden="true">keyboard_arrow_up</mat-icon>
+    </button>
+
+    @if (promptOpen()) {
+      <div class="sheet-backdrop" (click)="closePrompt()">
+        <section
+          class="checkin-sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="daily-checkin-title"
+          (click)="$event.stopPropagation()">
+          <div class="sheet-handle" aria-hidden="true"></div>
+
+          <header class="sheet-header">
+            <div>
+              <p class="eyebrow">Daily check-in</p>
+              <h2 id="daily-checkin-title">{{ streakStatus.currentStreak }} day streak</h2>
+              <p>{{ streakStatus.streakMessage }}</p>
+            </div>
+
+            <button class="icon-button" type="button" (click)="closePrompt()" aria-label="Close daily check-in">
+              <mat-icon>close</mat-icon>
+            </button>
+          </header>
+
+          <section class="hero-card" [class.tone-ready]="rewardTone() === 'ready'">
+            <div class="hero-copy">
+              <span>Today's reward</span>
+              <strong>{{ streakStatus.todayRewardPoints }} point{{ streakStatus.todayRewardPoints === 1 ? '' : 's' }}</strong>
+              <small>Worth NGN {{ streakStatus.todayRewardNaira | number:'1.0-0' }}</small>
+            </div>
+
+            <div class="hero-badge">
+              <mat-icon aria-hidden="true">
+                @if (streakStatus.qualifiedToday) {
+                  verified
+                } @else {
+                  timer
+                }
+              </mat-icon>
+              <span>{{ sessionStateLabel() }}</span>
+            </div>
+          </section>
+
+          <div class="metric-grid">
+            <article>
+              <span>Available</span>
+              <strong>{{ streakStatus.withdrawablePoints }}</strong>
+              <small>{{ pointsUnit() }}</small>
+            </article>
+            <article>
+              <span>Cycle</span>
+              <strong>{{ streakStatus.rewardCycleDayCount }}/{{ streakStatus.cycleLengthDays }}</strong>
+              <small>payout days</small>
+            </article>
+            <article>
+              <span>Earned</span>
+              <strong>{{ streakStatus.totalPointsEarned }}</strong>
+              <small>points</small>
+            </article>
+          </div>
+
+          <section class="progress-card">
+            <div class="progress-heading">
+              <span>Active session</span>
+              <strong>{{ sessionProgressPercent() }}%</strong>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <div class="progress-fill session" [style.width.%]="sessionProgressPercent()"></div>
+            </div>
+            <p>
+              @if (streakStatus.qualifiedToday) {
+                You have completed today's {{ streakStatus.minimumSessionMinutes }}-minute session.
+              } @else {
+                Stay {{ remainingMinutes }} more minute{{ remainingMinutes === 1 ? '' : 's' }} to lock in today's reward.
+              }
+            </p>
+          </section>
+
+          <section class="progress-card payout">
+            <div class="progress-heading">
+              <span>Payout maturity</span>
+              <strong>{{ payoutProgressPercent() }}%</strong>
+            </div>
+            <div class="progress-track muted" aria-hidden="true">
+              <div class="progress-fill payout-fill" [style.width.%]="payoutProgressPercent()"></div>
+            </div>
+            <p>Every {{ streakStatus.cycleLengthDays }} completed check-ins unlocks a wallet withdrawal.</p>
+          </section>
+
+          <section class="withdraw-card">
+            <div>
+              <span>Wallet withdrawal</span>
+              <strong>NGN {{ streakStatus.withdrawableNaira | number:'1.0-0' }}</strong>
+              <small>1 point = NGN {{ streakStatus.pointValueNaira | number:'1.0-0' }}</small>
+            </div>
+
+            <button
+              type="button"
+              [disabled]="!streakStatus.canWithdraw || withdrawInFlight()"
+              (click)="withdraw()">
+              <mat-icon aria-hidden="true">account_balance_wallet</mat-icon>
+              <span>{{ withdrawActionLabel() }}</span>
+            </button>
+          </section>
+        </section>
+      </div>
+    }
+  </div>
+} @else if (loading()) {
+  <div class="mobile-checkin">
+    <div class="streak-dock skeleton" aria-hidden="true">
+      <span class="skeleton-icon"></span>
+      <span class="skeleton-lines">
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+  </div>
+}

@@ -55,119 +55,135 @@
   </mat-card-header>
 
   <mat-card-content class="post-content">
-    <p class="content-text">
-      {{ displayContent() }}
-      @if (post().content.length > 200) {
-        <button class="read-more-btn" (click)="toggleReadMore()">
-          {{ showFullContent() ? 'Show less' : 'Read more' }}
-        </button>
-      }
-    </p>
-
-    @if (post().type === 'campaign' && post().campaign) {
-      <div class="highlight campaign-highlight">
-        <div class="highlight-icon">
-          <mat-icon>campaign</mat-icon>
-        </div>
-        <div class="highlight-details">
-          <span class="highlight-label">Campaign update</span>
-          <span class="highlight-value">{{ post().campaign?.name }}</span>
-          <span class="highlight-meta">
-            @if (post().campaign?.budget) { Budget: {{ post().campaign?.budget | number }} }
-            @if (post().campaign?.status) { · {{ post().campaign?.status | titlecase }} }
-          </span>
-        </div>
-      </div>
-    }
-
-    @if (post().type === 'product' && post().product) {
-      <div class="highlight product-highlight">
-        <div class="highlight-icon">
-          <mat-icon>sell</mat-icon>
-        </div>
-        <div class="highlight-details">
-          <span class="highlight-label">Product drop</span>
-          <span class="highlight-value">{{ post().product?.name }}</span>
-          <span class="highlight-meta">
-            {{ post().product?.currency || 'NGN' }} {{ post().product?.price | number }}
-            @if (post().product?.storeName) { · {{ post().product?.storeName }} }
-          </span>
-          <div class="inline-actions">
-            <button type="button" class="inline-link" (click)="goToProduct(post())">View product</button>
-            @if (post().product?.storeLink) {
-              <button type="button" class="inline-link" (click)="goToStore(post())">Visit store</button>
-            }
-          </div>
-        </div>
-      </div>
-    }
-
-    @if (post().challenge?.tag) {
-      <div class="highlight challenge-highlight">
-        <div class="highlight-icon">
-          <mat-icon>bolt</mat-icon>
-        </div>
-        <div class="highlight-details">
-          <span class="highlight-label">Challenge</span>
-          <span class="highlight-value">{{ post().challenge?.title || ('#' + post().challenge?.tag) }}</span>
-          @if (post().challenge?.rewardLabel || post().challenge?.description) {
-            <span class="highlight-meta">
-              {{ post().challenge?.rewardLabel || post().challenge?.description }}
-            </span>
+    <div class="post-layout" [class.with-media]="!!activeMedia()">
+      <div class="content-column">
+        <div class="post-meta-strip">
+          <span class="source-pill">{{ post().type | titlecase }}</span>
+          @if (post().campaign?.status) {
+            <span class="status-pill">{{ post().campaign?.status | titlecase }}</span>
+          }
+          @if (post().product?.storeName) {
+            <span class="meta-pill">{{ post().product?.storeName }}</span>
           }
         </div>
-      </div>
-    }
 
-    @if (hashtags().length > 0) {
-      <div class="hashtags">
-        @for (tag of hashtags(); track tag) {
-          <button class="hashtag" (click)="onHashtagClick(tag); $event.stopPropagation()">#{{ tag }}</button>
-        }
-      </div>
-    }
+        <p class="content-text">
+          {{ displayContent() }}
+          @if (post().content.length > 200) {
+            <button class="read-more-btn" (click)="toggleReadMore()">
+              {{ showFullContent() ? 'Show less' : 'Read more' }}
+            </button>
+          }
+        </p>
 
-    @if (activeMedia(); as media) {
-      <div class="media-preview" [class.carousel]="(post().media?.length || 0) > 1">
-        @if (media.type === 'image') {
-          <img [src]="media.url" [alt]="media.altText || 'Post media'" class="media-image" loading="lazy" (click)="openImageViewer(media)">
-        }
-        @if (media.type === 'video') {
-          <video [src]="media.url" [poster]="media.thumbnail || ''" controls preload="metadata" class="media-video" (click)="$event.stopPropagation()">
-            Your browser does not support the video tag.
-          </video>
-        }
-        @if (media.type === 'link') {
-          <div class="link-preview" (click)="openLink(media.url)">
-            <mat-icon>link</mat-icon>
-            <span class="link-url">{{ media.url }}</span>
-            <mat-icon class="open-link">open_in_new</mat-icon>
-          </div>
-        }
-        @if (media.type === 'document') {
-          <div class="link-preview" (click)="openLink(media.url)">
-            <mat-icon>description</mat-icon>
-            <span class="link-url">{{ media.altText || 'Open attachment' }}</span>
-            <mat-icon class="open-link">open_in_new</mat-icon>
+        @if (post().type === 'campaign' && post().campaign) {
+          <div class="highlight campaign-highlight">
+            <div class="highlight-icon">
+              <mat-icon>campaign</mat-icon>
+            </div>
+            <div class="highlight-details">
+              <span class="highlight-label">Campaign update</span>
+              <span class="highlight-value">{{ post().campaign?.name }}</span>
+              <span class="highlight-meta">
+                @if (post().campaign?.budget) { Budget: {{ post().campaign?.budget | number }} }
+                @if (post().campaign?.status) { · {{ post().campaign?.status | titlecase }} }
+              </span>
+            </div>
           </div>
         }
 
-        @if ((post().media?.length || 0) > 1) {
-          <button class="carousel-nav prev" (click)="previousMedia(); $event.stopPropagation()">
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-          <button class="carousel-nav next" (click)="nextMedia(); $event.stopPropagation()">
-            <mat-icon>chevron_right</mat-icon>
-          </button>
+        @if (post().type === 'product' && post().product) {
+          <div class="highlight product-highlight">
+            <div class="highlight-icon">
+              <mat-icon>sell</mat-icon>
+            </div>
+            <div class="highlight-details">
+              <span class="highlight-label">Product drop</span>
+              <span class="highlight-value">{{ post().product?.name }}</span>
+              <span class="highlight-meta">
+                {{ post().product?.currency || 'NGN' }} {{ post().product?.price | number }}
+                @if (post().product?.storeName) { · {{ post().product?.storeName }} }
+              </span>
+              <div class="inline-actions">
+                <button type="button" class="inline-link" (click)="goToProduct(post())">View product</button>
+                @if (post().product?.storeLink) {
+                  <button type="button" class="inline-link" (click)="goToStore(post())">Visit store</button>
+                }
+              </div>
+            </div>
+          </div>
+        }
 
-          <div class="carousel-dots">
-            @for (entry of post().media || []; track entry.url; let i = $index) {
-              <button class="dot" [class.active]="activeMediaIndex() === i" (click)="selectMedia(i); $event.stopPropagation()"></button>
+        @if (post().challenge?.tag) {
+          <div class="highlight challenge-highlight">
+            <div class="highlight-icon">
+              <mat-icon>bolt</mat-icon>
+            </div>
+            <div class="highlight-details">
+              <span class="highlight-label">Challenge</span>
+              <span class="highlight-value">{{ post().challenge?.title || ('#' + post().challenge?.tag) }}</span>
+              @if (post().challenge?.rewardLabel || post().challenge?.description) {
+                <span class="highlight-meta">
+                  {{ post().challenge?.rewardLabel || post().challenge?.description }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (hashtags().length > 0) {
+          <div class="hashtags">
+            @for (tag of hashtags(); track tag) {
+              <button class="hashtag" (click)="onHashtagClick(tag); $event.stopPropagation()">#{{ tag }}</button>
             }
           </div>
         }
       </div>
-    }
+
+      @if (activeMedia(); as media) {
+        <div class="media-column">
+          <div class="media-preview" [class.carousel]="(post().media?.length || 0) > 1">
+            @if (media.type === 'image') {
+              <img [src]="media.url" [alt]="media.altText || 'Post media'" class="media-image" loading="lazy" (click)="openImageViewer(media)">
+            }
+            @if (media.type === 'video') {
+              <video [src]="media.url" [poster]="media.thumbnail || ''" controls preload="metadata" class="media-video" (click)="$event.stopPropagation()">
+                Your browser does not support the video tag.
+              </video>
+            }
+            @if (media.type === 'link') {
+              <div class="link-preview" (click)="openLink(media.url)">
+                <mat-icon>link</mat-icon>
+                <span class="link-url">{{ media.url }}</span>
+                <mat-icon class="open-link">open_in_new</mat-icon>
+              </div>
+            }
+            @if (media.type === 'document') {
+              <div class="link-preview" (click)="openLink(media.url)">
+                <mat-icon>description</mat-icon>
+                <span class="link-url">{{ media.altText || 'Open attachment' }}</span>
+                <mat-icon class="open-link">open_in_new</mat-icon>
+              </div>
+            }
+
+            @if ((post().media?.length || 0) > 1) {
+              <button class="carousel-nav prev" (click)="previousMedia(); $event.stopPropagation()">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <button class="carousel-nav next" (click)="nextMedia(); $event.stopPropagation()">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+
+              <div class="carousel-dots">
+                @for (entry of post().media || []; track entry.url; let i = $index) {
+                  <button class="dot" [class.active]="activeMediaIndex() === i" (click)="selectMedia(i); $event.stopPropagation()"></button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
   </mat-card-content>
 
   <mat-card-actions class="post-actions">
@@ -187,8 +203,9 @@
     </button>
 
     @if (post().phone) {
-      <button class="action-btn share-btn" (click)="openWhatsApp(post())" [matTooltip]="'Chat on WhatsApp'">
+      <button class="action-btn chat-btn" (click)="onChat()" [matTooltip]="'Chat on WhatsApp'">
         <i class="fa fa-whatsapp" aria-hidden="true"></i>
+        <span>{{ post().chatCount || 0 }}</span>
       </button>
     }
 

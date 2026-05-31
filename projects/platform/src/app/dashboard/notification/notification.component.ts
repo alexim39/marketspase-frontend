@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { NotificationService, Notification } from './notification.service';
 import { UserInterface } from '@shared/services';
 import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-notification-bell',
@@ -20,16 +21,20 @@ export class NotificationBellComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private cdRef = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   notifications: Notification[] = [];
   unreadCount = 0;
+  isLoading = false;
+  hasLoadedOnce = false;
   showDropdown = false;
 
   readonly user = input<UserInterface | null>(null);
 
   ngOnInit() {
     if (this.user()?._id) {
-      this.loadNotifications();
+      this.notificationService.connectRealtime(this.user()!._id);
+      this.notificationService.loadUnreadCount();
     }
 
     this.notificationService.notifications$
@@ -45,12 +50,35 @@ export class NotificationBellComponent implements OnInit {
         this.unreadCount = count;
         this.cdRef.markForCheck();
       });
+
+    this.notificationService.loading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((loading) => {
+        this.isLoading = loading;
+        this.cdRef.markForCheck();
+      });
+
+    this.notificationService.loadedOnce$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((loadedOnce) => {
+        this.hasLoadedOnce = loadedOnce;
+        this.cdRef.markForCheck();
+      });
   }
 
   loadNotifications() {
     if (this.user()?._id) {
       this.notificationService.loadNotifications();
     }
+  }
+
+  handleMenuOpened() {
+    this.loadNotifications();
+  }
+
+  badgeText(): string {
+    if (this.unreadCount <= 0) return '';
+    return this.unreadCount > 99 ? '99+' : String(this.unreadCount);
   }
 
   handleNotificationClick(notification: Notification) {
@@ -86,9 +114,7 @@ export class NotificationBellComponent implements OnInit {
   }
 
   viewAllNotifications() {
-    // Navigate to notifications page
-    console.log('Navigate to all notifications page');
-    // this.router.navigate(['/notifications']);
+    this.router.navigateByUrl('/dashboard/notifications');
   }
 
   handleNotificationAction(notification: Notification) {

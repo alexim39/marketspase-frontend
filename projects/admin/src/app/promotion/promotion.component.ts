@@ -1,35 +1,29 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, signal, DestroyRef } from '@angular/core';
-import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { Component, DestroyRef, ViewChild, computed, inject, signal } from '@angular/core';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Clipboard } from '@angular/cdk/clipboard';
 
-// Angular Material imports
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
-// Services
 import { CampaignService } from '../campaign/campaign.service';
 import { AdminService } from '../common/services/user.service';
-
-// Components
-//import { ProofViewDialogComponent } from './proof-view-dialog/proof-view-dialog.component';
 import { CampaignInterface, PromotionInterface } from '../../../../shared-services/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PromotionProofComponent } from './promotion-proof/promotion-proof.component';
+import { PromotionDetailsComponent } from './promotion-details/promotion-details.component';
 
 @Component({
   selector: 'admin-campaign-promotions',
@@ -37,7 +31,6 @@ import { PromotionProofComponent } from './promotion-proof/promotion-proof.compo
   providers: [DatePipe, CurrencyPipe, CampaignService],
   imports: [
     CommonModule,
-    // Material Modules
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -50,7 +43,6 @@ import { PromotionProofComponent } from './promotion-proof/promotion-proof.compo
     MatSnackBarModule,
     MatDialogModule,
     MatMenuModule,
-    MatProgressBarModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -58,44 +50,60 @@ import { PromotionProofComponent } from './promotion-proof/promotion-proof.compo
   templateUrl: './promotion.component.html',
   styleUrls: ['./promotion.component.scss'],
 })
-export class CampaignPromotionsComponent implements OnInit, OnDestroy {
+export class CampaignPromotionsComponent {
   readonly campaignService = inject(CampaignService);
   readonly adminService = inject(AdminService);
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
   readonly snackBar = inject(MatSnackBar);
   readonly dialog = inject(MatDialog);
+  readonly clipboard = inject(Clipboard);
   private readonly destroyRef = inject(DestroyRef);
 
-  // Signals for state management
   isLoading = signal(true);
   campaign = signal<CampaignInterface | null>(null);
   promotions = signal<PromotionInterface[]>([]);
   statusFilter = signal<string>('all');
 
-  
-  // Table properties
-  displayedColumns: string[] = ['promoter', 'upi', 'status', 'views', 'created', 'submitted', 'validated', 'paid', 'actions'];
-  dataSource: MatTableDataSource<PromotionInterface> = new MatTableDataSource<PromotionInterface>([]);
+  displayedColumns: string[] = ['promoter', 'upi', 'status', 'trackedClicks', 'billableClicks', 'earned', 'lastActivity', 'actions'];
+  dataSource = new MatTableDataSource<PromotionInterface>([]);
+
+  activeLinks = computed(() =>
+    this.promotions().filter((promotion) => String(promotion.status) === 'accepted' && promotion.isActive !== false).length
+  );
+
+  inactiveLinks = computed(() =>
+    this.promotions().filter((promotion) => String(promotion.status) === 'accepted' && promotion.isActive === false).length
+  );
+
+  flaggedLinks = computed(() =>
+    this.promotions().filter((promotion) => promotion.fraudStatus?.isFlagged).length
+  );
+
+  billableClicks = computed(() =>
+    this.promotions().reduce((sum, promotion) => sum + Number(promotion.clickStats?.billableClicks ?? 0), 0)
+  );
+
+  earnedAmount = computed(() =>
+    this.promotions().reduce((sum, promotion) => sum + Number(promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0), 0)
+  );
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.adminService.fetchAdmin;
-
-
+    this.adminService.fetchAdmin();
     this.loadCampaignPromotions();
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
   loadCampaignPromotions(): void {
     const campaignId = this.route.snapshot.paramMap.get('id');
-    
+
     if (!campaignId) {
       this.isLoading.set(false);
       this.snackBar.open('Invalid campaign ID', 'Close', { duration: 3000 });
@@ -103,14 +111,13 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading.set(true);
-    
-      this.campaignService.getCampaignById(campaignId)
+
+    this.campaignService.getCampaignById(campaignId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.campaign.set(response.data);
-            //console.log('response ',response)
             this.promotions.set(response.data.promotions || []);
             this.dataSource.data = response.data.promotions || [];
           } else {
@@ -123,7 +130,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
           this.snackBar.open('Error loading campaign promotions', 'Close', { duration: 3000 });
           this.isLoading.set(false);
         }
-      })
+      });
   }
 
   refreshPromotions(): void {
@@ -134,7 +141,7 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
     this.router.navigate(['../../'], { relativeTo: this.route });
   }
 
-  applyFilter(event: Event) {
+  applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
 
@@ -145,13 +152,17 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
 
   onStatusFilterChange(event: any): void {
     this.statusFilter.set(event.value);
-    
+
     if (event.value === 'all') {
       this.dataSource.data = this.promotions();
+    } else if (event.value === 'inactive') {
+      this.dataSource.data = this.promotions().filter((promotion) => String(promotion.status) === 'accepted' && promotion.isActive === false);
+    } else if (event.value === 'flagged') {
+      this.dataSource.data = this.promotions().filter((promotion) => promotion.fraudStatus?.isFlagged);
     } else {
-      this.dataSource.data = this.promotions().filter(p => p.status === event.value);
+      this.dataSource.data = this.promotions().filter((promotion) => String(promotion.status) === event.value);
     }
-    
+
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -161,120 +172,112 @@ export class CampaignPromotionsComponent implements OnInit, OnDestroy {
     this.statusFilter.set('all');
     this.dataSource.data = this.promotions();
     this.dataSource.filter = '';
-    
+
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
   getPromotionsByStatus(status: string): PromotionInterface[] {
-    return this.promotions().filter(p => p.status === status);
-  }
-
-  viewProof(promotion: PromotionInterface): void {
-    if (!promotion.proofMedia || promotion.proofMedia.length === 0) {
-      this.snackBar.open('No proof available for this promotion', 'Close', { duration: 3000 });
-      return;
+    if (status === 'inactive') {
+      return this.promotions().filter((promotion) => String(promotion.status) === 'accepted' && promotion.isActive === false);
     }
 
-    this.dialog.open(PromotionProofComponent, {
+    if (status === 'flagged') {
+      return this.promotions().filter((promotion) => promotion.fraudStatus?.isFlagged);
+    }
+
+    return this.promotions().filter((promotion) => String(promotion.status) === status);
+  }
+
+  getTrackedClicks(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.totalClicks ?? 0);
+  }
+
+  getBillableClicks(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.billableClicks ?? 0);
+  }
+
+  getEarnedAmount(promotion: PromotionInterface): number {
+    return Number(promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0);
+  }
+
+  getLastActivity(promotion: PromotionInterface): string | Date | undefined {
+    return promotion.clickStats?.lastClickAt
+      || promotion.acceptedAt
+      || promotion.paidAt
+      || promotion.rejectedAt
+      || promotion.updatedAt
+      || promotion.createdAt;
+  }
+
+  getStatusChipClass(promotion: PromotionInterface): string {
+    if (promotion.fraudStatus?.isFlagged) {
+      return 'flagged';
+    }
+
+    if (String(promotion.status) === 'accepted' && promotion.isActive === false) {
+      return 'inactive';
+    }
+
+    return String(promotion.status || 'accepted');
+  }
+
+  getStatusLabel(promotion: PromotionInterface): string {
+    if (promotion.fraudStatus?.isFlagged) {
+      return 'Under Review';
+    }
+
+    if (String(promotion.status) === 'accepted' && promotion.isActive === false) {
+      return 'Inactive Link';
+    }
+
+    if (String(promotion.status) === 'accepted') {
+      return 'Active Link';
+    }
+
+    if (String(promotion.status) === 'paid') {
+      return 'Legacy Paid';
+    }
+
+    if (String(promotion.status) === 'rejected') {
+      return 'Rejected';
+    }
+
+    return String(promotion.status || 'Promotion');
+  }
+
+  viewPromotionDetails(promotion: PromotionInterface): void {
+    this.dialog.open(PromotionDetailsComponent, {
       width: '90%',
-      maxWidth: '800px',
-      data: {
-        promotion: promotion,
-        campaign: this.campaign()
-      }
+      maxWidth: '1000px',
+      data: { promotion }
     });
   }
 
-  validatePromotion(promotion: PromotionInterface): void {
-    this.snackBar.open('Validate from Submitted Promotion secttion', 'Close', { duration: 3000 });
-      // this.campaignService.updatePromotionStatus(promotion._id, 'validated', this.adminService.adminData()?._id || '')
-      // .pipe(takeUntilDestroyed(this.destroyRef))
-      // .subscribe({
-      //   next: (response) => {
-      //     if (response.success) {
-      //       this.snackBar.open('Promotion validated successfully', 'Close', { duration: 3000 });
-      //       this.loadCampaignPromotions(); // Reload to get updated data
-      //     } else {
-      //       this.snackBar.open('Failed to validate promotion', 'Close', { duration: 3000 });
-      //     }
-      //   },
-      //   error: (error) => {
-      //     console.error('Error validating promotion:', error);
-      //     this.snackBar.open('Error validating promotion', 'Close', { duration: 3000 });
-      //   }
-      // })
+  copyPromotionLink(promotion: PromotionInterface): void {
+    if (!promotion.promotionUrl) {
+      this.snackBar.open('No tracking link is available for this promotion.', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.clipboard.copy(promotion.promotionUrl);
+    this.snackBar.open('Tracking link copied', 'Close', { duration: 2400 });
   }
 
-  rejectPromotion(promotion: PromotionInterface): void {
-    this.snackBar.open('Reject from Submitted Promotion secttion', 'Close', { duration: 3000 });
-      // this.campaignService.updatePromotionStatus(promotion._id, 'rejected', this.adminService.adminData()?._id || '')
-      // .pipe(takeUntilDestroyed(this.destroyRef))
-      // .subscribe({
-      //   next: (response) => {
-      //     if (response.success) {
-      //       this.snackBar.open('Promotion rejected successfully', 'Close', { duration: 3000 });
-      //       this.loadCampaignPromotions(); // Reload to get updated data
-      //     } else {
-      //       this.snackBar.open('Failed to reject promotion', 'Close', { duration: 3000 });
-      //     }
-      //   },
-      //   error: (error) => {
-      //     console.error('Error rejecting promotion:', error);
-      //     this.snackBar.open('Error rejecting promotion', 'Close', { duration: 3000 });
-      //   }
-      // })
+  openPromotionLink(promotion: PromotionInterface): void {
+    if (!promotion.promotionUrl) {
+      this.snackBar.open('No tracking link is available for this promotion.', 'Close', { duration: 3000 });
+      return;
+    }
+
+    window.open(promotion.promotionUrl, '_blank', 'noopener');
   }
 
-  markAsPaid(promotion: PromotionInterface): void {
-    this.snackBar.open('Mark as Paid from Validated Promotion secttion', 'Close', { duration: 3000 });
-      // this.campaignService.updatePromotionStatus(promotion._id, 'paid', this.adminService.adminData()?._id || '')
-      // .pipe(takeUntilDestroyed(this.destroyRef))
-      // .subscribe({
-      //   next: (response) => {
-      //     if (response.success) {
-      //       this.snackBar.open('Promotion marked as paid successfully', 'Close', { duration: 3000 });
-      //       this.loadCampaignPromotions(); // Reload to get updated data
-      //     } else {
-      //       this.snackBar.open('Failed to mark promotion as paid', 'Close', { duration: 3000 });
-      //     }
-      //   },
-      //   error: (error) => {
-      //     console.error('Error marking promotion as paid:', error);
-      //     this.snackBar.open('Error marking promotion as paid', 'Close', { duration: 3000 });
-      //   }
-      // })
+  viewPromoterDetails(promotion: PromotionInterface): void {
+    const promoterId = typeof promotion.promoter === 'string' ? promotion.promoter : promotion.promoter?._id;
+    if (promoterId) {
+      this.router.navigate(['/dashboard/users', promoterId]);
+    }
   }
-
-  reopenPromotion(promotion: PromotionInterface): void {
-    this.snackBar.open('Re-open from Paid Promotion secttion', 'Close', { duration: 3000 });
-      // this.campaignService.updatePromotionStatus(promotion._id, 'submitted', this.adminService.adminData()?._id || '')
-      // .pipe(takeUntilDestroyed(this.destroyRef))
-      // .subscribe({
-      //   next: (response) => {
-      //     if (response.success) {
-      //       this.snackBar.open('Promotion re-opened successfully', 'Close', { duration: 3000 });
-      //       this.loadCampaignPromotions(); // Reload to get updated data
-      //     } else {
-      //       this.snackBar.open('Failed to re-open promotion', 'Close', { duration: 3000 });
-      //     }
-      //   },
-      //   error: (error) => {
-      //     console.error('Error re-opening promotion:', error);
-      //     this.snackBar.open('Error re-opening promotion', 'Close', { duration: 3000 });
-      //   }
-      // })
-  }
-
-  viewPromoterDetails(): void {
-    this.router.navigate(['/dashboard/users', this.campaign()?.owner._id]);
-  }
-
- 
-  ngOnDestroy(): void {
-    // this.destroy$.next();
-    // this.destroy$.complete();
-  }
-
 }

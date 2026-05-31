@@ -152,22 +152,18 @@
                 <td mat-cell *matCellDef="let campaign">
                 <div class="budget-info">
                     <span class="budget-amount">{{ campaign.budget | currency:'NGN':'₦' }}</span>
-                    <span class="payout-amount">Payout: {{ campaign.payoutPerPromotion | currency:'NGN':'₦' }}</span>
+                    <span class="payout-amount">Spent: {{ (campaign.spentBudget || 0) | currency:'NGN':'symbol-narrow' }}</span>
                 </div>
                 </td>
             </ng-container>
 
             <!-- Promoters Column -->
             <ng-container matColumnDef="promoters">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> Promoters </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Reach </th>
                 <td mat-cell *matCellDef="let campaign">
                 <div class="promoters-info">
-                    <span class="promoters-count">{{ campaign.currentPromoters }} / {{ campaign.maxPromoters }}</span>
-                    <mat-progress-bar 
-                    mode="determinate" 
-                    [value]="(campaign.currentPromoters / campaign.maxPromoters) * 100"
-                    class="promoters-progress">
-                    </mat-progress-bar>
+                    <span class="promoters-count">{{ campaign.promotionSummary?.uniquePromoters || campaign.totalPromotions || 0 }} engaged promoters</span>
+                    <span class="payout-amount">{{ campaign.promotionSummary?.activePromotions || 0 }} active links</span>
                 </div>
                 </td>
             </ng-container>

@@ -1,8 +1,8 @@
-<div class="campaign-card" [class]="'status-' + campaign.status">
+<div class="campaign-card" [class]="getStatusClass()">
   <!-- Card Header -->
   <div class="card-header">
-    <div class="status-badge" [class]="'status-' + campaign.status">
-      {{campaign.status | titlecase}}
+    <div class="status-badge" [class]="getStatusClass()">
+      {{ getStatusLabel() }}
     </div>
     <button class="icon-btn" [matMenuTriggerFor]="campaignMenu">
       <mat-icon>more_vert</mat-icon>
@@ -20,6 +20,10 @@
         <mat-icon>edit_location</mat-icon>
         Set Location Target
       </button>
+      <button mat-menu-item (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+        <mat-icon>forum</mat-icon>
+        {{ getCollaborationLabel() }}
+      </button>
       <!-- @if (campaign.status === 'active') {
         <button mat-menu-item (click)="onPauseCampaign()">
           <mat-icon>pause</mat-icon>
@@ -30,6 +34,12 @@
         <button mat-menu-item (click)="onActivateCampaign()">
           <mat-icon>start</mat-icon>
           Activate
+        </button>
+      }
+      @if (campaign.status === 'active' || campaign.status === 'paused' || campaign.status === 'exhausted') {
+        <button mat-menu-item (click)="onTopUpCampaign()">
+          <mat-icon>add_circle</mat-icon>
+          Top Up Budget
         </button>
       }
       <!-- @if (campaign.status === 'paused') {
@@ -80,35 +90,37 @@
     
     <div class="card-meta">
       <span><mat-icon>category</mat-icon> {{campaign.category | titlecase}}</span>
-      @if (campaign.remainingDays !== undefined) {
-        <span>
-          <mat-icon>calendar_today</mat-icon>
-          {{ isNumber(campaign.remainingDays) }}
-        </span>
-      }
+      <span>
+        <mat-icon>calendar_today</mat-icon>
+        {{ getTimingLabel() }}
+      </span>
     </div>
 
     <div class="metrics">
       <div class="metric">
-        <div class="metric-value">{{campaign.currentPromoters || 0}}/{{campaign.maxPromoters}}</div>
-        <div class="metric-label">Promoters</div>
+        <div class="metric-value">{{ getPromoterAccessValue() }}</div>
+        <div class="metric-label">{{ getPromoterAccessLabel() }}</div>
       </div>
       <div class="metric">
-        <div class="metric-value">{{getViewCount(campaign.promotions) | shortNumber}}</div>
-        <div class="metric-label">Views</div>
+        <div class="metric-value">{{getClickCount() | shortNumber}}</div>
+        <div class="metric-label">Clicks</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{getBillableClicks() | shortNumber}}</div>
+        <div class="metric-label">Billable</div>
       </div>
     </div>
 
     <div class="progress-container">
       <div class="progress-header">
-        <span>Current progress</span>
-        <span>{{ campaign.progress | number:'1.0-0' }}%</span>
+        <span>Budget used</span>
+        <span>{{ getBudgetProgress() | number:'1.0-0' }}%</span>
       </div>
       <div class="progress-bar">
         <div 
           class="progress-fill" 
-          [class]="'progress-' + getProgressColor(campaign.progress)" 
-          [style.width]="(campaign.progress | number:'1.0-0') + '%'">
+          [class]="'progress-' + getProgressColor(getBudgetProgress())" 
+          [style.width]="(getBudgetProgress() | number:'1.0-0') + '%'">
         </div>
       </div>
     </div>
@@ -119,15 +131,21 @@
         <span class="total">/ {{ campaign.budget | currencyUtils:campaign.currency }}</span>
       </div>
       <div class="budget-label">Budget Spent</div>
-      <div class="budget-label payout">Promoter Payout: {{ campaign.payoutPerPromotion | currencyUtils:campaign.currency }}</div>
+      <div class="budget-label payout">Remaining: {{ getRemainingBudget() | currencyUtils:campaign.currency }}</div>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="card-footer">
-    <button class="view-details-btn" (click)="onViewDetails()">
-      <mat-icon>analytics</mat-icon>
-      View Details
-    </button>
+    <div class="footer-actions">
+      <button class="view-details-btn" (click)="onViewDetails()">
+        <mat-icon>analytics</mat-icon>
+        View Details
+      </button>
+      <button class="collaboration-btn" (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+        <mat-icon>forum</mat-icon>
+        {{ getCollaborationLabel() }}
+      </button>
+    </div>
   </div>
 </div>

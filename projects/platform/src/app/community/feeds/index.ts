@@ -1,51 +1,32 @@
-import { Component, inject, computed, Signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Signal,
+  Type,
+  computed,
+  effect,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../common/services/user.service';
 import { DeviceService, UserInterface } from '@shared/services';
-import { FeedPageComponent } from './feed-page.component';
-import { MobileFeedComponent } from './feed-page-mobile/feed-page-mobile.component';
-
 
 @Component({
   selector: 'feed-index',
   standalone: true,
-  imports: [CommonModule, FeedPageComponent, MobileFeedComponent],
+  imports: [CommonModule],
   template: `
     <div class="page-container">
       
       <!-- Main Content -->
       @if (user()) {
         <div class="page-wrapper" [attr.data-device]="deviceType()">
-          <!-- Mobile Notice (Optional) -->
-          @if (deviceType() === 'mobile') {
-            <!-- Dashboard Content -->
-            <main class="page-main" role="main">
-              @if (user()) {
-                <app-feed-page-mobile [user]="user"/>
-              }              
-            </main>
-          }
-          
-          <!-- Tablet Notice (Optional) -->
-          @if (deviceType() === 'tablet') {
-            <!-- Dashboard Content -->
-             <main class="page-main" role="main">
-              @if (user()) {
-                <app-feed-page-mobile [user]="user"/>
-              }              
-            </main>
-          }
-
-          <!-- Desktop Notice (Optional) -->
-          @if (deviceType() === 'desktop') {
-            <!-- Dashboard Content -->
-            <main class="page-main" role="main">
-              @if (user()) {
-                <app-feed-page-desktop [user]="user"/>
-              }              
-            </main>
-          }
-          
+          <main class="page-main" role="main">
+            @if (activeFeedComponent(); as feedComponent) {
+              <ng-container *ngComponentOutlet="feedComponent; inputs: feedComponentInputs"></ng-container>
+            }
+          </main>
         </div>
       }
       
@@ -63,9 +44,12 @@ import { MobileFeedComponent } from './feed-page-mobile/feed-page-mobile.compone
   styles: [`
     .page-container {
       min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background:
+        radial-gradient(circle at top left, rgba(var(--primary-rgb), 0.08), transparent 28%),
+        var(--background-color);
       position: relative;
       overflow-x: hidden;
+      color: var(--text-primary);
     }
 
     /* Loading State Styles */
@@ -121,7 +105,7 @@ import { MobileFeedComponent } from './feed-page-mobile/feed-page-mobile.compone
     /* Dashboard Wrapper */
     .page-wrapper {
       min-height: 100vh;
-      background: #f8fafc;
+      background: transparent;
       transition: all 0.3s ease;
     }
 
@@ -212,7 +196,7 @@ import { MobileFeedComponent } from './feed-page-mobile/feed-page-mobile.compone
     /* Desktop Styles */
     @media (min-width: 1025px) {
       .page-wrapper[data-device="desktop"] {
-        background: #ffffff;
+        background: transparent;
       }
     }
 
@@ -249,18 +233,43 @@ import { MobileFeedComponent } from './feed-page-mobile/feed-page-mobile.compone
     /* Dark mode support (if needed) */
     @media (prefers-color-scheme: dark) {
       .page-wrapper {
-        background: #1f2937;
+        background: transparent;
       }
       
     }
-  `]
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeedIndexComponent {
   private readonly deviceService = inject(DeviceService);
+  private readonly userService = inject(UserService);
+  private componentLoadVersion = 0;
+
   // Computed properties for better performance
   protected readonly deviceType = computed(() => this.deviceService.type());
+  protected readonly activeFeedComponent = signal<Type<unknown> | null>(null);
 
-  private userService: UserService = inject(UserService);
   // Expose the signal directly to the template
-  public user: Signal<UserInterface | null> = this.userService.user;
+  public readonly user: Signal<UserInterface | null> = this.userService.user;
+  protected readonly feedComponentInputs = { user: this.user };
+
+  constructor() {
+    effect(() => {
+      void this.resolveActiveFeedComponent(this.deviceType());
+    });
+  }
+
+  protected async resolveActiveFeedComponent(deviceType: string): Promise<void> {
+    const nextVersion = this.componentLoadVersion + 1;
+    this.componentLoadVersion = nextVersion;
+
+    const component =
+      deviceType === 'desktop'
+        ? (await import('./feed-page.component')).DesktopFeedPageComponent
+        : (await import('./feed-page-mobile/feed-page-mobile.component')).MobileFeedComponent;
+
+    if (this.componentLoadVersion === nextVersion) {
+      this.activeFeedComponent.set(component);
+    }
+  }
 }

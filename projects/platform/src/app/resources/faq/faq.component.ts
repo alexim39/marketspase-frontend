@@ -1,5 +1,6 @@
 // faq.component.ts
-import { Component, signal, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 
-interface FAQ {
+export interface FAQ {
   id: string;
   question: string;
   answer: string;
@@ -26,7 +27,7 @@ interface FAQ {
   readTime?: string;
 }
 
-interface FAQCategory {
+export interface FAQCategory {
   id: string;
   name: string;
   description: string;
@@ -36,7 +37,7 @@ interface FAQCategory {
   popularQuestions: string[];
 }
 
-interface PopularQuestion {
+export interface PopularQuestion {
   question: string;
   category: string;
   views?: number;
@@ -64,6 +65,8 @@ interface PopularQuestion {
   styleUrls: ['./faq.component.scss'],
 })
 export class FAQComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
   searchControl = new FormControl('');
   activeCategory = signal<string>('getting-started');
 
@@ -335,7 +338,8 @@ export class FAQComponent {
   private setupSearch(): void {
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(query => {
       if (query && query.length > 2) {
         this.performSearch();

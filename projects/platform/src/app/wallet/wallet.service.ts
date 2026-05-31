@@ -31,7 +31,7 @@ export class WalletService {
    * Includes retry logic and timeout.
    */
   recordPayment(payload: RecordPaymentPayload): Observable<RecordPaymentResponse> {
-    return this.apiService.post<RecordPaymentResponse>(`wallet/verify-and-record`, payload, undefined, true).pipe(
+    return this.apiService.post<RecordPaymentResponse>(`api/v1/wallet/verify-and-record`, payload, undefined, true).pipe(
       timeout(this.timeoutMs),
       retry({
         count: this.maxRetries,
@@ -62,7 +62,7 @@ export class WalletService {
    * Verify if payment has been recorded by webhook
    */
   verifyPayment(reference: string): Observable<{ recorded: boolean; payment?: any }> {
-    return this.apiService.get(`wallet/verify-payment/${reference}`);
+    return this.apiService.get(`api/v1/wallet/verify-payment/${reference}`);
   }
 
 }

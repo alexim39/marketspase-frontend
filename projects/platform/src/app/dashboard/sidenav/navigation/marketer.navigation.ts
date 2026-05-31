@@ -27,7 +27,9 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'list_alt', label: 'My Campaigns', route: '/dashboard/campaigns' },
-        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' }
+        { icon: 'add_circle', label: 'Create Campaign', route: '/dashboard/campaigns/create' },
+        { icon: 'insights', label: 'Analytics', route: '/dashboard/campaigns/analytics' },
+        { icon: 'forum', label: 'Collaboration', route: '/dashboard/campaigns/collaboration' }
       ]
     },
 
@@ -39,6 +41,16 @@ export function getMarketerNavigation(
         { icon: 'store', label: 'My Stores', route: '/dashboard/stores' },
         { icon: 'add_business', label: 'Add Store', route: '/dashboard/stores/create' },
         { icon: 'receipt_long', label: 'Orders & Delivery', route: '/dashboard/stores/orders' },
+        { icon: 'insights', label: 'Products Analytics', route: '/dashboard/stores/promoted-products-analytics' },
+        {
+          icon: 'support_agent',
+          label: 'Customer Support',
+          expanded: false,
+          children: [
+            { icon: 'supervisor_account', label: 'Customers', route: '/dashboard/stores/support' },
+            { icon: 'mark_email_read', label: 'Email Subscribers', route: '/dashboard/stores/subscribers' }
+          ]
+        }
         // { icon: 'analytics', label: 'Store Analytics', route: '/dashboard/stores/analytics' },
         // {
         //   icon: 'inventory',
@@ -86,7 +98,8 @@ export function getMarketerNavigation(
            { icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' },
            { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
           ]
-        }
+        },
+        { icon: 'military_tech', label: 'Gamification', route: '/dashboard/gamification' },
       ]
     },
 
@@ -97,12 +110,12 @@ export function getMarketerNavigation(
       expanded: false
     },
 
-    {
-      icon: 'military_tech',
-      label: 'Gamification',
-      route: '/dashboard/gamification',
-      expanded: false
-    },
+    // {
+    //   icon: 'military_tech',
+    //   label: 'Gamification',
+    //   route: '/dashboard/gamification',
+    //   expanded: false
+    // },
     
     {
       icon: 'currency_exchange',
@@ -137,7 +150,15 @@ export function getMarketerNavigation(
           children: [
            { icon: 'notifications', label: 'Theme & Notifications', route: '/dashboard/settings/system' }
           ]
-        }
+        },
+        {
+          icon: 'ads_click',
+          label: 'Ads',
+          expanded: false,
+          children: [
+           { icon: 'adjust', label: 'Preferences', route: '/dashboard/settings/ads/preferences' }
+          ]
+        },
       ]
     },
 

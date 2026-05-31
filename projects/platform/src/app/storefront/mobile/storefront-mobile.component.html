@@ -1,0 +1,353 @@
+<section class="mobile-storefront">
+  @if (loading()) {
+    <div class="store-skeleton" aria-label="Loading store">
+      <div class="skeleton appbar"></div>
+      <div class="skeleton hero"></div>
+      <div class="skeleton search"></div>
+      <div class="skeleton card"></div>
+      <div class="skeleton card"></div>
+    </div>
+  } @else if (error()) {
+    <div class="state-card error">
+      <mat-icon>storefront</mat-icon>
+      <h1>Store could not load</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="retryLoad()">Try again</button>
+    </div>
+  } @else {
+    <header class="mobile-appbar">
+      <button type="button" class="icon-button" aria-label="Go back" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <span>MarketSpase Store</span>
+        <strong>{{ store()?.name || 'Storefront' }}</strong>
+      </div>
+      <button type="button" class="icon-button" aria-label="Share store" (click)="shareStore()">
+        <mat-icon>ios_share</mat-icon>
+      </button>
+    </header>
+
+    <section class="store-hero">
+      @if (storeHeroImage()) {
+        <img [src]="storeHeroImage()" [alt]="(store()?.name || 'Store') + ' image'" loading="lazy" (error)="onImageError($event)">
+      }
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="store-logo">
+          @if (store()?.logo) {
+            <img [src]="store()?.logo" [alt]="(store()?.name || 'Store') + ' logo'" loading="lazy" (error)="onImageError($event)">
+          } @else {
+            <mat-icon>storefront</mat-icon>
+          }
+        </div>
+        <div class="store-copy">
+          <div class="store-title-row">
+            <h1>{{ store()?.name }}</h1>
+            @if (store()?.isVerified) {
+              <span class="verified"><mat-icon>verified</mat-icon> Verified</span>
+            }
+          </div>
+          <p>{{ (store()?.description || 'Browse products from this MarketSpase store.') | truncate:120 }}</p>
+          <div class="store-meta">
+            @if (storeLocation()) {
+              <span><mat-icon>location_on</mat-icon>{{ storeLocation() }}</span>
+            }
+            @if (store()?.analytics?.rating) {
+              <span><mat-icon>star</mat-icon>{{ store()?.analytics?.rating | number:'1.1-1' }}</span>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero-actions" aria-label="Store actions">
+      <button type="button" (click)="toggleFavorite()" [class.active]="isFavorited()">
+        <mat-icon>{{ isFavorited() ? 'favorite' : 'favorite_border' }}</mat-icon>
+        <span>{{ isFavorited() ? 'Saved' : 'Save' }}</span>
+      </button>
+      @if (store()?.whatsappNumber) {
+        <button type="button" (click)="contactViaWhatsApp()">
+          <mat-icon>chat</mat-icon>
+          <span>WhatsApp</span>
+        </button>
+      }
+      @if (storeEmail()) {
+        <button type="button" (click)="handleStoreContact('email')">
+          <mat-icon>mail</mat-icon>
+          <span>Email</span>
+        </button>
+      }
+      <button type="button" (click)="router.navigate(['/cart'])">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>Cart {{ getCartCount() }}</span>
+      </button>
+    </section>
+
+    <section class="stats-rail" aria-label="Store statistics">
+      @for (stat of mobileStats(); track stat.label) {
+        <article>
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <strong>{{ stat.value | number }}</strong>
+          <span>{{ stat.label }}</span>
+        </article>
+      }
+    </section>
+
+    <section class="search-panel">
+      <label class="search-box">
+        <mat-icon>search</mat-icon>
+        <input [formControl]="searchControl" type="search" placeholder="Search products in this store">
+        @if (searchControl.value) {
+          <button type="button" aria-label="Clear search" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </label>
+      <button type="button" class="filter-trigger" (click)="openFilters()">
+        <mat-icon>tune</mat-icon>
+        Filters
+        @if (activeFilterCount()) {
+          <b>{{ activeFilterCount() }}</b>
+        }
+      </button>
+    </section>
+
+    <nav class="category-rail" aria-label="Product categories">
+      <button type="button" [class.active]="!selectedCategory()" (click)="setCategory(null)">All</button>
+      @for (category of topCategories(); track category.category) {
+        <button type="button" [class.active]="selectedCategory() === category.category" (click)="setCategory(category.category)">
+          {{ category.category }}
+          <span>{{ category.count }}</span>
+        </button>
+      }
+    </nav>
+
+    @if (featuredProducts().length) {
+      <section class="featured-block">
+        <div class="section-heading">
+          <div>
+            <span>Featured picks</span>
+            <h2>Store recommendations</h2>
+          </div>
+          <button type="button" (click)="showFeaturedOnly()">View all</button>
+        </div>
+        <div class="featured-rail">
+          @for (product of featuredProducts(); track trackByProductId($index, product)) {
+            <article class="featured-card" (click)="viewProductDetails(product)">
+              <img [src]="productImage(product)" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+              <div>
+                <span>{{ product.category }}</span>
+                <strong>{{ product.name }}</strong>
+                <b>{{ product.price | currencyUtils:(product.currency || 'NGN') }}</b>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="products-section">
+      <div class="section-heading">
+        <div>
+          <span>{{ totalFilteredProducts() | number }} items</span>
+          <h2>Shop products</h2>
+        </div>
+        <select [value]="sortControl.value || 'newest'" (change)="setMobileSort($any($event.target).value)" aria-label="Sort products">
+          <option value="newest">Newest</option>
+          <option value="popular">Popular</option>
+          <option value="rating">Top rated</option>
+          <option value="price-low">Price low</option>
+          <option value="price-high">Price high</option>
+          <option value="discount">Discount</option>
+        </select>
+      </div>
+
+      @if (products().length === 0) {
+        <div class="state-card">
+          <mat-icon>inventory_2</mat-icon>
+          <h2>No products yet</h2>
+          <p>This store has not listed products for sale.</p>
+        </div>
+      } @else if (matchingProducts().length === 0) {
+        <div class="state-card">
+          <mat-icon>search_off</mat-icon>
+          <h2>No matching products</h2>
+          <p>Try a different search or clear your filters.</p>
+          <button type="button" (click)="clearFilters()">Clear filters</button>
+        </div>
+      } @else {
+        <div class="product-feed">
+          @for (product of visibleProducts(); track trackByProductId($index, product)) {
+            <article class="mobile-product-card">
+              <button type="button" class="product-media" (click)="viewProductDetails(product)" [attr.aria-label]="'View ' + product.name">
+                <img [src]="productImage(product)" [alt]="product.name" loading="lazy" (error)="onImageError($event)">
+                @if (product.isFeatured) {
+                  <span class="badge featured"><mat-icon>star</mat-icon> Featured</span>
+                }
+                @if (product.originalPrice && product.originalPrice > product.price) {
+                  <span class="badge discount">-{{ calculateDiscount(product.price, product.originalPrice) }}%</span>
+                }
+              </button>
+
+              <div class="product-body">
+                <div class="product-topline">
+                  <span>{{ product.category }}</span>
+                  <button type="button" class="icon-button small" [class.active]="isInWishlist(product._id || '')" (click)="toggleWishlist(product)" [attr.aria-label]="'Save ' + product.name">
+                    <mat-icon>{{ isInWishlist(product._id || '') ? 'favorite' : 'favorite_border' }}</mat-icon>
+                  </button>
+                </div>
+                <button type="button" class="product-title" (click)="viewProductDetails(product)">
+                  {{ product.name }}
+                </button>
+                <p>{{ (product.description || 'No description available yet.') | truncate:82 }}</p>
+
+                <div class="price-row">
+                  <strong>{{ product.price | currencyUtils:(product.currency || 'NGN') }}</strong>
+                  @if (product.originalPrice && product.originalPrice > product.price) {
+                    <span>{{ product.originalPrice | currencyUtils:(product.currency || 'NGN') }}</span>
+                  }
+                </div>
+
+                <div class="product-meta">
+                  <span [class]="productStockTone(product)">{{ getStockText(product) }}</span>
+                  @if (product.averageRating > 0) {
+                    <span><mat-icon>star</mat-icon>{{ product.averageRating | number:'1.1-1' }}</span>
+                  }
+                  <span><mat-icon>visibility</mat-icon>{{ product.viewCount || 0 | number }}</span>
+                </div>
+
+                <div class="product-actions">
+                  <button type="button" class="primary" (click)="addToCart(product)" [disabled]="product.manageStock && product.quantity === 0">
+                    <mat-icon>add_shopping_cart</mat-icon>
+                    Add
+                  </button>
+                  <button type="button" (click)="shareProduct(product)">
+                    <mat-icon>ios_share</mat-icon>
+                    Share
+                  </button>
+                  <button type="button" (click)="viewProductDetails(product)">
+                    <mat-icon>open_in_new</mat-icon>
+                    View
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (hasMoreProducts()) {
+          <button type="button" class="load-more" (click)="loadMoreProducts()">
+            Load more products
+          </button>
+        }
+      }
+    </section>
+
+    <app-store-footer [store]="store()" (contactViaWhatsApp)="contactViaWhatsApp()" />
+
+    <nav class="sticky-shopbar" aria-label="Store quick actions">
+      <button type="button" (click)="openFilters()">
+        <mat-icon>tune</mat-icon>
+        <span>Filter</span>
+      </button>
+      <button type="button" (click)="router.navigate(['/cart'])" class="cart">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>Cart</span>
+        @if (getCartCount()) {
+          <b>{{ getCartCount() }}</b>
+        }
+      </button>
+      @if (store()?.whatsappNumber) {
+        <button type="button" (click)="contactViaWhatsApp()">
+          <mat-icon>chat</mat-icon>
+          <span>Contact</span>
+        </button>
+      } @else {
+        <button type="button" (click)="shareStore()">
+          <mat-icon>ios_share</mat-icon>
+          <span>Share</span>
+        </button>
+      }
+    </nav>
+
+    @if (filtersOpen()) {
+      <div class="sheet-backdrop" role="presentation" (click)="closeFilters()"></div>
+      <section class="filter-sheet" role="dialog" aria-modal="true" aria-label="Product filters">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div>
+            <span>Refine products</span>
+            <h2>Filters</h2>
+          </div>
+          <button type="button" class="icon-button" aria-label="Close filters" (click)="closeFilters()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="sheet-group">
+          <h3>Sort</h3>
+          <div class="chip-grid">
+            @for (sort of [
+              { value: 'newest', label: 'Newest' },
+              { value: 'popular', label: 'Popular' },
+              { value: 'rating', label: 'Top rated' },
+              { value: 'price-low', label: 'Low price' },
+              { value: 'price-high', label: 'High price' },
+              { value: 'discount', label: 'Discount' }
+            ]; track sort.value) {
+              <button type="button" [class.active]="sortControl.value === sort.value" (click)="setMobileSort(sort.value)">
+                {{ sort.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="sheet-group">
+          <h3>Availability</h3>
+          <div class="chip-grid">
+            @for (item of [
+              { value: 'all', label: 'All' },
+              { value: 'in-stock', label: 'In stock' },
+              { value: 'out-of-stock', label: 'Out of stock' }
+            ]; track item.value) {
+              <button type="button" [class.active]="availability() === item.value" (click)="setMobileAvailability($any(item.value))">
+                {{ item.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="sheet-group">
+          <h3>Categories</h3>
+          <div class="chip-grid">
+            <button type="button" [class.active]="!selectedCategory()" (click)="setCategory(null)">All</button>
+            @for (category of categories(); track category.category) {
+              <button type="button" [class.active]="selectedCategory() === category.category" (click)="setCategory(category.category)">
+                {{ category.category }}
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (brands().length) {
+          <div class="sheet-group">
+            <h3>Brands</h3>
+            <div class="chip-grid">
+              @for (brand of brands(); track brand.brand) {
+                <button type="button" [class.active]="brandFilter().includes(brand.brand)" (click)="toggleBrandFilter(brand.brand)">
+                  {{ brand.brand }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="sheet-actions">
+          <button type="button" class="ghost" (click)="clearFilters()">Clear all</button>
+          <button type="button" class="primary" (click)="applyMobileFilters()">Show {{ matchingProducts().length | number }} products</button>
+        </div>
+      </section>
+    }
+  }
+</section>

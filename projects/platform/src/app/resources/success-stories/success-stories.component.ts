@@ -10,12 +10,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 
-interface SuccessStory {
+export type SuccessStoryCategory = 'all' | 'marketer' | 'promoter' | 'enterprise';
+
+export interface SuccessStory {
   id: string;
   title: string;
   excerpt: string;
   fullStory: string;
-  category: 'marketer' | 'promoter' | 'enterprise';
+  category: Exclude<SuccessStoryCategory, 'all'>;
   industry?: string;
   results: {
     metric: string;
@@ -37,14 +39,14 @@ interface SuccessStory {
   publishDate: string;
 }
 
-interface Statistic {
+export interface Statistic {
   value: string;
   label: string;
   icon: string;
 }
 
-interface Category {
-  id: string;
+export interface Category {
+  id: SuccessStoryCategory;
   name: string;
   description: string;
   icon: string;
@@ -70,7 +72,7 @@ interface Category {
   styleUrls: ['./success-stories.component.scss']
 })
 export class SuccessStoriesComponent {
-  activeCategory = signal<'all' | 'marketer' | 'promoter' | 'enterprise'>('all');
+  activeCategory = signal<SuccessStoryCategory>('all');
 
   heroStatistics = signal<Statistic[]>([
     { value: '500+', label: 'Success Stories', icon: 'stars' },
@@ -250,7 +252,7 @@ export class SuccessStoriesComponent {
     this.setFeaturedStory();
   }
 
-  setActiveCategory(category: 'all' | 'marketer' | 'promoter' | 'enterprise'): void {
+  setActiveCategory(category: SuccessStoryCategory): void {
     this.activeCategory.set(category);
     this.updateFilteredStories();
   }

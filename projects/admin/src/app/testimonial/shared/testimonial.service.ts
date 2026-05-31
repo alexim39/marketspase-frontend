@@ -10,7 +10,7 @@ export class TestimonialService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
 
-  private apiUrl = 'settings/testimonial/admin';
+  private apiUrl = 'api/v1/settings/testimonial/admin';
 
 
   getTestimonials(): Observable<any> {

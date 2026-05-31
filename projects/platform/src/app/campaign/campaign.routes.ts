@@ -11,33 +11,61 @@ export const CampaignRoutes: Routes = [
     },
     {
         path: 'create',
-        loadComponent: () => import('./create/create-campaign.component').then(c => c.CreateCampaignComponent),
+        loadComponent: () => import('./create').then(c => c.CreateCampaignIndexComponent),
         title: "Campaign Creation - Create New Campaign",
     }, 
     {
         path: 'promotions',
-        loadComponent: () => import('../promoter/promotion/promotion.component').then(c => c.PromotionComponent),
-        title: "Promotions - List all accepted promoter promotions",
+        children: [
+           {
+                path: '',
+                loadComponent: () => import('../promoter/promotion').then(c => c.PromotionIndexComponent),
+                title: "Promotions - List all accepted promoter promotions",
+           },
+           {
+                path: 'ad-builder',
+                loadComponent: () => import('../promoter/promotion/ad-template-builder/ad-template-builder.component').then(c => c.AdTemplateBuilderComponent),
+                title: "Ad Template Builder - Create social-ready promotions",
+            },
+            {
+                path: 'compliance',
+                loadComponent: () => import('../promoter/promotion/compliance/promotion-compliance.component').then(c => c.PromotionComplianceComponent),
+                title: "Account Health - Promotion compliance and fraud status",
+            },
+             {
+                path: ':id',
+                loadComponent: () => import('../promoter/promotion/promotion-details/promotion-detail.component').then(c => c.PromotionDetailComponent),
+                title: "Promotion Details - List all accepted promoter promotions",
+            },
+        ]
+        
     }, 
+    
+    {
+        path: 'analytics',
+        loadComponent: () => import('./analytics').then(c => c.CampaignAnalyticsIndexComponent),
+        title: "Campaign Analytics - Live campaign and promotion performance",
+    },
+    {
+        path: 'collaboration',
+        loadComponent: () => import('./collaboration').then(c => c.CampaignCollaborationIndexComponent),
+        title: "Collaboration - Real-time messaging for campaigns and promotions",
+    },
     {
         path: 'edit/:id',
-        loadComponent: () => import('./campaign-edit/campaign-edit.component').then(c => c.CampaignEditComponent),
+        loadComponent: () => import('./campaign-edit').then(c => c.CampaignEditIndexComponent),
         title: "Campaign Edit - Edit a campaign",
     },
     {
         path: ':id/targeting',
-        loadComponent: () => import('./targeting/targeting.component').then(c => c.CampaignTargetingComponent),
+        loadComponent: () => import('./targeting').then(c => c.CampaignTargetingIndexComponent),
         title: "Campaign Targeting - target your audience",
     },
     {
         path: ':id',
-        loadComponent: () => import('./campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
+        loadComponent: () => import('./campaign-details').then(c => c.CampaignDetailsIndexComponent),
         title: "Campaign Details - List all accepted promoter promotions",
     },
-    {
-        path: 'promotions/:id',
-        loadComponent: () => import('../promoter/promotion/promotion-details/promotion-detail.component').then(c => c.PromotionDetailComponent),
-        title: "Promotion Details - List all accepted promoter promotions",
-    },
+   
     
 ]

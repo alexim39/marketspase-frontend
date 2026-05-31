@@ -1,6 +1,6 @@
 /* campaign-filters-mobile.component.scss */
-@import '../../../../../../styles/variables';
-@import '../../../../../../styles/mixins';
+@use '../../../../../../styles/variables' as *;
+@use '../../../../../../styles/mixins' as *;
 
 .mobile-filters {
   position: sticky;
@@ -247,12 +247,12 @@
   &.active {
     // UPDATED: Use primary-color variable for active state
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     border-color: $primary-color;
     
     .status-count {
-      background: rgba(255, 255, 255, 0.2);
-      color: $white;
+      background: color-mix(in srgb, var(--on-primary-color), transparent 80%);
+      color: var(--on-primary-color);
     }
   }
 }
@@ -331,7 +331,7 @@
   padding: 0.875rem;
   // UPDATED: Use primary-color variable for button background
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   border: none;
   border-radius: 0.75rem;
   font-size: 1rem;

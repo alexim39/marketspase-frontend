@@ -1,0 +1,265 @@
+<main class="mobile-cart">
+  <header class="cart-appbar">
+    <button type="button" class="icon-button" aria-label="Continue shopping" (click)="continueShopping()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <span>Secure checkout</span>
+      <strong>Your cart</strong>
+    </div>
+    <button type="button" class="icon-button" aria-label="Browse products" (click)="continueShopping()">
+      <mat-icon>storefront</mat-icon>
+    </button>
+  </header>
+
+  @if (itemCount() === 0) {
+    <section class="empty-cart">
+      <div class="empty-icon">
+        <mat-icon>shopping_cart</mat-icon>
+      </div>
+      <h1>Your cart is empty</h1>
+      <p>Products you add from MarketSpase stores will appear here for secure checkout.</p>
+      <button type="button" class="primary-action" (click)="continueShopping()">Browse products</button>
+
+      @if (checkoutSuccess()) {
+        <div class="success-banner">
+          <mat-icon>check_circle</mat-icon>
+          <span>Order {{ checkoutSuccess()?.orderNumber }} is paid and awaiting delivery confirmation.</span>
+        </div>
+      }
+    </section>
+  } @else {
+    <section class="cart-hero">
+      <span class="eyebrow">Escrow protected purchase</span>
+      <h1>{{ itemCount() }} item{{ itemCount() === 1 ? '' : 's' }} in cart</h1>
+      <p>Checkout one store at a time. Payments are held safely until delivery is confirmed.</p>
+      <div class="trust-rail">
+        @for (item of trustItems; track item.label) {
+          <span><mat-icon>{{ item.icon }}</mat-icon>{{ item.label }}</span>
+        }
+      </div>
+    </section>
+
+    @if (groups().length > 1) {
+      <nav class="store-chip-rail" aria-label="Cart stores">
+        @for (group of groups(); track group.storeId) {
+          <button type="button" [class.active]="selectedGroup()?.storeId === group.storeId" (click)="selectGroup(group)">
+            <mat-icon>store</mat-icon>
+            <span>{{ group.storeName || 'Store' }}</span>
+            <b>{{ group.itemCount }}</b>
+          </button>
+        }
+      </nav>
+    }
+
+    <section class="store-groups">
+      @for (group of groups(); track group.storeId) {
+        <article class="store-card" [class.active]="selectedGroup()?.storeId === group.storeId">
+          <button type="button" class="store-card-header" (click)="selectGroup(group)">
+            <div>
+              <span>Store checkout</span>
+              <h2>{{ group.storeName || 'Store' }}</h2>
+              <p>{{ group.itemCount }} item{{ group.itemCount === 1 ? '' : 's' }} · {{ group.subtotal | currencyUtils:group.currency }}</p>
+            </div>
+            <mat-icon>{{ selectedGroup()?.storeId === group.storeId ? 'radio_button_checked' : 'radio_button_unchecked' }}</mat-icon>
+          </button>
+
+          <div class="cart-items">
+            @for (item of group.items; track item.id) {
+              <article class="cart-item">
+                <div class="item-image">
+                  <img [src]="itemImage(item)" [alt]="item.name" loading="lazy">
+                  @if (item.trackingCode || item.uniqueId) {
+                    <span class="affiliate-dot" aria-label="Affiliate sale"></span>
+                  }
+                </div>
+
+                <div class="item-body">
+                  <div class="item-title-row">
+                    <div>
+                      <h3>{{ item.name }}</h3>
+                      @if (item.variantName) {
+                        <span class="muted">{{ item.variantName }}</span>
+                      }
+                    </div>
+                    <button type="button" class="remove-button" aria-label="Remove item" (click)="removeItem(item)">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+
+                  @if (item.trackingCode || item.uniqueId) {
+                    <span class="affiliate-chip">
+                      <mat-icon>link</mat-icon>
+                      Affiliate sale
+                    </span>
+                  }
+
+                  <div class="price-row">
+                    <strong>{{ item.price | currencyUtils:item.currency }}</strong>
+                    <span>{{ itemSubtotal(item) | currencyUtils:item.currency }}</span>
+                  </div>
+
+                  <div class="quantity-row">
+                    <div class="quantity-control" aria-label="Quantity">
+                      <button type="button" (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1" aria-label="Decrease quantity">
+                        <mat-icon>remove</mat-icon>
+                      </button>
+                      <b>{{ item.quantity }}</b>
+                      <button type="button" (click)="increaseQuantity(item)" [disabled]="!canIncrease(item)" aria-label="Increase quantity">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                    @if (item.soldIndividually) {
+                      <small>Sold individually</small>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="store-card-actions">
+            <button type="button" class="ghost" (click)="selectGroup(group); clearSelectedStore()">Clear store</button>
+            <button type="button" class="primary" (click)="openCheckout(group)">Checkout</button>
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="summary-card">
+      @if (selectedGroup(); as group) {
+        <div>
+          <span>Selected store</span>
+          <strong>{{ group.storeName || 'Store' }}</strong>
+          <p>{{ selectedStoreSummary() }}</p>
+        </div>
+        <div class="summary-total">
+          <span>Total</span>
+          <strong>{{ group.subtotal | currencyUtils:group.currency }}</strong>
+        </div>
+      }
+    </section>
+
+    <nav class="sticky-checkout" aria-label="Cart checkout actions">
+      @if (selectedGroup(); as group) {
+        <div>
+          <span>{{ group.storeName || 'Store' }}</span>
+          <strong>{{ group.subtotal | currencyUtils:group.currency }}</strong>
+        </div>
+        <button type="button" (click)="openCheckout(group)">Checkout</button>
+      }
+    </nav>
+
+    @if (checkoutOpen()) {
+      <div class="sheet-backdrop" role="presentation" (click)="closeCheckout()"></div>
+      <section class="checkout-sheet" role="dialog" aria-modal="true" aria-label="Checkout details">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div>
+            <span>Pay securely</span>
+            <h2>Delivery details</h2>
+          </div>
+          <button type="button" class="icon-button" aria-label="Close checkout" (click)="closeCheckout()" [disabled]="checkoutLoading()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        @if (selectedGroup(); as group) {
+          <div class="checkout-summary">
+            <div>
+              <span>{{ group.storeName || 'Selected store' }}</span>
+              <strong>{{ group.subtotal | currencyUtils:group.currency }}</strong>
+            </div>
+            <select [value]="selectedCheckoutCurrency()" (change)="onCheckoutCurrencyChange($any($event.target).value)" aria-label="Checkout currency">
+              @for (currency of supportedCheckoutCurrencies(); track currency.code) {
+                <option [value]="currency.code">{{ currency.code }} - {{ currency.name }}</option>
+              }
+            </select>
+          </div>
+
+          @if (checkoutQuote() && checkoutQuote()!.targetCurrency !== checkoutQuote()!.sourceCurrency) {
+            <div class="quote-box">
+              <div>
+                <span>Charge total</span>
+                <strong>{{ checkoutQuote()!.targetAmount | currencyUtils:checkoutQuote()!.targetCurrency }}</strong>
+              </div>
+              <div>
+                <span>Store total</span>
+                <strong>{{ checkoutQuote()!.sourceAmount | currencyUtils:checkoutQuote()!.sourceCurrency }}</strong>
+              </div>
+            </div>
+          }
+
+          <form class="checkout-form" [formGroup]="checkoutForm" (ngSubmit)="checkoutSelectedStore()">
+            <label>
+              <span>Full name</span>
+              <input formControlName="fullName" autocomplete="name">
+              @if (checkoutForm.get('fullName')?.touched && checkoutForm.get('fullName')?.hasError('required')) {
+                <small>Full name is required</small>
+              }
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input type="email" formControlName="email" autocomplete="email">
+              @if (checkoutForm.get('email')?.touched && checkoutForm.get('email')?.invalid) {
+                <small>Enter a valid email</small>
+              }
+            </label>
+
+            <label>
+              <span>Phone number</span>
+              <input formControlName="phone" autocomplete="tel">
+              @if (checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.hasError('required')) {
+                <small>Phone number is required</small>
+              }
+            </label>
+
+            <label>
+              <span>Street address</span>
+              <input formControlName="street" autocomplete="street-address">
+            </label>
+
+            <div class="field-grid">
+              <label>
+                <span>City</span>
+                <input formControlName="city" autocomplete="address-level2">
+              </label>
+              <label>
+                <span>State</span>
+                <input formControlName="state" autocomplete="address-level1">
+              </label>
+            </div>
+
+            <div class="field-grid">
+              <label>
+                <span>Country</span>
+                <input formControlName="country" autocomplete="country-name">
+              </label>
+              <label>
+                <span>Postal code</span>
+                <input formControlName="postalCode" autocomplete="postal-code">
+              </label>
+            </div>
+
+            @if (checkoutError()) {
+              <div class="checkout-error">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ checkoutError() }}</span>
+              </div>
+            }
+
+            <button type="submit" class="pay-button" [disabled]="checkoutLoading()">
+              @if (checkoutLoading()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>lock</mat-icon>
+              }
+              Pay securely
+            </button>
+          </form>
+        }
+      </section>
+    }
+  }
+</main>

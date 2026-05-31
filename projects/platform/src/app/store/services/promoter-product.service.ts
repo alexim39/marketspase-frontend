@@ -11,7 +11,7 @@ import { Product } from '../models';
 @Injectable()
 export class PromoterProductService {
   private apiService = inject(ApiService);
-  private apiUrl = 'stores/product';
+  private apiUrl = 'api/v1/stores/product';
 
   getPromoterStoreProducts(filters?: Partial<ProductFilter> & { page?: number; limit?: number; promoterId?: string }): Observable<PaginatedResponse<Product>> {
     let params = new HttpParams();

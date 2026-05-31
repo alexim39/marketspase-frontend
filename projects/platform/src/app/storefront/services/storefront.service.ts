@@ -123,7 +123,7 @@ export interface StorefrontProductReviewMutationResponse {
 export class StorefrontService {
   private snackBar = inject(MatSnackBar);
   private apiService = inject(ApiService);
-  private readonly apiUrl = 'stores';
+  private readonly apiUrl = 'api/v1/stores';
   
 
   // Cache for store data (simple in-memory cache)
@@ -369,6 +369,15 @@ export class StorefrontService {
 
   confirmStorefrontDelivery(orderId: string, payload: any): Observable<any> {
     return this.apiService.post<any>(`${this.apiUrl}/storefront/orders/${orderId}/confirm-delivery`, payload, undefined, true);
+  }
+
+  subscribeStoreNewsletter(storeId: string, email: string, payload?: { source?: string; referrer?: string; metadata?: any }): Observable<any> {
+    return this.apiService.post<any>(
+      `${this.apiUrl}/storefront/${storeId}/subscribers`,
+      { email, ...(payload || {}) },
+      undefined,
+      true
+    );
   }
 
 }

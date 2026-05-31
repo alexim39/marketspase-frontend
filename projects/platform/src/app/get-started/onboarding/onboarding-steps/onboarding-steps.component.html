@@ -1,6 +1,6 @@
 <div class="steps-container">
   <h3 class="section-title">{{ role === 'marketer' ? 'Marketer Journey' : 'Promoter Journey' }}</h3>
-  <p class="section-subtitle">{{ role === 'marketer' ? '4 steps to launch your first campaign' : '5 steps to start earning money' }}</p>
+  <p class="section-subtitle">{{ role === 'marketer' ? '4 steps to launch and track your first campaign' : '5 steps to promote successfully with tracked links and live performance data' }}</p>
   
   @for (step of steps; track trackByStepId($index, step); let i = $index) {
     <div 
@@ -27,7 +27,7 @@
           <button 
             mat-flat-button 
             [color]="getButtonColor()"
-            [disabled]="true"
+            [disabled]="!step.actionLink"
             (click)="navigate.emit(step)">
             <mat-icon>{{ step.icon }}</mat-icon>
             {{ step.action }}

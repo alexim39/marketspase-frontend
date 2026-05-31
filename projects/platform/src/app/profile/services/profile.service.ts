@@ -106,6 +106,9 @@ export interface ProfileUser {
   role: 'marketer' | 'promoter' | 'admin';
   rating: number;
   ratingCount: number;
+  collaborationRating?: number;
+  collaborationRatingCount?: number;
+  collaborationReviewCount?: number;
   isVerified: boolean;
   createdAt: Date;
   postsCount: number;
@@ -261,16 +264,23 @@ export interface PaginatedResponse<T> {
 @Injectable()
 export class ProfileService {
   private apiService: ApiService = inject(ApiService);
-  private baseUrl = 'profile';
+  private baseUrl = 'api/v1/profile';
 
   // New signals
   suggestedUsers = signal<SuggestedUser[]>([]);
   loadingSuggested = signal(false);
 
-  getProfile(userId: string, currentUserId: string | null): Observable<ProfileUser> {
-    const url = currentUserId 
-      ? `${this.baseUrl}/${userId}/profile?currentUserId=${currentUserId}` 
-      : `${this.baseUrl}/${userId}/profile`;
+  getProfile(userId: string, currentUserId: string | null, view: 'full' | 'summary' = 'full'): Observable<ProfileUser> {
+    const params = new URLSearchParams();
+    if (currentUserId) {
+      params.set('currentUserId', currentUserId);
+    }
+    if (view === 'summary') {
+      params.set('view', 'summary');
+    }
+
+    const queryString = params.toString();
+    const url = `${this.baseUrl}/${userId}/profile${queryString ? `?${queryString}` : ''}`;
     return this.apiService.get<ProfileUser>(url);
   }
 

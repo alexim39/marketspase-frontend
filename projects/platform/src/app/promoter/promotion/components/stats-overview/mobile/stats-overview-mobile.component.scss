@@ -1,10 +1,10 @@
 
 /* stats-overview-mobile.component.scss */
-@import '../../../../../../styles/variables';
-@import '../../../../../../styles/mixins';
+@use '../../../../../../styles/variables' as *;
+@use '../../../../../../styles/mixins' as *;
 
 .stats-overview {
-  //background: #ffffff;
+  //background: var(--surface-color);
   //min-height: 100vh;
   position: relative;
   
@@ -13,7 +13,7 @@
     // UPDATED: Use gradient-primary variable for dynamic theming
     background: $gradient-primary;
     padding: 50px 16px 16px;
-    color: white;
+    color: var(--on-primary-color);
     position: relative;
     
     .header-content {
@@ -39,7 +39,7 @@
       }
       
       .toggle-view {
-        background: rgba(255, 255, 255, 0.2);
+        background: color-mix(in srgb, var(--on-primary-color), transparent 80%);
         border: none;
         border-radius: 16px;
         width: 48px;
@@ -52,7 +52,7 @@
         margin-left: 12px;
         
         &.compact {
-          background: rgba(255, 255, 255, 0.3);
+          background: color-mix(in srgb, var(--on-primary-color), transparent 70%);
           
           .toggle-handle {
             transform: translateX(20px);
@@ -62,7 +62,7 @@
         .toggle-handle {
           width: 24px;
           height: 24px;
-          background: white;
+          background: var(--surface-color);
           border-radius: 50%;
           transition: transform 0.3s ease;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -83,7 +83,7 @@
       }
       
       .summary-card {
-        background: rgba(255, 255, 255, 0.15);
+        background: color-mix(in srgb, var(--on-primary-color), transparent 85%);
         border-radius: 14px;
         padding: 14px;
         backdrop-filter: blur(10px);
@@ -95,14 +95,14 @@
         .summary-icon {
           width: 36px;
           height: 36px;
-          background: rgba(255, 255, 255, 0.2);
+          background: color-mix(in srgb, var(--on-primary-color), transparent 80%);
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
           
           mat-icon {
-            color: white;
+            color: var(--on-primary-color);
             font-size: 18px;
           }
         }
@@ -182,11 +182,11 @@
     }
     
     // Card Variants
-    &.pending .card-background { background: linear-gradient(135deg, #fef3c7, #f59e0b); }
-    &.submitted .card-background { background: linear-gradient(135deg, #fed7aa, #f97316); }
-    &.validated .card-background { background: linear-gradient(135deg, #d1fae5, #10b981); }
-    &.paid .card-background { background: linear-gradient(135deg, #cffafe, #06b6d4); }
-    &.rejected .card-background { background: linear-gradient(135deg, #fee2e2, #ef4444); }
+    &.active .card-background { background: linear-gradient(135deg, color-mix(in srgb, #f59e0b, var(--surface-color) 74%), #f59e0b); }
+    &.tracked .card-background { background: linear-gradient(135deg, color-mix(in srgb, #f59e0b, var(--surface-color) 66%), #f97316); }
+    &.billable .card-background { background: linear-gradient(135deg, #d1fae5, #10b981); }
+    &.paid .card-background { background: linear-gradient(135deg, color-mix(in srgb, #06b6d4, var(--surface-color) 76%), #06b6d4); }
+    &.rejected .card-background { background: linear-gradient(135deg, color-mix(in srgb, #ef4444, var(--surface-color) 78%), #ef4444); }
     
     .card-content {
       position: relative;
@@ -215,7 +215,7 @@
         font-weight: 700;
         padding: 3px 6px;
         border-radius: 6px;
-        background: #fef3c7;
+        background: color-mix(in srgb, #f59e0b, var(--surface-color) 74%);
         color: #92400e;
         
         &.success {
@@ -224,7 +224,7 @@
         }
         
         &.error {
-          background: #fee2e2;
+          background: color-mix(in srgb, #ef4444, var(--surface-color) 78%);
           color: #991b1b;
         }
       }
@@ -249,7 +249,7 @@
         background: $gradient-primary;
         
         mat-icon {
-          color: white;
+          color: var(--on-primary-color);
           font-size: 24px;
             height: 24px;
             width: 24px;
@@ -257,9 +257,9 @@
       }
       
       // Icon backgrounds
-      &.pending .icon-container { background: linear-gradient(135deg, #f59e0b, #d97706); }
-      &.submitted .icon-container { background: linear-gradient(135deg, #f97316, #ea580c); }
-      &.validated .icon-container { background: linear-gradient(135deg, #10b981, #059669); }
+      &.active .icon-container { background: linear-gradient(135deg, #f59e0b, #d97706); }
+      &.tracked .icon-container { background: linear-gradient(135deg, #f97316, #ea580c); }
+      &.billable .icon-container { background: linear-gradient(135deg, #10b981, #059669); }
       &.paid .icon-container { background: linear-gradient(135deg, #06b6d4, #0891b2); }
       &.rejected .icon-container { background: linear-gradient(135deg, #ef4444, #dc2626); }
       
@@ -348,14 +348,14 @@
             justify-content: center;
             
             mat-icon {
-              color: white;
+              color: var(--on-primary-color);
               font-size: 22px;
             }
             
             // Status icon colors
-            &.pending { background: linear-gradient(135deg, #f59e0b, #d97706); }
-            &.submitted { background: linear-gradient(135deg, #f97316, #ea580c); }
-            &.validated { background: linear-gradient(135deg, #10b981, #059669); }
+            &.active { background: linear-gradient(135deg, #f59e0b, #d97706); }
+            &.tracked { background: linear-gradient(135deg, #f97316, #ea580c); }
+            &.billable { background: linear-gradient(135deg, #10b981, #059669); }
             &.paid { background: linear-gradient(135deg, #06b6d4, #0891b2); }
             &.rejected { background: linear-gradient(135deg, #ef4444, #dc2626); }
           }
@@ -433,9 +433,9 @@
               // UPDATED: Use text-primary for detail values
               color: $text-primary;
               
-              &.pending { color: #d97706; }
-              &.submitted { color: #ea580c; }
-              &.validated { color: #059669; }
+              &.active { color: #d97706; }
+              &.tracked { color: #ea580c; }
+              &.billable { color: #059669; }
               &.paid { color: #0891b2; }
               &.rejected { color: #dc2626; }
               
@@ -479,7 +479,7 @@
             &.primary {
               // UPDATED: Use gradient-primary for primary button
               background: $gradient-primary;
-              color: white;
+              color: var(--on-primary-color);
               
               &:active {
                 transform: scale(0.98);

@@ -181,7 +181,7 @@ export interface StorefrontReleaseRequestOrder {
 @Injectable({ providedIn: 'root' })
 export class StoreReviewModerationService {
   private readonly apiService = inject(ApiService);
-  private readonly apiUrl = 'stores/admin';
+  private readonly apiUrl = 'api/v1/stores/admin';
 
   getReviews(filters: ReviewModerationFilters): Observable<ReviewModerationQueueResponse> {
     let params = new HttpParams();
@@ -242,7 +242,7 @@ export class StoreReviewModerationService {
           hasMore: boolean;
         };
       };
-    }>('stores/storefront/orders/release-requests', params, undefined, true);
+    }>('api/v1/stores/storefront/orders/release-requests', params, undefined, true);
   }
 
   reviewReleaseRequest(orderId: string, decision: 'approved' | 'rejected', note?: string): Observable<{
@@ -259,7 +259,7 @@ export class StoreReviewModerationService {
         order: StorefrontReleaseRequestOrder;
       };
     }>(
-      `stores/storefront/orders/${orderId}/release-review`,
+      `api/v1/stores/storefront/orders/${orderId}/release-review`,
       { decision, note },
       undefined,
       true

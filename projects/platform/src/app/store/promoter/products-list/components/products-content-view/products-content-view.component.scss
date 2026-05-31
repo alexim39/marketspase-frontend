@@ -261,6 +261,10 @@
               background: $white;
             }
           }
+
+          .status-btn {
+            color: #128c7e;
+          }
         }
       }
       
@@ -427,22 +431,46 @@
       mat-card-actions {
         padding: $spacing-3 $spacing-4;
         border-top: 1px solid $border-color;
-        display: flex;
-        justify-content: space-between;
+        display: grid;
         gap: $spacing-2;
+
+        .primary-actions,
+        .secondary-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: $spacing-2;
+          align-items: center;
+        }
+
+        .secondary-actions {
+          grid-template-columns: minmax(0, 1fr) auto;
+        }
         
         .details-btn,
         .buy-btn,
         .promote-btn {
-          flex: 1;
-          
+          width: 100%;
+          min-width: 0;
+          min-height: 40px;
+
           mat-icon {
             margin-right: $spacing-1;
           }
         }
 
+        .share-actions {
+          display: grid;
+          grid-template-columns: repeat(2, 40px);
+          align-items: center;
+          justify-content: end;
+          gap: $spacing-1;
+          padding: 2px;
+          border-radius: $border-radius-full;
+          background: color-mix(in srgb, $background-color, $text-primary 4%);
+          border: 1px solid color-mix(in srgb, $border-color, $text-primary 10%);
+        }
+
         .share-btn {
-          flex: 0 0 40px;
           width: 40px;
           height: 40px;
           color: $text-secondary !important;
@@ -462,6 +490,38 @@
 
           &:active {
             transform: translateY(0);
+          }
+        }
+
+        .status-share-btn {
+          background-color: rgba(18, 140, 126, 0.08);
+          color: #128c7e !important;
+
+          &:hover {
+            background-color: rgba(18, 140, 126, 0.16) !important;
+            color: #0d6f63 !important;
+          }
+        }
+
+        .whatsapp-share-btn  {
+          &:hover, .fa-whatsapp {
+            color: #25d366 !important;
+          }
+        }
+
+        @include mobile {
+          .secondary-actions {
+            grid-template-columns: 1fr;
+          }
+
+          .share-actions {
+            justify-content: stretch;
+            width: 100%;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .share-btn {
+            width: 100%;
           }
         }
       }

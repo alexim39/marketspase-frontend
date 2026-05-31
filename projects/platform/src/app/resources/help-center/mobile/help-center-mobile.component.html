@@ -1,0 +1,300 @@
+<app-header />
+
+<main class="mobile-help-page">
+  <section class="help-hero" aria-labelledby="mobile-help-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Help Center</span>
+    </nav>
+
+    <span class="eyebrow">MarketSpase Support</span>
+    <h1 id="mobile-help-title">What do you need help with?</h1>
+    <p>
+      Search quick answers, browse support topics, or contact the team when your campaign, wallet, or storefront needs attention.
+    </p>
+
+    <label class="mobile-search" aria-label="Search help center">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        [formControl]="searchControl"
+        placeholder="Search campaigns, payments, stores..."
+        autocomplete="off"
+      />
+      @if (query()) {
+        <button type="button" (click)="clearSearch()" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+
+    <div class="popular-rail" aria-label="Popular help searches">
+      @for (tag of popularSearches().slice(0, 5); track tag) {
+        <button type="button" (click)="applySearchTag(tag)">
+          {{ tag }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="support-summary" aria-label="Help center summary">
+    <article>
+      <strong>{{ helpCategories().length }}</strong>
+      <span>Topics</span>
+    </article>
+    <article>
+      <strong>{{ totalArticleCount() }}</strong>
+      <span>Articles</span>
+    </article>
+    <article>
+      <strong>24/7</strong>
+      <span>Support</span>
+    </article>
+  </section>
+
+  <section class="topic-section" aria-labelledby="topics-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Browse</span>
+        <h2 id="topics-title">Choose a topic</h2>
+      </div>
+      <button type="button" (click)="openContactSheet()">
+        <mat-icon>support_agent</mat-icon>
+      </button>
+    </div>
+
+    <div class="topic-rail" role="list">
+      @for (category of helpCategories(); track category.id; let i = $index) {
+        <button
+          type="button"
+          role="listitem"
+          class="topic-card"
+          [class.active]="selectedCategoryId() === category.id"
+          [ngClass]="categoryTone(i)"
+          (click)="selectCategory(category)"
+        >
+          <span class="topic-icon">
+            <mat-icon>{{ category.icon }}</mat-icon>
+          </span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ category.articleCount }} articles</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (selectedCategory(); as category) {
+    <section class="selected-topic-card">
+      <div>
+        <span class="eyebrow">Selected topic</span>
+        <h2>{{ category.name }}</h2>
+        <p>{{ category.description }}</p>
+      </div>
+      <mat-icon>{{ category.icon }}</mat-icon>
+    </section>
+  }
+
+  <section class="quick-support-card">
+    <div>
+      <span class="eyebrow">Need urgent help?</span>
+      <h2>Get support without digging through articles.</h2>
+      <p>Use chat, email, community, or phone support depending on how urgent the issue is.</p>
+    </div>
+    <button type="button" (click)="openContactSheet()">
+      Contact
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </section>
+
+  <section class="guide-section" aria-labelledby="guides-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Guides</span>
+        <h2 id="guides-title">{{ query() ? 'Search results' : 'Recommended guides' }}</h2>
+      </div>
+      @if (query()) {
+        <button type="button" class="text-button" (click)="clearSearch()">Clear</button>
+      }
+    </div>
+
+    <div class="guide-list">
+      @for (article of visibleArticles(); track article.id) {
+        <article class="guide-card">
+          <header>
+            <span>{{ article.category }}</span>
+            <small>{{ article.readTime }}</small>
+          </header>
+          <h3>{{ article.title }}</h3>
+          <p>{{ article.excerpt }}</p>
+          <div class="tag-row">
+            @for (tag of article.tags.slice(0, 3); track tag) {
+              <span>#{{ tag }}</span>
+            }
+          </div>
+          <button type="button" (click)="openArticleSheet(article)">
+            Read guide
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </article>
+      } @empty {
+        <article class="empty-card">
+          <mat-icon>manage_search</mat-icon>
+          <h3>No matching guides</h3>
+          <p>Try a shorter keyword or contact support for a direct answer.</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="faq-mobile-section" aria-labelledby="faq-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Answers</span>
+        <h2 id="faq-title">Quick FAQs</h2>
+      </div>
+    </div>
+
+    <div class="faq-list">
+      @for (faq of visibleFaqs(); track faq.question) {
+        <button type="button" class="faq-card" (click)="openFaqSheet(faq)">
+          <span>
+            @if (faq.popular) {
+              <small>Popular</small>
+            }
+            {{ faq.question }}
+          </span>
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      } @empty {
+        <article class="empty-card">
+          <mat-icon>quiz</mat-icon>
+          <h3>No FAQs found</h3>
+          <p>Contact support and we will help you with this question.</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="contact-mobile-section" aria-labelledby="contact-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Support channels</span>
+        <h2 id="contact-title">Pick the best channel</h2>
+      </div>
+    </div>
+
+    <div class="contact-list">
+      @for (option of quickActions(); track option.title) {
+        <button type="button" class="contact-card" (click)="openContactSheet(option)">
+          <span class="contact-icon">
+            <mat-icon>{{ option.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ option.title }}</strong>
+            <small>{{ option.availability }}</small>
+          </span>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="learning-strip" aria-labelledby="learning-title">
+    <div>
+      <span class="eyebrow">Learn faster</span>
+      <h2 id="learning-title">Prefer a walkthrough?</h2>
+      <p>Use tutorials and platform guides when you want to learn the full MarketSpase flow.</p>
+    </div>
+    <div class="learning-actions">
+      <a routerLink="/dashboard/tutorials/videos">
+        <mat-icon>video_library</mat-icon>
+        Videos
+      </a>
+      <a routerLink="/resources/how-it-works">
+        <mat-icon>route</mat-icon>
+        How it works
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet(); as sheet) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeSheet()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Help details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (sheet) {
+      @case ('article') {
+        @if (selectedArticle(); as article) {
+          <span class="eyebrow">{{ article.category }}</span>
+          <h2>{{ article.title }}</h2>
+          <p>{{ article.excerpt }}</p>
+
+          <ol class="sheet-steps">
+            @for (step of articleSteps(article); track step) {
+              <li>{{ step }}</li>
+            }
+          </ol>
+
+          <div class="tag-row sheet-tags">
+            @for (tag of article.tags; track tag) {
+              <span>#{{ tag }}</span>
+            }
+          </div>
+
+          <div class="sheet-actions">
+            <button type="button" class="primary-action" (click)="openSelectedArticle()">Open guide</button>
+            <button type="button" class="secondary-action" (click)="openContactSheet()">Contact support</button>
+          </div>
+        }
+      }
+      @case ('faq') {
+        @if (selectedFaq(); as faq) {
+          <span class="eyebrow">FAQ</span>
+          <h2>{{ faq.question }}</h2>
+          <div class="faq-answer" [innerHTML]="faq.answer"></div>
+
+          <div class="tag-row sheet-tags">
+            @for (tag of faq.tags; track tag) {
+              <span>#{{ tag }}</span>
+            }
+          </div>
+
+          <div class="sheet-actions">
+            <button type="button" class="primary-action" (click)="openContactSheet()">I still need help</button>
+            <button type="button" class="secondary-action" (click)="closeSheet()">Done</button>
+          </div>
+        }
+      }
+      @case ('contact') {
+        @if (selectedContact(); as contact) {
+          <span class="eyebrow">Support channel</span>
+          <div class="sheet-contact-icon">
+            <mat-icon>{{ contact.icon }}</mat-icon>
+          </div>
+          <h2>{{ contact.title }}</h2>
+          <p>{{ contact.description }}</p>
+          <div class="availability-card">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ contact.availability }}</span>
+          </div>
+
+          <div class="sheet-actions">
+            <button type="button" class="primary-action" (click)="runContactAction()">
+              {{ contact.action }}
+            </button>
+            <button type="button" class="secondary-action" (click)="closeSheet()">Maybe later</button>
+          </div>
+        }
+      }
+    }
+  </section>
+}
+
+<app-footer />

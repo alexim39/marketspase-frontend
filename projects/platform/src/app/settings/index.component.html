@@ -1,3 +1,12 @@
+@if (isMobileExperience()) {
+    <app-settings-mobile-index
+        [user]="user()"
+        [isOnline]="isOnline"
+        [onlineCountLabel]="onlineCountLabel()"
+        [recentActivities]="recentActivities"
+        (helpRequested)="showDescription()"
+        (joinChannelRequested)="openWhatsAppChannel()"/>
+} @else {
 <div class="settings-container">
     <header class="settings-header">
         <nav class="breadcrumb">
@@ -147,3 +156,4 @@
         </mat-sidenav-container>
     </div>
 </div>
+}

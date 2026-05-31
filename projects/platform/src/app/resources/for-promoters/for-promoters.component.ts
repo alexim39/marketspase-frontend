@@ -11,20 +11,20 @@ import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-interface Benefit {
+export interface Benefit {
   icon: string;
   title: string;
   description: string;
 }
 
-interface EarningTier {
+export interface EarningTier {
   views: string;
   earnings: string;
   description: string;
   popular?: boolean;
 }
 
-interface Campaign {
+export interface Campaign {
   id: string;
   title: string;
   description: string;
@@ -37,7 +37,7 @@ interface Campaign {
   urgency: 'low' | 'medium' | 'high';
 }
 
-interface Testimonial {
+export interface Testimonial {
   name: string;
   role: string;
   earnings: string;
@@ -67,6 +67,8 @@ interface Testimonial {
   styleUrls: ['./for-promoters.component.scss']
 })
 export class ForPromotersComponent {
+  private readonly sanitizer = inject(DomSanitizer);
+
   benefits = signal<Benefit[]>([
     {
       icon: 'account_balance_wallet',
@@ -210,8 +212,6 @@ export class ForPromotersComponent {
   readonly fbUrl = 'https://web.facebook.com/reel/1122807266576576';
   posterUrl = 'img/placeholders/how-to-video.jpg'; // replace with proper poster image
   videoUrl!: SafeResourceUrl;
-
-  constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     // Preload video URL but do not show player until clicked

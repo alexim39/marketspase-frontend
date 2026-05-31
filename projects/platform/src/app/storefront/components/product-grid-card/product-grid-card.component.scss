@@ -549,3 +549,42 @@ button {
     border: 1px solid $white;
   }
 }
+
+// Compact density for carousels/embedded lists.
+// Keep the same structure but reduce vertical footprint and visual noise.
+.product-card.is-compact {
+  border-radius: $border-radius-md;
+
+  .product-details {
+    padding: $spacing-3;
+    gap: $spacing-2;
+  }
+
+  .product-header {
+    .product-category {
+      font-size: $font-size-xs;
+      margin-bottom: 2px;
+    }
+
+    .product-title {
+      @include body-medium;
+      min-height: 2.4em;
+    }
+  }
+
+  .product-pricing {
+    padding: $spacing-2 0;
+
+    .price-group {
+      .current-price {
+        font-size: $font-size-xl;
+      }
+    }
+  }
+
+  .product-actions {
+    .add-to-cart-btn {
+      height: 42px;
+    }
+  }
+}

@@ -1,0 +1,501 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.mobile-checkin {
+  position: fixed;
+  inset-inline: 0;
+  bottom: calc(5.15rem + env(safe-area-inset-bottom));
+  z-index: $z-index-sticky;
+  display: flex;
+  justify-content: center;
+  padding: 0 1rem;
+  pointer-events: none;
+}
+
+.streak-dock {
+  width: min(100%, 22rem);
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 42px 1fr 32px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.65rem 0.55rem 0.6rem;
+  border: 1px solid rgba($primary-color-hex, 0.18);
+  border-radius: 999px;
+  color: $text-primary;
+  background: rgba($surface-color, 0.96);
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  pointer-events: auto;
+  cursor: pointer;
+  text-align: left;
+  transition: transform $transition-fast, box-shadow $transition-fast, border-color $transition-fast;
+
+  &:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba($primary-color-hex, 0.28);
+    outline-offset: 3px;
+  }
+
+  &.tone-secured {
+    border-color: rgba($success-color-hex, 0.24);
+
+    .dock-icon {
+      background: rgba($success-color-hex, 0.12);
+      color: $success-color;
+    }
+  }
+
+  &.tone-ready {
+    border-color: rgba($warning-color-hex, 0.28);
+
+    .dock-icon {
+      background: rgba($warning-color-hex, 0.14);
+      color: $warning-color;
+    }
+  }
+}
+
+.dock-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba($primary-color-hex, 0.1);
+  color: $primary-color;
+
+  mat-icon {
+    font-size: 1.35rem;
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+}
+
+.dock-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+.dock-title {
+  color: $text-primary;
+  font-size: 0.9rem;
+  font-weight: $font-weight-bold;
+  line-height: 1.15;
+}
+
+.dock-meta {
+  color: $text-secondary;
+  font-size: 0.76rem;
+  font-weight: $font-weight-semibold;
+}
+
+.dock-chevron {
+  color: $text-secondary;
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgba($gray-900-hex, 0.48);
+  pointer-events: auto;
+  animation: backdropIn 160ms ease;
+}
+
+.checkin-sheet {
+  width: 100%;
+  max-height: min(86vh, 42rem);
+  overflow-y: auto;
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.6rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  border-radius: 1.35rem 1.35rem 0 0;
+  background: $surface-color;
+  box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.28);
+  animation: sheetUp 220ms ease-out;
+  @include scrollbar;
+}
+
+.sheet-handle {
+  width: 44px;
+  height: 5px;
+  margin: 0.15rem auto 0.1rem;
+  border-radius: 999px;
+  background: $border-color;
+}
+
+.sheet-header {
+  display: grid;
+  grid-template-columns: 1fr 48px;
+  align-items: start;
+  gap: 0.75rem;
+
+  .eyebrow {
+    margin: 0 0 0.3rem;
+    color: $success-color;
+    font-size: 0.72rem;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0;
+    color: $text-primary;
+    font-size: 1.45rem;
+    line-height: 1.1;
+  }
+
+  p:last-child {
+    margin: 0.35rem 0 0;
+    color: $text-secondary;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+}
+
+.icon-button {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  color: $text-primary;
+  background: $background-color;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid rgba($primary-color-hex, 0.28);
+    outline-offset: 2px;
+  }
+}
+
+.hero-card,
+.progress-card,
+.withdraw-card {
+  border: 1px solid $border-color;
+  border-radius: 1rem;
+  background: $background-color;
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  padding: 1rem;
+  overflow: hidden;
+  border-color: rgba($success-color-hex, 0.18);
+  background:
+    linear-gradient(135deg, rgba($success-color-hex, 0.11), rgba($primary-color-hex, 0.08)),
+    $background-color;
+
+  &.tone-ready {
+    border-color: rgba($warning-color-hex, 0.28);
+    background:
+      linear-gradient(135deg, rgba($warning-color-hex, 0.14), rgba($success-color-hex, 0.09)),
+      $background-color;
+  }
+}
+
+.hero-copy,
+.withdraw-card > div {
+  display: grid;
+  gap: 0.18rem;
+
+  span {
+    color: $text-secondary;
+    font-size: 0.76rem;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: $text-primary;
+    font-size: 1.55rem;
+    line-height: 1.1;
+  }
+
+  small {
+    color: $text-secondary;
+    font-size: 0.78rem;
+  }
+}
+
+.hero-badge {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-self: start;
+  padding: 0.45rem 0.65rem;
+  border-radius: 999px;
+  color: $text-primary;
+  background: rgba($surface-color, 0.86);
+  font-size: 0.78rem;
+  font-weight: $font-weight-bold;
+  box-shadow: $shadow-sm;
+
+  mat-icon {
+    color: $success-color;
+  }
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+
+  article {
+    min-width: 0;
+    display: grid;
+    gap: 0.18rem;
+    padding: 0.8rem;
+    border: 1px solid $border-color;
+    border-radius: 0.95rem;
+    background: $surface-color;
+  }
+
+  span {
+    color: $text-secondary;
+    font-size: 0.72rem;
+    font-weight: $font-weight-semibold;
+  }
+
+  strong {
+    color: $text-primary;
+    font-size: 1.02rem;
+    line-height: 1.15;
+  }
+
+  small {
+    color: $text-tertiary;
+    font-size: 0.7rem;
+  }
+}
+
+.progress-card {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem;
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+}
+
+.progress-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  span {
+    color: $text-secondary;
+    font-size: 0.84rem;
+    font-weight: $font-weight-semibold;
+  }
+
+  strong {
+    color: $text-primary;
+    font-size: 0.92rem;
+  }
+}
+
+.progress-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: $divider-color;
+
+  &.muted {
+    opacity: 0.78;
+  }
+}
+
+.progress-fill {
+  height: 100%;
+  min-width: 4px;
+  border-radius: inherit;
+  transition: width 220ms ease;
+}
+
+.session {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.payout-fill {
+  background: linear-gradient(90deg, $primary-color-hex, #0ea5e9);
+}
+
+.withdraw-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.95rem;
+
+  button {
+    min-height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border: 0;
+    border-radius: 0.9rem;
+    color: var(--on-primary-color);
+    background: $gradient-primary;
+    font-size: 0.86rem;
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.52;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba($primary-color-hex, 0.28);
+      outline-offset: 3px;
+    }
+  }
+}
+
+.skeleton {
+  pointer-events: none;
+
+  .skeleton-icon,
+  .skeleton-lines span {
+    display: block;
+    border-radius: 999px;
+    background: linear-gradient(90deg, $divider-color, rgba($border-color, 0.45), $divider-color);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+  }
+
+  .skeleton-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .skeleton-lines {
+    display: grid;
+    gap: 0.35rem;
+
+    span:first-child {
+      width: 8rem;
+      height: 0.8rem;
+    }
+
+    span:last-child {
+      width: 5.8rem;
+      height: 0.65rem;
+    }
+  }
+}
+
+[data-theme='dark'] {
+  .streak-dock,
+  .checkin-sheet,
+  .metric-grid article,
+  .hero-card,
+  .progress-card,
+  .withdraw-card {
+    border-color: $border-color;
+  }
+
+  .streak-dock {
+    background: rgba($gray-800-hex, 0.96);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
+  }
+
+  .sheet-backdrop {
+    background: rgba(0, 0, 0, 0.66);
+  }
+
+  .hero-badge {
+    background: rgba($gray-800-hex, 0.82);
+  }
+}
+
+@include small-screen {
+  .mobile-checkin {
+    padding: 0 0.75rem;
+  }
+
+  .checkin-sheet {
+    padding-inline: 0.85rem;
+  }
+
+  .metric-grid {
+    gap: 0.5rem;
+
+    article {
+      padding: 0.68rem;
+    }
+
+    strong {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    opacity: 0;
+    transform: translateY(34px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streak-dock,
+  .checkin-sheet,
+  .sheet-backdrop,
+  .progress-fill,
+  .skeleton .skeleton-icon,
+  .skeleton .skeleton-lines span {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .streak-dock,
+  .checkin-sheet,
+  .hero-card,
+  .progress-card,
+  .withdraw-card,
+  .metric-grid article {
+    border: 2px solid ButtonText;
+  }
+
+  .progress-fill {
+    background: ButtonText !important;
+  }
+}

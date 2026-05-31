@@ -1,0 +1,428 @@
+<div class="ppc-analytics">
+  <div class="page-header">
+    <div class="page-title">
+      <h2>PPC Analytics</h2>
+      <p>Promoter click, conversion, and fraud signals</p>
+    </div>
+
+    <div class="page-actions">
+      <button mat-stroked-button type="button" (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <div class="last-updated">
+        @if (lastRefreshedAt()) {
+          Updated {{ lastRefreshedAt() | date:'medium' }}
+        } @else {
+          Not updated yet
+        }
+      </div>
+    </div>
+  </div>
+
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Quick range</mat-label>
+          <mat-select formControlName="rangeDays" [formGroup]="filtersForm">
+            <mat-option [value]="1">Last 24 hours</mat-option>
+            <mat-option [value]="7">Last 7 days</mat-option>
+            <mat-option [value]="30">Last 30 days</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Start date</mat-label>
+          <input matInput [matDatepicker]="startPicker" [formControl]="filtersForm.controls.startDate" />
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>End date</mat-label>
+          <input matInput [matDatepicker]="endPicker" [formControl]="filtersForm.controls.endDate" />
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Granularity</mat-label>
+          <mat-select [formControl]="filtersForm.controls.granularity">
+            <mat-option value="hourly">Hourly</mat-option>
+            <mat-option value="daily">Daily</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Country (click geo)</mat-label>
+          <input matInput [formControl]="filtersForm.controls.country" placeholder="e.g. NG" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Promoter ID</mat-label>
+          <input matInput [formControl]="filtersForm.controls.promoterId" placeholder="Filter to one promoter" />
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="overview-section">
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Overview</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (isLoadingOverview()) {
+          <div class="loading-block">
+            <mat-spinner diameter="34"></mat-spinner>
+            <span>Loading overview...</span>
+          </div>
+        } @else {
+          <div class="summary-grid">
+            @for (card of summaryCards(); track card.label) {
+              <div class="metric-tile" [class.tone-primary]="card.tone === 'primary'">
+                <div class="metric-icon">
+                  <mat-icon>{{ card.icon }}</mat-icon>
+                </div>
+                <div class="metric-meta">
+                  <div class="metric-label">{{ card.label }}</div>
+                  <div class="metric-value">
+                    @if (card.format === 'currency') {
+                      {{ card.value || 0 | currency:'NGN':'symbol':'1.0-0' }}
+                    } @else if (card.format === 'percent') {
+                      {{ card.value || 0 }}%
+                    } @else {
+                      {{ card.value || 0 }}
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="trend-grid">
+            <div class="trend-panel">
+              <div class="trend-header">
+                <div class="trend-title">Click trend</div>
+                <div class="trend-legend">
+                  <span class="legend-item">
+                    <span class="legend-swatch total"></span>
+                    Total
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-swatch billable"></span>
+                    Billable
+                  </span>
+                </div>
+              </div>
+
+              @if (timeSeriesHasData()) {
+                <svg class="sparkline" viewBox="0 0 640 120" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline class="sparkline-total" [attr.points]="sparkline().total"></polyline>
+                  <polyline class="sparkline-billable" [attr.points]="sparkline().billable"></polyline>
+                </svg>
+              } @else {
+                <div class="no-trend">
+                  <mat-icon>show_chart</mat-icon>
+                  <span>No trend data for this range.</span>
+                </div>
+              }
+            </div>
+
+            <div class="trend-panel">
+              <div class="trend-header">
+                <div class="trend-title">Recent buckets</div>
+              </div>
+              <div class="bucket-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Bucket</th>
+                      <th class="num">Total</th>
+                      <th class="num">Billable</th>
+                      <th class="num">Spend</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of timeSeries().slice(-8); track row.bucket) {
+                      <tr>
+                        <td>{{ row.bucket }}</td>
+                        <td class="num">{{ row.totalClicks }}</td>
+                        <td class="num">{{ row.billableClicks }}</td>
+                        <td class="num">{{ row.spend | currency:'NGN':'symbol':'1.0-0' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="promoters-card">
+    <mat-card-header>
+      <mat-card-title>Promoters</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="promoters-toolbar">
+        <div class="pager">
+          <button mat-icon-button type="button" (click)="changePage(-1)" [disabled]="pagination().page <= 1 || isLoadingPromoters()">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <div class="pager-meta">
+            Page {{ pagination().page }} of {{ pagination().totalPages || 1 }}
+            <span class="pager-total">({{ pagination().total }} total)</span>
+          </div>
+          <button mat-icon-button type="button" (click)="changePage(1)" [disabled]="pagination().page >= pagination().totalPages || isLoadingPromoters()">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <mat-form-field appearance="outline" class="limit-select">
+          <mat-label>Rows</mat-label>
+          <mat-select [value]="pagination().limit" (selectionChange)="changeLimit($event.value)">
+            <mat-option [value]="10">10</mat-option>
+            <mat-option [value]="25">25</mat-option>
+            <mat-option [value]="50">50</mat-option>
+            <mat-option [value]="100">100</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+        @if (isLoadingPromoters()) {
+          <div class="loading-block">
+            <mat-spinner diameter="34"></mat-spinner>
+            <span>Loading promoters...</span>
+          </div>
+        } @else {
+        <div class="table-wrap">
+          <table mat-table [dataSource]="promoters()" matSort (matSortChange)="onSortChange($event)" class="ppc-table">
+            <ng-container matColumnDef="promoter">
+              <th mat-header-cell *matHeaderCellDef>Promoter</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="promoter-cell">
+                  <div class="promoter-name">{{ row.promoter.displayName }}</div>
+                  <div class="promoter-sub">
+                    <span class="mono">{{ row.promoter._id }}</span>
+                    @if (!row.promoter.isActive) {
+                      <span class="status-pill suspended">Suspended</span>
+                    }
+                  </div>
+                  <div class="promoter-sub">
+                    @if (row.promoter.email) { <span>{{ row.promoter.email }}</span> }
+                    @if (row.promoter.phone) { <span class="sep">|</span> <span>{{ row.promoter.phone }}</span> }
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="clicks">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="totalClicks">Clicks</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="metric-stack">
+                  <div><span class="k">Total</span> <span class="v">{{ row.metrics.totalClicks }}</span></div>
+                  <div><span class="k">Unique</span> <span class="v">{{ row.metrics.uniqueClicks }}</span></div>
+                  <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableClicks }}</span></div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="spend">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="spend">Spend</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="metric-stack">
+                  <div class="big">{{ row.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</div>
+                  <div class="muted">Dup {{ row.metrics.duplicateClicks }} | Inv {{ row.metrics.invalidClicks }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="conversions">
+              <th mat-header-cell *matHeaderCellDef>Conversions</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="metric-stack">
+                  <div class="big">{{ row.metrics.conversions }}</div>
+                  <div class="muted">{{ row.metrics.conversionRevenue | currency:'NGN':'symbol':'1.0-0' }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="rates">
+              <th mat-header-cell *matHeaderCellDef>Rates</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="metric-stack">
+                  <div><span class="k">Billable</span> <span class="v">{{ row.metrics.billableRate }}%</span></div>
+                  <div><span class="k">Click-&gt;Conv</span> <span class="v">{{ row.metrics.clickToConversionRate }}%</span></div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="anomalies">
+              <th mat-header-cell *matHeaderCellDef>Anomalies</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.anomalies?.length) {
+                  <mat-chip-set class="anomaly-chips">
+                    @for (code of row.anomalies.slice(0, 3); track code) {
+                      <mat-chip color="warn" selected>{{ resolveAnomalyLabel(code) }}</mat-chip>
+                    }
+                    @if (row.anomalies.length > 3) {
+                      <mat-chip class="more-chip">+{{ row.anomalies.length - 3 }}</mat-chip>
+                    }
+                  </mat-chip-set>
+                } @else {
+                  <span class="muted">None</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="row-actions">
+                  <button mat-icon-button type="button" matTooltip="Details" (click)="openPromoterDetails(row)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" matTooltip="Flag for Review" (click)="openAction(row, 'flag')">
+                    <mat-icon>flag</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" matTooltip="Send Warning" (click)="openAction(row, 'warn')">
+                    <mat-icon>warning</mat-icon>
+                  </button>
+                  <button mat-icon-button type="button" matTooltip="Suspend Account" (click)="openAction(row, 'suspend')">
+                    <mat-icon>person_off</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <ng-template #promoterDetailsDialog>
+    <div class="dialog-shell">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <div class="title-line">Promoter Details</div>
+          <div class="sub-line mono">{{ selectedPromoter()?.promoter?._id }}</div>
+        </div>
+        <button mat-icon-button type="button" (click)="closePromoterDetails()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <div class="details-grid">
+          <div class="details-block">
+            <div class="block-title">Identity</div>
+            <div class="kv"><span class="k">Name</span><span class="v">{{ selectedPromoter()?.promoter?.displayName }}</span></div>
+            <div class="kv"><span class="k">Email</span><span class="v">{{ selectedPromoter()?.promoter?.email }}</span></div>
+            <div class="kv"><span class="k">Phone</span><span class="v">{{ selectedPromoter()?.promoter?.phone }}</span></div>
+            <div class="kv"><span class="k">Status</span><span class="v">{{ selectedPromoter()?.promoter?.isActive ? 'Active' : 'Suspended' }}</span></div>
+          </div>
+
+          <div class="details-block">
+            <div class="block-title">Top IPs</div>
+            <div class="mini-list">
+              @for (ip of (selectedPromoter()?.patterns?.ips || []); track ip.ip) {
+                <div class="mini-row">
+                  <span class="mono">{{ ip.ip || 'unknown' }}</span>
+                  <span class="muted">{{ ip.country || '' }}</span>
+                  <span class="num">{{ ip.billableClicks }}/{{ ip.clicks }}</span>
+                </div>
+              }
+              @if (!(selectedPromoter()?.patterns?.ips || []).length) {
+                <div class="muted">No IP data.</div>
+              }
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="block-title">Devices</div>
+            <div class="mini-list">
+              @for (d of (selectedPromoter()?.patterns?.devices || []); track d.deviceType) {
+                <div class="mini-row">
+                  <span>{{ d.deviceType }}</span>
+                  <span class="num">{{ d.billableClicks }}/{{ d.clicks }}</span>
+                </div>
+              }
+              @if (!(selectedPromoter()?.patterns?.devices || []).length) {
+                <div class="muted">No device data.</div>
+              }
+            </div>
+          </div>
+
+          <div class="details-block">
+            <div class="block-title">Top Countries</div>
+            <div class="mini-list">
+              @for (c of (selectedPromoter()?.patterns?.countries || []); track c.country) {
+                <div class="mini-row">
+                  <span>{{ c.country || 'N/A' }}</span>
+                  <span class="num">{{ c.billableClicks }}/{{ c.clicks }}</span>
+                </div>
+              }
+              @if (!(selectedPromoter()?.patterns?.countries || []).length) {
+                <div class="muted">No country data.</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="details-block wide">
+          <div class="block-title">Anomalies</div>
+          @if (selectedPromoter()?.anomalies?.length) {
+            <mat-chip-set class="anomaly-chips">
+              @for (code of (selectedPromoter()?.anomalies || []); track code) {
+                <mat-chip color="warn" selected>{{ resolveAnomalyLabel(code) }}</mat-chip>
+              }
+            </mat-chip-set>
+          } @else {
+            <span class="muted">None</span>
+          }
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #actionDialog>
+    <div class="dialog-shell">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          @if (selectedAction() === 'flag') { Flag Promoter } @else if (selectedAction() === 'warn') { Send Warning } @else { Suspend Account }
+          <div class="sub-line">{{ selectedPromoter()?.promoter?.displayName }}</div>
+        </div>
+        <button mat-icon-button type="button" (click)="closeActionDialog()" [disabled]="actionBusy()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <mat-form-field appearance="outline" class="action-textarea">
+          <mat-label>Reason / message</mat-label>
+          <textarea matInput rows="4" [value]="actionText()" (input)="actionText.set(($any($event.target).value || ''))"></textarea>
+        </mat-form-field>
+
+        <div class="dialog-actions">
+          <button mat-stroked-button type="button" (click)="closeActionDialog()" [disabled]="actionBusy()">Cancel</button>
+          <button mat-flat-button color="warn" type="button" (click)="confirmAction()" [disabled]="actionBusy()">
+            @if (actionBusy()) {
+              Working...
+            } @else {
+              Confirm
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

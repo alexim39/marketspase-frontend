@@ -1,0 +1,143 @@
+<main class="analytics-mobile">
+  <header class="mobile-hero">
+    <div class="hero-copy">
+      <span class="eyebrow">AI assistant</span>
+      <h1>Performance</h1>
+      <p>Track how the assistant answers buyers, saves time, and moves chats closer to payment.</p>
+    </div>
+
+    <button
+      mat-icon-button
+      type="button"
+      class="refresh-button"
+      aria-label="Refresh AI assistant analytics"
+      (click)="loadAnalytics()"
+      [disabled]="loading()"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state" aria-live="polite">
+      <mat-spinner diameter="34"></mat-spinner>
+      <p>Loading performance data...</p>
+    </section>
+
+    <section class="skeleton-grid" aria-hidden="true">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton-card"></div>
+      }
+    </section>
+  } @else {
+    <section class="summary-strip" aria-label="AI sales assistant summary">
+      @for (card of summaryCards(); track card.label) {
+        <article class="summary-card" [ngClass]="card.tone">
+          <div>
+            <span>{{ card.label }}</span>
+            <strong>{{ card.value }}</strong>
+            <small>{{ card.helper }}</small>
+          </div>
+          <mat-icon>{{ card.icon }}</mat-icon>
+        </article>
+      }
+    </section>
+
+    <section class="metric-grid" aria-label="AI assistant message metrics">
+      @for (metric of messageMetrics(); track metric.label) {
+        <article class="metric-card" [ngClass]="metric.tone">
+          <span class="metric-icon">
+            <mat-icon>{{ metric.icon }}</mat-icon>
+          </span>
+          <div>
+            <p>{{ metric.label }}</p>
+            <strong>{{ metric.value }}</strong>
+            <small>{{ metric.helper }}</small>
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="mobile-panel">
+      <div class="panel-heading">
+        <div>
+          <span>Last 7 days</span>
+          <h2>Daily conversations</h2>
+        </div>
+        <mat-icon>bar_chart</mat-icon>
+      </div>
+
+      @if (!hasConversationData()) {
+        <div class="empty-panel">
+          <mat-icon>forum</mat-icon>
+          <p>No conversation activity yet.</p>
+        </div>
+      } @else {
+        <div class="day-chart">
+          @for (point of dailyConversations(); track point.date) {
+            <div class="day-column">
+              <div class="day-track">
+                <span [style.height]="barHeight(point.count, maxDailyCount())"></span>
+              </div>
+              <strong>{{ point.count }}</strong>
+              <small>{{ formatDay(point.date) }}</small>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="mobile-panel">
+      <div class="panel-heading">
+        <div>
+          <span>Reply ownership</span>
+          <h2>AI vs human</h2>
+        </div>
+        <strong class="panel-pill">{{ assistantMixLabel() }}</strong>
+      </div>
+
+      <div class="activity-list">
+        @for (item of aiVsHumanActivity(); track item.label) {
+          <div class="activity-row">
+            <div class="activity-label">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </div>
+            <div class="activity-track">
+              <span [class.ai-bar]="item.label === 'AI'" [style.width]="barHeight(item.value, maxActivityValue())"></span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="mobile-panel">
+      <div class="panel-heading">
+        <div>
+          <span>{{ conversionSignalTotal() }} total signals</span>
+          <h2>Conversion signals</h2>
+        </div>
+        <mat-icon>insights</mat-icon>
+      </div>
+
+      @if (!conversionTrend().length) {
+        <div class="empty-panel compact">
+          <mat-icon>query_stats</mat-icon>
+          <p>No conversion signals yet.</p>
+        </div>
+      } @else {
+        <div class="signal-list">
+          @for (point of conversionTrend(); track point.date) {
+            <div class="signal-row">
+              <span>{{ formatDay(point.date) }}</span>
+              <div class="signal-track">
+                <span [style.width]="barHeight(point.count, maxDailyCount())"></span>
+              </div>
+              <strong>{{ point.count || 0 }}</strong>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

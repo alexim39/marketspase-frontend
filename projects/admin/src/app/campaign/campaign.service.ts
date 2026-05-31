@@ -20,8 +20,8 @@ interface ApiResponse<T> {
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
   public api = this.apiService.getBaseUrl();
-  private readonly apiBase = 'campaign/admin'
-  private readonly apiBase2 = 'campaign'
+  private readonly apiBase = 'api/v1/campaign/admin'
+  private readonly apiBase2 = 'api/v1/campaign'
   
   /**
    * Get campaigns with pagination and filters

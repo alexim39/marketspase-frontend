@@ -28,7 +28,7 @@ export interface Section {
 @Injectable()
 export class TutorialService {
   private readonly apiService: ApiService = inject(ApiService);
-  private apiUrl = 'tutorials';
+  private apiUrl = 'api/v1/tutorials';
 
   getTutorials(role?: string): Observable<Section[]> {
     let params: any = {};

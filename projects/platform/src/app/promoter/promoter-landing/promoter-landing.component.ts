@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, Signal, Input, DestroyRef, Injector, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 
 // Imported child components
 import { PromoterHeaderComponent } from './components/promoter-header/promoter-header.component';
@@ -24,6 +24,14 @@ import { PromoterQuickStatsMobileComponent } from './components/promoter-quick-s
 import { CampaignFiltersMobileComponent, FilterType } from './components/campaign-filters/mobile/campaign-filters-mobile.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingStateMobileComponent } from './components/loading-state/mobile/loading-state-mobile.component';
+import {
+  canCampaignBeAccepted,
+  getCampaignCostPerClick,
+  getCampaignRemainingBudget,
+  isCampaignBudgetExhausted,
+  isCampaignExpired,
+} from '../utils/campaign-availability.util';
+import { distinctUntilChanged, filter, finalize } from 'rxjs';
 
 interface CampaignMetrics {
   totalEarnings: number;
@@ -32,8 +40,9 @@ interface CampaignMetrics {
   pendingEarnings: number;
   activePromotions: number;
   successRate: number;
-  totalViews: number;
+  totalClicks: number;
   expiringSoon: number;
+  avgEarnings: number;
 }
 
 @Component({
@@ -67,11 +76,14 @@ export class PromoterLandingComponent implements OnInit {
   private promoterLandingService = inject(PromoterLandingService);
   private snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   
   public readonly api = this.promoterLandingService.api;
 
   // Signals for reactive state management
-  isLoading = signal(false);
+  isCampaignsLoading = signal(false);
+  isPromotionsLoading = signal(false);
+  isLoading = computed(() => this.isCampaignsLoading() || this.isPromotionsLoading());
   isApplying = signal(false);
   campaigns = signal<CampaignInterface[]>([]);
   searchTerm = signal('');
@@ -96,7 +108,7 @@ export class PromoterLandingComponent implements OnInit {
 
   // Add a method to load more campaigns
   loadMoreCampaigns(): void {
-    if (this.hasMoreCampaigns() && !this.isLoading()) {
+    if (this.hasMoreCampaigns() && !this.isCampaignsLoading()) {
       this.loadCampaigns(true);
     }
   }
@@ -141,10 +153,7 @@ export class PromoterLandingComponent implements OnInit {
         break;
       case 'active':
         filtered = filtered.filter(campaign => {
-          // A campaign is active if it's not explicitly expired or budget exhausted
-          const isInactive = campaign.remainingDays === 'Expired' || 
-                            campaign.remainingDays === 'Budget Exhausted';
-          return !isInactive && campaign.status === 'active';
+          return canCampaignBeAccepted(campaign);
         });
         break;
       case 'all':
@@ -167,23 +176,28 @@ export class PromoterLandingComponent implements OnInit {
     // Calculate earnings based on actual promotion status
     const totalEarnings = promotions
       .filter(promotion => promotion.status === 'paid')
-      .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
+      .reduce((sum, promotion) => {
+        const earnedAmount = promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0;
+        return sum + earnedAmount;
+      }, 0);
 
     const pendingEarnings = promotions
-      //.filter(promotion => promotion.status === 'submitted')
-      .filter(promotion => promotion.status === 'submitted' || promotion.status === 'accepted')
-      .reduce((sum, promotion) => sum + (promotion.payoutAmount || 0), 0);
+      .filter(promotion => !['paid', 'rejected'].includes(promotion.status))
+      .reduce((sum, promotion) => {
+        const earnedAmount = promotion.clickStats?.earnedAmount ?? promotion.payoutAmount ?? 0;
+        return sum + earnedAmount;
+      }, 0);
 
     const activePromotions = promotions.filter(promotion => 
-      promotion.status === 'accepted' || promotion.status === 'submitted'
+      promotion.status === 'accepted' &&
+      promotion.isActive !== false
     ).length;
 
     const completedPromotions = promotions.filter(promotion => 
       promotion.status === 'paid'
     ).length;
 
-    // Keep the property name for existing quick-stat components, but feed it click totals in PPC mode.
-    const totalViews = promotions.reduce((sum, promotion) => 
+    const totalClicks = promotions.reduce((sum, promotion) => 
       sum + (promotion.clickStats?.totalClicks || 0), 0
     );
 
@@ -193,6 +207,7 @@ export class PromoterLandingComponent implements OnInit {
     const successfulPromotions = promotions.filter(p => p.status === 'paid').length;
     const successRate = totalAcceptedPromotions > 0 ? 
       (successfulPromotions / totalAcceptedPromotions) * 100 : 0;
+    const avgEarnings = successfulPromotions > 0 ? totalEarnings / successfulPromotions : 0;
 
     // Expiring soon - promotions where campaign is ending in 3 days
     const expiringSoon = promotions.filter(promotion => {
@@ -202,7 +217,8 @@ export class PromoterLandingComponent implements OnInit {
       const diffTime = endDate.getTime() - today.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       return diffDays <= 3 && diffDays > 0 && 
-            (promotion.status === 'accepted' || promotion.status === 'submitted');
+            promotion.status === 'accepted' &&
+            promotion.isActive !== false;
     }).length;
 
     return {
@@ -212,29 +228,37 @@ export class PromoterLandingComponent implements OnInit {
       pendingEarnings,
       activePromotions,
       successRate,
-      totalViews,
-      expiringSoon
+      totalClicks,
+      expiringSoon,
+      avgEarnings
     };
   });
 
   ngOnInit(): void {
-    this.loadCampaigns(false); // Initial load
-    this.loadUserPromotions();
+    runInInjectionContext(this.injector, () => toObservable(this.user))
+      .pipe(
+        filter((user): user is UserInterface => !!user?._id),
+        distinctUntilChanged((previous, current) => previous._id === current._id),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((user) => {
+        this.resetLandingState();
+        this.promoterLandingService.clearCache();
+        this.loadCampaigns(false, user._id);
+        this.loadUserPromotions(user._id);
+      });
   }
 
-   loadUserPromotions(): void {
-    this.isLoading.set(true);
+  loadUserPromotions(userId?: string): void {
+    const resolvedUserId = userId || this.user()?._id;
 
-    const userId = this.user()?._id;
-
-    // Check if the user ID exists before making the API call
-    if (!userId) {
-      this.snackBar.open('User not logged in or ID not available.', 'Dismiss', { duration: 3000 });
-      this.isLoading.set(false);
+    if (!resolvedUserId) {
       return;
     }
 
-    this.promoterLandingService.getUserPromotions(userId)
+    this.isPromotionsLoading.set(true);
+
+    this.promoterLandingService.getUserPromotions(resolvedUserId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -248,77 +272,85 @@ export class PromoterLandingComponent implements OnInit {
             this.promotions.set([]);
             //this.stats.set(this.calculateStats([]));
           }
-          this.isLoading.set(false);
+          this.isPromotionsLoading.set(false);
         },
         error: (error: HttpErrorResponse) => {
           console.error('Failed to load promotions:', error);
           //this.snackBar.open('Failed to load promotions. Please try again.', 'Dismiss', { duration: 3000 });
-          this.isLoading.set(false);
+          this.isPromotionsLoading.set(false);
         }
       });
   }
 
-    private loadCampaigns(loadMore: boolean = false): void {
-      if (this.user() && this.user()?._id) {
-        // If loading more, increment page, otherwise start from page 1
-        const nextPage = loadMore ? this.currentPage() + 1 : 1;
-        
-        this.isLoading.set(true);
-        
-        this.promoterLandingService.getCampaignsByStatus('active', this.user()?._id, { 
-          page: nextPage, 
-          limit: this.pageSize()
-        })
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: (response) => {
-              const campaignsWithMetrics = this.calculateCampaignMetrics(response.data);
-              
-              if (loadMore) {
-                // Append new campaigns to existing ones
-                const currentCampaigns = this.campaigns();
-                this.campaigns.set([...currentCampaigns, ...campaignsWithMetrics]);
-                this.currentPage.set(nextPage);
-              } else {
-                // Replace campaigns with new ones
-                this.campaigns.set(campaignsWithMetrics);
-                this.currentPage.set(1);
-              }
-              
-              // Update pagination metadata
-              this.paginationMetadata.set(response.metadata?.pagination);
-              this.isLoading.set(false);
-              this.hasMoreCampaigns.set(response.metadata?.pagination?.hasNextPage || false);
-              this.hasLoaded.set(true);
-            },
-            error: (error: HttpErrorResponse) => {
-              console.error('Failed to load campaigns:', error);
-              this.isLoading.set(false);
-              this.hasLoaded.set(true);
-            }
-          });
-      }
+  private loadCampaigns(loadMore: boolean = false, userId?: string): void {
+    const resolvedUserId = userId || this.user()?._id;
+
+    if (!resolvedUserId) {
+      return;
     }
+
+    const nextPage = loadMore ? this.currentPage() + 1 : 1;
+    this.isCampaignsLoading.set(true);
+
+    this.promoterLandingService.getCampaignsByStatus('active', resolvedUserId, {
+      page: nextPage,
+      limit: this.pageSize()
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const campaignsWithMetrics = this.calculateCampaignMetrics(response.data || []);
+
+          if (loadMore) {
+            this.campaigns.set([...this.campaigns(), ...campaignsWithMetrics]);
+            this.currentPage.set(nextPage);
+          } else {
+            this.campaigns.set(campaignsWithMetrics);
+            this.currentPage.set(1);
+          }
+
+          this.paginationMetadata.set(response.metadata?.pagination);
+          this.isCampaignsLoading.set(false);
+          this.hasMoreCampaigns.set(response.metadata?.pagination?.hasNextPage || false);
+          this.hasLoaded.set(true);
+        },
+        error: (error: HttpErrorResponse) => {
+          console.error('Failed to load campaigns:', error);
+          if (!loadMore) {
+            this.campaigns.set([]);
+          }
+          this.isCampaignsLoading.set(false);
+          this.hasLoaded.set(true);
+          this.hasMoreCampaigns.set(false);
+        }
+      });
+  }
 
   private calculateCampaignMetrics(campaigns: CampaignInterface[]): CampaignInterface[] {
     return campaigns.map(campaign => {
       const updatedCampaign = { ...campaign };
-      updatedCampaign.progress = campaign.budget > 0 ? ((campaign.spentBudget || 0) / campaign.budget) * 100 : 0;
-      if (campaign.endDate) {
+
+      const remainingBudget = getCampaignRemainingBudget(updatedCampaign);
+      const costPerClick = getCampaignCostPerClick(updatedCampaign);
+      updatedCampaign.remainingBudget = remainingBudget;
+      updatedCampaign.costPerClick = costPerClick;
+      updatedCampaign.progress = updatedCampaign.budget > 0
+        ? Math.min(((updatedCampaign.spentBudget || 0) / updatedCampaign.budget) * 100, 100)
+        : 0;
+
+      if (isCampaignExpired(updatedCampaign)) {
+        updatedCampaign.remainingDays = 'Expired';
+      } else if (isCampaignBudgetExhausted(updatedCampaign)) {
+        updatedCampaign.remainingDays = 'Budget Exhausted';
+      } else if (campaign.endDate) {
         const endDate = new Date(campaign.endDate);
-        if (isDatePast(endDate)) {
-          updatedCampaign.remainingDays = 'Expired';
-        } else {
-          updatedCampaign.remainingDays = formatRemainingDays(endDate);
-        }
+        updatedCampaign.remainingDays = isDatePast(endDate) ? 'Expired' : formatRemainingDays(endDate);
       } else {
-        const budgetRemaining = updatedCampaign.remainingBudget ?? (updatedCampaign.budget - (updatedCampaign.spentBudget || 0));
-        if (budgetRemaining <= 0) {
-          updatedCampaign.remainingDays = 'Budget Exhausted';
-        } else {
-          updatedCampaign.remainingDays = 'Ongoing';
-        }
+        updatedCampaign.remainingDays = 'Ongoing';
       }
+
+      updatedCampaign.canAcceptPromoters = remainingBudget >= costPerClick;
+
       return updatedCampaign;
     });
   }
@@ -360,17 +392,40 @@ applyForCampaign(campaign: CampaignInterface): void {
   this.isApplying.set(true);
   
   this.promoterLandingService.acceptCampaign(campaign._id, this.user()!._id)
-    .pipe(takeUntilDestroyed(this.destroyRef))
+    .pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.isApplying.set(false);
+        this.applyingCampaignId.set(null);
+      })
+    )
     .subscribe({
       next: (response) => {
         const promotionUrl = response?.promotionUrl || response?.promotion?.promotionUrl;
         const createdPromotion = response?.promotion;
         const updatedCampaigns = this.campaigns().map(c => {
           if (c._id === campaign._id) {
+            const currentSummary = c.promotionSummary || {
+              totalPromotions: 0,
+              activePromotions: 0,
+              uniquePromoters: 0,
+              clickStats: {
+                totalClicks: 0,
+                billableClicks: 0,
+                invalidClicks: 0,
+                duplicateClicks: 0,
+                earnedAmount: 0,
+              }
+            };
             return {
               ...c,
-              currentPromoters: (c.currentPromoters || 0) + 1,
-              totalPromotions: (c.totalPromotions || 0) + 1
+              totalPromotions: Number(c.totalPromotions || 0) + 1,
+              promotionSummary: {
+                ...currentSummary,
+                totalPromotions: Number(currentSummary.totalPromotions || 0) + 1,
+                activePromotions: Number(currentSummary.activePromotions || 0) + 1,
+                uniquePromoters: Number(currentSummary.uniquePromoters || 0) + 1,
+              }
             };
           }
           return c;
@@ -380,8 +435,6 @@ applyForCampaign(campaign: CampaignInterface): void {
         if (createdPromotion) {
           this.promotions.update(promotions => [createdPromotion, ...promotions]);
         }
-        this.isApplying.set(false);
-        this.applyingCampaignId.set(null); // Reset using signal        
         // this.snackBar.open(response.message, 'OK', { 
         //     duration: 9000,
         // });
@@ -403,14 +456,17 @@ applyForCampaign(campaign: CampaignInterface): void {
 
 
         
-        this.loadUserPromotions();
+        this.loadUserPromotions(this.user()!._id);
       },
-      error: (error: HttpErrorResponse) => {
-        //console.log('error ',error.message)
-        this.isApplying.set(false);
-        this.applyingCampaignId.set(null); // Reset using signal
-        
-        this.snackBar.open((error?.message || 'Unknown error'), 'OK', { 
+      error: (error: unknown) => {
+        const errorMessage =
+          error instanceof HttpErrorResponse
+            ? error.error?.message || error.message
+            : error instanceof Error
+              ? error.message
+              : 'Unknown error';
+
+        this.snackBar.open((errorMessage || 'Unknown error'), 'OK', { 
             duration: 9000,
         });
       }
@@ -419,5 +475,14 @@ applyForCampaign(campaign: CampaignInterface): void {
 
   viewPromotions() {
     this.router.navigate(['/dashboard/campaigns/promotions']);
+}
+
+  private resetLandingState(): void {
+    this.campaigns.set([]);
+    this.promotions.set([]);
+    this.currentPage.set(1);
+    this.hasMoreCampaigns.set(false);
+    this.paginationMetadata.set(null);
+    this.hasLoaded.set(false);
   }
 }

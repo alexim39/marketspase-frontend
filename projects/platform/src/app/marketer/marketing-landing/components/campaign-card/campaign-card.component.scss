@@ -406,6 +406,12 @@
   padding: 0 1.25rem 1.25rem;
 }
 
+.footer-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
 .view-details-btn {
   width: 100%;
   display: inline-flex;
@@ -429,6 +435,34 @@
   }
 }
 
+.collaboration-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: $primary-color;
+  border: 1px solid rgba($primary-color, 0.45);
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: rgba($primary-color, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    border-color: $border-color;
+    color: $text-tertiary;
+    cursor: not-allowed;
+    background: rgba($primary-color, 0.03);
+  }
+}
+
 .delete-action {
   // UPDATED: Use error-color variable for delete action
   color: $error-color !important;
@@ -449,3 +483,9 @@
     flex-wrap: wrap;
   }
 } */
+
+@media (max-width: 900px) {
+  .footer-actions {
+    grid-template-columns: 1fr;
+  }
+}

@@ -8,9 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Subject, takeUntil } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 import { MatMenuModule } from '@angular/material/menu';
 import { TruncatePipe } from '@shared/services';
+import { StorefrontService } from '../../services/storefront.service';
 
 export interface FooterLink {
   label: string;
@@ -39,6 +40,7 @@ export interface FooterLink {
 })
 export class StoreFooterComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
+  private storefrontService = inject(StorefrontService);
   private destroy$ = new Subject<void>();
 
   @Input() store: any | null = null;
@@ -165,18 +167,54 @@ export class StoreFooterComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isSubscribing.set(true);
-    this.subscribeNewsletter.emit(this.newsletterEmail);
-
-    // Simulate API call (remove in production)
-    setTimeout(() => {
-      this.isSubscribing.set(false);
-      this.newsletterEmail = '';
-      this.snackBar.open('Successfully subscribed to newsletter!', 'Close', {
-        duration: 5000,
-        panelClass: ['success-snackbar']
+    const storeId = this.store?._id;
+    if (!storeId) {
+      this.snackBar.open('Unable to subscribe right now. Store information is missing.', 'Close', {
+        duration: 4000,
+        panelClass: ['error-snackbar']
       });
-    }, 1500);
+      return;
+    }
+
+    this.isSubscribing.set(true);
+
+    this.storefrontService
+      .subscribeStoreNewsletter(storeId, this.newsletterEmail, {
+        source: 'storefront_footer',
+        referrer: window?.location?.href || '',
+        metadata: { storeLink: this.store?.storeLink || '' }
+      })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isSubscribing.set(false))
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (!response?.success) {
+            this.snackBar.open(response?.message || 'Subscription failed. Try again.', 'Close', {
+              duration: 4500,
+              panelClass: ['error-snackbar']
+            });
+            return;
+          }
+
+          // Keep the output for any parent listeners, but the API call is authoritative.
+          this.subscribeNewsletter.emit(this.newsletterEmail);
+
+          this.newsletterEmail = '';
+          this.snackBar.open(response?.message || 'Successfully subscribed!', 'Close', {
+            duration: 4500,
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: (error) => {
+          console.error('Newsletter subscription error:', error);
+          this.snackBar.open(error?.error?.message || 'Subscription failed. Please try again.', 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
   }
 
   onContactWhatsApp(): void {

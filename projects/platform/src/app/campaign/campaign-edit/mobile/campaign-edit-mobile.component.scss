@@ -1,0 +1,404 @@
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mixins;
+
+:host {
+  display: block;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top right, rgb(var(--primary-rgb) / 0.13), transparent 30rem),
+    vars.$background-color;
+  color: vars.$text-primary;
+}
+
+.campaign-edit-mobile {
+  min-height: 100vh;
+  padding: calc(env(safe-area-inset-top, 0px) + vars.$spacing-3) vars.$spacing-4 calc(6.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.mobile-topbar {
+  @include mixins.flex-between;
+  gap: vars.$spacing-3;
+  position: sticky;
+  top: 0;
+  z-index: vars.$z-index-sticky;
+  margin: calc(vars.$spacing-3 * -1) calc(vars.$spacing-4 * -1) vars.$spacing-4;
+  padding: calc(env(safe-area-inset-top, 0px) + vars.$spacing-3) vars.$spacing-4 vars.$spacing-3;
+  background: color-mix(in srgb, #{vars.$surface-color}, transparent 6%);
+  border-bottom: 1px solid vars.$border-color;
+  @include mixins.backdrop-blur;
+
+  button[mat-icon-button] {
+    width: 48px;
+    height: 48px;
+    color: vars.$text-primary;
+  }
+}
+
+.topbar-copy {
+  flex: 1;
+  min-width: 0;
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-semibold;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    @include mixins.text-ellipsis;
+    margin: vars.$spacing-1 0 0;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-lg;
+    font-weight: vars.$font-weight-bold;
+    line-height: vars.$line-height-tight;
+  }
+}
+
+.topbar-save {
+  min-width: 72px;
+  height: 44px;
+  border-radius: vars.$border-radius-full;
+}
+
+.mobile-content {
+  display: grid;
+  gap: vars.$spacing-4;
+}
+
+.hero-card,
+.mobile-form-card,
+.targeting-card,
+.state-card {
+  @include mixins.card-base;
+  border: 1px solid vars.$border-color;
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: vars.$spacing-4;
+  align-items: center;
+  padding: vars.$spacing-5;
+  background: vars.$gradient-primary;
+  color: vars.$on-primary-color;
+  box-shadow: vars.$shadow-lg;
+}
+
+.hero-copy {
+  min-width: 0;
+
+  p,
+  span {
+    margin: 0;
+    color: color-mix(in srgb, vars.$on-primary-color, transparent 14%);
+    font-size: vars.$font-size-sm;
+  }
+
+  p {
+    font-weight: vars.$font-weight-semibold;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    @include mixins.text-multiline-ellipsis(2);
+    margin: vars.$spacing-2 0;
+    font-size: vars.$font-size-xl;
+    font-weight: vars.$font-weight-bold;
+    line-height: vars.$line-height-tight;
+  }
+}
+
+.hero-badge {
+  @include mixins.flex-column-center;
+  gap: vars.$spacing-1;
+  width: 86px;
+  min-height: 78px;
+  border-radius: vars.$border-radius-lg;
+  background: color-mix(in srgb, vars.$on-primary-color, transparent 84%);
+  border: 1px solid color-mix(in srgb, vars.$on-primary-color, transparent 78%);
+  color: vars.$on-primary-color;
+
+  mat-icon {
+    font-size: 1.45rem;
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  span {
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  &.is-dirty {
+    background: rgba(vars.$warning-color, 0.22);
+  }
+}
+
+.section-rail {
+  display: flex;
+  gap: vars.$spacing-2;
+  margin: 0 calc(vars.$spacing-4 * -1);
+  padding: 0 vars.$spacing-4 vars.$spacing-1;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  @include mixins.scrollbar;
+}
+
+.section-pill {
+  @include mixins.button-secondary;
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: vars.$spacing-2 vars.$spacing-3;
+  border-radius: vars.$border-radius-full;
+  scroll-snap-align: start;
+
+  mat-icon {
+    font-size: 1.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: vars.$text-secondary;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+
+  &.active {
+    background: rgb(var(--primary-rgb) / 0.12);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+
+    mat-icon {
+      color: var(--primary-color);
+    }
+  }
+
+  &.invalid {
+    border-color: rgba(vars.$error-color, 0.55);
+    color: vars.$error-color;
+
+    mat-icon {
+      color: vars.$error-color;
+    }
+  }
+}
+
+.mobile-form-card {
+  padding: vars.$spacing-4;
+  background: vars.$surface-color;
+}
+
+.section-heading {
+  margin-bottom: vars.$spacing-4;
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-semibold;
+    text-transform: uppercase;
+  }
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    margin-top: vars.$spacing-1;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-xl;
+    font-weight: vars.$font-weight-bold;
+    line-height: vars.$line-height-tight;
+  }
+
+  p {
+    margin-top: vars.$spacing-1;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.targeting-card {
+  display: grid;
+  gap: vars.$spacing-4;
+  padding: vars.$spacing-4;
+  background: color-mix(in srgb, #{vars.$surface-color}, #{vars.$info-color} 5%);
+
+  h3,
+  p {
+    margin: 0;
+  }
+
+  h3 {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-lg;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  p {
+    margin-top: vars.$spacing-2;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.targeting-icon {
+  @include mixins.flex-center;
+  width: 54px;
+  height: 54px;
+  color: var(--primary-color);
+  background: rgb(var(--primary-rgb) / 0.12);
+  border-radius: vars.$border-radius-lg;
+}
+
+.sticky-actions {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: vars.$z-index-fixed;
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-3 vars.$spacing-4 calc(vars.$spacing-3 + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, #{vars.$surface-color}, transparent 4%);
+  border-top: 1px solid vars.$border-color;
+  box-shadow: vars.$shadow-lg;
+  @include mixins.backdrop-blur;
+
+  button {
+    min-height: 52px;
+    border-radius: vars.$border-radius-full;
+    font-weight: vars.$font-weight-bold;
+  }
+}
+
+.prompt-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: vars.$z-index-modal-backdrop;
+  background: rgba(vars.$black, 0.44);
+}
+
+.bottom-sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: vars.$z-index-modal;
+  display: grid;
+  gap: vars.$spacing-3;
+  padding: vars.$spacing-3 vars.$spacing-4 calc(vars.$spacing-4 + env(safe-area-inset-bottom, 0px));
+  background: vars.$surface-color;
+  border: 1px solid vars.$border-color;
+  border-radius: vars.$border-radius-xl vars.$border-radius-xl 0 0;
+  box-shadow: vars.$shadow-2xl;
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-xl;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  p {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.sheet-handle {
+  justify-self: center;
+  width: 44px;
+  height: 4px;
+  border-radius: vars.$border-radius-full;
+  background: vars.$border-color;
+}
+
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: vars.$spacing-3;
+
+  button {
+    min-height: 48px;
+    border-radius: vars.$border-radius-full;
+  }
+}
+
+.state-card {
+  display: grid;
+  justify-items: center;
+  gap: vars.$spacing-4;
+  margin: vars.$spacing-6 auto;
+  padding: vars.$spacing-5;
+  max-width: 420px;
+  background: vars.$surface-color;
+  text-align: center;
+
+  h2,
+  p {
+    margin: 0;
+  }
+
+  h2 {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-lg;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  p {
+    margin-top: vars.$spacing-1;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+  }
+}
+
+.state-icon {
+  @include mixins.flex-center;
+  width: 54px;
+  height: 54px;
+  color: vars.$error-color;
+  background: rgba(vars.$error-color, 0.12);
+  border-radius: vars.$border-radius-lg;
+}
+
+@include mixins.small-screen {
+  .campaign-edit-mobile {
+    padding-right: vars.$spacing-3;
+    padding-left: vars.$spacing-3;
+  }
+
+  .mobile-topbar,
+  .section-rail {
+    margin-right: calc(vars.$spacing-3 * -1);
+    margin-left: calc(vars.$spacing-3 * -1);
+    padding-right: vars.$spacing-3;
+    padding-left: vars.$spacing-3;
+  }
+
+  .hero-card {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-badge {
+    width: 100%;
+    min-height: 62px;
+    flex-direction: row;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .section-pill {
+    min-height: 48px;
+  }
+}

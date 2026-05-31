@@ -104,9 +104,11 @@
           </h3>
           
           <div class="posts-grid">
-            @for (post of recentPosts(); track post._id) {
+            @for (post of recentPosts(); track post._id; let i = $index) {
               <mat-card class="community-post-card" 
                         [class.new]="isNewPost(post)"
+                        [class.spotlight]="i === 0"
+                        [class.has-media]="(post.media?.length || 0) > 0"
                         (click)="onPostClick(post._id)">
                 
                 <!-- New indicator -->
@@ -142,170 +144,191 @@
                 </mat-card-header>
                 
                 <mat-card-content class="post-content">
-                  <p class="post-text">{{ post.content | slice:0:100 }}{{ post.content.length > 100 ? '...' : '' }}</p>
+                  <div class="post-content-shell">
+                    <div class="post-body">
+                      <div class="post-copy">
+                        <div class="post-context-row">
+                          <span class="post-context-pill">{{ post.type | titlecase }}</span>
+                          @if (post.source && post.source !== 'manual') {
+                            <span class="post-context-pill subtle">{{ post.source | titlecase }}</span>
+                          }
+                          @if (post.campaign?.status) {
+                            <span class="post-context-pill subtle">{{ post.campaign?.status | titlecase }}</span>
+                          }
+                        </div>
 
-              <!-- Media Preview Section -->
-              @if (post.media && post.media.length > 0) {
-                <div class="post-media-preview" (click)="$event.stopPropagation()">
-                  <!-- Check if this media is expanded -->
-                  @if (expandedMedia()?.postId === post._id && expandedMedia()?.mediaIndex === 0) {
-                    <!-- Expanded view for images -->
-                    @if (post.media[0].type === 'image') {
-                      <div class="expanded-media-container">
-                        <img 
-                          [src]="post.media[0].url" 
-                          alt="Expanded image"
-                          class="expanded-image"
-                        >
-                        <div class="expanded-media-controls">
-                          <button class="media-nav-btn prev-btn" (click)="navigateMedia('prev', post, $event)">
-                            <mat-icon>chevron_left</mat-icon>
-                          </button>
-                          <button class="media-nav-btn next-btn" (click)="navigateMedia('next', post, $event)">
-                            <mat-icon>chevron_right</mat-icon>
-                          </button>
-                          <button class="close-media-btn" (click)="closeExpandedMedia($event)">
-                            <mat-icon>close</mat-icon>
-                          </button>
-                        </div>
-                        <div class="media-counter">
-                          {{ expandedMedia()?.mediaIndex! + 1 }} / {{ post.media.length }}
-                        </div>
-                      </div>
-                    }
-                    
-                    <!-- Expanded view for videos -->
-                    @if (post.media[0].type === 'video' && isVideoPlaying(post._id)) {
-                      <div class="expanded-media-container video-expanded">
-                        <iframe 
-                          [src]="getSafeVideoUrl(post.media[0].url)"
-                          frameborder="0"
-                          allow="autoplay; fullscreen; picture-in-picture"
-                          allowfullscreen
-                          class="video-iframe"
-                        ></iframe>
-                        <button class="close-media-btn" (click)="closeExpandedMedia($event)">
-                          <mat-icon>close</mat-icon>
-                        </button>
-                      </div>
-                    }
-                  } @else {
-                    <!-- Thumbnail view -->
-                    @if (post.media[0].type === 'image') {
-                      <div class="media-container" (click)="toggleImage(post._id, 0, $event)">
-                        <img 
-                          [src]="post.media[0].url" 
-                          [alt]="'Post image'"
-                          class="media-image"
-                          loading="lazy"
-                        >
-                        @if (post.media.length > 1) {
-                          <div class="media-count-badge">
-                            <mat-icon>collections</mat-icon>
-                            <span>+{{ post.media.length - 1 }}</span>
+                        <p class="post-text">{{ post.content }}</p>
+
+                        <!-- Post type specific preview -->
+                        @if (post.type === 'earnings' && post.earnings) {
+                          <div class="type-preview earnings-preview">
+                            <mat-icon>emoji_events</mat-icon>
+                            <span>Earned NGN {{ post.earnings.amount | number:'1.0-0' }}</span>
+                            @if (post.earnings.milestone) {
+                              <span class="milestone">| {{ post.earnings.milestone }}</span>
+                            }
                           </div>
                         }
-                      </div>
-                    }
-                    
-                    @if (post.media[0].type === 'video') {
-                      <div class="media-container video-container" 
-                          [class.playing]="isVideoPlaying(post._id)"
-                          (click)="playVideo(post._id, post.media[0], $event)">
                         
-                        @if (!isVideoPlaying(post._id)) {
-                          <!-- Thumbnail with play button -->
-                          <img 
-                            [src]="post.media[0].thumbnail || 'img/video-placeholder.jpg'" 
-                            alt="Video thumbnail"
-                            class="media-image"
-                          >
-                          <div class="video-play-overlay">
-                            <mat-icon class="play-icon">play_circle</mat-icon>
+                        @if (post.type === 'campaign' && post.campaign?.name) {
+                          <div class="type-preview campaign-preview">
+                            <mat-icon>campaign</mat-icon>
+                            <span>{{ post.campaign?.name | slice:0:40 }}</span>
+                            @if (post.campaign?.progress) {
+                              <span class="progress">| {{ post.campaign?.progress }}% complete</span>
+                            }
                           </div>
-                        } @else {
-                          <!-- Inline video player -->
-                          <div class="inline-video-player">
-                            <video 
-                              [src]="post.media[0].url" 
-                              controls
-                              autoplay
-                              class="inline-video"
-                              (click)="$event.stopPropagation()"
-                            ></video>
-                            <button class="close-video-btn" (click)="playVideo(post._id, post.media[0], $event)">
-                              <mat-icon>close</mat-icon>
-                            </button>
+                        }
+
+                        @if (post.hashtags && post.hashtags.length > 0) {
+                          <div class="post-hashtags">
+                            @for (tag of post.hashtags.slice(0, 3); track tag) {
+                              <button class="hashtag" (click)="onHashtagClick($event, getHashtagValue(tag))">
+                                #{{ getHashtagValue(tag) }}
+                              </button>
+                            }
+                            @if (post.hashtags.length > 3) {
+                              <span class="more-hashtags">+{{ post.hashtags.length - 3 }}</span>
+                            }
                           </div>
                         }
                       </div>
-                    }
-                    
-                    @if (post.media[0].type === 'link') {
-                      <div class="link-preview" (click)="openLink(post.media[0].url, $event)">
-                        <mat-icon>link</mat-icon>
-                        <span class="link-url">{{ post.media[0].url | slice:0:40 }}</span>
-                        <mat-icon class="open-link">open_in_new</mat-icon>
-                      </div>
-                    }
-                  }
-                </div>
-              }
-                  
-                  <!-- Post type specific preview -->
-                  @if (post.type === 'earnings' && post.earnings) {
-                    <div class="type-preview earnings-preview">
-                      <mat-icon>emoji_events</mat-icon>
-                      <span>Earned NGN {{ post.earnings.amount | number:'1.0-0' }}</span>
-                      @if (post.earnings.milestone) {
-                        <span class="milestone">| {{ post.earnings.milestone }}</span>
+
+                      <!-- Media Preview Section -->
+                      @if (post.media && post.media.length > 0) {
+                        <div class="post-media-preview" (click)="$event.stopPropagation()">
+                          <!-- Check if this media is expanded -->
+                          @if (expandedMedia()?.postId === post._id && expandedMedia()?.mediaIndex === 0) {
+                            <!-- Expanded view for images -->
+                            @if (post.media[0].type === 'image') {
+                              <div class="expanded-media-container">
+                                <img 
+                                  [src]="post.media[0].url" 
+                                  alt="Expanded image"
+                                  class="expanded-image"
+                                >
+                                <div class="expanded-media-controls">
+                                  <button class="media-nav-btn prev-btn" (click)="navigateMedia('prev', post, $event)">
+                                    <mat-icon>chevron_left</mat-icon>
+                                  </button>
+                                  <button class="media-nav-btn next-btn" (click)="navigateMedia('next', post, $event)">
+                                    <mat-icon>chevron_right</mat-icon>
+                                  </button>
+                                  <button class="close-media-btn" (click)="closeExpandedMedia($event)">
+                                    <mat-icon>close</mat-icon>
+                                  </button>
+                                </div>
+                                <div class="media-counter">
+                                  {{ expandedMedia()?.mediaIndex! + 1 }} / {{ post.media.length }}
+                                </div>
+                              </div>
+                            }
+                            
+                            <!-- Expanded view for videos -->
+                            @if (post.media[0].type === 'video' && isVideoPlaying(post._id)) {
+                              <div class="expanded-media-container video-expanded">
+                                <iframe 
+                                  [src]="getSafeVideoUrl(post.media[0].url)"
+                                  frameborder="0"
+                                  allow="autoplay; fullscreen; picture-in-picture"
+                                  allowfullscreen
+                                  class="video-iframe"
+                                ></iframe>
+                                <button class="close-media-btn" (click)="closeExpandedMedia($event)">
+                                  <mat-icon>close</mat-icon>
+                                </button>
+                              </div>
+                            }
+                          } @else {
+                            <!-- Thumbnail view -->
+                            @if (post.media[0].type === 'image') {
+                              <div class="media-container" (click)="toggleImage(post._id, 0, $event)">
+                                <img 
+                                  [src]="post.media[0].url" 
+                                  [alt]="'Post image'"
+                                  class="media-image"
+                                  loading="lazy"
+                                >
+                                @if (post.media.length > 1) {
+                                  <div class="media-count-badge">
+                                    <mat-icon>collections</mat-icon>
+                                    <span>+{{ post.media.length - 1 }}</span>
+                                  </div>
+                                }
+                              </div>
+                            }
+                            
+                            @if (post.media[0].type === 'video') {
+                              <div class="media-container video-container" 
+                                  [class.playing]="isVideoPlaying(post._id)"
+                                  (click)="playVideo(post._id, post.media[0], $event)">
+                                
+                                @if (!isVideoPlaying(post._id)) {
+                                  <!-- Thumbnail with play button -->
+                                  <img 
+                                    [src]="post.media[0].thumbnail || 'img/video-placeholder.jpg'" 
+                                    alt="Video thumbnail"
+                                    class="media-image"
+                                  >
+                                  <div class="video-play-overlay">
+                                    <mat-icon class="play-icon">play_circle</mat-icon>
+                                  </div>
+                                } @else {
+                                  <!-- Inline video player -->
+                                  <div class="inline-video-player">
+                                    <video 
+                                      [src]="post.media[0].url" 
+                                      controls
+                                      autoplay
+                                      class="inline-video"
+                                      (click)="$event.stopPropagation()"
+                                    ></video>
+                                    <button class="close-video-btn" (click)="playVideo(post._id, post.media[0], $event)">
+                                      <mat-icon>close</mat-icon>
+                                    </button>
+                                  </div>
+                                }
+                              </div>
+                            }
+                            
+                            @if (post.media[0].type === 'link') {
+                              <div class="link-preview" (click)="openLink(post.media[0].url, $event)">
+                                <mat-icon>link</mat-icon>
+                                <span class="link-url">{{ post.media[0].url | slice:0:40 }}</span>
+                                <mat-icon class="open-link">open_in_new</mat-icon>
+                              </div>
+                            }
+                          }
+                        </div>
                       }
                     </div>
-                  }
-                  
-                  @if (post.type === 'campaign' && post.campaign?.name) {
-                    <div class="type-preview campaign-preview">
-                      <mat-icon>campaign</mat-icon>
-                      <span>{{ post.campaign?.name | slice:0:30 }}</span>
-                      @if (post.campaign?.progress) {
-                        <span class="progress">| {{ post.campaign?.progress }}% complete</span>
-                      }
-                    </div>
-                  }
-                  
-                  <!-- Engagement preview -->
-                  <div class="post-actions-mini">
-                    <button class="action-item" (click)="onLike($event, post)">
-                      <mat-icon [class.liked]="likedPosts().has(post._id)">favorite</mat-icon>
-                      <span>{{ post.likeCount }}</span>
-                    </button>
-                    <button class="action-item" (click)="onSave($event, post._id)">
-                      <mat-icon [class.saved]="savedPosts().has(post._id)">bookmark</mat-icon>
-                      <span>Save</span>
-                    </button>
-                    <!-- <div class="action-item">
-                      <mat-icon>chat</mat-icon>
-                      <span>{{ post.commentCount }}</span>
-                    </div> -->
-                    <button class="action-item" (click)="onShare($event, post)">
-                      <mat-icon>share</mat-icon>
-                      <span>{{ post.shareCount }}</span>
-                    </button>
-                  </div>
-                  
-                  <!-- Hashtags -->
-                  @if (post.hashtags && post.hashtags.length > 0) {
-                    <div class="post-hashtags">
-                      @for (tag of post.hashtags.slice(0, 3); track tag) {
-                        <button class="hashtag" (click)="onHashtagClick($event, getHashtagValue(tag))">
-                          #{{ getHashtagValue(tag) }}
+
+                    <!-- Engagement preview -->
+                    <div class="post-actions-mini">
+                      <button class="action-item" (click)="onLike($event, post)">
+                        <mat-icon [class.liked]="likedPosts().has(post._id)">favorite</mat-icon>
+                        <span>{{ post.likeCount }}</span>
+                      </button>
+                      <button class="action-item" (click)="onCommentPreview($event, post._id)">
+                        <mat-icon>chat_bubble_outline</mat-icon>
+                        <span>{{ post.commentCount }}</span>
+                      </button>
+                      <button class="action-item" (click)="onShare($event, post)">
+                        <mat-icon>share</mat-icon>
+                        <span>{{ post.shareCount }}</span>
+                      </button>
+                      @if (post.phone) {
+                        <button class="action-item action-item--whatsapp" (click)="onChat($event, post)">
+                          <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                          <span>{{ post.chatCount || 0 }}</span>
                         </button>
                       }
-                      @if (post.hashtags.length > 3) {
-                        <span class="more-hashtags">+{{ post.hashtags.length - 3 }}</span>
-                      }
+                      <button class="action-item action-item--save" (click)="onSave($event, post._id)">
+                        <mat-icon [class.saved]="savedPosts().has(post._id)">bookmark</mat-icon>
+                        <span>Save</span>
+                      </button>
                     </div>
-                  }
+                  </div>
                 </mat-card-content>
               </mat-card>
             }

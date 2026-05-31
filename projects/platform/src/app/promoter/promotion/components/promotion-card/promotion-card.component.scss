@@ -236,6 +236,37 @@
 
 .card-content {
   padding: 20px;
+
+  .fraud-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, $warning-color, white 70%);
+    background: color-mix(in srgb, $warning-color, white 90%);
+    color: $warning-color;
+
+    mat-icon {
+      margin-top: 1px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    strong,
+    span {
+      display: block;
+    }
+
+    span {
+      margin-top: 4px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  }
+
   .title-section {
     display: flex;
     align-items: flex-start;
@@ -413,8 +444,8 @@
 }
 
 .action-buttons {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   small {
     text-align: center;
@@ -436,6 +467,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+
+  &.primary,
+  &.danger {
+    grid-column: 1 / -1;
+  }
   
   &.primary {
     // UPDATED: Use primary-color for primary button
@@ -542,6 +578,11 @@
   transition: background 0.2s ease;
   float: right;
 
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
   &.compact {
     display: flex;
     align-items: center;
@@ -586,6 +627,7 @@
 
 // WhatsApp Status Button Styles
 .whatsapp-status-btn {
+  grid-column: 1 / -1;
   background-color: rgba(37, 211, 102, 0.1) !important;
   color: #25D366 !important;
   border: 1px solid rgba(37, 211, 102, 0.3) !important;

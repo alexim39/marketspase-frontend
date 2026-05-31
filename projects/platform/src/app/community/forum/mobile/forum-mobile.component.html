@@ -1,0 +1,271 @@
+<section class="forum-mobile" aria-labelledby="forumMobileTitle">
+  <header class="forum-mobile__appbar">
+    <button class="icon-button" type="button" routerLink="/dashboard" aria-label="Back to dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <p class="eyebrow">Community</p>
+      <h1 id="forumMobileTitle">Discussions</h1>
+    </div>
+    <button class="compose-button" type="button" (click)="openCreateThreadDialog()" aria-label="Start a discussion">
+      <mat-icon>add</mat-icon>
+    </button>
+  </header>
+
+  <section class="forum-hero" aria-label="Community summary">
+    <div class="hero-copy">
+      <p class="eyebrow">MarketSpase forum</p>
+      <h2>Ask, learn, and share what is working.</h2>
+      <p>Follow campaign, storefront, payout, and growth topics from people building on MarketSpase.</p>
+    </div>
+    <button class="hero-action" type="button" (click)="openSheet('insights')">
+      <mat-icon>insights</mat-icon>
+      Insights
+    </button>
+  </section>
+
+  <section class="stat-rail" aria-label="Community stats">
+    <article class="stat-card">
+      <mat-icon>people</mat-icon>
+      <strong>{{ formatNumber(communityStats.totalMembers) }}</strong>
+      <span>Members</span>
+    </article>
+    <article class="stat-card">
+      <mat-icon>forum</mat-icon>
+      <strong>{{ formatNumber(communityStats.totalDiscussions) }}</strong>
+      <span>Discussions</span>
+    </article>
+    <article class="stat-card">
+      <mat-icon>comment</mat-icon>
+      <strong>{{ formatNumber(communityStats.totalComments) }}</strong>
+      <span>Comments</span>
+    </article>
+    <article class="stat-card">
+      <mat-icon>bolt</mat-icon>
+      <strong>{{ communityStats.todayActivity || 0 }}</strong>
+      <span>Today</span>
+    </article>
+  </section>
+
+  <section class="mobile-search" aria-label="Search and filters">
+    <label class="search-box">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        [formControl]="searchControl"
+        placeholder="Search community discussions"
+        aria-label="Search community discussions">
+    </label>
+    <button class="filter-button" type="button" (click)="openSheet('filters')" aria-label="Open discussion filters">
+      <mat-icon>tune</mat-icon>
+      <span>{{ activeSortLabel }}</span>
+    </button>
+  </section>
+
+  <nav class="topic-rail" aria-label="Topic filters">
+    <button
+      type="button"
+      class="topic-chip"
+      [class.active]="!selectedTag"
+      [attr.aria-pressed]="!selectedTag"
+      (click)="filterByTag(null)">
+      All
+    </button>
+    @for (tag of visibleTopics; track tag) {
+      <button
+        type="button"
+        class="topic-chip"
+        [class.active]="selectedTag === tag"
+        [attr.aria-pressed]="selectedTag === tag"
+        (click)="filterByTag(tag)">
+        #{{ tag }}
+      </button>
+    }
+  </nav>
+
+  @if (heroThreads.length) {
+    <section class="hot-strip" aria-label="Pinned or trending discussions">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Hot now</p>
+          <h2>{{ pinnedThreads.length ? 'Pinned by the community' : 'Trending conversations' }}</h2>
+        </div>
+        <button type="button" (click)="openSheet('insights')">View</button>
+      </div>
+      <div class="hot-rail">
+        @for (thread of heroThreads; track thread._id) {
+          <button type="button" class="hot-card" (click)="navigateToThread(thread._id)">
+            <span class="hot-label">
+              <mat-icon>{{ thread.isPinned ? 'push_pin' : 'local_fire_department' }}</mat-icon>
+              {{ thread.category || 'discussion' }}
+            </span>
+            <strong>{{ thread.title }}</strong>
+            <span>{{ thread.commentCount || 0 }} comments • {{ thread.likeCount || 0 }} likes</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="thread-section" aria-label="Discussion list">
+    <div class="section-title">
+      <div>
+        <p class="eyebrow">
+          @if (selectedTag) {
+            #{{ selectedTag }}
+          } @else if (searchQuery) {
+            Search results
+          } @else {
+            Latest
+          }
+        </p>
+        <h2>
+          @if (searchQuery) {
+            "{{ searchQuery }}"
+          } @else {
+            Community threads
+          }
+        </h2>
+      </div>
+      <span>{{ pagination.total || threads.length }} total</span>
+    </div>
+
+    @if (isLoading) {
+      <div class="thread-skeletons" aria-live="polite">
+        @for (item of [1, 2, 3]; track item) {
+          <div class="thread-skeleton">
+            <span></span>
+            <strong></strong>
+            <p></p>
+            <small></small>
+          </div>
+        }
+      </div>
+    } @else {
+      @if (threads.length) {
+        <app-thread-list
+          [threads]="threads"
+          (threadClicked)="navigateToThread($event)" />
+      } @else {
+        <div class="empty-state">
+          <mat-icon>forum</mat-icon>
+          <h3>No discussion found</h3>
+          <p>Try another topic, clear your search, or start the first useful conversation.</p>
+          <div class="empty-actions">
+            <button type="button" (click)="filterByTag(null)">View all</button>
+            <button type="button" class="primary" (click)="openCreateThreadDialog()">Start discussion</button>
+          </div>
+        </div>
+      }
+    }
+  </section>
+
+  @if (!isLoading && threads.length && pagination.totalPages > 1) {
+    <nav class="mobile-pagination" aria-label="Discussion pagination">
+      <button type="button" [disabled]="pagination.page <= 1" (click)="previousPage()">
+        <mat-icon>chevron_left</mat-icon>
+        Previous
+      </button>
+      <span>Page {{ pagination.page }} of {{ pagination.totalPages }}</span>
+      <button type="button" [disabled]="pagination.page >= pagination.totalPages" (click)="nextPage()">
+        Next
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </nav>
+  }
+
+  <div class="sticky-compose">
+    <button type="button" (click)="openCreateThreadDialog()">
+      <mat-icon>edit_square</mat-icon>
+      Start a discussion
+    </button>
+  </div>
+</section>
+
+@if (activeSheet()) {
+  <button class="sheet-backdrop" type="button" aria-label="Close panel" (click)="closeSheet()"></button>
+
+  <aside class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="activeSheet() === 'filters' ? 'Discussion filters' : 'Community insights'">
+    <div class="sheet-handle"></div>
+
+    @if (activeSheet() === 'filters') {
+      <div class="sheet-header">
+        <div>
+          <p class="eyebrow">Filter</p>
+          <h2>Find the right discussion</h2>
+        </div>
+        <button type="button" class="icon-button dark" (click)="closeSheet()" aria-label="Close filters">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="sheet-group">
+        <h3>Sort by</h3>
+        <div class="sheet-options">
+          @for (option of sortOptions; track option.value) {
+            <button
+              type="button"
+              [class.active]="sortBy === option.value"
+              [attr.aria-pressed]="sortBy === option.value"
+              (click)="selectSort(option.value)">
+              <mat-icon>{{ option.icon }}</mat-icon>
+              <span>{{ option.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="sheet-group">
+        <h3>Topics</h3>
+        <div class="topic-grid">
+          <button type="button" [class.active]="!selectedTag" (click)="selectTopic(null)">All discussions</button>
+          @for (tag of visibleTopics; track tag) {
+            <button type="button" [class.active]="selectedTag === tag" (click)="selectTopic(tag)">#{{ tag }}</button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (activeSheet() === 'insights') {
+      <div class="sheet-header">
+        <div>
+          <p class="eyebrow">Community pulse</p>
+          <h2>What admins and members are watching</h2>
+        </div>
+        <button type="button" class="icon-button dark" (click)="closeSheet()" aria-label="Close insights">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="insight-list">
+        @for (thread of pinnedThreads.slice(0, 4); track thread._id) {
+          <button type="button" class="insight-row" (click)="navigateToThread(thread._id)">
+            <mat-icon>push_pin</mat-icon>
+            <span>
+              <strong>{{ thread.title }}</strong>
+              <small>{{ thread.replyCount || thread.commentCount || 0 }} replies</small>
+            </span>
+          </button>
+        }
+
+        @for (topic of hotTopics.slice(0, 4); track topic.topic) {
+          <button type="button" class="insight-row" (click)="selectTopic(topic.topic)">
+            <mat-icon>trending_up</mat-icon>
+            <span>
+              <strong>{{ topic.label || topic.topic }}</strong>
+              <small>{{ formatNumber(topic.threadCount) }} threads • {{ formatNumber(topic.followerCount) }} followers</small>
+            </span>
+          </button>
+        }
+
+        @if (!pinnedThreads.length && !hotTopics.length) {
+          <div class="sheet-empty">
+            <mat-icon>insights</mat-icon>
+            <p>Insights will appear as the community gets more activity.</p>
+            <button type="button" (click)="retryLoad()">Refresh</button>
+          </div>
+        }
+      </div>
+    }
+  </aside>
+}

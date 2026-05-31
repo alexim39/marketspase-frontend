@@ -13,6 +13,18 @@
           <p>Monitor performance and manage your campaign</p>
         </div>
         <div class="header-actions">
+          @if (campaign(); as currentCampaign) {
+            @if (currentCampaign.status === 'active' || currentCampaign.status === 'paused' || currentCampaign.status === 'exhausted') {
+            <button class="btn btn-primary" mat-flat-button (click)="openTopUpDialog(currentCampaign)">
+              <mat-icon>add_circle</mat-icon>
+              Top Up Budget
+            </button>
+            }
+          }
+          <button class="btn btn-outline" mat-raised-button (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+            <mat-icon>forum</mat-icon>
+            {{ canOpenCollaborationRoom() ? 'Open Collaboration Room' : 'Waiting for promoter' }}
+          </button>
           <!-- <button class="btn btn-primary" mat-flat-button>
             <mat-icon>edit</mat-icon>
             Export Data
@@ -58,6 +70,10 @@
                 <mat-icon>edit_location</mat-icon>
                 Set Location Target
               </button>
+              <button mat-menu-item (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+                <mat-icon>forum</mat-icon>
+                {{ canOpenCollaborationRoom() ? 'Open Collaboration Room' : 'Waiting for promoter' }}
+              </button>
               @if (campaign.status === 'active') {
                   <button mat-menu-item (click)="pauseCampaign(campaign)">
                   <mat-icon>pause_circle</mat-icon>
@@ -69,6 +85,12 @@
                   <mat-icon>play_circle</mat-icon>
                     Resume Campaign
                   </button>
+              }
+              @if (campaign.status === 'active' || campaign.status === 'paused' || campaign.status === 'exhausted') {
+                <button mat-menu-item (click)="openTopUpDialog(campaign)">
+                  <mat-icon>add_circle</mat-icon>
+                  Top Up Budget
+                </button>
               }
               @if (campaign.status === 'draft') {
                   <button mat-menu-item (click)="activateCampaign(campaign)">
@@ -170,6 +192,22 @@
                   <span class="info-value">{{campaign.difficulty | titlecase}}</span>
                 </div>
               </div>
+
+              <div class="info-item">
+                <mat-icon>hub</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Payout Model</span>
+                  <span class="info-value">{{getPayoutModelLabel(campaign)}}</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <mat-icon>ads_click</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Cost per Click</span>
+                  <span class="info-value">{{formatCurrency(campaignCostPerClick(), campaign.currency)}}</span>
+                </div>
+              </div>
               
               <!-- Minimum Reputation -->
               @if (campaign.enableTarget && campaign.minRating) {
@@ -194,10 +232,20 @@
               </div>
               
               <div class="info-item">
-                <mat-icon>visibility</mat-icon>
+                <mat-icon>account_balance_wallet</mat-icon>
                 <div class="info-content">
-                  <span class="info-label">Minimum Views</span>
-                  <span class="info-value">{{campaign.minViewsPerPromotion}} per promotion</span>
+                  <span class="info-label">Budget Remaining</span>
+                  <span class="info-value">{{formatCurrency(remainingBudget(), campaign.currency)}}</span>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <mat-icon>group</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Promoter Reach</span>
+                  <span class="info-value">
+                    {{engagedPromoters()}} engaged promoters
+                  </span>
                 </div>
               </div>
             </div>
@@ -260,26 +308,20 @@
               <mat-icon>group</mat-icon>
             </div>
             <div class="metric-content">
-              <div class="metric-value">{{campaign.currentPromoters}}/{{campaign.maxPromoters}}</div>
+              <div class="metric-value">{{engagedPromoters()}}</div>
               <div class="metric-label">Promoters Engaged</div>
-              <div class="metric-progress">
-                <div class="progress-bar">
-                  <div class="progress-fill" [class]="'progress-' + getProgressColor(( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100)" 
-                       [style.width]="( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) + '%'"></div>
-                </div>
-                <span class="progress-percentage">{{(campaign.currentPromoters / campaign.maxPromoters * 100) | number:'1.0-0'}}%</span>
-              </div>
+              <div class="metric-subtext">{{activePromotionCount()}} active promotions</div>
             </div>
           </div>
           
           <div class="metric-card">
             <div class="metric-icon">
-              <mat-icon>visibility</mat-icon>
+              <mat-icon>ads_click</mat-icon>
             </div>
             <div class="metric-content">
-              <div class="metric-value">{{getTotalViews(campaign.promotions) | shortNumber}}</div>
-              <div class="metric-label">Total Views</div>
-              <div class="metric-subtext">Estimated reach: {{ (campaign.estimatedViews ) | shortNumber}}</div>
+              <div class="metric-value">{{totalClicks() | shortNumber}}</div>
+              <div class="metric-label">Tracked Clicks</div>
+              <div class="metric-subtext">{{billableClicks() | shortNumber}} billable · {{invalidClicks() | shortNumber}} invalid</div>
             </div>
           </div>
           
@@ -288,16 +330,15 @@
               <mat-icon>payments</mat-icon>
             </div>
             <div class="metric-content">
-              <div class="metric-value">{{formatCurrency(campaign.payoutPerPromotion * campaign.currentPromoters )}}</div>
-              <!-- <div class="metric-value">{{formatCurrency(campaign.spentBudget)}}</div> -->
+              <div class="metric-value">{{formatCurrency(campaign.spentBudget, campaign.currency)}}</div>
               <div class="metric-label">Budget Spent</div>
-              <div class="metric-subtext">of {{formatCurrency(campaign.budget)}} total</div>
+              <div class="metric-subtext">{{formatCurrency(remainingBudget(), campaign.currency)}} remaining of {{formatCurrency(campaign.budget, campaign.currency)}}</div>
               <div class="metric-progress">
                 <div class="progress-bar">
-                  <div class="progress-fill" [class]="'progress-' + getProgressColor(( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget) * 100)" 
-                       [style.width]="( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) + '%'"></div>
+                  <div class="progress-fill" [class]="'progress-' + getProgressColor(budgetProgress())" 
+                       [style.width]="budgetProgress() + '%'"></div>
                 </div>
-                <span class="progress-percentage">{{( (campaign.payoutPerPromotion * campaign.currentPromoters ) / campaign.budget * 100) | number:'1.0-0'}}%</span>
+                <span class="progress-percentage">{{budgetProgress() | number:'1.0-0'}}%</span>
               </div>
             </div>
           </div>
@@ -307,9 +348,11 @@
               <mat-icon>verified</mat-icon>
             </div>
             <div class="metric-content">
-              <div class="metric-value">{{campaign.validatedPromotions || 0}}</div>
-              <div class="metric-label">Validated Promotions</div>
-              <div class="metric-subtext">{{campaign.paidPromotions || 0}} paid out</div>
+              <div class="metric-value">{{clickQualityRate() | number:'1.0-0'}}%</div>
+              <div class="metric-label">Click Quality</div>
+              <div class="metric-subtext">
+                Avg CPC {{formatCurrency(averageCostPerBillableClick(), campaign.currency)}}
+              </div>
             </div>
           </div>
         </div>
@@ -334,9 +377,7 @@
             </button>
             <mat-menu #statusFilterMenu="matMenu">
               <button mat-menu-item (click)="updateStatusFilter('')">All</button>
-              <button mat-menu-item (click)="updateStatusFilter('pending')">Pending</button>
-              <button mat-menu-item (click)="updateStatusFilter('submitted')">Submitted</button>
-              <button mat-menu-item (click)="updateStatusFilter('validated')">Validated</button>
+              <button mat-menu-item (click)="updateStatusFilter('accepted')">Active Link</button>
               <button mat-menu-item (click)="updateStatusFilter('paid')">Paid</button>
               <button mat-menu-item (click)="updateStatusFilter('rejected')">Rejected</button>
             </mat-menu>
@@ -350,9 +391,10 @@
               <tr>
                 <th>Promoter</th>
                 <th>Status</th>
-                <th>Views</th>
-                <th>Submitted</th>
-                <th>Payout</th>
+                <th>Tracked Clicks</th>
+                <th>Billable</th>
+                <th>Spend</th>
+                <th>Last Activity</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -378,13 +420,17 @@
                     {{promotion.status | titlecase}}
                   </span>
                 </td>
-                <td>{{promotion.proofViews || 0}}</td>
-                <td>{{promotion.submittedAt ? (promotion.submittedAt | date:'short') : 'Not submitted'}}</td>
-                <td>{{promotion.payoutAmount ? formatCurrency(promotion.payoutAmount) : 'N/A'}}</td>
+                <td>{{getPromotionTrackedClicks(promotion) | shortNumber}}</td>
+                <td>{{getPromotionBillableClicks(promotion) | shortNumber}}</td>
+                <td>{{formatCurrency(getPromotionSpend(promotion), campaign.currency)}}</td>
+                <td>{{getPromotionLastActivity(promotion) ? (getPromotionLastActivity(promotion) | date:'short') : 'No activity yet'}}</td>
                 <td>
                   <div class="action-buttons">
                     <button mat-button class="icon-btn" (click)="viewPromotionDetails(promotion)" matTooltip="View Details">
                       <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-button class="icon-btn" (click)="messagePromoter(promotion)" matTooltip="Message promoter">
+                      <mat-icon>chat</mat-icon>
                     </button>
                    <!--  @if (promotion.status === 'submitted') {
                       <button mat-button class="icon-btn" (click)="validatePromotion(promotion)" matTooltip="Validate">
@@ -405,8 +451,8 @@
         } @else {
           <div class="empty-state">
             <mat-icon>assignment</mat-icon>
-            <h4>No promotions yet</h4>
-            <p>This campaign hasn't been picked up by any promoters.</p>
+            <h4>No promotion activity yet</h4>
+            <p>This campaign has not recorded any promoter activity yet.</p>
           </div>
         }
           

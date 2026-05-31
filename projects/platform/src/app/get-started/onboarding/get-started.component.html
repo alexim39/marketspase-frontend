@@ -45,9 +45,9 @@
       />
     }
 
-    <!-- Promoter-specific proof guide -->
+    <!-- Promoter-specific success guide -->
     @if (isPromoter()) {
-      <marketspase-proof-guide (openGuide)="openProofGuide()" />
+      <marketspase-proof-guide />
     }
 
     <!-- Fallback for no role -->
@@ -82,6 +82,8 @@
     [isPromoter]="isPromoter()"
     [marketerVideoUrl]="marketerVideoUrl"
     [promoterVideoUrl]="promoterVideoUrl"
+    [marketerVideos]="marketerVideoGuides"
+    [promoterVideos]="promoterVideoGuides"
   />
 
   <!-- FAQ Section -->

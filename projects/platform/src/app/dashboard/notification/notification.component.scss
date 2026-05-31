@@ -2,8 +2,11 @@
 @import '../../../styles/variables';
 @import '../../../styles/mixins';
 
+
+
 .notification-container {
   position: relative;
+  
 }
 
 .notification-button {
@@ -125,6 +128,7 @@
   // UPDATED: Use border-color variable for dynamic theming
   border-top: 1px solid $border-color;
   text-align: center;
+  background-color: $surface-color;
 }
 
 .visually-hidden {
@@ -137,4 +141,61 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.notification-skeleton {
+  padding: 8px 16px;
+
+  min-width: 350px;
+  max-width: 400px;
+  max-height: 500px;
+}
+
+.skeleton-item {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba($border-color, 0.5);
+}
+
+.skeleton-title,
+.skeleton-line,
+.skeleton-time {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba($gray-800, 0.10) 0%,
+    rgba($gray-800, 0.20) 45%,
+    rgba($gray-800, 0.10) 100%
+  );
+  background-size: 200% 100%;
+  animation: notificationShimmer 1.2s ease-in-out infinite;
+}
+
+.skeleton-title {
+  height: 14px;
+  width: 72%;
+  margin-bottom: 8px;
+}
+
+.skeleton-line {
+  height: 12px;
+  width: 92%;
+  margin-bottom: 10px;
+}
+
+.skeleton-time {
+  height: 10px;
+  width: 40%;
+}
+
+@keyframes notificationShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-title,
+  .skeleton-line,
+  .skeleton-time {
+    animation: none;
+  }
 }

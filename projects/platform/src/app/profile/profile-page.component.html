@@ -52,6 +52,10 @@
               Joined {{ profile.createdAt | date:'mediumDate' }}
             </span>
             <span class="meta-item">
+              <mat-icon>handshake</mat-icon>
+              {{ collaborationAverage() | number:'1.1-1' }} collaborator score · {{ collaborationReviewCount() }} reviews
+            </span>
+            <span class="meta-item">
               <mat-icon>star</mat-icon>
               {{ profile.rating.toFixed(1) }} reputation · {{ profile.ratingCount }} signals
             </span>
@@ -114,9 +118,10 @@
                 <mat-icon>person_add</mat-icon>
                 {{ profile.isFollowing ? 'Following' : 'Follow' }}
               </button>
-              <!-- <button mat-icon-button matTooltip="Message">
-                <mat-icon>message</mat-icon>
-              </button> -->
+              <button mat-stroked-button type="button" (click)="openCollaborationThread()">
+                <mat-icon>chat</mat-icon>
+                Message
+              </button>
             }
           </div>
         </div>
@@ -215,6 +220,116 @@
         </div>
       </section>
     }
+
+    <section class="profile-card collaboration-section">
+      <div class="section-head">
+        <div>
+          <h3>Collaboration Reputation</h3>
+          <p>Feedback from marketers and promoters who have already worked with this profile inside the live campaign flow.</p>
+        </div>
+
+        <div class="collaboration-summary-pill">
+          <mat-icon>grade</mat-icon>
+          <div>
+            <strong>{{ collaborationAverage() | number:'1.1-1' }}</strong>
+            <span>{{ collaborationReviewCount() }} reviews</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="collaboration-grid">
+        <article class="collaboration-overview">
+          <div class="star-row">
+            @for (filled of collaborationStars(); track $index) {
+              <mat-icon [class.active]="filled">{{ filled ? 'star' : 'star_outline' }}</mat-icon>
+            }
+          </div>
+
+          <p class="helper-text">
+            @if (collaborationReviewCount() > 0) {
+              This score reflects published reviews from verified collaboration records.
+            } @else {
+              Reviews will show up here once a marketer or promoter completes enough of a live collaboration to leave feedback.
+            }
+          </p>
+
+          @if (!profile.isOwnProfile) {
+            <div class="action-inline">
+              <button mat-stroked-button type="button" (click)="openCollaborationThread()">
+                <mat-icon>chat</mat-icon>
+                Open chat
+              </button>
+
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="reviewEligibilityLoading() || !reviewEligibility()?.eligible"
+                (click)="openReviewDialog()">
+                <mat-icon>rate_review</mat-icon>
+                Leave review
+              </button>
+            </div>
+
+            @if (reviewEligibilityLoading()) {
+              <p class="helper-text">Checking whether you already have an eligible collaboration record for feedback...</p>
+            } @else if (reviewEligibility() && !reviewEligibility()?.eligible) {
+              <p class="helper-text">{{ reviewEligibility()?.reason }}</p>
+            }
+          }
+        </article>
+
+        <article class="collaboration-review-list">
+          @if (collaborationReviewLoading()) {
+            <div class="empty-inline-state">
+              <mat-icon>reviews</mat-icon>
+              <p>Loading collaboration reviews...</p>
+            </div>
+          } @else if (collaborationReviews().length === 0) {
+            <div class="empty-inline-state">
+              <mat-icon>reviews</mat-icon>
+              <p>No collaboration reviews published yet.</p>
+            </div>
+          } @else {
+            @for (review of collaborationReviews(); track trackReview($index, review)) {
+              <article class="review-card">
+                <div class="review-card-head">
+                  <div class="reviewer-summary">
+                    <strong>{{ review.reviewer?.displayName || review.reviewer?.username || 'Reviewer' }}</strong>
+                    <span>{{ review.relationshipType.replace('_', ' ') | titlecase }}</span>
+                  </div>
+
+                  <div class="review-actions">
+                    <div class="mini-stars">
+                      @for (star of [1, 2, 3, 4, 5]; track star) {
+                        <mat-icon [class.active]="star <= review.rating">{{ star <= review.rating ? 'star' : 'star_outline' }}</mat-icon>
+                      }
+                    </div>
+
+                    @if (currentUser()?._id && review.reviewer?._id !== currentUser()?._id) {
+                      <button mat-icon-button type="button" (click)="flagReview(review)">
+                        <mat-icon>flag</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                @if (review.title) {
+                  <strong class="review-title">{{ review.title }}</strong>
+                }
+
+                <p>{{ review.comment || 'No written note was attached to this review.' }}</p>
+
+                <div class="review-context">
+                  <span>{{ review.campaign?.title || 'Campaign collaboration' }}</span>
+                  <span>{{ review.createdAt | date:'mediumDate' }}</span>
+                </div>
+              </article>
+            }
+          }
+        </article>
+      </div>
+    </section>
 
     @if (profile.marketerProfile; as marketerProfile) {
       <section class="portfolio-section">
@@ -446,6 +561,7 @@
                   (save)="onSave($event)"
                   (comment)="onComment($event)"
                   (share)="onShare($event)"
+                  (chat)="onChat($event)"
                   (hashtagClick)="onHashtagClick($event)">
                 </app-feed-post-card>
               }

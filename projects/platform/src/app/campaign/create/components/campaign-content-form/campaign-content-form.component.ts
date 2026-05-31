@@ -53,9 +53,10 @@ export class CampaignContentFormComponent implements OnInit {
     this.formGroup.statusChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        const isValid = this.formGroup.valid && (!!this.selectedMedia() || this.formGroup.get('link')?.value);
-        this.validityChange.emit(this.formGroup.valid);
+        this.emitValidity();
       });
+
+    this.emitValidity();
   }
 
   // File upload handling
@@ -113,12 +114,14 @@ export class CampaignContentFormComponent implements OnInit {
           mediaFile.duration = duration;
           this.selectedMedia.set(mediaFile);
           this.mediaChange.emit(mediaFile);
+          this.emitValidity();
           this.isLoading.set(false);
           this.uploadProgress.set(100);
         });
       } else {
         this.selectedMedia.set(mediaFile);
         this.mediaChange.emit(mediaFile);
+        this.emitValidity();
         this.isLoading.set(false);
         this.uploadProgress.set(100);
       }
@@ -158,10 +161,16 @@ export class CampaignContentFormComponent implements OnInit {
   removeMedia(): void {
     this.selectedMedia.set(null);
     this.mediaChange.emit(null);
+    this.emitValidity();
     if (this.fileInput) {
       this.fileInput.nativeElement.value = '';
     }
     this.formGroup.get('media')?.setValue(null);
+  }
+
+  private emitValidity(): void {
+    const isValid = this.formGroup.valid && !!this.selectedMedia();
+    this.validityChange.emit(isValid);
   }
 
   /* get categories() {

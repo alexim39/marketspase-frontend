@@ -10,6 +10,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ForumService } from '../forum.service';
 import { UserService } from '../../../common/services/user.service';
@@ -36,6 +37,7 @@ interface MediaPreview {
     MatAutocompleteModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
   ],
   templateUrl: './create-thread.component.html',
   styleUrls: ['./create-thread.component.scss'],

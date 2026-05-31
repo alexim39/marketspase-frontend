@@ -41,7 +41,7 @@ import { DeviceService, PromotionInterface } from '@shared/services';
           <mat-icon>payments</mat-icon>
           <div class="info-content">
             <span class="info-label">Cost Per Click</span>
-            <span class="info-value">NGN {{getCostPerClick() | number}}</span>
+            <span class="info-value">{{promotion.campaign.currency || 'NGN'}} {{getCostPerClick() | number}}</span>
           </div>
         </div>
         

@@ -1,0 +1,304 @@
+<app-header />
+
+<main class="mobile-promoters-page">
+  <section class="promoter-hero">
+    <div class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/resources">
+        <mat-icon>arrow_back</mat-icon>
+        Resources
+      </a>
+      <span>/ For promoters</span>
+    </div>
+
+    <span class="eyebrow">For promoters</span>
+    <h1>Earn by sharing tracked campaign and product links.</h1>
+    <p>
+      Pick offers that fit your audience, use ready assets and captions, share
+      your unique link, then track valid clicks, conversions, and earnings.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/" class="primary-action">
+        <mat-icon>rocket_launch</mat-icon>
+        Start promoting
+      </a>
+      <button type="button" (click)="scrollToHowItWorks()">
+        <mat-icon>route</mat-icon>
+        See flow
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Promoter highlights">
+    @for (stat of heroStats; track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="warning-card">
+    <mat-icon>health_and_safety</mat-icon>
+    <span>
+      <strong>Your account health matters.</strong>
+      Fraud flags, suspicious traffic, bans, and repeated penalties can reduce
+      your rating, payouts, and campaign access.
+    </span>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Why promote</span>
+        <h2>Simple work, measurable results</h2>
+      </span>
+    </div>
+
+    <div class="benefit-rail" aria-label="Promoter benefits">
+      @for (benefit of mobileBenefits; track benefit.title; let index = $index) {
+        <button type="button" class="benefit-card" [ngClass]="tone(index)" (click)="openBenefit(benefit)">
+          <span class="card-icon">
+            <mat-icon>{{ benefit.icon }}</mat-icon>
+          </span>
+          <strong>{{ benefit.title }}</strong>
+          <small>{{ benefit.description }}</small>
+          <span>Learn more</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="process-section">
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">How it works</span>
+        <h2>Five steps to responsible promotion</h2>
+      </span>
+    </div>
+
+    <div class="process-list">
+      @for (step of processSteps; track step.number) {
+        <button type="button" class="process-card" (click)="openStep(step)">
+          <span>{{ step.number }}</span>
+          <mat-icon>{{ step.icon }}</mat-icon>
+          <strong>{{ step.title }}</strong>
+          <small>{{ step.description }}</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Opportunities</span>
+        <h2>What you can promote</h2>
+      </span>
+    </div>
+
+    <div class="opportunity-list">
+      @for (item of opportunities; track item.title) {
+        <button type="button" class="opportunity-card" [ngClass]="item.risk" (click)="openOpportunity(item)">
+          <span>
+            <small>{{ item.type }}</small>
+            <strong>{{ item.title }}</strong>
+            <em>{{ item.description }}</em>
+          </span>
+          <b>{{ item.payout }}</b>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Quality rules</span>
+        <h2>Protect your rating</h2>
+      </span>
+    </div>
+
+    <div class="quality-list">
+      @for (rule of qualityRules; track rule.title) {
+        <button type="button" class="quality-card" [class]="rule.tone" (click)="openQuality(rule)">
+          <mat-icon>{{ rule.icon }}</mat-icon>
+          <span>
+            <strong>{{ rule.title }}</strong>
+            <small>{{ rule.description }}</small>
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Promoter proof</span>
+        <h2>How good promoters think</h2>
+      </span>
+    </div>
+
+    <div class="proof-rail" aria-label="Promoter examples">
+      @for (story of proofStories; track story.name) {
+        <button type="button" class="proof-card" (click)="openProof(story)">
+          <span class="avatar-fallback">{{ story.name.slice(0, 2) }}</span>
+          <strong>{{ story.name }}</strong>
+          <small>{{ story.role }}</small>
+          <p>{{ story.content }}</p>
+          <span>View example</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Questions</span>
+        <h2>Promoter basics</h2>
+      </span>
+    </div>
+
+    <div class="faq-list">
+      @for (faq of faqs; track faq.question) {
+        <button type="button" (click)="openFaq(faq)">
+          <span>{{ faq.question }}</span>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="cta-strip">
+    <span class="eyebrow">Ready to start?</span>
+    <h2>Promote offers your audience can trust.</h2>
+    <p>
+      Choose useful campaigns, share unique links responsibly, and build a clean
+      performance history that gives you better access over time.
+    </p>
+    <div class="cta-actions">
+      <a routerLink="/" class="primary-action">
+        <mat-icon>campaign</mat-icon>
+        Start now
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>support_agent</mat-icon>
+        Get help
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <button type="button" class="sheet-backdrop" aria-label="Close promoter details" (click)="closeSheet()"></button>
+
+  @if (activeSheet() === 'benefit') {
+    @if (selectedBenefit(); as benefit) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="promoter-benefit-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="sheet-icon">
+          <mat-icon>{{ benefit.icon }}</mat-icon>
+        </span>
+        <h2 id="promoter-benefit-title">{{ benefit.title }}</h2>
+        <p>{{ benefit.description }}</p>
+        <div class="sheet-list">
+          @for (item of benefit.bullets; track item) {
+            <span><mat-icon>check_circle</mat-icon>{{ item }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'step') {
+    @if (selectedStep(); as step) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="promoter-step-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="eyebrow">Step {{ step.number }}</span>
+        <h2 id="promoter-step-title">{{ step.title }}</h2>
+        <p>{{ step.description }}</p>
+        <div class="sheet-list">
+          @for (item of step.details; track item) {
+            <span><mat-icon>task_alt</mat-icon>{{ item }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'opportunity') {
+    @if (selectedOpportunity(); as item) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="promoter-opportunity-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="eyebrow">{{ item.type }}</span>
+        <h2 id="promoter-opportunity-title">{{ item.title }}</h2>
+        <p>{{ item.description }}</p>
+        <div class="sheet-stats">
+          <span>{{ item.payout }}</span>
+          <span>{{ item.metric }}</span>
+          <span>Risk: {{ item.risk }}</span>
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'quality') {
+    @if (selectedQuality(); as rule) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="promoter-quality-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="sheet-icon">
+          <mat-icon>{{ rule.icon }}</mat-icon>
+        </span>
+        <h2 id="promoter-quality-title">{{ rule.title }}</h2>
+        <p>{{ rule.description }}</p>
+        <div class="sheet-note">
+          <mat-icon>warning</mat-icon>
+          <span>Repeated account-health issues may lower pay, reduce campaign access, or lead to suspension.</span>
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'proof') {
+    @if (selectedProof(); as story) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="promoter-proof-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <h2 id="promoter-proof-title">{{ story.name }}</h2>
+        <p>{{ story.content }}</p>
+        <div class="sheet-stats">
+          @for (stat of story.stats; track stat.metric) {
+            <span>{{ stat.value }} {{ stat.metric }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'faq') {
+    @if (selectedFaq(); as faq) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="promoter-faq-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <h2 id="promoter-faq-title">{{ faq.question }}</h2>
+        <p>{{ faq.answer }}</p>
+      </section>
+    }
+  }
+}
+
+<app-footer />

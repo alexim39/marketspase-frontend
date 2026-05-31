@@ -1,0 +1,30 @@
+<section class="legal-mobile-shell">
+  <header class="legal-topbar">
+    <a class="back-link" routerLink="/">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to app
+    </a>
+
+    <div>
+      <span>MarketSpase legal</span>
+      <strong>Policies and website rules</strong>
+    </div>
+  </header>
+
+  <nav class="legal-tabs" aria-label="Legal pages">
+    @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <div class="legal-mobile-content">
+    <router-outlet></router-outlet>
+  </div>
+</section>

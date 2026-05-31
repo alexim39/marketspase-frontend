@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
 import { ApiService, PromotionInterface } from '@shared/services';
 import { HttpParams } from '@angular/common/http';
 
@@ -10,13 +10,18 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class PromoterService {
   private readonly apiService: ApiService = inject(ApiService);
   public readonly api = this.apiService.getBaseUrl();
+  private readonly campaignsEndpoint = 'api/v1/campaign';
+  private readonly promotionsEndpoint = 'api/v1/promotion';
   
   // Cache implementation
   private cache = new Map<string, CacheEntry<any>>();
+  private inFlightRequests = new Map<string, Observable<any>>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache duration
 
   /**
@@ -32,8 +37,15 @@ export class PromoterService {
     if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
       return of(cached.data);
     }
+
+    const inFlight = this.inFlightRequests.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
     
-    return this.apiService.get<any>(`campaign/?status=${status}`, undefined, undefined, true).pipe(
+    const params = new HttpParams().set('status', status);
+
+    const request$ = this.apiService.get<any>(this.campaignsEndpoint, params, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -46,8 +58,13 @@ export class PromoterService {
       catchError(error => {
         console.error(`Error fetching campaigns by status ${status}:`, error);
         return throwError(() => new Error(`Failed to fetch ${status} campaigns`));
-      })
+      }),
+      finalize(() => this.inFlightRequests.delete(cacheKey)),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    this.inFlightRequests.set(cacheKey, request$);
+    return request$;
   }
 
   /**
@@ -64,8 +81,13 @@ export class PromoterService {
     if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
       return of(cached.data);
     }
-    
-    return this.apiService.get<any>(`promotion/${id}/${userId}`, undefined, undefined, true).pipe(
+
+    const inFlight = this.inFlightRequests.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const request$ = this.apiService.get<any>(`${this.promotionsEndpoint}/${id}/${userId}`, undefined, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -78,31 +100,14 @@ export class PromoterService {
       catchError(error => {
         console.error(`Error fetching promotion ${id}:`, error);
         return throwError(() => new Error('Failed to fetch promotion details'));
-      })
-    );
-  }
-
-  /**
-   * Promoter accept a campaign.
-   * @param campaignId The campaign ID.
-   * @param userId The user ID.
-   * @returns An observable of the API response.
-   */
- /*  acceptCampaign(campaignId: string, userId: string): Observable<any> {
-    return this.apiService.post<any>(`campaign/${campaignId}/accept`, { userId }, undefined, true).pipe(
-      tap(response => {
-        if (response.success) {
-          // Invalidate relevant cache entries
-          this.invalidateUserPromotionsCache(userId);
-          this.invalidateCampaignsCache();
-        }
       }),
-      catchError(error => {
-        console.error(`Error accepting campaign ${campaignId}:`, error);
-        return throwError(() => new Error('Failed to accept campaign'));
-      })
+      finalize(() => this.inFlightRequests.delete(cacheKey)),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
-  } */
+
+    this.inFlightRequests.set(cacheKey, request$);
+    return request$;
+  }
 
   /**
    * Get user's promotions with pagination and filtering.
@@ -134,6 +139,11 @@ export class PromoterService {
     if (cached && (now - cached.timestamp) < this.CACHE_DURATION) {
       return of(cached.data);
     }
+
+    const inFlight = this.inFlightRequests.get(cacheKey);
+    if (inFlight) {
+      return inFlight;
+    }
     
     let params = new HttpParams();
     
@@ -145,7 +155,7 @@ export class PromoterService {
       if (filters.sortOrder) params = params.set('sortOrder', filters.sortOrder);
     }
 
-    return this.apiService.get<any>(`promotion/user/${userId}`, params, undefined, true).pipe(
+    const request$ = this.apiService.get<any>(`${this.promotionsEndpoint}/user/${userId}`, params, undefined, true).pipe(
       tap(response => {
         if (response.success || response.data) {
           this.cache.set(cacheKey, {
@@ -158,67 +168,13 @@ export class PromoterService {
       catchError(error => {
         console.error(`Error fetching promotions for user ${userId}:`, error);
         return throwError(() => new Error('Failed to fetch user promotions'));
-      })
-    );
-  }
-
-  /**
-   * Submit promotion proofs.
-   * @param formData Form data containing proofs.
-   * @param userId The user ID.
-   * @returns An observable of the API response.
-   */
-  submitProof(formData: FormData, userId: string): Observable<any> {
-    return this.apiService.post<any>(`promotion/submit-proof/${userId}`, formData, undefined, true).pipe(
-      tap(response => {
-        if (response.success) {
-          // Invalidate cache for this user's promotions
-          this.invalidateUserPromotionsCache(userId);
-          
-          // If response contains promotionId, invalidate specific promotion cache
-          if (response.data?.promotionId) {
-            this.cache.delete(`promotion_${response.data.promotionId}_user_${userId}`);
-          }
-        }
       }),
-      catchError(error => {
-        console.error('Error submitting proof:', error);
-        return throwError(() => new Error('Failed to submit proof'));
-      })
+      finalize(() => this.inFlightRequests.delete(cacheKey)),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
-  }
 
-  /**
-   * Download a promotion media.
-   * This action registers the promoter for the campaign.
-   * @param campaignId The campaign ID.
-   * @param promoterId The promoter ID.
-   * @param promotionId The promotion ID.
-   * @returns An observable of the API response.
-   */
-  downloadPromotion(campaignId: string, promoterId: string, promotionId: string): Observable<any> {
-    const payload = {
-      campaignId,
-      promoterId,
-      promotionId
-    };
-    
-    return this.apiService.post<any>('promotion/download', payload, undefined, true).pipe(
-      tap(response => {
-        if (response.success) {
-          // Invalidate relevant cache entries
-          this.invalidateUserPromotionsCache(promoterId);
-          this.invalidateCampaignsCache();
-          
-          // Invalidate specific promotion cache
-          this.cache.delete(`promotion_${promotionId}_user_${promoterId}`);
-        }
-      }),
-      catchError(error => {
-        console.error(`Error downloading promotion ${promotionId}:`, error);
-        return throwError(() => new Error('Failed to download promotion'));
-      })
-    );
+    this.inFlightRequests.set(cacheKey, request$);
+    return request$;
   }
 
   /**
@@ -273,6 +229,7 @@ export class PromoterService {
    */
   clearCache(): void {
     this.cache.clear();
+    this.inFlightRequests.clear();
   }
 
   /**

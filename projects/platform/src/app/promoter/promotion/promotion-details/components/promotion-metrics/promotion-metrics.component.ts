@@ -24,7 +24,7 @@ import { PromotionInterface } from '@shared/services';
                 <div class="progress-fill" [class]="'progress-' + getProgressColor(progressPercentage)" 
                      [style.width]="progressPercentage + '%'"></div>
               </div>
-              <span class="progress-percentage">{{progressPercentage | number:'1.0-0'}}% billable</span>
+              <span class="progress-percentage">{{ getProgressLabel() }}</span>
             </div>
           </div>
         </div>
@@ -87,16 +87,28 @@ export class PromotionMetricsComponent {
   }
 
   getProgressColor(percentage: number): string {
-    if (percentage < 50) return 'warning';
-    if (percentage < 80) return 'success';
+    if (percentage < 40) return 'danger';
+    if (percentage < 75) return 'warning';
     return 'success';
+  }
+
+  getProgressLabel(): string {
+    const totalClicks = this.getTotalClicks();
+    const billableClicks = this.getBillableClicks();
+
+    if (!totalClicks) {
+      return 'No tracked clicks yet';
+    }
+
+    return `${billableClicks}/${totalClicks} valid clicks`;
   }
 
   formatCurrency(amount: number | undefined): string {
     if (amount === undefined || amount === null) return 'N/A';
+    const currency = this.promotion?.campaign?.currency || 'NGN';
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'NGN',
+      currency,
       maximumFractionDigits: 0
     }).format(amount);
   }

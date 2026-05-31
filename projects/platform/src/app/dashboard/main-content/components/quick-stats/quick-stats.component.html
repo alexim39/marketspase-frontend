@@ -51,18 +51,18 @@
                 <div class="status-chips">
                   <div class="chip-row">
                     <span class="status-chip accepted">
-                      <mat-icon>check_circle</mat-icon>
-                      {{promotionSummary()?.accepted || 0}} accepted
+                      <mat-icon>link</mat-icon>
+                      {{promotionSummary()?.activeLinks || 0}} active links
                     </span>
-                    <span class="status-chip submitted">
-                      <mat-icon>pending</mat-icon>
-                      {{promotionSummary()?.submitted || 0}} submitted
+                    <span class="status-chip tracked">
+                      <mat-icon>touch_app</mat-icon>
+                      {{promotionSummary()?.totalClicks || 0}} tracked clicks
                     </span>
                   </div>
                   <div class="chip-row">
-                    <span class="status-chip validated">
-                      <mat-icon>verified</mat-icon>
-                      {{promotionSummary()?.validated || 0}} validated
+                    <span class="status-chip billable">
+                      <mat-icon>check_circle</mat-icon>
+                      {{promotionSummary()?.billableClicks || 0}} billable clicks
                     </span>
                     <span class="status-chip paid">
                       <mat-icon>paid</mat-icon>

@@ -6,8 +6,7 @@
         <a 
             class="nav-link" 
             [routerLink]="item.route" 
-            routerLinkActive="active-link"
-            [routerLinkActiveOptions]="{exact: true}"
+            [attr.aria-current]="isRouteActive(item.route) ? 'page' : null"
             (click)="onNavItemClick()">
             <div class="nav-item-header" [class.active]="isRouteActive(item.route)">
             <div class="nav-header-content">
@@ -46,7 +45,7 @@
         <!-- Parent item with children -->
         <div 
             class="nav-item-header" 
-            [class.active]="isItemActive(item)"
+            [class.ancestor]="isItemActive(item)"
             (click)="toggleItem(item)">
             <div class="nav-header-content">
             <mat-icon class="nav-icon">{{item.icon}}</mat-icon>
@@ -79,7 +78,7 @@
                     <a 
                     class="nav-link" 
                     [routerLink]="child.route" 
-                    routerLinkActive="active-link"
+                    [attr.aria-current]="isRouteActive(child.route) ? 'page' : null"
                     (click)="onNavItemClick()">
                     <div class="nav-item-header" [class.active]="isRouteActive(child.route)">
                         <div class="nav-header-content">
@@ -118,7 +117,7 @@
                     <!-- Child parent item with children -->
                     <div 
                     class="nav-item-header" 
-                    [class.active]="isItemActive(child)"
+                    [class.ancestor]="isItemActive(child)"
                     (click)="toggleItem(child)">
                     <div class="nav-header-content">
                         <mat-icon class="nav-icon">{{child.icon}}</mat-icon>
@@ -151,7 +150,7 @@
                             <a 
                                 class="nav-link" 
                                 [routerLink]="grandChild.route" 
-                                routerLinkActive="active-link"
+                                [attr.aria-current]="isRouteActive(grandChild.route) ? 'page' : null"
                                 (click)="onNavItemClick()">
                                 <div class="nav-item-header" [class.active]="isRouteActive(grandChild.route)">
                                 <div class="nav-header-content">

@@ -1,0 +1,416 @@
+@use '../../../styles/mixins' as mixins;
+
+@use '../../../styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100%;
+  background: $background-color;
+  color: $text-primary;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-settings-shell {
+  min-height: 100%;
+  display: grid;
+  gap: 14px;
+  padding: 12px 12px 34px;
+}
+
+.mobile-settings-topbar {
+  position: relative;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0 10px;
+  background: linear-gradient(180deg, $background-color 76%, rgba($background-color, 0));
+
+  div {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+
+  span {
+    color: $text-secondary;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 18px;
+    font-weight: 950;
+  }
+}
+
+.icon-button {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 16px;
+  background: $surface-color;
+  color: $text-primary;
+  box-shadow: 0 10px 24px rgba($black, 0.08);
+}
+
+.profile-card,
+.shortcut-card,
+.settings-content-card,
+.mobile-activity-card,
+.channel-card {
+  border: 1px solid $border-color;
+  background: $surface-color;
+  box-shadow: 0 10px 24px rgba($black, 0.06);
+}
+
+.profile-card {
+  display: grid;
+  gap: 16px;
+  border-radius: 28px;
+  padding: 16px;
+}
+
+.profile-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.avatar {
+  width: 62px;
+  height: 62px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: $primary-color;
+  color: var(--on-primary-color);
+  font-size: 18px;
+  font-weight: 950;
+
+  img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+}
+
+.profile-copy {
+  min-width: 0;
+
+  p,
+  small {
+    margin: 0;
+    color: $text-secondary;
+  }
+
+  p {
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    overflow-wrap: anywhere;
+    margin: 4px 0 3px;
+    font-size: 22px;
+    line-height: 1.15;
+    font-weight: 950;
+  }
+
+  small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+}
+
+.profile-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-pill {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: rgba($error-color, 0.12);
+  color: $error-color;
+  font-size: 12px;
+  font-weight: 900;
+
+  i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.online {
+    background: rgba($success-color, 0.12);
+    color: $success-color;
+  }
+
+  &.muted {
+    background: $background-color;
+    color: $text-secondary;
+  }
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+}
+
+.profile-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+
+  article {
+    min-width: 0;
+    display: grid;
+    gap: 5px;
+    border-radius: 18px;
+    padding: 12px;
+    background: $background-color;
+  }
+
+  span,
+  small {
+    overflow: hidden;
+    color: $text-secondary;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 17px;
+    font-weight: 950;
+  }
+}
+
+.mini-progress {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba($border-color, 0.5);
+
+  i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: $primary-color;
+  }
+}
+
+.settings-tab-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  gap: 8px;
+  margin: 0 -12px;
+  padding: 0 12px 2px;
+  overflow-x: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid $border-color;
+    border-radius: 999px;
+    padding: 0 14px;
+    background: $surface-color;
+    color: $text-primary;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 900;
+
+    &.active {
+      border-color: rgba($primary-color, 0.32);
+      background: rgba($primary-color, 0.12);
+      color: $primary-color;
+    }
+
+    mat-icon {
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+  }
+}
+
+.shortcut-grid {
+  display: grid;
+  gap: 9px;
+}
+
+.shortcut-card {
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 11px;
+  border-radius: 22px;
+  padding: 12px;
+  color: $text-primary;
+  text-decoration: none;
+
+  &.active-card {
+    border-color: rgba($primary-color, 0.38);
+    background: rgba($primary-color, 0.12);
+  }
+
+  &.success .shortcut-icon {
+    background: rgba($success-color, 0.12);
+    color: $success-color;
+  }
+
+  &.warning .shortcut-icon {
+    background: rgba($warning-color, 0.12);
+    color: $warning-color;
+  }
+
+  &.info .shortcut-icon {
+    background: rgba($info-color, 0.12);
+    color: $info-color;
+  }
+}
+
+.shortcut-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba($primary-color, 0.12);
+  color: $primary-color;
+}
+
+.shortcut-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+
+  small,
+  em {
+    overflow: hidden;
+    color: $text-secondary;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-style: normal;
+  }
+
+  small {
+    font-size: 11px;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    font-weight: 950;
+  }
+
+  em {
+    font-size: 12px;
+  }
+}
+
+.chevron {
+  color: $text-secondary;
+}
+
+.settings-content-card {
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 8px;
+}
+
+.mobile-activity-card {
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.channel-card {
+  display: grid;
+  gap: 12px;
+  border-radius: 24px;
+  padding: 16px;
+
+  span {
+    color: $text-secondary;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 18px;
+    line-height: 1.2;
+    font-weight: 950;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: $text-secondary;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  button {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 16px;
+    background: $primary-color;
+    color: var(--on-primary-color);
+    font-weight: 950;
+  }
+}
+
+@media (max-width: 390px) {
+  .profile-metrics {
+    grid-template-columns: 1fr;
+  }
+}

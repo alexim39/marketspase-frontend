@@ -46,12 +46,12 @@
     }
 
     &:hover {
-      background: vars.$gray-100;
+      background: color-mix(in srgb, vars.$surface-color, vars.$background-color 48%);
       color: vars.$text-primary;
     }
 
     &.active {
-      background: rgba(vars.$primary-color, 0.1);
+      background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 90%);
       color: vars.$primary-color;
     }
   }
@@ -67,6 +67,8 @@
 .settings-section {
   mat-card {
     background: vars.$surface-color;
+    border: 1px solid vars.$border-color;
+    color: vars.$text-primary;
   }
 
   mat-card-header {
@@ -103,6 +105,7 @@
   padding: vars.$spacing-4;
   border: 1px solid vars.$border-color;
   border-radius: vars.$border-radius-md;
+  background: vars.$surface-color;
   transition: all vars.$transition-fast;
 
   &:hover {
@@ -146,12 +149,12 @@
       text-transform: uppercase;
 
       &.connected {
-        background: rgba(vars.$success-color, 0.1);
+        background: color-mix(in srgb, vars.$success-color, vars.$surface-color 90%);
         color: vars.$success-color;
       }
 
       &.disconnected {
-        background: rgba(vars.$error-color, 0.1);
+        background: color-mix(in srgb, vars.$error-color, vars.$surface-color 90%);
         color: vars.$error-color;
       }
 
@@ -201,7 +204,7 @@
     width: 3rem;
     height: 3rem;
     margin-bottom: vars.$spacing-4;
-    color: vars.$gray-300;
+    color: vars.$text-tertiary;
   }
 
   h4 {
@@ -316,7 +319,7 @@
 
   &.current {
     border-color: vars.$success-color;
-    background: rgba(vars.$success-color, 0.02);
+    background: color-mix(in srgb, vars.$success-color, vars.$surface-color 97%);
   }
 
   &:hover:not(.current) {
@@ -330,7 +333,7 @@
     left: 50%;
     transform: translateX(-50%);
     background: vars.$gradient-primary;
-    color: vars.$white;
+    color: vars.$on-primary-color;
     padding: vars.$spacing-1 vars.$spacing-4;
     border-radius: vars.$border-radius-full;
     font-size: vars.$font-size-xs;
@@ -400,7 +403,7 @@
       justify-content: center;
       gap: vars.$spacing-2;
       padding: vars.$spacing-2;
-      background: rgba(vars.$success-color, 0.1);
+      background: color-mix(in srgb, vars.$success-color, vars.$surface-color 90%);
       color: vars.$success-color;
       border-radius: vars.$border-radius;
       font-weight: vars.$font-weight-medium;
@@ -462,7 +465,7 @@
       font-weight: vars.$font-weight-medium;
 
       &.active {
-        background: rgba(vars.$success-color, 0.1);
+        background: color-mix(in srgb, vars.$success-color, vars.$surface-color 90%);
         color: vars.$success-color;
       }
     }
@@ -475,7 +478,8 @@
   align-items: center;
   gap: vars.$spacing-3;
   padding: vars.$spacing-4;
-  background: rgba(vars.$info-color, 0.05);
+  background: color-mix(in srgb, vars.$info-color, vars.$surface-color 94%);
+  border: 1px solid color-mix(in srgb, vars.$info-color, transparent 84%);
   border-radius: vars.$border-radius;
   margin-bottom: vars.$spacing-4;
 

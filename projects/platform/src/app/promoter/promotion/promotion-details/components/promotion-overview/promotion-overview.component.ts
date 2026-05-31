@@ -68,11 +68,7 @@ export class PromotionOverviewComponent {
 
   getStatusIcon(status: string): string {
     const icons: { [key: string]: string } = {
-      pending: 'schedule',
       accepted: 'link',
-      downloaded: 'link',
-      submitted: 'pending_actions',
-      validated: 'check_circle',
       paid: 'paid',
       rejected: 'cancel'
     };
@@ -82,11 +78,8 @@ export class PromotionOverviewComponent {
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
       accepted: 'Active Link',
-      downloaded: 'Active Link',
-      submitted: 'Tracking',
-      validated: 'Approved',
       paid: 'Paid',
-      rejected: 'Rejected'
+      rejected: 'Needs Attention'
     };
     return labels[status] || status;
   }

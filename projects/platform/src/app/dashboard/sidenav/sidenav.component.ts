@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, Input, TemplateRef, Signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
-import { WalletFundingComponent } from '../../wallet/funding/funding.component';
+import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { UserInterface, DeviceService, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -28,6 +28,7 @@ import { SidenavNavigationComponent } from './components/sidenav-navigation/side
 import { QuickActionsComponent } from './components/quick-actions/quick-actions.component';
 import { CartDialogComponent } from './components/cart-dialog/cart-dialog.component';
 import { NotificationBellComponent } from '../notification/notification.component';
+import { GlobalSearchBarComponent } from '../search/global-search-bar.component';
 
 import {
   getMarketerNavigation,
@@ -40,7 +41,6 @@ import { interval } from 'rxjs/internal/observable/interval';
 import { take } from 'rxjs/internal/operators/take';
 import { CountdownOverlayComponent } from '../../common/components/countdown-overlay/countdown-overlay.component';
 import { SwitchUserRoleService } from '../../common/services/switch-user-role.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -67,13 +67,14 @@ import { Subscription } from 'rxjs';
     QuickActionsComponent,
     CartDialogComponent,
     NotificationBellComponent,
+    GlobalSearchBarComponent,
     CurrencyUtilsPipe,
     CountdownOverlayComponent
   ],
   templateUrl: './sidenav.component.html',
   styleUrls: ['./sidenav.component.scss']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit {
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
@@ -95,11 +96,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pendingCampaignsCount: number | undefined = 0;
   pendingPromotionsCount: number | undefined = 0;
 
-  private subscription: Subscription = new Subscription();
-
-  isMobile = computed(() => {
-    return this.deviceService.deviceState().isMobile;
-  });
+  // Use the DeviceService signal directly to avoid extra allocations and keep the
+  // value stable during initial change detection (prevents NG0100 in dev mode).
+  readonly isMobile = this.deviceService.isMobile;
 
   // Countdown state
   currentCountdown = signal<number | null>(null);
@@ -131,14 +130,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.calculatePendingCampaigns();
     this.calculatePendingPromotions();
 
-    this.switchUserRoleService.getSwitchRequest$.subscribe((role) => {
-      this.switchUser(role);
-    });
-  }
-
-  ngOnDestroy(): void {
-     // Always unsubscribe to prevent memory leaks
-    this.subscription.unsubscribe();
+    this.switchUserRoleService.getSwitchRequest$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((role) => {
+        this.switchUser(role);
+      });
   }
 
   public toggleSidenav(): void {
@@ -196,14 +192,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   public fundWallet(): void {
     if (this.deviceService.deviceState().isMobile) {
-      this.dialog.open(WalletFundingComponent, {
+      this.dialog.open(WalletFundingIndexComponent, {
         data: this.user(),
         panelClass: 'custom-dialog-container',
-        height: '650px',
+        width: '100vw',
+        maxWidth: '480px',
+        maxHeight: '92vh',
         disableClose: true
       });
     } else {
-      this.dialog.open(WalletFundingComponent, {
+      this.dialog.open(WalletFundingIndexComponent, {
         data: this.user(),
         panelClass: 'custom-dialog-container',
         disableClose: true
@@ -343,7 +341,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const promotions = this.user()?.promotion;
     if (Array.isArray(promotions)) {
       this.pendingPromotionsCount = promotions.filter(
-        (p: any) => p.status === 'pending' || p.status === 'submitted'
+        (p: any) => p.status === 'accepted' && p.isActive !== false
       ).length;
     } else {
       this.pendingPromotionsCount = 0;
