@@ -1,8 +1,10 @@
-@import '../../../../../../styles/variables';
+@use '../../../../../../styles/mixins' as mixins;
+
+@use '../../../../../../styles/variables' as *;
 
 .mobile-products-page {
   min-height: 100%;
-  background: #f6f8fb;
+  background: var(--background-color);
 }
 
 .mobile-loader,
@@ -41,7 +43,7 @@
     display: grid;
     place-items: center;
     border-radius: 24px;
-    background: #fff1f1;
+    background: color-mix(in srgb, #ef4444, var(--surface-color) 88%);
     color: $error-color;
   }
 

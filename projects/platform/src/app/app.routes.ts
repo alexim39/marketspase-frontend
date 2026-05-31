@@ -8,9 +8,9 @@ export const routes: Routes = [
     { path: 'store/:storeLink', loadComponent: () => import('./storefront').then(c => c.StorefrontIndexComponent) },
     { path: 'cart', loadComponent: () => import('./storefront/cart').then(c => c.StorefrontCartIndexComponent) },
     { path: 'product/:productId', loadComponent: () => import('./storefront/product-details/main').then(m => m.ProductDetailsIndexComponent) },
-    { path: 'campaigns/unavailable', loadComponent: () => import('./campaign/public-campaign-unavailable.component').then(c => c.PublicCampaignUnavailableComponent) },
-    { path: 'feed/:postId', loadComponent: () => import('./community/feeds/public-feed-post.component').then(c => c.PublicFeedPostComponent) },
-    { path: 'ref/:username', loadComponent: () => import('./referral/referral-capture.component').then(c => c.ReferralCaptureComponent) },
+    { path: 'campaigns/unavailable', loadComponent: () => import('./campaign/public-campaign-unavailable').then(c => c.PublicCampaignUnavailableIndexComponent) },
+    { path: 'feed/:postId', loadComponent: () => import('./community/feeds/public-feed-post').then(c => c.PublicFeedPostIndexComponent) },
+    { path: 'ref/:username', loadComponent: () => import('./referral').then(c => c.ReferralCaptureIndexComponent) },
     { path: 'promote/:productId', loadComponent: () => import('./storefront/product-details/main').then(m => m.ProductDetailsIndexComponent) }
 
 ];

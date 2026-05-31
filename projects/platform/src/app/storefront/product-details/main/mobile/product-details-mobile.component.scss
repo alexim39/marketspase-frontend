@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -138,7 +140,7 @@
 
 .discount {
   background: $error-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .tone-good {
@@ -443,7 +445,7 @@
     border: 0;
     border-radius: $border-radius-md;
     background: $success-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: $font-weight-bold;
   }
 }
@@ -559,7 +561,7 @@
 .primary-action {
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .soft-action {
@@ -625,7 +627,7 @@
 .buy-action,
 .sheet-pay-action {
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .checkout-backdrop {
@@ -744,7 +746,7 @@
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgba($white, 0.34), transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--surface-color), 0.34), transparent);
     animation: productMobileShimmer 1.2s infinite;
   }
 

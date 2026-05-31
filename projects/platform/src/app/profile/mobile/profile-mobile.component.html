@@ -1,0 +1,392 @@
+<main class="profile-mobile" aria-label="Profile">
+  @if (loading()) {
+    <app-profile-skeleton />
+  } @else {
+    @if (error()) {
+      <section class="error-state">
+        <mat-icon>error_outline</mat-icon>
+        <strong>{{ error() }}</strong>
+        <button type="button" class="primary-action" (click)="ngOnInit()">Retry</button>
+      </section>
+    } @else {
+      @if (profile(); as profile) {
+    <header class="profile-hero">
+      <div class="hero-cover" aria-hidden="true"></div>
+
+      <div class="hero-topbar">
+        <a class="icon-button" routerLink="/dashboard" aria-label="Back to dashboard">
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+
+        <span class="role-chip">{{ profile.role | titlecase }}</span>
+      </div>
+
+      <section class="identity-card">
+        <img [src]="profile.avatar || 'img/avatar.png'" [alt]="profile.displayName || 'Profile avatar'" class="avatar">
+
+        <div class="identity-copy">
+          <div class="name-row">
+            <h1>{{ profile.displayName || profile.username || 'MarketSpase user' }}</h1>
+            @if (profile.isVerified) {
+              <mat-icon>verified</mat-icon>
+            }
+          </div>
+
+          <span class="username">@{{ profile.username || 'profile' }}</span>
+
+          @if (profileHeadline()) {
+            <p class="headline">{{ profileHeadline() }}</p>
+          }
+
+          <p class="bio">{{ profileSummary() }}</p>
+        </div>
+
+        <div class="trust-row">
+          @if (profileLocation()) {
+            <span>
+              <mat-icon>location_on</mat-icon>
+              {{ profileLocation() }}
+            </span>
+          }
+          <span>
+            <mat-icon>calendar_today</mat-icon>
+            Joined {{ profile.createdAt | date:'mediumDate' }}
+          </span>
+          <span>
+            <mat-icon>grade</mat-icon>
+            {{ collaborationAverage() | number:'1.1-1' }} collaboration
+          </span>
+        </div>
+      </section>
+    </header>
+
+    <section class="stats-rail" aria-label="Profile stats">
+      @for (stat of mobileStats(); track stat.label) {
+        <button type="button" class="stat-card" (click)="selectMobileSection(stat.section)">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <strong>{{ stat.value | number }}</strong>
+          <span>{{ stat.label }}</span>
+        </button>
+      }
+    </section>
+
+    @if (badgeLevelSummary(); as summary) {
+      <section class="level-card">
+        <div>
+          <span>Current level</span>
+          <strong>Level {{ summary.level }} · {{ summary.levelTitle }}</strong>
+          <small>{{ summary.experiencePoints }} XP</small>
+        </div>
+        <mat-icon>workspace_premium</mat-icon>
+        @if (levelProgress() > 0) {
+          <mat-progress-bar mode="determinate" [value]="levelProgress()"></mat-progress-bar>
+        }
+      </section>
+    }
+
+    <nav class="section-tabs" aria-label="Profile sections">
+      @for (section of mobileSections; track section.id) {
+        <button
+          type="button"
+          [class.active]="activeMobileSection() === section.id"
+          (click)="selectMobileSection(section.id)">
+          <mat-icon>{{ section.icon }}</mat-icon>
+          <span>{{ section.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <section class="section-shell">
+      @switch (activeMobileSection()) {
+        @case ('overview') {
+          <section class="content-stack">
+            <article class="profile-card">
+              <div class="section-heading">
+                <div>
+                  <span>Public identity</span>
+                  <h2>Profile overview</h2>
+                </div>
+                <mat-icon>account_circle</mat-icon>
+              </div>
+
+              <p>{{ profileSummary() }}</p>
+
+              @if (profile.marketerProfile?.businessOverview?.uniqueSellingPoints?.length) {
+                <div class="pill-list">
+                  @for (point of profile.marketerProfile?.businessOverview?.uniqueSellingPoints; track point) {
+                    <span>{{ point }}</span>
+                  }
+                </div>
+              }
+            </article>
+
+            @if (overviewMetrics().length > 0 || roleMetrics().length > 0) {
+              <section class="metric-grid" aria-label="Performance snapshot">
+                @for (metric of overviewMetrics(); track trackMetric($index, metric)) {
+                  <article class="metric-card">
+                    <mat-icon>{{ metric.icon }}</mat-icon>
+                    <span>{{ metric.label }}</span>
+                    <strong>{{ formatMetricValue(metric) }}</strong>
+                  </article>
+                }
+
+                @for (metric of roleMetrics(); track trackMetric($index, metric)) {
+                  <article class="metric-card accent">
+                    <mat-icon>{{ metric.icon }}</mat-icon>
+                    <span>{{ metric.label }}</span>
+                    <strong>{{ formatMetricValue(metric) }}</strong>
+                  </article>
+                }
+              </section>
+            }
+
+            <article class="profile-card">
+              <div class="section-heading">
+                <div>
+                  <span>Collaboration reputation</span>
+                  <h2>{{ collaborationAverage() | number:'1.1-1' }} score</h2>
+                </div>
+                <mat-icon>handshake</mat-icon>
+              </div>
+
+              <div class="star-row" aria-label="Collaboration rating">
+                @for (filled of collaborationStars(); track $index) {
+                  <mat-icon [class.active]="filled">{{ filled ? 'star' : 'star_outline' }}</mat-icon>
+                }
+              </div>
+
+              <p>{{ collaborationReviewCount() }} reviews from verified campaign collaborations.</p>
+
+              @if (!profile.isOwnProfile) {
+                <div class="inline-actions">
+                  <button type="button" class="secondary-action" (click)="openCollaborationThread()">
+                    <mat-icon>chat</mat-icon>
+                    Message
+                  </button>
+                  <button
+                    type="button"
+                    class="secondary-action"
+                    [disabled]="reviewEligibilityLoading() || !reviewEligibility()?.eligible"
+                    (click)="openReviewDialog()">
+                    <mat-icon>rate_review</mat-icon>
+                    Review
+                  </button>
+                </div>
+              }
+            </article>
+
+            <article class="profile-card">
+              <div class="section-heading">
+                <div>
+                  <span>Connected profiles</span>
+                  <h2>Social links</h2>
+                </div>
+                <mat-icon>share</mat-icon>
+              </div>
+
+              @if (activeSocialLinks().length > 0) {
+                <div class="social-list">
+                  @for (link of activeSocialLinks(); track trackSocialLink($index, link)) {
+                    <a [href]="link.url" target="_blank" rel="noopener noreferrer">
+                      <span>
+                        <mat-icon>{{ link.icon }}</mat-icon>
+                        {{ link.label }}
+                      </span>
+                      <mat-icon>open_in_new</mat-icon>
+                    </a>
+                  }
+                </div>
+              } @else {
+                <div class="empty-card">
+                  <mat-icon>link_off</mat-icon>
+                  <span>No social profiles linked yet.</span>
+                </div>
+              }
+            </article>
+          </section>
+        }
+
+        @case ('posts') {
+          <section class="content-stack">
+            @if (posts().length === 0 && !postsLoading()) {
+              <div class="empty-card large">
+                <mat-icon>post_add</mat-icon>
+                <strong>No posts yet</strong>
+                <span>Feed posts from this profile will show here.</span>
+              </div>
+            } @else {
+              @for (post of posts(); track post._id) {
+                <app-feed-post-card
+                  [post]="post"
+                  [user]="currentUser()"
+                  [isLiked]="likedPosts().has(post._id)"
+                  [isSaved]="savedPosts().has(post._id)"
+                  (like)="onLike($event)"
+                  (save)="onSave($event)"
+                  (comment)="onComment($event)"
+                  (share)="onShare($event)"
+                  (chat)="onChat($event)"
+                  (hashtagClick)="onHashtagClick($event)">
+                </app-feed-post-card>
+              }
+
+              @if (postsLoading()) {
+                <div class="loading-inline">
+                  <mat-spinner diameter="28"></mat-spinner>
+                </div>
+              }
+
+              <div #scrollAnchor class="scroll-anchor"></div>
+            }
+          </section>
+        }
+
+        @case ('network') {
+          <section class="content-stack">
+            <article class="profile-card">
+              <div class="section-heading">
+                <div>
+                  <span>Followers</span>
+                  <h2>{{ profile.followersCount | number }} people</h2>
+                </div>
+                <button type="button" class="mini-action" (click)="activeTabIndex.set(1); loadFollowers(true)">Refresh</button>
+              </div>
+
+              @if (loadingFollowers()) {
+                <div class="loading-inline">
+                  <mat-spinner diameter="28"></mat-spinner>
+                </div>
+              } @else {
+                <div class="user-list">
+                  @for (user of followers(); track user._id) {
+                    <button type="button" class="user-row" (click)="viewProfile(user._id)">
+                      <img [src]="user.avatar || 'img/avatar.png'" alt="">
+                      <span>
+                        <strong>{{ user.displayName }}</strong>
+                        <small>@{{ user.username }}</small>
+                      </span>
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  } @empty {
+                    <div class="empty-card">
+                      <mat-icon>groups</mat-icon>
+                      <span>No followers yet.</span>
+                    </div>
+                  }
+                  <div #followersScrollAnchor class="scroll-anchor"></div>
+                </div>
+              }
+            </article>
+
+            <article class="profile-card">
+              <div class="section-heading">
+                <div>
+                  <span>Following</span>
+                  <h2>{{ profile.followingCount | number }} profiles</h2>
+                </div>
+                <button type="button" class="mini-action" (click)="activeTabIndex.set(2); loadFollowing(true)">Refresh</button>
+              </div>
+
+              @if (loadingFollowing()) {
+                <div class="loading-inline">
+                  <mat-spinner diameter="28"></mat-spinner>
+                </div>
+              } @else {
+                <div class="user-list">
+                  @for (user of following(); track user._id) {
+                    <button type="button" class="user-row" (click)="viewProfile(user._id)">
+                      <img [src]="user.avatar || 'img/avatar.png'" alt="">
+                      <span>
+                        <strong>{{ user.displayName }}</strong>
+                        <small>@{{ user.username }}</small>
+                      </span>
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  } @empty {
+                    <div class="empty-card">
+                      <mat-icon>person_add_disabled</mat-icon>
+                      <span>Not following anyone yet.</span>
+                    </div>
+                  }
+                  <div #followingScrollAnchor class="scroll-anchor"></div>
+                </div>
+              }
+            </article>
+          </section>
+        }
+
+        @case ('badges') {
+          <section class="content-stack">
+            @if (badgeLoading() && !badgeOverview()) {
+              <div class="loading-inline">
+                <mat-spinner diameter="28"></mat-spinner>
+              </div>
+            } @else {
+              @if (badgeError()) {
+                <div class="empty-card large">
+                  <mat-icon>error_outline</mat-icon>
+                  <strong>{{ badgeError() }}</strong>
+                  <button type="button" class="secondary-action" (click)="reloadBadges()">Retry</button>
+                </div>
+              } @else {
+                @if (badgeOverview(); as badgeData) {
+                  <article class="profile-card">
+                    <div class="section-heading">
+                      <div>
+                        <span>Badge progress</span>
+                        <h2>Level {{ badgeData.gamificationProfile?.currentLevel ?? badgeData.badgeProfile.level }}</h2>
+                      </div>
+                      <mat-icon>military_tech</mat-icon>
+                    </div>
+
+                    <p>{{ badgeData.gamificationProfile?.currentLevelTitle ?? badgeData.badgeProfile.levelTitle }}</p>
+                    <mat-progress-bar mode="determinate" [value]="badgeData.gamificationProfile?.progressPercent ?? badgeData.badgeProfile.progressPercent"></mat-progress-bar>
+                  </article>
+
+                  @if (badgeData.earnedBadges.length === 0) {
+                    <div class="empty-card large">
+                      <mat-icon>workspace_premium</mat-icon>
+                      <strong>No badges yet</strong>
+                      <span>Badge milestones will appear as activity grows.</span>
+                    </div>
+                  } @else {
+                    <div class="badge-list">
+                      @for (badge of badgeData.earnedBadges; track trackBadge($index, badge)) {
+                        <article class="badge-card">
+                          <span class="badge-icon" [style.background]="badge.accentColor">
+                            <mat-icon>{{ badge.icon }}</mat-icon>
+                          </span>
+                          <div>
+                            <strong>{{ badge.title }}</strong>
+                            <p>{{ badge.description }}</p>
+                            <small>Unlocked {{ badge.unlockedAt | date:'mediumDate' }}</small>
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  }
+                }
+              }
+            }
+          </section>
+        }
+      }
+    </section>
+
+    <footer class="sticky-actions" aria-label="Profile actions">
+      @if (!profile.isOwnProfile) {
+        <button type="button" class="secondary-action" (click)="openCollaborationThread()">
+          <mat-icon>chat</mat-icon>
+          <span>Message</span>
+        </button>
+      }
+
+      <button type="button" class="primary-action" (click)="openPrimaryAction()">
+        <mat-icon>{{ primaryActionIcon() }}</mat-icon>
+        <span>{{ primaryActionLabel() }}</span>
+      </button>
+    </footer>
+      }
+    }
+  }
+</main>

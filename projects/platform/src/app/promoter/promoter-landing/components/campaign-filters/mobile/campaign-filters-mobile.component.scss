@@ -1,5 +1,5 @@
-@import '../../../../../../styles/variables';
-@import '../../../../../../styles/mixins';
+@use '../../../../../../styles/variables' as *;
+@use '../../../../../../styles/mixins' as *;
 
 .mobile-filters {
   // UPDATED: Use surface-color with backdrop for dynamic theming
@@ -127,7 +127,7 @@
   // UPDATED: Use gradient-primary variable for dynamic theming
   background: $gradient-primary;
   border: none;
-  color: $white;
+  color: var(--on-primary-color);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -152,7 +152,7 @@
   right: -4px;
   // UPDATED: Use error-color for badge background
   background: $error-color;
-  color: $white;
+  color: var(--on-primary-color);
   border-radius: 8px;
   padding: 2px 6px;
   font-size: 10px;
@@ -201,16 +201,16 @@
     background: $gradient-primary;
     // UPDATED: Use primary-color for border
     border-color: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     
     .filter-icon {
-      background: rgba($white, 0.2);
-      color: $white;
+      background: rgba(var(--surface-color), 0.2);
+      color: var(--on-primary-color);
     }
     
     .filter-count {
-      background: rgba($white, 0.2);
-      color: $white;
+      background: rgba(var(--surface-color), 0.2);
+      color: var(--on-primary-color);
     }
   }
 }
@@ -302,7 +302,7 @@
   &.active {
     // UPDATED: Use primary-color for active state
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
   
   .material-icons {

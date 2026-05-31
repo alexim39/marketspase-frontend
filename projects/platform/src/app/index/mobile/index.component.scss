@@ -6,8 +6,8 @@ The styles focus on a modern, clean design with responsiveness for mobile device
 NOTE: The file now uses dynamic theming variables from the global styles.
 */
 
-@import '../../../styles/variables';
-@import '../../../styles/mixins';
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
 
 .auth-container {
   min-height: 100vh;
@@ -55,7 +55,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .brand-title {
-  color: $white;
+  color: var(--on-primary-color);
   font-size: 32px;
   font-weight: $font-weight-bold;
   margin: 0;
@@ -63,7 +63,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .welcome-section {
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .welcome-title {
@@ -82,14 +82,14 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .auth-card {
-  background-color: color-mix(in srgb, $surface-color, white 1%);
+  background-color: var(--surface-color);
   backdrop-filter: blur(20px);
   border-radius: $border-radius-xl;
   padding: $spacing-10;
   width: 100%;
   max-width: 480px;
-  box-shadow: $shadow-xl, 0 0 0 1px rgba($white, 0.2);
-  border: 1px solid rgba($white, 0.2);
+  box-shadow: $shadow-xl, 0 0 0 1px rgba(var(--surface-color), 0.2);
+  border: 1px solid rgba(var(--border-color), 0.2);
   z-index: 1;
 
   @include mobile {
@@ -216,7 +216,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .divider-text {
-  background: color-mix(in srgb, $surface-color, $white 90%);
+  background: color-mix(in srgb, $surface-color, var(--surface-color) 90%);
   padding: 0 $spacing-5;
   font-size: $font-size-xs;
   color: $text-tertiary;
@@ -232,7 +232,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
   gap: $spacing-4;
   margin-top: $spacing-6;
   padding: $spacing-3;
-  background: color-mix(in srgb, $surface-color, $white 10%);
+  background: color-mix(in srgb, $surface-color, var(--surface-color) 10%);
   border-radius: $border-radius-lg;
   box-shadow: $shadow-sm;
 
@@ -248,7 +248,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
   align-items: center;
   gap: $spacing-3;
   padding: $spacing-3;
-  background: color-mix(in srgb, $surface-color, $white 5%);
+  background: color-mix(in srgb, $surface-color, var(--surface-color) 5%);
   border-radius: $border-radius;
   box-shadow: $shadow-sm;
   transition: transform $transition-fast, box-shadow $transition-fast;
@@ -280,7 +280,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .feature-icon {
-  color: $white;
+  color: var(--on-primary-color);
   font-size: 25px;
 
   @include mobile {
@@ -319,24 +319,24 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .footer-text {
-  color: $white;
+  color: var(--on-primary-color);
   margin: 0 0 $spacing-3 0;
   font-size: $font-size-base;
 }
 
 .signup-link {
-  color: $white;
+  color: var(--on-primary-color);
   text-decoration: none;
   font-weight: $font-weight-semibold;
-  border-bottom: 1px solid rgba($white, 0.5);
+  border-bottom: 1px solid rgba(var(--surface-color), 0.5);
   transition: border-color $transition-fast;
 
   &:hover {
-    border-bottom-color: $white;
+    border-bottom-color: var(--on-primary-color);
   }
 
   &:focus-visible {
-    outline: 2px solid $white;
+    outline: 2px solid var(--surface-color);
     outline-offset: 2px;
   }
 }
@@ -353,24 +353,24 @@ NOTE: The file now uses dynamic theming variables from the global styles.
   }
 
   a {
-    color: rgba($white, 0.8);
+    color: rgba(var(--surface-color), 0.8);
     text-decoration: none;
     font-size: $font-size-xs;
     transition: color $transition-fast;
 
     &:hover {
-      color: $white;
+      color: var(--on-primary-color);
     }
 
     &:focus-visible {
-      outline: 2px solid $white;
+      outline: 2px solid var(--surface-color);
       outline-offset: 2px;
     }
   }
 }
 
 .separator {
-  color: rgba($white, 0.6);
+  color: rgba(var(--surface-color), 0.6);
   font-size: $font-size-xs;
 }
 
@@ -383,14 +383,14 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 }
 
 .new-user-text {
-  color: $white;
+  color: var(--on-primary-color);
   margin: 0;
   font-size: $font-size-base;
   background: color-mix(in srgb, $surface-color, transparent 90%);
   backdrop-filter: blur(10px);
   padding: $spacing-3 $spacing-5;
   border-radius: $border-radius-lg;
-  border: 1px solid rgba($white, 0.2);
+  border: 1px solid rgba(var(--border-color), 0.2);
 
   @include mobile {
     font-size: $font-size-sm;
@@ -462,7 +462,7 @@ NOTE: The file now uses dynamic theming variables from the global styles.
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .auth-card {
-    background: $white;
+    background: var(--surface-color);
     border: $border-width-2 solid $text-primary;
   }
   

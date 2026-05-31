@@ -1,4 +1,6 @@
-@import '../../../styles/variables';
+@use '../../../styles/mixins' as mixins;
+
+@use '../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -20,7 +22,7 @@ button {
 }
 
 .mobile-settings-topbar {
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 30;
   display: flex;
@@ -96,7 +98,7 @@ button {
   place-items: center;
   border-radius: 22px;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   font-size: 18px;
   font-weight: 950;
 
@@ -402,7 +404,7 @@ button {
     border: 0;
     border-radius: 16px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: 950;
   }
 }

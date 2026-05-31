@@ -68,7 +68,7 @@
   gap: vars.$spacing-4;
   padding: vars.$spacing-5;
   background: vars.$gradient-primary;
-  color: vars.$white;
+  color: vars.$on-primary-color;
   box-shadow: vars.$shadow-lg;
 
   button {
@@ -81,7 +81,7 @@
   p,
   span {
     margin: 0;
-    color: rgba(vars.$white, 0.86);
+    color: color-mix(in srgb, vars.$on-primary-color, transparent 14%);
     font-size: vars.$font-size-sm;
   }
 
@@ -92,7 +92,7 @@
 
   h2 {
     margin: vars.$spacing-2 0;
-    color: vars.$white;
+    color: vars.$on-primary-color;
     font-size: vars.$font-size-2xl;
     font-weight: vars.$font-weight-bold;
     line-height: vars.$line-height-tight;
@@ -321,7 +321,7 @@
   min-width: 24px;
   height: 24px;
   padding: 0 vars.$spacing-2;
-  color: vars.$white;
+  color: vars.$on-primary-color;
   background: var(--primary-color);
   border-radius: vars.$border-radius-full;
   font-size: vars.$font-size-xs;

@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -19,7 +21,7 @@ input {
 }
 
 .mobile-topbar {
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 30;
   display: grid;
@@ -27,7 +29,7 @@ input {
   align-items: center;
   gap: 8px;
   padding: 8px 0 12px;
-  //background: linear-gradient(180deg, $background-color 76%, rgba($background-color, 0));
+  background: linear-gradient(180deg, $background-color 76%, rgba($background-color, 0));
 
   .icon-button {
     position: relative;
@@ -555,7 +557,7 @@ input {
     border-radius: 999px;
     padding: 4px 6px;
     background: rgba($black, 0.76);
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 11px;
     font-style: normal;
     font-weight: 950;
@@ -709,7 +711,7 @@ input {
       place-items: center;
       border: 0;
       border-radius: 14px;
-      background: #f1f5f9;
+      background: color-mix(in srgb, var(--surface-color), var(--background-color) 52%);
       color: $text-primary;
     }
   }
@@ -736,14 +738,14 @@ input {
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 18px;
   padding: 0 12px;
-  background: #f8fafc;
+  background: var(--background-color);
   color: $text-primary;
   text-align: left;
   font-weight: 950;
 
   &.active {
     border-color: rgba($primary-color, 0.32);
-    background: #eef6ff;
+    background: color-mix(in srgb, #3b82f6, var(--surface-color) 88%);
     color: $primary-color;
   }
 }
@@ -800,7 +802,7 @@ input {
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 18px;
   padding: 0 14px;
-  background: #f8fafc;
+  background: var(--background-color);
   color: $text-primary;
   font-size: 15px;
   outline: 0;
@@ -819,13 +821,13 @@ input {
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 999px;
     padding: 0 12px;
-    background: #f8fafc;
+    background: var(--background-color);
     color: $text-primary;
     font-weight: 850;
 
     &.active {
       border-color: rgba($primary-color, 0.32);
-      background: #eef6ff;
+      background: color-mix(in srgb, #3b82f6, var(--surface-color) 88%);
       color: $primary-color;
     }
 
@@ -841,7 +843,7 @@ input {
   min-height: 50px;
   border: 0;
   border-radius: 18px;
-  background: #f1f5f9;
+  background: color-mix(in srgb, var(--surface-color), var(--background-color) 52%);
   color: $text-primary;
   font-weight: 950;
 }

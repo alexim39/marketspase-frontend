@@ -1,4 +1,4 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/variables' as *;
 
 .mobile-promoter-campaigns-page {
   min-height: 100dvh;

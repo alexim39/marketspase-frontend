@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -70,7 +72,7 @@
   padding: $spacing-5;
   margin-bottom: $spacing-4;
   border-radius: $border-radius-md;
-  color: $white;
+  color: var(--on-primary-color);
   background:
     linear-gradient(135deg, rgba($primary-color, 0.96), rgba($info-color, 0.92)),
     $primary-color;
@@ -79,7 +81,7 @@
   span,
   small {
     display: block;
-    color: rgba($white, 0.82);
+    color: rgba(var(--surface-color), 0.82);
     font-size: $font-size-sm;
   }
 
@@ -101,8 +103,8 @@
   min-height: 44px;
   padding: $spacing-2 $spacing-3;
   border-radius: $border-radius-full;
-  background: rgba($white, 0.16);
-  color: $white;
+  background: rgba(var(--surface-color), 0.16);
+  color: var(--on-primary-color);
   white-space: nowrap;
 
   mat-icon {
@@ -479,7 +481,7 @@
 .primary-action {
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .soft-action {
@@ -635,7 +637,7 @@
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background: linear-gradient(90deg, transparent, rgba($white, 0.35), transparent);
+    background: linear-gradient(90deg, transparent, rgba(var(--surface-color), 0.35), transparent);
     animation: shimmer 1.2s infinite;
   }
 

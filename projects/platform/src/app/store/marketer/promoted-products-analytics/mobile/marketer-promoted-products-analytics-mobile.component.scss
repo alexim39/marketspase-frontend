@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -180,7 +182,7 @@ label,
 .mobile-fab {
   border-color: transparent;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .loading-card {
@@ -238,7 +240,7 @@ label,
     border: 0;
     border-radius: 8px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     text-decoration: none;
     font-weight: 800;
   }

@@ -34,6 +34,17 @@ export interface OnboardingStep {
   completed: boolean;
 }
 
+export type OnboardingVideoRole = 'marketer' | 'promoter';
+
+export interface OnboardingVideoGuide {
+  id: string;
+  role: OnboardingVideoRole;
+  title: string;
+  description: string;
+  startsAt: string;
+  url: SafeResourceUrl;
+}
+
 @Component({
   selector: 'marketspase-get-started',
   standalone: true,
@@ -69,6 +80,8 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
   // Video URLs (sanitized)
   marketerVideoUrl: SafeResourceUrl;
   promoterVideoUrl: SafeResourceUrl;
+  readonly marketerVideoGuides: OnboardingVideoGuide[];
+  readonly promoterVideoGuides: OnboardingVideoGuide[];
 
   // Responsive signal
   isMobile = signal(false);
@@ -221,17 +234,60 @@ export class GetStartedComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private resizeListener = () => this.checkScreenSize();
 
-  readonly fbUrlMarketer = 'https://web.facebook.com/reel/4109263909219907';
-  readonly fbUrlPromoter = 'https://web.facebook.com/reel/1122807266576576';
-
   constructor() {
-    const marketerPlugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrlMarketer)}&show_text=0&autoplay=1`;
-    this.marketerVideoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(marketerPlugin);
+    this.marketerVideoGuides = [
+      {
+        id: 'marketer-campaign-guide',
+        role: 'marketer',
+        title: 'Create and manage campaigns',
+        description: 'Learn how to set up a MarketSpase campaign, prepare your budget, and understand the advertiser workflow.',
+        startsAt: '12:05',
+        url: this.buildYoutubeEmbedUrl('3dxS8th0WJo', 725)
+      },
+      {
+        id: 'marketer-storefront-guide',
+        role: 'marketer',
+        title: 'Set up your storefront',
+        description: 'Walk through the storefront setup flow so your products and business page are ready for buyers and promoters.',
+        startsAt: '04:25',
+        url: this.buildYoutubeEmbedUrl('UmJUxacRB7g', 265)
+      },
+      {
+        id: 'marketer-product-promotion-guide',
+        role: 'marketer',
+        title: 'Promote products and track results',
+        description: 'See how product promotion links, storefront activity, and performance tracking work together.',
+        startsAt: '00:11',
+        url: this.buildYoutubeEmbedUrl('sPOrJVVwzWU', 11)
+      }
+    ];
 
-    const promoterPlugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrlPromoter)}&show_text=0&autoplay=1`;
-    this.promoterVideoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(promoterPlugin);
+    this.promoterVideoGuides = [
+      {
+        id: 'promoter-guide',
+        role: 'promoter',
+        title: 'Promoter guide to safe sharing',
+        description: 'Learn how to accept campaigns, copy tracked links, promote correctly, and protect your earning value.',
+        startsAt: '00:23',
+        url: this.buildYoutubeEmbedUrl('jp3LnrZusxA', 23)
+      }
+    ];
+
+    this.marketerVideoUrl = this.marketerVideoGuides[0].url;
+    this.promoterVideoUrl = this.promoterVideoGuides[0].url;
 
     this.initializeSteps();
+  }
+
+  private buildYoutubeEmbedUrl(videoId: string, startSeconds: number): SafeResourceUrl {
+    const params = new URLSearchParams({
+      start: String(startSeconds),
+      rel: '0',
+      modestbranding: '1',
+      playsinline: '1'
+    });
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?${params}`);
   }
 
   ngOnInit(): void {

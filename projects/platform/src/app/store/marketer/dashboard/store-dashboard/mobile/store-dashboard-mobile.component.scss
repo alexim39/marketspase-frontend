@@ -1,4 +1,6 @@
-@import '../../../../../../styles/variables';
+@use '../../../../../../styles/mixins' as mixins;
+
+@use '../../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -18,7 +20,7 @@ a {
 }
 
 .mobile-topbar {
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 30;
   display: grid;
@@ -124,7 +126,7 @@ a {
     border-radius: 999px;
     padding: 0 18px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: 950;
   }
 }
@@ -708,7 +710,7 @@ a {
   height: 48px;
   border-radius: 15px;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   font-size: 13px;
 }
 
@@ -745,7 +747,7 @@ a {
 
 .sheet-primary {
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .sheet-secondary {

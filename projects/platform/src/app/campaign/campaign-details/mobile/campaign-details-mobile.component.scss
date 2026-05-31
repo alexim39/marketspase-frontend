@@ -1,5 +1,5 @@
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
 
 :host {
   display: block;
@@ -137,7 +137,7 @@
   right: 0.8rem;
   z-index: 1;
   padding: 0.45rem 0.65rem;
-  color: $white;
+  color: var(--on-primary-color);
   background: rgba($text-primary, 0.72);
   font-size: 0.74rem;
 }
@@ -261,12 +261,12 @@
   }
 
   &.primary {
-    color: $white;
+    color: var(--on-primary-color);
     background: $primary-color;
     border-color: transparent;
 
     mat-icon {
-      color: $white;
+      color: var(--on-primary-color);
     }
   }
 
@@ -438,7 +438,7 @@
   place-items: center;
   flex: 0 0 3rem;
   border-radius: 1rem;
-  color: $white;
+  color: var(--on-primary-color);
   background: $gradient-primary;
   font-weight: 900;
 }
@@ -591,7 +591,7 @@
     font-weight: 900;
 
     &.active {
-      color: $white;
+      color: var(--on-primary-color);
       background: $primary-color;
     }
   }
@@ -709,7 +709,7 @@
   min-height: 3rem;
   padding: 0 1.1rem;
   border-radius: 999px;
-  color: $white;
+  color: var(--on-primary-color);
   background: $primary-color;
   font-weight: 900;
 }

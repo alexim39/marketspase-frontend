@@ -18,7 +18,7 @@ export const SettingsRoutes: Routes = [
       },
       {
         path: 'system',
-        loadComponent: () => import('./system/system.component').then(c => c.SystemSettingComponent),
+        loadComponent: () => import('./system').then(c => c.SystemSettingIndexComponent),
         title: "System Setting - Configure the look and feel",
       },
       {
@@ -28,7 +28,7 @@ export const SettingsRoutes: Routes = [
       },
       {
         path: 'support',
-        loadComponent: () => import('./support/support.component').then(c => c.SupportComponent),
+        loadComponent: () => import('./support').then(c => c.SupportIndexComponent),
         title: "Support & Testimonial - Get support and testify about MarketSpase",
       },
       {
@@ -36,7 +36,7 @@ export const SettingsRoutes: Routes = [
         children: [
           {
             path: 'preferences',
-            loadComponent: () => import('./ads/preference/ads-preference.component').then(c => c.AdsPreferenceSettingsComponent),
+            loadComponent: () => import('./ads/preference').then(c => c.AdsPreferenceIndexComponent),
             title: "Ads Preferences - Configure your ad preferences",
           }
         ]

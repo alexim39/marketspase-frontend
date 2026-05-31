@@ -1,4 +1,6 @@
-@import '../../../../../../styles/variables';
+@use '../../../../../../styles/mixins' as mixins;
+
+@use '../../../../../../styles/variables' as *;
 
 .mobile-promotion-card {
   overflow: hidden;
@@ -102,7 +104,7 @@
   padding: 0 10px;
   border-radius: 999px;
   background: rgba($black, 0.72);
-  color: $white;
+  color: var(--on-primary-color);
   font-size: 12px;
   font-weight: 900;
   backdrop-filter: blur(8px);
@@ -120,7 +122,7 @@
   width: 58px;
   height: 58px;
   border-radius: 999px;
-  background: rgba($white, 0.92);
+  background: rgba(var(--surface-color), 0.92);
   color: $primary-color;
 
   mat-icon {
@@ -279,7 +281,7 @@
 
   button.primary {
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
 
   button.danger {

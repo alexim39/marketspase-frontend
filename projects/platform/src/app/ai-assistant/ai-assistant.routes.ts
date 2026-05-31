@@ -4,7 +4,7 @@ export const AssistantRoutes: Routes = [
     {
         path: 'customer',
         //component: AiAssistantShellComponent,
-        loadComponent: () => import('./ai-assistant.component').then(c => c.AiAssistantComponent),
+        loadComponent: () => import('./index').then(c => c.AiAssistantIndexComponent),
         title: 'AI Sales Assistant',
         /*  */
         children: [

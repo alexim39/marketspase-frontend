@@ -8,7 +8,7 @@
   gap: vars.$spacing-4;
   padding: vars.$spacing-4;
   background:
-    linear-gradient(180deg, rgba(102, 126, 234, 0.09), rgba(249, 250, 251, 0) 17rem),
+    linear-gradient(180deg, color-mix(in srgb, vars.$primary-color, transparent 91%), transparent 17rem),
     vars.$background-color;
 }
 
@@ -18,8 +18,8 @@
   z-index: 6;
   margin: calc(vars.$spacing-4 * -1) calc(vars.$spacing-4 * -1) 0;
   padding: vars.$spacing-4;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.72);
-  background: rgba(249, 250, 251, 0.94);
+  border-bottom: 1px solid color-mix(in srgb, vars.$border-color, transparent 28%);
+  background: color-mix(in srgb, vars.$background-color, transparent 6%);
   backdrop-filter: blur(16px);
 
   .eyebrow {
@@ -51,7 +51,7 @@
   @include mix.flex-between;
   gap: vars.$spacing-4;
   padding: vars.$spacing-4;
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  border: 1px solid color-mix(in srgb, vars.$primary-color, transparent 80%);
   border-radius: vars.$border-radius-lg;
   background: vars.$surface-color;
   box-shadow: vars.$shadow-md;
@@ -88,7 +88,7 @@
   height: 3rem;
   flex: 0 0 auto;
   border-radius: vars.$border-radius-lg;
-  background: rgba(16, 185, 129, 0.12);
+  background: color-mix(in srgb, vars.$success-color, vars.$surface-color 88%);
 
   mat-icon {
     color: vars.$success-color;
@@ -130,8 +130,8 @@
   }
 
   &.active {
-    border-color: rgba(102, 126, 234, 0.3);
-    background: rgba(102, 126, 234, 0.1);
+    border-color: color-mix(in srgb, vars.$primary-color, transparent 70%);
+    background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 90%);
     color: vars.$primary-color;
 
     mat-icon {
@@ -208,7 +208,7 @@
   padding: vars.$spacing-4;
 
   &.offline {
-    border-color: rgba(239, 68, 68, 0.24);
+    border-color: color-mix(in srgb, vars.$error-color, transparent 76%);
   }
 }
 
@@ -241,7 +241,7 @@
   height: 2.5rem;
   flex: 0 0 auto;
   border-radius: vars.$border-radius-md;
-  background: rgba(59, 130, 246, 0.12);
+  background: color-mix(in srgb, vars.$info-color, vars.$surface-color 88%);
 
   mat-icon {
     color: vars.$info-color;
@@ -261,7 +261,7 @@
   min-height: 2rem;
   padding: 0 vars.$spacing-3;
   border-radius: vars.$border-radius-full;
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in srgb, vars.$error-color, vars.$surface-color 90%);
   color: vars.$error-color;
   font-size: vars.$font-size-xs;
   font-weight: vars.$font-weight-bold;
@@ -274,12 +274,12 @@
 
   &.connected,
   &.enabled {
-    background: rgba(16, 185, 129, 0.12);
+    background: color-mix(in srgb, vars.$success-color, vars.$surface-color 88%);
     color: vars.$success-color;
   }
 
   &.ai:not(.enabled) {
-    background: vars.$gray-100;
+    background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
     color: vars.$text-secondary;
   }
 }
@@ -413,10 +413,10 @@
 .primary-button {
   border: 0;
   background: vars.$primary-color;
-  color: vars.$white;
+  color: vars.$on-primary-color;
 
   mat-icon {
-    color: vars.$white;
+    color: vars.$on-primary-color;
   }
 
   &.full {
@@ -433,7 +433,7 @@
 .danger-button {
   border: 0;
   background: vars.$error-color;
-  color: vars.$white;
+  color: vars.$on-primary-color;
 }
 
 .preference-row {
@@ -450,14 +450,14 @@
 }
 
 .preference-icon {
-  background: rgba(102, 126, 234, 0.12);
+  background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 88%);
 
   mat-icon {
     color: vars.$primary-color;
   }
 
   &.warn {
-    background: rgba(245, 158, 11, 0.14);
+    background: color-mix(in srgb, vars.$warning-color, vars.$surface-color 86%);
 
     mat-icon {
       color: vars.$warning-color;
@@ -465,7 +465,7 @@
   }
 
   &.success {
-    background: rgba(16, 185, 129, 0.12);
+    background: color-mix(in srgb, vars.$success-color, vars.$surface-color 88%);
 
     mat-icon {
       color: vars.$success-color;
@@ -502,12 +502,12 @@
   padding: vars.$spacing-4;
 
   &.popular {
-    border-color: rgba(102, 126, 234, 0.34);
+    border-color: color-mix(in srgb, vars.$primary-color, transparent 66%);
   }
 
   &.current {
-    border-color: rgba(16, 185, 129, 0.36);
-    background: rgba(16, 185, 129, 0.04);
+    border-color: color-mix(in srgb, vars.$success-color, transparent 64%);
+    background: color-mix(in srgb, vars.$success-color, vars.$surface-color 96%);
   }
 }
 
@@ -520,7 +520,7 @@
   gap: vars.$spacing-1;
   padding: vars.$spacing-1 vars.$spacing-2;
   border-radius: vars.$border-radius-full;
-  background: rgba(102, 126, 234, 0.12);
+  background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 88%);
   color: vars.$primary-color;
   font-size: vars.$font-size-xs;
   font-weight: vars.$font-weight-bold;
@@ -585,7 +585,7 @@
   min-height: 48px;
   gap: vars.$spacing-2;
   border-radius: vars.$border-radius-md;
-  background: rgba(16, 185, 129, 0.12);
+  background: color-mix(in srgb, vars.$success-color, vars.$surface-color 88%);
   color: vars.$success-color;
   font-weight: vars.$font-weight-bold;
 }
@@ -595,7 +595,7 @@
   gap: vars.$spacing-3;
   align-items: flex-start;
   padding: vars.$spacing-4;
-  background: rgba(59, 130, 246, 0.08);
+  background: color-mix(in srgb, vars.$info-color, vars.$surface-color 92%);
 
   mat-icon {
     color: vars.$info-color;
@@ -614,7 +614,7 @@
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(17, 24, 39, 0.45);
+  background: color-mix(in srgb, vars.$text-primary, transparent 55%);
 }
 
 .confirm-sheet {
@@ -657,7 +657,7 @@
   width: 3rem;
   height: 0.25rem;
   border-radius: vars.$border-radius-full;
-  background: vars.$gray-300;
+  background: color-mix(in srgb, vars.$border-color, vars.$text-tertiary 25%);
 }
 
 .sheet-actions {

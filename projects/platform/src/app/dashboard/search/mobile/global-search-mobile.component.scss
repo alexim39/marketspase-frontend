@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -134,7 +136,7 @@
   width: 52px;
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .search-actions {
@@ -157,7 +159,7 @@
     justify-content: center;
     border-radius: 999px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 0.75rem;
   }
 
@@ -446,7 +448,7 @@
   width: 100%;
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .mobile-pager {

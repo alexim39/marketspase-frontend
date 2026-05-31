@@ -1,5 +1,5 @@
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
 
 .mobile-checkin {
   position: fixed;
@@ -355,7 +355,7 @@
     gap: 0.45rem;
     border: 0;
     border-radius: 0.9rem;
-    color: $white;
+    color: var(--on-primary-color);
     background: $gradient-primary;
     font-size: 0.86rem;
     font-weight: $font-weight-bold;

@@ -1,0 +1,617 @@
+@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/mixins' as mixins;
+
+:host {
+  display: block;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--primary-rgb), 0.14), transparent 28%),
+    vars.$background-color;
+  color: vars.$text-primary;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ads-preference-mobile {
+  min-height: 100%;
+  padding: calc(10px + env(safe-area-inset-top)) vars.$spacing-3 calc(108px + env(safe-area-inset-bottom));
+}
+
+.mobile-hero {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 56px;
+  gap: vars.$spacing-3;
+  align-items: center;
+  padding: vars.$spacing-2 0 vars.$spacing-3;
+  background: linear-gradient(180deg, vars.$background-color 78%, transparent);
+}
+
+.icon-button {
+  width: 48px;
+  height: 48px;
+  border: 1px solid vars.$border-color;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
+  box-shadow: vars.$shadow-sm;
+  text-decoration: none;
+}
+
+.hero-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: vars.$gradient-primary;
+  color: vars.$on-primary-color;
+  box-shadow: vars.$shadow-md;
+}
+
+.hero-copy {
+  min-width: 0;
+
+  span {
+    display: block;
+    margin-bottom: 2px;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-xl;
+    line-height: vars.$line-height-tight;
+    @include mixins.text-ellipsis;
+  }
+
+  p {
+    margin: 3px 0 0;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    @include mixins.text-ellipsis;
+  }
+}
+
+.loading-state,
+.relevance-card,
+.status-card,
+.preference-panel,
+.category-picker,
+.guide-card,
+.saved-toast,
+.sticky-actions {
+  border: 1px solid vars.$border-color;
+  background: vars.$surface-color;
+  box-shadow: vars.$shadow-sm;
+}
+
+.loading-state {
+  min-height: 156px;
+  border-radius: vars.$border-radius-xl;
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-4;
+  padding: vars.$spacing-5;
+
+  div {
+    display: grid;
+    gap: 2px;
+  }
+
+  strong {
+    color: vars.$text-primary;
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+  }
+}
+
+.relevance-card {
+  border-radius: vars.$border-radius-xl;
+  padding: vars.$spacing-4;
+  display: grid;
+  gap: vars.$spacing-3;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), transparent 60%);
+    pointer-events: none;
+  }
+
+  &.good .progress-track span {
+    background: vars.$success-color;
+  }
+
+  &.warn .progress-track span {
+    background: vars.$warning-color;
+  }
+
+  &.bad .progress-track span {
+    background: vars.$error-color;
+  }
+
+  p {
+    position: relative;
+    margin: 0;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.relevance-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: vars.$spacing-4;
+
+  div {
+    display: grid;
+    gap: 2px;
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-3xl;
+    line-height: vars.$line-height-tight;
+  }
+
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: rgba(var(--primary-rgb), 0.12);
+    color: vars.$primary-color;
+  }
+}
+
+.progress-track {
+  position: relative;
+  height: 9px;
+  border-radius: vars.$border-radius-full;
+  overflow: hidden;
+  background: color-mix(in srgb, vars.$border-color, transparent 10%);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    transition: width vars.$transition-normal;
+  }
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: vars.$spacing-2;
+  margin-top: vars.$spacing-3;
+}
+
+.status-card {
+  min-width: 0;
+  border-radius: 18px;
+  padding: vars.$spacing-3;
+  display: grid;
+  gap: 4px;
+
+  mat-icon {
+    color: vars.$text-secondary;
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    @include mixins.text-ellipsis;
+  }
+
+  strong {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-sm;
+    @include mixins.text-ellipsis;
+  }
+
+  &.good mat-icon {
+    color: vars.$success-color;
+  }
+
+  &.warn mat-icon {
+    color: vars.$warning-color;
+  }
+}
+
+.preference-stack,
+.ad-type-guide {
+  display: grid;
+  gap: vars.$spacing-3;
+  margin-top: vars.$spacing-3;
+}
+
+.preference-panel,
+.category-picker {
+  border-radius: vars.$border-radius-xl;
+  padding: vars.$spacing-4;
+  display: grid;
+  gap: vars.$spacing-4;
+}
+
+.panel-heading,
+.picker-heading {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: vars.$spacing-3;
+  align-items: start;
+
+  h2 {
+    margin: 0;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-lg;
+    line-height: vars.$line-height-tight;
+  }
+
+  p,
+  span {
+    margin: 4px 0 0;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.picker-heading {
+  grid-template-columns: minmax(0, 1fr) 40px;
+  align-items: center;
+
+  > mat-icon {
+    color: vars.$primary-color;
+  }
+
+  span {
+    display: block;
+    margin: 0 0 2px;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    text-transform: uppercase;
+  }
+}
+
+.panel-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+
+  &.location {
+    background: color-mix(in srgb, vars.$info-color, vars.$surface-color 88%);
+    color: vars.$info-color;
+  }
+
+  &.interest {
+    background: rgba(var(--primary-rgb), 0.12);
+    color: vars.$primary-color;
+  }
+}
+
+.toggle-row {
+  min-height: 64px;
+  border-radius: 18px;
+  padding: vars.$spacing-3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: vars.$spacing-3;
+  align-items: center;
+  background: color-mix(in srgb, vars.$background-color, vars.$surface-color 45%);
+
+  div {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+
+  strong {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-sm;
+    @include mixins.text-ellipsis;
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.benefit-list {
+  display: grid;
+  gap: vars.$spacing-2;
+
+  span {
+    min-height: 40px;
+    border-radius: 14px;
+    padding: 0 vars.$spacing-3;
+    display: flex;
+    align-items: center;
+    gap: vars.$spacing-2;
+    background: color-mix(in srgb, vars.$background-color, vars.$surface-color 35%);
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+  }
+
+  mat-icon {
+    color: vars.$primary-color;
+  }
+}
+
+.profile-warning {
+  min-height: 48px;
+  border-radius: 16px;
+  padding: vars.$spacing-3;
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-2;
+  background: color-mix(in srgb, vars.$warning-color, vars.$surface-color 91%);
+  color: color-mix(in srgb, vars.$warning-color, black 34%);
+  text-decoration: none;
+  font-size: vars.$font-size-sm;
+  font-weight: vars.$font-weight-semibold;
+}
+
+.selected-strip {
+  display: flex;
+  gap: vars.$spacing-2;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  span {
+    flex: 0 0 auto;
+    max-width: 220px;
+    border: 1px solid vars.$border-color;
+    border-radius: vars.$border-radius-full;
+    padding: 7px 11px;
+    background: vars.$surface-color;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-semibold;
+    @include mixins.text-ellipsis;
+  }
+
+  &.empty span {
+    color: vars.$text-secondary;
+    font-weight: vars.$font-weight-medium;
+  }
+}
+
+.category-picker {
+  margin-top: vars.$spacing-3;
+
+  &.disabled {
+    opacity: 0.62;
+  }
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: vars.$spacing-2;
+}
+
+.category-button {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid vars.$border-color;
+  border-radius: 16px;
+  padding: vars.$spacing-2 vars.$spacing-3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20px;
+  gap: vars.$spacing-2;
+  align-items: center;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
+  text-align: left;
+  font: inherit;
+
+  span {
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-semibold;
+    line-height: vars.$line-height-tight;
+    @include mixins.text-ellipsis;
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    color: vars.$on-primary-color;
+  }
+
+  &.selected {
+    border-color: transparent;
+    background: vars.$gradient-primary;
+    color: vars.$on-primary-color;
+    box-shadow: vars.$shadow-sm;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+  }
+
+  &:focus-visible {
+    outline: 2px solid vars.$primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.ad-type-guide {
+  margin-bottom: vars.$spacing-4;
+}
+
+.guide-heading {
+  margin-top: vars.$spacing-1;
+
+  span {
+    display: block;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 2px 0 0;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-lg;
+  }
+}
+
+.guide-card {
+  border-radius: 18px;
+  padding: vars.$spacing-3;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: vars.$spacing-3;
+  align-items: center;
+
+  > mat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: rgba(var(--primary-rgb), 0.1);
+    color: vars.$primary-color;
+  }
+
+  div {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+  }
+
+  strong {
+    color: vars.$text-primary;
+    font-size: vars.$font-size-sm;
+    @include mixins.text-ellipsis;
+  }
+
+  span {
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-xs;
+    line-height: vars.$line-height-normal;
+  }
+}
+
+.saved-toast {
+  min-height: 48px;
+  border-radius: 16px;
+  margin-top: vars.$spacing-3;
+  padding: 0 vars.$spacing-3;
+  display: flex;
+  align-items: center;
+  gap: vars.$spacing-2;
+  color: vars.$success-color;
+  font-size: vars.$font-size-sm;
+  font-weight: vars.$font-weight-semibold;
+}
+
+.sticky-actions {
+  position: fixed;
+  left: vars.$spacing-3;
+  right: vars.$spacing-3;
+  bottom: calc(vars.$spacing-3 + env(safe-area-inset-bottom));
+  z-index: 30;
+  border-radius: 22px;
+  padding: vars.$spacing-2;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: vars.$spacing-2;
+}
+
+.primary-action,
+.secondary-action {
+  min-height: 52px;
+  border: 0;
+  border-radius: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: vars.$spacing-2;
+  font: inherit;
+  font-size: vars.$font-size-sm;
+  font-weight: vars.$font-weight-bold;
+
+  &:disabled {
+    opacity: 0.62;
+  }
+
+  &:focus-visible {
+    outline: 2px solid vars.$primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.primary-action {
+  background: vars.$gradient-primary;
+  color: vars.$on-primary-color;
+
+  mat-icon {
+    color: vars.$on-primary-color;
+  }
+}
+
+.secondary-action {
+  border: 1px solid vars.$border-color;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
+}
+
+@media (max-width: 360px) {
+  .ads-preference-mobile {
+    padding-inline: vars.$spacing-2;
+  }
+
+  .status-grid,
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-hero {
+    grid-template-columns: 48px minmax(0, 1fr);
+
+    .hero-badge {
+      display: none;
+    }
+  }
+}

@@ -92,6 +92,8 @@
   gap: vars.$spacing-3;
   padding: vars.$spacing-4;
   border: 1px solid vars.$border-color;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
   box-shadow: vars.$shadow-sm;
 
   p {
@@ -122,7 +124,7 @@
   flex-shrink: 0;
 
   mat-icon {
-    color: vars.$white;
+    color: vars.$on-primary-color;
   }
 
   &.messages {
@@ -159,6 +161,8 @@
 .chart-card {
   padding: vars.$spacing-5;
   border: 1px solid vars.$border-color;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
   box-shadow: vars.$shadow-sm;
 }
 
@@ -215,7 +219,7 @@
   align-items: flex-end;
   justify-content: center;
   border-radius: vars.$border-radius;
-  background: vars.$gray-100;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
   overflow: hidden;
 }
 
@@ -246,7 +250,7 @@
   flex: 1;
   height: 0.75rem;
   border-radius: vars.$border-radius-full;
-  background: vars.$gray-100;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
   overflow: hidden;
 
   span {

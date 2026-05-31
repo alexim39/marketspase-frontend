@@ -81,7 +81,7 @@
   align-items: center;
   padding: vars.$spacing-5;
   background: vars.$gradient-primary;
-  color: vars.$white;
+  color: vars.$on-primary-color;
   box-shadow: vars.$shadow-lg;
 }
 
@@ -91,7 +91,7 @@
   p,
   span {
     margin: 0;
-    color: rgba(vars.$white, 0.86);
+    color: color-mix(in srgb, vars.$on-primary-color, transparent 14%);
     font-size: vars.$font-size-sm;
   }
 
@@ -115,9 +115,9 @@
   width: 86px;
   min-height: 78px;
   border-radius: vars.$border-radius-lg;
-  background: rgba(vars.$white, 0.16);
-  border: 1px solid rgba(vars.$white, 0.22);
-  color: vars.$white;
+  background: color-mix(in srgb, vars.$on-primary-color, transparent 84%);
+  border: 1px solid color-mix(in srgb, vars.$on-primary-color, transparent 78%);
+  color: vars.$on-primary-color;
 
   mat-icon {
     font-size: 1.45rem;

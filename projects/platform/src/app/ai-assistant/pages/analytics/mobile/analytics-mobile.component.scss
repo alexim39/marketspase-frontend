@@ -8,7 +8,7 @@
   gap: vars.$spacing-4;
   padding: vars.$spacing-4;
   background:
-    linear-gradient(180deg, rgba(102, 126, 234, 0.08), rgba(249, 250, 251, 0) 18rem),
+    linear-gradient(180deg, color-mix(in srgb, vars.$primary-color, transparent 92%), transparent 18rem),
     vars.$background-color;
 }
 
@@ -20,8 +20,8 @@
   gap: vars.$spacing-3;
   margin: calc(vars.$spacing-4 * -1) calc(vars.$spacing-4 * -1) 0;
   padding: vars.$spacing-4 vars.$spacing-4 vars.$spacing-3;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.72);
-  background: rgba(249, 250, 251, 0.94);
+  border-bottom: 1px solid color-mix(in srgb, vars.$border-color, transparent 28%);
+  background: color-mix(in srgb, vars.$background-color, transparent 6%);
   backdrop-filter: blur(16px);
 }
 
@@ -87,7 +87,12 @@
 .skeleton-card {
   min-height: 7.75rem;
   border-radius: vars.$border-radius-lg;
-  background: linear-gradient(90deg, vars.$gray-100 25%, vars.$gray-50 50%, vars.$gray-100 75%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, vars.$surface-color, vars.$background-color 42%) 25%,
+    color-mix(in srgb, vars.$surface-color, vars.$background-color 18%) 50%,
+    color-mix(in srgb, vars.$surface-color, vars.$background-color 42%) 75%
+  );
   background-size: 220% 100%;
   animation: skeleton-pulse 1.35s ease-in-out infinite;
 }
@@ -137,14 +142,14 @@
     height: 2.5rem;
     flex: 0 0 auto;
     border-radius: vars.$border-radius-md;
-    color: vars.$white;
+    color: vars.$on-primary-color;
     font-size: 2rem;
     line-height: 2.5rem;
     text-align: center;
   }
 
   &.primary {
-    border-color: rgba(102, 126, 234, 0.24);
+    border-color: color-mix(in srgb, vars.$primary-color, transparent 76%);
 
     mat-icon {
       background: vars.$primary-color;
@@ -203,7 +208,7 @@
   height: 2.25rem;
   flex: 0 0 auto;
   border-radius: vars.$border-radius-md;
-  background: vars.$gray-100;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
 
   mat-icon {
     color: vars.$text-secondary;
@@ -212,7 +217,7 @@
 }
 
 .metric-card.messages .metric-icon {
-  background: rgba(59, 130, 246, 0.12);
+  background: color-mix(in srgb, vars.$info-color, vars.$surface-color 88%);
 
   mat-icon {
     color: vars.$info-color;
@@ -220,7 +225,7 @@
 }
 
 .metric-card.ai .metric-icon {
-  background: rgba(16, 185, 129, 0.12);
+  background: color-mix(in srgb, vars.$success-color, vars.$surface-color 88%);
 
   mat-icon {
     color: vars.$success-color;
@@ -228,7 +233,7 @@
 }
 
 .metric-card.human .metric-icon {
-  background: rgba(245, 158, 11, 0.14);
+  background: color-mix(in srgb, vars.$warning-color, vars.$surface-color 86%);
 
   mat-icon {
     color: vars.$warning-color;
@@ -236,7 +241,7 @@
 }
 
 .metric-card.speed .metric-icon {
-  background: rgba(102, 126, 234, 0.12);
+  background: color-mix(in srgb, vars.$primary-color, vars.$surface-color 88%);
 
   mat-icon {
     color: vars.$primary-color;
@@ -279,7 +284,7 @@
   max-width: 9.5rem;
   padding: vars.$spacing-2 vars.$spacing-3;
   border-radius: vars.$border-radius-full;
-  background: vars.$gray-100;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
   color: vars.$text-secondary;
   font-size: vars.$font-size-xs;
   font-weight: vars.$font-weight-semibold;
@@ -323,7 +328,7 @@
   align-items: flex-end;
   justify-content: center;
   border-radius: vars.$border-radius-full;
-  background: vars.$gray-100;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
   overflow: hidden;
 
   span {
@@ -369,7 +374,7 @@
 .signal-track {
   height: 0.75rem;
   border-radius: vars.$border-radius-full;
-  background: vars.$gray-100;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 52%);
   overflow: hidden;
 
   span {
@@ -410,7 +415,7 @@
   min-height: 9rem;
   border: 1px dashed vars.$border-color;
   border-radius: vars.$border-radius-md;
-  background: vars.$gray-50;
+  background: color-mix(in srgb, vars.$surface-color, vars.$background-color 42%);
   color: vars.$text-secondary;
   text-align: center;
 

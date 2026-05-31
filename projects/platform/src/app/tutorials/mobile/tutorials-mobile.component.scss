@@ -1,4 +1,6 @@
-@import '../../../styles/variables';
+@use '../../../styles/mixins' as mixins;
+
+@use '../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -76,7 +78,7 @@ input {
     border: 2px solid $background-color;
     border-radius: 999px;
     background: $error-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 11px;
     font-style: normal;
     font-weight: 950;
@@ -91,14 +93,14 @@ input {
   background:
     linear-gradient(135deg, rgba($primary-color, 0.95), rgba(#0f766e, 0.9)),
     $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   box-shadow: 0 18px 38px rgba($primary-color, 0.24);
 }
 
 .hero-copy {
   p {
     margin: 0 0 7px;
-    color: rgba($white, 0.72);
+    color: rgba(var(--surface-color), 0.72);
     font-size: 12px;
     font-weight: 850;
     text-transform: uppercase;
@@ -114,7 +116,7 @@ input {
   > span {
     display: block;
     margin-top: 8px;
-    color: rgba($white, 0.84);
+    color: rgba(var(--surface-color), 0.84);
     font-size: 14px;
     line-height: 1.45;
   }
@@ -131,13 +133,13 @@ input {
     gap: 5px;
     border-radius: 18px;
     padding: 11px;
-    background: rgba($white, 0.14);
+    background: rgba(var(--surface-color), 0.14);
   }
 
   mat-icon {
     width: 19px;
     height: 19px;
-    color: rgba($white, 0.82);
+    color: rgba(var(--surface-color), 0.82);
     font-size: 19px;
   }
 
@@ -151,7 +153,7 @@ input {
   }
 
   span {
-    color: rgba($white, 0.76);
+    color: rgba(var(--surface-color), 0.76);
     font-size: 11px;
     font-weight: 800;
   }
@@ -316,7 +318,7 @@ input {
     border-radius: 999px;
     padding: 0 16px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: 950;
   }
 }
@@ -379,7 +381,7 @@ input {
   display: grid;
   place-items: center;
   background: $gradient-primary;
-  color: rgba($white, 0.92);
+  color: rgba(var(--surface-color), 0.92);
 
   img {
     width: 100%;
@@ -406,7 +408,7 @@ input {
     border-radius: 8px;
     padding: 4px 6px;
     background: rgba($black, 0.78);
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 11px;
     font-style: normal;
     font-weight: 900;
@@ -523,7 +525,7 @@ input {
     border-radius: 999px;
     padding: 4px 7px;
     background: $success-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 10px;
     font-style: normal;
     font-weight: 950;
@@ -574,7 +576,7 @@ input {
     border-radius: 8px;
     padding: 4px 6px;
     background: rgba($black, 0.78);
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 10px;
     font-style: normal;
     font-weight: 950;
@@ -628,7 +630,7 @@ input {
   border: 0;
   border-radius: 16px;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   font-weight: 950;
 }
 
@@ -675,7 +677,7 @@ input {
     border-radius: 14px;
     padding: 0 12px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     text-decoration: none;
     font-size: 12px;
     font-weight: 950;

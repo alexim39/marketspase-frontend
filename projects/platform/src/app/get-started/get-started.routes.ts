@@ -8,7 +8,7 @@ export const GetStartedRoutes: Routes = [
     },
     {
         path: 'onboarding',
-        loadComponent: () => import('./onboarding/get-started.component').then(c => c.GetStartedComponent),
+        loadComponent: () => import('./onboarding').then(c => c.GetStartedIndexComponent),
         title: "Get Started - Onboarding process",
     },
     // {

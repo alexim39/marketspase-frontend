@@ -1,169 +1,99 @@
 <section class="video-guides" id="video-guides">
-  <h2 class="video-section-title">Watch Video Guides</h2>
-  
+  <div class="video-section-heading">
+    <p class="video-eyebrow">In-app training</p>
+    <h2 class="video-section-title">Watch Video Guides</h2>
+    <p class="video-section-copy">
+      Learn the correct MarketSpase flow without leaving your dashboard.
+    </p>
+  </div>
+
   <div class="video-grid">
-    <!-- Marketer Video -->
-    @if(isMarketer) {
-      <div class="video-card">
+    @if (isMarketer && marketerGuideItems.length) {
+      <article class="video-card">
         <div class="video-header">
-          <h3 class="video-title">
-            <mat-icon>ondemand_video</mat-icon>
-            Marketer's Complete Guide
-          </h3>
-          <p class="video-description">
-            Learn how to create effective campaigns, set budgets, and track performance in few minutes.
-          </p>
+          <span class="video-icon" aria-hidden="true">
+            <mat-icon>storefront</mat-icon>
+          </span>
+          <div>
+            <h3 class="video-title">Marketer video guide</h3>
+            <p class="video-description">
+              Campaign, storefront, and product promotion walkthroughs for marketers.
+            </p>
+          </div>
           <button mat-raised-button class="promo-button" color="primary" (click)="switchUserRole('promoter')">
             <mat-icon>swap_horiz</mat-icon>
-            I want to promote other people's business
+            Promote other businesses
           </button>
         </div>
 
-        <mat-tab-group>
-          <mat-tab label="How to Create Ads on Marketspase">
-            <div class="video-container">
-              @if (marketerVideoUrl) {
-                <!-- <iframe 
-                  width="380" 
-                  height="800" 
-                  [src]="marketerVideoUrl" 
-                  frameborder="0" 
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                  allowfullscreen>
-                </iframe> -->
-                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F984032487617745%2F&show_text=false&width=209&t=0" 
-                width="260" 
-                height="616" 
-                style="border:none;overflow:hidden" 
-                scrolling="no" 
-                frameborder="0" 
-                allowfullscreen="true" 
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                allowFullScreen="true">
-                </iframe>
-              } @else {
-                <div class="video-placeholder">
-                  <mat-icon>ondemand_video</mat-icon>
-                  <span>Marketer video guide loading...</span>
-                </div>
-              }
-            </div>
-          </mat-tab>
-          <mat-tab label="How to Create Storefront on Marketspase">
-            <div class="video-container">
-              @if (marketerVideoUrl) {
-                <!-- <iframe 
-                  width="380" 
-                  height="800" 
-                  [src]="marketerVideoUrl" 
-                  frameborder="0" 
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                  allowfullscreen>
-                </iframe> -->
-                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F909621642073357%2F&show_text=false&width=217&t=0" 
-                width="260" 
-                height="616" 
-                style="border:none;overflow:hidden" 
-                scrolling="no" 
-                frameborder="0" 
-                allowfullscreen="true" 
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                allowFullScreen="true">
-                </iframe>
-              } @else {
-                <div class="video-placeholder">
-                  <mat-icon>ondemand_video</mat-icon>
-                  <span>Marketer video guide loading...</span>
-                </div>
-              }
-            </div>
-          </mat-tab>
-        </mat-tab-group>
+        <div class="video-playlist">
+          @for (guide of marketerGuideItems; track guide.id) {
+            <article class="embedded-guide">
+              <div class="embedded-copy">
+                <span>{{ guide.startsAt }}</span>
+                <h4>{{ guide.title }}</h4>
+                <p>{{ guide.description }}</p>
+              </div>
 
-      </div>
+              <div class="video-container">
+                <iframe
+                  [title]="guide.title"
+                  [src]="guide.url"
+                  loading="lazy"
+                  frameborder="0"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen>
+                </iframe>
+              </div>
+            </article>
+          }
+        </div>
+      </article>
     }
-    
-    <!-- Promoter Video -->
-    @if (isPromoter) {
-      <div class="video-card">
+
+    @if (isPromoter && promoterGuideItems.length) {
+      <article class="video-card">
         <div class="video-header">
-          <h3 class="video-title">
-            <mat-icon>ondemand_video</mat-icon>
-            Promoter's Complete Guide
-          </h3>
-          <p class="video-description">
-            Learn how to share campaigns, maximize earnings, and get paid in few minutes.
-          </p>
-           <button mat-raised-button class="promo-button" color="primary"  (click)="switchUserRole('marketer')">
+          <span class="video-icon" aria-hidden="true">
+            <mat-icon>groups</mat-icon>
+          </span>
+          <div>
+            <h3 class="video-title">Promoter video guide</h3>
+            <p class="video-description">
+              Learn how to accept promotions, share tracked links correctly, and protect your account value.
+            </p>
+          </div>
+          <button mat-raised-button class="promo-button" color="primary" (click)="switchUserRole('marketer')">
             <mat-icon>swap_horiz</mat-icon>
-            I want to promote my business
+            Promote my business
           </button>
         </div>
 
-        <mat-tab-group>
-          <mat-tab label="How to Promote Ads and Products on Marketspase"> 
-            <div class="video-container">
-              @if (promoterVideoUrl) {
-                <!-- <iframe 
-                  [src]="promoterVideoUrl" 
-                  frameborder="0" 
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
+        <div class="video-playlist">
+          @for (guide of promoterGuideItems; track guide.id) {
+            <article class="embedded-guide">
+              <div class="embedded-copy">
+                <span>{{ guide.startsAt }}</span>
+                <h4>{{ guide.title }}</h4>
+                <p>{{ guide.description }}</p>
+              </div>
+
+              <div class="video-container">
+                <iframe
+                  [title]="guide.title"
+                  [src]="guide.url"
+                  loading="lazy"
+                  frameborder="0"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowfullscreen>
-                </iframe> -->
-
-                <!-- <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F2196458907781480%2F&show_text=false&width=210&t=0" 
-                width="260" 
-                height="616" 
-                style="border:none;overflow:hidden" 
-                scrolling="no" 
-                frameborder="0" 
-                allowfullscreen="true" 
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                allowFullScreen="true">
-                </iframe> -->
-                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F3315760055270421%2F&show_text=false&width=216&t=0" 
-                  width="260" 
-                  height="616" 
-                  style="border:none;overflow:hidden" 
-                  scrolling="no" 
-                  frameborder="0" 
-                  allowfullscreen="true" 
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                  allowFullScreen="true">
                 </iframe>
-              } @else {
-                <div class="video-placeholder">
-                  <mat-icon>ondemand_video</mat-icon>
-                  <span>Promoter video guide loading...</span>
-                </div>
-              }
-            </div>
-          </mat-tab>
-
-          <!-- <mat-tab label="How to Promote Products on Marketspase">
-            <div class="video-container">
-              @if (promoterVideoUrl) {
-                <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fweb.facebook.com%2Freel%2F2196458907781480%2F&show_text=false&width=210&t=0" 
-                width="260" 
-                height="616" 
-                style="border:none;overflow:hidden" 
-                scrolling="no" 
-                frameborder="0" 
-                allowfullscreen="true" 
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" 
-                allowFullScreen="true">
-                </iframe>
-              } @else {
-                <div class="video-placeholder">
-                  <mat-icon>ondemand_video</mat-icon>
-                  <span>Promoter video guide loading...</span>
-                </div>
-              }
-            </div>
-          </mat-tab> -->
-        </mat-tab-group>
-
-      </div>
+              </div>
+            </article>
+          }
+        </div>
+      </article>
     }
   </div>
 </section>

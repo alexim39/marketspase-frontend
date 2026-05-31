@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -362,10 +364,10 @@
   background:
     linear-gradient(135deg, rgba($gray-900, 0.96), rgba($gray-700, 0.96)),
     $gray-900;
-  color: $white;
+  color: var(--on-primary-color);
 
   .eyebrow {
-    color: rgba($white, 0.76);
+    color: rgba(var(--surface-color), 0.76);
   }
 
   h2 {
@@ -378,12 +380,12 @@
 
   p {
     margin: 0;
-    color: rgba($white, 0.76);
+    color: rgba(var(--surface-color), 0.76);
     line-height: 1.5;
   }
 
   a {
-    background: $white;
+    background: var(--surface-color);
     color: $gray-900;
   }
 }

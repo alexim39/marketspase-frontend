@@ -1,5 +1,5 @@
-@import '../../../../../../styles/variables';
-@import '../../../../../../styles/mixins';
+@use '../../../../../../styles/variables' as *;
+@use '../../../../../../styles/mixins' as *;
 
 .mobile-stats-section {
   // UPDATED: Use gray-900 variable for section background
@@ -90,15 +90,15 @@
   &.highlight {
     // UPDATED: Use gradient-primary variable for highlight state
     background: $gradient-primary;
-    color: $white;
+    color: var(--on-primary-color);
     
     .stat-icon {
-      background: rgba(255, 255, 255, 0.2);
-      color: $white;
+      background: color-mix(in srgb, var(--on-primary-color), transparent 80%);
+      color: var(--on-primary-color);
     }
     
     .stat-value, .stat-label, .stat-description {
-      color: $white;
+      color: var(--on-primary-color);
     }
   }
 }

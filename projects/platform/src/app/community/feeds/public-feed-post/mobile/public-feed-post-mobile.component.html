@@ -1,0 +1,99 @@
+<div class="public-feed-mobile">
+  <header class="viewer-appbar">
+    <button type="button" class="icon-button" (click)="closeViewer()" aria-label="Close post viewer">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <div class="appbar-copy">
+      <p class="eyebrow">Post viewer</p>
+      <h1>{{ authorLabel() }}</h1>
+    </div>
+
+    @if (post(); as currentPost) {
+      <button type="button" class="icon-button share-button" (click)="onShare(currentPost)" aria-label="Copy post link">
+        <mat-icon>ios_share</mat-icon>
+      </button>
+    } @else {
+      <span class="icon-spacer" aria-hidden="true"></span>
+    }
+  </header>
+
+  <main class="viewer-content">
+    @if (loading()) {
+      <section class="state-card loading-state" aria-live="polite">
+        <mat-spinner diameter="30"></mat-spinner>
+        <div>
+          <strong>Loading post</strong>
+          <span>Getting the community post ready.</span>
+        </div>
+      </section>
+
+      <section class="post-skeleton" aria-hidden="true">
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-media"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line medium"></div>
+      </section>
+    } @else if (error()) {
+      <section class="state-card error-state">
+        <mat-icon>error_outline</mat-icon>
+        <h2>Post unavailable</h2>
+        <p>{{ error() }}</p>
+        <button type="button" class="primary-action" (click)="closeViewer()">
+          <mat-icon>arrow_back</mat-icon>
+          Go back
+        </button>
+      </section>
+    } @else {
+      @if (post(); as currentPost) {
+        <section class="viewer-hero">
+          <p class="eyebrow">MarketSpase community</p>
+          <h2>{{ authorLabel() }}</h2>
+          <p>Read, save, share, or continue the conversation inside MarketSpase.</p>
+        </section>
+
+        <section class="post-shell">
+          <app-feed-post-card
+            [post]="currentPost"
+            [user]="user()"
+            [isLiked]="currentPost.isLiked"
+            [isSaved]="currentPost.isSaved"
+            (like)="onLike($event)"
+            (save)="onSave($event)"
+            (comment)="onComment($event)"
+            (share)="onShare(currentPost)"
+            (chat)="onChat($event)"
+            (sharePlatform)="onShare(currentPost, $event)"
+            (hashtagClick)="openTag($event)">
+          </app-feed-post-card>
+        </section>
+      }
+    }
+  </main>
+
+  @if (post(); as currentPost) {
+    <nav class="sticky-actions" aria-label="Post actions">
+      <button type="button" class="secondary-action" (click)="onShare(currentPost, 'whatsapp')">
+        <mat-icon>chat</mat-icon>
+        WhatsApp
+      </button>
+
+      <button type="button" class="secondary-action" (click)="onShare(currentPost)">
+        <mat-icon>content_copy</mat-icon>
+        Copy
+      </button>
+
+      @if (isSignedIn()) {
+        <button type="button" class="primary-action" (click)="onComment(currentPost._id)">
+          <mat-icon>mode_comment</mat-icon>
+          Comment
+        </button>
+      } @else {
+        <a class="primary-action" routerLink="/dashboard/community/feeds">
+          <mat-icon>login</mat-icon>
+          Open app
+        </a>
+      }
+    </nav>
+  }
+</div>

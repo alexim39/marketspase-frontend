@@ -1,10 +1,13 @@
+@use '../../../../../styles/variables' as vars;
+@use '../../../../../styles/mixins' as mixins;
+
 :host {
   display: block;
 }
 
 .faqs-mobile {
-  background: #f7fafc;
-  color: #17202a;
+  background: var(--background-color);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -20,13 +23,13 @@
 .faq-card,
 .empty-state,
 .loading-state {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.07);
 }
 
 .mobile-hero {
   align-items: flex-start;
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 22px;
   display: flex;
   gap: 14px;
@@ -43,14 +46,14 @@
   }
 
   h1 {
-    color: #0f172a;
+    color: var(--text-primary);
     font-size: 1.55rem;
     line-height: 1.12;
     margin: 6px 0 8px;
   }
 
   p {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.92rem;
     line-height: 1.5;
     margin: 0;
@@ -71,14 +74,14 @@
 }
 
 .hero-action {
-  background: #e6fffa;
+  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
   border-radius: 16px;
   color: #0f766e;
 }
 
 .training-card {
   align-items: center;
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 22px;
   display: grid;
   gap: 14px;
@@ -90,8 +93,8 @@
   --score: 0%;
   align-items: center;
   background:
-    radial-gradient(circle at center, #ffffff 57%, transparent 58%),
-    conic-gradient(#0f766e var(--score), #e2e8f0 0);
+    radial-gradient(circle at center, var(--surface-color) 57%, transparent 58%),
+    conic-gradient(#0f766e var(--score), var(--border-color) 0);
   border-radius: 999px;
   display: grid;
   height: 88px;
@@ -101,13 +104,13 @@
   width: 88px;
 
   strong {
-    color: #0f172a;
+    color: var(--text-primary);
     font-size: 1.15rem;
     line-height: 1;
   }
 
   span {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.62rem;
     font-weight: 800;
     margin-top: 4px;
@@ -119,13 +122,13 @@
   min-width: 0;
 
   strong {
-    color: #111827;
+    color: var(--text-primary);
     display: block;
     font-size: 1rem;
   }
 
   p {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.88rem;
     line-height: 1.45;
     margin: 5px 0 0;
@@ -134,7 +137,7 @@
 
 .search-panel {
   align-items: center;
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 18px;
   display: grid;
   gap: 10px;
@@ -143,8 +146,8 @@
 
   label {
     align-items: center;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     display: grid;
     gap: 8px;
@@ -154,13 +157,13 @@
   }
 
   mat-icon {
-    color: #64748b;
+    color: var(--text-secondary);
   }
 
   input {
     background: transparent;
     border: 0;
-    color: #17202a;
+    color: var(--text-primary);
     font: inherit;
     min-width: 0;
     outline: 0;
@@ -169,7 +172,7 @@
   button {
     background: #0f766e;
     border-radius: 16px;
-    color: #ffffff;
+    color: var(--on-primary-color);
   }
 }
 
@@ -185,10 +188,10 @@
   }
 
   button {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
     border-radius: 999px;
-    color: #334155;
+    color: var(--text-secondary);
     flex: 0 0 auto;
     font: inherit;
     font-size: 0.86rem;
@@ -199,21 +202,21 @@
     &.active {
       background: #0f766e;
       border-color: #0f766e;
-      color: #ffffff;
+      color: var(--on-primary-color);
     }
   }
 }
 
 .filter-summary {
   align-items: center;
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 16px;
   display: flex;
   justify-content: space-between;
   padding: 10px 12px;
 
   span {
-    color: #475569;
+    color: var(--text-secondary);
     font-weight: 800;
   }
 
@@ -230,7 +233,7 @@
 .loading-state,
 .empty-state {
   align-items: center;
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 20px;
   display: grid;
   gap: 10px;
@@ -244,12 +247,12 @@
   }
 
   h2 {
-    color: #111827;
+    color: var(--text-primary);
     font-size: 1.1rem;
   }
 
   p {
-    color: #64748b;
+    color: var(--text-secondary);
     line-height: 1.45;
   }
 
@@ -264,7 +267,7 @@
     background: #0f766e;
     border: 0;
     border-radius: 14px;
-    color: #ffffff;
+    color: var(--on-primary-color);
     font: inherit;
     font-weight: 850;
     min-height: 48px;
@@ -278,21 +281,21 @@
 }
 
 .faq-card {
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 20px;
   display: grid;
   gap: 12px;
   padding: 16px;
 
   h2 {
-    color: #0f172a;
+    color: var(--text-primary);
     font-size: 1rem;
     line-height: 1.35;
     margin: 0;
   }
 
   p {
-    color: #475569;
+    color: var(--text-secondary);
     line-height: 1.52;
     margin: 0;
   }
@@ -306,7 +309,7 @@
 }
 
 .category-pill {
-  background: #e6fffa;
+  background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
   border-radius: 999px;
   color: #0f766e;
   font-size: 0.76rem;
@@ -323,12 +326,12 @@
   gap: 4px;
 
   button {
-    background: #f1f5f9;
+    background: color-mix(in srgb, var(--surface-color), var(--background-color) 52%);
     border-radius: 14px;
-    color: #334155;
+    color: var(--text-secondary);
 
     &.danger {
-      background: #fef2f2;
+      background: color-mix(in srgb, #ef4444, var(--surface-color) 88%);
       color: #b91c1c;
     }
   }
@@ -340,9 +343,9 @@
   gap: 6px;
 
   span {
-    background: #f1f5f9;
+    background: color-mix(in srgb, var(--surface-color), var(--background-color) 52%);
     border-radius: 999px;
-    color: #475569;
+    color: var(--text-secondary);
     font-size: 0.74rem;
     font-weight: 750;
     padding: 5px 9px;
@@ -350,8 +353,8 @@
 }
 
 .load-more {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   color: #0f766e;
   font: inherit;
@@ -364,7 +367,7 @@
   border-radius: 18px;
   bottom: 22px;
   box-shadow: 0 14px 30px rgba(15, 118, 110, 0.32);
-  color: #ffffff;
+  color: var(--on-primary-color);
   position: fixed;
   right: 18px;
   z-index: 1200;
@@ -378,7 +381,7 @@
 }
 
 .bottom-sheet {
-  background: #ffffff;
+  background: var(--surface-color);
   border-radius: 24px 24px 0 0;
   bottom: 0;
   box-shadow: 0 -18px 40px rgba(15, 23, 42, 0.2);
@@ -394,7 +397,7 @@
 }
 
 .sheet-handle {
-  background: #cbd5e1;
+  background: var(--border-color);
   border-radius: 999px;
   height: 5px;
   justify-self: center;
@@ -407,15 +410,15 @@
   justify-content: space-between;
 
   h2 {
-    color: #111827;
+    color: var(--text-primary);
     font-size: 1.15rem;
     margin: 0;
   }
 
   button {
-    background: #f1f5f9;
+    background: color-mix(in srgb, var(--surface-color), var(--background-color) 52%);
     border-radius: 16px;
-    color: #334155;
+    color: var(--text-secondary);
   }
 }
 
@@ -429,16 +432,16 @@
   }
 
   span {
-    color: #475569;
+    color: var(--text-secondary);
     font-size: 0.88rem;
     font-weight: 850;
   }
 
   input,
   textarea {
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--border-color);
     border-radius: 16px;
-    color: #17202a;
+    color: var(--text-primary);
     font: inherit;
     line-height: 1.45;
     padding: 12px;
@@ -466,7 +469,7 @@
 
 .primary-sheet-action {
   background: #0f766e;
-  color: #ffffff;
+  color: var(--on-primary-color);
   width: 100%;
 
   &:disabled {
@@ -480,24 +483,24 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
   .secondary {
-    background: #f1f5f9;
-    color: #334155;
+    background: color-mix(in srgb, var(--surface-color), var(--background-color) 52%);
+    color: var(--text-secondary);
   }
 
   .primary {
     background: #0f766e;
-    color: #ffffff;
+    color: var(--on-primary-color);
   }
 
   .danger {
     background: #dc2626;
-    color: #ffffff;
+    color: var(--on-primary-color);
   }
 }
 
 .sheet-note,
 .delete-copy {
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.5;
   margin: 0;
 }
@@ -507,10 +510,10 @@
   gap: 10px;
 
   button {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
-    color: #334155;
+    color: var(--text-secondary);
     font: inherit;
     font-weight: 850;
     min-height: 52px;
@@ -518,7 +521,7 @@
     padding: 0 14px;
 
     &.active {
-      background: #e6fffa;
+      background: color-mix(in srgb, #0f766e, var(--surface-color) 88%);
       border-color: #5eead4;
       color: #0f766e;
     }

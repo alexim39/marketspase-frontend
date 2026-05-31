@@ -60,6 +60,9 @@ Existing device-aware work already exists in these areas:
 | Storefront customer support | Converted in this pass | `/dashboard/stores/support` now uses a device-aware wrapper; mobile/tablet users get a native Buyer CRM with KPI rail, customer cards, bottom-sheet filters, outreach composer, and customer detail sheet. |
 | Settings shell | Converted in this pass | `/dashboard/settings` now uses a native mobile/tablet shell with account snapshot, profile health, shortcut cards, horizontal settings tabs, recent activity, and WhatsApp channel action while preserving existing child settings routes. |
 | Account settings | Converted in this pass | `/dashboard/settings/account` now uses a device-aware wrapper; mobile/tablet users get a profile-strength header, account summary cards, section cards, sticky mobile tabs, and one-at-a-time personal/professional/public identity forms. |
+| System settings | Converted in this pass | `/dashboard/settings/system` now uses a device-aware wrapper; mobile/tablet users get a native preferences hub with notification/theme summary cards, section cards, sticky tabs, and one-at-a-time notification/theme controls. |
+| Support settings | Converted in this pass | `/dashboard/settings/support` now uses a device-aware wrapper; mobile/tablet users get a native support center with WhatsApp quick actions, support summary cards, section cards, sticky tabs, and one-at-a-time contact/testimonial flows. |
+| Ads preferences | Converted in this pass | `/dashboard/settings/ads/preferences` now uses a device-aware wrapper; mobile/tablet users get a native ad-control center with relevance scoring, location/interest toggles, category picker cards, guidance, and sticky save/discard actions. |
 | Tutorials learning center | Converted in this pass | `/dashboard/tutorials/videos` now uses a device-aware wrapper; mobile/tablet users get a native learning feed with search, category rail, featured lesson, recently watched rail, bottom-sheet filters/sections, and lesson cards. |
 | Public help center | Converted in this pass | `/resources/help-center` now uses a device-aware wrapper; mobile/tablet users get a native support hub with touch search, topic rail, guide cards, FAQ cards, contact sheets, and learning shortcuts. |
 | Public about | Converted in this pass | `/resources/about` now uses a device-aware wrapper; mobile/tablet users get a native trust story with mission cards, platform proof, PPC-aligned workflow rows, feature sheets, and CTA actions. |
@@ -87,8 +90,17 @@ Existing device-aware work already exists in these areas:
 | Dashboard leaderboard | Converted in this pass | `/dashboard/leaderboard` now uses a device-aware wrapper; mobile/tablet users get a native rankings page with reward summary, champion card, podium rail, bottom-sheet filters, and profile-ready rank cards. |
 | Dashboard gamification | Converted in this pass | `/dashboard/gamification` now uses a device-aware wrapper; mobile/tablet users get a native rewards journey with level progress, XP summary, milestone rails, action breakdown cards, recent wins, and activity feed. |
 | Dashboard home | Converted in this pass | `/dashboard` now uses a device-aware wrapper; mobile/tablet users get a native home feed with greeting, KPI hero, quick actions, stat rail, reward shortcuts, community actions, wallet activity, trends, connections, learning, and bottom navigation. |
+| Dashboard profile | Converted in this pass | `/dashboard/profile` and `/dashboard/profile/:id` now use a device-aware wrapper; mobile/tablet users get a native trust profile with cover hero, stat rail, section tabs, posts, network, badges, collaboration reputation, and sticky profile actions. |
 | Daily check-in | Converted in this pass | The embedded dashboard streak prompt now uses a device-aware wrapper; mobile/tablet users get a compact bottom dock and bottom-sheet reward flow while desktop keeps the existing floating chip/modal. |
+| Community discussion forum | Converted in this pass | `/dashboard/community/discussion` and its list/search/tag/category variants now use a device-aware wrapper; mobile/tablet users get a native forum entry with app bar, community stat rail, search, topic chips, insight sheets, compact pagination, and sticky compose action. |
+| Community thread detail | Converted in this pass | `/dashboard/community/discussion/:threadId` now uses a device-aware wrapper; mobile/tablet users get a native thread reader with author card, engagement rail, media rail, poll voting, comments, and sticky reply/like/follow actions. |
 | Community feed | Has mobile feed component | Social feed pattern already exists. |
+| Community feed composer | Converted in this pass | `/dashboard/community/feeds/create` and `/dashboard/community/feeds/edit/:id` now use a device-aware wrapper; mobile/tablet users get a touch-first composer with source cards, media rail, advanced hashtag/challenge controls, preview sheet, and sticky publish action. |
+| Public feed post viewer | Converted in this pass | `/feed/:postId` now uses a device-aware wrapper; mobile/tablet users get a native public post viewer with stable loading skeletons, post card, share actions, and sticky comment/open-app controls. |
+| Public referral capture | Converted in this pass | `/ref/:username` now uses a device-aware wrapper; mobile/tablet users get a native invite confirmation flow with stable loading, referral outcome messaging, trust notes, and sticky signup actions. |
+| Public campaign unavailable | Converted in this pass | `/campaigns/unavailable` now uses a device-aware wrapper; mobile/tablet users get a native recovery screen with reason-specific styling, safe redirect explanation, seller contact, and sticky next actions. |
+| Get started onboarding | Converted in this pass | `/dashboard/get-started/onboarding` now uses a device-aware wrapper; mobile/tablet users get a native setup guide with role cards, checklist progress, video links, FAQ chips, and sticky next-step actions. |
+| AI assistant shell | Converted in this pass | `/dashboard/assistant/customer/*` now uses a device-aware parent shell; mobile/tablet users get a native assistant app bar, section rail, bottom navigation, and safe-area content frame around existing assistant child pages. |
 | Promoter landing | Has several mobile child components | Campaign cards and filters have mobile variants. |
 | Marketer campaign landing | Has several mobile child components | Campaign stats, cards, and filters have mobile variants. |
 
@@ -115,6 +127,14 @@ The migration should start with routes that are used often, affect money movemen
 | P0 | `/dashboard/campaigns/promotions` | Promotion feed cards, proof/analytics actions, fraud status visibility. Completed in this pass. |
 | P1 | `/dashboard/campaigns/analytics` | Mobile analytics cards and chart sections without desktop overflow. Completed in this pass. |
 | P1 | `/dashboard/notifications` | Mobile notification center, selection/delete, filter sheet, and mute preferences. Completed in this pass. |
+| P2 | `/dashboard/profile` and `/dashboard/profile/:id` | Native profile trust page with identity hero, stat rail, profile metrics, posts, network, badges, collaboration review actions, and sticky follow/edit controls. Completed in this pass. |
+| P2 | `/dashboard/community/discussion` | Native community forum entry with topic chips, search, sort/filter sheets, pinned/trending insight rail, thread cards, and sticky discussion composer. Completed in this pass. |
+| P2 | `/dashboard/community/discussion/:threadId` | Native forum thread reader with mobile media, poll, comments, and sticky engagement actions. Completed in this pass. |
+| P2 | `/dashboard/community/feeds/create` and `/dashboard/community/feeds/edit/:id` | Native feed post composer with source selection, media rail, caption starters, optional challenge/hashtag settings, preview sheet, and sticky publish/update action. Completed in this pass. |
+| P2 | `/feed/:postId` | Native public post viewer with one-handed close/share/comment/open-app actions and stable loading/error states. Completed in this pass. |
+| P2 | `/ref/:username` | Native referral invite confirmation with stable loading, success/error messaging, trust guidance, and one-handed continue/help actions. Completed in this pass. |
+| P2 | `/campaigns/unavailable` | Native campaign-link recovery screen with reason badges, safe redirect explanation, seller support, and sticky explore/help actions. Completed in this pass. |
+| P2 | `/dashboard/get-started/onboarding` | Native setup guide with role-aware progress, step cards, video guide shortcuts, FAQ chips, and sticky next action. Completed in this pass. |
 | P1 | `/dashboard/stores/promoted-products-analytics` | Mobile KPI carousel, product/promoter drilldown cards, insight panels. Completed in this pass. |
 | P1 | `/dashboard/stores/subscribers` | Subscriber cards, store filter sheet, export actions. Completed in this pass. |
 | P1 | `/dashboard/stores/promotions` | Promoter store-promotion earnings, link health, affiliate sales, and release requests in mobile cards. Completed in this pass. |
@@ -129,11 +149,15 @@ The migration should start with routes that are used often, affect money movemen
 | P2 | `/dashboard/stores/support` | Mobile Buyer CRM cards, segment filters, bottom-sheet outreach composer, customer detail editing, order history, and export/copy actions. Completed in this pass. |
 | P2 | `/dashboard/settings` | Grouped mobile settings shell with profile snapshot, quick section cards, horizontal tabs, activity, and support action. Completed in this pass. |
 | P2 | `/dashboard/settings/account` | Mobile account profile hub with completion cues, quick section navigation, and mobile-tuned personal/professional/public identity forms. Completed in this pass. |
+| P2 | `/dashboard/settings/system` | Mobile preferences hub with notification status, theme mode, contrast summary, sticky section navigation, and mobile-tuned notification/theme controls. Completed in this pass. |
+| P2 | `/dashboard/settings/support` | Mobile support center with WhatsApp quick actions, contact support flow, testimonial state, sticky section navigation, and mobile-tuned child forms. Completed in this pass. |
+| P2 | `/dashboard/settings/ads/preferences` | Mobile ad-control center with relevance score, local/interest matching controls, category cards, and one-handed save/discard actions. Completed in this pass. |
 | P2 | `/dashboard/tutorials/videos` | Mobile learning feed with featured lesson, recently watched rail, lesson cards, filters, sections sheet, support, and role-switch CTA. Completed in this pass. |
 | P2 | `/resources/careers` | Mobile hiring hub with benefit rail, culture summary, department chips, job cards, detail sheets, process timeline, internship CTA, and talent-pool mail action. Completed in this pass. |
 | P2 | `/resources/solutions/marketers` | Mobile PPC marketer explainer with tracked-link feature rail, campaign flow cards, industry use-case tabs, transparent cost card, proof rail, FAQ sheets, and campaign/contact CTAs. Completed in this pass. |
 | P2 | `/resources/solutions/promoters` | Mobile PPC promoter explainer with unique-link benefits, responsible promotion steps, account-health warnings, opportunity cards, quality rules, proof stories, and FAQ sheets. Completed in this pass. |
 | P2 | `/dashboard/assistant/customer/overview` | Mobile assistant control room with status toggle, quick actions, setup/test sheets, KPI rail, and recent conversation cards. Completed in this pass. |
+| P2 | `/dashboard/assistant/customer/*` shell | Native assistant parent shell with sticky mobile app bar, section rail, bottom navigation, socket reuse, and safe-area spacing. Completed in this pass. |
 | P2 | `/dashboard/assistant/customer/faqs` | Mobile FAQ trainer with coverage score, search, category chips, FAQ cards, add/edit/filter/delete sheets. Completed in this pass. |
 | P2 | `/dashboard/assistant/customer/conversations` | Mobile chat inbox with search, status filters, full-screen chat, quick actions, lead tagging, and sticky composer. Completed in this pass. |
 | P2 | `/dashboard/assistant/customer/automation` | Mobile automation control center with AI toggle, reply style, escalation, sales links, response timing, and sticky save/reset. Completed in this pass. |
@@ -617,6 +641,66 @@ The wrapper keeps desktop unchanged and renders the mobile shell only for mobile
 Accessibility:
 Back navigation, section cards, sticky tabs, and child form controls are real buttons/links/inputs with mobile-sized touch targets. Loading state uses polite visible status, and progress is backed by readable text.
 
+## System Settings Mobile UX Analysis
+
+Purpose:
+`/dashboard/settings/system` lets users control email notification delivery, theme mode, system-default behavior, and high contrast preferences.
+
+Desktop behavior:
+The desktop system page uses a Material card with tab/accordion presentation and mounts notification and theme settings together inside the desktop settings content area.
+
+Mobile decisions:
+The mobile page becomes a focused preferences hub. It leads with the current theme setup, shows notification/theme/contrast summary cards, then offers section cards and sticky tabs for Notifications and Theme. Only the active settings control is mounted so the page stays calm and lighter on small screens.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared background, surface, text, border, gradient, status, radius, shadow, spacing, and breakpoint tokens so light and dark mode remain consistent with the app design model.
+
+Performance:
+The wrapper keeps the existing desktop component unchanged and renders the mobile shell only for mobile/tablet. The mobile shell reuses `NotificationSettingsComponent` and `ThemeSettingsComponent`, keeping persistence logic in the existing services while avoiding the desktop tab/accordion tree on mobile.
+
+Accessibility:
+Back navigation, section cards, sticky tabs, toggles, and child controls are real controls with mobile-sized touch targets. Loading state uses polite visible status, and setting state is repeated as readable text instead of relying on color alone.
+
+## Support Settings Mobile UX Analysis
+
+Purpose:
+`/dashboard/settings/support` lets users contact MarketSpase support, open WhatsApp help channels, and create or update their testimonial.
+
+Desktop behavior:
+The desktop support page uses a Material card with tabs for Contact Support and Testimonial. The contact form owns support-ticket submission and WhatsApp actions, while the testimonial child owns rating/edit/publish behavior fed by the parent testimonial request.
+
+Mobile decisions:
+The mobile page becomes a support center. It leads with the fastest support path, keeps WhatsApp live chat and channel actions directly reachable, shows response/live-chat/testimonial summary cards, then offers section cards and sticky tabs for Contact and Testimonial. Only the selected child flow is mounted so the mobile screen avoids stacking two large forms.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared background, surface, text, border, gradient, status, radius, shadow, spacing, and breakpoint tokens so light and dark mode stay in the MarketSpase design model.
+
+Performance:
+The wrapper keeps the existing desktop component unchanged and renders the mobile support center only for mobile/tablet. The mobile component extends the existing support state so testimonial loading and error handling remain in one place, while contact and testimonial child components keep their existing submit logic.
+
+Accessibility:
+Back navigation, WhatsApp actions, section cards, sticky tabs, support form controls, and testimonial controls are real interactive elements with mobile-sized targets. Loading state uses polite visible status, and testimonial/support state is repeated in readable text.
+
+## Ads Preferences Mobile UX Analysis
+
+Purpose:
+`/dashboard/settings/ads/preferences` lets users control whether MarketSpase can use general location and category interests to make campaigns, store offers, and promotions more relevant.
+
+Desktop behavior:
+The desktop page uses wide Material cards with explanatory copy, slide toggles, category chips, desktop-only ad-type cards, and a bottom action area for saving or discarding changed preferences.
+
+Mobile decisions:
+The mobile page becomes a compact ad-control center. It leads with an ad relevance score, turns saved state/location/interests into small summary cards, keeps location and interest controls in thumb-sized panels, and replaces desktop chip density with a two-column category picker. Save and discard become sticky bottom actions only when changes exist.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../../styles/variables' as vars;` and `@use '../../../../../styles/mixins' as mixins;`. It uses shared background, surface, text, border, gradient, status, radius, shadow, spacing, and transition tokens so light and dark mode stay aligned with the MarketSpase design model.
+
+Performance:
+The wrapper keeps the existing desktop component unchanged and renders the mobile component only for mobile/tablet. The mobile class extends the existing preference component so persistence, normalization, category limits, snackbars, and user refresh behavior stay centralized.
+
+Accessibility:
+Back navigation, toggles, category choices, save/discard actions, and profile guidance are real controls with mobile-sized targets. The score and status cards repeat state as text, while selected categories expose `aria-pressed` for screen readers.
+
 ## Tutorials Learning Center Mobile UX Analysis
 
 Purpose:
@@ -923,6 +1007,26 @@ The mobile component extends the existing overview component, so API calls, sock
 Accessibility:
 The AI toggle is a labelled native control, quick actions are links or buttons, conversations are real links, loading uses an announced state, and the bottom sheets use dialog semantics with labelled close buttons and mobile-sized targets.
 
+## AI Assistant Shell Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/*` provides the persistent navigation, route outlet, notification badge, and socket connection for the AI Sales Assistant area across overview, conversations, FAQs, automation, analytics, and settings.
+
+Desktop behavior:
+The desktop parent component uses a Material toolbar, top navigation, sidenav container, mobile breakpoint observer, router outlet, and socket connection tied to the current user. It owns the assistant nav model, unread badge state, sidenav toggle state, and socket connect/disconnect lifecycle.
+
+Mobile decisions:
+The mobile shell removes the desktop sidenav and replaces it with a native assistant frame: a sticky top app bar with Back to Dashboard and conversation notification entry, a horizontal section rail for quick scanning, a safe-area-aware content outlet, and a fixed bottom nav for thumb navigation. The child assistant pages remain unchanged and continue to render their own mobile views inside this shell.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../styles/variables' as vars;` and `@use '../../../styles/mixins' as mixins;`. It uses dynamic surface, background, border, text, primary, shadow, safe-area, z-index, and transition tokens so light and dark themes follow the shared MarketSpase design model. The existing desktop shell stylesheet was also moved from `@import` to `@use`.
+
+Performance:
+The mobile shell extends the existing assistant parent so it reuses socket lifecycle, user resolution, nav data, and unread badge state. Mobile/tablet users do not mount the Material sidenav tree, reducing layout work around already-mobile child pages.
+
+Accessibility:
+Top-bar, section rail, notification, and bottom navigation controls are semantic links with labels, active states are visible through text/icon color and background, and all mobile navigation targets meet the 48px touch target rule.
+
 ## AI Assistant FAQs Mobile UX Analysis
 
 Purpose:
@@ -1076,6 +1180,26 @@ The mobile component extends the existing dashboard container and reuses the sam
 Accessibility:
 Notifications, primary actions, section actions, connection follow buttons, course actions, activity rows, and bottom navigation are real controls with mobile-sized targets. KPI values use visible labels, and the mobile bottom nav has an explicit navigation label.
 
+## Dashboard Profile Mobile UX Analysis
+
+Purpose:
+`/dashboard/profile` and `/dashboard/profile/:id` are the identity and trust pages for MarketSpase users. They show who a promoter or marketer is, their reputation signals, posts, followers, following, badges, collaboration reviews, and profile actions like follow, message, and edit.
+
+Desktop behavior:
+The desktop profile page uses a broad profile shell with cover media, profile metadata, tabbed content, feed cards, network lists, badges, collaboration reviews, and dialogs. It owns profile loading, feed loading, follow/unfollow, message navigation, followers/following pagination, badge loading, collaboration review actions, and flagging logic.
+
+Mobile decisions:
+The mobile profile becomes a native trust profile rather than a squeezed desktop layout. It leads with a cover hero, avatar, verification/role cues, headline, bio, and a compact stat rail. Profile sections become sticky thumb tabs for Overview, Posts, Network, and Badges. The Overview section surfaces location, profile completeness, trust score, campaign/product performance, collaboration reputation, and social links. Posts reuse the existing feed card component, while Network and Badges become compact cards. The primary follow/edit and message actions stay sticky at the bottom for one-handed use.
+
+Theme alignment:
+The mobile stylesheet imports the shared dynamic design system with `@use '../../../styles/variables' as vars;` and `@use '../../../styles/mixins' as mixins;`. It uses shared surface, border, text, status, spacing, radius, shadow, and gradient tokens so light and dark themes remain consistent with the rest of MarketSpase.
+
+Performance:
+The mobile component extends the existing profile component and reuses the same services, signals, computed values, pagination, feed handlers, collaboration review actions, and navigation. Mobile/tablet users do not render the desktop profile DOM, and the sectioned view keeps secondary content out of the initial visual path.
+
+Accessibility:
+Back, follow/edit, message, tabs, network refresh, social links, and sticky actions are real labelled controls with touch-sized targets. Section tabs expose pressed state, visual metrics also have text labels, and loading/error/empty states avoid misleading blank content.
+
 ## Daily Check-In Mobile UX Analysis
 
 Purpose:
@@ -1092,6 +1216,146 @@ The mobile component extends the existing daily check-in component and reuses th
 
 Accessibility:
 The dock, close control, and withdrawal action are real labelled buttons with mobile-sized targets. The bottom sheet uses dialog semantics with `aria-modal`, has a labelled heading, respects reduced motion, and keeps visible text for all reward/progress values.
+
+## Community Discussion Forum Mobile UX Analysis
+
+Purpose:
+`/dashboard/community/discussion` is the signed-in forum entry point where marketers, promoters, and store owners browse discussions, search for answers, filter by tags/categories, follow useful topics, and start new rich discussions.
+
+Desktop behavior:
+The desktop forum page uses a sticky toolbar, two-column layout, search/filter bar, topic chips, thread-list component, pagination, and a right sidebar with community stats, pinned discussions, trending topics, active users, and hot topics. It owns thread loading, search debounce, pagination, tag filtering, topic follow state, and create-thread dialog refresh.
+
+Mobile decisions:
+The mobile page is a native community feed entry rather than a compressed sidebar layout. It leads with a compact app bar and compose button, then shows a forum hero, swipeable community stats, a sticky touch search row, topic chips, hot pinned/trending cards, and the existing thread-list component so owner/admin thread actions remain available. Sidebar-only content moves into bottom sheets for filters and community insights. Pagination becomes a compact Previous/Page/Next strip, and the discussion composer stays available through a sticky bottom action.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`, then builds on shared background, surface, text, border, spacing, radius, shadow, gradient, and status tokens. This keeps the light and dark theme behavior in the same design flow as the rest of the app.
+
+Performance:
+The mobile component extends the existing forum page and reuses the same forum service, debounce search, pagination, filter methods, follow-topic logic, create-thread refresh, and thread-list business actions. It avoids rendering the desktop sidebar and moves optional panels behind sheets, reducing initial mobile DOM weight.
+
+Accessibility:
+Search, sort, topic filters, insights, pagination, compose, and close controls are real buttons or labelled inputs with mobile-sized targets. Bottom sheets use dialog semantics, selected chips expose pressed state, and loading uses skeleton cards instead of an empty flash.
+
+## Community Thread Detail Mobile UX Analysis
+
+Purpose:
+`/dashboard/community/discussion/:threadId` is where users read a full discussion, view media, vote in polls, like/follow the thread, and participate through comments.
+
+Desktop behavior:
+The desktop thread detail uses a Material card reader with back navigation, media grid, sanitized content, poll controls, tags, thread actions, comment form, and nested comment cards. It owns thread loading, optimistic thread likes, thread follows, poll option selection/submission, comment creation, comment likes, comment deletion, and profile navigation.
+
+Mobile decisions:
+The mobile page becomes a focused reading and reply experience. It leads with a sticky app bar, then presents the discussion category/time, title, author card, swipeable engagement rail, swipeable media rail, content, poll voting, and tag chips. Likes, follow state, and reply entry remain available in a bottom sticky action bar so users do not need to scroll back to the top. The comment form is styled as a native reply composer, and existing comment cards are reused to preserve moderation and owner actions.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../../../../styles/variables' as vars;` and `@use '../../../../../../styles/mixins' as mixins;`. It uses the shared dynamic surface, text, border, gradient, spacing, radius, shadow, and primary RGB tokens so the reader behaves correctly in both light and dark themes.
+
+Performance:
+The mobile component extends the existing thread detail component and reuses its API calls, form state, poll logic, optimistic like behavior, follow handling, comment mutation paths, and profile navigation. The mobile template avoids rendering the desktop Material card tree and keeps large media in a horizontally scrollable rail.
+
+Accessibility:
+Back, reply, like, follow, poll options, poll submit, and retry controls are real buttons with touch-sized targets. Poll selection exposes pressed state, the reply textarea has an explicit label, and loading uses stable skeleton cards.
+
+## Community Feed Composer Mobile UX Analysis
+
+Purpose:
+`/dashboard/community/feeds/create` and `/dashboard/community/feeds/edit/:id` let marketers create or update social feed posts from campaigns, storefront products, or manual creator stories while preserving media uploads, linked campaign/product assets, hashtags, challenge metadata, anonymous posting, comment controls, and external-sharing settings.
+
+Desktop behavior:
+The desktop composer uses a two-column form plus live preview. It owns route edit loading, campaign/store/product loading, source switching, local media object URLs, content counting, hashtag/challenge state, form validation, create `FormData`, edit payloads, snackbars, and feed navigation.
+
+Mobile decisions:
+The mobile composer is a thumb-first posting flow rather than a compressed desktop form. It starts with a sticky app bar and readiness summary, uses large source tabs, selected campaign/product cards, horizontal caption starter cards, a media upload drop area with swipeable media rail, and a collapsed advanced section for challenge, hashtags, and privacy/share options. The live preview becomes a bottom sheet, and publish/update stays in a sticky bottom bar so users can complete the post with one hand.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../../../styles/variables' as vars;` and `@use '../../../../../styles/mixins' as mixins;`. It uses shared dynamic background, surface, text, border, primary RGB, gradient, spacing, shadow, radius, safe-area, and tablet breakpoint tokens so light and dark mode remain aligned with the MarketSpase design model.
+
+Performance:
+The mobile component extends the existing composer component and reuses the same service calls, route edit flow, validation, source selection, media cleanup, create/edit payloads, and preview model. Mobile/tablet users do not render the desktop two-column preview layout, and optional controls are kept behind a native details panel or bottom sheet.
+
+Accessibility:
+Back, source selection, media upload/removal, caption starters, hashtags, preview, and publish/update controls are real labelled buttons or form fields. The preview sheet uses dialog semantics, selected source tabs expose active state through styling and tab roles, and touch targets are sized for mobile use.
+
+## Public Feed Post Viewer Mobile UX Analysis
+
+Purpose:
+`/feed/:postId` is the public deep-link surface for a shared MarketSpase community post. It must let signed-in and signed-out visitors read the post, copy/share it, open WhatsApp where available, sign in for protected actions, and return safely to the previous page or app flow.
+
+Desktop behavior:
+The desktop viewer uses a sticky header, centered feed-card shell, loading/error states, and the shared `FeedPostCardComponent`. It owns post loading, auth-gated like/save/comment actions, link copy, WhatsApp share, chat tracking, hashtag navigation, return-to handling, and fallback navigation.
+
+Mobile decisions:
+The mobile viewer is designed as a native social post screen. It starts with a compact sticky app bar, uses a stable loading card plus skeleton so the post area never flashes empty, shows a small community context card above the shared post card, and keeps WhatsApp, copy, and comment/open-app actions in a sticky bottom action bar. Signed-out users see an Open app action instead of a dead comment action.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../../../styles/variables' as vars;` and `@use '../../../../../styles/mixins' as mixins;`. It uses dynamic background, surface, text, border, primary RGB, gradient, shadow, spacing, radius, safe-area, and tablet breakpoint tokens so light and dark themes follow the same MarketSpase design flow.
+
+Performance:
+The mobile component extends the existing public feed post component and reuses the same loading effect, feed service, post signal, share/comment/chat handlers, and navigation behavior. Mobile/tablet users do not render the desktop centered shell, and the skeleton is pure CSS with no extra data work.
+
+Accessibility:
+Close, copy, WhatsApp, comment, open-app, and error recovery actions are labelled real controls with mobile-sized targets. Loading state uses polite visible text, error state includes text plus an action, and post actions remain reachable without scrolling back to the top.
+
+## Public Referral Capture Mobile UX Analysis
+
+Purpose:
+`/ref/:username` is the public referral entry point. It validates the referral code, stores the invite for signup through localStorage/cookie, shows success or failure, and then returns the visitor to the main app flow.
+
+Desktop behavior:
+The desktop component is an inline centered card. It owns route parameter reading, referral validation through `ProfileService`, referral storage, referral cleanup on failure, success/error state, and delayed home navigation.
+
+Mobile decisions:
+The mobile page is designed as a native invite confirmation screen rather than a small card on a gradient. It starts with a sticky top app bar, keeps the loading state stable with skeleton rows while the referral validates, presents success/error states as clear outcome cards, explains the three-step referral flow, and keeps Continue/Help actions pinned above the mobile safe area. This helps signed-out mobile visitors understand that the invite is being saved and avoids the feeling of a broken redirect page.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../styles/variables' as vars;` and `@use '../../../styles/mixins' as mixins;`. It uses shared background, surface, text, divider, border, shadow, spacing, z-index, radius, safe-area, `--primary-rgb`, `--primary-color`, and `vars.$gradient-primary` tokens so light and dark mode stay aligned with the MarketSpase design model.
+
+Performance:
+The mobile component extends the existing referral capture component and reuses the same route, service call, referral storage, error cleanup, and redirect behavior. Mobile/tablet users do not mount the desktop card tree, and the skeleton uses CSS only.
+
+Accessibility:
+Back, continue, and help actions are real labelled controls with mobile-sized targets. Loading uses polite visible messaging, outcome state is text-first, and the sticky footer keeps the primary action reachable without scrolling.
+
+## Public Campaign Unavailable Mobile UX Analysis
+
+Purpose:
+`/campaigns/unavailable` is the public recovery route used when a promotion or campaign tracking link can no longer accept traffic. It explains why the click was redirected, prevents a broken browser page, and gives visitors safe next actions.
+
+Desktop behavior:
+The desktop component renders a two-column explanatory page. It owns query parameter reading for campaign title, unavailable reason, and seller contact URL. It also maps reason codes into user-facing headline/body copy and validates contact links so only WhatsApp URLs are exposed.
+
+Mobile decisions:
+The mobile page becomes a native recovery screen rather than a stacked desktop explanation. It leads with a compact app bar and reason icon, then shows a large reason card with tone-specific styling for budget, expiry, review, invalid, or removed states. The campaign title and trust signals are separated into a summary card, the safe-redirect explanation becomes numbered mobile rows, seller contact appears only when the sanitized contact URL is present, and Explore/Get help actions stay sticky above the safe area.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared background, surface, text, divider, border, shadow, spacing, radius, z-index, safe-area, `--primary-rgb`, `--primary-color`, and dynamic brand gradients so light and dark themes stay aligned with the MarketSpase design model.
+
+Performance:
+The mobile component extends the existing campaign unavailable component and reuses the same query parameter, reason mapping, contact URL sanitization, and public navigation behavior. Mobile/tablet users do not render the desktop two-column recovery shell.
+
+Accessibility:
+Back, explore, help, and seller-contact actions are real labelled links/buttons with mobile-sized targets. The reason status is repeated in text and icon form, and numbered recovery rows avoid relying on color alone.
+
+## Get Started Onboarding Mobile UX Analysis
+
+Purpose:
+`/dashboard/get-started/onboarding` helps new and returning users understand the next concrete setup steps for their current MarketSpase role, especially marketers launching campaigns/stores and promoters learning how to earn responsibly.
+
+Desktop behavior:
+The desktop component renders a broad onboarding workspace with hero progress, role switching, role-specific step lists, proof guidance, Facebook video links, FAQ categories, and support actions. It owns profile loading through `DashboardService`, route/query handling, role-switch countdown state, step definitions, FAQ/category filtering, role toggling, and navigation to setup destinations.
+
+Mobile decisions:
+The mobile page becomes a native setup companion rather than a stacked desktop guide. It starts with a sticky app bar, user identity, role label, progress meter, and compact role cards. The current role's onboarding steps become touch-first checklist cards with clear status and a single action. Promoter quality rules are surfaced as short warning/tip cards, video guides use segmented role tabs, FAQs become chip-filtered rows, and the next incomplete step stays reachable in the sticky bottom action area.
+
+Theme alignment:
+The mobile stylesheet imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared surface, text, border, status, spacing, radius, shadow, z-index, safe-area, and dynamic brand tokens so light and dark themes follow the current MarketSpase design model.
+
+Performance:
+The mobile component extends the existing onboarding component and reuses the same profile load, role-switch flow, step definitions, FAQ content, video links, and navigation methods. Mobile/tablet users do not mount the full desktop section tree, and derived state uses computed signals for the visible steps, progress count, next step, and FAQ slice.
+
+Accessibility:
+Role switches, setup actions, video links, FAQ category chips, and sticky next-step actions are real buttons or links with readable labels. Progress is represented with text and bar width, not color alone, and mobile touch controls remain sized for one-handed use.
 
 ## Marketer Store Creation Mobile UX Analysis
 
@@ -1384,6 +1648,14 @@ projects/platform/src/app/settings/account/index.ts
 projects/platform/src/app/settings/account/mobile/account-mobile.component.ts
 projects/platform/src/app/settings/account/mobile/account-mobile.component.html
 projects/platform/src/app/settings/account/mobile/account-mobile.component.scss
+projects/platform/src/app/settings/system/index.ts
+projects/platform/src/app/settings/system/mobile/system-setting-mobile.component.ts
+projects/platform/src/app/settings/system/mobile/system-setting-mobile.component.html
+projects/platform/src/app/settings/system/mobile/system-setting-mobile.component.scss
+projects/platform/src/app/settings/support/index.ts
+projects/platform/src/app/settings/support/mobile/support-mobile.component.ts
+projects/platform/src/app/settings/support/mobile/support-mobile.component.html
+projects/platform/src/app/settings/support/mobile/support-mobile.component.scss
 projects/platform/src/app/tutorials/index.ts
 projects/platform/src/app/tutorials/mobile/tutorials-mobile.component.ts
 projects/platform/src/app/tutorials/mobile/tutorials-mobile.component.html
@@ -1460,6 +1732,30 @@ projects/platform/src/app/legal/privacy/index.ts
 projects/platform/src/app/legal/privacy/mobile/privacy-mobile.component.ts
 projects/platform/src/app/legal/privacy/mobile/privacy-mobile.component.html
 projects/platform/src/app/legal/privacy/mobile/privacy-mobile.component.scss
+projects/platform/src/app/community/feeds/create/index.ts
+projects/platform/src/app/community/feeds/create/mobile/create-feed-mobile.component.ts
+projects/platform/src/app/community/feeds/create/mobile/create-feed-mobile.component.html
+projects/platform/src/app/community/feeds/create/mobile/create-feed-mobile.component.scss
+projects/platform/src/app/community/feeds/public-feed-post/index.ts
+projects/platform/src/app/community/feeds/public-feed-post/mobile/public-feed-post-mobile.component.ts
+projects/platform/src/app/community/feeds/public-feed-post/mobile/public-feed-post-mobile.component.html
+projects/platform/src/app/community/feeds/public-feed-post/mobile/public-feed-post-mobile.component.scss
+projects/platform/src/app/referral/index.ts
+projects/platform/src/app/referral/mobile/referral-capture-mobile.component.ts
+projects/platform/src/app/referral/mobile/referral-capture-mobile.component.html
+projects/platform/src/app/referral/mobile/referral-capture-mobile.component.scss
+projects/platform/src/app/campaign/public-campaign-unavailable/index.ts
+projects/platform/src/app/campaign/public-campaign-unavailable/mobile/public-campaign-unavailable-mobile.component.ts
+projects/platform/src/app/campaign/public-campaign-unavailable/mobile/public-campaign-unavailable-mobile.component.html
+projects/platform/src/app/campaign/public-campaign-unavailable/mobile/public-campaign-unavailable-mobile.component.scss
+projects/platform/src/app/get-started/onboarding/index.ts
+projects/platform/src/app/get-started/onboarding/mobile/get-started-mobile.component.ts
+projects/platform/src/app/get-started/onboarding/mobile/get-started-mobile.component.html
+projects/platform/src/app/get-started/onboarding/mobile/get-started-mobile.component.scss
+projects/platform/src/app/ai-assistant/index.ts
+projects/platform/src/app/ai-assistant/mobile/ai-assistant-mobile-shell.component.ts
+projects/platform/src/app/ai-assistant/mobile/ai-assistant-mobile-shell.component.html
+projects/platform/src/app/ai-assistant/mobile/ai-assistant-mobile-shell.component.scss
 ```
 
 Files updated:
@@ -1484,6 +1780,12 @@ projects/platform/src/app/wallet/withdrawal/withdrawal.component.ts
 projects/platform/src/app/dashboard/sidenav/sidenav.component.ts
 projects/platform/src/app/campaign/create/create-campaign.component.ts
 projects/platform/src/app/legal/legal.routes.ts
+projects/platform/src/app/community/feeds/feeds.routes.ts
+projects/platform/src/app/app.routes.ts
+projects/platform/src/app/get-started/get-started.routes.ts
+projects/platform/src/app/campaign/public-campaign-unavailable/desktop/public-campaign-unavailable.component.scss
+projects/platform/src/app/ai-assistant/ai-assistant.routes.ts
+projects/platform/src/app/ai-assistant/ai-assistant.component.scss
 ```
 
 The desktop `TransactionComponent` is unchanged. The wrapper now renders `MobileTransactionsComponent` for mobile/tablet and the existing `TransactionComponent` for desktop.
@@ -1514,6 +1816,10 @@ The desktop `StoreEmailSubscribersComponent` is unchanged. The new subscribers w
 
 The desktop promoted-products page under `/dashboard/stores/promotions` is unchanged. Its mobile component now handles mobile/tablet users with native cards, filters, and release-request presentation.
 
+The desktop `ReferralCaptureComponent` is unchanged. The public referral route now renders `ReferralCaptureMobileComponent` for mobile/tablet and keeps the existing centered referral card for desktop.
+
+The desktop `PublicCampaignUnavailableComponent` is unchanged. The public campaign-unavailable route now renders `PublicCampaignUnavailableMobileComponent` for mobile/tablet and keeps the existing two-column recovery page for desktop.
+
 The desktop public `ProductDetailsComponent` is unchanged. The product details route wrapper now renders `MobileProductDetailsComponent` for mobile/tablet and keeps the existing desktop product page for desktop.
 
 The desktop public `StorefrontComponent` is unchanged. The storefront route wrapper now renders `MobileStorefrontComponent` for mobile/tablet and keeps the existing desktop storefront for desktop.
@@ -1541,6 +1847,14 @@ The desktop marketer `CustomerSupportComponent` is unchanged. The new customer-s
 The desktop settings shell in `SettingsIndexComponent` is unchanged for desktop. The settings index now renders `SettingsMobileIndexComponent` for mobile/tablet and keeps the existing Material sidenav shell for desktop.
 
 The desktop `AccountComponent` is unchanged. The settings account route now renders `AccountMobileComponent` for mobile/tablet and keeps the existing expansion-panel account workspace for desktop.
+
+The desktop `CreateFeedPageComponent` is unchanged. The feed create/edit routes now render `CreateFeedMobileComponent` for mobile/tablet through `CreateFeedIndexComponent`, while desktop keeps the existing two-column composer and live preview workspace.
+
+The desktop `PublicFeedPostComponent` is unchanged. The public feed route now renders `PublicFeedPostMobileComponent` for mobile/tablet through `PublicFeedPostIndexComponent`, while desktop keeps the existing centered post viewer.
+
+The desktop `SystemSettingComponent` is unchanged. The settings system route now renders `SystemSettingMobileComponent` for mobile/tablet and keeps the existing tab/accordion system workspace for desktop.
+
+The desktop `SupportComponent` is unchanged. The settings support route now renders `SupportMobileComponent` for mobile/tablet and keeps the existing tabbed contact/testimonial workspace for desktop.
 
 The desktop `TutorialsComponent` is unchanged. The tutorials route now renders `TutorialsMobileComponent` for mobile/tablet and keeps the existing desktop learning center for desktop.
 
@@ -1572,6 +1886,8 @@ The desktop `PrivacyComponent` is unchanged for desktop. The legal privacy route
 
 The desktop AI assistant `OverviewComponent` is unchanged. The assistant overview route now renders `OverviewMobileComponent` for mobile/tablet and keeps the existing desktop control room for desktop.
 
+The desktop `AiAssistantComponent` is unchanged as the desktop assistant shell. The assistant customer parent route now renders `AiAssistantMobileShellComponent` for mobile/tablet and keeps the existing toolbar/sidenav shell for desktop.
+
 The desktop AI assistant `FaqsComponent` keeps the existing desktop UI and behavior. Its delete path now exposes a shared internal removal method so the mobile FAQ trainer can use a bottom-sheet confirmation instead of a browser confirm.
 
 The desktop AI assistant `ConversationsComponent` is unchanged. The conversations route now renders `ConversationsMobileComponent` for mobile/tablet and keeps the existing two-column desktop chat workspace for desktop.
@@ -1592,10 +1908,12 @@ The desktop `DashboardMainContainer` is unchanged. The dashboard root route now 
 
 The desktop `DailyCheckInComponent` is unchanged. The dashboard shell now renders `DailyCheckInMobileComponent` for mobile/tablet and keeps the existing floating chip/modal for desktop.
 
+The desktop `GetStartedComponent` is unchanged. The onboarding route now renders `GetStartedMobileComponent` for mobile/tablet and keeps the existing desktop onboarding workspace for desktop.
+
 The desktop `CreateCampaignComponent` is unchanged. The campaign creation route now renders `CreateCampaignMobileComponent` for mobile/tablet and keeps the existing stepper workspace for desktop.
 
 The desktop `CampaignDetailsComponent` is unchanged. The campaign details route now renders `CampaignDetailsMobileComponent` for mobile/tablet and keeps the existing desktop campaign detail workspace for desktop.
 
 ## Remaining Migration Notes
 
-Product management is now covered for the core list/manage route, product creation flow, product editing flow, and product detail workspace. The marketer storefront dashboard, promoter store browsing, promoter store product shelf, store creation, store editing, storefront customer support, wallet transfer, wallet withdrawal, wallet funding, campaign creation, campaign details, settings shell, account settings, tutorials learning center, public help center, public about, public success stories, public community, public careers, public marketer solution, public promoter solution, public features, public FAQ, public contact, public how-it-works, public benefits, public legal shell, public cookies policy, public terms of service, public privacy policy, dashboard home, dashboard daily check-in, dashboard global search, dashboard leaderboard, dashboard gamification, AI assistant overview, AI assistant FAQs, AI assistant conversations, AI assistant automation, AI assistant analytics, and AI assistant settings are also covered. The next passes should focus on the remaining resources content and other dense desktop-first dashboard pages.
+Product management is now covered for the core list/manage route, product creation flow, product editing flow, and product detail workspace. The marketer storefront dashboard, promoter store browsing, promoter store product shelf, store creation, store editing, storefront customer support, wallet transfer, wallet withdrawal, wallet funding, campaign creation, campaign details, settings shell, account settings, system settings, support settings, tutorials learning center, public help center, public about, public success stories, public community, public careers, public marketer solution, public promoter solution, public features, public FAQ, public contact, public how-it-works, public benefits, public legal shell, public cookies policy, public terms of service, public privacy policy, dashboard home, dashboard daily check-in, dashboard get-started onboarding, dashboard global search, dashboard leaderboard, dashboard gamification, AI assistant overview, AI assistant FAQs, AI assistant conversations, AI assistant automation, AI assistant analytics, and AI assistant settings are also covered. The next passes should focus on the remaining resources content and other dense desktop-first dashboard pages.

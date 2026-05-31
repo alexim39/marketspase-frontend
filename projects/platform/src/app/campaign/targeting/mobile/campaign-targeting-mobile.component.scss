@@ -84,7 +84,7 @@
   align-items: center;
   padding: vars.$spacing-5;
   background: vars.$gradient-primary;
-  color: vars.$white;
+  color: vars.$on-primary-color;
   box-shadow: vars.$shadow-lg;
 }
 
@@ -94,7 +94,7 @@
   p,
   span {
     margin: 0;
-    color: rgba(vars.$white, 0.86);
+    color: color-mix(in srgb, vars.$on-primary-color, transparent 14%);
     font-size: vars.$font-size-sm;
     line-height: vars.$line-height-normal;
   }
@@ -118,8 +118,8 @@
   width: 82px;
   min-height: 82px;
   border-radius: vars.$border-radius-lg;
-  background: rgba(vars.$white, 0.16);
-  border: 1px solid rgba(vars.$white, 0.22);
+  background: color-mix(in srgb, vars.$on-primary-color, transparent 84%);
+  border: 1px solid color-mix(in srgb, vars.$on-primary-color, transparent 78%);
 
   strong {
     font-size: vars.$font-size-2xl;
@@ -129,7 +129,7 @@
 
   span {
     margin-top: vars.$spacing-1;
-    color: rgba(vars.$white, 0.82);
+    color: color-mix(in srgb, vars.$on-primary-color, transparent 18%);
     font-size: vars.$font-size-xs;
     font-weight: vars.$font-weight-semibold;
   }

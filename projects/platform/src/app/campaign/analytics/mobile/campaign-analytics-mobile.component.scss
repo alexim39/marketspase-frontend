@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 .mobile-analytics-page {
   min-height: 100dvh;
@@ -530,7 +532,7 @@ i.billable {
 
 .status-badge.inactive {
   background: $error-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .loading-card {

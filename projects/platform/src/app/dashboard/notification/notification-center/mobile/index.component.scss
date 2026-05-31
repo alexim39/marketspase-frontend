@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -194,7 +196,7 @@
     padding: 0 6px;
     border-radius: 999px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 11px;
   }
 
@@ -627,7 +629,7 @@
 .sheet-primary {
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .sheet-secondary {

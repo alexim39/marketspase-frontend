@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -435,7 +437,7 @@
 .primary-action {
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 
   &:disabled {
     opacity: 0.6;
@@ -481,7 +483,7 @@
     border: 0;
     border-radius: 999px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: 900;
     white-space: nowrap;
   }
@@ -536,14 +538,14 @@
   background:
     linear-gradient(135deg, rgba($gray-900, 0.96), rgba($gray-700, 0.96)),
     $gray-900;
-  color: $white;
+  color: var(--on-primary-color);
 
   .eyebrow {
-    color: rgba($white, 0.75);
+    color: rgba(var(--surface-color), 0.75);
   }
 
   button {
-    background: $white;
+    background: var(--surface-color);
     color: $gray-900;
   }
 }

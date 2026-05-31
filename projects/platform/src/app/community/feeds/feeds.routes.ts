@@ -8,12 +8,12 @@ export const FeedsRoutes: Routes = [
   },
   {
     path: 'create',
-    loadComponent: () => import('./create/create-feed.component').then(c => c.CreateFeedPageComponent),
+    loadComponent: () => import('./create').then(c => c.CreateFeedIndexComponent),
     title: 'Create New Feed - Explore discussions, ask questions, and share knowledge',
   },
   {
     path: 'edit/:id',
-    loadComponent: () => import('./create/create-feed.component').then(c => c.CreateFeedPageComponent),
+    loadComponent: () => import('./create').then(c => c.CreateFeedIndexComponent),
     data: { title: 'Edit Post' }
   }
 

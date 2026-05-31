@@ -1,5 +1,5 @@
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
 
 :host {
   display: block;
@@ -190,7 +190,7 @@
   }
 
   &.current {
-    color: $white;
+    color: var(--on-primary-color);
     background: $primary-color;
     box-shadow: 0 0.8rem 1.6rem rgba($primary-color, 0.22);
   }
@@ -402,7 +402,7 @@
 }
 
 .primary-action {
-  color: $white;
+  color: var(--on-primary-color);
   background: $primary-color;
   box-shadow: 0 0.75rem 1.5rem rgba($primary-color, 0.24);
 }

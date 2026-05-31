@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -164,7 +166,7 @@
   > button {
     border-color: transparent;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
 }
 
@@ -276,7 +278,7 @@ label,
   button:last-child {
     border-color: transparent;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
 }
 
@@ -331,7 +333,7 @@ label,
     padding: 0 16px;
     border-radius: 8px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     text-decoration: none;
     font-weight: 900;
   }
@@ -467,7 +469,7 @@ label,
   button:first-child {
     border-color: transparent;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
 }
 
@@ -492,7 +494,7 @@ label,
   z-index: 20;
   border-color: transparent;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   box-shadow: $shadow-lg;
 }
 

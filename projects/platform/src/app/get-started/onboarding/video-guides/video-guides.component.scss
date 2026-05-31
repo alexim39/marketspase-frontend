@@ -1,93 +1,198 @@
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as vars;
+@use '../../../../styles/mixins' as mixins;
 
 .video-guides {
-  margin-bottom: $spacing-12;
-  
-  .video-section-title {
-    @include heading-medium;
-    margin-bottom: $spacing-6;
-    text-align: center;
+  margin-bottom: vars.$spacing-12;
+}
+
+.video-section-heading {
+  max-width: 760px;
+  margin: 0 auto vars.$spacing-6;
+  text-align: center;
+}
+
+.video-eyebrow {
+  margin: 0 0 vars.$spacing-2;
+  color: vars.$text-secondary;
+  font-size: vars.$font-size-xs;
+  font-weight: vars.$font-weight-bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.video-section-title {
+  @include mixins.heading-medium;
+  margin: 0;
+  color: vars.$text-primary;
+}
+
+.video-section-copy {
+  max-width: 560px;
+  margin: vars.$spacing-3 auto 0;
+  color: vars.$text-secondary;
+  font-size: vars.$font-size-base;
+  line-height: vars.$line-height-relaxed;
+}
+
+.video-grid {
+  display: grid;
+  gap: vars.$spacing-6;
+}
+
+.video-card {
+  overflow: hidden;
+  border: 1px solid vars.$border-color;
+  border-radius: 24px;
+  background: vars.$surface-color;
+  color: vars.$text-primary;
+  box-shadow: vars.$shadow-md;
+}
+
+.video-header {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: vars.$spacing-4;
+  align-items: center;
+  padding: vars.$spacing-5;
+  border-bottom: 1px solid vars.$border-color;
+  background:
+    linear-gradient(135deg, rgba(var(--primary-rgb), 0.12), transparent 64%),
+    vars.$background-color;
+}
+
+.video-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--primary-color);
+
+  mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
   }
-  
-  .video-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: $spacing-6;
-    
-    @include mobile {
-      grid-template-columns: 1fr;
-    }
-    
-    .video-card {
-      @include card-base;
-      overflow: hidden;
-      
-      .video-header {
-        padding: $spacing-4;
-        border-bottom: $border-width solid $border-color;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        
-        .video-title {
-          @include heading-small;
-          display: flex;
-          align-items: center;
-          gap: $spacing-2;
-          margin-bottom: $spacing-2;
-          
-          mat-icon {
-            color: $primary-color;
-          }
-        }
-        
-        .video-description {
-          @include body-small;
-          color: $text-secondary;
-        }
+}
 
-        .promo-button {
-          margin: 1em 0;
-          @include button-primary;
-          mat-icon {
-            color: $white;
-            border: 1px solid $white;
-            padding: 0 1px 0 0;
-            border-radius: 20%;
-            width: 25px;
-          }
-        }
+.video-title {
+  margin: 0;
+  color: vars.$text-primary;
+  font-size: vars.$font-size-xl;
+  font-weight: vars.$font-weight-bold;
+  line-height: vars.$line-height-tight;
+}
 
-      }
-      
-      .video-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: $gray-900;
-        padding: 1em 0;      
-        .video-placeholder {
-          @include absolute-center;
-          @include flex-column-center;
-          color: $white;
-          text-align: center;
-          
-          mat-icon {
-            font-size: 48px;
-            width: 48px;
-            height: 48px;
-            margin-bottom: $spacing-2;
-            opacity: 0.7;
-          }
-          
-          span {
-            @include body-small;
-            opacity: 0.8;
-          }
-        }
-      }
-    }
+.video-description {
+  margin: vars.$spacing-2 0 0;
+  color: vars.$text-secondary;
+  font-size: vars.$font-size-sm;
+  line-height: vars.$line-height-relaxed;
+}
+
+.promo-button {
+  min-height: 44px;
+  border-radius: 14px;
+
+  mat-icon {
+    color: currentColor;
+  }
+}
+
+.video-playlist {
+  display: grid;
+  gap: vars.$spacing-4;
+  padding: vars.$spacing-5;
+}
+
+.embedded-guide {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.45fr) minmax(360px, 1fr);
+  gap: vars.$spacing-4;
+  align-items: stretch;
+  padding: vars.$spacing-4;
+  border: 1px solid vars.$divider-color;
+  border-radius: 20px;
+  background: vars.$background-color;
+}
+
+.embedded-copy {
+  min-width: 0;
+
+  span {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    padding: 0 vars.$spacing-2;
+    border: 1px solid rgba(var(--primary-rgb), 0.22);
+    border-radius: vars.$border-radius-full;
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color);
+    font-size: vars.$font-size-xs;
+    font-weight: vars.$font-weight-bold;
+  }
+
+  h4 {
+    margin: vars.$spacing-3 0 vars.$spacing-2;
+    color: vars.$text-primary;
+    font-size: vars.$font-size-lg;
+    font-weight: vars.$font-weight-bold;
+    line-height: vars.$line-height-tight;
+  }
+
+  p {
+    margin: 0;
+    color: vars.$text-secondary;
+    font-size: vars.$font-size-sm;
+    line-height: vars.$line-height-relaxed;
+  }
+}
+
+.video-container {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  border-radius: 18px;
+  background: vars.$gray-900;
+  aspect-ratio: 16 / 9;
+
+  iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .video-header,
+  .embedded-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .video-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .promo-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .video-card {
+    border-radius: 20px;
+  }
+
+  .video-header,
+  .video-playlist {
+    padding: vars.$spacing-4;
+  }
+
+  .embedded-guide {
+    padding: vars.$spacing-3;
   }
 }

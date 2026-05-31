@@ -1,6 +1,6 @@
 /* campaign-card-mobile.component.scss */
-@import '../../../../../../styles/variables';
-@import '../../../../../../styles/mixins';
+@use '../../../../../../styles/variables' as *;
+@use '../../../../../../styles/mixins' as *;
 
 .mobile-campaign-card {
   // UPDATED: Use surface-color variable for dynamic theming
@@ -74,7 +74,7 @@
     top: 8px;
     left: 8px;
     background: rgba($black, 0.7);
-    color: $white;
+    color: var(--on-primary-color);
     border-radius: 6px;
     padding: 4px 6px;
     font-size: 10px;
@@ -107,7 +107,7 @@
     &.status-active {
       // UPDATED: Use success-color with light background
       background: rgba($success-color, 1);
-      color: $white;
+      color: var(--on-primary-color);
       // color: $success-color;
     }
     
@@ -115,14 +115,14 @@
       // UPDATED: Use warning-color with light background
       background: rgba($warning-color, 1);
       //color: $warning-color;
-      color: $white;
+      color: var(--on-primary-color);
     }
     
     &.status-completed {
       // UPDATED: Use primary-color with light background
       background: rgba($primary-color, 1);
       //color: $primary-color;
-      color: $white;
+      color: var(--on-primary-color);
     }
   }
 }
@@ -270,7 +270,7 @@
     border-radius: 8px;
     // UPDATED: Use primary-color variable for dynamic theming
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -421,7 +421,7 @@
     top: 8px;
     left: 8px;
     background: rgba($black, 0.7);
-    color: $white;
+    color: var(--on-primary-color);
     border-radius: 6px;
     padding: 4px 8px;
     font-size: 11px;
@@ -595,7 +595,7 @@
       border-radius: 8px;
       // UPDATED: Use primary-color variable for dynamic theming
       background: $primary-color;
-      color: $white;
+      color: var(--on-primary-color);
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;

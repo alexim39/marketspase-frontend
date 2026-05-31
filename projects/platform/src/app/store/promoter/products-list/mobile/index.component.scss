@@ -1,4 +1,6 @@
-@import '../../../../../styles/variables';
+@use '../../../../../styles/mixins' as mixins;
+
+@use '../../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -93,9 +95,9 @@ icon-action,
       div {
       min-width: 0;
       padding: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid color-mix(in srgb, var(--on-primary-color), transparent 82%);
       border-radius: 16px;
-      background: rgba(255, 255, 255, 0.1);
+      background: color-mix(in srgb, var(--on-primary-color), transparent 90%);
     }
 
     span {
@@ -238,7 +240,7 @@ icon-action,
   }
 
   &.active em {
-    background: rgba(255, 255, 255, 0.22);
+    background: color-mix(in srgb, var(--on-primary-color), transparent 78%);
     color: $on-primary-color;
   }
 }
@@ -275,7 +277,7 @@ icon-action,
   border: 1px dashed $border-color;
   border-radius: 22px;
   text-align: center;
-  background: #ffffff;
+  background: var(--surface-color);
 
     mat-icon {
     width: 54px;
@@ -353,7 +355,7 @@ icon-action,
   align-items: center;
   gap: 5px;
   padding: 0 10px;
-  color: #ffffff;
+  color: var(--on-primary-color);
   font-size: 12px;
   font-weight: 900;
   backdrop-filter: blur(8px);
@@ -617,7 +619,7 @@ icon-action,
   overflow-y: auto;
   padding: 8px 16px calc(18px + env(safe-area-inset-bottom));
   border-radius: 26px 26px 0 0;
-  background: #ffffff;
+  background: var(--surface-color);
   box-shadow: 0 -20px 40px rgba(15, 23, 42, 0.24);
 
   .sheet-handle {
@@ -625,7 +627,7 @@ icon-action,
     height: 5px;
     margin: 4px auto 14px;
     border-radius: 999px;
-    background: #d0d5dd;
+    background: var(--border-color);
   }
 
   header {
@@ -656,7 +658,7 @@ icon-action,
     gap: 10px;
     margin-top: 16px;
     padding-top: 12px;
-    background: #ffffff;
+    background: var(--surface-color);
   }
 }
 
@@ -686,21 +688,21 @@ icon-action,
 
   button {
     min-height: 48px;
-    border: 1px solid #e4e7ec;
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
     color: #344054;
-    background: #ffffff;
+    background: var(--surface-color);
     font-weight: 900;
   }
 
   button.active {
     border-color: #0f766e;
     color: #0f766e;
-    background: #ecfdf3;
+    background: color-mix(in srgb, #10b981, var(--surface-color) 88%);
   }
 }
 

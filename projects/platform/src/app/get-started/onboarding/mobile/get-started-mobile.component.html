@@ -1,0 +1,211 @@
+<main class="get-started-mobile" aria-labelledby="getStartedTitle">
+  <header class="mobile-appbar">
+    <a class="icon-button" routerLink="/dashboard" aria-label="Back to dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="appbar-copy">
+      <p class="eyebrow">MarketSpase guide</p>
+      <h1 id="getStartedTitle">Get started</h1>
+    </div>
+
+    <button class="icon-button" type="button" (click)="scrollToVideoGuides()" aria-label="Jump to video guides">
+      <mat-icon>play_circle</mat-icon>
+    </button>
+  </header>
+
+  <section class="hero-card">
+    <div class="hero-copy">
+      <p class="eyebrow">Welcome {{ user()?.username || user()?.email || 'there' }}</p>
+      <h2>{{ getCurrentRoleDisplay() }} setup guide</h2>
+      <p>
+        Finish the important setup tasks first, then use the guide below to run campaigns or
+        promote safely with tracked PPC links.
+      </p>
+    </div>
+
+    <div class="progress-panel" aria-label="Onboarding progress">
+      <span>{{ onboardingProgress() }}%</span>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="onboardingProgress()"></div>
+      </div>
+      <small>{{ completedSteps() }} of {{ activeSteps().length || 1 }} steps complete</small>
+    </div>
+  </section>
+
+  <section class="role-section" aria-label="Choose your setup path">
+    <div class="section-heading">
+      <p class="eyebrow">Choose path</p>
+      <h2>What do you want to do?</h2>
+    </div>
+
+    <div class="role-grid">
+      @for (card of roleCards; track card.role) {
+        <button
+          type="button"
+          class="role-card"
+          [class.active]="(card.role === 'marketer' && isMarketer()) || (card.role === 'promoter' && isPromoter())"
+          [disabled]="isSwitchingRole()"
+          (click)="switchRole(card.role)"
+          [attr.aria-pressed]="(card.role === 'marketer' && isMarketer()) || (card.role === 'promoter' && isPromoter())"
+        >
+          <mat-icon>{{ card.icon }}</mat-icon>
+          <strong>{{ card.title }}: {{ card.body }}</strong>
+          <!-- <span>{{ card.body }}</span> -->
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (currentCountdown() !== null) {
+    <marketspase-countdown-overlay
+      [seconds]="currentCountdown()!"
+      (cancel)="cancelCountdown()"
+      (reload)="reloadPage()"
+    />
+  }
+
+  <section class="steps-section" aria-label="Setup steps">
+    <div class="section-heading">
+      <p class="eyebrow">Next actions</p>
+      <h2>Your setup checklist</h2>
+    </div>
+
+    @if (activeSteps().length) {
+      <div class="step-list">
+        @for (step of activeSteps(); track step.id) {
+          <article class="step-card" [class.completed]="step.completed">
+            <span class="step-icon" aria-hidden="true">
+              <mat-icon>{{ step.completed ? 'check' : step.icon }}</mat-icon>
+            </span>
+            <div class="step-body">
+              <p class="step-kicker">Step {{ step.id }}</p>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.description }}</p>
+              @if (step.action) {
+                <button mat-stroked-button type="button" (click)="navigateToStep(step)">
+                  {{ step.action }}
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <article class="empty-card">
+        <mat-icon aria-hidden="true">person</mat-icon>
+        <h3>Complete your profile first</h3>
+        <p>Your setup path will appear after your role and profile details are ready.</p>
+        <a mat-flat-button color="primary" routerLink="/dashboard/settings/account">Open profile</a>
+      </article>
+    }
+  </section>
+
+  @if (isPromoter()) {
+    <section class="trust-section" aria-label="Promoter quality guidance">
+      <div class="section-heading">
+        <p class="eyebrow">Promoter quality</p>
+        <h2>Protect your earning value</h2>
+      </div>
+
+      <div class="trust-list">
+        @for (tip of trustTips; track tip.title) {
+          <article>
+            <mat-icon aria-hidden="true">{{ tip.icon }}</mat-icon>
+            <div>
+              <h3>{{ tip.title }}</h3>
+              <p>{{ tip.body }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  <section id="video-guides" class="video-section" aria-label="Video guides">
+    <div class="section-heading">
+      <p class="eyebrow">Watch guide</p>
+      <h2>Learn the right flow</h2>
+    </div>
+
+    @if (canSwitchVideoRole()) {
+      <div class="video-tabs" role="tablist" aria-label="Video guide role">
+        <button type="button" [class.active]="visibleVideoRole() === 'marketer'" (click)="setActiveVideoRole('marketer')">
+          Marketer
+        </button>
+        <button type="button" [class.active]="visibleVideoRole() === 'promoter'" (click)="setActiveVideoRole('promoter')">
+          Promoter
+        </button>
+      </div>
+    }
+
+    <div class="mobile-video-list">
+      @for (guide of activeVideoGuides(); track guide.id) {
+        <article class="video-card">
+          <div class="video-card-header">
+            <mat-icon aria-hidden="true">play_circle</mat-icon>
+            <div>
+              <span>{{ guide.startsAt }}</span>
+              <h3>{{ guide.title }}</h3>
+              <p>{{ guide.description }}</p>
+            </div>
+          </div>
+
+          <div class="video-frame">
+            <iframe
+              [title]="guide.title"
+              [src]="guide.url"
+              loading="lazy"
+              frameborder="0"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="faq-section" aria-label="Frequently asked questions">
+    <div class="section-heading">
+      <p class="eyebrow">Questions</p>
+      <h2>Answers for your role</h2>
+    </div>
+
+    <div class="category-rail" aria-label="FAQ categories">
+      @for (category of faqCategories(); track category.id) {
+        <button
+          type="button"
+          [class.active]="activeFaqCategory() === category.id"
+          (click)="activeFaqCategory.set(category.id)"
+          [attr.aria-pressed]="activeFaqCategory() === category.id"
+        >
+          <mat-icon>{{ category.icon }}</mat-icon>
+          {{ category.label }}
+        </button>
+      }
+    </div>
+
+    <div class="faq-list">
+      @for (faq of visibleFaqs(); track faq.question) {
+        <details>
+          <summary>{{ faq.question }}</summary>
+          <p>{{ faq.answer }}</p>
+        </details>
+      }
+    </div>
+  </section>
+</main>
+
+<footer class="sticky-actions" aria-label="Get started actions">
+  @if (nextStep(); as step) {
+    <button mat-flat-button color="primary" type="button" (click)="navigateToStep(step)">
+      <mat-icon>{{ step.icon }}</mat-icon>
+      {{ step.action || 'Continue setup' }}
+    </button>
+  } @else {
+    <a mat-flat-button color="primary" routerLink="/dashboard">Open dashboard</a>
+  }
+  <button mat-button type="button" (click)="scrollToVideoGuides()">Watch guide</button>
+</footer>

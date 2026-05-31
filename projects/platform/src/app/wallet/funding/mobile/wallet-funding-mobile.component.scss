@@ -1,5 +1,5 @@
-@import '../../../../styles/variables';
-@import '../../../../styles/mixins';
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
 
 :host {
   display: block;
@@ -79,7 +79,7 @@
   padding: 1.15rem;
   border-radius: 1.25rem;
   background: $gradient-primary;
-  color: $white;
+  color: var(--on-primary-color);
   box-shadow: 0 16px 36px rgba($primary-color, 0.28);
 
   p,
@@ -88,7 +88,7 @@
   }
 
   p {
-color: rgba($white, 0.76);
+color: rgba(var(--surface-color), 0.76);
     font-size: 0.78rem;
     font-weight: 700;
   }
@@ -102,7 +102,7 @@ color: rgba($white, 0.76);
   }
 
   span {
-    color: rgba($white, 0.86);
+    color: rgba(var(--surface-color), 0.86);
     font-size: 0.83rem;
     line-height: 1.4;
   }
@@ -492,12 +492,12 @@ color: rgba($white, 0.76);
 }
 
 .primary-action {
-  color: $white;
+  color: var(--on-primary-color);
   background: $gradient-primary;
   box-shadow: 0 12px 26px rgba($primary-color, 0.28);
 
   &:disabled {
-    color: rgba($white, 0.68);
+    color: rgba(var(--surface-color), 0.68);
     background: $border-color;
     box-shadow: none;
   }

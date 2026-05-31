@@ -1,0 +1,57 @@
+<section class="assistant-mobile-shell">
+  <header class="assistant-topbar">
+    <a class="icon-action" routerLink="/dashboard" aria-label="Back to dashboard">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="topbar-copy">
+      <span>AI Sales Assistant</span>
+      <strong>Customer automation</strong>
+    </div>
+
+    <a
+      class="icon-action notification-action"
+      routerLink="conversations"
+      aria-label="Open assistant conversations"
+      [matBadge]="unreadCount"
+      [matBadgeHidden]="unreadCount === 0"
+    >
+      <mat-icon>notifications</mat-icon>
+    </a>
+  </header>
+
+  <nav class="assistant-tabs" aria-label="Assistant sections">
+    @for (item of navItems; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [attr.aria-label]="item.label"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+        @if (item.badge) {
+          <em>{{ item.badge }}</em>
+        }
+      </a>
+    }
+  </nav>
+
+  <main class="assistant-content" aria-label="AI assistant workspace">
+    <router-outlet />
+  </main>
+
+  <nav class="assistant-bottom-nav" aria-label="Assistant quick navigation">
+    @for (item of bottomNavItems; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [attr.aria-label]="item.label"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</section>

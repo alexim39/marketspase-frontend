@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -99,7 +101,7 @@
     display: grid;
     place-items: center;
     color: $on-primary-color;
-    background: rgba($white, 0.14);
+    background: rgba(var(--surface-color), 0.14);
     font-size: 30px;
   }
 }
@@ -230,7 +232,7 @@
 
   button.active em {
     color: $on-primary-color;
-    background: rgba($white, 0.2);
+    background: rgba(var(--surface-color), 0.2);
   }
 }
 

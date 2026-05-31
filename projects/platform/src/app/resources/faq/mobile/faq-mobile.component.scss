@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -91,7 +93,7 @@
   padding: 0 4px 0 14px;
   border: 1px solid rgba($primary-color-hex, 0.22);
   border-radius: 8px;
-  background: $white;
+  background: var(--surface-color);
 
   mat-icon {
     color: $primary-color;
@@ -142,7 +144,7 @@
   padding: 0 13px;
   border: 1px solid rgba($primary-color-hex, 0.22);
   border-radius: 999px;
-  background: rgba($white, 0.88);
+  background: rgba(var(--surface-color), 0.88);
   color: $text-primary;
   font-size: 0.82rem;
   font-weight: 800;
@@ -464,7 +466,7 @@
     border: 0;
     border-radius: 999px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: 900;
   }
 }
@@ -475,11 +477,11 @@
   background:
     linear-gradient(135deg, rgba($gray-900, 0.96), rgba($gray-700, 0.96)),
     $gray-900;
-  color: $white;
+  color: var(--on-primary-color);
 
   .eyebrow,
   p {
-    color: rgba($white, 0.76);
+    color: rgba(var(--surface-color), 0.76);
   }
 }
 
@@ -495,10 +497,10 @@
     justify-content: center;
     gap: 8px;
     min-height: 52px;
-    border: 1px solid rgba($white, 0.18);
+    border: 1px solid rgba(var(--border-color), 0.18);
     border-radius: 8px;
-    background: rgba($white, 0.08);
-    color: $white;
+    background: rgba(var(--surface-color), 0.08);
+    color: var(--on-primary-color);
     font-weight: 900;
     text-decoration: none;
   }
@@ -618,7 +620,7 @@
 .primary-action {
   border: 0;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
 }
 
 .secondary-action {

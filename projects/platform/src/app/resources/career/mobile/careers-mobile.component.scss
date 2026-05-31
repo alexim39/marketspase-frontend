@@ -1,4 +1,6 @@
-@import '../../../../styles/variables';
+@use '../../../../styles/mixins' as mixins;
+
+@use '../../../../styles/variables' as *;
 
 :host {
   display: block;
@@ -108,7 +110,7 @@
   .primary {
     border-color: $primary-color;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
   }
 }
 
@@ -500,7 +502,7 @@
     border: none;
     border-radius: 8px;
     background: $primary-color;
-    color: $white;
+    color: var(--on-primary-color);
     font-weight: 900;
   }
 }
@@ -611,7 +613,7 @@
   height: 46px;
   border-radius: 999px;
   background: linear-gradient(135deg, rgba($primary-color-hex, 0.95), rgba($success-color-hex, 0.78));
-  color: $white;
+  color: var(--on-primary-color);
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -620,14 +622,14 @@
   background:
     linear-gradient(135deg, rgba($gray-900, 0.96), rgba($gray-700, 0.96)),
     $gray-900;
-  color: $white;
+  color: var(--on-primary-color);
 
   .eyebrow {
-    color: rgba($white, 0.76);
+    color: rgba(var(--surface-color), 0.76);
   }
 
   p {
-    color: rgba($white, 0.76);
+    color: rgba(var(--surface-color), 0.76);
   }
 
   button {
@@ -640,7 +642,7 @@
     margin-top: 14px;
     border: none;
     border-radius: 8px;
-    background: $white;
+    background: var(--surface-color);
     color: $gray-900;
     font-weight: 900;
   }
@@ -768,7 +770,7 @@
   border: none;
   border-radius: 8px;
   background: $primary-color;
-  color: $white;
+  color: var(--on-primary-color);
   font-weight: 900;
 }
 

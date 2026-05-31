@@ -1,10 +1,10 @@
 
 /* stats-overview-mobile.component.scss */
-@import '../../../../../../styles/variables';
-@import '../../../../../../styles/mixins';
+@use '../../../../../../styles/variables' as *;
+@use '../../../../../../styles/mixins' as *;
 
 .stats-overview {
-  //background: #ffffff;
+  //background: var(--surface-color);
   //min-height: 100vh;
   position: relative;
   
@@ -13,7 +13,7 @@
     // UPDATED: Use gradient-primary variable for dynamic theming
     background: $gradient-primary;
     padding: 50px 16px 16px;
-    color: white;
+    color: var(--on-primary-color);
     position: relative;
     
     .header-content {
@@ -39,7 +39,7 @@
       }
       
       .toggle-view {
-        background: rgba(255, 255, 255, 0.2);
+        background: color-mix(in srgb, var(--on-primary-color), transparent 80%);
         border: none;
         border-radius: 16px;
         width: 48px;
@@ -52,7 +52,7 @@
         margin-left: 12px;
         
         &.compact {
-          background: rgba(255, 255, 255, 0.3);
+          background: color-mix(in srgb, var(--on-primary-color), transparent 70%);
           
           .toggle-handle {
             transform: translateX(20px);
@@ -62,7 +62,7 @@
         .toggle-handle {
           width: 24px;
           height: 24px;
-          background: white;
+          background: var(--surface-color);
           border-radius: 50%;
           transition: transform 0.3s ease;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -83,7 +83,7 @@
       }
       
       .summary-card {
-        background: rgba(255, 255, 255, 0.15);
+        background: color-mix(in srgb, var(--on-primary-color), transparent 85%);
         border-radius: 14px;
         padding: 14px;
         backdrop-filter: blur(10px);
@@ -95,14 +95,14 @@
         .summary-icon {
           width: 36px;
           height: 36px;
-          background: rgba(255, 255, 255, 0.2);
+          background: color-mix(in srgb, var(--on-primary-color), transparent 80%);
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
           
           mat-icon {
-            color: white;
+            color: var(--on-primary-color);
             font-size: 18px;
           }
         }
@@ -182,11 +182,11 @@
     }
     
     // Card Variants
-    &.active .card-background { background: linear-gradient(135deg, #fef3c7, #f59e0b); }
-    &.tracked .card-background { background: linear-gradient(135deg, #fed7aa, #f97316); }
+    &.active .card-background { background: linear-gradient(135deg, color-mix(in srgb, #f59e0b, var(--surface-color) 74%), #f59e0b); }
+    &.tracked .card-background { background: linear-gradient(135deg, color-mix(in srgb, #f59e0b, var(--surface-color) 66%), #f97316); }
     &.billable .card-background { background: linear-gradient(135deg, #d1fae5, #10b981); }
-    &.paid .card-background { background: linear-gradient(135deg, #cffafe, #06b6d4); }
-    &.rejected .card-background { background: linear-gradient(135deg, #fee2e2, #ef4444); }
+    &.paid .card-background { background: linear-gradient(135deg, color-mix(in srgb, #06b6d4, var(--surface-color) 76%), #06b6d4); }
+    &.rejected .card-background { background: linear-gradient(135deg, color-mix(in srgb, #ef4444, var(--surface-color) 78%), #ef4444); }
     
     .card-content {
       position: relative;
@@ -215,7 +215,7 @@
         font-weight: 700;
         padding: 3px 6px;
         border-radius: 6px;
-        background: #fef3c7;
+        background: color-mix(in srgb, #f59e0b, var(--surface-color) 74%);
         color: #92400e;
         
         &.success {
@@ -224,7 +224,7 @@
         }
         
         &.error {
-          background: #fee2e2;
+          background: color-mix(in srgb, #ef4444, var(--surface-color) 78%);
           color: #991b1b;
         }
       }
@@ -249,7 +249,7 @@
         background: $gradient-primary;
         
         mat-icon {
-          color: white;
+          color: var(--on-primary-color);
           font-size: 24px;
             height: 24px;
             width: 24px;
@@ -348,7 +348,7 @@
             justify-content: center;
             
             mat-icon {
-              color: white;
+              color: var(--on-primary-color);
               font-size: 22px;
             }
             
@@ -479,7 +479,7 @@
             &.primary {
               // UPDATED: Use gradient-primary for primary button
               background: $gradient-primary;
-              color: white;
+              color: var(--on-primary-color);
               
               &:active {
                 transform: scale(0.98);
