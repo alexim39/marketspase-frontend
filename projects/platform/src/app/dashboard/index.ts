@@ -21,7 +21,7 @@ import { DeviceService, LoadingService, UserInterface } from '@shared/services';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../common/services/user.service';
-import { DailyCheckInComponent } from './daily-check-in/daily-check-in.component';
+import { DailyCheckInIndexComponent } from './daily-check-in';
 import { DailyCheckInService } from './daily-check-in/daily-check-in.service';
 import { DashboardComponent } from './sidenav/sidenav.component';
 
@@ -38,7 +38,7 @@ interface AuthState {
   imports: [
     CommonModule,
     DashboardComponent,
-    DailyCheckInComponent,
+    DailyCheckInIndexComponent,
     MatProgressBarModule,
   ],
   templateUrl: './index.html',

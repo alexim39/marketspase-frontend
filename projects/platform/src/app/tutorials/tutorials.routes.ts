@@ -8,7 +8,7 @@ export const TutorialRoutes: Routes = [
     },
     {
         path: 'videos',
-        loadComponent: () => import('./tutorials.component').then(c => c.TutorialsComponent),
+        loadComponent: () => import('./index').then(c => c.TutorialsIndexComponent),
         title: "Get Started - Onboarding process",
     },
     // {

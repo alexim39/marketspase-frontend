@@ -1,6 +1,6 @@
 # MarketSpase Mobile-Native Migration Audit
 
-Last updated: 2026-05-30
+Last updated: 2026-05-31
 
 ## Objective
 
@@ -25,11 +25,21 @@ Existing device-aware work already exists in these areas:
 | --- | --- | --- |
 | Landing page | Has `desktop/` and `mobile/` branches | Good reference for the wrapper shape. |
 | Dashboard shell | Has device checks | Mobile shell exists but still needs native page-level polishing across children. |
-| Campaign index | Has device-aware wrapper | Child campaign pages still need separate mobile experiences. |
+| Campaign index | Has device-aware wrapper | Campaign landing, creation, and details now have dedicated mobile/tablet experiences; other campaign workspaces can continue incrementally. |
 | Transactions | Converted in this pass | Mobile/tablet now use a dedicated mobile component; desktop table remains untouched. |
+| Wallet transfer | Converted in this pass | `/dashboard/transactions/transfer` now uses a device-aware wrapper; mobile/tablet users get a step-based transfer flow with balance hero, recipient search, quick amounts, review, and sticky confirmation. |
+| Wallet withdrawal | Converted in this pass | `/dashboard/transactions/withdrawal` now uses a device-aware wrapper; mobile/tablet users get a balance-first payout wizard, bank and saved-account bottom sheets, amount preview, payout review, and sticky submit. |
+| Wallet funding dialog | Converted in this pass | The shared wallet funding dialog now uses a device-aware wrapper; mobile/tablet users get a native top-up flow with balance hero, quick amounts, currency sheet, payment review, status state, and payment tips. |
 | Promoter product discovery | Converted in this pass | `/dashboard/stores/products` now uses a dedicated mobile component with cards and bottom-sheet filters. |
+| Promoter product detail | Converted in this pass | `/dashboard/stores/product/:productId` now uses a device-aware wrapper; mobile/tablet users get a gallery-first product promotion page with commission summary, unique-link actions, store trust signals, and sticky share controls. |
+| Promoter store product shelf | Converted in this pass | `/dashboard/stores/store/:storeId/products` now uses a device-aware wrapper; mobile/tablet users get a native store shelf with store hero, search, category rail, product cards, filter/sort sheets, promotion-link copy, WhatsApp, and buy actions. |
 | Storefront orders | Converted in this pass | `/dashboard/stores/orders` now uses mobile order cards and bottom-sheet release/review actions. |
 | Campaign landing | Converted in this pass | `/dashboard/campaigns` now routes mobile/tablet users to dedicated marketer/promoter mobile landing wrappers. |
+| Campaign creation | Converted in this pass | `/dashboard/campaigns/create` now uses a device-aware wrapper; mobile/tablet users get a native PPC setup wizard with sticky step progress, budget snapshot, child form reuse, and bottom launch actions. |
+| Campaign details | Converted in this pass | `/dashboard/campaigns/:id` now uses a device-aware wrapper; mobile/tablet users get a media-first campaign control room with budget progress, KPI rail, quick actions, promotion cards, and activity timeline. |
+| Campaign editing | Converted in this pass | `/dashboard/campaigns/edit/:id` now uses a device-aware wrapper; mobile/tablet users get a native section editor with campaign context, section rail, sticky save controls, and bottom-sheet discard prompts. |
+| Campaign targeting | Converted in this pass | `/dashboard/campaigns/:id/targeting` now uses a device-aware wrapper; mobile/tablet users get a native location-targeting workspace with campaign context, selected-area summary, warning states, and sticky save actions. |
+| Campaign collaboration | Converted in this pass | `/dashboard/campaigns/collaboration` now uses a device-aware wrapper; mobile/tablet users get a native collaboration workbench with home, threads, chat, starter cards, realtime conversation reuse, and compact composer. |
 | Promoter promotions | Converted in this pass | `/dashboard/campaigns/promotions` now uses a dedicated mobile promotion center and mobile tracked-link cards. |
 | Campaign analytics | Converted in this pass | `/dashboard/campaigns/analytics` now uses a dedicated mobile/tablet analytics view with KPI cards, compact trend charts, and drilldown cards. |
 | Marketer promoted-products analytics | Converted in this pass | `/dashboard/stores/promoted-products-analytics` now uses mobile/tablet KPI rails, compact trends, leader cards, product performance cards, and mobile breakdown dialogs. |
@@ -48,6 +58,36 @@ Existing device-aware work already exists in these areas:
 | Marketer store creation | Converted in this pass | `/dashboard/stores/create` now uses a device-aware wrapper; mobile/tablet users get a native storefront setup wizard with brand basics, logo upload, contact review, trust tips, live preview, and sticky create actions. |
 | Marketer store editing | Converted in this pass | `/dashboard/stores/edit/:id` now uses a device-aware wrapper; mobile/tablet users get a native storefront update wizard with identity editing, logo replacement/removal, review state, and sticky save actions. |
 | Storefront customer support | Converted in this pass | `/dashboard/stores/support` now uses a device-aware wrapper; mobile/tablet users get a native Buyer CRM with KPI rail, customer cards, bottom-sheet filters, outreach composer, and customer detail sheet. |
+| Settings shell | Converted in this pass | `/dashboard/settings` now uses a native mobile/tablet shell with account snapshot, profile health, shortcut cards, horizontal settings tabs, recent activity, and WhatsApp channel action while preserving existing child settings routes. |
+| Account settings | Converted in this pass | `/dashboard/settings/account` now uses a device-aware wrapper; mobile/tablet users get a profile-strength header, account summary cards, section cards, sticky mobile tabs, and one-at-a-time personal/professional/public identity forms. |
+| Tutorials learning center | Converted in this pass | `/dashboard/tutorials/videos` now uses a device-aware wrapper; mobile/tablet users get a native learning feed with search, category rail, featured lesson, recently watched rail, bottom-sheet filters/sections, and lesson cards. |
+| Public help center | Converted in this pass | `/resources/help-center` now uses a device-aware wrapper; mobile/tablet users get a native support hub with touch search, topic rail, guide cards, FAQ cards, contact sheets, and learning shortcuts. |
+| Public about | Converted in this pass | `/resources/about` now uses a device-aware wrapper; mobile/tablet users get a native trust story with mission cards, platform proof, PPC-aligned workflow rows, feature sheets, and CTA actions. |
+| Public success stories | Converted in this pass | `/resources/success-stories` now uses a device-aware wrapper; mobile/tablet users get a native proof feed with role filters, featured story, story detail sheets, impact cards, and industry insight sheets. |
+| Public community | Converted in this pass | `/resources/community` now uses a device-aware wrapper; mobile/tablet users get a native community hub with group rails, discussion/tip/event/mentor tabs, detail sheets, and sign-in actions. |
+| Public careers | Converted in this pass | `/resources/careers` now uses a device-aware wrapper; mobile/tablet users get a native hiring hub with benefit rails, culture rows, department filters, job cards, process sheets, and talent-pool CTAs. |
+| Public marketer solution | Converted in this pass | `/resources/solutions/marketers` now uses a device-aware wrapper; mobile/tablet users get a PPC-aligned marketer guide with campaign flow cards, tracked-link feature sheets, use-case tabs, pricing details, and CTA actions. |
+| Public promoter solution | Converted in this pass | `/resources/solutions/promoters` now uses a device-aware wrapper; mobile/tablet users get a PPC-aligned promoter guide with unique-link education, responsible sharing flow, account-health warnings, opportunity cards, and FAQ sheets. |
+| Public features | Converted in this pass | `/resources/features` now uses a device-aware wrapper; mobile/tablet users get a native feature explorer with category rails, focused feature rows, workflow cards, pricing rail, and feature-detail sheets. |
+| Public FAQ | Converted in this pass | `/resources/faqs` now uses a device-aware wrapper; mobile/tablet users get a native answer finder with search chips, topic rail, featured questions, answer sheets, helpful feedback, and support shortcuts. |
+| Public contact | Converted in this pass | `/resources/contact` now uses a device-aware wrapper; mobile/tablet users get a native support flow with channel cards, step-based message form, urgent WhatsApp action, team cards, and FAQ sheet. |
+| Public how it works | Converted in this pass | `/resources/how-it-works` now uses a device-aware wrapper; mobile/tablet users get a native onboarding explainer with role cards, process timeline, quick guides, trust-feature rail, demo sheet, and CTA strip. |
+| Public benefits | Converted in this pass | `/resources/benefits` now uses a device-aware wrapper; mobile/tablet users get a native benefit picker with business/promoter/platform rails, focused benefit cards, detail sheets, and CTA actions. |
+| Public legal shell | Converted in this pass | `/legal/*` now uses a device-aware parent shell; mobile/tablet users get a sticky legal top bar, Back to App action, and horizontal legal tabs while desktop keeps the side-menu shell. |
+| Public cookies policy | Converted in this pass | `/legal/cookies` now uses a device-aware wrapper; mobile/tablet users get a native cookies explainer with topic cards, browser-control guidance, external cookie education, and legal shortcuts. |
+| Public terms of service | Converted in this pass | `/legal/terms` now uses a device-aware wrapper; mobile/tablet users get a native terms reader with agreement topic cards, conduct rules, privacy shortcut, and contact actions. |
+| Public privacy policy | Converted in this pass | `/legal/privacy` now uses a device-aware wrapper; mobile/tablet users get a native policy reader with summary cards, topic sheets, rights guidance, and contact actions. |
+| AI assistant overview | Converted in this pass | `/dashboard/assistant/customer/overview` now uses a device-aware wrapper; mobile/tablet users get a native assistant control room with status toggle, KPI rail, setup sheet, test-reply sheet, quick actions, and conversation cards. |
+| AI assistant FAQs | Converted in this pass | `/dashboard/assistant/customer/faqs` now uses a device-aware wrapper; mobile/tablet users get a native FAQ trainer with coverage score, search, category rail, FAQ cards, add/edit sheets, filter sheet, and delete confirmation sheet. |
+| AI assistant conversations | Converted in this pass | `/dashboard/assistant/customer/conversations` now uses a device-aware wrapper; mobile/tablet users get a native chat inbox with KPI rail, search, filters, full-screen chat, sticky composer, quick actions, lead tagging, and action sheets. |
+| AI assistant automation | Converted in this pass | `/dashboard/assistant/customer/automation` now uses a device-aware wrapper; mobile/tablet users get a native automation control center with AI status, setting summaries, section sheets, link management, and sticky save/reset actions. |
+| AI assistant analytics | Converted in this pass | `/dashboard/assistant/customer/analytics` now uses a device-aware wrapper; mobile/tablet users get a native analytics view with sticky refresh, swipeable KPI cards, compact metric grid, mobile conversation chart, AI-vs-human mix, and conversion signal summaries. |
+| AI assistant settings | Converted in this pass | `/dashboard/assistant/customer/settings` now uses a device-aware wrapper; mobile/tablet users get a native settings hub with setup health, section chips, WhatsApp cards, business binding, alert preferences, plan cards, Twilio credential form, and bottom-sheet removal confirmation. |
+| Dashboard global search | Converted in this pass | `/dashboard/search` now uses a device-aware wrapper; mobile/tablet users get a native search surface with sticky header, large search input, entity rail, filter sheet, result cards, metric strips, export action, and mobile pagination. |
+| Dashboard leaderboard | Converted in this pass | `/dashboard/leaderboard` now uses a device-aware wrapper; mobile/tablet users get a native rankings page with reward summary, champion card, podium rail, bottom-sheet filters, and profile-ready rank cards. |
+| Dashboard gamification | Converted in this pass | `/dashboard/gamification` now uses a device-aware wrapper; mobile/tablet users get a native rewards journey with level progress, XP summary, milestone rails, action breakdown cards, recent wins, and activity feed. |
+| Dashboard home | Converted in this pass | `/dashboard` now uses a device-aware wrapper; mobile/tablet users get a native home feed with greeting, KPI hero, quick actions, stat rail, reward shortcuts, community actions, wallet activity, trends, connections, learning, and bottom navigation. |
+| Daily check-in | Converted in this pass | The embedded dashboard streak prompt now uses a device-aware wrapper; mobile/tablet users get a compact bottom dock and bottom-sheet reward flow while desktop keeps the existing floating chip/modal. |
 | Community feed | Has mobile feed component | Social feed pattern already exists. |
 | Promoter landing | Has several mobile child components | Campaign cards and filters have mobile variants. |
 | Marketer campaign landing | Has several mobile child components | Campaign stats, cards, and filters have mobile variants. |
@@ -59,9 +99,19 @@ The migration should start with routes that are used often, affect money movemen
 | Priority | Route / Feature | Mobile goal |
 | --- | --- | --- |
 | P0 | `/dashboard/transactions` | Wallet balance first, transaction cards, thumb filters, summary FAB. Completed in this pass. |
+| P0 | `/dashboard/transactions/transfer` | Mobile transfer wizard with wallet balance first, recipient search, amount shortcuts, review step, and sticky transfer action. Completed in this pass. |
+| P0 | `/dashboard/transactions/withdrawal` | Mobile payout wizard with bank account resolution, quick amounts, fee/take-home preview, saved-account sheet, and review step. Completed in this pass. |
+| P0 | Wallet funding dialog | Mobile funding flow with balance-first layout, amount shortcuts, currency selection sheet, payment review, and Paystack status state. Completed in this pass. |
 | P0 | `/dashboard/stores/products` | Mobile product discovery cards, search chips, bottom-sheet filters, promotion/share/copy actions. Completed in this pass. |
+| P0 | `/dashboard/stores/product/:productId` | Mobile product promotion detail with image-first layout, commission clarity, unique-link/WhatsApp/share actions, and store trust details. Completed in this pass. |
+| P0 | `/dashboard/stores/store/:storeId/products` | Mobile store product shelf with store hero, product cards, category rail, filters, sort sheet, and promotion/share/buy actions. Completed in this pass. |
 | P0 | `/dashboard/stores/orders` | Order cards grouped by status, buyer/promoter context, fulfillment quick actions. Completed in this pass. |
 | P0 | `/dashboard/campaigns` | Campaign social cards, budget/progress summary, mobile action tray. Completed in this pass. |
+| P1 | `/dashboard/campaigns/create` | Native campaign setup wizard with media/content first, wallet-aware budget snapshot, schedule, review, and sticky draft/launch actions. Completed in this pass. |
+| P1 | `/dashboard/campaigns/:id` | Media-first campaign control room with budget top-up, pause/resume/activate, targeting, collaboration, mobile KPI rail, and promotion cards. Completed in this pass. |
+| P1 | `/dashboard/campaigns/edit/:id` | Native campaign editor with section rail, child form reuse, sticky save/cancel actions, and mobile-safe discard prompts. Completed in this pass. |
+| P1 | `/dashboard/campaigns/:id/targeting` | Native location-targeting workspace with selected-area visibility, warning state for empty enabled targeting, and one-handed save/cancel actions. Completed in this pass. |
+| P1 | `/dashboard/campaigns/collaboration` | Mobile collaboration workbench with starter cards, conversation browser, chat stream, and sticky mobile composer. Completed in this pass. |
 | P0 | `/dashboard/campaigns/promotions` | Promotion feed cards, proof/analytics actions, fraud status visibility. Completed in this pass. |
 | P1 | `/dashboard/campaigns/analytics` | Mobile analytics cards and chart sections without desktop overflow. Completed in this pass. |
 | P1 | `/dashboard/notifications` | Mobile notification center, selection/delete, filter sheet, and mute preferences. Completed in this pass. |
@@ -77,7 +127,30 @@ The migration should start with routes that are used often, affect money movemen
 | P2 | `/dashboard/stores/create` | Mobile storefront setup wizard with logo upload, brand description, contact confirmation, trust guidance, and preview. Completed in this pass. |
 | P2 | `/dashboard/stores/edit/:id` | Mobile storefront update wizard with existing-logo preservation, logo replacement/removal, brand identity editing, review, and save controls. Completed in this pass. |
 | P2 | `/dashboard/stores/support` | Mobile Buyer CRM cards, segment filters, bottom-sheet outreach composer, customer detail editing, order history, and export/copy actions. Completed in this pass. |
-| P2 | Settings, assistant, resources, tutorials, legal | Grouped mobile settings and readable content layouts. |
+| P2 | `/dashboard/settings` | Grouped mobile settings shell with profile snapshot, quick section cards, horizontal tabs, activity, and support action. Completed in this pass. |
+| P2 | `/dashboard/settings/account` | Mobile account profile hub with completion cues, quick section navigation, and mobile-tuned personal/professional/public identity forms. Completed in this pass. |
+| P2 | `/dashboard/tutorials/videos` | Mobile learning feed with featured lesson, recently watched rail, lesson cards, filters, sections sheet, support, and role-switch CTA. Completed in this pass. |
+| P2 | `/resources/careers` | Mobile hiring hub with benefit rail, culture summary, department chips, job cards, detail sheets, process timeline, internship CTA, and talent-pool mail action. Completed in this pass. |
+| P2 | `/resources/solutions/marketers` | Mobile PPC marketer explainer with tracked-link feature rail, campaign flow cards, industry use-case tabs, transparent cost card, proof rail, FAQ sheets, and campaign/contact CTAs. Completed in this pass. |
+| P2 | `/resources/solutions/promoters` | Mobile PPC promoter explainer with unique-link benefits, responsible promotion steps, account-health warnings, opportunity cards, quality rules, proof stories, and FAQ sheets. Completed in this pass. |
+| P2 | `/dashboard/assistant/customer/overview` | Mobile assistant control room with status toggle, quick actions, setup/test sheets, KPI rail, and recent conversation cards. Completed in this pass. |
+| P2 | `/dashboard/assistant/customer/faqs` | Mobile FAQ trainer with coverage score, search, category chips, FAQ cards, add/edit/filter/delete sheets. Completed in this pass. |
+| P2 | `/dashboard/assistant/customer/conversations` | Mobile chat inbox with search, status filters, full-screen chat, quick actions, lead tagging, and sticky composer. Completed in this pass. |
+| P2 | `/dashboard/assistant/customer/automation` | Mobile automation control center with AI toggle, reply style, escalation, sales links, response timing, and sticky save/reset. Completed in this pass. |
+| P2 | `/resources/help-center` | Mobile support hub with search, topic rail, guide cards, FAQ sheets, and contact actions. Completed in this pass. |
+| P2 | `/resources/about` | Mobile company/trust story with mission cards, platform proof, current PPC workflow, feature sheets, and CTA actions. Completed in this pass. |
+| P2 | `/resources/success-stories` | Mobile proof feed with role category rail, featured result card, story detail sheets, impact cards, and industry insight cards. Completed in this pass. |
+| P2 | `/resources/community` | Mobile community hub with group rail, hot discussion cards, success tips, events, mentor cards, benefit sheet, and sign-in actions. Completed in this pass. |
+| P2 | `/resources/features` | Mobile feature explorer with marketer/promoter/platform category rail, active feature rows, workflow segment, transaction pricing, and feature-detail sheets. Completed in this pass. |
+| P2 | `/resources/faqs` | Mobile answer finder with topic rail, featured questions, bottom-sheet answers, helpful feedback, and support shortcuts. Completed in this pass. |
+| P2 | `/resources/contact` | Mobile support flow with direct channels, progressive message form, urgent support, team contact sheets, and FAQ shortcuts. Completed in this pass. |
+| P2 | `/resources/how-it-works` | Mobile onboarding explainer with role selection, process timeline, marketer/promoter next-step guide, feature sheets, and demo video sheet. Completed in this pass. |
+| P2 | `/resources/benefits` | Mobile benefit picker with audience segmentation, KPI summary, focused cards, complete benefit rows, and bottom-sheet detail. Completed in this pass. |
+| P2 | `/legal/*` shell | Mobile legal top bar with Back to App action, sticky page tabs, and child route outlet while preserving the desktop side-menu legal shell. Completed in this pass. |
+| P2 | `/legal/cookies` | Mobile cookies explainer with cookie purpose cards, browser-control guidance, related legal links, and external education. Completed in this pass. |
+| P2 | `/legal/terms` | Mobile terms reader with agreement summaries, conduct rules, account/security obligations, privacy shortcut, and contact action. Completed in this pass. |
+| P2 | `/legal/privacy` | Mobile legal reader with summary cards, readable policy topics, privacy rights sheet, and contact action. Completed in this pass. |
+| P2 | Remaining resources, legal, remaining assistant child pages | Grouped mobile utility screens and readable content layouts. |
 
 ## Component Conversion Checklist
 
@@ -110,6 +183,57 @@ The component receives the same user signal as desktop, uses computed slices, re
 Accessibility:
 The page has a labelled heading, labelled filter navigation, real buttons for all filters/actions, readable status text, and 48px-sized controls for touch use.
 
+## Wallet Transfer Mobile UX Analysis
+
+Purpose:
+`/dashboard/transactions/transfer` lets users move available promoter balance into their marketer wallet for campaign/in-app use or send funds to another promoter.
+
+Desktop behavior:
+The desktop component uses Material cards, radio groups, form fields, recipient search, balance loading, transfer submission, snackbars, and a help dialog. It owns the balance loading, recipient search, amount validation, transfer payload, success reset, and balance refresh logic.
+
+Mobile decisions:
+The mobile route now wraps the existing desktop component and renders a dedicated transfer wizard for mobile/tablet. It leads with the available promoter balance, shows pending and marketer wallet balances as compact cards, then guides users through destination, recipient, amount, and review steps. Recipient search is card-based, quick amount chips make touch entry faster, and the final transfer action is sticky at the bottom for one-handed completion. The mobile help content uses a bottom sheet instead of a desktop dialog.
+
+Performance:
+The mobile component extends the existing transfer component and reuses the same service calls, reactive form, recipient search subscription, validation, submission, snackbars, and balance refresh behavior. Mobile does not render the desktop Material card/form layout, reducing DOM weight while keeping the financial logic in one place.
+
+Accessibility:
+The flow uses labelled headings, real buttons for transfer type, recipient rows, quick amounts, and sticky actions. The help content uses dialog semantics, inputs have labels, and touch targets are sized for mobile use.
+
+## Wallet Withdrawal Mobile UX Analysis
+
+Purpose:
+`/dashboard/transactions/withdrawal` lets eligible users request payouts from available wallet balance into verified bank accounts, while preserving the existing currency, fee, wallet quote, saved account, and role rules.
+
+Desktop behavior:
+The desktop component uses Material cards, accordions, form fields, bank loading, saved accounts, wallet overview loading, currency switching, account resolution, quote preview, snackbar feedback, and the existing submission service.
+
+Mobile decisions:
+The mobile route now wraps the existing desktop component and renders a three-step payout wizard for mobile/tablet: Account, Amount, and Review. It leads with available balance, puts currency switching in compact chips, moves bank search and saved accounts into bottom sheets, adds quick amount chips, shows fee/take-home/NGN payout previews, and keeps the final submit action sticky for one-handed use. The existing marketer withdrawal restriction remains visible and enforced.
+
+Performance:
+The mobile component extends the existing withdrawal component and reuses the same service calls, reactive form, bank filtering, saved account loading, account resolution, quote calculation, validation, submission, and balance refresh behavior. Mobile avoids rendering the desktop accordion and Material form tree, keeping the default payout flow lighter on mobile devices.
+
+Accessibility:
+The flow uses labelled fields, real buttons for bank selection, saved accounts, quick amounts, step navigation, and submit actions. Bottom sheets use dialog semantics, payout details are repeated in a text review list, and the sticky actions remain reachable with touch-sized controls.
+
+## Wallet Funding Mobile UX Analysis
+
+Purpose:
+The shared wallet funding dialog lets marketers add money for campaigns and marketplace actions through Paystack, with currency support, campaign shortfall guidance, wallet quote calculation, webhook polling, and wallet refresh after confirmation.
+
+Desktop behavior:
+The desktop dialog uses composed Material-style child components: balance card, quick amount selector, custom amount form, payment summary, payment method, processing state, payment status, and footer actions. It is opened from the dashboard quick action and campaign creation flow.
+
+Mobile decisions:
+The dialog now opens a device-aware wrapper. Desktop keeps the existing `WalletFundingComponent`; mobile/tablet users get `WalletFundingMobileComponent`, a compact native top-up flow with a balance hero, amount shortcuts, custom amount input, currency bottom sheet, payment review step, Paystack status state, payment tips sheet, and sticky action footer. This keeps the funding task focused on the two mobile questions that matter most: "How much am I adding?" and "What will I be charged?"
+
+Performance:
+The mobile component extends the existing funding component and reuses the same Paystack startup, webhook polling, currency config loading, quote refresh, campaign shortfall calculation, validation, wallet update, and campaign continuation behavior. It avoids rendering the desktop component tree on mobile and only creates currency/help sheets when opened.
+
+Accessibility:
+The mobile funding flow uses labelled controls, real buttons for amount/currency/payment actions, dialog semantics for bottom sheets, text-based payment summaries, and touch-sized sticky actions. The payment status state keeps references visible for support and recovery.
+
 ## Promoter Product Discovery Mobile UX Analysis
 
 Purpose:
@@ -126,6 +250,46 @@ The mobile component reuses the existing data/action logic, requests a smaller p
 
 Accessibility:
 Search, filter, pagination, and card actions are real labelled buttons. Touch controls are at least 48px where practical, and the filter panel uses a dialog role with modal semantics.
+
+## Promoter Product Detail Mobile UX Analysis
+
+Purpose:
+Promoters use `/dashboard/stores/product/:productId` after discovering a product to inspect the offer, understand commission potential, copy their unique promotion link, and share the product through WhatsApp or native sharing.
+
+Desktop behavior:
+The desktop page combines a back bar, large product card, image gallery, product header, stats, action buttons, tabbed detail panels, commission sidebar, store card, and related products.
+
+Mobile decisions:
+The mobile page becomes image-first and promotion-first. It leads with the product visual, commission ribbon, stock/trust chips, price, potential earning card, KPI rail, and large thumb actions for copying the promotion link, sharing to WhatsApp, and native share. Secondary information moves into compact mobile sections for pitch, performance, store, and details. Related products become a horizontal rail.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../../styles/variables' as vars;` and `@use '../../../../../styles/mixins' as mixins;`. It uses app tokens for background, surface, text, border, gradient, status colors, safe-area spacing, shadows, and breakpoints so light/dark theme updates flow through the existing CSS variables.
+
+Performance:
+The mobile component extends the existing promoter product detail component, reusing the same product loading, promotion creation, clipboard, WhatsApp, sharing, analytics, related-products, and retry logic. Desktop is not mounted on mobile/tablet, and the mobile view avoids tab/sidebar trees in favor of bounded cards and rails.
+
+Accessibility:
+Back, copy, share, image navigation, section tabs, related product cards, and sticky actions are real buttons or links. Loading uses polite status copy, error recovery is explicit, and primary controls are sized for one-handed mobile use.
+
+## Promoter Store Product Shelf Mobile UX Analysis
+
+Purpose:
+Promoters use `/dashboard/stores/store/:storeId/products` to browse all published products from a selected storefront, compare commission, price, and stock, generate promotion links, share products on WhatsApp, and buy directly.
+
+Desktop behavior:
+The desktop page uses a store header, sticky filter sidebar, Material select sorting, product grid cards, paginator, and inline copy/share/buy actions.
+
+Mobile decisions:
+The mobile page becomes a native product shelf. It leads with a sticky top bar, compact store hero, summary rail, search, filter/sort action row, category rail, and product cards. Advanced price, commission, and stock filters move into a bottom sheet, while sorting moves into a separate bottom sheet. Product cards prioritize image, commission, discount, category, stock, price, and quick thumb actions.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../../styles/variables' as vars;` and `@use '../../../../../styles/mixins' as mixins;`. It uses shared background, surface, border, text, gradient, status, spacing, radius, shadow, and breakpoint tokens so light and dark theme behavior stays aligned with the app design model.
+
+Performance:
+The mobile component extends the existing desktop component and reuses route loading, API filters, pagination, promotion creation, clipboard, WhatsApp, buy, and visit-store actions. The desktop sidebar/grid is not mounted on mobile/tablet, and filter/sort sheets only render when opened.
+
+Accessibility:
+Search, category chips, product actions, filter/sort sheets, pager, refresh, and retry controls are real buttons or inputs. Sheets use dialog semantics, touch controls are 48px where practical, and status/error states are clear.
 
 ## Storefront Orders Mobile UX Analysis
 
@@ -416,6 +580,519 @@ The mobile component extends the existing promoter store list class, preserving 
 Accessibility:
 Search, filters, sorting, follow, product browsing, public store visits, pagination, and sheet close actions are real labelled controls. Store status uses text with icons, bottom sheets use dialog semantics, and thumb actions meet mobile touch sizing.
 
+## Settings Shell Mobile UX Analysis
+
+Purpose:
+`/dashboard/settings` is the entry point for account, system, support, and ad preference controls. It helps users understand their account state, move between settings sections, review recent activity, and reach help or training updates.
+
+Desktop behavior:
+The existing settings index uses a large gradient header, breadcrumb trail, Material sidenav, right-side quick settings panel, and a `router-outlet` for account/system/support child routes.
+
+Mobile decisions:
+The mobile shell keeps the same child routes and settings services but replaces the desktop header/sidenav with a native account control screen. It leads with profile identity, online state, profile completion, wallet context, and trust status. Account, System, Support, and Ad preferences become touch-friendly shortcut cards plus a horizontal tab rail. Recent activity and the WhatsApp channel action stay reachable below the selected settings content.
+
+Performance:
+The mobile shell is a small standalone component with `OnPush`, signal inputs, computed profile metrics, and a single child `router-outlet`. It avoids rendering the desktop sidenav/header on mobile/tablet and keeps the nested account/system/support implementation unchanged for safety.
+
+Accessibility:
+Settings navigation uses real links, the help and WhatsApp actions are labelled buttons, status uses text plus color, and touch targets are sized for mobile use. The child route content remains in the normal router flow.
+
+## Account Settings Mobile UX Analysis
+
+Purpose:
+`/dashboard/settings/account` lets users update personal information, professional profile details, username/social links, and referral identity.
+
+Desktop behavior:
+The desktop account page uses a Material card with expansion panels that mount the personal, professional, and public identity forms together.
+
+Mobile decisions:
+The mobile page becomes an account profile hub. It shows a sticky account header, profile-strength progress, status/role/social summary cards, section cards, and a sticky three-tab selector. Only the selected form is mounted so the screen stays focused and lighter on mobile devices.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared surface, text, border, gradient, status, spacing, shadow, and breakpoint tokens so light and dark mode follow the app design system.
+
+Performance:
+The wrapper keeps desktop unchanged and renders the mobile shell only for mobile/tablet. The mobile shell reuses the existing child form components and only mounts the active form section to reduce DOM weight.
+
+Accessibility:
+Back navigation, section cards, sticky tabs, and child form controls are real buttons/links/inputs with mobile-sized touch targets. Loading state uses polite visible status, and progress is backed by readable text.
+
+## Tutorials Learning Center Mobile UX Analysis
+
+Purpose:
+`/dashboard/tutorials/videos` helps marketers and promoters learn the platform, watch role-specific lessons, continue recently watched videos, discover featured tutorials, share lessons, and switch role perspective when needed.
+
+Desktop behavior:
+The existing tutorials component uses a wide hero, desktop search/filter panel, featured grid, recent list, section grids, list/grid toggle, role-switch CTA, support CTA, and Material video dialog.
+
+Mobile decisions:
+The mobile version keeps the same tutorial loading, video dialog, share, local recently watched state, metrics, and role switching logic. The page becomes a mobile learning feed: sticky topbar, compact hero stats, search card, horizontal category rail, quick action controls, recommended lesson, recently watched rail, featured rail, lesson cards, load-more batching, and bottom sheets for filters and section summaries.
+
+Performance:
+The mobile component extends the existing tutorials class so API/service logic is not duplicated. It renders a capped lesson feed first, lazy-loads thumbnails, creates bottom-sheet content only when opened, and increases visible lessons on demand to keep DOM size friendly for lower-end devices.
+
+Accessibility:
+Search, filter, section, play, share, load-more, support, and role-switch actions use real controls with labels where needed. Bottom sheets use dialog semantics, videos retain image alt text, and touch targets are sized for mobile use.
+
+## Public Help Center Mobile UX Analysis
+
+Purpose:
+`/resources/help-center` helps users find answers before and after onboarding. It covers account setup, campaigns, payments, verification, troubleshooting, contact support, and learning resources.
+
+Desktop behavior:
+The desktop help center uses a large marketing-style hero, Material search field, category grid, quick-help cards, featured articles, expansion-panel FAQs, contact cards, community section, and learning resources.
+
+Mobile decisions:
+The mobile version turns the page into a native support hub. Search is the first interaction, popular searches become thumb chips, categories become a horizontal topic rail, recommended guides become compact cards, FAQ answers open in bottom sheets, and support channels are shown as actionable contact cards. The design avoids stacking the entire desktop landing page and focuses on the mobile job: find the answer fast or reach support.
+
+Performance:
+The mobile component extends the existing help center class, reusing the same signals, category data, articles, FAQs, contact options, and search actions. It renders compact lists, opens heavier article/FAQ/contact detail only inside bottom sheets, and keeps the desktop component untouched.
+
+Accessibility:
+Search has a clear label, all chips/cards/sheet actions are real buttons or links, bottom sheets use dialog semantics with labelled close buttons, and mobile tap targets are sized for touch use.
+
+## Public About Mobile UX Analysis
+
+Purpose:
+`/resources/about` helps first-time visitors understand what MarketSpase is, why the platform exists, and how its trust systems connect marketers, promoters, products, buyers, tracked links, and payouts.
+
+Desktop behavior:
+The desktop about page uses a large marketing hero, floating shapes, stat cards, mission/vision cards, feature grids, social proof, a multi-step workflow, and CTA content.
+
+Mobile decisions:
+The mobile version is a native trust story. The first screen explains the platform in plain language, stats become compact proof tiles, mission and vision become two focused cards, platform trust features move into a horizontal rail with bottom-sheet details, and the workflow copy is updated to the current PPC/tracked-link model instead of the old screenshot/download promotion model.
+
+Performance:
+The mobile component extends the existing about component, reusing the same hero statistics and feature data. Long mission, feature, and workflow explanations are created only inside bottom sheets, keeping the initial DOM small on mobile devices.
+
+Accessibility:
+Mission, feature, workflow, and CTA actions are real buttons or links. Bottom sheets use dialog semantics with labelled close buttons, proof metrics are text-readable, and touch targets are sized for mobile use.
+
+## Public Success Stories Mobile UX Analysis
+
+Purpose:
+`/resources/success-stories` helps prospects trust MarketSpase by showing role-specific proof from marketers, promoters, and larger organizations. It needs to help mobile visitors quickly answer, "does this work for someone like me?"
+
+Desktop behavior:
+The desktop page uses a large hero, category cards, a featured story, story grids, video testimonial cards, results stats, industry cards, and CTA content. The existing category card click also selected `promoter` for every card.
+
+Mobile decisions:
+The mobile version becomes a proof feed. Users first see compact impact stats, then choose a role from a horizontal category rail, scan a featured story, and open story details in a bottom sheet. Result metrics are summarized in cards, industry detail moves into sheets, and text is cleaned for mobile where old currency encoding displayed incorrectly.
+
+Performance:
+The mobile component extends the existing success stories component and reuses the same story/category/filter state. It renders a capped story list first, avoids missing desktop image assets by using lightweight initials and metric cards, and creates story/industry/filter detail only when a sheet opens.
+
+Accessibility:
+Category cards, story cards, industry cards, CTA links, and sheet controls are semantic touch-sized controls. Bottom sheets use dialog semantics with labelled close buttons, and role/category state is visible in text, not color alone.
+
+## Public Community Mobile UX Analysis
+
+Purpose:
+`/resources/community` introduces prospects and new users to the MarketSpase learning/community layer. It needs to show that marketers, promoters, store owners, and experts can learn together before signed-in forum features are available.
+
+Desktop behavior:
+The desktop community page uses a large hero, category cards, Material tabs for discussions/tips/events/mentors, benefit cards, testimonials, and CTA content. Actions open the existing sign-in dialog.
+
+Mobile decisions:
+The mobile version becomes a native community hub. Users first see proof stats and community groups, then switch between Hot, Tips, Events, and Mentors with a compact tab bar. Discussion, tip, and event details open in bottom sheets, while gated participation keeps using the existing sign-in dialog. Old currency mojibake is cleaned for mobile display.
+
+Performance:
+The mobile component extends the existing community component and reuses local data, dialog actions, event registration, tip reading, and join-community behavior. It renders capped lists per active section and creates detailed topic/tip/event/benefit content only when a sheet opens.
+
+Accessibility:
+Group cards, section tabs, content cards, CTA actions, and sheet controls are real buttons or links. Bottom sheets use dialog semantics with labelled close buttons, and state is represented through text plus active styles.
+
+## Public Careers Mobile UX Analysis
+
+Purpose:
+`/resources/careers` helps prospective hires understand MarketSpase's product mission, open roles, benefits, culture, and application path. The mobile version needs to make role discovery and application intent fast for candidates reading on phones.
+
+Desktop behavior:
+The desktop careers page uses a large hero, stat cards, benefit grids, culture cards, department filters, full job cards, a hiring-process timeline, internship CTA, testimonials, and final careers CTA.
+
+Mobile decisions:
+The mobile version becomes a native hiring hub. The first screen explains the role of the company in social commerce, stats become compact proof tiles, benefits become a horizontal rail with detail sheets, culture becomes touch rows, departments become chips, and roles become focused job cards with a bottom-sheet detail view. Application CTAs stay visible in the hero, role cards, and final CTA, while the existing mailto application behavior remains unchanged.
+
+Performance:
+The mobile component extends the existing careers component and reuses the same benefits, culture, department, role-filtering, internship, and apply methods. Full responsibilities, requirements, benefits, and hiring-process copy are created only when a bottom sheet opens, keeping the mobile DOM smaller than the desktop page.
+
+Accessibility:
+Benefit cards, culture rows, department filters, job actions, process cards, and sheet controls are semantic touch-sized controls. Bottom sheets use dialog semantics with labelled close buttons, role metadata is readable as text, and active department state is represented through text plus active styling.
+
+## Public Marketer Solution Mobile UX Analysis
+
+Purpose:
+`/resources/solutions/marketers` explains how marketers can use MarketSpase to fund campaigns, get promoters sharing unique links, and measure campaign or product performance. The mobile version needs to make the current PPC/tracked-link model clear without forcing users through the long desktop marketing page.
+
+Desktop behavior:
+The desktop marketer solution page uses a large hero, Facebook video embed, comparison cards, feature grid, step-by-step process, Material tabs for use cases, pricing cards, testimonials, FAQ blocks, and CTA content. Some desktop copy still references older WhatsApp status/proof language.
+
+Mobile decisions:
+The mobile page is intentionally framed around the current PPC system: campaign creation, budget funding, unique promoter links, click/conversion analytics, product promotion, and fraud visibility. Traditional-ad comparison is compressed into a single card, features become a horizontal rail with detail sheets, process steps become tappable cards, use cases become chips plus one focused card, and FAQs open in bottom sheets.
+
+Performance:
+The mobile component extends the existing marketer solution component so testimonial, pricing, use-case data, video URL preparation, and scroll behavior remain shared. The heavy desktop iframe is not rendered in the mobile view, and detailed feature/process/use-case/FAQ content is only shown inside bottom sheets.
+
+Accessibility:
+Hero CTAs, feature cards, process cards, use-case tabs, testimonial cards, FAQ rows, and sheet controls are semantic links or buttons. Bottom sheets use dialog semantics with labelled close buttons, and state is expressed through text and active styles instead of color alone.
+
+## Public Promoter Solution Mobile UX Analysis
+
+Purpose:
+`/resources/solutions/promoters` explains how promoters earn on MarketSpase by sharing campaign and product links responsibly. The mobile version needs to teach the current PPC/tracked-link flow and make account-health consequences obvious.
+
+Desktop behavior:
+The desktop promoter solution page uses a large hero, Facebook video embed, benefit grid, five-step WhatsApp status/proof flow, earnings card, sample campaigns, testimonials, FAQ blocks, and CTA content. Some desktop copy still reflects the older proof/submission workflow.
+
+Mobile decisions:
+The mobile page is intentionally reframed around the current model: verify profile, choose campaigns or storefront products, use ready assets and captions, share a unique tracked link, monitor clicks/conversions, and protect account health. Account-health warning content appears near the top, benefits become a horizontal rail, process steps become cards, opportunities and quality rules become compact tappable rows, and FAQ answers open in bottom sheets.
+
+Performance:
+The mobile component extends the existing promoter solution component so the shared video URL setup and scroll behavior remain available, but it does not render the heavy desktop iframe. Detailed benefit, step, opportunity, quality, proof, and FAQ content is only rendered when a bottom sheet opens.
+
+Accessibility:
+Hero CTAs, benefit cards, process cards, opportunity rows, quality rows, proof cards, FAQ rows, and sheet controls are semantic links or buttons. Bottom sheets use dialog semantics with labelled close buttons, and risk/quality information is expressed through text plus color.
+
+## Public Legal Shell Mobile UX Analysis
+
+Purpose:
+The `/legal/*` shell hosts the public legal pages and lets users move between Terms, Privacy, and Cookies while keeping a path back to the main app.
+
+Desktop behavior:
+The desktop `LegalComponent` uses a two-column layout with a left Material list menu and a content card containing the child route outlet. This remains the desktop behavior.
+
+Mobile decisions:
+The mobile shell replaces the collapsed desktop side menu with a sticky top bar, a clear Back to App action, and horizontal legal tabs. Child legal pages keep their own mobile readers, so the shell focuses only on navigation and route framing instead of wrapping content in another card.
+
+Performance:
+The parent route now renders either the existing desktop shell or the lightweight mobile shell through a device-aware wrapper. The mobile shell contains only static navigation data and a `router-outlet`, so it adds very little DOM or runtime cost.
+
+Accessibility:
+The Back to App action and legal tabs are semantic links with active route state. The tabs are touch-sized, horizontally scrollable on small screens, and labelled through the navigation landmark.
+
+## Public Cookies Policy Mobile UX Analysis
+
+Purpose:
+`/legal/cookies` explains what cookies are, why MarketSpase may use them, how cookies support website analytics and preferences, how advertising cookies may behave, and how users can block or delete cookies from their browser.
+
+Desktop behavior:
+The desktop cookies component is a short legal document inside the legal shell. It includes breadcrumb navigation, a policy heading, explanatory paragraphs, and an external `All About Cookies` reference.
+
+Mobile decisions:
+The mobile page turns the short policy into a practical cookie explainer. It leads with what cookies do, gives quick stat cards, highlights browser control, and turns cookie subjects into tappable rows. Browser controls, external guidance, and related privacy/terms links move into touch-friendly cards and bottom sheets. This keeps the policy understandable on a phone without changing the desktop legal text.
+
+Performance:
+The mobile component uses local static data and signals for the active sheet. Detailed cookie topics and browser-control guidance are rendered only when opened, while the desktop document is not mounted for mobile/tablet users.
+
+Accessibility:
+Breadcrumb links, cookie topic rows, browser-control actions, external education links, and legal shortcuts use semantic links or buttons. Bottom sheets use dialog semantics with labelled close buttons, and controls meet mobile touch sizing.
+
+## Public Terms Of Service Mobile UX Analysis
+
+Purpose:
+`/legal/terms` explains the rules for using MarketSpase, including user-submitted content, account security, prohibited conduct, website security, intellectual property, third-party links, disclaimers, liability limits, and contact paths.
+
+Desktop behavior:
+The desktop terms component is a long legal document rendered inside the existing legal shell. It keeps the complete agreement text, headings, paragraphs, lists, privacy link, and breadcrumb navigation.
+
+Mobile decisions:
+The mobile page becomes a practical terms reader. It leads with the binding-use message, last-updated and account-duty summary cards, then turns dense legal sections into tappable rows that open bottom sheets. The key conduct rules get their own sheet, and the privacy policy plus contact email are promoted into obvious touch actions. This avoids stacking a full desktop legal document on a small screen while preserving the desktop document for larger screens.
+
+Performance:
+The mobile component uses local static arrays and signals for the active bottom sheet. Detail content is only rendered when opened, and the existing desktop legal document is not mounted for mobile/tablet users.
+
+Accessibility:
+Breadcrumb links, topic rows, conduct controls, privacy links, contact links, and sheet close buttons are semantic controls. Bottom sheets use dialog semantics, controls meet mobile touch sizing, and risk/conduct states use text plus color.
+
+## Public Privacy Policy Mobile UX Analysis
+
+Purpose:
+`/legal/privacy` gives users a clear explanation of how MarketSpase collects, uses, stores, protects, and discloses personal information, plus how users can contact the team about data rights.
+
+Desktop behavior:
+The desktop privacy component is a long legal document rendered inside the existing legal shell. The shell keeps the legal menu, and the privacy child renders full policy text, headings, lists, and breadcrumb navigation.
+
+Mobile decisions:
+The mobile page becomes a privacy reader instead of a long legal wall. It starts with a short plain-language policy summary, key status cards, and a trust statement that MarketSpase does not sell personal data. The legal topics become tappable rows that open bottom sheets, while user controls and contact information are promoted into their own mobile sections. This keeps the important legal intent visible without forcing small-screen users through the full document at once.
+
+Performance:
+The mobile component keeps static policy summary data in local arrays, uses signals for the active sheet, and only renders detailed topic content when a sheet is open. The desktop document remains untouched and is not rendered for mobile/tablet users through the wrapper.
+
+Accessibility:
+Breadcrumb links, policy rows, rights controls, contact links, and sheet close buttons are semantic controls. Bottom sheets use dialog semantics, close buttons are labelled, and the policy statements are text-based so meaning is not carried by color alone.
+
+## Public Features Mobile UX Analysis
+
+Purpose:
+`/resources/features` helps prospects understand the product surface across marketer tools, promoter tools, and platform trust/automation features before they sign up.
+
+Desktop behavior:
+The desktop features page uses a large gradient hero, floating shapes, category cards, full feature grids, Material tabs for workflows, platform highlight grids, transaction pricing, and CTA content.
+
+Mobile decisions:
+The mobile page becomes a feature explorer. Users first pick a feature group from a horizontal rail, then scan active feature rows. Benefit bullet lists move into a bottom sheet, workflow tabs become a segmented mobile card, pricing becomes a compact rail, and CTA actions stay near the end. This keeps mobile attention on one feature group at a time instead of stacking the whole desktop page.
+
+Performance:
+The mobile component extends the existing features component and reuses the same feature categories, feature list, filtered feature signal, pricing tiers, and category switching logic. It renders only the active feature group and creates detailed feature bullets only when a sheet opens.
+
+Accessibility:
+Category cards, feature rows, workflow toggles, pricing content, CTA links, and sheet controls use real semantic controls. Bottom sheets use dialog semantics with labelled close buttons, and all primary controls meet mobile touch sizing.
+
+## Public FAQ Mobile UX Analysis
+
+Purpose:
+`/resources/faqs` gives prospective and signed-in users quick answers about onboarding, promoter requirements, campaigns, payments, verification, and troubleshooting.
+
+Desktop behavior:
+The desktop FAQ page uses a large hero, category cards, popular questions, featured FAQ blocks, Material expansion panels for every category, and a support section.
+
+Mobile decisions:
+The mobile page becomes an answer finder rather than a long accordion page. Search and popular chips sit first, categories become a horizontal topic rail, popular questions are tappable rows, featured questions become swipeable cards, and answers open in bottom sheets with helpful/not-helpful actions. This keeps mobile reading focused and prevents users from scrolling through a very long desktop-style FAQ stack.
+
+Performance:
+The mobile component extends the existing FAQ component, reusing local FAQ/category/popular question data and existing feedback methods. It renders capped question lists, avoids Material expansion panels on mobile, and creates answer/support detail only when a bottom sheet is opened.
+
+Accessibility:
+Search has a label, category and question cards are real buttons, support destinations are links, answer sheets use dialog semantics with labelled close buttons, and all primary controls are touch-sized.
+
+## Public Contact Mobile UX Analysis
+
+Purpose:
+`/resources/contact` lets prospects and existing users reach MarketSpase support for campaign, promoter, wallet, store, technical, billing, and partnership issues.
+
+Desktop behavior:
+The desktop contact page uses a large hero, contact method cards, a full Material form, sidebar benefit cards, team member cards, static FAQs, and CTA content.
+
+Mobile decisions:
+The mobile page is designed as a support flow instead of a long desktop landing page. Users first see urgent WhatsApp chat and Help Center actions, then choose a contact channel, pick an inquiry type, enter account details, describe the issue, and review before sending. Team members and support FAQs move into bottom sheets/cards so the main page stays focused on getting help quickly.
+
+Performance:
+The mobile component extends the existing contact component, reusing the same reactive form, contact methods, team data, WhatsApp action, email actions, and backend submission service. It avoids rendering the desktop Material form tree and only opens channel/team/FAQ detail when needed.
+
+Accessibility:
+The form uses labelled native inputs, step actions are real buttons, urgent support links are touch-sized, bottom sheets use dialog semantics with labelled close buttons, and review content is repeated in text before submission.
+
+## Public How It Works Mobile UX Analysis
+
+Purpose:
+`/resources/how-it-works` explains the MarketSpase marketplace flow for prospects, marketers, and promoters. It needs to show what each side does, how campaigns move from setup to promotion, and why the system is trackable.
+
+Desktop behavior:
+The desktop page uses a large marketing hero, embedded Facebook demo, stat cards, role cards, process sections, Material tabs/steppers, feature highlights, and CTA content.
+
+Mobile decisions:
+The mobile version becomes a short native onboarding guide. The first screen answers what MarketSpase does, then users can tap role cards, a compact process timeline, and a segmented marketer/promoter guide. Deeper explanations, benefits, feature details, and the demo video move into bottom sheets so the page does not feel like a squeezed desktop landing page.
+
+Performance:
+The mobile component extends the existing how-it-works component and reuses the same role, process, feature, and demo URL data. It avoids the desktop tab/stepper tree on mobile, clips long process copy in cards, and creates detail/video content only when a sheet is opened.
+
+Accessibility:
+Role, step, feature, CTA, and sheet controls are real buttons or links. The detail sheets use dialog semantics with labelled close buttons, the demo iframe has a title, and touch targets are sized for mobile use.
+
+## Public Benefits Mobile UX Analysis
+
+Purpose:
+`/resources/benefits` helps prospective marketers and promoters quickly understand why MarketSpase is valuable, what each side gets, and why the platform can be trusted.
+
+Desktop behavior:
+The desktop benefits page uses a large gradient hero, wide CTA buttons, stat blocks, repeated grid sections for businesses/promoters/platform, hover card effects, and a final CTA.
+
+Mobile decisions:
+The mobile page becomes a benefit picker. Users first choose the goal closest to them: business growth, promoter earnings, or platform trust. Top benefits are shown as compact cards, the full list becomes mobile rows, and deeper explanation opens in a bottom sheet. This reduces scrolling and helps non-technical users answer "what is in this for me?" quickly.
+
+Performance:
+The mobile component extends the existing benefits component and reuses the same benefit signals. It avoids the desktop grid/hover-heavy structure on mobile, renders only the active benefit category, and opens extra explanations only when requested.
+
+Accessibility:
+Audience cards, benefit cards, benefit rows, and CTA actions are real controls. Bottom sheets use dialog semantics with a labelled close button, and every mobile action has a touch-sized target.
+
+## AI Assistant Overview Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/overview` helps marketers monitor the WhatsApp AI sales assistant, see whether it is active, check response performance, test a customer question, and jump into conversations, FAQs, automation, analytics, or settings.
+
+Desktop behavior:
+The desktop overview uses wide status cards, a test panel, KPI cards, recent conversation rows, onboarding steps, and quick actions. It owns the assistant settings load, stats load, conversation load, websocket refresh, AI toggle, and test reply behavior.
+
+Mobile decisions:
+The mobile view keeps the existing assistant data flow and mutations but presents the page as a native control room. It leads with assistant state and toggle, then a horizontal KPI rail, quick action tiles, setup bottom sheet, test-reply bottom sheet, and recent conversation cards. Dense desktop panels move out of the first screen so the marketer can quickly answer: "Is my assistant working, and what needs my attention?"
+
+Performance:
+The mobile component extends the existing overview component, so API calls, socket refresh, and mutation paths are not duplicated. It avoids Material card grids on mobile, creates bottom-sheet content only when opened, and renders a compact conversation list.
+
+Accessibility:
+The AI toggle is a labelled native control, quick actions are links or buttons, conversations are real links, loading uses an announced state, and the bottom sheets use dialog semantics with labelled close buttons and mobile-sized targets.
+
+## AI Assistant FAQs Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/faqs` lets marketers train the AI sales assistant with reusable questions and answers, organize answers by category and tags, search existing entries, edit incorrect answers, and remove stale information.
+
+Desktop behavior:
+The desktop FAQ component uses Material cards, form fields, category buttons, inline edit forms, and a browser confirm for delete. It owns the FAQ loading, search/category filtering, add, edit, save, and delete API calls.
+
+Mobile decisions:
+The mobile version treats FAQ management as a training workflow. It leads with a coverage score and FAQ count, then gives users search, horizontal category chips, compact FAQ cards, and a floating add button. Add, edit, advanced category filter, and delete confirmation move into bottom sheets so the main screen stays easy to scan.
+
+Performance:
+The mobile component extends the existing FAQ component, reusing the same signals, computed filters, and service calls. It initially renders eight FAQ cards and uses load-more batching to keep the DOM smaller on lower-end mobile devices.
+
+Accessibility:
+Search is a labelled native input, category filters and card actions are real buttons, destructive delete uses an explicit confirmation sheet, and all bottom sheets use dialog semantics with labelled close buttons and touch-sized controls.
+
+## AI Assistant Conversations Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/conversations` is where marketers monitor WhatsApp customer chats, take over from AI, reply as a human, send storefront/payment links, resolve chats, escalate issues, and tag lead quality.
+
+Desktop behavior:
+The desktop component uses a two-column workspace with a conversation sidebar, Material search/select filters, inline chat tools, a scrollable message pane, and composer. It owns realtime socket updates, debounced search, conversation selection, message loading, optimistic send, takeover, resolve, escalate, quick actions, and lead tagging.
+
+Mobile decisions:
+The mobile version uses an inbox-first flow instead of squeezing the desktop two-column layout. Marketers see a compact KPI rail, search, status chips, and conversation cards. Selecting a chat opens a full-screen mobile chat with sticky topbar, quick action strip, scrollable messages, and sticky composer. Less frequent actions move into bottom sheets for filters, chat actions, and lead tagging.
+
+Performance:
+The mobile component extends the existing conversations component so realtime refresh, message loading, and mutation paths are reused. It renders either the inbox or the selected chat, avoiding the desktop sidebar and chat panel being visible at the same time on mobile.
+
+Accessibility:
+Filters, quick actions, back navigation, chat actions, lead tags, and send controls are real buttons or native inputs. The active chat has labelled controls, bottom sheets use dialog semantics, and touch targets are sized for one-handed use.
+
+## AI Assistant Automation Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/automation` lets marketers control whether the AI replies, how it sounds, when it should hand chats to humans, which storefront/payment/product links it can send, and how fast it responds.
+
+Desktop behavior:
+The desktop component uses a wide settings grid with Material cards, slide toggles, selects, product-link rows, business-hour controls, and sticky save actions. It owns settings loading, merging defaults, change detection, reset, save, link management, escalation keyword parsing, and response timing updates.
+
+Mobile decisions:
+The mobile version presents automation as a compact control center. It leads with AI on/off state, KPI-like setting summaries, sample reply, and four tap targets: reply style, escalation rules, sales links, and response control. Each section opens in a bottom sheet so users can edit one task at a time. Unsaved changes surface in a sticky save/reset bar.
+
+Performance:
+The mobile component extends the existing automation component, reusing settings loading, update methods, save/reset, and product-link logic. It renders only summary controls on the main screen and creates the heavier edit controls inside bottom sheets.
+
+Accessibility:
+The AI toggle, section controls, reset/save actions, link management, and all form controls are real native inputs/buttons. Bottom sheets use dialog semantics, and destructive link removal is explicit and touch-sized.
+
+## AI Assistant Analytics Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/analytics` helps marketers understand whether the AI assistant is saving response time, answering enough buyer messages, escalating the right chats, and creating buying signals.
+
+Desktop behavior:
+The desktop component uses a wide report layout with ROI cards, four Material metric cards, a seven-day bar chart, AI-vs-human activity bars, conversion signal rows, refresh, loading state, and error handling. It owns analytics loading, derived chart data, max-value calculations, and date formatting.
+
+Mobile decisions:
+The mobile version turns the report into a native performance feed. It leads with a sticky header and refresh action, then uses swipeable summary cards for sales influence, conversion rate, and escalation rate. Core message metrics become a 2-column card grid, while charts are simplified into compact mobile panels that keep the signal without forcing desktop table/chart density.
+
+Performance:
+The mobile component extends the existing analytics component, reusing the API call, loading state, computed chart data, chart scaling helpers, and error handling. The mobile template renders lightweight cards and CSS charts without adding a charting dependency.
+
+Accessibility:
+Refresh is a labelled icon button, loading uses polite status text, KPI sections have aria labels, and all mobile cards preserve readable text hierarchy with touch-safe spacing.
+
+## AI Assistant Settings Mobile UX Analysis
+
+Purpose:
+`/dashboard/assistant/customer/settings` lets marketers connect WhatsApp numbers, choose the storefront the assistant represents, control assistant alerts, manage the subscription plan, and save Twilio WhatsApp credentials.
+
+Desktop behavior:
+The desktop component uses Material cards, a horizontal settings nav, reactive forms, slide toggles, plan cards, Twilio credential fields, and a browser confirmation before removing a WhatsApp number. It owns settings loading, connection mutations, business binding, notification preference saving, plan updates, and Twilio configuration.
+
+Mobile decisions:
+The mobile version is a settings hub rather than a squeezed form. It starts with setup health, then presents thumb-friendly section chips. Each section is focused: WhatsApp numbers become cards with status pills and AI toggles, business binding uses a native select, alerts are toggle rows, plans are stacked cards, and Twilio fields are grouped under a security note. Removing a number uses a bottom sheet instead of a browser confirm.
+
+Performance:
+The mobile component extends the existing settings component, reusing the same service calls, forms, validation, and mutation methods. The mobile route renders only one section at a time and uses native controls where possible to avoid heavy mobile DOM.
+
+Accessibility:
+Section navigation, add/remove, save, reconnect, and plan actions are real buttons with large touch targets. The removal confirmation uses dialog semantics, form fields have labels, and status is exposed through visible text plus icons.
+
+## Dashboard Global Search Mobile UX Analysis
+
+Purpose:
+`/dashboard/search` lets authenticated users search across MarketSpase users, campaigns, promotions, products, and stores with role-aware visibility, facets, pagination, exports, and deep links into each result.
+
+Desktop behavior:
+The desktop component uses a hero section, Material search field, entity chips, Material selects for filters, region chips, a spotlight result, result grid cards, metrics, export, and paginator. It owns query-param synchronization, debounced search, filter route updates, pagination, result navigation, and CSV export.
+
+Mobile decisions:
+The mobile version becomes a search-first surface. It leads with a sticky header and large native search input, keeps entity filters in a horizontal rail, moves secondary filters into a bottom sheet, and renders every result as a touch-friendly card with status tags, metric strips, and a full-width open action. Pagination is simplified into previous/next controls.
+
+Performance:
+The mobile component extends the existing search page and reuses the same service, route synchronization, computed result state, export, metric formatting, and navigation methods. It avoids Material form fields and paginator on mobile, reducing DOM weight while preserving behavior.
+
+Accessibility:
+The search input is labelled, filters use a dialog-style bottom sheet, result actions are real buttons, pagination has an aria label, and all interactive controls meet mobile touch sizing.
+
+## Dashboard Leaderboard Mobile UX Analysis
+
+Purpose:
+`/dashboard/leaderboard` helps users understand who is consistently checking in, earning points, and leading the current reward window.
+
+Desktop behavior:
+The desktop page uses a hero, summary grid, segmented controls, podium cards, and full ranking rows. It owns leaderboard loading, timeframe switching, metric switching, reward value display, and profile navigation.
+
+Mobile decisions:
+The mobile page starts with the user's own streak and withdrawable reward value because that is the most personal mobile question. First place becomes a large champion card, the rest of the podium becomes a horizontal rail, and the full ranking becomes compact profile-ready cards. Timeframe and metric controls move into a bottom sheet so the main screen stays focused on rankings.
+
+Performance:
+The mobile component extends the existing leaderboard component and reuses the same service, loading signals, computed entries, metric formatting, refresh behavior, and profile navigation. It avoids desktop grid/table patterns and renders lightweight native controls.
+
+Accessibility:
+Refresh, filter, profile, and close actions are real buttons with large touch targets. The filter sheet uses dialog semantics, rank cards have readable labels, and loading uses stable skeleton cards to avoid layout jumps.
+
+## Dashboard Gamification Mobile UX Analysis
+
+Purpose:
+`/dashboard/gamification` helps users understand how their daily streaks, XP, badges, milestones, and qualifying marketplace actions build long-term engagement value.
+
+Desktop behavior:
+The desktop page uses a full journey dashboard with a header, refresh state, level hero, stat grid, milestone panels, action breakdown, celebrations, recent events, and unlocked milestones. It owns gamification loading, refresh, error handling, and all derived progress state.
+
+Mobile decisions:
+The mobile page becomes a reward journey. It puts level progress, XP, and reward signals first, then presents streak and points as swipeable stat cards. The next milestone gets a focused card, while milestone ladders, XP sources, recent wins, and activity become compact mobile sections. Leaderboard and refresh are elevated into thumb-friendly quick actions.
+
+Performance:
+The mobile component extends the existing gamification component and reuses the same service, state signals, computed summaries, refresh method, and loading/error behavior. It avoids heavy Material panels and renders only compact rails and cards.
+
+Accessibility:
+Refresh, leaderboard, retry, and section interactions are real labelled controls with mobile-sized touch targets. Progress has visible text in addition to visual bars, and loading uses stable skeleton cards to prevent misleading empty states.
+
+## Dashboard Home Mobile UX Analysis
+
+Purpose:
+`/dashboard` is the user's daily command center. It brings together wallet momentum, campaigns or promotions, gamification, community activity, learning, trends, and relationship building.
+
+Desktop behavior:
+The desktop home composes many dashboard widgets: notification banners, dashboard header, community feed, performance metrics, quick stats, gamification spotlight, badge feed, recent activity, trending topics, suggested connections, learning, testimonials, mobile bottom navigation, and desktop floating post action. It owns profile, feed, forum, live activity, tutorial, notification, and follow state loading.
+
+Mobile decisions:
+The mobile page becomes a native home feed instead of a stacked desktop dashboard. It leads with a sticky greeting and notification badge, highlights the most important KPI, puts primary role actions within thumb reach, turns performance metrics into a horizontal stat rail, exposes gamification and leaderboard as shortcut cards, and keeps community, wallet activity, trends, connections, and learning as compact scan-first sections. The existing desktop child widgets are not forced into mobile; their business data is reused through the parent container state.
+
+Performance:
+The mobile component extends the existing dashboard container and reuses the same services, computed summaries, user-driven initialization, polling, follow actions, wallet navigation, campaign navigation, and community navigation. It avoids rendering the desktop widget tree on mobile, reducing DOM size on the highest-traffic dashboard route.
+
+Accessibility:
+Notifications, primary actions, section actions, connection follow buttons, course actions, activity rows, and bottom navigation are real controls with mobile-sized targets. KPI values use visible labels, and the mobile bottom nav has an explicit navigation label.
+
+## Daily Check-In Mobile UX Analysis
+
+Purpose:
+The embedded dashboard daily check-in prompt helps marketers and promoters keep a streak, complete the active-session requirement, understand point rewards, and withdraw matured reward points to the correct wallet.
+
+Desktop behavior:
+The existing desktop component renders a fixed floating chip and opens a centered modal with reward cards, progress bars, payout maturity, and wallet withdrawal. It owns no business rules directly; all session state, heartbeat pings, progress calculations, and withdrawals live in `DailyCheckInService`.
+
+Mobile decisions:
+The mobile version keeps the same service-driven business behavior but changes the presentation into a mobile-native bottom dock. The dock stays above the mobile dashboard navigation and opens a bottom sheet instead of a centered modal. The sheet leads with the current streak, reward state, today's reward, active-session progress, payout maturity, and one large wallet withdrawal action. This avoids the desktop modal feel and keeps the check-in reachable by thumb without interrupting the mobile home feed.
+
+Performance:
+The mobile component extends the existing daily check-in component and reuses the same signals, computed values, service calls, and withdrawal method. Mobile/tablet users do not render the desktop modal tree, and the loading state is a lightweight dock skeleton.
+
+Accessibility:
+The dock, close control, and withdrawal action are real labelled buttons with mobile-sized targets. The bottom sheet uses dialog semantics with `aria-modal`, has a labelled heading, respects reduced motion, and keeps visible text for all reward/progress values.
+
 ## Marketer Store Creation Mobile UX Analysis
 
 Purpose:
@@ -467,11 +1144,140 @@ The mobile component extends the existing customer support component and renders
 Accessibility:
 Search, filters, selection, customer profile, email, SMS, copy, export, pagination, and save actions use labelled native controls or real buttons. Bottom sheets use dialog semantics, and touch controls are sized for mobile use.
 
+## Campaign Creation Mobile UX Analysis
+
+Route:
+`/dashboard/campaigns/create`
+
+Purpose:
+This page lets marketers create a PPC campaign by adding media/content, selecting a campaign goal, setting budget and targeting, choosing schedule, and reviewing before launch or draft save.
+
+Desktop reference:
+The desktop campaign creation page uses a wide sticky toolbar, a horizontal stepper, embedded child form cards, and final action buttons. It owns the core campaign forms, validation state, wallet funding dialog, media upload, draft save, create request, and navigation.
+
+Mobile decisions:
+The mobile view keeps the same campaign creation class behavior and child form components, but presents the flow as a native setup wizard. It leads with a compact app bar, sticky draft action, mobile progress card, horizontally scrollable step rail, current-task context card, wallet/budget/click snapshot on the budget step, and fixed bottom actions. This keeps the money-sensitive launch controls reachable by thumb while avoiding a stacked desktop toolbar/stepper on phones.
+
+Performance:
+The mobile component extends the existing campaign creation logic and only renders the active step surface. The desktop component remains untouched and is not mounted on mobile/tablet, reducing duplicated DOM and preserving the existing API/media upload behavior.
+
+Accessibility:
+Back, save, step, previous, next, and launch controls are real buttons with labels or aria labels. The progress card exposes the current step, submission progress uses `role="status"` with polite live updates, and sticky actions stay above the mobile safe area.
+
+## Campaign Details Mobile UX Analysis
+
+Route:
+`/dashboard/campaigns/:id`
+
+Purpose:
+This page lets marketers monitor one campaign, review campaign media and setup, top up budget, pause/resume/activate, change targeting, open the collaboration room, inspect promoter activity, message promoters, and review the activity timeline.
+
+Desktop reference:
+The desktop page uses a wide gradient header, overview card, media/info two-column layout, KPI grid, promotions table with filters, and an activity log. It owns campaign loading, budget calculations, top-up, status changes, targeting navigation, collaboration navigation, media viewer, search/filter, promotion detail dialog, and promoter messaging.
+
+Mobile decisions:
+The mobile page becomes a campaign control room. It leads with a sticky title bar and media-first hero, then exposes the most important operational actions as thumb-sized quick action tiles. Budget health and PPC performance become a compact progress card and horizontal metric rail. The desktop promotions table is replaced with promoter activity cards, keeping tracked clicks, billable clicks, spend, last activity, detail view, and message actions easy to scan on a phone.
+
+Performance:
+The mobile component extends the existing campaign details logic and renders only the active mobile cards. Desktop remains unchanged and is not mounted for mobile/tablet users, while all API calls and mutations continue through the existing `CampaignDetailsService`.
+
+Accessibility:
+Back, edit, media, top-up, targeting, collaboration, status, filter, promotion detail, and messaging controls are real buttons or links. Loading uses a polite status region, search uses a labelled input wrapper, and the mobile cards avoid horizontal tables.
+
+## Campaign Editing Mobile UX Analysis
+
+Route:
+`/dashboard/campaigns/edit/:id`
+
+Purpose:
+This page lets marketers safely update campaign basics, budget settings, schedule, promoter requirements, and then jump into the dedicated location-targeting workspace.
+
+Desktop reference:
+The desktop campaign edit page uses a wide header, stacked form cards, shared child form components, snackbar feedback, native date adapter imports, and the existing campaign edit service for loading and saving.
+
+Mobile decisions:
+The mobile page keeps the same campaign edit class behavior and child form components, but presents the form as a native section editor. It leads with campaign context and saved/unsaved state, uses a horizontal section rail for Basics, Budget, Schedule, Rules, and Targeting, and keeps the primary action sticky for one-handed editing. JavaScript confirm prompts are avoided in the mobile shell; unsaved navigation and targeting transitions use a bottom-sheet confirmation.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared surface, text, border, spacing, radius, shadow, z-index, and breakpoint tokens, plus CSS theme variables such as `--primary-color`, `--primary-rgb`, and `--gradient-primary` so light and dark mode follow the app design model.
+
+Performance:
+The mobile component extends the existing campaign edit component and only renders the active form section. Desktop stays untouched and is not mounted for mobile/tablet users, reducing form DOM weight while preserving the existing validators, patching, update payload, snackbars, and navigation behavior.
+
+Accessibility:
+Back, retry, section, targeting, discard, save, and navigation controls are real buttons. Loading uses `role="status"`, errors use `role="alert"`, bottom-sheet prompts use dialog semantics, and touch targets are kept at mobile-safe sizes.
+
+## Campaign Collaboration Mobile UX Analysis
+
+Route:
+`/dashboard/campaigns/collaboration`
+
+Purpose:
+This page keeps marketers and promoters aligned through campaign rooms, promotion rooms, and direct messages without sending them out of the MarketSpase workflow.
+
+Desktop reference:
+The desktop collaboration page uses a large hero, KPI cards, starter grids, recent collaborator shortcuts, a two-column thread/chat workspace, realtime subscriptions, route query resolution, conversation loading, read tracking, and message sending.
+
+Mobile decisions:
+The mobile page becomes a native collaboration workbench with three focused views: Home, Threads, and Chat. Home prioritizes quick starters, recent people, and latest conversations. Threads provides search and filter chips in a scroll-friendly list. Chat renders a compact message stream with a mobile composer. Selecting a thread switches into Chat, while all API, realtime, route-query, mark-read, and send-message behavior stays inherited from the existing component.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. It uses shared theme tokens for surface, background, borders, typography, spacing, shadows, safe-area layout, and touch breakpoints, with `--primary-color`, `--primary-rgb`, and `--gradient-primary` for dynamic light/dark brand treatment.
+
+Performance:
+The mobile component reuses the existing collaboration service/realtime flows and renders bounded slices for home previews while keeping the full filtered thread list capped for mobile. Desktop is not mounted for mobile/tablet users, avoiding the large two-column desktop workspace on small devices.
+
+Accessibility:
+Home/thread/chat navigation uses real buttons, loading states use polite status regions, errors use alert semantics, chat can be reached from selected conversations, and all primary touch actions are sized for mobile use.
+
+## Campaign Targeting Mobile UX Analysis
+
+Route:
+`/dashboard/campaigns/:id/targeting`
+
+Purpose:
+This page lets marketers decide whether a campaign should be open to broad promotion or restricted to selected geographic areas such as countries, cities, addresses, or places.
+
+Desktop reference:
+The desktop targeting page uses a desktop header component, a centered form card, the existing Google Places/manual location targeting component, and save/cancel actions. It owns campaign loading, location signals, enable-target state, deduplication, and the update request.
+
+Mobile decisions:
+The mobile page becomes a focused location workspace. It leads with a sticky mobile app bar and campaign context, shows the current targeting mode and selected-area count, surfaces a warning when targeting is enabled without any selected areas, previews selected locations as native cards, and keeps save/cancel actions fixed above the mobile safe area. The existing targeting child component is reused so Google Places/manual entry behavior stays consistent.
+
+Theme alignment:
+The mobile SCSS imports `@use '../../../../styles/variables' as vars;` and `@use '../../../../styles/mixins' as mixins;`. The layout uses shared background, surface, border, text, gradient, status, spacing, radius, shadow, breakpoint, and blur tokens so light and dark mode remain aligned with the app design model.
+
+Performance:
+The mobile component extends the existing targeting component and does not mount the desktop header/card tree on mobile/tablet. Computed signals provide the compact campaign title, selected-location count, preview slice, and warning state without extra subscriptions.
+
+Accessibility:
+Back, retry, clear, save, and cancel controls are real buttons with readable labels or aria labels. Loading uses `role="status"` with polite live updates, errors use `role="alert"`, sticky actions preserve touch-sized controls, and summary cards avoid horizontal overflow.
+
 ## Implementation Pattern Used
 
 Files added:
 
 ```text
+projects/platform/src/app/campaign/campaign-edit/index.ts
+projects/platform/src/app/campaign/campaign-edit/mobile/campaign-edit-mobile.component.ts
+projects/platform/src/app/campaign/campaign-edit/mobile/campaign-edit-mobile.component.html
+projects/platform/src/app/campaign/campaign-edit/mobile/campaign-edit-mobile.component.scss
+projects/platform/src/app/campaign/collaboration/index.ts
+projects/platform/src/app/campaign/collaboration/mobile/campaign-collaboration-mobile.component.ts
+projects/platform/src/app/campaign/collaboration/mobile/campaign-collaboration-mobile.component.html
+projects/platform/src/app/campaign/collaboration/mobile/campaign-collaboration-mobile.component.scss
+projects/platform/src/app/campaign/targeting/index.ts
+projects/platform/src/app/campaign/targeting/mobile/campaign-targeting-mobile.component.ts
+projects/platform/src/app/campaign/targeting/mobile/campaign-targeting-mobile.component.html
+projects/platform/src/app/campaign/targeting/mobile/campaign-targeting-mobile.component.scss
+projects/platform/src/app/campaign/campaign-details/index.ts
+projects/platform/src/app/campaign/campaign-details/mobile/campaign-details-mobile.component.ts
+projects/platform/src/app/campaign/campaign-details/mobile/campaign-details-mobile.component.html
+projects/platform/src/app/campaign/campaign-details/mobile/campaign-details-mobile.component.scss
+projects/platform/src/app/campaign/create/index.ts
+projects/platform/src/app/campaign/create/mobile/create-campaign-mobile.component.ts
+projects/platform/src/app/campaign/create/mobile/create-campaign-mobile.component.html
+projects/platform/src/app/campaign/create/mobile/create-campaign-mobile.component.scss
 projects/platform/src/app/transactions/mobile/index.component.ts
 projects/platform/src/app/transactions/mobile/index.component.html
 projects/platform/src/app/transactions/mobile/index.component.scss
@@ -504,6 +1310,14 @@ projects/platform/src/app/store/promoter/products-list/index.ts
 projects/platform/src/app/store/promoter/products-list/mobile/index.component.ts
 projects/platform/src/app/store/promoter/products-list/mobile/index.component.html
 projects/platform/src/app/store/promoter/products-list/mobile/index.component.scss
+projects/platform/src/app/store/promoter/product-detail/index.ts
+projects/platform/src/app/store/promoter/product-detail/mobile/promoter-product-details-mobile.component.ts
+projects/platform/src/app/store/promoter/product-detail/mobile/promoter-product-details-mobile.component.html
+projects/platform/src/app/store/promoter/product-detail/mobile/promoter-product-details-mobile.component.scss
+projects/platform/src/app/store/promoter/store-products-list/index.ts
+projects/platform/src/app/store/promoter/store-products-list/mobile/store-products-list-mobile.component.ts
+projects/platform/src/app/store/promoter/store-products-list/mobile/store-products-list-mobile.component.html
+projects/platform/src/app/store/promoter/store-products-list/mobile/store-products-list-mobile.component.scss
 projects/platform/src/app/store/orders/index.ts
 projects/platform/src/app/store/orders/mobile/index.component.ts
 projects/platform/src/app/store/orders/mobile/index.component.html
@@ -563,6 +1377,89 @@ projects/platform/src/app/store/marketer/customer-support/index.ts
 projects/platform/src/app/store/marketer/customer-support/mobile/customer-support-mobile.component.ts
 projects/platform/src/app/store/marketer/customer-support/mobile/customer-support-mobile.component.html
 projects/platform/src/app/store/marketer/customer-support/mobile/customer-support-mobile.component.scss
+projects/platform/src/app/settings/mobile/settings-mobile-index.component.ts
+projects/platform/src/app/settings/mobile/settings-mobile-index.component.html
+projects/platform/src/app/settings/mobile/settings-mobile-index.component.scss
+projects/platform/src/app/settings/account/index.ts
+projects/platform/src/app/settings/account/mobile/account-mobile.component.ts
+projects/platform/src/app/settings/account/mobile/account-mobile.component.html
+projects/platform/src/app/settings/account/mobile/account-mobile.component.scss
+projects/platform/src/app/tutorials/index.ts
+projects/platform/src/app/tutorials/mobile/tutorials-mobile.component.ts
+projects/platform/src/app/tutorials/mobile/tutorials-mobile.component.html
+projects/platform/src/app/tutorials/mobile/tutorials-mobile.component.scss
+projects/platform/src/app/ai-assistant/pages/overview/index.ts
+projects/platform/src/app/ai-assistant/pages/overview/mobile/overview-mobile.component.ts
+projects/platform/src/app/ai-assistant/pages/overview/mobile/overview-mobile.component.html
+projects/platform/src/app/ai-assistant/pages/overview/mobile/overview-mobile.component.scss
+projects/platform/src/app/ai-assistant/pages/faqs/index.ts
+projects/platform/src/app/ai-assistant/pages/faqs/mobile/faqs-mobile.component.ts
+projects/platform/src/app/ai-assistant/pages/faqs/mobile/faqs-mobile.component.html
+projects/platform/src/app/ai-assistant/pages/faqs/mobile/faqs-mobile.component.scss
+projects/platform/src/app/ai-assistant/pages/conversations/index.ts
+projects/platform/src/app/ai-assistant/pages/conversations/mobile/conversations-mobile.component.ts
+projects/platform/src/app/ai-assistant/pages/conversations/mobile/conversations-mobile.component.html
+projects/platform/src/app/ai-assistant/pages/conversations/mobile/conversations-mobile.component.scss
+projects/platform/src/app/ai-assistant/pages/automation/index.ts
+projects/platform/src/app/ai-assistant/pages/automation/mobile/automation-mobile.component.ts
+projects/platform/src/app/ai-assistant/pages/automation/mobile/automation-mobile.component.html
+projects/platform/src/app/ai-assistant/pages/automation/mobile/automation-mobile.component.scss
+projects/platform/src/app/ai-assistant/pages/analytics/index.ts
+projects/platform/src/app/ai-assistant/pages/analytics/mobile/analytics-mobile.component.ts
+projects/platform/src/app/ai-assistant/pages/analytics/mobile/analytics-mobile.component.html
+projects/platform/src/app/ai-assistant/pages/analytics/mobile/analytics-mobile.component.scss
+projects/platform/src/app/ai-assistant/pages/settings/index.ts
+projects/platform/src/app/ai-assistant/pages/settings/mobile/settings-mobile.component.ts
+projects/platform/src/app/ai-assistant/pages/settings/mobile/settings-mobile.component.html
+projects/platform/src/app/ai-assistant/pages/settings/mobile/settings-mobile.component.scss
+projects/platform/src/app/dashboard/search/index.ts
+projects/platform/src/app/dashboard/search/mobile/global-search-mobile.component.ts
+projects/platform/src/app/dashboard/search/mobile/global-search-mobile.component.html
+projects/platform/src/app/dashboard/search/mobile/global-search-mobile.component.scss
+projects/platform/src/app/dashboard/leaderboard/index.ts
+projects/platform/src/app/dashboard/leaderboard/mobile/leaderboard-mobile.component.ts
+projects/platform/src/app/dashboard/leaderboard/mobile/leaderboard-mobile.component.html
+projects/platform/src/app/dashboard/leaderboard/mobile/leaderboard-mobile.component.scss
+projects/platform/src/app/dashboard/gamification/index.ts
+projects/platform/src/app/dashboard/gamification/mobile/gamification-mobile.component.ts
+projects/platform/src/app/dashboard/gamification/mobile/gamification-mobile.component.html
+projects/platform/src/app/dashboard/gamification/mobile/gamification-mobile.component.scss
+projects/platform/src/app/dashboard/main-content/index.ts
+projects/platform/src/app/dashboard/main-content/mobile/dashboard-main-mobile.component.ts
+projects/platform/src/app/dashboard/main-content/mobile/dashboard-main-mobile.component.html
+projects/platform/src/app/dashboard/main-content/mobile/dashboard-main-mobile.component.scss
+projects/platform/src/app/dashboard/daily-check-in/index.ts
+projects/platform/src/app/dashboard/daily-check-in/mobile/daily-check-in-mobile.component.ts
+projects/platform/src/app/dashboard/daily-check-in/mobile/daily-check-in-mobile.component.html
+projects/platform/src/app/dashboard/daily-check-in/mobile/daily-check-in-mobile.component.scss
+projects/platform/src/app/wallet/transfer/index.ts
+projects/platform/src/app/wallet/transfer/mobile/transfer-funds-mobile.component.ts
+projects/platform/src/app/wallet/transfer/mobile/transfer-funds-mobile.component.html
+projects/platform/src/app/wallet/transfer/mobile/transfer-funds-mobile.component.scss
+projects/platform/src/app/wallet/withdrawal/index.ts
+projects/platform/src/app/wallet/withdrawal/mobile/withdrawal-mobile.component.ts
+projects/platform/src/app/wallet/withdrawal/mobile/withdrawal-mobile.component.html
+projects/platform/src/app/wallet/withdrawal/mobile/withdrawal-mobile.component.scss
+projects/platform/src/app/wallet/funding/index.ts
+projects/platform/src/app/wallet/funding/mobile/wallet-funding-mobile.component.ts
+projects/platform/src/app/wallet/funding/mobile/wallet-funding-mobile.component.html
+projects/platform/src/app/wallet/funding/mobile/wallet-funding-mobile.component.scss
+projects/platform/src/app/legal/index.ts
+projects/platform/src/app/legal/mobile/legal-mobile-shell.component.ts
+projects/platform/src/app/legal/mobile/legal-mobile-shell.component.html
+projects/platform/src/app/legal/mobile/legal-mobile-shell.component.scss
+projects/platform/src/app/legal/cookies/index.ts
+projects/platform/src/app/legal/cookies/mobile/cookies-mobile.component.ts
+projects/platform/src/app/legal/cookies/mobile/cookies-mobile.component.html
+projects/platform/src/app/legal/cookies/mobile/cookies-mobile.component.scss
+projects/platform/src/app/legal/terms/index.ts
+projects/platform/src/app/legal/terms/mobile/terms-mobile.component.ts
+projects/platform/src/app/legal/terms/mobile/terms-mobile.component.html
+projects/platform/src/app/legal/terms/mobile/terms-mobile.component.scss
+projects/platform/src/app/legal/privacy/index.ts
+projects/platform/src/app/legal/privacy/mobile/privacy-mobile.component.ts
+projects/platform/src/app/legal/privacy/mobile/privacy-mobile.component.html
+projects/platform/src/app/legal/privacy/mobile/privacy-mobile.component.scss
 ```
 
 Files updated:
@@ -572,14 +1469,36 @@ projects/platform/src/app/transactions/index.ts
 projects/platform/src/app/campaign/campaign.component.ts
 projects/platform/src/app/campaign/campaign.routes.ts
 projects/platform/src/app/store/index.ts
+projects/platform/src/app/dashboard/dashboard.routes.ts
 projects/platform/src/app/store/store.routes.ts
 projects/platform/src/app/store/promoter/promoted-products/index.ts
+projects/platform/src/app/ai-assistant/ai-assistant.routes.ts
+projects/platform/src/app/ai-assistant/pages/faqs/faqs.component.ts
+projects/platform/src/app/ai-assistant/pages/settings/settings.component.ts
 projects/platform/src/app/app.routes.ts
+projects/platform/src/app/dashboard/index.ts
+projects/platform/src/app/dashboard/index.html
+projects/platform/src/app/transactions/transactions.routes.ts
+projects/platform/src/app/wallet/withdrawal/withdrawal.component.html
+projects/platform/src/app/wallet/withdrawal/withdrawal.component.ts
+projects/platform/src/app/dashboard/sidenav/sidenav.component.ts
+projects/platform/src/app/campaign/create/create-campaign.component.ts
+projects/platform/src/app/legal/legal.routes.ts
 ```
 
 The desktop `TransactionComponent` is unchanged. The wrapper now renders `MobileTransactionsComponent` for mobile/tablet and the existing `TransactionComponent` for desktop.
 
+The desktop `TransferFundsComponent` is unchanged. The transfer route now renders `TransferFundsMobileComponent` for mobile/tablet and keeps the existing desktop transfer workspace for desktop.
+
+The desktop `WithdrawalComponent` keeps its existing payout workspace. Its bank interface is exported for mobile reuse, and its submit guard remains aligned with the marketer-withdrawal restriction. The withdrawal route now renders `WithdrawalMobileComponent` for mobile/tablet and keeps the existing desktop payout workspace for desktop.
+
+The desktop `WalletFundingComponent` is unchanged. The funding dialog now opens `WalletFundingIndexComponent`, which renders `WalletFundingMobileComponent` for mobile/tablet and keeps the existing desktop funding component for desktop.
+
 The desktop `PromoterProductsListComponent` is unchanged. The new product-list wrapper renders `MobilePromoterProductsListComponent` for mobile/tablet and keeps the existing desktop component for desktop.
+
+The desktop `PromoterProductDetailsComponent` is unchanged. The new promoter product-detail wrapper renders `PromoterProductDetailsMobileComponent` for mobile/tablet and keeps the existing desktop product detail workspace for desktop.
+
+The desktop `StoreProductsListComponent` is unchanged. The new store product shelf wrapper forwards the `storeId` route param to both branches, renders `StoreProductsListMobileComponent` for mobile/tablet, and keeps the existing desktop store product grid for desktop.
 
 The desktop `StorefrontOrdersComponent` is unchanged. The new orders wrapper renders `MobileStorefrontOrdersComponent` for mobile/tablet and keeps the existing desktop component for desktop.
 
@@ -619,6 +1538,64 @@ The desktop marketer `StoreEditComponent` is unchanged. The new store-edit wrapp
 
 The desktop marketer `CustomerSupportComponent` is unchanged. The new customer-support wrapper renders `CustomerSupportMobileComponent` for mobile/tablet and keeps the existing desktop Buyer CRM for desktop.
 
+The desktop settings shell in `SettingsIndexComponent` is unchanged for desktop. The settings index now renders `SettingsMobileIndexComponent` for mobile/tablet and keeps the existing Material sidenav shell for desktop.
+
+The desktop `AccountComponent` is unchanged. The settings account route now renders `AccountMobileComponent` for mobile/tablet and keeps the existing expansion-panel account workspace for desktop.
+
+The desktop `TutorialsComponent` is unchanged. The tutorials route now renders `TutorialsMobileComponent` for mobile/tablet and keeps the existing desktop learning center for desktop.
+
+The desktop `HelpCenterComponent` is unchanged for desktop. The resources help-center route now renders `HelpCenterMobileComponent` for mobile/tablet and keeps the existing desktop help landing page for desktop. The shared help-center search subscription now uses Angular destroy handling so the wrapper can be used safely across device switches.
+
+The desktop `FeaturesComponent` is unchanged for desktop. The resources features route now renders `FeaturesMobileComponent` for mobile/tablet and keeps the existing full desktop feature landing page for desktop.
+
+The desktop `FAQComponent` is unchanged for desktop. The resources FAQ route now renders `FAQMobileComponent` for mobile/tablet and keeps the existing desktop FAQ landing page for desktop. The shared FAQ search subscription now uses Angular destroy handling so the mobile answer finder can reuse the same local FAQ data safely.
+
+The desktop `ContactComponent` is unchanged for desktop. The resources contact route now renders `ContactMobileComponent` for mobile/tablet and keeps the existing desktop contact landing page for desktop. The mobile contact flow reuses the same form group, `ContactService`, WhatsApp action, and team contact methods.
+
+The desktop `HowItWorksComponent` is unchanged for desktop. The resources how-it-works route now renders `HowItWorksMobileComponent` for mobile/tablet and keeps the existing full desktop explainer for desktop.
+
+The desktop `BenefitsComponent` is unchanged for desktop. The resources benefits route now renders `BenefitsMobileComponent` for mobile/tablet and keeps the existing full desktop benefits page for desktop.
+
+The desktop `CareersComponent` is unchanged for desktop. The resources careers route now renders `CareersMobileComponent` for mobile/tablet and keeps the existing full desktop hiring page for desktop.
+
+The desktop `ForMarketersComponent` is unchanged for desktop. The resources marketer solution route now renders `ForMarketersMobileComponent` for mobile/tablet and keeps the existing full desktop marketer guide for desktop.
+
+The desktop `ForPromotersComponent` is unchanged for desktop. The resources promoter solution route now renders `ForPromotersMobileComponent` for mobile/tablet and keeps the existing full desktop promoter guide for desktop.
+
+The desktop `LegalComponent` is unchanged for desktop. The legal parent route now renders `LegalMobileShellComponent` for mobile/tablet and keeps the existing side-menu legal shell for desktop.
+
+The desktop `CookiesComponent` is unchanged for desktop. The legal cookies route now renders `CookiesMobileComponent` for mobile/tablet and keeps the existing full cookies policy document for desktop.
+
+The desktop `TermsComponent` is unchanged for desktop. The legal terms route now renders `TermsMobileComponent` for mobile/tablet and keeps the existing full terms document for desktop.
+
+The desktop `PrivacyComponent` is unchanged for desktop. The legal privacy route now renders `PrivacyMobileComponent` for mobile/tablet and keeps the existing full legal policy document for desktop.
+
+The desktop AI assistant `OverviewComponent` is unchanged. The assistant overview route now renders `OverviewMobileComponent` for mobile/tablet and keeps the existing desktop control room for desktop.
+
+The desktop AI assistant `FaqsComponent` keeps the existing desktop UI and behavior. Its delete path now exposes a shared internal removal method so the mobile FAQ trainer can use a bottom-sheet confirmation instead of a browser confirm.
+
+The desktop AI assistant `ConversationsComponent` is unchanged. The conversations route now renders `ConversationsMobileComponent` for mobile/tablet and keeps the existing two-column desktop chat workspace for desktop.
+
+The desktop AI assistant `AutomationComponent` is unchanged. The automation route now renders `AutomationMobileComponent` for mobile/tablet and keeps the existing desktop automation settings grid for desktop.
+
+The desktop AI assistant `AnalyticsComponent` is unchanged. The analytics route now renders `AnalyticsMobileComponent` for mobile/tablet and keeps the existing desktop analytics report for desktop.
+
+The desktop AI assistant `SettingsComponent` keeps the existing desktop UI. Its WhatsApp removal path now exposes a shared internal removal method so the mobile settings hub can use a bottom-sheet confirmation instead of a browser confirm.
+
+The desktop `GlobalSearchPageComponent` is unchanged. The dashboard search route now renders `GlobalSearchMobileComponent` for mobile/tablet and keeps the existing desktop search workspace for desktop.
+
+The desktop `LeaderboardComponent` is unchanged. The dashboard leaderboard route now renders `LeaderboardMobileComponent` for mobile/tablet and keeps the existing desktop leaderboard workspace for desktop.
+
+The desktop `GamificationComponent` is unchanged. The dashboard gamification route now renders `GamificationMobileComponent` for mobile/tablet and keeps the existing desktop rewards dashboard for desktop.
+
+The desktop `DashboardMainContainer` is unchanged. The dashboard root route now renders `DashboardMainMobileComponent` for mobile/tablet and keeps the existing desktop home dashboard for desktop.
+
+The desktop `DailyCheckInComponent` is unchanged. The dashboard shell now renders `DailyCheckInMobileComponent` for mobile/tablet and keeps the existing floating chip/modal for desktop.
+
+The desktop `CreateCampaignComponent` is unchanged. The campaign creation route now renders `CreateCampaignMobileComponent` for mobile/tablet and keeps the existing stepper workspace for desktop.
+
+The desktop `CampaignDetailsComponent` is unchanged. The campaign details route now renders `CampaignDetailsMobileComponent` for mobile/tablet and keeps the existing desktop campaign detail workspace for desktop.
+
 ## Remaining Migration Notes
 
-Product management is now covered for the core list/manage route, product creation flow, product editing flow, and product detail workspace. The marketer storefront dashboard, promoter store browsing, store creation, store editing, and storefront customer support are also covered. The next passes should focus on settings, assistant/resources/tutorial content, legal pages, and other dense desktop-first dashboard pages.
+Product management is now covered for the core list/manage route, product creation flow, product editing flow, and product detail workspace. The marketer storefront dashboard, promoter store browsing, promoter store product shelf, store creation, store editing, storefront customer support, wallet transfer, wallet withdrawal, wallet funding, campaign creation, campaign details, settings shell, account settings, tutorials learning center, public help center, public about, public success stories, public community, public careers, public marketer solution, public promoter solution, public features, public FAQ, public contact, public how-it-works, public benefits, public legal shell, public cookies policy, public terms of service, public privacy policy, dashboard home, dashboard daily check-in, dashboard global search, dashboard leaderboard, dashboard gamification, AI assistant overview, AI assistant FAQs, AI assistant conversations, AI assistant automation, AI assistant analytics, and AI assistant settings are also covered. The next passes should focus on the remaining resources content and other dense desktop-first dashboard pages.

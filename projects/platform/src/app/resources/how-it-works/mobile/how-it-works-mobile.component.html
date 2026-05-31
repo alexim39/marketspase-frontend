@@ -1,0 +1,245 @@
+<app-header />
+
+<main class="mobile-how-page">
+  <section class="how-hero" aria-labelledby="mobile-how-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>How it works</span>
+    </nav>
+
+    <span class="eyebrow">MarketSpase flow</span>
+    <h1 id="mobile-how-title">Turn business promotions into tracked results.</h1>
+    <p>
+      MarketSpase connects marketers who need reach with promoters who can share trusted product links and earn from valid activity.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/">
+        <mat-icon>rocket_launch</mat-icon>
+        Start now
+      </a>
+      <button type="button" (click)="openVideo()">
+        <mat-icon>play_circle</mat-icon>
+        Watch demo
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Platform process summary">
+    @for (stat of keyStats; track stat.label) {
+      <article>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section aria-labelledby="roles-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Choose your side</span>
+        <h2 id="roles-title">Who are you here as?</h2>
+      </div>
+    </div>
+
+    <div class="role-rail" role="list">
+      @for (role of userRoles(); track role.id; let i = $index) {
+        <button type="button" role="listitem" class="role-card" [ngClass]="roleTone(i)" (click)="openRole(role)">
+          <span class="card-icon">
+            <mat-icon>{{ role.icon }}</mat-icon>
+          </span>
+          <strong>{{ role.name }}</strong>
+          <small>{{ role.description }}</small>
+          <span class="card-link">
+            View benefits
+            <mat-icon>arrow_forward</mat-icon>
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="steps-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Process</span>
+        <h2 id="steps-title">How the work moves</h2>
+      </div>
+    </div>
+
+    <div class="timeline" role="list">
+      @for (step of processSteps(); track step.number) {
+        <button type="button" role="listitem" class="timeline-card" (click)="openStep(step)">
+          <span class="step-number">{{ step.number }}</span>
+          <span class="step-icon">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <span class="step-copy">
+            <strong>{{ step.title }}</strong>
+            <small>{{ step.description }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="guide-card" aria-labelledby="guide-title">
+    <div class="section-heading compact">
+      <div>
+        <span class="eyebrow">Quick guide</span>
+        <h2 id="guide-title">What to do next</h2>
+      </div>
+    </div>
+
+    <div class="segmented-control" aria-label="Select guide">
+      <button type="button" [class.active]="selectedGuide() === 'marketer'" (click)="selectGuide('marketer')">
+        Marketers
+      </button>
+      <button type="button" [class.active]="selectedGuide() === 'promoter'" (click)="selectGuide('promoter')">
+        Promoters
+      </button>
+    </div>
+
+    <div class="guide-list">
+      @for (item of activeGuide(); track item.title) {
+        <article>
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <div>
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.text }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="features-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Trust layer</span>
+        <h2 id="features-title">Built to reduce guesswork</h2>
+      </div>
+    </div>
+
+    <div class="feature-rail" role="list">
+      @for (feature of platformFeatures(); track feature.title; let i = $index) {
+        <button type="button" role="listitem" class="feature-card" [ngClass]="featureTone(i)" (click)="openFeature(feature)">
+          <span class="card-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <strong>{{ feature.title }}</strong>
+          <small>{{ feature.description }}</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="cta-strip">
+    <div>
+      <span class="eyebrow">Ready?</span>
+      <h2>Start with a campaign, product, or promotion.</h2>
+      <p>Open an account, explore available promotions, or contact support if you need guidance.</p>
+    </div>
+    <div class="cta-actions">
+      <a routerLink="/">
+        <mat-icon>person_add</mat-icon>
+        Get started
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>support_agent</mat-icon>
+        Contact us
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="How MarketSpase works details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (activeSheet()) {
+      @case ('role') {
+        @if (selectedRole(); as role) {
+          <span class="sheet-icon">
+            <mat-icon>{{ role.icon }}</mat-icon>
+          </span>
+          <h2>{{ role.name }}</h2>
+          <p>{{ role.description }}</p>
+
+          <h3>Benefits</h3>
+          <div class="tag-list">
+            @for (benefit of role.benefits; track benefit) {
+              <span>{{ benefit }}</span>
+            }
+          </div>
+
+          <h3>Best for</h3>
+          <div class="tag-list muted">
+            @for (fit of role.idealFor; track fit) {
+              <span>{{ fit }}</span>
+            }
+          </div>
+        }
+      }
+      @case ('step') {
+        @if (selectedStep(); as step) {
+          <span class="sheet-icon">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <h2>{{ step.number }}. {{ step.title }}</h2>
+          <p>{{ step.description }}</p>
+
+          @if (step.duration) {
+            <div class="duration-pill">
+              <mat-icon>schedule</mat-icon>
+              {{ step.duration }}
+            </div>
+          }
+
+          <h3>What happens here</h3>
+          <div class="tag-list">
+            @for (feature of step.features; track feature) {
+              <span>{{ feature }}</span>
+            }
+          </div>
+        }
+      }
+      @case ('feature') {
+        @if (selectedFeature(); as feature) {
+          <span class="sheet-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <h2>{{ feature.title }}</h2>
+          <p>{{ feature.description }}</p>
+        }
+      }
+      @case ('video') {
+        <span class="sheet-icon">
+          <mat-icon>play_circle</mat-icon>
+        </span>
+        <h2>Watch how MarketSpase works</h2>
+        <p>See the campaign flow before you create or promote your first offer.</p>
+        @if (videoUrl) {
+          <div class="video-frame">
+            <iframe
+              [src]="videoUrl"
+              title="How MarketSpase works video"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          </div>
+        }
+      }
+    }
+  </section>
+}
+
+<app-footer />

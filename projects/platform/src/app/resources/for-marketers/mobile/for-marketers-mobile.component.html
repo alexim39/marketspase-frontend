@@ -1,0 +1,323 @@
+<app-header />
+
+<main class="mobile-marketers-page">
+  <section class="marketer-hero">
+    <div class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/resources">
+        <mat-icon>arrow_back</mat-icon>
+        Resources
+      </a>
+      <span>/ For marketers</span>
+    </div>
+
+    <span class="eyebrow">For marketers</span>
+    <h1>Run PPC campaigns through trusted promoters.</h1>
+    <p>
+      Create campaigns, fund your budget, let promoters share unique links, and
+      track clicks, conversions, product sales, and fraud signals in one place.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/" class="primary-action">
+        <mat-icon>rocket_launch</mat-icon>
+        Start campaign
+      </a>
+      <button type="button" (click)="scrollToFeatures()">
+        <mat-icon>insights</mat-icon>
+        See how it works
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Marketing highlights">
+    @for (stat of heroStats; track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="comparison-card">
+    <span class="eyebrow">Why this model</span>
+    <h2>Move beyond blind ads.</h2>
+    <div class="comparison-list">
+      <article>
+        <mat-icon>block</mat-icon>
+        <span>
+          <strong>Traditional ads</strong>
+          <small>High spend, low trust, weak attribution, and unclear promoter quality.</small>
+        </span>
+      </article>
+      <article class="positive">
+        <mat-icon>verified</mat-icon>
+        <span>
+          <strong>MarketSpase PPC</strong>
+          <small>Tracked links, promoter attribution, campaign budgets, and conversion visibility.</small>
+        </span>
+      </article>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Core tools</span>
+        <h2>Built for measurable promotion</h2>
+      </span>
+    </div>
+
+    <div class="feature-rail" aria-label="MarketSpase PPC features">
+      @for (feature of ppcFeatures; track feature.title; let index = $index) {
+        <button type="button" class="feature-card" [ngClass]="tone(index)" (click)="openFeature(feature)">
+          <span class="card-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <strong>{{ feature.title }}</strong>
+          <small>{{ feature.description }}</small>
+          <span>Details</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Campaign flow</span>
+        <h2>Launch, track, optimize.</h2>
+      </span>
+    </div>
+
+    <div class="process-list">
+      @for (step of processSteps; track step.number) {
+        <button type="button" class="process-card" (click)="openProcess(step)">
+          <span>{{ step.number }}</span>
+          <mat-icon>{{ step.icon }}</mat-icon>
+          <strong>{{ step.title }}</strong>
+          <small>{{ step.description }}</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Use cases</span>
+        <h2>Where marketers win</h2>
+      </span>
+    </div>
+
+    <div class="use-case-tabs" aria-label="Industry filters">
+      @for (useCase of useCases(); track useCase.industry; let index = $index) {
+        <button type="button" [class.active]="activeUseCaseIndex() === index" (click)="activeUseCaseIndex.set(index)">
+          {{ useCase.industry }}
+        </button>
+      }
+    </div>
+
+    @if (activeUseCase(); as useCase) {
+      <article class="use-case-card">
+        <span class="eyebrow">{{ useCase.industry }}</span>
+        <h3>{{ useCase.title }}</h3>
+        <p>{{ useCase.description }}</p>
+        <div class="result-grid">
+          @for (result of useCase.results; track result.metric) {
+            <span>
+              <b>{{ result.value }}</b>
+              {{ result.metric }}
+            </span>
+          }
+        </div>
+        <button type="button" (click)="openUseCase(useCase)">View insight</button>
+      </article>
+    }
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Cost</span>
+        <h2>Transparent campaign funding</h2>
+      </span>
+    </div>
+
+    <div class="pricing-list">
+      @for (tier of pricingTiers(); track tier.name) {
+        <button type="button" class="pricing-card" (click)="openPricing(tier)">
+          <span>{{ tier.name }}</span>
+          <strong>{{ tier.price }}</strong>
+          <small>/{{ tier.period }}</small>
+          <p>{{ tier.description }}</p>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Proof</span>
+        <h2>What marketers report</h2>
+      </span>
+    </div>
+
+    <div class="testimonial-rail" aria-label="Marketer testimonials">
+      @for (testimonial of testimonials(); track testimonial.name) {
+        <button type="button" class="testimonial-card" (click)="openTestimonial(testimonial)">
+          <span class="avatar-fallback">{{ testimonial.name.slice(0, 2) }}</span>
+          <strong>{{ testimonial.name }}</strong>
+          <small>{{ testimonial.role }} · {{ testimonial.company }}</small>
+          <p>{{ testimonial.content }}</p>
+          <span>Read result</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Questions</span>
+        <h2>Quick answers</h2>
+      </span>
+    </div>
+
+    <div class="faq-list">
+      @for (faq of faqs; track faq.question) {
+        <button type="button" (click)="openFaq(faq)">
+          <span>{{ faq.question }}</span>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="cta-strip">
+    <span class="eyebrow">Ready to promote?</span>
+    <h2>Put your campaign budget where it can be tracked.</h2>
+    <p>
+      Start with one campaign, monitor promoter quality, then scale the products and campaigns that convert.
+    </p>
+    <div class="cta-actions">
+      <a routerLink="/" class="primary-action">
+        <mat-icon>campaign</mat-icon>
+        Create campaign
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>chat</mat-icon>
+        Contact us
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <button type="button" class="sheet-backdrop" aria-label="Close marketer details" (click)="closeSheet()"></button>
+
+  @if (activeSheet() === 'feature') {
+    @if (selectedFeature(); as feature) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="marketer-feature-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="sheet-icon">
+          <mat-icon>{{ feature.icon }}</mat-icon>
+        </span>
+        <h2 id="marketer-feature-title">{{ feature.title }}</h2>
+        <p>{{ feature.description }}</p>
+        <div class="sheet-list">
+          @for (item of featureBullets(feature); track item) {
+            <span><mat-icon>check_circle</mat-icon>{{ item }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'process') {
+    @if (selectedStep(); as step) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="marketer-process-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="eyebrow">Step {{ step.number }}</span>
+        <h2 id="marketer-process-title">{{ step.title }}</h2>
+        <p>{{ step.description }}</p>
+        <div class="sheet-list">
+          @for (item of step.details; track item) {
+            <span><mat-icon>task_alt</mat-icon>{{ item }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'use-case') {
+    @if (selectedUseCase(); as useCase) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="marketer-use-case-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="eyebrow">{{ useCase.industry }}</span>
+        <h2 id="marketer-use-case-title">{{ useCase.title }}</h2>
+        <p>{{ useCase.description }}</p>
+        <div class="sheet-stats">
+          @for (result of useCase.results; track result.metric) {
+            <span>{{ result.value }} {{ result.metric }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'pricing') {
+    @if (selectedPricing(); as tier) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="marketer-pricing-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="eyebrow">Campaign cost</span>
+        <h2 id="marketer-pricing-title">{{ tier.name }}: {{ tier.price }} / {{ tier.period }}</h2>
+        <p>{{ tier.description }}</p>
+        <div class="sheet-note">
+          <mat-icon>info</mat-icon>
+          <span>Fund a campaign budget first, then monitor spending through campaign analytics.</span>
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'testimonial') {
+    @if (selectedTestimonial(); as testimonial) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="marketer-testimonial-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <h2 id="marketer-testimonial-title">{{ testimonial.name }}</h2>
+        <p>{{ testimonial.content }}</p>
+        <div class="sheet-stats">
+          @for (result of testimonial.results; track result.metric) {
+            <span>{{ result.value }} {{ result.metric }}</span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'faq') {
+    @if (selectedFaq(); as faq) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="marketer-faq-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <h2 id="marketer-faq-title">{{ faq.question }}</h2>
+        <p>{{ faq.answer }}</p>
+      </section>
+    }
+  }
+}
+
+<app-footer />

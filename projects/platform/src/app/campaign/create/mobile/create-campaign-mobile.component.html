@@ -1,0 +1,177 @@
+<section class="campaign-mobile-page">
+  <header class="mobile-hero">
+    <button type="button" class="icon-action" (click)="goBack()" aria-label="Go back to campaigns">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    </button>
+
+    <div class="hero-copy">
+      <span>Create campaign</span>
+      <h1>Launch a PPC campaign</h1>
+      <p>Build a promoter-ready campaign with media, budget, schedule, and review.</p>
+    </div>
+
+    <button
+      type="button"
+      class="draft-action"
+      (click)="saveDraft()"
+      [disabled]="isSubmitting()"
+      aria-label="Save campaign as draft"
+    >
+      Save
+    </button>
+  </header>
+
+  <section class="mobile-status-card" aria-label="Campaign setup progress">
+    <div class="status-row">
+      <div>
+        <span>Step {{ currentStep() }} of {{ mobileSteps.length }}</span>
+        <strong>{{ currentStepMeta().label }}</strong>
+      </div>
+      <div class="status-pill">{{ completedStepCount() }}/{{ mobileSteps.length }} ready</div>
+    </div>
+
+    <mat-progress-bar mode="determinate" [value]="stepProgress()"></mat-progress-bar>
+
+    <div class="step-rail" aria-label="Campaign steps">
+      @for (step of mobileSteps; track step.number) {
+        <button
+          type="button"
+          class="step-chip"
+          [class.current]="isStepCurrent(step.number)"
+          [class.complete]="isStepActive(step.number)"
+          [attr.aria-current]="isStepCurrent(step.number) ? 'step' : null"
+          [attr.aria-label]="step.label + ' step'"
+        >
+          <mat-icon aria-hidden="true">{{ step.icon }}</mat-icon>
+          <span>{{ step.label }}</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="step-context">
+    <div class="context-icon">
+      <mat-icon aria-hidden="true">{{ currentStepMeta().icon }}</mat-icon>
+    </div>
+    <div>
+      <span>Current task</span>
+      <h2>{{ currentStepMeta().title }}</h2>
+      <p>{{ currentStepMeta().description }}</p>
+    </div>
+  </section>
+
+  @if (currentStep() === 3) {
+    <section class="budget-snapshot" aria-label="Budget snapshot">
+      <div>
+        <span>Wallet</span>
+        <strong>{{ walletBalance() | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong>
+      </div>
+      <div>
+        <span>Campaign budget</span>
+        <strong>{{ budgetPreview() | currency:'NGN':'symbol-narrow':'1.0-0' }}</strong>
+      </div>
+      <div>
+        <span>Estimated clicks</span>
+        <strong>{{ estimatedVerifiedClicks() | number:'1.0-0' }}</strong>
+      </div>
+    </section>
+  }
+
+  <main class="mobile-form-shell">
+    @if (currentStep() === 1) {
+      <app-campaign-content-form
+        [formGroup]="contentForm"
+        (validityChange)="onContentValidityChange($event)"
+        (mediaChange)="onMediaChange($event)"
+      />
+    }
+
+    @if (currentStep() === 2) {
+      <app-campaign-goal-form
+        [formGroup]="goalForm"
+        (validityChange)="onGoalValidityChange($event)"
+      />
+    }
+
+    @if (currentStep() === 3) {
+      <app-campaign-budget-form
+        [formGroup]="budgetForm"
+        [walletBalance]="walletBalance()"
+        (validityChange)="onBudgetValidityChange($event)"
+        (fundWallet)="fundWallet()"
+        (onSaveAsDraft)="onSaveAsDraft()"
+      />
+    }
+
+    @if (currentStep() === 4) {
+      <app-campaign-schedule-form
+        [formGroup]="scheduleForm"
+        [minStartDate]="today"
+        (validityChange)="onScheduleValidityChange($event)"
+      />
+    }
+
+    @if (currentStep() === 5) {
+      <app-campaign-summary
+        [contentForm]="contentForm"
+        [goalForm]="goalForm"
+        [budgetForm]="budgetForm"
+        [scheduleForm]="scheduleForm"
+        [selectedMedia]="selectedMedia()"
+      />
+    }
+
+    @if (isSubmitting()) {
+      <section class="submission-sheet" role="status" aria-live="polite">
+        <span>Campaign setup in progress</span>
+        <h3>{{ submissionTitle() }}</h3>
+        <p>{{ submissionDescription() }}</p>
+
+        @if (submissionStage() === 'uploading') {
+          <div class="upload-progress">
+            <mat-progress-bar mode="determinate" [value]="uploadProgress() ?? 0"></mat-progress-bar>
+            <strong>{{ uploadProgress() ?? 0 }}%</strong>
+          </div>
+        } @else {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+      </section>
+    }
+  </main>
+
+  <footer class="sticky-actions">
+    <button
+      type="button"
+      class="secondary-action"
+      (click)="goToPreviousStep()"
+      [disabled]="currentStep() === 1 || isSubmitting()"
+    >
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Previous
+    </button>
+
+    @if (currentStep() < 5) {
+      <button
+        type="button"
+        class="primary-action"
+        (click)="goToNextStep()"
+        [disabled]="isSubmitting() || !isStepActive(currentStep()) || (currentStep() === 3 && walletBalance() < budgetForm.get('budget')?.value)"
+      >
+        Next
+        <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+      </button>
+    }
+
+    @if (currentStep() === 5) {
+      <button
+        type="button"
+        class="primary-action"
+        (click)="submitCampaign()"
+        [disabled]="!campaignIsReady() || isSubmitting()"
+      >
+        Launch
+        <mat-icon aria-hidden="true">rocket_launch</mat-icon>
+      </button>
+    }
+  </footer>
+</section>

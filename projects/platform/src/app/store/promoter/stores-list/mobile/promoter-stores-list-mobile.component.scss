@@ -3,7 +3,7 @@
 :host {
   display: block;
   min-height: 100%;
-  background: #f6f8fb;
+  background: $background-color;
   color: $text-primary;
 }
 
@@ -27,7 +27,7 @@ input {
   align-items: center;
   gap: 8px;
   padding: 8px 0 12px;
-  background: linear-gradient(180deg, #f6f8fb 76%, rgba(246, 248, 251, 0));
+  //background: linear-gradient(180deg, $background-color 76%, rgba($background-color, 0));
 
   .icon-button {
     position: relative;
@@ -39,11 +39,11 @@ input {
     border-radius: 16px;
     background: $surface-color;
     color: $text-primary;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 24px rgba($black, 0.08);
 
     &.primary {
       background: $primary-color;
-      color: $white;
+      color: $text-primary;
     }
   }
 
@@ -55,10 +55,10 @@ input {
     height: 20px;
     display: grid;
     place-items: center;
-    border: 2px solid #f6f8fb;
+    border: 2px solid $background-color;
     border-radius: 999px;
     background: $error-color;
-    color: $white;
+    color: $text-primary;
     font-size: 11px;
     font-weight: 950;
   }
@@ -95,12 +95,12 @@ input {
   background:
     linear-gradient(135deg, rgba($primary-color, 0.94), rgba(#0f766e, 0.9)),
     $primary-color;
-  color: $white;
+  color: $text-primary;
   box-shadow: 0 18px 38px rgba($primary-color, 0.24);
 
   .eyebrow {
     margin: 0 0 6px;
-    color: rgba($white, 0.72);
+    color: rgba($text-primary, 0.72);
     font-size: 12px;
     font-weight: 850;
     text-transform: uppercase;
@@ -115,7 +115,7 @@ input {
 
   .hero-copy {
     margin: 8px 0 0;
-    color: rgba($white, 0.82);
+    color: rgba($text-primary, 0.82);
     font-size: 14px;
     line-height: 1.45;
   }
@@ -132,11 +132,11 @@ input {
     gap: 5px;
     border-radius: 18px;
     padding: 12px;
-    background: rgba($white, 0.14);
+    background: rgba($surface-color, 0.14);
   }
 
   span {
-    color: rgba($white, 0.76);
+    color: rgba($text-primary, 0.76);
     font-size: 11px;
     font-weight: 800;
   }
@@ -154,11 +154,11 @@ input {
   align-items: center;
   gap: 10px;
   margin-top: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 20px;
   padding: 0 12px;
   background: $surface-color;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 
   mat-icon {
     color: $text-secondary;
@@ -181,7 +181,7 @@ input {
     place-items: center;
     border: 0;
     border-radius: 14px;
-    background: #f1f5f9;
+    background: $background-color;
   }
 }
 
@@ -207,7 +207,7 @@ input {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid $border-color;
     border-radius: 999px;
     padding: 0 13px;
     background: $surface-color;
@@ -216,7 +216,7 @@ input {
 
     &.active {
       border-color: rgba($primary-color, 0.32);
-      background: #eef6ff;
+      background: rgba($primary-color, 0.12);
       color: $primary-color;
     }
 
@@ -239,7 +239,7 @@ input {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid $border-color;
     border-radius: 16px;
     background: $surface-color;
     color: $text-primary;
@@ -259,7 +259,7 @@ input {
   padding: 24px;
   background: $surface-color;
   text-align: center;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 
   > mat-icon {
     width: 48px;
@@ -291,7 +291,7 @@ input {
     border-radius: 999px;
     padding: 0 16px;
     background: $primary-color;
-    color: $white;
+    color: $text-primary;
     font-weight: 950;
   }
 }
@@ -326,7 +326,7 @@ input {
     border: 0;
     border-radius: 999px;
     padding: 0 13px;
-    background: #eef6ff;
+    background: rgba($primary-color, 0.12);
     color: $primary-color;
     font-weight: 950;
   }
@@ -347,13 +347,13 @@ input {
   display: grid;
   align-content: start;
   gap: 8px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 22px;
   padding: 12px;
   background: $surface-color;
   color: $text-primary;
   text-align: left;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 
   strong,
   small {
@@ -379,7 +379,7 @@ input {
   display: grid;
   place-items: center;
   background: $primary-color;
-  color: $white;
+  color: $text-primary;
   font-weight: 950;
 
   img {
@@ -404,11 +404,11 @@ input {
 .store-card {
   display: grid;
   gap: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 24px;
   padding: 14px;
   background: $surface-color;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 }
 
 .card-head {
@@ -464,8 +464,8 @@ input {
   gap: 4px;
   border-radius: 999px;
   padding: 0 8px;
-  background: #ecfdf3;
-  color: #137947;
+  background: rgba($success-color, 0.12);
+  color: $success-color;
   font-size: 11px;
   font-weight: 900;
 
@@ -491,7 +491,7 @@ input {
     gap: 4px;
     border-radius: 999px;
     padding: 0 8px;
-    background: #f1f5f9;
+    background: $background-color;
     color: $text-secondary;
     font-size: 11px;
     font-weight: 850;
@@ -524,10 +524,10 @@ input {
   display: grid;
   align-content: start;
   gap: 6px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 18px;
   padding: 8px;
-  background: #f8fafc;
+  background: $background-color;
   color: $text-primary;
   text-align: left;
 
@@ -554,7 +554,7 @@ input {
     right: 8px;
     border-radius: 999px;
     padding: 4px 6px;
-    background: rgba(15, 23, 42, 0.76);
+    background: rgba($black, 0.76);
     color: $white;
     font-size: 11px;
     font-style: normal;
@@ -569,7 +569,7 @@ input {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: #e2e8f0;
+  background: rgba($border-color, 0.5);
 
   img {
     width: 100%;
@@ -597,18 +597,18 @@ input {
     border: 0;
     border-radius: 16px;
     padding: 0 10px;
-    background: #f1f5f9;
+    background: $background-color;
     color: $text-primary;
     font-size: 12px;
     font-weight: 950;
 
     &.primary {
       background: $primary-color;
-      color: $white;
+      color: $text-primary;
     }
 
     &.follow.following {
-      background: #fff0ed;
+      background: rgba($error-color, 0.12);
       color: $error-color;
     }
 
@@ -638,7 +638,7 @@ input {
     background: $surface-color;
     color: $text-primary;
     font-weight: 900;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 8px 20px rgba($black, 0.05);
 
     &:disabled {
       opacity: 0.48;
@@ -656,7 +656,7 @@ input {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(15, 23, 42, 0.42);
+  background: rgba($black, 0.42);
 }
 
 .bottom-sheet {
@@ -671,14 +671,14 @@ input {
   grid-template-rows: auto auto minmax(0, 1fr);
   border-radius: 28px 28px 0 0;
   background: $surface-color;
-  box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 -18px 42px rgba($black, 0.22);
 
   .sheet-handle {
     width: 46px;
     height: 5px;
     margin: 10px auto 8px;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.18);
+    background: rgba($black, 0.18);
   }
 
   header {
@@ -687,7 +687,7 @@ input {
     justify-content: space-between;
     gap: 12px;
     padding: 0 18px 14px;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    border-bottom: 1px solid $border-color;
 
     span {
       color: $text-secondary;
@@ -758,7 +758,7 @@ input {
     place-items: center;
     border-radius: 12px;
     background: $primary-color;
-    color: $white;
+    color: $text-primary;
     font-size: 12px;
   }
 

@@ -242,7 +242,7 @@
                     mat-flat-button
                     color="primary"
                     type="submit"
-                    [disabled]="withdrawForm.invalid || isSubmitting() || totalDeduction() > availableBalance()">
+                    [disabled]="withdrawForm.invalid || isSubmitting() || totalDeduction() > availableBalance() || userRole() === 'marketer'">
                     <mat-icon>send</mat-icon>
                     {{ isSubmitting() ? 'Processing...' : 'Submit Request' }}
                   </button>

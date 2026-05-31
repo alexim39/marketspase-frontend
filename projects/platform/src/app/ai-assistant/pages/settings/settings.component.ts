@@ -32,7 +32,7 @@ import { AiAssistantSettingsAPiService } from '../../services/ai-assistant-api.s
   providers: [AiAssistantSettingsService, AiAssistantSettingsAPiService]
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-  private service = inject(AiAssistantSettingsService);
+  protected service = inject(AiAssistantSettingsService);
   private dialog = inject(MatDialog);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
@@ -100,8 +100,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   removeConnection(phoneNumber: string): void { 
     if (confirm('Remove this WhatsApp number?')) {
-      this.service.removeWhatsAppConnection(phoneNumber); 
+      this.removeWhatsAppConnection(phoneNumber);
     }
+  }
+
+  protected removeWhatsAppConnection(phoneNumber: string): void {
+    this.service.removeWhatsAppConnection(phoneNumber);
   }
   
   toggleAIForConnection(phoneNumber: string, event: any): void { 

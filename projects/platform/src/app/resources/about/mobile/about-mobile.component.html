@@ -1,0 +1,222 @@
+<app-header />
+
+<main class="mobile-about-page">
+  <section class="about-hero" aria-labelledby="mobile-about-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>About</span>
+    </nav>
+
+    <span class="eyebrow">About MarketSpase</span>
+    <h1 id="mobile-about-title">Social commerce promotion built on trust.</h1>
+    <p>
+      MarketSpase connects businesses, promoters, products, and buyers with tracked links, storefront tools, and reliable payout flows.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/auth">
+        <mat-icon>rocket_launch</mat-icon>
+        Get started
+      </a>
+      <a routerLink="/resources/how-it-works">
+        <mat-icon>route</mat-icon>
+        See the flow
+      </a>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="MarketSpase trust summary">
+    @for (stat of mobileStats(); track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.displayValue }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section aria-labelledby="mission-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Why we exist</span>
+        <h2 id="mission-title">Our mission and vision</h2>
+      </div>
+      <button type="button" (click)="openMissionSheet()" aria-label="Read mission details">
+        <mat-icon>open_in_full</mat-icon>
+      </button>
+    </div>
+
+    <div class="mission-grid">
+      @for (card of missionCards; track card.title; let i = $index) {
+        <article class="mission-card" [ngClass]="tone(i)">
+          <span class="card-icon">
+            <mat-icon>{{ card.icon }}</mat-icon>
+          </span>
+          <strong>{{ card.title }}</strong>
+          <p>{{ card.text }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="value-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">What makes it work</span>
+        <h2 id="value-title">Trust systems behind the platform</h2>
+      </div>
+    </div>
+
+    <div class="feature-rail" role="list" aria-label="Platform trust features">
+      @for (feature of features(); track feature.title; let i = $index) {
+        <button
+          type="button"
+          role="listitem"
+          class="feature-card"
+          [ngClass]="tone(i)"
+          (click)="openFeature(feature)"
+        >
+          <span class="card-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <strong>{{ feature.title }}</strong>
+          <small>{{ feature.description }}</small>
+          <span class="card-link">
+            Learn more
+            <mat-icon>arrow_forward</mat-icon>
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="proof-card" aria-labelledby="proof-title">
+    <div>
+      <span class="eyebrow">Social proof</span>
+      <h2 id="proof-title">Built for measurable growth.</h2>
+      <p>MarketSpase gives each side a clear record of promotion activity, product performance, and payout progress.</p>
+    </div>
+
+    <div class="proof-grid" aria-label="MarketSpase platform numbers">
+      @for (stat of proofStats; track stat.label) {
+        <article>
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="workflow-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">How trust is created</span>
+        <h2 id="workflow-title">From campaign to payout</h2>
+      </div>
+    </div>
+
+    <div class="workflow-list">
+      @for (step of workflowSteps; track step.number; let i = $index) {
+        <button type="button" class="workflow-row" [ngClass]="tone(i)" (click)="openWorkflow(step)">
+          <span class="step-number">{{ step.number }}</span>
+          <span class="step-icon">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ step.title }}</strong>
+            <small>{{ step.text }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <div>
+      <span class="eyebrow">Ready when you are</span>
+      <h2>Join the marketplace where promotion is tracked and accountable.</h2>
+      <p>Start as a marketer, promoter, or storefront owner and grow with verified social commerce tools.</p>
+    </div>
+    <div class="cta-actions">
+      <a routerLink="/auth">
+        <mat-icon>person_add</mat-icon>
+        Join free
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>support_agent</mat-icon>
+        Talk to us
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="About MarketSpase details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (activeSheet()) {
+      @case ('mission') {
+        <span class="sheet-icon">
+          <mat-icon>flag</mat-icon>
+        </span>
+        <h2>What MarketSpase is building</h2>
+        <p>Our north star is simple: promotion should create value for marketers, promoters, and buyers without guesswork.</p>
+
+        <div class="sheet-list">
+          @for (card of missionCards; track card.title) {
+            <article>
+              <mat-icon>{{ card.icon }}</mat-icon>
+              <div>
+                <strong>{{ card.title }}</strong>
+                <p>{{ card.text }}</p>
+                @for (point of card.points; track point) {
+                  <span>
+                    <mat-icon>check_circle</mat-icon>
+                    {{ point }}
+                  </span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+      @case ('feature') {
+        @if (selectedFeature(); as feature) {
+          <span class="sheet-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <h2>{{ feature.title }}</h2>
+          <p>{{ feature.description }}</p>
+          <div class="sheet-note">
+            <mat-icon>verified_user</mat-icon>
+            <span>This helps keep promotion measurable, protects budgets, and gives promoters confidence in valid earnings.</span>
+          </div>
+        }
+      }
+      @case ('workflow') {
+        @if (selectedWorkflow(); as step) {
+          <span class="sheet-icon">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <h2>{{ step.title }}</h2>
+          <p>{{ step.text }}</p>
+          <div class="tag-list" aria-label="Workflow tags">
+            @for (tag of step.tags; track tag) {
+              <span>{{ tag }}</span>
+            }
+          </div>
+        }
+      }
+    }
+  </section>
+}
+
+<app-footer />

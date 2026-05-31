@@ -17,7 +17,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { AuthService } from '../../auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DashboardService } from '../dashboard.service';
-import { WalletFundingComponent } from '../../wallet/funding/funding.component';
+import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { UserInterface, DeviceService, CurrencyUtilsPipe } from '@shared/services';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -192,14 +192,16 @@ export class DashboardComponent implements OnInit {
 
   public fundWallet(): void {
     if (this.deviceService.deviceState().isMobile) {
-      this.dialog.open(WalletFundingComponent, {
+      this.dialog.open(WalletFundingIndexComponent, {
         data: this.user(),
         panelClass: 'custom-dialog-container',
-        height: '650px',
+        width: '100vw',
+        maxWidth: '480px',
+        maxHeight: '92vh',
         disableClose: true
       });
     } else {
-      this.dialog.open(WalletFundingComponent, {
+      this.dialog.open(WalletFundingIndexComponent, {
         data: this.user(),
         panelClass: 'custom-dialog-container',
         disableClose: true

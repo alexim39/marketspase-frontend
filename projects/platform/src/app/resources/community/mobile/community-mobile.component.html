@@ -1,0 +1,312 @@
+<app-header />
+
+<main class="mobile-community-page">
+  <section class="community-hero" aria-labelledby="mobile-community-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Community</span>
+    </nav>
+
+    <span class="eyebrow">Connect and grow</span>
+    <h1 id="mobile-community-title">Learn promotion from people doing it every day.</h1>
+    <p>
+      Join marketers, promoters, store owners, and experts sharing practical ideas for campaigns, product sales, tracked links, and earnings.
+    </p>
+
+    <div class="hero-actions">
+      <button type="button" (click)="joinCommunity()">
+        <mat-icon>groups</mat-icon>
+        Join free
+      </button>
+      <button type="button" (click)="startDiscussion()">
+        <mat-icon>forum</mat-icon>
+        Ask question
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Community summary">
+    @for (stat of cleanedStats(); track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section aria-labelledby="category-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Find your circle</span>
+        <h2 id="category-title">Community groups</h2>
+      </div>
+      <button type="button" (click)="openBenefitsSheet()" aria-label="Why join the community">
+        <mat-icon>info</mat-icon>
+      </button>
+    </div>
+
+    <div class="category-rail" role="list" aria-label="Community categories">
+      @for (category of categories(); track category.id; let i = $index) {
+        <button type="button" role="listitem" class="category-card" [ngClass]="tone(i)" (click)="selectSection('discussions')">
+          <span class="card-icon">
+            <mat-icon>{{ category.icon }}</mat-icon>
+          </span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ category.description }}</small>
+          <span>{{ category.count | number }} members</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="hub-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Community hub</span>
+        <h2 id="hub-title">What do you want to explore?</h2>
+      </div>
+    </div>
+
+    <div class="section-tabs" role="tablist" aria-label="Community sections">
+      <button type="button" role="tab" [class.active]="activeSection() === 'discussions'" (click)="selectSection('discussions')">
+        <mat-icon>whatshot</mat-icon>
+        Hot
+      </button>
+      <button type="button" role="tab" [class.active]="activeSection() === 'tips'" (click)="selectSection('tips')">
+        <mat-icon>tips_and_updates</mat-icon>
+        Tips
+      </button>
+      <button type="button" role="tab" [class.active]="activeSection() === 'events'" (click)="selectSection('events')">
+        <mat-icon>event</mat-icon>
+        Events
+      </button>
+      <button type="button" role="tab" [class.active]="activeSection() === 'mentors'" (click)="selectSection('mentors')">
+        <mat-icon>school</mat-icon>
+        Mentors
+      </button>
+    </div>
+
+    @switch (activeSection()) {
+      @case ('discussions') {
+        <div class="content-list">
+          @for (topic of visibleTopics(); track topic.id; let i = $index) {
+            <button type="button" class="topic-card" [ngClass]="tone(i)" (click)="openTopic(topic)">
+              <div class="pill-row">
+                @if (topic.isPinned) {
+                  <span><mat-icon>push_pin</mat-icon>Pinned</span>
+                }
+                @if (topic.isHot) {
+                  <span><mat-icon>whatshot</mat-icon>Hot</span>
+                }
+                <small>{{ topic.lastActive }}</small>
+              </div>
+              <strong>{{ cleanText(topic.title) }}</strong>
+              <div class="person-row">
+                <span class="avatar-fallback">{{ initials(topic.author.name) }}</span>
+                <span>
+                  <b>{{ topic.author.name }}</b>
+                  <small>{{ topic.author.role | titlecase }}</small>
+                </span>
+              </div>
+              <div class="metric-row">
+                <span><mat-icon>chat_bubble_outline</mat-icon>{{ topic.replies }} replies</span>
+                <span><mat-icon>visibility</mat-icon>{{ topic.views | number }} views</span>
+              </div>
+            </button>
+          }
+        </div>
+      }
+      @case ('tips') {
+        <div class="content-list">
+          @for (tip of visibleTips(); track tip.id; let i = $index) {
+            <button type="button" class="tip-card" [ngClass]="tone(i)" (click)="openTip(tip)">
+              <div class="pill-row">
+                <span>{{ tip.category }}</span>
+                <small><mat-icon>favorite_border</mat-icon>{{ tip.likes }}</small>
+              </div>
+              <strong>{{ cleanText(tip.title) }}</strong>
+              <small>{{ cleanText(tip.excerpt) }}</small>
+              <div class="person-row">
+                <span class="avatar-fallback">{{ initials(tip.author.name) }}</span>
+                <span>
+                  <b>{{ tip.author.name }}</b>
+                  <small>{{ tip.author.role }} · {{ tip.readTime }} read</small>
+                </span>
+              </div>
+            </button>
+          }
+        </div>
+      }
+      @case ('events') {
+        <div class="content-list">
+          @for (event of visibleEvents(); track event.id; let i = $index) {
+            <button type="button" class="event-card" [ngClass]="tone(i)" (click)="openEvent(event)">
+              <span class="event-icon">
+                <mat-icon>{{ getCategoryIcon(event.type) }}</mat-icon>
+              </span>
+              <span>
+                <strong>{{ cleanText(event.title) }}</strong>
+                <small>{{ cleanText(event.description) }}</small>
+                <b>{{ event.date }} · {{ event.time }}</b>
+              </span>
+              <mat-icon aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          }
+        </div>
+      }
+      @case ('mentors') {
+        <div class="content-list">
+          @for (mentor of mentors; track mentor.name; let i = $index) {
+            <article class="mentor-card" [ngClass]="tone(i)">
+              <div class="person-row">
+                <span class="avatar-fallback">{{ initials(mentor.name) }}</span>
+                <span>
+                  <strong>{{ mentor.name }}</strong>
+                  <small>{{ mentor.role }}</small>
+                </span>
+              </div>
+              <p>{{ mentor.bio }}</p>
+              <div class="mentor-stats">
+                @for (stat of mentor.stats; track stat.label) {
+                  <span>
+                    <b>{{ stat.value }}</b>
+                    {{ stat.label }}
+                  </span>
+                }
+              </div>
+              <button type="button" (click)="startDiscussion()">
+                <mat-icon>chat</mat-icon>
+                Connect
+              </button>
+            </article>
+          }
+        </div>
+      }
+    }
+  </section>
+
+  <section class="benefit-strip">
+    <div>
+      <span class="eyebrow">Why join?</span>
+      <h2>Shorten the learning curve.</h2>
+      <p>Use the community to learn what to promote, how to write better social content, and how to protect your account reputation.</p>
+    </div>
+    <button type="button" (click)="openBenefitsSheet()">
+      <mat-icon>expand_more</mat-icon>
+      View benefits
+    </button>
+  </section>
+
+  <section class="trust-strip">
+    <div>
+      <span class="eyebrow">Start with people</span>
+      <h2>Ask, learn, test, and grow with the MarketSpase community.</h2>
+      <p>The best promoters and marketers keep improving together.</p>
+    </div>
+    <div class="cta-actions">
+      <button type="button" (click)="joinCommunity()">
+        <mat-icon>groups</mat-icon>
+        Join free
+      </button>
+      <a routerLink="/resources/help-center">
+        <mat-icon>support_agent</mat-icon>
+        Help center
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Community details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (activeSheet()) {
+      @case ('topic') {
+        @if (selectedTopic(); as topic) {
+          <span class="sheet-icon">
+            <mat-icon>forum</mat-icon>
+          </span>
+          <h2>{{ cleanText(topic.title) }}</h2>
+          <p>Join this conversation to ask questions, compare experience, and learn from other {{ topic.category }} members.</p>
+          <div class="sheet-stats">
+            <span>{{ topic.replies }} replies</span>
+            <span>{{ topic.views | number }} views</span>
+            <span>Active {{ topic.lastActive }}</span>
+          </div>
+          <button type="button" class="sheet-primary" (click)="startDiscussion()">
+            <mat-icon>login</mat-icon>
+            Sign in to join
+          </button>
+        }
+      }
+      @case ('tip') {
+        @if (selectedTip(); as tip) {
+          <span class="sheet-icon">
+            <mat-icon>tips_and_updates</mat-icon>
+          </span>
+          <h2>{{ cleanText(tip.title) }}</h2>
+          <p>{{ cleanText(tip.excerpt) }}</p>
+          <div class="sheet-note">
+            <mat-icon>person</mat-icon>
+            <span>{{ tip.author.name }} · {{ tip.author.role }} · {{ tip.readTime }} read</span>
+          </div>
+          <button type="button" class="sheet-primary" (click)="readTip(tip.id)">
+            <mat-icon>menu_book</mat-icon>
+            Read after sign in
+          </button>
+        }
+      }
+      @case ('event') {
+        @if (selectedEvent(); as event) {
+          <span class="sheet-icon">
+            <mat-icon>{{ getCategoryIcon(event.type) }}</mat-icon>
+          </span>
+          <h2>{{ cleanText(event.title) }}</h2>
+          <p>{{ cleanText(event.description) }}</p>
+          <div class="sheet-stats">
+            <span>{{ event.date }}</span>
+            <span>{{ event.time }}</span>
+            <span>{{ event.attendees }} attending</span>
+          </div>
+          <div class="sheet-note">
+            <mat-icon>person</mat-icon>
+            <span>Hosted by {{ event.host }}</span>
+          </div>
+          <button type="button" class="sheet-primary" (click)="registerForEvent(event.id)">
+            <mat-icon>event_available</mat-icon>
+            Register after sign in
+          </button>
+        }
+      }
+      @case ('benefits') {
+        <span class="sheet-icon">
+          <mat-icon>workspace_premium</mat-icon>
+        </span>
+        <h2>Community benefits</h2>
+        <p>Learn faster by studying what is already working for other MarketSpase users.</p>
+        <div class="benefit-list">
+          @for (benefit of communityBenefits; track benefit.title) {
+            <article>
+              <mat-icon>{{ benefit.icon }}</mat-icon>
+              <span>
+                <strong>{{ benefit.title }}</strong>
+                <small>{{ benefit.text }}</small>
+                <b>{{ benefit.stats.join(' · ') }}</b>
+              </span>
+            </article>
+          }
+        </div>
+      }
+    }
+  </section>
+}
+
+<app-footer />

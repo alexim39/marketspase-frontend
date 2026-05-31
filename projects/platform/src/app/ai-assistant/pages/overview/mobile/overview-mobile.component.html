@@ -1,0 +1,241 @@
+<main class="assistant-mobile">
+  @if (loading()) {
+    <section class="mobile-loading" aria-live="polite">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <div class="skeleton-line wide"></div>
+      <div class="skeleton-grid">
+        <span></span>
+        <span></span>
+      </div>
+      <p>Loading your assistant...</p>
+    </section>
+  } @else {
+    <header class="mobile-hero">
+      <div class="hero-copy">
+        <span>AI Sales Assistant</span>
+        <h1>Sales control room</h1>
+        <p>Watch replies, leads, setup health, and customer chats from one mobile workspace.</p>
+      </div>
+
+      <a class="hero-action" routerLink="../conversations" aria-label="Open assistant chats">
+        <mat-icon>chat</mat-icon>
+      </a>
+    </header>
+
+    <section class="status-panel" [class.is-active]="settings().aiEnabled">
+      <div class="status-row">
+        <span class="status-light"></span>
+        <div>
+          <strong>{{ settings().aiEnabled ? 'Assistant active' : 'Assistant paused' }}</strong>
+          <small>{{ settings().aiEnabled ? 'Instant replies are on' : 'New chats need human attention' }}</small>
+        </div>
+
+        <label class="toggle-control" aria-label="Toggle AI assistant">
+          <input type="checkbox" [checked]="settings().aiEnabled" [disabled]="savingToggle()" (change)="toggleAI()" />
+          <span></span>
+        </label>
+      </div>
+
+      <div class="status-chips" aria-label="Assistant setup status">
+        <span>
+          <mat-icon>call</mat-icon>
+          {{ connectedText() }}
+        </span>
+        <span>
+          <mat-icon>record_voice_over</mat-icon>
+          {{ (settings().tone || 'friendly') | titlecase }}
+        </span>
+        <span>
+          <mat-icon>translate</mat-icon>
+          {{ settings().language === 'pidgin' ? 'Pidgin' : 'English' }}
+        </span>
+      </div>
+    </section>
+
+    @if (!hasSetup()) {
+      <section class="setup-nudge">
+        <div>
+          <mat-icon>rocket_launch</mat-icon>
+          <strong>Finish assistant setup</strong>
+          <p>Connect WhatsApp, add an FAQ, and test one reply before customers start chatting.</p>
+        </div>
+        <button type="button" (click)="openSheet('setup')">Start setup</button>
+      </section>
+    }
+
+    <section class="metric-rail" aria-label="Assistant performance summary">
+      @for (stat of primaryStats(); track stat.label) {
+        <article class="metric-card">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }}</span>
+        </article>
+      }
+    </section>
+
+    <section class="quick-grid" aria-label="Assistant quick actions">
+      <button type="button" class="quick-card test" (click)="openSheet('test')">
+        <mat-icon>smart_toy</mat-icon>
+        <span>Test reply</span>
+        <small>Preview one customer answer</small>
+      </button>
+
+      <a class="quick-card" routerLink="../faqs">
+        <mat-icon>quiz</mat-icon>
+        <span>FAQs</span>
+        <small>Improve answers</small>
+      </a>
+
+      <a class="quick-card" routerLink="../automation">
+        <mat-icon>tune</mat-icon>
+        <span>Automation</span>
+        <small>Lead rules and handoff</small>
+      </a>
+
+      <button type="button" class="quick-card" (click)="openSheet('actions')">
+        <mat-icon>bolt</mat-icon>
+        <span>More</span>
+        <small>Settings and analytics</small>
+      </button>
+    </section>
+
+    <section class="conversation-panel">
+      <div class="section-title">
+        <div>
+          <span>Recent chats</span>
+          <h2>Customer conversations</h2>
+        </div>
+        <a routerLink="../conversations">View all</a>
+      </div>
+
+      @if (recentConversations().length) {
+        <div class="conversation-list">
+          @for (conversation of recentConversations(); track conversation._id) {
+            <a
+              class="conversation-card"
+              routerLink="../conversations"
+              [queryParams]="{ id: conversation._id }"
+              [class.needs-attention]="conversation.status === 'escalated'"
+            >
+              <span class="avatar">{{ conversationInitial(conversation) }}</span>
+              <span class="conversation-copy">
+                <strong>{{ getConversationName(conversation) }}</strong>
+                <small>{{ conversation.lastMessageText || 'No message yet' }}</small>
+              </span>
+              <span class="conversation-meta">
+                <em>{{ statusLabel(conversation) }}</em>
+                <small>{{ conversation.lastMessageAt | date:'shortTime' }}</small>
+              </span>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <mat-icon>forum</mat-icon>
+          <h3>No conversations yet</h3>
+          <p>New WhatsApp chats will appear here once customers message your connected number.</p>
+        </div>
+      }
+    </section>
+
+    <section class="follow-up-grid" aria-label="Follow up metrics">
+      @for (stat of followUpStats(); track stat.label) {
+        <article>
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </article>
+      }
+    </section>
+  }
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()"></div>
+
+  <section class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="activeSheet() + ' panel'">
+    <div class="sheet-handle"></div>
+
+    @if (activeSheet() === 'setup') {
+      <header>
+        <h2>Set up AI replies</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close setup panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="setup-list">
+        <a routerLink="../settings" (click)="closeSheet()">
+          <span>1</span>
+          <div>
+            <strong>Connect WhatsApp</strong>
+            <small>Add the number customers can message.</small>
+          </div>
+        </a>
+        <a routerLink="../faqs" (click)="closeSheet()">
+          <span>2</span>
+          <div>
+            <strong>Add first FAQ</strong>
+            <small>Teach the assistant pricing, delivery, and stock answers.</small>
+          </div>
+        </a>
+        <button type="button" (click)="activeSheet.set('test')">
+          <span>3</span>
+          <div>
+            <strong>Test assistant</strong>
+            <small>Preview the reply before enabling it.</small>
+          </div>
+        </button>
+      </div>
+    }
+
+    @if (activeSheet() === 'test') {
+      <header>
+        <h2>Test assistant reply</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close test panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <label class="test-box">
+        <span>Customer question</span>
+        <textarea [ngModel]="testMessage()" (ngModelChange)="testMessage.set($event)" rows="4"></textarea>
+      </label>
+
+      <button type="button" class="primary-sheet-action" (click)="testAI()">
+        <mat-icon>smart_toy</mat-icon>
+        Test reply
+      </button>
+
+      @if (testReply()) {
+        <div class="test-reply">
+          <span>AI reply</span>
+          <p>{{ testReply() }}</p>
+        </div>
+      }
+    }
+
+    @if (activeSheet() === 'actions') {
+      <header>
+        <h2>Assistant actions</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close actions panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <nav class="action-list" aria-label="Assistant links">
+        <a routerLink="../conversations" (click)="closeSheet()">
+          <mat-icon>chat</mat-icon>
+          <span>Open conversations</span>
+        </a>
+        <a routerLink="../analytics" (click)="closeSheet()">
+          <mat-icon>monitoring</mat-icon>
+          <span>View analytics</span>
+        </a>
+        <a routerLink="../settings" (click)="closeSheet()">
+          <mat-icon>settings</mat-icon>
+          <span>Assistant settings</span>
+        </a>
+      </nav>
+    }
+  </section>
+}

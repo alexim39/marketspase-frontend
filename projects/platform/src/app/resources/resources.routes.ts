@@ -12,63 +12,63 @@ export const RosourcesRoutes: Routes = [
                 pathMatch: 'full'
             },
             {   path: 'about', 
-                loadComponent: () => import('./about/about.component').then(c => c.AboutComponent),
+                loadComponent: () => import('./about').then(c => c.AboutIndexComponent),
                 title: "About Us - Get to know us",
             },
             {
                 path: 'contact',
-                loadComponent: () => import('./contact/contact.component').then(m => m.ContactComponent),
+                loadComponent: () => import('./contact').then(m => m.ContactIndexComponent),
                 title: "Contact Us - Get to meet us",
             },
             {
                 path: 'features',
-                loadComponent: () => import('./features/features.component').then(m => m.FeaturesComponent),
+                loadComponent: () => import('./features').then(m => m.FeaturesIndexComponent),
                 title: "Features - Explore our features",
             },
             {
                 path: 'success-stories',
-                loadComponent: () => import('./success-stories/success-stories.component').then(m => m.SuccessStoriesComponent),
+                loadComponent: () => import('./success-stories').then(m => m.SuccessStoriesIndexComponent),
                 title: "Success Stories - Our customer stories",
             },
             {
                 path: 'community',
-                loadComponent: () => import('./community/community.component').then(m => m.CommunityComponent),
+                loadComponent: () => import('./community').then(m => m.CommunityIndexComponent),
                 title: "Community - Join our community",
             },
             {
                 path: 'help-center',
-                loadComponent: () => import('./help-center/help-center.component').then(m => m.HelpCenterComponent),
+                loadComponent: () => import('./help-center').then(m => m.HelpCenterIndexComponent),
                 title: "Help Center - Get support and find answers",
             },
             {
                 path: 'how-it-works',
-                loadComponent: () => import('./how-it-works/how-it-works.component').then(m => m.HowItWorksComponent),
-                title: "Help Center - Get support and find answers",
+                loadComponent: () => import('./how-it-works').then(m => m.HowItWorksIndexComponent),
+                title: "How It Works - MarketSpase flow",
             },
             {
                 path: 'benefits',
-                loadComponent: () => import('./benefits/benefits.component').then(m => m.BenefitsComponent),
+                loadComponent: () => import('./benefits').then(m => m.BenefitsIndexComponent),
                 title: "Benefits - Why choose MarketSpase",
             },
             {
                 path: 'faqs',
-                loadComponent: () => import('./faq/faq.component').then(m => m.FAQComponent),
+                loadComponent: () => import('./faq').then(m => m.FAQIndexComponent),
                 title: "FAQs - Frequently Asked Questions",
             },
             {
                 path: 'careers',
-                loadComponent: () => import('./career/career.component').then(m => m.CareersComponent),
-                title: "careers - Join our team",
+                loadComponent: () => import('./career').then(m => m.CareersIndexComponent),
+                title: "Careers - Join our team",
             },
             {
                 path: 'solutions',
                 children: [
                     {   path: 'marketers', 
-                        loadComponent: () => import('./for-marketers/for-marketers.component').then(c => c.ForMarketersComponent),
-                        title: "Martketers information Guideline - MarketSpase",
+                        loadComponent: () => import('./for-marketers').then(c => c.ForMarketersIndexComponent),
+                        title: "Marketers information Guideline - MarketSpase",
                     },
                     {   path: 'promoters', 
-                        loadComponent: () => import('./for-promoters/for-promoters.component').then(c => c.ForPromotersComponent),
+                        loadComponent: () => import('./for-promoters').then(c => c.ForPromotersIndexComponent),
                         title: "Promoters information Guideline - MarketSpase",
                     }
                 ]

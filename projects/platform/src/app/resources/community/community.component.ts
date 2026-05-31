@@ -14,13 +14,13 @@ import { FooterComponent } from '../core/footer/footer.component';
 import { SignInDialogComponent } from './dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
-interface CommunityStat {
+export interface CommunityStat {
   value: string;
   label: string;
   icon: string;
 }
 
-interface DiscussionTopic {
+export interface DiscussionTopic {
   id: string;
   title: string;
   author: {
@@ -36,7 +36,7 @@ interface DiscussionTopic {
   isHot?: boolean;
 }
 
-interface SuccessTip {
+export interface SuccessTip {
   id: string;
   title: string;
   excerpt: string;
@@ -50,7 +50,7 @@ interface SuccessTip {
   likes: number;
 }
 
-interface Event {
+export interface CommunityEvent {
   id: string;
   title: string;
   description: string;
@@ -82,7 +82,7 @@ interface Event {
   styleUrls: ['./community.component.scss']
 })
 export class CommunityComponent {
-  constructor(private dialog: MatDialog) {};
+  protected readonly dialog = inject(MatDialog);
   activeTab = signal<'discussions' | 'tips' | 'events' | 'mentors'>('discussions');
 
   heroStatistics = signal<CommunityStat[]>([
@@ -241,7 +241,7 @@ export class CommunityComponent {
     }
   ]);
 
-  upcomingEvents = signal<Event[]>([
+  upcomingEvents = signal<CommunityEvent[]>([
     {
       id: '1',
       title: 'WhatsApp Marketing Masterclass',

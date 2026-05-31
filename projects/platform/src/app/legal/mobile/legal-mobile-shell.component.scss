@@ -1,0 +1,126 @@
+@import '../../../styles/variables';
+
+:host {
+  display: block;
+  min-height: 100%;
+  background: $background-color;
+  color: $text-primary;
+}
+
+.legal-mobile-shell {
+  min-height: 100%;
+  padding-top: env(safe-area-inset-top);
+}
+
+.legal-topbar {
+  position: sticky;
+  top: 0;
+  z-index: $z-index-sticky;
+  display: grid;
+  gap: 10px;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid $border-color;
+  background: rgba($background-color, 0.96);
+  backdrop-filter: blur(14px);
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    min-height: 44px;
+    color: $primary-color;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  div {
+    display: grid;
+    gap: 2px;
+  }
+
+  span {
+    color: $text-secondary;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  strong {
+    font-size: 1.05rem;
+    line-height: 1.16;
+    font-weight: 900;
+  }
+}
+
+.legal-tabs {
+  position: sticky;
+  top: 93px;
+  z-index: $z-index-dropdown;
+  display: flex;
+  gap: 8px;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: rgba($background-color, 0.96);
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    min-height: 46px;
+    padding: 0 14px;
+    border: 1px solid $border-color;
+    border-radius: 999px;
+    background: $surface-color;
+    color: $text-secondary;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-decoration: none;
+
+    &.active {
+      border-color: rgba($primary-color-hex, 0.28);
+      background: rgba($primary-color-hex, 0.1);
+      color: $primary-color;
+    }
+  }
+
+  mat-icon {
+    width: 19px;
+    height: 19px;
+    font-size: 19px;
+  }
+}
+
+.legal-mobile-content {
+  min-height: 60vh;
+}
+
+@media (min-width: 560px) {
+  .legal-topbar,
+  .legal-tabs {
+    padding-inline: 20px;
+  }
+
+  .legal-tabs {
+    justify-content: center;
+  }
+}

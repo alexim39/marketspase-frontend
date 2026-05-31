@@ -1,0 +1,359 @@
+<app-header />
+
+<main class="mobile-careers-page">
+  <section class="careers-hero">
+    <div class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/resources">
+        <mat-icon>arrow_back</mat-icon>
+        Resources
+      </a>
+      <span>/ Careers</span>
+    </div>
+
+    <span class="eyebrow">We are hiring</span>
+    <h1>Build social commerce tools for African businesses.</h1>
+    <p>
+      Join the team helping marketers, promoters, and store owners grow through
+      trusted pay-per-click campaigns and storefront promotion.
+    </p>
+
+    <div class="hero-actions">
+      <button type="button" (click)="scrollToPositions()">
+        <mat-icon>work</mat-icon>
+        View roles
+      </button>
+      <button type="button" (click)="applyForPosition()">
+        <mat-icon>mail</mat-icon>
+        Join talent pool
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Career highlights">
+    @for (stat of heroStats(); track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Why join</span>
+        <h2>What you get here</h2>
+      </span>
+    </div>
+
+    <div class="benefit-rail" aria-label="Career benefits">
+      @for (benefit of benefits(); track benefit.title; let index = $index) {
+        <button type="button" class="benefit-card" [ngClass]="tone(index)" (click)="openBenefit(benefit)">
+          <span class="card-icon">
+            <mat-icon>{{ benefit.icon }}</mat-icon>
+          </span>
+          <strong>{{ benefit.title }}</strong>
+          <small>{{ benefit.description }}</small>
+          <span>Learn more</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="culture-card">
+    <span class="eyebrow">How we work</span>
+    <h2>Small team, serious product ambition.</h2>
+    <p>
+      We keep the pace high, the communication open, and the work connected to
+      real users trying to grow income and businesses.
+    </p>
+
+    <div class="culture-list">
+      @for (point of teamCulture(); track point.title; let index = $index) {
+        <button type="button" class="culture-row" [ngClass]="tone(index)" (click)="openCulture(point)">
+          <span class="card-icon">
+            <mat-icon>{{ point.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ point.title }}</strong>
+            <small>{{ point.description }}</small>
+          </span>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+
+    <div class="culture-stats">
+      <span>
+        <b>95%</b>
+        Satisfaction
+      </span>
+      <span>
+        <b>4.8/5</b>
+        Balance
+      </span>
+      <span>
+        <b>89%</b>
+        Promotion rate
+      </span>
+    </div>
+  </section>
+
+  <section class="positions-section" id="positions">
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Open positions</span>
+        <h2>{{ currentDepartment().name }}</h2>
+        <small>{{ currentDepartment().description }}</small>
+      </span>
+    </div>
+
+    <div class="department-rail" aria-label="Filter roles by department">
+      <button type="button" [class.active]="activeDepartment() === 'all'" (click)="setActiveDepartment('all')">
+        All
+      </button>
+      @for (department of departments(); track department.id) {
+        <button
+          type="button"
+          [class.active]="activeDepartment() === department.id"
+          (click)="setActiveDepartment(department.id)"
+        >
+          <mat-icon>{{ department.icon }}</mat-icon>
+          {{ department.name }}
+          <span>{{ department.openPositions }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="job-list">
+      @if (filteredPositions().length) {
+        @for (position of filteredPositions(); track position.id) {
+          <article class="job-card">
+            <div class="job-card-top">
+              <span>
+                @if (position.featured) {
+                  <b class="badge good">Featured</b>
+                }
+                @if (position.urgent) {
+                  <b class="badge warn">Urgent</b>
+                }
+              </span>
+              <small>{{ getPositionTypeLabel(position.type) }}</small>
+            </div>
+
+            <h3>{{ position.title }}</h3>
+            <p>{{ position.description }}</p>
+
+            <div class="job-meta">
+              <span>
+                <mat-icon>place</mat-icon>
+                {{ formatLocation(position) }}
+              </span>
+              <span>
+                <mat-icon>school</mat-icon>
+                {{ position.experience }}
+              </span>
+              <span>
+                <mat-icon>person_search</mat-icon>
+                {{ formatApplications(position) }}
+              </span>
+            </div>
+
+            <div class="tag-row">
+              @for (requirement of position.requirements.slice(0, 2); track requirement) {
+                <span>{{ requirement }}</span>
+              }
+            </div>
+
+            <div class="job-actions">
+              <button type="button" (click)="openJob(position)">Details</button>
+              <button type="button" class="primary" (click)="applyForPosition()">Apply</button>
+            </div>
+          </article>
+        }
+      } @else {
+        <article class="empty-card">
+          <mat-icon>work_off</mat-icon>
+          <strong>No open role here yet</strong>
+          <p>Join the talent pool and we will reach out when a matching role opens.</p>
+          <button type="button" (click)="applyForPosition()">Join talent pool</button>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Hiring process</span>
+        <h2>Clear steps, no mystery.</h2>
+      </span>
+    </div>
+
+    <div class="process-list">
+      @for (step of hiringSteps; track step.number) {
+        <button type="button" class="process-card" (click)="openProcess(step)">
+          <span>{{ step.number }}</span>
+          <mat-icon>{{ step.icon }}</mat-icon>
+          <strong>{{ step.title }}</strong>
+          <small>{{ step.duration }}</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="internship-strip">
+    <span class="eyebrow">Early career</span>
+    <h2>Internship and graduate roles</h2>
+    <p>
+      We periodically open practical learning roles for people who want real product experience.
+    </p>
+    <button type="button" (click)="viewInternship()">
+      <mat-icon>school</mat-icon>
+      Check internship openings
+    </button>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <span>
+        <span class="eyebrow">Team voices</span>
+        <h2>What teammates say</h2>
+      </span>
+    </div>
+
+    <div class="testimonial-rail" aria-label="Employee testimonials">
+      @for (story of testimonials; track story.name) {
+        <article class="testimonial-card">
+          <div class="avatar-fallback">{{ story.name.slice(0, 2) }}</div>
+          <strong>{{ story.name }}</strong>
+          <small>{{ story.role }} · {{ story.tenure }}</small>
+          <p>{{ story.quote }}</p>
+          <span>{{ story.metric }}</span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="cta-strip">
+    <span class="eyebrow">Ready to build?</span>
+    <h2>Your next product chapter could start here.</h2>
+    <p>
+      Send your profile to the team and tell us what kind of problems you want to solve.
+    </p>
+    <button type="button" (click)="applyForPosition()">
+      <mat-icon>send</mat-icon>
+      Contact careers
+    </button>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <button type="button" class="sheet-backdrop" aria-label="Close career details" (click)="closeSheet()"></button>
+
+  @if (activeSheet() === 'job') {
+    @if (selectedJob(); as job) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="career-job-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="eyebrow">{{ getPositionTypeLabel(job.type) }}</span>
+        <h2 id="career-job-title">{{ job.title }}</h2>
+        <p>{{ job.description }}</p>
+
+        <div class="sheet-stats">
+          <span>{{ formatLocation(job) }}</span>
+          <span>{{ job.experience }}</span>
+          <span>{{ formatApplications(job) }}</span>
+        </div>
+
+        <div class="sheet-list">
+          <h3>Responsibilities</h3>
+          @for (item of job.responsibilities; track item) {
+            <span><mat-icon>check_circle</mat-icon>{{ item }}</span>
+          }
+        </div>
+
+        <div class="sheet-list">
+          <h3>Requirements</h3>
+          @for (item of job.requirements; track item) {
+            <span><mat-icon>task_alt</mat-icon>{{ item }}</span>
+          }
+        </div>
+
+        <div class="sheet-list">
+          <h3>Benefits</h3>
+          @for (item of job.benefits; track item) {
+            <span><mat-icon>verified</mat-icon>{{ item }}</span>
+          }
+        </div>
+
+        <button type="button" class="sheet-primary" (click)="applyForPosition()">
+          <mat-icon>mail</mat-icon>
+          Apply for this role
+        </button>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'benefit') {
+    @if (selectedBenefit(); as benefit) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="career-benefit-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="sheet-icon">
+          <mat-icon>{{ benefit.icon }}</mat-icon>
+        </span>
+        <h2 id="career-benefit-title">{{ benefit.title }}</h2>
+        <p>{{ benefit.description }}</p>
+        <div class="sheet-note">
+          <mat-icon>workspace_premium</mat-icon>
+          <span>Benefits are designed to keep the team healthy, focused, and growing with the product.</span>
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'culture') {
+    @if (selectedCulture(); as point) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="career-culture-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="sheet-icon">
+          <mat-icon>{{ point.icon }}</mat-icon>
+        </span>
+        <h2 id="career-culture-title">{{ point.title }}</h2>
+        <p>{{ point.description }}</p>
+        <div class="sheet-note">
+          <mat-icon>groups</mat-icon>
+          <span>We value direct communication, ownership, and thoughtful decisions that help real users.</span>
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'process') {
+    @if (selectedStep(); as step) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="career-process-title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <span class="sheet-icon">
+          <mat-icon>{{ step.icon }}</mat-icon>
+        </span>
+        <span class="eyebrow">Step {{ step.number }}</span>
+        <h2 id="career-process-title">{{ step.title }}</h2>
+        <p>{{ step.text }}</p>
+        <div class="sheet-stats">
+          <span>{{ step.duration }}</span>
+          <span>Remote-friendly</span>
+        </div>
+      </section>
+    }
+  }
+}
+
+<app-footer />

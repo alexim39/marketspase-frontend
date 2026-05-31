@@ -11,7 +11,7 @@ export const CampaignRoutes: Routes = [
     },
     {
         path: 'create',
-        loadComponent: () => import('./create/create-campaign.component').then(c => c.CreateCampaignComponent),
+        loadComponent: () => import('./create').then(c => c.CreateCampaignIndexComponent),
         title: "Campaign Creation - Create New Campaign",
     }, 
     {
@@ -48,22 +48,22 @@ export const CampaignRoutes: Routes = [
     },
     {
         path: 'collaboration',
-        loadComponent: () => import('./collaboration/collaboration.component').then(c => c.CampaignCollaborationComponent),
+        loadComponent: () => import('./collaboration').then(c => c.CampaignCollaborationIndexComponent),
         title: "Collaboration - Real-time messaging for campaigns and promotions",
     },
     {
         path: 'edit/:id',
-        loadComponent: () => import('./campaign-edit/campaign-edit.component').then(c => c.CampaignEditComponent),
+        loadComponent: () => import('./campaign-edit').then(c => c.CampaignEditIndexComponent),
         title: "Campaign Edit - Edit a campaign",
     },
     {
         path: ':id/targeting',
-        loadComponent: () => import('./targeting/targeting.component').then(c => c.CampaignTargetingComponent),
+        loadComponent: () => import('./targeting').then(c => c.CampaignTargetingIndexComponent),
         title: "Campaign Targeting - target your audience",
     },
     {
         path: ':id',
-        loadComponent: () => import('./campaign-details/campaign-details.component').then(c => c.CampaignDetailsComponent),
+        loadComponent: () => import('./campaign-details').then(c => c.CampaignDetailsIndexComponent),
         title: "Campaign Details - List all accepted promoter promotions",
     },
    

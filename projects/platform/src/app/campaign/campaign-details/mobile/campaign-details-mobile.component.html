@@ -1,0 +1,312 @@
+<section class="campaign-detail-mobile">
+  @if (isLoading()) {
+    <div class="mobile-loading" role="status" aria-live="polite">
+      <mat-progress-spinner mode="indeterminate" diameter="34"></mat-progress-spinner>
+      <p>Loading campaign details...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="mobile-error">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <h2>Failed to load campaign</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="primary-action" (click)="loadCampaign()">Try again</button>
+    </div>
+  }
+
+  @if (campaign(); as campaign) {
+    <header class="mobile-topbar">
+      <button type="button" class="icon-button" (click)="goBack()" aria-label="Back to campaigns">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      </button>
+
+      <div>
+        <span>Campaign details</span>
+        <strong>{{ campaign.title | titlecase }}</strong>
+      </div>
+
+      <button type="button" class="icon-button" (click)="editCampaign()" aria-label="Edit campaign">
+        <mat-icon aria-hidden="true">edit</mat-icon>
+      </button>
+    </header>
+
+    <main class="mobile-content">
+      <section class="hero-card">
+        <div class="media-frame">
+          <span class="media-pill">
+            <mat-icon aria-hidden="true">{{ campaign.mediaType === 'video' ? 'videocam' : 'image' }}</mat-icon>
+            {{ campaign.mediaType | titlecase }}
+          </span>
+
+          @if (campaign.mediaType === 'image') {
+            <img [src]="campaign.mediaUrl" [alt]="campaign.title" />
+          } @else if (campaign.mediaType === 'video') {
+            <video controls [poster]="campaign.thumbnailUrl">
+              <source [src]="campaign.mediaUrl" type="video/mp4" />
+            </video>
+          }
+        </div>
+
+        <div class="hero-body">
+          <div class="status-row">
+            <span class="status-badge status-{{ campaign.status }}">{{ campaign.status | titlecase }}</span>
+            <span>{{ campaign.createdAt | date:'mediumDate' }}</span>
+          </div>
+
+          <h1>{{ campaign.title | titlecase }}</h1>
+          <p>{{ campaign.caption }}</p>
+
+          <div class="health-strip">
+            <mat-icon aria-hidden="true">monitoring</mat-icon>
+            <span>{{ campaignHealthLabel() }}</span>
+          </div>
+
+          <button type="button" class="media-action" (click)="viewMedia(campaign.mediaUrl)">
+            <mat-icon aria-hidden="true">zoom_in</mat-icon>
+            View media
+          </button>
+        </div>
+      </section>
+
+      <section class="action-grid" aria-label="Campaign actions">
+        @if (canTopUpCampaign()) {
+          <button type="button" class="quick-action primary" (click)="openTopUpDialog(campaign)">
+            <mat-icon aria-hidden="true">add_circle</mat-icon>
+            <span>Top up</span>
+          </button>
+        }
+
+        <button type="button" class="quick-action" (click)="openCollaborationRoom()" [disabled]="!canOpenCollaborationRoom()">
+          <mat-icon aria-hidden="true">forum</mat-icon>
+          <span>{{ canOpenCollaborationRoom() ? 'Room' : 'Waiting' }}</span>
+        </button>
+
+        <button type="button" class="quick-action" (click)="targetAudienceByLocation()">
+          <mat-icon aria-hidden="true">edit_location</mat-icon>
+          <span>Target</span>
+        </button>
+
+        @if (campaign.status === 'active') {
+          <button type="button" class="quick-action warn" (click)="pauseCampaign(campaign)">
+            <mat-icon aria-hidden="true">pause_circle</mat-icon>
+            <span>Pause</span>
+          </button>
+        }
+
+        @if (campaign.status === 'paused') {
+          <button type="button" class="quick-action success" (click)="resumeCampaign(campaign)">
+            <mat-icon aria-hidden="true">play_circle</mat-icon>
+            <span>Resume</span>
+          </button>
+        }
+
+        @if (campaign.status === 'draft') {
+          <button type="button" class="quick-action success" (click)="activateCampaign(campaign)">
+            <mat-icon aria-hidden="true">start</mat-icon>
+            <span>Activate</span>
+          </button>
+        }
+      </section>
+
+      <section class="budget-card">
+        <div class="budget-header">
+          <div>
+            <span>Budget used</span>
+            <strong>{{ budgetProgress() | number:'1.0-0' }}%</strong>
+          </div>
+          <p>{{ formatCurrency(campaign.spentBudget, campaign.currency) }} spent of {{ formatCurrency(campaign.budget, campaign.currency) }}</p>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="budgetProgress()"></mat-progress-bar>
+      </section>
+
+      <section class="metric-rail" aria-label="Campaign performance metrics">
+        @for (metric of primaryMetricCards(); track metric.label) {
+          <article class="metric-card tone-{{ metric.tone }}">
+            <div class="metric-icon">
+              <mat-icon aria-hidden="true">{{ metric.icon }}</mat-icon>
+            </div>
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.value }}</strong>
+            <p>{{ metric.detail }}</p>
+          </article>
+        }
+      </section>
+
+      @if (topPromotion(); as promotion) {
+        <section class="top-promoter-card">
+          <span>Top promoter</span>
+          <div>
+            <div class="avatar">{{ getInitials(getPromoterName(promotion)) }}</div>
+            <div>
+              <strong>{{ getPromoterName(promotion) }}</strong>
+              <p>{{ getPromotionBillableClicks(promotion) | shortNumber }} billable clicks · {{ formatCurrency(getPromotionSpend(promotion), campaign.currency) }}</p>
+            </div>
+          </div>
+          <button type="button" (click)="messagePromoter(promotion)">
+            <mat-icon aria-hidden="true">chat</mat-icon>
+            Message
+          </button>
+        </section>
+      }
+
+      <section class="info-card">
+        <div class="section-heading">
+          <h2>Campaign setup</h2>
+          <span>{{ getPayoutModelLabel(campaign) }}</span>
+        </div>
+
+        <div class="info-list">
+          @for (item of campaignInfo(); track item.label) {
+            <div class="info-row">
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <div>
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (campaign.link) {
+          <a class="campaign-link" [href]="campaign.link" target="_blank" rel="noopener noreferrer">
+            <mat-icon aria-hidden="true">link</mat-icon>
+            <span>{{ campaign.link }}</span>
+          </a>
+        }
+      </section>
+
+      @if (targetLocations().length > 0 || campaignTags().length > 0 || campaignRequirements().length > 0) {
+        <section class="details-card">
+          @if (targetLocations().length > 0) {
+            <div class="detail-block">
+              <h3>Target locations</h3>
+              <div class="chip-wrap">
+                @for (location of targetLocations(); track location) {
+                  <span>{{ location.name }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (campaignTags().length > 0) {
+            <div class="detail-block">
+              <h3>Tags</h3>
+              <div class="chip-wrap">
+                @for (tag of campaignTags(); track tag) {
+                  <span>{{ tag }}</span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (campaignRequirements().length > 0) {
+            <div class="detail-block">
+              <h3>Requirements</h3>
+              <ul>
+                @for (requirement of campaignRequirements(); track requirement) {
+                  <li>{{ requirement }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+      }
+
+      <section class="promotions-card">
+        <div class="section-heading">
+          <h2>Promotion activity</h2>
+          <span>{{ filteredPromotions().length }} records</span>
+        </div>
+
+        <label class="search-field">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <input type="search" placeholder="Search promoter or status" [formControl]="promotionSearchControl" />
+        </label>
+
+        <div class="filter-rail" aria-label="Promotion status filters">
+          @for (filter of statusFilters; track filter.value) {
+            <button
+              type="button"
+              [class.active]="isStatusSelected(filter.value)"
+              (click)="updateStatusFilter(filter.value)"
+            >
+              {{ filter.label }}
+            </button>
+          }
+        </div>
+
+        @if (filteredPromotions().length > 0) {
+          <div class="promotion-list">
+            @for (promotion of filteredPromotions(); track promotionTrackBy($index, promotion)) {
+              <article class="promotion-card">
+                <div class="promotion-head">
+                  <div class="avatar">{{ getInitials(getPromoterName(promotion)) }}</div>
+                  <div>
+                    <strong>{{ getPromoterName(promotion) }}</strong>
+                    <span class="status-badge status-{{ promotion.status }}">{{ promotion.status | titlecase }}</span>
+                  </div>
+                </div>
+
+                <div class="promotion-metrics">
+                  <div>
+                    <span>Tracked</span>
+                    <strong>{{ getPromotionTrackedClicks(promotion) | shortNumber }}</strong>
+                  </div>
+                  <div>
+                    <span>Billable</span>
+                    <strong>{{ getPromotionBillableClicks(promotion) | shortNumber }}</strong>
+                  </div>
+                  <div>
+                    <span>Spend</span>
+                    <strong>{{ formatCurrency(getPromotionSpend(promotion), campaign.currency) }}</strong>
+                  </div>
+                </div>
+
+                <div class="promotion-footer">
+                  <span>{{ getPromotionLastActivity(promotion) ? (getPromotionLastActivity(promotion) | date:'short') : 'No activity yet' }}</span>
+                  <div>
+                    <button type="button" (click)="viewPromotionDetails(promotion)" aria-label="View promotion details">
+                      <mat-icon aria-hidden="true">visibility</mat-icon>
+                    </button>
+                    <button type="button" (click)="messagePromoter(promotion)" aria-label="Message promoter">
+                      <mat-icon aria-hidden="true">chat</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon aria-hidden="true">assignment</mat-icon>
+            <h3>No promotion activity yet</h3>
+            <p>This campaign has not recorded promoter activity for the current filter.</p>
+          </div>
+        }
+      </section>
+
+      @if (campaignActivityLog().length > 0) {
+        <section class="activity-card">
+          <div class="section-heading">
+            <h2>Activity log</h2>
+            <span>{{ campaignActivityLog().length }} updates</span>
+          </div>
+
+          <div class="timeline">
+            @for (log of campaignActivityLog(); track log) {
+              <div class="timeline-row">
+                <span></span>
+                <div>
+                  <strong>{{ log.action }}</strong>
+                  <p>{{ log.details }}</p>
+                  <small>{{ log.timestamp | date:'medium' }}</small>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </main>
+  }
+</section>

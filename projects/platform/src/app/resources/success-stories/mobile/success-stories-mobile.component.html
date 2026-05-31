@@ -1,0 +1,298 @@
+<app-header />
+
+<main class="mobile-stories-page">
+  <section class="stories-hero" aria-labelledby="mobile-stories-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Success Stories</span>
+    </nav>
+
+    <span class="eyebrow">Real results</span>
+    <h1 id="mobile-stories-title">Proof that promotion can create measurable growth.</h1>
+    <p>
+      See how marketers, promoters, and larger brands use MarketSpase to connect products, tracked links, orders, and earnings.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/auth">
+        <mat-icon>rocket_launch</mat-icon>
+        Start your story
+      </a>
+      <a routerLink="/resources/how-it-works">
+        <mat-icon>route</mat-icon>
+        How it works
+      </a>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Success story summary">
+    @for (stat of cleanedHeroStats(); track stat.label) {
+      <article>
+        <mat-icon>{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section aria-labelledby="story-filter-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Explore by role</span>
+        <h2 id="story-filter-title">Choose a story type</h2>
+      </div>
+      <button type="button" (click)="openFilterSheet()" aria-label="Compare story categories">
+        <mat-icon>tune</mat-icon>
+      </button>
+    </div>
+
+    <div class="category-rail" role="list" aria-label="Success story categories">
+      @for (category of categories(); track category.id; let i = $index) {
+        <button
+          type="button"
+          role="listitem"
+          class="category-card"
+          [class.active]="activeCategory() === category.id"
+          [ngClass]="tone(i)"
+          (click)="setActiveCategory(category.id)"
+        >
+          <span class="card-icon">
+            <mat-icon>{{ category.icon }}</mat-icon>
+          </span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ category.description }}</small>
+          <span>{{ category.count }} stories</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (featuredStory(); as story) {
+    <section class="featured-story" aria-labelledby="featured-story-title">
+      <div class="story-topline">
+        <span>{{ getCategoryLabel(story.category) }}</span>
+        <small>{{ story.readTime }} read</small>
+      </div>
+      <h2 id="featured-story-title">{{ cleanText(story.title) }}</h2>
+      <p>{{ cleanText(story.excerpt) }}</p>
+
+      <div class="result-strip" aria-label="Featured story results">
+        @for (result of story.results.slice(0, 3); track result.metric) {
+          <article>
+            <strong>{{ cleanText(result.value) }}</strong>
+            <span>{{ result.metric }}</span>
+          </article>
+        }
+      </div>
+
+      <div class="person-row">
+        <span class="avatar-fallback">{{ storyInitials(story) }}</span>
+        <span>
+          <strong>{{ story.user.name }}</strong>
+          <small>{{ story.user.role }} · {{ story.user.company }}</small>
+        </span>
+      </div>
+
+      <button type="button" class="primary-action" (click)="openStorySheet(story)">
+        <mat-icon>menu_book</mat-icon>
+        Read featured story
+      </button>
+    </section>
+  }
+
+  <section aria-labelledby="story-list-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Selected stories</span>
+        <h2 id="story-list-title">
+          @switch (activeCategory()) {
+            @case ('all') { All success stories }
+            @case ('marketer') { Marketer stories }
+            @case ('promoter') { Promoter stories }
+            @case ('enterprise') { Enterprise stories }
+          }
+        </h2>
+      </div>
+    </div>
+
+    <div class="story-list">
+      @for (story of visibleStories(); track story.id; let i = $index) {
+        <button type="button" class="story-card" [ngClass]="tone(i)" (click)="openStorySheet(story)">
+          <span class="story-badge">{{ getCategoryLabel(story.category) }}</span>
+          <strong>{{ cleanText(story.title) }}</strong>
+          <small>{{ cleanText(story.excerpt) }}</small>
+          <div class="mini-results">
+            @for (result of story.results.slice(0, 2); track result.metric) {
+              <span>
+                <b>{{ cleanText(result.value) }}</b>
+                {{ result.metric }}
+              </span>
+            }
+          </div>
+          <div class="story-footer">
+            <span class="avatar-fallback small">{{ storyInitials(story) }}</span>
+            <span>
+              <b>{{ story.user.name }}</b>
+              <small>{{ story.readTime }} · {{ story.publishDate }}</small>
+            </span>
+            <mat-icon aria-hidden="true">chevron_right</mat-icon>
+          </div>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="results-card" aria-labelledby="results-title">
+    <div>
+      <span class="eyebrow">Platform impact</span>
+      <h2 id="results-title">Results admins and users can trace.</h2>
+      <p>MarketSpase ties promotion activity back to products, clicks, conversions, orders, and payouts.</p>
+    </div>
+
+    <div class="impact-list">
+      @for (stat of resultStats; track stat.label) {
+        <article>
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <span>
+            <strong>{{ stat.value }}</strong>
+            <small>{{ stat.label }}</small>
+          </span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="industry-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Industry fit</span>
+        <h2 id="industry-title">Where promotion works well</h2>
+      </div>
+    </div>
+
+    <div class="industry-list">
+      @for (industry of industryInsights; track industry.title; let i = $index) {
+        <button type="button" class="industry-card" [ngClass]="tone(i)" (click)="openIndustrySheet(industry)">
+          <span class="card-icon">
+            <mat-icon>{{ industry.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ industry.title }}</strong>
+            <small>{{ industry.text }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <div>
+      <span class="eyebrow">Your turn</span>
+      <h2>Start small, track everything, and grow with proof.</h2>
+      <p>Create a store, promote a product, or run a campaign with measurable outcomes.</p>
+    </div>
+    <div class="cta-actions">
+      <a routerLink="/auth">
+        <mat-icon>person_add</mat-icon>
+        Join free
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>support_agent</mat-icon>
+        Get guidance
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Success story details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (activeSheet()) {
+      @case ('story') {
+        @if (selectedStory(); as story) {
+          <span class="sheet-icon">
+            <mat-icon>auto_stories</mat-icon>
+          </span>
+          <h2>{{ cleanText(story.title) }}</h2>
+          <p>{{ cleanText(story.excerpt) }}</p>
+
+          <div class="sheet-result-grid">
+            @for (result of story.results; track result.metric) {
+              <article>
+                <strong>{{ cleanText(result.value) }}</strong>
+                <span>{{ result.metric }}</span>
+                <small>{{ result.change }}</small>
+              </article>
+            }
+          </div>
+
+          <h3>Key achievements</h3>
+          <div class="sheet-list">
+            @for (highlight of story.highlights; track highlight) {
+              <span>
+                <mat-icon>check_circle</mat-icon>
+                {{ highlight }}
+              </span>
+            }
+          </div>
+
+          <div class="person-row in-sheet">
+            <span class="avatar-fallback">{{ storyInitials(story) }}</span>
+            <span>
+              <strong>{{ story.user.name }}</strong>
+              <small>{{ story.user.role }} · {{ story.user.company }}</small>
+            </span>
+          </div>
+        }
+      }
+      @case ('filters') {
+        <span class="sheet-icon">
+          <mat-icon>tune</mat-icon>
+        </span>
+        <h2>Choose a story category</h2>
+        <p>Filter stories by the type of MarketSpase user you want to learn from.</p>
+
+        <div class="sheet-button-list">
+          @for (category of categories(); track category.id) {
+            <button type="button" (click)="setActiveCategory(category.id); closeSheet()">
+              <mat-icon>{{ category.icon }}</mat-icon>
+              <span>
+                <strong>{{ category.name }}</strong>
+                <small>{{ category.description }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      }
+      @case ('industry') {
+        @if (selectedIndustry(); as industry) {
+          <span class="sheet-icon">
+            <mat-icon>{{ industry.icon }}</mat-icon>
+          </span>
+          <h2>{{ industry.title }}</h2>
+          <p>{{ industry.text }}</p>
+
+          <div class="sheet-result-grid">
+            @for (stat of industry.stats; track stat.label) {
+              <article>
+                <strong>{{ stat.value }}</strong>
+                <span>{{ stat.label }}</span>
+              </article>
+            }
+          </div>
+        }
+      }
+    }
+  </section>
+}
+
+<app-footer />

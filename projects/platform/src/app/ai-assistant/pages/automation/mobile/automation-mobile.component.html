@@ -1,0 +1,303 @@
+<main class="automation-mobile">
+  <header class="mobile-hero">
+    <div>
+      <span>AI Sales Assistant</span>
+      <h1>Automation</h1>
+      <p>Control reply style, handoff rules, sales links, and response timing for WhatsApp buyers.</p>
+    </div>
+    <button type="button" class="hero-action" (click)="loadSettings()" aria-label="Refresh automation settings">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </header>
+
+  @if (loading()) {
+    <section class="loading-state" aria-live="polite">
+      <mat-spinner diameter="36"></mat-spinner>
+      <p>Loading automation settings...</p>
+    </section>
+  } @else {
+    <section class="status-panel" [class.active]="settings().aiEnabled">
+      <div class="status-copy">
+        <span class="status-dot"></span>
+        <div>
+          <strong>{{ settings().aiEnabled ? 'AI replies are active' : 'AI replies are paused' }}</strong>
+          <p>{{ settings().aiEnabled ? 'Customers can get instant WhatsApp answers.' : 'Turn it on when FAQs and links are ready.' }}</p>
+        </div>
+      </div>
+
+      <label class="switch-control" aria-label="Toggle AI replies">
+        <input type="checkbox" [ngModel]="settings().aiEnabled" (ngModelChange)="updateAiEnabled($event)" />
+        <span></span>
+      </label>
+    </section>
+
+    <section class="summary-grid" aria-label="Automation summary">
+      <article>
+        <mat-icon>record_voice_over</mat-icon>
+        <strong>{{ settings().tone | titlecase }}</strong>
+        <span>{{ settings().language === 'pidgin' ? 'Nigerian Pidgin' : 'English' }}</span>
+      </article>
+      <article>
+        <mat-icon>support_agent</mat-icon>
+        <strong>{{ enabledEscalationRules() }}/4</strong>
+        <span>Escalation rules</span>
+      </article>
+      <article>
+        <mat-icon>link</mat-icon>
+        <strong>{{ linkReadiness() }}</strong>
+        <span>Ready links</span>
+      </article>
+      <article>
+        <mat-icon>speed</mat-icon>
+        <strong>{{ settings().responseSettings.responseDelaySeconds }}s</strong>
+        <span>Reply delay</span>
+      </article>
+    </section>
+
+    <section class="sample-card">
+      <span>Sample reply</span>
+      <p>{{ sampleReply() }}</p>
+    </section>
+
+    <section class="control-list" aria-label="Automation controls">
+      <button type="button" (click)="openSheet('reply')">
+        <span class="control-icon teal"><mat-icon>psychology</mat-icon></span>
+        <span>
+          <strong>Reply style</strong>
+          <small>{{ settings().tone | titlecase }} · {{ settings().language === 'pidgin' ? 'Pidgin' : 'English' }}</small>
+        </span>
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <button type="button" (click)="openSheet('escalation')">
+        <span class="control-icon amber"><mat-icon>notification_important</mat-icon></span>
+        <span>
+          <strong>Escalation rules</strong>
+          <small>{{ enabledEscalationRules() }} active, {{ settings().escalationRules.keywords.length }} keywords</small>
+        </span>
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <button type="button" (click)="openSheet('links')">
+        <span class="control-icon green"><mat-icon>add_link</mat-icon></span>
+        <span>
+          <strong>Sales links</strong>
+          <small>{{ linkReadiness() }} ready, {{ settings().autoLinks.productLinks.length }} product links</small>
+        </span>
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <button type="button" (click)="openSheet('response')">
+        <span class="control-icon blue"><mat-icon>schedule</mat-icon></span>
+        <span>
+          <strong>Response control</strong>
+          <small>{{ responseSummary() }}</small>
+        </span>
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </section>
+  }
+</main>
+
+@if (!loading() && hasChanges()) {
+  <section class="sticky-save" aria-label="Unsaved automation changes">
+    <button type="button" class="secondary" (click)="resetSettings()" [disabled]="saving()">Reset</button>
+    <button type="button" class="primary" (click)="saveSettings()" [disabled]="saving()">
+      @if (saving()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      }
+      {{ saving() ? 'Saving...' : 'Save' }}
+    </button>
+  </section>
+}
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()"></div>
+
+  <section class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="activeSheet() + ' automation panel'">
+    <div class="sheet-handle"></div>
+
+    @if (activeSheet() === 'reply') {
+      <header>
+        <h2>Reply style</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close reply style panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="sheet-section">
+        <span>Tone</span>
+        <div class="segmented-list">
+          <button type="button" [class.active]="settings().tone === 'friendly'" (click)="updateTone('friendly')">Friendly</button>
+          <button type="button" [class.active]="settings().tone === 'professional'" (click)="updateTone('professional')">Professional</button>
+          <button type="button" [class.active]="settings().tone === 'sales'" (click)="updateTone('sales')">Sales-focused</button>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <span>Language</span>
+        <div class="segmented-list two">
+          <button type="button" [class.active]="settings().language === 'english'" (click)="updateLanguage('english')">English</button>
+          <button type="button" [class.active]="settings().language === 'pidgin'" (click)="updateLanguage('pidgin')">Nigerian Pidgin</button>
+        </div>
+      </div>
+
+      <div class="sample-card compact">
+        <span>Preview</span>
+        <p>{{ sampleReply() }}</p>
+      </div>
+    }
+
+    @if (activeSheet() === 'escalation') {
+      <header>
+        <h2>Escalation rules</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close escalation panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="toggle-stack">
+        <label class="toggle-row">
+          <span>
+            <strong>Escalate on keywords</strong>
+            <small>Pause AI when customers ask for a person.</small>
+          </span>
+          <input type="checkbox" [ngModel]="settings().escalationRules.escalateOnKeywords" (ngModelChange)="updateEscalationRule('escalateOnKeywords', $event)" />
+        </label>
+
+        <label class="toggle-row">
+          <span>
+            <strong>Escalate complaints</strong>
+            <small>Detect refund, delay, dispute, and angry messages.</small>
+          </span>
+          <input type="checkbox" [ngModel]="settings().escalationRules.complaints" (ngModelChange)="updateEscalationRule('complaints', $event)" />
+        </label>
+
+        <label class="toggle-row">
+          <span>
+            <strong>Escalate high-value leads</strong>
+            <small>Flag bulk orders, urgent requests, and serious buyers.</small>
+          </span>
+          <input type="checkbox" [ngModel]="settings().escalationRules.highValue" (ngModelChange)="updateEscalationRule('highValue', $event)" />
+        </label>
+
+        <label class="toggle-row">
+          <span>
+            <strong>Escalate low confidence</strong>
+            <small>Let humans handle uncertain answers.</small>
+          </span>
+          <input type="checkbox" [ngModel]="settings().escalationRules.lowConfidence" (ngModelChange)="updateEscalationRule('lowConfidence', $event)" />
+        </label>
+      </div>
+
+      <label class="field-block">
+        <span>Escalation keywords</span>
+        <textarea rows="4" [ngModel]="keywordText()" (ngModelChange)="updateKeywordText($event)" placeholder="human, manager, refund"></textarea>
+        <small>Separate keywords with commas.</small>
+      </label>
+    }
+
+    @if (activeSheet() === 'links') {
+      <header>
+        <h2>Sales links</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close sales links panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="field-stack">
+        <label class="field-block">
+          <span>Storefront URL</span>
+          <input [ngModel]="settings().autoLinks.storefrontUrl" (ngModelChange)="updateStorefrontUrl($event)" placeholder="https://marketspase.com/store/your-store" />
+        </label>
+
+        <label class="field-block">
+          <span>Payment link</span>
+          <input [ngModel]="settings().autoLinks.paymentLink" (ngModelChange)="updatePaymentLink($event)" placeholder="Paste checkout or payment link" />
+        </label>
+      </div>
+
+      <div class="product-link-list">
+        @for (link of settings().autoLinks.productLinks; track trackProductLink($index)) {
+          <article class="product-link-card">
+            <label class="field-block">
+              <span>Product name</span>
+              <input [ngModel]="link.label" (ngModelChange)="updateProductLink($index, 'label', $event)" placeholder="Blue sneakers" />
+            </label>
+            <label class="field-block">
+              <span>Product link</span>
+              <input [ngModel]="link.url" (ngModelChange)="updateProductLink($index, 'url', $event)" placeholder="https://..." />
+            </label>
+            <button type="button" class="remove-link" (click)="removeProductLink($index)">
+              <mat-icon>delete</mat-icon>
+              Remove
+            </button>
+          </article>
+        }
+      </div>
+
+      <button type="button" class="add-link" (click)="addProductLink()">
+        <mat-icon>add</mat-icon>
+        Add product link
+      </button>
+    }
+
+    @if (activeSheet() === 'response') {
+      <header>
+        <h2>Response control</h2>
+        <button type="button" (click)="closeSheet()" aria-label="Close response control panel">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="two-fields">
+        <label class="field-block">
+          <span>Response delay</span>
+          <input type="number" min="0" max="30" [ngModel]="settings().responseSettings.responseDelaySeconds" (ngModelChange)="updateResponseDelaySeconds($event)" />
+          <small>Seconds before AI replies.</small>
+        </label>
+        <label class="field-block">
+          <span>Max AI replies</span>
+          <input type="number" min="1" max="30" [ngModel]="settings().responseSettings.maxAiRepliesBeforeEscalation" (ngModelChange)="updateMaxAiRepliesBeforeEscalation($event)" />
+          <small>Then hand over.</small>
+        </label>
+      </div>
+
+      <label class="toggle-row business">
+        <span>
+          <strong>Use business hours</strong>
+          <small>Escalate messages outside your selling hours.</small>
+        </span>
+        <input type="checkbox" [ngModel]="settings().responseSettings.businessHours.enabled" (ngModelChange)="updateBusinessHoursEnabled($event)" />
+      </label>
+
+      <div class="two-fields" [class.disabled]="!settings().responseSettings.businessHours.enabled">
+        <label class="field-block">
+          <span>Start</span>
+          <input type="time" [ngModel]="settings().responseSettings.businessHours.start" (ngModelChange)="updateBusinessHoursTime('start', $event)" />
+        </label>
+        <label class="field-block">
+          <span>End</span>
+          <input type="time" [ngModel]="settings().responseSettings.businessHours.end" (ngModelChange)="updateBusinessHoursTime('end', $event)" />
+        </label>
+      </div>
+
+      <label class="field-block">
+        <span>Timezone</span>
+        <input [ngModel]="settings().responseSettings.businessHours.timezone" (ngModelChange)="updateBusinessHoursTimezone($event)" placeholder="Africa/Lagos" />
+      </label>
+    }
+
+    @if (hasChanges()) {
+      <div class="sheet-save-row">
+        <button type="button" class="secondary" (click)="resetSettings()" [disabled]="saving()">Reset</button>
+        <button type="button" class="primary" (click)="saveAndClose()" [disabled]="saving()">
+          @if (saving()) {
+            <mat-spinner diameter="18"></mat-spinner>
+          }
+          Save
+        </button>
+      </div>
+    }
+  </section>
+}

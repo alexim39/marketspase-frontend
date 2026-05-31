@@ -3,7 +3,7 @@
 :host {
   display: block;
   min-height: 100%;
-  background: #f6f8fb;
+  background: $background-color;
   color: $text-primary;
 }
 
@@ -26,7 +26,7 @@ a {
   align-items: center;
   gap: 8px;
   padding: 8px 0 12px;
-  background: linear-gradient(180deg, #f6f8fb 76%, rgba(246, 248, 251, 0));
+  background: linear-gradient(180deg, $background-color 76%, rgba($background-color, 0));
 
   .icon-button {
     width: 48px;
@@ -37,11 +37,11 @@ a {
     border-radius: 16px;
     background: $surface-color;
     color: $text-primary;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 10px 24px rgba($black, 0.08);
 
     &.primary {
       background: $primary-color;
-      color: $white;
+      color: $on-primary-color;
     }
   }
 
@@ -76,12 +76,12 @@ a {
   place-items: center;
   align-content: center;
   gap: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 28px;
   padding: 28px;
   background: $surface-color;
   text-align: center;
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 38px rgba($black, 0.08);
 
   h1 {
     margin: 8px 0 0;
@@ -104,7 +104,7 @@ a {
     display: grid;
     place-items: center;
     border-radius: 26px;
-    background: #eef6ff;
+    background: rgba($primary-color, 0.12);
 
     mat-icon {
       width: 42px;
@@ -135,9 +135,9 @@ a {
   border-radius: 28px;
   padding: 18px;
   background:
-    linear-gradient(135deg, rgba($primary-color, 0.94), rgba(#0f766e, 0.9)),
+    linear-gradient(135deg, rgba($primary-color, 0.94), rgba($primary-dark, 0.9)),
     $primary-color;
-  color: $white;
+  color: $on-primary-color;
   box-shadow: 0 18px 38px rgba($primary-color, 0.24);
 }
 
@@ -153,8 +153,8 @@ a {
   overflow: hidden;
   display: grid;
   place-items: center;
-  background: rgba($white, 0.18);
-  color: $white;
+  background: rgba($on-primary-color, 0.18);
+  color: $on-primary-color;
   font-weight: 950;
 
   img {
@@ -176,7 +176,7 @@ a {
   min-width: 0;
 
   span {
-    color: rgba($white, 0.72);
+    color: rgba($on-primary-color, 0.72);
     font-size: 12px;
     font-weight: 850;
     text-transform: uppercase;
@@ -196,7 +196,7 @@ a {
     -webkit-line-clamp: 3;
     overflow: hidden;
     margin: 0;
-    color: rgba($white, 0.82);
+    color: rgba($on-primary-color, 0.82);
     font-size: 13px;
     line-height: 1.45;
   }
@@ -217,20 +217,20 @@ a {
   gap: 6px;
   border-radius: 999px;
   padding: 0 10px;
-  background: rgba($white, 0.14);
-  color: rgba($white, 0.88);
+  background: rgba($on-primary-color, 0.14);
+  color: rgba($on-primary-color, 0.88);
   font-size: 12px;
   font-weight: 900;
 
-  &.good {
-    background: rgba(#22c55e, 0.18);
-    color: $white;
-  }
+    &.good {
+      background: rgba($success-color, 0.18);
+      color: $on-primary-color;
+    }
 
-  &.bad {
-    background: rgba(#ef4444, 0.22);
-    color: $white;
-  }
+    &.bad {
+      background: rgba($error-color, 0.22);
+      color: $on-primary-color;
+    }
 
   mat-icon {
     width: 17px;
@@ -249,15 +249,15 @@ a {
     border: 0;
     border-radius: 999px;
     padding: 0 14px;
-    background: $white;
+    background: $on-primary-color;
     color: $primary-color;
     text-decoration: none;
     font-weight: 950;
   }
 
-  a {
-    background: rgba($white, 0.14);
-    color: $white;
+    a {
+    background: rgba($on-primary-color, 0.14);
+    color: $on-primary-color;
   }
 }
 
@@ -282,11 +282,11 @@ a {
   display: grid;
   align-content: space-between;
   gap: 7px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 22px;
   padding: 14px;
   background: $surface-color;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 
   span {
     color: $text-secondary;
@@ -309,7 +309,7 @@ a {
   }
 
   &.down {
-    background: #fff4f1;
+    background: rgba($error-color, 0.12);
 
     strong {
       color: $error-color;
@@ -322,11 +322,11 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 14px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 22px;
   padding: 14px;
   background: $surface-color;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 
   div {
     min-width: 0;
@@ -356,8 +356,8 @@ a {
   margin-top: 14px;
   border-radius: 22px;
   padding: 14px;
-  background: #fff8e8;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  background: rgba($warning-color, 0.12);
+  box-shadow: 0 10px 24px rgba($black, 0.06);
 
   > mat-icon {
     width: 42px;
@@ -366,7 +366,7 @@ a {
     place-items: center;
     border-radius: 14px;
     background: rgba($warning-color, 0.14);
-    color: #9a6500;
+    color: darken($warning-color, 15%);
     font-size: 24px;
   }
 
@@ -387,8 +387,8 @@ a {
     border: 0;
     border-radius: 999px;
     padding: 0 12px;
-    background: #9a6500;
-    color: $white;
+    background: darken($warning-color, 15%);
+    color: $on-primary-color;
     font-weight: 950;
   }
 }
@@ -405,14 +405,14 @@ a {
     display: grid;
     align-content: start;
     gap: 7px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid $border-color;
     border-radius: 20px;
     padding: 14px;
     background: $surface-color;
     color: $text-primary;
     text-align: left;
     text-decoration: none;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 8px 20px rgba($black, 0.05);
 
     mat-icon {
       color: $primary-color;
@@ -461,7 +461,7 @@ a {
     border: 0;
     border-radius: 999px;
     padding: 0 13px;
-    background: #eef6ff;
+    background: rgba($primary-color, 0.12);
     color: $primary-color;
     font-weight: 950;
   }
@@ -477,11 +477,11 @@ a {
   grid-template-columns: 62px minmax(0, 1fr) 44px;
   gap: 12px;
   align-items: center;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 20px;
   padding: 10px;
   background: $surface-color;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 8px 20px rgba($black, 0.05);
 }
 
 .product-image {
@@ -491,7 +491,7 @@ a {
   display: grid;
   place-items: center;
   border-radius: 16px;
-  background: #edf2f7;
+  background: rgba($border-color, 0.5);
 
   img {
     width: 100%;
@@ -536,7 +536,7 @@ a {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: #eef6ff;
+  background: rgba($primary-color, 0.12);
   color: $primary-color;
   text-decoration: none;
 }
@@ -562,8 +562,8 @@ a {
   grid-template-columns: minmax(104px, 0.42fr) 1fr;
   gap: 10px;
   padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(15, 23, 42, 0.08);
-  background: rgba(246, 248, 251, 0.94);
+  border-top: 1px solid $border-color;
+  background: rgba($background-color, 0.94);
   backdrop-filter: blur(18px);
 
   button {
@@ -579,13 +579,7 @@ a {
     &.secondary {
       background: $surface-color;
       color: $text-primary;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-    }
-
-    &.primary {
-      background: $primary-color;
-      color: $white;
-      box-shadow: 0 12px 26px rgba($primary-color, 0.28);
+      box-shadow: 0 8px 20px rgba($black, 0.06);
     }
   }
 }
@@ -594,7 +588,7 @@ a {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(15, 23, 42, 0.42);
+  background: rgba($black, 0.42);
 }
 
 .bottom-sheet {
@@ -609,14 +603,14 @@ a {
   grid-template-rows: auto auto minmax(0, 1fr);
   border-radius: 28px 28px 0 0;
   background: $surface-color;
-  box-shadow: 0 -18px 42px rgba(15, 23, 42, 0.22);
+  box-shadow: 0 -18px 42px rgba($black, 0.22);
 
   .sheet-handle {
     width: 46px;
     height: 5px;
     margin: 10px auto 8px;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.18);
+    background: rgba($black, 0.18);
   }
 
   header {
@@ -625,7 +619,7 @@ a {
     justify-content: space-between;
     gap: 12px;
     padding: 0 18px 14px;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    border-bottom: 1px solid $border-color;
 
     span {
       color: $text-secondary;
@@ -649,7 +643,7 @@ a {
       place-items: center;
       border: 0;
       border-radius: 14px;
-      background: #f1f5f9;
+      background: $background-color;
       color: $text-primary;
     }
   }
@@ -676,17 +670,17 @@ a {
   grid-template-columns: 48px minmax(0, 1fr) 32px;
   align-items: center;
   gap: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid $border-color;
   border-radius: 18px;
   padding: 10px;
-  background: #f8fafc;
+  background: $background-color;
   color: $text-primary;
   text-align: left;
   text-decoration: none;
 
   &.active {
     border-color: rgba($primary-color, 0.32);
-    background: #eef6ff;
+    background: rgba($primary-color, 0.12);
   }
 
   strong,
@@ -731,7 +725,7 @@ a {
   grid-template-columns: 34px minmax(0, 1fr);
 
   mat-icon {
-    color: #9a6500;
+    color: darken($warning-color, 15%);
   }
 }
 
@@ -755,7 +749,7 @@ a {
 }
 
 .sheet-secondary {
-  background: #f1f5f9;
+  background: $background-color;
   color: $text-primary;
 }
 
@@ -773,10 +767,10 @@ a {
   input {
     min-height: 52px;
     width: 100%;
-    border: 1px solid rgba(15, 23, 42, 0.1);
+    border: 1px solid $border-color;
     border-radius: 18px;
     padding: 0 14px;
-    background: #f8fafc;
+    background: $background-color;
     color: $text-primary;
     font-size: 15px;
     outline: 0;
@@ -790,16 +784,16 @@ a {
 
   button {
     min-height: 40px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid $border-color;
     border-radius: 999px;
     padding: 0 13px;
-    background: #f8fafc;
+    background: $background-color;
     color: $text-primary;
     font-weight: 850;
 
     &.active {
       border-color: rgba($primary-color, 0.32);
-      background: #eef6ff;
+      background: rgba($primary-color, 0.12);
       color: $primary-color;
     }
   }
@@ -809,7 +803,7 @@ a {
   margin: 0;
   border-radius: 18px;
   padding: 18px;
-  background: #f8fafc;
+  background: $background-color;
   color: $text-secondary;
   text-align: center;
 }

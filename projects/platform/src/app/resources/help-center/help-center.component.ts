@@ -1,5 +1,6 @@
 // help-center.component.ts
-import { Component, signal, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 
-interface FAQ {
+export interface FAQ {
   question: string;
   answer: string;
   category: string;
@@ -22,7 +23,7 @@ interface FAQ {
   popular?: boolean;
 }
 
-interface HelpCategory {
+export interface HelpCategory {
   id: string;
   name: string;
   description: string;
@@ -32,7 +33,7 @@ interface HelpCategory {
   popularArticles: string[];
 }
 
-interface Article {
+export interface Article {
   id: string;
   title: string;
   excerpt: string;
@@ -44,7 +45,7 @@ interface Article {
   steps?: string[];
 }
 
-interface ContactOption {
+export interface ContactOption {
   icon: string;
   title: string;
   description: string;
@@ -74,6 +75,8 @@ interface ContactOption {
   styleUrls: ['./help-center.component.scss'],
 })
 export class HelpCenterComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
   searchControl = new FormControl('');
 
   popularSearches = signal<string[]>([
@@ -269,7 +272,8 @@ export class HelpCenterComponent {
   private setupSearch(): void {
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(query => {
       if (query && query.length > 2) {
         this.performSearch(query);

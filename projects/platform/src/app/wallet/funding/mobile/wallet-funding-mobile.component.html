@@ -1,0 +1,289 @@
+<section class="funding-mobile-shell" [class.is-processing]="isProcessingPayment()">
+  <header class="mobile-header">
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Close wallet funding"
+      [disabled]="isProcessingPayment()"
+      (click)="closeDialog()">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <div>
+      <p class="eyebrow">MarketSpase wallet</p>
+      <h2>Fund your campaign wallet</h2>
+    </div>
+
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Show payment tips"
+      (click)="openHelpSheet()">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </header>
+
+  <div class="balance-hero">
+    <p>Current marketer balance</p>
+    <strong>{{ data.currentBalance || 0 | currencyUtils:walletBaseCurrency() }}</strong>
+    @if (showFundingRequirement()) {
+      <span>You need {{ getFundingShortfall() | currencyUtils:walletBaseCurrency() }} more for this campaign.</span>
+    } @else {
+      <span>Funds added here are reserved for campaigns and marketplace actions.</span>
+    }
+  </div>
+
+  <nav class="step-strip" aria-label="Wallet funding steps">
+    @for (step of stepItems(); track step.id; let index = $index) {
+      <button
+        type="button"
+        class="step-pill"
+        [class.active]="activeStep() === step.id"
+        [class.complete]="currentStepIndex() > index + 1"
+        [disabled]="step.id === 'status' && !paymentStatus() && !isProcessingPayment()"
+        (click)="step.id === 'amount' ? goToAmount() : step.id === 'review' && amountIsValid() ? activeStep.set('review') : null">
+        <mat-icon>{{ step.icon }}</mat-icon>
+        <span>{{ step.label }}</span>
+      </button>
+    }
+  </nav>
+
+  @if (paymentStatus() || isProcessingPayment()) {
+    <section class="mobile-card status-card" [class.success]="paymentStatus()?.success" [class.error]="paymentStatus()?.success === false">
+      <div class="status-icon">
+        <mat-icon>{{ isProcessingPayment() ? 'sync' : paymentStatus()?.success ? 'check_circle' : 'error' }}</mat-icon>
+      </div>
+      <div>
+        <h3>
+          @if (isProcessingPayment()) {
+            Connecting to Paystack
+          } @else if (paymentStatus()?.success) {
+            Payment update received
+          } @else {
+            Payment needs attention
+          }
+        </h3>
+        <p>{{ paymentStatus()?.message || 'Keep this screen open while the payment window starts.' }}</p>
+        @if (paymentStatus()?.reference) {
+          <small>Reference: {{ paymentStatus()?.reference }}</small>
+        }
+        @if (isProcessingPayment()) {
+          <small>Processing time: {{ processingTime() }}s</small>
+        }
+      </div>
+    </section>
+  }
+
+  @if (!paymentStatus() && activeStep() === 'amount') {
+    <section class="mobile-card amount-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Step 1</p>
+          <h3>Choose how much to add</h3>
+        </div>
+        <button type="button" class="currency-button" (click)="openCurrencySheet()">
+          {{ selectedCurrency() }}
+          <mat-icon>expand_more</mat-icon>
+        </button>
+      </div>
+
+      <!-- <div class="amount-grid" aria-label="Quick funding amounts">
+        @for (amount of popularAmounts(); track amount.value) {
+          <button
+            type="button"
+            class="amount-chip"
+            [class.active]="selectedAmount() === amount.value"
+            [disabled]="isProcessingPayment()"
+            (click)="setAmount(amount.value)">
+            <strong>{{ amount.value | currencyUtils:selectedCurrency() }}</strong>
+            <span>{{ amount.label }}</span>
+          </button>
+        }
+      </div> -->
+
+      @if (fundingForm) {
+        <form [formGroup]="fundingForm" class="manual-amount" novalidate>
+          <label for="mobile-funding-amount">Custom amount</label>
+          <div class="amount-input-shell">
+            <span>{{ selectedCurrency() }}</span>
+            <input
+              id="mobile-funding-amount"
+              type="number"
+              min="0"
+              inputmode="decimal"
+              formControlName="amount"
+              [disabled]="isProcessingPayment()"
+              (input)="amountInputChanged($event)"
+              placeholder="Enter amount">
+          </div>
+          <small>
+            Minimum {{ minimumAmountForSelectedCurrency() | currencyUtils:selectedCurrency() }},
+            maximum {{ maxFundingAmount | currencyUtils:selectedCurrency() }}.
+          </small>
+        </form>
+      }
+
+      @if (isQuoteLoading()) {
+        <div class="quote-loading">
+          <span></span>
+          <p>Calculating wallet credit...</p>
+        </div>
+      }
+
+      @if (currencyQuote() && walletBaseCurrency() !== selectedCurrency()) {
+        <div class="conversion-note">
+          <mat-icon>currency_exchange</mat-icon>
+          <span>Your wallet receives {{ currencyQuote()?.baseAmount | currencyUtils:walletBaseCurrency() }}</span>
+        </div>
+      }
+    </section>
+  }
+
+  @if (!paymentStatus() && activeStep() === 'review') {
+    <section class="mobile-card review-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Step 2</p>
+          <h3>Review payment</h3>
+        </div>
+        <button type="button" class="text-button" [disabled]="isProcessingPayment()" (click)="goToAmount()">Edit</button>
+      </div>
+
+      <div class="summary-list">
+        <div>
+          <span>Funding amount</span>
+          <strong>{{ selectedAmount() | currencyUtils:selectedCurrency() }}</strong>
+        </div>
+        <div>
+          <span>Processing fee</span>
+          <strong>{{ processingFee() | currencyUtils:selectedCurrency() }}</strong>
+        </div>
+        <div class="total">
+          <span>Total charge</span>
+          <strong>{{ totalAmount() | currencyUtils:selectedCurrency() }}</strong>
+        </div>
+        <div>
+          <span>New wallet balance</span>
+          <strong>{{ balanceAfterFunding() | currencyUtils:walletBaseCurrency() }}</strong>
+        </div>
+      </div>
+
+      <div class="paystack-note">
+        <mat-icon>verified_user</mat-icon>
+        <p>Payment opens securely through Paystack. Your wallet updates after confirmation by webhook.</p>
+      </div>
+    </section>
+  }
+
+  @if (!paymentStatus() && !isProcessingPayment()) {
+    <section class="trust-list" aria-label="Payment guidance">
+      <article>
+        <mat-icon>credit_card</mat-icon>
+        <span>Use a card or bank channel enabled for online payment.</span>
+      </article>
+      <article>
+        <mat-icon>wifi</mat-icon>
+        <span>Keep your network stable until Paystack confirms the payment.</span>
+      </article>
+    </section>
+  }
+
+  <footer class="mobile-actions">
+    @if (paymentStatus()) {
+      @if (paymentStatus()?.success) {
+        <button type="button" class="primary-action" (click)="closeDialog()">
+          Done
+        </button>
+        <button type="button" class="secondary-action" (click)="continueWithCampaign()">
+          Continue campaign
+        </button>
+      } @else {
+        <button type="button" class="primary-action" [disabled]="retryCount() >= maxRetries" (click)="resetPayment()">
+          Try again
+        </button>
+        <button type="button" class="secondary-action" (click)="closeDialog()">
+          Close
+        </button>
+      }
+    } @else if (activeStep() === 'amount') {
+      <button type="button" class="primary-action" [disabled]="!amountIsValid()" (click)="goToReview()">
+        Review payment
+      </button>
+    } @else {
+      <button type="button" class="primary-action" [disabled]="!canProceedWithPayment()" (click)="initiatePayment()">
+        Pay {{ totalAmount() | currencyUtils:selectedCurrency() }}
+      </button>
+      <button type="button" class="secondary-action" [disabled]="isProcessingPayment()" (click)="goToAmount()">
+        Back
+      </button>
+    }
+  </footer>
+
+  @if (currencySheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeCurrencySheet()"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Select charge currency">
+      <div class="sheet-handle"></div>
+      <header>
+        <h3>Charge currency</h3>
+        <button type="button" class="icon-button" aria-label="Close currency picker" (click)="closeCurrencySheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="sheet-list">
+        @for (currency of supportedFundingCurrencies(); track currency.code) {
+          <button
+            type="button"
+            class="sheet-row"
+            [class.selected]="currency.code === selectedCurrency()"
+            (click)="selectCurrency(currency.code)">
+            <span>
+              <strong>{{ currency.code }}</strong>
+              <small>{{ currency.name }}</small>
+            </span>
+            @if (currency.code === selectedCurrency()) {
+              <mat-icon>check_circle</mat-icon>
+            }
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  @if (helpSheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeHelpSheet()"></div>
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Wallet funding tips">
+      <div class="sheet-handle"></div>
+      <header>
+        <h3>Payment tips</h3>
+        <button type="button" class="icon-button" aria-label="Close payment tips" (click)="closeHelpSheet()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="tips">
+        <article>
+          <mat-icon>security</mat-icon>
+          <div>
+            <strong>Protected checkout</strong>
+            <p>Paystack handles the payment screen and MarketSpase records the wallet credit after confirmation.</p>
+          </div>
+        </article>
+        <article>
+          <mat-icon>receipt_long</mat-icon>
+          <div>
+            <strong>Keep the reference</strong>
+            <p>If payment succeeds but the wallet is delayed, the reference helps support trace it quickly.</p>
+          </div>
+        </article>
+        <article>
+          <mat-icon>campaign</mat-icon>
+          <div>
+            <strong>Campaign ready</strong>
+            <p>Add enough to cover your campaign budget and the payment fee before launching.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  }
+</section>

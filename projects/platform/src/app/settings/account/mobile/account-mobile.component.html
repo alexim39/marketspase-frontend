@@ -1,0 +1,100 @@
+<main class="account-mobile" aria-label="Account settings">
+  <header class="mobile-hero">
+    <a class="icon-button" routerLink="/dashboard/settings" aria-label="Back to settings">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+
+    <div class="hero-copy">
+      <span>Account settings</span>
+      <h1>{{ user()?.displayName || user()?.username || 'Your profile' }}</h1>
+      <p>{{ user()?.email || 'Keep your MarketSpase identity complete and trusted.' }}</p>
+    </div>
+
+    <div class="avatar" aria-hidden="true">
+      <mat-icon>person</mat-icon>
+    </div>
+  </header>
+
+  @if (!user()) {
+    <section class="loading-state" aria-live="polite">
+      <mat-spinner diameter="28"></mat-spinner>
+      <div>
+        <strong>Loading profile</strong>
+        <span>Getting your account settings ready</span>
+      </div>
+    </section>
+  } @else {
+    <section class="completion-card" [class.good]="profileTone() === 'good'" [class.warn]="profileTone() === 'warn'" [class.bad]="profileTone() === 'bad'">
+      <div class="completion-heading">
+        <div>
+          <span>Profile strength</span>
+          <strong>{{ profileCompletion() }}%</strong>
+        </div>
+        <mat-icon>{{ profileTone() === 'good' ? 'verified' : profileTone() === 'warn' ? 'tips_and_updates' : 'priority_high' }}</mat-icon>
+      </div>
+
+      <div class="progress-track" aria-hidden="true">
+        <span [style.width.%]="profileCompletion()"></span>
+      </div>
+
+      <p>{{ nextBestAction() }}</p>
+    </section>
+
+    <section class="summary-grid" aria-label="Account summary">
+      @for (stat of summaryStats(); track stat.label) {
+        <article class="summary-card" [class.good]="stat.tone === 'good'" [class.warn]="stat.tone === 'warn'">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </article>
+      }
+    </section>
+
+    <section class="section-cards" aria-label="Profile sections">
+      @for (section of sections; track section.id) {
+        <button
+          type="button"
+          class="section-card"
+          [class.active]="activeSection() === section.id"
+          (click)="selectSection(section.id)">
+          <span class="section-icon">
+            <mat-icon>{{ section.icon }}</mat-icon>
+          </span>
+          <span class="section-copy">
+            <strong>{{ section.label }}</strong>
+            <small>{{ section.description }}</small>
+          </span>
+          <span class="section-status" [class.ready]="sectionStatus(section.id) === 'Updated'">
+            {{ sectionStatus(section.id) }}
+          </span>
+        </button>
+      }
+    </section>
+
+    <nav class="mobile-tabs" aria-label="Account setting sections">
+      @for (section of sections; track section.id) {
+        <button
+          type="button"
+          [class.active]="activeSection() === section.id"
+          (click)="selectSection(section.id)">
+          <mat-icon>{{ section.icon }}</mat-icon>
+          <span>{{ section.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <section class="mobile-form-shell">
+      @switch (activeSection()) {
+        @case ('personal') {
+          <async-personal-infor [user]="user" />
+        }
+        @case ('professional') {
+          <async-professional-info [user]="user" />
+        }
+        @case ('identity') {
+          <async-username-info [user]="user" />
+        }
+      }
+    </section>
+  }
+</main>

@@ -50,7 +50,7 @@ import { UserService } from '../../common/services/user.service';
 import { TransactionSummaryComponent } from '../../transactions/summary/transaction-summary.component';
 import { CurrencyQuote, PaymentCurrencyService, WalletOverviewResponse } from '../../common/services/payment-currency.service';
 
-interface BankInterface {
+export interface BankInterface {
   code: string;
   name: string;
 }

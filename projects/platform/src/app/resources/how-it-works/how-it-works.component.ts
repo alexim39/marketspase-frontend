@@ -1,5 +1,5 @@
 // how-it-works.component.ts
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-interface ProcessStep {
+export interface ProcessStep {
   number: string;
   title: string;
   description: string;
@@ -21,7 +21,7 @@ interface ProcessStep {
   duration?: string;
 }
 
-interface UserRole {
+export interface UserRole {
   id: string;
   name: string;
   description: string;
@@ -31,7 +31,7 @@ interface UserRole {
   idealFor: string[];
 }
 
-interface FeatureHighlight {
+export interface FeatureHighlight {
   icon: string;
   title: string;
   description: string;

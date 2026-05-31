@@ -11,7 +11,7 @@ import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-interface JobPosition {
+export interface JobPosition {
   id: string;
   title: string;
   department: string;
@@ -30,7 +30,7 @@ interface JobPosition {
   urgent?: boolean;
 }
 
-interface Department {
+export interface Department {
   id: string;
   name: string;
   description: string;
@@ -39,14 +39,14 @@ interface Department {
   openPositions: number;
 }
 
-interface Benefit {
+export interface Benefit {
   icon: string;
   title: string;
   description: string;
   gradient: string;
 }
 
-interface TeamCulture {
+export interface TeamCulture {
   icon: string;
   title: string;
   description: string;

@@ -1,0 +1,278 @@
+<app-header />
+
+<main class="mobile-faq-page">
+  <section class="faq-hero" aria-labelledby="mobile-faq-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>FAQ</span>
+    </nav>
+
+    <span class="eyebrow">Quick answers</span>
+    <h1 id="mobile-faq-title">Find the answer fast.</h1>
+    <p>
+      Search common questions, browse by topic, and open short answers built for mobile reading.
+    </p>
+
+    <label class="mobile-search" aria-label="Search questions and answers">
+      <mat-icon>search</mat-icon>
+      <input
+        type="search"
+        [formControl]="searchControl"
+        placeholder="Search payments, campaigns, verification..."
+        autocomplete="off"
+      />
+      @if (query()) {
+        <button type="button" (click)="clearSearch()" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </label>
+
+    <div class="popular-rail" aria-label="Popular searches">
+      @for (tag of popularSearches().slice(0, 5); track tag) {
+        <button type="button" (click)="applySearchTag(tag)">
+          {{ tag }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="faq-summary" aria-label="FAQ summary">
+    <article>
+      <strong>{{ totalQuestionCount() }}</strong>
+      <span>Questions</span>
+    </article>
+    <article>
+      <strong>{{ categories().length }}</strong>
+      <span>Topics</span>
+    </article>
+    <article>
+      <strong>&lt;2m</strong>
+      <span>Read time</span>
+    </article>
+  </section>
+
+  <section class="category-section" aria-labelledby="faq-categories-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Topics</span>
+        <h2 id="faq-categories-title">Browse by issue</h2>
+      </div>
+      <button type="button" (click)="openSupportSheet()" aria-label="Open support options">
+        <mat-icon>support_agent</mat-icon>
+      </button>
+    </div>
+
+    <div class="category-rail" role="list">
+      @for (category of categories(); track category.id; let i = $index) {
+        <button
+          type="button"
+          role="listitem"
+          class="category-card"
+          [ngClass]="categoryTone(i)"
+          [class.active]="activeCategory() === category.id"
+          (click)="selectCategory(category)"
+        >
+          <span class="category-icon">
+            <mat-icon>{{ category.icon }}</mat-icon>
+          </span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ category.count }} answers</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (selectedCategory(); as category) {
+    <section class="selected-category-card">
+      <div>
+        <span class="eyebrow">Selected</span>
+        <h2>{{ category.name }}</h2>
+        <p>{{ category.description }}</p>
+      </div>
+      <mat-icon>{{ category.icon }}</mat-icon>
+    </section>
+  }
+
+  <section class="popular-question-section" aria-labelledby="popular-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Popular</span>
+        <h2 id="popular-title">Most asked today</h2>
+      </div>
+    </div>
+
+    <div class="popular-question-list">
+      @for (question of popularQuestions(); track question.question) {
+        <button type="button" class="popular-question-card" (click)="openPopularSheet(question)">
+          <span>
+            <small>{{ question.category }}</small>
+            <strong>{{ question.question }}</strong>
+          </span>
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="featured-section" aria-labelledby="featured-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Featured</span>
+        <h2 id="featured-title">Good to know</h2>
+      </div>
+    </div>
+
+    <div class="featured-rail" role="list">
+      @for (faq of featuredMobileQuestions(); track faq.question) {
+        <button type="button" role="listitem" class="featured-card" (click)="openFaqSheet(faq)">
+          <span class="featured-chip">Featured</span>
+          <strong>{{ faq.question }}</strong>
+          <small>{{ faq.readTime || '1 min' }} read</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="answers-section" aria-labelledby="answers-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">{{ query() ? 'Search results' : 'Answers' }}</span>
+        <h2 id="answers-title">{{ query() ? 'Matching questions' : 'Questions in this topic' }}</h2>
+      </div>
+      @if (query()) {
+        <button type="button" class="text-button" (click)="clearSearch()">Clear</button>
+      }
+    </div>
+
+    <div class="answer-list">
+      @for (faq of filteredFaqs(); track faq.question) {
+        <article class="answer-card">
+          <header>
+            <span>{{ faq.category }}</span>
+            <small>{{ faq.readTime || '1 min' }}</small>
+          </header>
+          <h3>{{ faq.question }}</h3>
+          <div class="tag-row">
+            @for (tag of (faq.tags || []).slice(0, 3); track tag) {
+              <span>#{{ tag }}</span>
+            }
+          </div>
+          <button type="button" (click)="openFaqSheet(faq)">
+            Open answer
+            <mat-icon>expand_more</mat-icon>
+          </button>
+        </article>
+      } @empty {
+        <article class="empty-card">
+          <mat-icon>search_off</mat-icon>
+          <h3>No answer found</h3>
+          <p>Try another keyword or contact support for a direct answer.</p>
+          <button type="button" (click)="openSupportSheet()">Contact support</button>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="support-strip">
+    <div>
+      <span class="eyebrow">Still stuck?</span>
+      <h2>Talk to support or visit the Help Center.</h2>
+      <p>Some issues need account-specific help, especially payments, verification, and campaign reviews.</p>
+    </div>
+    <div class="support-actions">
+      <button type="button" (click)="openSupportSheet()">
+        <mat-icon>chat</mat-icon>
+        Support
+      </button>
+      <a routerLink="/resources/help-center">
+        <mat-icon>help_center</mat-icon>
+        Help Center
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet(); as sheet) {
+  <div class="sheet-backdrop" role="presentation" (click)="closeSheet()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="FAQ details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (sheet) {
+      @case ('answer') {
+        @if (selectedFaq(); as faq) {
+          <span class="eyebrow">{{ faq.category }}</span>
+          <h2>{{ faq.question }}</h2>
+          <div class="answer-content" [innerHTML]="faq.answer"></div>
+
+          <div class="tag-row sheet-tags">
+            @for (tag of (faq.tags || []); track tag) {
+              <span>#{{ tag }}</span>
+            }
+          </div>
+
+          <div class="helpful-card">
+            <span>Was this helpful?</span>
+            <div>
+              <button type="button" (click)="voteHelpful()">
+                <mat-icon>thumb_up</mat-icon>
+                Yes
+              </button>
+              <button type="button" (click)="voteNotHelpful()">
+                <mat-icon>thumb_down</mat-icon>
+                No
+              </button>
+            </div>
+          </div>
+        }
+      }
+      @case ('popular') {
+        @if (selectedPopularQuestion(); as question) {
+          <span class="eyebrow">{{ question.category }}</span>
+          <h2>{{ question.question }}</h2>
+          <p>{{ question.answer }}</p>
+
+          <div class="sheet-actions">
+            <button type="button" class="primary-action" (click)="openSupportSheet()">I still need help</button>
+            <button type="button" class="secondary-action" (click)="closeSheet()">Done</button>
+          </div>
+        }
+      }
+      @case ('support') {
+        <span class="eyebrow">Support options</span>
+        <h2>Choose the fastest support path.</h2>
+        <div class="support-option-list">
+          <a routerLink="/resources/contact" (click)="closeSheet()">
+            <mat-icon>chat</mat-icon>
+            <span>
+              <strong>Live chat</strong>
+              <small>Best for urgent account or payment issues</small>
+            </span>
+          </a>
+          <a routerLink="/resources/contact" (click)="closeSheet()">
+            <mat-icon>email</mat-icon>
+            <span>
+              <strong>Email support</strong>
+              <small>Best when you need to explain details</small>
+            </span>
+          </a>
+          <a routerLink="/resources/community" (click)="closeSheet()">
+            <mat-icon>forum</mat-icon>
+            <span>
+              <strong>Community</strong>
+              <small>Best for learning from other users</small>
+            </span>
+          </a>
+        </div>
+      }
+    }
+  </section>
+}
+
+<app-footer />

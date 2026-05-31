@@ -23,7 +23,7 @@ export const SettingsRoutes: Routes = [
       },
       {
         path: 'account',
-        loadComponent: () => import('./account/account.component').then(c => c.AccountComponent),
+        loadComponent: () => import('./account').then(c => c.AccountIndexComponent),
         title: "Account Setting - Configure your profile settings",
       },
       {

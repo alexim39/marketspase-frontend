@@ -25,7 +25,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DeviceService, UserInterface } from '@shared/services';
-import { WalletFundingComponent } from '../../wallet/funding/funding.component';
+import { WalletFundingIndexComponent } from '../../wallet/funding';
 import { UserService } from '../../common/services/user.service';
 import {
   CampaignMediaAsset,
@@ -348,7 +348,14 @@ export class CreateCampaignComponent implements OnInit {
   }
 
   fundWallet(): void {
-    this.dialog.open(WalletFundingComponent, { panelClass: 'custom-dialog-container' });
+    const isMobileExperience = this.deviceType() === 'mobile' || this.deviceType() === 'tablet';
+    this.dialog.open(WalletFundingIndexComponent, {
+      panelClass: 'custom-dialog-container',
+      width: isMobileExperience ? '100vw' : undefined,
+      maxWidth: isMobileExperience ? '480px' : undefined,
+      maxHeight: isMobileExperience ? '92vh' : undefined,
+      disableClose: isMobileExperience
+    });
   }
 
   onSaveAsDraft(): void {

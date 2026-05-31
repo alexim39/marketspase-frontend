@@ -1,0 +1,182 @@
+<main class="mobile-privacy-page">
+  <section class="privacy-hero">
+    <nav class="breadcrumb" aria-label="Privacy breadcrumb">
+      <a routerLink="/" (click)="scrollToTop()">
+        <mat-icon aria-hidden="true">home</mat-icon>
+        Home
+      </a>
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      <a routerLink="/legal/privacy" (click)="scrollToTop()">Legal</a>
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+      <span>Privacy</span>
+    </nav>
+
+    <span class="eyebrow">Privacy policy</span>
+    <h1>How MarketSpase handles your data.</h1>
+    <p>
+      A quick mobile summary of what we collect, why we use it, how we protect it, and the choices you have.
+      The full desktop policy remains available on larger screens.
+    </p>
+
+    <div class="hero-actions" aria-label="Privacy actions">
+      <button type="button" class="primary-action" (click)="openRights()">
+        <mat-icon aria-hidden="true">verified_user</mat-icon>
+        View rights
+      </button>
+      <button type="button" (click)="openContact()">
+        <mat-icon aria-hidden="true">mail</mat-icon>
+        Contact us
+      </button>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Privacy summary">
+    @for (stat of privacyStats; track stat.label) {
+      <article>
+        <mat-icon aria-hidden="true">{{ stat.icon }}</mat-icon>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="trust-card">
+    <mat-icon aria-hidden="true">security</mat-icon>
+    <div>
+      <strong>Your information is not sold.</strong>
+      <span>
+        MarketSpase states that collected personal information is not sold, rented, distributed, or transferred except for legal or fraud-protection needs.
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Policy sections</span>
+        <h2>Read by topic</h2>
+      </div>
+      <span>{{ policySections.length }} topics</span>
+    </div>
+
+    <div class="section-list">
+      @for (section of policySections; track section.title) {
+        <button type="button" class="policy-card" (click)="openSection(section)">
+          <span class="card-icon">
+            <mat-icon aria-hidden="true">{{ section.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ section.title }}</strong>
+            <small>{{ section.summary }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="rights-preview">
+    <div>
+      <span class="eyebrow">Your control</span>
+      <h2>Access, correct, delete, or opt out.</h2>
+      <p>
+        You can request information about your data, correct it, delete it where permitted, or stop future email contact.
+      </p>
+    </div>
+    <button type="button" (click)="openRights()">
+      Manage privacy options
+      <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+    </button>
+  </section>
+
+  <section class="contact-strip">
+    <span class="eyebrow">Need help?</span>
+    <h2>Questions about privacy or data use?</h2>
+    <p>Send the MarketSpase team a privacy question and include the email address linked to your account where relevant.</p>
+    <a [href]="contactHref">
+      <mat-icon aria-hidden="true">mail</mat-icon>
+      {{ contactEmail }}
+    </a>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <button type="button" class="sheet-backdrop" aria-label="Close privacy sheet" (click)="closeSheet()"></button>
+
+  @if (activeSheet() === 'section') {
+    @if (selectedSection(); as section) {
+      <section class="bottom-sheet" role="dialog" aria-modal="true" [attr.aria-label]="section.title">
+        <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+
+        <span class="sheet-icon">
+          <mat-icon aria-hidden="true">{{ section.icon }}</mat-icon>
+        </span>
+        <h2>{{ section.title }}</h2>
+        <p>{{ section.detail }}</p>
+
+        <div class="sheet-list">
+          @for (item of section.bullets; track item) {
+            <span>
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              {{ item }}
+            </span>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (activeSheet() === 'rights') {
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Privacy rights">
+      <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+
+      <span class="sheet-icon">
+        <mat-icon aria-hidden="true">verified_user</mat-icon>
+      </span>
+      <h2>Your privacy controls</h2>
+      <p>Use the options below as a practical guide when contacting MarketSpase about your data.</p>
+
+      <div class="rights-list">
+        @for (right of rights; track right.title) {
+          <article>
+            <mat-icon aria-hidden="true">{{ right.icon }}</mat-icon>
+            <span>
+              <strong>{{ right.title }}</strong>
+              <small>{{ right.description }}</small>
+            </span>
+          </article>
+        }
+      </div>
+
+      <a class="sheet-action" [href]="contactHref">
+        <mat-icon aria-hidden="true">mail</mat-icon>
+        Contact privacy support
+      </a>
+    </section>
+  }
+
+  @if (activeSheet() === 'contact') {
+    <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Contact privacy support">
+      <button type="button" class="sheet-close" aria-label="Close" (click)="closeSheet()">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+
+      <span class="sheet-icon">
+        <mat-icon aria-hidden="true">contact_support</mat-icon>
+      </span>
+      <h2>Contact MarketSpase</h2>
+      <p>
+        For privacy questions, data access, correction, deletion, or email opt-out support, contact the team through the official privacy email.
+      </p>
+
+      <a class="sheet-action" [href]="contactHref">
+        <mat-icon aria-hidden="true">mail</mat-icon>
+        {{ contactEmail }}
+      </a>
+    </section>
+  }
+}

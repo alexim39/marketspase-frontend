@@ -9,21 +9,21 @@ import { MatDividerModule } from '@angular/material/divider';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 
-interface Statistic {
+export interface Statistic {
   value: string;
   label: string;
   icon: string;
   suffix?: string;
 }
 
-interface Feature {
+export interface Feature {
   icon: string;
   title: string;
   description: string;
   gradient: string;
 }
 
-interface Testimonial {
+export interface Testimonial {
   name: string;
   role: string;
   content: string;

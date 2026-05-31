@@ -1,0 +1,320 @@
+<main class="mobile-tutorials">
+  <header class="tutorial-topbar" aria-label="Tutorials navigation">
+    <div>
+      <span>Learning center</span>
+      <strong>{{ isMarketer() ? 'Marketing lessons' : 'Promotion lessons' }}</strong>
+    </div>
+    <button type="button" class="icon-button" (click)="openSheet('filters')" aria-label="Open tutorial filters">
+      <mat-icon>tune</mat-icon>
+      @if (activeFilterCount() > 0) {
+        <i>{{ activeFilterCount() }}</i>
+      }
+    </button>
+  </header>
+
+  <section class="learning-hero">
+    <div class="hero-copy">
+      <p>{{ userRole() || 'MarketSpase' }} guide</p>
+      <h1>Learn the actions that move your account forward.</h1>
+      <span>{{ getWelcomeMessage() }}</span>
+    </div>
+    <div class="hero-stats">
+      <article>
+        <mat-icon>play_circle</mat-icon>
+        <strong>{{ allVideos().length }}</strong>
+        <span>Lessons</span>
+      </article>
+      <article>
+        <mat-icon>groups</mat-icon>
+        <strong>{{ formatViews(metrics()?.totalUsers || 0) }}</strong>
+        <span>Learners</span>
+      </article>
+      <article>
+        <mat-icon>star</mat-icon>
+        <strong>4.9</strong>
+        <span>Rating</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="search-card" aria-label="Search tutorials">
+    <mat-icon>search</mat-icon>
+    <input
+      type="search"
+      placeholder="Search lessons"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="updateSearch($event)"
+    />
+    @if (searchQuery()) {
+      <button type="button" (click)="updateSearch('')" aria-label="Clear search">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </section>
+
+  <nav class="category-rail" aria-label="Lesson categories">
+    @for (category of categories; track trackCategory($index, category)) {
+      <button type="button" [class.active]="selectedCategory() === category.id" (click)="setCategory(category.id)">
+        <mat-icon>{{ category.icon }}</mat-icon>
+        {{ category.label }}
+      </button>
+    }
+  </nav>
+
+  <section class="quick-actions" aria-label="Tutorial actions">
+    <button type="button" (click)="openSheet('sections')">
+      <mat-icon>view_agenda</mat-icon>
+      Sections
+    </button>
+    <button type="button" (click)="openSheet('filters')">
+      <mat-icon>school</mat-icon>
+      {{ selectedDifficulty() === 'all' ? 'Level' : selectedDifficulty() | titlecase }}
+    </button>
+    <button type="button" (click)="toggleView()">
+      <mat-icon>{{ isGridView() ? 'view_list' : 'grid_view' }}</mat-icon>
+      {{ isGridView() ? 'List' : 'Grid' }}
+    </button>
+  </section>
+
+  @if (isLoading()) {
+    <section class="mobile-state" aria-live="polite">
+      <mat-spinner diameter="42"></mat-spinner>
+      <h2>Loading lessons</h2>
+      <p>Preparing the latest MarketSpase tutorials for your role.</p>
+    </section>
+  } @else if (loadError()) {
+    <section class="mobile-state error">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Could not load tutorials</h2>
+      <p>{{ loadError() }}</p>
+      <button type="button" (click)="loadTutorials()">Try again</button>
+    </section>
+  } @else {
+    @if (primaryVideo(); as video) {
+      <section class="continue-card" aria-label="Featured tutorial">
+        <div class="section-heading">
+          <div>
+            <span>Start here</span>
+            <h2>Recommended lesson</h2>
+          </div>
+        </div>
+        <button type="button" class="primary-video" (click)="playVideo(video)">
+          <span class="primary-thumbnail">
+            @if (video.thumbnail) {
+              <img [src]="video.thumbnail" [alt]="video.title" loading="lazy" />
+            } @else {
+              <mat-icon>play_circle_filled</mat-icon>
+            }
+            <em>{{ video.duration }}</em>
+          </span>
+          <span class="primary-copy">
+            <small>{{ video.difficulty | titlecase }}</small>
+            <strong>{{ video.title }}</strong>
+            <span>{{ video.description | truncate:110 }}</span>
+          </span>
+        </button>
+      </section>
+    }
+
+    @if (recentlyWatched().length > 0 && !searchQuery()) {
+      <section class="recent-strip" aria-label="Recently watched tutorials">
+        <div class="section-heading">
+          <div>
+            <span>Continue</span>
+            <h2>Recently watched</h2>
+          </div>
+          <button type="button" (click)="clearRecentlyWatched()">Clear</button>
+        </div>
+        <div class="recent-rail">
+          @for (video of recentlyWatched().slice(0, 8); track trackVideo($index, video)) {
+            <button type="button" class="recent-card" (click)="playVideo(video)">
+              <span class="mini-thumbnail">
+                @if (video.thumbnail) {
+                  <img [src]="video.thumbnail" [alt]="video.title" loading="lazy" />
+                } @else {
+                  <mat-icon>play_arrow</mat-icon>
+                }
+              </span>
+              <strong>{{ video.title }}</strong>
+              <small>{{ video.duration }}</small>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    @if (featuredVideos().length > 1 && !searchQuery() && selectedCategory() === 'all') {
+      <section class="featured-strip" aria-label="Featured tutorials">
+        <div class="section-heading">
+          <div>
+            <span>Popular</span>
+            <h2>Featured tutorials</h2>
+          </div>
+        </div>
+        <div class="featured-rail">
+          @for (video of featuredVideos().slice(1); track trackVideo($index, video)) {
+            <button type="button" class="featured-card" (click)="playVideo(video)">
+              <span class="featured-thumbnail">
+                @if (video.thumbnail) {
+                  <img [src]="video.thumbnail" [alt]="video.title" loading="lazy" />
+                } @else {
+                  <mat-icon>play_circle</mat-icon>
+                }
+                @if (video.isNew) {
+                  <i>New</i>
+                }
+              </span>
+              <strong>{{ video.title }}</strong>
+              <small>{{ formatViews(video.views) }} views</small>
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="lesson-feed" aria-label="Tutorial lessons">
+      <div class="section-heading">
+        <div>
+          <span>{{ filteredVideos().length }} result(s)</span>
+          <h2>Lesson feed</h2>
+        </div>
+        @if (activeFilterCount() > 0) {
+          <button type="button" (click)="clearFilters()">Reset</button>
+        }
+      </div>
+
+      @if (mobileVideos().length) {
+        @for (video of mobileVideos(); track trackVideo($index, video)) {
+          <article class="lesson-card" [class.list-card]="!isGridView()">
+            <button type="button" class="lesson-main" (click)="playVideo(video)">
+              <span class="lesson-thumbnail">
+                @if (video.thumbnail) {
+                  <img [src]="video.thumbnail" [alt]="video.title" loading="lazy" />
+                } @else {
+                  <mat-icon>play_circle_filled</mat-icon>
+                }
+                <em>{{ video.duration }}</em>
+              </span>
+              <span class="lesson-copy">
+                <small [class]="getDifficultyColor(video.difficulty)">{{ video.difficulty | titlecase }}</small>
+                <strong>{{ video.title }}</strong>
+                <span>{{ video.description | truncate:120 }}</span>
+              </span>
+            </button>
+
+            <div class="lesson-footer">
+              <div class="tag-row">
+                @for (tag of video.tags.slice(0, 2); track tag) {
+                  <span>{{ tag }}</span>
+                }
+              </div>
+              <button type="button" (click)="shareVideo(video, $event)" [attr.aria-label]="'Share ' + video.title">
+                <mat-icon>share</mat-icon>
+              </button>
+            </div>
+          </article>
+        }
+
+        @if (hasMoreVideos()) {
+          <button type="button" class="load-more" (click)="loadMoreVideos()">
+            Load more lessons
+            <mat-icon>expand_more</mat-icon>
+          </button>
+        }
+      } @else {
+        <section class="mobile-state compact">
+          <mat-icon>search_off</mat-icon>
+          <h2>No tutorials found</h2>
+          <p>Try a broader search or remove a filter.</p>
+          <button type="button" (click)="clearFilters()">Clear filters</button>
+        </section>
+      }
+    </section>
+
+    @if (isMarketer() || isPromoter()) {
+      <section class="role-card">
+        <mat-icon>swap_horiz</mat-icon>
+        <div>
+          <strong>Learn the other side</strong>
+          <p>Switch roles to see lessons built for {{ isMarketer() ? 'promoters' : 'marketers' }}.</p>
+        </div>
+        <button type="button" (click)="switchUserRole()">
+          Switch
+        </button>
+      </section>
+    }
+
+    <section class="support-card">
+      <mat-icon>support_agent</mat-icon>
+      <div>
+        <strong>Need help?</strong>
+        <p>Reach support if a lesson does not answer your question.</p>
+      </div>
+      <a routerLink="/dashboard/settings/support">Support</a>
+    </section>
+  }
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="tutorialSheetTitle">
+    <div class="sheet-handle"></div>
+    <header>
+      <div>
+        <span>Learning center</span>
+        <h2 id="tutorialSheetTitle">
+          @if (activeSheet() === 'sections') {
+            Sections
+          } @else {
+            Filters
+          }
+        </h2>
+      </div>
+      <button type="button" (click)="closeSheet()" aria-label="Close sheet">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="sheet-body">
+      @if (activeSheet() === 'sections') {
+        <div class="section-list">
+          @for (section of sectionSummary(); track trackSection($index, section)) {
+            <button type="button" (click)="closeSheet()">
+              <mat-icon>{{ section.icon }}</mat-icon>
+              <span>
+                <strong>{{ section.title }}</strong>
+                <small>{{ section.count }} lessons</small>
+              </span>
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="sheet-group">
+          <h3>Difficulty</h3>
+          <div class="chip-list">
+            @for (level of difficultyLevels; track level.id) {
+              <button type="button" [class.active]="selectedDifficulty() === level.id" (click)="setDifficulty(level.id)">
+                <mat-icon>{{ level.icon }}</mat-icon>
+                {{ level.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="sheet-group">
+          <h3>Category</h3>
+          <div class="chip-list">
+            @for (category of categories; track trackCategory($index, category)) {
+              <button type="button" [class.active]="selectedCategory() === category.id" (click)="setCategory(category.id)">
+                <mat-icon>{{ category.icon }}</mat-icon>
+                {{ category.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <button type="button" class="clear-sheet" (click)="clearFilters()">Clear all filters</button>
+      }
+    </div>
+  </section>
+}

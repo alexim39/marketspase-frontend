@@ -24,7 +24,7 @@
       @else if (authState().isAuthenticated) {
         <div class="dashboard-wrapper" [attr.data-device]="deviceType()">
           @if (showDailyCheckIn() && user(); as activeUser) {
-            <app-daily-check-in [user]="activeUser" />
+            <app-daily-check-in-index [user]="activeUser" />
           }
 
           <!-- Mobile Notice (Optional) -->

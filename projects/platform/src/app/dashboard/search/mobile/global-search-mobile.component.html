@@ -1,0 +1,225 @@
+<main class="search-mobile">
+  <header class="mobile-hero">
+    <div>
+      <span class="eyebrow">Global search</span>
+      <h1>Find anything fast</h1>
+      <p>Search people, campaigns, promotions, products, and stores from one place.</p>
+    </div>
+  </header>
+
+  <section class="search-card">
+    <form class="search-form" (submit)="submitSearch(); $event.preventDefault()">
+      <label class="search-input-wrap" for="globalSearchMobileInput">
+        <mat-icon>search</mat-icon>
+        <input
+          id="globalSearchMobileInput"
+          type="search"
+          [formControl]="searchControl"
+          placeholder="Search MarketSpase"
+          autocomplete="off"
+        />
+        @if (searchControl.value.trim()) {
+          <button type="button" aria-label="Clear search" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </label>
+
+      <button type="submit" class="primary-icon" aria-label="Submit search">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </form>
+
+    <div class="search-actions">
+      <button type="button" class="filter-button" (click)="openFilters()">
+        <mat-icon>tune</mat-icon>
+        Filters
+        @if (activeFilterCount()) {
+          <strong>{{ activeFilterCount() }}</strong>
+        }
+      </button>
+
+      <button type="button" class="filter-button" (click)="exportResults()" [disabled]="!hasResults()">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
+    </div>
+  </section>
+
+  <section class="type-rail" aria-label="Search result types">
+    @for (option of typeOptions; track option.value) {
+      <button
+        type="button"
+        class="type-chip"
+        [class.active]="selectedType() === option.value"
+        (click)="selectType(option.value)"
+      >
+        <mat-icon>{{ option.icon }}</mat-icon>
+        <span>{{ option.label }}</span>
+        <strong>{{ getEntityCount(option.value) }}</strong>
+      </button>
+    }
+  </section>
+
+  <section class="summary-row" aria-live="polite">
+    <div>
+      <span>{{ summaryLabel() }}</span>
+      @if (query()) {
+        <strong>"{{ query() }}"</strong>
+      }
+    </div>
+    @if (isLoading()) {
+      <mat-spinner diameter="20"></mat-spinner>
+    }
+  </section>
+
+  @if (quickRegionSuggestions().length > 0) {
+    <section class="region-rail" aria-label="Quick region filters">
+      @for (region of quickRegionSuggestions(); track region) {
+        <button type="button" class="region-chip" (click)="applyQuickRegion(region)">
+          <mat-icon>place</mat-icon>
+          <span>{{ region }}</span>
+        </button>
+      }
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section class="loading-panel">
+      <mat-spinner diameter="34"></mat-spinner>
+      <div>
+        <strong>Searching MarketSpase</strong>
+        <p>Ranking the closest matches for {{ query() || 'your filters' }}.</p>
+      </div>
+    </section>
+  } @else if (error()) {
+    <section class="empty-panel">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Search could not load</h2>
+      <p>{{ error() }}</p>
+    </section>
+  } @else if (!query() && !hasResults()) {
+    <section class="empty-panel">
+      <mat-icon>manage_search</mat-icon>
+      <h2>Start with a keyword</h2>
+      <p>Try a name, campaign title, promotion code, product, or store.</p>
+    </section>
+  } @else if (!hasResults()) {
+    <section class="empty-panel">
+      <mat-icon>search_off</mat-icon>
+      <h2>No result found</h2>
+      <p>Clear a filter or use a broader keyword.</p>
+    </section>
+  } @else {
+    <section class="results-stack" aria-label="Search results">
+      @for (result of visibleResults(); track result.entityType + ':' + result.entityId) {
+        <article class="result-card">
+          <div class="result-top">
+            <div class="result-avatar">
+              @if (result.primaryImage) {
+                <img [src]="result.primaryImage" [alt]="result.title" />
+              } @else {
+                <mat-icon>{{ getEntityIcon(result) }}</mat-icon>
+              }
+            </div>
+
+            <div class="result-copy">
+              <div class="result-title">
+                <strong>{{ result.title }}</strong>
+                <span class="type-pill">{{ result.entityLabel }}</span>
+              </div>
+              <p>{{ result.subtitle }}</p>
+            </div>
+          </div>
+
+          @if (result.status || result.userType || result.region?.label) {
+            <div class="result-tags">
+              @if (result.status) {
+                <span class="status-pill" [class.inactive]="!result.isActive">{{ formatLabel(result.status) }}</span>
+              }
+              @if (result.userType) {
+                <span>{{ formatLabel(result.userType) }}</span>
+              }
+              @if (result.region?.label) {
+                <span>{{ result.region.label }}</span>
+              }
+            </div>
+          }
+
+          @if (result.description) {
+            <p class="result-description">{{ result.description }}</p>
+          }
+
+          <div class="metric-strip">
+            @for (metric of getResultMetrics(result); track metric.label) {
+              <div class="metric-card">
+                <mat-icon>{{ metric.icon }}</mat-icon>
+                <span>{{ metric.label }}</span>
+                <strong>{{ metric.value }}</strong>
+              </div>
+            }
+          </div>
+
+          <button type="button" class="open-button" (click)="openResult(result)" [disabled]="!result.navigationPath">
+            <mat-icon>open_in_new</mat-icon>
+            Open result
+          </button>
+        </article>
+      }
+    </section>
+
+    @if (pagination().totalPages > 1) {
+      <nav class="mobile-pager" aria-label="Search pagination">
+        <button type="button" class="ghost-button" (click)="goToPreviousPage()" [disabled]="pagination().page <= 1">
+          <mat-icon>chevron_left</mat-icon>
+          Previous
+        </button>
+        <span>Page {{ pagination().page }} of {{ pagination().totalPages }}</span>
+        <button type="button" class="ghost-button" (click)="goToNextPage()" [disabled]="pagination().page >= pagination().totalPages">
+          Next
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </nav>
+    }
+  }
+
+  @if (filtersOpen()) {
+    <div class="sheet-backdrop" role="presentation" (click)="closeFilters()"></div>
+    <section class="filter-sheet" role="dialog" aria-modal="true" aria-labelledby="searchFiltersTitle">
+      <span class="sheet-handle"></span>
+      <div class="sheet-heading">
+        <div>
+          <span>Refine search</span>
+          <h2 id="searchFiltersTitle">Filters</h2>
+        </div>
+        <button type="button" aria-label="Close filters" (click)="closeFilters()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <label class="field-label" for="userTypeFilter">User type</label>
+      <select id="userTypeFilter" class="native-field" [value]="selectedUserType()" (change)="selectUserType($any($event.target).value)">
+        <option value="all">All user types</option>
+        @for (userType of availableUserTypes(); track userType) {
+          <option [value]="userType">{{ formatLabel(userType) }}</option>
+        }
+      </select>
+
+      <label class="field-label" for="statusFilter">Status</label>
+      <select id="statusFilter" class="native-field" [value]="selectedStatus()" (change)="selectStatus($any($event.target).value)">
+        <option value="all">All statuses</option>
+        @for (status of availableStatuses(); track status) {
+          <option [value]="status">{{ formatLabel(status) }}</option>
+        }
+      </select>
+
+      <label class="field-label" for="regionFilter">Region</label>
+      <input id="regionFilter" class="native-field" [formControl]="regionControl" placeholder="City, state, or country" />
+
+      <div class="sheet-actions">
+        <button type="button" class="ghost-button" (click)="clearFiltersAndClose()">Reset</button>
+        <button type="button" class="primary-button" (click)="closeFilters()">Apply filters</button>
+      </div>
+    </section>
+  }
+</main>

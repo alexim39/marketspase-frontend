@@ -1,0 +1,105 @@
+<main class="mobile-settings-shell">
+  <header class="mobile-settings-topbar" aria-label="Settings navigation">
+    <div>
+      <span>Settings</span>
+      <strong>Account control</strong>
+    </div>
+    <button type="button" class="icon-button" (click)="emitHelp()" aria-label="Open settings help">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </header>
+
+  <section class="profile-card" aria-label="Account summary">
+    <div class="profile-row">
+      <div class="avatar">
+        @if (user()?.avatar) {
+          <img [src]="user()?.avatar" [alt]="(user()?.displayName || user()?.username || 'User') + ' avatar'" loading="lazy" />
+        } @else {
+          {{ profileInitials() }}
+        }
+      </div>
+
+      <div class="profile-copy">
+        <p>{{ roleLabel() | titlecase }} settings</p>
+        <h1>{{ user()?.displayName || user()?.username || 'Your MarketSpase account' }}</h1>
+        <small>{{ user()?.email || 'Add your email address' }}</small>
+      </div>
+    </div>
+
+    <div class="profile-status-row">
+      <span class="status-pill" [class.online]="isOnline()">
+        <i></i>
+        {{ isOnline() ? 'Online' : 'Offline' }}
+      </span>
+      <span class="status-pill muted">
+        <mat-icon>groups</mat-icon>
+        {{ onlineCountLabel() }} nearby users
+      </span>
+    </div>
+
+    <div class="profile-metrics">
+      <article>
+        <span>Profile</span>
+        <strong>{{ profileCompletion() }}%</strong>
+        <div class="mini-progress" aria-hidden="true">
+          <i [style.width.%]="profileCompletion()"></i>
+        </div>
+      </article>
+      <article>
+        <span>Wallet</span>
+        <strong>{{ primaryWallet()?.currency || 'NGN' }}</strong>
+        <small>{{ (primaryWallet()?.transactions?.length || 0) }} records</small>
+      </article>
+      <article>
+        <span>Trust</span>
+        <strong>{{ user()?.verified ? 'Verified' : 'Review' }}</strong>
+        <small>{{ user()?.rating || 0 }}/5 rating</small>
+      </article>
+    </div>
+  </section>
+
+  <nav class="settings-tab-rail" aria-label="Settings sections">
+    @for (shortcut of shortcuts; track trackShortcut($index, shortcut)) {
+      <a [routerLink]="shortcut.route" routerLinkActive="active">
+        <mat-icon>{{ shortcut.icon }}</mat-icon>
+        {{ shortcut.title }}
+      </a>
+    }
+  </nav>
+
+  <section class="shortcut-grid" aria-label="Quick settings">
+    @for (shortcut of shortcuts; track trackShortcut($index, shortcut)) {
+      <a class="shortcut-card" [class]="shortcut.accent" [routerLink]="shortcut.route" routerLinkActive="active-card">
+        <span class="shortcut-icon">
+          <mat-icon>{{ shortcut.icon }}</mat-icon>
+        </span>
+        <span class="shortcut-copy">
+          <small>{{ shortcut.meta }}</small>
+          <strong>{{ shortcut.title }}</strong>
+          <em>{{ shortcut.description }}</em>
+        </span>
+        <mat-icon class="chevron">chevron_right</mat-icon>
+      </a>
+    }
+  </section>
+
+  <section class="settings-content-card" aria-label="Selected settings section">
+    <router-outlet />
+  </section>
+
+  <section class="mobile-activity-card" aria-label="Recent account activity">
+    <app-recent-activity [activities]="recentActivities()" [initiallyExpanded]="false" />
+  </section>
+
+  <section class="channel-card">
+    <div>
+      <span>Community updates</span>
+      <strong>Join the MarketSpase WhatsApp channel</strong>
+      <p>Get product updates, selling tips, and platform announcements in one place.</p>
+    </div>
+    <button type="button" (click)="emitJoinChannel()">
+      <mat-icon>group</mat-icon>
+      Join channel
+    </button>
+  </section>
+</main>

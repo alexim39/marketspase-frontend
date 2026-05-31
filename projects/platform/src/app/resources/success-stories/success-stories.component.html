@@ -60,7 +60,7 @@
               <div 
                 class="category-card" 
                 [class.active]="activeCategory() === category.id"
-                (click)="setActiveCategory('promoter')"
+                (click)="setActiveCategory(category.id)"
                 [style.background]="category.gradient"
               >
                 <div class="category-icon">

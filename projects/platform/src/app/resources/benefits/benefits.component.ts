@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 
-interface Benefit {
+export interface Benefit {
   icon: string;
   title: string;
   description: string;

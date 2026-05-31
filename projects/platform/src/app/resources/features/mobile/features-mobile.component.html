@@ -1,0 +1,229 @@
+<app-header />
+
+<main class="mobile-features-page">
+  <section class="features-hero" aria-labelledby="mobile-features-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/">
+        <mat-icon>home</mat-icon>
+        Home
+      </a>
+      <span>/</span>
+      <span>Features</span>
+    </nav>
+
+    <span class="eyebrow">Social commerce tools</span>
+    <h1 id="mobile-features-title">Features built for selling and earning.</h1>
+    <p>
+      Explore the tools marketers use to grow sales, promoters use to earn, and MarketSpase uses to keep activity tracked.
+    </p>
+
+    <div class="hero-actions">
+      <a routerLink="/auth">
+        <mat-icon>rocket_launch</mat-icon>
+        Get started
+      </a>
+      <a routerLink="/resources/benefits">
+        <mat-icon>workspace_premium</mat-icon>
+        Benefits
+      </a>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Feature summary">
+    @for (stat of mobileStats; track stat.label) {
+      <article>
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section aria-labelledby="category-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Feature groups</span>
+        <h2 id="category-title">Pick what matters to you</h2>
+      </div>
+      <button type="button" (click)="openCategorySheet()" aria-label="Compare feature groups">
+        <mat-icon>tune</mat-icon>
+      </button>
+    </div>
+
+    <div class="category-rail" role="list" aria-label="Feature categories">
+      @for (category of featureCategories(); track category.id; let i = $index) {
+        <button
+          type="button"
+          role="listitem"
+          class="category-card"
+          [class.active]="activeCategory() === category.id"
+          [ngClass]="tone(i)"
+          (click)="selectCategory(category.id)"
+        >
+          <span class="card-icon">
+            <mat-icon>{{ category.icon }}</mat-icon>
+          </span>
+          <strong>{{ category.name }}</strong>
+          <small>{{ category.description }}</small>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="focus-card" aria-labelledby="active-category-title">
+    <span class="focus-icon">
+      <mat-icon>{{ activeCategoryMeta().icon }}</mat-icon>
+    </span>
+    <div>
+      <span class="eyebrow">Now viewing</span>
+      <h2 id="active-category-title">{{ activeCategoryMeta().name }}</h2>
+      <p>{{ activeCategoryMeta().description }}</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="features-list-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Core tools</span>
+        <h2 id="features-list-title">Feature highlights</h2>
+      </div>
+    </div>
+
+    <div class="feature-list">
+      @for (feature of filteredFeatures(); track feature.title; let i = $index) {
+        <button type="button" class="feature-card" [ngClass]="tone(i)" (click)="openFeature(feature)">
+          <span class="card-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <span>
+            <strong>{{ feature.title }}</strong>
+            <small>{{ feature.description }}</small>
+          </span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="workflow-card" aria-labelledby="workflow-title">
+    <div class="section-heading compact">
+      <div>
+        <span class="eyebrow">Flow</span>
+        <h2 id="workflow-title">How it works in practice</h2>
+      </div>
+    </div>
+
+    <div class="segmented-control" aria-label="Select workflow">
+      <button type="button" [class.active]="workflowType() === 'marketer'" (click)="selectWorkflow('marketer')">
+        Marketers
+      </button>
+      <button type="button" [class.active]="workflowType() === 'promoter'" (click)="selectWorkflow('promoter')">
+        Promoters
+      </button>
+    </div>
+
+    <div class="workflow-list">
+      @for (step of activeWorkflow(); track step.number) {
+        <article>
+          <span class="step-number">{{ step.number }}</span>
+          <span class="step-icon">
+            <mat-icon>{{ step.icon }}</mat-icon>
+          </span>
+          <div>
+            <strong>{{ step.title }}</strong>
+            <p>{{ step.text }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="pricing-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Fees</span>
+        <h2 id="pricing-title">Simple transaction pricing</h2>
+      </div>
+    </div>
+
+    <div class="pricing-rail" role="list">
+      @for (tier of pricingTiers(); track tier.name) {
+        <article role="listitem" class="pricing-card">
+          <span>{{ tier.name }}</span>
+          <strong>{{ tier.price }}</strong>
+          <small>{{ tier.period }}</small>
+          <p>{{ tier.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="trust-strip">
+    <div>
+      <span class="eyebrow">Ready to use it?</span>
+      <h2>Start with your first store, campaign, or promotion link.</h2>
+      <p>MarketSpase keeps the sales and commission trail connected so each side can work with confidence.</p>
+    </div>
+    <div class="cta-actions">
+      <a routerLink="/auth">
+        <mat-icon>person_add</mat-icon>
+        Join free
+      </a>
+      <a routerLink="/resources/contact">
+        <mat-icon>support_agent</mat-icon>
+        Contact us
+      </a>
+    </div>
+  </section>
+</main>
+
+@if (activeSheet()) {
+  <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  <section class="bottom-sheet" role="dialog" aria-modal="true" aria-label="Feature details">
+    <button type="button" class="sheet-close" (click)="closeSheet()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    @switch (activeSheet()) {
+      @case ('feature') {
+        @if (selectedFeature(); as feature) {
+          <span class="sheet-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </span>
+          <h2>{{ feature.title }}</h2>
+          <p>{{ feature.description }}</p>
+
+          <h3>Included</h3>
+          <div class="benefit-tags">
+            @for (benefit of feature.benefits; track benefit) {
+              <span>
+                <mat-icon>check_circle</mat-icon>
+                {{ benefit }}
+              </span>
+            }
+          </div>
+        }
+      }
+      @case ('category') {
+        <span class="sheet-icon">
+          <mat-icon>tune</mat-icon>
+        </span>
+        <h2>Compare feature groups</h2>
+        <p>Select the area that matches what you want to do first.</p>
+
+        <div class="sheet-list">
+          @for (category of featureCategories(); track category.id) {
+            <button type="button" (click)="selectCategory(category.id); closeSheet()">
+              <mat-icon>{{ category.icon }}</mat-icon>
+              <span>
+                <strong>{{ category.name }}</strong>
+                <small>{{ category.description }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      }
+    }
+  </section>
+}
+
+<app-footer />

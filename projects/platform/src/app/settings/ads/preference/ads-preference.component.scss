@@ -34,7 +34,8 @@
 
   .preferences-horizontal {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    width: 100%;
     gap: $spacing-8;
     margin-bottom: $spacing-10;
 
@@ -62,6 +63,7 @@
         align-items: stretch;
         padding: $spacing-10;
         gap: $spacing-12;
+        flex-wrap: wrap;
 
         @include mobile {
           @include flex-column;
@@ -134,7 +136,8 @@
 
       .card-control {
         @include flex-center;
-        min-width: 280px;
+        min-width: 0;
+        max-width: 360px;
         border-left: $border-width solid $border-color;
         padding-left: $spacing-12;
 

@@ -1,5 +1,5 @@
 // features.component.ts
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { HeaderComponent } from '../core/header/header.component';
 import { FooterComponent } from '../core/footer/footer.component';
 import { TestimonialsComponent } from '../../dashboard/testimonial/testimonial.component';
 
-interface Feature {
+export interface Feature {
   icon: string;
   title: string;
   description: string;
@@ -20,7 +20,7 @@ interface Feature {
   category: 'marketer' | 'promoter' | 'platform';
 }
 
-interface FeatureCategory {
+export interface FeatureCategory {
   id: string;
   name: string;
   description: string;
@@ -28,7 +28,7 @@ interface FeatureCategory {
   gradient: string;
 }
 
-interface PricingTier {
+export interface PricingTier {
   name: string;
   price: string;
   period: string;
@@ -38,7 +38,7 @@ interface PricingTier {
   gradient: string;
 }
 
-interface Testimonial {
+export interface Testimonial {
   name: string;
   role: string;
   company: string;

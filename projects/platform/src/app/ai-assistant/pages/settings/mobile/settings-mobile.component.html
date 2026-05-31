@@ -1,0 +1,303 @@
+<main class="settings-mobile">
+  <header class="mobile-hero">
+    <div>
+      <span class="eyebrow">AI assistant</span>
+      <h1>Settings</h1>
+      <p>Connect WhatsApp, choose your storefront, manage alerts, and keep the assistant ready for buyers.</p>
+    </div>
+  </header>
+
+  @if (whatsappConnections$ | async; as connections) {
+    <section class="health-card" aria-label="Assistant setup status">
+      <div class="health-copy">
+        <span>Setup health</span>
+        <strong>{{ connectedCount(connections) }}/{{ connections.length || 1 }} connected</strong>
+        <p>{{ aiEnabledCount(connections) }} WhatsApp number{{ aiEnabledCount(connections) === 1 ? '' : 's' }} with AI enabled.</p>
+      </div>
+      <div class="health-icon">
+        <mat-icon>{{ connectedCount(connections) ? 'verified' : 'add_comment' }}</mat-icon>
+      </div>
+    </section>
+  }
+
+  <nav class="section-rail" aria-label="AI assistant settings sections">
+    @for (section of sections; track section.id) {
+      <button
+        type="button"
+        class="section-chip"
+        [class.active]="activeSection === section.id"
+        (click)="selectSection(section.id)"
+      >
+        <mat-icon>{{ section.icon }}</mat-icon>
+        <span>{{ section.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <section class="section-shell">
+    @if (activeSection === 'whatsapp') {
+      @if (whatsappConnections$ | async; as connections) {
+        <div class="section-heading">
+          <div>
+            <span>WhatsApp numbers</span>
+            <h2>Buyer chat entry points</h2>
+          </div>
+          <button type="button" class="icon-action" aria-label="Add WhatsApp number" (click)="openAddNumberDialog()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        @if (!connections.length) {
+          <div class="empty-panel">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <h3>No number connected</h3>
+            <p>Add your WhatsApp number so buyers can reach the AI assistant.</p>
+            <button type="button" class="primary-button" (click)="openAddNumberDialog()">
+              <mat-icon>add</mat-icon>
+              Add number
+            </button>
+          </div>
+        } @else {
+          <div class="connection-stack">
+            @for (conn of connections; track trackConnection($index, conn)) {
+              <article class="connection-card" [class.offline]="!conn.isConnected">
+                <div class="connection-main">
+                  <span class="phone-icon"><mat-icon>phone</mat-icon></span>
+                  <div>
+                    <strong>{{ conn.phoneNumber }}</strong>
+                    <p>{{ conn.isConnected ? 'Connected to WhatsApp' : 'Needs reconnection' }}</p>
+                  </div>
+                </div>
+
+                <div class="status-row">
+                  <span class="status-pill" [class.connected]="conn.isConnected">
+                    <mat-icon>{{ conn.isConnected ? 'check_circle' : 'error' }}</mat-icon>
+                    {{ conn.isConnected ? 'Connected' : 'Offline' }}
+                  </span>
+                  <span class="status-pill ai" [class.enabled]="conn.aiEnabled">
+                    <mat-icon>{{ conn.aiEnabled ? 'smart_toy' : 'person' }}</mat-icon>
+                    AI {{ conn.aiEnabled ? 'on' : 'off' }}
+                  </span>
+                </div>
+
+                <div class="card-actions">
+                  @if (!conn.isConnected) {
+                    <button type="button" class="ghost-button" (click)="reconnectConnection(conn.phoneNumber)">
+                      <mat-icon>refresh</mat-icon>
+                      Reconnect
+                    </button>
+                  }
+                  <label class="toggle-action">
+                    <span>AI replies</span>
+                    <mat-slide-toggle
+                      [checked]="conn.aiEnabled"
+                      [disabled]="!conn.isConnected"
+                      (change)="toggleAIForConnection(conn.phoneNumber, $event)"
+                    />
+                  </label>
+                  <button type="button" class="danger-icon" aria-label="Remove WhatsApp number" (click)="requestRemoveConnection(conn)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      }
+    }
+
+    @if (activeSection === 'business') {
+      @if (availableStores$ | async; as stores) {
+        <div class="section-heading">
+          <div>
+            <span>Business link</span>
+            <h2>Assistant storefront</h2>
+          </div>
+          <mat-icon>storefront</mat-icon>
+        </div>
+
+        <article class="selected-store-card">
+          <span>Currently selected</span>
+          <strong>{{ selectedStoreName(stores) }}</strong>
+          <p>This is the storefront the assistant uses when answering buyer questions.</p>
+        </article>
+
+        <form [formGroup]="businessForm" (ngSubmit)="saveBusinessName()" class="mobile-form">
+          <label class="field-label" for="businessId">Select storefront</label>
+          <select id="businessId" formControlName="businessId" class="native-field">
+            <option value="">Choose a storefront</option>
+            @for (store of stores; track store.id) {
+              <option [value]="store.id">{{ store.name }}</option>
+            }
+          </select>
+
+          <button type="submit" class="primary-button full" [disabled]="!businessForm.valid">
+            <mat-icon>save</mat-icon>
+            Save business
+          </button>
+        </form>
+      }
+    }
+
+    @if (activeSection === 'notifications') {
+      <div class="section-heading">
+        <div>
+          <span>Alerts</span>
+          <h2>Notification preferences</h2>
+        </div>
+        <mat-icon>notifications_active</mat-icon>
+      </div>
+
+      <form [formGroup]="notificationForm" (ngSubmit)="saveNotificationPreferences()" class="preference-list">
+        <label class="preference-row">
+          <span class="preference-icon"><mat-icon>mark_email_unread</mat-icon></span>
+          <span class="preference-copy">
+            <strong>New message alerts</strong>
+            <small>Know when buyers start a chat.</small>
+          </span>
+          <mat-slide-toggle formControlName="newMessage" />
+        </label>
+
+        <label class="preference-row">
+          <span class="preference-icon warn"><mat-icon>report_problem</mat-icon></span>
+          <span class="preference-copy">
+            <strong>Escalation alerts</strong>
+            <small>Get notified when human help is needed.</small>
+          </span>
+          <mat-slide-toggle formControlName="escalation" />
+        </label>
+
+        <label class="preference-row">
+          <span class="preference-icon success"><mat-icon>payments</mat-icon></span>
+          <span class="preference-copy">
+            <strong>Payment confirmations</strong>
+            <small>See when buyer payment is completed.</small>
+          </span>
+          <mat-slide-toggle formControlName="paymentConfirmation" />
+        </label>
+
+        <button type="submit" class="primary-button full">
+          <mat-icon>save</mat-icon>
+          Save preferences
+        </button>
+      </form>
+    }
+
+    @if (activeSection === 'subscription') {
+      <div class="section-heading">
+        <div>
+          <span>Subscription</span>
+          <h2>Assistant plan</h2>
+        </div>
+        <mat-icon>workspace_premium</mat-icon>
+      </div>
+
+      @if (subscriptionPlans$ | async; as plans) {
+        <div class="plan-stack">
+          @for (plan of plans; track trackById($index, plan)) {
+            <article
+              class="plan-card"
+              [class.popular]="plan.isPopular"
+              [class.current]="(currentPlanId$ | async) === plan.id"
+            >
+              @if (plan.isPopular) {
+                <span class="popular-badge">
+                  <mat-icon>star</mat-icon>
+                  Popular
+                </span>
+              }
+
+              <div class="plan-header">
+                <span class="plan-icon"><mat-icon>{{ getPlanIcon(plan.id) }}</mat-icon></span>
+                <div>
+                  <h3>{{ plan.name }}</h3>
+                  <strong>{{ plan.priceDisplay }}</strong>
+                </div>
+              </div>
+
+              <ul class="feature-list">
+                @for (feature of plan.features; track feature) {
+                  <li>
+                    <mat-icon>check_circle</mat-icon>
+                    <span>{{ feature }}</span>
+                  </li>
+                }
+              </ul>
+
+              @if ((currentPlanId$ | async) === plan.id) {
+                <div class="current-plan-pill">
+                  <mat-icon>verified</mat-icon>
+                  Current plan
+                </div>
+              } @else {
+                <button type="button" class="primary-button full" (click)="upgradeTo(plan.id)" [disabled]="upgradingPlan">
+                  @if (upgradingPlan) {
+                    <mat-spinner diameter="18"></mat-spinner>
+                  } @else {
+                    <mat-icon>arrow_upward</mat-icon>
+                  }
+                  {{ planActionLabel(plan) }}
+                </button>
+              }
+            </article>
+          }
+        </div>
+      }
+    }
+
+    @if (activeSection === 'twilio') {
+      <div class="section-heading">
+        <div>
+          <span>WhatsApp API</span>
+          <h2>Twilio credentials</h2>
+        </div>
+        <mat-icon>lock</mat-icon>
+      </div>
+
+      <div class="info-panel">
+        <mat-icon>info</mat-icon>
+        <p>Use the WhatsApp Business sender from Twilio. Keep these credentials private.</p>
+      </div>
+
+      <form [formGroup]="twilioForm" (ngSubmit)="saveTwilioConfig()" class="mobile-form">
+        <label class="field-label" for="twilioPhone">WhatsApp phone number</label>
+        <input id="twilioPhone" class="native-field" formControlName="phoneNumber" placeholder="+14155238886" />
+        @if (twilioForm.get('phoneNumber')?.invalid && twilioForm.get('phoneNumber')?.touched) {
+          <p class="field-error">Enter a valid E.164 phone number.</p>
+        }
+
+        <label class="field-label" for="accountSid">Account SID</label>
+        <input id="accountSid" class="native-field" formControlName="accountSid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+
+        <label class="field-label" for="phoneNumberSid">Phone Number SID</label>
+        <input id="phoneNumberSid" class="native-field" formControlName="phoneNumberSid" placeholder="PNxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+
+        <label class="field-label" for="authToken">Auth Token</label>
+        <input id="authToken" type="password" class="native-field" formControlName="authToken" placeholder="Your Twilio Auth Token" />
+
+        <button type="submit" class="primary-button full" [disabled]="!twilioForm.valid || loading">
+          @if (loading) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Save configuration
+        </button>
+      </form>
+    }
+  </section>
+
+  @if (pendingRemoval(); as pending) {
+    <div class="sheet-backdrop" role="presentation" (click)="cancelRemoveConnection()"></div>
+    <section class="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="removeNumberTitle">
+      <span class="sheet-handle"></span>
+      <mat-icon>delete</mat-icon>
+      <h2 id="removeNumberTitle">Remove WhatsApp number?</h2>
+      <p>{{ pending.phoneNumber }} will stop receiving AI assistant replies until it is connected again.</p>
+      <div class="sheet-actions">
+        <button type="button" class="ghost-button" (click)="cancelRemoveConnection()">Cancel</button>
+        <button type="button" class="danger-button" (click)="confirmRemoveConnection()">Remove</button>
+      </div>
+    </section>
+  }
+</main>

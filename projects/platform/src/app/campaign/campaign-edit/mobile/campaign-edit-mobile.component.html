@@ -1,0 +1,163 @@
+<section class="campaign-edit-mobile" aria-label="Edit campaign">
+  @if (isLoading()) {
+    <div class="state-card loading-state" role="status" aria-live="polite">
+      <mat-spinner diameter="32" />
+      <div>
+        <h2>Loading campaign</h2>
+        <p>Preparing the campaign editor.</p>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="state-card error-state" role="alert">
+      <div class="state-icon">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <div>
+        <h2>Campaign could not load</h2>
+        <p>{{ error() }}</p>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="loadCampaign()">Retry</button>
+    </div>
+  } @else if (campaign() && campaignForm) {
+    <header class="mobile-topbar">
+      <button mat-icon-button type="button" aria-label="Back to campaign details" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="topbar-copy">
+        <span>Edit campaign</span>
+        <h1>{{ formTitle() }}</h1>
+      </div>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        class="topbar-save"
+        [disabled]="isSaving()"
+        (click)="saveCampaign()"
+      >
+        @if (isSaving()) {
+          <mat-spinner diameter="16" />
+        } @else {
+          Save
+        }
+      </button>
+    </header>
+
+    <main class="mobile-content" [formGroup]="campaignForm">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p>{{ campaignStatus() | titlecase }}</p>
+          <h2>{{ formTitle() }}</h2>
+          <span>{{ campaignTiming() }}</span>
+        </div>
+        <div class="hero-badge" [class.is-dirty]="campaignForm.dirty">
+          <mat-icon>{{ campaignForm.dirty ? 'pending_actions' : 'check_circle' }}</mat-icon>
+          <span>{{ campaignForm.dirty ? 'Unsaved' : 'Saved' }}</span>
+        </div>
+      </section>
+
+      <nav class="section-rail" aria-label="Campaign edit sections">
+        @for (section of sections; track section.id) {
+          <button
+            type="button"
+            class="section-pill"
+            [class.active]="activeSection() === section.id"
+            [class.invalid]="sectionHasInvalidControls(section.id)"
+            (click)="selectSection(section.id)"
+          >
+            <mat-icon>{{ section.icon }}</mat-icon>
+            <span>{{ section.label }}</span>
+          </button>
+        }
+      </nav>
+
+      <section class="mobile-form-card">
+        <div class="section-heading">
+          <div>
+            <span>Step {{ activeSectionIndex() + 1 }} of {{ sections.length }}</span>
+            <h2>{{ activeSectionMeta().label }}</h2>
+            <p>{{ activeSectionMeta().description }}</p>
+          </div>
+        </div>
+
+        @switch (activeSection()) {
+          @case ('basic') {
+            <app-basic-info-form [form]="campaignForm" [categories]="categories" />
+          }
+          @case ('budget') {
+            <app-budget-settings [form]="campaignForm" />
+          }
+          @case ('schedule') {
+            <app-schedule-form [form]="campaignForm" />
+          }
+          @case ('requirements') {
+            <app-requirements-form [form]="campaignForm" />
+          }
+          @case ('targeting') {
+            <div class="targeting-card">
+              <div class="targeting-icon">
+                <mat-icon>travel_explore</mat-icon>
+              </div>
+              <div>
+                <h3>Location targeting has its own workspace</h3>
+                <p>
+                  Adjust cities, countries, addresses, and targeting precision from the dedicated targeting screen.
+                  Save your campaign edits before opening it when you want to keep the changes.
+                </p>
+              </div>
+              <button mat-flat-button color="primary" type="button" (click)="openTargetingWorkspace()">
+                Open targeting
+              </button>
+            </div>
+          }
+        }
+      </section>
+    </main>
+
+    <footer class="sticky-actions" aria-label="Campaign edit actions">
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="activeSectionIndex() === 0"
+        (click)="goToPreviousSection()"
+      >
+        Back
+      </button>
+      <button mat-flat-button color="primary" type="button" [disabled]="isSaving()" (click)="handlePrimaryAction()">
+        @if (isSaving()) {
+          <mat-spinner diameter="18" />
+          {{ saveLabel() }}
+        } @else if (isLastSection()) {
+          Save changes
+        } @else {
+          Next
+        }
+      </button>
+    </footer>
+
+    @if (discardPromptOpen() || targetingPromptOpen()) {
+      <div class="prompt-backdrop" role="presentation" (click)="closePrompts()"></div>
+      <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="editPromptTitle">
+        <div class="sheet-handle"></div>
+        <h2 id="editPromptTitle">
+          {{ targetingPromptOpen() ? 'Open targeting without saving?' : 'Discard campaign edits?' }}
+        </h2>
+        <p>
+          @if (targetingPromptOpen()) {
+            Your campaign edits are not saved yet. Save this campaign first if the changes should be kept.
+          } @else {
+            You have unsaved changes on this campaign. Leaving now will discard them.
+          }
+        </p>
+        <div class="sheet-actions">
+          <button mat-stroked-button type="button" (click)="closePrompts()">Keep editing</button>
+          @if (targetingPromptOpen()) {
+            <button mat-flat-button color="primary" type="button" (click)="discardAndOpenTargeting()">Open targeting</button>
+          } @else {
+            <button mat-flat-button color="warn" type="button" (click)="discardAndLeave()">Discard</button>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

@@ -1,0 +1,278 @@
+<section class="gamification-mobile">
+  <header class="mobile-topbar">
+    <div>
+      <span class="eyebrow">Gamification</span>
+      <h1>Growth journey</h1>
+    </div>
+
+    <button type="button" class="icon-button" (click)="loadDashboard()" [disabled]="loading()" aria-label="Refresh gamification">
+      <mat-icon [class.spinning]="loading()">refresh</mat-icon>
+    </button>
+  </header>
+
+  @if (showInitialLoader()) {
+    <section class="loading-stack" aria-busy="true" aria-label="Loading growth journey">
+      <article class="skeleton-card hero"></article>
+      <div class="skeleton-grid">
+        <article class="skeleton-card small"></article>
+        <article class="skeleton-card small"></article>
+      </div>
+      <article class="skeleton-card list"></article>
+      <article class="skeleton-card list"></article>
+    </section>
+  } @else if (error() && !state()) {
+    <section class="empty-panel">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Journey unavailable</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadDashboard()">Retry</button>
+    </section>
+  } @else if (state()?.enabled === false) {
+    <section class="empty-panel">
+      <mat-icon>extension_off</mat-icon>
+      <h2>Rewards are paused</h2>
+      <p>The admin team has temporarily paused gamification updates.</p>
+    </section>
+  } @else {
+    @if (isRefreshing()) {
+      <section class="refresh-banner" aria-live="polite">
+        <mat-icon>sync</mat-icon>
+        <span>Updating your latest XP, streak, badges, and milestones.</span>
+      </section>
+    }
+
+    @if (profile(); as progress) {
+      <section class="level-card">
+        <div class="level-header">
+          <div>
+            <span class="label">Current level</span>
+            <h2>Level {{ progress.currentLevel }}</h2>
+            <p>{{ progress.currentLevelTitle }}</p>
+          </div>
+          <div class="level-ring" [style.--progress]="levelProgress() + '%'">
+            <strong>{{ levelProgress() | number:'1.0-0' }}%</strong>
+          </div>
+        </div>
+
+        <div class="xp-progress">
+          <div class="xp-copy">
+            <span>{{ progress.totalExperiencePoints | number:'1.0-0' }} XP</span>
+            @if (progress.nextLevel) {
+              <small>{{ progress.experiencePointsToNextLevel | number:'1.0-0' }} XP to level {{ progress.nextLevel }}</small>
+            } @else {
+              <small>Top configured level reached</small>
+            }
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <span [style.width.%]="levelProgress()"></span>
+          </div>
+        </div>
+
+        <div class="level-metrics">
+          <article>
+            <strong>{{ progress.totalEvents | number:'1.0-0' }}</strong>
+            <span>Actions</span>
+          </article>
+          <article>
+            <strong>{{ progress.milestonesUnlocked | number:'1.0-0' }}</strong>
+            <span>Milestones</span>
+          </article>
+          <article>
+            <strong>{{ badgeSummary()?.badgesEarned || progress.badgesUnlocked }}</strong>
+            <span>Badges</span>
+          </article>
+        </div>
+      </section>
+    }
+
+    <section class="quick-actions">
+      <a routerLink="/dashboard/leaderboard">
+        <mat-icon>leaderboard</mat-icon>
+        <span>Leaderboard</span>
+      </a>
+      <button type="button" (click)="loadDashboard()" [disabled]="loading()">
+        <mat-icon>bolt</mat-icon>
+        <span>{{ refreshLabel() }}</span>
+      </button>
+    </section>
+
+    <section class="stat-rail" aria-label="Progress summary">
+      <article>
+        <span>Current streak</span>
+        <strong>{{ streakSummary()?.currentStreak || 0 }} days</strong>
+        <small>{{ streakSummary()?.longestStreak || 0 }} best</small>
+      </article>
+      <article>
+        <span>Streak points</span>
+        <strong>{{ streakSummary()?.totalPointsEarned || 0 }}</strong>
+        <small>{{ streakSummary()?.withdrawablePoints || 0 }} withdrawable</small>
+      </article>
+      <article>
+        <span>Latest level-up</span>
+        <strong>{{ profile()?.recentLevelUpAt ? (profile()?.recentLevelUpAt | date:'MMM d') : 'Pending' }}</strong>
+        <small>{{ profile()?.lastActionKey || 'Keep earning XP' }}</small>
+      </article>
+    </section>
+
+    @if (primaryMilestone(); as milestone) {
+      <section class="next-card">
+        <div class="milestone-icon" [style.background]="milestone.accentColor">
+          <mat-icon>{{ milestone.icon }}</mat-icon>
+        </div>
+        <div>
+          <span class="label">Next milestone</span>
+          <h2>Level {{ milestone.level }}: {{ milestone.title }}</h2>
+          <p>{{ milestone.description }}</p>
+          <div class="progress-track compact" aria-hidden="true">
+            <span [style.width.%]="milestone.progressPercent"></span>
+          </div>
+          <small>{{ milestone.experiencePointsRemaining | number:'1.0-0' }} XP remaining</small>
+        </div>
+      </section>
+    }
+
+    <section class="mobile-section">
+      <header>
+        <div>
+          <h2>Milestones ahead</h2>
+          <p>{{ milestoneRail().length }} visible</p>
+        </div>
+      </header>
+
+      @if (milestoneRail().length) {
+        <div class="card-rail">
+          @for (milestone of milestoneRail(); track milestone.level) {
+            <article class="milestone-card">
+              <div class="milestone-icon small" [style.background]="milestone.accentColor">
+                <mat-icon>{{ milestone.icon }}</mat-icon>
+              </div>
+              <strong>Level {{ milestone.level }}</strong>
+              <span>{{ milestone.title }}</span>
+              <small>{{ milestone.experiencePointsRemaining | number:'1.0-0' }} XP left</small>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="compact-empty">
+          <mat-icon>auto_awesome</mat-icon>
+          <span>You have completed the current milestone ladder.</span>
+        </div>
+      }
+    </section>
+
+    <section class="mobile-section">
+      <header>
+        <div>
+          <h2>XP sources</h2>
+          <p>Where your growth is coming from</p>
+        </div>
+      </header>
+
+      @if (actionRail().length) {
+        <div class="action-list">
+          @for (item of actionRail(); track item.actionKey) {
+            <article>
+              <div class="milestone-icon small" [style.background]="item.accentColor">
+                <mat-icon>{{ item.icon }}</mat-icon>
+              </div>
+              <div>
+                <strong>{{ item.label }}</strong>
+                <small>{{ item.totalCount }} action{{ item.totalCount === 1 ? '' : 's' }}</small>
+              </div>
+              <span>{{ item.totalExperiencePoints | number:'1.0-0' }} XP</span>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="compact-empty">
+          <mat-icon>insights</mat-icon>
+          <span>Your XP breakdown will appear when progress starts landing.</span>
+        </div>
+      }
+    </section>
+
+    <section class="mobile-section">
+      <header>
+        <div>
+          <h2>Recent wins</h2>
+          <p>Level-ups, badges, and milestone moments</p>
+        </div>
+      </header>
+
+      @if (celebrationRail().length) {
+        <div class="win-list">
+          @for (celebration of celebrationRail(); track celebration.key) {
+            <article>
+              <div class="milestone-icon small" [style.background]="celebration.accentColor">
+                <mat-icon>{{ celebration.icon }}</mat-icon>
+              </div>
+              <div>
+                <strong>{{ celebration.title }}</strong>
+                <p>{{ celebration.description }}</p>
+                <small>{{ celebration.happenedAt | date:'mediumDate' }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="compact-empty">
+          <mat-icon>celebration</mat-icon>
+          <span>Your next win will show here.</span>
+        </div>
+      }
+    </section>
+
+    <section class="mobile-section">
+      <header>
+        <div>
+          <h2>Recent XP activity</h2>
+          <p>{{ activityFeed().length }} latest entries</p>
+        </div>
+      </header>
+
+      @if (activityFeed().length) {
+        <div class="timeline-list">
+          @for (event of activityFeed(); track event.id) {
+            <article>
+              <div>
+                <strong>{{ event.label }}</strong>
+                <p>{{ event.description }}</p>
+                <small>{{ event.awardedAt | date:'mediumDate' }}</small>
+              </div>
+              <span>+{{ event.experiencePointsAwarded | number:'1.0-0' }} XP</span>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="compact-empty">
+          <mat-icon>bolt</mat-icon>
+          <span>Qualifying activity will appear here.</span>
+        </div>
+      }
+    </section>
+
+    @if (unlockedRail().length) {
+      <section class="mobile-section">
+        <header>
+          <div>
+            <h2>Unlocked milestones</h2>
+            <p>{{ unlockedRail().length }} recent</p>
+          </div>
+        </header>
+
+        <div class="card-rail">
+          @for (milestone of unlockedRail(); track milestone.id) {
+            <article class="milestone-card unlocked">
+              <div class="milestone-icon small" [style.background]="milestone.accentColor">
+                <mat-icon>{{ milestone.icon }}</mat-icon>
+              </div>
+              <strong>{{ milestone.title }}</strong>
+              <span>{{ milestone.description }}</span>
+              <small>{{ milestone.unlockedAt | date:'mediumDate' }}</small>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

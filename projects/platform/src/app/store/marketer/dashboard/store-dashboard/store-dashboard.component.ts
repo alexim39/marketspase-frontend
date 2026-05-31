@@ -155,9 +155,11 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
     const store = this.currentStore();
     if (!store) return [];
 
-    const totalProducts = this.products().length;
-    const activeProducts = this.products().filter(p => p.isActive).length;
-    const outOfStockProducts = this.products().filter(p => p.quantity === 0).length;
+    // Guard against undefined product state by defaulting to an empty array
+    const products = this.products() || [];
+    const totalProducts = products.length;
+    const activeProducts = products.filter(p => p.isActive).length;
+    const outOfStockProducts = products.filter(p => p.quantity === 0).length;
     
     const salesData = store.analytics.salesData || {
       totalRevenue: 0,
@@ -235,8 +237,10 @@ export class MarketerStoreDashboardComponent implements OnInit, OnDestroy {
   public filteredProducts = computed(() => {
     const query = this.searchQuery().toLowerCase();
     const category = this.selectedCategory();
-    
-    return this.products().filter(product => {
+    // Ensure products is always an array to avoid runtime errors
+    const products = this.products() || [];
+
+    return products.filter(product => {
       const matchesSearch = !query || 
         product.name.toLowerCase().includes(query) ||
         product?.description?.toLowerCase().includes(query) ||

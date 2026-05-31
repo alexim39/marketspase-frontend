@@ -54,7 +54,7 @@ export const StoreRoutes: Routes = [
 
     {
         path: 'product/:productId',
-        loadComponent: () => import('./promoter/product-detail/promoter-product-details.component').then(c => c.PromoterProductDetailsComponent),
+        loadComponent: () => import('./promoter/product-detail').then(c => c.PromoterProductDetailIndexComponent),
         title: "Product Details - View Product Information",
     }, 
 
@@ -84,7 +84,7 @@ export const StoreRoutes: Routes = [
 
      {
         path: 'store/:storeId/products',
-        loadComponent: () => import('./promoter/store-products-list/store-products-list.component').then(c => c.StoreProductsListComponent),
+        loadComponent: () => import('./promoter/store-products-list').then(c => c.StoreProductsListIndexComponent),
         title: "Store Products - Browse Published Products",
     },
     

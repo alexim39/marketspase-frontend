@@ -1,0 +1,187 @@
+<section class="leaderboard-mobile">
+  <header class="mobile-hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Leaderboard</span>
+      <h1>Top consistency</h1>
+      <p>{{ periodSummary() }}</p>
+    </div>
+
+    <button type="button" class="icon-button" (click)="refresh()" [disabled]="loading()" aria-label="Refresh leaderboard">
+      <mat-icon [class.spinning]="loading()">refresh</mat-icon>
+    </button>
+  </header>
+
+  <section class="reward-strip" aria-label="Your reward summary">
+    <article>
+      <span>Your streak</span>
+      <strong>{{ currentUserStats().currentStreak }}d</strong>
+    </article>
+    <article>
+      <span>Points</span>
+      <strong>{{ currentUserStats().totalPointsEarned | number:'1.0-0' }}</strong>
+    </article>
+    <article>
+      <span>Ready</span>
+      <strong>NGN {{ userRewardValue() | number:'1.0-0' }}</strong>
+    </article>
+  </section>
+
+  <section class="control-bar">
+    <button type="button" class="filter-button" (click)="openFilters()">
+      <mat-icon>tune</mat-icon>
+      <span>{{ selectedSummary() }}</span>
+    </button>
+
+    <div class="updated-at">
+      <span>{{ state()?.periodLabel || 'Current period' }}</span>
+      @if (state()?.generatedAt) {
+        <small>{{ state()?.generatedAt | date:'shortTime' }}</small>
+      }
+    </div>
+  </section>
+
+  @if (!leaderboardEnabled()) {
+    <section class="empty-panel">
+      <mat-icon>leaderboard</mat-icon>
+      <h2>Leaderboard is paused</h2>
+      <p>The admin team has temporarily disabled leaderboard updates.</p>
+    </section>
+  } @else if (loading() && !state()) {
+    <section class="loading-stack" aria-label="Loading leaderboard">
+      @for (placeholder of [1, 2, 3, 4]; track placeholder) {
+        <article class="skeleton-card"></article>
+      }
+    </section>
+  } @else if (!entries().length) {
+    <section class="empty-panel">
+      <mat-icon>emoji_events</mat-icon>
+      <h2>No rankings yet</h2>
+      <p>Check-ins in this timeframe will appear here once the ranking window has activity.</p>
+    </section>
+  } @else {
+    @if (champion(); as entry) {
+      <section class="champion-card" [class.current-user]="entry.isCurrentUser">
+        <div class="rank-medal" [class]="rankTone(entry)">#{{ entry.rank }}</div>
+        <div class="avatar xl" [class.has-image]="!!entry.avatar">
+          @if (entry.avatar) {
+            <img [src]="entry.avatar" [alt]="entry.displayName">
+          } @else {
+            <span>{{ entry.displayName.charAt(0) }}</span>
+          }
+        </div>
+        <div class="champion-copy">
+          <span class="label">Current leader</span>
+          <h2>{{ entry.displayName }}</h2>
+          <p>{{ getMetricValue(entry) }}</p>
+        </div>
+        <button type="button" (click)="viewProfile(entry.userId)">View profile</button>
+      </section>
+    }
+
+    @if (podiumTrail().length) {
+      <section class="podium-rail" aria-label="Top three leaderboard positions">
+        @for (entry of podiumTrail(); track entry.userId) {
+          <article class="podium-tile" [class.current-user]="entry.isCurrentUser">
+            <div class="rank-medal" [class]="rankTone(entry)">#{{ entry.rank }}</div>
+            <div class="avatar" [class.has-image]="!!entry.avatar">
+              @if (entry.avatar) {
+                <img [src]="entry.avatar" [alt]="entry.displayName">
+              } @else {
+                <span>{{ entry.displayName.charAt(0) }}</span>
+              }
+            </div>
+            <strong>{{ entry.displayName }}</strong>
+            <small>{{ getMetricValue(entry) }}</small>
+          </article>
+        }
+      </section>
+    }
+
+    <section class="rank-list">
+      <header>
+        <div>
+          <h2>Top performers</h2>
+          <p>{{ state()?.totalEligibleUsers || 0 }} eligible users</p>
+        </div>
+      </header>
+
+      @for (entry of entries(); track entry.userId) {
+        <article class="rank-card" [class.current-user]="entry.isCurrentUser">
+          <button type="button" class="identity" (click)="viewProfile(entry.userId)">
+            <span class="rank-number">#{{ entry.rank }}</span>
+            <span class="avatar small" [class.has-image]="!!entry.avatar">
+              @if (entry.avatar) {
+                <img [src]="entry.avatar" [alt]="entry.displayName">
+              } @else {
+                <span>{{ entry.displayName.charAt(0) }}</span>
+              }
+            </span>
+            <span class="name-block">
+              <strong>{{ entry.displayName }}</strong>
+              <small>{{ getRoleLabel(entry.role) }}</small>
+            </span>
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+
+          <div class="metric-grid">
+            <div>
+              <span>{{ getMetricLabel(selectedMetric()) }}</span>
+              <strong>{{ getMetricValue(entry) }}</strong>
+            </div>
+            <div>
+              <span>Streak</span>
+              <strong>{{ entry.currentStreak }}d</strong>
+            </div>
+            <div>
+              <span>Total points</span>
+              <strong>{{ entry.totalPointsEarned | number:'1.0-0' }}</strong>
+            </div>
+          </div>
+        </article>
+      }
+    </section>
+  }
+
+  @if (filtersOpen()) {
+    <button type="button" class="sheet-backdrop" (click)="closeFilters()" aria-label="Close leaderboard filters"></button>
+    <section class="filter-sheet" role="dialog" aria-modal="true" aria-label="Leaderboard filters">
+      <header>
+        <div>
+          <h2>Ranking filter</h2>
+          <p>{{ periodSummary() }}</p>
+        </div>
+        <button type="button" class="icon-button subtle" (click)="closeFilters()" aria-label="Close filters">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <div class="sheet-group">
+        <span>Timeframe</span>
+        <div class="chip-grid">
+          @for (timeframe of timeframeOptions; track timeframe) {
+            <button
+              type="button"
+              [class.active]="selectedTimeframe() === timeframe"
+              (click)="setMobileTimeframe(timeframe)">
+              {{ timeframe | titlecase }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="sheet-group">
+        <span>Metric</span>
+        <div class="chip-grid">
+          @for (metric of availableMetrics(); track metric) {
+            <button
+              type="button"
+              [class.active]="selectedMetric() === metric"
+              (click)="setMobileMetric(metric)">
+              {{ getMetricLabel(metric) }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</section>
