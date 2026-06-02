@@ -288,6 +288,9 @@
                   <button mat-icon-button type="button" matTooltip="Details" (click)="openPromoterDetails(row)">
                     <mat-icon>visibility</mat-icon>
                   </button>
+                  <button mat-icon-button type="button" matTooltip="Promotion links behind spend" (click)="openPromotionLinks(row)">
+                    <mat-icon>link</mat-icon>
+                  </button>
                   <button mat-icon-button type="button" matTooltip="Flag for Review" (click)="openAction(row, 'flag')">
                     <mat-icon>flag</mat-icon>
                   </button>
@@ -390,6 +393,193 @@
             <span class="muted">None</span>
           }
         </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #promotionLinksDialog>
+    <div class="dialog-shell links-dialog-shell">
+      <div class="dialog-header">
+        <div class="dialog-title">
+          <div class="title-line">Promotion Links Behind Spend</div>
+          <div class="sub-line">
+            {{ selectedPromoter()?.promoter?.displayName }} ·
+            <span class="mono">{{ selectedPromoter()?.promoter?._id }}</span>
+          </div>
+        </div>
+        <button mat-icon-button type="button" (click)="closePromotionLinks()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="dialog-body link-attribution-body">
+        <div class="attribution-note">
+          <mat-icon>receipt_long</mat-icon>
+          <span>These are the exact tracked promotion links and billable clicks that make up this promoter's PPC spend for the selected filters.</span>
+        </div>
+
+        <div class="attribution-summary">
+          <div class="summary-pill">
+            <span>Spend</span>
+            <strong>{{ (promotionLinksSummary()?.spend || 0) | currency:'NGN':'symbol':'1.0-0' }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Billable clicks</span>
+            <strong>{{ promotionLinksSummary()?.billableClicks || 0 }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Total clicks</span>
+            <strong>{{ promotionLinksSummary()?.totalClicks || 0 }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Promotion links</span>
+            <strong>{{ promotionLinksSummary()?.promotionLinks || 0 }}</strong>
+          </div>
+        </div>
+
+        @if (isLoadingPromotionLinks()) {
+          <div class="loading-block">
+            <mat-spinner diameter="34"></mat-spinner>
+            <span>Loading promotion link attribution...</span>
+          </div>
+        } @else if (promotionLinksError()) {
+          <div class="empty-attribution error">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ promotionLinksError() }}</span>
+            <button mat-stroked-button type="button" (click)="loadPromotionLinks()">Retry</button>
+          </div>
+        } @else if (!promotionLinks().length) {
+          <div class="empty-attribution">
+            <mat-icon>link_off</mat-icon>
+            <span>No promotion link clicks were found for this promoter and filter range.</span>
+          </div>
+        } @else {
+          <div class="promotion-link-list">
+            @for (link of promotionLinks(); track link.promotionId + link.upi) {
+              <div class="promotion-link-card">
+                <div class="link-card-header">
+                  <div class="link-title-group">
+                    <div class="link-title">{{ link.campaign.title }}</div>
+                    <div class="link-subline">
+                      <span class="mono">{{ link.upi || 'no-upi' }}</span>
+                      <span class="status-pill" [class.suspended]="!link.promotion.isActive">
+                        {{ link.promotion.status || 'unknown' }}
+                      </span>
+                      @if (link.campaign.status) {
+                        <span class="status-pill campaign-status">{{ link.campaign.status }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="link-card-actions">
+                    <button mat-icon-button type="button" matTooltip="Copy UPI" (click)="copyUpi(link)">
+                      <mat-icon>tag</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" matTooltip="Copy promotion link" (click)="copyPromotionLink(link)">
+                      <mat-icon>content_copy</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" matTooltip="Open tracked link" (click)="openPromotionLink(link)">
+                      <mat-icon>open_in_new</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="tracked-url-row">
+                  <mat-icon>link</mat-icon>
+                  <span class="mono">{{ link.promotionUrl || 'No stored promotion URL' }}</span>
+                </div>
+
+                @if (link.destinationUrl) {
+                  <div class="tracked-url-row destination">
+                    <mat-icon>near_me</mat-icon>
+                    <span>{{ link.destinationUrl }}</span>
+                  </div>
+                }
+
+                <div class="link-metrics-grid">
+                  <div class="link-metric">
+                    <span>Spend</span>
+                    <strong>{{ link.metrics.spend | currency:'NGN':'symbol':'1.0-0' }}</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Billable</span>
+                    <strong>{{ link.metrics.billableClicks }}</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Total</span>
+                    <strong>{{ link.metrics.totalClicks }}</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Unique</span>
+                    <strong>{{ link.metrics.uniqueClicks }}</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Duplicate</span>
+                    <strong>{{ link.metrics.duplicateClicks }}</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Invalid</span>
+                    <strong>{{ link.metrics.invalidClicks }}</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Rate</span>
+                    <strong>{{ link.metrics.billableRate }}%</strong>
+                  </div>
+                  <div class="link-metric">
+                    <span>Last click</span>
+                    <strong>{{ link.metrics.lastClickAt ? (link.metrics.lastClickAt | date:'short') : 'N/A' }}</strong>
+                  </div>
+                </div>
+
+                @if (link.patterns.sources.length || link.patterns.countries.length || link.patterns.devices.length) {
+                  <div class="pattern-strip">
+                    @for (source of link.patterns.sources; track source) {
+                      <span class="pattern-chip">Source: {{ source }}</span>
+                    }
+                    @for (country of link.patterns.countries; track country) {
+                      <span class="pattern-chip">Geo: {{ country }}</span>
+                    }
+                    @for (device of link.patterns.devices; track device) {
+                      <span class="pattern-chip">Device: {{ device }}</span>
+                    }
+                  </div>
+                }
+
+                <div class="recent-clicks">
+                  <div class="mini-section-title">Recent clicks</div>
+                  @if (link.recentClicks.length) {
+                    @for (click of link.recentClicks; track click.clickedAt + click.status + $index) {
+                      <div class="recent-click-row">
+                        <span class="status-dot" [class.billable]="click.status === 'billable'" [class.invalid]="click.status === 'invalid'" [class.duplicate]="click.status === 'duplicate'"></span>
+                        <span>{{ click.clickedAt | date:'short' }}</span>
+                        <span class="status-label">{{ click.status }}</span>
+                        <span>{{ click.deviceType || 'unknown' }}</span>
+                        <span>{{ click.country || 'N/A' }}</span>
+                        <span class="mono">{{ click.ip || 'masked/empty' }}</span>
+                        <strong>{{ click.cost | currency:'NGN':'symbol':'1.0-0' }}</strong>
+                      </div>
+                    }
+                  } @else {
+                    <div class="muted">No recent click samples.</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="links-pager">
+            <button mat-icon-button type="button" (click)="changePromotionLinksPage(-1)" [disabled]="promotionLinksPagination().page <= 1 || isLoadingPromotionLinks()">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <div class="pager-meta">
+              Page {{ promotionLinksPagination().page }} of {{ promotionLinksPagination().totalPages || 1 }}
+              <span class="pager-total">({{ promotionLinksPagination().total }} links)</span>
+            </div>
+            <button mat-icon-button type="button" (click)="changePromotionLinksPage(1)" [disabled]="promotionLinksPagination().page >= promotionLinksPagination().totalPages || isLoadingPromotionLinks()">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        }
       </div>
     </div>
   </ng-template>

@@ -378,8 +378,9 @@ button {
 .course-list button {
   min-height: 40px;
   border: 0;
-  background: var(--text-primary);
-  color: var(--on-primary-color);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(text-primary, var(--text-primary));
   padding: 0 0.8rem;
 }
 

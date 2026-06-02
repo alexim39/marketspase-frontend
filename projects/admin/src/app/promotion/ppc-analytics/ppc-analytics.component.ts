@@ -19,7 +19,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged, timer } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PpcAnalyticsService, PpcOverviewResponse, PpcPromoterRow } from './ppc-analytics.service';
+import {
+  PpcAnalyticsService,
+  PpcOverviewResponse,
+  PpcPromoterRow,
+  PpcPromotionLinkBreakdown,
+  PpcPromotionLinksResponse,
+} from './ppc-analytics.service';
 
 type PromoterAction = 'flag' | 'warn' | 'suspend';
 
@@ -58,19 +64,31 @@ export class PpcAnalyticsComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('promoterDetailsDialog') promoterDetailsDialog!: TemplateRef<unknown>;
+  @ViewChild('promotionLinksDialog') promotionLinksDialog!: TemplateRef<unknown>;
   @ViewChild('actionDialog') actionDialog!: TemplateRef<unknown>;
 
   readonly isLoadingOverview = signal(true);
   readonly isLoadingPromoters = signal(true);
+  readonly isLoadingPromotionLinks = signal(false);
   readonly actionBusy = signal(false);
 
   readonly overview = signal<PpcOverviewResponse['data'] | null>(null);
   readonly promoters = signal<PpcPromoterRow[]>([]);
+  readonly promotionLinks = signal<PpcPromotionLinkBreakdown[]>([]);
+  readonly promotionLinksSummary = signal<PpcPromotionLinksResponse['data']['summary'] | null>(null);
+  readonly promotionLinksError = signal('');
   readonly lastRefreshedAt = signal<Date | null>(null);
 
   readonly pagination = signal({
     page: 1,
     limit: 25,
+    total: 0,
+    totalPages: 0,
+  });
+
+  readonly promotionLinksPagination = signal({
+    page: 1,
+    limit: 10,
     total: 0,
     totalPages: 0,
   });
@@ -137,6 +155,7 @@ export class PpcAnalyticsComponent {
   readonly actionText = signal('');
   private actionDialogRef: MatDialogRef<unknown> | null = null;
   private detailsDialogRef: MatDialogRef<unknown> | null = null;
+  private promotionLinksDialogRef: MatDialogRef<unknown> | null = null;
 
   constructor() {
     // Initial load + 5-minute refresh loop.
@@ -278,6 +297,115 @@ export class PpcAnalyticsComponent {
     this.selectedPromoter.set(null);
   }
 
+  openPromotionLinks(row: PpcPromoterRow): void {
+    this.selectedPromoter.set(row);
+    this.promotionLinks.set([]);
+    this.promotionLinksSummary.set(null);
+    this.promotionLinksError.set('');
+    this.promotionLinksPagination.set({ page: 1, limit: 10, total: 0, totalPages: 0 });
+
+    this.promotionLinksDialogRef = this.dialog.open(this.promotionLinksDialog, {
+      width: '980px',
+      maxWidth: '96vw',
+      maxHeight: '92vh',
+      panelClass: 'ppc-links-dialog',
+    });
+
+    this.loadPromotionLinks(1);
+  }
+
+  closePromotionLinks(): void {
+    this.promotionLinksDialogRef?.close();
+    this.promotionLinksDialogRef = null;
+    this.promotionLinks.set([]);
+    this.promotionLinksSummary.set(null);
+    this.promotionLinksError.set('');
+    this.selectedPromoter.set(null);
+  }
+
+  loadPromotionLinks(page = this.promotionLinksPagination().page): void {
+    const row = this.selectedPromoter();
+    if (!row?.promoter?._id || this.isLoadingPromotionLinks()) return;
+
+    const filters = this.filtersForm.getRawValue();
+    const limit = this.promotionLinksPagination().limit;
+    this.isLoadingPromotionLinks.set(true);
+    this.promotionLinksError.set('');
+
+    this.service
+      .getPromoterPromotionLinks(row.promoter._id, {
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        range: filters.rangeDays,
+        country: filters.country?.trim() || null,
+        page,
+        limit,
+        sortBy: 'spend',
+        sortOrder: 'desc',
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resp) => {
+          if (!resp?.success) {
+            const message = resp?.message || 'Failed to load promotion link attribution.';
+            this.promotionLinksError.set(message);
+            this.snackBar.open(message, 'OK', { duration: 3500 });
+            this.isLoadingPromotionLinks.set(false);
+            return;
+          }
+
+          this.promotionLinks.set(resp.data.links || []);
+          this.promotionLinksSummary.set(resp.data.summary);
+          this.promotionLinksPagination.set(resp.data.pagination);
+          this.isLoadingPromotionLinks.set(false);
+        },
+        error: (err) => {
+          console.error('PPC promotion link attribution error:', err);
+          this.promotionLinksError.set('Unable to load promotion links behind this spend.');
+          this.snackBar.open('Unable to load promotion links behind this spend.', 'OK', { duration: 3500 });
+          this.isLoadingPromotionLinks.set(false);
+        },
+      });
+  }
+
+  changePromotionLinksPage(delta: number): void {
+    const current = this.promotionLinksPagination();
+    const nextPage = current.page + delta;
+    if (nextPage < 1 || nextPage > current.totalPages || this.isLoadingPromotionLinks()) return;
+    this.promotionLinksPagination.set({ ...current, page: nextPage });
+    this.loadPromotionLinks(nextPage);
+  }
+
+  copyPromotionLink(link: PpcPromotionLinkBreakdown): void {
+    const value = String(link.promotionUrl || '').trim();
+    if (!value) {
+      this.snackBar.open('No promotion link is available for this attribution row.', 'OK', { duration: 2500 });
+      return;
+    }
+
+    this.copyText(value, 'Promotion link copied.');
+  }
+
+  copyUpi(link: PpcPromotionLinkBreakdown): void {
+    const value = String(link.upi || '').trim();
+    if (!value) {
+      this.snackBar.open('No UPI is available for this attribution row.', 'OK', { duration: 2500 });
+      return;
+    }
+
+    this.copyText(value, 'Promotion UPI copied.');
+  }
+
+  openPromotionLink(link: PpcPromotionLinkBreakdown): void {
+    const url = String(link.promotionUrl || '').trim();
+    if (!/^https?:\/\//i.test(url)) {
+      this.snackBar.open('This promotion link is not a valid URL.', 'OK', { duration: 3000 });
+      return;
+    }
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   openAction(row: PpcPromoterRow, action: PromoterAction): void {
     this.selectedPromoter.set(row);
     this.selectedAction.set(action);
@@ -340,6 +468,33 @@ export class PpcAnalyticsComponent {
       low_conversion_rate: 'Low conversion rate',
     };
     return labels[code] || code;
+  }
+
+  private copyText(value: string, successMessage: string): void {
+    const fallbackCopy = () => {
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    };
+
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(value)
+        .then(() => this.snackBar.open(successMessage, 'OK', { duration: 2200 }))
+        .catch(() => {
+          fallbackCopy();
+          this.snackBar.open(successMessage, 'OK', { duration: 2200 });
+        });
+      return;
+    }
+
+    fallbackCopy();
+    this.snackBar.open(successMessage, 'OK', { duration: 2200 });
   }
 
   private buildSparklinePath(values: number[], width: number, height: number, max: number): string {

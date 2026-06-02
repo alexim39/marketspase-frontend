@@ -121,6 +121,103 @@ export interface PpcPromotersResponse {
   message?: string;
 }
 
+export interface PpcPromotionLinkRecentClick {
+  clickedAt?: string;
+  status: 'billable' | 'duplicate' | 'invalid' | 'exhausted' | string;
+  chargeStatus?: string;
+  cost: number;
+  deviceType?: string;
+  ip?: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  source?: string;
+  referrer?: string;
+}
+
+export interface PpcPromotionLinkBreakdown {
+  promotionId: string;
+  campaignId: string;
+  marketerId: string;
+  upi: string;
+  promotionUrl: string;
+  destinationUrl: string;
+  campaign: {
+    _id: string;
+    title: string;
+    status: string;
+    category: string;
+    mediaType: string;
+    costPerClick: number;
+    budget: number;
+    spentBudget: number;
+    currency: string;
+  };
+  promotion: {
+    _id: string;
+    status: string;
+    isActive: boolean;
+    acceptedAt?: string | null;
+    fraudStatus?: any;
+  };
+  metrics: {
+    totalClicks: number;
+    uniqueClicks: number;
+    billableClicks: number;
+    invalidClicks: number;
+    duplicateClicks: number;
+    exhaustedClicks: number;
+    spend: number;
+    unitCost: number;
+    conversions: number;
+    conversionRevenue: number;
+    commissionEarned: number;
+    firstClickAt?: string | null;
+    lastClickAt?: string | null;
+    billableRate: number;
+    invalidRate: number;
+    duplicateRate: number;
+    clickToConversionRate: number;
+  };
+  patterns: {
+    sources: string[];
+    countries: string[];
+    devices: string[];
+  };
+  recentClicks: PpcPromotionLinkRecentClick[];
+  anomalies: string[];
+}
+
+export interface PpcPromotionLinksResponse {
+  success: boolean;
+  data: {
+    promoterId: string;
+    range: PpcAnalyticsRange;
+    summary: {
+      totalClicks: number;
+      uniqueClicks: number;
+      billableClicks: number;
+      invalidClicks: number;
+      duplicateClicks: number;
+      exhaustedClicks: number;
+      spend: number;
+      promotionLinks: number;
+      billableRate: number;
+      invalidRate: number;
+      duplicateRate: number;
+      clickToConversionRate: number;
+    };
+    links: PpcPromotionLinkBreakdown[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+  message?: string;
+}
+
 @Injectable()
 export class PpcAnalyticsService {
   private readonly apiService = inject(ApiService);
@@ -170,6 +267,33 @@ export class PpcAnalyticsService {
     if (filters?.sortOrder) params = params.set('sortOrder', filters.sortOrder);
 
     return this.apiService.get<PpcPromotersResponse>(`${this.apiUrl}/promoters`, params);
+  }
+
+  getPromoterPromotionLinks(promoterId: string, filters?: {
+    startDate?: Date | null;
+    endDate?: Date | null;
+    range?: number | null;
+    country?: string | null;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Observable<PpcPromotionLinksResponse> {
+    let params = new HttpParams();
+
+    if (filters?.startDate) params = params.set('startDate', filters.startDate.toISOString());
+    if (filters?.endDate) params = params.set('endDate', filters.endDate.toISOString());
+    if (filters?.range) params = params.set('range', String(filters.range));
+    if (filters?.country) params = params.set('country', filters.country);
+    if (filters?.page) params = params.set('page', String(filters.page));
+    if (filters?.limit) params = params.set('limit', String(filters.limit));
+    if (filters?.sortBy) params = params.set('sortBy', filters.sortBy);
+    if (filters?.sortOrder) params = params.set('sortOrder', filters.sortOrder);
+
+    return this.apiService.get<PpcPromotionLinksResponse>(
+      `${this.apiUrl}/promoters/${encodeURIComponent(promoterId)}/promotion-links`,
+      params,
+    );
   }
 
   flagPromoter(promoterId: string, reason = ''): Observable<any> {
