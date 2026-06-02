@@ -67,10 +67,6 @@ export class DashboardIndexComponent {
   protected readonly isLoading = computed(() => this.authState().isLoading);
   protected readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
   protected readonly showDailyCheckIn = computed(() => {
-    if (this.deviceType() !== 'mobile') {
-      return true;
-    }
-
     return this.isDashboardHomeRoute(this.currentRoute());
   });
 

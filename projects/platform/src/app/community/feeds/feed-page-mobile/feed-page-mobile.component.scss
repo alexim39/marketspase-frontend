@@ -25,6 +25,9 @@
   );
   --reel-safe-top: env(safe-area-inset-top, 0px);
   --reel-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --reel-top-chrome: calc(68px + var(--reel-safe-top));
+  --reel-bottom-chrome: calc(192px + var(--reel-safe-bottom));
+  --reel-action-rail-width: 76px;
 
   position: relative;
   width: 100%;
@@ -187,7 +190,13 @@
 .media-layer {
   position: absolute;
   inset: 0;
+  box-sizing: border-box;
   @include mixins.flex-center;
+  padding:
+    var(--reel-top-chrome)
+    calc(var(--reel-action-rail-width) + env(safe-area-inset-right, 0px))
+    var(--reel-bottom-chrome)
+    env(safe-area-inset-left, 0px);
   background:
     radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.06), transparent 32%),
     color-mix(in srgb, var(--background-color), black 96%);
@@ -204,20 +213,26 @@
 
 .reel-video,
 .reel-image {
+  display: block;
   width: 100%;
   height: 100%;
   max-width: 100%;
   max-height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   background: rgba(0, 0, 0, 0.8);
   transform: translateZ(0);
   will-change: transform;
 }
 
+.reel-video {
+  border-radius: clamp(0px, 1.5vw, 16px);
+}
+
 .reel-image {
   user-select: none;
   touch-action: pinch-zoom;
+  border-radius: clamp(0px, 1.5vw, 16px);
 }
 
 .story-only {
@@ -880,6 +895,11 @@
 }
 
 @media (max-width: 380px) {
+  .ms-reels-shell {
+    --reel-action-rail-width: 68px;
+    --reel-bottom-chrome: calc(176px + var(--reel-safe-bottom));
+  }
+
   .content-overlay {
     right: 70px;
     left: vars.$spacing-2;

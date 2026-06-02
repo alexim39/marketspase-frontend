@@ -438,6 +438,16 @@ export class FeedService {
     );
   }
 
+  incrementCommentCount(postId: string, increment: number = 1): void {
+    this.postsSignal.update((posts) =>
+      posts.map((post) =>
+        post._id === postId
+          ? { ...post, commentCount: Math.max(0, Number(post.commentCount || 0) + increment) }
+          : post
+      )
+    );
+  }
+
   getComments(postId: string, page: number = 1, limit: number = 20): Observable<CommentsResponse> {
     const params = new HttpParams({ fromObject: { page: page.toString(), limit: limit.toString() } });
     return this.apiService.get(`${this.apiUrl}/${postId}/comments`, params, undefined, true).pipe(

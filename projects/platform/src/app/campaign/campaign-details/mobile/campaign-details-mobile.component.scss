@@ -4,15 +4,42 @@
 :host {
   display: block;
   min-height: 100%;
+  --campaign-mobile-primary: var(--primary-color);
+  --campaign-mobile-text: var(--text-primary);
+  --campaign-mobile-muted-text: var(--text-secondary);
+  --campaign-mobile-bg: var(--background-color);
+  --campaign-mobile-surface: color-mix(in srgb, var(--surface-color) 96%, transparent);
+  --campaign-mobile-surface-solid: var(--surface-color);
+  --campaign-mobile-surface-muted: color-mix(in srgb, var(--background-color) 90%, var(--text-primary) 5%);
+  --campaign-mobile-surface-muted-strong: color-mix(in srgb, var(--background-color) 84%, var(--text-primary) 8%);
+  --campaign-mobile-border: color-mix(in srgb, var(--border-color) 86%, var(--text-primary) 8%);
+  --campaign-mobile-topbar: color-mix(in srgb, var(--surface-color) 94%, transparent);
+  --campaign-mobile-shadow: 0 1rem 2.4rem color-mix(in srgb, var(--text-primary) 10%, transparent);
+  --campaign-mobile-primary-soft: color-mix(in srgb, var(--primary-color) 12%, var(--surface-color));
+  --campaign-mobile-primary-tint: color-mix(in srgb, var(--primary-color) 8%, var(--surface-color));
+  --campaign-mobile-status-muted: color-mix(in srgb, var(--background-color) 88%, var(--text-secondary) 10%);
+  --campaign-mobile-media-overlay: rgba(15, 23, 42, 0.74);
   background:
-    radial-gradient(circle at 90% -8%, rgba($primary-color, 0.18), transparent 22rem),
-    linear-gradient(180deg, rgba($primary-color, 0.06), rgba($background-color, 0.98) 18rem),
-    $background-color;
+    radial-gradient(circle at 90% -8%, color-mix(in srgb, var(--primary-color) 18%, transparent), transparent 22rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--primary-color) 6%, transparent), var(--background-color) 18rem),
+    var(--background-color);
+}
+
+:host-context([data-theme='dark']) {
+  --campaign-mobile-surface: color-mix(in srgb, var(--surface-color) 90%, transparent);
+  --campaign-mobile-surface-muted: color-mix(in srgb, var(--surface-color), var(--background-color) 34%);
+  --campaign-mobile-surface-muted-strong: color-mix(in srgb, var(--surface-color), var(--background-color) 22%);
+  --campaign-mobile-border: color-mix(in srgb, var(--border-color), transparent 4%);
+  --campaign-mobile-topbar: color-mix(in srgb, var(--surface-color) 88%, transparent);
+  --campaign-mobile-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.34);
+  --campaign-mobile-primary-soft: color-mix(in srgb, var(--primary-color) 18%, var(--surface-color));
+  --campaign-mobile-primary-tint: color-mix(in srgb, var(--primary-color) 12%, var(--surface-color));
+  --campaign-mobile-status-muted: color-mix(in srgb, var(--text-secondary) 16%, var(--surface-color));
 }
 
 .campaign-detail-mobile {
   min-height: 100vh;
-  color: $text-primary;
+  color: var(--campaign-mobile-text);
 }
 
 .mobile-topbar {
@@ -24,8 +51,8 @@
   gap: 0.8rem;
   align-items: center;
   padding: calc(0.75rem + env(safe-area-inset-top)) 0.875rem 0.75rem;
-  background: rgba($surface-color, 0.95);
-  border-bottom: 1px solid $border-color;
+  background: var(--campaign-mobile-topbar);
+  border-bottom: 1px solid var(--campaign-mobile-border);
   backdrop-filter: blur(16px);
 
   div {
@@ -35,7 +62,7 @@
   }
 
   span {
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -76,8 +103,8 @@
   display: inline-grid;
   place-items: center;
   border-radius: 999px;
-  color: $text-primary;
-  background: $gray-100;
+  color: var(--campaign-mobile-text);
+  background: var(--campaign-mobile-surface-muted);
 }
 
 .mobile-content {
@@ -96,10 +123,10 @@
 .activity-card,
 .mobile-loading,
 .mobile-error {
-  border: 1px solid $border-color;
+  border: 1px solid var(--campaign-mobile-border);
   border-radius: 1.35rem;
-  background: rgba($surface-color, 0.97);
-  box-shadow: 0 1rem 2.4rem rgba($text-primary, 0.07);
+  background: var(--campaign-mobile-surface);
+  box-shadow: var(--campaign-mobile-shadow);
 }
 
 .hero-card {
@@ -110,7 +137,7 @@
   position: relative;
   aspect-ratio: 1 / 0.78;
   overflow: hidden;
-  background: $gray-100;
+  background: var(--campaign-mobile-surface-muted-strong);
 
   img,
   video {
@@ -138,7 +165,7 @@
   z-index: 1;
   padding: 0.45rem 0.65rem;
   color: var(--on-primary-color);
-  background: rgba($text-primary, 0.72);
+  background: var(--campaign-mobile-media-overlay);
   font-size: 0.74rem;
 }
 
@@ -151,27 +178,27 @@
   &.status-accepted,
   &.status-paid {
     color: $success-color;
-    background: rgba($success-color, 0.11);
+    background: color-mix(in srgb, #{$success-color} 14%, var(--campaign-mobile-surface-solid));
   }
 
   &.status-paused,
   &.status-pending,
   &.status-submitted {
     color: $warning-color;
-    background: rgba($warning-color, 0.13);
+    background: color-mix(in srgb, #{$warning-color} 16%, var(--campaign-mobile-surface-solid));
   }
 
   &.status-rejected,
   &.status-expired {
     color: $error-color;
-    background: rgba($error-color, 0.1);
+    background: color-mix(in srgb, #{$error-color} 14%, var(--campaign-mobile-surface-solid));
   }
 
   &.status-draft,
   &.status-exhausted,
   &.status-completed {
-    color: $text-secondary;
-    background: $gray-100;
+    color: var(--campaign-mobile-muted-text);
+    background: var(--campaign-mobile-status-muted);
   }
 }
 
@@ -189,7 +216,7 @@
 
   p {
     margin: 0;
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     font-size: 0.92rem;
     line-height: 1.5;
   }
@@ -208,7 +235,7 @@
 .status-row > span:last-child,
 .section-heading span,
 .promotion-footer > span {
-  color: $text-secondary;
+  color: var(--campaign-mobile-muted-text);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -219,8 +246,8 @@
   gap: 0.55rem;
   padding: 0.75rem;
   border-radius: 1rem;
-  color: $primary-color;
-  background: rgba($primary-color, 0.09);
+  color: var(--campaign-mobile-primary);
+  background: var(--campaign-mobile-primary-tint);
   font-size: 0.86rem;
   font-weight: 800;
 }
@@ -232,8 +259,8 @@
   justify-content: center;
   gap: 0.45rem;
   border-radius: 999px;
-  color: $primary-color;
-  background: rgba($primary-color, 0.1);
+  color: var(--campaign-mobile-primary);
+  background: var(--campaign-mobile-primary-soft);
   font-weight: 900;
 }
 
@@ -250,19 +277,19 @@
   gap: 0.25rem;
   padding: 0.7rem 0.45rem;
   border-radius: 1rem;
-  color: $text-primary;
-  background: rgba($surface-color, 0.98);
-  border: 1px solid $border-color;
+  color: var(--campaign-mobile-text);
+  background: var(--campaign-mobile-surface);
+  border: 1px solid var(--campaign-mobile-border);
   font-size: 0.74rem;
   font-weight: 900;
 
   mat-icon {
-    color: $primary-color;
+    color: var(--campaign-mobile-primary);
   }
 
   &.primary {
     color: var(--on-primary-color);
-    background: $primary-color;
+    background: var(--campaign-mobile-primary);
     border-color: transparent;
 
     mat-icon {
@@ -288,7 +315,7 @@
     align-items: flex-start;
 
     span {
-      color: $text-secondary;
+      color: var(--campaign-mobile-muted-text);
       font-size: 0.78rem;
       font-weight: 800;
     }
@@ -303,7 +330,7 @@
     p {
       max-width: 54%;
       margin: 0;
-      color: $text-secondary;
+      color: var(--campaign-mobile-muted-text);
       font-size: 0.8rem;
       line-height: 1.4;
       text-align: right;
@@ -344,13 +371,13 @@
     display: inline-grid;
     place-items: center;
     border-radius: 0.95rem;
-    color: $primary-color;
-    background: rgba($primary-color, 0.1);
+    color: var(--campaign-mobile-primary);
+    background: var(--campaign-mobile-primary-soft);
   }
 
   span,
   p {
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
   }
 
   span {
@@ -371,17 +398,17 @@
 
   &.tone-success .metric-icon {
     color: $success-color;
-    background: rgba($success-color, 0.1);
+    background: color-mix(in srgb, #{$success-color} 14%, var(--campaign-mobile-surface-solid));
   }
 
   &.tone-warn .metric-icon {
     color: $warning-color;
-    background: rgba($warning-color, 0.12);
+    background: color-mix(in srgb, #{$warning-color} 16%, var(--campaign-mobile-surface-solid));
   }
 
   &.tone-info .metric-icon {
     color: $info-color;
-    background: rgba($info-color, 0.1);
+    background: color-mix(in srgb, #{$info-color} 14%, var(--campaign-mobile-surface-solid));
   }
 }
 
@@ -391,7 +418,7 @@
   padding: 1rem;
 
   > span {
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     font-size: 0.76rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -413,7 +440,7 @@
 
   p {
     margin: 0.18rem 0 0;
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     font-size: 0.82rem;
     line-height: 1.35;
   }
@@ -425,8 +452,8 @@
     justify-content: center;
     gap: 0.45rem;
     border-radius: 999px;
-    color: $primary-color;
-    background: rgba($primary-color, 0.1);
+    color: var(--campaign-mobile-primary);
+    background: var(--campaign-mobile-primary-soft);
     font-weight: 900;
   }
 }
@@ -439,7 +466,7 @@
   flex: 0 0 3rem;
   border-radius: 1rem;
   color: var(--on-primary-color);
-  background: $gradient-primary;
+  background: var(--gradient-primary);
   font-weight: 900;
 }
 
@@ -472,15 +499,15 @@
   align-items: center;
   padding: 0.75rem;
   border-radius: 1rem;
-  background: $gray-100;
+  background: var(--campaign-mobile-surface-muted);
 
   mat-icon {
-    color: $primary-color;
+    color: var(--campaign-mobile-primary);
   }
 
   span {
     display: block;
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     font-size: 0.74rem;
     font-weight: 800;
   }
@@ -501,8 +528,8 @@
   min-width: 0;
   padding: 0.8rem;
   border-radius: 1rem;
-  color: $primary-color;
-  background: rgba($primary-color, 0.08);
+  color: var(--campaign-mobile-primary);
+  background: var(--campaign-mobile-primary-tint);
   font-weight: 800;
   text-decoration: none;
 
@@ -527,7 +554,7 @@
   ul {
     margin: 0;
     padding-left: 1.15rem;
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     line-height: 1.55;
   }
 }
@@ -540,8 +567,8 @@
   span {
     padding: 0.42rem 0.65rem;
     border-radius: 999px;
-    color: $text-secondary;
-    background: $gray-100;
+    color: var(--campaign-mobile-muted-text);
+    background: var(--campaign-mobile-surface-muted);
     font-size: 0.78rem;
     font-weight: 800;
   }
@@ -554,17 +581,17 @@
   align-items: center;
   padding: 0 0.85rem;
   border-radius: 999px;
-  background: $gray-100;
+  background: var(--campaign-mobile-surface-muted);
 
   mat-icon {
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
   }
 
   input {
     min-width: 0;
     border: 0;
     outline: 0;
-    color: $text-primary;
+    color: var(--campaign-mobile-text);
     background: transparent;
     font: inherit;
   }
@@ -586,13 +613,13 @@
     flex: 0 0 auto;
     padding: 0 0.9rem;
     border-radius: 999px;
-    color: $text-secondary;
-    background: $gray-100;
+    color: var(--campaign-mobile-muted-text);
+    background: var(--campaign-mobile-surface-muted);
     font-weight: 900;
 
     &.active {
       color: var(--on-primary-color);
-      background: $primary-color;
+      background: var(--campaign-mobile-primary);
     }
   }
 }
@@ -606,9 +633,9 @@
   display: grid;
   gap: 0.85rem;
   padding: 0.85rem;
-  border: 1px solid $border-color;
+  border: 1px solid var(--campaign-mobile-border);
   border-radius: 1.15rem;
-  background: $surface-color;
+  background: var(--campaign-mobile-surface-solid);
 }
 
 .promotion-head {
@@ -634,12 +661,12 @@
     min-width: 0;
     padding: 0.65rem;
     border-radius: 0.9rem;
-    background: $gray-100;
+    background: var(--campaign-mobile-surface-muted);
   }
 
   span {
     display: block;
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     font-size: 0.7rem;
     font-weight: 800;
   }
@@ -667,8 +694,8 @@
     display: inline-grid;
     place-items: center;
     border-radius: 999px;
-    color: $primary-color;
-    background: rgba($primary-color, 0.09);
+    color: var(--campaign-mobile-primary);
+    background: var(--campaign-mobile-primary-tint);
   }
 }
 
@@ -682,7 +709,7 @@
   text-align: center;
 
   mat-icon {
-    color: $primary-color;
+    color: var(--campaign-mobile-primary);
     font-size: 2.1rem;
     width: 2.1rem;
     height: 2.1rem;
@@ -695,7 +722,7 @@
   }
 
   p {
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     line-height: 1.45;
   }
 }
@@ -710,7 +737,7 @@
   padding: 0 1.1rem;
   border-radius: 999px;
   color: var(--on-primary-color);
-  background: $primary-color;
+  background: var(--campaign-mobile-primary);
   font-weight: 900;
 }
 
@@ -729,8 +756,8 @@
     height: 0.7rem;
     margin-top: 0.35rem;
     border-radius: 999px;
-    background: $primary-color;
-    box-shadow: 0 0 0 0.3rem rgba($primary-color, 0.12);
+    background: var(--campaign-mobile-primary);
+    box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--primary-color) 16%, transparent);
   }
 
   strong {
@@ -742,7 +769,7 @@
   p,
   small {
     margin: 0.18rem 0 0;
-    color: $text-secondary;
+    color: var(--campaign-mobile-muted-text);
     line-height: 1.45;
   }
 }
