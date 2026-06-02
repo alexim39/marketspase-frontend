@@ -1290,6 +1290,7 @@ $comment-rail-width: 420px;
     height: calc(100vh - #{$dashboard-header-height});
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     padding: $spacing-4 $spacing-3 $spacing-8 $spacing-5;
     scrollbar-gutter: stable;
