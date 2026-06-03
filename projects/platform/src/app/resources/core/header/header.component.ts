@@ -1,5 +1,5 @@
 // header.component.ts
-import { Component, signal, inject, HostListener } from '@angular/core';
+import { Component, signal, inject, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +31,7 @@ interface NavItem {
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnDestroy {
   private router = inject(Router);
   
   isScrolled = signal(false);
@@ -87,9 +87,14 @@ export class HeaderComponent {
 
   @HostListener('window:resize')
   onWindowResize() {
-    if (window.innerWidth > 1024) {
+    if (window.innerWidth > 1099) {
       this.closeMobileMenu();
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    this.closeMobileMenu();
   }
 
   // In header.component.ts
@@ -106,6 +111,10 @@ export class HeaderComponent {
   closeMobileMenu(): void {
     this.isMobileMenuOpen.set(false);
     this.openSubMenus.set(new Set());
+    document.body.style.overflow = '';
+  }
+
+  ngOnDestroy(): void {
     document.body.style.overflow = '';
   }
 

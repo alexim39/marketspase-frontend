@@ -93,5 +93,5 @@ export class CreateCampaignMobileComponent extends CreateCampaignComponent {
 
   protected readonly budgetPreview = computed(() => Number(this.budgetValue() || 0));
 
-  protected readonly estimatedVerifiedClicks = computed(() => Math.floor(this.budgetPreview() / 80));
+  protected readonly estimatedVerifiedClicks = computed(() => Math.floor(this.budgetPreview() / this.costPerClick()));
 }

@@ -138,7 +138,8 @@ export class AdminDashboardComponent implements OnInit {
       icon: 'settings_applications',
       isExpanded: false,
       children: [
-        { id: 'payment-settings', title: 'Payment Settings', icon: 'payments', route: '/dashboard/settings/payments' }
+        { id: 'payment-settings', title: 'Payment Settings', icon: 'payments', route: '/dashboard/settings/payments' },
+        { id: 'ppc-pricing-settings', title: 'PPC Pricing', icon: 'price_change', route: '/dashboard/settings/ppc-pricing' }
       ]
     }
   ]);
@@ -289,6 +290,7 @@ export class AdminDashboardComponent implements OnInit {
         '/dashboard/newsletters': 'community',
         '/dashboard/testimonials': 'community',
         '/dashboard/settings/payments': 'settings',
+        '/dashboard/settings/ppc-pricing': 'settings',
         '/dashboard/settings/login-streaks': 'rewards',
         '/dashboard/settings/badges': 'rewards',
         '/dashboard/settings/gamification': 'rewards'

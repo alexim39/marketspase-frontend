@@ -67,6 +67,20 @@ export interface PpcPromoterPatternCountry {
   billableClicks: number;
 }
 
+export interface PpcPromoterPayoutPolicy {
+  _id?: string;
+  promoter: string;
+  enabled: boolean;
+  isActive: boolean;
+  payoutMode: 'fixed' | string;
+  fixedPayoutPerClick: number;
+  currency: string;
+  reason: string;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface PpcPromoterRow {
   promoter: {
     _id: string;
@@ -83,6 +97,8 @@ export interface PpcPromoterRow {
     invalidClicks: number;
     duplicateClicks: number;
     spend: number;
+    promoterEarnings: number;
+    platformRetainedAmount: number;
     conversions: number;
     conversionRevenue: number;
     lastClickAt?: string | null;
@@ -102,8 +118,11 @@ export interface PpcPromoterRow {
     marketerId?: string;
     billableClicks?: number;
     spend?: number;
+    promoterEarnings?: number;
+    platformRetainedAmount?: number;
     lastClickAt?: string;
   } | null;
+  payoutPolicy?: PpcPromoterPayoutPolicy | null;
   anomalies: string[];
 }
 
@@ -126,6 +145,8 @@ export interface PpcPromotionLinkRecentClick {
   status: 'billable' | 'duplicate' | 'invalid' | 'exhausted' | string;
   chargeStatus?: string;
   cost: number;
+  promoterPayoutAmount?: number;
+  platformRetainedAmount?: number;
   deviceType?: string;
   ip?: string;
   country?: string;
@@ -168,7 +189,10 @@ export interface PpcPromotionLinkBreakdown {
     duplicateClicks: number;
     exhaustedClicks: number;
     spend: number;
+    promoterEarnings: number;
+    platformRetainedAmount: number;
     unitCost: number;
+    promoterPayoutAmount: number;
     conversions: number;
     conversionRevenue: number;
     commissionEarned: number;
@@ -201,6 +225,8 @@ export interface PpcPromotionLinksResponse {
       duplicateClicks: number;
       exhaustedClicks: number;
       spend: number;
+      promoterEarnings: number;
+      platformRetainedAmount: number;
       promotionLinks: number;
       billableRate: number;
       invalidRate: number;
@@ -306,6 +332,26 @@ export class PpcAnalyticsService {
 
   suspendPromoter(promoterId: string, reason = ''): Observable<any> {
     return this.apiService.post(`${this.apiUrl}/promoters/${encodeURIComponent(promoterId)}/suspend`, { reason });
+  }
+
+  setPromoterCpcPolicy(promoterId: string, payload: {
+    fixedPayoutPerClick: number;
+    endsAt: string;
+    reason: string;
+  }): Observable<{ success: boolean; message?: string; data?: { policy: PpcPromoterPayoutPolicy } }> {
+    return this.apiService.post(
+      `${this.apiUrl}/promoters/${encodeURIComponent(promoterId)}/cpc-policy`,
+      payload,
+    );
+  }
+
+  clearPromoterCpcPolicy(promoterId: string, reason = 'Policy cleared by admin'): Observable<{
+    success: boolean;
+    message?: string;
+    data?: { policy: PpcPromoterPayoutPolicy | null };
+  }> {
+    const params = new HttpParams().set('reason', reason);
+    return this.apiService.delete(`${this.apiUrl}/promoters/${encodeURIComponent(promoterId)}/cpc-policy`, params);
   }
 }
 

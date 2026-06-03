@@ -73,6 +73,11 @@ export const dashboardRoutes: Routes = [
                 loadComponent: () => import('../settings/gamification-settings.component').then(c => c.GamificationSettingsComponent),
                 title: 'Gamification Settings - Admin Dashboard'
             },
+            {
+                path: 'settings/ppc-pricing',
+                loadComponent: () => import('../settings/ppc-pricing-settings.component').then(c => c.PpcPricingSettingsComponent),
+                title: 'PPC Pricing Settings - Admin Dashboard'
+            },
             
                               
             // { path: 'marketing', loadChildren: () => import('./marketing/marketing-routes').then(r => r.MarketingRoutes) },  

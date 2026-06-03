@@ -16,6 +16,22 @@ export interface CampaignMediaUploadResponse {
   data: CampaignMediaAsset;
 }
 
+export interface CampaignPpcPricingConfig {
+  enabled: boolean;
+  currency: string;
+  defaultCostPerClick: number;
+  minCostPerClick: number;
+  maxCostPerClick: number;
+  allowMarketerOverride: boolean;
+  updatedAt?: string | Date | null;
+}
+
+export interface CampaignPpcPricingConfigResponse {
+  success: boolean;
+  message?: string;
+  data: CampaignPpcPricingConfig;
+}
+
 @Injectable()
 export class CampaignService {
   private apiService: ApiService = inject(ApiService);
@@ -45,6 +61,10 @@ export class CampaignService {
    */
   save(campaignData: Record<string, unknown>): Observable<any> {
     return this.apiService.post<any>(`${this.apiUrl}/save`, campaignData, undefined, true);
+  }
+
+  getPricingConfig(): Observable<CampaignPpcPricingConfigResponse> {
+    return this.apiService.get<CampaignPpcPricingConfigResponse>(`${this.apiUrl}/pricing/config`, undefined, undefined, true);
   }
 
   uploadMedia(file: File): Observable<HttpEvent<CampaignMediaUploadResponse>> {

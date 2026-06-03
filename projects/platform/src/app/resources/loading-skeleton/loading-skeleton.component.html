@@ -1,227 +1,251 @@
-    <div class="skeleton-container">
-      
-      <!-- Hero Section Skeleton -->
-      <section class="skeleton-hero">
-        <div class="skeleton-breadcrumb skeleton-shimmer"></div>
-        
-        <div class="hero-content">
-          <div class="skeleton-badge skeleton-shimmer"></div>
-          <div class="skeleton-hero-title skeleton-shimmer"></div>
-          <div class="skeleton-hero-title skeleton-shimmer" style="width: 70%"></div>
-          <div class="skeleton-hero-subtitle skeleton-shimmer"></div>
-          
-          <div class="skeleton-actions">
-            <div class="skeleton-btn skeleton-shimmer"></div>
-            <div class="skeleton-btn skeleton-shimmer"></div>
-          </div>
-        </div>
+<div class="resources-skeleton" [ngClass]="layoutClass()" [attr.data-variant]="pageProfile().variant" aria-busy="true" aria-live="polite">
+  <header class="skeleton-nav" aria-hidden="true">
+    <div class="skeleton-brand">
+      <span class="skeleton-logo skeleton-shimmer"></span>
+      <span class="skeleton-line brand-name skeleton-shimmer"></span>
+    </div>
 
-        <div class="skeleton-stats">
-          @for (stat of [1,2,3,4]; track stat) {
-            <div class="skeleton-stat">
-              <div class="skeleton-stat-value skeleton-shimmer"></div>
-              <div class="skeleton-stat-label skeleton-shimmer"></div>
-            </div>
+    @if (!isMobileExperience()) {
+      <nav class="skeleton-nav-links">
+        @for (item of range(4); track item) {
+          <span class="skeleton-line nav-link skeleton-shimmer"></span>
+        }
+      </nav>
+      <span class="skeleton-button nav-action skeleton-shimmer"></span>
+    } @else {
+      <span class="skeleton-menu-button skeleton-shimmer"></span>
+    }
+  </header>
+
+  <main class="skeleton-main">
+    <section class="skeleton-hero" aria-label="Loading page introduction">
+      <div class="hero-copy">
+        <span class="skeleton-line breadcrumb skeleton-shimmer"></span>
+        <span class="skeleton-pill skeleton-shimmer"></span>
+
+        <div class="hero-title">
+          @for (line of titleLines(); track line) {
+            <span class="skeleton-line title-line skeleton-shimmer" [class.short]="line === titleLines().length"></span>
           }
         </div>
-      </section>
 
-      <!-- Benefits Section Skeleton -->
-      <section class="skeleton-section">
-        <div class="container">
-          <div class="skeleton-section-header">
-            <div class="skeleton-title skeleton-shimmer"></div>
-            <div class="skeleton-subtitle skeleton-shimmer"></div>
-          </div>
-          
-          <div class="skeleton-benefits-grid">
-            @for (benefit of [1,2,3,4,5,6]; track benefit) {
-              <div class="skeleton-benefit-card skeleton-shimmer">
-                <div class="skeleton-benefit-icon skeleton-shimmer"></div>
-                <div class="skeleton-benefit-title skeleton-shimmer"></div>
-                <div class="skeleton-benefit-text skeleton-shimmer"></div>
-                <div class="skeleton-benefit-text skeleton-shimmer" style="width: 80%"></div>
-              </div>
-            }
-          </div>
+        <span class="skeleton-line lead-line skeleton-shimmer"></span>
+        <span class="skeleton-line lead-line short skeleton-shimmer"></span>
+
+        <div class="hero-actions">
+          <span class="skeleton-button skeleton-shimmer"></span>
+          <span class="skeleton-button secondary skeleton-shimmer"></span>
         </div>
-      </section>
+      </div>
 
-      <!-- Process Section Skeleton -->
-      <section class="skeleton-section skeleton-section-alt">
-        <div class="container">
-          <div class="skeleton-section-header">
-            <div class="skeleton-title skeleton-shimmer"></div>
-            <div class="skeleton-subtitle skeleton-shimmer"></div>
-          </div>
-          
-          <div class="skeleton-process">
-            @for (step of [1,2,3,4]; track step) {
-              <div class="skeleton-process-step">
-                <div class="skeleton-step-visual">
-                  <div class="skeleton-step-number skeleton-shimmer"></div>
-                  <div class="skeleton-step-icon skeleton-shimmer"></div>
-                </div>
-                <div class="skeleton-step-content">
-                  <div class="skeleton-step-title skeleton-shimmer"></div>
-                  <div class="skeleton-step-text skeleton-shimmer"></div>
-                  <div class="skeleton-step-text skeleton-shimmer" style="width: 75%"></div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- Earnings Section Skeleton -->
-      <section class="skeleton-section">
-        <div class="container">
-          <div class="skeleton-section-header">
-            <div class="skeleton-title skeleton-shimmer"></div>
-            <div class="skeleton-subtitle skeleton-shimmer"></div>
-          </div>
-          
-          <div class="skeleton-earnings-grid">
-            @for (tier of [1,2,3]; track tier) {
-              <div class="skeleton-earning-tier skeleton-shimmer">
-                <div class="skeleton-tier-header">
-                  <div class="skeleton-tier-title skeleton-shimmer"></div>
-                  <div class="skeleton-tier-amount skeleton-shimmer"></div>
-                </div>
-                <div class="skeleton-tier-description skeleton-shimmer"></div>
-                <div class="skeleton-tier-stats">
-                  <div class="skeleton-tier-stat skeleton-shimmer"></div>
-                  <div class="skeleton-tier-stat skeleton-shimmer"></div>
-                  <div class="skeleton-tier-stat skeleton-shimmer"></div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- Campaigns Section Skeleton -->
-      <section class="skeleton-section skeleton-section-alt">
-        <div class="container">
-          <div class="skeleton-section-header">
-            <div class="skeleton-title skeleton-shimmer"></div>
-            <div class="skeleton-subtitle skeleton-shimmer"></div>
-          </div>
-          
-          <div class="skeleton-campaigns-grid">
-            @for (campaign of [1,2,3]; track campaign) {
-              <div class="skeleton-campaign-card skeleton-shimmer">
-                <div class="skeleton-campaign-header">
-                  <div class="skeleton-campaign-category skeleton-shimmer"></div>
-                  <div class="skeleton-campaign-urgency skeleton-shimmer"></div>
-                </div>
-                <div class="skeleton-campaign-title skeleton-shimmer"></div>
-                <div class="skeleton-campaign-description skeleton-shimmer"></div>
-                <div class="skeleton-campaign-description skeleton-shimmer" style="width: 60%"></div>
-                
-                <div class="skeleton-campaign-meta">
-                  <div class="skeleton-meta-item skeleton-shimmer"></div>
-                  <div class="skeleton-meta-item skeleton-shimmer"></div>
-                  <div class="skeleton-meta-item skeleton-shimmer"></div>
-                </div>
-                
-                <div class="skeleton-campaign-footer">
-                  <div class="skeleton-marketer-info">
-                    <div class="skeleton-marketer-rating skeleton-shimmer"></div>
-                    <div class="skeleton-marketer-name skeleton-shimmer"></div>
-                  </div>
-                  <div class="skeleton-accept-btn skeleton-shimmer"></div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- Testimonials Section Skeleton -->
-      <section class="skeleton-section">
-        <div class="container">
-          <div class="skeleton-section-header">
-            <div class="skeleton-title skeleton-shimmer"></div>
-            <div class="skeleton-subtitle skeleton-shimmer"></div>
-          </div>
-          
-          <div class="skeleton-testimonials-grid">
-            @for (testimonial of [1,2]; track testimonial) {
-              <div class="skeleton-testimonial-card skeleton-shimmer">
-                <div class="skeleton-testimonial-content">
-                  <div class="skeleton-quote-icon skeleton-shimmer"></div>
-                  <div class="skeleton-testimonial-text skeleton-shimmer"></div>
-                  <div class="skeleton-testimonial-text skeleton-shimmer" style="width: 80%"></div>
-                  <div class="skeleton-testimonial-text skeleton-shimmer" style="width: 60%"></div>
-                  
-                  <div class="skeleton-testimonial-stats">
-                    @for (stat of [1,2,3]; track stat) {
-                      <div class="skeleton-testimonial-stat">
-                        <div class="skeleton-stat-value skeleton-shimmer"></div>
-                        <div class="skeleton-stat-metric skeleton-shimmer"></div>
-                      </div>
-                    }
-                  </div>
-                </div>
-                
-                <div class="skeleton-testimonial-author">
-                  <div class="skeleton-avatar skeleton-shimmer"></div>
-                  <div class="skeleton-author-info">
-                    <div class="skeleton-author-name skeleton-shimmer"></div>
-                    <div class="skeleton-author-role skeleton-shimmer"></div>
-                    <div class="skeleton-author-earnings skeleton-shimmer"></div>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- FAQ Section Skeleton -->
-      <section class="skeleton-section skeleton-section-alt">
-        <div class="container">
-          <div class="skeleton-section-header">
-            <div class="skeleton-title skeleton-shimmer"></div>
-            <div class="skeleton-subtitle skeleton-shimmer"></div>
-          </div>
-          
-          <div class="skeleton-faq-grid">
-            @for (faq of [1,2,3,4,5,6]; track faq) {
-              <div class="skeleton-faq-item">
-                <div class="skeleton-faq-question skeleton-shimmer">
-                  <div class="skeleton-faq-text skeleton-shimmer"></div>
-                  <div class="skeleton-faq-icon skeleton-shimmer"></div>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- CTA Section Skeleton -->
-      <section class="skeleton-cta">
-        <div class="container">
-          <div class="skeleton-cta-content">
-            <div class="skeleton-cta-title skeleton-shimmer"></div>
-            <div class="skeleton-cta-subtitle skeleton-shimmer"></div>
-            
-            <div class="skeleton-cta-actions">
-              <div class="skeleton-cta-btn skeleton-shimmer"></div>
-              <div class="skeleton-cta-btn skeleton-shimmer"></div>
+      <aside class="hero-panel" [attr.data-panel]="pageProfile().heroPanel">
+        @switch (pageProfile().heroPanel) {
+          @case ('form') {
+            <div class="panel-card form-panel">
+              @for (field of range(4); track field) {
+                <span class="skeleton-field skeleton-shimmer"></span>
+              }
+              <span class="skeleton-button wide skeleton-shimmer"></span>
             </div>
-            
-            <div class="skeleton-cta-features">
-              @for (feature of [1,2,3]; track feature) {
-                <div class="skeleton-cta-feature skeleton-shimmer">
-                  <div class="skeleton-feature-icon skeleton-shimmer"></div>
-                  <div class="skeleton-feature-text skeleton-shimmer"></div>
-                </div>
+          }
+          @case ('search') {
+            <div class="panel-card search-panel">
+              <span class="skeleton-search skeleton-shimmer"></span>
+              @for (row of range(4); track row) {
+                <span class="skeleton-line search-row skeleton-shimmer"></span>
               }
             </div>
-          </div>
-        </div>
-      </section>
+          }
+          @case ('story') {
+            <div class="panel-card story-panel">
+              <span class="story-media skeleton-shimmer"></span>
+              <span class="skeleton-line story-title skeleton-shimmer"></span>
+              <span class="skeleton-line story-copy skeleton-shimmer"></span>
+              <div class="story-actions">
+                @for (action of range(3); track action) {
+                  <span class="story-chip skeleton-shimmer"></span>
+                }
+              </div>
+            </div>
+          }
+          @case ('visual') {
+            <div class="panel-card visual-panel">
+              <span class="visual-main skeleton-shimmer"></span>
+              <div class="visual-stack">
+                @for (card of heroCards(); track card) {
+                  <span class="visual-mini skeleton-shimmer"></span>
+                }
+              </div>
+            </div>
+          }
+          @default {
+            <div class="panel-card metric-panel">
+              @for (card of heroCards(); track card) {
+                <article>
+                  <span class="skeleton-icon skeleton-shimmer"></span>
+                  <span class="skeleton-line metric-value skeleton-shimmer"></span>
+                  <span class="skeleton-line metric-label skeleton-shimmer"></span>
+                </article>
+              }
+            </div>
+          }
+        }
+      </aside>
+    </section>
 
+    @for (section of sections(); track section.id) {
+      <section class="skeleton-section" [attr.data-kind]="section.kind" aria-label="Loading content section">
+        <div class="section-heading">
+          <span class="skeleton-pill small skeleton-shimmer"></span>
+          <span class="skeleton-line section-title skeleton-shimmer"></span>
+          <span class="skeleton-line section-subtitle skeleton-shimmer"></span>
+        </div>
+
+        @switch (section.kind) {
+          @case ('metric-grid') {
+            <div class="metric-grid">
+              @for (item of range(section.count); track item) {
+                <article class="metric-card">
+                  <span class="skeleton-icon skeleton-shimmer"></span>
+                  <span class="skeleton-line metric-value skeleton-shimmer"></span>
+                  <span class="skeleton-line metric-label skeleton-shimmer"></span>
+                </article>
+              }
+            </div>
+          }
+
+          @case ('form-split') {
+            <div class="form-layout">
+              <div class="form-card">
+                @for (field of range(5); track field) {
+                  <span class="skeleton-field skeleton-shimmer"></span>
+                }
+                <span class="skeleton-button wide skeleton-shimmer"></span>
+              </div>
+              <div class="support-stack">
+                @for (card of range(3); track card) {
+                  <article class="support-card">
+                    <span class="skeleton-icon skeleton-shimmer"></span>
+                    <span class="skeleton-line card-title skeleton-shimmer"></span>
+                    <span class="skeleton-line card-copy skeleton-shimmer"></span>
+                  </article>
+                }
+              </div>
+            </div>
+          }
+
+          @case ('steps') {
+            <div class="steps-list">
+              @for (step of range(section.count); track step) {
+                <article class="step-row">
+                  <span class="step-number skeleton-shimmer"></span>
+                  <span class="skeleton-icon skeleton-shimmer"></span>
+                  <div>
+                    <span class="skeleton-line card-title skeleton-shimmer"></span>
+                    <span class="skeleton-line card-copy skeleton-shimmer"></span>
+                    <span class="skeleton-line card-copy short skeleton-shimmer"></span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+          @case ('accordion') {
+            <div class="accordion-list">
+              @for (item of range(section.count); track item) {
+                <article class="accordion-row">
+                  <span class="skeleton-line accordion-title skeleton-shimmer"></span>
+                  <span class="accordion-toggle skeleton-shimmer"></span>
+                </article>
+              }
+            </div>
+          }
+
+          @case ('story-feed') {
+            <div class="story-grid">
+              @for (story of range(section.count); track story) {
+                <article class="story-card">
+                  <span class="story-media skeleton-shimmer"></span>
+                  <span class="skeleton-line card-title skeleton-shimmer"></span>
+                  <span class="skeleton-line card-copy skeleton-shimmer"></span>
+                  <div class="story-actions">
+                    @for (action of range(3); track action) {
+                      <span class="story-chip skeleton-shimmer"></span>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+          @case ('job-list') {
+            <div class="job-list">
+              @for (job of range(section.count); track job) {
+                <article class="job-row">
+                  <div>
+                    <span class="skeleton-line card-title skeleton-shimmer"></span>
+                    <span class="skeleton-line card-copy skeleton-shimmer"></span>
+                  </div>
+                  <span class="skeleton-button compact skeleton-shimmer"></span>
+                </article>
+              }
+            </div>
+          }
+
+          @case ('comparison') {
+            <div class="comparison-grid">
+              @for (row of range(section.count); track row) {
+                <article class="comparison-row">
+                  <span class="skeleton-line comparison-label skeleton-shimmer"></span>
+                  <span class="skeleton-line comparison-value skeleton-shimmer"></span>
+                  <span class="skeleton-line comparison-value skeleton-shimmer"></span>
+                </article>
+              }
+            </div>
+          }
+
+          @case ('cta') {
+            <div class="cta-card">
+              <span class="skeleton-line cta-title skeleton-shimmer"></span>
+              <span class="skeleton-line cta-copy skeleton-shimmer"></span>
+              <div class="hero-actions">
+                <span class="skeleton-button skeleton-shimmer"></span>
+                <span class="skeleton-button secondary skeleton-shimmer"></span>
+              </div>
+            </div>
+          }
+
+          @default {
+            <div class="card-grid">
+              @for (card of range(section.count); track card) {
+                <article class="content-card">
+                  <span class="skeleton-icon skeleton-shimmer"></span>
+                  <span class="skeleton-line card-title skeleton-shimmer"></span>
+                  <span class="skeleton-line card-copy skeleton-shimmer"></span>
+                  <span class="skeleton-line card-copy short skeleton-shimmer"></span>
+                </article>
+              }
+            </div>
+          }
+        }
+      </section>
+    }
+  </main>
+
+  <footer class="skeleton-footer" aria-hidden="true">
+    <div>
+      <span class="skeleton-logo skeleton-shimmer"></span>
+      <span class="skeleton-line footer-brand-line skeleton-shimmer"></span>
     </div>
+    <div class="footer-link-columns">
+      @for (column of range(3); track column) {
+        <div>
+          <span class="skeleton-line footer-heading skeleton-shimmer"></span>
+          @for (link of range(3); track link) {
+            <span class="skeleton-line footer-link skeleton-shimmer"></span>
+          }
+        </div>
+      }
+    </div>
+  </footer>
+</div>

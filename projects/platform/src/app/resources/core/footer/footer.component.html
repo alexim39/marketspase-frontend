@@ -1,102 +1,92 @@
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-main">
-        <div class="footer-brand">
-          <div class="brand-logo">
-            <!-- <mat-icon>campaign</mat-icon> -->
-             <img src="./img/x_logo.png">
-            <span>MarketSpase</span>
+<footer class="site-footer" aria-label="MarketSpase footer">
+  <div class="footer-shell">
+    <section class="footer-hero" aria-label="MarketSpase summary">
+      <div class="footer-brand">
+        <a class="brand-logo" routerLink="/" (click)="scrollToTop()" aria-label="MarketSpase home">
+          <img src="./img/x_logo.png" alt="MarketSpase logo">
+          <span>MarketSpase</span>
+        </a>
+        <p>Africa's social affiliate commerce platform for trusted promotions, storefront growth, and measurable referrals.</p>
+      </div>
+
+      <div class="footer-actions" aria-label="Footer calls to action">
+        <a class="primary-action" routerLink="/auth" (click)="scrollToTop()">
+          <mat-icon>rocket_launch</mat-icon>
+          Get started
+        </a>
+        <button type="button" class="secondary-action" (click)="openWhatsAppChannel()">
+          <mat-icon>group</mat-icon>
+          WhatsApp channel
+        </button>
+      </div>
+    </section>
+
+    <section class="footer-body">
+      <nav class="footer-links-grid" aria-label="Footer navigation">
+        @for (group of footerGroups; track group.title) {
+          <div class="footer-column">
+            <h2>{{ group.title }}</h2>
+            <ul>
+              @for (link of group.links; track link.label) {
+                <li>
+                  @if (link.route) {
+                    <a [routerLink]="link.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="scrollToTop()">
+                      {{ link.label }}
+                    </a>
+                  } @else if (link.href) {
+                    <a [href]="link.href" target="_blank" rel="noopener noreferrer">
+                      {{ link.label }}
+                    </a>
+                  }
+                </li>
+              }
+            </ul>
           </div>
-          <p class="brand-tagline">
-          Africa's Social Affiliate Commerce Platform.
-          </p>
+        }
+      </nav>
+
+      <aside class="footer-connect" aria-label="MarketSpase trust and social links">
+        <div class="trust-card">
+          <span class="trust-heading">Built for trust</span>
+          <div class="trust-list">
+            @for (item of trustItems; track item.label) {
+              <span>
+                <mat-icon>{{ item.icon }}</mat-icon>
+                {{ item.label }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <div class="social-card">
+          <span class="trust-heading">Follow MarketSpase</span>
           <div class="social-links">
-            <a href="https://www.facebook.com/marketspase" target="_blank" class="social-link">
-              <mat-icon>facebook</mat-icon>
-               <!-- <img src="/img/social/facebook.png" width="6px" height="6px"> -->
-            </a>
-            <a href="https://www.instagram.com/MarketSpaseOnline/" target="_blank" class="social-link">
-              <i class="fa fa-instagram" aria-hidden="true"></i>
-               <!-- <img src="/img/social/instagram.png" width="6px" height="6px"> -->
-            </a>
-            <!-- <a href="https://x.com/MarketSpase" target="_blank" class="social-link">
-               <i class="fa fa-twitter" aria-hidden="true"></i>
-            </a> -->
-            <!-- <a href="http://tiktok.com/@marketspaseonline" target="_blank" class="social-link">
-               <img src="/img/social/tiktok.png" width="6px" height="6px">
-            </a> -->
-           <!--  <a href="#" target="_blank" class="social-link">
-              <mat-icon>linkedin</mat-icon>
-            </a> -->
-            
+            @for (social of socialLinks; track social.label) {
+              <a [href]="social.href" target="_blank" rel="noopener noreferrer" [attr.aria-label]="social.label">
+                @if (social.iconType === 'material') {
+                  <mat-icon>{{ social.icon }}</mat-icon>
+                } @else {
+                  <i [class]="social.icon" aria-hidden="true"></i>
+                }
+              </a>
+            }
           </div>
         </div>
+      </aside>
+    </section>
 
-        <div class="footer-links-grid">
-          <div class="footer-column">
-            <h4>Platform</h4>
-            <ul>
-              <li><a routerLink="/resources/features" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Features</a></li>
-              <!-- <li><a routerLink="/about/success-stories" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Success Stories</a></li> -->
-            </ul>
-          </div>
-
-          <div class="footer-column">
-            <h4>Resources</h4>
-            <ul>
-              <!-- <li><a routerLink="/about/help-center" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Help Center</a></li> -->
-              <li><a routerLink="/resources/how-it-works" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">How It Works</a></li>
-              <li><a routerLink="/resources/faqs" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">FAQs</a></li>
-              <!-- <li><a href="#" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Blog</a></li> -->
-              <!-- <li><a href="#" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Community</a></li> -->
-              <!-- <li><a href="#" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">API Documentation</a></li> -->
-            </ul>
-          </div>
-
-          <div class="footer-column">
-            <h4>Company</h4>
-            <ul>
-              <li><a routerLink="/resources/about" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">About Us</a></li>
-              <li><a routerLink="/resources/careers" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Careers</a></li>
-              <li><a routerLink="/resources/contact" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="scrollToTop()">Contact</a></li>
-              <!-- <li><a href="#">Press Kit</a></li> -->
-            </ul>
-          </div>
-
-          <div class="footer-column">
-            <h4>Legal</h4>
-            <ul>
-              <li><a routerLink="/legal/privacy" target="_blank">Privacy Policy</a></li>
-              <li><a routerLink="/legal/terms" target="_blank">Terms of Service</a></li>
-              <li><a routerLink="/legal/cookies" target="_blank">Cookie Policy</a></li>
-              <!-- <li><a href="#" target="_blank">GDPR</a></li> -->
-            </ul>
-          </div>
-        </div>
+    <section class="footer-bottom" aria-label="Footer legal and security information">
+      <p>&copy; {{ currentYear }} MarketSpase by Async Groups. All rights reserved.</p>
+      <div class="footer-badges">
+        <span>
+          <mat-icon>security</mat-icon>
+          SSL secured
+        </span>
+        <span>
+          <mat-icon>credit_card</mat-icon>
+          Secure payments
+        </span>
       </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="footer-bottom">
-        <div class="footer-copyright">
-          <p>&copy; {{ currentYear }} MarketSpase by Async Groups. All rights reserved.</p>
-        </div>
-        <div class="footer-legal">
-          <div class="payment-methods">
-            <span>Accepted Payments:</span>
-            <div class="payment-icons">
-              <mat-icon>credit_card</mat-icon>
-              <mat-icon>account_balance</mat-icon>
-              <mat-icon>payments</mat-icon>
-            </div>
-          </div>
-          <div class="security-badge">
-            <mat-icon>security</mat-icon>
-            <span>SSL Secured</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
 </footer>

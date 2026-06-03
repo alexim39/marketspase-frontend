@@ -2,7 +2,7 @@
       <div class="header-container">
         <!-- Logo -->
         <a class="logo" routerLink="/">
-          <img class="logo-icon" src="./img/x_logo.png">
+          <img class="logo-icon" src="./img/x_logo.png" alt="MarketSpase logo">
           <span class="logo-text">MarketSpase</span>
         </a>
 
@@ -66,9 +66,13 @@
 
         <!-- Mobile Menu Button -->
         <button 
+          type="button"
           class="mobile-menu-btn" 
           (click)="toggleMobileMenu()"
           [class.active]="isMobileMenuOpen()"
+          [attr.aria-expanded]="isMobileMenuOpen()"
+          aria-controls="resources-mobile-menu"
+          aria-label="Toggle navigation menu"
         >
           <span></span>
           <span></span>
@@ -77,13 +81,13 @@
       </div>
 
       <!-- Mobile Navigation -->
-      <div class="mobile-nav" [class.active]="isMobileMenuOpen()">
+      <div id="resources-mobile-menu" class="mobile-nav" [class.active]="isMobileMenuOpen()">
         <nav class="mobile-nav-content">
           @for (item of navItems(); track item.label) {
             <div class="mobile-nav-item">
               @if (item.children) {
                 <div class="mobile-nav-parent">
-                  <button class="mobile-nav-link" (click)="toggleSubMenu(item)">
+                  <button type="button" class="mobile-nav-link" (click)="toggleSubMenu(item)" [attr.aria-expanded]="isSubMenuOpen(item)">
                     <span>{{ item.label }}</span>
                     <mat-icon [class.rotated]="isSubMenuOpen(item)">
                       expand_more
@@ -129,7 +133,7 @@
               <mat-icon>login</mat-icon>
               Sign In
             </button> -->
-            <button mat-flat-button class="whatsapp-channel-button" matTooltip="Join Our WhatsApp Channel for real-time updates" (click)="openWhatsAppChannel()">
+            <button mat-flat-button class="whatsapp-channel-button" matTooltip="Join Our WhatsApp Channel for real-time updates" (click)="openWhatsAppChannel(); closeMobileMenu()">
               <mat-icon>group</mat-icon>  <!-- or svgIcon="whatsapp" if you add the SVG -->
               Join Our WhatsApp Channel
             </button>

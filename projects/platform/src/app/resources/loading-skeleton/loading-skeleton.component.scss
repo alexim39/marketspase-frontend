@@ -1,703 +1,742 @@
-@import '../../../styles/variables';
-@import '../../../styles/mixins';
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
 
-/* Skeleton Loading Variables */
-$base-color: $gray-200;
-$highlight-color: $gray-100;
-$gradient: linear-gradient(90deg, $base-color 25%, $highlight-color 50%, $base-color 75%);
-$animation-duration: 1s;
+$skeleton-base: color-mix(in srgb, #{$border-color}, #{$surface-color} 50%);
+$skeleton-highlight: color-mix(in srgb, #{$surface-color}, #{$primary-color} 7%);
+$skeleton-gradient: linear-gradient(90deg, #{$skeleton-base} 0%, #{$skeleton-highlight} 48%, #{$skeleton-base} 100%);
 
-/* Base Container */
-.skeleton-container {
-  min-height: 100vh;
-  background: $surface-color;
+:host {
+  display: block;
 }
 
-/* Shimmer Animation */
+.resources-skeleton {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, #{$primary-color}, transparent 90%), transparent 28%),
+    $background-color;
+  color: $text-primary;
+}
+
 .skeleton-shimmer {
-  background: $base-color;
-  background-image: $gradient;
-  background-size: 200% 100%;
-  animation: shimmer $animation-duration infinite;
+  position: relative;
+  overflow: hidden;
+  background: $skeleton-base;
+  background-image: $skeleton-gradient;
+  background-size: 220% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
   border-radius: $border-radius;
-  
-  &::before {
-    content: '';
-    display: block;
+}
+
+.skeleton-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-5;
+  min-height: 80px;
+  padding: 0 clamp(20px, 4vw, 48px);
+  border-bottom: $border-width solid color-mix(in srgb, #{$border-color}, transparent 30%);
+  background: color-mix(in srgb, #{$surface-color}, transparent 4%);
+  @include backdrop-blur;
+}
+
+.skeleton-brand,
+.skeleton-nav-links,
+.hero-actions,
+.story-actions {
+  display: flex;
+  align-items: center;
+}
+
+.skeleton-brand {
+  gap: $spacing-3;
+}
+
+.skeleton-nav-links {
+  flex: 1;
+  justify-content: center;
+  gap: $spacing-4;
+}
+
+.skeleton-logo {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+}
+
+.skeleton-line,
+.skeleton-pill,
+.skeleton-button,
+.skeleton-field,
+.skeleton-icon,
+.skeleton-search {
+  display: block;
+}
+
+.brand-name {
+  width: 150px;
+  height: 22px;
+}
+
+.nav-link {
+  width: clamp(72px, 8vw, 108px);
+  height: 18px;
+}
+
+.nav-action {
+  width: 210px;
+}
+
+.skeleton-menu-button {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-lg;
+}
+
+.skeleton-main {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(22px, 5vw, 48px) 0 clamp(42px, 7vw, 76px);
+}
+
+.skeleton-hero,
+.skeleton-section,
+.skeleton-footer {
+  border: $border-width solid color-mix(in srgb, #{$border-color}, transparent 12%);
+  background: $surface-color;
+  box-shadow: 0 18px 48px color-mix(in srgb, #{$gray-900}, transparent 92%);
+}
+
+.skeleton-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 54px);
+  min-height: min(690px, calc(100vh - 124px));
+  padding: clamp(26px, 5vw, 56px);
+  border-radius: $border-radius-xl;
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.breadcrumb {
+  width: min(220px, 52vw);
+  height: 15px;
+  margin-bottom: $spacing-6;
+}
+
+.skeleton-pill {
+  width: 178px;
+  height: 32px;
+  margin-bottom: $spacing-5;
+  border-radius: 999px;
+}
+
+.skeleton-pill.small {
+  width: 118px;
+  height: 24px;
+  margin: 0 auto $spacing-3;
+}
+
+.hero-title {
+  display: grid;
+  gap: $spacing-3;
+  margin-bottom: $spacing-5;
+}
+
+.title-line {
+  width: min(680px, 100%);
+  height: clamp(42px, 6vw, 68px);
+  border-radius: $border-radius-lg;
+
+  &.short {
+    width: min(470px, 76%);
+  }
+}
+
+.lead-line {
+  width: min(560px, 92%);
+  height: 20px;
+  margin-bottom: $spacing-3;
+
+  &.short {
+    width: min(430px, 70%);
+    margin-bottom: $spacing-8;
+  }
+}
+
+.hero-actions {
+  gap: $spacing-3;
+  flex-wrap: wrap;
+}
+
+.skeleton-button {
+  width: 166px;
+  height: 52px;
+  border-radius: $border-radius-lg;
+
+  &.secondary {
+    width: 136px;
+  }
+
+  &.wide {
     width: 100%;
-    height: 100%;
+  }
+
+  &.compact {
+    width: 116px;
+    height: 42px;
+  }
+}
+
+.panel-card {
+  border: $border-width solid color-mix(in srgb, #{$border-color}, transparent 10%);
+  border-radius: $border-radius-xl;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, #{$primary-color}, transparent 94%), transparent),
+    color-mix(in srgb, #{$surface-color}, #{$background-color} 16%);
+  padding: clamp(16px, 3vw, 24px);
+}
+
+.metric-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-3;
+
+  article {
+    min-width: 0;
+    padding: $spacing-4;
+    border: $border-width solid color-mix(in srgb, #{$border-color}, transparent 24%);
+    border-radius: $border-radius-lg;
+    background: color-mix(in srgb, #{$surface-color}, #{$primary-color} 3%);
+  }
+}
+
+.visual-panel,
+.story-panel,
+.search-panel,
+.form-panel {
+  display: grid;
+  gap: $spacing-4;
+}
+
+.visual-main {
+  min-height: 280px;
+  border-radius: $border-radius-xl;
+}
+
+.visual-stack {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-3;
+}
+
+.visual-mini {
+  height: 82px;
+}
+
+.story-media {
+  display: block;
+  aspect-ratio: 4 / 5;
+  min-height: 240px;
+  border-radius: $border-radius-xl;
+}
+
+.story-title,
+.story-copy {
+  height: 18px;
+}
+
+.story-title {
+  width: 72%;
+}
+
+.story-copy {
+  width: 92%;
+}
+
+.story-actions {
+  gap: $spacing-2;
+}
+
+.story-chip {
+  width: 68px;
+  height: 28px;
+  border-radius: 999px;
+}
+
+.skeleton-search {
+  width: 100%;
+  height: 54px;
+  border-radius: $border-radius-lg;
+}
+
+.search-row {
+  width: 100%;
+  height: 18px;
+
+  &:nth-child(odd) {
+    width: 76%;
+  }
+}
+
+.skeleton-field {
+  width: 100%;
+  height: 52px;
+  border-radius: $border-radius-lg;
+
+  &:nth-child(4) {
+    height: 108px;
+  }
+}
+
+.skeleton-section {
+  margin-top: clamp(16px, 4vw, 34px);
+  padding: clamp(18px, 4vw, 34px);
+  border-radius: $border-radius-xl;
+}
+
+.section-heading {
+  max-width: 620px;
+  margin: 0 auto clamp(18px, 4vw, 32px);
+  text-align: center;
+}
+
+.section-title {
+  width: min(420px, 80%);
+  height: 34px;
+  margin: 0 auto $spacing-3;
+}
+
+.section-subtitle {
+  width: min(520px, 68%);
+  height: 18px;
+  margin: 0 auto;
+}
+
+.metric-grid,
+.card-grid,
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-4;
+}
+
+.metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-card,
+.content-card,
+.support-card,
+.story-card,
+.cta-card,
+.job-row,
+.comparison-row,
+.accordion-row,
+.step-row,
+.form-card {
+  min-width: 0;
+  border: $border-width solid color-mix(in srgb, #{$border-color}, transparent 18%);
+  border-radius: $border-radius-lg;
+  background: color-mix(in srgb, #{$surface-color}, #{$background-color} 12%);
+}
+
+.metric-card,
+.content-card,
+.support-card,
+.story-card {
+  padding: $spacing-5;
+}
+
+.skeleton-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: $spacing-4;
+  border-radius: 999px;
+}
+
+.metric-value {
+  width: 72px;
+  height: 30px;
+  margin-bottom: $spacing-2;
+}
+
+.metric-label,
+.card-copy {
+  width: 86%;
+  height: 15px;
+}
+
+.metric-label {
+  width: 66%;
+}
+
+.card-title {
+  width: 72%;
+  height: 22px;
+  margin-bottom: $spacing-3;
+}
+
+.card-copy {
+  margin-bottom: $spacing-2;
+
+  &.short {
+    width: 62%;
+  }
+}
+
+.steps-list,
+.accordion-list,
+.job-list,
+.comparison-grid {
+  display: grid;
+  gap: $spacing-3;
+}
+
+.step-row {
+  display: grid;
+  grid-template-columns: 42px 54px minmax(0, 1fr);
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-4;
+}
+
+.step-number {
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.accordion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  min-height: 68px;
+  padding: 0 $spacing-4;
+}
+
+.accordion-title {
+  width: min(620px, 80%);
+  height: 20px;
+}
+
+.accordion-toggle {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+}
+
+.form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: $spacing-5;
+}
+
+.form-card,
+.support-stack {
+  display: grid;
+  gap: $spacing-3;
+}
+
+.form-card {
+  padding: $spacing-5;
+}
+
+.job-row,
+.comparison-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+  min-height: 82px;
+  padding: $spacing-4;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+}
+
+.comparison-label,
+.comparison-value {
+  height: 18px;
+}
+
+.comparison-label {
+  width: 82%;
+}
+
+.comparison-value {
+  width: 70%;
+}
+
+.cta-card {
+  display: grid;
+  justify-items: center;
+  padding: clamp(22px, 5vw, 42px);
+  text-align: center;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, #{$primary-color}, transparent 88%), color-mix(in srgb, #{$secondary-color}, transparent 92%)),
+    $surface-color;
+}
+
+.cta-title {
+  width: min(520px, 86%);
+  height: 42px;
+  margin-bottom: $spacing-3;
+}
+
+.cta-copy {
+  width: min(640px, 72%);
+  height: 18px;
+  margin-bottom: $spacing-6;
+}
+
+.skeleton-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: $spacing-8;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 38px);
+  border-radius: $border-radius-xl $border-radius-xl 0 0;
+}
+
+.skeleton-footer > div:first-child {
+  display: grid;
+  align-content: start;
+  gap: $spacing-4;
+}
+
+.footer-brand-line {
+  width: 180px;
+  height: 22px;
+}
+
+.footer-link-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-5;
+}
+
+.footer-heading {
+  width: 78px;
+  height: 16px;
+  margin-bottom: $spacing-4;
+}
+
+.footer-link {
+  width: 120px;
+  height: 14px;
+  margin-bottom: $spacing-3;
+}
+
+.resources-skeleton.is-mobile {
+  .skeleton-nav {
+    min-height: 68px;
+    padding: 0 $spacing-3;
+  }
+
+  .skeleton-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-name {
+    width: 132px;
+    height: 18px;
+  }
+
+  .skeleton-main {
+    width: min(720px, calc(100% - 28px));
+    padding: 14px 0 34px;
+  }
+
+  .skeleton-hero,
+  .skeleton-section {
+    border-radius: $border-radius;
+    box-shadow: 0 10px 28px color-mix(in srgb, #{$gray-900}, transparent 94%);
+  }
+
+  .skeleton-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: $spacing-4;
+    padding: $spacing-4;
+  }
+
+  .breadcrumb {
+    width: 150px;
+    margin-bottom: $spacing-4;
+  }
+
+  .skeleton-pill {
+    width: 138px;
+    height: 26px;
+    margin-bottom: $spacing-4;
+  }
+
+  .title-line {
+    height: clamp(30px, 10vw, 42px);
+  }
+
+  .lead-line {
+    height: 16px;
+  }
+
+  .hero-actions,
+  .footer-badges {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .skeleton-button {
+    width: 100%;
+    height: 48px;
+  }
+
+  .metric-panel,
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .visual-main,
+  .story-media {
+    min-height: 210px;
+  }
+
+  .visual-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .visual-mini {
+    height: 68px;
+  }
+
+  .skeleton-section {
+    margin-top: 12px;
+    padding: $spacing-4;
+  }
+
+  .section-heading {
+    margin-bottom: $spacing-4;
+    text-align: left;
+  }
+
+  .skeleton-pill.small,
+  .section-title,
+  .section-subtitle {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .section-title {
+    width: 78%;
+    height: 26px;
+  }
+
+  .section-subtitle {
+    width: 92%;
+    height: 15px;
+  }
+
+  .card-grid,
+  .story-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content-card,
+  .support-card,
+  .story-card,
+  .metric-card {
+    padding: $spacing-4;
+  }
+
+  .step-row {
+    grid-template-columns: 34px 48px minmax(0, 1fr);
+    gap: $spacing-3;
+    padding: $spacing-3;
+  }
+
+  .form-layout,
+  .comparison-row,
+  .skeleton-footer,
+  .footer-link-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .accordion-row {
+    min-height: 62px;
+    padding: 0 $spacing-3;
+  }
+
+  .job-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cta-title {
+    width: 92%;
+    height: 30px;
+  }
+
+  .cta-copy {
+    width: 100%;
+  }
+
+  .skeleton-footer {
+    width: min(720px, calc(100% - 28px));
+    gap: $spacing-5;
+    margin-top: $spacing-3;
+    padding: $spacing-5 $spacing-4;
+    border-radius: $border-radius;
+  }
+}
+
+@media (max-width: 980px) {
+  .resources-skeleton.is-desktop {
+    .skeleton-hero,
+    .form-layout,
+    .skeleton-footer {
+      grid-template-columns: 1fr;
+    }
+
+    .metric-grid,
+    .card-grid,
+    .story-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .resources-skeleton.is-mobile {
+    .hero-actions,
+    .metric-panel,
+    .metric-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
   }
 }
 
 @keyframes shimmer {
   0% {
-    background-position: -200% 0;
+    background-position: 220% 0;
   }
+
   100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Hero Section */
-.skeleton-hero {
-  position: relative;
-  background: $gradient-primary;
-  padding: $spacing-20 $spacing-16;
-  min-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  
-  .skeleton-breadcrumb {
-    height: 14px;
-    width: 200px;
-    margin-bottom: $spacing-16;
-    opacity: 0.7;
-  }
-  
-  .hero-content {
-    .skeleton-badge {
-      height: 32px;
-      width: 180px;
-      border-radius: $border-radius-full;
-      margin-bottom: $spacing-6;
-      opacity: 0.8;
-    }
-    
-    .skeleton-hero-title {
-      height: 60px;
-      width: 80%;
-      margin-bottom: $spacing-4;
-      opacity: 0.9;
-      
-      &:last-of-type {
-        width: 70%;
-        margin-bottom: $spacing-6;
-      }
-    }
-    
-    .skeleton-hero-subtitle {
-      height: 24px;
-      width: 50%;
-      margin-bottom: $spacing-10;
-      opacity: 0.8;
-    }
-  }
-  
-  .skeleton-actions {
-    display: flex;
-    gap: $spacing-4;
-    margin-bottom: $spacing-20;
-    
-    .skeleton-btn {
-      height: 56px;
-      width: 200px;
-      border-radius: $border-radius-lg;
-      opacity: 0.8;
-    }
-  }
-  
-  .skeleton-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: $spacing-10;
-    
-    .skeleton-stat {
-      text-align: center;
-      
-      .skeleton-stat-value {
-        height: 40px;
-        width: 80px;
-        margin: 0 auto $spacing-2;
-        opacity: 0.9;
-      }
-      
-      .skeleton-stat-label {
-        height: 16px;
-        width: 120px;
-        margin: 0 auto;
-        opacity: 0.7;
-      }
-    }
-  }
-}
-
-/* Common Section Styles */
-.skeleton-section {
-  padding: $spacing-24 $spacing-5;
-  background: $surface-color;
-  
-  &.skeleton-section-alt {
-    background: $background-color;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .skeleton-section-header {
-    text-align: center;
-    margin-bottom: $spacing-20;
-    
-    .skeleton-title {
-      height: 56px;
-      width: 400px;
-      max-width: 80%;
-      margin: 0 auto $spacing-4;
-    }
-    
-    .skeleton-subtitle {
-      height: 24px;
-      width: 500px;
-      max-width: 60%;
-      margin: 0 auto;
-    }
-  }
-}
-
-/* Benefits Grid */
-.skeleton-benefits-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: $spacing-8;
-  
-  .skeleton-benefit-card {
-    background: $surface-color;
-    padding: $spacing-10 $spacing-8;
-    border-radius: $border-radius-xl;
-    box-shadow: $shadow-sm;
-    
-    .skeleton-benefit-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin-bottom: $spacing-6;
-    }
-    
-    .skeleton-benefit-title {
-      height: 24px;
-      width: 70%;
-      margin-bottom: $spacing-4;
-    }
-    
-    .skeleton-benefit-text {
-      height: 16px;
-      width: 100%;
-      margin-bottom: $spacing-2;
-      
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-  }
-}
-
-/* Process Steps */
-.skeleton-process {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-16;
-  max-width: 800px;
-  margin: 0 auto;
-  
-  .skeleton-process-step {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: $spacing-10;
-    align-items: start;
-    
-    .skeleton-step-visual {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: $spacing-5;
-      
-      .skeleton-step-number {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-      }
-      
-      .skeleton-step-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: $border-radius-lg;
-      }
-    }
-    
-    .skeleton-step-content {
-      padding-top: 10px;
-      
-      .skeleton-step-title {
-        height: 24px;
-        width: 60%;
-        margin-bottom: $spacing-4;
-      }
-      
-      .skeleton-step-text {
-        height: 18px;
-        width: 90%;
-        margin-bottom: $spacing-2;
-        
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-}
-
-/* Earnings Grid */
-.skeleton-earnings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: $spacing-8;
-  max-width: 1000px;
-  margin: 0 auto;
-  
-  .skeleton-earning-tier {
-    background: $surface-color;
-    padding: $spacing-10 $spacing-8;
-    border-radius: $border-radius-xl;
-    box-shadow: $shadow-sm;
-    
-    .skeleton-tier-header {
-      text-align: center;
-      margin-bottom: $spacing-4;
-      
-      .skeleton-tier-title {
-        height: 20px;
-        width: 40%;
-        margin: 0 auto $spacing-2;
-      }
-      
-      .skeleton-tier-amount {
-        height: 40px;
-        width: 60%;
-        margin: 0 auto;
-      }
-    }
-    
-    .skeleton-tier-description {
-      height: 16px;
-      width: 80%;
-      margin: 0 auto $spacing-6;
-    }
-    
-    .skeleton-tier-stats {
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-3;
-      
-      .skeleton-tier-stat {
-        height: 14px;
-        width: 70%;
-        margin: 0 auto;
-      }
-    }
-  }
-}
-
-/* Campaigns Grid */
-.skeleton-campaigns-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: $spacing-8;
-  
-  .skeleton-campaign-card {
-    background: $surface-color;
-    padding: $spacing-8;
-    border-radius: $border-radius-lg;
-    box-shadow: $shadow-sm;
-    
-    .skeleton-campaign-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: $spacing-4;
-      
-      .skeleton-campaign-category {
-        height: 24px;
-        width: 100px;
-        border-radius: $border-radius-full;
-      }
-      
-      .skeleton-campaign-urgency {
-        height: 20px;
-        width: 80px;
-        border-radius: $border-radius;
-      }
-    }
-    
-    .skeleton-campaign-title {
-      height: 20px;
-      width: 70%;
-      margin-bottom: $spacing-3;
-    }
-    
-    .skeleton-campaign-description {
-      height: 16px;
-      width: 100%;
-      margin-bottom: $spacing-2;
-      
-      &:last-of-type {
-        margin-bottom: $spacing-5;
-      }
-    }
-    
-    .skeleton-campaign-meta {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: $spacing-3;
-      margin-bottom: $spacing-6;
-      
-      .skeleton-meta-item {
-        height: 14px;
-        width: 80%;
-      }
-    }
-    
-    .skeleton-campaign-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      
-      .skeleton-marketer-info {
-        display: flex;
-        flex-direction: column;
-        gap: $spacing-1;
-        
-        .skeleton-marketer-rating {
-          height: 12px;
-          width: 60px;
-        }
-        
-        .skeleton-marketer-name {
-          height: 14px;
-          width: 100px;
-        }
-      }
-      
-      .skeleton-accept-btn {
-        height: 36px;
-        width: 120px;
-        border-radius: $border-radius;
-      }
-    }
-  }
-}
-
-/* Testimonials Grid */
-.skeleton-testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: $spacing-8;
-  
-  .skeleton-testimonial-card {
-    background: $surface-color;
-    padding: $spacing-10 $spacing-8;
-    border-radius: $border-radius-xl;
-    box-shadow: $shadow-sm;
-    
-    .skeleton-testimonial-content {
-      margin-bottom: $spacing-8;
-      
-      .skeleton-quote-icon {
-        height: 48px;
-        width: 48px;
-        margin-bottom: $spacing-4;
-      }
-      
-      .skeleton-testimonial-text {
-        height: 18px;
-        width: 100%;
-        margin-bottom: $spacing-2;
-        
-        &:last-of-type {
-          margin-bottom: $spacing-6;
-        }
-      }
-      
-      .skeleton-testimonial-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: $spacing-4;
-        
-        .skeleton-testimonial-stat {
-          text-align: center;
-          
-          .skeleton-stat-value {
-            height: 24px;
-            width: 40px;
-            margin: 0 auto $spacing-1;
-          }
-          
-          .skeleton-stat-metric {
-            height: 12px;
-            width: 60px;
-            margin: 0 auto;
-          }
-        }
-      }
-    }
-    
-    .skeleton-testimonial-author {
-      display: flex;
-      align-items: center;
-      gap: $spacing-4;
-      
-      .skeleton-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-      }
-      
-      .skeleton-author-info {
-        display: flex;
-        flex-direction: column;
-        gap: $spacing-1;
-        
-        .skeleton-author-name {
-          height: 18px;
-          width: 120px;
-        }
-        
-        .skeleton-author-role {
-          height: 14px;
-          width: 100px;
-        }
-        
-        .skeleton-author-earnings {
-          height: 14px;
-          width: 140px;
-        }
-      }
-    }
-  }
-}
-
-/* FAQ Grid */
-.skeleton-faq-grid {
-  max-width: 800px;
-  margin: 0 auto;
-  
-  .skeleton-faq-item {
-    border-bottom: $border-width solid $border-color;
-    padding: $spacing-6 0;
-    
-    .skeleton-faq-question {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      
-      .skeleton-faq-text {
-        height: 20px;
-        width: 80%;
-      }
-      
-      .skeleton-faq-icon {
-        height: 20px;
-        width: 20px;
-        border-radius: 50%;
-      }
-    }
-  }
-}
-
-/* CTA Section */
-.skeleton-cta {
-  padding: $spacing-24 $spacing-5;
-  background: $gradient-primary;
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .skeleton-cta-content {
-    text-align: center;
-    
-    .skeleton-cta-title {
-      height: 56px;
-      width: 400px;
-      max-width: 80%;
-      margin: 0 auto $spacing-4;
-      opacity: 0.9;
-    }
-    
-    .skeleton-cta-subtitle {
-      height: 24px;
-      width: 500px;
-      max-width: 60%;
-      margin: 0 auto $spacing-10;
-      opacity: 0.8;
-    }
-    
-    .skeleton-cta-actions {
-      display: flex;
-      gap: $spacing-4;
-      justify-content: center;
-      margin-bottom: $spacing-10;
-      
-      .skeleton-cta-btn {
-        height: 56px;
-        width: 200px;
-        border-radius: $border-radius-lg;
-        opacity: 0.8;
-      }
-    }
-    
-    .skeleton-cta-features {
-      display: flex;
-      gap: $spacing-8;
-      justify-content: center;
-      
-      .skeleton-cta-feature {
-        display: flex;
-        align-items: center;
-        gap: $spacing-2;
-        
-        .skeleton-feature-icon {
-          height: 16px;
-          width: 16px;
-          border-radius: 50%;
-        }
-        
-        .skeleton-feature-text {
-          height: 14px;
-          width: 100px;
-        }
-      }
-    }
-  }
-}
-
-/* Mobile Responsiveness */
-@include tablet {
-  .skeleton-hero {
-    padding: 120px 20px 80px;
-    
-    .hero-content {
-      .skeleton-hero-title {
-        height: 40px;
-        width: 90%;
-      }
-      
-      .skeleton-hero-subtitle {
-        width: 80%;
-      }
-    }
-    
-    .skeleton-actions {
-      flex-direction: column;
-      
-      .skeleton-btn {
-        width: 100%;
-        max-width: 300px;
-      }
-    }
-    
-    .skeleton-stats {
-      grid-template-columns: repeat(2, 1fr);
-      gap: $spacing-8;
-    }
-  }
-  
-  .skeleton-section {
-    padding: $spacing-20 $spacing-5;
-    
-    .skeleton-section-header {
-      margin-bottom: $spacing-16;
-      
-      .skeleton-title {
-        height: 40px;
-        width: 90%;
-      }
-      
-      .skeleton-subtitle {
-        width: 90%;
-      }
-    }
-  }
-  
-  .skeleton-benefits-grid,
-  .skeleton-earnings-grid,
-  .skeleton-campaigns-grid,
-  .skeleton-testimonials-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .skeleton-process {
-    .skeleton-process-step {
-      grid-template-columns: 1fr;
-      text-align: center;
-      gap: $spacing-6;
-      
-      .skeleton-step-visual {
-        flex-direction: row;
-        justify-content: center;
-        gap: $spacing-6;
-      }
-    }
-  }
-  
-  .skeleton-campaign-card {
-    .skeleton-campaign-meta {
-      grid-template-columns: 1fr;
-    }
-    
-    .skeleton-campaign-footer {
-      flex-direction: column;
-      gap: $spacing-4;
-      align-items: stretch;
-      
-      .skeleton-marketer-info {
-        align-items: center;
-      }
-      
-      .skeleton-accept-btn {
-        width: 100%;
-      }
-    }
-  }
-  
-  .skeleton-cta {
-    .skeleton-cta-actions {
-      flex-direction: column;
-      align-items: center;
-      
-      .skeleton-cta-btn {
-        width: 100%;
-        max-width: 300px;
-      }
-    }
-    
-    .skeleton-cta-features {
-      flex-direction: column;
-      gap: $spacing-4;
-    }
-  }
-}
-
-@include mobile {
-  .skeleton-hero {
-    .skeleton-stats {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  .skeleton-testimonial-card {
-    .skeleton-testimonial-stats {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  .skeleton-campaign-card {
-    padding: $spacing-6;
-  }
-  
-  .skeleton-testimonial-card {
-    padding: $spacing-8 $spacing-6;
+    background-position: -220% 0;
   }
 }

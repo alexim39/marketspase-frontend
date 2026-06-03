@@ -1,6 +1,6 @@
 import { Component, DestroyRef, TemplateRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -66,6 +66,7 @@ export class PpcAnalyticsComponent {
   @ViewChild('promoterDetailsDialog') promoterDetailsDialog!: TemplateRef<unknown>;
   @ViewChild('promotionLinksDialog') promotionLinksDialog!: TemplateRef<unknown>;
   @ViewChild('actionDialog') actionDialog!: TemplateRef<unknown>;
+  @ViewChild('cpcPolicyDialog') cpcPolicyDialog!: TemplateRef<unknown>;
 
   readonly isLoadingOverview = signal(true);
   readonly isLoadingPromoters = signal(true);
@@ -105,6 +106,12 @@ export class PpcAnalyticsComponent {
     granularity: ['daily' as 'daily' | 'hourly'],
     country: [''],
     promoterId: [''],
+  });
+
+  readonly cpcPolicyForm = this.fb.group({
+    fixedPayoutPerClick: [20, [Validators.required, Validators.min(0)]],
+    endsAt: [null as Date | null, [Validators.required]],
+    reason: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(1000)]],
   });
 
   readonly summaryCards = computed(() => {
@@ -147,6 +154,7 @@ export class PpcAnalyticsComponent {
     'conversions',
     'rates',
     'anomalies',
+    'payoutPolicy',
     'actions',
   ];
 
@@ -156,6 +164,7 @@ export class PpcAnalyticsComponent {
   private actionDialogRef: MatDialogRef<unknown> | null = null;
   private detailsDialogRef: MatDialogRef<unknown> | null = null;
   private promotionLinksDialogRef: MatDialogRef<unknown> | null = null;
+  private cpcPolicyDialogRef: MatDialogRef<unknown> | null = null;
 
   constructor() {
     // Initial load + 5-minute refresh loop.
@@ -468,6 +477,97 @@ export class PpcAnalyticsComponent {
       low_conversion_rate: 'Low conversion rate',
     };
     return labels[code] || code;
+  }
+
+  openCpcPolicy(row: PpcPromoterRow): void {
+    this.selectedPromoter.set(row);
+    const defaultEnd = new Date();
+    defaultEnd.setDate(defaultEnd.getDate() + 7);
+
+    this.cpcPolicyForm.reset({
+      fixedPayoutPerClick: row.payoutPolicy?.isActive ? row.payoutPolicy.fixedPayoutPerClick : 20,
+      endsAt: row.payoutPolicy?.isActive && row.payoutPolicy.endsAt
+        ? new Date(row.payoutPolicy.endsAt)
+        : defaultEnd,
+      reason: row.payoutPolicy?.isActive
+        ? row.payoutPolicy.reason
+        : 'Temporary PPC punishment for suspicious or fraudulent click activity.',
+    });
+
+    this.cpcPolicyDialogRef = this.dialog.open(this.cpcPolicyDialog, {
+      width: '560px',
+      maxWidth: '94vw',
+      panelClass: 'ppc-action-dialog',
+    });
+  }
+
+  closeCpcPolicyDialog(): void {
+    this.cpcPolicyDialogRef?.close();
+    this.cpcPolicyDialogRef = null;
+    this.cpcPolicyForm.markAsPristine();
+  }
+
+  confirmCpcPolicy(): void {
+    const row = this.selectedPromoter();
+    if (!row) return;
+
+    this.cpcPolicyForm.markAllAsTouched();
+    if (this.cpcPolicyForm.invalid) {
+      this.snackBar.open('Enter a valid payout amount, end date, and clear policy reason.', 'OK', { duration: 3200 });
+      return;
+    }
+
+    const value = this.cpcPolicyForm.getRawValue();
+    const endsAt = value.endsAt ? new Date(value.endsAt) : null;
+    if (!endsAt || Number.isNaN(endsAt.getTime()) || endsAt <= new Date()) {
+      this.snackBar.open('Punishment end date must be in the future.', 'OK', { duration: 3200 });
+      return;
+    }
+
+    this.actionBusy.set(true);
+    this.service
+      .setPromoterCpcPolicy(row.promoter._id, {
+        fixedPayoutPerClick: Number(value.fixedPayoutPerClick || 0),
+        endsAt: endsAt.toISOString(),
+        reason: String(value.reason || '').trim(),
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Promoter CPC punishment enabled and email notice queued.', 'OK', { duration: 3200 });
+          this.actionBusy.set(false);
+          this.closeCpcPolicyDialog();
+          this.refresh();
+        },
+        error: (err) => {
+          console.error('Unable to set promoter CPC policy:', err);
+          this.snackBar.open(err?.error?.message || 'Unable to set promoter CPC policy.', 'OK', { duration: 3800 });
+          this.actionBusy.set(false);
+        },
+      });
+  }
+
+  clearCpcPolicy(): void {
+    const row = this.selectedPromoter();
+    if (!row) return;
+
+    this.actionBusy.set(true);
+    this.service
+      .clearPromoterCpcPolicy(row.promoter._id, 'Policy manually cleared by admin from PPC analytics.')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Promoter CPC policy cleared.', 'OK', { duration: 2600 });
+          this.actionBusy.set(false);
+          this.closeCpcPolicyDialog();
+          this.refresh();
+        },
+        error: (err) => {
+          console.error('Unable to clear promoter CPC policy:', err);
+          this.snackBar.open(err?.error?.message || 'Unable to clear promoter CPC policy.', 'OK', { duration: 3600 });
+          this.actionBusy.set(false);
+        },
+      });
   }
 
   private copyText(value: string, successMessage: string): void {

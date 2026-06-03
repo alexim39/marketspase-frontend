@@ -72,7 +72,7 @@
       }
 
       @if (currentStep() === 5) {
-        <app-campaign-summary [contentForm]="contentForm" [goalForm]="goalForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" />
+        <app-campaign-summary [contentForm]="contentForm" [goalForm]="goalForm" [budgetForm]="budgetForm" [scheduleForm]="scheduleForm" [selectedMedia]="selectedMedia()" [costPerClick]="costPerClick()" />
       }
 
       @if (isSubmitting()) {
