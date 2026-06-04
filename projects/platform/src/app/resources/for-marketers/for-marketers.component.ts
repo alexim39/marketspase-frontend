@@ -53,6 +53,12 @@ export interface Testimonial {
   }[];
 }
 
+export interface MarketerGuideVideo {
+  title: string;
+  description: string;
+  embedUrl: SafeResourceUrl;
+}
+
 @Component({
   selector: 'app-for-marketers',
   standalone: true,
@@ -89,10 +95,10 @@ export class ForMarketersComponent {
     {
       icon: 'analytics',
       title: 'Real-time Performance Analytics',
-      description: 'Track campaign performance with live metrics, view counts, and engagement analytics.',
+      description: 'Track campaign performance with live clicks, billable clicks, conversions, spend, and promoter-level analytics.',
       benefits: [
-        'Live view count tracking',
-        'Engagement rate monitoring',
+        'Live click and spend tracking',
+        'Conversion rate monitoring',
         'ROI and performance insights',
         'Exportable reports'
       ],
@@ -100,25 +106,25 @@ export class ForMarketersComponent {
     },
     {
       icon: 'verified',
-      title: 'AI-Powered Verification',
-      description: 'Automated verification ensures your campaigns are completed as promised before payments are released.',
+      title: 'Click Quality & Fraud Protection',
+      description: 'Budget guards, unique links, and fraud signals help protect campaign spend from invalid or suspicious activity.',
       benefits: [
-        'Automated proof verification',
-        '24-hour duration tracking',
+        'Invalid click detection',
+        'Promoter quality monitoring',
         'Fraud detection system',
         'Quality assurance'
       ],
       gradient: 'linear-gradient(135deg, #4facfe 0%, #10888eff 100%)'
     },
     {
-      icon: 'watermark',
-      title: 'Secure Content Protection',
-      description: 'Automatic watermarking and content protection to safeguard your brand assets.',
+      icon: 'link',
+      title: 'Tracked Promotion Links',
+      description: 'Every promoter gets a unique campaign or product link so clicks, conversions, and spend can be attributed correctly.',
       benefits: [
-        'Automatic watermarking',
-        'Content usage tracking',
+        'Unique promoter links',
+        'Campaign and product attribution',
         'Brand protection',
-        'Secure asset management'
+        'Secure sharing workflow'
       ],
       gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)'
     },
@@ -152,7 +158,7 @@ export class ForMarketersComponent {
     {
       industry: 'E-commerce',
       title: 'Boost Sales for Online Stores',
-      description: 'Drive traffic and sales for e-commerce businesses through authentic WhatsApp recommendations from trusted promoters.',
+      description: 'Drive traffic and sales for e-commerce businesses through tracked promoter links across social channels.',
       results: [
         { metric: 'Sales Increase', value: '45%', change: '+25%' },
         { metric: 'Customer Acquisition', value: '3.2x', change: '+120%' },
@@ -268,7 +274,7 @@ export class ForMarketersComponent {
       name: 'Chinedu Okoro',
       role: 'CEO',
       company: 'TechStart NG',
-      content: 'The targeting capabilities are incredible. We reached exactly the right audience for our SaaS product, and the personal touch of WhatsApp made all the difference in conversion rates.',
+      content: 'The targeting and attribution are incredible. We reached the right audience and could see which promoter links created meaningful traffic and conversions.',
       avatar: '/img/resources/avatar/chinedu.png',
       results: [
         { metric: 'Conversion', value: '28%' },
@@ -297,15 +303,34 @@ export class ForMarketersComponent {
     }
   }
 
-  // public Facebook reel/video URL (must be public)
-  readonly fbUrl = 'https://web.facebook.com/reel/4109263909219907';
   posterUrl = 'img/placeholders/how-to-video.jpg'; // replace with proper poster image
   videoUrl!: SafeResourceUrl;
+  marketerGuideVideos = signal<MarketerGuideVideo[]>([]);
 
   ngOnInit(): void {
-    // Preload video URL but do not show player until clicked
-    const plugin = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(this.fbUrl)}&show_text=0&autoplay=1`;
-    this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(plugin);
+    this.videoUrl = this.buildYoutubeEmbedUrl('3dxS8th0WJo', 725);
+    this.marketerGuideVideos.set([
+      {
+        title: 'Set up your storefront',
+        description: 'Learn how storefront setup supports product promotion and tracked sales attribution.',
+        embedUrl: this.buildYoutubeEmbedUrl('UmJUxacRB7g', 265)
+      },
+      {
+        title: 'Promote products and track results',
+        description: 'See how product promotions connect promoters, links, orders, and performance analytics.',
+        embedUrl: this.buildYoutubeEmbedUrl('sPOrJVVwzWU', 11)
+      }
+    ]);
   }
 
+  private buildYoutubeEmbedUrl(videoId: string, startSeconds: number): SafeResourceUrl {
+    const params = new URLSearchParams({
+      start: String(startSeconds),
+      rel: '0',
+      modestbranding: '1',
+      playsinline: '1'
+    });
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?${params}`);
+  }
 }

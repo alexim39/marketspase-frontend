@@ -62,6 +62,7 @@ export class HeaderComponent implements OnDestroy {
         //{ label: 'Help Center', externalLink: 'https://help.marketspase.com', icon: 'help' },
         // { label: 'Help Center', route: '/resources/help-center',  icon: 'help' },
         { label: 'How It Works', route: '/resources/how-it-works', icon: 'play_circle' },
+        { label: 'Testimonials', route: '/resources/testimonials', icon: 'format_quote' },
         { label: 'FAQs', route: '/resources/faqs', icon: 'help_center' },
         //{ label: 'Blog', route: '/blog', icon: 'article' },
         //{ label: 'Community', route: '/community', icon: 'forum' },

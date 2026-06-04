@@ -204,8 +204,8 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
               this.clearReferralData();
 
               //console.log('response ',response)
-              // Navigate to dashboard
-              this.router.navigateByUrl('/dashboard');
+              // Feed-first landing for authenticated users; /dashboard remains the BI dashboard.
+              this.router.navigateByUrl('/dashboard/home');
             } else {
               this.router.navigateByUrl('/');
             }

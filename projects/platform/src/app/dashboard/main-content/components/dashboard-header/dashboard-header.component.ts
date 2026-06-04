@@ -1,12 +1,9 @@
 // dashboard-header.component.ts
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
 import { UserInterface } from '@shared/services';
 
 
@@ -16,18 +13,13 @@ import { UserInterface } from '@shared/services';
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    MatMenuModule,
     MatTooltipModule,
-    MatDividerModule,
   ],
   templateUrl: './dashboard-header.component.html',
   styleUrls: ['./dashboard-header.component.scss']
 })
 export class DashboardHeaderComponent {
-  private router = inject(Router);
-
   user = input<UserInterface | null>(null);
-  communityNotifications = input(0);
   unreadMessages = input(0);
   unreadNotifications = input(0);
 
@@ -76,71 +68,24 @@ export class DashboardHeaderComponent {
   // }
   
 
-  getCommunityGreeting(): string {
+  getDashboardGreeting(): string {
     const hour = new Date().getHours();
     const role = this.user()?.role;
 
     if (hour < 12) {
       return role === 'marketer'
-        ? 'Good morning! Ready to grow your business today?'
-        : 'Good morning! Ready to earn by promoting great brands today?';
+        ? 'Good morning. Your campaign, wallet, and storefront signals are ready.'
+        : 'Good morning. Your earnings, links, and payout signals are ready.';
     }
 
     if (hour < 17) {
       return role === 'marketer'
-        ? 'Good afternoon! How are your campaigns performing today?'
-        : 'Good afternoon! Any promotions bringing in engagement yet?';
+        ? 'Good afternoon. Review spend, ROI, and storefront performance.'
+        : 'Good afternoon. Review billable clicks and promotion performance.';
     }
 
     return role === 'marketer'
-      ? 'Good evening! Time to review your sales and performance.'
-      : 'Good evening! Check your earnings and completed promotions.';
-  }
-
-
-
-  openCommunityFeed(): void {
-    this.router.navigate(['dashboard/community/feeds']);
-  }
-
-  openCommunityForum(): void {
-    this.router.navigate(['dashboard/community/discussion']);
-  }
-
-  openMessages(): void {
-    this.router.navigate(['dashboard/campaigns/collaboration']);
-  }
-
-  openNotifications(): void {
-    this.router.navigate(['dashboard/notifications']);
-  }
-
-  openStorefront(): void {
-    if (this.user()?.role === 'promoter') {
-      this.router.navigate(['dashboard/stores/products']);
-      return;
-    }
-
-    this.router.navigate(['dashboard/stores']);
-  }
-
-  openPromoterProfile(): void {
-    this.router.navigate(['dashboard/profile']);
-  }
-
-  openAdSchool(): void {
-    this.router.navigate(['dashboard/tutorials']);
-  }
-
-  openLeaderboard(): void {
-    this.router.navigate(['dashboard/leaderboard']);
-  }
-
-  openGamification(): void {
-    this.router.navigate(['dashboard/gamification']);
-  }
-
-  openSettings(): void {
-    this.router.navigate(['dashboard/settings']);
+      ? 'Good evening. Close the day with revenue and conversion clarity.'
+      : 'Good evening. Check earnings, payouts, and account health.';
   }
 }

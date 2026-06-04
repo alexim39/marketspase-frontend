@@ -208,7 +208,7 @@
       }
     }
     
-    &.community-item {
+    &.operations-item {
       .engagement-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -234,7 +234,7 @@
               font-size: $font-size-2xl;
             }
             
-            &.connections {
+            &.operations {
               background: rgba($primary-color, 0.1);
               
               mat-icon {

@@ -1,4 +1,4 @@
-// success-stories.component.ts
+﻿// success-stories.component.ts
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -76,7 +76,7 @@ export class SuccessStoriesComponent {
 
   heroStatistics = signal<Statistic[]>([
     { value: '500+', label: 'Success Stories', icon: 'stars' },
-    { value: '₦2.3B+', label: 'Total Earnings', icon: 'savings' },
+    { value: 'â‚¦2.3B+', label: 'Total Earnings', icon: 'savings' },
     { value: '98%', label: 'Success Rate', icon: 'trending_up' },
     { value: '50K+', label: 'Lives Impacted', icon: 'groups' }
   ]);
@@ -119,13 +119,13 @@ export class SuccessStoriesComponent {
   successStories = signal<SuccessStory[]>([
     {
       id: 'adeola-success',
-      title: 'From ₦50,000 to ₦500,000 Monthly: How Adeola Built a WhatsApp Marketing Empire',
-      excerpt: 'Adeola transformed her small business by leveraging WhatsApp status promotions, achieving 10x growth in just 6 months.',
+      title: 'From Small Budget to Measurable Growth: How Adeola Scaled With Tracked Promoter Links',
+      excerpt: 'Adeola transformed her small business by using PPC campaigns, promoter attribution, and storefront analytics to understand what worked.',
       fullStory: 'Full story content would go here...',
       category: 'marketer',
       industry: 'Fashion & Retail',
       results: [
-        { metric: 'Monthly Revenue', value: '₦500K', change: '+900%' },
+        { metric: 'Monthly Revenue', value: 'â‚¦500K', change: '+900%' },
         { metric: 'Customer Reach', value: '50K+', change: '+400%' },
         { metric: 'ROI', value: '350%', change: '+250%' },
         { metric: 'Campaign Success', value: '95%', change: '+45%' }
@@ -143,7 +143,7 @@ export class SuccessStoriesComponent {
         'Achieved 10x revenue growth in 6 months',
         'Built a community of 50,000+ engaged customers',
         'Reduced customer acquisition cost by 70%',
-        'Expanded to 3 new cities through WhatsApp reach'
+        'Expanded to 3 new cities through tracked social reach'
       ],
       videoUrl: 'https://youtube.com/embed/example',
       readTime: '8 min',
@@ -151,13 +151,13 @@ export class SuccessStoriesComponent {
     },
     {
       id: 'chinedu-journey',
-      title: 'University Student Earns ₦2.8M in 12 Months Promoting on WhatsApp',
-      excerpt: 'Chinedu balanced his studies while building a substantial income stream through strategic campaign selection.',
+      title: 'University Student Builds Income With PPC Campaigns and Product Links',
+      excerpt: 'Chinedu balanced his studies while building a cleaner income stream through strategic campaign selection and valid tracked activity.',
       fullStory: 'Full story content would go here...',
       category: 'promoter',
       industry: 'Education',
       results: [
-        { metric: 'Total Earnings', value: '₦2.8M', change: '+2800%' },
+        { metric: 'Total Earnings', value: 'â‚¦2.8M', change: '+2800%' },
         { metric: 'Campaigns Completed', value: '156', change: '+1400%' },
         { metric: 'Success Rate', value: '98%', change: '+18%' },
         { metric: 'Rating Score', value: '4.9/5', change: '+0.4' }
@@ -182,8 +182,8 @@ export class SuccessStoriesComponent {
     },
     {
       id: 'bisi-enterprise',
-      title: 'Enterprise Brand Sees 300% ROI with WhatsApp Status Campaigns',
-      excerpt: 'How a leading FMCG company transformed their digital marketing strategy with MarketSpase.',
+      title: 'Enterprise Brand Sees 300% ROI With Tracked PPC Campaigns',
+      excerpt: 'How a leading FMCG company transformed their digital marketing strategy with MarketSpase promoter attribution.',
       fullStory: 'Full story content would go here...',
       category: 'enterprise',
       industry: 'FMCG',
@@ -213,13 +213,13 @@ export class SuccessStoriesComponent {
     },
     {
       id: 'tunde-side-hustle',
-      title: 'Banker Turns Side Hustle into ₦150K Monthly Passive Income',
-      excerpt: 'Tunde discovered how to monetize his WhatsApp network while maintaining his banking career.',
+      title: 'Banker Turns Side Hustle into â‚¦150K Monthly Passive Income',
+      excerpt: 'Tunde discovered how to monetize a trusted social audience with tracked links while maintaining his banking career.',
       fullStory: 'Full story content would go here...',
       category: 'promoter',
       industry: 'Finance',
       results: [
-        { metric: 'Monthly Income', value: '₦150K', change: '+1500%' },
+        { metric: 'Monthly Income', value: 'â‚¦150K', change: '+1500%' },
         { metric: 'Weekly Time Spent', value: '5 hours', change: '-80%' },
         { metric: 'Network Size', value: '2.5K', change: '+400%' },
         { metric: 'Campaign Efficiency', value: '92%', change: '+32%' }
@@ -291,3 +291,4 @@ export class SuccessStoriesComponent {
     window.open(videoUrl, '_blank');
   }
 }
+

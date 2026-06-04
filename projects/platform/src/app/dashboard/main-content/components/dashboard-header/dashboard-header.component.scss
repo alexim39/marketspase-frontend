@@ -82,7 +82,7 @@
       }
     }
 
-    .community-subtitle {
+    .dashboard-subtitle {
       color: rgba($white, 0.9);
       @include body-small;
       margin: 0;
@@ -170,7 +170,7 @@
       }
     }
 
-    .community-btn {
+    .analytics-btn {
       @include button-base;
       background: rgba($white, 0.1);
       border: $border-width solid rgba($white, 0.2);
@@ -194,88 +194,6 @@
     }
   }
 
-  .action-menu {
-    .quick-menu-btn {
-      @include button-base;
-      color: $white;
-      background: rgba($white, 0.1);
-      border-radius: $border-radius;
-      min-width: auto;
-      
-      &:hover:not(:disabled) {
-        background: rgba($white, 0.2);
-      }
-    }
-  }
-}
-
-.action-menu-content {
-  @include card-base;
-  min-width: 240px;
-  border-radius: $border-radius-xl;
-  overflow: hidden;
-  box-shadow: $shadow-xl;
-  
-  .menu-item {
-    @include flex-center;
-    align-items: center;
-    padding: $spacing-3 $spacing-4;
-    font-size: $font-size-sm;
-    min-height: 48px;
-    cursor: pointer;
-    transition: background-color $transition-fast;
-    
-    .menu-icon {
-      margin-right: $spacing-3;
-      font-size: $font-size-lg;
-      color: $text-secondary;
-    }
-    
-    .menu-text {
-      flex: 1;
-      color: $text-primary;
-      font-weight: $font-weight-medium;
-    }
-    
-    .menu-badge {
-      background: $error-color;
-      color: $white;
-      font-size: $font-size-xs;
-      padding: 2px $spacing-2;
-      border-radius: $border-radius-lg;
-      font-weight: $font-weight-semibold;
-      margin-left: $spacing-2;
-    }
-    
-    .new-badge {
-      background: $success-color;
-      color: $white;
-      font-size: 0.625rem; // 10px equivalent
-      padding: 2px $spacing-2;
-      border-radius: $border-radius-lg;
-      font-weight: $font-weight-semibold;
-      margin-left: $spacing-2;
-      text-transform: uppercase;
-    }
-    
-    &:hover {
-      background-color: color-mix(in srgb, $surface-color, black 5%);
-    }
-    
-    &.logout-item {
-      color: $error-color;
-      
-      .menu-icon,
-      .menu-text {
-        color: $error-color;
-      }
-    }
-  }
-  
-  .menu-divider {
-    margin: $spacing-2 0;
-    border-top: $border-width solid $divider-color;
-  }
 }
 
 @include mobile {
@@ -284,15 +202,11 @@
     align-items: stretch;
     
     .quick-action-buttons {
-      .community-btn {
+      .analytics-btn {
         .button-text {
           display: none;
         }
       }
-    }
-    
-    .action-menu {
-      align-self: flex-end;
     }
   }
 }

@@ -1,11 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ProfileService } from '../../../profile/services/profile.service';
-import { TutorialService } from '../../../tutorials/services/tutorial.service';
-import { FeedService } from '../../../community/feeds/feed.service';
-import { ForumService } from '../../../community/forum/forum.service';
-import { DashboardService } from '../../dashboard.service';
 import { Activity } from '../components/recent-activity/recent-activity.component';
 import { DashboardMainContainer } from '../main-content.component';
 import { GeneralMsgNotifierBannerComponent } from '../notification-banner/general-msg-notifier/general-msg-notifier-banner.component';
@@ -22,7 +17,6 @@ import { PromoBannerComponent } from '../notification-banner/promo/promo-banner.
     PromoBannerComponent,
     GeneralMsgNotifierBannerComponent,
   ],
-  providers: [DashboardService, FeedService, ForumService, ProfileService, TutorialService],
   templateUrl: './dashboard-main-mobile.component.html',
   styleUrls: ['./dashboard-main-mobile.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,19 +38,9 @@ export class DashboardMainMobileComponent extends DashboardMainContainer {
   readonly heroStat = computed(() => this.dashboardStats()[0] ?? null);
   readonly mobileStats = computed(() => this.dashboardStats().slice(0, 4));
   readonly mobileActivities = computed(() => this.recentActivity().slice(0, 4));
-  readonly mobileTrends = computed(() => this.trendingItems().slice(0, 4));
-  readonly mobileConnections = computed(() => this.suggestedConnections().slice(0, 3));
-  readonly mobileCourses = computed(() => this.learningCourses().slice(0, 3));
-
-  readonly streakLabel = computed(() => {
-    const streak = this.user()?.loginStreak?.currentStreak || 0;
-    return `${streak} day${streak === 1 ? '' : 's'}`;
-  });
-
-  readonly levelLabel = computed(() => {
-    const level = this.user()?.gamificationProfile?.currentLevel || 1;
-    return `Level ${level}`;
-  });
+  readonly mobileRevenue = computed(() => this.revenueBreakdown().slice(0, 3));
+  readonly mobileModules = computed(() => this.businessModules());
+  readonly mobileInsights = computed(() => this.businessInsights());
 
   readonly primaryActionLabel = computed(() =>
     this.user()?.role === 'marketer' ? 'Create campaign' : 'Find campaigns'

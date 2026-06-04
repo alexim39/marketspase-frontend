@@ -21,14 +21,14 @@
           </nav>
           
           <div class="hero-text">
-            <div class="badge">Authentic WhatsApp Marketing</div>
+            <div class="badge">Tracked PPC Marketing</div>
             <h1 class="hero-title">
               Reach Real Audiences with
-              <span class="gradient-text">Authentic Influence</span>
+              <span class="gradient-text">Measurable Promotion</span>
             </h1>
             <p class="hero-subtitle">
               Connect with trusted promoters who share your brand with their personal networks. 
-              Get measurable results through WhatsApp Status - the most personal social platform.
+              Fund campaigns, track unique links, monitor billable clicks, and see which promoters drive real results.
             </p>
 
             <div class="video-embed">
@@ -37,9 +37,36 @@
                 frameborder="0"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowfullscreen
-                title="How it works demo">
+                title="MarketSpase marketer campaign guide">
               </iframe>
             </div>
+
+            @if (marketerGuideVideos().length) {
+              <div class="video-guide-panel" aria-label="More marketer video guides">
+                <div class="video-guide-heading">
+                  <mat-icon>smart_display</mat-icon>
+                  <span>More marketer guides</span>
+                </div>
+
+                <div class="video-guide-grid">
+                  @for (guide of marketerGuideVideos(); track guide.title) {
+                    <article class="video-guide-card">
+                      <iframe
+                        [src]="guide.embedUrl"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen
+                        [title]="guide.title">
+                      </iframe>
+                      <div>
+                        <strong>{{ guide.title }}</strong>
+                        <p>{{ guide.description }}</p>
+                      </div>
+                    </article>
+                  }
+                </div>
+              </div>
+            }
 
           </div>
 
@@ -68,8 +95,8 @@
               <div class="stat-label">Active Promoters</div>
             </div>
             <div class="hero-stat">
-              <div class="stat-value">24h</div>
-              <div class="stat-label">Campaign Duration</div>
+              <div class="stat-value">PPC</div>
+              <div class="stat-label">Tracked Campaign Model</div>
             </div>
           </div>
         </div>
@@ -140,7 +167,7 @@
                 </li>
                 <li>
                   <mat-icon>visibility</mat-icon>
-                  <span>High engagement and view-through rates</span>
+                  <span>Click, conversion, and spend visibility</span>
                 </li>
                 <li>
                   <mat-icon>groups</mat-icon>
@@ -161,7 +188,7 @@
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">Powerful Features for Smart Marketers</h2>
-            <p class="section-subtitle">Everything you need to run successful WhatsApp marketing campaigns</p>
+            <p class="section-subtitle">Everything you need to run PPC campaigns through trusted promoters</p>
           </div>
 
           <div class="features-grid">
@@ -205,7 +232,7 @@
               </div>
               <div class="step-content">
                 <h3>Create Your Campaign</h3>
-                <p>Upload your ad content, set your budget, and define your target audience. Our system automatically adds secure watermarks.</p>
+                <p>Upload approved media, add your campaign or landing link, set your budget, and define your target audience.</p>
                 <div class="step-details">
                   <div class="detail-item">
                     <mat-icon>upload</mat-icon>
@@ -259,11 +286,11 @@
               </div>
               <div class="step-content">
                 <h3>Real-time Performance Tracking</h3>
-                <p>Monitor your campaign performance with live analytics, view counts, and engagement metrics.</p>
+                <p>Monitor your campaign performance with live clicks, unique clicks, billable clicks, conversions, and spend.</p>
                 <div class="step-details">
                   <div class="detail-item">
-                    <mat-icon>visibility</mat-icon>
-                    <span>Live view counts</span>
+                    <mat-icon>ads_click</mat-icon>
+                    <span>Live click tracking</span>
                   </div>
                   <div class="detail-item">
                     <mat-icon>insights</mat-icon>
@@ -286,11 +313,11 @@
               </div>
               <div class="step-content">
                 <h3>AI Verification & Results</h3>
-                <p>Our system automatically verifies campaigns, submitted promotion proofs and provides detailed performance reports.</p>
+                <p>MarketSpase evaluates link activity, fraud signals, budget movement, and campaign results before valid earnings are released.</p>
                 <div class="step-details">
                   <div class="detail-item">
                     <mat-icon>verified</mat-icon>
-                    <span>Automated verification</span>
+                    <span>Click quality checks</span>
                   </div>
                   <div class="detail-item">
                     <mat-icon>description</mat-icon>
@@ -298,7 +325,7 @@
                   </div>
                   <div class="detail-item">
                     <mat-icon>payments</mat-icon>
-                    <span>Pay only for verified results</span>
+                    <span>Pay only for valid activity</span>
                   </div>
                 </div>
               </div>
@@ -356,7 +383,7 @@
         <div class="container">
           <div class="section-header">
             <h2 class="section-title">Simple, Transparent Cost</h2>
-            <p class="section-subtitle">Pay only for verified results. No hidden fees, no surprises.</p>
+            <p class="section-subtitle">Fund your campaign budget, then track spend against valid promotion activity.</p>
           </div>
 
           <div class="pricing-grid">
@@ -465,7 +492,7 @@
                 <mat-icon>add</mat-icon>
               </div>
               <div class="faq-answer">
-                <p>High-quality images and short videos (15-30 seconds) perform best. Content that tells a story, offers value, or creates curiosity typically achieves the highest engagement rates on WhatsApp Status.</p>
+                <p>High-quality images and short videos perform best when paired with a clear caption, strong offer, and the MarketSpase tracked link. Keep content useful, honest, and easy to act on.</p>
               </div>
             </div>
 
@@ -475,7 +502,7 @@
                 <mat-icon>add</mat-icon>
               </div>
               <div class="faq-answer">
-                <p>Our AI-powered verification system analyzes screenshots and proof submitted by promoters. We verify that your content was posted, remained visible for 24 hours, and achieved the required view count.</p>
+                <p>The current model uses unique tracking links, click-quality checks, budget guards, and fraud signals. You can review clicks, billable clicks, conversions, spend, and promoter performance in analytics.</p>
               </div>
             </div>
 
@@ -497,7 +524,7 @@
         <div class="container">
           <div class="cta-content">
             <h2>Ready to Transform Your Marketing?</h2>
-            <p>Join thousands of marketers already achieving better results with authentic WhatsApp marketing</p>
+            <p>Join marketers using tracked promoter links, PPC budgets, and storefront attribution to understand what is actually working.</p>
             <div class="cta-buttons">
               <!-- <button mat-raised-button color="primary" class="cta-button" routerLink="/auth">
                 <mat-icon>rocket_launch</mat-icon>

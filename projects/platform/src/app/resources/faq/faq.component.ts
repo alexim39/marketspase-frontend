@@ -72,10 +72,10 @@ export class FAQComponent {
 
   popularSearches = signal<string[]>([
     'How to withdraw earnings',
-    'Campaign verification failed',
+    'Click quality review',
     'Reset password',
     'Create first campaign',
-    'Increase status views',
+    'Improve valid click performance',
     'Payment methods',
     'Account verification',
     'Campaign performance'
@@ -120,12 +120,12 @@ export class FAQComponent {
     },
     {
       id: 'verification',
-      name: 'Verification',
-      description: 'Learn about the verification process and requirements',
+      name: 'Click Quality & Policy',
+      description: 'Learn how tracked links, valid clicks, and policy checks work',
       icon: 'verified',
       gradient: 'linear-gradient(135deg, #8570faff 0%, #5d5005ff 100%)',
       count: 15,
-      popularQuestions: ['Why was my verification failed?', 'What proof do I need to provide?']
+      popularQuestions: ['Why was my activity rejected?', 'How do I protect my tracking link?']
     },
     {
       id: 'troubleshooting',
@@ -162,12 +162,12 @@ export class FAQComponent {
       question: 'What are the requirements to become a promoter?',
       answer: `To become a promoter on MarketSpase, you need:
       <ul>
-        <li>An active WhatsApp account</li>
-        <li>Minimum 25 views on your WhatsApp status posts</li>
+        <li>A real social audience or community you can promote to responsibly</li>
         <li>A verified phone number</li>
         <li>Completed profile information</li>
         <li>Agreement to our terms and conditions</li>
-        <li>Valid government-issued ID for verification (required for higher payouts)</li>
+        <li>Commitment to avoid self-clicking, bots, fake traffic, spam, or link manipulation</li>
+        <li>Valid government-issued ID for verification where required for payouts or higher account limits</li>
       </ul>`,
       category: 'getting-started',
       tags: ['promoter', 'requirements', 'eligibility'],
@@ -201,16 +201,16 @@ export class FAQComponent {
     },
     {
       id: 'verification-failed',
-      question: 'Why was my campaign verification failed?',
-      answer: `Common reasons for verification failure include:
+      question: 'Why was my promotion activity rejected?',
+      answer: `Common reasons promotion activity may be rejected or excluded from earnings include:
       <ul>
-        <li><strong>Blurry or incomplete screenshots:</strong> Make sure all required proof is clear and complete</li>
-        <li><strong>Missing watermarks:</strong> The campaign embedded watermark can not be verified by the AI system</li>
-        <li><strong>Insufficient duration:</strong> Campaign must remain on your status for at least 23 hours</li>
-        <li><strong>Low view count:</strong> Your status must receive at least 25 views</li>
-        <li><strong>Incorrect proof format:</strong> Follow our proof submission guidelines exactly</li>
+        <li><strong>Invalid traffic:</strong> self-clicks, repeated clicks, bots, or artificial traffic patterns</li>
+        <li><strong>Wrong or modified link:</strong> the original MarketSpase tracking link must stay unchanged</li>
+        <li><strong>Spammy activity:</strong> promotions shared in a way that violates campaign or platform policy</li>
+        <li><strong>Budget rules:</strong> campaign budget or CPC rules may limit what can be counted</li>
+        <li><strong>Missing attribution:</strong> activity that cannot be tied to your unique promoter link</li>
       </ul>
-      If you believe this was a mistake, you can contact support for further clearification.`,
+      If you believe this was a mistake, contact support so the team can review the tracking records and account activity.`,
       category: 'verification',
       tags: ['verification', 'failed', 'proof'],
       popular: true,
@@ -244,11 +244,11 @@ export class FAQComponent {
       <ol>
         <li>Login to your dashboard and switch user role to promoter</li>
         <li>Click "View Promotion"</li>
-        <li>Accept suitable campaign for your contact from the list of available campaign</li>
+        <li>Accept a suitable campaign or product promotion from the list of available opportunities</li>
         <li>Click "My Promotion" to view accepted promotions</li>
-        <li>Click Download to download promotion asset to your device</li>
-        <li>Ensure you follow the instruction stipulated for the promotion in the description area (if any)</li>
-        <li>Upload promotion to your WhatsApp status, ensuring the promotion ID is visible</li>
+        <li>Use the approved media, caption, and your unique tracking link</li>
+        <li>Follow the campaign instructions and keep the tracking link unchanged</li>
+        <li>Share responsibly on WhatsApp, Instagram, Facebook, TikTok, X, or other channels where you have a real audience</li>
       </ol>`,
       category: 'campaigns',
       tags: ['promotion', 'create', 'promoter'],
@@ -259,16 +259,13 @@ export class FAQComponent {
     },
     {
       id: 'submit-promotion-proof',
-      question: 'How do I submit my promotion proof?',
-      answer: `Submitting your promotion proof is straightforward:
+      question: 'Do I still need to submit manual promotion proof?',
+      answer: `No. MarketSpase has moved to a tracked-link PPC model:
       <ol>
-        <li>After uploading the promotion to your WhatsApp status, take a clear screenshot showing the promotion ID and view count</li>
-        <li>click "My Promotions" </li>
-        <li>Locate the promotion you want to submit proof for</li>
-        <li>Enter view count and optional comment</li>
-        <li>Upload the screenshot as proof</li>
-        <li>Ensure the screenshot is clear and shows the promotion ID and view count (You can upload between 1 -3 proofs)</li>
-        <li>Click the submit button to submit</li>
+        <li>Each accepted promotion gives you a unique MarketSpase tracking link</li>
+        <li>Clicks, billable activity, conversions, and product orders are tracked automatically where supported</li>
+        <li>Do not alter the link or generate fake activity</li>
+        <li>Admins may review tracking records and fraud signals if activity looks suspicious</li>
       </ol>`,
       category: 'campaigns',
       tags: ['promotion', 'proof', 'promoter'],
@@ -279,15 +276,15 @@ export class FAQComponent {
     },
     {
       id: 'increase-views',
-      question: 'How can I increase my WhatsApp status views?',
-      answer: `Here are proven strategies to increase your status views:
+      question: 'How can I improve valid click performance?',
+      answer: `Here are proven strategies to improve valid campaign performance:
       <ul>
-        <li><strong>Post consistently:</strong> Share content regularly to stay visible</li>
-        <li><strong>Engage with your audience:</strong> Respond to messages and interact with viewers</li>
+        <li><strong>Share with the right audience:</strong> Pick campaigns and products that fit your followers</li>
+        <li><strong>Use the approved caption and link:</strong> Keep the original MarketSpase tracking link unchanged</li>
         <li><strong>Share valuable content:</strong> Post content that your contacts find useful or entertaining</li>
         <li><strong>Use optimal timing:</strong> Post when your audience is most active</li>
-        <li><strong>Cross-promote:</strong> Mention your status on other social platforms</li>
-        <li><strong>Build your network:</strong> Connect with more relevant contacts</li>
+        <li><strong>Cross-promote responsibly:</strong> Share across relevant social channels without spam</li>
+        <li><strong>Protect your account quality:</strong> Avoid self-clicking, bots, paid fake traffic, or misleading claims</li>
       </ul>`,
       category: 'campaigns',
       tags: ['views', 'optimization', 'tips'],
@@ -302,7 +299,7 @@ export class FAQComponent {
       question: 'How long does it take to receive payments?',
       category: 'Payments',
      // views: 15.2,
-      answer: 'Payments are typically processed immediately when your submitted promotion proof is successfully verified. However, processing times may vary based on your chosen payment method and bank processing times.'
+      answer: 'Eligible earnings are processed after valid tracked activity passes campaign rules, budget checks, and quality review. Processing times may vary based on your chosen payment method and bank processing times.'
 
     },
     {

@@ -41,7 +41,7 @@ export class BenefitsMobileComponent extends BenefitsComponent {
       id: 'promoter' as const,
       icon: 'workspace_premium',
       title: 'For promoters',
-      summary: 'Earn from your WhatsApp status, product links, and social audience.',
+      summary: 'Earn from valid tracked clicks, product activity, and real social audience engagement.',
       action: 'See earning benefits',
     },
     {

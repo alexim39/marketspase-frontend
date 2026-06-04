@@ -4,54 +4,42 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { DeviceService, UserInterface } from '@shared/services';
-import { distinctUntilChanged, filter, interval } from 'rxjs';
+import { UserInterface } from '@shared/services';
+import { distinctUntilChanged, filter } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 import { UserService } from '../../common/services/user.service';
-import { ProfileService, ProfileUser, SuggestedUser } from '../../profile/services/profile.service';
-import { TutorialService, Section, VideoItem } from '../../tutorials/services/tutorial.service';
-import { NotificationService } from '../notification/notification.service';
-import {
-  DashboardLiveActivity,
-  DashboardLiveActivityPayload,
-  DashboardService,
-} from './../dashboard.service';
-import { TestimonialsComponent } from '../testimonial/testimonial.component';
-import { BadgeFeedComponent } from './components/badge-feed/badge-feed.component';
-import { CommunityFeedComponent } from './components/community-feed/community-feed.component';
-import { ConnectionsSectionComponent, SuggestedConnection } from './components/connections-section/connections-section.component';
+import { DashboardService } from './../dashboard.service';
 import { DashboardHeaderComponent } from './components/dashboard-header/dashboard-header.component';
-import { GamificationSpotlightComponent } from './components/gamification-spotlight/gamification-spotlight.component';
-import { LearningCourse, LearningSectionComponent } from './components/learning-section/learning-section.component';
 import { DashboardStat, PerformanceMetricsComponent } from './components/performance-metrics/performance-metrics.component';
-import { CampaignSummary, CommunityStats, PromotionSummary, QuickStatsComponent } from './components/quick-stats/quick-stats.component';
+import { CampaignSummary, PromotionSummary, QuickStatsComponent } from './components/quick-stats/quick-stats.component';
 import { Activity, RecentActivityComponent } from './components/recent-activity/recent-activity.component';
-import { TrendingItem, TrendingSectionComponent } from './components/trending-section/trending-section.component';
 import { GeneralMsgNotifierBannerComponent } from './notification-banner/general-msg-notifier/general-msg-notifier-banner.component';
 import { ProfileNotifierBannerComponent } from './notification-banner/profiile-notifier/profile-notifier-banner.component';
 import { PromoBannerComponent } from './notification-banner/promo/promo-banner.component';
-import {
-  CreatorSpotlightEntry,
-  FeedHotTopic,
-  FeedService,
-  FeedTrendChallenge,
-  ForumSpotlightEntry,
-  LiveActivity as FeedLiveActivity,
-} from '../../community/feeds/feed.service';
-import { ForumService } from '../../community/forum/forum.service';
+import { NotificationService } from '../notification/notification.service';
 
-interface DashboardTrendingItem extends TrendingItem {
-  kind: 'forum' | 'hashtag' | 'challenge';
-  target: string;
+interface DashboardInsight {
+  icon: string;
+  title: string;
+  description: string;
+  tone: 'good' | 'warn' | 'neutral';
+  actionLabel: string;
+  route: string;
 }
 
-interface ForumStatsSnapshot {
-  totalMembers: number;
-  totalDiscussions: number;
-  totalComments: number;
-  todayDiscussions: number;
-  todayComments: number;
-  todayActivity: number;
+interface DashboardModule {
+  icon: string;
+  title: string;
+  description: string;
+  metric: string;
+  route: string;
+}
+
+interface RevenueBreakdownItem {
+  label: string;
+  value: string;
+  detail: string;
+  icon: string;
 }
 
 @Component({
@@ -59,98 +47,48 @@ interface ForumStatsSnapshot {
   imports: [
     CommonModule,
     DashboardHeaderComponent,
-    CommunityFeedComponent,
     PerformanceMetricsComponent,
     QuickStatsComponent,
     RecentActivityComponent,
-    GamificationSpotlightComponent,
-    BadgeFeedComponent,
-    TrendingSectionComponent,
-    ConnectionsSectionComponent,
-    LearningSectionComponent,
-    TestimonialsComponent,
     ProfileNotifierBannerComponent,
     PromoBannerComponent,
     GeneralMsgNotifierBannerComponent,
     MatIconModule,
   ],
-  providers: [DashboardService, FeedService, ForumService, ProfileService, TutorialService],
+  providers: [DashboardService],
   templateUrl: './main-content.component.html',
   styleUrls: ['./main-content.component.scss'],
 })
 export class DashboardMainContainer {
   private readonly snackBar = inject(MatSnackBar);
   private readonly authService = inject(AuthService);
-  private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly deviceService = inject(DeviceService);
   private readonly userService = inject(UserService);
-  private readonly feedService = inject(FeedService);
-  private readonly forumService = inject(ForumService);
-  private readonly profileService = inject(ProfileService);
-  private readonly tutorialService = inject(TutorialService);
   private readonly notificationService = inject(NotificationService);
 
   public readonly router = inject(Router);
   public readonly user = this.userService.user;
 
-  private readonly profileSnapshot = signal<ProfileUser | null>(null);
-  private readonly forumStats = signal<ForumStatsSnapshot | null>(null);
-  private readonly liveActivitySummary = signal<DashboardLiveActivityPayload['summary'] | null>(null);
-  private readonly suggestedUsers = signal<SuggestedUser[]>([]);
-
   private notificationPollingStarted = false;
-  private backgroundRefreshStarted = false;
   private initializedUserId: string | null = null;
 
   readonly unreadMessages = signal(0);
   readonly unreadNotifications = signal(0);
   readonly viewPeriod = signal<'weekly' | 'monthly' | 'yearly'>('weekly');
-  readonly savedCourses = signal<Set<string>>(new Set());
-  readonly followingTrends = signal<Set<string>>(new Set());
-  readonly pendingConnections = signal<Set<string>>(new Set());
-  readonly connectedConnections = signal<Set<string>>(new Set());
-  readonly activeTrendingCategory = signal<string>('All');
-  readonly activeConnectionFilter = signal<string>('All');
-  readonly learningCourses = signal<LearningCourse[]>([]);
-
-  readonly trendingCategories = signal<string[]>(['All', 'Forum', 'Hashtags', 'Challenges']);
-  readonly connectionFilters = signal<string[]>(['All', 'Marketers', 'Promoters', 'Top Rated']);
-
-  readonly commactivityStats = this.feedService.activityStats;
-  readonly liveActivities = this.feedService.liveActivities;
-
-  readonly isMobile = computed(() => this.deviceService.deviceState().isMobile);
-  readonly trendingActiveUsers = computed(() =>
-    this.commactivityStats().activeUsers ||
-    this.forumStats()?.todayActivity ||
-    this.liveActivitySummary()?.total24h ||
-    0
-  );
-  readonly liveActivityUpdatedLabel = computed(() => {
-    const summary = this.liveActivitySummary();
-    if (!summary?.total24h) {
-      return 'Updated just now';
-    }
-
-    return `${summary.total24h} fresh updates in the last 24h`;
-  });
 
   readonly campaignSummary = computed<CampaignSummary>(() => {
     const user = this.user();
-    if (!user?.campaigns?.length) {
+    const campaigns = Array.isArray(user?.campaigns) ? user.campaigns : [];
+
+    if (!campaigns.length) {
       return { active: 0, completed: 0, totalBudget: 0, spentBudget: 0, engagedPromoters: 0 };
     }
 
-    const campaigns = Array.isArray(user.campaigns) ? user.campaigns : [];
-    const active = campaigns.filter((campaign) => campaign.status === 'active').length;
-    const completed = campaigns.filter((campaign) => ['completed', 'expired', 'paused'].includes(campaign.status)).length;
-
     return {
-      active,
-      completed,
-      totalBudget: campaigns.reduce((sum, campaign) => sum + (campaign.budget || 0), 0),
-      spentBudget: campaigns.reduce((sum, campaign) => sum + (campaign.spentBudget || 0), 0),
+      active: campaigns.filter((campaign) => campaign.status === 'active').length,
+      completed: campaigns.filter((campaign) => ['completed', 'expired', 'paused'].includes(campaign.status)).length,
+      totalBudget: campaigns.reduce((sum, campaign) => sum + Number(campaign.budget || 0), 0),
+      spentBudget: campaigns.reduce((sum, campaign) => sum + Number(campaign.spentBudget || 0), 0),
       engagedPromoters: campaigns.reduce(
         (sum, campaign) => sum + Number(campaign.promotionSummary?.uniquePromoters ?? campaign.totalPromotions ?? 0),
         0
@@ -186,70 +124,50 @@ export class DashboardMainContainer {
     };
   });
 
-  readonly communityStats = computed<CommunityStats>(() => {
-    const user = this.user();
-    const profile = this.profileSnapshot();
-    const activityLog = Array.isArray(user?.activityLog) ? user!.activityLog! : [];
-    const forumThreadCount = activityLog.filter((entry) => /thread|forum/i.test(entry.action)).length;
-    const commentCount = activityLog.filter((entry) => /comment|reply/i.test(entry.action)).length;
-
-    return {
-      connections: (profile?.followersCount || 0) + (profile?.followingCount || 0),
-      likes: profile?.totalLikes || 0,
-      posts: (profile?.postsCount || 0) + forumThreadCount,
-      comments: commentCount,
-    };
-  });
-
   readonly dashboardStats = computed<DashboardStat[]>(() => {
     const user = this.user();
     if (!user) return [];
 
-    const streak = user.loginStreak?.currentStreak || 0;
-    const gamification = user.gamificationProfile;
-    const levelLabel = gamification?.currentLevel ? `Lv ${gamification.currentLevel}` : 'Lv 1';
-    const levelSubtitle = gamification
-      ? `${gamification.totalExperiencePoints || 0} XP | ${streak} day streak`
-      : `${streak} day streak`;
-
     if (user.role === 'marketer') {
       const summary = this.campaignSummary();
       const wallet = user.wallets?.marketer;
+      const utilization = summary.totalBudget > 0 ? (summary.spentBudget / summary.totalBudget) * 100 : 0;
 
       return [
         {
-          icon: 'campaign',
-          label: 'Active Campaigns',
-          value: String(summary.active),
-          color: '#667eea',
-          subtitle: `${summary.engagedPromoters} engaged promoters`,
-        },
-        {
           icon: 'payments',
-          label: 'Budget Committed',
-          value: this.formatCurrencyCompact(summary.totalBudget),
-          color: '#f59e0b',
-          subtitle: `${this.formatCurrencyCompact(summary.spentBudget)} already spent`,
-        },
-        {
-          icon: 'account_balance_wallet',
           label: 'Available Balance',
           value: this.formatCurrencyCompact(wallet?.balance || 0),
           color: '#16a34a',
           subtitle: `${this.formatCurrencyCompact(wallet?.reserved || 0)} reserved`,
         },
         {
-          icon: 'military_tech',
-          label: 'Current Level',
-          value: levelLabel,
+          icon: 'campaign',
+          label: 'Active Campaigns',
+          value: String(summary.active),
+          color: '#2563eb',
+          subtitle: `${summary.engagedPromoters} engaged promoters`,
+        },
+        {
+          icon: 'account_balance_wallet',
+          label: 'Budget Utilization',
+          value: `${Math.round(utilization)}%`,
+          color: '#f59e0b',
+          subtitle: `${this.formatCurrencyCompact(summary.spentBudget)} spent`,
+        },
+        {
+          icon: 'storefront',
+          label: 'Business Modules',
+          value: '4',
           color: '#7c3aed',
-          subtitle: levelSubtitle,
+          subtitle: 'Campaigns, stores, revenue, insights',
         },
       ];
     }
 
     const summary = this.promotionSummary();
     const wallet = user.wallets?.promoter;
+    const billableRate = summary.totalClicks > 0 ? (summary.billableClicks / summary.totalClicks) * 100 : 0;
 
     return [
       {
@@ -257,82 +175,207 @@ export class DashboardMainContainer {
         label: 'Available Earnings',
         value: this.formatCurrencyCompact(wallet?.balance || 0),
         color: '#16a34a',
-        subtitle: `${summary.billableClicks} billable clicks`,
+        subtitle: `${this.formatCurrencyCompact(summary.totalEarnings)} total earned`,
+      },
+      {
+        icon: 'ads_click',
+        label: 'Billable Rate',
+        value: `${Math.round(billableRate)}%`,
+        color: '#2563eb',
+        subtitle: `${summary.billableClicks} of ${summary.totalClicks} clicks`,
       },
       {
         icon: 'link',
         label: 'Active Links',
         value: String(summary.activeLinks),
-        color: '#2563eb',
-        subtitle: `${summary.totalClicks} tracked clicks`,
+        color: '#f59e0b',
+        subtitle: `${summary.total} promotions tracked`,
       },
       {
         icon: 'task_alt',
         label: 'Paid Promotions',
         value: String(summary.paid),
-        color: '#f59e0b',
-        subtitle: `${summary.rejected} rejected`,
-      },
-      {
-        icon: 'military_tech',
-        label: 'Current Level',
-        value: levelLabel,
         color: '#7c3aed',
-        subtitle: levelSubtitle,
+        subtitle: `${summary.rejected} rejected`,
       },
     ];
   });
 
-  readonly trendingItems = computed<DashboardTrendingItem[]>(() => {
-    const forumTopics = this.feedService.hotTopics().map((topic, index) => this.mapHotTopic(topic, index));
-    const hashtags = this.feedService.trendingHashtags().map((tag, index) => this.mapHashtagTrend(tag, forumTopics.length + index));
-    const challenges = this.feedService.trendingChallenges().map((challenge, index) => this.mapChallengeTrend(
-      challenge,
-      forumTopics.length + hashtags.length + index
-    ));
+  readonly revenueBreakdown = computed<RevenueBreakdownItem[]>(() => {
+    const user = this.user();
+    if (!user) return [];
 
-    return [...forumTopics, ...challenges, ...hashtags]
-      .sort((left, right) => right.mentions - left.mentions)
-      .slice(0, 8)
-      .map((item, index) => ({ ...item, rank: index + 1 }));
-  });
+    if (user.role === 'marketer') {
+      const summary = this.campaignSummary();
+      const wallet = user.wallets?.marketer;
+      const remainingBudget = Math.max(summary.totalBudget - summary.spentBudget, 0);
 
-  readonly suggestedConnections = computed<SuggestedConnection[]>(() => {
-    const currentUserId = this.user()?._id;
-    const spotlightEntries = new Map<string, SuggestedConnection>();
-
-    this.feedService.creatorSpotlight().forEach((entry) => {
-      if (!entry._id || entry._id === currentUserId) return;
-      spotlightEntries.set(entry._id, this.mapCreatorSpotlight(entry));
-    });
-
-    this.feedService.forumSpotlight().forEach((entry) => {
-      if (!entry._id || entry._id === currentUserId) return;
-      if (!spotlightEntries.has(entry._id)) {
-        spotlightEntries.set(entry._id, this.mapForumSpotlight(entry));
-      }
-    });
-
-    const results = [...spotlightEntries.values()];
-    if (results.length >= 6) {
-      return results.slice(0, 6);
+      return [
+        {
+          icon: 'account_balance_wallet',
+          label: 'Wallet balance',
+          value: this.formatCurrencyCompact(wallet?.balance || 0),
+          detail: `${this.formatCurrencyCompact(wallet?.reserved || 0)} reserved for live work`,
+        },
+        {
+          icon: 'trending_down',
+          label: 'Campaign spend',
+          value: this.formatCurrencyCompact(summary.spentBudget),
+          detail: `${this.formatCurrencyCompact(remainingBudget)} budget remaining`,
+        },
+        {
+          icon: 'groups',
+          label: 'Promoter reach',
+          value: String(summary.engagedPromoters),
+          detail: 'Promoters attached to your active campaigns',
+        },
+      ];
     }
 
-    const enrichedSuggestions = this.suggestedUsers()
-      .filter((entry) => entry._id !== currentUserId && !spotlightEntries.has(entry._id))
-      .map((entry) => ({
-        id: entry._id,
-        name: entry.displayName || entry.username,
-        role: 'Community member',
-        avatar: entry.avatar || 'img/avatar.png',
-        headlineMetric: '@' + entry.username,
-        headlineLabel: 'to follow',
-        secondaryMetric: 'Suggested',
-        secondaryLabel: 'match',
-        badge: undefined,
-      }));
+    const summary = this.promotionSummary();
 
-    return [...results, ...enrichedSuggestions].slice(0, 6);
+    return [
+      {
+        icon: 'account_balance_wallet',
+        label: 'Withdrawable balance',
+        value: this.formatCurrencyCompact(summary.availableEarnings),
+        detail: 'Ready for withdrawal when policy permits',
+      },
+      {
+        icon: 'payments',
+        label: 'Total earnings',
+        value: this.formatCurrencyCompact(summary.totalEarnings),
+        detail: `${summary.billableClicks} billable clicks recorded`,
+      },
+      {
+        icon: 'query_stats',
+        label: 'Tracked activity',
+        value: String(summary.totalClicks),
+        detail: `${summary.activeLinks} active promotion links`,
+      },
+    ];
+  });
+
+  readonly businessModules = computed<DashboardModule[]>(() => {
+    const user = this.user();
+    if (user?.role === 'marketer') {
+      return [
+        {
+          icon: 'campaign',
+          title: 'Campaign analytics',
+          description: 'Track campaign spend, promoter activity, and delivery status.',
+          metric: `${this.campaignSummary().active} active`,
+          route: '/dashboard/campaigns/analytics',
+        },
+        {
+          icon: 'storefront',
+          title: 'Storefront analytics',
+          description: 'Review product sales, affiliate performance, and order activity.',
+          metric: 'Products',
+          route: '/dashboard/stores/promoted-products-analytics',
+        },
+        {
+          icon: 'receipt_long',
+          title: 'Orders and revenue',
+          description: 'Monitor pending orders, payouts, wallet movement, and transfers.',
+          metric: 'Wallet',
+          route: '/dashboard/transactions',
+        },
+        {
+          icon: 'support_agent',
+          title: 'Customer operations',
+          description: 'Open support insights, subscribers, and buyer engagement records.',
+          metric: 'Support',
+          route: '/dashboard/stores/support',
+        },
+      ];
+    }
+
+    return [
+      {
+        icon: 'work',
+        title: 'Promotion analytics',
+        description: 'Track billable clicks, accepted promotions, and campaign earnings.',
+        metric: `${this.promotionSummary().activeLinks} live`,
+        route: '/dashboard/campaigns/analytics',
+      },
+      {
+        icon: 'inventory',
+        title: 'Promoted products',
+        description: 'Monitor store-product links, orders generated, and affiliate sales.',
+        metric: 'Products',
+        route: '/dashboard/stores/promotions',
+      },
+      {
+        icon: 'payments',
+        title: 'Transactions and withdrawals',
+        description: 'Review earnings movement, pending withdrawals, and payout records.',
+        metric: 'Wallet',
+        route: '/dashboard/transactions',
+      },
+      {
+        icon: 'gpp_bad',
+        title: 'Account health',
+        description: 'Review penalties, fraud signals, and performance risks.',
+        metric: 'Risk',
+        route: '/dashboard/campaigns/promotions/compliance',
+      },
+    ];
+  });
+
+  readonly businessInsights = computed<DashboardInsight[]>(() => {
+    const user = this.user();
+    if (!user) return [];
+
+    if (user.role === 'marketer') {
+      const summary = this.campaignSummary();
+      const budgetUse = summary.totalBudget > 0 ? summary.spentBudget / summary.totalBudget : 0;
+
+      return [
+        {
+          icon: budgetUse > 0.8 ? 'warning' : 'insights',
+          title: budgetUse > 0.8 ? 'Budget pressure detected' : 'Budget is under control',
+          description: budgetUse > 0.8
+            ? 'Some campaigns may need a top-up soon to avoid stalled delivery.'
+            : 'Your current campaign spend is within a manageable range.',
+          tone: budgetUse > 0.8 ? 'warn' : 'good',
+          actionLabel: 'Review campaigns',
+          route: '/dashboard/campaigns',
+        },
+        {
+          icon: 'storefront',
+          title: 'Storefront performance',
+          description: 'Use product analytics to see which promoters and products drive sales.',
+          tone: 'neutral',
+          actionLabel: 'Open analytics',
+          route: '/dashboard/stores/promoted-products-analytics',
+        },
+      ];
+    }
+
+    const summary = this.promotionSummary();
+    const billableRate = summary.totalClicks > 0 ? summary.billableClicks / summary.totalClicks : 0;
+
+    return [
+      {
+        icon: billableRate < 0.35 && summary.totalClicks > 10 ? 'warning' : 'insights',
+        title: billableRate < 0.35 && summary.totalClicks > 10 ? 'Low billable click rate' : 'Promotion activity looks stable',
+        description: billableRate < 0.35 && summary.totalClicks > 10
+          ? 'Review your links and traffic sources to keep your account quality high.'
+          : 'Keep focusing on real audience engagement and clean promotion traffic.',
+        tone: billableRate < 0.35 && summary.totalClicks > 10 ? 'warn' : 'good',
+        actionLabel: 'View account health',
+        route: '/dashboard/campaigns/promotions/compliance',
+      },
+      {
+        icon: 'payments',
+        title: 'Revenue action',
+        description: 'Review your wallet and payout history before requesting withdrawals.',
+        tone: 'neutral',
+        actionLabel: 'Open wallet',
+        route: '/dashboard/transactions',
+      },
+    ];
   });
 
   readonly recentActivity = computed<Activity[]>(() => {
@@ -359,127 +402,32 @@ export class DashboardMainContainer {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((currentUser) => {
-        const isFreshUser = this.initializedUserId !== currentUser._id;
-        this.initializedUserId = currentUser._id;
+        if (this.initializedUserId !== currentUser._id) {
+          this.initializedUserId = currentUser._id;
+          this.notificationService.loadUnreadCount();
+        }
 
         this.startNotificationPolling();
-        this.startBackgroundRefresh();
-        this.loadDashboardData(currentUser, isFreshUser);
       });
   }
 
-  getCommunityGreeting(): string {
+  getDashboardGreeting(): string {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning! Ready to grow your business today?';
-    if (hour < 17) return "Good afternoon! Let's turn your latest activity into results.";
-    return "Good evening! Here's what your MarketSpase momentum looks like right now.";
-  }
+    const role = this.user()?.role;
 
-  createCommunityPost(): void {
-    this.router.navigate(['dashboard/community/feeds/create']);
-  }
+    if (role === 'marketer') {
+      if (hour < 12) return 'Good morning. Your revenue, campaign spend, and storefront signals are ready.';
+      if (hour < 17) return 'Good afternoon. Review campaign ROI and storefront performance at a glance.';
+      return 'Good evening. Close the day with spend, sales, and conversion clarity.';
+    }
 
-  openCommunityFeed(): void {
-    this.router.navigate(['dashboard/community/feeds']);
-  }
-
-  openCommunityForum(): void {
-    this.router.navigate(['dashboard/community/discussion']);
-  }
-
-  openCampaigns(): void {
-    this.router.navigate(['dashboard/campaigns']);
-  }
-
-  openAdSchool(): void {
-    this.router.navigate(['dashboard/tutorials']);
+    if (hour < 12) return 'Good morning. Your earnings and promotion performance are ready.';
+    if (hour < 17) return 'Good afternoon. Review billable clicks, payouts, and activity signals.';
+    return 'Good evening. Check your wallet, active links, and account performance.';
   }
 
   setViewPeriod(period: 'weekly' | 'monthly' | 'yearly'): void {
     this.viewPeriod.set(period);
-  }
-
-  viewTrending(): void {
-    this.router.navigate(['dashboard/community/feeds']);
-  }
-
-  connectUser(userId: string): void {
-    const currentUserId = this.user()?._id;
-    if (!currentUserId || !userId) {
-      return;
-    }
-
-    this.profileService.toggleFollow(userId, currentUserId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (response) => {
-        this.connectedConnections.update((current) => {
-          const next = new Set(current);
-          if (response.followed) {
-            next.add(userId);
-          } else {
-            next.delete(userId);
-          }
-          return next;
-        });
-
-        this.snackBar.open(response.followed ? 'You are now following this account.' : 'Follow removed.', 'OK', {
-          duration: 2500,
-        });
-      },
-      error: () => {
-        this.snackBar.open('We could not update this follow right now.', 'Close', { duration: 3500 });
-      }
-    });
-  }
-
-  continueCourse(_courseId: string): void {
-    this.router.navigate(['dashboard/tutorials']);
-  }
-
-  followTrend(trendId: string): void {
-    const trend = this.trendingItems().find((item) => item.id === trendId);
-    if (!trend) {
-      return;
-    }
-
-    const following = new Set(this.followingTrends());
-    const isFollowing = following.has(trendId);
-
-    if (trend.kind === 'forum') {
-      this.forumService.followTopic(trend.target).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-        next: () => {
-          if (isFollowing) {
-            following.delete(trendId);
-            this.snackBar.open('Topic unfollowed.', 'OK', { duration: 2200 });
-          } else {
-            following.add(trendId);
-            this.snackBar.open('Topic followed.', 'OK', { duration: 2200 });
-          }
-          this.followingTrends.set(following);
-        },
-        error: () => {
-          this.snackBar.open('We could not update this topic right now.', 'Close', { duration: 3200 });
-        }
-      });
-      return;
-    }
-
-    if (isFollowing) {
-      following.delete(trendId);
-      this.snackBar.open('Removed from your watchlist.', 'OK', { duration: 2200 });
-    } else {
-      following.add(trendId);
-      this.snackBar.open('Added to your watchlist.', 'OK', { duration: 2200 });
-    }
-
-    this.followingTrends.set(following);
-  }
-
-  openSettings(): void {
-    this.router.navigate(['dashboard/settings']);
-  }
-
-  viewAllConnections(): void {
-    this.router.navigate(['dashboard/community/feeds']);
   }
 
   createCampaign(): void {
@@ -487,12 +435,7 @@ export class DashboardMainContainer {
   }
 
   browseCampaign(): void {
-    if (this.user()?.role === 'promoter') {
-      this.router.navigate(['dashboard/campaigns']);
-      return;
-    }
-
-    this.router.navigate(['dashboard/community/feeds']);
+    this.router.navigate(['dashboard/campaigns']);
   }
 
   viewCampaigns(): void {
@@ -516,6 +459,10 @@ export class DashboardMainContainer {
     this.router.navigate(['dashboard/transactions']);
   }
 
+  openDashboardModule(route: string): void {
+    this.router.navigateByUrl(route);
+  }
+
   logout(): void {
     this.authService.signOut()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -525,87 +472,10 @@ export class DashboardMainContainer {
       });
   }
 
-  onSaveCourse(courseId: string): void {
-    const currentSaved = new Set(this.savedCourses());
-    if (currentSaved.has(courseId)) {
-      currentSaved.delete(courseId);
-      this.snackBar.open('Removed from your saved list.', 'OK', { duration: 2200 });
-    } else {
-      currentSaved.add(courseId);
-      this.snackBar.open('Saved for later.', 'OK', { duration: 2200 });
-    }
-    this.savedCourses.set(currentSaved);
-  }
-
-  onTrendingCategoryChange(category: string): void {
-    this.activeTrendingCategory.set(category);
-  }
-
-  onConnectionFilterChange(filter: string): void {
-    this.activeConnectionFilter.set(filter);
-  }
-
-  refreshConnections(): void {
-    const currentUserId = this.user()?._id;
-    if (!currentUserId) {
-      return;
-    }
-
-    this.loadSuggestedConnections(currentUserId);
-    this.loadFollowingState(currentUserId);
-  }
-
   onActivityClick(activity: Activity): void {
     this.router.navigate(['dashboard/transactions'], {
       queryParams: { transactionId: activity.id }
     });
-  }
-
-  onTrendClick(trend: TrendingItem): void {
-    if (this.isDashboardTrend(trend) && trend.kind === 'forum') {
-      this.router.navigate(['dashboard/community/discussion'], {
-        queryParams: { tag: trend.target }
-      });
-      return;
-    }
-
-    this.router.navigate(['dashboard/community/feeds']);
-  }
-
-  onViewConnection(connectionId: string): void {
-    this.router.navigate(['dashboard/profile', connectionId]);
-  }
-
-  onProfileClick(connection: SuggestedConnection): void {
-    this.router.navigate(['dashboard/profile', connection.id]);
-  }
-
-  onViewPost(postId: string): void {
-    this.router.navigate(['/feed', postId], {
-      queryParams: { returnTo: this.router.url }
-    });
-  }
-
-  onHashtagClick(_tag: string): void {
-    this.router.navigate(['/dashboard/community/feeds']);
-  }
-
-  private loadDashboardData(user: UserInterface, resetFeed: boolean): void {
-    if (resetFeed || !this.feedService.posts().length) {
-      this.feedService.resetFeed();
-      this.feedService.loadFeedPosts(user._id, undefined, undefined, undefined, true, 'for_you', 4);
-    }
-
-    this.loadProfileSnapshot(user._id);
-    this.loadForumStats();
-    this.loadLiveActivities();
-
-    if (resetFeed) {
-      this.loadSuggestedConnections(user._id);
-      this.loadFollowingState(user._id);
-      this.loadTutorialCourses(user.role);
-      this.notificationService.loadUnreadCount();
-    }
   }
 
   private startNotificationPolling(): void {
@@ -615,232 +485,6 @@ export class DashboardMainContainer {
 
     this.notificationPollingStarted = true;
     this.notificationService.startUnreadCountPolling(30000);
-  }
-
-  private startBackgroundRefresh(): void {
-    if (this.backgroundRefreshStarted) {
-      return;
-    }
-
-    this.backgroundRefreshStarted = true;
-    interval(60000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const currentUser = this.user();
-        if (!currentUser?._id) {
-          return;
-        }
-
-        this.loadProfileSnapshot(currentUser._id);
-        this.loadForumStats();
-        this.loadLiveActivities();
-      });
-  }
-
-  private loadProfileSnapshot(userId: string): void {
-    this.profileService.getProfile(userId, userId, 'summary')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (profile) => this.profileSnapshot.set(profile),
-        error: () => this.profileSnapshot.set(null),
-      });
-  }
-
-  private loadForumStats(): void {
-    this.forumService.getCommunityStats()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (response?.success) {
-            this.forumStats.set(response.data);
-          }
-        },
-        error: () => this.forumStats.set(null),
-      });
-  }
-
-  private loadSuggestedConnections(userId: string): void {
-    this.profileService.fetchSuggestedUsers(userId, 8)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (users) => this.suggestedUsers.set(users || []),
-        error: () => this.suggestedUsers.set([]),
-      });
-  }
-
-  private loadFollowingState(userId: string): void {
-    this.profileService.getFollowing(userId, 1, 100)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const followingIds = (response.following || []).map((entry) => entry._id);
-          this.connectedConnections.set(new Set(followingIds));
-        },
-        error: () => this.connectedConnections.set(new Set()),
-      });
-  }
-
-  private loadTutorialCourses(role: UserInterface['role']): void {
-    this.tutorialService.getTutorials(role)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (sections) => this.learningCourses.set(this.mapTutorialsToCourses(sections || [])),
-        error: () => this.learningCourses.set([]),
-      });
-  }
-
-  private loadLiveActivities(): void {
-    this.dashboardService.getLiveActivityFeed(10)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          if (!response?.success) {
-            return;
-          }
-
-          this.liveActivitySummary.set(response.data.summary);
-          this.feedService.setLiveActivities((response.data.activities || []).map((activity) => this.mapLiveActivity(activity)));
-        },
-        error: () => {
-          this.liveActivitySummary.set(null);
-          this.feedService.setLiveActivities([]);
-        },
-      });
-  }
-
-  private mapTutorialsToCourses(sections: Section[]): LearningCourse[] {
-    const recentlyWatched = this.getRecentlyWatchedIds();
-
-    return sections
-      .flatMap((section) => section.videos.map((video) => ({ section, video })))
-      .slice(0, 4)
-      .map(({ section, video }) => this.mapVideoToCourse(section, video, recentlyWatched.has(video.id)));
-  }
-
-  private mapVideoToCourse(section: Section, video: VideoItem, watched: boolean): LearningCourse {
-    return {
-      id: video.id,
-      title: video.title,
-      description: video.description,
-      image: video.thumbnail,
-      difficulty: this.mapDifficulty(video.difficulty),
-      duration: video.duration,
-      lessons: 1,
-      progress: watched ? 100 : 0,
-      category: section.title,
-      instructor: 'MarketSpase',
-      rating: video.isPopular ? 5 : 4,
-      enrolled: video.views,
-    };
-  }
-
-  private mapDifficulty(value: string): 'Beginner' | 'Intermediate' | 'Advanced' {
-    if (value === 'advanced') return 'Advanced';
-    if (value === 'intermediate') return 'Intermediate';
-    return 'Beginner';
-  }
-
-  private getRecentlyWatchedIds(): Set<string> {
-    try {
-      const raw = localStorage.getItem('recentlyWatched');
-      if (!raw) {
-        return new Set<string>();
-      }
-
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        return new Set<string>();
-      }
-
-      return new Set(parsed.map((entry) => String(entry.id)));
-    } catch {
-      return new Set<string>();
-    }
-  }
-
-  private mapLiveActivity(activity: DashboardLiveActivity): FeedLiveActivity {
-    return {
-      id: activity.id,
-      type: activity.type as FeedLiveActivity['type'],
-      author: activity.author,
-      authorId: activity.authorId,
-      avatar: activity.avatar,
-      message: activity.message,
-      time: this.feedService.formatTime(activity.createdAt),
-      actionUrl: activity.actionUrl,
-      postId: activity.type === 'post' ? activity.id.replace('feed:', '') : undefined,
-      postContent: activity.title,
-    };
-  }
-
-  private mapHotTopic(topic: FeedHotTopic, index: number): DashboardTrendingItem {
-    return {
-      id: `forum:${topic.topic}:${index}`,
-      rank: index + 1,
-      title: topic.label,
-      description: `${topic.threadCount} active discussion${topic.threadCount === 1 ? '' : 's'} in the forum`,
-      mentions: topic.engagementScore,
-      category: 'Forum',
-      trend: 'up',
-      kind: 'forum',
-      target: topic.topic,
-    };
-  }
-
-  private mapHashtagTrend(tag: { tag: string; count: number }, index: number): DashboardTrendingItem {
-    return {
-      id: `hashtag:${tag.tag}:${index}`,
-      rank: index + 1,
-      title: `#${tag.tag}`,
-      description: `${tag.count} community post${tag.count === 1 ? '' : 's'} using this tag`,
-      mentions: tag.count,
-      category: 'Hashtags',
-      trend: 'new',
-      kind: 'hashtag',
-      target: tag.tag,
-    };
-  }
-
-  private mapChallengeTrend(challenge: FeedTrendChallenge, index: number): DashboardTrendingItem {
-    return {
-      id: `challenge:${challenge.tag}:${index}`,
-      rank: index + 1,
-      title: challenge.title || `#${challenge.tag}`,
-      description: challenge.description || `${challenge.postCount} posts joined this challenge`,
-      mentions: challenge.totalEngagement || challenge.postCount,
-      category: 'Challenges',
-      trend: 'up',
-      kind: 'challenge',
-      target: challenge.tag,
-    };
-  }
-
-  private mapCreatorSpotlight(entry: CreatorSpotlightEntry): SuggestedConnection {
-    return {
-      id: entry._id,
-      name: entry.displayName || entry.username,
-      role: entry.role || 'Community creator',
-      avatar: entry.avatar || 'img/avatar.png',
-      badge: entry.badge,
-      headlineMetric: String(entry.engagementPoints || 0),
-      headlineLabel: 'engagement',
-      secondaryMetric: String(entry.postCount || 0),
-      secondaryLabel: 'posts',
-    };
-  }
-
-  private mapForumSpotlight(entry: ForumSpotlightEntry): SuggestedConnection {
-    return {
-      id: entry._id,
-      name: entry.displayName || entry.username,
-      role: entry.role || 'Forum contributor',
-      avatar: entry.avatar || 'img/avatar.png',
-      badge: entry.badge,
-      headlineMetric: String(entry.engagementPoints || 0),
-      headlineLabel: 'engagement',
-      secondaryMetric: String((entry.threadCount || 0) + (entry.commentCount || 0)),
-      secondaryLabel: 'contributions',
-    };
   }
 
   private mapTransactionToActivity(transaction: any, walletType: 'marketer' | 'promoter'): Activity {
@@ -857,7 +501,7 @@ export class DashboardMainContainer {
     };
   }
 
-  private formatCurrencyCompact(amount: number): string {
+  protected formatCurrencyCompact(amount: number): string {
     if (!Number.isFinite(amount)) {
       return 'NGN 0';
     }
@@ -870,21 +514,5 @@ export class DashboardMainContainer {
     }
 
     return `NGN ${Math.round(amount).toLocaleString('en-NG')}`;
-  }
-
-  private isDashboardTrend(trend: TrendingItem): trend is DashboardTrendingItem {
-    return 'kind' in trend && 'target' in trend;
-  }
-
-  private formatNairaCompact(amount: number): string {
-    if (amount >= 1000000) {
-      return `₦${(amount / 1000000).toFixed(1)}M`;
-    }
-
-    if (amount >= 1000) {
-      return `₦${(amount / 1000).toFixed(1)}K`;
-    }
-
-    return `₦${Math.round(amount).toLocaleString()}`;
   }
 }

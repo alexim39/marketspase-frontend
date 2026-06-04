@@ -2,12 +2,9 @@
 <profile-notifier-banner [user]="user()" />
 <general-msg-notifier-banner [user]="user()" />
 
-<!-- Dashboard Content -->
 <div class="dashboard-content">
-  <!-- Dashboard Header -->
   <dashboard-header
     [user]="user()"
-    [communityNotifications]="commactivityStats().postsToday"
     [unreadMessages]="unreadMessages()"
     [unreadNotifications]="unreadNotifications()"
     (createCampaign)="createCampaign()"
@@ -18,158 +15,134 @@
     (logout)="logout()"
   />
 
-  <!-- Community Feed - Enhanced with real data -->
-   <community-feed
-    [userId]="user()?._id"
-    [limit]="4"
-    (createPost)="createCommunityPost()"
-    (viewPost)="onViewPost($event)"
-    (viewAll)="openCommunityFeed()"
-    (hashtagClick)="onHashtagClick($event)"
-    [userRole]="user()?.role"
-  />
+  <section class="command-center-hero" aria-label="Business command center overview">
+    <div>
+      <span class="eyebrow">Business command center</span>
+      <h1>Dashboard</h1>
+      <p>{{ getDashboardGreeting() }}</p>
+    </div>
 
-  <!-- Dashboard Content Grid -->
+    <div class="hero-actions">
+      @if (user()?.role === 'marketer') {
+        <button type="button" class="primary-action" (click)="createCampaign()">
+          <mat-icon>add_circle</mat-icon>
+          Create campaign
+        </button>
+        <button type="button" (click)="openDashboardModule('/dashboard/stores/promoted-products-analytics')">
+          <mat-icon>storefront</mat-icon>
+          Product analytics
+        </button>
+      } @else {
+        <button type="button" class="primary-action" (click)="browseCampaign()">
+          <mat-icon>campaign</mat-icon>
+          Find campaigns
+        </button>
+        <button type="button" (click)="viewWallet()">
+          <mat-icon>account_balance_wallet</mat-icon>
+          Wallet
+        </button>
+      }
+    </div>
+  </section>
+
   <div class="dashboard-content-grid">
-    <!-- Performance Metrics -->
     <performance-metrics
       [stats]="dashboardStats()"
       [period]="viewPeriod()"
       (periodChange)="setViewPeriod($event)"
     />
 
-    <!-- Stats & Activity Grid -->
+    <section class="revenue-panel" aria-label="Revenue and operations summary">
+      <div class="section-heading">
+        <div>
+          <span>Revenue hub</span>
+          <h2>{{ user()?.role === 'marketer' ? 'Spend and growth overview' : 'Earnings and payout overview' }}</h2>
+        </div>
+        <button type="button" (click)="viewWallet()">Open transactions</button>
+      </div>
+
+      <div class="revenue-grid">
+        @for (item of revenueBreakdown(); track item.label) {
+          <article class="revenue-card">
+            <div class="card-icon">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </div>
+            <div>
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+              <p>{{ item.detail }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
     <div class="stats-activity-grid">
-      <!-- Quick Stats -->
       <quick-stats
         [user]="user()"
         [campaignSummary]="campaignSummary()"
         [promotionSummary]="promotionSummary()"
-        [communityStats]="communityStats()"
         (withdrawWallet)="withdrawWallet()"
         (viewWallet)="viewWallet()"
       />
 
-      <div class="activity-side-panel">
-        <app-gamification-spotlight />
+      <recent-activity
+        [activities]="recentActivity()"
+        [userRole]="user()?.role"
+        (viewAll)="viewWallet()"
+        (activityClick)="onActivityClick($event)"
+        (browseCampaigns)="browseCampaign()"
+        (createCampaign)="createCampaign()"
+      />
+    </div>
 
-        <app-badge-feed />
-
-        <!-- Recent Activity -->
-        <recent-activity
-          [activities]="recentActivity()"
-          [userRole]="user()?.role"
-          (viewAll)="viewWallet()"
-          (activityClick)="onActivityClick($event)"
-          (browseCampaigns)="browseCampaign()"
-          (createCampaign)="createCampaign()"
-        />
+    <section class="module-grid-section" aria-label="Dashboard analytics modules">
+      <div class="section-heading">
+        <div>
+          <span>Analytics modules</span>
+          <h2>Business control areas</h2>
+        </div>
       </div>
-    </div>
 
-    <!-- Trending & Connections Grid -->
-    <div class="trending-connections-grid">
-      <trending-section
-        [trendingItems]="trendingItems()"
-        [following]="followingTrends()"
-        [categories]="trendingCategories()"
-        [activeCategory]="activeTrendingCategory()"
-        [activeUsers]="trendingActiveUsers()"
-        [updatedLabel]="liveActivityUpdatedLabel()"
-        (viewAll)="viewTrending()"
-        (trendClick)="onTrendClick($event)"
-        (follow)="followTrend($event)"
-        (categoryChange)="onTrendingCategoryChange($event)"
-      />
-
-      <!-- Connections Section -->
-      <connections-section
-        [connections]="suggestedConnections()"
-        [pendingConnections]="pendingConnections()"
-        [connectedConnections]="connectedConnections()"
-        [filters]="connectionFilters()"
-        [activeFilter]="activeConnectionFilter()"
-        (viewAll)="viewAllConnections()"
-        (connect)="connectUser($event)"
-        (view)="onViewConnection($event)"
-        (profileClick)="onProfileClick($event)"
-        (filterChange)="onConnectionFilterChange($event)"
-        (refresh)="refreshConnections()"
-      />
-    </div>
-  </div>
-
-  <!-- Learning Section -->
-  <learning-section
-    [courses]="learningCourses()"
-    [savedCourses]="savedCourses()"
-    (viewAll)="openAdSchool()"
-    (continueCourse)="continueCourse($event)"
-    (saveCourse)="onSaveCourse($event)"
-  />
-
-  <!-- Testimonials Section -->
-  <div class="testimonials-section">
-    @if (user()) {
-      <async-dashboard-testimonials />
-    }
-  </div>
-
-  <!-- Mobile Bottom Navigation -->
-  @if (isMobile()) {
-    <div class="mobile-bottom-nav">
-      <nav class="nav-container">
-        <button class="nav-item" (click)="router.navigate(['dashboard'])">
-          <mat-icon>home</mat-icon>
-          <span class="nav-label">Home</span>
-        </button>
-        <button class="nav-item" (click)="openCommunityFeed()">
-          <mat-icon>chat</mat-icon>
-          <span class="nav-label">Community</span>
-          @if (commactivityStats().postsToday > 0) {
-            <span class="nav-badge">{{ commactivityStats().postsToday }}</span>
-          }
-        </button>
-        @if (user()?.role ==='marketer') {
-          <button class="nav-item primary-action" (click)="createCommunityPost()">
-            <mat-icon>add</mat-icon>
-          </button>
+      <div class="module-grid">
+        @for (module of businessModules(); track module.title) {
+          <article class="module-card" tabindex="0" (click)="openDashboardModule(module.route)" (keydown.enter)="openDashboardModule(module.route)">
+            <div class="module-icon">
+              <mat-icon>{{ module.icon }}</mat-icon>
+            </div>
+            <div class="module-copy">
+              <span>{{ module.metric }}</span>
+              <h3>{{ module.title }}</h3>
+              <p>{{ module.description }}</p>
+            </div>
+            <mat-icon>chevron_right</mat-icon>
+          </article>
         }
-        <!-- <button class="nav-item" (click)="openCommunityFeed()">
-          <mat-icon>communities</mat-icon>
-          <span class="nav-label">Community</span>
-        </button> -->
-        <button class="nav-item" (click)="openCommunityForum()">
-          <mat-icon>forum</mat-icon>
-          <span class="nav-label">Discussions</span>
-        </button>
-        <button class="nav-item" (click)="openCampaigns()">
-          <mat-icon>campaign</mat-icon>
-          <span class="nav-label">Campaign</span>
-        </button>
-      
-        <!-- <button class="nav-item" (click)="openMessages()">
-          <mat-icon>whatshot</mat-icon>
-          <span class="nav-label">activity</span>
-          @if (commactivityStats().totalEngagement > 0) {
-            <span class="nav-badge">{{ commactivityStats().totalEngagement }}</span>
-          }
-        </button> -->
-        <!-- <button class="nav-item" (click)="openNotifications()">
-          <mat-icon>notifications</mat-icon>
-          <span class="nav-label">Alerts</span>
-          @if (unreadNotifications() > 0) {
-            <span class="nav-badge">{{ unreadNotifications() }}</span>
-          }
-        </button> -->
-      </nav>
-    </div>
-  }
+      </div>
+    </section>
 
-  <!-- Floating Action Button (Desktop) -->
-  @if (!isMobile()) {
-    <button mat-fab color="primary" class="fab-create" (click)="createCommunityPost()">
-      <mat-icon>edit</mat-icon>
-    </button>
-  }
+    <section class="insights-section" aria-label="Business insights and alerts">
+      <div class="section-heading">
+        <div>
+          <span>AI-ready insights</span>
+          <h2>Alerts and recommendations</h2>
+        </div>
+      </div>
+
+      <div class="insight-list">
+        @for (insight of businessInsights(); track insight.title) {
+          <article class="insight-card" [class.warn]="insight.tone === 'warn'" [class.good]="insight.tone === 'good'">
+            <mat-icon>{{ insight.icon }}</mat-icon>
+            <div>
+              <h3>{{ insight.title }}</h3>
+              <p>{{ insight.description }}</p>
+            </div>
+            <button type="button" (click)="openDashboardModule(insight.route)">
+              {{ insight.actionLabel }}
+            </button>
+          </article>
+        }
+      </div>
+    </section>
+  </div>
 </div>

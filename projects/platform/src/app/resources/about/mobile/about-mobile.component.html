@@ -111,6 +111,39 @@
     </div>
   </section>
 
+  <section class="testimonial-strip" aria-labelledby="mobile-about-testimonials-title">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Trusted stories</span>
+        <h2 id="mobile-about-testimonials-title">What users say</h2>
+      </div>
+      <a routerLink="/resources/testimonials" aria-label="View all testimonials">
+        <mat-icon>arrow_forward</mat-icon>
+      </a>
+    </div>
+
+    <div class="testimonial-rail" aria-label="MarketSpase testimonials">
+      @for (testimonial of testimonialHighlights(); track testimonial.name) {
+        <article>
+          <div class="testimonial-person">
+            <span>{{ testimonial.avatarInitials }}</span>
+            <div>
+              <strong>{{ testimonial.name }}</strong>
+              <small>{{ testimonial.business }}</small>
+            </div>
+          </div>
+          <div class="testimonial-rating" [attr.aria-label]="testimonial.rating + ' star rating'">
+            @for (star of ratingStars(testimonial.rating); track star) {
+              <mat-icon>star</mat-icon>
+            }
+          </div>
+          <p>{{ testimonial.quote }}</p>
+          <strong class="testimonial-metric">{{ testimonial.metric }}</strong>
+        </article>
+      }
+    </div>
+  </section>
+
   <section aria-labelledby="workflow-title">
     <div class="section-heading">
       <div>

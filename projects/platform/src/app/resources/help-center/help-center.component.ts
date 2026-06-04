@@ -81,10 +81,10 @@ export class HelpCenterComponent {
 
   popularSearches = signal<string[]>([
     'How to withdraw earnings',
-    'Campaign verification failed',
+    'Click quality review',
     'Reset password',
     'Create first campaign',
-    'Increase status views',
+    'Improve valid click performance',
     'Payment methods',
     'Account verification',
     'Campaign performance'
@@ -129,12 +129,12 @@ export class HelpCenterComponent {
     },
     {
       id: 'verification',
-      name: 'Verification',
-      description: 'Learn about the verification process and requirements',
+      name: 'Click Quality & Policy',
+      description: 'Learn how tracked links, valid clicks, and policy checks work',
       icon: 'verified',
       gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
       articleCount: 24,
-      popularArticles: ['Proof Requirements', 'Verification Failed', 'Appeal Process']
+      popularArticles: ['Tracking Link Rules', 'Activity Review', 'Appeal Process']
     },
     {
       id: 'troubleshooting',
@@ -167,7 +167,7 @@ export class HelpCenterComponent {
     {
       id: 'maximize-earnings',
       title: 'How to Maximize Your Earnings as a Promoter',
-      excerpt: 'Proven strategies to increase your income through WhatsApp status promotions.',
+      excerpt: 'Proven strategies to improve valid clicks, product activity, and campaign performance with tracked links.',
       category: 'Payments & Earnings',
       readTime: '8 min',
       lastUpdated: '1 week ago',
@@ -185,12 +185,12 @@ export class HelpCenterComponent {
     },
     {
       id: 'verification-success',
-      title: 'How to Ensure Successful Campaign Verification',
-      excerpt: 'Follow these steps to make sure your campaigns get verified quickly and successfully.',
-      category: 'Verification',
+      title: 'How to Protect Your Tracking Link Quality',
+      excerpt: 'Follow these steps to keep your promotion activity compliant and eligible for campaign earnings.',
+      category: 'Click Quality & Policy',
       readTime: '6 min',
       lastUpdated: '5 days ago',
-      tags: ['verification', 'proof', 'guidelines']
+      tags: ['tracking', 'quality', 'guidelines']
     }
   ]);
 
@@ -204,27 +204,27 @@ export class HelpCenterComponent {
     },
     {
       question: 'How long does it take to receive payments?',
-      answer: 'Payments are processed automatically after successful campaign verification. Standard processing time is 24-48 hours. For bank transfers, additional 1-3 business days may be required depending on your bank.',
+      answer: 'Eligible earnings are processed after valid tracked activity passes campaign rules, budget checks, and quality review. Standard processing time is 24-48 hours. For bank transfers, additional 1-3 business days may be required depending on your bank.',
       category: 'payments',
       tags: ['payments', 'withdrawal', 'timing'],
       popular: true
     },
     {
-      question: 'Why was my campaign verification failed?',
-      answer: 'Common reasons for verification failure include: <ul><li>Incomplete or blurry proof images</li><li>Missing required screenshots</li><li>Content not visible for full 24 hours</li><li>Watermark not clearly visible</li><li>Status views below minimum requirement</li></ul>',
+      question: 'Why was my promotion activity rejected?',
+      answer: 'Common reasons include: <ul><li>Self-clicks, bots, repeated clicks, or artificial traffic patterns</li><li>Modified or incorrect tracking links</li><li>Spammy sharing or campaign policy violations</li><li>Campaign budget or CPC limits</li><li>Activity that cannot be attributed to your unique promoter link</li></ul>',
       category: 'verification',
-      tags: ['verification', 'failed', 'proof'],
+      tags: ['tracking', 'quality', 'policy'],
       popular: true
     },
     {
-      question: 'How can I increase my status views?',
-      answer: 'To increase your WhatsApp status views: <ul><li>Post consistently at optimal times</li><li>Engage with your audience regularly</li><li>Share valuable and interesting content</li><li>Use relevant hashtags and mentions</li><li>Cross-promote on other social platforms</li></ul>',
+      question: 'How can I improve valid click performance?',
+      answer: 'To improve valid performance: <ul><li>Choose campaigns that fit your real audience</li><li>Use the approved caption, media, and MarketSpase tracking link</li><li>Share on relevant social channels without spam</li><li>Post when your audience is active</li><li>Avoid self-clicking, bots, fake traffic, or misleading claims</li></ul>',
       category: 'campaigns',
-      tags: ['views', 'optimization', 'tips']
+      tags: ['clicks', 'optimization', 'tips']
     },
     {
       question: 'What are the minimum requirements for promoters?',
-      answer: 'To become a promoter, you need: <ul><li>Active WhatsApp account</li><li>Minimum 25 status views per post</li><li>Verified phone number</li><li>Completed profile information</li><li>Agreement to terms and conditions</li></ul>',
+      answer: 'To become a promoter, you need: <ul><li>A real audience or community you can promote to responsibly</li><li>Verified phone number</li><li>Completed profile information</li><li>Agreement to terms and conditions</li><li>Commitment to avoid self-clicking, bots, fake traffic, spam, or link manipulation</li></ul>',
       category: 'getting-started',
       tags: ['requirements', 'promoter', 'eligibility']
     }

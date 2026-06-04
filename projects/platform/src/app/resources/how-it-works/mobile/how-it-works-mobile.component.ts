@@ -27,8 +27,8 @@ export class HowItWorksMobileComponent extends HowItWorksComponent {
 
   readonly keyStats = [
     { value: '4', label: 'Simple steps' },
-    { value: '24h', label: 'Promotion window' },
-    { value: '25+', label: 'Min. views' },
+    { value: 'PPC', label: 'Tracked model' },
+    { value: 'Live', label: 'Click tracking' },
     { value: 'NGN 0', label: 'Start cost' },
   ];
 

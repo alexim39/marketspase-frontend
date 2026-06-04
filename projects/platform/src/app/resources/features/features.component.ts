@@ -1,4 +1,4 @@
-// features.component.ts
+﻿// features.component.ts
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -73,14 +73,14 @@ export class FeaturesComponent {
     {
       id: 'marketer',
       name: 'For Marketers',
-      description: 'Powerful tools to create, manage, and optimize your WhatApp status campaigns',
+      description: 'Powerful tools to create, manage, and optimize tracked PPC campaigns',
       icon: 'campaign',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
     },
     {
       id: 'promoter',
       name: 'For Promoters',
-      description: 'Everything you need to earn from your WhatsApp status',
+      description: 'Everything you need to earn from valid tracked promotion activity',
       icon: 'groups',
       gradient: 'linear-gradient(135deg, #83368cff 0%, #f5576c 100%)'
     },
@@ -135,14 +135,14 @@ export class FeaturesComponent {
       category: 'marketer'
     },
     {
-      icon: 'watermark',
-      title: 'Secure Watermarking',
-      description: 'Unique promotioin ID and impeccably embedded watermarking for each promtion to ensure authenticity and prevent fraud.',
+      icon: 'link',
+      title: 'Tracked Promotion Links',
+      description: 'Unique campaign and product links connect clicks, conversions, spend, and promoter earnings to the correct source.',
       benefits: [
-        'Automatic watermark generation',
-        'Unique campaign identifiers',
+        'Unique promoter attribution',
+        'Campaign and product tracking',
         'Fraud prevention',
-        'Content protection'
+        'Spend protection'
       ],
       gradient: 'linear-gradient(135deg, #29bd5aff 0%, #107160ff 100%)',
       category: 'marketer'
@@ -275,7 +275,7 @@ export class FeaturesComponent {
     },
     // {
     //   name: 'Professional',
-    //   price: '₦25,000',
+    //   price: 'â‚¦25,000',
     //   period: 'month',
     //   description: 'Ideal for growing businesses and agencies',
     //   features: [
@@ -323,7 +323,7 @@ export class FeaturesComponent {
   //     name: 'Chinedu Okoro',
   //     role: 'Content Creator',
   //     company: 'Self-Employed',
-  //     content: 'I\'ve earned over ₦500,000 in 6 months just by sharing campaigns on my WhatsApp status. Life-changing platform!',
+  //     content: 'I\'ve improved my income by sharing tracked campaigns responsibly with real audiences. Life-changing platform!',
   //     avatar: '/assets/testimonials/chinedu.jpg',
   //     rating: 5
   //   },
@@ -357,3 +357,5 @@ export class FeaturesComponent {
     this.filteredFeatures.set(filtered);
   }
 }
+
+

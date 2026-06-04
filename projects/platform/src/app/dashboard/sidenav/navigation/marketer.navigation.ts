@@ -5,7 +5,16 @@ export function getMarketerNavigation(
   activeCampaigns: number
 ): NavigationItem[] {
   return [
+     {
+      // Discovery, engagement, content
+      icon: 'home',
+      label: 'Home',
+      route: '/dashboard/home',
+      expanded: false
+    },
+
     {
+      // Analytics, business management
       icon: 'dashboard',
       label: 'Dashboard',
       route: '/dashboard',
@@ -90,15 +99,7 @@ export function getMarketerNavigation(
       expanded: false,
       children: [
         { icon: 'chat', label: 'Discussions', route: '/dashboard/community/discussion' },
-        {
-          icon: 'dynamic_feed',
-          label: 'Feed',
-          expanded: false,
-          children: [
-           { icon: 'notifications', label: 'Create', route: '/dashboard/community/feeds/create' },
-           { icon: 'quickreply', label: 'Social Feeds', route: '/dashboard/community/feeds'  }
-          ]
-        },
+        { icon: 'dynamic_feed', label: 'Create Post', route: '/dashboard/community/feeds/create'  },
         { icon: 'military_tech', label: 'Gamification', route: '/dashboard/gamification' },
       ]
     },
@@ -109,13 +110,6 @@ export function getMarketerNavigation(
       route: '/dashboard/leaderboard',
       expanded: false
     },
-
-    // {
-    //   icon: 'military_tech',
-    //   label: 'Gamification',
-    //   route: '/dashboard/gamification',
-    //   expanded: false
-    // },
     
     {
       icon: 'currency_exchange',

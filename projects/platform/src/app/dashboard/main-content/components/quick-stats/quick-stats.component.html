@@ -30,7 +30,7 @@
                   <div class="progress-label">
                     <span class="progress-label-text">Budget Usage</span>
                     <span>
-                      @if (campaignSummary()?.totalBudget ?? 0 > 0) {
+                      @if ((campaignSummary()?.totalBudget ?? 0) > 0) {
                         {{(campaignSummary()!.spentBudget / campaignSummary()!.totalBudget) * 100 | number:'1.0-0'}}%
                       } @else {
                         0%
@@ -106,48 +106,84 @@
             </div>
           </div>
           
-          <!-- Community Stats -->
-          <div class="stats-item community-item">
+          <!-- Operations Summary -->
+          <div class="stats-item operations-item">
             <div class="stats-header">
-              <h3 class="stats-title">Community Engagement</h3>
-              <p class="stats-subtitle">Your social presence</p>
+              <h3 class="stats-title">
+                @if (user()?.role === 'marketer') {
+                  Operations Snapshot
+                } @else {
+                  Earnings Snapshot
+                }
+              </h3>
+              <p class="stats-subtitle">
+                @if (user()?.role === 'marketer') {
+                  Campaign and budget readiness
+                } @else {
+                  Promotion quality and payout readiness
+                }
+              </p>
             </div>
             <div class="stats-body">
               <div class="engagement-stats">
                 <div class="engagement-stat">
-                  <div class="stat-icon-wrapper connections">
-                    <mat-icon>people</mat-icon>
+                  <div class="stat-icon-wrapper operations">
+                    <mat-icon>{{ user()?.role === 'marketer' ? 'campaign' : 'link' }}</mat-icon>
                   </div>
                   <div class="stat-content">
-                    <span class="stat-number">{{ communityStats()?.connections || 0 }}</span>
-                    <span class="stat-label">Connections</span>
+                    <span class="stat-number">
+                      @if (user()?.role === 'marketer') {
+                        {{ campaignSummary()?.active || 0 }}
+                      } @else {
+                        {{ promotionSummary()?.activeLinks || 0 }}
+                      }
+                    </span>
+                    <span class="stat-label">{{ user()?.role === 'marketer' ? 'Active campaigns' : 'Active links' }}</span>
                   </div>
                 </div>
                 <div class="engagement-stat">
                   <div class="stat-icon-wrapper likes">
-                    <mat-icon>thumb_up</mat-icon>
+                    <mat-icon>{{ user()?.role === 'marketer' ? 'groups' : 'ads_click' }}</mat-icon>
                   </div>
                   <div class="stat-content">
-                    <span class="stat-number">{{ communityStats()?.likes || 0 }}</span>
-                    <span class="stat-label">Likes</span>
+                    <span class="stat-number">
+                      @if (user()?.role === 'marketer') {
+                        {{ campaignSummary()?.engagedPromoters || 0 }}
+                      } @else {
+                        {{ promotionSummary()?.billableClicks || 0 }}
+                      }
+                    </span>
+                    <span class="stat-label">{{ user()?.role === 'marketer' ? 'Promoters' : 'Billable clicks' }}</span>
                   </div>
                 </div>
                 <div class="engagement-stat">
                   <div class="stat-icon-wrapper posts">
-                    <mat-icon>forum</mat-icon>
+                    <mat-icon>{{ user()?.role === 'marketer' ? 'payments' : 'paid' }}</mat-icon>
                   </div>
                   <div class="stat-content">
-                    <span class="stat-number">{{ communityStats()?.posts || 0 }}</span>
-                    <span class="stat-label">Posts & Threads</span>
+                    <span class="stat-number">
+                      @if (user()?.role === 'marketer') {
+                        ₦{{ (campaignSummary()?.spentBudget || 0) | number:'1.0-0' }}
+                      } @else {
+                        ₦{{ (promotionSummary()?.totalEarnings || 0) | number:'1.0-0' }}
+                      }
+                    </span>
+                    <span class="stat-label">{{ user()?.role === 'marketer' ? 'Spend' : 'Earned' }}</span>
                   </div>
                 </div>
                 <div class="engagement-stat">
                   <div class="stat-icon-wrapper likes">
-                    <mat-icon>chat</mat-icon>
+                    <mat-icon>{{ user()?.role === 'marketer' ? 'done_all' : 'task_alt' }}</mat-icon>
                   </div>
                   <div class="stat-content">
-                    <span class="stat-number">{{ communityStats()?.comments || 0 }}</span>
-                    <span class="stat-label">Replies & Comments</span>
+                    <span class="stat-number">
+                      @if (user()?.role === 'marketer') {
+                        {{ campaignSummary()?.completed || 0 }}
+                      } @else {
+                        {{ promotionSummary()?.paid || 0 }}
+                      }
+                    </span>
+                    <span class="stat-label">{{ user()?.role === 'marketer' ? 'Closed campaigns' : 'Paid promos' }}</span>
                   </div>
                 </div>
               </div>

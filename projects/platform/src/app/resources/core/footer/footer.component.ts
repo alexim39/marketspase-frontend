@@ -35,6 +35,7 @@ export class FooterComponent {
       links: [
         { label: 'Features', route: '/resources/features' },
         { label: 'How it works', route: '/resources/how-it-works' },
+        { label: 'Testimonials', route: '/resources/testimonials' },
         { label: 'For marketers', route: '/resources/solutions/marketers' },
         { label: 'For promoters', route: '/resources/solutions/promoters' },
       ],

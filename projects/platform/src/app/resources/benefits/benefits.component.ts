@@ -36,7 +36,7 @@ export class BenefitsComponent {
     {
       icon: 'groups',
       title: 'Reach More Customers',
-      description: 'Promoters help share your products across WhatsApp and social media networks, expanding your reach exponentially.',
+      description: 'Promoters help share your products with unique tracking links across WhatsApp and social media networks, expanding measurable reach.',
       category: 'business'
     },
     {
@@ -75,8 +75,8 @@ export class BenefitsComponent {
   promoterBenefits = signal<Benefit[]>([
     {
       icon: 'smartphone',
-      title: 'Earn From Your WhatsApp',
-      description: 'Share product links on WhatsApp status and earn commissions when people buy through your referral links.',
+      title: 'Earn From Tracked Links',
+      description: 'Share campaign and product links with your real audience and earn from valid tracked clicks, conversions, or orders based on campaign rules.',
       category: 'promoter'
     },
     {

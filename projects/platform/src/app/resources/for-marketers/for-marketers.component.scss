@@ -264,6 +264,76 @@
   }
 }
 
+.video-guide-panel {
+  max-width: 760px;
+  margin: $spacing-4 0 $spacing-8;
+  padding: $spacing-4;
+  border: $border-width solid rgba($white, 0.2);
+  border-radius: $border-radius-xl;
+  background: rgba($white, 0.1);
+  @include backdrop-blur;
+
+  @include mobile {
+    max-width: 100%;
+  }
+}
+
+.video-guide-heading {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-bottom: $spacing-4;
+  color: $white;
+  font-weight: $font-weight-semibold;
+
+  mat-icon {
+    color: $secondary-light-hex;
+  }
+}
+
+.video-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-4;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.video-guide-card {
+  overflow: hidden;
+  border: $border-width solid rgba($white, 0.14);
+  border-radius: $border-radius-lg;
+  background: rgba($black, 0.24);
+
+  iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: block;
+    border: 0;
+    background: $black;
+  }
+
+  div {
+    padding: $spacing-3;
+  }
+
+  strong {
+    display: block;
+    color: $white;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-1;
+  }
+
+  p {
+    margin: 0;
+    color: rgba($white, 0.84);
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+  }
+}
+
 /* Why Section */
 .why-section {
   padding: $spacing-24 $spacing-5;
