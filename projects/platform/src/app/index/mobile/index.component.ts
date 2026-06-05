@@ -7,10 +7,12 @@ import { from, Subject, switchMap, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../auth/auth.service';
 import { UserCredential } from '@angular/fire/auth'; // Import UserCredential for type safety
 import { AuthError } from 'firebase/auth'; // Import AuthError for better error typing
 import { UserService } from '../../common/services/user.service';
+import { LocalAuthDialogComponent } from '../../auth/local/local-auth-dialog.component';
 
 export interface SocialProvider {
   name: string;
@@ -30,6 +32,7 @@ export interface SocialProvider {
     CommonModule,
     MatIconModule,
     MatRippleModule,
+    MatDialogModule,
     CommonModule
   ],
   templateUrl: './index.component.html',
@@ -43,6 +46,7 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
   private authService: AuthService = inject(AuthService);
   private userService: UserService = inject(UserService);
 
@@ -76,6 +80,14 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
       backgroundColor: '#f0f2ff',
       hoverColor: '#166fe5',
       method: () => this.signInWithFacebook(),
+    },
+    {
+      name: 'Custom Email',
+      icon: 'alternate_email',
+      color: '#8192ee',
+      backgroundColor: '#f5f5f5',
+      hoverColor: '#667eea',
+      method: () => this.signInWithCustom(),
     },
     // {
     //   name: 'Apple',
@@ -160,6 +172,35 @@ export class MobileIndexComponent implements OnDestroy, OnInit {
           this.handleAuthError(error, 'Facebook');
         }
       })
+  }
+
+  signInWithCustom(): void {
+    this.setLoadingState('', false);
+    const dialogRef = this.dialog.open(LocalAuthDialogComponent, {
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      autoFocus: 'first-tabbable',
+      restoreFocus: true,
+      panelClass: ['marketspase-local-auth-mobile-dialog', 'marketspase-local-auth-fullscreen-dialog'],
+      backdropClass: 'marketspase-local-auth-backdrop',
+      disableClose: true,
+      data: {
+        referralCode: this.referralCode,
+        userDevice: this.userDevice,
+        deviceType: 'mobile',
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
+        if (result?.success) {
+          this.clearReferralData();
+          this.router.navigateByUrl('/dashboard/home');
+        }
+      });
   }
 
   signInWithApple(): void {

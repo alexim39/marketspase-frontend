@@ -268,6 +268,9 @@ export class AuthService {
       map(() => {
         console.log('User signed out.');
         // set user to null
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('isAuthenticated');
         this.userService.clearUser();
         return;
       }),

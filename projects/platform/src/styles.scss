@@ -59,7 +59,7 @@ body {
 
 html, body { height: 100%; }
 
-// --- DIALOG STYLES (Unchanged) ---
+// --- DIALOG STYLES ---
 .confirm-dialog-panel {
   .mat-mdc-dialog-surface {
     background-color: $surface-color !important;
@@ -76,6 +76,38 @@ html, body { height: 100%; }
 .mat-mdc-dialog-container {
   padding: 0 !important;
   animation: dialogEnter 0.2s ease-out;
+}
+
+.marketspase-local-auth-backdrop.mat-mdc-dialog-backdrop,
+.marketspase-local-auth-backdrop.cdk-overlay-backdrop {
+  background: color-mix(in srgb, $text-primary, transparent 45%) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.marketspase-local-auth-fullscreen-dialog {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+
+  .mat-mdc-dialog-container {
+    width: 100%;
+    height: 100%;
+    animation: none;
+  }
+
+  .mat-mdc-dialog-surface,
+  .mdc-dialog__surface {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 }
 
 @keyframes dialogEnter {
