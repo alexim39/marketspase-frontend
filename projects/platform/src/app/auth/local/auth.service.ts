@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { ApiService, UserInterface } from '@shared/services';
+import { UserService } from '../../common/services/user.service';
 
 export interface SignInInterface {
   email: string;
@@ -40,7 +41,10 @@ export interface LocalPasswordResetConfirm {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
- constructor(private apiService: ApiService) {}
+ constructor(
+  private apiService: ApiService,
+  private userService: UserService,
+ ) {}
 
   /**
    * Submits the user signin data to the backend API.
@@ -84,6 +88,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('isAuthenticated');
+    this.userService.clearUser();
     return of({ success: true });
   }
 
@@ -113,5 +118,9 @@ export class AuthService {
     localStorage.setItem('token', response.token);
     localStorage.setItem('accessToken', response.token);
     localStorage.setItem('isAuthenticated', 'true');
+
+    if (response.user) {
+      this.userService.setUser(response.user, true);
+    }
   }
 }

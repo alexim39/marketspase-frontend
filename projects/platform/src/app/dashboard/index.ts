@@ -88,6 +88,11 @@ export class DashboardIndexComponent {
             return;
           }
 
+          if (this.authService.hasLocalSession()) {
+            this.loadCurrentDashboardUser();
+            return;
+          }
+
           this.handleUnauthorizedState('Please log in to access the dashboard');
         },
         error: (error) => {
@@ -140,15 +145,7 @@ export class DashboardIndexComponent {
           }
 
           const resolvedUser = response.data as UserInterface;
-          this.user.set(resolvedUser);
-
-          // Let the dashboard shell finish its initial render before streak state
-          // starts toggling prompt/session signals.
-          queueMicrotask(() => {
-            if (this.user()?._id === resolvedUser._id) {
-              this.dailyCheckInService.activate(resolvedUser);
-            }
-          });
+          this.acceptDashboardUser(resolvedUser);
         },
         error: (error: HttpErrorResponse) => {
           const message = error.error?.message || 'We could not load your dashboard.';
@@ -156,6 +153,54 @@ export class DashboardIndexComponent {
           this.handleUnauthorizedState('Please log in to access the dashboard');
         },
       });
+  }
+
+  private loadCurrentDashboardUser(): void {
+    this.authState.set({
+      isAuthenticated: true,
+      isLoading: true,
+      user: null,
+    });
+
+    this.userService.getCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (!response?.success) {
+            this.handleUnauthorizedState('We could not load your dashboard right now.');
+            return;
+          }
+
+          const resolvedUser = response.data as UserInterface;
+          this.acceptDashboardUser(resolvedUser);
+        },
+        error: (error: HttpErrorResponse) => {
+          const message = error.error?.message || 'We could not load your dashboard.';
+          this.snackBar.open(message, 'Close', { duration: 8000 });
+          localStorage.removeItem('token');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('isAuthenticated');
+          this.handleUnauthorizedState('Please log in to access the dashboard');
+        },
+      });
+  }
+
+  private acceptDashboardUser(resolvedUser: UserInterface): void {
+    this.authState.set({
+      isAuthenticated: true,
+      isLoading: false,
+      user: resolvedUser,
+    });
+
+    this.user.set(resolvedUser);
+
+    // Let the dashboard shell finish its initial render before streak state
+    // starts toggling prompt/session signals.
+    queueMicrotask(() => {
+      if (this.user()?._id === resolvedUser._id) {
+        this.dailyCheckInService.activate(resolvedUser);
+      }
+    });
   }
 
   private handleUnauthorizedState(message: string): void {
