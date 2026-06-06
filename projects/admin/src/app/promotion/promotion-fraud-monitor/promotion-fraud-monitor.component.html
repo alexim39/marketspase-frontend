@@ -131,6 +131,9 @@
               @if (caseItem.promotion?.fraudStatus?.blockedUntil) {
                 <small>Link hold ends {{ caseItem.promotion?.fraudStatus?.blockedUntil | date:'medium' }}</small>
               }
+              @if (caseItem.promotion?.fraudStatus?.manualHold) {
+                <small>Manual hold: admin restore required</small>
+              }
               @if (caseItem.promotion?.fraudStatus?.autoRestoredAt) {
                 <small>Auto-restored {{ caseItem.promotion?.fraudStatus?.autoRestoredAt | date:'medium' }}</small>
               }
@@ -189,6 +192,10 @@
             <button type="button" mat-stroked-button color="warn" (click)="openAction(caseItem, 'suspend_2_hours')">
               <mat-icon>person_off</mat-icon>
               Suspend 2 hours
+            </button>
+            <button type="button" mat-flat-button color="warn" (click)="openAction(caseItem, 'suspend_promotion_indefinitely')">
+              <mat-icon>link_off</mat-icon>
+              Suspend permanently
             </button>
             <button type="button" mat-stroked-button (click)="openAction(caseItem, 'reactivate_promotion')">
               <mat-icon>published_with_changes</mat-icon>

@@ -95,6 +95,10 @@ export interface PromotionFraudCase {
       blockedAt?: string;
       blockedUntil?: string | null;
       autoRestoredAt?: string | null;
+      manualHold?: boolean;
+      manualHoldAt?: string | null;
+      manualHoldBy?: string | null;
+      manualHoldReason?: string;
     };
   };
   actionLog?: Array<{

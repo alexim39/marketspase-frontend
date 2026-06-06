@@ -65,9 +65,10 @@ export class DailyCheckInService {
   private focusHandler: (() => void) | null = null;
   private visibilityHandler: (() => void) | null = null;
   private quickPingTimeoutId: number | null = null;
+  private sessionRecoveryInFlight = false;
 
   activate(user: UserInterface | null): void {
-    if (!user?._id || !user?.uid) {
+    if (!user?._id) {
       this.deactivate();
       return;
     }
@@ -138,6 +139,7 @@ export class DailyCheckInService {
         }),
         catchError((error) => {
           console.error('Failed to ping daily check-in session:', error);
+          this.recoverSessionAfterPingFailure();
           return of(null);
         }),
         finalize(() => this.pingInFlight.set(false)),
@@ -277,5 +279,30 @@ export class DailyCheckInService {
     this.loading.set(false);
     this.pingInFlight.set(false);
     this.withdrawInFlight.set(false);
+    this.sessionRecoveryInFlight = false;
+  }
+
+  private recoverSessionAfterPingFailure(): void {
+    if (!this.activeUser?._id || this.sessionRecoveryInFlight || this.loading()) {
+      return;
+    }
+
+    this.sessionRecoveryInFlight = true;
+    this.apiService.post<StreakResponse>('api/v1/streaks/session/start', {}, undefined, true)
+      .pipe(
+        tap((response) => {
+          if (response?.success) {
+            this.applyStatus(response.data);
+          }
+        }),
+        catchError((error) => {
+          console.error('Failed to recover daily check-in session:', error);
+          return of(null);
+        }),
+        finalize(() => {
+          this.sessionRecoveryInFlight = false;
+        }),
+      )
+      .subscribe();
   }
 }

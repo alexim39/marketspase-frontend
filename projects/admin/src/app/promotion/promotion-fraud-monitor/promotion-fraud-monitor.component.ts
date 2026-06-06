@@ -20,7 +20,7 @@ import {
   PromotionService,
 } from '../promotion.service';
 
-type FraudAction = 'suspend_2_hours' | 'reactivate_promotion' | 'mark_resolved' | 'dismiss';
+type FraudAction = 'suspend_2_hours' | 'suspend_promotion_indefinitely' | 'reactivate_promotion' | 'mark_resolved' | 'dismiss';
 
 @Component({
   selector: 'admin-promotion-fraud-monitor',
@@ -213,6 +213,8 @@ export class PromotionFraudMonitorComponent {
     switch (action) {
       case 'suspend_2_hours':
         return 'Suspend promoter for 2 hours';
+      case 'suspend_promotion_indefinitely':
+        return 'Suspend promotion link indefinitely';
       case 'reactivate_promotion':
         return 'Restore promotion link';
       case 'mark_resolved':
@@ -228,6 +230,8 @@ export class PromotionFraudMonitorComponent {
     switch (action) {
       case 'suspend_2_hours':
         return 'Suspend promoter';
+      case 'suspend_promotion_indefinitely':
+        return 'Suspend link';
       case 'reactivate_promotion':
         return 'Restore link';
       case 'mark_resolved':
